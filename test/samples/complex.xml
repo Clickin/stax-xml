@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system>
+    <database>
+      <connection timeout="30">
+        <host>localhost</host>
+        <port>5432</port>
+        <user>admin</user>
+        <password><![CDATA[P@ssw0rd!&special]]></password>
+      </connection>
+      <settings autoCommit="true" isolation="read_committed"/>
+    </database>
+    <logging level="info" enabled="true">
+      <file path="/var/log/app.log" maxSize="10MB"/>
+      <console enabled="false"/>
+    </logging>
+  </system>
+  <application>
+    <features>
+      <feature name="authentication" enabled="true"/>
+      <feature name="caching" enabled="false"/>
+      <feature name="debugging" enabled="true"/>
+    </features>
+    <modules>
+      <module name="user-management" version="2.1.0"/>
+      <module name="reporting" version="1.5.3"/>
+    </modules>
+  </application>
+  <!-- Comments and special content -->
+  <data>
+    <content><![CDATA[
+      This is CDATA content with <special> & "characters"
+      Multi-line content with various symbols: @#$%^&*()
+      Even XML-like content: <tag>value</tag>
+    ]]></content>
+    <encoded>&lt;encoded&gt; &amp; &quot;entities&quot; &apos;test&apos;</encoded>
+  </data>
+</configuration>

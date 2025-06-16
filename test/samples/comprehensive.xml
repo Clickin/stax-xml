@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Root element with mixed content -->
+<root xmlns:ns1="http://example.com/ns1" xmlns:ns2="http://example.com/ns2">
+  <!-- Processing instruction -->
+  <?target instruction data?>
+  
+  <!-- Mixed namespace content -->
+  <ns1:section id="section1" type="main">
+    <title lang="en">Special Characters &amp; Entities Test</title>
+    <content>
+      Text with entities: &lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;
+      Unicode characters: café, naïve, résumé
+      Numbers and symbols: 123 @#$%^&*()_+-=[]{}|;:,.<>?
+    </content>
+    
+    <!-- CDATA with complex content -->
+    <script type="text/javascript"><![CDATA[
+      function processXML() {
+        var xml = '<test>value</test>';
+        if (xml.indexOf('<') !== -1) {
+          console.log("Found XML tags: " + xml);
+        }
+        return xml.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      }
+      
+      // Complex expressions
+      var result = (x < y) && (y > z) ? "true" : "false";
+      document.write("Result: " + result);
+    ]]></script>
+    
+    <!-- Nested elements with attributes -->
+    <ns2:data version="1.0" format="json">
+      <item id="1" active="true">
+        <name>Item One</name>
+        <value>100.50</value>
+        <tags>
+          <tag>important</tag>
+          <tag>urgent</tag>
+        </tags>
+      </item>
+      <item id="2" active="false">
+        <name>Item Two</name>
+        <value>250.75</value>
+        <description><![CDATA[
+          Multi-line description with <special> characters
+          and "quotes" & other symbols: @#$%^
+        ]]></description>
+      </item>
+    </ns2:data>
+  </ns1:section>
+  
+  <!-- Empty and self-closing elements -->
+  <empty-section/>
+  <void-element attr="value"/>
+  <whitespace-only>   
+  </whitespace-only>
+  
+  <!-- Final comment -->
+  <!-- End of complex XML document -->
+</root>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <!-- Self-closing and empty elements test -->
+  <meta charset="utf-8"/>
+  <link href="style.css" rel="stylesheet"/>
+  <br/>
+  <hr/>
+  <input type="text" name="username" value=""/>
+  <img src="image.jpg" alt="Sample image"/>
+  
+  <!-- Empty elements with content -->
+  <empty></empty>
+  <whitespace>   </whitespace>
+  <newlines>
+
+  </newlines>
+  
+  <!-- Mixed content -->
+  <section>
+    <title>Self-closing Tags</title>
+    <p>This document contains various self-closing tags.</p>
+    <separator/>
+    <p>And some empty elements.</p>
+  </section>
+</document>
