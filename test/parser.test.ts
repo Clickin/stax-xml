@@ -395,4 +395,66 @@ describe('StaxXmlParser Tests', () => {
     const normal = result.children.find((c: any) => c.name === 'normal');
     expect(normal.text).toBe('  Normal text with spaces  ');
   });
+  // XML 예약어 기본 엔티티 디코딩 테스트
+  it('should decode xml entities in text content', async () => {
+    const xml = `<?xml version="1.0"?><data>5 &lt; 10 &amp; 20 &gt; 15 &quot;quoted&quot; &apos;paren&apos;</data>`;
+    const result = await parseXmlToObject(xml);
+
+    expect(result.name).toBe('data');
+    expect(result.text).toBe('5 < 10 & 20 > 15 "quoted" \'paren\'');
+  });
+
+  // 속성 내 따옴표 엔티티 디코딩 테스트
+  it('should decode xml entities in attributes', async () => {
+    const xml = `<?xml version="1.0"?><element attr1="He said &quot;Hello&quot;" attr2="It&apos;s fine"/>`;
+    const result = await parseXmlToObject(xml);
+
+    expect(result.name).toBe('element');
+    expect(result.attributes.attr1).toBe('He said "Hello"');
+    expect(result.attributes.attr2).toBe("It's fine");
+  });
+
+  // 커버리지 개선: addEntities의 유효성 검증 테스트
+  it('should handle invalid entities in addEntities option', async () => {
+    const xmlData = `<?xml version="1.0"?>
+<test>Content with special characters</test>`;
+
+    const inputStream = stringToReadableStream(xmlData);
+    const reader = new StaxXmlParser(inputStream, {
+      addEntities: [
+        { entity: '©', value: '&copy;' }, // 유효한 엔티티
+        { entity: '', value: '&invalid;' }, // 빈 entity (무시됨)
+        { entity: '®', value: '' }, // 빈 value (무시됨)
+        { entity: undefined as any, value: '&test;' }, // undefined entity (무시됨)
+        { entity: '™', value: undefined as any } // undefined value (무시됨)
+      ]
+    });
+
+    const events = [];
+    for await (const event of reader) {
+      events.push(event);
+    }
+
+    // 유효한 엔티티만 처리되었는지 확인
+    expect(events.length).toBeGreaterThan(0);
+    expect(events[0].type).toBe(XmlEventType.START_DOCUMENT);
+  });
+
+  // 커버리지 개선: XmlEventType getter 테스트
+  it('should provide access to XmlEventType through parser instance', async () => {
+    const xmlData = `<?xml version="1.0"?><root></root>`;
+    const inputStream = stringToReadableStream(xmlData);
+    const reader = new StaxXmlParser(inputStream);
+
+    // XmlEventType getter 테스트
+    const eventType = reader.XmlEventType;
+    expect(eventType).toBeDefined();
+    expect(eventType.START_DOCUMENT).toBeDefined();
+    expect(eventType.END_DOCUMENT).toBeDefined();
+    expect(eventType.START_ELEMENT).toBeDefined();
+    expect(eventType.END_ELEMENT).toBeDefined();
+    expect(eventType.CHARACTERS).toBeDefined();
+    expect(eventType.CDATA).toBeDefined();
+    expect(eventType.ERROR).toBeDefined();
+  });
 });

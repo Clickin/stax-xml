@@ -10,7 +10,7 @@
     <content>
       Text with entities: &lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;
       Unicode characters: café, naïve, résumé
-      Numbers and symbols: 123 @#$%^&*()_+-=[]{}|;:,.<>?
+      Numbers and symbols: 123 @#$%^&amp;*()_+-=[]{}|;:,.&lt;&gt;?
     </content>
     
     <!-- CDATA with complex content -->

@@ -26,6 +26,9 @@ export interface XmlEvent {
 export interface StartElementEvent extends XmlEvent {
   type: XmlEventType.START_ELEMENT;
   name: string;
+  localName?: string; // 네임스페이스가 있는 경우 로컬 이름
+  prefix?: string; // 네임스페이스 접두사
+  uri?: string; // 네임스페이스 URI
   attributes: { [key: string]: string };
 }
 
@@ -35,6 +38,9 @@ export interface StartElementEvent extends XmlEvent {
 export interface EndElementEvent extends XmlEvent {
   type: XmlEventType.END_ELEMENT;
   name: string;
+  localName?: string; // 네임스페이스가 있는 경우 로컬 이름
+  prefix?: string; // 네임스페이스 접두사
+  uri?: string; // 네임스페이스 URI
 }
 
 /**

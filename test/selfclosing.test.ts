@@ -26,7 +26,11 @@ class StringWritableStream extends WritableStream<Uint8Array> {
 describe('StaxXmlWriter Self-Closing Tag Tests', () => {
   it('should write self-closing tag with writeEndElementSelfClosing', async () => {
     const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, 'utf-8', true, '  ');
+    const writer = new StaxXmlWriter(outputStream, {
+      encoding: 'utf-8',
+      prettyPrint: true,
+      indentString: '  '
+    });
 
     writer.writeStartDocument();
     writer.writeStartElement('root');
@@ -39,15 +43,17 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
-    console.log('Self-closing tag test result:');
-    console.log(result);
 
     expect(result).toContain('<empty-element attr1="value1" attr2="value2"/>');
   });
 
   it('should write self-closing tag with writeStartElementWithAttributes', async () => {
     const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, 'utf-8', true, '  ');
+    const writer = new StaxXmlWriter(outputStream, {
+      encoding: 'utf-8',
+      prettyPrint: true,
+      indentString: '  '
+    });
 
     writer.writeStartDocument();
     writer.writeStartElement('root');
@@ -62,15 +68,17 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
-    console.log('Self-closing with attributes test result:');
-    console.log(result);
 
     expect(result).toContain('<img src="image.jpg" alt="A beautiful image" width="100" height="200"/>');
   });
 
   it('should write mixed content with self-closing tags', async () => {
     const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, 'utf-8', true, '  ');
+    const writer = new StaxXmlWriter(outputStream, {
+      encoding: 'utf-8',
+      prettyPrint: true,
+      indentString: '  '
+    });
 
     writer.writeStartDocument();
     writer.writeStartElement('document');
@@ -92,8 +100,6 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
-    console.log('Mixed content with self-closing test result:');
-    console.log(result);
 
     expect(result).toContain('<br/>');
     expect(result).toContain('<input type="text" name="username" value="john_doe"/>');

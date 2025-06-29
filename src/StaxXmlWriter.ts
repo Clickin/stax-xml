@@ -13,43 +13,66 @@ enum WriterState {
     ERROR               // 오류 발생
 }
 
+
+export interface StaxXmlWriterOptions {
+    encoding?: string; // 출력 인코딩 (기본값: 'utf-8')
+    prettyPrint?: boolean; // Pretty print 활성화 여부 (기본값: false)
+    indentString?: string; // Pretty print 들여쓰기 문자열 (기본값: '  ')
+    addEntities?: { entity: string, value: string }[]; // 사용자 정의 엔티티
+    autoEncodeEntities?: boolean; // 자동 엔티티 인코딩 활성화 여부 (기본값: true)
+    namespaces?: NamespaceDeclaration[]; // 문서 기본 네임스페이스 선언
+}
+
+export interface StaxXmlInternalOptions {
+    encoding: string; // 출력 인코딩
+    prettyPrint: boolean; // Pretty print 활성화 여부
+    indentString: string; // Pretty print 들여쓰기 문자열
+    addEntities?: { entity: string, value: string }[]; // 사용자 정의 엔티티 (정규식 포함)
+    autoEncodeEntities: boolean; // 자동 엔티티 인코딩 활성화 여부
+    namespaces?: NamespaceDeclaration[]; // 문서 기본 네임스페이스 선언
+}
+
+const defaultOptions: StaxXmlInternalOptions = {
+    encoding: 'utf-8',
+    prettyPrint: false,
+    indentString: '  ',
+    autoEncodeEntities: true, // 기본값은 true로 설정
+    namespaces: []
+};
 /**
  * StAX XMLStreamWriter와 유사하게 XML을 작성하는 클래스.
  * 웹 표준 WritableStream에 XML을 직접 작성합니다.
  * 네임스페이스 및 복잡한 PI/주석 관리는 지원하지 않는 간소화된 구현입니다.
  */
 class StaxXmlWriter {
-    private outputStream: WritableStream<Uint8Array>;
-    private writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
-    private encoder: TextEncoder;
+    private writer: WritableStreamDefaultWriter<string> | null = null;
+    private encoderStream: TextEncoderStream;
     private state: WriterState = WriterState.INITIAL;
     private elementStack: string[] = []; // 열린 요소의 이름 스택
     private hasTextContentStack: boolean[] = []; // 각 요소가 텍스트 콘텐츠를 가지고 있는지 추적하는 스택
-    private encoding: string; // 출력 인코딩
-    private prettyPrint: boolean = false; // pretty print 활성화 여부
-    private indentString: string = '  '; // 들여쓰기 문자열 (기본값: 2개 스페이스)
+    // options 객체로 변경
+    private options: StaxXmlInternalOptions;
     private currentIndentLevel: number = 0; // 현재 들여쓰기 레벨
     private needsIndent: boolean = false; // 다음 출력에 들여쓰기가 필요한지 여부
-    private addEntities: { entity: string, value: string, regex: RegExp }[] = [];
+    private entityMap: Record<string, string> = {};
 
-    constructor(outputStream: WritableStream<Uint8Array>, encoding: string = 'utf-8', prettyPrint: boolean = false, indentString: string = '  ', entities: { entity: string, value: string }[] = []) {
+    constructor(outputStream: WritableStream<Uint8Array>, options: StaxXmlWriterOptions = {}) {
         if (!(outputStream instanceof WritableStream)) {
             throw new Error('outputStream must be a web standard WritableStream.');
         }
-
-        this.outputStream = outputStream;
-        this.encoding = encoding;
-        this.encoder = new TextEncoder();
-        this.prettyPrint = prettyPrint;
-        this.indentString = indentString;
-        this.writer = this.outputStream.getWriter();
-
-        // 사용자 정의 엔티티 설정
-        if (entities && Array.isArray(entities) && entities.length > 0) {
-            this.addEntities.push(...entities.map(entity => ({
-                ...entity,
-                regex: new RegExp(entity.entity, 'g')
-            }))); // 사용자 정의 엔티티 설정
+        // set up TextEncoderStream to encode strings to Uint8Array and pipe to output
+        this.encoderStream = new TextEncoderStream();
+        this.encoderStream.readable.pipeTo(outputStream as WritableStream<Uint8Array>);
+        this.writer = this.encoderStream.writable.getWriter();
+        // 기본 옵션으로 초기화
+        this.options = { ...defaultOptions, ...options };
+        // 사용자 정의 엔티티가 있다면 entityMap에 추가
+        if (this.options.addEntities && Array.isArray(this.options.addEntities)) {
+            for (const entity of this.options.addEntities) {
+                if (entity.entity && entity.value) {
+                    this.entityMap[entity.entity] = entity.value;
+                }
+            }
         }
     }
 
@@ -71,13 +94,13 @@ class StaxXmlWriter {
         let declaration = `<?xml version="${version}"`;
         if (encoding) {
             declaration += ` encoding="${encoding.toUpperCase()}"`; // 인코딩 대문자로
-            this.encoding = encoding; // 인코딩 업데이트
+            this.options.encoding = encoding; // 인코딩 업데이트
         } else {
-            declaration += ` encoding="${this.encoding.toUpperCase()}"`;
+            declaration += ` encoding="${this.options.encoding.toUpperCase()}"`;
         }
         declaration += '?>';
         this._write(declaration);
-        if (this.prettyPrint) {
+        if (this.options.prettyPrint) {
             this.needsIndent = true;
         }
         return this;
@@ -127,6 +150,10 @@ class StaxXmlWriter {
         this._writeIndent(); // Pretty print용 들여쓰기
         const tagName = prefix ? `${prefix}:${localName}` : localName;
         this._write(`<${tagName}`);
+        // element-level namespace declaration if prefix and uri provided
+        if (prefix && uri) {
+            this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
+        }
         this.elementStack.push(tagName);
         this.hasTextContentStack.push(false); // 새 요소는 아직 텍스트 콘텐츠가 없음
         this.state = WriterState.START_ELEMENT_OPEN; // 이제 속성이나 네임스페이스를 작성할 수 있음
@@ -169,7 +196,7 @@ class StaxXmlWriter {
             throw new Error('writeAttribute can only be called after writeStartElement.');
         }
         let attrName = prefix ? `${prefix}:${localName}` : localName;
-        let attr = ` ${attrName}="${this._escapeXml(value, true)}"`;
+        let attr = ` ${attrName}="${this._escapeXml(value)}"`;
         // URI는 현재 구현에서 처리되지 않음 (네임스페이스 관리 로직이 없기 때문)
         this._write(attr);
         return this;
@@ -189,9 +216,9 @@ class StaxXmlWriter {
             throw new Error('writeNamespace can only be called after writeStartElement.');
         }
         if (prefix) {
-            this._write(` xmlns:${prefix}="${this._escapeXml(uri, true)}"`);
+            this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
         } else { // 기본 네임스페이스
-            this._write(` xmlns="${this._escapeXml(uri, true)}"`);
+            this._write(` xmlns="${this._escapeXml(uri)}"`);
         }
         return this;
     }
@@ -208,7 +235,7 @@ class StaxXmlWriter {
         }
         this._closeStartElementTag();
         // 텍스트에는 별도의 들여쓰기를 적용하지 않음 (인라인 텍스트로 처리)
-        this._write(this._escapeXml(text, false));
+        this._write(this._escapeXml(text));
         this.state = WriterState.IN_ELEMENT; // 텍스트 작성 후에는 요소 안에 있다고 간주
         // 현재 요소에 텍스트 콘텐츠가 있음을 표시
         if (this.hasTextContentStack.length > 0) {
@@ -325,7 +352,7 @@ class StaxXmlWriter {
         this._write(`</${tagName}>`);
         this.state = WriterState.AFTER_ELEMENT; // 요소 닫은 후에는 다음 요소 또는 주석 등이 가능
 
-        if (this.prettyPrint) {
+        if (this.options.prettyPrint) {
             this.needsIndent = true;
         }
         return this;
@@ -356,16 +383,20 @@ class StaxXmlWriter {
         this._writeIndent(); // Pretty print용 들여쓰기
         const tagName = prefix ? `${prefix}:${localName}` : localName;
         let element = `<${tagName}`;
+        // element-level namespace declaration
+        if (prefix && uri) {
+            element += ` xmlns:${prefix}="${this._escapeXml(uri)}"`;
+        }
 
         if (namespaces) { // 이 부분은 현재 구현에서 네임스페이스 관리가 안 되므로, 단순 문자열 추가
             for (const ns of namespaces) {
-                element += ` xmlns${ns.prefix ? `:${ns.prefix}` : ''}="${this._escapeXml(ns.uri, true)}"`;
+                element += ` xmlns${ns.prefix ? `:${ns.prefix}` : ''}="${this._escapeXml(ns.uri)}"`;
             }
         }
         if (attributes) {
             for (const attr of attributes) {
                 const attrName = attr.prefix ? `${attr.prefix}:${attr.localName}` : attr.localName;
-                element += ` ${attrName}="${this._escapeXml(attr.value, true)}"`;
+                element += ` ${attrName}="${this._escapeXml(attr.value)}"`;
             }
         }
         element += '/>';
@@ -401,7 +432,11 @@ class StaxXmlWriter {
 
         // 속성 추가
         for (const [key, value] of Object.entries(attributes)) {
-            element += ` ${key}="${this._escapeXml(value, true)}"`;
+            element += ` ${key}="${this._escapeXml(value)}"`;
+        }
+        // element-level namespace declaration for prefixed element
+        if (prefix && uri) {
+            element += ` xmlns:${prefix}="${this._escapeXml(uri)}"`;
         }
 
         element += '/>';
@@ -417,7 +452,7 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      */
     public setPrettyPrint(enabled: boolean): this {
-        this.prettyPrint = enabled;
+        this.options.prettyPrint = enabled;
         return this;
     }
 
@@ -427,7 +462,7 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      */
     public setIndentString(indentString: string): this {
-        this.indentString = indentString;
+        this.options.indentString = indentString;
         return this;
     }
 
@@ -436,7 +471,7 @@ class StaxXmlWriter {
      * @returns Pretty print 활성화 여부
      */
     public isPrettyPrintEnabled(): boolean {
-        return this.prettyPrint;
+        return this.options.prettyPrint;
     }
 
     /**
@@ -444,7 +479,7 @@ class StaxXmlWriter {
      * @returns 현재 설정된 들여쓰기 문자열
      */
     public getIndentString(): string {
-        return this.indentString;
+        return this.options.indentString;
     }
 
     /**
@@ -456,7 +491,7 @@ class StaxXmlWriter {
         if (this.state === WriterState.START_ELEMENT_OPEN) {
             this._write('>');
             this.state = WriterState.IN_ELEMENT; // 태그를 닫았으므로 이제 요소 내부에 있다고 간주
-            if (this.prettyPrint) {
+            if (this.options.prettyPrint) {
                 this.needsIndent = true;
             }
         }
@@ -467,14 +502,14 @@ class StaxXmlWriter {
      * @private
      */
     private _writeIndent(): void {
-        if (this.prettyPrint && this.needsIndent && this.writer) {
+        if (this.options.prettyPrint && this.needsIndent && this.writer) {
             try {
-                this.writer.write(this.encoder.encode('\n'));
-                this.writer.write(this.encoder.encode(this.indentString.repeat(this.currentIndentLevel)));
+                this.writer.write('\n');
+                this.writer.write(this.options.indentString.repeat(this.currentIndentLevel));
                 this.needsIndent = false;
             } catch (err) {
                 this.state = WriterState.ERROR;
-                console.error('StaxXmlWriter: Error writing indent:', err);
+                throw new Error(`StaxXmlWriter: Error writing indent: ${err instanceof Error ? err.message : String(err)}`);
             }
         }
     }
@@ -484,13 +519,13 @@ class StaxXmlWriter {
      * @private
      */
     private _writeNewline(): void {
-        if (this.prettyPrint && this.writer) {
+        if (this.options.prettyPrint && this.writer) {
             try {
-                this.writer.write(this.encoder.encode('\n'));
+                this.writer.write('\n');
                 this.needsIndent = true;
             } catch (err) {
                 this.state = WriterState.ERROR;
-                console.error('StaxXmlWriter: Error writing newline:', err);
+                throw new Error(`StaxXmlWriter: Error writing newline: ${err instanceof Error ? err.message : String(err)}`);
             }
         }
     }
@@ -501,16 +536,13 @@ class StaxXmlWriter {
      * @private
      */
     private _write(chunk: string): void {
-        if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
-            return;
-        }
-        if (this.writer) {
-            try {
-                this.writer.write(this.encoder.encode(chunk));
-            } catch (err) {
-                this.state = WriterState.ERROR;
-                console.error('StaxXmlWriter: Error writing chunk:', err);
-            }
+        if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) return;
+        if (!this.writer) return;
+        try {
+            this.writer.write(chunk);
+        } catch (err) {
+            this.state = WriterState.ERROR;
+            throw new Error(`StaxXmlWriter: Error writing chunk: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
@@ -520,24 +552,39 @@ class StaxXmlWriter {
      * @returns 이스케이프된 텍스트
      * @private
      */
-    private _escapeXml(text: string, isAttribute: boolean = false): string {
-        let escaped = text.replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-
-        if (isAttribute) {
-            // In attributes, escape quotes and apostrophes
-            escaped = escaped.replace(/"/g, '&quot;')
-                .replace(/'/g, '&apos;');
+    private _escapeXml(text: string): string {
+        if (!text) {
+            return ''; // 빈 문자열은 그대로 반환
         }
-        // 사용자 정의 엔티티 이스케이프
-        if (this.addEntities.length > 0) {
-            for (const entity of this.addEntities) {
-                escaped = escaped.replace(entity.regex, entity.value);
+        if (!this.options.autoEncodeEntities) {
+            return text; // 자동 엔티티 인코딩이 비활성화된 경우 원본 텍스트 반환
+        }
+        let entityMap: Record<string, string> = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            '\'': '&apos;',
+            ...this.options.addEntities?.reduce((map, entity) => {
+                if (entity.entity && entity.value) {
+                    map[entity.entity] = entity.value;
+                }
+                return map;
+            }, {} as Record<string, string>)
+        };
+        // entityMap의 key를 정규식으로 변환하여 이스케이프 처를
+        const regex = new RegExp(Object.keys(entityMap).join('|'), 'g');
+        // 이스케이프 처리
+        return text.replace(regex, (match) => {
+            // entityMap에 정의된 문자인 경우, 매핑된 값을 반환합니다.
+            if (entityMap[match]) {
+                return entityMap[match];
             }
-        }
-
-        return escaped;
+            else {
+                // 정의되지 않은 문자는 그대로 반환합니다.
+                return match;
+            }
+        });
     }
 }
 
