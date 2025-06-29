@@ -565,11 +565,12 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         return true;
       }
 
+      // 네임스페이스 정보를 pop하기 전에 먼저 추출
+      const currentNamespaces = this.namespaceStack.length > 0 ? this.namespaceStack[this.namespaceStack.length - 1] : new Map();
+      const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
+
       this.elementStack.pop();
       this.namespaceStack.pop();
-
-      const { localName, prefix, uri } = this._parseQualifiedName(tagName,
-        this.namespaceStack.length > 0 ? this.namespaceStack[this.namespaceStack.length - 1] : new Map());
 
       this._addEvent({
         type: XmlEventType.END_ELEMENT,
