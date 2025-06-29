@@ -105,3 +105,13 @@ export interface ProcessingInstruction {
   target: string;
   data?: string;
 }
+
+/**
+ * 요소 작성 옵션 인터페이스 (Writer용)
+ */
+export interface WriteElementOptions {
+  prefix?: string;              // 네임스페이스 접두사
+  uri?: string;                 // 네임스페이스 URI
+  attributes?: Record<string, string>; // 속성들
+  selfClosing?: boolean;        // self-closing 태그 여부
+}

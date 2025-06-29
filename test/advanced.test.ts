@@ -181,10 +181,14 @@ describe('StaxXmlWriter Advanced Features', () => {
     writer.writeEndElement(); // author
 
     writer.writeStartElement('metadata');
-    writer.writeStartElement('published', undefined, undefined, { 'year': '2020', 'month': 'March' });
-    writer.writeEndElementSelfClosing();
-    writer.writeStartElement('isbn', undefined, undefined, { 'format': 'paperback' });
-    writer.writeEndElementSelfClosing();
+    writer.writeStartElement('published', {
+      attributes: { 'year': '2020', 'month': 'March' },
+      selfClosing: true
+    });
+    writer.writeStartElement('isbn', {
+      attributes: { 'format': 'paperback' },
+      selfClosing: true
+    });
     writer.writeEndElement(); // metadata
 
     writer.writeEndElement(); // book
@@ -198,9 +202,10 @@ describe('StaxXmlWriter Advanced Features', () => {
     writer.writeCharacters('XML Processing Guide');
     writer.writeEndElement(); // title
 
-    writer.writeStartElement('rating');
-    writer.writeAttribute('stars', '5');
-    writer.writeEndElementSelfClosing(); // rating as self-closing
+    writer.writeStartElement('rating', {
+      attributes: { stars: '5' },
+      selfClosing: true
+    }); // rating as self-closing
 
     writer.writeEndElement(); // book
     writer.writeEndElement(); // catalog
@@ -309,9 +314,10 @@ describe('StaxXmlWriter Advanced Features', () => {
       .writeStartElement('nested')
       .writeCharacters('Method chaining works!')
       .writeEndElement()
-      .writeStartElement('empty')
-      .writeAttribute('attr', 'value')
-      .writeEndElementSelfClosing()
+      .writeStartElement('empty', {
+        attributes: { attr: 'value' },
+        selfClosing: true
+      })
       .writeEndElement()
       .writeEndDocument();
 
@@ -344,11 +350,6 @@ describe('StaxXmlWriter Advanced Features', () => {
     expect(() => {
       writer.writeEndElement();
     }).toThrow('No open element to close');
-
-    // Test: Can't self-close without start element
-    expect(() => {
-      writer.writeEndElementSelfClosing();
-    }).toThrow('writeEndElementSelfClosing can only be called after writeStartElement');
 
     // Test: Can't write start document twice
     writer.writeStartDocument();

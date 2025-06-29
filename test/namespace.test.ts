@@ -214,26 +214,26 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       writer.writeStartElement('root');
 
       // HTML 네임스페이스를 가진 table 작성
-      writer.writeStartElement('table', 'h', 'http://www.w3.org/TR/html4/');
-      writer.writeStartElement('tr', 'h');
-      writer.writeStartElement('td', 'h');
+      writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
+      writer.writeStartElement('tr', { prefix: 'h' });
+      writer.writeStartElement('td', { prefix: 'h' });
       writer.writeCharacters('Apples');
       writer.writeEndElement(); // h:td
-      writer.writeStartElement('td', 'h');
+      writer.writeStartElement('td', { prefix: 'h' });
       writer.writeCharacters('Bananas');
       writer.writeEndElement(); // h:td
       writer.writeEndElement(); // h:tr
       writer.writeEndElement(); // h:table
 
       // Furniture 네임스페이스를 가진 table 작성
-      writer.writeStartElement('table', 'f', 'https://www.w3schools.com/furniture');
-      writer.writeStartElement('name', 'f');
+      writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
+      writer.writeStartElement('name', { prefix: 'f' });
       writer.writeCharacters('African Coffee Table');
       writer.writeEndElement(); // f:name
-      writer.writeStartElement('width', 'f');
+      writer.writeStartElement('width', { prefix: 'f' });
       writer.writeCharacters('80');
       writer.writeEndElement(); // f:width
-      writer.writeStartElement('length', 'f');
+      writer.writeStartElement('length', { prefix: 'f' });
       writer.writeCharacters('120');
       writer.writeEndElement(); // f:length
       writer.writeEndElement(); // f:table
@@ -280,11 +280,11 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       writer.writeStartElement('root');
 
       // writeNamespace를 사용하여 네임스페이스 선언
-      writer.writeStartElement('table', 'h');
+      writer.writeStartElement('table', { prefix: 'h' });
       writer.writeNamespace('h', 'http://www.w3.org/TR/html4/');
       writer.writeEndElement();
 
-      writer.writeStartElement('table', 'f');
+      writer.writeStartElement('table', { prefix: 'f' });
       writer.writeNamespace('f', 'https://www.w3schools.com/furniture');
       writer.writeEndElement();
 
@@ -313,26 +313,26 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       writer.writeStartElement('root');
 
       // h:table 구조
-      writer.writeStartElement('table', 'h', 'http://www.w3.org/TR/html4/');
-      writer.writeStartElement('tr', 'h');
-      writer.writeStartElement('td', 'h');
+      writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
+      writer.writeStartElement('tr', { prefix: 'h' });
+      writer.writeStartElement('td', { prefix: 'h' });
       writer.writeCharacters('Apples');
       writer.writeEndElement();
-      writer.writeStartElement('td', 'h');
+      writer.writeStartElement('td', { prefix: 'h' });
       writer.writeCharacters('Bananas');
       writer.writeEndElement();
       writer.writeEndElement();
       writer.writeEndElement();
 
       // f:table 구조
-      writer.writeStartElement('table', 'f', 'https://www.w3schools.com/furniture');
-      writer.writeStartElement('name', 'f');
+      writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
+      writer.writeStartElement('name', { prefix: 'f' });
       writer.writeCharacters('African Coffee Table');
       writer.writeEndElement();
-      writer.writeStartElement('width', 'f');
+      writer.writeStartElement('width', { prefix: 'f' });
       writer.writeCharacters('80');
       writer.writeEndElement();
-      writer.writeStartElement('length', 'f');
+      writer.writeStartElement('length', { prefix: 'f' });
       writer.writeCharacters('120');
       writer.writeEndElement();
       writer.writeEndElement();
@@ -390,7 +390,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
           case XmlEventType.START_ELEMENT:
             const startEvent = event as StartElementEvent;
             if (startEvent.prefix && startEvent.uri) {
-              writer.writeStartElement(startEvent.localName || startEvent.name, startEvent.prefix, startEvent.uri);
+              writer.writeStartElement(startEvent.localName || startEvent.name, { prefix: startEvent.prefix, uri: startEvent.uri });
             } else {
               writer.writeStartElement(startEvent.localName || startEvent.name);
             }

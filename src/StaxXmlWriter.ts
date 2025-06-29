@@ -1,5 +1,5 @@
 // StaxXmlWriter.ts
-import { NamespaceDeclaration, XmlAttribute } from './types'; // NamespaceDeclaration, ProcessingInstruction은 사용되지 않음
+import { NamespaceDeclaration, WriteElementOptions, XmlAttribute } from './types'; // NamespaceDeclaration, ProcessingInstruction은 사용되지 않음
 
 /**
  * XML 문서 작성 중 발생하는 상태
@@ -144,17 +144,21 @@ class StaxXmlWriter {
     /**
      * 시작 요소를 작성합니다 (예: <element> 또는 <prefix:element>).
      * @param localName 요소의 로컬 이름
-     * @param prefix 네임스페이스 접두사 (이 구현에서는 네임스페이스 매핑을 관리하지 않으므로 주의)
-     * @param uri 네임스페이스 URI (이 구현에서는 네임스페이스 매핑을 관리하지 않으므로 주의)
-     * @param attributes 속성 객체 (키-값 쌍, 선택 사항)
+     * @param options 요소 작성 옵션 (prefix, uri, attributes, selfClosing)
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public writeStartElement(localName: string, prefix?: string, uri?: string, attributes?: Record<string, string>): this {
+    public writeStartElement(localName: string, options?: WriteElementOptions): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeStartElement: Writer is closed or in error state.');
         }
         this._closeStartElementTag(); // 이전에 열린 태그가 있다면 닫음
+
+        // 옵션에서 값 추출
+        const prefix = options?.prefix;
+        const uri = options?.uri;
+        const attributes = options?.attributes;
+        const selfClosing = options?.selfClosing ?? false;
 
         this._writeIndent(); // Pretty print용 들여쓰기
         const tagName = prefix ? `${prefix}:${localName}` : localName;
@@ -171,6 +175,15 @@ class StaxXmlWriter {
         if (prefix && uri) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
         }
+
+        // selfClosing이 true이면 바로 태그를 닫고 종료
+        if (selfClosing) {
+            this._write('/>');
+            this.state = WriterState.AFTER_ELEMENT;
+            this._writeNewline(); // Pretty print용 줄바꿈
+            return this;
+        }
+
         this.elementStack.push({
             localName,
             prefix
@@ -181,26 +194,7 @@ class StaxXmlWriter {
         return this;
     }
 
-    /**
-     * 현재 열린 시작 요소를 self-closing tag로 닫습니다 (예: <element/> 형태).
-     * writeStartElement() 호출 후 속성을 추가한 다음 이 메서드를 호출하여 self-closing tag로 만들 수 있습니다.
-     * @returns this (체이닝 가능)
-     * @throws Error 열린 시작 요소가 없을 때 호출 시
-     */
-    public writeEndElementSelfClosing(): this {
-        if (this.state !== WriterState.START_ELEMENT_OPEN) {
-            throw new Error('writeEndElementSelfClosing can only be called after writeStartElement and before adding content.');
-        }
 
-        this.currentIndentLevel--; // 들여쓰기 레벨 감소
-        this.elementStack.pop(); // 스택에서 제거
-        this.hasTextContentStack.pop(); // 텍스트 콘텐츠 스택에서도 제거
-
-        this._write('/>');
-        this.state = WriterState.AFTER_ELEMENT;
-        this._writeNewline(); // Pretty print용 줄바꿈
-        return this;
-    }
 
     /**
      * 속성을 작성합니다. writeStartElement() 호출 직후에만 호출할 수 있습니다.

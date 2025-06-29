@@ -24,7 +24,7 @@ class StringWritableStream extends WritableStream<Uint8Array> {
 }
 
 describe('StaxXmlWriter Self-Closing Tag Tests', () => {
-  it('should write self-closing tag with writeEndElementSelfClosing', async () => {
+  it('should write self-closing tag with attributes', async () => {
     const outputStream = new StringWritableStream();
     const writer = new StaxXmlWriter(outputStream, {
       encoding: 'utf-8',
@@ -34,10 +34,13 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
 
     writer.writeStartDocument();
     writer.writeStartElement('root');
-    writer.writeStartElement('empty-element');
-    writer.writeAttribute('attr1', 'value1');
-    writer.writeAttribute('attr2', 'value2');
-    writer.writeEndElementSelfClosing(); // self-closing tag로 닫기
+    writer.writeStartElement('empty-element', {
+      attributes: {
+        attr1: 'value1',
+        attr2: 'value2'
+      },
+      selfClosing: true
+    });
     writer.writeEndElement(); // root 닫기
 
     await writer.writeEndDocument();
@@ -57,13 +60,15 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
 
     writer.writeStartDocument();
     writer.writeStartElement('root');
-    writer.writeStartElement('img', undefined, undefined, {
-      'src': 'image.jpg',
-      'alt': 'A beautiful image',
-      'width': '100',
-      'height': '200'
+    writer.writeStartElement('img', {
+      attributes: {
+        'src': 'image.jpg',
+        'alt': 'A beautiful image',
+        'width': '100',
+        'height': '200'
+      },
+      selfClosing: true
     });
-    writer.writeEndElementSelfClosing();
     writer.writeEndElement(); // root 닫기
 
     await writer.writeEndDocument();
@@ -86,16 +91,18 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
 
     writer.writeStartElement('paragraph');
     writer.writeCharacters('This is some text with ');
-    writer.writeStartElement('br', undefined, undefined, {});
-    writer.writeEndElementSelfClosing();
+    writer.writeStartElement('br', { selfClosing: true });
     writer.writeCharacters(' a line break.');
     writer.writeEndElement(); // paragraph 닫기
 
-    writer.writeStartElement('input');
-    writer.writeAttribute('type', 'text');
-    writer.writeAttribute('name', 'username');
-    writer.writeAttribute('value', 'john_doe');
-    writer.writeEndElementSelfClosing(); // input을 self-closing으로 닫기
+    writer.writeStartElement('input', {
+      attributes: {
+        type: 'text',
+        name: 'username',
+        value: 'john_doe'
+      },
+      selfClosing: true
+    });
 
     writer.writeEndElement(); // document 닫기
 

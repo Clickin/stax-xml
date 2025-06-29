@@ -379,19 +379,24 @@ describe('StaxXmlWriter Tests', () => {
     writer.writeStartDocument('1.0', 'utf-8');
     writer.writeStartElement('document');
 
-    // writeEndElementSelfClosing 사용
-    writer.writeStartElement('input');
-    writer.writeAttribute('type', 'text');
-    writer.writeAttribute('name', 'username');
-    writer.writeEndElementSelfClosing();
-
-    // writeStartElement with attributes 사용
-    writer.writeStartElement('img', undefined, undefined, {
-      src: 'image.jpg',
-      alt: 'A beautiful image',
-      width: '100'
+    // Self-closing element with attributes
+    writer.writeStartElement('input', {
+      attributes: {
+        type: 'text',
+        name: 'username'
+      },
+      selfClosing: true
     });
-    writer.writeEndElementSelfClosing();
+
+    // writeStartElement with attributes and selfClosing
+    writer.writeStartElement('img', {
+      attributes: {
+        src: 'image.jpg',
+        alt: 'A beautiful image',
+        width: '100'
+      },
+      selfClosing: true
+    });
 
     writer.writeEndElement(); // document
     await writer.writeEndDocument();
@@ -511,15 +516,15 @@ describe('StaxXmlWriter Tests', () => {
     });
 
     writer.writeStartDocument('1.0', 'utf-8');
-    writer.writeStartElement('element');
-
-    // 속성에서 따옴표와 앰퍼샌드 테스트
-    writer.writeAttribute('attr1', 'He said "Hello"');
-    writer.writeAttribute('attr2', "It's fine");
-    writer.writeAttribute('attr3', 'Less than < and greater than >');
-    writer.writeAttribute('attr4', 'Ampersand & symbol');
-
-    writer.writeEndElementSelfClosing();
+    writer.writeStartElement('element', {
+      attributes: {
+        'attr1': 'He said "Hello"',
+        'attr2': "It's fine",
+        'attr3': 'Less than < and greater than >',
+        'attr4': 'Ampersand & symbol'
+      },
+      selfClosing: true
+    });
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -573,13 +578,14 @@ describe('StaxXmlWriter Tests', () => {
     });
 
     writer.writeStartDocument('1.0', 'utf-8');
-    writer.writeStartElement('product');
+    writer.writeStartElement('product', {
+      attributes: {
+        'name': 'MyProduct™',
+        'copyright': 'Company© 2024'
+      },
+      selfClosing: true
+    });
 
-    // 속성에서 사용자 정의 엔티티 테스트
-    writer.writeAttribute('name', 'MyProduct™');
-    writer.writeAttribute('copyright', 'Company© 2024');
-
-    writer.writeEndElementSelfClosing();
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -811,7 +817,7 @@ describe('StaxXmlWriter Tests', () => {
     writer.writeStartElement('root');
 
     // Element with namespace prefix
-    writer.writeStartElement('item', 'ns1', 'http://example.com/ns1');
+    writer.writeStartElement('item', { prefix: 'ns1', uri: 'http://example.com/ns1' });
     writer.writeCharacters('Content with namespace');
     writer.writeEndElement(); // Should close as </ns1:item>
 
@@ -821,8 +827,8 @@ describe('StaxXmlWriter Tests', () => {
     writer.writeEndElement(); // Should close as </simple>
 
     // Nested namespaced elements
-    writer.writeStartElement('section', 'ns2', 'http://example.com/ns2');
-    writer.writeStartElement('title', 'ns2', 'http://example.com/ns2');
+    writer.writeStartElement('section', { prefix: 'ns2', uri: 'http://example.com/ns2' });
+    writer.writeStartElement('title', { prefix: 'ns2', uri: 'http://example.com/ns2' });
     writer.writeCharacters('Nested title');
     writer.writeEndElement(); // Should close as </ns2:title>
     writer.writeEndElement(); // Should close as </ns2:section>

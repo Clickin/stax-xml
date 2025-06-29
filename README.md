@@ -226,15 +226,15 @@ async function createLocalXmlFile() {
   // Write XML document
   writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('catalog', undefined, undefined, { version: '1.0' });
+  writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
   
-  writer.writeStartElement('product', undefined, undefined, { id: '001' });
+  writer.writeStartElement('product', { attributes: { id: '001' } });
   
   writer.writeStartElement('name');
   writer.writeCharacters('Laptop Computer');
   writer.writeEndElement();
   
-  writer.writeStartElement('price', undefined, undefined, { currency: 'USD' });
+  writer.writeStartElement('price', { attributes: { currency: 'USD' } });
   writer.writeCharacters('999.99');
   writer.writeEndElement();
   
@@ -289,7 +289,7 @@ app.get('/api/users', async (req, res) => {
     writer.writeStartElement('users');
     
     for (const user of users) {
-      writer.writeStartElement('user', undefined, undefined, { id: user.id.toString() });
+      writer.writeStartElement('user', { attributes: { id: user.id.toString() } });
       
       writer.writeStartElement('name');
       writer.writeCharacters(user.name);
@@ -355,22 +355,26 @@ app.get('/api/products', async (c) => {
       try {
         // Generate XML
         writer.writeStartDocument('1.0', 'utf-8');
-        writer.writeStartElement('products', undefined, undefined, {
-          count: products.length.toString(),
-          generated: new Date().toISOString()
+        writer.writeStartElement('products', {
+          attributes: {
+            count: products.length.toString(),
+            generated: new Date().toISOString()
+          }
         });
         
         for (const product of products) {
-          writer.writeStartElement('product', undefined, undefined, {
-            id: product.id,
-            category: product.category
+          writer.writeStartElement('product', {
+            attributes: {
+              id: product.id,
+              category: product.category
+            }
           });
           
           writer.writeStartElement('name');
           writer.writeCharacters(product.name);
           writer.writeEndElement();
           
-          writer.writeStartElement('price', undefined, undefined, { currency: 'USD' });
+          writer.writeStartElement('price', { attributes: { currency: 'USD' } });
           writer.writeCharacters(product.price.toString());
           writer.writeEndElement();
           
@@ -426,10 +430,14 @@ async function createAdvancedXml() {
   // Write XML with namespaces and custom entities
   writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('document', 'doc', 'http://example.com/document', { version: '2.0' });
+  writer.writeStartElement('document', { 
+    prefix: 'doc', 
+    uri: 'http://example.com/document', 
+    attributes: { version: '2.0' } 
+  });
   writer.writeNamespace('meta', 'http://example.com/metadata');
   
-  writer.writeStartElement('header', 'meta');
+  writer.writeStartElement('header', { prefix: 'meta' });
   writer.writeStartElement('title');
   writer.writeCharacters('Product Catalog');
   writer.writeEndElement();
@@ -440,14 +448,16 @@ async function createAdvancedXml() {
   writer.writeEndElement(); // header
   
   writer.writeStartElement('content');
-  writer.writeStartElement('item', undefined, undefined, { type: 'featured' });
+  writer.writeStartElement('item', { attributes: { type: 'featured' } });
   
   // Self-closing element
-  writer.writeStartElement('thumbnail', undefined, undefined, {
-    src: 'image.jpg',
-    alt: 'Product Image'
+  writer.writeStartElement('thumbnail', {
+    attributes: {
+      src: 'image.jpg',
+      alt: 'Product Image'
+    },
+    selfClosing: true
   });
-  writer.writeEndElementSelfClosing();
   
   writer.writeStartElement('description');
   writer.writeCDATA('<p>This is <b>HTML</b> content in CDATA</p>');
@@ -465,6 +475,187 @@ async function createAdvancedXml() {
 // Usage
 createAdvancedXml().then(xml => {
   console.log('Generated XML:', xml);
+});
+```
+
+##### Method Chaining Support
+
+StaxXmlWriter supports method chaining for more concise and readable code:
+
+```typescript
+import { StaxXmlWriter } from 'stax-xml';
+
+async function createXmlWithChaining() {
+  let xmlOutput = '';
+  
+  const writableStream = new WritableStream<Uint8Array>({
+    write(chunk) {
+      xmlOutput += new TextDecoder().decode(chunk);
+    }
+  });
+
+  const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
+
+  // Method chaining example - all methods return 'this' for chaining
+  writer
+    .writeStartDocument('1.0', 'utf-8')
+    .writeStartElement('catalog', { attributes: { version: '2.0' } })
+      .writeStartElement('product', { attributes: { id: '001', featured: 'true' } })
+        .writeStartElement('name')
+          .writeCharacters('Premium Laptop')
+          .writeEndElement()
+        .writeStartElement('price', { attributes: { currency: 'USD' } })
+          .writeCharacters('1299.99')
+          .writeEndElement()
+        .writeStartElement('description')
+          .writeCDATA('<p>High-performance laptop with <b>excellent</b> specifications</p>')
+          .writeEndElement()
+        .writeStartElement('specs')
+          .writeStartElement('cpu')
+            .writeCharacters('Intel Core i7')
+            .writeEndElement()
+          .writeStartElement('memory', { attributes: { type: 'DDR4' } })
+            .writeCharacters('16GB')
+            .writeEndElement()
+          .writeStartElement('storage', { 
+            attributes: { type: 'SSD', capacity: '512GB' },
+            selfClosing: true
+          })
+          .writeEndElement() // specs
+        .writeEndElement() // product
+      .writeStartElement('product', { attributes: { id: '002' } })
+        .writeStartElement('name')
+          .writeCharacters('Wireless Headphones')
+          .writeEndElement()
+        .writeStartElement('price', { attributes: { currency: 'USD' } })
+          .writeCharacters('199.99')
+          .writeEndElement()
+        .writeEndElement() // product
+      .writeEndElement(); // catalog
+
+  await writer.writeEndDocument();
+  return xmlOutput;
+}
+
+// Compact chaining for simple structures
+async function createSimpleXmlChain() {
+  let xmlOutput = '';
+  
+  const writableStream = new WritableStream<Uint8Array>({
+    write(chunk) { xmlOutput += new TextDecoder().decode(chunk); }
+  });
+
+  await new StaxXmlWriter(writableStream)
+    .writeStartDocument()
+    .writeStartElement('message', {
+      attributes: {
+        type: 'greeting',
+        timestamp: new Date().toISOString()
+      }
+    })
+      .writeCharacters('Hello, World!')
+      .writeEndElement()
+    .writeEndDocument();
+
+  return xmlOutput;
+}
+
+// Usage
+createXmlWithChaining().then(xml => console.log('Chained XML:', xml));
+createSimpleXmlChain().then(xml => console.log('Simple chain:', xml));
+```
+
+##### New Unified WriteElementOptions API
+
+StaxXmlWriter now supports a new unified API that simplifies element creation by consolidating all options into a single `WriteElementOptions` object:
+
+```typescript
+import { StaxXmlWriter, WriteElementOptions } from 'stax-xml';
+
+async function createXmlWithNewAPI() {
+  let xmlOutput = '';
+  
+  const writableStream = new WritableStream<Uint8Array>({
+    write(chunk) {
+      xmlOutput += new TextDecoder().decode(chunk);
+    }
+  });
+
+  const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
+
+  writer.writeStartDocument();
+  
+  // Basic element with attributes
+  writer.writeStartElement('catalog', {
+    attributes: { version: '2.0', xmlns: 'http://example.com/catalog' }
+  });
+  
+  // Element with namespace and attributes
+  writer.writeStartElement('product', {
+    prefix: 'cat',
+    uri: 'http://example.com/catalog',
+    attributes: { id: '001', featured: 'true' }
+  });
+  
+  writer.writeStartElement('name');
+  writer.writeCharacters('Premium Laptop');
+  writer.writeEndElement();
+  
+  // Self-closing element with attributes
+  writer.writeStartElement('thumbnail', {
+    attributes: {
+      src: 'image.jpg',
+      alt: 'Product Image',
+      width: '200'
+    },
+    selfClosing: true  // No need to call writeEndElement()
+  });
+  
+  // Simple self-closing element
+  writer.writeStartElement('br', { selfClosing: true });
+  
+  writer.writeEndElement(); // product
+  writer.writeEndElement(); // catalog
+  
+  await writer.writeEndDocument();
+  return xmlOutput;
+}
+
+// Output:
+// <?xml version="1.0" encoding="UTF-8"?>
+// <catalog version="2.0" xmlns="http://example.com/catalog">
+//   <cat:product id="001" featured="true" xmlns:cat="http://example.com/catalog">
+//     <name>Premium Laptop</name>
+//     <thumbnail src="image.jpg" alt="Product Image" width="200"/>
+//     <br/>
+//   </cat:product>
+// </catalog>
+```
+
+**Key Benefits of the New API:**
+
+- **Unified Parameters**: All element options (attributes, namespace, self-closing) are consolidated into a single options object
+- **Self-Closing Support**: Set `selfClosing: true` to automatically close elements without calling `writeEndElement()`
+- **Cleaner Syntax**: More intuitive and readable code structure
+- **Type Safety**: Full TypeScript support with comprehensive type definitions
+
+**Usage Examples:**
+
+```typescript
+// Simple element with attributes
+writer.writeStartElement('img', {
+  attributes: {
+    src: 'image.jpg',
+    alt: 'Image'
+  },
+  selfClosing: true
+});
+
+// Element with namespace
+writer.writeStartElement('title', {
+  prefix: 'html',
+  uri: 'http://www.w3.org/1999/xhtml',
+  attributes: { lang: 'en' }
 });
 ```
 
@@ -549,6 +740,13 @@ interface StaxXmlParserOptions {
 #### StaxXmlWriter
 
 ```typescript
+interface WriteElementOptions {
+  prefix?: string;              // Namespace prefix
+  uri?: string;                 // Namespace URI
+  attributes?: Record<string, string>; // Element attributes
+  selfClosing?: boolean;        // Whether to create a self-closing tag
+}
+
 class StaxXmlWriter {
   constructor(
     outputStream: WritableStream<Uint8Array>,
@@ -560,10 +758,8 @@ class StaxXmlWriter {
   writeEndDocument(): Promise<void>
 
   // Element Writing Methods
-  writeStartElement(localName: string, prefix?: string, uri?: string, 
-                   attributes?: { [key: string]: string }): this
+  writeStartElement(localName: string, options?: WriteElementOptions): this
   writeEndElement(): this
-  writeEndElementSelfClosing(): this
   writeEmptyElement(localName: string, prefix?: string, uri?: string, 
                    attributes?: XmlAttribute[], namespaces?: NamespaceDeclaration[]): this
 
@@ -611,6 +807,14 @@ interface NamespaceDeclaration {
 ```bash
 bun test
 ```
+
+### 📁 Sample File Sources
+
+Sources of sample XML files used in testing:
+
+- `books.xml`: [Microsoft XML Document Examples](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms762271(v=vs.85))
+- `simple-namespace.xml`: [W3Schools XML Namespaces Guide](https://www.w3schools.com/xml/xml_namespaces.asp)
+- `treebank_e.xml`: [University of Washington XML Data Repository](https://aiweb.cs.washington.edu/research/projects/xmltk/xmldata/www/repository.html)
 
 ### 📄 License
 
@@ -844,15 +1048,15 @@ async function createLocalXmlFile() {
   // XML 문서 작성
   writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('catalog', undefined, undefined, { version: '1.0' });
+  writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
   
-  writer.writeStartElement('product', undefined, undefined, { id: '001' });
+  writer.writeStartElement('product', { attributes: { id: '001' } });
   
   writer.writeStartElement('name');
   writer.writeCharacters('노트북 컴퓨터');
   writer.writeEndElement();
   
-  writer.writeStartElement('price', undefined, undefined, { currency: 'KRW' });
+  writer.writeStartElement('price', { attributes: { currency: 'KRW' } });
   writer.writeCharacters('1299000');
   writer.writeEndElement();
   
@@ -907,7 +1111,7 @@ app.get('/api/users', async (req, res) => {
     writer.writeStartElement('users');
     
     for (const user of users) {
-      writer.writeStartElement('user', undefined, undefined, { id: user.id.toString() });
+      writer.writeStartElement('user', { attributes: { id: user.id.toString() } });
       
       writer.writeStartElement('name');
       writer.writeCharacters(user.name);
@@ -973,22 +1177,26 @@ app.get('/api/products', async (c) => {
       try {
         // XML 생성
         writer.writeStartDocument('1.0', 'utf-8');
-        writer.writeStartElement('products', undefined, undefined, {
-          count: products.length.toString(),
-          generated: new Date().toISOString()
+        writer.writeStartElement('products', {
+          attributes: {
+            count: products.length.toString(),
+            generated: new Date().toISOString()
+          }
         });
         
         for (const product of products) {
-          writer.writeStartElement('product', undefined, undefined, {
-            id: product.id,
-            category: product.category
+          writer.writeStartElement('product', {
+            attributes: {
+              id: product.id,
+              category: product.category
+            }
           });
           
           writer.writeStartElement('name');
           writer.writeCharacters(product.name);
           writer.writeEndElement();
           
-          writer.writeStartElement('price', undefined, undefined, { currency: 'KRW' });
+          writer.writeStartElement('price', { attributes: { currency: 'KRW' } });
           writer.writeCharacters(product.price.toString());
           writer.writeEndElement();
           
@@ -1044,10 +1252,14 @@ async function createAdvancedXml() {
   // 네임스페이스와 사용자 정의 엔티티가 포함된 XML 작성
   writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('document', 'doc', 'http://example.com/document', { version: '2.0' });
+  writer.writeStartElement('document', { 
+    prefix: 'doc', 
+    uri: 'http://example.com/document', 
+    attributes: { version: '2.0' } 
+  });
   writer.writeNamespace('meta', 'http://example.com/metadata');
   
-  writer.writeStartElement('header', 'meta');
+  writer.writeStartElement('header', { prefix: 'meta' });
   writer.writeStartElement('title');
   writer.writeCharacters('제품 카탈로그');
   writer.writeEndElement();
@@ -1058,14 +1270,16 @@ async function createAdvancedXml() {
   writer.writeEndElement(); // header
   
   writer.writeStartElement('content');
-  writer.writeStartElement('item', undefined, undefined, { type: 'featured' });
+  writer.writeStartElement('item', { attributes: { type: 'featured' } });
   
   // Self-closing 요소
-  writer.writeStartElement('thumbnail', undefined, undefined, {
-    src: 'image.jpg',
-    alt: '제품 이미지'
+  writer.writeStartElement('thumbnail', {
+    attributes: {
+      src: 'image.jpg',
+      alt: '제품 이미지'
+    },
+    selfClosing: true
   });
-  writer.writeEndElementSelfClosing();
   
   writer.writeStartElement('description');
   writer.writeCDATA('<p>이것은 CDATA 내의 <b>HTML</b> 콘텐츠입니다</p>');
@@ -1083,6 +1297,187 @@ async function createAdvancedXml() {
 // 사용법
 createAdvancedXml().then(xml => {
   console.log('생성된 XML:', xml);
+});
+```
+
+##### 메서드 체이닝 지원
+
+StaxXmlWriter는 더 간결하고 읽기 쉬운 코드를 위한 메서드 체이닝을 지원합니다:
+
+```typescript
+import { StaxXmlWriter } from 'stax-xml';
+
+async function createXmlWithChaining() {
+  let xmlOutput = '';
+  
+  const writableStream = new WritableStream<Uint8Array>({
+    write(chunk) {
+      xmlOutput += new TextDecoder().decode(chunk);
+    }
+  });
+
+  const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
+
+  // 메서드 체이닝 예제 - 모든 메서드가 체이닝을 위해 'this'를 반환합니다
+  writer
+    .writeStartDocument('1.0', 'utf-8')
+    .writeStartElement('catalog', { attributes: { version: '2.0' } })
+      .writeStartElement('product', { attributes: { id: '001', featured: 'true' } })
+        .writeStartElement('name')
+          .writeCharacters('프리미엄 노트북')
+          .writeEndElement()
+        .writeStartElement('price', { attributes: { currency: 'KRW' } })
+          .writeCharacters('1599000')
+          .writeEndElement()
+        .writeStartElement('description')
+          .writeCDATA('<p><b>뛰어난</b> 사양을 가진 고성능 노트북</p>')
+          .writeEndElement()
+        .writeStartElement('specs')
+          .writeStartElement('cpu')
+            .writeCharacters('Intel Core i7')
+            .writeEndElement()
+          .writeStartElement('memory', { attributes: { type: 'DDR4' } })
+            .writeCharacters('16GB')
+            .writeEndElement()
+          .writeStartElement('storage', {
+            attributes: { type: 'SSD', capacity: '512GB' },
+            selfClosing: true
+          })
+          .writeEndElement() // specs
+        .writeEndElement() // product
+      .writeStartElement('product', { attributes: { id: '002' } })
+        .writeStartElement('name')
+          .writeCharacters('무선 헤드폰')
+          .writeEndElement()
+        .writeStartElement('price', { attributes: { currency: 'KRW' } })
+          .writeCharacters('259000')
+          .writeEndElement()
+        .writeEndElement() // product
+      .writeEndElement(); // catalog
+
+  await writer.writeEndDocument();
+  return xmlOutput;
+}
+
+// 간단한 구조를 위한 컴팩트 체이닝
+async function createSimpleXmlChain() {
+  let xmlOutput = '';
+  
+  const writableStream = new WritableStream<Uint8Array>({
+    write(chunk) { xmlOutput += new TextDecoder().decode(chunk); }
+  });
+
+  await new StaxXmlWriter(writableStream)
+    .writeStartDocument()
+    .writeStartElement('message', {
+      attributes: {
+        type: 'greeting',
+        timestamp: new Date().toISOString()
+      }
+    })
+      .writeCharacters('안녕하세요, 세계!')
+      .writeEndElement()
+    .writeEndDocument();
+
+  return xmlOutput;
+}
+
+// 사용법
+createXmlWithChaining().then(xml => console.log('체인 XML:', xml));
+createSimpleXmlChain().then(xml => console.log('간단한 체인:', xml));
+```
+
+##### 새로운 통합 WriteElementOptions API
+
+StaxXmlWriter는 이제 모든 옵션을 단일 `WriteElementOptions` 객체로 통합하여 요소 생성을 단순화하는 새로운 통합 API를 지원합니다:
+
+```typescript
+import { StaxXmlWriter, WriteElementOptions } from 'stax-xml';
+
+async function createXmlWithNewAPI() {
+  let xmlOutput = '';
+  
+  const writableStream = new WritableStream<Uint8Array>({
+    write(chunk) {
+      xmlOutput += new TextDecoder().decode(chunk);
+    }
+  });
+
+  const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
+
+  writer.writeStartDocument();
+  
+  // 속성이 있는 기본 요소
+  writer.writeStartElement('catalog', {
+    attributes: { version: '2.0', xmlns: 'http://example.com/catalog' }
+  });
+  
+  // 네임스페이스와 속성이 있는 요소
+  writer.writeStartElement('product', {
+    prefix: 'cat',
+    uri: 'http://example.com/catalog',
+    attributes: { id: '001', featured: 'true' }
+  });
+  
+  writer.writeStartElement('name');
+  writer.writeCharacters('프리미엄 노트북');
+  writer.writeEndElement();
+  
+  // 속성이 있는 self-closing 요소
+  writer.writeStartElement('thumbnail', {
+    attributes: {
+      src: 'image.jpg',
+      alt: '제품 이미지',
+      width: '200'
+    },
+    selfClosing: true  // writeEndElement() 호출 불필요
+  });
+  
+  // 간단한 self-closing 요소
+  writer.writeStartElement('br', { selfClosing: true });
+  
+  writer.writeEndElement(); // product
+  writer.writeEndElement(); // catalog
+  
+  await writer.writeEndDocument();
+  return xmlOutput;
+}
+
+// 출력:
+// <?xml version="1.0" encoding="UTF-8"?>
+// <catalog version="2.0" xmlns="http://example.com/catalog">
+//   <cat:product id="001" featured="true" xmlns:cat="http://example.com/catalog">
+//     <name>프리미엄 노트북</name>
+//     <thumbnail src="image.jpg" alt="제품 이미지" width="200"/>
+//     <br/>
+//   </cat:product>
+// </catalog>
+```
+
+**새로운 API의 주요 장점:**
+
+- **통합된 파라미터**: 모든 요소 옵션(속성, 네임스페이스, self-closing)이 단일 옵션 객체로 통합
+- **Self-Closing 지원**: `selfClosing: true`로 설정하면 `writeEndElement()` 호출 없이 자동으로 요소가 닫힘
+- **더 깔끔한 문법**: 더 직관적이고 읽기 쉬운 코드 구조
+- **타입 안전성**: 포괄적인 타입 정의로 완전한 TypeScript 지원
+
+**사용 예제:**
+
+```typescript
+// 속성이 있는 간단한 요소
+writer.writeStartElement('img', {
+  attributes: {
+    src: 'image.jpg',
+    alt: '이미지'
+  },
+  selfClosing: true
+});
+
+// 네임스페이스가 있는 요소
+writer.writeStartElement('title', {
+  prefix: 'html',
+  uri: 'http://www.w3.org/1999/xhtml',
+  attributes: { lang: 'ko' }
 });
 ```
 
@@ -1167,6 +1562,13 @@ interface StaxXmlParserOptions {
 #### StaxXmlWriter
 
 ```typescript
+interface WriteElementOptions {
+  prefix?: string;              // 네임스페이스 접두사
+  uri?: string;                 // 네임스페이스 URI
+  attributes?: Record<string, string>; // 요소 속성
+  selfClosing?: boolean;        // self-closing 태그 여부
+}
+
 class StaxXmlWriter {
   constructor(
     outputStream: WritableStream<Uint8Array>,
@@ -1178,10 +1580,8 @@ class StaxXmlWriter {
   writeEndDocument(): Promise<void>
 
   // 요소 작성 메서드
-  writeStartElement(localName: string, prefix?: string, uri?: string, 
-                   attributes?: { [key: string]: string }): this
+  writeStartElement(localName: string, options?: WriteElementOptions): this
   writeEndElement(): this
-  writeEndElementSelfClosing(): this
   writeEmptyElement(localName: string, prefix?: string, uri?: string, 
                    attributes?: XmlAttribute[], namespaces?: NamespaceDeclaration[]): this
 
@@ -1229,6 +1629,14 @@ interface NamespaceDeclaration {
 ```bash
 bun test
 ```
+
+### 📁 샘플 파일 출처
+
+테스트에 사용된 샘플 XML 파일들의 출처:
+
+- `books.xml`: [Microsoft XML 문서 예제](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms762271(v=vs.85))
+- `simple-namespace.xml`: [W3Schools XML 네임스페이스 가이드](https://www.w3schools.com/xml/xml_namespaces.asp)
+- `treebank_e.xml`: [University of Washington XML Data Repository](https://aiweb.cs.washington.edu/research/projects/xmltk/xmldata/www/repository.html)
 
 ### 📄 라이선스
 
