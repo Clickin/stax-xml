@@ -311,7 +311,7 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         }
         return map;
       }, {} as Record<string, string>),
-      '&amp;': '&'
+      '&amp;': '&' // &는 다른 entity와 충돌하지 않도록 마지막에 추가
     };
 
     const regex = new RegExp(Object.keys(entityMap).map(key => key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
@@ -320,8 +320,7 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       // entityMap에 정의된 엔티티인 경우, 매핑된 값을 반환합니다.
       if (entityMap[match]) {
         return entityMap[match];
-      }
-      else {
+      } else {
         // 정의되지 않은 엔티티는 그대로 반환합니다.
         return match;
       }

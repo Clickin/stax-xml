@@ -521,7 +521,7 @@ class StaxXmlWriter {
             return text; // 자동 엔티티 인코딩이 비활성화된 경우 원본 텍스트 반환
         }
         let entityMap: Record<string, string> = {
-            '&': '&amp;',
+            '&': '&amp;', // Write 과정에서는 &가 다른 엔티티와 충돌하지 않습니다.
             '<': '&lt;',
             '>': '&gt;',
             '"': '&quot;',
