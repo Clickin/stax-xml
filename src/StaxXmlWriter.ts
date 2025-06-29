@@ -1,5 +1,5 @@
 // StaxXmlWriter.ts
-import { NamespaceDeclaration, WriteElementOptions, XmlAttribute } from './types'; // NamespaceDeclaration, ProcessingInstruction은 사용되지 않음
+import { NamespaceDeclaration, WriteElementOptions } from './types';
 
 /**
  * XML 문서 작성 중 발생하는 상태
@@ -58,6 +58,7 @@ class StaxXmlWriter {
     private state: WriterState = WriterState.INITIAL;
     private elementStack: ElementInfo[] = []; // 열린 요소의 정보 스택
     private hasTextContentStack: boolean[] = []; // 각 요소가 텍스트 콘텐츠를 가지고 있는지 추적하는 스택
+    private namespaceStack: Map<string, string>[] = []; // 네임스페이스 매핑 스택
     // options 객체로 변경
     private options: StaxXmlInternalOptions;
     private currentIndentLevel: number = 0; // 현재 들여쓰기 레벨
@@ -74,6 +75,10 @@ class StaxXmlWriter {
         this.writer = this.encoderStream.writable.getWriter();
         // 기본 옵션으로 초기화
         this.options = { ...defaultOptions, ...options };
+
+        // 네임스페이스 스택 초기화 (루트 네임스페이스 컨텍스트)
+        this.namespaceStack = [new Map<string, string>()];
+
         // 사용자 정의 엔티티가 있다면 entityMap에 추가
         if (this.options.addEntities && Array.isArray(this.options.addEntities)) {
             for (const entity of this.options.addEntities) {
@@ -164,16 +169,37 @@ class StaxXmlWriter {
         const tagName = prefix ? `${prefix}:${localName}` : localName;
         this._write(`<${tagName}`);
 
-        // 속성 추가 (attributes가 제공된 경우)
-        if (attributes) {
-            for (const [key, value] of Object.entries(attributes)) {
-                this._write(` ${key}="${this._escapeXml(value)}"`);
-            }
-        }
+        // 네임스페이스 컨텍스트 생성 (현재 레벨의 새로운 네임스페이스 매핑)
+        const currentNamespaces = new Map(this.namespaceStack[this.namespaceStack.length - 1]);
 
         // element-level namespace declaration if prefix and uri provided
         if (prefix && uri) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
+            currentNamespaces.set(prefix, uri);
+        }
+
+        // 속성 추가 (attributes가 제공된 경우)
+        if (attributes) {
+            for (const [key, value] of Object.entries(attributes)) {
+                if (typeof value === 'string') {
+                    // 간단한 문자열 속성
+                    this._write(` ${key}="${this._escapeXml(value)}"`);
+                } else {
+                    // AttributeInfo 객체 - prefix를 가진 속성
+                    const attrPrefix = value.prefix;
+                    const attrValue = value.value;
+
+                    if (attrPrefix) {
+                        // prefix가 네임스페이스에 정의되어 있는지 확인
+                        if (!currentNamespaces.has(attrPrefix)) {
+                            throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
+                        }
+                        this._write(` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`);
+                    } else {
+                        this._write(` ${key}="${this._escapeXml(attrValue)}"`);
+                    }
+                }
+            }
         }
 
         // selfClosing이 true이면 바로 태그를 닫고 종료
@@ -189,6 +215,7 @@ class StaxXmlWriter {
             prefix
         });
         this.hasTextContentStack.push(false); // 새 요소는 아직 텍스트 콘텐츠가 없음
+        this.namespaceStack.push(currentNamespaces); // 네임스페이스 컨텍스트 저장
         this.state = WriterState.START_ELEMENT_OPEN; // 이제 속성이나 네임스페이스를 작성할 수 있음
         this.currentIndentLevel++; // 들여쓰기 레벨 증가
         return this;
@@ -229,10 +256,16 @@ class StaxXmlWriter {
         if (this.state !== WriterState.START_ELEMENT_OPEN) {
             throw new Error('writeNamespace can only be called after writeStartElement.');
         }
+
+        // 현재 네임스페이스 컨텍스트에 추가
+        const currentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+
         if (prefix) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
+            currentNamespaces.set(prefix, uri);
         } else { // 기본 네임스페이스
             this._write(` xmlns="${this._escapeXml(uri)}"`);
+            currentNamespaces.set('', uri);
         }
         return this;
     }
@@ -363,6 +396,7 @@ class StaxXmlWriter {
         this._closeStartElementTag(); // 혹시 열린 태그가 있으면 먼저 닫고 닫는 태그 작성
 
         const elementInfo = this.elementStack.pop()!;
+        this.namespaceStack.pop(); // 네임스페이스 컨텍스트 제거
         const closingTagName = elementInfo.prefix ? `${elementInfo.prefix}:${elementInfo.localName}` : elementInfo.localName;
         this._write(`</${closingTagName}>`);
         this.state = WriterState.AFTER_ELEMENT; // 요소 닫은 후에는 다음 요소 또는 주석 등이 가능
@@ -370,54 +404,6 @@ class StaxXmlWriter {
         if (this.options.prettyPrint) {
             this.needsIndent = true;
         }
-        return this;
-    }
-
-    /**
-     * 빈 요소를 작성합니다 (예: <element/>).
-     * @param localName 요소의 로컬 이름
-     * @param prefix 네임스페이스 접두사 (선택 사항)
-     * @param uri 네임스페이스 URI (선택 사항)
-     * @param attributes 속성 배열 (선택 사항)
-     * @param namespaces 네임스페이스 선언 배열 (선택 사항)
-     * @returns this (체이닝 가능)
-     * @throws Error 잘못된 상태에서 호출 시
-     */
-    public writeEmptyElement(
-        localName: string,
-        prefix?: string,
-        uri?: string, // 이 구현에서는 사용되지 않음
-        attributes?: XmlAttribute[],
-        namespaces?: NamespaceDeclaration[] // 이 구현에서는 사용되지 않음
-    ): this {
-        if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
-            throw new Error('Cannot writeEmptyElement: Writer is closed or in error state.');
-        }
-        this._closeStartElementTag();
-
-        this._writeIndent(); // Pretty print용 들여쓰기
-        const tagName = prefix ? `${prefix}:${localName}` : localName;
-        let element = `<${tagName}`;
-        // element-level namespace declaration
-        if (prefix && uri) {
-            element += ` xmlns:${prefix}="${this._escapeXml(uri)}"`;
-        }
-
-        if (namespaces) { // 이 부분은 현재 구현에서 네임스페이스 관리가 안 되므로, 단순 문자열 추가
-            for (const ns of namespaces) {
-                element += ` xmlns${ns.prefix ? `:${ns.prefix}` : ''}="${this._escapeXml(ns.uri)}"`;
-            }
-        }
-        if (attributes) {
-            for (const attr of attributes) {
-                const attrName = attr.prefix ? `${attr.prefix}:${attr.localName}` : attr.localName;
-                element += ` ${attrName}="${this._escapeXml(attr.value)}"`;
-            }
-        }
-        element += '/>';
-        this._write(element);
-        this.state = WriterState.AFTER_ELEMENT;
-        this._writeNewline(); // Pretty print용 줄바꿈
         return this;
     }
 

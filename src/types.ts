@@ -30,6 +30,7 @@ export interface StartElementEvent extends XmlEvent {
   prefix?: string; // 네임스페이스 접두사
   uri?: string; // 네임스페이스 URI
   attributes: { [key: string]: string };
+  attributesWithPrefix?: { [key: string]: { value: string; prefix?: string; uri?: string } };
 }
 
 /**
@@ -107,11 +108,20 @@ export interface ProcessingInstruction {
 }
 
 /**
+ * 속성 정보 인터페이스
+ */
+export interface AttributeInfo {
+  value: string;
+  prefix?: string;
+  uri?: string;
+}
+
+/**
  * 요소 작성 옵션 인터페이스 (Writer용)
  */
 export interface WriteElementOptions {
   prefix?: string;              // 네임스페이스 접두사
   uri?: string;                 // 네임스페이스 URI
-  attributes?: Record<string, string>; // 속성들
+  attributes?: Record<string, string | AttributeInfo>; // 속성들 (간단한 문자열 또는 prefix 포함 객체)
   selfClosing?: boolean;        // self-closing 태그 여부
 }

@@ -645,7 +645,7 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain('<mixed>Text with &quot;quotes&quot; &amp; ampersand &rarr; arrow &copy; copyright</mixed>');
   });
 
-  // 커버리지 개선: writeEmptyElement 메서드 테스트 (네임스페이스 및 속성 포함)
+  // 커버리지 개선: self-closing 요소 테스트 (네임스페이스 및 속성 포함)
   it('should write empty element with namespace and attributes', async () => {
     const outputStream = new StringWritableStream();
     const writer = new StaxXmlWriter(outputStream, {
@@ -657,20 +657,16 @@ describe('StaxXmlWriter Tests', () => {
     writer.writeStartDocument('1.0', 'utf-8');
     writer.writeStartElement('root');
 
-    // writeEmptyElement 메서드 테스트 (prefix, uri, attributes, namespaces 포함)
-    writer.writeEmptyElement(
-      'emptyTag',
-      'ns',
-      'http://example.com/namespace',
-      [
-        { localName: 'attr1', value: 'value1', prefix: undefined },
-        { localName: 'attr2', value: 'value2', prefix: 'ns' }
-      ],
-      [
-        { prefix: 'ns2', uri: 'http://example.com/ns2' },
-        { prefix: '', uri: 'http://example.com/default' }
-      ]
-    );
+    // self-closing 요소 테스트 (prefix, uri, attributes 포함)
+    writer.writeStartElement('emptyTag', {
+      prefix: 'ns',
+      uri: 'http://example.com/namespace',
+      attributes: {
+        attr1: 'value1',
+        attr2: { value: 'value2', prefix: 'ns' }
+      },
+      selfClosing: true
+    });
 
     writer.writeEndElement(); // root
     await writer.writeEndDocument();
@@ -678,8 +674,6 @@ describe('StaxXmlWriter Tests', () => {
     const result = outputStream.getResult();
 
     expect(result).toContain('<ns:emptyTag xmlns:ns="http://example.com/namespace"');
-    expect(result).toContain('xmlns:ns2="http://example.com/ns2"');
-    expect(result).toContain('xmlns="http://example.com/default"');
     expect(result).toContain('attr1="value1"');
     expect(result).toContain('ns:attr2="value2"');
     expect(result).toContain('/>');
@@ -720,7 +714,7 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain('</root>');
   });
 
-  // 커버리지 개선: Writer 상태가 CLOSED/ERROR일 때 writeEmptyElement 오류 테스트
+  // 커버리지 개선: Writer 상태가 CLOSED/ERROR일 때 self-closing 요소 작성 오류 테스트
   it('should throw error when writeEmptyElement is called on closed writer', async () => {
     const outputStream = new StringWritableStream();
     const writer = new StaxXmlWriter(outputStream, {
@@ -734,10 +728,10 @@ describe('StaxXmlWriter Tests', () => {
     writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
-    // Writer가 닫힌 후 writeEmptyElement 호출 시 오류 발생해야 함
+    // Writer가 닫힌 후 self-closing 요소 작성 시 오류 발생해야 함
     expect(() => {
-      writer.writeEmptyElement('test');
-    }).toThrow('Cannot writeEmptyElement: Writer is closed or in error state.');
+      writer.writeStartElement('test', { selfClosing: true });
+    }).toThrow('Cannot writeStartElement: Writer is closed or in error state.');
   });
 
   // 커버리지 개선: getIndentString 메서드 테스트

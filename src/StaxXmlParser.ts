@@ -332,10 +332,11 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
    * qualified name을 파싱하여 localName, prefix, uri를 추출합니다.
    * @param qname qualified name (예: "prefix:localName" 또는 "localName")
    * @param namespaces 현재 네임스페이스 매핑
+   * @param isAttribute 속성인지 여부 (속성은 prefix가 없으면 네임스페이스에 속하지 않음)
    * @returns 파싱된 네임스페이스 정보
    * @private
    */
-  private _parseQualifiedName(qname: string, namespaces: Map<string, string>): {
+  private _parseQualifiedName(qname: string, namespaces: Map<string, string>, isAttribute: boolean = false): {
     localName: string;
     prefix?: string;
     uri?: string;
@@ -343,12 +344,22 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     const colonIndex = qname.indexOf(':');
     if (colonIndex === -1) {
       // 접두사가 없는 경우
-      const defaultUri = namespaces.get('');
-      return {
-        localName: qname,
-        prefix: undefined,
-        uri: defaultUri
-      };
+      if (isAttribute) {
+        // 속성의 경우 prefix가 없으면 네임스페이스에 속하지 않음
+        return {
+          localName: qname,
+          prefix: undefined,
+          uri: undefined
+        };
+      } else {
+        // 요소의 경우 기본 네임스페이스 사용
+        const defaultUri = namespaces.get('');
+        return {
+          localName: qname,
+          prefix: undefined,
+          uri: defaultUri
+        };
+      }
     } else {
       // 접두사가 있는 경우
       const prefix = qname.substring(0, colonIndex);
@@ -625,11 +636,20 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       }
 
       const attributes: { [key: string]: string } = {};
+      const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
       const attrMatches = attributesString.matchAll(/([a-zA-Z0-9_:.-]+)="([^"]*)"/g);
       for (const match of attrMatches) {
         const attrName = match[1];
         const attrValue = this._unescapeXml(match[2]);
         attributes[attrName] = attrValue;
+
+        // 속성의 네임스페이스 정보 파싱
+        const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
+        attributesWithPrefix[attrNamespaceInfo.localName] = {
+          value: attrValue,
+          prefix: attrNamespaceInfo.prefix,
+          uri: attrNamespaceInfo.uri
+        };
 
         // xmlns 네임스페이스 선언 처리
         if (attrName === 'xmlns') {
@@ -649,7 +669,8 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         localName,
         prefix,
         uri,
-        attributes: attributes
+        attributes: attributes,
+        attributesWithPrefix: attributesWithPrefix
       } as StartElementEvent);
 
       this.position = gtPos + 1;

@@ -760,8 +760,6 @@ class StaxXmlWriter {
   // Element Writing Methods
   writeStartElement(localName: string, options?: WriteElementOptions): this
   writeEndElement(): this
-  writeEmptyElement(localName: string, prefix?: string, uri?: string, 
-                   attributes?: XmlAttribute[], namespaces?: NamespaceDeclaration[]): this
 
   // Attribute and Namespace Methods
   writeAttribute(localName: string, value: string, prefix?: string, uri?: string): this
@@ -1582,8 +1580,6 @@ class StaxXmlWriter {
   // 요소 작성 메서드
   writeStartElement(localName: string, options?: WriteElementOptions): this
   writeEndElement(): this
-  writeEmptyElement(localName: string, prefix?: string, uri?: string, 
-                   attributes?: XmlAttribute[], namespaces?: NamespaceDeclaration[]): this
 
   // 속성 및 네임스페이스 메서드
   writeAttribute(localName: string, value: string, prefix?: string, uri?: string): this

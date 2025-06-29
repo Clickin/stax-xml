@@ -91,7 +91,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
-    expect(result).toContain('<ns:meta version="1.0" type="test" xmlns:ns="http://example.com/namespace"/>');
+    expect(result).toContain('<ns:meta xmlns:ns="http://example.com/namespace" version="1.0" type="test"/>');
   });
 
   it('should maintain backward compatibility with legacy API', async () => {
@@ -115,7 +115,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
-    expect(result).toContain('<ns:old id="123" type="legacy" xmlns:ns="http://example.com/ns">Legacy content</ns:old>');
+    expect(result).toContain('<ns:old xmlns:ns="http://example.com/ns" id="123" type="legacy">Legacy content</ns:old>');
   });
 
   it('should handle mixed new and legacy API usage', async () => {
@@ -164,7 +164,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
     expect(result).toContain('<catalog version="2.0">');
     expect(result).toContain('<product id="001" featured="true">');
     expect(result).toContain('<thumbnail src="image.jpg" alt="Product Image"/>');
-    expect(result).toContain('<old:legacy test="value" xmlns:old="http://example.com/old">Legacy element</old:legacy>');
+    expect(result).toContain('<old:legacy xmlns:old="http://example.com/old" test="value">Legacy element</old:legacy>');
   });
 
   it('should handle empty WriteElementOptions', async () => {
@@ -246,7 +246,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
-    expect(result).toContain('<doc:document version="2.0" xmlns:doc="http://example.com/document">');
+    expect(result).toContain('<doc:document xmlns:doc="http://example.com/document" version="2.0">');
     expect(result).toContain('<header id="main-header">');
     expect(result).toContain('<meta name="author" content="Test Author"/>');
     expect(result).toContain('<section class="main">Main content</section>');
