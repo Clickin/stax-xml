@@ -22,9 +22,10 @@ export interface StaxXmlParserOptions {
  * DTD, 네임스페이스, 복잡한 엔티티 등은 지원하지 않습니다.
  */
 class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
-  private reader: ReadableStreamDefaultReader<string> | null = null;
-  private decoderStream: TextDecoderStream;
-  private buffer: string = '';
+  private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+  private decoder: TextDecoder;
+  private buffer: Uint8Array;
+  private bufferLength: number = 0; // 버퍼에 실제로 저장된 바이트 수
   private position: number = 0;
   private eventQueue: AnyXmlEvent[] = [];
   private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
@@ -48,10 +49,15 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       enableBufferCompaction: true,
       ...options
     };
-    // set up TextDecoderStream to decode Uint8Array to string and pipe from input
-    this.decoderStream = new TextDecoderStream(this.options.encoding);
-    xmlStream.pipeTo(this.decoderStream.writable);
-    this.reader = this.decoderStream.readable.getReader();
+
+    // TextDecoder 초기화
+    this.decoder = new TextDecoder(this.options.encoding);
+
+    // 고정 크기 바이트 버퍼 초기화
+    this.buffer = new Uint8Array(this.options.maxBufferSize || 64 * 1024);
+
+    // ReadableStream에서 직접 읽기
+    this.reader = xmlStream.getReader();
 
     this._startReading();
     this._addEvent({ type: XmlEventType.START_DOCUMENT });
@@ -86,8 +92,8 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
           break;
         }
 
-        // TextDecoderStream에서 디코딩된 문자열을 버퍼에 추가
-        this.buffer += value;
+        // 새로운 바이트 데이터를 버퍼에 추가
+        this._appendToBuffer(value);
         this._parseBuffer();
 
         // 주기적으로 버퍼 압축 확인
@@ -103,183 +109,83 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   private _parseBuffer(): void {
-    // while 루프의 시작
-    while (this.position < this.buffer.length && !this.parserFinished) {
-      const remaining = this.buffer.substring(this.position);
+    while (this.position < this.bufferLength && !this.parserFinished) {
+      // '<' 문자를 기준으로 태그 시작 감지
+      const ltPos = this._findPattern('<');
 
-      // < 문자를 기준으로 태그 시작 감지
-      if (remaining.startsWith('<')) {
-        this._flushCharacters(); // 태그 전에 버퍼링된 텍스트가 있다면 먼저 처리
-
-        // XML 선언 <?xml ...?>
-        if (remaining.startsWith('<?xml')) {
-          const endDecl = remaining.indexOf('?>');
-          if (endDecl !== -1) {
-            this.position += endDecl + 2;
-            this._compactBufferIfNeeded();
-            continue;
-          }
-        }
-        // 주석 <!-- ... -->
-        else if (remaining.startsWith('<!--')) {
-          const endCommentIndex = remaining.indexOf('-->');
-          if (endCommentIndex !== -1) {
-            this.position += endCommentIndex + 3; // '-->'의 길이만큼 position 이동
-            this._compactBufferIfNeeded();
-            continue; // 다음 구문 파싱
-          }
-        }
-        // CDATA 섹션 <![CDATA[ ... ]]>
-        else if (remaining.startsWith('<![CDATA[')) {
-          const endCdata = remaining.indexOf(']]>');
-          if (endCdata !== -1) {
-            const cdataContent = remaining.substring('<![CDATA['.length, endCdata);
-            this._addEvent({
-              type: XmlEventType.CDATA,
-              value: cdataContent
-            } as CdataEvent);
-            this.position += endCdata + ']]>'.length;
-            this._compactBufferIfNeeded();
-            continue;
-          }
-        }
-        // 처리 명령 <?target ... ?>
-        else if (remaining.startsWith('<?')) {
-          const endPi = remaining.indexOf('?>');
-          if (endPi !== -1) {
-            this.position += endPi + 2;
-            this._compactBufferIfNeeded();
-            continue;
-          }
-        }
-        // 종료 태그 </tag>
-        else if (remaining.startsWith('</')) {
-          const closeTagMatch = remaining.match(/^<\/([a-zA-Z0-9_:.-]+)\s*>/);
-          if (closeTagMatch) {
-            const tagName = closeTagMatch[1];
-            if (this.elementStack.length === 0 || this.elementStack[this.elementStack.length - 1] !== tagName) {
-              this._addError(new Error(`Mismatched closing tag: </${tagName}>. Expected </${this.elementStack[this.elementStack.length - 1] || 'nothing'}>`));
-              return;
-            }
-            this.elementStack.pop();
-            this._addEvent({ type: XmlEventType.END_ELEMENT, name: tagName } as EndElementEvent);
-            this.position += closeTagMatch[0].length;
-            this._compactBufferIfNeeded();
-            continue;
-          }
-        }
-        // 시작 태그 <tag> 또는 빈 태그 <tag/>
-        else { // 여기가 시작 태그 또는 빈 태그를 처리하는 부분
-          const tagMatch = remaining.match(/^<([a-zA-Z0-9_:.-]+)(\s+[^>]*?)?\s*(\/?)>/);
-          if (tagMatch) {
-            const tagName = tagMatch[1];
-            const attributesString = tagMatch[2] || '';
-            const isSelfClosing = tagMatch[3] === '/';
-
-            // 네임스페이스 매핑 스택에 새 레벨 추가
-            const currentNamespaces = new Map<string, string>();
-            if (this.namespaceStack.length > 0) {
-              // 부모의 네임스페이스 매핑을 복사
-              const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
-              for (const [prefix, uri] of parentNamespaces) {
-                currentNamespaces.set(prefix, uri);
-              }
-            }
-
-            const attributes: { [key: string]: string } = {};
-            const attrMatches = attributesString.matchAll(/([a-zA-Z0-9_:.-]+)="([^"]*?)"/g);
-            for (const match of attrMatches) {
-              const attrName = match[1];
-              const attrValue = this._unescapeXml(match[2]);
-              attributes[attrName] = attrValue;
-
-              // xmlns 네임스페이스 선언 처리
-              if (attrName === 'xmlns') {
-                // 기본 네임스페이스: xmlns="uri"
-                currentNamespaces.set('', attrValue);
-              } else if (attrName.startsWith('xmlns:')) {
-                // 접두사 네임스페이스: xmlns:prefix="uri"
-                const prefix = attrName.substring(6); // 'xmlns:' 제거
-                currentNamespaces.set(prefix, attrValue);
-              }
-            }
-
-            // 태그 이름에서 네임스페이스 정보 추출
-            const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
-
-            this._addEvent({
-              type: XmlEventType.START_ELEMENT,
-              name: tagName,
-              localName,
-              prefix,
-              uri,
-              attributes: attributes
-            } as StartElementEvent);
-            this.position += tagMatch[0].length;
-
-            if (!isSelfClosing) {
-              this.elementStack.push(tagName);
-              this.namespaceStack.push(currentNamespaces);
-            } else {
-              this._addEvent({
-                type: XmlEventType.END_ELEMENT,
-                name: tagName,
-                localName,
-                prefix,
-                uri
-              } as EndElementEvent);
-            }
-            this._compactBufferIfNeeded();
-            continue;
-          }
-        }
-        // 만약 '<'로 시작했지만, 위 어떤 태그 형식에도 맞지 않는다면, 에러 또는 더 많은 데이터 대기
+      if (ltPos === -1) {
+        // '<' 문자가 없으면 모든 남은 데이터를 텍스트로 처리
         if (this.isStreamEnded) {
-          this._addError(new Error(`Malformed XML near position ${this.position}: ${remaining.substring(0, Math.min(50, remaining.length))}...`));
+          // 스트림이 끝났으면 남은 모든 데이터를 텍스트로 처리
+          const remainingText = this._readBuffer();
+          this.currentTextBuffer += remainingText;
+          this._flushCharacters();
+        } else {
+          // 스트림이 끝나지 않았으면 더 많은 데이터를 기다림
+          // 현재 버퍼의 모든 내용을 텍스트 버퍼에 저장하지 않고 그대로 둠
+          break;
+        }
+        break;
+      }
+
+      // '<' 앞에 텍스트가 있으면 처리
+      if (ltPos > this.position) {
+        try {
+          const textLength = ltPos - this.position;
+          const text = this._readBuffer(textLength);
+          this.currentTextBuffer += text;
+          // position은 _readBuffer에서 이미 업데이트됨
+        } catch (error) {
+          // 불완전한 UTF-8 문자로 인한 오류면 더 많은 데이터 대기
+          if (!this.isStreamEnded) {
+            break;
+          }
+          throw error;
+        }
+      }
+
+      // 이제 position은 '<' 위치에 있어야 함
+      // 하지만 확실히 하기 위해 다시 설정
+      this.position = ltPos;
+
+      // 태그 타입 확인 및 파싱
+      if (this._matchesPattern('<?xml')) {
+        if (!this._parseXmlDeclaration()) break;
+      } else if (this._matchesPattern('<!--')) {
+        if (!this._parseComment()) break;
+      } else if (this._matchesPattern('<![CDATA[')) {
+        if (!this._parseCData()) break;
+      } else if (this._matchesPattern('<?')) {
+        if (!this._parseProcessingInstruction()) break;
+      } else if (this._matchesPattern('</')) {
+        // 종료 태그를 만나면 먼저 현재 텍스트를 flush
+        this._flushCharacters();
+        if (!this._parseEndTag()) break;
+      } else if (this._matchesPattern('<')) {
+        // 시작 태그를 만나면 먼저 현재 텍스트를 flush
+        this._flushCharacters();
+        if (!this._parseStartTag()) break;
+      } else {
+        // 인식되지 않는 태그
+        if (this.isStreamEnded) {
+          this._addError(new Error(`Malformed XML near position ${this.position}`));
           return;
         }
-      } // <-- if (remaining.startsWith('<'))의 닫는 대괄호
-
-      // 텍스트 노드 처리
-      const nextTagIndex = remaining.indexOf('<');
-      if (nextTagIndex === -1) {
-        // 남은 부분이 모두 텍스트일 경우, 일단 버퍼에 저장하고 새 데이터 대기
-        this.currentTextBuffer += remaining;
-        this.position = this.buffer.length; // 버퍼 끝까지 처리
-        break; // while 루프를 일시 중단하고 새 데이터 기다림
-      } else if (nextTagIndex > 0) {
-        // 태그 앞에 텍스트가 있을 경우
-        const text = remaining.substring(0, nextTagIndex);
-        this.currentTextBuffer += text;
-        this.position += text.length;
-        this._flushCharacters(); // 텍스트를 발견하면 즉시 이벤트로 추가
-        this._compactBufferIfNeeded();
-        continue; // 텍스트 처리 후 다시 while 루프 처음부터 파싱 시도
+        break; // 더 많은 데이터 대기
       }
 
-      // 더 이상 파싱할 수 없는 불완전한 데이터가 남아있는데 스트림이 끝났다면 오류
-      if (this.isStreamEnded && this.position < this.buffer.length) {
-        this._addError(new Error('Malformed XML at end of stream.'));
-        this.parserFinished = true;
-        return;
-      }
-
-      // 아직 파싱할 수 있는 데이터가 없으면 새 데이터가 올 때까지 대기
-      // 이 시점에서 buffer.substring(this.position)은 유효하지만, 완전한 태그가 아닐 수 있음
-      this._compactBuffer(); // 버퍼 압축으로 메모리 절약
-      break; // while 루프를 일시 중단하고 새 데이터 기다림
-    } // <-- while (this.position < this.buffer.length && !this.parserFinished)의 닫는 대괄호
-  } // <-- _parseBuffer 메서드의 닫는 대괄호
+      this._compactBufferIfNeeded();
+    }
+  }
 
   private _flushCharacters(): void {
     if (this.currentTextBuffer.length > 0) {
       const decodedText = this._unescapeXml(this.currentTextBuffer);
-      if (decodedText.trim().length > 0) { // 공백만 있는 텍스트는 무시
-        this._addEvent({
-          type: XmlEventType.CHARACTERS,
-          value: decodedText
-        } as CharactersEvent);
-      }
+      // 공백만 있는 텍스트도 포함하여 모든 텍스트를 이벤트로 추가
+      this._addEvent({
+        type: XmlEventType.CHARACTERS,
+        value: decodedText
+      } as CharactersEvent);
       this.currentTextBuffer = '';
     }
   }
@@ -293,7 +199,7 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
     const maxSize = this.options.maxBufferSize || 64 * 1024;
     // 더 적극적인 버퍼 압축: position이 8KB 이상이면 압축
-    if (this.position > 8192 || (this.buffer.length > maxSize && this.position > maxSize / 4)) {
+    if (this.position > 8192 || (this.bufferLength > maxSize && this.position > maxSize / 4)) {
       this._compactBuffer();
     }
   }
@@ -303,8 +209,11 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
    * @private
    */
   private _compactBuffer(): void {
-    if (this.position > 0) {
-      this.buffer = this.buffer.substring(this.position);
+    if (this.position > 0 && this.position < this.bufferLength) {
+      const remainingLength = this.bufferLength - this.position;
+      // 남은 데이터를 버퍼 앞쪽으로 이동
+      this.buffer.copyWithin(0, this.position, this.bufferLength);
+      this.bufferLength = remainingLength;
       this.position = 0;
     }
   }
@@ -314,7 +223,7 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
    * @private
    */
   private _clearBuffers(): void {
-    this.buffer = '';
+    this.bufferLength = 0;
     this.position = 0;
     this.currentTextBuffer = '';
   }
@@ -336,7 +245,7 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       // 에러 발생 시 메모리 정리
       this._clearBuffers();
 
-      // 웹 표준 ReadableStream의 경우 reader를 해제
+      // ReadableStream의 reader를 해제
       if (this.reader) {
         this.reader.releaseLock();
         this.reader = null;
@@ -456,6 +365,317 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   public get XmlEventType(): typeof XmlEventType {
     return XmlEventType;
   }
+
+  /**
+   * 새로운 바이트 데이터를 버퍼에 추가합니다.
+   * @param newData 추가할 바이트 데이터
+   * @private
+   */
+  private _appendToBuffer(newData: Uint8Array): void {
+    const requiredSize = this.bufferLength + newData.length;
+
+    // 버퍼 크기가 부족하면 확장
+    if (requiredSize > this.buffer.length) {
+      const newSize = Math.max(this.buffer.length * 2, requiredSize);
+      const newBuffer = new Uint8Array(newSize);
+      newBuffer.set(this.buffer.subarray(0, this.bufferLength));
+      this.buffer = newBuffer;
+    }
+
+    // 새 데이터를 버퍼에 복사
+    this.buffer.set(newData, this.bufferLength);
+    this.bufferLength += newData.length;
+  }
+
+  /**
+   * 버퍼의 현재 위치부터 지정된 길이만큼 문자열로 디코딩하고 position을 업데이트합니다.
+   * UTF-8 문자 경계를 고려하여 안전하게 디코딩합니다.
+   * @param length 디코딩할 바이트 길이 (선택적)
+   * @returns 디코딩된 문자열
+   * @private
+   */
+  private _readBuffer(length?: number): string {
+    const originalPos = this.position;
+    const endPos = length ? Math.min(this.position + length, this.bufferLength) : this.bufferLength;
+    const slice = this.buffer.subarray(this.position, endPos);
+
+    try {
+      const result = this.decoder.decode(slice, { stream: !this.isStreamEnded });
+      this.position = endPos;
+      return result;
+    } catch (error) {
+      // 불완전한 UTF-8 시퀀스로 인한 오류 처리
+      if (!this.isStreamEnded && endPos === this.bufferLength) {
+        // 스트림이 끝나지 않았고 버퍼 끝까지 읽었다면, 불완전한 문자가 있을 수 있음
+        // 마지막 몇 바이트를 제외하고 디코딩 시도
+        for (let i = 1; i <= 4 && endPos - i > this.position; i++) {
+          try {
+            const safeSlice = this.buffer.subarray(this.position, endPos - i);
+            const result = this.decoder.decode(safeSlice, { stream: true });
+            this.position = endPos - i;
+            return result;
+          } catch {
+            continue;
+          }
+        }
+      }
+      this.position = originalPos; // 실패 시 원래 위치로 복원
+      throw error;
+    }
+  }
+
+  /**
+   * 현재 위치에서 패턴이 일치하는지 확인합니다.
+   * @param pattern 확인할 패턴
+   * @returns 패턴이 일치하면 true
+   * @private
+   */
+  private _matchesPattern(pattern: string): boolean {
+    const patternBytes = new TextEncoder().encode(pattern);
+    if (this.position + patternBytes.length > this.bufferLength) {
+      return false;
+    }
+
+    for (let i = 0; i < patternBytes.length; i++) {
+      if (this.buffer[this.position + i] !== patternBytes[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * 현재 위치부터 지정된 패턴을 찾습니다.
+   * @param pattern 찾을 문자열 패턴
+   * @returns 패턴이 발견된 위치 (바이트 오프셋), 없으면 -1
+   * @private
+   */
+  private _findPattern(pattern: string): number {
+    const patternBytes = new TextEncoder().encode(pattern);
+    const searchEnd = this.bufferLength - patternBytes.length + 1;
+
+    for (let i = this.position; i < searchEnd; i++) {
+      let found = true;
+      for (let j = 0; j < patternBytes.length; j++) {
+        if (this.buffer[i + j] !== patternBytes[j]) {
+          found = false;
+          break;
+        }
+      }
+      if (found) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * XML 선언을 파싱합니다.
+   * @returns 파싱이 완료되면 true, 더 많은 데이터가 필요하면 false
+   * @private
+   */
+  private _parseXmlDeclaration(): boolean {
+    const endPos = this._findPattern('?>');
+    if (endPos === -1) {
+      return false;
+    }
+    this.position = endPos + 2; // '?>' 다음으로 이동
+    return true;
+  }
+
+  /**
+   * 주석을 파싱합니다.
+   * @returns 파싱이 완료되면 true, 더 많은 데이터가 필요하면 false
+   * @private
+   */
+  private _parseComment(): boolean {
+    const endPos = this._findPattern('-->');
+    if (endPos === -1) {
+      return false; // 더 많은 데이터 필요
+    }
+    this.position = endPos + 3; // '-->' 다음으로 이동
+    return true;
+  }
+
+  /**
+   * CDATA 섹션을 파싱합니다.
+   * @returns 파싱이 완료되면 true, 더 많은 데이터가 필요하면 false
+   * @private
+   */
+  private _parseCData(): boolean {
+    const startPos = this.position + 9; // '<![CDATA[' 다음
+    const endPos = this._findPattern(']]>');
+    if (endPos === -1) {
+      return false; // 더 많은 데이터 필요
+    }
+
+    try {
+      const cdataContent = this.decoder.decode(this.buffer.subarray(startPos, endPos));
+      this._addEvent({
+        type: XmlEventType.CDATA,
+        value: cdataContent
+      } as CdataEvent);
+      this.position = endPos + 3; // ']]>' 다음으로 이동
+      return true;
+    } catch (error) {
+      if (!this.isStreamEnded) {
+        return false; // 불완전한 UTF-8, 더 많은 데이터 필요
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 처리 명령을 파싱합니다.
+   * @returns 파싱이 완료되면 true, 더 많은 데이터가 필요하면 false
+   * @private
+   */
+  private _parseProcessingInstruction(): boolean {
+    const endPos = this._findPattern('?>');
+    if (endPos === -1) {
+      return false; // 더 많은 데이터 필요
+    }
+    this.position = endPos + 2; // '?>' 다음으로 이동
+    return true;
+  }
+
+  /**
+   * 종료 태그를 파싱합니다.
+   * @returns 파싱이 완료되면 true, 더 많은 데이터가 필요하면 false
+   * @private
+   */
+  private _parseEndTag(): boolean {
+    const gtPos = this._findPattern('>');
+    if (gtPos === -1) {
+      return false; // 더 많은 데이터 필요
+    }
+
+    try {
+      const tagContent = this.decoder.decode(this.buffer.subarray(this.position, gtPos + 1));
+      const closeTagMatch = tagContent.match(/^<\/([a-zA-Z0-9_:.-]+)\s*>$/);
+
+      if (!closeTagMatch) {
+        this._addError(new Error('Malformed closing tag'));
+        return true;
+      }
+
+      const tagName = closeTagMatch[1];
+      if (this.elementStack.length === 0 || this.elementStack[this.elementStack.length - 1] !== tagName) {
+        this._addError(new Error(`Mismatched closing tag: </${tagName}>. Expected </${this.elementStack[this.elementStack.length - 1] || 'nothing'}>`));
+        return true;
+      }
+
+      this.elementStack.pop();
+      this.namespaceStack.pop();
+
+      const { localName, prefix, uri } = this._parseQualifiedName(tagName,
+        this.namespaceStack.length > 0 ? this.namespaceStack[this.namespaceStack.length - 1] : new Map());
+
+      this._addEvent({
+        type: XmlEventType.END_ELEMENT,
+        name: tagName,
+        localName,
+        prefix,
+        uri
+      } as EndElementEvent);
+
+      this.position = gtPos + 1;
+      return true;
+    } catch (error) {
+      if (!this.isStreamEnded) {
+        return false; // 불완전한 UTF-8, 더 많은 데이터 필요
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 시작 태그를 파싱합니다.
+   * @returns 파싱이 완료되면 true, 더 많은 데이터가 필요하면 false
+   * @private
+   */
+  private _parseStartTag(): boolean {
+    const gtPos = this._findPattern('>');
+    if (gtPos === -1) {
+      return false; // 더 많은 데이터 필요
+    }
+
+    try {
+      const tagContent = this.decoder.decode(this.buffer.subarray(this.position, gtPos + 1));
+      const tagMatch = tagContent.match(/^<([a-zA-Z0-9_:.-]+)(\s+[^>]*?)?\s*(\/?)>$/);
+
+      if (!tagMatch) {
+        this._addError(new Error('Malformed start tag'));
+        return true;
+      }
+
+      const tagName = tagMatch[1];
+      const attributesString = tagMatch[2] || '';
+      const isSelfClosing = tagMatch[3] === '/';
+
+      // 네임스페이스 매핑 스택에 새 레벨 추가
+      const currentNamespaces = new Map<string, string>();
+      if (this.namespaceStack.length > 0) {
+        // 부모의 네임스페이스 매핑을 복사
+        const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+        for (const [prefix, uri] of parentNamespaces) {
+          currentNamespaces.set(prefix, uri);
+        }
+      }
+
+      const attributes: { [key: string]: string } = {};
+      const attrMatches = attributesString.matchAll(/([a-zA-Z0-9_:.-]+)="([^"]*)"/g);
+      for (const match of attrMatches) {
+        const attrName = match[1];
+        const attrValue = this._unescapeXml(match[2]);
+        attributes[attrName] = attrValue;
+
+        // xmlns 네임스페이스 선언 처리
+        if (attrName === 'xmlns') {
+          currentNamespaces.set('', attrValue);
+        } else if (attrName.startsWith('xmlns:')) {
+          const prefix = attrName.substring(6);
+          currentNamespaces.set(prefix, attrValue);
+        }
+      }
+
+      // 태그 이름에서 네임스페이스 정보 추출
+      const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
+
+      this._addEvent({
+        type: XmlEventType.START_ELEMENT,
+        name: tagName,
+        localName,
+        prefix,
+        uri,
+        attributes: attributes
+      } as StartElementEvent);
+
+      this.position = gtPos + 1;
+
+      if (!isSelfClosing) {
+        this.elementStack.push(tagName);
+        this.namespaceStack.push(currentNamespaces);
+      } else {
+        this._addEvent({
+          type: XmlEventType.END_ELEMENT,
+          name: tagName,
+          localName,
+          prefix,
+          uri
+        } as EndElementEvent);
+      }
+
+      return true;
+    } catch (error) {
+      if (!this.isStreamEnded) {
+        return false; // 불완전한 UTF-8, 더 많은 데이터 필요
+      }
+      throw error;
+    }
+  }
+
+  // ...existing code...
 }
 
 

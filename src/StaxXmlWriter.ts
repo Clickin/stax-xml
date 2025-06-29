@@ -23,7 +23,7 @@ export interface StaxXmlWriterOptions {
     namespaces?: NamespaceDeclaration[]; // 문서 기본 네임스페이스 선언
 }
 
-export interface StaxXmlInternalOptions {
+interface StaxXmlInternalOptions {
     encoding: string; // 출력 인코딩
     prettyPrint: boolean; // Pretty print 활성화 여부
     indentString: string; // Pretty print 들여쓰기 문자열
@@ -138,10 +138,11 @@ class StaxXmlWriter {
      * @param localName 요소의 로컬 이름
      * @param prefix 네임스페이스 접두사 (이 구현에서는 네임스페이스 매핑을 관리하지 않으므로 주의)
      * @param uri 네임스페이스 URI (이 구현에서는 네임스페이스 매핑을 관리하지 않으므로 주의)
+     * @param attributes 속성 객체 (키-값 쌍, 선택 사항)
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public writeStartElement(localName: string, prefix?: string, uri?: string): this {
+    public writeStartElement(localName: string, prefix?: string, uri?: string, attributes?: Record<string, string>): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeStartElement: Writer is closed or in error state.');
         }
@@ -150,6 +151,14 @@ class StaxXmlWriter {
         this._writeIndent(); // Pretty print용 들여쓰기
         const tagName = prefix ? `${prefix}:${localName}` : localName;
         this._write(`<${tagName}`);
+
+        // 속성 추가 (attributes가 제공된 경우)
+        if (attributes) {
+            for (const [key, value] of Object.entries(attributes)) {
+                this._write(` ${key}="${this._escapeXml(value)}"`);
+            }
+        }
+
         // element-level namespace declaration if prefix and uri provided
         if (prefix && uri) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
@@ -191,7 +200,7 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public writeAttribute(localName: string, value: string, prefix?: string, uri?: string): this {
+    public writeAttribute(localName: string, value: string, prefix?: string): this {
         if (this.state !== WriterState.START_ELEMENT_OPEN) {
             throw new Error('writeAttribute can only be called after writeStartElement.');
         }
@@ -399,46 +408,6 @@ class StaxXmlWriter {
                 element += ` ${attrName}="${this._escapeXml(attr.value)}"`;
             }
         }
-        element += '/>';
-        this._write(element);
-        this.state = WriterState.AFTER_ELEMENT;
-        this._writeNewline(); // Pretty print용 줄바꿈
-        return this;
-    }
-
-    /**
-     * 속성과 함께 self-closing 요소를 작성합니다 (예: <element attr="value"/>).
-     * @param localName 요소의 로컬 이름
-     * @param attributes 속성 객체 (키-값 쌍)
-     * @param prefix 네임스페이스 접두사 (선택 사항)
-     * @param uri 네임스페이스 URI (선택 사항)
-     * @returns this (체이닝 가능)
-     * @throws Error 잘못된 상태에서 호출 시
-     */
-    public writeStartElementWithAttributes(
-        localName: string,
-        attributes: { [key: string]: string } = {},
-        prefix?: string,
-        uri?: string
-    ): this {
-        if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
-            throw new Error('Cannot writeStartElementWithAttributes: Writer is closed or in error state.');
-        }
-        this._closeStartElementTag(); // 이전에 열린 태그가 있다면 닫음
-
-        this._writeIndent(); // Pretty print용 들여쓰기
-        const tagName = prefix ? `${prefix}:${localName}` : localName;
-        let element = `<${tagName}`;
-
-        // 속성 추가
-        for (const [key, value] of Object.entries(attributes)) {
-            element += ` ${key}="${this._escapeXml(value)}"`;
-        }
-        // element-level namespace declaration for prefixed element
-        if (prefix && uri) {
-            element += ` xmlns:${prefix}="${this._escapeXml(uri)}"`;
-        }
-
         element += '/>';
         this._write(element);
         this.state = WriterState.AFTER_ELEMENT;

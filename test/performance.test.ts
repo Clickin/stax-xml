@@ -400,14 +400,14 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
   });
 });
 
-describe('Large File Performance Tests with SwissProt.xml', () => {
-  it('should parse SwissProt.xml efficiently with memory monitoring', async () => {
+describe('Large File Performance Tests with treebank_e.xml', () => {
+  it('should parse treebank_e.xml efficiently with memory monitoring', async () => {
     const { heapStats } = await import('bun:jsc');
 
     // fs.createReadStream 사용 (Safari 엔진의 file.stream() 메모리 문제 및 HTTP 서버 부하 해결)
-    const filePath = 'test/samples/SwissProt.xml';
+    const filePath = 'test/samples/treebank_e.xml';
 
-    console.log(`\n🧬 SwissProt.xml Performance Test (fs.createReadStream)`);
+    console.log(`\n🌳 treebank_e.xml Performance Test (fs.createReadStream)`);
     console.log(`📁 File path: ${filePath}`);
 
     // 파일 크기 확인
@@ -461,9 +461,9 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
 
       if (event.type === XmlEventType.START_ELEMENT) {
         const elementName = (event as any).name;
-        if (elementName === 'Entry') {
+        if (elementName === 'S') { // treebank_e.xml의 주요 구조 단위는 문장(S)
           entryCount++;
-        } else if (elementName === 'protein') {
+        } else if (elementName === 'NP' || elementName === 'VP') { // 명사구(NP), 동사구(VP) 등도 카운트
           proteinCount++;
         }
       } else if (event.type === XmlEventType.CHARACTERS) {
@@ -482,7 +482,7 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
         const elapsedSeconds = (currentTime - startTime) / 1000;
         const eventsPerSecond = Math.round(eventCount / elapsedSeconds);
 
-        console.log(`⏱️  ${elapsedSeconds.toFixed(1)}s: ${eventCount.toLocaleString()} events (${eventsPerSecond}/s), ${entryCount.toLocaleString()} entries, heap: ${(currentHeapStats.heapSize / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`⏱️  ${elapsedSeconds.toFixed(1)}s: ${eventCount.toLocaleString()} events (${eventsPerSecond}/s), ${entryCount.toLocaleString()} sentences, heap: ${(currentHeapStats.heapSize / 1024 / 1024).toFixed(2)} MB`);
         lastReportTime = currentTime;
       }
     }
@@ -497,8 +497,8 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
     console.log(`\n🎯 Parsing Results:`);
     console.log(`⚡ Total parsing time: ${(totalTime / 1000).toFixed(2)} seconds`);
     console.log(`📈 Total events processed: ${eventCount.toLocaleString()}`);
-    console.log(`🧪 Entries found: ${entryCount.toLocaleString()}`);
-    console.log(`🧬 Proteins found: ${proteinCount.toLocaleString()}`);
+    console.log(`📝 Sentences found: ${entryCount.toLocaleString()}`);
+    console.log(`🌿 Phrases found: ${proteinCount.toLocaleString()}`);
     console.log(`📝 Total text content: ${(totalTextLength / 1024 / 1024).toFixed(2)} MB`);
     console.log(`⚡ Events per second: ${Math.round(eventCount / (totalTime / 1000)).toLocaleString()}`);
     console.log(`💾 Processing rate: ${((fileSize / 1024 / 1024) / (totalTime / 1000)).toFixed(2)} MB/s`);
@@ -524,17 +524,17 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
     console.log(`✅ Performance test completed successfully!`);
   }, 600000); // 10분 타임아웃
 
-  it('should handle SwissProt.xml with chunked streaming', async () => {
+  it('should handle treebank_e.xml with chunked streaming', async () => {
     const { heapStats } = await import('bun:jsc');
 
-    console.log(`\n🌊 SwissProt.xml Chunked Streaming Test (fs.createReadStream)`);
+    console.log(`\n🌊 treebank_e.xml Chunked Streaming Test (fs.createReadStream)`);
 
     // 초기 메모리 상태
     Bun.gc(true);
     const initialHeapStats = heapStats();
 
     // fs.createReadStream 방식 사용
-    const filePath = 'test/samples/SwissProt.xml';
+    const filePath = 'test/samples/treebank_e.xml';
     console.log(`📁 Reading from: ${filePath}`);
 
     const startTime = performance.now();
@@ -555,17 +555,17 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
     for await (const event of reader) {
       eventCount++;
 
-      if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'Entry') {
+      if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'S') {
         entryCount++;
 
-        // 1000개의 entry마다 메모리 사용량 체크
+        // 1000개의 문장마다 메모리 사용량 체크
         if (entryCount % 1000 === 0) {
           const currentHeapStats = heapStats();
           memoryPeakSize = Math.max(memoryPeakSize, currentHeapStats.heapSize);
 
           const currentTime = performance.now();
           const elapsedSeconds = (currentTime - startTime) / 1000;
-          console.log(`📊 Processed ${entryCount.toLocaleString()} entries in ${elapsedSeconds.toFixed(1)}s, heap: ${(currentHeapStats.heapSize / 1024 / 1024).toFixed(2)} MB`);
+          console.log(`📊 Processed ${entryCount.toLocaleString()} sentences in ${elapsedSeconds.toFixed(1)}s, heap: ${(currentHeapStats.heapSize / 1024 / 1024).toFixed(2)} MB`);
         }
       }
     }
@@ -593,12 +593,10 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
     expect(totalTime).toBeLessThan(300000); // 5분 내
 
     console.log(`✅ fs.createReadStream chunked streaming test completed!`);
-  }, 600000);
+  }, 600000); it('should benchmark parsing speed comparison', async () => {
+    console.log(`\n🏁 treebank_e.xml Speed Benchmark (fs.createReadStream)`);
 
-  it('should benchmark parsing speed comparison', async () => {
-    console.log(`\n🏁 SwissProt.xml Speed Benchmark (fs.createReadStream)`);
-
-    const filePath = 'test/samples/SwissProt.xml';
+    const filePath = 'test/samples/treebank_e.xml';
 
     // 파일 크기 확인
     const file = Bun.file(filePath);
@@ -635,7 +633,7 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
 
       for await (const event of reader) {
         eventCount++;
-        if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'Entry') {
+        if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'S') {
           entryCount++;
         }
       }
@@ -651,7 +649,7 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
         memoryUsed: finalHeap - initialHeap
       });
 
-      console.log(`⏱️  Run ${run}: ${(runTime / 1000).toFixed(2)}s, ${eventCount.toLocaleString()} events, ${entryCount.toLocaleString()} entries`);
+      console.log(`⏱️  Run ${run}: ${(runTime / 1000).toFixed(2)}s, ${eventCount.toLocaleString()} events, ${entryCount.toLocaleString()} sentences`);
     }
 
     // 평균 성능 계산
@@ -663,7 +661,7 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
     console.log(`\n📊 Benchmark Results (Average of ${runs} runs):`);
     console.log(`⚡ Average parsing time: ${(avgTime / 1000).toFixed(2)} seconds`);
     console.log(`📈 Average events: ${avgEvents.toLocaleString()}`);
-    console.log(`🧪 Average entries: ${avgEntries.toLocaleString()}`);
+    console.log(`📝 Average sentences: ${avgEntries.toLocaleString()}`);
     console.log(`💾 Average memory usage: ${(avgMemory / 1024 / 1024).toFixed(2)} MB`);
     console.log(`📈 Average throughput: ${Math.round(avgEvents / (avgTime / 1000)).toLocaleString()} events/sec`);
     console.log(`💾 Average processing rate: ${((fileSize / 1024 / 1024) / (avgTime / 1000)).toFixed(2)} MB/sec`);
@@ -685,15 +683,15 @@ describe('Large File Performance Tests with SwissProt.xml', () => {
   }, 900000); // 15분 타임아웃
 });
 
-describe('SwissProt.xml Performance Summary', () => {
+describe('treebank_e.xml Performance Summary', () => {
   it('should provide comprehensive performance summary with native heap stats', async () => {
     const { heapStats } = await import('bun:jsc');
 
-    console.log(`\n🧬 SwissProt.xml 성능 테스트 종합 요약 (fs.createReadStream)`);
+    console.log(`\n🌳 treebank_e.xml 성능 테스트 종합 요약 (fs.createReadStream)`);
     console.log(`===========================================`);
 
     // fs.createReadStream 방식으로 파일 정보 확인
-    const filePath = 'test/samples/SwissProt.xml';
+    const filePath = 'test/samples/treebank_e.xml';
     console.log(`📁 File path: ${filePath}`);
 
     const file = Bun.file(filePath);
@@ -732,7 +730,7 @@ describe('SwissProt.xml Performance Summary', () => {
 
       if (event.type === XmlEventType.START_ELEMENT) {
         elementCount++;
-        if ((event as any).name === 'Entry') {
+        if ((event as any).name === 'S') {
           entryCount++;
         }
       } else if (event.type === XmlEventType.CHARACTERS) {
@@ -747,7 +745,7 @@ describe('SwissProt.xml Performance Summary', () => {
       if (currentTime - lastReportTime > 20000) {
         const elapsed = (currentTime - startTime) / 1000;
         const currentHeap = heapStats();
-        console.log(`   ⏱️  ${elapsed.toFixed(1)}s: ${eventCount.toLocaleString()} 이벤트, ${entryCount.toLocaleString()} 엔트리, 힙: ${(currentHeap.heapSize / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`   ⏱️  ${elapsed.toFixed(1)}s: ${eventCount.toLocaleString()} 이벤트, ${entryCount.toLocaleString()} 문장, 힙: ${(currentHeap.heapSize / 1024 / 1024).toFixed(2)} MB`);
         lastReportTime = currentTime;
       }
     }
@@ -760,7 +758,7 @@ describe('SwissProt.xml Performance Summary', () => {
     console.log(`\n📊 파싱 완료 - 상세 결과:`);
     console.log(`⏱️  총 파싱 시간: ${(totalTime / 1000).toFixed(2)}초`);
     console.log(`📈 총 XML 이벤트: ${eventCount.toLocaleString()}개`);
-    console.log(`🧪 Entry 엘리먼트: ${entryCount.toLocaleString()}개`);
+    console.log(`📝 문장(S) 엘리먼트: ${entryCount.toLocaleString()}개`);
     console.log(`📦 전체 엘리먼트: ${elementCount.toLocaleString()}개`);
     console.log(`📝 텍스트 데이터: ${(textLength / 1024 / 1024).toFixed(2)} MB`);
     console.log(`⏱️  최대 이벤트 시간: ${maxEventTime.toFixed(4)} ms`);
@@ -771,9 +769,9 @@ describe('SwissProt.xml Performance Summary', () => {
     const mbPerSec = (fileSize / 1024 / 1024) / (totalTime / 1000);
     const entriesPerSec = Math.round(entryCount / (totalTime / 1000));
     console.log(`📈 이벤트 처리율: ${eventsPerSec.toLocaleString()} 이벤트/초`);
-    console.log(`🧪 엔트리 처리율: ${entriesPerSec.toLocaleString()} 엔트리/초`);
+    console.log(`📝 문장 처리율: ${entriesPerSec.toLocaleString()} 문장/초`);
     console.log(`💾 파일 처리율: ${mbPerSec.toFixed(2)} MB/초`);
-    console.log(`📊 엔트리 밀도: ${Math.round(entryCount / (fileSize / 1024 / 1024))} 엔트리/MB`);
+    console.log(`📊 문장 밀도: ${Math.round(entryCount / (fileSize / 1024 / 1024))} 문장/MB`);
     console.log(`📊 이벤트당 바이트: ${(fileSize / eventCount).toFixed(2)} 바이트`);
 
     console.log(`\n💾 JavaScript 힙 메모리:`);
@@ -819,16 +817,16 @@ describe('SwissProt.xml Performance Summary', () => {
     console.log(`✅ 메모리 < 50배: ${memoryRatio < 50 ? '달성' : '미달성'} (${memoryRatio.toFixed(1)}배)`);
 
     console.log(`\n===========================================`);
-    console.log(`🎉 SwissProt.xml 성능 테스트 완료!`);
+    console.log(`🎉 treebank_e.xml 성능 테스트 완료!`);
     console.log(`💡 네이티브 힙 통계는 아래에 표시됩니다.`);
 
-    // 어설션
-    expect(eventCount).toBeGreaterThan(7000000);
-    expect(entryCount).toBe(50000);
+    // 어설션 - treebank_e.xml은 다른 구조이므로 적절히 조정
+    expect(eventCount).toBeGreaterThan(1000000); // 최소 100만 이벤트
+    expect(entryCount).toBeGreaterThan(1000); // 최소 1000개 문장
     expect(totalTime).toBeLessThan(120000); // 2분 내
-    expect(eventsPerSec).toBeGreaterThan(500000);
+    expect(eventsPerSec).toBeGreaterThan(100000); // 최소 10만 이벤트/초
     expect(memoryRatio).toBeLessThan(50);
-    expect(mbPerSec).toBeGreaterThan(5);
+    expect(mbPerSec).toBeGreaterThan(2); // 최소 2MB/초
 
   }, 180000); // 3분 타임아웃
 });

@@ -47,7 +47,7 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
     expect(result).toContain('<empty-element attr1="value1" attr2="value2"/>');
   });
 
-  it('should write self-closing tag with writeStartElementWithAttributes', async () => {
+  it('should write self-closing tag with writeStartElement and attributes', async () => {
     const outputStream = new StringWritableStream();
     const writer = new StaxXmlWriter(outputStream, {
       encoding: 'utf-8',
@@ -57,12 +57,13 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
 
     writer.writeStartDocument();
     writer.writeStartElement('root');
-    writer.writeStartElementWithAttributes('img', {
+    writer.writeStartElement('img', undefined, undefined, {
       'src': 'image.jpg',
       'alt': 'A beautiful image',
       'width': '100',
       'height': '200'
     });
+    writer.writeEndElementSelfClosing();
     writer.writeEndElement(); // root 닫기
 
     await writer.writeEndDocument();
@@ -85,7 +86,8 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
 
     writer.writeStartElement('paragraph');
     writer.writeCharacters('This is some text with ');
-    writer.writeStartElementWithAttributes('br', {});
+    writer.writeStartElement('br', undefined, undefined, {});
+    writer.writeEndElementSelfClosing();
     writer.writeCharacters(' a line break.');
     writer.writeEndElement(); // paragraph 닫기
 

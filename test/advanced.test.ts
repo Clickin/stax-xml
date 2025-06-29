@@ -181,8 +181,10 @@ describe('StaxXmlWriter Advanced Features', () => {
     writer.writeEndElement(); // author
 
     writer.writeStartElement('metadata');
-    writer.writeStartElementWithAttributes('published', { 'year': '2020', 'month': 'March' });
-    writer.writeStartElementWithAttributes('isbn', { 'format': 'paperback' });
+    writer.writeStartElement('published', undefined, undefined, { 'year': '2020', 'month': 'March' });
+    writer.writeEndElementSelfClosing();
+    writer.writeStartElement('isbn', undefined, undefined, { 'format': 'paperback' });
+    writer.writeEndElementSelfClosing();
     writer.writeEndElement(); // metadata
 
     writer.writeEndElement(); // book

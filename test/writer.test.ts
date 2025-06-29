@@ -385,12 +385,13 @@ describe('StaxXmlWriter Tests', () => {
     writer.writeAttribute('name', 'username');
     writer.writeEndElementSelfClosing();
 
-    // writeStartElementWithAttributes 사용
-    writer.writeStartElementWithAttributes('img', {
+    // writeStartElement with attributes 사용
+    writer.writeStartElement('img', undefined, undefined, {
       src: 'image.jpg',
       alt: 'A beautiful image',
       width: '100'
     });
+    writer.writeEndElementSelfClosing();
 
     writer.writeEndElement(); // document
     await writer.writeEndDocument();
