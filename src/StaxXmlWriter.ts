@@ -13,6 +13,14 @@ enum WriterState {
     ERROR               // 오류 발생
 }
 
+/**
+ * 요소 스택에 저장되는 요소 정보
+ */
+interface ElementInfo {
+    localName: string;
+    prefix?: string;
+}
+
 
 export interface StaxXmlWriterOptions {
     encoding?: string; // 출력 인코딩 (기본값: 'utf-8')
@@ -48,7 +56,7 @@ class StaxXmlWriter {
     private writer: WritableStreamDefaultWriter<string> | null = null;
     private encoderStream: TextEncoderStream;
     private state: WriterState = WriterState.INITIAL;
-    private elementStack: string[] = []; // 열린 요소의 이름 스택
+    private elementStack: ElementInfo[] = []; // 열린 요소의 정보 스택
     private hasTextContentStack: boolean[] = []; // 각 요소가 텍스트 콘텐츠를 가지고 있는지 추적하는 스택
     // options 객체로 변경
     private options: StaxXmlInternalOptions;
@@ -163,7 +171,10 @@ class StaxXmlWriter {
         if (prefix && uri) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
         }
-        this.elementStack.push(tagName);
+        this.elementStack.push({
+            localName,
+            prefix
+        });
         this.hasTextContentStack.push(false); // 새 요소는 아직 텍스트 콘텐츠가 없음
         this.state = WriterState.START_ELEMENT_OPEN; // 이제 속성이나 네임스페이스를 작성할 수 있음
         this.currentIndentLevel++; // 들여쓰기 레벨 증가
@@ -333,7 +344,7 @@ class StaxXmlWriter {
     }
 
     /**
-     * 현재 열려있는 요소를 닫습니다 (예: </element>).
+     * 현재 열려있는 요소를 닫습니다 (예: </element> 또는 </prefix:element>).
      * @returns this (체이닝 가능)
      * @throws Error 열린 요소가 없을 때 호출 시
      */
@@ -357,8 +368,9 @@ class StaxXmlWriter {
 
         this._closeStartElementTag(); // 혹시 열린 태그가 있으면 먼저 닫고 닫는 태그 작성
 
-        const tagName = this.elementStack.pop()!;
-        this._write(`</${tagName}>`);
+        const elementInfo = this.elementStack.pop()!;
+        const closingTagName = elementInfo.prefix ? `${elementInfo.prefix}:${elementInfo.localName}` : elementInfo.localName;
+        this._write(`</${closingTagName}>`);
         this.state = WriterState.AFTER_ELEMENT; // 요소 닫은 후에는 다음 요소 또는 주석 등이 가능
 
         if (this.options.prettyPrint) {

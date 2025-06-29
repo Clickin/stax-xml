@@ -798,4 +798,45 @@ describe('StaxXmlWriter Tests', () => {
       writer.writeNamespace('ns', 'http://example.com/namespace');
     }).toThrow('writeNamespace can only be called after writeStartElement');
   });
+
+  it('should properly close elements with namespaces', async () => {
+    const outputStream = new StringWritableStream();
+    const writer = new StaxXmlWriter(outputStream, {
+      encoding: 'utf-8',
+      prettyPrint: true,
+      indentString: '  '
+    });
+
+    writer.writeStartDocument();
+    writer.writeStartElement('root');
+
+    // Element with namespace prefix
+    writer.writeStartElement('item', 'ns1', 'http://example.com/ns1');
+    writer.writeCharacters('Content with namespace');
+    writer.writeEndElement(); // Should close as </ns1:item>
+
+    // Element without namespace
+    writer.writeStartElement('simple');
+    writer.writeCharacters('Simple content');
+    writer.writeEndElement(); // Should close as </simple>
+
+    // Nested namespaced elements
+    writer.writeStartElement('section', 'ns2', 'http://example.com/ns2');
+    writer.writeStartElement('title', 'ns2', 'http://example.com/ns2');
+    writer.writeCharacters('Nested title');
+    writer.writeEndElement(); // Should close as </ns2:title>
+    writer.writeEndElement(); // Should close as </ns2:section>
+
+    writer.writeEndElement(); // Close root
+    await writer.writeEndDocument();
+
+    const result = outputStream.getResult();
+
+    expect(result).toContain('<ns1:item xmlns:ns1="http://example.com/ns1">Content with namespace</ns1:item>');
+    expect(result).toContain('<simple>Simple content</simple>');
+    expect(result).toContain('<ns2:section xmlns:ns2="http://example.com/ns2">');
+    expect(result).toContain('<ns2:title xmlns:ns2="http://example.com/ns2">Nested title</ns2:title>');
+    expect(result).toContain('</ns2:section>');
+    expect(result).toContain('</root>');
+  });
 });
