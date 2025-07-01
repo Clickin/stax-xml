@@ -32,16 +32,16 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('empty-element', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('empty-element', {
       attributes: {
         attr1: 'value1',
         attr2: 'value2'
       },
       selfClosing: true
     });
-    writer.writeEndElement(); // root 닫기
+    await writer.writeEndElement(); // root 닫기
 
     await writer.writeEndDocument();
 
@@ -58,9 +58,9 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('img', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('img', {
       attributes: {
         'src': 'image.jpg',
         'alt': 'A beautiful image',
@@ -69,7 +69,7 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
       },
       selfClosing: true
     });
-    writer.writeEndElement(); // root 닫기
+    await writer.writeEndElement(); // root 닫기
 
     await writer.writeEndDocument();
 
@@ -86,16 +86,16 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('document');
+    await writer.writeStartDocument();
+    await writer.writeStartElement('document');
 
-    writer.writeStartElement('paragraph');
-    writer.writeCharacters('This is some text with ');
-    writer.writeStartElement('br', { selfClosing: true });
-    writer.writeCharacters(' a line break.');
-    writer.writeEndElement(); // paragraph 닫기
+    await writer.writeStartElement('paragraph');
+    await writer.writeCharacters('This is some text with ');
+    await writer.writeStartElement('br', { selfClosing: true });
+    await writer.writeCharacters(' a line break.');
+    await writer.writeEndElement(); // paragraph 닫기
 
-    writer.writeStartElement('input', {
+    await writer.writeStartElement('input', {
       attributes: {
         type: 'text',
         name: 'username',
@@ -104,7 +104,7 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
       selfClosing: true
     });
 
-    writer.writeEndElement(); // document 닫기
+    await writer.writeEndElement(); // document 닫기
 
     await writer.writeEndDocument();
 

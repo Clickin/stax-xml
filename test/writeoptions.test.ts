@@ -26,18 +26,18 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('child', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('child', {
       attributes: {
         id: '1',
         name: 'test',
         type: 'example'
       }
     });
-    writer.writeCharacters('Content');
-    writer.writeEndElement(); // child
-    writer.writeEndElement(); // root
+    await writer.writeCharacters('Content');
+    await writer.writeEndElement(); // child
+    await writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -51,9 +51,9 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('img', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('img', {
       attributes: {
         src: 'image.jpg',
         alt: 'Test image',
@@ -61,7 +61,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       },
       selfClosing: true
     });
-    writer.writeEndElement(); // root
+    await writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -76,9 +76,9 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('meta', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('meta', {
       prefix: 'ns',
       uri: 'http://example.com/namespace',
       attributes: {
@@ -87,7 +87,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       },
       selfClosing: true
     });
-    writer.writeEndElement(); // root
+    await writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -101,17 +101,17 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('old', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('old', {
       prefix: 'ns', uri: 'http://example.com/ns', attributes: {
         id: '123',
         type: 'legacy'
       }
     });
-    writer.writeCharacters('Legacy content');
-    writer.writeEndElement(); // old
-    writer.writeEndElement(); // root
+    await writer.writeCharacters('Legacy content');
+    await writer.writeEndElement(); // old
+    await writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -125,21 +125,21 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('catalog', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('catalog', {
       attributes: { version: '2.0' }
     });
 
     // New API
-    writer.writeStartElement('product', {
+    await writer.writeStartElement('product', {
       attributes: { id: '001', featured: 'true' }
     });
-    writer.writeStartElement('name');
-    writer.writeCharacters('Premium Laptop');
-    writer.writeEndElement();
+    await writer.writeStartElement('name');
+    await writer.writeCharacters('Premium Laptop');
+    await writer.writeEndElement();
 
     // Self-closing with new API
-    writer.writeStartElement('thumbnail', {
+    await writer.writeStartElement('thumbnail', {
       attributes: {
         src: 'image.jpg',
         alt: 'Product Image'
@@ -148,16 +148,16 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
     });
 
     // Legacy API
-    writer.writeStartElement('legacy', {
+    await writer.writeStartElement('legacy', {
       prefix: 'old', uri: 'http://example.com/old', attributes: {
         test: 'value'
       }
     });
-    writer.writeCharacters('Legacy element');
-    writer.writeEndElement(); // legacy
+    await writer.writeCharacters('Legacy element');
+    await writer.writeEndElement(); // legacy
 
-    writer.writeEndElement(); // product
-    writer.writeEndElement(); // catalog
+    await writer.writeEndElement(); // product
+    await writer.writeEndElement(); // catalog
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -174,12 +174,12 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('empty', {});
-    writer.writeCharacters('Content');
-    writer.writeEndElement(); // empty
-    writer.writeEndElement(); // root
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('empty', {});
+    await writer.writeCharacters('Content');
+    await writer.writeEndElement(); // empty
+    await writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -193,10 +193,10 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeStartElement('br', { selfClosing: true });
-    writer.writeEndElement(); // root
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeStartElement('br', { selfClosing: true });
+    await writer.writeEndElement(); // root
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();
@@ -210,21 +210,21 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('document', {
+    await writer.writeStartDocument();
+    await writer.writeStartElement('document', {
       prefix: 'doc',
       uri: 'http://example.com/document',
       attributes: { version: '2.0' }
     });
 
-    writer.writeStartElement('header', {
+    await writer.writeStartElement('header', {
       attributes: { id: 'main-header' }
     });
-    writer.writeStartElement('title');
-    writer.writeCharacters('Test Document');
-    writer.writeEndElement(); // title
+    await writer.writeStartElement('title');
+    await writer.writeCharacters('Test Document');
+    await writer.writeEndElement(); // title
 
-    writer.writeStartElement('meta', {
+    await writer.writeStartElement('meta', {
       attributes: {
         name: 'author',
         content: 'Test Author'
@@ -232,17 +232,17 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
       selfClosing: true
     });
 
-    writer.writeEndElement(); // header
+    await writer.writeEndElement(); // header
 
-    writer.writeStartElement('content');
-    writer.writeStartElement('section', {
+    await writer.writeStartElement('content');
+    await writer.writeStartElement('section', {
       attributes: { class: 'main' }
     });
-    writer.writeCharacters('Main content');
-    writer.writeEndElement(); // section
-    writer.writeEndElement(); // content
+    await writer.writeCharacters('Main content');
+    await writer.writeEndElement(); // section
+    await writer.writeEndElement(); // content
 
-    writer.writeEndElement(); // document
+    await writer.writeEndElement(); // document
     await writer.writeEndDocument();
 
     const result = outputStream.getResult();

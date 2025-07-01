@@ -6,10 +6,11 @@
 
 ## English
 
-A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). Unlike traditional XML-to-JSON mappers, StAX-XML allows you to map XML data to any custom structure you desire while efficiently handling large XML files.
+A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). **All parsing and writing operations are fully asynchronous**, making it ideal for handling large XML files without blocking the main thread. Unlike traditional XML-to-JSON mappers, StAX-XML allows you to map XML data to any custom structure you desire while efficiently handling large XML files through streaming.
 
 ### 🚀 Features
 
+- **Fully Asynchronous**: All parsing and writing operations are asynchronous for non-blocking performance
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
 - **High Performance**: Optimized for speed and low memory usage
@@ -224,22 +225,22 @@ async function createLocalXmlFile() {
   });
 
   // Write XML document
-  writer.writeStartDocument('1.0', 'utf-8');
+  await writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
+  await writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
   
-  writer.writeStartElement('product', { attributes: { id: '001' } });
+  await writer.writeStartElement('product', { attributes: { id: '001' } });
   
-  writer.writeStartElement('name');
-  writer.writeCharacters('Laptop Computer');
-  writer.writeEndElement();
+  await writer.writeStartElement('name');
+  await writer.writeCharacters('Laptop Computer');
+  await writer.writeEndElement();
   
-  writer.writeStartElement('price', { attributes: { currency: 'USD' } });
-  writer.writeCharacters('999.99');
-  writer.writeEndElement();
+  await writer.writeStartElement('price', { attributes: { currency: 'USD' } });
+  await writer.writeCharacters('999.99');
+  await writer.writeEndElement();
   
-  writer.writeEndElement(); // product
-  writer.writeEndElement(); // catalog
+  await writer.writeEndElement(); // product
+  await writer.writeEndElement(); // catalog
   
   await writer.writeEndDocument();
   console.log('XML file created successfully!');
@@ -285,24 +286,24 @@ app.get('/api/users', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
 
     // Write XML
-    writer.writeStartDocument('1.0', 'utf-8');
-    writer.writeStartElement('users');
+    await writer.writeStartDocument('1.0', 'utf-8');
+    await writer.writeStartElement('users');
     
     for (const user of users) {
-      writer.writeStartElement('user', { attributes: { id: user.id.toString() } });
+      await writer.writeStartElement('user', { attributes: { id: user.id.toString() } });
       
-      writer.writeStartElement('name');
-      writer.writeCharacters(user.name);
-      writer.writeEndElement();
+      await writer.writeStartElement('name');
+      await writer.writeCharacters(user.name);
+      await writer.writeEndElement();
       
-      writer.writeStartElement('email');
-      writer.writeCharacters(user.email);
-      writer.writeEndElement();
+      await writer.writeStartElement('email');
+      await writer.writeCharacters(user.email);
+      await writer.writeEndElement();
       
-      writer.writeEndElement(); // user
+      await writer.writeEndElement(); // user
     }
     
-    writer.writeEndElement(); // users
+    await writer.writeEndElement(); // users
     await writer.writeEndDocument();
     
   } catch (error) {
@@ -354,8 +355,8 @@ app.get('/api/products', async (c) => {
 
       try {
         // Generate XML
-        writer.writeStartDocument('1.0', 'utf-8');
-        writer.writeStartElement('products', {
+        await writer.writeStartDocument('1.0', 'utf-8');
+        await writer.writeStartElement('products', {
           attributes: {
             count: products.length.toString(),
             generated: new Date().toISOString()
@@ -363,25 +364,25 @@ app.get('/api/products', async (c) => {
         });
         
         for (const product of products) {
-          writer.writeStartElement('product', {
+          await writer.writeStartElement('product', {
             attributes: {
               id: product.id,
               category: product.category
             }
           });
           
-          writer.writeStartElement('name');
-          writer.writeCharacters(product.name);
-          writer.writeEndElement();
+          await writer.writeStartElement('name');
+          await writer.writeCharacters(product.name);
+          await writer.writeEndElement();
           
-          writer.writeStartElement('price', { attributes: { currency: 'USD' } });
-          writer.writeCharacters(product.price.toString());
-          writer.writeEndElement();
+          await writer.writeStartElement('price', { attributes: { currency: 'USD' } });
+          await writer.writeCharacters(product.price.toString());
+          await writer.writeEndElement();
           
-          writer.writeEndElement(); // product
+          await writer.writeEndElement(); // product
         }
         
-        writer.writeEndElement(); // products
+        await writer.writeEndElement(); // products
         await writer.writeEndDocument();
         
       } catch (error) {
@@ -428,30 +429,30 @@ async function createAdvancedXml() {
   });
 
   // Write XML with namespaces and custom entities
-  writer.writeStartDocument('1.0', 'utf-8');
+  await writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('document', { 
+  await writer.writeStartElement('document', { 
     prefix: 'doc', 
     uri: 'http://example.com/document', 
     attributes: { version: '2.0' } 
   });
-  writer.writeNamespace('meta', 'http://example.com/metadata');
+  await writer.writeNamespace('meta', 'http://example.com/metadata');
   
-  writer.writeStartElement('header', { prefix: 'meta' });
-  writer.writeStartElement('title');
-  writer.writeCharacters('Product Catalog');
-  writer.writeEndElement();
+  await writer.writeStartElement('header', { prefix: 'meta' });
+  await writer.writeStartElement('title');
+  await writer.writeCharacters('Product Catalog');
+  await writer.writeEndElement();
   
-  writer.writeStartElement('company');
-  writer.writeCharacters('&company;'); // Will be encoded automatically
-  writer.writeEndElement();
-  writer.writeEndElement(); // header
+  await writer.writeStartElement('company');
+  await writer.writeCharacters('&company;'); // Will be encoded automatically
+  await writer.writeEndElement();
+  await writer.writeEndElement(); // header
   
-  writer.writeStartElement('content');
-  writer.writeStartElement('item', { attributes: { type: 'featured' } });
+  await writer.writeStartElement('content');
+  await writer.writeStartElement('item', { attributes: { type: 'featured' } });
   
   // Self-closing element
-  writer.writeStartElement('thumbnail', {
+  await writer.writeStartElement('thumbnail', {
     attributes: {
       src: 'image.jpg',
       alt: 'Product Image'
@@ -459,13 +460,13 @@ async function createAdvancedXml() {
     selfClosing: true
   });
   
-  writer.writeStartElement('description');
-  writer.writeCDATA('<p>This is <b>HTML</b> content in CDATA</p>');
-  writer.writeEndElement();
+  await writer.writeStartElement('description');
+  await writer.writeCDATA('<p>This is <b>HTML</b> content in CDATA</p>');
+  await writer.writeEndElement();
   
-  writer.writeEndElement(); // item
-  writer.writeEndElement(); // content
-  writer.writeEndElement(); // document
+  await writer.writeEndElement(); // item
+  await writer.writeEndElement(); // content
+  await writer.writeEndElement(); // document
   
   await writer.writeEndDocument();
   
@@ -476,93 +477,6 @@ async function createAdvancedXml() {
 createAdvancedXml().then(xml => {
   console.log('Generated XML:', xml);
 });
-```
-
-##### Method Chaining Support
-
-StaxXmlWriter supports method chaining for more concise and readable code:
-
-```typescript
-import { StaxXmlWriter } from 'stax-xml';
-
-async function createXmlWithChaining() {
-  let xmlOutput = '';
-  
-  const writableStream = new WritableStream<Uint8Array>({
-    write(chunk) {
-      xmlOutput += new TextDecoder().decode(chunk);
-    }
-  });
-
-  const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
-
-  // Method chaining example - all methods return 'this' for chaining
-  writer
-    .writeStartDocument('1.0', 'utf-8')
-    .writeStartElement('catalog', { attributes: { version: '2.0' } })
-      .writeStartElement('product', { attributes: { id: '001', featured: 'true' } })
-        .writeStartElement('name')
-          .writeCharacters('Premium Laptop')
-          .writeEndElement()
-        .writeStartElement('price', { attributes: { currency: 'USD' } })
-          .writeCharacters('1299.99')
-          .writeEndElement()
-        .writeStartElement('description')
-          .writeCDATA('<p>High-performance laptop with <b>excellent</b> specifications</p>')
-          .writeEndElement()
-        .writeStartElement('specs')
-          .writeStartElement('cpu')
-            .writeCharacters('Intel Core i7')
-            .writeEndElement()
-          .writeStartElement('memory', { attributes: { type: 'DDR4' } })
-            .writeCharacters('16GB')
-            .writeEndElement()
-          .writeStartElement('storage', { 
-            attributes: { type: 'SSD', capacity: '512GB' },
-            selfClosing: true
-          })
-          .writeEndElement() // specs
-        .writeEndElement() // product
-      .writeStartElement('product', { attributes: { id: '002' } })
-        .writeStartElement('name')
-          .writeCharacters('Wireless Headphones')
-          .writeEndElement()
-        .writeStartElement('price', { attributes: { currency: 'USD' } })
-          .writeCharacters('199.99')
-          .writeEndElement()
-        .writeEndElement() // product
-      .writeEndElement(); // catalog
-
-  await writer.writeEndDocument();
-  return xmlOutput;
-}
-
-// Compact chaining for simple structures
-async function createSimpleXmlChain() {
-  let xmlOutput = '';
-  
-  const writableStream = new WritableStream<Uint8Array>({
-    write(chunk) { xmlOutput += new TextDecoder().decode(chunk); }
-  });
-
-  await new StaxXmlWriter(writableStream)
-    .writeStartDocument()
-    .writeStartElement('message', {
-      attributes: {
-        type: 'greeting',
-        timestamp: new Date().toISOString()
-      }
-    })
-      .writeCharacters('Hello, World!')
-      .writeEndElement()
-    .writeEndDocument();
-
-  return xmlOutput;
-}
-
-// Usage
-createXmlWithChaining().then(xml => console.log('Chained XML:', xml));
-createSimpleXmlChain().then(xml => console.log('Simple chain:', xml));
 ```
 
 ##### New Unified WriteElementOptions API
@@ -583,26 +497,26 @@ async function createXmlWithNewAPI() {
 
   const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
 
-  writer.writeStartDocument();
+  await writer.writeStartDocument();
   
   // Basic element with attributes
-  writer.writeStartElement('catalog', {
+  await writer.writeStartElement('catalog', {
     attributes: { version: '2.0', xmlns: 'http://example.com/catalog' }
   });
   
   // Element with namespace and attributes
-  writer.writeStartElement('product', {
+  await writer.writeStartElement('product', {
     prefix: 'cat',
     uri: 'http://example.com/catalog',
     attributes: { id: '001', featured: 'true' }
   });
   
-  writer.writeStartElement('name');
-  writer.writeCharacters('Premium Laptop');
-  writer.writeEndElement();
+  await writer.writeStartElement('name');
+  await writer.writeCharacters('Premium Laptop');
+  await writer.writeEndElement();
   
   // Self-closing element with attributes
-  writer.writeStartElement('thumbnail', {
+  await writer.writeStartElement('thumbnail', {
     attributes: {
       src: 'image.jpg',
       alt: 'Product Image',
@@ -612,10 +526,10 @@ async function createXmlWithNewAPI() {
   });
   
   // Simple self-closing element
-  writer.writeStartElement('br', { selfClosing: true });
+  await writer.writeStartElement('br', { selfClosing: true });
   
-  writer.writeEndElement(); // product
-  writer.writeEndElement(); // catalog
+  await writer.writeEndElement(); // product
+  await writer.writeEndElement(); // catalog
   
   await writer.writeEndDocument();
   return xmlOutput;
@@ -643,7 +557,7 @@ async function createXmlWithNewAPI() {
 
 ```typescript
 // Simple element with attributes
-writer.writeStartElement('img', {
+await writer.writeStartElement('img', {
   attributes: {
     src: 'image.jpg',
     alt: 'Image'
@@ -652,7 +566,7 @@ writer.writeStartElement('img', {
 });
 
 // Element with namespace
-writer.writeStartElement('title', {
+await writer.writeStartElement('title', {
   prefix: 'html',
   uri: 'http://www.w3.org/1999/xhtml',
   attributes: { lang: 'en' }
@@ -826,10 +740,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Korean
 
-Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식의 JavaScript/TypeScript XML 파서입니다. 기존의 XML-JSON 매퍼와 달리, StAX-XML을 사용하면 XML 데이터를 원하는 임의의 구조로 매핑할 수 있으며, 큰 XML 파일도 효율적으로 처리할 수 있습니다.
+Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식의 JavaScript/TypeScript XML 파서입니다. **모든 파싱 및 쓰기 작업이 완전히 비동기로 동작**하여, 메인 스레드를 차단하지 않고 대용량 XML 파일을 처리하는 데 이상적입니다. 기존의 XML-JSON 매퍼와 달리, StAX-XML을 사용하면 XML 데이터를 원하는 임의의 구조로 매핑할 수 있으며, 스트리밍을 통해 큰 XML 파일도 효율적으로 처리할 수 있습니다.
 
 ### 🚀 주요 기능
 
+- **완전 비동기**: 논블로킹 성능을 위한 모든 파싱 및 쓰기 작업의 비동기 처리
 - **Pull 방식 파싱**: 대용량 XML 파일의 메모리 효율적 처리를 위한 스트림 기반 접근
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
 - **고성능**: 속도와 낮은 메모리 사용량에 최적화
@@ -1044,22 +959,22 @@ async function createLocalXmlFile() {
   });
 
   // XML 문서 작성
-  writer.writeStartDocument('1.0', 'utf-8');
+  await writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
+  await writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
   
-  writer.writeStartElement('product', { attributes: { id: '001' } });
+  await writer.writeStartElement('product', { attributes: { id: '001' } });
   
-  writer.writeStartElement('name');
-  writer.writeCharacters('노트북 컴퓨터');
-  writer.writeEndElement();
+  await writer.writeStartElement('name');
+  await writer.writeCharacters('노트북 컴퓨터');
+  await writer.writeEndElement();
   
-  writer.writeStartElement('price', { attributes: { currency: 'KRW' } });
-  writer.writeCharacters('1299000');
-  writer.writeEndElement();
+  await writer.writeStartElement('price', { attributes: { currency: 'KRW' } });
+  await writer.writeCharacters('1299000');
+  await writer.writeEndElement();
   
-  writer.writeEndElement(); // product
-  writer.writeEndElement(); // catalog
+  await writer.writeEndElement(); // product
+  await writer.writeEndElement(); // catalog
   
   await writer.writeEndDocument();
   console.log('XML 파일이 성공적으로 생성되었습니다!');
@@ -1105,24 +1020,24 @@ app.get('/api/users', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
 
     // XML 작성
-    writer.writeStartDocument('1.0', 'utf-8');
-    writer.writeStartElement('users');
+    await writer.writeStartDocument('1.0', 'utf-8');
+    await writer.writeStartElement('users');
     
     for (const user of users) {
-      writer.writeStartElement('user', { attributes: { id: user.id.toString() } });
+      await writer.writeStartElement('user', { attributes: { id: user.id.toString() } });
       
-      writer.writeStartElement('name');
-      writer.writeCharacters(user.name);
-      writer.writeEndElement();
+      await writer.writeStartElement('name');
+      await writer.writeCharacters(user.name);
+      await writer.writeEndElement();
       
-      writer.writeStartElement('email');
-      writer.writeCharacters(user.email);
-      writer.writeEndElement();
+      await writer.writeStartElement('email');
+      await writer.writeCharacters(user.email);
+      await writer.writeEndElement();
       
-      writer.writeEndElement(); // user
+      await writer.writeEndElement(); // user
     }
     
-    writer.writeEndElement(); // users
+    await writer.writeEndElement(); // users
     await writer.writeEndDocument();
     
   } catch (error) {
@@ -1174,8 +1089,8 @@ app.get('/api/products', async (c) => {
 
       try {
         // XML 생성
-        writer.writeStartDocument('1.0', 'utf-8');
-        writer.writeStartElement('products', {
+        await writer.writeStartDocument('1.0', 'utf-8');
+        await writer.writeStartElement('products', {
           attributes: {
             count: products.length.toString(),
             generated: new Date().toISOString()
@@ -1183,25 +1098,25 @@ app.get('/api/products', async (c) => {
         });
         
         for (const product of products) {
-          writer.writeStartElement('product', {
+          await writer.writeStartElement('product', {
             attributes: {
               id: product.id,
               category: product.category
             }
           });
           
-          writer.writeStartElement('name');
-          writer.writeCharacters(product.name);
-          writer.writeEndElement();
+          await writer.writeStartElement('name');
+          await writer.writeCharacters(product.name);
+          await writer.writeEndElement();
           
-          writer.writeStartElement('price', { attributes: { currency: 'KRW' } });
-          writer.writeCharacters(product.price.toString());
-          writer.writeEndElement();
+          await writer.writeStartElement('price', { attributes: { currency: 'KRW' } });
+          await writer.writeCharacters(product.price.toString());
+          await writer.writeEndElement();
           
-          writer.writeEndElement(); // product
+          await writer.writeEndElement(); // product
         }
         
-        writer.writeEndElement(); // products
+        await writer.writeEndElement(); // products
         await writer.writeEndDocument();
         
       } catch (error) {
@@ -1248,30 +1163,30 @@ async function createAdvancedXml() {
   });
 
   // 네임스페이스와 사용자 정의 엔티티가 포함된 XML 작성
-  writer.writeStartDocument('1.0', 'utf-8');
+  await writer.writeStartDocument('1.0', 'utf-8');
   
-  writer.writeStartElement('document', { 
+  await writer.writeStartElement('document', { 
     prefix: 'doc', 
     uri: 'http://example.com/document', 
     attributes: { version: '2.0' } 
   });
-  writer.writeNamespace('meta', 'http://example.com/metadata');
+  await writer.writeNamespace('meta', 'http://example.com/metadata');
   
-  writer.writeStartElement('header', { prefix: 'meta' });
-  writer.writeStartElement('title');
-  writer.writeCharacters('제품 카탈로그');
-  writer.writeEndElement();
+  await writer.writeStartElement('header', { prefix: 'meta' });
+  await writer.writeStartElement('title');
+  await writer.writeCharacters('제품 카탈로그');
+  await writer.writeEndElement();
   
-  writer.writeStartElement('company');
-  writer.writeCharacters('&company;'); // 자동으로 인코딩됩니다
-  writer.writeEndElement();
-  writer.writeEndElement(); // header
+  await writer.writeStartElement('company');
+  await writer.writeCharacters('&company;'); // 자동으로 인코딩됩니다
+  await writer.writeEndElement();
+  await writer.writeEndElement(); // header
   
-  writer.writeStartElement('content');
-  writer.writeStartElement('item', { attributes: { type: 'featured' } });
+  await writer.writeStartElement('content');
+  await writer.writeStartElement('item', { attributes: { type: 'featured' } });
   
   // Self-closing 요소
-  writer.writeStartElement('thumbnail', {
+  await writer.writeStartElement('thumbnail', {
     attributes: {
       src: 'image.jpg',
       alt: '제품 이미지'
@@ -1279,13 +1194,13 @@ async function createAdvancedXml() {
     selfClosing: true
   });
   
-  writer.writeStartElement('description');
-  writer.writeCDATA('<p>이것은 CDATA 내의 <b>HTML</b> 콘텐츠입니다</p>');
-  writer.writeEndElement();
+  await writer.writeStartElement('description');
+  await writer.writeCDATA('<p>이것은 CDATA 내의 <b>HTML</b> 콘텐츠입니다</p>');
+  await writer.writeEndElement();
   
-  writer.writeEndElement(); // item
-  writer.writeEndElement(); // content
-  writer.writeEndElement(); // document
+  await writer.writeEndElement(); // item
+  await writer.writeEndElement(); // content
+  await writer.writeEndElement(); // document
   
   await writer.writeEndDocument();
   
@@ -1296,93 +1211,6 @@ async function createAdvancedXml() {
 createAdvancedXml().then(xml => {
   console.log('생성된 XML:', xml);
 });
-```
-
-##### 메서드 체이닝 지원
-
-StaxXmlWriter는 더 간결하고 읽기 쉬운 코드를 위한 메서드 체이닝을 지원합니다:
-
-```typescript
-import { StaxXmlWriter } from 'stax-xml';
-
-async function createXmlWithChaining() {
-  let xmlOutput = '';
-  
-  const writableStream = new WritableStream<Uint8Array>({
-    write(chunk) {
-      xmlOutput += new TextDecoder().decode(chunk);
-    }
-  });
-
-  const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
-
-  // 메서드 체이닝 예제 - 모든 메서드가 체이닝을 위해 'this'를 반환합니다
-  writer
-    .writeStartDocument('1.0', 'utf-8')
-    .writeStartElement('catalog', { attributes: { version: '2.0' } })
-      .writeStartElement('product', { attributes: { id: '001', featured: 'true' } })
-        .writeStartElement('name')
-          .writeCharacters('프리미엄 노트북')
-          .writeEndElement()
-        .writeStartElement('price', { attributes: { currency: 'KRW' } })
-          .writeCharacters('1599000')
-          .writeEndElement()
-        .writeStartElement('description')
-          .writeCDATA('<p><b>뛰어난</b> 사양을 가진 고성능 노트북</p>')
-          .writeEndElement()
-        .writeStartElement('specs')
-          .writeStartElement('cpu')
-            .writeCharacters('Intel Core i7')
-            .writeEndElement()
-          .writeStartElement('memory', { attributes: { type: 'DDR4' } })
-            .writeCharacters('16GB')
-            .writeEndElement()
-          .writeStartElement('storage', {
-            attributes: { type: 'SSD', capacity: '512GB' },
-            selfClosing: true
-          })
-          .writeEndElement() // specs
-        .writeEndElement() // product
-      .writeStartElement('product', { attributes: { id: '002' } })
-        .writeStartElement('name')
-          .writeCharacters('무선 헤드폰')
-          .writeEndElement()
-        .writeStartElement('price', { attributes: { currency: 'KRW' } })
-          .writeCharacters('259000')
-          .writeEndElement()
-        .writeEndElement() // product
-      .writeEndElement(); // catalog
-
-  await writer.writeEndDocument();
-  return xmlOutput;
-}
-
-// 간단한 구조를 위한 컴팩트 체이닝
-async function createSimpleXmlChain() {
-  let xmlOutput = '';
-  
-  const writableStream = new WritableStream<Uint8Array>({
-    write(chunk) { xmlOutput += new TextDecoder().decode(chunk); }
-  });
-
-  await new StaxXmlWriter(writableStream)
-    .writeStartDocument()
-    .writeStartElement('message', {
-      attributes: {
-        type: 'greeting',
-        timestamp: new Date().toISOString()
-      }
-    })
-      .writeCharacters('안녕하세요, 세계!')
-      .writeEndElement()
-    .writeEndDocument();
-
-  return xmlOutput;
-}
-
-// 사용법
-createXmlWithChaining().then(xml => console.log('체인 XML:', xml));
-createSimpleXmlChain().then(xml => console.log('간단한 체인:', xml));
 ```
 
 ##### 새로운 통합 WriteElementOptions API
@@ -1403,26 +1231,26 @@ async function createXmlWithNewAPI() {
 
   const writer = new StaxXmlWriter(writableStream, { prettyPrint: true });
 
-  writer.writeStartDocument();
+  await writer.writeStartDocument();
   
   // 속성이 있는 기본 요소
-  writer.writeStartElement('catalog', {
+  await writer.writeStartElement('catalog', {
     attributes: { version: '2.0', xmlns: 'http://example.com/catalog' }
   });
   
   // 네임스페이스와 속성이 있는 요소
-  writer.writeStartElement('product', {
+  await writer.writeStartElement('product', {
     prefix: 'cat',
     uri: 'http://example.com/catalog',
     attributes: { id: '001', featured: 'true' }
   });
   
-  writer.writeStartElement('name');
-  writer.writeCharacters('프리미엄 노트북');
-  writer.writeEndElement();
+  await writer.writeStartElement('name');
+  await writer.writeCharacters('프리미엄 노트북');
+  await writer.writeEndElement();
   
   // 속성이 있는 self-closing 요소
-  writer.writeStartElement('thumbnail', {
+  await writer.writeStartElement('thumbnail', {
     attributes: {
       src: 'image.jpg',
       alt: '제품 이미지',
@@ -1432,10 +1260,10 @@ async function createXmlWithNewAPI() {
   });
   
   // 간단한 self-closing 요소
-  writer.writeStartElement('br', { selfClosing: true });
+  await writer.writeStartElement('br', { selfClosing: true });
   
-  writer.writeEndElement(); // product
-  writer.writeEndElement(); // catalog
+  await writer.writeEndElement(); // product
+  await writer.writeEndElement(); // catalog
   
   await writer.writeEndDocument();
   return xmlOutput;
@@ -1463,7 +1291,7 @@ async function createXmlWithNewAPI() {
 
 ```typescript
 // 속성이 있는 간단한 요소
-writer.writeStartElement('img', {
+await writer.writeStartElement('img', {
   attributes: {
     src: 'image.jpg',
     alt: '이미지'
@@ -1472,7 +1300,7 @@ writer.writeStartElement('img', {
 });
 
 // 네임스페이스가 있는 요소
-writer.writeStartElement('title', {
+await writer.writeStartElement('title', {
   prefix: 'html',
   uri: 'http://www.w3.org/1999/xhtml',
   attributes: { lang: 'ko' }

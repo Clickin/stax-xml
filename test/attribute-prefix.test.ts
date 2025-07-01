@@ -123,19 +123,19 @@ describe('Attribute Prefix Support Tests', () => {
       indentString: '  '
     });
 
-    writer.writeStartDocument('1.0', 'utf-8');
+    await writer.writeStartDocument('1.0', 'utf-8');
 
     // 루트 요소와 네임스페이스 선언
-    writer.writeStartElement('doc', {
+    await writer.writeStartElement('doc', {
       attributes: {
         xmlns: 'http://www.example.com/documents'
       }
     });
-    writer.writeNamespace('html', 'http://www.w3.org/1999/xhtml');
-    writer.writeNamespace('meta', 'http://www.example.com/metadata');
+    await writer.writeNamespace('html', 'http://www.w3.org/1999/xhtml');
+    await writer.writeNamespace('meta', 'http://www.example.com/metadata');
 
     // prefix가 있는 속성을 가진 요소
-    writer.writeStartElement('page', {
+    await writer.writeStartElement('page', {
       attributes: {
         id: 'p1',
         author: { value: '김민준', prefix: 'meta' },
@@ -143,28 +143,28 @@ describe('Attribute Prefix Support Tests', () => {
       }
     });
 
-    writer.writeStartElement('title');
-    writer.writeCharacters('XML 네임스페이스');
-    writer.writeEndElement();
+    await writer.writeStartElement('title');
+    await writer.writeCharacters('XML 네임스페이스');
+    await writer.writeEndElement();
 
-    writer.writeStartElement('content');
-    writer.writeStartElement('p');
-    writer.writeCharacters('이 예제는 일반 속성에서 접두사 사용법을 보여줍니다. 외부 링크는 ');
+    await writer.writeStartElement('content');
+    await writer.writeStartElement('p');
+    await writer.writeCharacters('이 예제는 일반 속성에서 접두사 사용법을 보여줍니다. 외부 링크는 ');
 
-    writer.writeStartElement('a', {
+    await writer.writeStartElement('a', {
       attributes: {
         href: { value: 'http://www.w3.org/TR/REC-xml-names/', prefix: 'html' },
         target: { value: '_blank', prefix: 'html' }
       }
     });
-    writer.writeCharacters('여기');
-    writer.writeEndElement(); // a
+    await writer.writeCharacters('여기');
+    await writer.writeEndElement(); // a
 
-    writer.writeCharacters('를 참고하세요.');
-    writer.writeEndElement(); // p
-    writer.writeEndElement(); // content
-    writer.writeEndElement(); // page
-    writer.writeEndElement(); // doc
+    await writer.writeCharacters('를 참고하세요.');
+    await writer.writeEndElement(); // p
+    await writer.writeEndElement(); // content
+    await writer.writeEndElement(); // page
+    await writer.writeEndElement(); // doc
 
     await writer.writeEndDocument();
 
@@ -184,17 +184,15 @@ describe('Attribute Prefix Support Tests', () => {
       prettyPrint: true
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
 
     // 정의되지 않은 prefix 사용 시 오류 발생해야 함
-    expect(() => {
-      writer.writeStartElement('element', {
-        attributes: {
-          attr: { value: 'test', prefix: 'undefined' }
-        }
-      });
-    }).toThrow("Namespace prefix 'undefined' is not defined for attribute 'attr'");
+    await expect(writer.writeStartElement('element', {
+      attributes: {
+        attr: { value: 'test', prefix: 'undefined' }
+      }
+    })).rejects.toThrow("Namespace prefix 'undefined' is not defined for attribute 'attr'");
   });
 
   it('should handle mixed simple and prefixed attributes', async () => {
@@ -204,19 +202,19 @@ describe('Attribute Prefix Support Tests', () => {
       prettyPrint: false
     });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeNamespace('ns', 'http://example.com/namespace');
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeNamespace('ns', 'http://example.com/namespace');
 
-    writer.writeStartElement('element', {
+    await writer.writeStartElement('element', {
       attributes: {
         simpleAttr: 'simple value',
         prefixedAttr: { value: 'prefixed value', prefix: 'ns' },
         anotherSimple: 'another simple'
       }
     });
-    writer.writeEndElement(); // element
-    writer.writeEndElement(); // root
+    await writer.writeEndElement(); // element
+    await writer.writeEndElement(); // root
 
     await writer.writeEndDocument();
 
@@ -251,9 +249,9 @@ describe('Attribute Prefix Support Tests', () => {
     const outputStream = new StringWritableStream();
     const writer = new StaxXmlWriter(outputStream, { prettyPrint: false });
 
-    writer.writeStartDocument();
-    writer.writeStartElement('root');
-    writer.writeNamespace('test', 'http://test.com');
+    await writer.writeStartDocument();
+    await writer.writeStartElement('root');
+    await writer.writeNamespace('test', 'http://test.com');
 
     // Use attributesWithPrefix to recreate the element
     const attributes: Record<string, string | any> = {};
@@ -267,10 +265,10 @@ describe('Attribute Prefix Support Tests', () => {
       }
     }
 
-    writer.writeStartElement('item', { attributes });
-    writer.writeCharacters('Content');
-    writer.writeEndElement(); // item
-    writer.writeEndElement(); // root
+    await writer.writeStartElement('item', { attributes });
+    await writer.writeCharacters('Content');
+    await writer.writeEndElement(); // item
+    await writer.writeEndElement(); // root
 
     await writer.writeEndDocument();
 

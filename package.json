@@ -13,6 +13,8 @@
   },
   "scripts": {
     "build": "bun run build.ts",
+    "performance": "bun run ./performance/large-file.ts",
+    "coverage": "bun test --coverage",
     "prepublishOnly": "bun run build"
   },
   "files": [

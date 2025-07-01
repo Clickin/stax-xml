@@ -210,35 +210,35 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const { stream, getString } = createStringWritableStream();
       const writer = new StaxXmlWriter(stream);
 
-      writer.writeStartDocument();
-      writer.writeStartElement('root');
+      await writer.writeStartDocument();
+      await writer.writeStartElement('root');
 
       // HTML 네임스페이스를 가진 table 작성
-      writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
-      writer.writeStartElement('tr', { prefix: 'h' });
-      writer.writeStartElement('td', { prefix: 'h' });
-      writer.writeCharacters('Apples');
-      writer.writeEndElement(); // h:td
-      writer.writeStartElement('td', { prefix: 'h' });
-      writer.writeCharacters('Bananas');
-      writer.writeEndElement(); // h:td
-      writer.writeEndElement(); // h:tr
-      writer.writeEndElement(); // h:table
+      await writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
+      await writer.writeStartElement('tr', { prefix: 'h' });
+      await writer.writeStartElement('td', { prefix: 'h' });
+      await writer.writeCharacters('Apples');
+      await writer.writeEndElement(); // h:td
+      await writer.writeStartElement('td', { prefix: 'h' });
+      await writer.writeCharacters('Bananas');
+      await writer.writeEndElement(); // h:td
+      await writer.writeEndElement(); // h:tr
+      await writer.writeEndElement(); // h:table
 
       // Furniture 네임스페이스를 가진 table 작성
-      writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
-      writer.writeStartElement('name', { prefix: 'f' });
-      writer.writeCharacters('African Coffee Table');
-      writer.writeEndElement(); // f:name
-      writer.writeStartElement('width', { prefix: 'f' });
-      writer.writeCharacters('80');
-      writer.writeEndElement(); // f:width
-      writer.writeStartElement('length', { prefix: 'f' });
-      writer.writeCharacters('120');
-      writer.writeEndElement(); // f:length
-      writer.writeEndElement(); // f:table
+      await writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
+      await writer.writeStartElement('name', { prefix: 'f' });
+      await writer.writeCharacters('African Coffee Table');
+      await writer.writeEndElement(); // f:name
+      await writer.writeStartElement('width', { prefix: 'f' });
+      await writer.writeCharacters('80');
+      await writer.writeEndElement(); // f:width
+      await writer.writeStartElement('length', { prefix: 'f' });
+      await writer.writeCharacters('120');
+      await writer.writeEndElement(); // f:length
+      await writer.writeEndElement(); // f:table
 
-      writer.writeEndElement(); // root
+      await writer.writeEndElement(); // root
       await writer.writeEndDocument();
 
       const result = getString();
@@ -276,19 +276,19 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const { stream, getString } = createStringWritableStream();
       const writer = new StaxXmlWriter(stream);
 
-      writer.writeStartDocument();
-      writer.writeStartElement('root');
+      await writer.writeStartDocument();
+      await writer.writeStartElement('root');
 
       // writeNamespace를 사용하여 네임스페이스 선언
-      writer.writeStartElement('table', { prefix: 'h' });
-      writer.writeNamespace('h', 'http://www.w3.org/TR/html4/');
-      writer.writeEndElement();
+      await writer.writeStartElement('table', { prefix: 'h' });
+      await writer.writeNamespace('h', 'http://www.w3.org/TR/html4/');
+      await writer.writeEndElement();
 
-      writer.writeStartElement('table', { prefix: 'f' });
-      writer.writeNamespace('f', 'https://www.w3schools.com/furniture');
-      writer.writeEndElement();
+      await writer.writeStartElement('table', { prefix: 'f' });
+      await writer.writeNamespace('f', 'https://www.w3schools.com/furniture');
+      await writer.writeEndElement();
 
-      writer.writeEndElement(); // root
+      await writer.writeEndElement(); // root
       await writer.writeEndDocument();
 
       const result = getString();
@@ -309,35 +309,35 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const writer = new StaxXmlWriter(stream);
 
       // simple-namespace.xml과 유사한 구조 생성
-      writer.writeStartDocument();
-      writer.writeStartElement('root');
+      await writer.writeStartDocument();
+      await writer.writeStartElement('root');
 
       // h:table 구조
-      writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
-      writer.writeStartElement('tr', { prefix: 'h' });
-      writer.writeStartElement('td', { prefix: 'h' });
-      writer.writeCharacters('Apples');
-      writer.writeEndElement();
-      writer.writeStartElement('td', { prefix: 'h' });
-      writer.writeCharacters('Bananas');
-      writer.writeEndElement();
-      writer.writeEndElement();
-      writer.writeEndElement();
+      await writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
+      await writer.writeStartElement('tr', { prefix: 'h' });
+      await writer.writeStartElement('td', { prefix: 'h' });
+      await writer.writeCharacters('Apples');
+      await writer.writeEndElement();
+      await writer.writeStartElement('td', { prefix: 'h' });
+      await writer.writeCharacters('Bananas');
+      await writer.writeEndElement();
+      await writer.writeEndElement();
+      await writer.writeEndElement();
 
       // f:table 구조
-      writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
-      writer.writeStartElement('name', { prefix: 'f' });
-      writer.writeCharacters('African Coffee Table');
-      writer.writeEndElement();
-      writer.writeStartElement('width', { prefix: 'f' });
-      writer.writeCharacters('80');
-      writer.writeEndElement();
-      writer.writeStartElement('length', { prefix: 'f' });
-      writer.writeCharacters('120');
-      writer.writeEndElement();
-      writer.writeEndElement();
+      await writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
+      await writer.writeStartElement('name', { prefix: 'f' });
+      await writer.writeCharacters('African Coffee Table');
+      await writer.writeEndElement();
+      await writer.writeStartElement('width', { prefix: 'f' });
+      await writer.writeCharacters('80');
+      await writer.writeEndElement();
+      await writer.writeStartElement('length', { prefix: 'f' });
+      await writer.writeCharacters('120');
+      await writer.writeEndElement();
+      await writer.writeEndElement();
 
-      writer.writeEndElement(); // root
+      await writer.writeEndElement(); // root
       await writer.writeEndDocument();
 
       const result = getString();
@@ -382,7 +382,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       for await (const event of parser) {
         switch (event.type) {
           case XmlEventType.START_DOCUMENT:
-            writer.writeStartDocument();
+            await writer.writeStartDocument();
             break;
           case XmlEventType.END_DOCUMENT:
             await writer.writeEndDocument();
@@ -390,21 +390,21 @@ describe('Namespace XML Parsing and Writing Tests', () => {
           case XmlEventType.START_ELEMENT:
             const startEvent = event as StartElementEvent;
             if (startEvent.prefix && startEvent.uri) {
-              writer.writeStartElement(startEvent.localName || startEvent.name, { prefix: startEvent.prefix, uri: startEvent.uri });
+              await writer.writeStartElement(startEvent.localName || startEvent.name, { prefix: startEvent.prefix, uri: startEvent.uri });
             } else {
-              writer.writeStartElement(startEvent.localName || startEvent.name);
+              await writer.writeStartElement(startEvent.localName || startEvent.name);
             }
             elementStack.push({ name: startEvent.name, prefix: startEvent.prefix });
             break;
           case XmlEventType.END_ELEMENT:
-            writer.writeEndElement();
+            await writer.writeEndElement();
             elementStack.pop();
             break;
           case XmlEventType.CHARACTERS:
             const textEvent = event as any;
             const text = textEvent.value.trim();
             if (text.length > 0) {
-              writer.writeCharacters(text);
+              await writer.writeCharacters(text);
             }
             break;
         }
