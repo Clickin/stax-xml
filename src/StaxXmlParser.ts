@@ -181,11 +181,14 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   private _flushCharacters(): void {
     if (this.currentTextBuffer.length > 0) {
       const decodedText = this._unescapeXml(this.currentTextBuffer);
-      // 공백만 있는 텍스트도 포함하여 모든 텍스트를 이벤트로 추가
-      this._addEvent({
-        type: XmlEventType.CHARACTERS,
-        value: decodedText
-      } as CharactersEvent);
+
+      // 빈 문자열이 아닌 경우에만 CharactersEvent 발생
+      if (decodedText.length > 0) {
+        this._addEvent({
+          type: XmlEventType.CHARACTERS,
+          value: decodedText
+        } as CharactersEvent);
+      }
       this.currentTextBuffer = '';
     }
   }
