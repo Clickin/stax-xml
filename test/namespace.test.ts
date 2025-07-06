@@ -19,24 +19,7 @@ function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
 }
 
 // WritableStream을 문자열로 변환하는 헬퍼 함수
-function createStringWritableStream(): { stream: WritableStream<Uint8Array>, getString: () => string } {
-  let result = '';
-  const decoder = new TextDecoder();
 
-  const stream = new WritableStream<Uint8Array>({
-    write(chunk) {
-      result += decoder.decode(chunk, { stream: true });
-    },
-    close() {
-      result += decoder.decode(); // flush
-    }
-  });
-
-  return {
-    stream,
-    getString: () => result
-  };
-}
 
 // 샘플 파일을 읽는 헬퍼 함수
 function loadSampleFile(filename: string): string {
@@ -207,41 +190,40 @@ describe('Namespace XML Parsing and Writing Tests', () => {
 
   describe('StaxXmlWriter Namespace Writing Tests', () => {
     it('should write elements with namespace prefixes correctly', async () => {
-      const { stream, getString } = createStringWritableStream();
-      const writer = new StaxXmlWriter(stream);
+      const writer = new StaxXmlWriter();
 
-      await writer.writeStartDocument();
-      await writer.writeStartElement('root');
+      writer.writeStartDocument();
+      writer.writeStartElement('root');
 
       // HTML 네임스페이스를 가진 table 작성
-      await writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
-      await writer.writeStartElement('tr', { prefix: 'h' });
-      await writer.writeStartElement('td', { prefix: 'h' });
-      await writer.writeCharacters('Apples');
-      await writer.writeEndElement(); // h:td
-      await writer.writeStartElement('td', { prefix: 'h' });
-      await writer.writeCharacters('Bananas');
-      await writer.writeEndElement(); // h:td
-      await writer.writeEndElement(); // h:tr
-      await writer.writeEndElement(); // h:table
+      writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
+      writer.writeStartElement('tr', { prefix: 'h' });
+      writer.writeStartElement('td', { prefix: 'h' });
+      writer.writeCharacters('Apples');
+      writer.writeEndElement(); // h:td
+      writer.writeStartElement('td', { prefix: 'h' });
+      writer.writeCharacters('Bananas');
+      writer.writeEndElement(); // h:td
+      writer.writeEndElement(); // h:tr
+      writer.writeEndElement(); // h:table
 
       // Furniture 네임스페이스를 가진 table 작성
-      await writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
-      await writer.writeStartElement('name', { prefix: 'f' });
-      await writer.writeCharacters('African Coffee Table');
-      await writer.writeEndElement(); // f:name
-      await writer.writeStartElement('width', { prefix: 'f' });
-      await writer.writeCharacters('80');
-      await writer.writeEndElement(); // f:width
-      await writer.writeStartElement('length', { prefix: 'f' });
-      await writer.writeCharacters('120');
-      await writer.writeEndElement(); // f:length
-      await writer.writeEndElement(); // f:table
+      writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
+      writer.writeStartElement('name', { prefix: 'f' });
+      writer.writeCharacters('African Coffee Table');
+      writer.writeEndElement(); // f:name
+      writer.writeStartElement('width', { prefix: 'f' });
+      writer.writeCharacters('80');
+      writer.writeEndElement(); // f:width
+      writer.writeStartElement('length', { prefix: 'f' });
+      writer.writeCharacters('120');
+      writer.writeEndElement(); // f:length
+      writer.writeEndElement(); // f:table
 
-      await writer.writeEndElement(); // root
-      await writer.writeEndDocument();
+      writer.writeEndElement(); // root
+      writer.writeEndDocument();
 
-      const result = getString();
+      const result = writer.getXmlString();
 
       // 네임스페이스 선언이 올바르게 포함되었는지 확인
       expect(result).toContain('xmlns:h="http://www.w3.org/TR/html4/"');
@@ -273,25 +255,24 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
 
     it('should write namespace declarations using writeNamespace method', async () => {
-      const { stream, getString } = createStringWritableStream();
-      const writer = new StaxXmlWriter(stream);
+      const writer = new StaxXmlWriter();
 
-      await writer.writeStartDocument();
-      await writer.writeStartElement('root');
+      writer.writeStartDocument();
+      writer.writeStartElement('root');
 
       // writeNamespace를 사용하여 네임스페이스 선언
-      await writer.writeStartElement('table', { prefix: 'h' });
-      await writer.writeNamespace('h', 'http://www.w3.org/TR/html4/');
-      await writer.writeEndElement();
+      writer.writeStartElement('table', { prefix: 'h' });
+      writer.writeNamespace('h', 'http://www.w3.org/TR/html4/');
+      writer.writeEndElement();
 
-      await writer.writeStartElement('table', { prefix: 'f' });
-      await writer.writeNamespace('f', 'https://www.w3schools.com/furniture');
-      await writer.writeEndElement();
+      writer.writeStartElement('table', { prefix: 'f' });
+      writer.writeNamespace('f', 'https://www.w3schools.com/furniture');
+      writer.writeEndElement();
 
-      await writer.writeEndElement(); // root
-      await writer.writeEndDocument();
+      writer.writeEndElement(); // root
+      writer.writeEndDocument();
 
-      const result = getString();
+      const result = writer.getXmlString();
 
       // 네임스페이스 선언이 올바르게 작성되었는지 확인
       expect(result).toContain('xmlns:h="http://www.w3.org/TR/html4/"');
@@ -305,42 +286,41 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
 
     it('should create XML structure similar to simple-namespace.xml', async () => {
-      const { stream, getString } = createStringWritableStream();
-      const writer = new StaxXmlWriter(stream);
+      const writer = new StaxXmlWriter();
 
       // simple-namespace.xml과 유사한 구조 생성
-      await writer.writeStartDocument();
-      await writer.writeStartElement('root');
+      writer.writeStartDocument();
+      writer.writeStartElement('root');
 
       // h:table 구조
-      await writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
-      await writer.writeStartElement('tr', { prefix: 'h' });
-      await writer.writeStartElement('td', { prefix: 'h' });
-      await writer.writeCharacters('Apples');
-      await writer.writeEndElement();
-      await writer.writeStartElement('td', { prefix: 'h' });
-      await writer.writeCharacters('Bananas');
-      await writer.writeEndElement();
-      await writer.writeEndElement();
-      await writer.writeEndElement();
+      writer.writeStartElement('table', { prefix: 'h', uri: 'http://www.w3.org/TR/html4/' });
+      writer.writeStartElement('tr', { prefix: 'h' });
+      writer.writeStartElement('td', { prefix: 'h' });
+      writer.writeCharacters('Apples');
+      writer.writeEndElement();
+      writer.writeStartElement('td', { prefix: 'h' });
+      writer.writeCharacters('Bananas');
+      writer.writeEndElement();
+      writer.writeEndElement();
+      writer.writeEndElement();
 
       // f:table 구조
-      await writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
-      await writer.writeStartElement('name', { prefix: 'f' });
-      await writer.writeCharacters('African Coffee Table');
-      await writer.writeEndElement();
-      await writer.writeStartElement('width', { prefix: 'f' });
-      await writer.writeCharacters('80');
-      await writer.writeEndElement();
-      await writer.writeStartElement('length', { prefix: 'f' });
-      await writer.writeCharacters('120');
-      await writer.writeEndElement();
-      await writer.writeEndElement();
+      writer.writeStartElement('table', { prefix: 'f', uri: 'https://www.w3schools.com/furniture' });
+      writer.writeStartElement('name', { prefix: 'f' });
+      writer.writeCharacters('African Coffee Table');
+      writer.writeEndElement();
+      writer.writeStartElement('width', { prefix: 'f' });
+      writer.writeCharacters('80');
+      writer.writeEndElement();
+      writer.writeStartElement('length', { prefix: 'f' });
+      writer.writeCharacters('120');
+      writer.writeEndElement();
+      writer.writeEndElement();
 
-      await writer.writeEndElement(); // root
-      await writer.writeEndDocument();
+      writer.writeEndElement(); // root
+      writer.writeEndDocument();
 
-      const result = getString();
+      const result = writer.getXmlString();
 
       // 생성된 XML을 파싱하여 검증
       const inputStream = stringToReadableStream(result);
@@ -358,9 +338,6 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const fTableElement = startElements.find(e => e.name === 'f:table');
 
       expect(hTableElement).toBeDefined();
-      expect(fTableElement).toBeDefined();
-
-      // 네임스페이스 정보가 올바른지 확인
       expect(hTableElement!.prefix).toBe('h');
       expect(hTableElement!.uri).toBe('http://www.w3.org/TR/html4/');
       expect(fTableElement!.prefix).toBe('f');
@@ -374,43 +351,42 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const parser = new StaxXmlParser(inputStream);
 
       // 파싱된 이벤트로부터 새로운 XML 생성
-      const { stream, getString } = createStringWritableStream();
-      const writer = new StaxXmlWriter(stream);
+      const writer = new StaxXmlWriter();
 
       const elementStack: Array<{ name: string, prefix?: string }> = [];
 
       for await (const event of parser) {
         switch (event.type) {
           case XmlEventType.START_DOCUMENT:
-            await writer.writeStartDocument();
+            writer.writeStartDocument();
             break;
           case XmlEventType.END_DOCUMENT:
-            await writer.writeEndDocument();
+            writer.writeEndDocument();
             break;
           case XmlEventType.START_ELEMENT:
             const startEvent = event as StartElementEvent;
             if (startEvent.prefix && startEvent.uri) {
-              await writer.writeStartElement(startEvent.localName || startEvent.name, { prefix: startEvent.prefix, uri: startEvent.uri });
+              writer.writeStartElement(startEvent.localName || startEvent.name, { prefix: startEvent.prefix, uri: startEvent.uri });
             } else {
-              await writer.writeStartElement(startEvent.localName || startEvent.name);
+              writer.writeStartElement(startEvent.localName || startEvent.name);
             }
             elementStack.push({ name: startEvent.name, prefix: startEvent.prefix });
             break;
           case XmlEventType.END_ELEMENT:
-            await writer.writeEndElement();
+            writer.writeEndElement();
             elementStack.pop();
             break;
           case XmlEventType.CHARACTERS:
             const textEvent = event as any;
             const text = textEvent.value.trim();
             if (text.length > 0) {
-              await writer.writeCharacters(text);
+              writer.writeCharacters(text);
             }
             break;
         }
       }
 
-      const regeneratedXml = getString();
+      const regeneratedXml = writer.getXmlString();
 
       // 재생성된 XML을 다시 파싱하여 구조가 유지되었는지 확인
       const inputStream2 = stringToReadableStream(regeneratedXml);

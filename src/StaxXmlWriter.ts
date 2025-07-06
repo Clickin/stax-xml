@@ -53,8 +53,7 @@ const defaultOptions: StaxXmlInternalOptions = {
  * 네임스페이스 및 복잡한 PI/주석 관리는 지원하지 않는 간소화된 구현입니다.
  */
 class StaxXmlWriter {
-    private writer: WritableStreamDefaultWriter<string> | null = null;
-    private encoderStream: TextEncoderStream;
+    private xmlString: string = ''; // XML 문자열을 저장할 버퍼
     private state: WriterState = WriterState.INITIAL;
     private elementStack: ElementInfo[] = []; // 열린 요소의 정보 스택
     private hasTextContentStack: boolean[] = []; // 각 요소가 텍스트 콘텐츠를 가지고 있는지 추적하는 스택
@@ -65,14 +64,7 @@ class StaxXmlWriter {
     private needsIndent: boolean = false; // 다음 출력에 들여쓰기가 필요한지 여부
     private entityMap: Record<string, string> = {};
 
-    constructor(outputStream: WritableStream<Uint8Array>, options: StaxXmlWriterOptions = {}) {
-        if (!(outputStream instanceof WritableStream)) {
-            throw new Error('outputStream must be a web standard WritableStream.');
-        }
-        // set up TextEncoderStream to encode strings to Uint8Array and pipe to output
-        this.encoderStream = new TextEncoderStream();
-        this.encoderStream.readable.pipeTo(outputStream as WritableStream<Uint8Array>);
-        this.writer = this.encoderStream.writable.getWriter();
+    constructor(options: StaxXmlWriterOptions = {}) {
         // 기본 옵션으로 초기화
         this.options = { ...defaultOptions, ...options };
 
@@ -98,7 +90,7 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public async writeStartDocument(version: string = '1.0', encoding?: string): Promise<this> {
+    public writeStartDocument(version: string = '1.0', encoding?: string): this {
         if (this.state !== WriterState.INITIAL) {
             throw new Error('writeStartDocument can only be called once at the beginning of the document.');
         }
@@ -112,7 +104,7 @@ class StaxXmlWriter {
             declaration += ` encoding="${this.options.encoding.toUpperCase()}"`;
         }
         declaration += '?>';
-        await this._write(declaration);
+        this._write(declaration);
         if (this.options.prettyPrint) {
             this.needsIndent = true;
         }
@@ -123,27 +115,25 @@ class StaxXmlWriter {
      * 문서의 끝을 나타내며, 열린 모든 요소를 자동으로 닫습니다.
      * @returns Promise<void> 스트림이 플러시될 때 resolve되는 Promise
      */
-    public async writeEndDocument(): Promise<void> {
+    public writeEndDocument(): void {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             return; // 이미 닫혔거나 에러 상태면 아무것도 하지 않음
         }
 
         // 열려 있는 모든 요소 닫기
         while (this.elementStack.length > 0) {
-            await this.writeEndElement();
+            this.writeEndElement();
         }
         this.state = WriterState.CLOSED;
+    }
 
-        // 웹 표준 WritableStream의 writer를 닫고 모든 데이터를 플러시합니다.
-        if (this.writer) {
-            try {
-                await this.writer.close();
-                this.writer = null;
-            } catch (err) {
-                this.state = WriterState.ERROR;
-                throw err;
-            }
-        }
+    /**
+     * 작성된 XML 문자열을 반환합니다.
+     * writeEndDocument() 호출 이후에 호출해야 완전한 XML을 얻을 수 있습니다.
+     * @returns 작성된 XML 문자열
+     */
+    public getXmlString(): string {
+        return this.xmlString;
     }
 
     /**
@@ -153,11 +143,11 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public async writeStartElement(localName: string, options?: WriteElementOptions): Promise<this> {
+    public writeStartElement(localName: string, options?: WriteElementOptions): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeStartElement: Writer is closed or in error state.');
         }
-        await this._closeStartElementTag(); // 이전에 열린 태그가 있다면 닫음
+        this._closeStartElementTag(); // 이전에 열린 태그가 있다면 닫음
 
         // 옵션에서 값 추출
         const prefix = options?.prefix;
@@ -165,16 +155,16 @@ class StaxXmlWriter {
         const attributes = options?.attributes;
         const selfClosing = options?.selfClosing ?? false;
 
-        await this._writeIndent(); // Pretty print용 들여쓰기
+        this._writeIndent(); // Pretty print용 들여쓰기
         const tagName = prefix ? `${prefix}:${localName}` : localName;
-        await this._write(`<${tagName}`);
+        this._write(`<${tagName}`);
 
         // 네임스페이스 컨텍스트 생성 (현재 레벨의 새로운 네임스페이스 매핑)
         const currentNamespaces = new Map(this.namespaceStack[this.namespaceStack.length - 1]);
 
         // element-level namespace declaration if prefix and uri provided
         if (prefix && uri) {
-            await this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
+            this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
             currentNamespaces.set(prefix, uri);
         }
 
@@ -183,7 +173,7 @@ class StaxXmlWriter {
             for (const [key, value] of Object.entries(attributes)) {
                 if (typeof value === 'string') {
                     // 간단한 문자열 속성
-                    await this._write(` ${key}="${this._escapeXml(value)}"`);
+                    this._write(` ${key}="${this._escapeXml(value)}"`);
                 } else {
                     // AttributeInfo 객체 - prefix를 가진 속성
                     const attrPrefix = value.prefix;
@@ -194,9 +184,9 @@ class StaxXmlWriter {
                         if (!currentNamespaces.has(attrPrefix)) {
                             throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
                         }
-                        await this._write(` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`);
+                        this._write(` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`);
                     } else {
-                        await this._write(` ${key}="${this._escapeXml(attrValue)}"`);
+                        this._write(` ${key}="${this._escapeXml(attrValue)}"`);
                     }
                 }
             }
@@ -204,9 +194,9 @@ class StaxXmlWriter {
 
         // selfClosing이 true이면 바로 태그를 닫고 종료
         if (selfClosing) {
-            await this._write('/>');
+            this._write('/>');
             this.state = WriterState.AFTER_ELEMENT;
-            await this._writeNewline(); // Pretty print용 줄바꿈
+            this._writeNewline(); // Pretty print용 줄바꿈
             return this;
         }
 
@@ -232,14 +222,14 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public async writeAttribute(localName: string, value: string, prefix?: string): Promise<this> {
+    public writeAttribute(localName: string, value: string, prefix?: string): this {
         if (this.state !== WriterState.START_ELEMENT_OPEN) {
             throw new Error('writeAttribute can only be called after writeStartElement.');
         }
         let attrName = prefix ? `${prefix}:${localName}` : localName;
         let attr = ` ${attrName}="${this._escapeXml(value)}"`;
         // URI는 현재 구현에서 처리되지 않음 (네임스페이스 관리 로직이 없기 때문)
-        await this._write(attr);
+        this._write(attr);
         return this;
     }
 
@@ -252,7 +242,7 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public async writeNamespace(prefix: string, uri: string): Promise<this> {
+    public writeNamespace(prefix: string, uri: string): this {
         if (this.state !== WriterState.START_ELEMENT_OPEN) {
             throw new Error('writeNamespace can only be called after writeStartElement.');
         }
@@ -261,10 +251,10 @@ class StaxXmlWriter {
         const currentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
 
         if (prefix) {
-            await this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
+            this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
             currentNamespaces.set(prefix, uri);
         } else { // 기본 네임스페이스
-            await this._write(` xmlns="${this._escapeXml(uri)}"`);
+            this._write(` xmlns="${this._escapeXml(uri)}"`);
             currentNamespaces.set('', uri);
         }
         return this;
@@ -276,13 +266,13 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시
      */
-    public async writeCharacters(text: string): Promise<this> {
+    public writeCharacters(text: string): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeCharacters: Writer is closed or in error state.');
         }
-        await this._closeStartElementTag();
+        this._closeStartElementTag();
         // 텍스트에는 별도의 들여쓰기를 적용하지 않음 (인라인 텍스트로 처리)
-        await this._write(this._escapeXml(text));
+        this._write(this._escapeXml(text));
         this.state = WriterState.IN_ELEMENT; // 텍스트 작성 후에는 요소 안에 있다고 간주
         // 현재 요소에 텍스트 콘텐츠가 있음을 표시
         if (this.hasTextContentStack.length > 0) {
@@ -299,18 +289,18 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시 (특히 ']]>' 시퀀스 포함 시)
      */
-    public async writeCData(cdata: string): Promise<this> {
+    public writeCData(cdata: string): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeCData: Writer is closed or in error state.');
         }
-        await this._closeStartElementTag();
+        this._closeStartElementTag();
         // CDATA 섹션 내부는 파싱되지 않으므로 이스케이프할 필요가 없습니다.
         // 하지만 ']]>' 시퀀스는 CDATA를 종료시키므로 포함될 수 없습니다.
         if (cdata.includes(']]>')) {
             throw new Error('CDATA section cannot contain "]]>" sequence.');
         }
         // CDATA는 원본 형태 그대로 출력 (들여쓰기 무시)
-        await this._write(`<![CDATA[${cdata}]]>`);
+        this._write(`<![CDATA[${cdata}]]>`);
         this.state = WriterState.IN_ELEMENT;
         // 현재 요소에 텍스트 콘텐츠가 있음을 표시
         if (this.hasTextContentStack.length > 0) {
@@ -326,19 +316,19 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시 (특히 '--' 시퀀스 포함 시)
      */
-    public async writeComment(comment: string): Promise<this> {
+    public writeComment(comment: string): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeComment: Writer is closed or in error state.');
         }
-        await this._closeStartElementTag();
+        this._closeStartElementTag();
         // XML 주석은 '--' 시퀀스를 포함할 수 없습니다.
         if (comment.includes('--')) {
             throw new Error('XML comment cannot contain "--" sequence.');
         }
-        await this._writeIndent(); // Pretty print용 들여쓰기
-        await this._write(`<!-- ${comment} -->`);
+        this._writeIndent(); // Pretty print용 들여쓰기
+        this._write(`<!-- ${comment} -->`);
         this.state = WriterState.AFTER_ELEMENT; // 주석 후에는 다음 요소 또는 주석 등이 가능
-        await this._writeNewline(); // Pretty print용 줄바꿈
+        this._writeNewline(); // Pretty print용 줄바꿈
         return this;
     }
 
@@ -349,11 +339,11 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 잘못된 상태에서 호출 시 (특히 '?>' 시퀀스 포함 시)
      */
-    public async writeProcessingInstruction(target: string, data?: string): Promise<this> {
+    public writeProcessingInstruction(target: string, data?: string): this {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
             throw new Error('Cannot writeProcessingInstruction: Writer is closed or in error state.');
         }
-        await this._closeStartElementTag();
+        this._closeStartElementTag();
         let pi = `<?${target}`;
         if (data) {
             // 데이터 내부에 '?>' 시퀀스는 PI를 종료시키므로 피해야 합니다.
@@ -363,10 +353,10 @@ class StaxXmlWriter {
             pi += ` ${data}`;
         }
         pi += '?>';
-        await this._writeIndent(); // Pretty print용 들여쓰기
-        await this._write(pi);
+        this._writeIndent(); // Pretty print용 들여쓰기
+        this._write(pi);
         this.state = WriterState.AFTER_ELEMENT;
-        await this._writeNewline(); // Pretty print용 줄바꿈
+        this._writeNewline(); // Pretty print용 줄바꿈
         return this;
     }
 
@@ -375,7 +365,7 @@ class StaxXmlWriter {
      * @returns this (체이닝 가능)
      * @throws Error 열린 요소가 없을 때 호출 시
      */
-    public async writeEndElement(): Promise<this> {
+    public writeEndElement(): this {
         if (this.elementStack.length === 0) {
             throw new Error('No open element to close.');
         }
@@ -390,15 +380,15 @@ class StaxXmlWriter {
 
         // 텍스트 콘텐츠가 없고, 빈 요소가 아닌 경우에만 들여쓰기 적용
         if (!hasTextContent && this.state !== WriterState.START_ELEMENT_OPEN) {
-            await this._writeIndent();
+            this._writeIndent();
         }
 
-        await this._closeStartElementTag(); // 혹시 열린 태그가 있으면 먼저 닫고 닫는 태그 작성
+        this._closeStartElementTag(); // 혹시 열린 태그가 있으면 먼저 닫고 닫는 태그 작성
 
         const elementInfo = this.elementStack.pop()!;
         this.namespaceStack.pop(); // 네임스페이스 컨텍스트 제거
         const closingTagName = elementInfo.prefix ? `${elementInfo.prefix}:${elementInfo.localName}` : elementInfo.localName;
-        await this._write(`</${closingTagName}>`);
+        this._write(`</${closingTagName}>`);
         this.state = WriterState.AFTER_ELEMENT; // 요소 닫은 후에는 다음 요소 또는 주석 등이 가능
 
         if (this.options.prettyPrint) {
@@ -448,9 +438,9 @@ class StaxXmlWriter {
      * 예를 들어, <element 를 <element> 로 만듭니다.
      * @private
      */
-    private async _closeStartElementTag(): Promise<void> {
+    private _closeStartElementTag(): void {
         if (this.state === WriterState.START_ELEMENT_OPEN) {
-            await this._write('>');
+            this._write('>');
             this.state = WriterState.IN_ELEMENT; // 태그를 닫았으므로 이제 요소 내부에 있다고 간주
             if (this.options.prettyPrint) {
                 this.needsIndent = true;
@@ -462,16 +452,11 @@ class StaxXmlWriter {
      * Pretty print용 들여쓰기를 적용합니다.
      * @private
      */
-    private async _writeIndent(): Promise<void> {
-        if (this.options.prettyPrint && this.needsIndent && this.writer) {
-            try {
-                await this.writer.write('\n');
-                await this.writer.write(this.options.indentString.repeat(this.currentIndentLevel));
-                this.needsIndent = false;
-            } catch (err) {
-                this.state = WriterState.ERROR;
-                throw new Error(`StaxXmlWriter: Error writing indent: ${err instanceof Error ? err.message : String(err)}`);
-            }
+    private _writeIndent(): void {
+        if (this.options.prettyPrint && this.needsIndent) {
+            this.xmlString += '\n';
+            this.xmlString += this.options.indentString.repeat(this.currentIndentLevel);
+            this.needsIndent = false;
         }
     }
 
@@ -479,15 +464,10 @@ class StaxXmlWriter {
      * Pretty print용 줄바꿈을 추가합니다.
      * @private
      */
-    private async _writeNewline(): Promise<void> {
-        if (this.options.prettyPrint && this.writer) {
-            try {
-                await this.writer.write('\n');
-                this.needsIndent = true;
-            } catch (err) {
-                this.state = WriterState.ERROR;
-                throw new Error(`StaxXmlWriter: Error writing newline: ${err instanceof Error ? err.message : String(err)}`);
-            }
+    private _writeNewline(): void {
+        if (this.options.prettyPrint) {
+            this.xmlString += '\n';
+            this.needsIndent = true;
         }
     }
 
@@ -496,15 +476,9 @@ class StaxXmlWriter {
      * @param chunk 작성할 문자열
      * @private
      */
-    private async _write(chunk: string): Promise<void> {
+    private _write(chunk: string): void {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) return;
-        if (!this.writer) return;
-        try {
-            await this.writer.write(chunk);
-        } catch (err) {
-            this.state = WriterState.ERROR;
-            throw new Error(`StaxXmlWriter: Error writing chunk: ${err instanceof Error ? err.message : String(err)}`);
-        }
+        this.xmlString += chunk;
     }
 
     /**

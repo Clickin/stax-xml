@@ -5,8 +5,8 @@ import { readFileSync } from 'fs';
 import { bench, run } from 'mitata';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { XmlEventType } from 'stax-xml';
 import xml2js from 'xml2js';
-import { StaxXmlParserSync, XmlEventType } from '../dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
@@ -20,13 +20,16 @@ function fastXmlParser() {
 
 // XML을 JavaScript 객체로 변환하는 함수
 function parseXmlToObject(xmlString) {
-  const parser = new StaxXmlParserSync(xmlString);
+  const parser = new StaxXmlParser(xmlString);
 
   const elementStack = [];
   let currentElement = null;
   let root = null;
 
   for (const event of parser) {
+    elementStack.push(event);
+  }
+  for (const event of elementStack.values()) {
     switch (event.type) {
       case XmlEventType.START_DOCUMENT:
         // 문서 시작 - 아무것도 하지 않음

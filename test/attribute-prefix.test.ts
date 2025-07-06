@@ -16,25 +16,7 @@ function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
   });
 }
 
-class StringWritableStream extends WritableStream<Uint8Array> {
-  private result: string = '';
 
-  constructor() {
-    const decoder = new TextDecoder();
-    super({
-      write: (chunk: Uint8Array) => {
-        this.result += decoder.decode(chunk, { stream: true });
-      },
-      close: () => {
-        this.result += decoder.decode();
-      }
-    });
-  }
-
-  getResult(): string {
-    return this.result;
-  }
-}
 
 describe('Attribute Prefix Support Tests', () => {
   it('should parse attributes with prefix correctly', async () => {
@@ -116,26 +98,25 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should write attributes with prefix correctly', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartDocument('1.0', 'utf-8');
 
     // 루트 요소와 네임스페이스 선언
-    await writer.writeStartElement('doc', {
+    writer.writeStartElement('doc', {
       attributes: {
         xmlns: 'http://www.example.com/documents'
       }
     });
-    await writer.writeNamespace('html', 'http://www.w3.org/1999/xhtml');
-    await writer.writeNamespace('meta', 'http://www.example.com/metadata');
+    writer.writeNamespace('html', 'http://www.w3.org/1999/xhtml');
+    writer.writeNamespace('meta', 'http://www.example.com/metadata');
 
     // prefix가 있는 속성을 가진 요소
-    await writer.writeStartElement('page', {
+    writer.writeStartElement('page', {
       attributes: {
         id: 'p1',
         author: { value: '김민준', prefix: 'meta' },
@@ -143,32 +124,32 @@ describe('Attribute Prefix Support Tests', () => {
       }
     });
 
-    await writer.writeStartElement('title');
-    await writer.writeCharacters('XML 네임스페이스');
-    await writer.writeEndElement();
+    writer.writeStartElement('title');
+    writer.writeCharacters('XML 네임스페이스');
+    writer.writeEndElement();
 
-    await writer.writeStartElement('content');
-    await writer.writeStartElement('p');
-    await writer.writeCharacters('이 예제는 일반 속성에서 접두사 사용법을 보여줍니다. 외부 링크는 ');
+    writer.writeStartElement('content');
+    writer.writeStartElement('p');
+    writer.writeCharacters('이 예제는 일반 속성에서 접두사 사용법을 보여줍니다. 외부 링크는 ');
 
-    await writer.writeStartElement('a', {
+    writer.writeStartElement('a', {
       attributes: {
         href: { value: 'http://www.w3.org/TR/REC-xml-names/', prefix: 'html' },
         target: { value: '_blank', prefix: 'html' }
       }
     });
-    await writer.writeCharacters('여기');
-    await writer.writeEndElement(); // a
+    writer.writeCharacters('여기');
+    writer.writeEndElement(); // a
 
-    await writer.writeCharacters('를 참고하세요.');
-    await writer.writeEndElement(); // p
-    await writer.writeEndElement(); // content
-    await writer.writeEndElement(); // page
-    await writer.writeEndElement(); // doc
+    writer.writeCharacters('를 참고하세요.');
+    writer.writeEndElement(); // p
+    writer.writeEndElement(); // content
+    writer.writeEndElement(); // page
+    writer.writeEndElement(); // doc
 
-    await writer.writeEndDocument();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('xmlns="http://www.example.com/documents"');
     expect(result).toContain('xmlns:html="http://www.w3.org/1999/xhtml"');
@@ -178,47 +159,45 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should throw error when using undefined namespace prefix in attributes', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true
     });
 
-    await writer.writeStartDocument();
-    await writer.writeStartElement('root');
+    writer.writeStartDocument();
+    writer.writeStartElement('root');
 
     // 정의되지 않은 prefix 사용 시 오류 발생해야 함
-    await expect(writer.writeStartElement('element', {
+    expect(() => writer.writeStartElement('element', {
       attributes: {
         attr: { value: 'test', prefix: 'undefined' }
       }
-    })).rejects.toThrow("Namespace prefix 'undefined' is not defined for attribute 'attr'");
+    })).toThrow("Namespace prefix 'undefined' is not defined for attribute 'attr'");
   });
 
   it('should handle mixed simple and prefixed attributes', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: false
     });
 
-    await writer.writeStartDocument();
-    await writer.writeStartElement('root');
-    await writer.writeNamespace('ns', 'http://example.com/namespace');
+    writer.writeStartDocument();
+    writer.writeStartElement('root');
+    writer.writeNamespace('ns', 'http://example.com/namespace');
 
-    await writer.writeStartElement('element', {
+    writer.writeStartElement('element', {
       attributes: {
         simpleAttr: 'simple value',
         prefixedAttr: { value: 'prefixed value', prefix: 'ns' },
         anotherSimple: 'another simple'
       }
     });
-    await writer.writeEndElement(); // element
-    await writer.writeEndElement(); // root
+    writer.writeEndElement(); // element
+    writer.writeEndElement(); // root
 
-    await writer.writeEndDocument();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('simpleAttr="simple value"');
     expect(result).toContain('ns:prefixedAttr="prefixed value"');
@@ -246,12 +225,11 @@ describe('Attribute Prefix Support Tests', () => {
     ) as StartElementEvent;
 
     // Write it back using the parsed information
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, { prettyPrint: false });
+    const writer = new StaxXmlWriter({ prettyPrint: false });
 
-    await writer.writeStartDocument();
-    await writer.writeStartElement('root');
-    await writer.writeNamespace('test', 'http://test.com');
+    writer.writeStartDocument();
+    writer.writeStartElement('root');
+    writer.writeNamespace('test', 'http://test.com');
 
     // Use attributesWithPrefix to recreate the element
     const attributes: Record<string, string | any> = {};
@@ -265,14 +243,14 @@ describe('Attribute Prefix Support Tests', () => {
       }
     }
 
-    await writer.writeStartElement('item', { attributes });
-    await writer.writeCharacters('Content');
-    await writer.writeEndElement(); // item
-    await writer.writeEndElement(); // root
+    writer.writeStartElement('item', { attributes });
+    writer.writeCharacters('Content');
+    writer.writeEndElement(); // item
+    writer.writeEndElement(); // root
 
-    await writer.writeEndDocument();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('xmlns:test="http://test.com"');
     expect(result).toContain('id="1"');

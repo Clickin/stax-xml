@@ -2,75 +2,56 @@ import { describe, expect, it } from 'bun:test';
 import StaxXmlWriter from '../src/StaxXmlWriter';
 
 // 웹 표준 API용 헬퍼 함수
-class StringWritableStream extends WritableStream<Uint8Array> {
-  private result: string = '';
 
-  constructor() {
-    const decoder = new TextDecoder();
-    super({
-      write: (chunk: Uint8Array) => {
-        this.result += decoder.decode(chunk, { stream: true });
-      },
-      close: () => {
-        this.result += decoder.decode();
-      }
-    });
-  }
-
-  getResult(): string {
-    return this.result;
-  }
-}
 
 // JavaScript 객체를 XML로 변환하는 함수
-async function objectToXml(obj: any, prettyPrint: boolean = true, indentString: string = '  '): Promise<string> {
-  const outputStream = new StringWritableStream();
-  const writer = new StaxXmlWriter(outputStream, {
+function objectToXml(obj: any, prettyPrint: boolean = true, indentString: string = '  '): string {
+  const writer = new StaxXmlWriter({
     encoding: 'utf-8',
     prettyPrint: prettyPrint,
     indentString: indentString
   });
 
-  await writer.writeStartDocument('1.0', 'utf-8');
+  writer.writeStartDocument('1.0', 'utf-8');
 
-  await writeElement(writer, obj);
+  writeElement(writer, obj);
 
-  await writer.writeEndDocument();
-  return outputStream.getResult();
+  writer.writeEndDocument();
+  return writer.getXmlString();
 }
 
 // 재귀적으로 요소를 작성하는 헬퍼 함수
-async function writeElement(writer: StaxXmlWriter, element: any): Promise<void> {
-  await writer.writeStartElement(element.name);
+function writeElement(writer: StaxXmlWriter, element: any): void {
+  writer.writeStartElement(element.name);
 
   // 속성 작성
   if (element.attributes) {
     for (const [key, value] of Object.entries(element.attributes)) {
-      await writer.writeAttribute(key, value as string);
+      writer.writeAttribute(key, value as string);
     }
   }
 
   // 텍스트 콘텐츠가 있는 경우
   if (element.text && element.text.trim()) {
     if (element.cdata) {
-      await writer.writeCData(element.text);
+      writer.writeCData(element.text);
     } else {
-      await writer.writeCharacters(element.text);
+      writer.writeCharacters(element.text);
     }
   }
 
   // 자식 요소들 작성
   if (element.children && element.children.length > 0) {
     for (const child of element.children) {
-      await writeElement(writer, child);
+      writeElement(writer, child);
     }
   }
 
-  await writer.writeEndElement();
+  writer.writeEndElement();
 }
 
 describe('StaxXmlWriter Tests', () => {
-  it('should write simple XML with elements and text', async () => {
+  it('should write simple XML with elements and text', () => {
     const obj = {
       name: 'note',
       attributes: {},
@@ -91,12 +72,12 @@ describe('StaxXmlWriter Tests', () => {
   <body>Don&apos;t forget me this weekend!</body>
 </note>`;
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     expect(result.trim()).toBe(expectedXml.trim());
   });
 
-  it('should write XML with attributes', async () => {
+  it('should write XML with attributes', () => {
     const obj = {
       name: 'catalog',
       attributes: {},
@@ -126,12 +107,12 @@ describe('StaxXmlWriter Tests', () => {
   </book>
 </catalog>`;
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     expect(result.trim()).toBe(expectedXml.trim());
   });
 
-  it('should write nested XML structure', async () => {
+  it('should write nested XML structure', () => {
     const obj = {
       name: 'library',
       attributes: { name: 'Central Library', location: 'Downtown' },
@@ -188,12 +169,12 @@ describe('StaxXmlWriter Tests', () => {
   </section>
 </library>`;
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     expect(result.trim()).toBe(expectedXml.trim());
   });
 
-  it('should write XML with CDATA sections', async () => {
+  it('should write XML with CDATA sections', () => {
     const obj = {
       name: 'document',
       attributes: {},
@@ -230,12 +211,12 @@ describe('StaxXmlWriter Tests', () => {
   <text>Regular text</text>
 </document>`;
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     expect(result.trim()).toBe(expectedXml.trim());
   });
 
-  it('should write XML with special characters (properly escaped)', async () => {
+  it('should write XML with special characters (properly escaped)', () => {
     const obj = {
       name: 'document',
       attributes: {},
@@ -256,12 +237,12 @@ describe('StaxXmlWriter Tests', () => {
   <attribute-test attr="value with &amp; ampersand"></attribute-test>
 </document>`;
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     expect(result.trim()).toBe(expectedXml.trim());
   });
 
-  it('should write large Microsoft catalog sample', async () => {
+  it('should write large Microsoft catalog sample', () => {
     const obj = {
       name: 'catalog',
       attributes: {},
@@ -309,7 +290,7 @@ describe('StaxXmlWriter Tests', () => {
       text: ''
     };
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     // 구조 검증
     expect(result).toContain('<catalog>');
@@ -333,7 +314,7 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain("Microsoft&apos;s .NET initiative is explored in detail");
   });
 
-  it('should write empty elements', async () => {
+  it('should write empty elements', () => {
     const obj = {
       name: 'document',
       attributes: {},
@@ -363,24 +344,23 @@ describe('StaxXmlWriter Tests', () => {
   </parent>
 </document>`;
 
-    const result = await objectToXml(obj);
+    const result = objectToXml(obj);
 
     expect(result.trim()).toBe(expectedXml.trim());
   });
 
-  it('should write self-closing elements using writer methods', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should write self-closing elements using writer methods', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('document');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('document');
 
     // Self-closing element with attributes
-    await writer.writeStartElement('input', {
+    writer.writeStartElement('input', {
       attributes: {
         type: 'text',
         name: 'username'
@@ -389,7 +369,7 @@ describe('StaxXmlWriter Tests', () => {
     });
 
     // writeStartElement with attributes and selfClosing
-    await writer.writeStartElement('img', {
+    writer.writeStartElement('img', {
       attributes: {
         src: 'image.jpg',
         alt: 'A beautiful image',
@@ -398,10 +378,10 @@ describe('StaxXmlWriter Tests', () => {
       selfClosing: true
     });
 
-    await writer.writeEndElement(); // document
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // document
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<document>');
     expect(result).toContain('</document>');
@@ -409,7 +389,7 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain('<img src="image.jpg" alt="A beautiful image" width="100"/>');
   });
 
-  it('should write XML without pretty print (compact)', async () => {
+  it('should write XML without pretty print (compact)', () => {
     const obj = {
       name: 'note',
       attributes: {},
@@ -420,7 +400,7 @@ describe('StaxXmlWriter Tests', () => {
       text: ''
     };
 
-    const result = await objectToXml(obj, false); // pretty print 비활성화
+    const result = objectToXml(obj, false); // pretty print 비활성화
 
     // 줄바꿈이나 들여쓰기가 없어야 함 (XML 선언 후 제외)
     const lines = result.split('\n');
@@ -428,7 +408,7 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain('<note><to>Tove</to><from>Jani</from></note>');
   });
 
-  it('should write XML with custom indentation', async () => {
+  it('should write XML with custom indentation', () => {
     const obj = {
       name: 'root',
       attributes: {},
@@ -445,7 +425,7 @@ describe('StaxXmlWriter Tests', () => {
       text: ''
     };
 
-    const result = await objectToXml(obj, true, '\t'); // 탭으로 들여쓰기
+    const result = objectToXml(obj, true, '\t'); // 탭으로 들여쓰기
 
     expect(result).toContain('<root>');
     expect(result).toContain('\t<child>');
@@ -454,28 +434,27 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain('</root>');
   });
 
-  it('should handle processing instructions and comments', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should handle processing instructions and comments', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeComment('This is a document comment');
-    await writer.writeProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="style.xsl"');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeComment('This is a document comment');
+    writer.writeProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="style.xsl"');
 
-    await writer.writeStartElement('document');
-    await writer.writeComment('This is an element comment');
-    await writer.writeStartElement('content');
-    await writer.writeCharacters('Hello World');
-    await writer.writeEndElement(); // content
-    await writer.writeEndElement(); // document
+    writer.writeStartElement('document');
+    writer.writeComment('This is an element comment');
+    writer.writeStartElement('content');
+    writer.writeCharacters('Hello World');
+    writer.writeEndElement(); // content
+    writer.writeEndElement(); // document
 
-    await writer.writeEndDocument();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<!-- This is a document comment -->');
     expect(result).toContain('<?xml-stylesheet type="text/xsl" href="style.xsl"?>');
@@ -484,39 +463,37 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   // XML 기본 엔티티 5종 이스케이프 테스트
-  it('should escape XML basic entities in text content', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should escape XML basic entities in text content', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('data');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('data');
 
     // 기본 XML 엔티티 5종 테스트: & < > " '
-    await writer.writeCharacters('5 < 10 & 20 > 15 "quoted" \'apostrophe\'');
+    writer.writeCharacters('5 < 10 & 20 > 15 "quoted" \'apostrophe\'');
 
-    await writer.writeEndElement(); // data
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // data
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<data>5 &lt; 10 &amp; 20 &gt; 15 &quot;quoted&quot; &apos;apostrophe&apos;</data>');
   });
 
   // 속성에서의 엔티티 이스케이프 테스트
-  it('should escape XML entities in attributes', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should escape XML entities in attributes', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('element', {
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('element', {
       attributes: {
         'attr1': 'He said "Hello"',
         'attr2': "It's fine",
@@ -525,9 +502,9 @@ describe('StaxXmlWriter Tests', () => {
       },
       selfClosing: true
     });
-    await writer.writeEndDocument();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('attr1="He said &quot;Hello&quot;"');
     expect(result).toContain('attr2="It&apos;s fine"');
@@ -536,9 +513,8 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   // 사용자 정의 엔티티 테스트
-  it('should handle custom entities', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should handle custom entities', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -550,24 +526,23 @@ describe('StaxXmlWriter Tests', () => {
       ]
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('document');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('document');
 
     // 사용자 정의 엔티티 포함 텍스트
-    await writer.writeCharacters('Copyright © 2024, Registered ® Trademark ™, Price: 100€');
+    writer.writeCharacters('Copyright © 2024, Registered ® Trademark ™, Price: 100€');
 
-    await writer.writeEndElement(); // document
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // document
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('Copyright &copy; 2024, Registered &reg; Trademark &trade;, Price: 100&euro;');
   });
 
   // 사용자 정의 엔티티를 속성에서 테스트
-  it('should handle custom entities in attributes', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should handle custom entities in attributes', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -577,8 +552,8 @@ describe('StaxXmlWriter Tests', () => {
       ]
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('product', {
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('product', {
       attributes: {
         'name': 'MyProduct™',
         'copyright': 'Company© 2024'
@@ -586,42 +561,40 @@ describe('StaxXmlWriter Tests', () => {
       selfClosing: true
     });
 
-    await writer.writeEndDocument();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('name="MyProduct&trade;"');
     expect(result).toContain('copyright="Company&copy; 2024"');
   });
 
   // 엔티티 자동 인코딩 비활성화 테스트
-  it('should not escape entities when autoEncodeEntities is disabled', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should not escape entities when autoEncodeEntities is disabled', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
       autoEncodeEntities: false
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('data');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('data');
 
     // 자동 인코딩이 비활성화되어 있으므로 원본 그대로 출력되어야 함
-    await writer.writeCharacters('5 < 10 & 20 > 15');
+    writer.writeCharacters('5 < 10 & 20 > 15');
 
-    await writer.writeEndElement(); // data
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // data
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<data>5 < 10 & 20 > 15</data>');
   });
 
   // 복합 엔티티 테스트 (기본 + 사용자 정의)
-  it('should handle mixed basic and custom entities', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should handle mixed basic and custom entities', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -631,34 +604,33 @@ describe('StaxXmlWriter Tests', () => {
       ]
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('mixed');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('mixed');
 
     // 기본 엔티티와 사용자 정의 엔티티 혼합
-    await writer.writeCharacters('Text with "quotes" & ampersand → arrow © copyright');
+    writer.writeCharacters('Text with "quotes" & ampersand → arrow © copyright');
 
-    await writer.writeEndElement(); // mixed
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // mixed
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<mixed>Text with &quot;quotes&quot; &amp; ampersand &rarr; arrow &copy; copyright</mixed>');
   });
 
   // 커버리지 개선: self-closing 요소 테스트 (네임스페이스 및 속성 포함)
-  it('should write empty element with namespace and attributes', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should write empty element with namespace and attributes', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('root');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('root');
 
     // self-closing 요소 테스트 (prefix, uri, attributes 포함)
-    await writer.writeStartElement('emptyTag', {
+    writer.writeStartElement('emptyTag', {
       prefix: 'ns',
       uri: 'http://example.com/namespace',
       attributes: {
@@ -668,10 +640,10 @@ describe('StaxXmlWriter Tests', () => {
       selfClosing: true
     });
 
-    await writer.writeEndElement(); // root
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // root
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<ns:emptyTag xmlns:ns="http://example.com/namespace"');
     expect(result).toContain('attr1="value1"');
@@ -680,9 +652,8 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   // 커버리지 개선: Pretty print 설정 메서드들 테스트
-  it('should support dynamic pretty print configuration', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should support dynamic pretty print configuration', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: false,
       indentString: '  '
@@ -698,15 +669,15 @@ describe('StaxXmlWriter Tests', () => {
     // 들여쓰기 문자열 변경
     writer.setIndentString('\t');
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('root');
-    await writer.writeStartElement('child');
-    await writer.writeCharacters('content');
-    await writer.writeEndElement(); // child
-    await writer.writeEndElement(); // root
-    await writer.writeEndDocument();
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('root');
+    writer.writeStartElement('child');
+    writer.writeCharacters('content');
+    writer.writeEndElement(); // child
+    writer.writeEndElement(); // root
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     // Pretty print가 활성화되어 탭으로 들여쓰기되었는지 확인
     expect(result).toContain('<root>');
@@ -715,27 +686,25 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   // 커버리지 개선: Writer 상태가 CLOSED/ERROR일 때 self-closing 요소 작성 오류 테스트
-  it('should throw error when writeEmptyElement is called on closed writer', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should throw error when writeEmptyElement is called on closed writer', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('root');
-    await writer.writeEndElement(); // root
-    await writer.writeEndDocument();
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('root');
+    writer.writeEndElement(); // root
+    writer.writeEndDocument();
 
     // Writer가 닫힌 후 self-closing 요소 작성 시 오류 발생해야 함
-    await expect(writer.writeStartElement('test', { selfClosing: true })).rejects.toThrow('Cannot writeStartElement: Writer is closed or in error state.');
+    expect(() => writer.writeStartElement('test', { selfClosing: true })).toThrow('Cannot writeStartElement: Writer is closed or in error state.');
   });
 
   // 커버리지 개선: getIndentString 메서드 테스트
-  it('should return current indent string configuration', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should return current indent string configuration', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -754,26 +723,25 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   // 커버리지 개선: writeNamespace 메서드 테스트
-  it('should write namespace declarations', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should write namespace declarations', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('root');
+    writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartElement('root');
 
     // writeNamespace 메서드 테스트
-    await writer.writeNamespace('ns1', 'http://example.com/ns1');
-    await writer.writeNamespace('ns2', 'http://example.com/ns2');
+    writer.writeNamespace('ns1', 'http://example.com/ns1');
+    writer.writeNamespace('ns2', 'http://example.com/ns2');
 
-    await writer.writeCharacters('content');
-    await writer.writeEndElement(); // root
-    await writer.writeEndDocument();
+    writer.writeCharacters('content');
+    writer.writeEndElement(); // root
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('xmlns:ns1="http://example.com/ns1"');
     expect(result).toContain('xmlns:ns2="http://example.com/ns2"');
@@ -781,52 +749,50 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   // 커버리지 개선: writeNamespace 에러 상태 테스트
-  it('should throw error when writeNamespace is called without start element', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should throw error when writeNamespace is called without start element', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument('1.0', 'utf-8');
+    writer.writeStartDocument('1.0', 'utf-8');
 
     // writeStartElement 없이 writeNamespace 호출 시 오류 발생해야 함
-    await expect(writer.writeNamespace('ns', 'http://example.com/namespace')).rejects.toThrow('writeNamespace can only be called after writeStartElement');
+    expect(() => writer.writeNamespace('ns', 'http://example.com/namespace')).toThrow('writeNamespace can only be called after writeStartElement');
   });
 
-  it('should properly close elements with namespaces', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+  it('should properly close elements with namespaces', () => {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
     });
 
-    await writer.writeStartDocument();
-    await writer.writeStartElement('root');
+    writer.writeStartDocument();
+    writer.writeStartElement('root');
 
     // Element with namespace prefix
-    await writer.writeStartElement('item', { prefix: 'ns1', uri: 'http://example.com/ns1' });
-    await writer.writeCharacters('Content with namespace');
-    await writer.writeEndElement(); // Should close as </ns1:item>
+    writer.writeStartElement('item', { prefix: 'ns1', uri: 'http://example.com/ns1' });
+    writer.writeCharacters('Content with namespace');
+    writer.writeEndElement(); // Should close as </ns1:item>
 
     // Element without namespace
-    await writer.writeStartElement('simple');
-    await writer.writeCharacters('Simple content');
-    await writer.writeEndElement(); // Should close as </simple>
+    writer.writeStartElement('simple');
+    writer.writeCharacters('Simple content');
+    writer.writeEndElement(); // Should close as </simple>
 
     // Nested namespaced elements
-    await writer.writeStartElement('section', { prefix: 'ns2', uri: 'http://example.com/ns2' });
-    await writer.writeStartElement('title', { prefix: 'ns2', uri: 'http://example.com/ns2' });
-    await writer.writeCharacters('Nested title');
-    await writer.writeEndElement(); // Should close as </ns2:title>
-    await writer.writeEndElement(); // Should close as </ns2:section>
+    writer.writeStartElement('section', { prefix: 'ns2', uri: 'http://example.com/ns2' });
+    writer.writeStartElement('title', { prefix: 'ns2', uri: 'http://example.com/ns2' });
+    writer.writeCharacters('Nested title');
+    writer.writeEndElement(); // Should close as </ns2:title>
+    writer.writeEndElement(); // Should close as </ns2:section>
 
-    await writer.writeEndElement(); // Close root
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // Close root
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain('<ns1:item xmlns:ns1="http://example.com/ns1">Content with namespace</ns1:item>');
     expect(result).toContain('<simple>Simple content</simple>');

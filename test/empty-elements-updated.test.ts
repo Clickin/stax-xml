@@ -1,14 +1,26 @@
 import { describe, expect, test } from "bun:test";
-import StaxXmlParserSync from "../src/StaxXmlParser";
+import StaxXmlParser from "../src/StaxXmlParser";
+
+function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(str);
+
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes);
+      controller.close();
+    }
+  });
+}
 import { CharactersEvent, XmlEventType } from "../src/types";
 
 describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Updated)", () => {
-  test("should not emit CharactersEvent for self-closing tags", () => {
+  test("should not emit CharactersEvent for self-closing tags", async () => {
     const xmlString = `<root><item/><empty/></root>`;
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 
@@ -20,12 +32,12 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
     expect(events).toHaveLength(8); // START_DOCUMENT, START_ELEMENT(root), START_ELEMENT(item), END_ELEMENT(item), START_ELEMENT(empty), END_ELEMENT(empty), END_ELEMENT(root), END_DOCUMENT
   });
 
-  test("should not emit CharactersEvent for empty paired tags", () => {
+  test("should not emit CharactersEvent for empty paired tags", async () => {
     const xmlString = `<root><item></item><empty></empty></root>`;
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 
@@ -37,12 +49,12 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
     expect(events).toHaveLength(8);
   });
 
-  test("should emit CharactersEvent only for elements with actual text content", () => {
+  test("should emit CharactersEvent only for elements with actual text content", async () => {
     const xmlString = `<root><empty></empty><with-text>Hello</with-text><another-empty/></root>`;
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 
@@ -68,16 +80,16 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
     ]);
   });
 
-  test("should not emit CharactersEvent for whitespace-only content between empty elements", () => {
+  test("should not emit CharactersEvent for whitespace-only content between empty elements", async () => {
     const xmlString = `<root>
   <empty></empty>
   <self-closing/>
   <another-empty></another-empty>
 </root>`;
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 
@@ -93,14 +105,14 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
     expect(elementEvents).toHaveLength(8); // root(start), empty(start/end), self-closing(start/end), another-empty(start/end), root(end)
   });
 
-  test("should not emit CharactersEvent for elements with only whitespace", () => {
+  test("should not emit CharactersEvent for elements with only whitespace", async () => {
     // 이 테스트는 현재 구현에 맞게 수정됨
     // 요소 내부의 공백도 trim() 후 빈 문자열이면 CharactersEvent가 발생하지 않음
     const xmlString = `<root><text> </text><text2>content</text2></root>`;
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 
@@ -110,13 +122,13 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
     expect((charactersEvents[0] as CharactersEvent).value).toBe("content");
   });
 
-  test("should handle mixed content correctly", () => {
+  test("should handle mixed content correctly", async () => {
     const xmlString = `<root><empty-with-attrs id="1" name="test"/><container><empty></empty><text>Hello World</text></container></root>`;
 
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 
@@ -133,13 +145,13 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
     expect(endElements).toHaveLength(5);   // 같은 요소들의 종료 태그
   });
 
-  test("should preserve meaningful whitespace in text content", () => {
+  test("should preserve meaningful whitespace in text content", async () => {
     // 텍스트 내용에서 앞뒤 공백이 있어도 trim() 후 내용이 있으면 CharactersEvent 발생
     const xmlString = `<root><text>  hello world  </text></root>`;
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new StaxXmlParser(stringToReadableStream(xmlString));
     const events = [];
 
-    for (const event of parser) {
+    for await (const event of parser) {
       events.push(event);
     }
 

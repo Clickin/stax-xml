@@ -44,25 +44,7 @@ function createChunkedStream(str: string, chunkSize: number = 100): ReadableStre
   });
 }
 
-class StringWritableStream extends WritableStream<Uint8Array> {
-  private result: string = '';
 
-  constructor() {
-    const decoder = new TextDecoder();
-    super({
-      write: (chunk: Uint8Array) => {
-        this.result += decoder.decode(chunk, { stream: true });
-      },
-      close: () => {
-        this.result += decoder.decode();
-      }
-    });
-  }
-
-  getResult(): string {
-    return this.result;
-  }
-}
 
 describe('StaxXmlParser Streaming and Performance Tests', () => {
   it('should handle chunked streaming data', async () => {
@@ -250,44 +232,43 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
 
 describe('StaxXmlWriter Performance and Edge Cases', () => {
   it('should handle writing large documents efficiently', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: false, // 성능을 위해 pretty print 비활성화
     });
 
     const startTime = Date.now();
 
-    await writer.writeStartDocument();
-    await writer.writeStartElement('catalog');
+    writer.writeStartDocument();
+    writer.writeStartElement('catalog');
 
     // 1200개의 책 작성 (100,000자 이상을 보장하기 위해)
     for (let i = 1; i <= 1200; i++) {
-      await writer.writeStartElement('book');
-      await writer.writeAttribute('id', `bk${i.toString().padStart(3, '0')}`);
+      writer.writeStartElement('book');
+      writer.writeAttribute('id', `bk${i.toString().padStart(3, '0')}`);
 
-      await writer.writeStartElement('title');
-      await writer.writeCharacters(`Book Title ${i}`);
-      await writer.writeEndElement();
+      writer.writeStartElement('title');
+      writer.writeCharacters(`Book Title ${i}`);
+      writer.writeEndElement();
 
-      await writer.writeStartElement('author');
-      await writer.writeCharacters(`Author ${i}`);
-      await writer.writeEndElement();
+      writer.writeStartElement('author');
+      writer.writeCharacters(`Author ${i}`);
+      writer.writeEndElement();
 
-      await writer.writeStartElement('price');
-      await writer.writeCharacters((Math.random() * 50 + 10).toFixed(2));
-      await writer.writeEndElement();
+      writer.writeStartElement('price');
+      writer.writeCharacters((Math.random() * 50 + 10).toFixed(2));
+      writer.writeEndElement();
 
-      await writer.writeEndElement(); // book
+      writer.writeEndElement(); // book
     }
 
-    await writer.writeEndElement(); // catalog
-    await writer.writeEndDocument();
+    writer.writeEndElement(); // catalog
+    writer.writeEndDocument();
 
     const endTime = Date.now();
     const processingTime = endTime - startTime;
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     console.log(`Generated XML document with ${result.length} characters in ${processingTime}ms`);
 
@@ -303,27 +284,26 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
 
     for (let i = 1; i <= 5; i++) {
       const promise = (async () => {
-        const outputStream = new StringWritableStream();
-        const writer = new StaxXmlWriter(outputStream, {
+        const writer = new StaxXmlWriter({
           encoding: 'utf-8',
           prettyPrint: true,
         });
 
-        await writer.writeStartDocument();
-        await writer.writeStartElement('document');
-        await writer.writeAttribute('id', i.toString());
+        writer.writeStartDocument();
+        writer.writeStartElement('document');
+        writer.writeAttribute('id', i.toString());
 
         for (let j = 1; j <= 10; j++) {
-          await writer.writeStartElement('item');
-          await writer.writeAttribute('num', j.toString());
-          await writer.writeCharacters(`Content ${i}-${j}`);
-          await writer.writeEndElement();
+          writer.writeStartElement('item');
+          writer.writeAttribute('num', j.toString());
+          writer.writeCharacters(`Content ${i}-${j}`);
+          writer.writeEndElement();
         }
 
-        await writer.writeEndElement();
-        await writer.writeEndDocument();
+        writer.writeEndElement();
+        writer.writeEndDocument();
 
-        return { id: i, result: outputStream.getResult() };
+        return { id: i, result: writer.getXmlString() };
       })();
 
       promises.push(promise);
@@ -343,29 +323,28 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
   });
 
   it('should handle memory efficiently with large content', async () => {
-    const outputStream = new StringWritableStream();
-    const writer = new StaxXmlWriter(outputStream, {
+    const writer = new StaxXmlWriter({
       encoding: 'utf-8',
       prettyPrint: false, // 성능을 위해 pretty print 비활성화
     });
 
-    await writer.writeStartDocument();
-    await writer.writeStartElement('data');
+    writer.writeStartDocument();
+    writer.writeStartElement('data');
 
     // 큰 텍스트 콘텐츠 작성 (메모리 효율성 테스트)
     const largeText = 'A'.repeat(100000); // 100KB of 'A's
-    await writer.writeCharacters(largeText);
+    writer.writeCharacters(largeText);
 
     // CDATA로도 큰 콘텐츠 작성
-    await writer.writeStartElement('script');
+    writer.writeStartElement('script');
     const largeCData = 'console.log("test");'.repeat(10000);
-    await writer.writeCData(largeCData);
-    await writer.writeEndElement();
+    writer.writeCData(largeCData);
+    writer.writeEndElement();
 
-    await writer.writeEndElement();
-    await writer.writeEndDocument();
+    writer.writeEndElement();
+    writer.writeEndDocument();
 
-    const result = outputStream.getResult();
+    const result = writer.getXmlString();
 
     expect(result).toContain(largeText);
     expect(result).toContain('<![CDATA[');
