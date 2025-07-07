@@ -10,10 +10,10 @@ import xml2js from 'xml2js';
 import { StaxXmlParserSync, XmlEventType } from '../dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
+//const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
 //const xmlPath = join(__dirname, './assets/midsize.xml'); // 13MB
 //const xmlPath = join(__dirname, './assets/complex.xml'); // 2KB
-//const xmlPath = join(__dirname, './assets/books.xml'); // 4KB
+const xmlPath = join(__dirname, './assets/books.xml'); // 4KB
 //const xmlPath = join(__dirname, './assets/sample.xml'); // 1.5KB
 const xmlString = readFileSync(xmlPath, 'utf8').toString();
 

@@ -49,7 +49,6 @@ const defaultOptions: StaxXmlInternalOptions = {
 };
 /**
  * StAX XMLStreamWriter와 유사하게 XML을 작성하는 클래스.
- * 웹 표준 WritableStream에 XML을 직접 작성합니다.
  * 네임스페이스 및 복잡한 PI/주석 관리는 지원하지 않는 간소화된 구현입니다.
  */
 class StaxXmlWriter {
@@ -516,7 +515,7 @@ class StaxXmlWriter {
                 return entityMap[match];
             }
             else {
-                // 정의되지 않은 문자는 그대로 반환합니다.
+                // 정의되지 않은 문자는 그대로 반환합니다。
                 return match;
             }
         });
