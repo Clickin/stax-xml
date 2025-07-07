@@ -4,32 +4,44 @@ import { XMLParser } from 'fast-xml-parser';
 import { readFileSync } from 'fs';
 import { bench, run } from 'mitata';
 import { dirname, join } from 'node:path';
+import { ReadableStream } from 'node:stream/web';
 import { fileURLToPath } from 'node:url';
-import { XmlEventType } from 'stax-xml';
+import { TextEncoder } from 'node:util';
+import * as txml from 'txml';
 import xml2js from 'xml2js';
+import { StaxXmlParserSync, XmlEventType } from '../dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
-
+//const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
+//const xmlPath = join(__dirname, './assets/midsize.xml'); // 13MB
+const xmlPath = join(__dirname, './assets/sample.xml'); // 1.5KB
 function fastXmlParser() {
   const parser = new XMLParser();
   const xmlString = readFileSync(xmlPath, 'utf8').toString();
   parser.parse(xmlString);
 }
 
+// 웹 표준 API용 헬퍼 함수
+function stringToReadableStream(str) {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(str);
+
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes);
+      controller.close();
+    }
+  });
+}
 
 // XML을 JavaScript 객체로 변환하는 함수
-function parseXmlToObject(xmlString) {
-  const parser = new StaxXmlParser(xmlString);
-
-  const elementStack = [];
+function parseXmlToObject(xmlContent) {
+  const parser = new StaxXmlParserSync(xmlContent);
+  let elementStack = [];
   let currentElement = null;
   let root = null;
 
   for (const event of parser) {
-    elementStack.push(event);
-  }
-  for (const event of elementStack.values()) {
     switch (event.type) {
       case XmlEventType.START_DOCUMENT:
         // 문서 시작 - 아무것도 하지 않음
@@ -100,9 +112,14 @@ function xml2jsParser() {
     }
   })
 }
+function txmlParser() {
+  const xmlString = readFileSync(xmlPath, 'utf8').toString();
+  txml.parse(xmlString);
+}
 
 bench('stax-xml', () => staxXmlParser()).gc('inner');
 bench('xml2js', () => xml2jsParser()).gc('inner');
 bench('fast-xml-parser', () => fastXmlParser()).gc('inner');
+bench('txml', () => txmlParser()).gc('inner');
 
 await run();

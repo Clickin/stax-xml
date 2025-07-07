@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "parser": "node ./parser.mjs"
+    "parser": "node ./parser.mjs",
+    "builder": "node ./builder.mjs"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -13,6 +14,8 @@
     "@types/node": "^24.0.10",
     "fast-xml-parser": "^5.2.5",
     "mitata": "^1.0.34",
+    "stax-xml": "^0.2.5",
+    "txml": "^5.1.1",
     "xml2js": "^0.6.2"
   }
 }

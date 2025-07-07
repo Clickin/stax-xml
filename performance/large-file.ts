@@ -1,6 +1,7 @@
 import { createReadStream } from 'fs';
 import { dirname } from 'path';
 import StaxXmlParser from '../src/StaxXmlParser';
+import { StaxXmlParserSync } from '../src/StaxXmlParserSync'; // Add this import
 import { XmlEventType } from '../src/types';
 
 // 어설션 헬퍼 함수
@@ -329,6 +330,72 @@ async function runTests() {
 
     console.log(`✅ Benchmark completed successfully!`);
   }, 900000);
+
+  // New benchmark for StaxXmlParserSync
+  await test('should handle treebank_e.xml with synchronous parsing', async () => {
+    const { heapStats } = await import('bun:jsc');
+
+    console.log(`\n⚡ treebank_e.xml Synchronous Parsing Test (StaxXmlParserSync)`);
+
+    const cwd = dirname(".");
+    const filePath = `${cwd}/performance/samples/treebank_e.xml`;
+    console.log(`📁 Reading from: ${filePath}`);
+
+    // Read the entire file into a string
+    const xmlString = await Bun.file(filePath).text();
+    const fileSize = xmlString.length; // Use string length for file size in this context
+    console.log(`📁 File size (string length): ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
+
+    // Initial memory state
+    Bun.gc(true);
+    const initialHeapStats = heapStats();
+    console.log(`📊 Initial heap size: ${(initialHeapStats.heapSize / 1024 / 1024).toFixed(2)} MB`);
+
+    const startTime = performance.now();
+    const parser = new StaxXmlParserSync(xmlString);
+
+    let eventCount = 0;
+    let entryCount = 0;
+    let memoryPeakSize = initialHeapStats.heapSize;
+
+    for (const event of parser) {
+      eventCount++;
+
+      if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'S') {
+        entryCount++;
+      }
+      // Update peak memory usage periodically or after a certain number of events
+      const currentHeapStats = heapStats();
+      memoryPeakSize = Math.max(memoryPeakSize, currentHeapStats.heapSize);
+    }
+
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+
+    const finalHeapStats = heapStats();
+
+    console.log(`\n🎯 Synchronous Parsing Results:`);
+    console.log(`⚡ Total time: ${(totalTime / 1000).toFixed(2)} seconds`);
+    console.log(`📈 Events processed: ${eventCount.toLocaleString()}`);
+    console.log(`🧪 Entries processed: ${entryCount.toLocaleString()}`);
+    console.log(`💾 Peak memory usage: ${(memoryPeakSize / 1024 / 1024).toFixed(2)} MB`);
+    console.log(`📊 Final heap size: ${(finalHeapStats.heapSize / 1024 / 1024).toFixed(2)} MB`);
+
+    const memoryEfficiency = (fileSize / memoryPeakSize) * 100;
+    console.log(`💱 Memory efficiency: ${memoryEfficiency.toFixed(1)}% (file size vs peak memory)`);
+
+    assert(eventCount > 0, 'eventCount should be greater than 0');
+    assert(entryCount > 0, 'entryCount should be greater than 0');
+    assert(totalTime < 300000, 'totalTime should be less than 300000ms (5 minutes)');
+
+    // For synchronous parsing, heap to file ratio will be higher
+    const heapToFileRatio = memoryPeakSize / fileSize;
+    console.log(`📊 Heap to file ratio: ${heapToFileRatio.toFixed(2)}x`);
+    // Adjust assertion for synchronous parsing which loads entire file into memory
+    assert(heapToFileRatio < 20, `heapToFileRatio should be less than 20, but was ${heapToFileRatio.toFixed(2)}`);
+
+    console.log(`✅ StaxXmlParserSync test completed!`);
+  }, 600000);
 
 }
 
