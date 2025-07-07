@@ -1,46 +1,40 @@
 {
   "name": "stax-xml",
-  "type": "module",
   "version": "0.2.5",
+  "author": "Clickin <josh87786@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Clickin/stax-xml.git"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "description": "",
+  "devDependencies": {
+    "bun-plugin-dts": "^0.3.0",
+    "@types/bun": "^1.1.10"
+  },
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/index.js",
     "require": "./dist/index.cjs"
   },
-  "scripts": {
-    "build": "bun run build.ts",
-    "performance": "bun run ./performance/large-file.ts",
-    "coverage": "bun test --coverage",
-    "prepublishOnly": "bun run build"
-  },
+  "bugs": "https://github.com/Clickin/stax-xml/issues",
+  "description": "",
   "files": [
     "dist"
   ],
+  "homepage": "https://github.com/Clickin/stax-xml",
   "keywords": [
     "bun",
     "xml",
     "stax"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/Clickin/stax-xml",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Clickin/stax-xml.git"
+  "scripts": {
+    "build": "bun run build.ts",
+    "performance": "bun run ./performance/large-file.ts",
+    "coverage": "bun test --coverage",
+    "prepublishOnly": "bun run build"
   },
-  "bugs": "https://github.com/Clickin/stax-xml/issues",
-  "author": "Clickin <josh87786@gmail.com>",
-  "devDependencies": {
-    "bun-plugin-dts": "^0.3.0",
-    "@types/bun": "^1.1.10"
-  },
-  "dependencies": {
-    "buffered-async-iterable": "^1.0.1",
-    "fast-xml-parser": "^5.2.5",
-    "hwp": "^0.4.1",
-    "txml": "^5.1.1"
-  }
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }

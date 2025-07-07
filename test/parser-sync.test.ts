@@ -10,11 +10,11 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
-      { type: XmlEventType.START_ELEMENT, name: 'item', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'text' },
-      { type: XmlEventType.END_ELEMENT, name: 'item' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.END_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -26,10 +26,10 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr1: 'value1', attr2: 'value2' } },
-      { type: XmlEventType.START_ELEMENT, name: 'child', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'child' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr1: 'value1', attr2: 'value2' }, attributesWithPrefix: { attr1: { value: 'value1', localName: 'attr1', prefix: undefined, uri: undefined }, attr2: { value: 'value2', localName: 'attr2', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -41,12 +41,12 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
-      { type: XmlEventType.START_ELEMENT, name: 'empty', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'empty' },
-      { type: XmlEventType.START_ELEMENT, name: 'item', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'item' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'empty', localName: 'empty', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'empty', localName: 'empty', prefix: undefined, uri: undefined },
+      { type: XmlEventType.START_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -58,9 +58,9 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CDATA, value: '<data>text</data>' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -72,10 +72,10 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
-      { type: XmlEventType.START_ELEMENT, name: 'item', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'item' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -87,13 +87,13 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'Hello' },
-      { type: XmlEventType.START_ELEMENT, name: 'bold', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'bold', localName: 'bold', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'World' },
-      { type: XmlEventType.END_ELEMENT, name: 'bold' },
+      { type: XmlEventType.END_ELEMENT, name: 'bold', localName: 'bold', prefix: undefined, uri: undefined },
       { type: XmlEventType.CHARACTERS, value: '!' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -105,10 +105,10 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
-      { type: XmlEventType.START_ELEMENT, name: 'item', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'item' },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -131,8 +131,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -144,13 +144,13 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'A', attributes: {} },
-      { type: XmlEventType.START_ELEMENT, name: 'B', attributes: {} },
-      { type: XmlEventType.START_ELEMENT, name: 'C', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'A', localName: 'A', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'B', localName: 'B', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'C', localName: 'C', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'text' },
-      { type: XmlEventType.END_ELEMENT, name: 'C' },
-      { type: XmlEventType.END_ELEMENT, name: 'B' },
-      { type: XmlEventType.END_ELEMENT, name: 'A' },
+      { type: XmlEventType.END_ELEMENT, name: 'C', localName: 'C', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'B', localName: 'B', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'A', localName: 'A', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -162,8 +162,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr: 'value' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr: 'value' }, attributesWithPrefix: { attr: { value: 'value', localName: 'attr', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -175,8 +175,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr: 'value' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr: 'value' }, attributesWithPrefix: { attr: { value: 'value', localName: 'attr', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -188,8 +188,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr1: 'value1', attr2: 'value2' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr1: 'value1', attr2: 'value2' }, attributesWithPrefix: { attr1: { value: 'value1', localName: 'attr1', prefix: undefined, uri: undefined }, attr2: { value: 'value2', localName: 'attr2', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -201,8 +201,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { checked: 'true', disabled: 'true' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { checked: 'true', disabled: 'true' }, attributesWithPrefix: { checked: { value: 'true', localName: 'checked', prefix: undefined, uri: undefined }, disabled: { value: 'true', localName: 'disabled', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -214,8 +214,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr: 'value' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr: 'value' }, attributesWithPrefix: { attr: { value: 'value', localName: 'attr', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -227,8 +227,8 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr: 'value &amp; &lt; &gt; &apos; &quot;' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr: 'value & < > \' "' }, attributesWithPrefix: { attr: { value: 'value & < > \' "', localName: 'attr', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -240,10 +240,10 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root1', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'root1' },
-      { type: XmlEventType.START_ELEMENT, name: 'root2', attributes: {} },
-      { type: XmlEventType.END_ELEMENT, name: 'root2' },
+      { type: XmlEventType.START_ELEMENT, name: 'root1', localName: 'root1', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'root1', localName: 'root1', prefix: undefined, uri: undefined },
+      { type: XmlEventType.START_ELEMENT, name: 'root2', localName: 'root2', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'root2', localName: 'root2', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -255,9 +255,9 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'Hello   World' }, // trim() is applied to characters
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -269,17 +269,164 @@ describe('StaxXmlParserSync', () => {
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'library', attributes: { name: 'My Library' } },
-      { type: XmlEventType.START_ELEMENT, name: 'book', attributes: { id: '123' } },
+      { type: XmlEventType.START_ELEMENT, name: 'library', localName: 'library', prefix: undefined, uri: undefined, attributes: { name: 'My Library' }, attributesWithPrefix: { name: { value: 'My Library', localName: 'name', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined, attributes: { id: '123' }, attributesWithPrefix: { id: { value: '123', localName: 'id', prefix: undefined, uri: undefined } } },
       { type: XmlEventType.CHARACTERS, value: 'Title' },
-      { type: XmlEventType.START_ELEMENT, name: 'author', attributes: {} },
+      { type: XmlEventType.START_ELEMENT, name: 'author', localName: 'author', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'Author Name' },
-      { type: XmlEventType.END_ELEMENT, name: 'author' },
+      { type: XmlEventType.END_ELEMENT, name: 'author', localName: 'author', prefix: undefined, uri: undefined },
       { type: XmlEventType.CHARACTERS, value: 'More Text' },
-      { type: XmlEventType.END_ELEMENT, name: 'book' },
-      { type: XmlEventType.START_ELEMENT, name: 'book', attributes: { id: '456' } },
-      { type: XmlEventType.END_ELEMENT, name: 'book' },
-      { type: XmlEventType.END_ELEMENT, name: 'library' },
+      { type: XmlEventType.END_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined },
+      { type: XmlEventType.START_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined, attributes: { id: '456' }, attributesWithPrefix: { id: { value: '456', localName: 'id', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_ELEMENT, name: 'library', localName: 'library', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  // New tests for entity decoding
+  it('should decode standard XML entities in text content', () => {
+    const xml = '<root>This is &lt; and &gt; and &amp; and &apos; and &quot;.</root>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.CHARACTERS, value: 'This is < and > and & and \' and ".' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should decode standard XML entities in attribute values', () => {
+    const xml = '<root attr="&lt;&gt;&amp;&apos;&quot;"/>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { attr: '<>&\'"' }, attributesWithPrefix: { attr: { value: '<>&\'"' , localName: 'attr', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should decode custom entities in text content', () => {
+    const xml = '<root>Hello &world;!</root>';
+    const parser = new StaxXmlParserSync(xml, { addEntities: [{ entity: '&world;', value: 'World' }] });
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.CHARACTERS, value: 'Hello World!' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should decode custom entities in attribute values', () => {
+    const xml = '<root custom="Value &customEnt;"/>';
+    const parser = new StaxXmlParserSync(xml, { addEntities: [{ entity: '&customEnt;', value: 'Custom' }] });
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { custom: 'Value Custom' }, attributesWithPrefix: { custom: { value: 'Value Custom', localName: 'custom', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should not decode entities when autoDecodeEntities is false', () => {
+    const xml = '<root>This is &lt; and &customEnt;.</root>';
+    const parser = new StaxXmlParserSync(xml, { autoDecodeEntities: false, addEntities: [{ entity: '&customEnt;', value: 'Custom' }] });
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.CHARACTERS, value: 'This is &lt; and &customEnt;.' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  // New tests for namespace support
+  it('should handle default namespace declaration', () => {
+    const xml = '<root xmlns="http://example.com/ns1"><item/></root>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'http://example.com/ns1', attributes: { xmlns: 'http://example.com/ns1' }, attributesWithPrefix: { xmlns: { value: 'http://example.com/ns1', localName: 'xmlns', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: 'http://example.com/ns1', attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: 'http://example.com/ns1' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'http://example.com/ns1' },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should handle prefixed namespace declaration', () => {
+    const xml = '<root xmlns:prefix="http://example.com/ns2"><prefix:item/></root>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { 'xmlns:prefix': 'http://example.com/ns2' }, attributesWithPrefix: { 'xmlns:prefix': { value: 'http://example.com/ns2', localName: 'prefix', prefix: 'xmlns', uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'prefix:item', localName: 'item', prefix: 'prefix', uri: 'http://example.com/ns2', attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'prefix:item', localName: 'item', prefix: 'prefix', uri: 'http://example.com/ns2' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should handle namespace inheritance', () => {
+    const xml = '<root xmlns="http://example.com/ns1"><child xmlns:sub="http://example.com/ns2"><sub:item/></child></root>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'http://example.com/ns1', attributes: { xmlns: 'http://example.com/ns1' }, attributesWithPrefix: { xmlns: { value: 'http://example.com/ns1', localName: 'xmlns', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: 'http://example.com/ns1', attributes: { 'xmlns:sub': 'http://example.com/ns2' }, attributesWithPrefix: { 'xmlns:sub': { value: 'http://example.com/ns2', localName: 'sub', prefix: 'xmlns', uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'sub:item', localName: 'item', prefix: 'sub', uri: 'http://example.com/ns2', attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'sub:item', localName: 'item', prefix: 'sub', uri: 'http://example.com/ns2' },
+      { type: XmlEventType.END_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: 'http://example.com/ns1' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'http://example.com/ns1' },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should handle namespace override', () => {
+    const xml = '<root xmlns="http://example.com/ns1"><child xmlns="http://example.com/ns2"><item/></child></root>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'http://example.com/ns1', attributes: { xmlns: 'http://example.com/ns1' }, attributesWithPrefix: { xmlns: { value: 'http://example.com/ns1', localName: 'xmlns', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: 'http://example.com/ns2', attributes: { xmlns: 'http://example.com/ns2' }, attributesWithPrefix: { xmlns: { value: 'http://example.com/ns2', localName: 'xmlns', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: 'http://example.com/ns2', attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'item', localName: 'item', prefix: undefined, uri: 'http://example.com/ns2' },
+      { type: XmlEventType.END_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: 'http://example.com/ns2' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'http://example.com/ns1' },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should handle attributes with namespaces', () => {
+    const xml = '<root xmlns:a="http://example.com/a" a:attr="value"/>';
+    const parser = new StaxXmlParserSync(xml);
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: { 'xmlns:a': 'http://example.com/a', 'a:attr': 'value' }, attributesWithPrefix: { 'xmlns:a': { value: 'http://example.com/a', localName: 'a', prefix: 'xmlns', uri: undefined }, 'a:attr': { value: 'value', localName: 'attr', prefix: 'a', uri: 'http://example.com/a' } } },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
