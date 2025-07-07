@@ -1,6 +1,6 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { readFileSync } from 'fs';
-import { bench, run } from 'mitata';
+import { barplot, bench, run } from 'mitata';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Builder } from "xml2js";
@@ -78,8 +78,11 @@ function xml2jsBuilder() {
   });
   builder.buildObject(jsonContent);
 }
-
-bench('fast-xml-parser builder', () => fastXmlParserBuilder()).gc('inner');
-bench('stax-xml writer', () => staxXmlWriterBuilder()).gc('inner');
-bench('xml2js builder', () => xml2jsBuilder()).gc('inner');
+barplot(() => {
+  summary(() => {
+    bench('fast-xml-parser builder', () => fastXmlParserBuilder()).gc('inner');
+    bench('stax-xml writer', () => staxXmlWriterBuilder()).gc('inner');
+    bench('xml2js builder', () => xml2jsBuilder()).gc('inner');
+  });
+})
 await run();

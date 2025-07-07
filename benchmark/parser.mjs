@@ -2,41 +2,24 @@
 
 import { XMLParser } from 'fast-xml-parser';
 import { readFileSync } from 'fs';
-import { bench, run } from 'mitata';
+import { barplot, bench, run, summary } from 'mitata';
 import { dirname, join } from 'node:path';
-import { ReadableStream } from 'node:stream/web';
 import { fileURLToPath } from 'node:url';
-import { TextEncoder } from 'node:util';
 import * as txml from 'txml';
 import xml2js from 'xml2js';
 import { StaxXmlParserSync, XmlEventType } from '../dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-//const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
+const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
 //const xmlPath = join(__dirname, './assets/midsize.xml'); // 13MB
-const xmlPath = join(__dirname, './assets/sample.xml'); // 1.5KB
-function fastXmlParser() {
-  const parser = new XMLParser();
-  const xmlString = readFileSync(xmlPath, 'utf8').toString();
-  parser.parse(xmlString);
-}
-
-// 웹 표준 API용 헬퍼 함수
-function stringToReadableStream(str) {
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(str);
-
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(bytes);
-      controller.close();
-    }
-  });
-}
+//const xmlPath = join(__dirname, './assets/complex.xml'); // 2KB
+//const xmlPath = join(__dirname, './assets/books.xml'); // 4KB
+//const xmlPath = join(__dirname, './assets/sample.xml'); // 1.5KB
+const xmlString = readFileSync(xmlPath, 'utf8').toString();
 
 // XML을 JavaScript 객체로 변환하는 함수
-function parseXmlToObject(xmlContent) {
-  const parser = new StaxXmlParserSync(xmlContent);
+function parseXmlToObject(xmlString) {
+  const parser = new StaxXmlParserSync(xmlString);
   let elementStack = [];
   let currentElement = null;
   let root = null;
@@ -99,13 +82,35 @@ function parseXmlToObject(xmlContent) {
   return root;
 }
 
-function staxXmlParser() {
-  const xmlString = readFileSync(xmlPath, 'utf8').toString();
+function fastXmlParser() {
+  const parser = new XMLParser();
+  parser.parse(xmlString);
+}
+
+
+function staxXmlParserObject() {
   parseXmlToObject(xmlString);
+}
+function staxXmlParserConsume() {
+  const parser = new StaxXmlParserSync(xmlString);
+  for (const event of parser) {
+    switch (event.type) {
+      case XmlEventType.START_DOCUMENT:
+      case XmlEventType.END_DOCUMENT:
+        break;
+      case XmlEventType.START_ELEMENT:
+      case XmlEventType.CHARACTERS:
+      case XmlEventType.CDATA:
+      case XmlEventType.END_ELEMENT:
+        // Do nothing, just consume the events
+        break;
+      case XmlEventType.ERROR:
+        throw event.error;
+    }
+  }
 }
 
 function xml2jsParser() {
-  const xmlString = readFileSync(xmlPath, 'utf8').toString();
   xml2js.parseString(xmlString, function (err) {
     if (err) {
       throw err;
@@ -113,13 +118,17 @@ function xml2jsParser() {
   })
 }
 function txmlParser() {
-  const xmlString = readFileSync(xmlPath, 'utf8').toString();
   txml.parse(xmlString);
 }
+barplot(() => {
+  summary(() => {
 
-bench('stax-xml', () => staxXmlParser()).gc('inner');
-bench('xml2js', () => xml2jsParser()).gc('inner');
-bench('fast-xml-parser', () => fastXmlParser()).gc('inner');
-bench('txml', () => txmlParser()).gc('inner');
+    bench('stax-xml to object', () => staxXmlParserObject()).gc('inner');
+    bench('stax-xml consume', () => staxXmlParserConsume()).gc('inner');
+    bench('xml2js', () => xml2jsParser()).gc('inner')
+    bench('fast-xml-parser', () => fastXmlParser()).gc('inner')
+    bench('txml', () => txmlParser()).gc('inner')
+  })
+})
 
 await run();
