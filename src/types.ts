@@ -30,7 +30,7 @@ export interface StartElementEvent extends XmlEvent {
   prefix?: string; // 네임스페이스 접두사
   uri?: string; // 네임스페이스 URI
   attributes: { [key: string]: string };
-  attributesWithPrefix?: { [key: string]: { value: string; prefix?: string; uri?: string } };
+  attributesWithPrefix?: { [key: string]: AttributeInfo };
 }
 
 /**
@@ -61,7 +61,7 @@ export interface CdataEvent extends XmlEvent {
 }
 
 /**
- * ERROR 이벤트 인터페이스
+ * ERROR 이벤트 인터FACE
  */
 export interface ErrorEvent extends XmlEvent {
   type: XmlEventType.ERROR;
@@ -112,6 +112,7 @@ export interface ProcessingInstruction {
  */
 export interface AttributeInfo {
   value: string;
+  localName: string; // Added localName
   prefix?: string;
   uri?: string;
 }

@@ -2,12 +2,12 @@
 
 import {
   AnyXmlEvent,
+  AttributeInfo,
+  CdataEvent,
   CharactersEvent,
   EndElementEvent,
   StartElementEvent,
-  XmlEventType,
-  CdataEvent,
-  AttributeInfo
+  XmlEventType
 } from './types';
 
 export interface StaxXmlParserSyncOptions {
@@ -160,7 +160,6 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
 
     const tagContent = this.xml.substring(this.pos + 1, tagClose);
 
-    let tagName: string;
     let attributes: { [key: string]: string } = {};
     let attributesWithPrefix: { [key: string]: AttributeInfo } = {};
     let isSelfClosing = false;
@@ -290,7 +289,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       '&lt;': '<',
       '&gt;': '>',
       '&quot;': '"',
-      '&apos;': "'",
+      '&apos;': '\'',
       ...this.options.addEntities?.reduce((map, entity) => {
         if (entity.entity && entity.value) {
           map[entity.entity] = entity.value;
