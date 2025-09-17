@@ -1,4 +1,4 @@
-// StaxXmlParserSync.ts
+// StaxXmlParserSync.ts - 불필요한 메서드 제거 버전
 
 import {
   AnyXmlEvent,
@@ -11,95 +11,269 @@ import {
 } from './types';
 
 export interface StaxXmlParserSyncOptions {
-  autoDecodeEntities?: boolean; // 자동 엔티티 디코딩 활성화 여부 (기본값: true)
-  addEntities?: { entity: string, value: string }[]; // 사용자 정의 엔티티
+  autoDecodeEntities?: boolean;
+  addEntities?: { entity: string, value: string }[];
 }
 
-/**
- * A synchronous, iterable XML parser that processes an entire XML string.
- *
- * This parser is designed for speed and is ideal for environments where the entire
- * XML document is already in memory, such as in web servers handling small to
- * medium-sized XML payloads. It avoids the overhead of asynchronous streams.
- *
- * It implements the `Iterable<AnyXmlEvent>` interface, allowing you to use it
- * directly in `for...of` loops.
- *
- * @example
- * ```typescript
- * const xml = '<root><item>Hello</item></root>';
- * const parser = new StaxXmlParserSync(xml);
- * for (const event of parser) {
- *   if (event.type === XmlEventType.START_ELEMENT) {
- *     console.log(`Start Element: ${event.name}`);
- *   }
- * }
- * ```
- */
 export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
   private readonly xml: string;
+  private readonly xmlLength: number;
   private pos: number = 0;
   private readonly elementStack: string[] = [];
-  private namespaceStack: Map<string, string>[] = []; // 네임스페이스 매핑 스택
-  private options: StaxXmlParserSyncOptions;
+  private namespaceStack: Map<string, string>[] = [];
+  private readonly options: StaxXmlParserSyncOptions;
 
-  private readonly xmlnsRegex: RegExp;
-  private readonly attrRegex: RegExp;
+  // ===== 정적 최적화 테이블 및 캐시 =====
+
+  // ASCII 문자 빠른 분류 테이블 (0-127)
+  private static readonly ASCII_TABLE = (() => {
+    const table = new Uint8Array(128);
+    // 공백 문자들: 1
+    table[9] = 1;   // TAB
+    table[10] = 1;  // LF
+    table[13] = 1;  // CR
+    table[32] = 1;  // SPACE
+    // XML 특수 문자들
+    table[60] = 2;  // '<'
+    table[62] = 3;  // '>'
+    table[47] = 4;  // '/'
+    table[61] = 5;  // '='
+    table[33] = 6;  // '!'
+    table[63] = 7;  // '?'
+    table[34] = 8;  // '"'
+    table[39] = 9;  // "'"
+    return table;
+  })();
+
+  // 다국어 공백 문자 Set (빠른 조회)
+  private static readonly UNICODE_WHITESPACE = new Set([
+    0x00A0, // Non-breaking space
+    0x1680, // Ogham space
+    0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, // Various spaces
+    0x2028, // Line separator
+    0x2029, // Paragraph separator
+    0x202F, // Narrow no-break space
+    0x205F, // Medium mathematical space
+    0x3000, // CJK ideographic space
+    0xFEFF  // Zero-width no-break space
+  ]);
+
+  // 엔티티 정규식 캐시
+  private static readonly ENTITY_REGEX_CACHE = new Map<string, RegExp>();
+  private static readonly DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
+  private static readonly DEFAULT_ENTITY_MAP: Record<string, string> = {
+    'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'", 'amp': '&'
+  };
+
+  // 컴파일된 엔티티 디코더 (인스턴스별 캐싱)
+  private readonly entityDecoder: (text: string) => string;
 
   constructor(xml: string, options: StaxXmlParserSyncOptions = {}) {
     this.xml = xml;
+    this.xmlLength = xml.length;
     this.options = {
       autoDecodeEntities: true,
       ...options
     };
-    // Initialize with a default empty namespace map for the root scope
+
     this.namespaceStack.push(new Map<string, string>());
 
-    // Initialize regexes once in the constructor
-    this.xmlnsRegex = /(xmlns(?::([a-zA-Z0-9_.-]+))?)="([^"]*)"/g;
-    this.attrRegex = /([a-zA-Z0-9_:.-]+)(?:\s*=\s*"([^"]*)")?/g;
+    // 엔티티 디코더 사전 컴파일
+    this.entityDecoder = this.compileEntityDecoder();
   }
+
+  // ===== 헬퍼 메서드: 문자 분류 =====
+
+  private static isWhitespace(code: number): boolean {
+    if (code < 128) {
+      return StaxXmlParserSync.ASCII_TABLE[code] === 1;
+    }
+    return code <= 32 || StaxXmlParserSync.UNICODE_WHITESPACE.has(code);
+  }
+
+  // ===== 헬퍼 메서드: 서로게이트 페어 처리 =====
+
+  private static isHighSurrogate(code: number): boolean {
+    return code >= 0xD800 && code <= 0xDBFF;
+  }
+
+  private static isLowSurrogate(code: number): boolean {
+    return code >= 0xDC00 && code <= 0xDFFF;
+  }
+
+  // ===== 최적화된 문자열 처리 =====
+
+  // indexOf 대체 - 빠른 문자 검색
+  private findChar(targetCode: number, start: number = this.pos): number {
+    const xml = this.xml;
+    const len = this.xmlLength;
+
+    // 8바이트 언롤링으로 성능 향상
+    const len8 = len - 7;
+    let i = start;
+
+    for (; i < len8; i += 8) {
+      if (xml.charCodeAt(i) === targetCode) return i;
+      if (xml.charCodeAt(i + 1) === targetCode) return i + 1;
+      if (xml.charCodeAt(i + 2) === targetCode) return i + 2;
+      if (xml.charCodeAt(i + 3) === targetCode) return i + 3;
+      if (xml.charCodeAt(i + 4) === targetCode) return i + 4;
+      if (xml.charCodeAt(i + 5) === targetCode) return i + 5;
+      if (xml.charCodeAt(i + 6) === targetCode) return i + 6;
+      if (xml.charCodeAt(i + 7) === targetCode) return i + 7;
+    }
+
+    for (; i < len; i++) {
+      if (xml.charCodeAt(i) === targetCode) return i;
+    }
+
+    return -1;
+  }
+
+  // 빠른 문자열 검색 (startsWith 대체)
+  private matchesAt(str: string, pos: number): boolean {
+    const len = str.length;
+    if (pos + len > this.xmlLength) return false;
+
+    for (let i = 0; i < len; i++) {
+      if (this.xml.charCodeAt(pos + i) !== str.charCodeAt(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // 인라인 trim (substring 회피)
+  private trimmedSlice(start: number, end: number): string {
+    const xml = this.xml;
+
+    // 앞 공백 제거
+    while (start < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(start))) {
+      if (StaxXmlParserSync.isHighSurrogate(xml.charCodeAt(start))) {
+        start += 2;
+      } else {
+        start++;
+      }
+    }
+
+    // 뒤 공백 제거
+    while (end > start && StaxXmlParserSync.isWhitespace(xml.charCodeAt(end - 1))) {
+      // 서로게이트 페어 체크 (역방향)
+      if (end > start + 1 &&
+        StaxXmlParserSync.isLowSurrogate(xml.charCodeAt(end - 1)) &&
+        StaxXmlParserSync.isHighSurrogate(xml.charCodeAt(end - 2))) {
+        end -= 2;
+      } else {
+        end--;
+      }
+    }
+
+    return start < end ? xml.slice(start, end) : '';
+  }
+
+  // ===== 엔티티 처리 최적화 =====
+
+  private compileEntityDecoder(): (text: string) => string {
+    if (!this.options.autoDecodeEntities) {
+      return (text) => text;
+    }
+
+    // 사용자 정의 엔티티가 있는 경우
+    if (this.options.addEntities && this.options.addEntities.length > 0) {
+      const entityMap: Record<string, string> = { ...StaxXmlParserSync.DEFAULT_ENTITY_MAP };
+      const patterns: string[] = ['lt', 'gt', 'quot', 'apos'];
+
+      for (const { entity, value } of this.options.addEntities) {
+        if (entity && value) {
+          // &entity; 형식에서 entity 부분만 추출
+          const key = entity.startsWith('&') && entity.endsWith(';')
+            ? entity.slice(1, -1)
+            : entity;
+          entityMap[key] = value;
+          patterns.push(key);
+        }
+      }
+      patterns.push('amp'); // amp는 마지막에
+
+      // 캐시 키 생성 및 정규식 캐싱
+      const cacheKey = patterns.join(',');
+      let regex = StaxXmlParserSync.ENTITY_REGEX_CACHE.get(cacheKey);
+
+      if (!regex) {
+        const pattern = patterns
+          .sort((a, b) => b.length - a.length) // 긴 패턴 우선
+          .map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|');
+        regex = new RegExp(`&(${pattern});`, 'g');
+        StaxXmlParserSync.ENTITY_REGEX_CACHE.set(cacheKey, regex);
+      }
+
+      return (text: string) => {
+        if (!text || text.indexOf('&') === -1) return text;
+        regex!.lastIndex = 0;
+        return text.replace(regex!, (_, entity) => entityMap[entity] || _);
+      };
+    }
+
+    // 기본 엔티티만 사용
+    return (text: string) => {
+      if (!text || text.indexOf('&') === -1) return text;
+      StaxXmlParserSync.DEFAULT_ENTITY_REGEX.lastIndex = 0;
+      return text.replace(
+        StaxXmlParserSync.DEFAULT_ENTITY_REGEX,
+        (_, entity) => StaxXmlParserSync.DEFAULT_ENTITY_MAP[entity] || _
+      );
+    };
+  }
+
+  // ===== 메인 파싱 로직 =====
 
   public *[Symbol.iterator](): Iterator<AnyXmlEvent> {
     yield { type: XmlEventType.START_DOCUMENT };
 
-    while (this.pos < this.xml.length) {
-      const nextTagOpen = this.xml.indexOf('<', this.pos);
+    while (this.pos < this.xmlLength) {
+      const ltPos = this.findChar(60, this.pos); // '<' 찾기
 
-      // Handle text content before the next tag
-      if (nextTagOpen === -1) { // No more tags, remaining is text
-        const text = this.xml.substring(this.pos);
-        if (text.trim().length > 0) {
-          yield { type: XmlEventType.CHARACTERS, value: this._unescapeXml(text.trim()) } as CharactersEvent;
+      if (ltPos === -1) {
+        // 남은 텍스트 처리
+        if (this.pos < this.xmlLength) {
+          const text = this.trimmedSlice(this.pos, this.xmlLength);
+          if (text) {
+            yield {
+              type: XmlEventType.CHARACTERS,
+              value: this.entityDecoder(text)
+            } as CharactersEvent;
+          }
         }
-        this.pos = this.xml.length;
         break;
       }
 
-      if (nextTagOpen > this.pos) { // Text content exists before the next tag
-        const text = this.xml.substring(this.pos, nextTagOpen);
-        if (text.trim().length > 0) {
-          yield { type: XmlEventType.CHARACTERS, value: this._unescapeXml(text.trim()) } as CharactersEvent;
+      // '<' 전의 텍스트 처리
+      if (ltPos > this.pos) {
+        const text = this.trimmedSlice(this.pos, ltPos);
+        if (text) {
+          yield {
+            type: XmlEventType.CHARACTERS,
+            value: this.entityDecoder(text)
+          } as CharactersEvent;
         }
       }
 
-      this.pos = nextTagOpen; // Move position to the '<' character
+      this.pos = ltPos;
+      const nextCharCode = this.xml.charCodeAt(this.pos + 1);
 
-      // Now parse the tag itself
-      const charAfterAngle = this.xml[this.pos + 1];
-
-      switch (charAfterAngle) {
-        case '/': // End tag: </tag>
-          yield* this._parseEndTag();
+      switch (nextCharCode) {
+        case 47: // '/'
+          yield* this.parseEndTag();
           break;
-        case '!': // CDATA, Comment, DOCTYPE
-          yield* this._parseCdataCommentDoctype();
+        case 33: // '!'
+          yield* this.parseCdataCommentDoctype();
           break;
-        case '?': // Processing Instruction: <?tag ...?>
-          yield* this._parseProcessingInstruction();
+        case 63: // '?'
+          yield* this.parseProcessingInstruction();
           break;
-        default: // Start tag: <tag attr="val"> or <tag/>
-          yield* this._parseStartTag();
+        default:
+          yield* this.parseStartTag();
           break;
       }
     }
@@ -107,10 +281,13 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
     yield { type: XmlEventType.END_DOCUMENT };
   }
 
-  private *_parseEndTag(): Generator<AnyXmlEvent> {
-    const tagClose = this.xml.indexOf('>', this.pos);
+  // ===== 태그 파싱 메서드 (최적화됨) =====
+
+  private *parseEndTag(): Generator<AnyXmlEvent> {
+    const tagClose = this.findChar(62, this.pos); // '>'
     if (tagClose === -1) throw new Error('Unclosed end tag');
-    const fullTagName = this.xml.substring(this.pos + 2, tagClose).trim();
+
+    const fullTagName = this.trimmedSlice(this.pos + 2, tagClose);
 
     if (this.elementStack.length === 0) {
       throw new Error(`Mismatched closing tag: </${fullTagName}>. No open elements.`);
@@ -122,238 +299,273 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
     }
 
     this.elementStack.pop();
-    const currentNamespaces = this.namespaceStack.pop(); // Pop the namespace scope
+    const currentNamespaces = this.namespaceStack.pop();
 
-    const { localName, prefix, uri } = this._parseQualifiedName(fullTagName, currentNamespaces || new Map(), false); // Use the popped namespace map
+    const { localName, prefix, uri } = this.parseQualifiedName(
+      fullTagName,
+      currentNamespaces || new Map(),
+      false
+    );
 
-    yield { type: XmlEventType.END_ELEMENT, name: fullTagName, localName, prefix, uri } as EndElementEvent;
+    yield {
+      type: XmlEventType.END_ELEMENT,
+      name: fullTagName,
+      localName,
+      prefix,
+      uri
+    } as EndElementEvent;
+
     this.pos = tagClose + 1;
   }
 
-  private *_parseCdataCommentDoctype(): Generator<AnyXmlEvent> {
-    if (this.xml.startsWith('<![CDATA[', this.pos)) { // CDATA
-      const cdataEnd = this.xml.indexOf(']]>', this.pos);
+  private *parseCdataCommentDoctype(): Generator<AnyXmlEvent> {
+    if (this.matchesAt('<![CDATA[', this.pos)) {
+      const cdataEnd = this.findSequence(']]>', this.pos + 9);
       if (cdataEnd === -1) throw new Error('Unclosed CDATA section');
-      const cdataContent = this.xml.substring(this.pos + 9, cdataEnd);
-      yield { type: XmlEventType.CDATA, value: cdataContent } as CdataEvent;
+
+      const cdataContent = this.xml.slice(this.pos + 9, cdataEnd);
+      yield {
+        type: XmlEventType.CDATA,
+        value: cdataContent
+      } as CdataEvent;
+
       this.pos = cdataEnd + 3;
-    } else if (this.xml.startsWith('<!--', this.pos)) { // Comment
-      const commentEnd = this.xml.indexOf('-->', this.pos);
+    } else if (this.matchesAt('<!--', this.pos)) {
+      const commentEnd = this.findSequence('-->', this.pos + 4);
       if (commentEnd === -1) throw new Error('Unclosed comment');
       this.pos = commentEnd + 3;
-    } else if (this.xml.startsWith('<!DOCTYPE', this.pos)) { // DOCTYPE
-      const doctypeEnd = this.xml.indexOf('>', this.pos);
+    } else if (this.matchesAt('<!DOCTYPE', this.pos)) {
+      const doctypeEnd = this.findChar(62, this.pos); // '>'
       if (doctypeEnd === -1) throw new Error('Unclosed DOCTYPE declaration');
       this.pos = doctypeEnd + 1;
     }
   }
 
-  private *_parseProcessingInstruction(): Generator<AnyXmlEvent> {
-    const piEnd = this.xml.indexOf('?>', this.pos);
+  private *parseProcessingInstruction(): Generator<AnyXmlEvent> {
+    const piEnd = this.findSequence('?>', this.pos);
     if (piEnd === -1) throw new Error('Unclosed processing instruction');
     this.pos = piEnd + 2;
   }
 
-  private *_parseStartTag(): Generator<AnyXmlEvent> {
-    const tagClose = this._findTagEnd(this.pos + 1); // Start searching after '<'
-    if (tagClose === -1) throw new Error('Unclosed start tag');
+  private *parseStartTag(): Generator<AnyXmlEvent> {
+    const tagStart = this.pos + 1;
+    const tagEnd = this.findTagEnd(tagStart);
+    if (tagEnd === -1) throw new Error('Unclosed start tag');
 
-    const tagContent = this.xml.substring(this.pos + 1, tagClose);
-
-    let attributes: { [key: string]: string } = {};
-    let attributesWithPrefix: { [key: string]: AttributeInfo } = {};
     let isSelfClosing = false;
+    let actualEnd = tagEnd;
 
-    // Create a new namespace scope for this element
+    if (this.xml.charCodeAt(tagEnd - 1) === 47) { // '/'
+      isSelfClosing = true;
+      actualEnd = tagEnd - 1;
+    }
+
+    // 태그 이름과 속성 분리
+    let nameEnd = tagStart;
+    while (nameEnd < actualEnd) {
+      const code = this.xml.charCodeAt(nameEnd);
+      if (StaxXmlParserSync.isWhitespace(code) || code === 62 || code === 47) {
+        break;
+      }
+      nameEnd++;
+    }
+
+    const tagName = this.xml.slice(tagStart, nameEnd);
+
+    // 네임스페이스 컨텍스트 생성
     const currentNamespaces = new Map<string, string>();
     if (this.namespaceStack.length > 0) {
-      // Inherit parent's namespaces
       const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
       for (const [prefix, uri] of parentNamespaces) {
         currentNamespaces.set(prefix, uri);
       }
     }
 
-    // Extract raw tag name and attribute string
-    let rawTagName: string;
-    let rawAttrStr: string = '';
+    // 속성 파싱 (인라인 최적화)
+    const { attributes, attributesWithPrefix } = this.parseAttributesFast(
+      nameEnd,
+      actualEnd,
+      currentNamespaces
+    );
 
-    if (tagContent.endsWith('/')) {
-      isSelfClosing = true;
-      const actualTagContent = tagContent.substring(0, tagContent.length - 1).trim();
-      const spaceIndex = actualTagContent.indexOf(' ');
-      if (spaceIndex === -1) {
-        rawTagName = actualTagContent;
-      } else {
-        rawTagName = actualTagContent.substring(0, spaceIndex);
-        rawAttrStr = actualTagContent.substring(spaceIndex + 1);
-      }
-    } else {
-      const spaceIndex = tagContent.indexOf(' ');
-      if (spaceIndex === -1) {
-        rawTagName = tagContent;
-      } else {
-        rawTagName = tagContent.substring(0, spaceIndex);
-        rawAttrStr = tagContent.substring(spaceIndex + 1);
-      }
-    }
+    const { localName, prefix, uri } = this.parseQualifiedName(
+      tagName,
+      currentNamespaces,
+      false
+    );
 
-    // First pass: Process xmlns attributes to update currentNamespaces
-    // Reset regex lastIndex before using it in a loop
-    this.xmlnsRegex.lastIndex = 0;
-    let match;
-    while ((match = this.xmlnsRegex.exec(rawAttrStr)) !== null) {
-      const fullAttr = match[1];
-      const prefix = match[2];
-      const uri = match[3];
-      if (prefix) {
-        currentNamespaces.set(prefix, uri);
-      } else {
-        currentNamespaces.set('', uri);
-      }
-      // Also add to simple attributes for output
-      attributes[fullAttr] = uri;
-      attributesWithPrefix[fullAttr] = { value: uri, localName: prefix || 'xmlns', prefix: prefix ? 'xmlns' : undefined, uri: undefined };
-    }
+    yield {
+      type: XmlEventType.START_ELEMENT,
+      name: tagName,
+      localName,
+      prefix,
+      uri,
+      attributes,
+      attributesWithPrefix
+    } as StartElementEvent;
 
-    // Second pass: Parse all other attributes and resolve their namespaces
-    // Reset regex lastIndex before using it in a loop
-    this.attrRegex.lastIndex = 0;
-    let attrMatch;
-    while ((attrMatch = this.attrRegex.exec(rawAttrStr)) !== null) {
-      const fullAttrName = attrMatch[1];
-      // Skip xmlns attributes as they were handled in the first pass
-      if (fullAttrName.startsWith('xmlns')) continue;
-
-      const attrValue = attrMatch[2] ? this._unescapeXml(attrMatch[2]) : 'true'; // Default to 'true' for boolean attributes
-      attributes[fullAttrName] = attrValue;
-
-      const { localName, prefix, uri } = this._parseQualifiedName(fullAttrName, currentNamespaces, true);
-      attributesWithPrefix[fullAttrName] = { value: attrValue, localName, prefix, uri };
-    }
-
-    // Parse element's qualified name using the updated currentNamespaces
-    const { localName, prefix, uri } = this._parseQualifiedName(rawTagName, currentNamespaces, false);
-
-    yield { type: XmlEventType.START_ELEMENT, name: rawTagName, localName, prefix, uri, attributes, attributesWithPrefix } as StartElementEvent;
-    this.elementStack.push(rawTagName);
+    this.elementStack.push(tagName);
 
     if (!isSelfClosing) {
-      this.namespaceStack.push(currentNamespaces); // Push the new namespace scope onto the stack
+      this.namespaceStack.push(currentNamespaces);
     } else {
-      // For self-closing tags, immediately yield END_ELEMENT and pop from elementStack
-      yield { type: XmlEventType.END_ELEMENT, name: rawTagName, localName, prefix, uri } as EndElementEvent;
-      this.elementStack.pop(); // Pop the element name for self-closing tags
-    }
-    this.pos = tagClose + 1;
-  }
-
-  private _findTagEnd(startIndex: number): number {
-    let i = startIndex;
-    let inQuote = false;
-    let quoteChar = '';
-
-    while (i < this.xml.length) {
-      const char = this.xml[i];
-      if (char === '\'' || char === '"') {
-        if (!inQuote) {
-          inQuote = true;
-          quoteChar = char;
-        } else if (char === quoteChar) {
-          inQuote = false;
-          quoteChar = '';
-        }
-      } else if (char === '>' && !inQuote) {
-        return i; // Found the end of the tag
-      }
-      i++;
-    }
-    return -1; // Not found
-  }
-
-  /**
-   * XML 텍스트의 엔티티를 디코딩합니다.
-   * @param text 디코딩할 텍스트
-   * @returns 디코딩된 텍스트
-   * @private
-   */
-  private _unescapeXml(text: string): string {
-    if (!text) {
-      return ''; // 빈 문자열은 그대로 반환
-    }
-    if (!this.options.autoDecodeEntities) {
-      return text; // 자동 엔티티 디코딩이 비활성화된 경우 원본 텍스트 반환
-    }
-
-    let entityMap: Record<string, string> = {
-      '&lt;': '<',
-      '&gt;': '>',
-      '&quot;': '"',
-      '&apos;': '\'',
-      ...this.options.addEntities?.reduce((map, entity) => {
-        if (entity.entity && entity.value) {
-          map[entity.entity] = entity.value;
-        }
-        return map;
-      }, {} as Record<string, string>),
-      '&amp;': '&' // &는 다른 entity와 충돌하지 않도록 마지막에 추가
-    };
-
-    const regex = new RegExp(Object.keys(entityMap).map(key => key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
-    // 디코딩 처리
-    return text.replace(regex, (match) => {
-      // entityMap에 정의된 엔티티인 경우, 매핑된 값을 반환합니다.
-      if (entityMap[match]) {
-        return entityMap[match];
-      } else {
-        // 정의되지 않은 엔티티는 그대로 반환합니다.
-        return match;
-      }
-    });
-  }
-
-  /**
-   * qualified name을 파싱하여 localName, prefix, uri를 추출합니다.
-   * @param qname qualified name (예: "prefix:localName" 또는 "localName")
-   * @param namespaces 현재 네임스페이스 매핑
-   * @param isAttribute 속성인지 여부 (속성은 prefix가 없으면 네임스페이스에 속하지 않음)
-   * @returns 파싱된 네임스페이스 정보
-   * @private
-   */
-  private _parseQualifiedName(qname: string, namespaces: Map<string, string>, isAttribute: boolean = false): {
-    localName: string;
-    prefix?: string;
-    uri?: string;
-  } {
-    const colonIndex = qname.indexOf(':');
-    if (colonIndex === -1) {
-      // 접두사가 없는 경우
-      if (isAttribute) {
-        // 속성의 경우 prefix가 없으면 네임스페이스에 속하지 않음
-        return {
-          localName: qname,
-          prefix: undefined,
-          uri: undefined
-        };
-      } else {
-        // 요소의 경우 기본 네임스페이스 사용
-        const defaultUri = namespaces.get('');
-        return {
-          localName: qname,
-          prefix: undefined,
-          uri: defaultUri
-        };
-      }
-    } else {
-      // 접두사가 있는 경우
-      const prefix = qname.substring(0, colonIndex);
-      const localName = qname.substring(colonIndex + 1);
-      const uri = namespaces.get(prefix);
-      return {
+      yield {
+        type: XmlEventType.END_ELEMENT,
+        name: tagName,
         localName,
         prefix,
         uri
+      } as EndElementEvent;
+      this.elementStack.pop();
+    }
+
+    this.pos = tagEnd + 1;
+  }
+
+  // ===== 속성 파싱 (최적화) =====
+
+  private parseAttributesFast(
+    start: number,
+    end: number,
+    namespaces: Map<string, string>
+  ): {
+    attributes: Record<string, string>,
+    attributesWithPrefix: Record<string, AttributeInfo>
+  } {
+    const attributes: Record<string, string> = Object.create(null);
+    const attributesWithPrefix: Record<string, AttributeInfo> = Object.create(null);
+
+    let i = start;
+    const xml = this.xml;
+
+    while (i < end) {
+      // 공백 스킵 (인라인으로 처리)
+      while (i < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(i))) i++;
+      if (i >= end) break;
+
+      // 속성 이름 추출
+      const nameStart = i;
+      while (i < end) {
+        const code = xml.charCodeAt(i);
+        if (code === 61 || StaxXmlParserSync.isWhitespace(code)) break; // '=' or space
+        i++;
+      }
+
+      if (i === nameStart) break;
+      const attrName = xml.slice(nameStart, i);
+
+      // '=' 찾기
+      while (i < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(i))) i++;
+      if (i >= end || xml.charCodeAt(i) !== 61) {
+        // Boolean 속성
+        attributes[attrName] = 'true';
+        const { localName, prefix, uri } = this.parseQualifiedName(attrName, namespaces, true);
+        attributesWithPrefix[attrName] = { value: 'true', localName, prefix, uri };
+        continue;
+      }
+
+      i++; // '=' 건너뛰기
+
+      // 따옴표 찾기
+      while (i < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(i))) i++;
+      if (i >= end) break;
+
+      const quote = xml.charCodeAt(i);
+      if (quote !== 34 && quote !== 39) break; // '"' or "'"
+
+      i++;
+      const valueStart = i;
+
+      // 값 끝 찾기
+      while (i < end && xml.charCodeAt(i) !== quote) i++;
+
+      const rawValue = xml.slice(valueStart, i);
+      const attrValue = this.entityDecoder(rawValue);
+      attributes[attrName] = attrValue;
+
+      // xmlns 처리
+      if (attrName === 'xmlns') {
+        namespaces.set('', attrValue);
+      } else if (attrName.startsWith('xmlns:')) {
+        namespaces.set(attrName.slice(6), attrValue);
+      }
+
+      const { localName, prefix, uri } = this.parseQualifiedName(attrName, namespaces, true);
+      attributesWithPrefix[attrName] = {
+        value: attrValue,
+        localName: attrName.startsWith('xmlns') ? (attrName === 'xmlns' ? 'xmlns' : attrName.slice(6)) : localName,
+        prefix: attrName.startsWith('xmlns:') ? 'xmlns' : prefix,
+        uri
       };
+
+      i++; // 닫는 따옴표 건너뛰기
+    }
+
+    return { attributes, attributesWithPrefix };
+  }
+
+  // ===== 유틸리티 메서드 =====
+
+  private findTagEnd(start: number): number {
+    let i = start;
+    let inQuote = false;
+    let quoteChar = 0;
+
+    while (i < this.xmlLength) {
+      const code = this.xml.charCodeAt(i);
+
+      if (code === 34 || code === 39) { // '"' or "'"
+        if (!inQuote) {
+          inQuote = true;
+          quoteChar = code;
+        } else if (code === quoteChar) {
+          inQuote = false;
+          quoteChar = 0;
+        }
+      } else if (code === 62 && !inQuote) { // '>'
+        return i;
+      }
+      i++;
+    }
+    return -1;
+  }
+
+  private findSequence(sequence: string, start: number): number {
+    const seqLen = sequence.length;
+    const maxPos = this.xmlLength - seqLen;
+
+    for (let i = start; i <= maxPos; i++) {
+      let match = true;
+      for (let j = 0; j < seqLen; j++) {
+        if (this.xml.charCodeAt(i + j) !== sequence.charCodeAt(j)) {
+          match = false;
+          break;
+        }
+      }
+      if (match) return i;
+    }
+    return -1;
+  }
+
+  private parseQualifiedName(
+    qname: string,
+    namespaces: Map<string, string>,
+    isAttribute: boolean = false
+  ): { localName: string; prefix?: string; uri?: string; } {
+    const colonIndex = qname.indexOf(':');
+
+    if (colonIndex === -1) {
+      if (isAttribute) {
+        return { localName: qname, prefix: undefined, uri: undefined };
+      } else {
+        const defaultUri = namespaces.get('');
+        return { localName: qname, prefix: undefined, uri: defaultUri };
+      }
+    } else {
+      const prefix = qname.slice(0, colonIndex);
+      const localName = qname.slice(colonIndex + 1);
+      const uri = namespaces.get(prefix);
+      return { localName, prefix, uri };
     }
   }
 }

@@ -3,19 +3,21 @@
 /**
  * XML 스트림 이벤트의 타입을 나타내는 열거형
  */
-export enum XmlEventType {
-  START_DOCUMENT = 'START_DOCUMENT',
-  END_DOCUMENT = 'END_DOCUMENT',
-  START_ELEMENT = 'START_ELEMENT',
-  END_ELEMENT = 'END_ELEMENT',
-  CHARACTERS = 'CHARACTERS',
-  CDATA = 'CDATA',
-  ERROR = 'ERROR',
-}
+export const XmlEventType = {
+  START_DOCUMENT: 'START_DOCUMENT',
+  END_DOCUMENT: 'END_DOCUMENT',
+  START_ELEMENT: 'START_ELEMENT',
+  END_ELEMENT: 'END_ELEMENT',
+  CHARACTERS: 'CHARACTERS',
+  CDATA: 'CDATA',
+  ERROR: 'ERROR',
+} as const;
 
 /**
  * 모든 XML 이벤트의 기본 인터페이스
  */
+export type XmlEventType = typeof XmlEventType[keyof typeof XmlEventType];
+
 export interface XmlEvent {
   type: XmlEventType;
 }
@@ -24,7 +26,7 @@ export interface XmlEvent {
  * START_ELEMENT 이벤트 인터페이스
  */
 export interface StartElementEvent extends XmlEvent {
-  type: XmlEventType.START_ELEMENT;
+  type: typeof XmlEventType.START_ELEMENT;
   name: string;
   localName?: string; // 네임스페이스가 있는 경우 로컬 이름
   prefix?: string; // 네임스페이스 접두사
@@ -37,7 +39,7 @@ export interface StartElementEvent extends XmlEvent {
  * END_ELEMENT 이벤트 인터페이스
  */
 export interface EndElementEvent extends XmlEvent {
-  type: XmlEventType.END_ELEMENT;
+  type: typeof XmlEventType.END_ELEMENT;
   name: string;
   localName?: string; // 네임스페이스가 있는 경우 로컬 이름
   prefix?: string; // 네임스페이스 접두사
@@ -48,7 +50,7 @@ export interface EndElementEvent extends XmlEvent {
  * CHARACTERS 이벤트 인터페이스
  */
 export interface CharactersEvent extends XmlEvent {
-  type: XmlEventType.CHARACTERS;
+  type: typeof XmlEventType.CHARACTERS;
   value: string;
 }
 
@@ -56,15 +58,15 @@ export interface CharactersEvent extends XmlEvent {
  * CDATA 이벤트 인터페이스
  */
 export interface CdataEvent extends XmlEvent {
-  type: XmlEventType.CDATA;
+  type: typeof XmlEventType.CDATA;
   value: string;
 }
 
 /**
- * ERROR 이벤트 인터FACE
+ * ERROR 이벤트 인터페이스
  */
 export interface ErrorEvent extends XmlEvent {
-  type: XmlEventType.ERROR;
+  type: typeof XmlEventType.ERROR;
   error: Error;
 }
 
