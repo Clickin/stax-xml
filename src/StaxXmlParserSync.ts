@@ -1,13 +1,9 @@
-// StaxXmlParserSync.ts - 불필요한 메서드 제거 버전
+// StaxXmlParserSync.ts - XmlEventFactory를 사용한 최적화 버전
 
 import {
   AnyXmlEvent,
   AttributeInfo,
-  CdataEvent,
-  CharactersEvent,
-  EndElementEvent,
-  StartElementEvent,
-  XmlEventType
+  XmlEventFactory
 } from './types';
 
 export interface StaxXmlParserSyncOptions {
@@ -226,10 +222,19 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
     };
   }
 
-  // ===== 메인 파싱 로직 =====
+  // ===== 메인 파싱 로직 - EventFactory 사용 =====
 
+  /**
+   * Iterator 구현 - AnyXmlEvent를 yield
+   * 중요: 반환 타입은 기존과 동일하게 Iterator<AnyXmlEvent>
+   * Factory가 내부적으로 UnifiedXmlEvent를 생성하지만,
+   * 타입은 StartElementEvent, EndElementEvent 등으로 반환되므로
+   * AnyXmlEvent 유니온 타입에 완벽하게 호환됨
+   */
   public *[Symbol.iterator](): Iterator<AnyXmlEvent> {
-    yield { type: XmlEventType.START_DOCUMENT };
+    // XmlEventFactory.startDocument()는 StartDocumentEvent 타입 반환
+    // StartDocumentEvent는 AnyXmlEvent의 일부이므로 타입 호환
+    yield XmlEventFactory.startDocument();
 
     while (this.pos < this.xmlLength) {
       const ltPos = this.findChar(60, this.pos); // '<' 찾기
@@ -239,10 +244,9 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
         if (this.pos < this.xmlLength) {
           const text = this.trimmedSlice(this.pos, this.xmlLength);
           if (text) {
-            yield {
-              type: XmlEventType.CHARACTERS,
-              value: this.entityDecoder(text)
-            } as CharactersEvent;
+            // XmlEventFactory.characters()는 CharactersEvent 타입 반환
+            // CharactersEvent는 AnyXmlEvent의 일부
+            yield XmlEventFactory.characters(this.entityDecoder(text));
           }
         }
         break;
@@ -252,10 +256,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       if (ltPos > this.pos) {
         const text = this.trimmedSlice(this.pos, ltPos);
         if (text) {
-          yield {
-            type: XmlEventType.CHARACTERS,
-            value: this.entityDecoder(text)
-          } as CharactersEvent;
+          yield XmlEventFactory.characters(this.entityDecoder(text));
         }
       }
 
@@ -278,10 +279,10 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       }
     }
 
-    yield { type: XmlEventType.END_DOCUMENT };
+    yield XmlEventFactory.endDocument();
   }
 
-  // ===== 태그 파싱 메서드 (최적화됨) =====
+  // ===== 태그 파싱 메서드 - EventFactory 사용 =====
 
   private *parseEndTag(): Generator<AnyXmlEvent> {
     const tagClose = this.findChar(62, this.pos); // '>'
@@ -307,13 +308,9 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       false
     );
 
-    yield {
-      type: XmlEventType.END_ELEMENT,
-      name: fullTagName,
-      localName,
-      prefix,
-      uri
-    } as EndElementEvent;
+    // XmlEventFactory.endElement()는 EndElementEvent 타입 반환
+    // EndElementEvent는 AnyXmlEvent의 일부
+    yield XmlEventFactory.endElement(fullTagName, localName, prefix, uri);
 
     this.pos = tagClose + 1;
   }
@@ -324,10 +321,9 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       if (cdataEnd === -1) throw new Error('Unclosed CDATA section');
 
       const cdataContent = this.xml.slice(this.pos + 9, cdataEnd);
-      yield {
-        type: XmlEventType.CDATA,
-        value: cdataContent
-      } as CdataEvent;
+      // XmlEventFactory.cdata()는 CdataEvent 타입 반환
+      // CdataEvent는 AnyXmlEvent의 일부
+      yield XmlEventFactory.cdata(cdataContent);
 
       this.pos = cdataEnd + 3;
     } else if (this.matchesAt('<!--', this.pos)) {
@@ -394,28 +390,23 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       false
     );
 
-    yield {
-      type: XmlEventType.START_ELEMENT,
-      name: tagName,
+    // XmlEventFactory.startElement()는 StartElementEvent 타입 반환
+    // StartElementEvent는 AnyXmlEvent의 일부
+    yield XmlEventFactory.startElement(
+      tagName,
       localName,
       prefix,
       uri,
       attributes,
       attributesWithPrefix
-    } as StartElementEvent;
+    );
 
     this.elementStack.push(tagName);
 
     if (!isSelfClosing) {
       this.namespaceStack.push(currentNamespaces);
     } else {
-      yield {
-        type: XmlEventType.END_ELEMENT,
-        name: tagName,
-        localName,
-        prefix,
-        uri
-      } as EndElementEvent;
+      yield XmlEventFactory.endElement(tagName, localName, prefix, uri);
       this.elementStack.pop();
     }
 
