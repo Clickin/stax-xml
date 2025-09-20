@@ -99,16 +99,17 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
 
   // ===== 최적화된 문자열 처리 =====
 
-  // indexOf 대체 - 빠른 문자 검색
+  // indexOf 대체 - 빠른 문자 검색 (16바이트 언롤링)
   private findChar(targetCode: number, start: number = this.pos): number {
     const xml = this.xml;
     const len = this.xmlLength;
 
-    // 8바이트 언롤링으로 성능 향상
-    const len8 = len - 7;
+    // 16바이트 언롤링으로 성능 향상
+    const len16 = len - 15;
     let i = start;
 
-    for (; i < len8; i += 8) {
+    // 16바이트 언롤링 루프
+    for (; i < len16; i += 16) {
       if (xml.charCodeAt(i) === targetCode) return i;
       if (xml.charCodeAt(i + 1) === targetCode) return i + 1;
       if (xml.charCodeAt(i + 2) === targetCode) return i + 2;
@@ -117,8 +118,17 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       if (xml.charCodeAt(i + 5) === targetCode) return i + 5;
       if (xml.charCodeAt(i + 6) === targetCode) return i + 6;
       if (xml.charCodeAt(i + 7) === targetCode) return i + 7;
+      if (xml.charCodeAt(i + 8) === targetCode) return i + 8;
+      if (xml.charCodeAt(i + 9) === targetCode) return i + 9;
+      if (xml.charCodeAt(i + 10) === targetCode) return i + 10;
+      if (xml.charCodeAt(i + 11) === targetCode) return i + 11;
+      if (xml.charCodeAt(i + 12) === targetCode) return i + 12;
+      if (xml.charCodeAt(i + 13) === targetCode) return i + 13;
+      if (xml.charCodeAt(i + 14) === targetCode) return i + 14;
+      if (xml.charCodeAt(i + 15) === targetCode) return i + 15;
     }
 
+    // 나머지 바이트 처리
     for (; i < len; i++) {
       if (xml.charCodeAt(i) === targetCode) return i;
     }
@@ -302,11 +312,19 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
     this.elementStack.pop();
     const currentNamespaces = this.namespaceStack.pop();
 
-    const { localName, prefix, uri } = this.parseQualifiedName(
-      fullTagName,
-      currentNamespaces || new Map(),
-      false
-    );
+    // 인라인 QName 파싱 (종료 태그용) - 최적화
+    const colonIndex = fullTagName.indexOf(':');
+    let localName: string, prefix: string | undefined, uri: string | undefined;
+
+    if (colonIndex === -1) {
+      localName = fullTagName;
+      prefix = undefined;
+      uri = currentNamespaces ? currentNamespaces.get('') : undefined;
+    } else {
+      prefix = fullTagName.slice(0, colonIndex);
+      localName = fullTagName.slice(colonIndex + 1);
+      uri = currentNamespaces ? currentNamespaces.get(prefix) : undefined;
+    }
 
     // XmlEventFactory.endElement()는 EndElementEvent 타입 반환
     // EndElementEvent는 AnyXmlEvent의 일부
@@ -356,17 +374,23 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       actualEnd = tagEnd - 1;
     }
 
-    // 태그 이름과 속성 분리
+    // 태그 이름과 속성 분리 (최적화)
     let nameEnd = tagStart;
+    const xml = this.xml;
+
+    // 빠른 태그명 검색 (공백, '>', '/' 찾기)
     while (nameEnd < actualEnd) {
-      const code = this.xml.charCodeAt(nameEnd);
-      if (StaxXmlParserSync.isWhitespace(code) || code === 62 || code === 47) {
+      const code = xml.charCodeAt(nameEnd);
+      // ASCII 범위의 빠른 분기
+      if (code <= 32) {
+        if (StaxXmlParserSync.isWhitespace(code)) break;
+      } else if (code === 62 || code === 47) { // '>' or '/'
         break;
       }
       nameEnd++;
     }
 
-    const tagName = this.xml.slice(tagStart, nameEnd);
+    const tagName = xml.slice(tagStart, nameEnd);
 
     // 네임스페이스 컨텍스트 생성
     const currentNamespaces = new Map<string, string>();
@@ -384,11 +408,19 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       currentNamespaces
     );
 
-    const { localName, prefix, uri } = this.parseQualifiedName(
-      tagName,
-      currentNamespaces,
-      false
-    );
+    // 인라인 QName 파싱 (태그명용) - 최적화
+    const colonIndex = tagName.indexOf(':');
+    let localName: string, prefix: string | undefined, uri: string | undefined;
+
+    if (colonIndex === -1) {
+      localName = tagName;
+      prefix = undefined;
+      uri = currentNamespaces.get('');
+    } else {
+      prefix = tagName.slice(0, colonIndex);
+      localName = tagName.slice(colonIndex + 1);
+      uri = currentNamespaces.get(prefix);
+    }
 
     // XmlEventFactory.startElement()는 StartElementEvent 타입 반환
     // StartElementEvent는 AnyXmlEvent의 일부
@@ -423,8 +455,16 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
     attributes: Record<string, string>,
     attributesWithPrefix: Record<string, AttributeInfo>
   } {
-    const attributes: Record<string, string> = Object.create(null);
-    const attributesWithPrefix: Record<string, AttributeInfo> = Object.create(null);
+    // 빠른 경로: 속성이 없는 경우
+    if (start >= end) {
+      return {
+        attributes: {},
+        attributesWithPrefix: {}
+      };
+    }
+
+    const attributes: Record<string, string> = {};
+    const attributesWithPrefix: Record<string, AttributeInfo> = {};
 
     let i = start;
     const xml = this.xml;
@@ -448,9 +488,23 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       // '=' 찾기
       while (i < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(i))) i++;
       if (i >= end || xml.charCodeAt(i) !== 61) {
-        // Boolean 속성
+        // Boolean 속성 - parseQualifiedName 인라인 처리
         attributes[attrName] = 'true';
-        const { localName, prefix, uri } = this.parseQualifiedName(attrName, namespaces, true);
+
+        // 인라인 QName 파싱 (속성용)
+        const colonIndex = attrName.indexOf(':');
+        let localName: string, prefix: string | undefined, uri: string | undefined;
+
+        if (colonIndex === -1) {
+          localName = attrName;
+          prefix = undefined;
+          uri = undefined;
+        } else {
+          prefix = attrName.slice(0, colonIndex);
+          localName = attrName.slice(colonIndex + 1);
+          uri = namespaces.get(prefix);
+        }
+
         attributesWithPrefix[attrName] = { value: 'true', localName, prefix, uri };
         continue;
       }
@@ -481,11 +535,35 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
         namespaces.set(attrName.slice(6), attrValue);
       }
 
-      const { localName, prefix, uri } = this.parseQualifiedName(attrName, namespaces, true);
+      // 인라인 QName 파싱 (속성용) - 최적화
+      const colonIndex = attrName.indexOf(':');
+      let localName: string, prefix: string | undefined, uri: string | undefined;
+
+      if (colonIndex === -1) {
+        localName = attrName;
+        prefix = undefined;
+        uri = undefined;
+      } else {
+        prefix = attrName.slice(0, colonIndex);
+        localName = attrName.slice(colonIndex + 1);
+        uri = namespaces.get(prefix);
+      }
+
+      // xmlns 속성 특별 처리
+      if (attrName.startsWith('xmlns')) {
+        if (attrName === 'xmlns') {
+          localName = 'xmlns';
+          prefix = undefined;
+        } else {
+          localName = attrName.slice(6);
+          prefix = 'xmlns';
+        }
+      }
+
       attributesWithPrefix[attrName] = {
         value: attrValue,
-        localName: attrName.startsWith('xmlns') ? (attrName === 'xmlns' ? 'xmlns' : attrName.slice(6)) : localName,
-        prefix: attrName.startsWith('xmlns:') ? 'xmlns' : prefix,
+        localName,
+        prefix,
         uri
       };
 
@@ -538,25 +616,4 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
     return -1;
   }
 
-  private parseQualifiedName(
-    qname: string,
-    namespaces: Map<string, string>,
-    isAttribute: boolean = false
-  ): { localName: string; prefix?: string; uri?: string; } {
-    const colonIndex = qname.indexOf(':');
-
-    if (colonIndex === -1) {
-      if (isAttribute) {
-        return { localName: qname, prefix: undefined, uri: undefined };
-      } else {
-        const defaultUri = namespaces.get('');
-        return { localName: qname, prefix: undefined, uri: defaultUri };
-      }
-    } else {
-      const prefix = qname.slice(0, colonIndex);
-      const localName = qname.slice(colonIndex + 1);
-      const uri = namespaces.get(prefix);
-      return { localName, prefix, uri };
-    }
-  }
 }
