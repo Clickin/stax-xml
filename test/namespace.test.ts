@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriter';
+import StaxXmlWriter from '../src/StaxXmlWriterSync';
 import { EndElementEvent, StartElementEvent, XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수

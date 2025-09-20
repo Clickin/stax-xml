@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriter';
+import StaxXmlWriter from '../src/StaxXmlWriterSync';
 import { XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수들

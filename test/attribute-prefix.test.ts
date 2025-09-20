@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriter';
+import StaxXmlWriter from '../src/StaxXmlWriterSync';
 import { StartElementEvent, XmlEventType } from '../src/types';
 
 // 헬퍼 함수들

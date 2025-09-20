@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import StaxXmlWriter from '../src/StaxXmlWriter';
+import StaxXmlWriter from '../src/StaxXmlWriterSync';
 
 // 웹 표준 API용 헬퍼 함수
 
