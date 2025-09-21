@@ -3,9 +3,11 @@ import {
   AnyXmlEvent,
   CdataEvent,
   CharactersEvent,
+  EndDocumentEvent,
   EndElementEvent,
   ErrorEvent,
   StartElementEvent,
+  UnifiedXmlEvent,
   XmlEventType
 } from './types';
 
@@ -210,7 +212,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
     this.reader = xmlStream.getReader();
     this._startReading();
-    this._addEvent({ type: XmlEventType.START_DOCUMENT });
+    // Inline START_DOCUMENT creation - maintains V8 hidden class optimization
+    this._addEvent({
+      type: XmlEventType.START_DOCUMENT,
+      name: undefined,
+      localName: undefined,
+      prefix: undefined,
+      uri: undefined,
+      attributes: undefined,
+      attributesWithPrefix: undefined,
+      value: undefined,
+      error: undefined
+    } as UnifiedXmlEvent as StartElementEvent);
   }
 
   // ===== ASCII table utility methods =====
@@ -490,7 +503,8 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
   public async *batchedIterator(batchSize?: number): AsyncGenerator<AnyXmlEvent[]> {
     while (!this.parserFinished || this.eventQueue.length > 0) {
-      const batch = await this.nextBatch(batchSize);
+      const targetSize = batchSize || this._calculateOptimalBatchSize();
+      const batch = await this.nextBatch(targetSize);
       if (batch.length === 0) break;
       yield batch;
     }
@@ -554,7 +568,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
           if (!this.parserFinished) {
             this._flushCharacters();
-            this._addEvent({ type: XmlEventType.END_DOCUMENT });
+            // Inline END_DOCUMENT creation - maintains V8 hidden class optimization
+            this._addEvent({
+              type: XmlEventType.END_DOCUMENT,
+              name: undefined,
+              localName: undefined,
+              prefix: undefined,
+              uri: undefined,
+              attributes: undefined,
+              attributesWithPrefix: undefined,
+              value: undefined,
+              error: undefined
+            } as UnifiedXmlEvent as EndDocumentEvent);
             this.parserFinished = true;
           }
 
@@ -655,10 +680,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       const decodedText = this.entityDecoder(this.currentTextBuffer);
 
       if (decodedText.trim().length > 0) {
+        // Inline CHARACTERS creation - maintains V8 hidden class optimization
         this._addEvent({
           type: XmlEventType.CHARACTERS,
-          value: decodedText
-        } as CharactersEvent);
+          name: undefined,
+          localName: undefined,
+          prefix: undefined,
+          uri: undefined,
+          attributes: undefined,
+          attributesWithPrefix: undefined,
+          value: decodedText,
+          error: undefined
+        } as UnifiedXmlEvent as CharactersEvent);
       }
       this.currentTextBuffer = '';
     }
@@ -682,7 +715,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   private _addError(err: Error): void {
     if (this.error === null) {
       this.error = err;
-      this._addEvent({ type: XmlEventType.ERROR, error: err } as ErrorEvent);
+      // Inline ERROR creation - maintains V8 hidden class optimization
+      this._addEvent({
+        type: XmlEventType.ERROR,
+        name: undefined,
+        localName: undefined,
+        prefix: undefined,
+        uri: undefined,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: undefined,
+        error: err
+      } as UnifiedXmlEvent as ErrorEvent);
       this.parserFinished = true;
       this._clearBuffers();
 
@@ -828,10 +872,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         { stream: false }
       );
 
+      // Inline CDATA creation - maintains V8 hidden class optimization
       this._addEvent({
         type: XmlEventType.CDATA,
-        value: cdataContent
-      } as CdataEvent);
+        name: undefined,
+        localName: undefined,
+        prefix: undefined,
+        uri: undefined,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: cdataContent,
+        error: undefined
+      } as UnifiedXmlEvent as CdataEvent);
 
       this.position = endPos + 3;
       return true;
@@ -878,13 +930,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       this.elementStack.pop();
       this.namespaceStack.pop();
 
+      // Inline END_ELEMENT creation - maintains V8 hidden class optimization
       this._addEvent({
         type: XmlEventType.END_ELEMENT,
         name: tagName,
         localName,
         prefix,
-        uri
-      } as EndElementEvent);
+        uri,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: undefined,
+        error: undefined
+      } as UnifiedXmlEvent as EndElementEvent);
 
       this.position = gtPos + 1;
       return true;
@@ -952,6 +1009,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
       const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
 
+      // Inline START_ELEMENT creation - maintains V8 hidden class optimization
       this._addEvent({
         type: XmlEventType.START_ELEMENT,
         name: tagName,
@@ -959,8 +1017,10 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         prefix,
         uri,
         attributes: attributes,
-        attributesWithPrefix: attributesWithPrefix
-      } as StartElementEvent);
+        attributesWithPrefix: attributesWithPrefix,
+        value: undefined,
+        error: undefined
+      } as UnifiedXmlEvent as StartElementEvent);
 
       this.position = gtPos + 1;
 
@@ -968,13 +1028,18 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         this.elementStack.push(tagName);
         this.namespaceStack.push(currentNamespaces);
       } else {
+        // Inline END_ELEMENT creation for self-closing - maintains V8 hidden class optimization
         this._addEvent({
           type: XmlEventType.END_ELEMENT,
           name: tagName,
           localName,
           prefix,
-          uri
-        } as EndElementEvent);
+          uri,
+          attributes: undefined,
+          attributesWithPrefix: undefined,
+          value: undefined,
+          error: undefined
+        } as UnifiedXmlEvent as EndElementEvent);
       }
 
       return true;

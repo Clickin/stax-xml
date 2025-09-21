@@ -59,6 +59,44 @@ async function testAsyncStaxParser(filePath: string): Promise<number> {
   return eventsProcessed;
 }
 
+
+// Async StAX XML Parser 테스트
+async function testAsyncStaxParserBatch(filePath: string): Promise<number> {
+  let eventsProcessed = 0;
+
+  const fileStream = createReadStream(filePath);
+  const readableStream = nodeStreamToReadableStream(fileStream);
+  const parser = new StaxXmlParser(readableStream);
+
+  // 이벤트 처리
+  for await (const events of parser.batchedIterator()) {
+    for await (const event of events) {
+      eventsProcessed++;
+
+      switch (event.type) {
+        case XmlEventType.START_DOCUMENT:
+        case XmlEventType.END_DOCUMENT:
+          break;
+        case XmlEventType.START_ELEMENT:
+        case XmlEventType.CHARACTERS:
+        case XmlEventType.CDATA:
+        case XmlEventType.END_ELEMENT:
+          // 실제 사용 케이스를 시뮬레이션 - 메모리에 모든 이벤트를 저장하지 않음
+          break;
+        case XmlEventType.ERROR:
+          throw event.error;
+      }
+
+      // 주기적으로 가비지 컬렉션이 일어날 수 있도록 yield
+      if (eventsProcessed % 10000 === 0) {
+        await new Promise(resolve => setImmediate(resolve));
+      }
+    }
+  }
+
+  return eventsProcessed;
+}
+
 // Sync StAX XML Parser 테스트 (비교용)
 function testSyncStaxParser(xmlContent: string): number {
   let eventsProcessed = 0;
@@ -165,7 +203,6 @@ async function main() {
         const events = testSyncStaxParser(content);
         return events;
       }).gc('inner');
-
       const file1gb = testFiles.find(f => f.name === '1gb')!;
       // 1GB 파일 테스트 (async만 - sync는 메모리 한계로 제외)
       // javascript max string length가 2^53 - 1(약 900MB) 이므로 1GB xml을 string으로 읽을 수 없음

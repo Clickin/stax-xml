@@ -49,7 +49,7 @@ const products = [];
 let currentProduct = null;
 let currentText = '';
 
-for (const event of parser) { // 동기식 반복을 위해 for...of 사용
+for (const event of parser) { // 동기식 이터레이터 반복을 위해 for...of 사용
   switch (event.type) {
     case XmlEventType.START_ELEMENT:
       if (event.name === 'product') {
@@ -83,6 +83,169 @@ console.log(products);
 //   { id: "P001", name: "Laptop", price: 1200 },
 //   { id: "P002", name: "Mouse", price: 25 }
 // ]
+```
+
+### 🛡️ 타입 가드 함수
+
+타입 가드 함수는 XML 이벤트에 대한 런타임 타입 확인과 TypeScript 타입 좁히기를 제공합니다. 이러한 함수들은 비동기와 동기 파서 모두에서 작동하며, `StaxXmlParserSync`에도 동일한 타입 안전성 혜택을 제공합니다.
+
+#### 동기식 파서에서 타입 가드 사용하기
+
+```typescript
+import { StaxXmlParserSync, isStartElement, isEndElement, isCharacters, isError } from 'stax-xml';
+
+const xmlContent = `
+  <products>
+    <product id="P001" category="electronics">
+      <name>Laptop</name>
+      <price>1200</price>
+      <description><![CDATA[개발자를 위한 고성능 노트북]]></description>
+    </product>
+    <product id="P002" category="accessories">
+      <name>Mouse</name>
+      <price>25</price>
+    </product>
+  </products>
+`;
+
+const parser = new StaxXmlParserSync(xmlContent);
+const products = [];
+let currentProduct = null;
+let currentElement = '';
+let textBuffer = '';
+
+for (const event of parser) {
+  // 타입 가드는 동기식 파서에서도 동일하게 작동
+  if (isStartElement(event)) {
+    currentElement = event.name;
+    textBuffer = '';
+
+    if (event.name === 'product') {
+      currentProduct = {
+        id: event.attributes?.id || '',
+        category: event.attributes?.category || '',
+        name: '',
+        price: 0,
+        description: ''
+      };
+    }
+  } else if (isCharacters(event)) {
+    // 타입 가드가 'value' 속성에 안전한 접근을 보장
+    textBuffer += event.value;
+  } else if (isEndElement(event)) {
+    const trimmedText = textBuffer.trim();
+
+    if (currentProduct && event.name !== 'product') {
+      switch (event.name) {
+        case 'name':
+          currentProduct.name = trimmedText;
+          break;
+        case 'price':
+          currentProduct.price = parseFloat(trimmedText);
+          break;
+        case 'description':
+          currentProduct.description = trimmedText;
+          break;
+      }
+    } else if (event.name === 'product' && currentProduct) {
+      products.push(currentProduct);
+      currentProduct = null;
+    }
+
+    textBuffer = '';
+  } else if (isError(event)) {
+    // 타입 가드를 사용한 안전한 오류 처리
+    console.error('파싱 오류:', event.error.message);
+    break;
+  }
+}
+
+console.log(products);
+```
+
+#### 타입 가드를 사용한 동기식 오류 처리
+
+```typescript
+import { StaxXmlParserSync, isStartElement, isCharacters, isError } from 'stax-xml';
+
+function parseProductsSafely(xmlString: string) {
+  try {
+    const parser = new StaxXmlParserSync(xmlString);
+    const result = { products: [], errors: [] };
+
+    for (const event of parser) {
+      if (isError(event)) {
+        // 타입 가드가 오류 세부 정보에 안전한 접근을 제공
+        result.errors.push({
+          message: event.error.message,
+          timestamp: new Date().toISOString()
+        });
+        break; // 오류 발생 시 파싱 중단
+      } else if (isStartElement(event) && event.name === 'product') {
+        // 타입 가드가 'attributes' 속성이 사용 가능함을 보장
+        result.products.push({
+          id: event.attributes?.id || 'unknown',
+          category: event.attributes?.category || 'uncategorized'
+        });
+      }
+    }
+
+    return result;
+  } catch (error) {
+    return { products: [], errors: [{ message: error.message, timestamp: new Date().toISOString() }] };
+  }
+}
+
+// 사용법
+const result = parseProductsSafely(xmlContent);
+if (result.errors.length > 0) {
+  console.error('파싱 오류:', result.errors);
+} else {
+  console.log('파싱된 제품:', result.products);
+}
+```
+
+#### 동기식 파서를 위한 타입 가드 함수 참조
+
+모든 타입 가드 함수는 `StaxXmlParser`와 `StaxXmlParserSync` 모두에서 동일하게 작동합니다:
+
+| 함수 | 목적 | 동기 파서에서의 사용법 |
+|------|------|----------------------|
+| `isStartDocument(event)` | 문서 시작 | 문서 시작 확인 |
+| `isEndDocument(event)` | 문서 끝 | 문서 완료 확인 |
+| `isStartElement(event)` | 여는 태그 | 엘리먼트 이름과 속성에 안전한 접근 |
+| `isEndElement(event)` | 닫는 태그 | 엘리먼트 종료를 안전하게 처리 |
+| `isCharacters(event)` | 텍스트 내용 | 텍스트 값에 안전한 접근 |
+| `isCdata(event)` | CDATA 섹션 | CDATA 내용에 안전한 접근 |
+| `isError(event)` | 파싱 오류 | 파싱 오류를 우아하게 처리 |
+
+#### 동기식 파싱의 이점
+
+1. **일관된 API**: 비동기와 동기 파서 모두에서 동일한 타입 가드 함수 사용 가능
+2. **타입 안전성**: 이벤트에서 정의되지 않은 속성에 접근하는 것을 방지
+3. **향상된 오류 처리**: 파싱 오류와 내용 이벤트를 안전하게 구분
+4. **향상된 유지보수성**: 수동 타입 확인에 비해 더 읽기 쉬운 코드
+
+#### 비교: 수동 타입 확인 vs 타입 가드
+
+**수동 타입 확인 (권장하지 않음):**
+```typescript
+for (const event of parser) {
+  if (event.type === 'START_ELEMENT') {
+    // 타입 안전성 없음 - TypeScript가 'attributes'에 대해 알지 못함
+    console.log(event.attributes?.id); // 잠재적 런타임 오류
+  }
+}
+```
+
+**타입 가드 (권장):**
+```typescript
+for (const event of parser) {
+  if (isStartElement(event)) {
+    // 완전한 타입 안전성 - TypeScript가 이것이 StartElementEvent임을 인식
+    console.log(event.attributes.id); // 안전한 접근, 경고 없음
+  }
+}
 ```
 
 ### 📚 API 참조

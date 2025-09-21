@@ -68,7 +68,7 @@ for await (const event of parser) {
       break;
       
     case XmlEventType.CHARACTERS:
-      currentText += event.data;
+      currentText += event.value;
       break;
       
     case XmlEventType.END_ELEMENT:
@@ -92,6 +92,83 @@ console.log(books);
 //   { id: "2", title: "To Kill a Mockingbird", author: "Harper Lee" }
 // ]
 ```
+
+
+#### Parsing XML String with more structured syntax
+```typescript
+import { StaxXmlParser, isCharacters, isEndDocument, isEndElement, isStartElement } from 'stax-xml';
+
+
+// Create a ReadableStream from XML string
+const xmlContent = `
+  <books>
+    <book id="1">
+      <title>The Great Gatsby</title>
+      <author>F. Scott Fitzgerald</author>
+    </book>
+    <book id="2">
+      <title>To Kill a Mockingbird</title>
+      <author>Harper Lee</author>
+    </book>
+  </books>
+`;
+interface Book {
+  id: string
+  title: string
+  author: string
+}
+
+const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode(xmlContent));
+    controller.close();
+  }
+});
+
+// Parse XML with pull-based approach
+const parser = new StaxXmlParser(stream);
+const books: Book[] = [];
+
+for await (const event of parser) {
+  if (isEndDocument(event)) {
+    break;
+  }
+  if (isStartElement(event) && event.name === 'book') {
+    books.push(await parseBook(event.attributes?.id || '', parser));
+  }
+}
+
+/**
+ * parse Each book
+ */
+async function parseBook(id: string, parser: StaxXmlParser): Promise<Book> {
+  const currentBook = {
+    id: id,
+    title: '',
+    author: ''
+  };
+  for await (const event of parser) {
+    if (isEndElement(event) && event.name === 'book') {
+      break;
+    }
+    else if (isStartElement(event)) {
+      const charEvent = (await parser.next()).value;
+      if (isCharacters(charEvent) && event.name === 'title') {
+        currentBook.title = charEvent.value;
+      }
+      else if (isCharacters(charEvent) && event.name === 'author') {
+        currentBook.author = charEvent.value;
+      }
+    }
+  }
+  return currentBook;
+}
+console.log(books);
+// Output: [
+//   { id: "1", title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+//   { id: "2", title: "To Kill a Mockingbird", author: "Harper Lee" }
+// ]
+``` 
 
 #### Parsing Remote XML with Fetch
 
@@ -130,7 +207,7 @@ async function parseRemoteXml(url: string) {
           break;
           
         case XmlEventType.CHARACTERS:
-          currentText += event.data;
+          currentText += event.value;
           break;
           
         case XmlEventType.END_ELEMENT:
@@ -184,6 +261,190 @@ const parser = new StaxXmlParser(stream, {
 });
 ```
 
+#### While-Based Iterator Pattern (StAX-like)
+
+```typescript
+import { StaxXmlParser, XmlEventType, isStartElement, isEndElement } from 'stax-xml';
+
+// XML data with nested structure
+const xmlContent = `
+  <catalog>
+    <products>
+      <product id="1" category="electronics">
+        <name>Laptop</name>
+        <price currency="USD">999.99</price>
+        <specifications>
+          <cpu>Intel i7</cpu>
+          <memory>16GB</memory>
+          <storage>512GB SSD</storage>
+        </specifications>
+      </product>
+      <product id="2" category="books">
+        <name>JavaScript Guide</name>
+        <price currency="USD">29.99</price>
+        <author>John Doe</author>
+      </product>
+    </products>
+  </catalog>
+`;
+
+const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode(xmlContent));
+    controller.close();
+  }
+});
+
+// Main parsing function using while-based iteration
+async function parseCatalog(xmlStream: ReadableStream<Uint8Array>) {
+  const parser = new StaxXmlParser(xmlStream);
+  const catalog = { products: [] };
+
+  const iterator = parser[Symbol.asyncIterator]();
+  let result = await iterator.next();
+
+  while (!result.done) {
+    const event = result.value;
+
+    if (isStartElement(event) && event.name === 'products') {
+      await parseProducts(iterator, catalog);
+    }
+
+    result = await iterator.next();
+  }
+
+  return catalog;
+}
+
+// Separate parsing function for products
+async function parseProducts(iterator: AsyncIterator<any>, catalog: any) {
+  let result = await iterator.next();
+
+  while (!result.done) {
+    const event = result.value;
+
+    if (isStartElement(event) && event.name === 'product') {
+      const product = await parseProduct(iterator, event);
+      catalog.products.push(product);
+    } else if (isEndElement(event) && event.name === 'products') {
+      break;
+    }
+
+    result = await iterator.next();
+  }
+}
+
+// Separate parsing function for individual product
+async function parseProduct(iterator: AsyncIterator<any>, startEvent: any) {
+  const product = {
+    id: startEvent.attributes?.id || '',
+    category: startEvent.attributes?.category || '',
+    name: '',
+    price: { amount: '', currency: '' },
+    specifications: {},
+    author: ''
+  };
+
+  let result = await iterator.next();
+  let currentText = '';
+
+  while (!result.done) {
+    const event = result.value;
+
+    switch (event.type) {
+      case XmlEventType.START_ELEMENT:
+        currentText = '';
+        if (event.name === 'price') {
+          product.price.currency = event.attributes?.currency || '';
+        } else if (event.name === 'specifications') {
+          await parseSpecifications(iterator, product);
+        }
+        break;
+
+      case XmlEventType.CHARACTERS:
+        currentText += event.value;
+        break;
+
+      case XmlEventType.END_ELEMENT:
+        if (event.name === 'name') {
+          product.name = currentText.trim();
+        } else if (event.name === 'price') {
+          product.price.amount = currentText.trim();
+        } else if (event.name === 'author') {
+          product.author = currentText.trim();
+        } else if (event.name === 'product') {
+          return product;
+        }
+        break;
+    }
+
+    result = await iterator.next();
+  }
+
+  return product;
+}
+
+// Separate parsing function for specifications
+async function parseSpecifications(iterator: AsyncIterator<any>, product: any) {
+  let result = await iterator.next();
+  let currentText = '';
+
+  while (!result.done) {
+    const event = result.value;
+
+    switch (event.type) {
+      case XmlEventType.START_ELEMENT:
+        currentText = '';
+        break;
+
+      case XmlEventType.CHARACTERS:
+        currentText += event.value;
+        break;
+
+      case XmlEventType.END_ELEMENT:
+        if (event.name === 'specifications') {
+          return;
+        } else if (event.name === 'cpu' || event.name === 'memory' || event.name === 'storage') {
+          product.specifications[event.name] = currentText.trim();
+        }
+        break;
+    }
+
+    result = await iterator.next();
+  }
+}
+
+// Usage
+parseCatalog(stream).then(result => {
+  console.log(JSON.stringify(result, null, 2));
+  // Output:
+  // {
+  //   "products": [
+  //     {
+  //       "id": "1",
+  //       "category": "electronics",
+  //       "name": "Laptop",
+  //       "price": { "amount": "999.99", "currency": "USD" },
+  //       "specifications": {
+  //         "cpu": "Intel i7",
+  //         "memory": "16GB",
+  //         "storage": "512GB SSD"
+  //       },
+  //       "author": ""
+  //     },
+  //     {
+  //       "id": "2",
+  //       "category": "books",
+  //       "name": "JavaScript Guide",
+  //       "price": { "amount": "29.99", "currency": "USD" },
+  //       "specifications": {},
+  //       "author": "John Doe"
+  //     }
+  //   ]
+  // }
+});
+```
+
 #### Large File Processing
 
 ```typescript
@@ -229,6 +490,250 @@ for await (const event of parser) {
 - `CHARACTERS`: Text content between tags
 - `CDATA`: CDATA section content
 - `ERROR`: Parse error occurred
+
+### 🛡️ Type Guard Functions
+
+Type guard functions provide runtime type checking and TypeScript type narrowing for XML events. These functions are essential for writing type-safe code when working with XML events, as they allow TypeScript to properly infer the specific event type and provide access to type-specific properties.
+
+#### What are Type Guards?
+
+Type guards are functions that perform runtime checks to determine the type of a value, while also providing TypeScript with type information. In the context of stax-xml, type guards help you safely access event-specific properties without type errors.
+
+#### Available Type Guard Functions
+
+```typescript
+import {
+  isStartDocument,
+  isEndDocument,
+  isStartElement,
+  isEndElement,
+  isCharacters,
+  isCdata,
+  isError
+} from 'stax-xml';
+```
+
+#### Benefits of Using Type Guards
+
+1. **Type Safety**: Prevents runtime errors by ensuring you only access properties that exist on specific event types
+2. **IntelliSense Support**: Better IDE autocomplete and suggestions
+3. **Cleaner Code**: More readable than manual type checking with `event.type === XmlEventType.START_ELEMENT`
+4. **Type Narrowing**: TypeScript automatically narrows the type, giving you access to type-specific properties
+
+#### Basic Usage Example
+
+```typescript
+import { StaxXmlParser, isStartElement, isEndElement, isCharacters } from 'stax-xml';
+
+const xmlContent = `
+  <book id="123">
+    <title>TypeScript Guide</title>
+    <author>John Doe</author>
+  </book>
+`;
+
+const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode(xmlContent));
+    controller.close();
+  }
+});
+
+const parser = new StaxXmlParser(stream);
+
+for await (const event of parser) {
+  // Type guard provides type safety and narrowing
+  if (isStartElement(event)) {
+    // TypeScript knows this is a StartElementEvent
+    console.log('Element:', event.name);
+    console.log('Attributes:', event.attributes);
+    // event.attributes is safely accessible here
+  } else if (isCharacters(event)) {
+    // TypeScript knows this is a CharactersEvent
+    console.log('Text content:', event.value);
+    // event.value is safely accessible here
+  } else if (isEndElement(event)) {
+    // TypeScript knows this is an EndElementEvent
+    console.log('Closing element:', event.name);
+    // event.name is safely accessible here
+  }
+}
+```
+
+#### Advanced Usage with Error Handling
+
+```typescript
+import { StaxXmlParser, isStartElement, isCharacters, isError } from 'stax-xml';
+
+async function parseWithErrorHandling(xmlStream: ReadableStream<Uint8Array>) {
+  const parser = new StaxXmlParser(xmlStream);
+  const result = { elements: [], errors: [] };
+
+  for await (const event of parser) {
+    if (isError(event)) {
+      // Handle parsing errors safely
+      console.error('Parse error:', event.error.message);
+      result.errors.push(event.error);
+      break; // Stop parsing on error
+    } else if (isStartElement(event)) {
+      result.elements.push({
+        name: event.name,
+        attributes: event.attributes
+      });
+    }
+  }
+
+  return result;
+}
+```
+
+#### Type Guard Function Reference
+
+| Function | Purpose | Returns True For | Available Properties |
+|----------|---------|------------------|---------------------|
+| `isStartDocument(event)` | Document start | `START_DOCUMENT` events | `type` |
+| `isEndDocument(event)` | Document end | `END_DOCUMENT` events | `type` |
+| `isStartElement(event)` | Opening tags | `START_ELEMENT` events | `type`, `name`, `localName`, `prefix`, `uri`, `attributes`, `attributesWithPrefix` |
+| `isEndElement(event)` | Closing tags | `END_ELEMENT` events | `type`, `name`, `localName`, `prefix`, `uri` |
+| `isCharacters(event)` | Text content | `CHARACTERS` events | `type`, `value` |
+| `isCdata(event)` | CDATA sections | `CDATA` events | `type`, `value` |
+| `isError(event)` | Parse errors | `ERROR` events | `type`, `error` |
+
+#### Complex Parsing Example with Multiple Type Guards
+
+```typescript
+import {
+  StaxXmlParser,
+  isStartDocument,
+  isEndDocument,
+  isStartElement,
+  isEndElement,
+  isCharacters,
+  isCdata,
+  isError
+} from 'stax-xml';
+
+interface Article {
+  title: string;
+  content: string;
+  author: string;
+  publishDate: string;
+}
+
+async function parseArticles(xmlStream: ReadableStream<Uint8Array>): Promise<Article[]> {
+  const parser = new StaxXmlParser(xmlStream);
+  const articles: Article[] = [];
+  let currentArticle: Partial<Article> | null = null;
+  let currentElement = '';
+  let textBuffer = '';
+
+  for await (const event of parser) {
+    if (isStartDocument(event)) {
+      console.log('Starting document parsing...');
+    } else if (isEndDocument(event)) {
+      console.log('Finished parsing document');
+      break;
+    } else if (isError(event)) {
+      throw new Error(`Parsing failed: ${event.error.message}`);
+    } else if (isStartElement(event)) {
+      currentElement = event.name;
+      textBuffer = '';
+
+      if (event.name === 'article') {
+        currentArticle = {
+          title: '',
+          content: '',
+          author: '',
+          publishDate: event.attributes?.publishDate || ''
+        };
+      }
+    } else if (isCharacters(event) || isCdata(event)) {
+      // Both CHARACTERS and CDATA events have a 'value' property
+      textBuffer += event.value;
+    } else if (isEndElement(event)) {
+      const trimmedText = textBuffer.trim();
+
+      if (currentArticle && event.name !== 'article') {
+        switch (event.name) {
+          case 'title':
+            currentArticle.title = trimmedText;
+            break;
+          case 'content':
+            currentArticle.content = trimmedText;
+            break;
+          case 'author':
+            currentArticle.author = trimmedText;
+            break;
+        }
+      } else if (event.name === 'article' && currentArticle) {
+        // Ensure all required fields are present
+        if (currentArticle.title && currentArticle.content && currentArticle.author) {
+          articles.push(currentArticle as Article);
+        }
+        currentArticle = null;
+      }
+
+      textBuffer = '';
+      currentElement = '';
+    }
+  }
+
+  return articles;
+}
+
+// Usage example
+const articleXml = `
+  <articles>
+    <article publishDate="2024-01-15">
+      <title>Understanding Type Guards</title>
+      <author>Jane Smith</author>
+      <content><![CDATA[Type guards are essential for type-safe TypeScript development...]]></content>
+    </article>
+    <article publishDate="2024-01-20">
+      <title>XML Parsing Best Practices</title>
+      <author>Bob Johnson</author>
+      <content>When parsing XML, always handle errors gracefully...</content>
+    </article>
+  </articles>
+`;
+
+const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode(articleXml));
+    controller.close();
+  }
+});
+
+parseArticles(stream).then(articles => {
+  console.log('Parsed articles:', articles);
+}).catch(error => {
+  console.error('Parsing failed:', error);
+});
+```
+
+#### Comparison: With and Without Type Guards
+
+**Without Type Guards (Error-Prone):**
+```typescript
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    // TypeScript doesn't know event has 'attributes' property
+    // This could cause runtime errors
+    console.log(event.attributes?.id); // TypeScript warning
+  }
+}
+```
+
+**With Type Guards (Type-Safe):**
+```typescript
+for await (const event of parser) {
+  if (isStartElement(event)) {
+    // TypeScript knows event is StartElementEvent
+    // Full IntelliSense support and type safety
+    console.log(event.attributes.id); // No TypeScript warnings
+  }
+}
+```
 
 ### 📚 API Reference
 

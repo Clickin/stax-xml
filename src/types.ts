@@ -207,7 +207,7 @@ export class XmlEventFactory {
       attributesWithPrefix,
       value: undefined,
       error: undefined
-    } as any as StartElementEvent;
+    } as UnifiedXmlEvent as StartElementEvent;
   }
 
   /**
@@ -229,7 +229,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as any as EndElementEvent;
+    } as UnifiedXmlEvent as EndElementEvent;
   }
 
   /**
@@ -246,7 +246,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value,
       error: undefined
-    } as any as CharactersEvent;
+    } as UnifiedXmlEvent as CharactersEvent;
   }
 
   /**
@@ -263,7 +263,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value,
       error: undefined
-    } as any as CdataEvent;
+    } as UnifiedXmlEvent as CdataEvent;
   }
 
   /**
@@ -280,38 +280,70 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value: undefined,
       error
-    } as any as ErrorEvent;
+    } as UnifiedXmlEvent as ErrorEvent;
   }
 }
 
+// ===============================================
+// Type guard functions - for TypeScript narrowing
+// These functions check types at runtime and provide type information to TypeScript.
+// ===============================================
+
 /**
- * Type guard functions - for TypeScript narrowing
- * These functions check types at runtime and provide type information to TypeScript.
+ * Type guard function - Check if the event is a START_ELEMENT event
+ * @param event XML event to check
+ * @returns true if the event is a START_ELEMENT event, false otherwise
  */
 export function isStartElement(event: AnyXmlEvent): event is StartElementEvent {
   return event.type === XmlEventType.START_ELEMENT;
 }
 
+/**
+ * Type guard function - Check if the event is an END_ELEMENT event
+ * @param event XML event to check
+ * @returns true if the event is an END_ELEMENT event, false otherwise
+ */
 export function isEndElement(event: AnyXmlEvent): event is EndElementEvent {
   return event.type === XmlEventType.END_ELEMENT;
 }
 
+/**
+ * Type guard function - Check if the event is a CHARACTERS event
+ * @param event XML event to check
+ * @returns true if the event is a CHARACTERS event, false otherwise
+ */
 export function isCharacters(event: AnyXmlEvent): event is CharactersEvent {
   return event.type === XmlEventType.CHARACTERS;
 }
-
+/**
+ * Type guard function - Check if the event is a CDATA event
+ * @param event XML event to check
+ * @returns true if the event is a CDATA event, false otherwise
+ */
 export function isCdata(event: AnyXmlEvent): event is CdataEvent {
   return event.type === XmlEventType.CDATA;
 }
-
+/**
+ * Type guard function - Check if the event is an ERROR event
+ * @param event XML event to check
+ * @returns true if the event is an ERROR event, false otherwise
+ */
 export function isError(event: AnyXmlEvent): event is ErrorEvent {
   return event.type === XmlEventType.ERROR;
 }
-
+/**
+ * Type guard function - Check if the event is a START_DOCUMENT event
+ * @param event XML event to check
+ * @returns true if the event is a START_DOCUMENT event, false otherwise
+ */
 export function isStartDocument(event: AnyXmlEvent): event is StartDocumentEvent {
   return event.type === XmlEventType.START_DOCUMENT;
 }
-
+/**
+ * Type guard function - Check if the event is an END_DOCUMENT event
+ * @param event XML event to check
+ * @returns true if the event is an END_DOCUMENT event, false otherwise
+ */
 export function isEndDocument(event: AnyXmlEvent): event is EndDocumentEvent {
   return event.type === XmlEventType.END_DOCUMENT;
 }

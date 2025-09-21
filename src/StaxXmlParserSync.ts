@@ -3,7 +3,7 @@
 import {
   AnyXmlEvent,
   AttributeInfo,
-  XmlEventFactory
+  XmlEventType
 } from './types';
 
 export interface StaxXmlParserSyncOptions {
@@ -11,13 +11,14 @@ export interface StaxXmlParserSyncOptions {
   addEntities?: { entity: string, value: string }[];
 }
 
-export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
+export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
   private readonly xml: string;
   private readonly xmlLength: number;
   private pos: number = 0;
   private readonly elementStack: string[] = [];
   private namespaceStack: Map<string, string>[] = [];
   private readonly options: StaxXmlParserSyncOptions;
+  private internalIterator?: Generator<AnyXmlEvent>;
 
   // ===== Static optimization tables and caches =====
 
@@ -235,16 +236,34 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
   // ===== Main parsing logic - using EventFactory =====
 
   /**
-   * Iterator implementation - yields AnyXmlEvent
+   * Symbol.iterator implementation - returns this instance as iterator
+   * This ensures for...of and explicit next() calls use the same iterator state
+   */
+  public [Symbol.iterator](): Iterator<AnyXmlEvent> {
+    return this;
+  }
+
+  /**
+   * Internal generator that actually yields AnyXmlEvent
    * Important: Return type is same as before - Iterator<AnyXmlEvent>
    * Factory internally creates UnifiedXmlEvent, but
    * types are returned as StartElementEvent, EndElementEvent etc. so
    * perfectly compatible with AnyXmlEvent union type
    */
-  public *[Symbol.iterator](): Iterator<AnyXmlEvent> {
-    // XmlEventFactory.startDocument() returns StartDocumentEvent type
-    // StartDocumentEvent is part of AnyXmlEvent so type compatible
-    yield XmlEventFactory.startDocument();
+  private *internalGenerator(): Generator<AnyXmlEvent> {
+    // Inline startDocument() - maintains V8 hidden class optimization
+    // All events have same shape with undefined for unused fields
+    yield {
+      type: XmlEventType.START_DOCUMENT,
+      name: undefined,
+      localName: undefined,
+      prefix: undefined,
+      uri: undefined,
+      attributes: undefined,
+      attributesWithPrefix: undefined,
+      value: undefined,
+      error: undefined
+    } as any;
 
     while (this.pos < this.xmlLength) {
       const ltPos = this.findChar(60, this.pos); // Find '<'
@@ -254,9 +273,18 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
         if (this.pos < this.xmlLength) {
           const text = this.trimmedSlice(this.pos, this.xmlLength);
           if (text) {
-            // XmlEventFactory.characters() returns CharactersEvent type
-            // CharactersEvent is part of AnyXmlEvent
-            yield XmlEventFactory.characters(this.entityDecoder(text));
+            // Inline characters() - maintains V8 hidden class optimization
+            yield {
+              type: XmlEventType.CHARACTERS,
+              name: undefined,
+              localName: undefined,
+              prefix: undefined,
+              uri: undefined,
+              attributes: undefined,
+              attributesWithPrefix: undefined,
+              value: this.entityDecoder(text),
+              error: undefined
+            } as any;
           }
         }
         break;
@@ -266,7 +294,18 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       if (ltPos > this.pos) {
         const text = this.trimmedSlice(this.pos, ltPos);
         if (text) {
-          yield XmlEventFactory.characters(this.entityDecoder(text));
+          // Inline characters() - maintains V8 hidden class optimization
+          yield {
+            type: XmlEventType.CHARACTERS,
+            name: undefined,
+            localName: undefined,
+            prefix: undefined,
+            uri: undefined,
+            attributes: undefined,
+            attributesWithPrefix: undefined,
+            value: this.entityDecoder(text),
+            error: undefined
+          } as any;
         }
       }
 
@@ -289,7 +328,25 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       }
     }
 
-    yield XmlEventFactory.endDocument();
+    // Inline endDocument() - maintains V8 hidden class optimization
+    yield {
+      type: XmlEventType.END_DOCUMENT,
+      name: undefined,
+      localName: undefined,
+      prefix: undefined,
+      uri: undefined,
+      attributes: undefined,
+      attributesWithPrefix: undefined,
+      value: undefined,
+      error: undefined
+    } as any;
+  }
+
+  public next(): IteratorResult<AnyXmlEvent> {
+    if (!this.internalIterator) {
+      this.internalIterator = this.internalGenerator();
+    }
+    return this.internalIterator.next();
   }
 
   // ===== Tag parsing methods - using EventFactory =====
@@ -326,9 +383,18 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       uri = currentNamespaces ? currentNamespaces.get(prefix) : undefined;
     }
 
-    // XmlEventFactory.endElement() returns EndElementEvent type
-    // EndElementEvent is part of AnyXmlEvent
-    yield XmlEventFactory.endElement(fullTagName, localName, prefix, uri);
+    // Inline endElement() - maintains V8 hidden class optimization
+    yield {
+      type: XmlEventType.END_ELEMENT,
+      name: fullTagName,
+      localName,
+      prefix,
+      uri,
+      attributes: undefined,
+      attributesWithPrefix: undefined,
+      value: undefined,
+      error: undefined
+    } as any;
 
     this.pos = tagClose + 1;
   }
@@ -339,9 +405,18 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       if (cdataEnd === -1) throw new Error('Unclosed CDATA section');
 
       const cdataContent = this.xml.slice(this.pos + 9, cdataEnd);
-      // XmlEventFactory.cdata() returns CdataEvent type
-      // CdataEvent is part of AnyXmlEvent
-      yield XmlEventFactory.cdata(cdataContent);
+      // Inline cdata() - maintains V8 hidden class optimization
+      yield {
+        type: XmlEventType.CDATA,
+        name: undefined,
+        localName: undefined,
+        prefix: undefined,
+        uri: undefined,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: cdataContent,
+        error: undefined
+      } as any;
 
       this.pos = cdataEnd + 3;
     } else if (this.matchesAt('<!--', this.pos)) {
@@ -422,23 +497,36 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent> {
       uri = currentNamespaces.get(prefix);
     }
 
-    // XmlEventFactory.startElement() returns StartElementEvent type
-    // StartElementEvent is part of AnyXmlEvent
-    yield XmlEventFactory.startElement(
-      tagName,
+    // Inline startElement() - maintains V8 hidden class optimization
+    yield {
+      type: XmlEventType.START_ELEMENT,
+      name: tagName,
       localName,
       prefix,
       uri,
       attributes,
-      attributesWithPrefix
-    );
+      attributesWithPrefix,
+      value: undefined,
+      error: undefined
+    } as any;
 
     this.elementStack.push(tagName);
 
     if (!isSelfClosing) {
       this.namespaceStack.push(currentNamespaces);
     } else {
-      yield XmlEventFactory.endElement(tagName, localName, prefix, uri);
+      // Inline endElement() for self-closing tags - maintains V8 hidden class optimization
+      yield {
+        type: XmlEventType.END_ELEMENT,
+        name: tagName,
+        localName,
+        prefix,
+        uri,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: undefined,
+        error: undefined
+      } as any;
       this.elementStack.pop();
     }
 

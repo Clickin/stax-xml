@@ -26,7 +26,9 @@ head:
 
 - [StaxXmlParser](/ko/api-guides/staxxml-parser/) - 비동기 XML 파싱
 - [StaxXmlParserSync](/ko/api-guides/staxxml-parser-sync/) - 동기 XML 파싱
-- [StaxXmlWriter](/ko/api-guides/staxxml-writer/) - XML 작성 기능
+- [StaxXmlWriter](/ko/api-guides/staxxml-writer/) - 비동기 XML 작성
+- [StaxXmlWriterSync](/ko/api-guides/staxxml-writer-sync/) - 동기 XML 작성
+
 
 ## 타입 정의
 
