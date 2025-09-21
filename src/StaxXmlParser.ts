@@ -114,17 +114,17 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   private namespaceStack: Map<string, string>[] = [];
   private readonly options: StaxXmlParserOptions;
 
-  // ===== 최적화 테이블 및 캐시 =====
+  // ===== Optimization tables and caches =====
 
-  // ASCII 문자 빠른 분류 테이블 (실제로 사용됨)
+  // ASCII character fast classification table (actually used)
   private static readonly ASCII_TABLE = (() => {
     const table = new Uint8Array(128);
-    // 공백 문자들: 1
+    // Whitespace characters: 1
     table[9] = 1;   // TAB
-    table[10] = 1;  // LF  
+    table[10] = 1;  // LF
     table[13] = 1;  // CR
     table[32] = 1;  // SPACE
-    // XML 특수 문자들: 2-12
+    // XML special characters: 2-12
     table[60] = 2;  // '<'
     table[62] = 3;  // '>'
     table[47] = 4;  // '/'
@@ -139,20 +139,20 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return table;
   })();
 
-  // 엔티티 정규식 캐시
+  // Entity regex cache
   private static readonly ENTITY_REGEX_CACHE = new Map<string, RegExp>();
   private static readonly DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
   private static readonly DEFAULT_ENTITY_MAP: Record<string, string> = {
     'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'", 'amp': '&'
   };
 
-  // 컴파일된 엔티티 디코더
+  // Compiled entity decoder
   private readonly entityDecoder: (text: string) => string;
 
-  // Boyer-Moore-Horspool 패턴 캐시
+  // Boyer-Moore-Horspool pattern cache
   private readonly bmhCache = new Map<string, Uint8Array>();
 
-  // 배치 처리 상태
+  // Batch processing state
   private batchMetrics = {
     avgEventSize: 100,
     lastBatchTime: 0,
@@ -197,15 +197,15 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       ...options
     };
 
-    // TextDecoder 최적화 설정
+    // TextDecoder optimization settings
     this.decoder = new TextDecoder(this.options.encoding, {
-      fatal: false,    // 에러 대신 � 문자 사용
-      ignoreBOM: true  // BOM 무시
+      fatal: false,    // Use replacement character � instead of error
+      ignoreBOM: true  // Ignore BOM
     });
 
     this.buffer = new Uint8Array(this.options.maxBufferSize || 64 * 1024);
 
-    // 엔티티 디코더 프리컴파일
+    // Pre-compile entity decoder
     this.entityDecoder = this._compileEntityDecoder();
 
     this.reader = xmlStream.getReader();
@@ -213,73 +213,73 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this._addEvent({ type: XmlEventType.START_DOCUMENT });
   }
 
-  // ===== ASCII 테이블 활용 메서드 =====
+  // ===== ASCII table utility methods =====
 
   /**
-   * 빠른 XML 특수 문자 확인
+   * Fast XML special character check
    */
   private getXmlCharType(byte: number): number {
     return byte < 128 ? StaxXmlParser.ASCII_TABLE[byte] : 0;
   }
 
-  // ===== UTF-8 안전성 메서드 =====
+  // ===== UTF-8 safety methods =====
 
   /**
-   * UTF-8 바이트가 문자 시작인지 확인
-   * @param byte 확인할 바이트
-   * @returns 문자 시작이면 true
+   * Check if UTF-8 byte is the start of a character
+   * @param byte The byte to check
+   * @returns true if it's the start of a character
    */
   private isUtf8CharStart(byte: number): boolean {
-    // ASCII (0xxxxxxx) 또는 멀티바이트 시작 (11xxxxxx)
-    // 연속 바이트 (10xxxxxx)가 아닌 경우
+    // ASCII (0xxxxxxx) or multibyte start (11xxxxxx)
+    // Not a continuation byte (10xxxxxx)
     return (byte & 0x80) === 0 || (byte & 0xC0) === 0xC0;
   }
 
   /**
-   * UTF-8 시퀀스 길이 계산
-   * @param byte 첫 바이트
-   * @returns 시퀀스 길이 (1-4)
+   * Calculate UTF-8 sequence length
+   * @param byte The first byte
+   * @returns Sequence length (1-4)
    */
   private getUtf8SequenceLength(byte: number): number {
     if ((byte & 0x80) === 0) return 1;        // 0xxxxxxx
     if ((byte & 0xE0) === 0xC0) return 2;      // 110xxxxx
     if ((byte & 0xF0) === 0xE0) return 3;      // 1110xxxx
     if ((byte & 0xF8) === 0xF0) return 4;      // 11110xxx
-    return 1; // 잘못된 시퀀스
+    return 1; // Invalid sequence
   }
 
   /**
-   * UTF-8 문자 경계에서 안전하게 위치 조정
-   * @param pos 조정할 위치
-   * @param searchBackward 뒤로 검색할지 여부
-   * @returns 안전한 UTF-8 경계 위치
+   * Safely adjust position at UTF-8 character boundaries
+   * @param pos The position to adjust
+   * @param searchBackward Whether to search backwards
+   * @returns Safe UTF-8 boundary position
    */
   private findSafeUtf8Boundary(pos: number, searchBackward: boolean = true): number {
     if (pos <= 0 || pos >= this.bufferLength) return pos;
 
     if (searchBackward) {
-      // 뒤로 검색하여 문자 시작 찾기
+      // Search backwards to find character start
       let safePos = pos;
       let backtrack = 0;
 
       while (safePos > 0 && backtrack < 4) {
         if (this.isUtf8CharStart(this.buffer[safePos])) {
-          // 이 위치에서 시작하는 시퀀스가 원래 pos를 포함하는지 확인
+          // Check if the sequence starting at this position includes the original pos
           const seqLen = this.getUtf8SequenceLength(this.buffer[safePos]);
           if (safePos + seqLen > pos) {
-            // pos가 이 문자 중간에 있음, safePos 반환
+            // pos is in the middle of this character, return safePos
             return safePos;
           } else {
-            // pos가 이미 안전한 경계임
+            // pos is already at a safe boundary
             return pos;
           }
         }
         safePos--;
         backtrack++;
       }
-      return pos; // 적절한 경계를 찾지 못함
+      return pos; // Could not find appropriate boundary
     } else {
-      // 앞으로 검색하여 다음 문자 시작 찾기
+      // Search forward to find next character start
       while (pos < this.bufferLength && !this.isUtf8CharStart(this.buffer[pos])) {
         pos++;
       }
@@ -288,13 +288,13 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * 버퍼에서 안전하게 UTF-8 문자열 추출
-   * @param start 시작 위치
-   * @param end 끝 위치
-   * @returns 디코딩된 문자열
+   * Safely extract UTF-8 string from buffer
+   * @param start Starting position
+   * @param end Ending position
+   * @returns Decoded string
    */
   private safeDecodeRange(start: number, end: number): string {
-    // 시작과 끝을 안전한 경계로 조정
+    // Adjust start and end to safe boundaries
     const safeStart = this.findSafeUtf8Boundary(start, false);
     const safeEnd = this.findSafeUtf8Boundary(end, true);
 
@@ -306,10 +306,10 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     );
   }
 
-  // ===== Boyer-Moore-Horspool 패턴 검색 구현 =====
+  // ===== Boyer-Moore-Horspool pattern search implementation =====
 
   /**
-   * Boyer-Moore-Horspool bad character table 생성
+   * Build Boyer-Moore-Horspool bad character table
    */
   private _buildBMHTable(pattern: Uint8Array): Uint8Array {
     const table = new Uint8Array(256);
@@ -325,8 +325,8 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * Boyer-Moore-Horspool 알고리즘으로 패턴 검색
-   * XML 구분자는 모두 ASCII이므로 UTF-8 경계 문제 없음
+   * Pattern search using Boyer-Moore-Horspool algorithm
+   * XML delimiters are all ASCII, so no UTF-8 boundary issues
    */
   private _findPatternBMH(pattern: string, startPos?: number): number {
     const patternBytes = new TextEncoder().encode(pattern);
@@ -342,7 +342,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     if (!skipTable) {
       skipTable = this._buildBMHTable(patternBytes);
       if (this.bmhCache.size > 20) {
-        // 캐시 크기 제한
+        // Cache size limit
         this.bmhCache.clear();
       }
       this.bmhCache.set(pattern, skipTable);
@@ -369,7 +369,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * 단일 바이트 검색 (최적화)
+   * Single byte search (optimized)
    */
   private _findSingleByte(byte: number, startPos?: number): number {
     const start = startPos || this.position;
@@ -393,7 +393,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return -1;
   }
 
-  // ===== 엔티티 디코더 컴파일 =====
+  // ===== Entity decoder compilation =====
 
   private _compileEntityDecoder(): (text: string) => string {
     if (!this.options.autoDecodeEntities) {
@@ -444,7 +444,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     };
   }
 
-  // ===== 배치 처리 API =====
+  // ===== Batch processing API =====
 
   private _calculateOptimalBatchSize(): number {
     const MIN_BATCH = 1;
@@ -496,7 +496,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     }
   }
 
-  // ===== 개선된 버퍼 관리 =====
+  // ===== Improved buffer management =====
 
   private _compactBufferIfNeeded(): void {
     if (!this.options.enableBufferCompaction) return;
@@ -515,7 +515,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
   private _compactBuffer(): void {
     if (this.position > 0 && this.position < this.bufferLength) {
-      // UTF-8 경계 확인
+      // Check UTF-8 boundaries
       const safePos = this.findSafeUtf8Boundary(this.position, true);
 
       const remainingLength = this.bufferLength - safePos;
@@ -537,7 +537,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     }
   }
 
-  // ===== 메인 파싱 로직 =====
+  // ===== Main parsing logic =====
 
   private async _startReading(): Promise<void> {
     try {
@@ -616,7 +616,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
       this.position = ltPos;
 
-      // ASCII 테이블 활용한 빠른 태그 타입 판별
+      // Fast tag type identification using ASCII table
       const nextByte = this.buffer[this.position + 1];
       const charType = this.getXmlCharType(nextByte);
 
@@ -741,13 +741,13 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * UTF-8 안전 버퍼 읽기
+   * UTF-8 safe buffer reading
    */
   private _readBuffer(length?: number): string {
     const originalPos = this.position;
     let endPos = length ? Math.min(this.position + length, this.bufferLength) : this.bufferLength;
 
-    // 지정된 길이가 있고 버퍼 중간이면 UTF-8 경계 확인
+    // If specified length exists and is in the middle of buffer, check UTF-8 boundaries
     if (length && endPos < this.bufferLength) {
       endPos = this.findSafeUtf8Boundary(endPos, true);
     }
@@ -759,9 +759,9 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       this.position = endPos;
       return result;
     } catch (error) {
-      // 불완전한 UTF-8 시퀀스 처리
+      // Handle incomplete UTF-8 sequences
       if (!this.isStreamEnded && endPos === this.bufferLength) {
-        // 마지막 4바이트까지 백트랙
+        // Backtrack up to the last 4 bytes
         for (let i = 1; i <= 4 && endPos - i > this.position; i++) {
           const testEnd = this.findSafeUtf8Boundary(endPos - i, true);
           if (testEnd > this.position) {
@@ -811,15 +811,15 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * UTF-8 안전 CDATA 파싱
+   * UTF-8 safe CDATA parsing
    */
   private _parseCData(): boolean {
-    const startPos = this.position + 9; // '<![CDATA[' 이후
+    const startPos = this.position + 9; // After '<![CDATA['
     const endPos = this._findPatternBMH(']]>');
     if (endPos === -1) return false;
 
     try {
-      // UTF-8 경계 확인
+      // Check UTF-8 boundaries
       const safeStart = this.findSafeUtf8Boundary(startPos, false);
       const safeEnd = this.findSafeUtf8Boundary(endPos, true);
 
@@ -849,14 +849,14 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * UTF-8 안전 종료 태그 파싱
+   * UTF-8 safe end tag parsing
    */
   private _parseEndTag(): boolean {
     const gtPos = this._findSingleByte(62, this.position); // '>'
     if (gtPos === -1) return false;
 
     try {
-      // 태그 전체를 안전하게 디코딩
+      // Safely decode the entire tag
       const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
       const closeTagMatch = tagContent.match(/^<\/([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)\s*>$/);
 
@@ -895,14 +895,14 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   /**
-   * UTF-8 안전 시작 태그 파싱 (ASCII 테이블 활용)
+   * UTF-8 safe start tag parsing (using ASCII table)
    */
   private _parseStartTag(): boolean {
     const gtPos = this._findSingleByte(62, this.position); // '>'
     if (gtPos === -1) return false;
 
     try {
-      // 태그 전체를 안전하게 디코딩
+      // Safely decode the entire tag
       const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
       const tagMatch = tagContent.match(/^<([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(\s+[^>]*?)?\s*(\/?)>$/);
 
@@ -926,7 +926,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       const attributes: { [key: string]: string } = {};
       const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
 
-      // 속성 파싱 - 유니코드 문자 지원
+      // Attribute parsing - Unicode character support
       const attrRegex = /([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(?:\s*=\s*"([^"]*)"|\s*=\s*'([^']*)')?/g;
       let attrMatch;
 

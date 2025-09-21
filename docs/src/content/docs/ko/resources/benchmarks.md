@@ -1,6 +1,23 @@
 ---
 title: Benchmarks
 description: Performance comparisons and benchmark results for StAX-XML
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
 ---
 
 StAX-XML is designed for high performance across various XML processing scenarios. This page presents benchmark results comparing StAX-XML with other popular XML parsing libraries.

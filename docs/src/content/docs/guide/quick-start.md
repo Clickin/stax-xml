@@ -1,6 +1,23 @@
 ---
 title: Quick Start
 description: Get up and running with StAX-XML in minutes
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/guide/quick-start.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/guide/quick-start.png
 ---
 
 This guide will help you parse your first XML document with StAX-XML.

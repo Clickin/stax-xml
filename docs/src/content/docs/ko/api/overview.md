@@ -1,6 +1,23 @@
 ---
 title: API 레퍼런스 개요
 description: StAX-XML의 완전한 API 레퍼런스
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/api/overview.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/api/overview.png
 ---
 
 ## API 레퍼런스

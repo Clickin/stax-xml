@@ -1,6 +1,23 @@
 ---
 title: 시작하기
 description: 프로젝트에서 StAX-XML을 설치하고 설정하는 방법을 배워보세요
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/guide/getting-started.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/guide/getting-started.png
 ---
 
 StAX-XML은 모든 JavaScript 런타임에서 작동하는 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다.

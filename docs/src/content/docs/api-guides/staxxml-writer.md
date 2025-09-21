@@ -1,6 +1,23 @@
 ---
 title: StaxXmlWriter - Creating XML Documents
 description: Powerful XML writer for generating XML documents programmatically
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer.png
 ---
 
 ## StaxXmlWriter - Creating XML Documents

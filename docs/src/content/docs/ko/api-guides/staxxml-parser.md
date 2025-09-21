@@ -1,6 +1,23 @@
 ---
 title: StaxXmlParser - 비동기 XML 파싱
 description: JavaScript/TypeScript용 고성능 비동기 XML 파서
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-parser.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-parser.png
 ---
 
 ## StaxXmlParser - 비동기 XML 파싱

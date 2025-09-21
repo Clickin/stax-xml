@@ -139,7 +139,7 @@ export class StaxXmlWriter {
   private needsIndent: boolean = false;
   private entityMap: Record<string, string> = {};
 
-  // 성능 메트릭
+  // Performance metrics
   private metrics = {
     totalBytesWritten: 0,
     flushCount: 0,
@@ -157,14 +157,14 @@ export class StaxXmlWriter {
       addEntities: options.addEntities ?? [],
       autoEncodeEntities: true,
       namespaces: [],
-      bufferSize: 16 * 1024,         // 16KB 기본값
-      highWaterMark: 64 * 1024,      // 64KB 백프레셔
-      flushThreshold: 0.8,            // 80% 차면 플러시
+      bufferSize: 16 * 1024,         // 16KB default
+      highWaterMark: 64 * 1024,      // 64KB backpressure
+      flushThreshold: 0.8,            // Flush when 80% full
       enableAutoFlush: true,
       ...options,
     };
 
-    // flushThreshold를 실제 바이트 값으로 변환
+    // Convert flushThreshold to actual byte value
     if (this.options.flushThreshold <= 1) {
       this.options.flushThreshold = Math.floor(
         this.options.bufferSize * this.options.flushThreshold
@@ -175,10 +175,10 @@ export class StaxXmlWriter {
     this.encoder = new TextEncoder();
     this.buffer = new Uint8Array(this.options.bufferSize);
 
-    // 네임스페이스 스택 초기화
+    // Initialize namespace stack
     this.namespaceStack = [new Map<string, string>()];
 
-    // 엔티티 맵 초기화
+    // Initialize entity map
     this._initializeEntityMap();
   }
 
@@ -193,12 +193,12 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 버퍼에 데이터 쓰기 (자동 플러시 포함)
+   * Write data to buffer (with automatic flush)
    */
   private async _writeToBuffer(text: string): Promise<void> {
     const bytes = this.encoder.encode(text);
 
-    // 단일 청크가 버퍼보다 큰 경우 직접 스트림에 쓰기
+    // If single chunk is larger than buffer, write directly to stream
     if (bytes.length > this.options.bufferSize) {
       await this._flushBuffer();
       await this.writer.write(bytes);
@@ -206,16 +206,16 @@ export class StaxXmlWriter {
       return;
     }
 
-    // 버퍼에 공간이 부족한 경우 플러시
+    // Flush if buffer doesn't have enough space
     if (this.bufferPosition + bytes.length > this.options.bufferSize) {
       await this._flushBuffer();
     }
 
-    // 버퍼에 쓰기
+    // Write to buffer
     this.buffer.set(bytes, this.bufferPosition);
     this.bufferPosition += bytes.length;
 
-    // 임계값 도달 시 자동 플러시
+    // Auto flush when threshold is reached
     if (this.options.enableAutoFlush &&
       this.bufferPosition >= this.options.flushThreshold) {
       await this._flushBuffer();
@@ -223,7 +223,7 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 버퍼 플러시
+   * Buffer flush
    */
   private async _flushBuffer(): Promise<void> {
     if (this.bufferPosition === 0) return;
@@ -239,7 +239,7 @@ export class StaxXmlWriter {
   }
 
   /**
-   * XML 선언 작성
+   * Write XML declaration
    */
   public async writeStartDocument(
     version: string = '1.0',
@@ -264,28 +264,28 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 문서 종료 (모든 요소 자동 닫기)
+   * End document (automatically close all elements)
    */
   public async writeEndDocument(): Promise<void> {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       return;
     }
 
-    // 열린 모든 요소 닫기
+    // Close all open elements
     while (this.elementStack.length > 0) {
       await this.writeEndElement();
     }
 
-    // 최종 플러시
+    // Final flush
     await this._flushBuffer();
 
-    // Writer 닫기
+    // Close writer
     await this.writer.close();
     this.state = WriterState.CLOSED;
   }
 
   /**
-   * 시작 요소 작성
+   * Write start element
    */
   public async writeStartElement(
     localName: string,
@@ -302,7 +302,7 @@ export class StaxXmlWriter {
     const attributes = options?.attributes;
     const selfClosing = options?.selfClosing ?? false;
 
-    // 들여쓰기
+    // Indentation
     if (this.options.prettyPrint && this.needsIndent) {
       await this._writeIndent();
     }
@@ -310,7 +310,7 @@ export class StaxXmlWriter {
     const tagName = prefix ? `${prefix}:${localName}` : localName;
     await this._writeToBuffer(`<${tagName}`);
 
-    // 네임스페이스 처리
+    // Namespace processing
     const currentNamespaces = new Map(
       this.namespaceStack[this.namespaceStack.length - 1]
     );
@@ -320,7 +320,7 @@ export class StaxXmlWriter {
       currentNamespaces.set(prefix, uri);
     }
 
-    // 속성 처리
+    // Attribute processing
     if (attributes) {
       for (const [key, value] of Object.entries(attributes)) {
         if (typeof value === 'string') {
@@ -362,7 +362,7 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 종료 요소 작성
+   * Write end element
    */
   public async writeEndElement(): Promise<this> {
     if (this.elementStack.length === 0) {
@@ -398,7 +398,7 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 텍스트 작성
+   * Write text
    */
   public async writeCharacters(text: string): Promise<this> {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
@@ -420,7 +420,7 @@ export class StaxXmlWriter {
   }
 
   /**
-   * CDATA 섹션 작성
+   * Write CDATA section
    */
   public async writeCData(cdata: string): Promise<this> {
     if (cdata.includes(']]>')) {
@@ -440,7 +440,7 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 주석 작성
+   * Write comment
    */
   public async writeComment(comment: string): Promise<this> {
     if (comment.includes('--')) {
@@ -461,14 +461,14 @@ export class StaxXmlWriter {
   }
 
   /**
-   * 수동 플러시
+   * Manual flush
    */
   public async flush(): Promise<void> {
     await this._flushBuffer();
   }
 
   /**
-   * 메트릭 반환
+   * Return metrics
    */
   public getMetrics() {
     return {
@@ -509,14 +509,14 @@ export class StaxXmlWriter {
 
   private _escapeXml(text: string): string {
     if (!text) {
-      return ''; // 빈 문자열은 그대로 반환
+      return ''; // Return empty string as-is
     }
     if (!this.options.autoEncodeEntities) {
-      return text; // 자동 엔티티 인코딩이 비활성화된 경우 원본 텍스트 반환
+      return text; // Return original text if automatic entity encoding is disabled
     }
 
     let entityMap: Record<string, string> = {
-      '&': '&amp;', // Write 과정에서는 &가 다른 엔티티와 충돌하지 않습니다.
+      '&': '&amp;', // During write process, & does not conflict with other entities
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
@@ -529,16 +529,16 @@ export class StaxXmlWriter {
       }, {} as Record<string, string>)
     };
 
-    // entityMap의 key를 정규식으로 변환하여 이스케이프 처리
+    // Convert entityMap keys to regex for escaping
     const regex = new RegExp(Object.keys(entityMap).join('|'), 'g');
-    // 이스케이프 처리
+    // Escape processing
     return text.replace(regex, (match) => {
-      // entityMap에 정의된 문자인 경우, 매핑된 값을 반환합니다.
+      // If character is defined in entityMap, return mapped value
       if (entityMap[match]) {
         return entityMap[match];
       }
       else {
-        // 정의되지 않은 문자는 그대로 반환합니다.
+        // Return undefined characters as-is
         return match;
       }
     });

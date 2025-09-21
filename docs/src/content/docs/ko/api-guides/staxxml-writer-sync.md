@@ -1,6 +1,23 @@
 ---
 title: StaxXmlWriterSync - 동기식 XML 생성
 description: 메모리 내 문자열 빌딩을 통한 프로그래밍 방식의 동기식 XML 문서 생성
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer-sync.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer-sync.png
 ---
 
 ## StaxXmlWriterSync - 동기식 XML 생성

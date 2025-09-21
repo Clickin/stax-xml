@@ -1,7 +1,73 @@
 ---
-title: FAQ
-description: Frequently asked questions and troubleshooting guide for StAX-XML
+title: StAX-XML FAQ - JavaScript XML Parser Questions & Answers
+description: Comprehensive FAQ covering StAX-XML usage, troubleshooting, performance optimization, and best practices for JavaScript XML parsing.
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/resources/faq.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/resources/faq.png
 ---
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is StAX-XML and how does it differ from other XML parsers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "StAX-XML is a high-performance, pull-based XML parser for JavaScript/TypeScript providing both synchronous and asynchronous parsing. Unlike DOM parsers, it offers memory-efficient streaming, cross-platform compatibility, and event-driven processing for better performance."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I use synchronous vs asynchronous XML parsing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use StaxXmlParserSync for documents under 10MB or when you have the full XML string in memory for maximum performance. Use StaxXmlParser for large files, streaming scenarios, web applications, or when processing from ReadableStreams."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does StAX-XML work in web browsers and Node.js?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! StAX-XML uses Web Standard APIs and works in all modern browsers, Node.js, Bun, Deno, and edge runtimes like Cloudflare Workers. No additional configuration needed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I handle large XML files without memory issues?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the asynchronous StaxXmlParser with streaming. It processes XML events one by one without loading the entire document into memory, maintaining constant memory usage regardless of file size."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I convert XML to JSON with StAX-XML?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Create a converter that processes START_ELEMENT, CHARACTERS, and END_ELEMENT events to build a JSON structure. Process events sequentially while maintaining a stack to track nested elements and their content."
+      }
+    }
+  ]
+}
+</script>
 
 ## General Questions
 

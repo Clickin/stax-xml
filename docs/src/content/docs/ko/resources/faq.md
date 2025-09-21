@@ -1,6 +1,23 @@
 ---
 title: FAQ
 description: StAX-XML의 자주 묻는 질문과 문제 해결 가이드
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/faq.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/faq.png
 ---
 
 ## 일반적인 질문

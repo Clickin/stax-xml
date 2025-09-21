@@ -1,6 +1,23 @@
 ---
 title: StaxXmlParser - Asynchronous XML Parsing
 description: High-performance asynchronous XML parser for JavaScript/TypeScript
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-parser.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-parser.png
 ---
 
 ## StaxXmlParser - Asynchronous XML Parsing

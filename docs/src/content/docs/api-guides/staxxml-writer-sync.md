@@ -1,6 +1,23 @@
 ---
 title: StaxXmlWriterSync - Synchronous XML Generation
 description: Synchronous XML writer for generating XML documents programmatically with in-memory string building
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer-sync.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer-sync.png
 ---
 
 ## StaxXmlWriterSync - Synchronous XML Generation

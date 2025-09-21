@@ -1,6 +1,23 @@
 ---
 title: Getting Started
 description: Learn how to install and set up StAX-XML in your project
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/guide/getting-started.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/guide/getting-started.png
 ---
 
 StAX-XML is a high-performance, pull-based XML parser for JavaScript/TypeScript that works across all JavaScript runtimes.

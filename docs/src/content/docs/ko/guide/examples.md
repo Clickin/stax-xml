@@ -1,6 +1,23 @@
 ---
 title: Examples
 description: Real-world examples and usage patterns for StAX-XML
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/guide/examples.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/guide/examples.png
 ---
 
 This page contains practical examples showing how to use StAX-XML for various XML processing scenarios.

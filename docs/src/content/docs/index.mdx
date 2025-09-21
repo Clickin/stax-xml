@@ -1,11 +1,28 @@
 ---
-title: StAX-XML
-description: High-performance XML parser for JavaScript/TypeScript
+title: StAX-XML - High-Performance JavaScript XML Parser Library
+description: Fast, streaming XML parser for JavaScript/TypeScript. Works in Node.js, Bun, Deno, and browsers. Memory-efficient processing of large XML files with TypeScript support.
 template: splash
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/index.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/index.png
 hero:
-  tagline: A pull-based XML parser inspired by Java's StAX
+  tagline: High-Performance Streaming XML Parser for JavaScript & TypeScript - Universal Platform Support
   actions:
-    - text: Get Started
+    - text: Quick Start Guide
       link: /stax-xml/guide/getting-started/
       icon: right-arrow
       variant: primary
@@ -16,48 +33,62 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Features
+## Why Choose StAX-XML for JavaScript XML Parsing?
 
 <CardGrid>
-  <Card title="🚀 High Performance" icon="rocket">
-    Optimized for speed and low memory usage with streaming support
+  <Card title="🚀 High-Performance XML Processing" icon="rocket">
+    Benchmarked XML parser optimized for speed and memory efficiency. Outperforms traditional DOM parsers for large XML files. [See Performance Benchmarks](/stax-xml/resources/benchmarks/)
   </Card>
-  <Card title="🔄 Pull-based Parsing" icon="down-arrow">
-    Stream-based approach for memory-efficient processing of large XML files
+  <Card title="🔄 Streaming XML Parser" icon="down-arrow">
+    Memory-efficient stream-based parsing approach. Process XML files of any size without loading entire document into memory. [Learn Streaming API](/stax-xml/api-guides/staxxml-parser/)
   </Card>
-  <Card title="🌐 Universal Compatibility" icon="puzzle">
-    Works in Node.js, Bun, Deno, and web browsers using Web Standard APIs
+  <Card title="🌐 Universal JavaScript Compatibility" icon="puzzle">
+    Works seamlessly in Node.js, Bun, Deno, and modern web browsers. Uses Web Standard APIs for maximum compatibility. [Installation Guide](/stax-xml/guide/getting-started/)
   </Card>
-  <Card title="📝 TypeScript Ready" icon="document">
-    Full TypeScript support with comprehensive type definitions
+  <Card title="📝 TypeScript-First XML Parser" icon="document">
+    Built with TypeScript, providing comprehensive type definitions and IntelliSense support. Full type safety for XML parsing operations. [TypeScript Examples](/stax-xml/guide/examples/)
   </Card>
 </CardGrid>
 
-## Installation
+## JavaScript XML Parser Installation
+
+Choose your preferred package manager to install StAX-XML:
 
 ```bash
-# npm
+# npm - Most popular package manager
 npm install stax-xml
 
-# yarn
+# yarn - Fast, reliable package manager
 yarn add stax-xml
 
-# pnpm
+# pnpm - Efficient disk space usage
 pnpm add stax-xml
 
-# bun
+# bun - Ultra-fast JavaScript runtime
 bun add stax-xml
 
-# deno
+# deno - Secure TypeScript runtime
 deno add npm:stax-xml
 ```
 
-## Quick Example
+**Platform Requirements:**
+- Node.js 18+
+- Modern browsers (ES2020+)
+- TypeScript 4.5+ (optional)
+
+[→ Complete Installation Guide](/stax-xml/guide/getting-started/)
+
+## XML Parser Quick Start Example
+
+Get started with StAX-XML in seconds. Here's how to parse XML with streaming support:
 
 ```typescript
 import { StaxXmlParser, XmlEventType } from 'stax-xml';
 
-const xmlContent = '<root><item>Hello</item></root>';
+// XML content to parse
+const xmlContent = '<bookstore><book id="1"><title>JavaScript Guide</title></book></bookstore>';
+
+// Create ReadableStream for streaming XML parsing
 const stream = new ReadableStream({
   start(controller) {
     controller.enqueue(new TextEncoder().encode(xmlContent));
@@ -65,21 +96,37 @@ const stream = new ReadableStream({
   }
 });
 
+// Parse XML asynchronously with event-driven approach
 async function parseXml() {
   const parser = new StaxXmlParser(stream);
   for await (const event of parser) {
-    console.log(event);
+    if (event.type === XmlEventType.START_ELEMENT) {
+      console.log(`Found element: ${event.name}`);
+    }
   }
 }
 parseXml();
 ```
 
-## Why StAX-XML?
+[→ More Advanced Examples](/stax-xml/guide/examples/) | [→ API Documentation](/stax-xml/api/)
 
-Unlike traditional XML-to-JSON mappers, StAX-XML allows you to map XML data to any custom structure you desire while efficiently handling XML files through streaming or direct string processing.
+## StAX-XML vs Other JavaScript XML Parsers
 
-- **Fully Asynchronous**: Memory-efficient processing of large XML files
-- **Synchronous Support**: High-performance parsing of smaller, in-memory XML strings
-- **Custom Mapping**: Map XML data to any structure, not just plain JSON objects
-- **Namespace Support**: Basic XML namespace handling
-- **Entity Support**: Built-in entity decoding with custom entity support
+Unlike traditional XML-to-JSON mappers, StAX-XML provides pull-based parsing that gives you complete control over XML processing:
+
+### Key Advantages:
+
+- **🔥 Memory Efficient**: Stream large XML files without loading them entirely into memory
+- **⚡ High Performance**: Faster than DOM-based parsers for large XML documents
+- **🎯 Flexible Mapping**: Transform XML to any custom data structure, not just JSON
+- **🌍 Universal Support**: Works in Node.js, Bun, Deno, and all modern browsers
+- **📘 TypeScript Ready**: Complete type definitions for enhanced developer experience
+- **🔧 Namespace Aware**: Proper XML namespace handling and entity decoding
+
+### Popular Use Cases:
+- **Large XML File Processing**: RSS feeds, XML data exports, configuration files
+- **Real-time XML Streaming**: Live data feeds, server-sent events
+- **Memory-Constrained Environments**: Edge computing, serverless functions
+- **Custom XML Transformations**: Data migration, format conversion
+
+[→ Performance Benchmarks](/stax-xml/resources/benchmarks/) | [→ Frequently Asked Questions](/stax-xml/resources/faq/)

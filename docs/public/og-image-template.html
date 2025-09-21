@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            padding: 40px;
+        }
+
+        .logo {
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 32px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            gap: 30px;
+        }
+
+        .feature {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">StAX-XML</div>
+        <div class="tagline">High-Performance <span class="highlight">JavaScript XML Parser</span><br>
+        for Node.js, Bun, Deno & Browsers</div>
+        <div class="features">
+            <div class="feature">🚀 Streaming</div>
+            <div class="feature">⚡ Fast</div>
+            <div class="feature">📘 TypeScript</div>
+            <div class="feature">🌍 Universal</div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,6 +1,23 @@
 ---
 title: 빠른 시작
 description: StAX-XML로 몇 분 안에 시작하고 실행하기
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/guide/quick-start.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/guide/quick-start.png
 ---
 
 이 가이드는 StAX-XML로 첫 번째 XML 문서를 파싱하는 방법을 도와드립니다.

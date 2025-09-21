@@ -26,19 +26,151 @@ export default defineConfig({
         },
       ],
       head: [
+        // Enhanced OpenGraph Protocol
         {
           tag: 'meta',
           attrs: {
             property: 'og:title',
-            content: 'StAX-XML - High-performance XML parser for JavaScript/TypeScript'
+            content: 'StAX-XML - High-Performance JavaScript XML Parser Library'
           }
         },
         {
           tag: 'meta',
           attrs: {
             property: 'og:description',
-            content: 'High-performance XML parser for JavaScript/TypeScript'
+            content: 'Fast, streaming XML parser for JavaScript/TypeScript. Works in Node.js, Bun, Deno, and browsers. Memory-efficient processing of large XML files with TypeScript support.'
           }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:type',
+            content: 'website'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:url',
+            content: 'https://clickin.github.io/stax-xml'
+          }
+        },
+        // OpenGraph image will be dynamically generated per page
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:width',
+            content: '1200'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:height',
+            content: '630'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:site_name',
+            content: 'StAX-XML Documentation'
+          }
+        },
+
+        // Twitter Card Optimization
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:card',
+            content: 'summary_large_image'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:title',
+            content: 'StAX-XML - JavaScript XML Parser for Node.js, Bun, Deno'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'twitter:description',
+            content: 'High-performance streaming XML parser library for JavaScript/TypeScript. Memory-efficient processing with full platform compatibility.'
+          }
+        },
+        // Twitter image will be dynamically generated per page
+
+        // Enhanced Meta Tags for SEO
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'keywords',
+            content: 'XML parser JavaScript, TypeScript XML parser, Node.js XML parser, streaming XML parser, JavaScript XML library, Bun XML parser, Deno XML parser, XML processing JavaScript, high performance XML parser, memory efficient XML parser'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'author',
+            content: 'StAX-XML Contributors'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'robots',
+            content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+          }
+        },
+
+        // Critical Resource Preloading
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'preconnect',
+            href: 'https://fonts.googleapis.com'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'dns-prefetch',
+            href: 'https://github.com'
+          }
+        },
+
+        // Schema.org Structured Data for Software Library
+        {
+          tag: 'script',
+          attrs: {
+            type: 'application/ld+json'
+          },
+          content: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "StAX-XML",
+            "description": "High-performance, streaming XML parser for JavaScript and TypeScript with universal platform compatibility",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": ["Windows", "macOS", "Linux"],
+            "programmingLanguage": ["JavaScript", "TypeScript"],
+            "runtimePlatform": ["Node.js", "Bun", "Deno", "Web Browser"],
+            "downloadUrl": "https://www.npmjs.com/package/stax-xml",
+            "codeRepository": "https://github.com/Clickin/stax-xml",
+            "license": "https://github.com/Clickin/stax-xml/blob/master/LICENSE",
+            "author": {
+              "@type": "Organization",
+              "name": "StAX-XML Contributors",
+              "url": "https://github.com/Clickin/stax-xml"
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "keywords": ["XML parser", "JavaScript", "TypeScript", "Node.js", "streaming", "high-performance"]
+          })
         }
       ],
       sidebar: [

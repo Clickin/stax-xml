@@ -1,6 +1,23 @@
 ---
 title: StaxXmlWriter - XML 문서 생성
 description: 프로그래밍 방식으로 XML 문서를 생성하는 강력한 XML 라이터
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer.png
 ---
 
 ## StaxXmlWriter - XML 문서 생성

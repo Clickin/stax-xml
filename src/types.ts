@@ -26,17 +26,17 @@ export type XmlEventType = typeof XmlEventType[keyof typeof XmlEventType];
  */
 export interface UnifiedXmlEvent {
   type: XmlEventType;
-  // Element 관련 필드
+  // Element-related fields
   name: string | undefined;
   localName: string | undefined;
   prefix: string | undefined;
   uri: string | undefined;
-  // StartElement 전용
+  // StartElement specific
   attributes: Record<string, string> | undefined;
   attributesWithPrefix: Record<string, AttributeInfo> | undefined;
-  // Characters/CDATA 관련
+  // Characters/CDATA related
   value: string | undefined;
-  // Error 관련
+  // Error related
   error: Error | undefined;
 }
 
@@ -97,7 +97,7 @@ export interface ErrorEvent {
 }
 
 /**
- * 개발자가 사용할 Discriminated Union 타입
+ * Discriminated Union type for developer use
  */
 export type AnyXmlEvent =
   | StartDocumentEvent
@@ -109,18 +109,18 @@ export type AnyXmlEvent =
   | ErrorEvent;
 
 /**
- * 속성 인터페이스 (Writer용)
+ * Attribute interface (for Writer)
  */
 export interface XmlAttribute {
-  prefix?: string; // 이 간단한 구현에서는 사용되지 않을 수 있습니다.
+  prefix?: string; // May not be used in this simple implementation
   localName: string;
-  uri?: string;    // 이 간단한 구현에서는 사용되지 않을 수 있습니다.
+  uri?: string;    // May not be used in this simple implementation
   value: string;
 }
 
 /**
- * 네임스페이스 선언 인터페이스 (Writer용)
- * 이 간단한 구현에서는 사용되지 않습니다.
+ * Namespace declaration interface (for Writer)
+ * Not used in this simple implementation.
  */
 export interface NamespaceDeclaration {
   prefix: string;
@@ -128,8 +128,8 @@ export interface NamespaceDeclaration {
 }
 
 /**
- * 처리 명령 (PI) 인터페이스 (Writer용)
- * 이 간단한 구현에서는 사용되지 않습니다.
+ * Processing instruction (PI) interface (for Writer)
+ * Not used in this simple implementation.
  */
 export interface ProcessingInstruction {
   target: string;
@@ -137,7 +137,7 @@ export interface ProcessingInstruction {
 }
 
 /**
- * 속성 정보 인터페이스
+ * Attribute information interface
  */
 export interface AttributeInfo {
   value: string;
@@ -147,13 +147,13 @@ export interface AttributeInfo {
 }
 
 /**
- * 이벤트 팩토리 클래스 - 모든 이벤트를 동일한 shape로 생성
- * 인라인 함수로 최적화 가능
+ * Event factory class - creates all events with the same shape
+ * Can be optimized with inline functions
  */
 export class XmlEventFactory {
 
   /**
-   * START_DOCUMENT 이벤트 생성
+   * Create START_DOCUMENT event
    */
   static startDocument(): StartDocumentEvent {
     return {
@@ -170,7 +170,7 @@ export class XmlEventFactory {
   }
 
   /**
-   * END_DOCUMENT 이벤트 생성
+   * Create END_DOCUMENT event
    */
   static endDocument(): EndDocumentEvent {
     return {
@@ -187,7 +187,7 @@ export class XmlEventFactory {
   }
 
   /**
-   * START_ELEMENT 이벤트 생성
+   * Create START_ELEMENT event
    */
   static startElement(
     name: string,
@@ -211,7 +211,7 @@ export class XmlEventFactory {
   }
 
   /**
-   * END_ELEMENT 이벤트 생성
+   * Create END_ELEMENT event
    */
   static endElement(
     name: string,
@@ -233,7 +233,7 @@ export class XmlEventFactory {
   }
 
   /**
-   * CHARACTERS 이벤트 생성
+   * Create CHARACTERS event
    */
   static characters(value: string): CharactersEvent {
     return {
@@ -250,7 +250,7 @@ export class XmlEventFactory {
   }
 
   /**
-   * CDATA 이벤트 생성
+   * Create CDATA event
    */
   static cdata(value: string): CdataEvent {
     return {
@@ -267,7 +267,7 @@ export class XmlEventFactory {
   }
 
   /**
-   * ERROR 이벤트 생성
+   * Create ERROR event
    */
   static error(error: Error): ErrorEvent {
     return {
@@ -285,8 +285,8 @@ export class XmlEventFactory {
 }
 
 /**
- * 타입 가드 함수들 - TypeScript narrowing을 위해
- * 이 함수들은 런타임에서 타입을 체크하고 TypeScript에게 타입 정보를 제공합니다.
+ * Type guard functions - for TypeScript narrowing
+ * These functions check types at runtime and provide type information to TypeScript.
  */
 export function isStartElement(event: AnyXmlEvent): event is StartElementEvent {
   return event.type === XmlEventType.START_ELEMENT;
@@ -317,7 +317,7 @@ export function isEndDocument(event: AnyXmlEvent): event is EndDocumentEvent {
 }
 
 /**
- * 요소 작성 옵션 인터페이스 (Writer용)
+ * Element writing options interface (for Writer)
  */
 export interface WriteElementOptions {
   prefix?: string;
