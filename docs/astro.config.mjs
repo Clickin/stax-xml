@@ -1,12 +1,23 @@
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
-import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
+// import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
 export default defineConfig({
   integrations: [
     starlight({
       title: 'StAX-XML',
       description: 'High-performance XML parser for JavaScript/TypeScript',
+      defaultLocale: 'root',
+      locales: {
+        root: {
+          label: 'English',
+          lang: 'en',
+        },
+        ko: {
+          label: '한국어',
+          lang: 'ko',
+        },
+      },
       social: [
         {
           icon: 'github',
@@ -45,10 +56,15 @@ export default defineConfig({
             { label: 'StaxXmlParser', slug: 'api-guides/staxxml-parser' },
             { label: 'StaxXmlParserSync', slug: 'api-guides/staxxml-parser-sync' },
             { label: 'StaxXmlWriter', slug: 'api-guides/staxxml-writer' },
+            { label: 'StaxXmlWriterSync', slug: 'api-guides/staxxml-writer-sync' },
           ],
         },
-        // TypeDoc 자동 생성 사이드바
-        typeDocSidebarGroup,
+        {
+          label: 'API Reference',
+          items: [
+            { label: 'Overview', slug: 'api/overview' },
+          ],
+        },
         {
           label: 'Resources',
           items: [
@@ -58,25 +74,27 @@ export default defineConfig({
         },
       ],
     }),
-    starlightTypeDoc({
-      entryPoints: ['../src/index.ts'],
-      tsconfig: '../tsconfig.json',
-      typeDoc: {
-        entryPointStrategy: 'expand',
-        gitRevision: 'master',
-        readme: 'none',
-        sort: ['source-order'],
-        categoryOrder: ['*', 'Other'],
-        hideGenerator: true,
-        includeVersion: true,
-        plugin: [],
-      },
-      sidebar: {
-        label: 'API Reference',
-        collapsed: false,
-      },
-      pagination: true,
-    }),
+    // starlightTypeDoc({
+    //   entryPoints: ['../src/*.ts'],
+    //   typeDoc: {
+    //     entryPointStrategy: 'expand',
+    //     gitRevision: 'master',
+    //     readme: 'none',
+    //     sort: ['source-order'],
+    //     categoryOrder: ['*', 'Other'],
+    //     hideGenerator: true,
+    //     includeVersion: true,
+    //     plugin: [],
+    //     exclude: ['../src/**/*.test.ts', '../src/**/*.spec.ts'],
+    //     excludeExternals: true,
+    //     skipErrorChecking: true,
+    //   },
+    //   sidebar: {
+    //     label: 'API Reference',
+    //     collapsed: false,
+    //   },
+    //   pagination: true,
+    // }),
   ],
   output: 'static',
   site: 'https://clickin.github.io',
