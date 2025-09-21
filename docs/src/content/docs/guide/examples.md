@@ -459,6 +459,5 @@ function optimizedParsing(xmlString: string) {
 
 ## Next Steps
 
-- Check out the [API Reference](/api/) for complete method documentation
-- See [Performance Benchmarks](/resources/benchmarks/) for comparison data
-- Visit our [FAQ](/resources/faq/) for troubleshooting help
+- See [Performance Benchmarks](/stax-xml/resources/benchmarks/) for comparison data
+- Visit our [FAQ](/stax-xml/resources/faq/) for troubleshooting help

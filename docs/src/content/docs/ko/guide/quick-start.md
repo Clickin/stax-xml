@@ -186,6 +186,5 @@ for (const event of parser) {
 
 ## 다음 단계
 
-- 고급 사용 사례를 위한 [예제](/ko/guide/examples/) 탐색하기
-- 완전한 문서를 위한 [API 레퍼런스](/ko/api/) 확인하기
-- 성능 비교를 위한 [벤치마크](/ko/resources/benchmarks/) 보기
+- 고급 사용 사례를 위한 [예제](/stax-xml/ko/guide/examples/) 탐색하기
+- 성능 비교를 위한 [벤치마크](/stax-xml/ko/resources/benchmarks/) 보기

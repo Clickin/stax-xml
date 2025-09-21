@@ -186,6 +186,5 @@ for (const event of parser) {
 
 ## Next Steps
 
-- Explore more [Examples](/guide/examples/) for advanced use cases
-- Check the [API Reference](/api/) for complete documentation
-- See [Benchmarks](/resources/benchmarks/) for performance comparisons
+- Explore more [Examples](/stax-xml/guide/examples/) for advanced use cases
+- See [Benchmarks](/stax-xml/resources/benchmarks/) for performance comparisons

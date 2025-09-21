@@ -481,8 +481,8 @@ import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
 
 If you're still having issues:
 
-1. Check the [Examples](/guide/examples/) page for similar use cases
-2. Review the [API documentation](/api/) for detailed method signatures
+1. Check the [Examples](/stax-xml/guide/examples/) page for similar use cases
+2. Review the [API documentation](/stax-xml/api/) for detailed method signatures
 3. Search [GitHub Issues](https://github.com/Clickin/stax-xml/issues) for existing solutions
 4. Create a new issue with a minimal reproduction case
 

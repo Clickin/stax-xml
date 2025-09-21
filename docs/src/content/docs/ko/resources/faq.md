@@ -273,8 +273,8 @@ import { XmlEventType } from 'stax-xml';
 
 여전히 문제가 있다면:
 
-1. 유사한 사용 사례는 [예제](/ko/guide/examples/) 페이지 확인
-2. 자세한 메서드 서명은 [API 문서](/ko/api/) 검토
+1. 유사한 사용 사례는 [예제](/stax-xml/ko/guide/examples/) 페이지 확인
+2. 자세한 메서드 서명은 [API 문서](/stax-xml/ko/api/) 검토
 3. 기존 솔루션은 [GitHub Issues](https://github.com/Clickin/stax-xml/issues) 검색
 4. 최소 재현 사례와 함께 새 이슈 생성
 

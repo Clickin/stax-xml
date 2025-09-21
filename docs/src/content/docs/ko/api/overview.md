@@ -24,10 +24,10 @@ head:
 
 현재는 포괄적인 API 가이드를 참조해 주세요:
 
-- [StaxXmlParser](/ko/api-guides/staxxml-parser/) - 비동기 XML 파싱
-- [StaxXmlParserSync](/ko/api-guides/staxxml-parser-sync/) - 동기 XML 파싱
-- [StaxXmlWriter](/ko/api-guides/staxxml-writer/) - 비동기 XML 작성
-- [StaxXmlWriterSync](/ko/api-guides/staxxml-writer-sync/) - 동기 XML 작성
+- [StaxXmlParser](/stax-xml/ko/api-guides/staxxml-parser/) - 비동기 XML 파싱
+- [StaxXmlParserSync](/stax-xml/ko/api-guides/staxxml-parser-sync/) - 동기 XML 파싱
+- [StaxXmlWriter](/stax-xml/ko/api-guides/staxxml-writer/) - 비동기 XML 작성
+- [StaxXmlWriterSync](/stax-xml/ko/api-guides/staxxml-writer-sync/) - 동기 XML 작성
 
 
 ## 타입 정의

@@ -83,6 +83,5 @@ for (const event of parser) {
 
 ## Next Steps
 
-- [Quick Start Guide](/guide/quick-start/) - Jump right in with practical examples
-- [Examples](/guide/examples/) - See real-world usage patterns
-- [API Reference](/api/) - Detailed API documentation
+- [Quick Start Guide](/stax-xml/guide/quick-start/) - Jump right in with practical examples
+- [Examples](/stax-xml/guide/examples/) - See real-world usage patterns

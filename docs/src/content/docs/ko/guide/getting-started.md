@@ -83,6 +83,5 @@ for (const event of parser) {
 
 ## 다음 단계
 
-- [빠른 시작 가이드](/ko/guide/quick-start/) - 실용적인 예제로 바로 시작하기
-- [예제](/ko/guide/examples/) - 실제 사용 패턴 확인하기
-- [API 레퍼런스](/ko/api/) - 상세한 API 문서
+- [빠른 시작 가이드](/stax-xml/ko/guide/quick-start/) - 실용적인 예제로 바로 시작하기
+- [예제](/stax-xml/ko/guide/examples/) - 실제 사용 패턴 확인하기

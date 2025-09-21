@@ -24,9 +24,9 @@ head:
 
 For now, please refer to our comprehensive API guides:
 
-- [StaxXmlParser](/api-guides/staxxml-parser/) - Asynchronous XML parsing
-- [StaxXmlParserSync](/api-guides/staxxml-parser-sync/) - Synchronous XML parsing
-- [StaxXmlWriter](/api-guides/staxxml-writer/) - XML writing functionality
+- [StaxXmlParser](/stax-xml/api-guides/staxxml-parser/) - Asynchronous XML parsing
+- [StaxXmlParserSync](/stax-xml/api-guides/staxxml-parser-sync/) - Synchronous XML parsing
+- [StaxXmlWriter](/stax-xml/api-guides/staxxml-writer/) - XML writing functionality
 
 ## Type Definitions
 
