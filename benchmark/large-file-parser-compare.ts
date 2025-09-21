@@ -167,7 +167,6 @@ async function main() {
         const events = await testBatchAsyncStaxParser(file500MB.path);
         return events;
       }).gc('inner');
-      /*
       bench('sync stax parser (500MB)', async () => {
         const fs = await import('fs/promises');
         const content = await fs.readFile(file500MB.path, 'utf8');
@@ -201,7 +200,6 @@ async function main() {
         });
         return 0; // 이벤트 수 반환 불가
       }).gc('inner');
-      */
     });
   });
 
