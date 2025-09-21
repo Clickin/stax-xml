@@ -162,14 +162,11 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 
 ### 🚀 주요 기능
 
-- **완전 비동기 (스트림 기반)**: 대용량 XML 파일의 메모리 효율적 처리를 위한 스트림 기반 접근
-- **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱을 위한 직접 문자열 처리
-- **Pull 방식 파싱**: 대용량 XML 파일의 메모리 효율적 처리를 위한 스트림 기반 접근
+- **완전 비동기 (스트림 기반)**: 대용량 XML 파일의 메모리 효율적 처리
+- **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
 - **고성능**: 속도와 낮은 메모리 사용량에 최적화
 - **범용 호환성**: 웹 표준 API만 사용하여 Node.js, Bun, Deno, 웹 브라우저에서 모두 동작
-- **네임스페이스 지원**: 기본적인 XML 네임스페이스 처리
-- **엔티티 지원**: 내장 엔티티 디코딩 및 사용자 정의 엔티티 지원
 - **TypeScript 지원**: 포괄적인 타입 정의로 완전한 TypeScript 지원
 
 ### 📦 설치
@@ -187,13 +184,11 @@ bun add stax-xml
 deno add npm:stax-xml
 ```
 
+### 📖 문서
+
+자세한 사용법, API 참조, 튜토리얼은 [**공식 문서**](https://clickin.github.io/stax-xml)를 참조하세요.
+
 ### 🔧 빠른 시작
-
-자세한 사용 예제 및 API 참조는 다음 문서 파일을 참조하십시오:
-
-- [**StaxXmlParser (비동기)**](docs/StaxXmlParser.md): `ReadableStream`에서 XML을 파싱하는 데 사용합니다.
-- [**StaxXmlParserSync (동기)**](docs/StaxXmlParserSync.md): `string`에서 XML을 파싱하는 데 사용합니다.
-- [**StaxXmlWriter**](docs/StaxXmlWriter.md): `string`으로 XML을 작성하는 데 사용합니다.
 
 #### 기본 비동기 파싱 (StaxXmlParser)
 
@@ -240,63 +235,17 @@ StAX-XML은 웹 표준 API만을 사용하여 다음 환경에서 동작합니�
 - **웹 브라우저** (최신 브라우저)
 - **Edge Runtime** (Vercel, Cloudflare Workers 등)
 
-### 🧪 테스트
+### 📁 테스트 파일 출처
 
-```bash
-bun test
-```
+테스트에 사용된 샘플 파일들의 출처:
 
-#### 벤치마크 결과
-
-**면책 조항:** 이 벤치마크는 특정 시스템(`cpu: 13th Gen Intel(R) Core(TM) i5-13600K`, `runtime: node 22.17.0 (x64-win32)`)에서 수행되었으며, 다른 하드웨어 및 환경에서는 다를 수 있습니다.
-
-**large.xml (97MB) 파싱**
-
-| 벤치마크           | 평균 (최소 … 최대) | p75 / p99       | 메모리 (평균) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 4.36 s/iter     | 4.42 s          | 2.66 mb      |
-| stax-xml consume    | 3.61 s/iter     | 3.65 s          | 3.13 mb      |
-| xml2js              | 6.00 s/iter     | 6.00 s          | 1.80 mb      |
-| fast-xml-parser     | 4.25 s/iter     | 4.26 s          | 151.81 mb    |
-| txml                | 1.05 s/iter     | 1.06 s          | 179.81 mb    |
-
-**midsize.xml (13MB) 파싱**
-
-| 벤치마크           | 평균 (최소 … 최대) | p75 / p99       | 메모리 (평균) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 492.06 ms/iter  | 493.28 ms       | 326.28 kb    |
-| stax-xml consume    | 469.66 ms/iter  | 471.54 ms       | 174.51 kb    |
-| xml2js              | 163.26 µs/iter  | 161.20 µs       | 89.89 kb     |
-| fast-xml-parser     | 529.99 ms/iter  | 531.12 ms       | 1.92 mb      |
-| txml                | 112.81 ms/iter  | 113.26 ms       | 1.00 mb      |
-
-**complex.xml (2KB) 파싱**
-
-| 벤치마크           | 평균 (최소 … 최대) | p75 / p99       | 메모리 (평균) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 85.79 µs/iter   | 75.60 µs        | 105.11 kb    |
-| stax-xml consume    | 50.38 µs/iter   | 49.43 µs        | 271.12 b     |
-| xml2js              | 147.45 µs/iter  | 153.50 µs       | 89.42 kb     |
-| fast-xml-parser     | 101.11 µs/iter  | 102.20 µs       | 92.92 kb     |
-| txml                | 9.40 µs/iter    | 9.41 µs         | 125.89 b     |
-
-**books.xml (4KB) 파싱**
-
-| 벤치마크           | 평균 (최소 … 최대) | p75 / p99       | 메모리 (평균) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 166.73 µs/iter  | 156.20 µs       | 221.40 kb    |
-| stax-xml consume    | 176.45 µs/iter  | 151.70 µs       | 202.08 kb    |
-| xml2js              | 259.90 µs/iter  | 254.50 µs       | 161.25 kb    |
-| fast-xml-parser     | 239.57 µs/iter  | 203.30 µs       | 226.17 kb    |
-| txml                | 19.18 µs/iter   | 19.26 µs        | 303.13 b     |
-
-### 📁 샘플 파일 출처
-
-테스트에 사용된 샘플 XML 파일들의 출처:
-
+**XML 파일:**
 - `books.xml`: [Microsoft XML 문서 예제](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ms762271(v=vs.85))
 - `simple-namespace.xml`: [W3Schools XML 네임스페이스 가이드](https://www.w3schools.com/xml/xml_namespaces.asp)
 - `treebank_e.xml`: [University of Washington XML Data Repository](https://aiweb.cs.washington.edu/research/projects/xmltk/xmldata/www/repository.html)
+
+**JSON 파일:**
+- [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser)
 
 ### 📄 라이선스
 
