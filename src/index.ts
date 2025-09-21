@@ -1,10 +1,9 @@
-import StaxXmlParser from "./StaxXmlParser.js";
-import StaxXmlWriter from "./StaxXmlWriterSync.js";
-import { AnyXmlEvent, CdataEvent, CharactersEvent, ErrorEvent, StartElementEvent, WriteElementOptions, XmlAttribute, XmlEventType } from "./types.js";
+export * from "./StaxXmlParser.js";
 export * from "./StaxXmlParserSync.js";
+export * from "./StaxXmlWriter.js";
+export * from "./StaxXmlWriterSync.js";
 
-export {
-  AnyXmlEvent, CdataEvent, CharactersEvent, ErrorEvent, StartElementEvent, StaxXmlParser,
-  StaxXmlWriter, WriteElementOptions, XmlAttribute, XmlEventType
-};
+export type {
+  AnyXmlEvent, CdataEvent, CharactersEvent, ErrorEvent, StartElementEvent, WriteElementOptions, XmlAttribute, XmlEventType
+} from "./types.js";
 

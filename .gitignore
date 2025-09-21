@@ -1,4 +1,6 @@
 node_modules
 dist
-.gemini
 GEMINI.md
+CLAUDE.md
+.gemini/
+.claude/

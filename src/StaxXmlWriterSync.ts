@@ -4,14 +4,16 @@ import { NamespaceDeclaration, WriteElementOptions } from './types';
 /**
  * XML 문서 작성 중 발생하는 상태
  */
-enum WriterState {
-    INITIAL,            // 초기 상태
-    START_ELEMENT_OPEN, // <element (속성, 네임스페이스 작성 가능)
-    IN_ELEMENT,         // <element>...</element> (텍스트, 자식 요소, PI 등 작성 가능)
-    AFTER_ELEMENT,      // </element> 이후 (다음 요소, 주석 등 작성 가능)
-    CLOSED,             // 스트림이 닫힘
-    ERROR               // 오류 발생
-}
+const WriterState = {
+    INITIAL: 0,            // 초기 상태
+    START_ELEMENT_OPEN: 1, // <element (속성, 네임스페이스 작성 가능)
+    IN_ELEMENT: 2,         // <element>...</element> (텍스트, 자식 요소, PI 등 작성 가능)
+    AFTER_ELEMENT: 3,      // </element> 이후 (다음 요소, 주석 등 작성 가능)
+    CLOSED: 4,             // 스트림이 닫힘
+    ERROR: 5               // 오류 발생
+} as const;
+
+type WriterState = typeof WriterState[keyof typeof WriterState];
 
 /**
  * 요소 스택에 저장되는 요소 정보
@@ -22,7 +24,7 @@ interface ElementInfo {
 }
 
 
-export interface StaxXmlWriterOptions {
+export interface StaxXmlWriterSyncOptions {
     encoding?: string; // 출력 인코딩 (기본값: 'utf-8')
     prettyPrint?: boolean; // Pretty print 활성화 여부 (기본값: false)
     indentString?: string; // Pretty print 들여쓰기 문자열 (기본값: '  ')
@@ -31,41 +33,35 @@ export interface StaxXmlWriterOptions {
     namespaces?: NamespaceDeclaration[]; // 문서 기본 네임스페이스 선언
 }
 
-interface StaxXmlInternalOptions {
-    encoding: string; // 출력 인코딩
-    prettyPrint: boolean; // Pretty print 활성화 여부
-    indentString: string; // Pretty print 들여쓰기 문자열
-    addEntities?: { entity: string, value: string }[]; // 사용자 정의 엔티티 (정규식 포함)
-    autoEncodeEntities: boolean; // 자동 엔티티 인코딩 활성화 여부
-    namespaces?: NamespaceDeclaration[]; // 문서 기본 네임스페이스 선언
-}
 
-const defaultOptions: StaxXmlInternalOptions = {
-    encoding: 'utf-8',
-    prettyPrint: false,
-    indentString: '  ',
-    autoEncodeEntities: true, // 기본값은 true로 설정
-    namespaces: []
-};
 /**
  * StAX XMLStreamWriter와 유사하게 XML을 작성하는 클래스.
  * 네임스페이스 및 복잡한 PI/주석 관리는 지원하지 않는 간소화된 구현입니다.
  */
-class StaxXmlWriter {
+export class StaxXmlWriterSync {
     private xmlString: string = ''; // XML 문자열을 저장할 버퍼
     private state: WriterState = WriterState.INITIAL;
     private elementStack: ElementInfo[] = []; // 열린 요소의 정보 스택
     private hasTextContentStack: boolean[] = []; // 각 요소가 텍스트 콘텐츠를 가지고 있는지 추적하는 스택
     private namespaceStack: Map<string, string>[] = []; // 네임스페이스 매핑 스택
     // options 객체로 변경
-    private options: StaxXmlInternalOptions;
+    private readonly options: Required<StaxXmlWriterSyncOptions>;
     private currentIndentLevel: number = 0; // 현재 들여쓰기 레벨
     private needsIndent: boolean = false; // 다음 출력에 들여쓰기가 필요한지 여부
     private entityMap: Record<string, string> = {};
 
-    constructor(options: StaxXmlWriterOptions = {}) {
+    constructor(options: StaxXmlWriterSyncOptions = {}) {
         // 기본 옵션으로 초기화
-        this.options = { ...defaultOptions, ...options };
+        this.options = {
+            encoding: 'utf-8',
+            prettyPrint: false,
+            indentString: '  ',
+            addEntities: [],
+            autoEncodeEntities: true,
+            namespaces: [],
+            ...options
+        }
+        //this.options = { ...defaultOptions, ...options };
 
         // 네임스페이스 스택 초기화 (루트 네임스페이스 컨텍스트)
         this.namespaceStack = [new Map<string, string>()];
@@ -522,4 +518,4 @@ class StaxXmlWriter {
     }
 }
 
-export default StaxXmlWriter;
+export default StaxXmlWriterSync;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriterSync';
+import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
 import { XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수들
@@ -232,7 +232,7 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
 
 describe('StaxXmlWriter Performance and Edge Cases', () => {
   it('should handle writing large documents efficiently', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: false, // 성능을 위해 pretty print 비활성화
     });
@@ -284,7 +284,7 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
 
     for (let i = 1; i <= 5; i++) {
       const promise = (async () => {
-        const writer = new StaxXmlWriter({
+        const writer = new StaxXmlWriterSync({
           encoding: 'utf-8',
           prettyPrint: true,
         });
@@ -323,7 +323,7 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
   });
 
   it('should handle memory efficiently with large content', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: false, // 성능을 위해 pretty print 비활성화
     });

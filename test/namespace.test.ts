@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriterSync';
+import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
 import { EndElementEvent, StartElementEvent, XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수
@@ -190,7 +190,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
 
   describe('StaxXmlWriter Namespace Writing Tests', () => {
     it('should write elements with namespace prefixes correctly', async () => {
-      const writer = new StaxXmlWriter();
+      const writer = new StaxXmlWriterSync();
 
       writer.writeStartDocument();
       writer.writeStartElement('root');
@@ -255,7 +255,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
 
     it('should write namespace declarations using writeNamespace method', async () => {
-      const writer = new StaxXmlWriter();
+      const writer = new StaxXmlWriterSync();
 
       writer.writeStartDocument();
       writer.writeStartElement('root');
@@ -286,7 +286,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
 
     it('should create XML structure similar to simple-namespace.xml', async () => {
-      const writer = new StaxXmlWriter();
+      const writer = new StaxXmlWriterSync();
 
       // simple-namespace.xml과 유사한 구조 생성
       writer.writeStartDocument();
@@ -351,7 +351,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const parser = new StaxXmlParser(inputStream);
 
       // 파싱된 이벤트로부터 새로운 XML 생성
-      const writer = new StaxXmlWriter();
+      const writer = new StaxXmlWriterSync();
 
       const elementStack: Array<{ name: string, prefix?: string }> = [];
 

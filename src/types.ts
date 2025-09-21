@@ -1,5 +1,7 @@
 /**
- * XML 스트림 이벤트의 타입을 나타내는 열거형
+ * Enumeration of XML stream event types used by the StAX parser
+ *
+ * @public
  */
 export const XmlEventType = {
   START_DOCUMENT: 'START_DOCUMENT',
@@ -14,9 +16,13 @@ export const XmlEventType = {
 export type XmlEventType = typeof XmlEventType[keyof typeof XmlEventType];
 
 /**
- * 런타임 통합 이벤트 구조
- * V8 hidden class 최적화를 위해 모든 이벤트가 동일한 shape를 가짐
- * 사용하지 않는 필드는 undefined로 초기화
+ * Internal unified event structure optimized for V8 hidden class performance.
+ *
+ * @remarks
+ * All events share the same shape to optimize V8 hidden class performance.
+ * Unused fields are initialized to undefined.
+ *
+ * @internal
  */
 export interface UnifiedXmlEvent {
   type: XmlEventType;
@@ -35,17 +41,28 @@ export interface UnifiedXmlEvent {
 }
 
 /**
- * TypeScript 타입 정의 - 개발자가 사용할 타입들
- * 실제 런타임 객체는 UnifiedXmlEvent지만, TypeScript에서는 각 이벤트별 타입으로 보임
+ * Event fired when the document starts parsing
+ *
+ * @public
  */
 export interface StartDocumentEvent {
   type: typeof XmlEventType.START_DOCUMENT;
 }
 
+/**
+ * Event fired when the document ends parsing
+ *
+ * @public
+ */
 export interface EndDocumentEvent {
   type: typeof XmlEventType.END_DOCUMENT;
 }
 
+/**
+ * Event fired when an XML element starts
+ *
+ * @public
+ */
 export interface StartElementEvent {
   type: typeof XmlEventType.START_ELEMENT;
   name: string;

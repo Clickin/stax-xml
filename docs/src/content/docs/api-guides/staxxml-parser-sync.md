@@ -1,3 +1,8 @@
+---
+title: StaxXmlParserSync - Synchronous XML Parsing
+description: High-performance synchronous XML parser for JavaScript/TypeScript
+---
+
 ## StaxXmlParserSync - Synchronous XML Parsing
 
 `StaxXmlParserSync` is a high-performance, pull-based XML parser for JavaScript/TypeScript designed for synchronous processing of XML strings. It is ideal for environments where the entire XML document is already in memory, such as in web servers handling small to medium-sized XML payloads. It avoids the overhead of asynchronous streams.

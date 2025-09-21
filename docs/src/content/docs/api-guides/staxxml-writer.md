@@ -1,3 +1,8 @@
+---
+title: StaxXmlWriter - Creating XML Documents
+description: Powerful XML writer for generating XML documents programmatically
+---
+
 ## StaxXmlWriter - Creating XML Documents
 
 StAX-XML includes a powerful XML writer that allows you to generate XML documents programmatically. This writer is now fully synchronous, building the XML string in memory.

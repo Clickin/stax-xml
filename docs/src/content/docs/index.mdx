@@ -1,0 +1,85 @@
+---
+title: StAX-XML
+description: High-performance XML parser for JavaScript/TypeScript
+template: splash
+hero:
+  tagline: A pull-based XML parser inspired by Java's StAX
+  actions:
+    - text: Get Started
+      link: /guide/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/Clickin/stax-xml
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Features
+
+<CardGrid>
+  <Card title="🚀 High Performance" icon="rocket">
+    Optimized for speed and low memory usage with streaming support
+  </Card>
+  <Card title="🔄 Pull-based Parsing" icon="refresh">
+    Stream-based approach for memory-efficient processing of large XML files
+  </Card>
+  <Card title="🌐 Universal Compatibility" icon="puzzle">
+    Works in Node.js, Bun, Deno, and web browsers using Web Standard APIs
+  </Card>
+  <Card title="📝 TypeScript Ready" icon="document">
+    Full TypeScript support with comprehensive type definitions
+  </Card>
+</CardGrid>
+
+## Installation
+
+```bash
+# npm
+npm install stax-xml
+
+# yarn
+yarn add stax-xml
+
+# pnpm
+pnpm add stax-xml
+
+# bun
+bun add stax-xml
+
+# deno
+deno add npm:stax-xml
+```
+
+## Quick Example
+
+```typescript
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
+
+const xmlContent = '<root><item>Hello</item></root>';
+const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode(xmlContent));
+    controller.close();
+  }
+});
+
+async function parseXml() {
+  const parser = new StaxXmlParser(stream);
+  for await (const event of parser) {
+    console.log(event);
+  }
+}
+parseXml();
+```
+
+## Why StAX-XML?
+
+Unlike traditional XML-to-JSON mappers, StAX-XML allows you to map XML data to any custom structure you desire while efficiently handling XML files through streaming or direct string processing.
+
+- **Fully Asynchronous**: Memory-efficient processing of large XML files
+- **Synchronous Support**: High-performance parsing of smaller, in-memory XML strings
+- **Custom Mapping**: Map XML data to any structure, not just plain JSON objects
+- **Namespace Support**: Basic XML namespace handling
+- **Entity Support**: Built-in entity decoding with custom entity support

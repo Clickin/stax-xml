@@ -1,26 +1,17 @@
-"use strict";
-
 import { XMLParser } from 'fast-xml-parser';
-import { readFileSync } from 'fs';
 import { barplot, bench, run, summary } from 'mitata';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+// @ts-ignore
 import * as txml from 'txml';
 import xml2js from 'xml2js';
 import { StaxXmlParserSync, XmlEventType } from '../dist/index.js';
+import { ASSET_PATHS, loadXmlFile } from './common/utils.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-//const xmlPath = join(__dirname, './assets/large.xml'); // 98MB
-//const xmlPath = join(__dirname, './assets/midsize.xml'); // 13MB
-//const xmlPath = join(__dirname, './assets/complex.xml'); // 2KB
-const xmlPath = join(__dirname, './assets/books.xml'); // 4KB
-//const xmlPath = join(__dirname, './assets/sample.xml'); // 1.5KB
-const xmlString = readFileSync(xmlPath, 'utf8').toString();
+const xmlString = loadXmlFile(ASSET_PATHS.complex); // 2KB
 
 // XML을 JavaScript 객체로 변환하는 함수
-function parseXmlToObject(xmlString) {
+function parseXmlToObject(xmlString: string) {
   const parser = new StaxXmlParserSync(xmlString);
-  let elementStack = [];
+  let elementStack: any[] = [];
   let currentElement = null;
   let root = null;
 
@@ -40,10 +31,10 @@ function fastXmlParser() {
   parser.parse(xmlString);
 }
 
-
 function staxXmlParserObject() {
   parseXmlToObject(xmlString);
 }
+
 function staxXmlParserConsume() {
   const parser = new StaxXmlParserSync(xmlString);
   for (const event of parser) {
@@ -68,27 +59,23 @@ function xml2jsParser() {
     if (err) {
       throw err;
     }
-  })
+  });
 }
+
 function txmlParser() {
   txml.parse(xmlString);
 }
+
+console.log('📊 XML Parser Benchmark - 2KB file (complex.xml)');
+
 barplot(() => {
   summary(() => {
-
     bench('stax-xml to object', () => staxXmlParserObject()).gc('inner');
     bench('stax-xml consume', () => staxXmlParserConsume()).gc('inner');
-    bench('xml2js', () => xml2jsParser()).gc('inner')
-    bench('fast-xml-parser', () => fastXmlParser()).gc('inner')
-    bench('txml', () => txmlParser()).gc('inner')
-  })
+    bench('xml2js', () => xml2jsParser()).gc('inner');
+    bench('fast-xml-parser', () => fastXmlParser()).gc('inner');
+    bench('txml', () => txmlParser()).gc('inner');
+  });
 });
-await run({
-  min_samples: 100,
-  max_samples: 100  // 정확히 100번 실행
-});
-/*
-for (let i = 0; i < 100; i++) {
-  staxXmlParserConsume();
-}
-  */
+
+await run();

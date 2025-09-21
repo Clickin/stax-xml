@@ -156,4 +156,7 @@ barplot(() => {
   });
 });
 
-await run();
+await run({
+  min_samples: 100,
+  max_samples: 100  // 정확히 100번 실행
+});

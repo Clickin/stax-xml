@@ -1,39 +1,129 @@
 // StaxXmlWriterAsync.ts
 import { NamespaceDeclaration, WriteElementOptions } from './types';
 
-enum WriterState {
-  INITIAL,
-  START_ELEMENT_OPEN,
-  IN_ELEMENT,
-  AFTER_ELEMENT,
-  CLOSED,
-  ERROR
-}
+const WriterState = {
+  INITIAL: 0,
+  START_ELEMENT_OPEN: 1,
+  IN_ELEMENT: 2,
+  AFTER_ELEMENT: 3,
+  CLOSED: 4,
+  ERROR: 5
+} as const;
+
+type WriterState = typeof WriterState[keyof typeof WriterState];
 
 interface ElementInfo {
   localName: string;
   prefix?: string;
 }
 
-export interface StaxXmlWriterAsyncOptions {
+/**
+ * Configuration options for the StaxXmlWriter
+ *
+ * @public
+ */
+export interface StaxXmlWriterOptions {
+  /**
+   * Text encoding for the output stream
+   * @defaultValue 'utf-8'
+   */
   encoding?: string;
+
+  /**
+   * Whether to format output with indentation
+   * @defaultValue false
+   */
   prettyPrint?: boolean;
+
+  /**
+   * String used for indentation when prettyPrint is true
+   * @defaultValue '  '
+   */
   indentString?: string;
+
+  /**
+   * Additional custom entities to encode
+   * @defaultValue []
+   */
   addEntities?: { entity: string, value: string }[];
+
+  /**
+   * Whether to automatically encode XML entities
+   * @defaultValue true
+   */
   autoEncodeEntities?: boolean;
+
+  /**
+   * Namespace declarations to include
+   * @defaultValue []
+   */
   namespaces?: NamespaceDeclaration[];
-  // 비동기 특화 옵션
-  bufferSize?: number;           // 내부 버퍼 크기 (기본: 16KB)
-  highWaterMark?: number;        // WritableStream 백프레셔 임계값
-  flushThreshold?: number;       // 자동 플러시 임계값 (기본: bufferSize의 80%)
-  enableAutoFlush?: boolean;     // 자동 플러시 활성화 (기본: true)
+
+  /**
+   * Internal buffer size in bytes
+   * @defaultValue 16384
+   */
+  bufferSize?: number;
+
+  /**
+   * WritableStream backpressure threshold
+   * @defaultValue 65536
+   */
+  highWaterMark?: number;
+
+  /**
+   * Automatic flush threshold (percentage of bufferSize)
+   * @defaultValue 0.8
+   */
+  flushThreshold?: number;
+
+  /**
+   * Whether to enable automatic flushing
+   * @defaultValue true
+   */
+  enableAutoFlush?: boolean;
 }
 
 /**
- * 비동기 StAX XML Writer
- * WritableStream을 사용하여 대용량 XML을 효율적으로 스트리밍
+ * High-performance asynchronous XML writer implementing the StAX (Streaming API for XML) pattern.
+ *
+ * This writer provides efficient streaming XML generation using WritableStream for handling
+ * large XML documents with automatic buffering, backpressure management, and namespace support.
+ *
+ * @remarks
+ * The writer supports streaming output with configurable buffering, automatic entity encoding,
+ * pretty printing with customizable indentation, and comprehensive namespace handling.
+ *
+ * @example
+ * Basic usage:
+ * ```typescript
+ * const writableStream = new WritableStream({
+ *   write(chunk) {
+ *     console.log(new TextDecoder().decode(chunk));
+ *   }
+ * });
+ *
+ * const writer = new StaxXmlWriter(writableStream);
+ * await writer.writeStartElement('root');
+ * await writer.writeElement('item', { id: '1' }, 'Hello World');
+ * await writer.writeEndElement();
+ * await writer.close();
+ * ```
+ *
+ * @example
+ * With pretty printing:
+ * ```typescript
+ * const options = {
+ *   prettyPrint: true,
+ *   indentString: '    ',
+ *   autoEncodeEntities: true
+ * };
+ * const writer = new StaxXmlWriter(writableStream, options);
+ * ```
+ *
+ * @public
  */
-export class StaxXmlWriterAsync {
+export class StaxXmlWriter {
   private writer: WritableStreamDefaultWriter<Uint8Array>;
   private encoder: TextEncoder;
   private buffer: Uint8Array;
@@ -44,7 +134,7 @@ export class StaxXmlWriterAsync {
   private hasTextContentStack: boolean[] = [];
   private namespaceStack: Map<string, string>[] = [];
 
-  private readonly options: Required<StaxXmlWriterAsyncOptions>;
+  private readonly options: Required<StaxXmlWriterOptions>;
   private currentIndentLevel: number = 0;
   private needsIndent: boolean = false;
   private entityMap: Record<string, string> = {};
@@ -58,19 +148,20 @@ export class StaxXmlWriterAsync {
 
   constructor(
     stream: WritableStream<Uint8Array>,
-    options: StaxXmlWriterAsyncOptions = {}
+    options: StaxXmlWriterOptions = {}
   ) {
     this.options = {
       encoding: 'utf-8',
       prettyPrint: false,
       indentString: '  ',
+      addEntities: options.addEntities ?? [],
       autoEncodeEntities: true,
       namespaces: [],
       bufferSize: 16 * 1024,         // 16KB 기본값
       highWaterMark: 64 * 1024,      // 64KB 백프레셔
       flushThreshold: 0.8,            // 80% 차면 플러시
       enableAutoFlush: true,
-      ...options
+      ...options,
     };
 
     // flushThreshold를 실제 바이트 값으로 변환

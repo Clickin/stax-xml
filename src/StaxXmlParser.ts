@@ -9,20 +9,96 @@ import {
   XmlEventType
 } from './types';
 
+/**
+ * Configuration options for the StaxXmlParser
+ *
+ * @public
+ */
 export interface StaxXmlParserOptions {
+  /**
+   * Text encoding for the input stream
+   * @defaultValue 'utf-8'
+   */
   encoding?: string;
+
+  /**
+   * Additional custom entities to decode
+   * @defaultValue []
+   */
   addEntities?: { entity: string, value: string }[];
+
+  /**
+   * Whether to automatically decode XML entities
+   * @defaultValue true
+   */
   autoDecodeEntities?: boolean;
+
+  /**
+   * Maximum buffer size in bytes
+   * @defaultValue 65536
+   */
   maxBufferSize?: number;
+
+  /**
+   * Whether to enable buffer compaction for memory efficiency
+   * @defaultValue true
+   */
   enableBufferCompaction?: boolean;
+
+  /**
+   * Number of events to batch together
+   * @defaultValue 1
+   */
   batchSize?: number;
+
+  /**
+   * Timeout for batch processing in milliseconds
+   * @defaultValue 0
+   */
   batchTimeout?: number;
 }
 
 /**
- * UTF-8 safe StAX XML Parser with Boyer-Moore-Horspool pattern search and optional batch API
+ * High-performance asynchronous XML parser implementing the StAX (Streaming API for XML) pattern.
+ *
+ * This parser provides memory-efficient processing of large XML files through streaming
+ * with support for pull-based parsing, custom entity handling, and namespace processing.
+ *
+ * @remarks
+ * The parser uses UTF-8 safe processing with Boyer-Moore-Horspool pattern search optimization
+ * and supports both single-event and batch processing modes for improved performance.
+ *
+ * @example
+ * Basic usage:
+ * ```typescript
+ * const xmlContent = '<root><item>Hello</item></root>';
+ * const stream = new ReadableStream({
+ *   start(controller) {
+ *     controller.enqueue(new TextEncoder().encode(xmlContent));
+ *     controller.close();
+ *   }
+ * });
+ *
+ * const parser = new StaxXmlParser(stream);
+ * for await (const event of parser) {
+ *   console.log(event.type, event);
+ * }
+ * ```
+ *
+ * @example
+ * With custom options:
+ * ```typescript
+ * const options = {
+ *   autoDecodeEntities: true,
+ *   maxBufferSize: 128 * 1024,
+ *   addEntities: [{ entity: 'custom', value: 'replacement' }]
+ * };
+ * const parser = new StaxXmlParser(stream, options);
+ * ```
+ *
+ * @public
  */
-class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
+export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   private readonly decoder: TextDecoder;
   private buffer: Uint8Array;
@@ -83,6 +159,29 @@ class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     eventCount: 0
   };
 
+  /**
+   * Creates a new StaxXmlParser instance.
+   *
+   * @param xmlStream - The ReadableStream containing XML data as Uint8Array chunks
+   * @param options - Configuration options for the parser
+   * @throws {Error} When xmlStream is not a valid ReadableStream
+   *
+   * @example
+   * ```typescript
+   * const xmlData = '<root><item>content</item></root>';
+   * const stream = new ReadableStream({
+   *   start(controller) {
+   *     controller.enqueue(new TextEncoder().encode(xmlData));
+   *     controller.close();
+   *   }
+   * });
+   *
+   * const parser = new StaxXmlParser(stream, {
+   *   autoDecodeEntities: true,
+   *   maxBufferSize: 64 * 1024
+   * });
+   * ```
+   */
   constructor(xmlStream: ReadableStream<Uint8Array>, options: StaxXmlParserOptions = {}) {
     if (!(xmlStream instanceof ReadableStream)) {
       throw new Error('xmlStream must be a web standard ReadableStream.');

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'bun:test';
-import StaxXmlWriter from '../src/StaxXmlWriterSync';
+import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
 
 // 웹 표준 API용 헬퍼 함수들
 
 
 describe('StaxXmlWriter Self-Closing Tag Tests', () => {
   it('should write self-closing tag with attributes', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -31,7 +31,7 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
   });
 
   it('should write self-closing tag with writeStartElement and attributes', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -58,7 +58,7 @@ describe('StaxXmlWriter Self-Closing Tag Tests', () => {
   });
 
   it('should write mixed content with self-closing tags', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '

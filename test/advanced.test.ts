@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriterSync';
+import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
 import { XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수들
@@ -134,7 +134,7 @@ describe('StaxXmlParser Edge Cases and Error Handling', () => {
 
 describe('StaxXmlWriter Advanced Features', () => {
   it('should write complex nested structure with pretty print', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -206,7 +206,7 @@ describe('StaxXmlWriter Advanced Features', () => {
   });
 
   it('should handle writing with different encodings', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
     });
@@ -224,7 +224,7 @@ describe('StaxXmlWriter Advanced Features', () => {
   });
 
   it('should handle CDATA with special content', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
     });
@@ -256,7 +256,7 @@ describe('StaxXmlWriter Advanced Features', () => {
   });
 
   it('should handle processing instructions', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
     });
@@ -279,7 +279,7 @@ describe('StaxXmlWriter Advanced Features', () => {
   });
 
   it('should handle method chaining', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
     });
@@ -305,7 +305,7 @@ describe('StaxXmlWriter Advanced Features', () => {
   });
 
   it('should validate state transitions and throw appropriate errors', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: false,
     });

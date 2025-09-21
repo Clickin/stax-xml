@@ -1,3 +1,8 @@
+---
+title: StaxXmlParser - Asynchronous XML Parsing
+description: High-performance asynchronous XML parser for JavaScript/TypeScript
+---
+
 ## StaxXmlParser - Asynchronous XML Parsing
 
 `StaxXmlParser` is a high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). All parsing operations are fully asynchronous, making it ideal for handling large XML files without blocking the main thread.

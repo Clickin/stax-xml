@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriter from '../src/StaxXmlWriterSync';
+import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
 import { StartElementEvent, XmlEventType } from '../src/types';
 
 // 헬퍼 함수들
@@ -98,7 +98,7 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should write attributes with prefix correctly', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -159,7 +159,7 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should throw error when using undefined namespace prefix in attributes', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -176,7 +176,7 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should handle mixed simple and prefixed attributes', async () => {
-    const writer = new StaxXmlWriter({
+    const writer = new StaxXmlWriterSync({
       encoding: 'utf-8',
       prettyPrint: false
     });
@@ -225,7 +225,7 @@ describe('Attribute Prefix Support Tests', () => {
     ) as StartElementEvent;
 
     // Write it back using the parsed information
-    const writer = new StaxXmlWriter({ prettyPrint: false });
+    const writer = new StaxXmlWriterSync({ prettyPrint: false });
 
     writer.writeStartDocument();
     writer.writeStartElement('root');
