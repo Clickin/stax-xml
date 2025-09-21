@@ -22,7 +22,7 @@ head:
 
 ## StaxXmlWriter - Creating XML Documents
 
-StAX-XML includes a powerful XML writer that allows you to generate XML documents programmatically. This writer is now fully synchronous, building the XML string in memory.
+StAX-XML includes a powerful XML writer that allows you to generate XML documents programmatically. This writer is fully asynchronous, so it consumes less memory but can handle large size xml over 2^53 - 1 (~1GiB) which is javascript's string size limit.
 
 ### 🔧 Quick Start
 
