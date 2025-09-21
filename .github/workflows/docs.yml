@@ -23,18 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup Node.js for NPM
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '22'
 
       - name: Install dependencies
-        run: bun install
+        run: npm install
 
       - name: Build documentation
         run: |
           cd docs
-          bun run astro build
+          npm run astro build
         env:
           NODE_ENV: production
 
