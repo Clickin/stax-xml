@@ -1,0 +1,54 @@
+{
+  "name": "stax-xml",
+  "version": "0.4.0",
+  "author": "Clickin <josh87786@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Clickin/stax-xml.git"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "devDependencies": {
+    "starlight-typedoc": "^0.21.3",
+    "tsdown": "^0.15.5",
+    "typedoc": "^0.28.13",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./converter": {
+      "types": "./dist/converter.d.ts",
+      "import": "./dist/converter.js",
+      "require": "./dist/converter.cjs"
+    }
+  },
+  "bugs": "https://github.com/Clickin/stax-xml/issues",
+  "description": "",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/Clickin/stax-xml",
+  "keywords": [
+    "xml",
+    "stax",
+    "parser",
+    "writer"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsdown src/index.ts src/converter/index.ts --format cjs,esm --dts --entry.converter=src/converter/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "performance": "node --expose-gc ./performance/large-file.ts",
+    "prepublishOnly": "pnpm build",
+    "typedoc": "typedoc"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts"
+}

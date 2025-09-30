@@ -4,3 +4,21 @@ GEMINI.md
 CLAUDE.md
 .gemini/
 .claude/
+.specify/
+spec
+
+# pnpm
+pnpm-lock.yaml
+
+# Build outputs
+packages/*/dist
+packages/*/coverage
+packages/*/node_modules
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
