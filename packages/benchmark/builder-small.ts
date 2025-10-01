@@ -1,7 +1,7 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { barplot, bench, run, summary } from 'mitata';
 import { Builder } from "xml2js";
-import { StaxXmlWriter, StaxXmlWriterSync } from '../dist/index.js';
+import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.js';
 
 const jsonOrderedContent = loadJsonFile(ASSET_PATHS.testOrdered);

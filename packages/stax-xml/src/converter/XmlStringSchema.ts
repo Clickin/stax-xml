@@ -1,7 +1,8 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
-import type { ParseOptions, XmlStringOptions } from './types.js';
+import type { ParseOptions, XmlStringOptions, XmlWriteOptions } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
+import { XmlWriterInternal, escapeXml } from './XmlWriterInternal.js';
 
 /**
  * Schema for parsing XML string values
@@ -104,5 +105,62 @@ export class XmlStringSchema extends XmlSchema<string, string> {
    */
   xpath(path: string): XmlStringSchema {
     return new XmlStringSchema({ ...this.options, xpath: path });
+  }
+
+  /**
+   * Write raw content only (used inside object schema)
+   * @internal
+   */
+  _writeContent(data: string, options?: XmlWriteOptions): string {
+    return this.writeConfig?.cdata ? data : escapeXml(data);
+  }
+
+  /**
+   * Write string data to XML synchronously
+   * @internal
+   */
+  _write(data: string, options?: XmlWriteOptions): string {
+    const writer = new XmlWriterInternal(options);
+
+    // Write declaration if requested and at root level
+    if (options?.rootElement && options?.includeDeclaration !== false) {
+      writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      writer.writeStartElement(options.rootElement, undefined, this.writeConfig);
+    }
+
+    // Write string element
+    if (this.writeConfig?.element) {
+      writer.writeStartElement(this.writeConfig.element, undefined, this.writeConfig);
+    }
+
+    // Write content
+    const content = this._writeContent(data, options);
+    if (this.writeConfig?.cdata) {
+      writer.writeCData(content);
+    } else {
+      writer.writeCharacters(content);
+    }
+
+    // Close elements
+    if (this.writeConfig?.element) {
+      writer.writeEndElement();
+    }
+    if (options?.rootElement) {
+      writer.writeEndElement();
+    }
+
+    return writer.toString();
+  }
+
+  /**
+   * Write string data to XML asynchronously
+   * @internal
+   */
+  async _writeAsync(data: string, options?: XmlWriteOptions): Promise<string> {
+    return this._write(data, options);
   }
 }

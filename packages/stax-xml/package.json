@@ -41,7 +41,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "tsdown src/index.ts src/converter/index.ts --format cjs,esm --dts --entry.converter=src/converter/index.ts",
+    "build": "tsdown",
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",

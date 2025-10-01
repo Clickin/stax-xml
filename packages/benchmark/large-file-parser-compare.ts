@@ -1,36 +1,12 @@
-import { createReadStream } from 'fs';
 import { barplot, bench, run, summary } from 'mitata';
-import { Readable } from 'stream';
-import { StaxXmlParser, StaxXmlParserSync, XmlEventType } from '../dist/index.js';
-import { cleanupTempFiles, generateLargeXML, type LargeFileConfig } from './common/large-file-generator.js';
-
-
-// Node.js 스트림을 ReadableStream<Uint8Array>로 변환하는 헬퍼 함수
-function nodeStreamToReadableStream(nodeStream: Readable): ReadableStream<Uint8Array> {
-  return new ReadableStream<Uint8Array>({
-    start(controller) {
-      nodeStream.on('data', (chunk: Buffer) => {
-        controller.enqueue(new Uint8Array(chunk));
-      });
-
-      nodeStream.on('end', () => {
-        controller.close();
-      });
-
-      nodeStream.on('error', (error) => {
-        controller.error(error);
-      });
-    }
-  });
-}
+import { StaxXmlParser, StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { createLargeXMLStream, type LargeStreamConfig } from './common/large-file-generator.js';
 
 // Async StAX XML Parser 테스트
-async function testAsyncStaxParser(filePath: string): Promise<number> {
+async function testAsyncStaxParser(stream: ReadableStream<Uint8Array>): Promise<number> {
   let eventsProcessed = 0;
 
-  const fileStream = createReadStream(filePath);
-  const readableStream = nodeStreamToReadableStream(fileStream);
-  const parser = new StaxXmlParser(readableStream);
+  const parser = new StaxXmlParser(stream);
 
   // 이벤트 처리
   for await (const event of parser) {
@@ -60,12 +36,10 @@ async function testAsyncStaxParser(filePath: string): Promise<number> {
 }
 
 // BatchAsync StAX XML Parser 테스트
-async function testBatchAsyncStaxParser(filePath: string): Promise<number> {
+async function testBatchAsyncStaxParser(stream: ReadableStream<Uint8Array>): Promise<number> {
   let eventsProcessed = 0;
 
-  const fileStream = createReadStream(filePath);
-  const readableStream = nodeStreamToReadableStream(fileStream);
-  const parser = new StaxXmlParser(readableStream);
+  const parser = new StaxXmlParser(stream);
 
   // 이벤트 처리
   for await (const events of parser.batchedIterator(100)) {
@@ -127,76 +101,128 @@ async function main() {
   console.log('🚀 Async XML Parser Benchmark - Performance Test with mitata');
   console.log('============================================================');
 
-  // 테스트 파일들 준비
-  console.log('\n🔧 Preparing test files...');
-
-  // 1MB, 10MB, 100MB, 1GB 파일 생성
-  const configs: Array<{ size: number, name: string }> = [
-    { size: 0.5, name: '500MB' },   // 500MB
-  ];
-
-  const testFiles: Array<{ path: string, name: string }> = [];
-  const filePaths: string[] = []; // 정리용 파일 경로 목록
-
-  for (const config of configs) {
-    const fileConfig: LargeFileConfig = {
-      sizeGB: config.size,
-      filename: `test-${config.name}.xml`
-    };
-    const filePath = await generateLargeXML(fileConfig);
-    filePaths.push(filePath); // 정리 목록에 추가
-
-    testFiles.push({
-      path: filePath,
-      name: config.name
-    });
-  }
-
   console.log('\n📊 Running mitata benchmarks...');
 
   // mitata 벤치마크 실행
   barplot(() => {
     summary(() => {
-
-      const file500MB = testFiles.find(f => f.name === '500MB')!;
+      // 500MB 스트림 테스트
       bench('async stax parser (500MB)', async () => {
-        const events = await testAsyncStaxParser(file500MB.path);
+        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const events = await testAsyncStaxParser(stream);
         return events;
       }).gc('inner');
+
       bench('batch async stax parser (500MB)', async () => {
-        const events = await testBatchAsyncStaxParser(file500MB.path);
+        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const events = await testBatchAsyncStaxParser(stream);
         return events;
       }).gc('inner');
+
       bench('sync stax parser (500MB)', async () => {
-        const fs = await import('fs/promises');
-        const content = await fs.readFile(file500MB.path, 'utf8');
+        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const reader = stream.getReader();
+        const chunks: Uint8Array[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const combined = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          combined.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        const content = new TextDecoder().decode(combined);
         return testSyncStaxParser(content);
       }).gc('inner');
-      // 1GB sync 버전은 invalid string length 에러 발생
+
       bench('fast-xml-parser (500MB)', async () => {
         const { XMLParser } = await import('fast-xml-parser');
-        const fs = await import('fs/promises');
-        const content = await fs.readFile(file500MB.path, 'utf8');
+        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const reader = stream.getReader();
+        const chunks: Uint8Array[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const combined = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          combined.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        const content = new TextDecoder().decode(combined);
         const parser = new XMLParser();
         parser.parse(content);
         return 0; // 이벤트 수 반환 불가
       }).gc('inner');
+
       bench('txml (500MB)', async () => {
         //@ts-ignore
         const txml = await import('txml');
-        const fs = await import('fs/promises');
-        const content = await fs.readFile(file500MB.path, 'utf8');
+        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const reader = stream.getReader();
+        const chunks: Uint8Array[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const combined = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          combined.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        const content = new TextDecoder().decode(combined);
         txml.parse(content);
         return 0; // 이벤트 수 반환 불가
       }).gc('inner');
+
       bench('xml2js (500MB)', async () => {
         const xml2js = await import('xml2js');
-        const fs = await import('fs/promises');
-        const content = await fs.readFile(file500MB.path, 'utf8');
-        xml2js.parseString(content, function (err) {
-          if (err) {
-            throw err;
-          }
+        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const reader = stream.getReader();
+        const chunks: Uint8Array[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+
+        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const combined = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          combined.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        const content = new TextDecoder().decode(combined);
+        await new Promise((resolve, reject) => {
+          xml2js.parseString(content, function (err: Error | null) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(undefined);
+            }
+          });
         });
         return 0; // 이벤트 수 반환 불가
       }).gc('inner');
@@ -206,14 +232,9 @@ async function main() {
   await run();
 
   console.log('\n✅ Benchmark completed!');
-  console.log('📝 Note: All benchmarks now include file reading time for fair comparison');
-  console.log('📝 Note: Sync parser tested up to 100MB due to memory limitations');
-  console.log('🚀 1GB file test demonstrates the streaming capability of async parser');
-
-  // 임시 파일 정리
-  console.log('\n🗑️ Cleaning up temporary files...');
-  await cleanupTempFiles(filePaths);
-  console.log('✅ Cleanup completed!');
+  console.log('📝 Note: Streams are generated on-the-fly without disk I/O');
+  console.log('📝 Note: All parsers compared with 500MB stream data');
+  console.log('🚀 Demonstrates the streaming capability of async parser vs DOM-based parsers');
 }
 
 // 메인 실행

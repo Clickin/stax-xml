@@ -58,7 +58,9 @@ export class XPathCompiler {
     // Cache with size limit
     if (this.cache.size >= this.MAX_CACHE_SIZE) {
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
     }
     this.cache.set(xpath, compiled);
 
@@ -130,19 +132,48 @@ export class XPathCompiler {
 
     if (predicateMatch[2]) {
       const predicateStr = predicateMatch[2];
-      const attrMatch = predicateStr.match(/\[@([^=]+)='([^']+)'\]/);
+
+      // Support both single and double quotes for attribute predicates
+      const attrMatchSingle = predicateStr.match(/\[@([^=]+)='([^']+)'\]/);
+      const attrMatchDouble = predicateStr.match(/\[@([^=]+)="([^"]+)"\]/);
       const posMatch = predicateStr.match(/\[(\d+)\]/);
 
-      if (attrMatch) {
+      // Position functions
+      const lastMatch = predicateStr.match(/\[last\(\)\]/);
+      const firstMatch = predicateStr.match(/\[first\(\)\]/);
+      const positionMatch = predicateStr.match(/\[position\(\)\s*=\s*(\d+)\]/);
+
+      if (attrMatchSingle) {
         predicates.push({
           type: 'attribute',
-          attribute: attrMatch[1].trim(),
-          value: attrMatch[2]
+          attribute: attrMatchSingle[1].trim(),
+          value: attrMatchSingle[2]
+        });
+      } else if (attrMatchDouble) {
+        predicates.push({
+          type: 'attribute',
+          attribute: attrMatchDouble[1].trim(),
+          value: attrMatchDouble[2]
         });
       } else if (posMatch) {
         predicates.push({
           type: 'position',
           position: parseInt(posMatch[1], 10)
+        });
+      } else if (lastMatch) {
+        predicates.push({
+          type: 'position',
+          position: -1 // Special value for "last"
+        });
+      } else if (firstMatch) {
+        predicates.push({
+          type: 'position',
+          position: 1
+        });
+      } else if (positionMatch) {
+        predicates.push({
+          type: 'position',
+          position: parseInt(positionMatch[1], 10)
         });
       } else {
         throw new Error(`Unsupported predicate: ${predicateStr}`);
@@ -166,6 +197,7 @@ export class XPathMatcher {
   private currentPath: string[] = [];
   private positionStack: number[] = [];
   private compiled: CompiledXPath;
+  private elementStack: StartElementEvent[] = [];
 
   constructor(xpath: string) {
     this.compiled = XPathCompiler.compile(xpath);
@@ -173,6 +205,7 @@ export class XPathMatcher {
 
   onStartElement(event: StartElementEvent): void {
     this.currentPath.push(event.name);
+    this.elementStack.push(event);
 
     // Track position for positional predicates
     const depth = this.currentPath.length;
@@ -186,6 +219,7 @@ export class XPathMatcher {
   onEndElement(): void {
     const depth = this.currentPath.length;
     this.currentPath.pop();
+    this.elementStack.pop();
 
     // Reset position counter when going up
     if (this.positionStack.length > depth) {
@@ -280,12 +314,12 @@ export class XPathMatcher {
         return false;
       }
 
-      // Check predicates (only for the final segment)
-      if (i === segments.length - 1) {
-        for (const predicate of segment.predicates) {
-          if (!this.matchesPredicate(predicate, event, startDepth + i)) {
-            return false;
-          }
+      // Check predicates for this segment using the corresponding element from the stack
+      for (const predicate of segment.predicates) {
+        const elementIndex = startDepth + i;
+        const elementForPredicate = this.elementStack[elementIndex] || event;
+        if (!this.matchesPredicate(predicate, elementForPredicate, elementIndex)) {
+          return false;
         }
       }
     }
@@ -303,6 +337,15 @@ export class XPathMatcher {
       return attrValue === predicate.value;
     } else if (predicate.type === 'position') {
       const position = this.positionStack[depth] || 1;
+
+      // Handle special position values
+      if (predicate.position === -1) {
+        // For "last()", we cannot determine this in a streaming parser easily
+        // For now, defer to a more complex implementation or return false
+        // TODO: Implement proper last() support with lookahead or post-processing
+        return false;
+      }
+
       return position === predicate.position;
     }
     return false;
@@ -311,5 +354,6 @@ export class XPathMatcher {
   reset(): void {
     this.currentPath = [];
     this.positionStack = [];
+    this.elementStack = [];
   }
 }

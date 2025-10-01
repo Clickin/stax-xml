@@ -17,7 +17,7 @@
  * });
  *
  * const xml = '<book><title>TypeScript</title><author>John</author><price>29.99</price></book>';
- * const result = schema.parse(xml);
+ * const result = await schema.parse(xml);
  * // { title: 'TypeScript', author: 'John', price: 29.99 }
  * ```
  *
@@ -29,6 +29,7 @@ import { XmlSchemaBase } from './base.js';
 import { XmlTransformSchema } from './XmlTransformSchema.js';
 import { XmlOptionalSchema } from './XmlOptionalSchema.js';
 import { XmlArraySchema } from './XmlArraySchema.js';
+import { XmlSchema } from './XmlSchema.js';
 
 XmlSchemaBase._createTransform = (schema, fn) => new XmlTransformSchema(schema, fn);
 XmlSchemaBase._createOptional = (schema) => new XmlOptionalSchema(schema);

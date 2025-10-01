@@ -1,5 +1,5 @@
 import type { ParseResult } from './errors.js';
-import type { ParseOptions } from './types.js';
+import type { ParseOptions, XmlWriteOptions, XmlElementWriteConfig } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import { XmlParseError } from './errors.js';
 
@@ -24,6 +24,12 @@ export abstract class XmlSchemaBase<Output = any, Input = any> {
   readonly _input!: Input;
 
   /**
+   * Writer configuration for this schema
+   * @internal
+   */
+  protected writeConfig?: XmlElementWriteConfig;
+
+  /**
    * Parse XML input synchronously
    * @param input - XML string or sync iterator
    * @param options - Parse options
@@ -40,6 +46,24 @@ export abstract class XmlSchemaBase<Output = any, Input = any> {
    * @throws {XmlParseError} If parsing fails
    */
   abstract _parseAsync(input: ParseInput, options?: ParseOptions): Promise<Output>;
+
+  /**
+   * Write data to XML string synchronously
+   * @param data - Data to write
+   * @param options - Write options
+   * @returns XML string
+   * @internal
+   */
+  abstract _write(data: Output, options?: XmlWriteOptions): string;
+
+  /**
+   * Write data to XML string asynchronously
+   * @param data - Data to write
+   * @param options - Write options
+   * @returns XML string
+   * @internal
+   */
+  abstract _writeAsync(data: Output, options?: XmlWriteOptions): Promise<string>;
 
   /**
    * Parse text content (used internally by parser)
@@ -66,36 +90,36 @@ export abstract class XmlSchemaBase<Output = any, Input = any> {
   ): Output | Promise<Output>;
 
   /**
-   * Parse XML synchronously (public API)
-   * @param input - XML string or sync iterator
-   * @param options - Parse options
-   * @returns Parsed output
-   * @throws {XmlParseError} If parsing fails
-   */
-  parse(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): Output {
-    return this._parse(input, options);
-  }
-
-  /**
    * Parse XML asynchronously (public API)
    * @param input - XML string, stream, or async iterator
    * @param options - Parse options
    * @returns Parsed output
    * @throws {XmlParseError} If parsing fails
    */
-  async parseAsync(input: ParseInput, options?: ParseOptions): Promise<Output> {
+  async parse(input: ParseInput, options?: ParseOptions): Promise<Output> {
     return this._parseAsync(input, options);
   }
 
   /**
-   * Parse XML synchronously with error handling
+   * Parse XML synchronously (public API)
    * @param input - XML string or sync iterator
+   * @param options - Parse options
+   * @returns Parsed output
+   * @throws {XmlParseError} If parsing fails
+   */
+  parseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): Output {
+    return this._parse(input, options);
+  }
+
+  /**
+   * Parse XML asynchronously with error handling
+   * @param input - XML string, stream, or async iterator
    * @param options - Parse options
    * @returns Parse result with success flag
    */
-  safeParse(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): ParseResult<Output> {
+  async safeParse(input: ParseInput, options?: ParseOptions): Promise<ParseResult<Output>> {
     try {
-      return { success: true, data: this._parse(input, options) };
+      return { success: true, data: await this._parseAsync(input, options) };
     } catch (error) {
       return {
         success: false,
@@ -109,14 +133,14 @@ export abstract class XmlSchemaBase<Output = any, Input = any> {
   }
 
   /**
-   * Parse XML asynchronously with error handling
-   * @param input - XML string, stream, or async iterator
+   * Parse XML synchronously with error handling
+   * @param input - XML string or sync iterator
    * @param options - Parse options
    * @returns Parse result with success flag
    */
-  async safeParseAsync(input: ParseInput, options?: ParseOptions): Promise<ParseResult<Output>> {
+  safeParseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): ParseResult<Output> {
     try {
-      return { success: true, data: await this._parseAsync(input, options) };
+      return { success: true, data: this._parse(input, options) };
     } catch (error) {
       return {
         success: false,
@@ -153,6 +177,36 @@ export abstract class XmlSchemaBase<Output = any, Input = any> {
    */
   array(xpath?: string): XmlSchemaBase<Output[], Input[]> {
     return XmlSchemaBase._createArray(this as any, xpath);
+  }
+
+  /**
+   * Write data to XML asynchronously (public API)
+   * @param data - Data to write
+   * @param options - Write options
+   * @returns XML string
+   */
+  async write(data: Output, options?: XmlWriteOptions): Promise<string> {
+    return this._writeAsync(data, options);
+  }
+
+  /**
+   * Write data to XML synchronously (public API)
+   * @param data - Data to write
+   * @param options - Write options
+   * @returns XML string
+   */
+  writeSync(data: Output, options?: XmlWriteOptions): string {
+    return this._write(data, options);
+  }
+
+  /**
+   * Configure writer settings for this schema
+   * @param config - Writer configuration
+   * @returns This schema with writer config
+   */
+  writer(config: XmlElementWriteConfig): this {
+    this.writeConfig = config;
+    return this;
   }
 
   // Static factory methods (will be set by initialization module)

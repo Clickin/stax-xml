@@ -74,21 +74,21 @@ describe('XPath Engine Tests', () => {
     it('should match absolute path', () => {
       const xml = '<root><item>Value</item></root>';
       const schema = x.string().xpath('/root/item');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Value');
     });
 
     it('should match nested absolute path', () => {
       const xml = '<root><level1><level2>Deep Value</level2></level1></root>';
       const schema = x.string().xpath('/root/level1/level2');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Deep Value');
     });
 
     it('should not match wrong absolute path', () => {
       const xml = '<root><item>Value</item></root>';
       const schema = x.string().xpath('/root/other');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('');
     });
   });
@@ -106,7 +106,7 @@ describe('XPath Engine Tests', () => {
         </root>
       `;
       const schema = x.array(x.string(), '//item');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual(['First', 'Second']);
     });
 
@@ -124,7 +124,7 @@ describe('XPath Engine Tests', () => {
         </html>
       `;
       const schema = x.array(x.string(), '//p');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual(['Paragraph 1', 'Paragraph 2']);
     });
   });
@@ -139,14 +139,14 @@ describe('XPath Engine Tests', () => {
         </books>
       `;
       const schema = x.string().xpath("//book[@id='2']");
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Second Book');
     });
 
     it('should not match wrong attribute value', () => {
       const xml = '<book id="1">Book</book>';
       const schema = x.string().xpath("//book[@id='2']");
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('');
     });
 
@@ -158,7 +158,7 @@ describe('XPath Engine Tests', () => {
         </items>
       `;
       const schema = x.string().xpath("//item[@type='active']");
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Active Item');
     });
   });
@@ -173,7 +173,7 @@ describe('XPath Engine Tests', () => {
         </list>
       `;
       const schema = x.string().xpath('//item[1]');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('First');
     });
 
@@ -186,7 +186,7 @@ describe('XPath Engine Tests', () => {
         </list>
       `;
       const schema = x.string().xpath('//item[2]');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Second');
     });
 
@@ -199,7 +199,7 @@ describe('XPath Engine Tests', () => {
         </list>
       `;
       const schema = x.string().xpath('//item[3]');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Third');
     });
   });
@@ -215,7 +215,7 @@ describe('XPath Engine Tests', () => {
       `;
       // Wildcard should match first element encountered
       const schema = x.string().xpath('/root/*');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('First Value');
     });
   });
@@ -234,14 +234,14 @@ describe('XPath Engine Tests', () => {
         </library>
       `;
       const schema = x.string().xpath("//section[@name='fiction']/book[@id='2']");
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('Book 2');
     });
 
     it('should handle CDATA in xpath match', () => {
       const xml = '<root><item><![CDATA[<special>content</special>]]></item></root>';
       const schema = x.string().xpath('/root/item');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('<special>content</special>');
     });
 
@@ -255,7 +255,7 @@ describe('XPath Engine Tests', () => {
         </root>
       `;
       const schema = x.string().xpath('/root/item');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toContain('Value with');
       expect(result).toContain('multiple lines');
     });

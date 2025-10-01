@@ -3,7 +3,7 @@ import { Writable } from 'stream';
 import { barplot, bench, run, summary } from 'mitata';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { StaxXmlWriter, StaxXmlWriterSync } from '../dist/index.js';
+import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
 
 // Node.js Writable을 Web WritableStream으로 변환
 function nodeStreamToWritableStream(nodeStream: Writable): WritableStream<Uint8Array> {

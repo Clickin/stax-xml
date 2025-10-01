@@ -1,8 +1,9 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
 import { XmlParseError } from './errors.js';
-import type { ParseOptions, XmlNumberOptions } from './types.js';
+import type { ParseOptions, XmlNumberOptions, XmlWriteOptions } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
+import { XmlWriterInternal } from './XmlWriterInternal.js';
 
 /**
  * Schema for parsing XML number values
@@ -27,12 +28,22 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
   }
 
   _parseText(text: string): number {
-    const num = parseFloat(text);
+    // Handle empty or whitespace-only strings gracefully
+    const trimmedText = text.trim();
+    if (trimmedText === '') {
+      throw new XmlParseError([{
+        path: [],
+        message: `No number content found (empty text)`,
+        code: 'empty_content'
+      }]);
+    }
+
+    const num = parseFloat(trimmedText);
 
     if (isNaN(num)) {
       throw new XmlParseError([{
         path: [],
-        message: `Invalid number: ${text}`,
+        message: `Invalid number: ${trimmedText}`,
         code: 'invalid_number'
       }]);
     }
@@ -167,5 +178,58 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    */
   int(): XmlNumberSchema {
     return new XmlNumberSchema({ ...this.options, int: true });
+  }
+
+  /**
+   * Write raw content only (used inside object schema)
+   * @internal
+   */
+  _writeContent(data: number, options?: XmlWriteOptions): string {
+    return this.options.int ? String(Math.floor(data)) : String(data);
+  }
+
+  /**
+   * Write number data to XML synchronously
+   * @internal
+   */
+  _write(data: number, options?: XmlWriteOptions): string {
+    const writer = new XmlWriterInternal(options);
+
+    // Write declaration if requested and at root level
+    if (options?.rootElement && options?.includeDeclaration !== false) {
+      writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      writer.writeStartElement(options.rootElement, undefined, this.writeConfig);
+    }
+
+    // Write number element
+    if (this.writeConfig?.element) {
+      writer.writeStartElement(this.writeConfig.element, undefined, this.writeConfig);
+    }
+
+    // Write content
+    const numberStr = this._writeContent(data, options);
+    writer.writeCharacters(numberStr);
+
+    // Close elements
+    if (this.writeConfig?.element) {
+      writer.writeEndElement();
+    }
+    if (options?.rootElement) {
+      writer.writeEndElement();
+    }
+
+    return writer.toString();
+  }
+
+  /**
+   * Write number data to XML asynchronously
+   * @internal
+   */
+  async _writeAsync(data: number, options?: XmlWriteOptions): Promise<string> {
+    return this._write(data, options);
   }
 }

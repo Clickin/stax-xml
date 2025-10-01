@@ -3,7 +3,7 @@ import { barplot, bench, run, summary } from 'mitata';
 //@ts-ignore
 import * as txml from 'txml';
 import xml2js from 'xml2js';
-import { StaxXmlParserSync, XmlEventType } from '../dist/index.js';
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
 import { ASSET_PATHS, loadXmlFile } from './common/utils.js';
 
 const xmlString = loadXmlFile(ASSET_PATHS.books); // 4KB

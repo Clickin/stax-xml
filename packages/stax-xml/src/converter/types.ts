@@ -24,7 +24,7 @@ export interface ParseOptions {
 
   /**
    * Maximum XML depth
-   * @defaultValue 100
+   * @defaultValue 1000
    */
   maxDepth?: number;
 
@@ -106,4 +106,105 @@ export interface XmlObjectOptions {
    * @defaultValue false
    */
   strict?: boolean;
+}
+
+/**
+ * Writer configuration for XML element
+ *
+ * @public
+ */
+export interface XmlElementWriteConfig {
+  /**
+   * Element name (required)
+   */
+  element: string;
+
+  /**
+   * Write as attribute instead of element
+   * Value is the attribute name
+   */
+  asAttribute?: string;
+
+  /**
+   * Namespace configuration
+   */
+  namespace?: {
+    /**
+     * Namespace prefix (e.g., 'dc', 'xsi')
+     */
+    prefix?: string;
+
+    /**
+     * Namespace URI (e.g., 'http://purl.org/dc/elements/1.1/')
+     */
+    uri?: string;
+  };
+
+  /**
+   * Wrap content in CDATA section
+   * @defaultValue false
+   */
+  cdata?: boolean;
+
+  /**
+   * Use self-closing tag for empty elements
+   * @defaultValue false
+   */
+  selfClosing?: boolean;
+
+  /**
+   * Add XML comment before element
+   */
+  comment?: string;
+}
+
+/**
+ * Options for XML writer
+ *
+ * @public
+ */
+export interface XmlWriteOptions {
+  /**
+   * Format output with indentation
+   * @defaultValue false
+   */
+  prettyPrint?: boolean;
+
+  /**
+   * Indentation string
+   * @defaultValue '  '
+   */
+  indentString?: string;
+
+  /**
+   * Text encoding for output
+   * @defaultValue 'utf-8'
+   */
+  encoding?: string;
+
+  /**
+   * Root element name
+   * If not provided, no root element wrapper is added
+   */
+  rootElement?: string;
+
+  /**
+   * Global namespace declarations
+   */
+  namespaces?: Array<{
+    prefix: string;
+    uri: string;
+  }>;
+
+  /**
+   * Include XML declaration
+   * @defaultValue true
+   */
+  includeDeclaration?: boolean;
+
+  /**
+   * XML version for declaration
+   * @defaultValue '1.0'
+   */
+  xmlVersion?: string;
 }

@@ -1,7 +1,8 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
-import type { ParseOptions, XmlObjectOptions } from './types.js';
+import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
+import { XmlWriterInternal } from './XmlWriterInternal.js';
 
 /**
  * Shape type for object schema
@@ -93,6 +94,12 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     ) as InferObjectOutput<T>;
   }
 
+  _parseText(text: string): InferObjectOutput<T> {
+    // Objects cannot be parsed from plain text
+    // Return empty object as default behavior
+    return {} as InferObjectOutput<T>;
+  }
+
   /**
    * Set XPath expression for locating the object
    * @param path - XPath expression
@@ -100,5 +107,132 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
    */
   xpath(path: string): XmlObjectSchema<T> {
     return new XmlObjectSchema(this.shape, { ...this.options, xpath: path });
+  }
+
+  /**
+   * Write raw content only (used inside parent object/array schema)
+   * @internal
+   */
+  _writeContent(data: InferObjectOutput<T>, options?: XmlWriteOptions): string {
+    const writer = new XmlWriterInternal(options);
+
+    // Write each field
+    for (const [key, schema] of Object.entries(this.shape)) {
+      const value = (data as any)[key];
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      const fieldConfig = (schema as any).writeConfig;
+      if (fieldConfig?.asAttribute) {
+        continue; // Attributes need parent element context
+      }
+
+      const elementName = fieldConfig?.element || key;
+      writer.writeStartElement(elementName, undefined, fieldConfig);
+
+      const rawContent = (schema as any)._writeContent ?
+        (schema as any)._writeContent(value, options) :
+        (schema as any)._write(value, { ...options, rootElement: undefined, includeDeclaration: false });
+
+      if (fieldConfig?.cdata) {
+        writer.writeCData(rawContent);
+      } else if (rawContent.trim().startsWith('<')) {
+        writer.writeRaw(rawContent);
+      } else {
+        writer.writeCharacters(rawContent);
+      }
+
+      writer.writeEndElement();
+    }
+
+    return writer.toString();
+  }
+
+  /**
+   * Write object data to XML synchronously
+   * @internal
+   */
+  _write(data: InferObjectOutput<T>, options?: XmlWriteOptions): string {
+    const writer = new XmlWriterInternal(options);
+
+    // Write declaration if requested
+    if (options?.includeDeclaration !== false) {
+      writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      const rootAttributes: Record<string, string> = {};
+
+      // Collect attributes from shape
+      for (const [key, schema] of Object.entries(this.shape)) {
+        const fieldConfig = (schema as any).writeConfig;
+        if (fieldConfig?.asAttribute) {
+          const value = (data as any)[key];
+          if (value !== undefined && value !== null) {
+            rootAttributes[fieldConfig.asAttribute] = String(value);
+          }
+        }
+      }
+
+      writer.writeStartElement(options.rootElement, rootAttributes, this.writeConfig);
+    }
+
+    // Write each field
+    for (const [key, schema] of Object.entries(this.shape)) {
+      const value = (data as any)[key];
+      if (value === undefined || value === null) {
+        continue; // Skip undefined/null values
+      }
+
+      const fieldConfig = (schema as any).writeConfig;
+
+      // Skip if this field is an attribute (already written)
+      if (fieldConfig?.asAttribute) {
+        continue;
+      }
+
+      const elementName = fieldConfig?.element || key;
+      const attributes: Record<string, string> = {};
+
+      // Write element start
+      writer.writeStartElement(elementName, attributes, fieldConfig);
+
+      // Get raw content from schema (without wrapping element)
+      const rawContent = (schema as any)._writeContent ?
+        (schema as any)._writeContent(value, options) :
+        (schema as any)._write(value, { ...options, rootElement: undefined, includeDeclaration: false });
+
+      // Write content
+      if (fieldConfig?.cdata) {
+        writer.writeCData(rawContent);
+      } else if (rawContent.trim().startsWith('<')) {
+        // Already XML, write as raw
+        writer.writeRaw(rawContent);
+      } else {
+        // Plain text, write as characters
+        writer.writeCharacters(rawContent);
+      }
+
+      writer.writeEndElement();
+    }
+
+    // Close root element
+    if (options?.rootElement) {
+      writer.writeEndElement();
+    }
+
+    return writer.toString();
+  }
+
+  /**
+   * Write object data to XML asynchronously
+   * @internal
+   */
+  async _writeAsync(data: InferObjectOutput<T>, options?: XmlWriteOptions): Promise<string> {
+    // For now, async is the same as sync for object writing
+    // In the future, this could support streaming to a WritableStream
+    return this._write(data, options);
   }
 }

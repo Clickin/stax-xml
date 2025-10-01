@@ -1,6 +1,6 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { barplot, bench, run, summary } from 'mitata';
-import { StaxXmlWriter, StaxXmlWriterSync } from '../dist/index.js';
+import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.js';
 
 const bigJsonContent = loadJsonFile(ASSET_PATHS.big); // 1MB

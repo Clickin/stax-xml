@@ -41,7 +41,7 @@ describe('Integration Tests', () => {
         )
       });
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.channelTitle).toBe('Example RSS Feed');
       expect(result.items).toHaveLength(2);
       expect(result.items[0].title).toBe('Article 1');
@@ -87,7 +87,7 @@ describe('Integration Tests', () => {
         }
       }));
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.name).toBe('Laptop');
       expect(result.price).toBe(999.99);
       expect(result.stock).toBe(15);
@@ -142,7 +142,7 @@ describe('Integration Tests', () => {
         }
       }));
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.database.host).toBe('localhost');
       expect(result.database.port).toBe(5432);
       expect(result.features.auth).toBe(true);
@@ -166,7 +166,7 @@ describe('Integration Tests', () => {
         text: x.string().xpath('//text')
       });
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.width).toBe('100');
       expect(result.height).toBe('100');
       expect(result.rectFill).toBe('blue');
@@ -206,7 +206,7 @@ describe('Integration Tests', () => {
       }));
 
       const schema = x.array(userSchema, '//user');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
 
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe(1);
@@ -260,7 +260,7 @@ describe('Integration Tests', () => {
         };
       });
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.sales).toHaveLength(3);
       expect(result.sales[0].total).toBeCloseTo(1999.98);
       expect(result.summary.totalItems).toBe(10);
@@ -285,7 +285,7 @@ describe('Integration Tests', () => {
       );
 
       const start = performance.now();
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       const duration = performance.now() - start;
 
       expect(result).toHaveLength(500);
@@ -302,7 +302,7 @@ describe('Integration Tests', () => {
       xml += '</data>';
 
       const schema = x.array(x.number(), '//item');
-      const result = await schema.parseAsync(xml);
+      const result = await schema.parse(xml);
 
       expect(result).toHaveLength(100);
       expect(result[0]).toBe(0);
@@ -326,7 +326,7 @@ describe('Integration Tests', () => {
         items: x.number().xpath('//items').int().min(1)
       });
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].code).toBe('too_small');
@@ -348,7 +348,7 @@ describe('Integration Tests', () => {
         age: x.number().xpath('//age').int()
       });
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.username).toBe('johndoe');
       expect(result.email).toBeUndefined();
       expect(result.age).toBe(30);
@@ -430,8 +430,8 @@ describe('Integration Tests', () => {
         count: x.number().xpath('//count').int()
       });
 
-      const syncResult = schema.parse(xml);
-      const asyncResult = await schema.parseAsync(xml);
+      const syncResult = schema.parseSync(xml);
+      const asyncResult = await schema.parse(xml);
 
       expect(syncResult).toEqual(asyncResult);
     });

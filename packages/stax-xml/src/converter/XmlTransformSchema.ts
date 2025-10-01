@@ -1,5 +1,5 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
-import type { ParseOptions } from './types.js';
+import type { ParseOptions, XmlWriteOptions } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 
 /**
@@ -48,5 +48,31 @@ export class XmlTransformSchema<Output, Input> extends XmlSchemaBase<Output, Inp
 
     // Fallback: should not happen if schemas are properly implemented
     throw new Error('Transform schema requires base schema with _parseFromPosition');
+  }
+
+  _parseText(text: string): Output {
+    if (this.schema._parseText) {
+      const result = this.schema._parseText(text);
+      return this.transformFn(result);
+    }
+    throw new Error('Transform schema requires base schema with _parseText');
+  }
+
+  /**
+   * Write transformed data to XML synchronously
+   * Note: Transform is not reversible, so writing is not supported
+   * @internal
+   */
+  _write(data: Output, options?: XmlWriteOptions): string {
+    throw new Error('Transform schema does not support writing. Use the base schema for writing.');
+  }
+
+  /**
+   * Write transformed data to XML asynchronously
+   * Note: Transform is not reversible, so writing is not supported
+   * @internal
+   */
+  async _writeAsync(data: Output, options?: XmlWriteOptions): Promise<string> {
+    throw new Error('Transform schema does not support writing. Use the base schema for writing.');
   }
 }

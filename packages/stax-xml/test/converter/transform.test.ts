@@ -9,7 +9,7 @@ describe('Schema Transform Tests', () => {
         .xpath('/root/text')
         .transform(s => s.toUpperCase());
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('HELLO');
     });
 
@@ -19,7 +19,7 @@ describe('Schema Transform Tests', () => {
         .xpath('/root/price')
         .transform(n => n * 1.1); // Add 10% tax
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBeCloseTo(110);
     });
 
@@ -37,7 +37,7 @@ describe('Schema Transform Tests', () => {
         fullName: `${person.firstName} ${person.lastName}`
       }));
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual({ fullName: 'John Doe' });
     });
 
@@ -52,7 +52,7 @@ describe('Schema Transform Tests', () => {
       const schema = x.array(x.number(), '//item')
         .transform(arr => arr.reduce((sum, n) => sum + n, 0));
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe(6);
     });
 
@@ -64,7 +64,7 @@ describe('Schema Transform Tests', () => {
         .transform(n => n + 10)
         .transform(n => n.toString());
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('20');
     });
 
@@ -74,7 +74,7 @@ describe('Schema Transform Tests', () => {
         .xpath('/root/text')
         .transform(s => s.toUpperCase());
 
-      const result = await schema.parseAsync(xml);
+      const result = await schema.parse(xml);
       expect(result).toBe('WORLD');
     });
 
@@ -85,7 +85,7 @@ describe('Schema Transform Tests', () => {
         .transform(s => parseInt(s, 10))
         .transform(n => n > 10);
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe(true);
     });
   });
@@ -95,7 +95,7 @@ describe('Schema Transform Tests', () => {
       const xml = '<root><text>not a number</text></root>';
       const schema = x.number().xpath('/root/text').optional();
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBeUndefined();
     });
 
@@ -103,7 +103,7 @@ describe('Schema Transform Tests', () => {
       const xml = '<root><count>42</count></root>';
       const schema = x.number().xpath('/root/count').optional();
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe(42);
     });
 
@@ -111,7 +111,7 @@ describe('Schema Transform Tests', () => {
       const xml = '<root><other>value</other></root>';
       const schema = x.string().xpath('/root/missing').optional();
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBeUndefined();
     });
 
@@ -119,7 +119,7 @@ describe('Schema Transform Tests', () => {
       const xml = '<root><text>not a number</text></root>';
       const schema = x.number().xpath('/root/text').optional();
 
-      const result = await schema.parseAsync(xml);
+      const result = await schema.parse(xml);
       expect(result).toBeUndefined();
     });
 
@@ -130,7 +130,7 @@ describe('Schema Transform Tests', () => {
         age: x.number().xpath('/root/age').optional()
       });
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.name).toBe('Test');
       expect(result.age).toBeUndefined();
     });
@@ -155,7 +155,7 @@ describe('Schema Transform Tests', () => {
         </list>
       `;
       const schema = x.string().array('//item');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual(['A', 'B', 'C']);
     });
 
@@ -168,7 +168,7 @@ describe('Schema Transform Tests', () => {
         </numbers>
       `;
       const schema = x.number().array('//value');
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual([10, 20, 30]);
     });
 
@@ -183,7 +183,7 @@ describe('Schema Transform Tests', () => {
         .transform(s => s.toUpperCase())
         .array('//item');
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual(['HELLO', 'WORLD']);
     });
 
@@ -203,7 +203,7 @@ describe('Schema Transform Tests', () => {
         .optional()
         .transform(n => n !== undefined ? n * 2 : 0);
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe(20);
     });
 
@@ -219,7 +219,7 @@ describe('Schema Transform Tests', () => {
         .array('//item')
         .transform(arr => ({ sum: arr.reduce((a, b) => a + b, 0) }));
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toEqual({ sum: 6 });
     });
 
@@ -230,7 +230,7 @@ describe('Schema Transform Tests', () => {
         .transform(s => s.toUpperCase())
         .optional();
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result).toBe('HELLO');
     });
 
@@ -255,7 +255,7 @@ describe('Schema Transform Tests', () => {
         display: `${p.name} (${p.category})`
       }));
 
-      const result = schema.parse(xml);
+      const result = schema.parseSync(xml);
       expect(result.display).toBe('John Doe (adult)');
     });
   });
@@ -267,7 +267,7 @@ describe('Schema Transform Tests', () => {
         .xpath('/root/value')
         .transform(n => n * 2);
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toBe(84);
@@ -280,7 +280,7 @@ describe('Schema Transform Tests', () => {
         .xpath('/root/value')
         .transform(() => { throw new Error('Transform failed'); });
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.message).toContain('Transform failed');
@@ -293,7 +293,7 @@ describe('Schema Transform Tests', () => {
         .xpath('/root/value')
         .transform(n => n + 5);
 
-      const result = await schema.safeParseAsync(xml);
+      const result = await schema.safeParse(xml);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toBe(15);

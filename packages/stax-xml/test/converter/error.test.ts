@@ -32,32 +32,32 @@ describe('Error Handling Tests', () => {
       const xml = '<root><value>not a number</value></root>';
       const schema = x.number().xpath('/root/value');
 
-      expect(() => schema.parse(xml)).toThrow(XmlParseError);
-      expect(() => schema.parse(xml)).toThrow('Invalid number');
+      expect(() => schema.parseSync(xml)).toThrow(XmlParseError);
+      expect(() => schema.parseSync(xml)).toThrow('Invalid number');
     });
 
     it('should throw on minimum validation', () => {
       const xml = '<root><age>5</age></root>';
       const schema = x.number().xpath('/root/age').min(10);
 
-      expect(() => schema.parse(xml)).toThrow(XmlParseError);
-      expect(() => schema.parse(xml)).toThrow('less than minimum');
+      expect(() => schema.parseSync(xml)).toThrow(XmlParseError);
+      expect(() => schema.parseSync(xml)).toThrow('less than minimum');
     });
 
     it('should throw on maximum validation', () => {
       const xml = '<root><age>150</age></root>';
       const schema = x.number().xpath('/root/age').max(120);
 
-      expect(() => schema.parse(xml)).toThrow(XmlParseError);
-      expect(() => schema.parse(xml)).toThrow('greater than maximum');
+      expect(() => schema.parseSync(xml)).toThrow(XmlParseError);
+      expect(() => schema.parseSync(xml)).toThrow('greater than maximum');
     });
 
     it('should throw on integer validation', () => {
       const xml = '<root><count>42.5</count></root>';
       const schema = x.number().xpath('/root/count').int();
 
-      expect(() => schema.parse(xml)).toThrow(XmlParseError);
-      expect(() => schema.parse(xml)).toThrow('Expected integer');
+      expect(() => schema.parseSync(xml)).toThrow(XmlParseError);
+      expect(() => schema.parseSync(xml)).toThrow('Expected integer');
     });
   });
 
@@ -66,7 +66,7 @@ describe('Error Handling Tests', () => {
       const xml = '<root><value>42</value></root>';
       const schema = x.number().xpath('/root/value');
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toBe(42);
@@ -77,7 +77,7 @@ describe('Error Handling Tests', () => {
       const xml = '<root><value>not a number</value></root>';
       const schema = x.number().xpath('/root/value');
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBeInstanceOf(XmlParseError);
@@ -89,7 +89,7 @@ describe('Error Handling Tests', () => {
       const xml = '<root><age>5</age></root>';
       const schema = x.number().xpath('/root/age').min(10);
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].code).toBe('too_small');
@@ -103,7 +103,7 @@ describe('Error Handling Tests', () => {
         age: x.number().xpath('/root/age')
       });
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBeInstanceOf(XmlParseError);
@@ -116,7 +116,7 @@ describe('Error Handling Tests', () => {
       const xml = '<root><value>42</value></root>';
       const schema = x.number().xpath('/root/value');
 
-      const result = await schema.safeParseAsync(xml);
+      const result = await schema.safeParse(xml);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toBe(42);
@@ -127,7 +127,7 @@ describe('Error Handling Tests', () => {
       const xml = '<root><value>not a number</value></root>';
       const schema = x.number().xpath('/root/value');
 
-      const result = await schema.safeParseAsync(xml);
+      const result = await schema.safeParse(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBeInstanceOf(XmlParseError);
@@ -138,7 +138,7 @@ describe('Error Handling Tests', () => {
       const xml = '<root><age>5</age></root>';
       const schema = x.number().xpath('/root/age').min(10);
 
-      const result = await schema.safeParseAsync(xml);
+      const result = await schema.safeParse(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].code).toBe('too_small');
@@ -151,19 +151,19 @@ describe('Error Handling Tests', () => {
       const xml = '<list><item>Test</item></list>';
       const schema = x.array(x.string());
 
-      expect(() => schema.parse(xml)).toThrow('requires xpath');
+      expect(() => schema.parseSync(xml)).toThrow('requires xpath');
     });
 
     it('should handle invalid xpath syntax', () => {
       const schema = x.string().xpath('');
       // Empty xpath will be caught during compilation
-      expect(() => schema.parse('<root>test</root>')).toThrow();
+      expect(() => schema.parseSync('<root>test</root>')).toThrow();
     });
 
     it('should handle xpath with invalid characters', () => {
       expect(() => {
         const schema = x.string().xpath('/root;<script>');
-        schema.parse('<root>test</root>');
+        schema.parseSync('<root>test</root>');
       }).toThrow('Invalid characters');
     });
   });
@@ -183,7 +183,7 @@ describe('Error Handling Tests', () => {
 
       const schema = x.string().xpath('//deep');
       expect(() => {
-        schema.parse(xml, { maxDepth: 100 });
+        schema.parseSync(xml, { maxDepth: 100 });
       }).toThrow('depth limit exceeded');
     });
 
@@ -191,7 +191,7 @@ describe('Error Handling Tests', () => {
       const xml = '<a><b><c><d>value</d></c></b></a>';
       const schema = x.string().xpath('//d');
 
-      const result = schema.parse(xml, { maxDepth: 10 });
+      const result = schema.parseSync(xml, { maxDepth: 10 });
       expect(result).toBe('value');
     });
   });
@@ -203,7 +203,7 @@ describe('Error Handling Tests', () => {
         .xpath('/root/value')
         .transform(n => n * 2);
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('Invalid number');
@@ -224,7 +224,7 @@ describe('Error Handling Tests', () => {
         age: x.number().xpath('//age')
       });
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].code).toBe('invalid_number');
@@ -239,7 +239,7 @@ describe('Error Handling Tests', () => {
         .xpath('/root/value')
         .transform(() => { throw new Error('Custom error'); });
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBeInstanceOf(XmlParseError);
@@ -254,7 +254,7 @@ describe('Error Handling Tests', () => {
         .xpath('/root/value')
         .transform(() => { throw 'String error'; });
 
-      const result = schema.safeParse(xml);
+      const result = schema.safeParseSync(xml);
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBeInstanceOf(XmlParseError);
