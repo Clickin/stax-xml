@@ -240,34 +240,43 @@ export class XmlParserInternal {
     startDepth: number,
     shape: Record<string, any>,
     schemaOptions: { xpath?: string },
-    parentActivation?: SchemaActivation
+    stateMachine?: XmlParsingStateMachine,
+    parentContext?: any
   ): T {
-    // Create State Machine instance
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const rootCollector: ObjectCollector = { type: 'object', fields: new Map() };
+    // Use provided State Machine or create new one
+    const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
-    // Register all field schemas with State Machine
-    for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-      const xpath = this.extractXPath(fieldSchema);
-      if (!xpath) continue;
+    // If parentContext has a collector, it might be pre-populated by State Machine
+    // Otherwise create a new collector
+    const rootCollector: ObjectCollector = (parentContext?.collector && parentContext.collector.type === 'object')
+      ? parentContext.collector as ObjectCollector
+      : { type: 'object', fields: new Map() };
 
-      // Create collector for this field
-      const childCollector = this.createCollectorForSchema(fieldSchema);
+    // If collector is empty, we need to register field schemas
+    if (rootCollector.fields.size === 0) {
+      // Register all field schemas with State Machine
+      for (const [fieldName, fieldSchema] of Object.entries(shape)) {
+        const xpath = this.extractXPath(fieldSchema);
+        if (!xpath) continue;
 
-      // Register with State Machine, passing parent activation
-      stateMachine.registerSchema(
-        fieldSchema,
-        xpath,  // State Machine will resolve relative XPath internally
-        childCollector,
-        parentActivation,  // Link to parent for XPath resolution
-        fieldName
-      );
+        // Create collector for this field
+        const childCollector = this.createCollectorForSchema(fieldSchema);
 
-      rootCollector.fields.set(fieldName, childCollector);
+        // Register with State Machine, passing parent context
+        sm.registerSchema(
+          fieldSchema,
+          xpath,  // State Machine will resolve relative XPath internally
+          childCollector,
+          parentContext?.context,  // Link to parent for XPath resolution
+          fieldName
+        );
+
+        rootCollector.fields.set(fieldName, childCollector);
+      }
     }
 
     // Process startEvent
-    stateMachine.processEventSync(startEvent);
+    sm.processEventSync(startEvent);
 
     // Iterate through events using State Machine
     let currentDepth = startDepth;
@@ -277,7 +286,7 @@ export class XmlParserInternal {
       const event = iterResult.value;
 
       // Let State Machine handle event processing
-      stateMachine.processEventSync(event);
+      sm.processEventSync(event);
 
       // Track depth
       if (isStartElement(event)) {
@@ -306,34 +315,43 @@ export class XmlParserInternal {
     startDepth: number,
     shape: Record<string, any>,
     schemaOptions: { xpath?: string },
-    parentActivation?: SchemaActivation
+    stateMachine?: XmlParsingStateMachine,
+    parentContext?: any
   ): Promise<T> {
-    // Create State Machine instance
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const rootCollector: ObjectCollector = { type: 'object', fields: new Map() };
+    // Use provided State Machine or create new one
+    const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
-    // Register all field schemas with State Machine
-    for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-      const xpath = this.extractXPath(fieldSchema);
-      if (!xpath) continue;
+    // If parentContext has a collector, it might be pre-populated by State Machine
+    // Otherwise create a new collector
+    const rootCollector: ObjectCollector = (parentContext?.collector && parentContext.collector.type === 'object')
+      ? parentContext.collector as ObjectCollector
+      : { type: 'object', fields: new Map() };
 
-      // Create collector for this field
-      const childCollector = this.createCollectorForSchema(fieldSchema);
+    // If collector is empty, we need to register field schemas
+    if (rootCollector.fields.size === 0) {
+      // Register all field schemas with State Machine
+      for (const [fieldName, fieldSchema] of Object.entries(shape)) {
+        const xpath = this.extractXPath(fieldSchema);
+        if (!xpath) continue;
 
-      // Register with State Machine, passing parent activation
-      stateMachine.registerSchema(
-        fieldSchema,
-        xpath,  // State Machine will resolve relative XPath internally
-        childCollector,
-        parentActivation,  // Link to parent for XPath resolution
-        fieldName
-      );
+        // Create collector for this field
+        const childCollector = this.createCollectorForSchema(fieldSchema);
 
-      rootCollector.fields.set(fieldName, childCollector);
+        // Register with State Machine, passing parent context
+        sm.registerSchema(
+          fieldSchema,
+          xpath,  // State Machine will resolve relative XPath internally
+          childCollector,
+          parentContext?.context,  // Link to parent for XPath resolution
+          fieldName
+        );
+
+        rootCollector.fields.set(fieldName, childCollector);
+      }
     }
 
     // Process startEvent
-    await stateMachine.processEventAsync(startEvent);
+    await sm.processEventAsync(startEvent);
 
     // Iterate through events using State Machine
     let currentDepth = startDepth;
@@ -343,7 +361,7 @@ export class XmlParserInternal {
       const event = iterResult.value;
 
       // Let State Machine handle event processing
-      await stateMachine.processEventAsync(event);
+      await sm.processEventAsync(event);
 
       // Track depth
       if (isStartElement(event)) {
@@ -375,91 +393,36 @@ export class XmlParserInternal {
     }
 
     const parser = this.createParser(input);
-    const matcher = new XPathMatcher(xpath);
-    const context = this.createContext(matcher);
-    const results: T[] = [];
-    const needsRecursive = this.isComplexSchema(elementSchema);
+    const stateMachine = new XmlParsingStateMachine(this.options);
 
+    // Create array collector
+    const arrayCollector: ArrayCollector<T> = { type: 'array', items: [] };
+
+    // Create a dummy array schema for registration
+    const dummyArraySchema = {
+      constructor: { name: 'XmlArraySchema' },
+      element: elementSchema
+    };
+
+    // Register array schema with State Machine
+    stateMachine.registerSchema(
+      dummyArraySchema as any,
+      xpath,
+      arrayCollector,
+      undefined,  // No parent context for top-level array
+      undefined   // No field name for top-level array
+    );
+
+    // Process all events through State Machine
     for await (const event of parser) {
-      this.checkLimits(context);
-
-      if (isStartElement(event)) {
-        context.currentDepth++;
-        matcher.onStartElement(event);
-
-        if (matcher.matches(event)) {
-          // Found matching element - process it now
-
-          // Check if the element schema has an attribute selector
-          const elementXPath = this.extractXPath(elementSchema);
-          const elementMatcher = elementXPath ? new XPathMatcher(elementXPath) : null;
-
-          if (elementMatcher && elementMatcher.isAttributeSelector()) {
-            const attrName = elementMatcher.getAttributeName();
-            if (attrName && event.attributes) {
-              const attrValue = event.attributes[attrName];
-              if (attrValue !== undefined) {
-                const value = this.parseFieldValue(attrValue, elementSchema);
-                results.push(value);
-              }
-            }
-          } else if (needsRecursive && elementSchema._parseFromPosition) {
-            // Use recursive position-based parsing
-            // Create a temporary activation for the array context
-            const arrayActivation: SchemaActivation = {
-              schema: elementSchema,
-              xpath: xpath,
-              matcher: matcher,
-              depth: context.currentDepth,
-              collector: { type: 'object', fields: new Map() },
-              parentActivation: undefined,
-              fieldName: undefined
-            };
-
-            const value = await elementSchema._parseFromPosition(
-              parser,
-              event,
-              context.currentDepth,
-              this.options,
-              arrayActivation  // Pass activation object
-            );
-            results.push(value);
-            // _parseFromPosition consumed up to and including the closing tag
-            context.currentDepth--;
-          } else if (elementXPath) {
-            // Element has XPath - use object parsing logic for relative path resolution
-            elementMatcher!.onStartElement(event);
-            const value = await this.extractValueWithElementMatcherAsync(
-              parser,
-              event,
-              context.currentDepth,
-              elementMatcher!,
-              elementSchema
-            );
-            results.push(value);
-            // extractValueWithElementMatcherAsync handles depth management
-            context.currentDepth--;
-          } else {
-            // Simple schema without XPath - collect text only
-            const textBuffer = await this.collectTextUntilClose(
-              parser,
-              context.currentDepth
-            );
-            const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
-            results.push(value);
-            // collectTextUntilClose consumed up to the closing tag
-            context.currentDepth--;
-          }
-        }
-      } else if (isEndElement(event)) {
-        context.currentDepth--;
-        matcher.onEndElement();
-      }
-
-      context.eventCount++;
+      await stateMachine.processEventAsync(event);
     }
 
-    return results;
+    // Extract results from collector
+    return this.extractValueFromCollector(arrayCollector, {
+      constructor: { name: 'XmlArraySchema' },
+      element: elementSchema
+    } as any) as T[];
   }
 
   /**
@@ -504,11 +467,15 @@ export class XmlParserInternal {
     startEvent: StartElementEvent,
     startDepth: number,
     elementSchema: any,
-    xpath?: string
+    xpath?: string,
+    stateMachine?: XmlParsingStateMachine
   ): T[] {
     if (!xpath) {
       throw new Error('Array schema requires xpath');
     }
+
+    // Create State Machine if not provided (root level)
+    const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
     const matcher = new XPathMatcher(xpath);
     const results: T[] = [];
@@ -550,7 +517,7 @@ export class XmlParserInternal {
               matcher: matcher,
               depth: currentDepth,
               collector: { type: 'object', fields: new Map() },
-              parentActivation: undefined,
+              context: undefined,
               fieldName: undefined
             };
 
@@ -559,7 +526,8 @@ export class XmlParserInternal {
               event,
               currentDepth,
               this.options,
-              arrayActivation  // Pass activation object
+              sm,  // Pass State Machine
+              arrayActivation  // Pass context
             );
             results.push(value);
             // _parseFromPosition consumed up to and including the closing tag
@@ -615,11 +583,15 @@ export class XmlParserInternal {
     startEvent: StartElementEvent,
     startDepth: number,
     elementSchema: any,
-    xpath?: string
+    xpath?: string,
+    stateMachine?: XmlParsingStateMachine
   ): Promise<T[]> {
     if (!xpath) {
       throw new Error('Array schema requires xpath');
     }
+
+    // Create State Machine if not provided (root level)
+    const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
     const matcher = new XPathMatcher(xpath);
     const results: T[] = [];
@@ -661,7 +633,7 @@ export class XmlParserInternal {
               matcher: matcher,
               depth: currentDepth,
               collector: { type: 'object', fields: new Map() },
-              parentActivation: undefined,
+              context: undefined,
               fieldName: undefined
             };
 
@@ -670,7 +642,8 @@ export class XmlParserInternal {
               event,
               currentDepth,
               this.options,
-              arrayActivation  // Pass activation object
+              sm,  // Pass State Machine
+              arrayActivation  // Pass context
             );
             results.push(value);
             // _parseFromPosition consumed up to and including the closing tag
@@ -729,94 +702,36 @@ export class XmlParserInternal {
       autoDecodeEntities: this.options?.decodeEntities
     });
 
-    const matcher = new XPathMatcher(xpath);
-    const context = this.createContext(matcher);
-    const results: T[] = [];
-    const needsRecursive = this.isComplexSchema(elementSchema);
+    const stateMachine = new XmlParsingStateMachine(this.options);
 
+    // Create array collector
+    const arrayCollector: ArrayCollector<T> = { type: 'array', items: [] };
+
+    // Create a dummy array schema for registration
+    const dummyArraySchema = {
+      constructor: { name: 'XmlArraySchema' },
+      element: elementSchema
+    };
+
+    // Register array schema with State Machine
+    stateMachine.registerSchema(
+      dummyArraySchema as any,
+      xpath,
+      arrayCollector,
+      undefined,  // No parent context for top-level array
+      undefined   // No field name for top-level array
+    );
+
+    // Process all events through State Machine
     for (const event of parser) {
-      this.checkLimits(context);
-
-      if (isStartElement(event)) {
-        context.currentDepth++;
-        matcher.onStartElement(event);
-
-        if (matcher.matches(event)) {
-          // Found matching element - process it now
-
-          // Check if the element schema has an attribute selector
-          const elementXPath = this.extractXPath(elementSchema);
-          const elementMatcher = elementXPath ? new XPathMatcher(elementXPath) : null;
-
-          if (elementMatcher && elementMatcher.isAttributeSelector()) {
-            const attrName = elementMatcher.getAttributeName();
-            if (attrName && event.attributes) {
-              const attrValue = event.attributes[attrName];
-              if (attrValue !== undefined) {
-                const value = this.parseFieldValue(attrValue, elementSchema);
-                results.push(value);
-              }
-            }
-          } else if (needsRecursive && elementSchema._parseFromPosition) {
-            // Use recursive position-based parsing
-            // Create a temporary activation for the array context
-            const arrayActivation: SchemaActivation = {
-              schema: elementSchema,
-              xpath: xpath,
-              matcher: matcher,
-              depth: context.currentDepth,
-              collector: { type: 'object', fields: new Map() },
-              parentActivation: undefined,
-              fieldName: undefined
-            };
-
-            const value = elementSchema._parseFromPosition(
-              parser,
-              event,
-              context.currentDepth,
-              this.options,
-              arrayActivation  // Pass activation object
-            );
-            results.push(value);
-            // _parseFromPosition consumed up to and including the closing tag
-            // Don't manually decrement - the END_ELEMENT will be processed by the main loop
-          } else if (elementXPath) {
-            // Element has XPath - use object parsing logic for relative path resolution
-            elementMatcher!.onStartElement(event);
-            const value = this.extractValueWithElementMatcher(
-              parser,
-              event,
-              context.currentDepth,
-              elementMatcher!,
-              elementSchema
-            );
-            results.push(value);
-            // extractValueWithElementMatcher handles depth management
-            matcher.onEndElement();
-            context.currentDepth--;
-          } else {
-            // Simple schema without XPath - collect text only
-            const textBuffer = this.collectTextUntilCloseSync(
-              parser,
-              context.currentDepth
-            );
-            const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
-            results.push(value);
-            // collectTextUntilCloseSync consumed up to and including the closing tag
-            // We need to manually call onEndElement since the main loop won't see it
-            matcher.onEndElement();
-            context.currentDepth--;
-          }
-        }
-      } else if (isEndElement(event)) {
-        context.currentDepth--;
-        matcher.onEndElement();
-      }
-
-      context.eventCount++;
+      stateMachine.processEventSync(event);
     }
 
-    return results;
+    // Extract results from collector
+    return this.extractValueFromCollector(arrayCollector, {
+      constructor: { name: 'XmlArraySchema' },
+      element: elementSchema
+    } as any) as T[];
   }
 
   /**
@@ -1163,11 +1078,6 @@ export class XmlParserInternal {
    * Extract final value from collector based on schema type
    */
   private extractValueFromCollector(collector: Collector<any>, schema: any): any {
-    const isDebug = false;
-    if (isDebug && collector.type === 'array') {
-      console.log(`[Extract] Array collector items:`, JSON.stringify(collector.items));
-    }
-
     // Check if schema is Optional and collector is empty
     const isOptional = this.isOptionalSchema(schema);
     const isEmpty = (
@@ -1195,17 +1105,11 @@ export class XmlParserInternal {
         const elementUnwrapped = this.unwrapSchema(elementSchema);
         const elementType = elementUnwrapped?.constructor?.name;
 
-        if (isDebug) {
-          console.log(`[Extract] Element schema type:`, elementType);
-          console.log(`[Extract] Has _parseText:`, !!elementSchema?._parseText);
-        }
-
         // Only parse text for scalar types (string, number)
         // Complex types (array, object) are already parsed by the state machine
         if (elementType === 'XmlStringSchema' || elementType === 'XmlNumberSchema') {
           if (elementSchema?._parseText) {
             // Parse text content for each item
-            if (isDebug) console.log(`[Extract] Parsing text for each item`);
             items = items.map((text: string) => elementSchema._parseText(text));
           }
         }
@@ -1214,13 +1118,9 @@ export class XmlParserInternal {
       // Apply all transforms in the schema chain
       const transforms = this.getAllTransforms(schema);
       for (const transformFn of transforms) {
-        if (isDebug) console.log(`[Extract] Applying transform`);
         items = transformFn(items);
       }
 
-      if (isDebug) {
-        console.log(`[Extract] Returning items:`, JSON.stringify(items));
-      }
       return items;
     } else if (collector.type === 'object') {
       // Reconstruct object from field collectors

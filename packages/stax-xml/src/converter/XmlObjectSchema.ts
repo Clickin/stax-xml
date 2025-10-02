@@ -53,7 +53,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     startEvent: StartElementEvent,
     startDepth: number,
     options?: ParseOptions,
-    parentActivation?: SchemaActivation
+    stateMachine?: any,
+    parentContext?: any
   ): InferObjectOutput<T> | Promise<InferObjectOutput<T>> {
     const parser = new XmlParserInternal(options);
 
@@ -70,7 +71,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
           startDepth,
           this.shape,
           this.options,
-          parentActivation
+          stateMachine,
+          parentContext
         ) as Promise<InferObjectOutput<T>>;
       }
     }
@@ -84,7 +86,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
         startDepth,
         this.shape,
         this.options,
-        parentActivation
+        stateMachine,
+        parentContext
       ) as Promise<InferObjectOutput<T>>;
     }
 
@@ -95,7 +98,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       startDepth,
       this.shape,
       this.options,
-      parentActivation
+      stateMachine,
+      parentContext
     ) as InferObjectOutput<T>;
   }
 

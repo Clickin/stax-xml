@@ -72,6 +72,8 @@ export interface SchemaActivation {
   collector: Collector<any>;
   context?: MatchContext; // Context for relative XPath matching
   fieldName?: string; // For object fields
+  isTemporary?: boolean; // Mark dynamically registered schemas for cleanup
+  parentCollector?: Collector<any>; // Parent collector for cleanup tracking
 }
 
 /**
@@ -125,11 +127,6 @@ export class XmlParsingStateMachine {
     if (isStartElement(event)) {
       this.currentDepth++;
 
-      // Debug logging
-      const isDebug = false; // Set to true to enable logging
-      if (isDebug) {
-        console.log(`[SM] START <${event.name}> depth=${this.currentDepth}, activeSchemas=${this.activeSchemas.length}`);
-      }
 
       for (const activation of this.activeSchemas) {
         activation.matcher.onStartElement(event);
@@ -148,26 +145,14 @@ export class XmlParsingStateMachine {
           : (activation.depth === -1 && matches);  // Others activate once
 
         if (shouldActivate) {
-          if (isDebug) {
-            console.log(`[SM]   ✓ Activated: ${activation.fieldName || 'root'} (${this.getSchemaType(activation.schema)}) xpath=${activation.xpath}`);
-          }
           activation.depth = this.currentDepth;
           this.onSchemaActivatedSync(activation, event);
         }
       }
     } else if (isEndElement(event)) {
-      // Debug logging
-      const isDebug = false;
-      if (isDebug) {
-        console.log(`[SM] END </${event.name}> depth=${this.currentDepth}`);
-      }
-
       // Deactivate schemas at current depth
       for (const activation of [...this.activeSchemas]) {
         if (activation.depth === this.currentDepth) {
-          if (isDebug) {
-            console.log(`[SM]   ✗ Deactivated: ${activation.fieldName || 'root'} (${this.getSchemaType(activation.schema)})`);
-          }
           this.onSchemaDeactivatedSync(activation);
           activation.depth = -1;
         }
@@ -248,8 +233,25 @@ export class XmlParsingStateMachine {
   /**
    * Get schema type name (runtime type detection)
    */
+  /**
+   * Unwrap Transform and Optional wrappers
+   */
+  private unwrapSchema(schema: any): any {
+    let unwrapped = schema;
+    while (unwrapped && 'schema' in unwrapped) {
+      const typeName = unwrapped.constructor?.name || '';
+      if (typeName === 'XmlTransformSchema' || typeName === 'XmlOptionalSchema') {
+        unwrapped = unwrapped.schema;
+      } else {
+        break;
+      }
+    }
+    return unwrapped || schema;
+  }
+
   getSchemaType(schema: XmlSchemaBase<any, any>): string {
-    return schema.constructor.name;
+    if (!schema) return 'undefined';
+    return this.unwrapSchema(schema)?.constructor?.name || schema?.constructor?.name || 'unknown';
   }
 
   /**
@@ -267,7 +269,32 @@ export class XmlParsingStateMachine {
     // For relative paths (./price), check depth relative to context
     if (xpath.startsWith('./')) {
       const relativePath = xpath.slice(2);
+
+      // Attribute selectors (./@attr) match at the same depth as context
+      if (relativePath.startsWith('@')) {
+        // This is an attribute selector - it should activate at context depth
+        return this.currentDepth === context.contextDepth && activation.matcher.matches(event);
+      }
+
       const pathSegments = relativePath.split('/').filter(s => s.length > 0);
+
+      // Check for element/@attr pattern (e.g., "./name/@lang")
+      if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 1].startsWith('@')) {
+        // This is an element with an attribute selector
+        // Expected depth is context + (segments - 1) because @attr doesn't increase depth
+        const expectedDepth = context.contextDepth + (pathSegments.length - 1);
+
+        if (this.currentDepth !== expectedDepth) {
+          return false;
+        }
+
+        // Check if element name matches (second to last segment)
+        const elementSegment = pathSegments[pathSegments.length - 2];
+        const elementName = elementSegment.split('[')[0]; // Remove predicates
+
+        return event.name === elementName && activation.matcher.matches(event);
+      }
+
       const expectedDepth = context.contextDepth + pathSegments.length;
 
       // Check depth matches and element name matches the last segment
@@ -346,14 +373,15 @@ export class XmlParsingStateMachine {
           };
 
           // Register object fields with context
-          const shape = (elementSchema as any).shape;
+          const unwrappedElement = this.unwrapSchema(elementSchema);
+          const shape = (unwrappedElement as any).shape;
           for (const [fieldName, fieldSchema] of Object.entries(shape)) {
             const xpath = this.extractXPath(fieldSchema);
             if (!xpath) continue;
 
             const childCollector = this.createCollectorForSchema(fieldSchema);
 
-            this.registerSchema(
+            const activation = this.registerSchema(
               fieldSchema,
               xpath,  // Keep original xpath
               childCollector,
@@ -361,7 +389,24 @@ export class XmlParsingStateMachine {
               fieldName
             );
 
+            // Mark as temporary - should be cleaned up when parent deactivates
+            activation.isTemporary = true;
+            activation.parentCollector = itemCollector; // Track parent for precise cleanup
+
             itemCollector.fields.set(fieldName, childCollector);
+
+            // If this is an attribute selector, activate it immediately on current event
+            if (xpath.startsWith('./@') || xpath.startsWith('@')) {
+              const relativePath = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
+              if (event.attributes && relativePath in event.attributes) {
+                const attrValue = event.attributes[relativePath];
+                if (childCollector.type === 'string') {
+                  childCollector.value = attrValue;
+                } else if (childCollector.type === 'number') {
+                  childCollector.value = parseFloat(attrValue);
+                }
+              }
+            }
           }
 
           arrayCollector.currentItem = itemCollector;
@@ -405,7 +450,8 @@ export class XmlParsingStateMachine {
       case 'XmlObjectSchema':
         // Object matched - dynamically register field schemas
         const objectCollector = activation.collector as ObjectCollector;
-        const shape = (activation.schema as any).shape as Record<string, any>;
+        const unwrappedObject = this.unwrapSchema(activation.schema);
+        const shape = (unwrappedObject as any).shape as Record<string, any>;
 
         // Create context for this object's fields
         const objectContext: MatchContext = {
@@ -433,6 +479,19 @@ export class XmlParsingStateMachine {
 
           // Store collector in object's fields map
           objectCollector.fields.set(fieldName, childCollector);
+
+          // If this is an attribute selector, activate it immediately on current event
+          if (xpath.startsWith('./@') || xpath.startsWith('@')) {
+            const relativePath = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
+            if (event.attributes && relativePath in event.attributes) {
+              const attrValue = event.attributes[relativePath];
+              if (childCollector.type === 'string') {
+                childCollector.value = attrValue;
+              } else if (childCollector.type === 'number') {
+                childCollector.value = parseFloat(attrValue);
+              }
+            }
+          }
         }
         break;
     }
@@ -467,10 +526,6 @@ export class XmlParsingStateMachine {
       case 'XmlArraySchema':
         // Array element finished - add to items
         const arrayCollector = activation.collector as ArrayCollector<any>;
-        const isDebug = false;
-        if (isDebug) {
-          console.log(`[SM]     Array deactivate: currentItem=`, arrayCollector.currentItem ? JSON.stringify(arrayCollector.currentItem, (k, v) => v instanceof Map ? `Map(${v.size})` : v) : 'undefined');
-        }
         if (arrayCollector.currentItem) {
           const elementSchema = (activation.schema as any).element;
           const elementType = this.getSchemaType(elementSchema);
@@ -483,25 +538,25 @@ export class XmlParsingStateMachine {
               arrayCollector.currentItem,
               elementSchema
             );
-            if (isDebug) console.log(`[SM]     Pushing object:`, itemObject);
             arrayCollector.items.push(itemObject);
           } else if (elementType === 'XmlArraySchema' &&
                      typeof arrayCollector.currentItem === 'object' &&
                      'items' in arrayCollector.currentItem) {
             // Complex element: nested array
-            if (isDebug) console.log(`[SM]     Pushing nested array:`, arrayCollector.currentItem.items);
             arrayCollector.items.push(arrayCollector.currentItem.items);
           } else if ('buffer' in arrayCollector.currentItem) {
             // Simple element: text
             const text = arrayCollector.currentItem.buffer.trim();
-            if (isDebug) console.log(`[SM]     Pushing text:`, text);
             arrayCollector.items.push(text);
           }
 
+          // Clean up temporary child schemas for this array item
+          // Only remove schemas that were registered with this specific collector
+          this.activeSchemas = this.activeSchemas.filter(a =>
+            !(a.isTemporary && a.parentCollector === arrayCollector.currentItem)
+          );
+
           arrayCollector.currentItem = undefined;
-        }
-        if (isDebug) {
-          console.log(`[SM]     Array items count: ${arrayCollector.items.length}`);
         }
         break;
 
@@ -631,18 +686,67 @@ export class XmlParsingStateMachine {
     collector: ObjectCollector,
     schema: any
   ): any {
-    const result: any = {};
-    const shape = (schema as any).shape;
+    let result: any = {};
+    const unwrappedSchema = this.unwrapSchema(schema);
+    const shape = (unwrappedSchema as any).shape;
 
+    // 1. Extract field values from collectors
     for (const [fieldName, fieldCollector] of collector.fields) {
       const fieldSchema = shape[fieldName];
       if (fieldSchema) {
-        // Simple extraction
-        result[fieldName] = this.extractSimpleValue(fieldCollector);
+        // Recursively extract, applying field-level transforms
+        result[fieldName] = this.extractValueWithTransforms(fieldCollector, fieldSchema);
       }
     }
 
+    // 2. Apply object-level transforms
+    const transforms = this.getAllTransforms(schema);
+    for (const transformFn of transforms) {
+      result = transformFn(result);
+    }
+
     return result;
+  }
+
+  /**
+   * Get all transform functions from schema chain
+   * @internal
+   */
+  private getAllTransforms(schema: any): Array<(value: any) => any> {
+    const transforms: Array<(value: any) => any> = [];
+    let current = schema;
+
+    while (current) {
+      const typeName = current?.constructor?.name || '';
+      if (typeName === 'XmlTransformSchema') {
+        if (current.transformFn) {
+          transforms.unshift(current.transformFn); // Prepend for correct order
+        }
+        current = current.schema;
+      } else if (typeName === 'XmlOptionalSchema') {
+        current = current.schema;
+      } else {
+        break;
+      }
+    }
+
+    return transforms;
+  }
+
+  /**
+   * Extract value with field-level transforms
+   * @internal
+   */
+  private extractValueWithTransforms(collector: Collector<any>, schema: any): any {
+    let value = this.extractSimpleValue(collector);
+
+    // Apply transforms for this field
+    const transforms = this.getAllTransforms(schema);
+    for (const transformFn of transforms) {
+      value = transformFn(value);
+    }
+
+    return value;
   }
 
   /**

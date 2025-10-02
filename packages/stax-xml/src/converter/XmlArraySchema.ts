@@ -35,7 +35,9 @@ export class XmlArraySchema<T extends XmlSchemaBase<any, any>> extends XmlSchema
     iterator: Iterator<AnyXmlEvent> | AsyncIterator<AnyXmlEvent>,
     startEvent: StartElementEvent,
     startDepth: number,
-    options?: ParseOptions
+    options?: ParseOptions,
+    stateMachine?: any,
+    parentContext?: any
   ): T['_output'][] | Promise<T['_output'][]> {
     const parser = new XmlParserInternal(options);
 
@@ -48,7 +50,8 @@ export class XmlArraySchema<T extends XmlSchemaBase<any, any>> extends XmlSchema
         startEvent,
         startDepth,
         this.element,
-        this.xpath
+        this.xpath,
+        stateMachine
       ) as Promise<T['_output'][]>;
     }
 
@@ -58,7 +61,8 @@ export class XmlArraySchema<T extends XmlSchemaBase<any, any>> extends XmlSchema
       startEvent,
       startDepth,
       this.element,
-      this.xpath
+      this.xpath,
+      stateMachine
     ) as T['_output'][];
   }
 
