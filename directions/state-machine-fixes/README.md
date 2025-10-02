@@ -10,20 +10,25 @@
 
 ```
 directions/state-machine-fixes/
-├── README.md                  ← You are here
+├── START_HERE.md              ← 🚀 NEXT AGENT: START HERE (Quick guide)
+├── HANDOFF_20251002.md        ← Latest session summary
+├── README.md                  ← You are here (Overview)
 ├── CURRENT_STATUS.md          ← What was accomplished
 ├── NEXT_TASKS.md              ← What to do next (PRIORITY ORDER)
-├── ARCHITECTURE_NOTES.md      ← Deep technical understanding
-└── TESTING_GUIDE.md           ← How to test changes
+└── ARCHITECTURE_NOTES.md      ← Deep technical understanding
 ```
 
 ---
 
 ## 🎯 Quick Start for Next Agent
 
-### 0. Read Latest Handoff (5 min)
+### 0. ⚡ Fastest Start
 
-**IMPORTANT**: Start with `HANDOFF_20251002.md` for the latest session summary.
+**Read `START_HERE.md` first** - 10 minute quick guide to get started immediately.
+
+### Alternative: Full Context
+
+**Read `HANDOFF_20251002.md`** - Complete session summary with architecture overview.
 
 ### 1. Read in This Order
 
