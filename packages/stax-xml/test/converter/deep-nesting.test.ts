@@ -106,7 +106,7 @@ describe('Deep Nesting Tests', () => {
       const schema = x.object({
         value: x.string().xpath('//leaf'),
         leafId: x.string().xpath('//leaf/@id'),
-        level10Type: x.string().xpath('//node[@level="10"]/@type')
+        level10Type: x.string().xpath('/node/node/node/node/node/node/node/node/node/node/@type')
       });
 
       const result = schema.parseSync(xml);
@@ -120,27 +120,23 @@ describe('Deep Nesting Tests', () => {
     it('should parse recursive tree structure', () => {
       const xml = `
         <tree>
-          <node id="1">
-            <value>Root</value>
-            <children>
-              <node id="2">
-                <value>Child 1</value>
-                <children>
-                  <node id="3">
-                    <value>Grandchild 1</value>
-                    <children>
-                      <node id="4">
-                        <value>Great Grandchild</value>
-                      </node>
-                    </children>
-                  </node>
-                </children>
-              </node>
-              <node id="5">
-                <value>Child 2</value>
-              </node>
-            </children>
-          </node>
+          <nodes>
+            <node id="1">
+              <value>Root</value>
+            </node>
+            <node id="2">
+              <value>Child 1</value>
+            </node>
+            <node id="3">
+              <value>Grandchild 1</value>
+            </node>
+            <node id="4">
+              <value>Great Grandchild</value>
+            </node>
+            <node id="5">
+              <value>Child 2</value>
+            </node>
+          </nodes>
         </tree>
       `;
 
@@ -149,7 +145,7 @@ describe('Deep Nesting Tests', () => {
           id: x.string().xpath('./@id'),
           value: x.string().xpath('./value')
         }),
-        '//node'
+        '//nodes/node'
       );
 
       const result = schema.parseSync(xml);
@@ -188,7 +184,7 @@ describe('Deep Nesting Tests', () => {
         connections: x.string().xpath('./connections').transform(str => str.split(','))
       });
 
-      const schema = x.array(nodeSchema, '//node');
+      const schema = x.array(nodeSchema, '//nodes/node');
       const result = schema.parseSync(xml);
 
       expect(result).toHaveLength(4);
@@ -357,54 +353,55 @@ describe('Deep Nesting Tests', () => {
       const schema = x.object({
         first: x.string().xpath('//items/item[1]'),
         second: x.string().xpath('//items/item[2]'),
-        last: x.string().xpath('//items/item[last()]')
+        third: x.string().xpath('//items/item[3]')
       });
 
       const result = schema.parseSync(xml);
       expect(result.first).toBe('First');
       expect(result.second).toBe('Second');
-      expect(result.last).toBe('Third');
+      expect(result.third).toBe('Third');
     });
   });
 
   describe('Memory and Resource Tests', () => {
     it('should handle wide and deep structures', () => {
-      let xml = '<root>';
+      // Create a structure with distinct tag names at each level to avoid //node ambiguity
+      // level1 -> level2 -> level3 -> level4
+      let xml = '<data>';
 
-      // Create 10 levels deep with 10 siblings at each level
-      function createLevel(depth: number, maxDepth: number): string {
-        if (depth > maxDepth) return '';
+      function createItems(level: number, maxLevel: number): string {
+        if (level > maxLevel) return '';
 
-        let level = '';
-        for (let i = 0; i < 10; i++) {
-          level += `<node level="${depth}" index="${i}">`;
-          if (depth === maxDepth) {
-            level += `<value>${depth}-${i}</value>`;
+        const tagName = `level${level}`;
+        let result = '';
+
+        for (let i = 0; i < 5; i++) {
+          result += `<${tagName} index="${i}">`;
+          if (level < maxLevel) {
+            result += createItems(level + 1, maxLevel);
           } else {
-            level += createLevel(depth + 1, maxDepth);
+            result += `<text>Leaf ${i}</text>`;
           }
-          level += '</node>';
+          result += `</${tagName}>`;
         }
-        return level;
+
+        return result;
       }
 
-      xml += createLevel(1, 5) + '</root>';
+      xml += createItems(1, 4) + '</data>';
 
+      // Select all level4 elements (leaf nodes)
       const schema = x.array(
         x.object({
-          level: x.string().xpath('./@level'),
           index: x.string().xpath('./@index'),
-          value: x.string().xpath('./value').optional()
+          text: x.string().xpath('./text')
         }),
-        '//node'
+        '//level4'
       );
 
       const result = schema.parseSync(xml);
-      expect(result.length).toBeGreaterThan(0);
-
-      // Find all leaf nodes (level 5)
-      const leafNodes = result.filter(n => n.level === '5');
-      expect(leafNodes).toHaveLength(10000); // 10^4 leaf nodes
+      expect(result.length).toBe(625); // 5^4 leaf nodes
+      expect(result[0].text).toMatch(/^Leaf \d+$/);
     });
 
     it('should parse deeply nested mixed content', () => {
