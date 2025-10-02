@@ -104,6 +104,10 @@ export class XmlStringSchema extends XmlSchema<string, string> {
    * @returns New schema with XPath
    */
   xpath(path: string): XmlStringSchema {
+    // Validate XPath immediately
+    if (!path || path.length === 0) {
+      throw new Error('XPath cannot be empty');
+    }
     return new XmlStringSchema({ ...this.options, xpath: path });
   }
 
@@ -142,7 +146,8 @@ export class XmlStringSchema extends XmlSchema<string, string> {
     if (this.writeConfig?.cdata) {
       writer.writeCData(content);
     } else {
-      writer.writeCharacters(content);
+      // _writeContent already escaped the content, so write as raw
+      writer.writeRaw(content);
     }
 
     // Close elements

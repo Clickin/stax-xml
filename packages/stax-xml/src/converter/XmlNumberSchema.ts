@@ -151,6 +151,10 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    * @returns New schema with XPath
    */
   xpath(path: string): XmlNumberSchema {
+    // Validate XPath immediately
+    if (!path || path.length === 0) {
+      throw new Error('XPath cannot be empty');
+    }
     return new XmlNumberSchema({ ...this.options, xpath: path });
   }
 

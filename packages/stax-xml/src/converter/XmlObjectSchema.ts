@@ -115,6 +115,10 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
    * @returns New schema with XPath
    */
   xpath(path: string): XmlObjectSchema<T> {
+    // Validate XPath immediately
+    if (!path || path.length === 0) {
+      throw new Error('XPath cannot be empty');
+    }
     return new XmlObjectSchema(this.shape, { ...this.options, xpath: path });
   }
 
@@ -220,8 +224,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
         // Already XML, write as raw
         writer.writeRaw(rawContent);
       } else {
-        // Plain text, write as characters
-        writer.writeCharacters(rawContent);
+        // Plain text - _writeContent already escaped it, so write as raw
+        writer.writeRaw(rawContent);
       }
 
       writer.writeEndElement();

@@ -155,9 +155,8 @@ describe('Error Handling Tests', () => {
     });
 
     it('should handle invalid xpath syntax', () => {
-      const schema = x.string().xpath('');
-      // Empty xpath will be caught during compilation
-      expect(() => schema.parseSync('<root>test</root>')).toThrow();
+      // Empty xpath will be caught immediately when setting xpath
+      expect(() => x.string().xpath('')).toThrow('XPath cannot be empty');
     });
 
     it('should handle xpath with invalid characters', () => {

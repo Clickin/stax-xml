@@ -90,9 +90,10 @@ export class XmlArraySchema<T extends XmlSchemaBase<any, any>> extends XmlSchema
     }
 
     // Write each array item without declaration
+    const elementConfig = (this.element as any).writeConfig;
     const nestedOptions: XmlWriteOptions = {
       ...options,
-      rootElement: undefined,
+      rootElement: elementConfig?.element, // Use element's configured element name
       includeDeclaration: false
     };
 

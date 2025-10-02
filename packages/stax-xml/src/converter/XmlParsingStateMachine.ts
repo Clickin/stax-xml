@@ -466,7 +466,8 @@ export class XmlParsingStateMachine {
         } else if (activation.collector.type === 'string') {
           activation.collector.value = value;
         } else if (activation.collector.type === 'number') {
-          activation.collector.value = parseFloat(value);
+          // Call schema's _parseText to apply validation
+          activation.collector.value = (activation.schema as any)._parseText(value);
         }
 
         // Immediately deactivate - no need to process children
@@ -529,7 +530,8 @@ export class XmlParsingStateMachine {
               if (childCollector.type === 'string') {
                 childCollector.value = attrValue;
               } else if (childCollector.type === 'number') {
-                childCollector.value = parseFloat(attrValue);
+                // Call schema's _parseText to apply validation
+                childCollector.value = (fieldSchema as any)._parseText(attrValue);
               }
             }
           }
@@ -561,7 +563,8 @@ export class XmlParsingStateMachine {
       case 'XmlNumberSchema':
         const numberCollector = activation.collector as NumberCollector;
         const text = numberCollector.buffer.trim();
-        numberCollector.value = text ? parseFloat(text) : NaN;
+        // Call schema's _parseText to apply validation (min/max/int checks)
+        numberCollector.value = (activation.schema as any)._parseText(text);
         break;
 
       case 'XmlArraySchema':
