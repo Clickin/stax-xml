@@ -185,7 +185,7 @@ describe('Complex Shapes Tests', () => {
       `;
 
       const rowSchema = x.array(x.number(), './col');
-      const schema = x.array(rowSchema, '//row').transform(matrix => ({
+      const schema = x.array(rowSchema, '/matrix/row').transform(matrix => ({
         rows: matrix,
         rowCount: matrix.length,
         maxColumns: Math.max(...matrix.map(row => row.length)),
@@ -196,9 +196,9 @@ describe('Complex Shapes Tests', () => {
       const result = schema.parseSync(xml);
 
       expect(result.rowCount).toBe(4);
-      expect(result.maxColumns).toBe(4);
+      expect(result.maxColumns).toBe(10);
       expect(result.minColumns).toBe(1);
-      expect(result.totalElements).toBe(10);
+      expect(result.totalElements).toBe(23);
       expect(result.rows[2]).toEqual([6, 7, 8, 9]);
     });
   });

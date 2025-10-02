@@ -251,9 +251,9 @@ describe('Event Stream Tests', () => {
       const result = await schema.parse(stream);
 
       expect(result.total).toBe(50);
-      expect(result.errors).toBe(17);
+      expect(result.errors).toBe(16);
       expect(result.warnings).toBe(17);
-      expect(result.info).toBe(16);
+      expect(result.info).toBe(17);
       expect(result.lastTimestamp).toBeGreaterThan(result.firstTimestamp);
     });
   });

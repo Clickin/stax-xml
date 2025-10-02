@@ -422,13 +422,17 @@ export class XmlParsingStateMachine {
       // Register nested array with context
       const nestedXPath = (elementSchema as any).xpath;
       if (nestedXPath) {
-        this.registerSchema(
+        const nestedActivation = this.registerSchema(
           elementSchema,
           nestedXPath,  // Keep original xpath
           itemCollector,
           nestedContext,  // Pass context
           undefined
         );
+
+        // Mark as temporary - should be cleaned up when parent array item deactivates
+        nestedActivation.isTemporary = true;
+        nestedActivation.parentCollector = itemCollector;
       }
 
       arrayCollector.currentItem = itemCollector;
