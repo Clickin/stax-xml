@@ -3,6 +3,7 @@ import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import { XmlWriterInternal } from './XmlWriterInternal.js';
+import type { SchemaActivation } from './XmlParsingStateMachine.js';
 
 /**
  * Shape type for object schema
@@ -51,7 +52,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     iterator: Iterator<AnyXmlEvent> | AsyncIterator<AnyXmlEvent>,
     startEvent: StartElementEvent,
     startDepth: number,
-    options?: ParseOptions
+    options?: ParseOptions,
+    parentActivation?: SchemaActivation
   ): InferObjectOutput<T> | Promise<InferObjectOutput<T>> {
     const parser = new XmlParserInternal(options);
 
@@ -67,7 +69,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
           startEvent,
           startDepth,
           this.shape,
-          this.options
+          this.options,
+          parentActivation
         ) as Promise<InferObjectOutput<T>>;
       }
     }
@@ -80,7 +83,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
         startEvent,
         startDepth,
         this.shape,
-        this.options
+        this.options,
+        parentActivation
       ) as Promise<InferObjectOutput<T>>;
     }
 
@@ -90,7 +94,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       startEvent,
       startDepth,
       this.shape,
-      this.options
+      this.options,
+      parentActivation
     ) as InferObjectOutput<T>;
   }
 
