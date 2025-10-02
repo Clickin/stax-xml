@@ -140,13 +140,25 @@ export class XmlParsingStateMachine {
         // Check if this schema should activate using context-aware matching
         const isArraySchema = this.getSchemaType(activation.schema) === 'XmlArraySchema';
         const matches = this.matchesInContext(event, activation);
+
+        // O(n) optimization: Arrays activate only once, then create items for subsequent matches
         const shouldActivate = isArraySchema
-          ? matches  // Arrays activate on every match
+          ? (activation.depth === -1 && matches)  // Activate once like others
           : (activation.depth === -1 && matches);  // Others activate once
 
         if (shouldActivate) {
           activation.depth = this.currentDepth;
           this.onSchemaActivatedSync(activation, event);
+        } else {
+          // Handle already-active array matches
+          const isActiveArrayMatch = isArraySchema
+            && activation.depth !== -1  // Already active
+            && matches;  // Matches again
+
+          if (isActiveArrayMatch) {
+            // Create new item WITHOUT activating again
+            this.createArrayItemSync(activation, event);
+          }
         }
       }
     } else if (isEndElement(event)) {
@@ -193,13 +205,25 @@ export class XmlParsingStateMachine {
         // Check if this schema should activate using context-aware matching
         const isArraySchema = this.getSchemaType(activation.schema) === 'XmlArraySchema';
         const matches = this.matchesInContext(event, activation);
+
+        // O(n) optimization: Arrays activate only once, then create items for subsequent matches
         const shouldActivate = isArraySchema
-          ? matches  // Arrays activate on every match
+          ? (activation.depth === -1 && matches)  // Activate once like others
           : (activation.depth === -1 && matches);  // Others activate once
 
         if (shouldActivate) {
           activation.depth = this.currentDepth;
           await this.onSchemaActivated(activation, event);
+        } else {
+          // Handle already-active array matches
+          const isActiveArrayMatch = isArraySchema
+            && activation.depth !== -1  // Already active
+            && matches;  // Matches again
+
+          if (isActiveArrayMatch) {
+            // Create new item WITHOUT activating again
+            await this.createArrayItemAsync(activation, event);
+          }
         }
       }
     } else if (isEndElement(event)) {
@@ -319,6 +343,114 @@ export class XmlParsingStateMachine {
   }
 
   /**
+   * Create a new array item for an already-active array schema (sync)
+   * @internal
+   */
+  private createArrayItemSync(activation: SchemaActivation, event: StartElementEvent): void {
+    const arrayCollector = activation.collector as ArrayCollector<any>;
+    const elementSchema = (activation.schema as any).element;
+    const elementType = this.getSchemaType(elementSchema);
+
+    if (elementType === 'XmlObjectSchema') {
+      // Complex element: object
+      const itemCollector: ObjectCollector = {
+        type: 'object',
+        fields: new Map()
+      };
+
+      // Create context for this array item (object)
+      const itemContext: MatchContext = {
+        contextElement: event,
+        contextDepth: this.currentDepth,
+        parentContext: activation.context,
+        contextXPath: activation.xpath
+      };
+
+      // Register object fields with context
+      const unwrappedElement = this.unwrapSchema(elementSchema);
+      const shape = (unwrappedElement as any).shape;
+      for (const [fieldName, fieldSchema] of Object.entries(shape)) {
+        const xpath = this.extractXPath(fieldSchema);
+        if (!xpath) continue;
+
+        const childCollector = this.createCollectorForSchema(fieldSchema);
+
+        const activation = this.registerSchema(
+          fieldSchema,
+          xpath,  // Keep original xpath
+          childCollector,
+          itemContext,  // Pass context for relative matching
+          fieldName
+        );
+
+        // Mark as temporary - should be cleaned up when parent deactivates
+        activation.isTemporary = true;
+        activation.parentCollector = itemCollector; // Track parent for precise cleanup
+
+        itemCollector.fields.set(fieldName, childCollector);
+
+        // If this is an attribute selector, activate it immediately on current event
+        if (xpath.startsWith('./@') || xpath.startsWith('@')) {
+          const relativePath = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
+          if (event.attributes && relativePath in event.attributes) {
+            const attrValue = event.attributes[relativePath];
+            if (childCollector.type === 'string') {
+              childCollector.value = attrValue;
+            } else if (childCollector.type === 'number') {
+              childCollector.value = parseFloat(attrValue);
+            }
+          }
+        }
+      }
+
+      arrayCollector.currentItem = itemCollector;
+    } else if (elementType === 'XmlArraySchema') {
+      // Complex element: nested array
+      const itemCollector: ArrayCollector<any> = {
+        type: 'array',
+        items: []
+      };
+
+      // Create context for nested array
+      const nestedContext: MatchContext = {
+        contextElement: event,
+        contextDepth: this.currentDepth,
+        parentContext: activation.context,
+        contextXPath: activation.xpath
+      };
+
+      // Register nested array with context
+      const nestedXPath = (elementSchema as any).xpath;
+      if (nestedXPath) {
+        this.registerSchema(
+          elementSchema,
+          nestedXPath,  // Keep original xpath
+          itemCollector,
+          nestedContext,  // Pass context
+          undefined
+        );
+      }
+
+      arrayCollector.currentItem = itemCollector;
+    } else {
+      // Simple element: string/number
+      arrayCollector.currentItem = {
+        depth: this.currentDepth,
+        buffer: ''
+      };
+    }
+  }
+
+  /**
+   * Create a new array item for an already-active array schema (async)
+   * @internal
+   */
+  private async createArrayItemAsync(activation: SchemaActivation, event: StartElementEvent): Promise<void> {
+    // Same logic as sync version for now
+    this.createArrayItemSync(activation, event);
+  }
+
+  /**
    * Schema activated (sync)
    */
   private onSchemaActivatedSync(activation: SchemaActivation, event: StartElementEvent): void {
@@ -352,99 +484,8 @@ export class XmlParsingStateMachine {
         break;
 
       case 'XmlArraySchema':
-        // Array element matched - start collecting
-        const arrayCollector = activation.collector as ArrayCollector<any>;
-        const elementSchema = (activation.schema as any).element;
-        const elementType = this.getSchemaType(elementSchema);
-
-        if (elementType === 'XmlObjectSchema') {
-          // Complex element: object
-          const itemCollector: ObjectCollector = {
-            type: 'object',
-            fields: new Map()
-          };
-
-          // Create context for this array item (object)
-          const itemContext: MatchContext = {
-            contextElement: event,
-            contextDepth: this.currentDepth,
-            parentContext: activation.context,
-            contextXPath: activation.xpath
-          };
-
-          // Register object fields with context
-          const unwrappedElement = this.unwrapSchema(elementSchema);
-          const shape = (unwrappedElement as any).shape;
-          for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-            const xpath = this.extractXPath(fieldSchema);
-            if (!xpath) continue;
-
-            const childCollector = this.createCollectorForSchema(fieldSchema);
-
-            const activation = this.registerSchema(
-              fieldSchema,
-              xpath,  // Keep original xpath
-              childCollector,
-              itemContext,  // Pass context for relative matching
-              fieldName
-            );
-
-            // Mark as temporary - should be cleaned up when parent deactivates
-            activation.isTemporary = true;
-            activation.parentCollector = itemCollector; // Track parent for precise cleanup
-
-            itemCollector.fields.set(fieldName, childCollector);
-
-            // If this is an attribute selector, activate it immediately on current event
-            if (xpath.startsWith('./@') || xpath.startsWith('@')) {
-              const relativePath = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
-              if (event.attributes && relativePath in event.attributes) {
-                const attrValue = event.attributes[relativePath];
-                if (childCollector.type === 'string') {
-                  childCollector.value = attrValue;
-                } else if (childCollector.type === 'number') {
-                  childCollector.value = parseFloat(attrValue);
-                }
-              }
-            }
-          }
-
-          arrayCollector.currentItem = itemCollector;
-        } else if (elementType === 'XmlArraySchema') {
-          // Complex element: nested array
-          const itemCollector: ArrayCollector<any> = {
-            type: 'array',
-            items: []
-          };
-
-          // Create context for nested array
-          const nestedContext: MatchContext = {
-            contextElement: event,
-            contextDepth: this.currentDepth,
-            parentContext: activation.context,
-            contextXPath: activation.xpath
-          };
-
-          // Register nested array with context
-          const nestedXPath = (elementSchema as any).xpath;
-          if (nestedXPath) {
-            this.registerSchema(
-              elementSchema,
-              nestedXPath,  // Keep original xpath
-              itemCollector,
-              nestedContext,  // Pass context
-              undefined
-            );
-          }
-
-          arrayCollector.currentItem = itemCollector;
-        } else {
-          // Simple element: string/number
-          arrayCollector.currentItem = {
-            depth: this.currentDepth,
-            buffer: ''
-          };
-        }
+        // Array element matched - start collecting first item
+        this.createArrayItemSync(activation, event);
         break;
 
       case 'XmlObjectSchema':
