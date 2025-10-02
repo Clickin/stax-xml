@@ -198,9 +198,11 @@ export class XPathMatcher {
   private positionStack: number[] = [];
   private compiled: CompiledXPath;
   private elementStack: StartElementEvent[] = [];
+  private contextDepth?: number; // Depth for relative path context
 
-  constructor(xpath: string) {
+  constructor(xpath: string, contextDepth?: number) {
     this.compiled = XPathCompiler.compile(xpath);
+    this.contextDepth = contextDepth;
   }
 
   onStartElement(event: StartElementEvent): void {
@@ -285,9 +287,15 @@ export class XPathMatcher {
   }
 
   private matchesRelative(event: StartElementEvent, segments: XPathSegment[]): boolean {
-    // Match from any depth
+    // Match from context depth if specified, otherwise from any depth
     const currentDepth = this.currentPath.length;
 
+    if (this.contextDepth !== undefined) {
+      // Relative path with context: match only from context depth
+      return this.matchesFromDepth(event, segments, this.contextDepth);
+    }
+
+    // No context: match from any depth (legacy behavior)
     for (let startDepth = 0; startDepth < currentDepth; startDepth++) {
       if (this.matchesFromDepth(event, segments, startDepth)) {
         return true;

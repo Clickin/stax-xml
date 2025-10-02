@@ -779,7 +779,9 @@ export class XmlParsingStateMachine {
    * @internal
    */
   private extractValueWithTransforms(collector: Collector<any>, schema: any): any {
-    let value = this.extractSimpleValue(collector);
+    // Check if schema is optional
+    const isOptional = this.isOptionalSchema(schema);
+    let value = this.extractSimpleValue(collector, isOptional);
 
     // Apply transforms for this field
     const transforms = this.getAllTransforms(schema);
@@ -794,9 +796,14 @@ export class XmlParsingStateMachine {
    * Extract simple value from collector (without transforms)
    * @internal
    */
-  private extractSimpleValue(collector: Collector<any>): any {
+  private extractSimpleValue(collector: Collector<any>, isOptional: boolean = false): any {
     if (collector.type === 'string') {
-      return collector.value ?? '';
+      const stringValue = collector.value ?? '';
+      // For optional schemas, treat empty string as undefined
+      if (isOptional && stringValue === '') {
+        return undefined;
+      }
+      return stringValue;
     } else if (collector.type === 'number') {
       return collector.value ?? NaN;
     } else if (collector.type === 'array') {
@@ -805,10 +812,31 @@ export class XmlParsingStateMachine {
       // Recursively extract object fields
       const result: any = {};
       for (const [key, childCollector] of collector.fields) {
-        result[key] = this.extractSimpleValue(childCollector);
+        result[key] = this.extractSimpleValue(childCollector, false);
       }
       return result;
     }
     return undefined;
+  }
+
+  /**
+   * Check if schema is wrapped in XmlOptionalSchema
+   * @internal
+   */
+  private isOptionalSchema(schema: any): boolean {
+    if (!schema) return false;
+    let current = schema;
+    while (current) {
+      const typeName = current?.constructor?.name || '';
+      if (typeName === 'XmlOptionalSchema') {
+        return true;
+      }
+      if (typeName === 'XmlTransformSchema' && current.schema) {
+        current = current.schema;
+      } else {
+        break;
+      }
+    }
+    return false;
   }
 }

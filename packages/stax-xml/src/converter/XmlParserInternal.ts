@@ -477,7 +477,9 @@ export class XmlParserInternal {
     // Create State Machine if not provided (root level)
     const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
-    const matcher = new XPathMatcher(xpath);
+    // For relative paths, pass the context depth (startDepth) to the matcher
+    const isRelativePath = xpath.startsWith('./') || xpath === '.';
+    const matcher = new XPathMatcher(xpath, isRelativePath ? startDepth : undefined);
     const results: T[] = [];
     const needsRecursive = this.isComplexSchema(elementSchema);
     let currentDepth = startDepth;
@@ -593,7 +595,9 @@ export class XmlParserInternal {
     // Create State Machine if not provided (root level)
     const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
-    const matcher = new XPathMatcher(xpath);
+    // For relative paths, pass the context depth (startDepth) to the matcher
+    const isRelativePath = xpath.startsWith('./') || xpath === '.';
+    const matcher = new XPathMatcher(xpath, isRelativePath ? startDepth : undefined);
     const results: T[] = [];
     const needsRecursive = this.isComplexSchema(elementSchema);
     let currentDepth = startDepth;
@@ -1081,7 +1085,7 @@ export class XmlParserInternal {
     // Check if schema is Optional and collector is empty
     const isOptional = this.isOptionalSchema(schema);
     const isEmpty = (
-      (collector.type === 'string' && !collector.value) ||
+      (collector.type === 'string' && !collector.value && !collector.buffer) ||
       (collector.type === 'number' && collector.value === undefined) ||
       (collector.type === 'array' && collector.items.length === 0) ||
       (collector.type === 'object' && collector.fields.size === 0)
@@ -1092,7 +1096,12 @@ export class XmlParserInternal {
     }
 
     if (collector.type === 'string') {
-      return collector.value ?? '';
+      const stringValue = collector.value ?? '';
+      // For optional schemas, treat empty string as undefined
+      if (isOptional && stringValue === '') {
+        return undefined;
+      }
+      return stringValue;
     } else if (collector.type === 'number') {
       return collector.value ?? NaN;
     } else if (collector.type === 'array') {

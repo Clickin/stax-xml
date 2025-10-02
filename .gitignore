@@ -15,6 +15,7 @@ packages/*/dist
 packages/*/coverage
 packages/*/node_modules
 coverage/
+directions
 
 # IDE
 .vscode
