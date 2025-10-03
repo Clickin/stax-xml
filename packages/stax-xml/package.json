@@ -12,6 +12,7 @@
     "starlight-typedoc": "^0.21.3",
     "tsdown": "^0.15.5",
     "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
@@ -47,7 +48,9 @@
     "coverage": "vitest run --coverage",
     "performance": "node --expose-gc ./performance/large-file.ts",
     "prepublishOnly": "pnpm build",
-    "typedoc": "typedoc"
+    "typedoc": "typedoc",
+    "typedoc:main": "typedoc --options typedoc.main.json",
+    "typedoc:converter": "typedoc --options typedoc.converter.json"
   },
   "type": "module",
   "types": "./dist/index.d.ts"

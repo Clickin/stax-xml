@@ -2,7 +2,8 @@ import { XmlSchemaBase, type ParseInput } from './base.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
-import { XmlWriterInternal } from './XmlWriterInternal.js';
+import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import { StaxXmlWriter } from '../StaxXmlWriter.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import type { XmlParsingStateMachine } from './XmlParsingStateMachine.js';
 
@@ -80,30 +81,50 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
    * Write array data to XML synchronously
    * @internal
    */
-  _write(data: T['_output'][], options?: XmlWriteOptions): string {
-    const writer = new XmlWriterInternal(options);
+  _writeSync(data: T['_output'][], options?: XmlWriteOptions): string {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriterSync;
+    let isInjected = false;
 
-    // Write declaration if requested and at root level
-    if (options?.rootElement && options?.includeDeclaration !== false) {
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriterSync) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('writeSync requires StaxXmlWriterSync instance');
+      }
+    } else {
+      writer = new StaxXmlWriterSync({
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, undefined, this.writeConfig);
+      writer.writeStartElement(options.rootElement, {
+        comment: this.writeConfig?.comment
+      });
     }
 
     // Write each array item without declaration
-    const elementConfig = (this.element as any).writeConfig;
+    // Access writeConfig via type assertion - it's protected but we need it here
+    const elementConfig = (this.element as XmlSchemaBase<unknown, unknown> & { writeConfig?: { element?: string } }).writeConfig;
     const nestedOptions: XmlWriteOptions = {
       ...options,
-      rootElement: elementConfig?.element, // Use element's configured element name
+      writer, // Pass the writer to nested calls
+      rootElement: elementConfig?.element,
       includeDeclaration: false
     };
 
     for (const item of data) {
-      const itemXml = (this.element as any)._write(item, nestedOptions);
-      writer.writeRaw(itemXml);
+      this.element._writeSync(item as T['_output'], nestedOptions);
     }
 
     // Close root element
@@ -111,14 +132,76 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
       writer.writeEndElement();
     }
 
-    return writer.toString();
+    // End document if not injected
+    if (!isInjected) {
+      writer.writeEndDocument();
+    }
+
+    return isInjected ? '' : writer.getXmlString();
   }
 
   /**
-   * Write array data to XML asynchronously
+   * Write array data to WritableStream asynchronously
    * @internal
    */
-  async _writeAsync(data: T['_output'][], options?: XmlWriteOptions): Promise<string> {
-    return this._write(data, options);
+  async _write(
+    data: T['_output'][],
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriter;
+    let isInjected = false;
+
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriter) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('write requires StaxXmlWriter instance');
+      }
+    } else {
+      writer = new StaxXmlWriter(stream, {
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+      await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      await writer.writeStartElement(options.rootElement, {
+        comment: this.writeConfig?.comment
+      });
+    }
+
+    // Write each array item without declaration
+    // Access writeConfig via type assertion - it's protected but we need it here
+    const elementConfig = (this.element as XmlSchemaBase<unknown, unknown> & { writeConfig?: { element?: string } }).writeConfig;
+    const nestedOptions: XmlWriteOptions = {
+      ...options,
+      writer, // Pass the writer to nested calls
+      rootElement: elementConfig?.element,
+      includeDeclaration: false
+    };
+
+    for (const item of data) {
+      await this.element._write(item as T['_output'], stream, nestedOptions);
+    }
+
+    // Close root element
+    if (options?.rootElement) {
+      await writer.writeEndElement();
+    }
+
+    // End document if not injected
+    if (!isInjected) {
+      await writer.writeEndDocument();
+    }
   }
 }

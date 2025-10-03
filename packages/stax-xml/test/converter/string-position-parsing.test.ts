@@ -111,7 +111,7 @@ describe('String Schema Position Parsing', () => {
 
     it('should write string with element config', () => {
       const schema = x.string().writer({ element: 'text' });
-      const xml = (schema as any)._write('Test Content', { rootElement: 'root' });
+      const xml = (schema as any)._writeSync('Test Content', { rootElement: 'root' });
 
       expect(xml).toContain('<root>');
       expect(xml).toContain('<text>Test Content</text>');
@@ -126,7 +126,7 @@ describe('String Schema Position Parsing', () => {
 
     it('should write content with CDATA config', () => {
       const schema = x.string().writer({ cdata: true, element: 'content' });
-      const xml = (schema as any)._write('Special <> Content', { rootElement: 'root' });
+      const xml = (schema as any)._writeSync('Special <> Content', { rootElement: 'root' });
 
       expect(xml).toContain('<![CDATA[Special <> Content]]>');
     });

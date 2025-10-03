@@ -309,7 +309,7 @@ describe('Optional Schema Write Operations', () => {
         { rootElement: 'root' }
       );
 
-      expect(xmlWithValue).toContain('<value>deep</value>');
+      expect(xmlWithValue).toContain('<level2>deep</level2>');
 
       const xmlWithoutLevel1 = schema.writeSync(
         { level1: undefined },
@@ -383,27 +383,27 @@ describe('Optional Schema Write Operations', () => {
   });
 
   describe('Write Methods with Undefined/Null', () => {
-    it('should _write return empty string for undefined', () => {
+    it('should _writeSync return empty string for undefined', () => {
       const schema = x.string().optional().writer({ element: 'test' });
-      const result = (schema as any)._write(undefined);
+      const result = (schema as any)._writeSync(undefined);
       expect(result).toBe('');
     });
 
-    it('should _write return empty string for null', () => {
+    it('should _writeSync return empty string for null', () => {
       const schema = x.string().optional().writer({ element: 'test' });
-      const result = (schema as any)._write(null);
+      const result = (schema as any)._writeSync(null);
       expect(result).toBe('');
     });
 
-    it('should _writeAsync return empty string for undefined', async () => {
+    it('should write return empty string for undefined', async () => {
       const schema = x.string().optional().writer({ element: 'test' });
-      const result = await (schema as any)._writeAsync(undefined);
+      const result = await schema.write(undefined);
       expect(result).toBe('');
     });
 
-    it('should _writeAsync return empty string for null', async () => {
+    it('should write return empty string for null', async () => {
       const schema = x.string().optional().writer({ element: 'test' });
-      const result = await (schema as any)._writeAsync(null);
+      const result = await schema.write(null);
       expect(result).toBe('');
     });
   });

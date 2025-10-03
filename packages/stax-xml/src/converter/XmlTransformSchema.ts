@@ -73,16 +73,20 @@ export class XmlTransformSchema<Output, Input, IntermediateOutput = unknown> ext
    * Note: Transform is not reversible, so writing is not supported
    * @internal
    */
-  _write(data: Output, options?: XmlWriteOptions): string {
+  _writeSync(data: Output, options?: XmlWriteOptions): string {
     throw new Error('Transform schema does not support writing. Use the base schema for writing.');
   }
 
   /**
-   * Write transformed data to XML asynchronously
+   * Write transformed data to WritableStream asynchronously
    * Note: Transform is not reversible, so writing is not supported
    * @internal
    */
-  async _writeAsync(data: Output, options?: XmlWriteOptions): Promise<string> {
+  async _write(
+    data: Output,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
     throw new Error('Transform schema does not support writing. Use the base schema for writing.');
   }
 }

@@ -1,0 +1,744 @@
+---
+// No server-side code needed for this demo
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StAX-XML Converter Interactive Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.95;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .panel {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #e9ecef;
+    }
+
+    .panel h2 {
+      color: #495057;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    textarea, pre {
+      width: 100%;
+      min-height: 300px;
+      padding: 15px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      resize: vertical;
+      background: white;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    pre {
+      background: #2d3748;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .controls {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    button {
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .file-upload {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .file-upload input[type="file"] {
+      padding: 8px;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mode-toggle label {
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .mode-toggle input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .examples {
+      grid-column: 1 / -1;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .examples h3 {
+      color: #495057;
+      margin-bottom: 15px;
+    }
+
+    .example-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .example-btn {
+      padding: 8px 16px;
+      background: white;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .example-btn:hover {
+      border-color: #667eea;
+      background: #f0f0ff;
+    }
+
+    .example-btn.active {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+
+    .stats {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .stat {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      border: 2px solid #e9ecef;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9em;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #f5c6cb;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #c3e6cb;
+    }
+
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border-left: 4px solid #bee5eb;
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+      .header h1 {
+        font-size: 1.8em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 StAX-XML Converter Demo</h1>
+      <p>Type-safe, declarative XML parsing with XPath support</p>
+      <div>
+        <span class="badge">Zod-inspired API</span>
+        <span class="badge">Real stax-xml/converter</span>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <h2>📄 XML Input</h2>
+        <textarea id="xmlInput" placeholder="Enter your XML here..."></textarea>
+      </div>
+
+      <div class="panel">
+        <h2>⚙️ Schema Definition</h2>
+        <textarea id="schemaInput" placeholder="Define your schema using 'x' builder..."></textarea>
+      </div>
+
+      <div class="examples">
+        <h3>📚 Quick Examples</h3>
+        <div class="example-buttons" id="exampleButtons"></div>
+      </div>
+
+      <div class="controls">
+        <div class="mode-toggle">
+          <label>Mode:</label>
+          <label>
+            <input type="radio" name="mode" value="sync" checked> Sync
+          </label>
+          <label>
+            <input type="radio" name="mode" value="async"> Async
+          </label>
+        </div>
+        <button class="btn-primary" id="parseBtn">▶️ Parse XML</button>
+        <button class="btn-secondary" id="clearBtn">🗑️ Clear</button>
+        <div class="file-upload">
+          <input type="file" id="fileInput" accept=".xml,text/xml,application/xml">
+          <button class="btn-success" id="loadFileBtn">📁 Load File</button>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column: 1 / -1;">
+        <h2>✨ Result</h2>
+        <pre id="output">Click "Parse XML" to see the result...</pre>
+        <div id="message"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value" id="parseTime">-</div>
+          <div class="stat-label">Parse Time (ms)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="mode">-</div>
+          <div class="stat-label">Mode</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="xmlSize">-</div>
+          <div class="stat-label">XML Size (bytes)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="throughput">-</div>
+          <div class="stat-label">Throughput (KB/s)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import from local build (copied to public folder)
+    // Run: cp packages/stax-xml/dist/converter.js packages/docs/public/stax-xml-converter.js
+    import {x} from "/stax-xml/stax-xml-converter.js";
+
+    // State management for loaded file
+    let loadedFile = null;
+
+    const examples = {
+      basic: {
+        name: 'Basic Object',
+        xml: `<book>
+  <title>TypeScript Handbook</title>
+  <author>Microsoft</author>
+  <price>29.99</price>
+  <year>2024</year>
+</book>`,
+        schema: `x.object({
+  title: x.string().xpath('/book/title'),
+  author: x.string().xpath('/book/author'),
+  price: x.number().xpath('/book/price'),
+  year: x.number().xpath('/book/year')
+})`
+      },
+
+      array: {
+        name: 'Array Parsing',
+        xml: `<list>
+  <item>Apple</item>
+  <item>Banana</item>
+  <item>Cherry</item>
+  <item>Date</item>
+</list>`,
+        schema: `x.array(
+  x.string(),
+  '//item'
+)`
+      },
+
+      nested: {
+        name: 'Nested Object',
+        xml: `<product>
+  <name>Laptop Pro</name>
+  <price>999.99</price>
+  <specs>
+    <cpu>Intel i7</cpu>
+    <ram>16GB</ram>
+    <storage>512GB SSD</storage>
+  </specs>
+</product>`,
+        schema: `x.object({
+  name: x.string().xpath('/product/name'),
+  price: x.number().xpath('/product/price'),
+  cpu: x.string().xpath('/product/specs/cpu'),
+  ram: x.string().xpath('/product/specs/ram'),
+  storage: x.string().xpath('/product/specs/storage')
+})`
+      },
+
+      transform: {
+        name: 'With Transform',
+        xml: `<person>
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <age>30</age>
+</person>`,
+        schema: `x.object({
+  firstName: x.string().xpath('/person/firstName'),
+  lastName: x.string().xpath('/person/lastName'),
+  age: x.number().xpath('/person/age')
+}).transform(p => ({
+  fullName: p.firstName + ' ' + p.lastName,
+  age: p.age,
+  isAdult: p.age >= 18
+}))`
+      },
+
+      optional: {
+        name: 'With Optional',
+        xml: `<user>
+  <id>123</id>
+  <username>johndoe</username>
+  <email>john@example.com</email>
+</user>`,
+        schema: `x.object({
+  id: x.number().xpath('/user/id'),
+  username: x.string().xpath('/user/username'),
+  email: x.string().xpath('/user/email').optional(),
+  phone: x.string().xpath('/user/phone').optional()
+})`
+      },
+
+      validation: {
+        name: 'Number Validation',
+        xml: `<data>
+  <age>25</age>
+  <score>95</score>
+  <count>42</count>
+</data>`,
+        schema: `x.object({
+  age: x.number().xpath('/data/age').min(0).max(120).int(),
+  score: x.number().xpath('/data/score').min(0).max(100),
+  count: x.number().xpath('/data/count').int()
+})`
+      },
+
+      rss: {
+        name: 'RSS Feed',
+        xml: `<rss version="2.0">
+  <channel>
+    <title>Tech Blog</title>
+    <link>https://techblog.example.com</link>
+    <item>
+      <title>TypeScript 5.0 Released</title>
+      <link>https://techblog.example.com/ts5</link>
+      <pubDate>2024-01-15</pubDate>
+    </item>
+    <item>
+      <title>React 19 Features</title>
+      <link>https://techblog.example.com/react19</link>
+      <pubDate>2024-01-16</pubDate>
+    </item>
+  </channel>
+</rss>`,
+        schema: `x.object({
+  title: x.string().xpath('/rss/channel/title'),
+  link: x.string().xpath('/rss/channel/link'),
+  items: x.array(
+    x.object({
+      title: x.string().xpath('./title'),
+      link: x.string().xpath('./link'),
+      pubDate: x.string().xpath('./pubDate')
+    }),
+    '//item'
+  )
+})`
+      },
+
+      ecommerce: {
+        name: 'E-commerce Product',
+        xml: `<product id="123" category="electronics">
+  <name>Wireless Mouse</name>
+  <price currency="USD">29.99</price>
+  <stock>50</stock>
+  <tags>
+    <tag>wireless</tag>
+    <tag>bluetooth</tag>
+    <tag>ergonomic</tag>
+  </tags>
+</product>`,
+        schema: `x.object({
+  id: x.number().xpath('/product/@id'),
+  category: x.string().xpath('/product/@category'),
+  name: x.string().xpath('/product/name'),
+  price: x.number().xpath('/product/price').min(0),
+  currency: x.string().xpath('/product/price/@currency'),
+  stock: x.number().xpath('/product/stock').int(),
+  tags: x.array(x.string(), '//tag')
+}).transform(p => ({
+  ...p,
+  inStock: p.stock > 0
+}))`
+      },
+
+      attributes: {
+        name: 'XPath Attributes',
+        xml: `<users>
+  <user role="admin">
+    <username>Alice</username>
+  </user>
+  <user role="user">
+    <username>Bob</username>
+  </user>
+  <user role="admin">
+    <username>Charlie</username>
+  </user>
+</users>`,
+        schema: `x.array(
+  x.object({
+    username: x.string().xpath('./username'),
+    role: x.string().xpath('./@role')
+  }),
+  '//user'
+)`
+      },
+
+      large: {
+        name: 'Large Dataset (1000 items)',
+        xml: '<items>' + Array.from({ length: 1000 }, (_, i) =>
+          `<item><id>${i + 1}</id><value>Data ${i + 1}</value></item>`
+        ).join('') + '</items>',
+        schema: `x.array(
+  x.object({
+    id: x.number().xpath('./id'),
+    value: x.string().xpath('./value')
+  }),
+  '//item'
+)`
+      }
+    };
+
+    // Initialize example buttons
+    const exampleButtons = document.getElementById('exampleButtons');
+    Object.entries(examples).forEach(([key, example]) => {
+      const btn = document.createElement('button');
+      btn.className = 'example-btn';
+      btn.textContent = example.name;
+      btn.onclick = () => loadExample(key);
+      exampleButtons.appendChild(btn);
+    });
+
+    // Load example
+    function loadExample(key) {
+      const example = examples[key];
+      if (example) {
+        document.getElementById('xmlInput').value = example.xml;
+        document.getElementById('schemaInput').value = example.schema;
+        clearOutput();
+
+        // Update active state
+        document.querySelectorAll('.example-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.textContent === example.name) {
+            btn.classList.add('active');
+          }
+        });
+      }
+    }
+
+    // Clear output
+    function clearOutput() {
+      document.getElementById('output').textContent = 'Click "Parse XML" to see the result...';
+      document.getElementById('message').innerHTML = '';
+      document.getElementById('parseTime').textContent = '-';
+      document.getElementById('mode').textContent = '-';
+      document.getElementById('xmlSize').textContent = '-';
+      document.getElementById('throughput').textContent = '-';
+      loadedFile = null;
+    }
+
+    // Parse XML
+    async function parseXML() {
+      const xmlInput = document.getElementById('xmlInput').value;
+      const schemaInput = document.getElementById('schemaInput').value;
+      const output = document.getElementById('output');
+      const messageDiv = document.getElementById('message');
+      const parseBtn = document.getElementById('parseBtn');
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+
+      // Validation: schema is always required, XML input or loadedFile required
+      if (!schemaInput) {
+        messageDiv.innerHTML = '<div class="error">⚠️ Please provide schema definition</div>';
+        return;
+      }
+
+      if (!loadedFile && !xmlInput) {
+        messageDiv.innerHTML = '<div class="error">⚠️ Please provide XML input or load a file</div>';
+        return;
+      }
+
+      messageDiv.innerHTML = '';
+      parseBtn.disabled = true;
+
+      const startTime = performance.now();
+
+      try {
+        // Evaluate the schema definition using new Function (safer than eval)
+        const schemaFunction = new Function('x', `return ${schemaInput}`);
+        const schema = schemaFunction(x);
+
+        let result;
+        let xmlSize;
+
+        if (mode === 'sync') {
+          if (loadedFile && loadedFile.size > 10 * 1024 * 1024) {
+            messageDiv.innerHTML = '<div class="error">⚠️ Files over 10MB must use async mode</div>';
+            return;
+          }
+          result = schema.parseSync(xmlInput);
+          xmlSize = new Blob([xmlInput]).size;
+        } else {
+          // Async mode with ReadableStream
+          let stream;
+
+          if (loadedFile) {
+            // Use file stream directly for better memory efficiency
+            stream = loadedFile.stream();
+            xmlSize = loadedFile.size;
+          } else {
+            // Create stream from text input
+            const encoder = new TextEncoder();
+            stream = new ReadableStream({
+              start(controller) {
+                controller.enqueue(encoder.encode(xmlInput));
+                controller.close();
+              }
+            });
+            xmlSize = new Blob([xmlInput]).size;
+          }
+
+          result = await schema.parse(stream);
+        }
+
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+
+        output.textContent = JSON.stringify(result, null, 2);
+
+        // Update stats
+        document.getElementById('parseTime').textContent = duration;
+        document.getElementById('mode').textContent = mode.toUpperCase();
+        document.getElementById('xmlSize').textContent = xmlSize.toLocaleString();
+        const throughput = ((xmlSize / 1024) / (duration / 1000)).toFixed(2);
+        document.getElementById('throughput').textContent = throughput;
+
+        messageDiv.innerHTML = `<div class="success">✅ Successfully parsed XML in ${duration}ms using ${mode} mode</div>`;
+
+      } catch (error) {
+        output.textContent = '';
+        messageDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+        console.error('Parse error:', error);
+      } finally {
+        parseBtn.disabled = false;
+      }
+    }
+
+    // Load file
+    async function loadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      console.log('loadFile called, file:', file);
+
+      if (!file) {
+        document.getElementById('message').innerHTML = '<div class="error">⚠️ Please select a file</div>';
+        return;
+      }
+
+      console.log('File size:', file.size, 'bytes');
+
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const isLargeFile = file.size > maxSize;
+
+      try {
+        loadedFile = file;
+
+        if (isLargeFile) {
+          // Force async mode for large files
+          document.querySelector('input[name="mode"][value="async"]').checked = true;
+          document.getElementById('xmlInput').value = `[Large file loaded: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)]`;
+          document.getElementById('message').innerHTML = `<div class="info">ℹ️ Large file loaded. Async mode required for files over 10MB. File will be streamed during parsing.</div>`;
+          console.log('Large file loaded:', file.name, file.size);
+        } else {
+          // For smaller files, load text into textarea
+          const text = await file.text();
+          document.getElementById('xmlInput').value = text;
+          const sizeKB = (file.size / 1024).toFixed(2);
+          document.getElementById('message').innerHTML = `<div class="success">✅ Loaded file: ${file.name} (${sizeKB} KB)</div>`;
+          console.log('Small file loaded:', file.name, sizeKB, 'KB');
+
+          // Auto-clear message after 3 seconds
+          setTimeout(() => {
+            document.getElementById('message').innerHTML = '';
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('Error loading file:', error);
+        document.getElementById('message').innerHTML = `<div class="error">❌ Failed to load file: ${error.message}</div>`;
+        loadedFile = null;
+      }
+    }
+
+    // Event listeners
+    document.getElementById('parseBtn').addEventListener('click', parseXML);
+    document.getElementById('clearBtn').addEventListener('click', clearOutput);
+    document.getElementById('loadFileBtn').addEventListener('click', loadFile);
+    // Auto-load when file is selected
+    document.getElementById('fileInput').addEventListener('change', loadFile);
+
+    // Load first example on page load
+    loadExample('basic');
+  </script>
+</body>
+</html>

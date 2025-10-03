@@ -3,7 +3,20 @@ import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlStringOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
-import { XmlWriterInternal, escapeXml } from './XmlWriterInternal.js';
+import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import { StaxXmlWriter } from '../StaxXmlWriter.js';
+
+/**
+ * Helper to escape XML special characters
+ */
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
 /**
  * Schema for parsing XML string values
@@ -126,22 +139,43 @@ export class XmlStringSchema extends XmlSchema<string, string> {
    * Write string data to XML synchronously
    * @internal
    */
-  _write(data: string, options?: XmlWriteOptions): string {
-    const writer = new XmlWriterInternal(options);
+  _writeSync(data: string, options?: XmlWriteOptions): string {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriterSync;
+    let isInjected = false;
 
-    // Write declaration if requested and at root level
-    if (options?.rootElement && options?.includeDeclaration !== false) {
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriterSync) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('writeSync requires StaxXmlWriterSync instance');
+      }
+    } else {
+      writer = new StaxXmlWriterSync({
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, undefined, this.writeConfig);
+      writer.writeStartElement(options.rootElement, {
+        comment: this.writeConfig?.comment
+      });
     }
 
-    // Write string element
-    if (this.writeConfig?.element) {
-      writer.writeStartElement(this.writeConfig.element, undefined, this.writeConfig);
+    // Write string element (only if not injected - parent handles element when injected)
+    if (!isInjected && this.writeConfig?.element) {
+      writer.writeStartElement(this.writeConfig.element, {
+        comment: this.writeConfig?.comment
+      });
     }
 
     // Write content
@@ -153,22 +187,89 @@ export class XmlStringSchema extends XmlSchema<string, string> {
       writer.writeRaw(content);
     }
 
-    // Close elements
-    if (this.writeConfig?.element) {
+    // Close elements (only if not injected)
+    if (!isInjected && this.writeConfig?.element) {
       writer.writeEndElement();
     }
     if (options?.rootElement) {
       writer.writeEndElement();
     }
 
-    return writer.toString();
+    // End document if not injected
+    if (!isInjected) {
+      writer.writeEndDocument();
+    }
+
+    return writer.getXmlString();
   }
 
   /**
-   * Write string data to XML asynchronously
+   * Write string data to WritableStream asynchronously
    * @internal
    */
-  async _writeAsync(data: string, options?: XmlWriteOptions): Promise<string> {
-    return this._write(data, options);
+  async _write(
+    data: string,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriter;
+    let isInjected = false;
+
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriter) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('write requires StaxXmlWriter instance');
+      }
+    } else {
+      writer = new StaxXmlWriter(stream, {
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+      await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      await writer.writeStartElement(options.rootElement, {
+        comment: this.writeConfig?.comment
+      });
+    }
+
+    // Write string element (only if not injected - parent handles element when injected)
+    if (!isInjected && this.writeConfig?.element) {
+      await writer.writeStartElement(this.writeConfig.element, {
+        comment: this.writeConfig?.comment
+      });
+    }
+
+    // Write content
+    const content = this._writeContent(data, options);
+    if (this.writeConfig?.cdata) {
+      await writer.writeCData(content);
+    } else {
+      // _writeContent already escaped the content, so write as raw
+      await writer.writeRaw(content);
+    }
+
+    // Close elements (only if not injected)
+    if (!isInjected && this.writeConfig?.element) {
+      await writer.writeEndElement();
+    }
+    if (options?.rootElement) {
+      await writer.writeEndElement();
+    }
+
+    // End document if not injected
+    if (!isInjected) {
+      await writer.writeEndDocument();
+    }
   }
 }

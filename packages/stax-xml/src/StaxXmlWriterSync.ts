@@ -96,7 +96,8 @@ export class StaxXmlWriterSync {
             declaration += ` encoding="${encoding.toUpperCase()}"`; // Encoding in uppercase
             this.options.encoding = encoding; // Update encoding
         } else {
-            declaration += ` encoding="${this.options.encoding.toUpperCase()}"`;
+            const actualEncoding = this.options.encoding || 'UTF-8';
+            declaration += ` encoding="${actualEncoding.toUpperCase()}"`;
         }
         declaration += '?>';
         this._write(declaration);
@@ -149,6 +150,14 @@ export class StaxXmlWriterSync {
         const uri = options?.uri;
         const attributes = options?.attributes;
         const selfClosing = options?.selfClosing ?? false;
+        const comment = options?.comment;
+
+        // Write comment if provided
+        if (comment) {
+            this._writeIndent();
+            this._write(`<!-- ${comment} -->`);
+            this._writeNewline();
+        }
 
         this._writeIndent(); // Indentation for pretty print
         const tagName = prefix ? `${prefix}:${localName}` : localName;
@@ -352,6 +361,17 @@ export class StaxXmlWriterSync {
         this._write(pi);
         this.state = WriterState.AFTER_ELEMENT;
         this._writeNewline(); // Newline for pretty print
+        return this;
+    }
+
+    /**
+     * Writes raw XML content without escaping
+     * @param xml Raw XML string to write
+     * @returns this (chainable)
+     */
+    public writeRaw(xml: string): this {
+        this._closeStartElementTag();
+        this._write(xml);
         return this;
     }
 

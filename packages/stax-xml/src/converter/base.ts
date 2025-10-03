@@ -60,16 +60,20 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns XML string
    * @internal
    */
-  abstract _write(data: Output, options?: XmlWriteOptions): string;
+  abstract _writeSync(data: Output, options?: XmlWriteOptions): string;
 
   /**
-   * Write data to XML string asynchronously
+   * Write data to WritableStream asynchronously
    * @param data - Data to write
+   * @param stream - Writable stream to write to
    * @param options - Write options
-   * @returns XML string
    * @internal
    */
-  abstract _writeAsync(data: Output, options?: XmlWriteOptions): Promise<string>;
+  abstract _write(
+    data: Output,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void>;
 
   /**
    * Parse text content (used internally by parser)
@@ -173,7 +177,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns New optional schema
    */
   optional(): XmlSchemaBase<Output | undefined, Input | undefined> {
-    return XmlSchemaBase._createOptional(this as XmlSchemaBase<unknown, unknown>);
+    return XmlSchemaBase._createOptional(this as XmlSchemaBase<Output, Input>);
   }
 
   /**
@@ -182,27 +186,54 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns New array schema
    */
   array(xpath?: string): XmlSchemaBase<Output[], Input[]> {
-    return XmlSchemaBase._createArray(this as XmlSchemaBase<unknown, unknown>, xpath);
+    return XmlSchemaBase._createArray(this as XmlSchemaBase<Output, Input>, xpath);
   }
 
   /**
-   * Write data to XML asynchronously (public API)
+   * Write data to XML string asynchronously (public API)
    * @param data - Data to write
    * @param options - Write options
    * @returns XML string
    */
   async write(data: Output, options?: XmlWriteOptions): Promise<string> {
-    return this._writeAsync(data, options);
+    // Create a WritableStream that collects chunks into a string
+    const chunks: Uint8Array[] = [];
+    const stream = new WritableStream<Uint8Array>({
+      write(chunk) {
+        chunks.push(chunk);
+      }
+    });
+
+    await this._write(data, stream, options);
+
+    // Convert chunks to string
+    const encoder = new TextDecoder(options?.encoding || 'utf-8');
+    return chunks.map(chunk => encoder.decode(chunk, { stream: true })).join('') +
+           encoder.decode(); // Flush remaining bytes
   }
 
   /**
-   * Write data to XML synchronously (public API)
+   * Write data to WritableStream asynchronously (public API)
+   * @param data - Data to write
+   * @param stream - Writable stream to write to
+   * @param options - Write options
+   */
+  async writeToStream(
+    data: Output,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
+    return this._write(data, stream, options);
+  }
+
+  /**
+   * Write data to XML string synchronously (public API)
    * @param data - Data to write
    * @param options - Write options
    * @returns XML string
    */
   writeSync(data: Output, options?: XmlWriteOptions): string {
-    return this._write(data, options);
+    return this._writeSync(data, options);
   }
 
   /**

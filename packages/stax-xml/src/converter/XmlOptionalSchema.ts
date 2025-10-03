@@ -60,21 +60,25 @@ export class XmlOptionalSchema<T extends XmlSchemaBase<unknown, unknown>> extend
    * Write optional data to XML synchronously
    * @internal
    */
-  _write(data: T['_output'] | undefined, options?: XmlWriteOptions): string {
+  _writeSync(data: T['_output'] | undefined, options?: XmlWriteOptions): string {
     if (data === undefined || data === null) {
       return ''; // Skip undefined/null values
     }
-    return this.schema._write(data as T['_input'], options);
+    return this.schema._writeSync(data as T['_input'], options);
   }
 
   /**
-   * Write optional data to XML asynchronously
+   * Write optional data to WritableStream asynchronously
    * @internal
    */
-  async _writeAsync(data: T['_output'] | undefined, options?: XmlWriteOptions): Promise<string> {
+  async _write(
+    data: T['_output'] | undefined,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
     if (data === undefined || data === null) {
-      return '';
+      return; // Skip undefined/null values
     }
-    return this.schema._writeAsync(data as T['_input'], options);
+    return this.schema._write(data as T['_input'], stream, options);
   }
 }

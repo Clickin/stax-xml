@@ -62,22 +62,23 @@ describe('Transform Schema Error Paths', () => {
   });
 
   describe('Write Method Errors', () => {
-    it('should throw error when calling _write on transform schema', () => {
+    it('should throw error when calling _writeSync on transform schema', () => {
       const transformSchema = x.string()
         .xpath('/root/value')
         .transform((val) => val.toUpperCase());
 
       expect(() => {
-        (transformSchema as any)._write('TEST');
+        (transformSchema as any)._writeSync('TEST');
       }).toThrow('Transform schema does not support writing');
     });
 
-    it('should throw error when calling _writeAsync on transform schema', async () => {
+    it('should throw error when calling _write on transform schema', async () => {
       const transformSchema = x.string()
         .xpath('/root/value')
         .transform((val) => val.toUpperCase());
 
-      await expect((transformSchema as any)._writeAsync('TEST')).rejects.toThrow(
+      const stream = new WritableStream();
+      await expect((transformSchema as any)._write('TEST', stream)).rejects.toThrow(
         'Transform schema does not support writing'
       );
     });

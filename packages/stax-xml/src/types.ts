@@ -356,4 +356,5 @@ export interface WriteElementOptions {
   uri?: string;
   attributes?: Record<string, string | AttributeInfo>;
   selfClosing?: boolean;
+  comment?: string;
 }

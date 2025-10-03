@@ -1,5 +1,4 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
-import type { XmlWriteOptions } from './types.js';
 
 export { ParseInput };
 
@@ -10,8 +9,5 @@ export { ParseInput };
  */
 export abstract class XmlSchema<Output, Input = Output> extends XmlSchemaBase<Output, Input> {
   // All methods (transform, optional, array, write, writeSync) are inherited from XmlSchemaBase
-
-  // Abstract methods that must be implemented by subclasses
-  abstract _write(data: Output, options?: XmlWriteOptions): string;
-  abstract _writeAsync(data: Output, options?: XmlWriteOptions): Promise<string>;
+  // Abstract methods are defined in XmlSchemaBase (_writeSync, _write)
 }

@@ -1,3 +1,6 @@
+import type { StaxXmlWriter } from '../StaxXmlWriter.js';
+import type { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+
 /**
  * Parse options for XML converter
  *
@@ -207,6 +210,13 @@ export interface XmlWriteOptions {
    * @defaultValue '1.0'
    */
   xmlVersion?: string;
+
+  /**
+   * Custom writer instance
+   * - StaxXmlWriterSync: for writeSync() method
+   * - StaxXmlWriter: for write() async method
+   */
+  writer?: StaxXmlWriterSync | StaxXmlWriter;
 }
 
 /**

@@ -1,8 +1,17 @@
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
+import { fileURLToPath } from 'node:url';
 // import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
 export default defineConfig({
+  vite: {
+    resolve: {
+      alias: {
+        'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
+        'stax-xml/converter': fileURLToPath(new URL('../stax-xml/src/converter/index.ts', import.meta.url)),
+      },
+    },
+  },
   integrations: [
     starlight({
       title: 'StAX-XML',
@@ -176,14 +185,20 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Guide',
+          translations: {
+            ko: '가이드',
+          },
           items: [
-            { label: 'Getting Started', slug: 'guide/getting-started' },
-            { label: 'Quick Start', slug: 'guide/quick-start' },
-            { label: 'Examples', slug: 'guide/examples' },
+            { label: 'Getting Started', slug: 'guide/getting-started', translations: { ko: '시작하기' } },
+            { label: 'Quick Start', slug: 'guide/quick-start', translations: { ko: '빠른 시작' } },
+            { label: 'Examples', slug: 'guide/examples', translations: { ko: '예제' } },
           ],
         },
         {
           label: 'API Guides',
+          translations: {
+            ko: 'API 가이드',
+          },
           items: [
             { label: 'StaxXmlParser', slug: 'api-guides/staxxml-parser' },
             { label: 'StaxXmlParserSync', slug: 'api-guides/staxxml-parser-sync' },
@@ -192,41 +207,41 @@ export default defineConfig({
           ],
         },
         {
-          label: 'API Reference',
+          label: 'Converter',
           items: [
-            { label: 'Overview', slug: 'api/overview' },
+            { label: 'Getting Started', slug: 'converter/getting-started', translations: { ko: '시작하기' } },
+            { label: 'Interactive Demo', slug: 'converter/demo', translations: { ko: '인터랙티브 데모' } },
+            { label: 'Core Concepts', slug: 'converter/core-concepts', translations: { ko: '핵심 개념' } },
+            { label: 'Schema Types', slug: 'converter/schemas', translations: { ko: '스키마 타입' } },
+            { label: 'XPath Guide', slug: 'converter/xpath-guide', translations: { ko: 'XPath 가이드' } },
+            { label: 'Transformations', slug: 'converter/transformations', translations: { ko: '변환' } },
+            { label: 'Writing XML', slug: 'converter/writing-xml', translations: { ko: 'XML 작성' } },
+            { label: 'Examples', slug: 'converter/examples', translations: { ko: '예제' } },
+          ],
+        },
+        {
+          label: 'API Reference',
+          translations: {
+            ko: 'API 레퍼런스',
+          },
+          items: [
+            { label: 'Overview', slug: 'api/overview', translations: { ko: '개요' } },
+            { label: 'Core API', slug: 'api/main' },
+            { label: 'Converter API', slug: 'api/converter' },
           ],
         },
         {
           label: 'Resources',
+          translations: {
+            ko: '리소스',
+          },
           items: [
-            { label: 'Benchmarks', slug: 'resources/benchmarks' },
+            { label: 'Benchmarks', slug: 'resources/benchmarks', translations: { ko: '벤치마크' } },
             { label: 'FAQ', slug: 'resources/faq' },
           ],
         },
       ],
     }),
-    // starlightTypeDoc({
-    //   entryPoints: ['../src/*.ts'],
-    //   typeDoc: {
-    //     entryPointStrategy: 'expand',
-    //     gitRevision: 'master',
-    //     readme: 'none',
-    //     sort: ['source-order'],
-    //     categoryOrder: ['*', 'Other'],
-    //     hideGenerator: true,
-    //     includeVersion: true,
-    //     plugin: [],
-    //     exclude: ['../src/**/*.test.ts', '../src/**/*.spec.ts'],
-    //     excludeExternals: true,
-    //     skipErrorChecking: true,
-    //   },
-    //   sidebar: {
-    //     label: 'API Reference',
-    //     collapsed: false,
-    //   },
-    //   pagination: true,
-    // }),
   ],
   output: 'static',
   site: 'https://clickin.github.io',

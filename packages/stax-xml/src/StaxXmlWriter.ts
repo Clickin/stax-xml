@@ -151,17 +151,16 @@ export class StaxXmlWriter {
     options: StaxXmlWriterOptions = {}
   ) {
     this.options = {
-      encoding: 'utf-8',
-      prettyPrint: false,
-      indentString: '  ',
+      encoding: options.encoding || 'utf-8',
+      prettyPrint: options.prettyPrint ?? false,
+      indentString: options.indentString || '  ',
       addEntities: options.addEntities ?? [],
-      autoEncodeEntities: true,
-      namespaces: [],
-      bufferSize: 16 * 1024,         // 16KB default
-      highWaterMark: 64 * 1024,      // 64KB backpressure
-      flushThreshold: 0.8,            // Flush when 80% full
-      enableAutoFlush: true,
-      ...options,
+      autoEncodeEntities: options.autoEncodeEntities ?? true,
+      namespaces: options.namespaces ?? [],
+      bufferSize: options.bufferSize ?? 16 * 1024,         // 16KB default
+      highWaterMark: options.highWaterMark ?? 64 * 1024,      // 64KB backpressure
+      flushThreshold: options.flushThreshold ?? 0.8,            // Flush when 80% full
+      enableAutoFlush: options.enableAutoFlush ?? true,
     };
 
     // Convert flushThreshold to actual byte value
@@ -251,7 +250,7 @@ export class StaxXmlWriter {
 
     this.state = WriterState.AFTER_ELEMENT;
 
-    const actualEncoding = encoding || this.options.encoding;
+    const actualEncoding = encoding || this.options.encoding || 'UTF-8';
     const declaration = `<?xml version="${version}" encoding="${actualEncoding.toUpperCase()}"?>`;
 
     await this._writeToBuffer(declaration);
@@ -457,6 +456,17 @@ export class StaxXmlWriter {
       await this._writeNewline();
     }
 
+    return this;
+  }
+
+  /**
+   * Write raw XML content without escaping
+   * @param xml Raw XML string to write
+   * @returns this (chainable)
+   */
+  public async writeRaw(xml: string): Promise<this> {
+    await this._closeStartElementTag();
+    await this._writeToBuffer(xml);
     return this;
   }
 

@@ -4,7 +4,8 @@ import { XmlParseError } from './errors.js';
 import type { ParseOptions, XmlNumberOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
-import { XmlWriterInternal } from './XmlWriterInternal.js';
+import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import { StaxXmlWriter } from '../StaxXmlWriter.js';
 
 /**
  * Schema for parsing XML number values
@@ -199,44 +200,127 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    * Write number data to XML synchronously
    * @internal
    */
-  _write(data: number, options?: XmlWriteOptions): string {
-    const writer = new XmlWriterInternal(options);
+  _writeSync(data: number, options?: XmlWriteOptions): string {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriterSync;
+    let isInjected = false;
 
-    // Write declaration if requested and at root level
-    if (options?.rootElement && options?.includeDeclaration !== false) {
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriterSync) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('writeSync requires StaxXmlWriterSync instance');
+      }
+    } else {
+      writer = new StaxXmlWriterSync({
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, undefined, this.writeConfig);
+      writer.writeStartElement(options.rootElement, {
+        comment: this.writeConfig?.comment
+      });
     }
 
-    // Write number element
-    if (this.writeConfig?.element) {
-      writer.writeStartElement(this.writeConfig.element, undefined, this.writeConfig);
+    // Write number element (only if not injected - parent handles element when injected)
+    if (!isInjected && this.writeConfig?.element) {
+      writer.writeStartElement(this.writeConfig.element, {
+        comment: this.writeConfig?.comment
+      });
     }
 
     // Write content
     const numberStr = this._writeContent(data, options);
     writer.writeCharacters(numberStr);
 
-    // Close elements
-    if (this.writeConfig?.element) {
+    // Close elements (only if not injected)
+    if (!isInjected && this.writeConfig?.element) {
       writer.writeEndElement();
     }
     if (options?.rootElement) {
       writer.writeEndElement();
     }
 
-    return writer.toString();
+    // End document if not injected
+    if (!isInjected) {
+      writer.writeEndDocument();
+    }
+
+    return writer.getXmlString();
   }
 
   /**
-   * Write number data to XML asynchronously
+   * Write number data to WritableStream asynchronously
    * @internal
    */
-  async _writeAsync(data: number, options?: XmlWriteOptions): Promise<string> {
-    return this._write(data, options);
+  async _write(
+    data: number,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriter;
+    let isInjected = false;
+
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriter) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('write requires StaxXmlWriter instance');
+      }
+    } else {
+      writer = new StaxXmlWriter(stream, {
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+      await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      await writer.writeStartElement(options.rootElement, {
+        comment: this.writeConfig?.comment
+      });
+    }
+
+    // Write number element (only if not injected - parent handles element when injected)
+    if (!isInjected && this.writeConfig?.element) {
+      await writer.writeStartElement(this.writeConfig.element, {
+        comment: this.writeConfig?.comment
+      });
+    }
+
+    // Write content
+    const numberStr = this._writeContent(data, options);
+    await writer.writeCharacters(numberStr);
+
+    // Close elements (only if not injected)
+    if (!isInjected && this.writeConfig?.element) {
+      await writer.writeEndElement();
+    }
+    if (options?.rootElement) {
+      await writer.writeEndElement();
+    }
+
+    // End document if not injected
+    if (!isInjected) {
+      await writer.writeEndDocument();
+    }
   }
 }

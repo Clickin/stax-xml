@@ -1,11 +1,21 @@
 {
-  "entryPoints": ["./src/index.ts"],
+  "entryPoints": [
+    "./src/index.ts",
+    "./src/converter/index.ts"
+  ],
   "out": "./docs/api",
-  "plugin": ["typedoc-plugin-markdown"],
+  "plugin": [
+    "typedoc-plugin-markdown"
+  ],
   "gitRevision": "master",
   "readme": "none",
-  "sort": ["source-order"],
-  "categoryOrder": ["*", "Other"],
+  "sort": [
+    "source-order"
+  ],
+  "categoryOrder": [
+    "*",
+    "Other"
+  ],
   "hideGenerator": true,
   "includeVersion": true,
   "excludePrivate": true,

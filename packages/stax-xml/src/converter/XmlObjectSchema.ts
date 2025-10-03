@@ -3,8 +3,35 @@ import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
-import { XmlWriterInternal } from './XmlWriterInternal.js';
-import type { XmlParsingStateMachine } from './XmlParsingStateMachine.js';
+import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import { StaxXmlWriter } from '../StaxXmlWriter.js';
+import type { XmlParsingStateMachine, SchemaActivation } from './XmlParsingStateMachine.js';
+
+/**
+ * Helper to escape XML special characters
+ */
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/**
+ * Type guard to check if schema has _writeContent method
+ */
+function hasWriteContentMethod(schema: XmlSchema<unknown, unknown>): schema is XmlSchema<unknown, unknown> & { _writeContent(data: unknown, options?: XmlWriteOptions): string } {
+  return '_writeContent' in schema && typeof (schema as { _writeContent?: unknown })._writeContent === 'function';
+}
+
+/**
+ * Type guard to check if schema has writeConfig property
+ */
+function hasWriteConfig(schema: XmlSchema<unknown, unknown>): schema is XmlSchema<unknown, unknown> & { writeConfig?: { element?: string; asAttribute?: string; cdata?: boolean; comment?: string } } {
+  return 'writeConfig' in schema;
+}
 
 /**
  * Shape type for object schema
@@ -57,26 +84,31 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     startDepth: number,
     options?: ParseOptions,
     stateMachine?: XmlParsingStateMachine,
-    parentContext?: unknown
+    parentContext?: SchemaActivation
   ): InferObjectOutput<T> | Promise<InferObjectOutput<T>> {
     const parser = new XmlParserInternal(options);
 
-    // Check if async iterator by checking Symbol.asyncIterator on the iterator itself
+    // Check if async iterator by checking if return method returns a Promise
     // We cannot call next() here as it would consume an event
     // Instead, check if the iterator has async methods
-    if ('return' in iterator && typeof (iterator as any).return === 'function') {
-      const returnValue = (iterator as any).return;
-      if (returnValue && typeof returnValue.then === 'function') {
-        // Async iterator
-        return parser.parseObjectFromPosition(
-          iterator as AsyncIterator<AnyXmlEvent>,
-          startEvent,
-          startDepth,
-          this.shape,
-          this.options,
-          stateMachine,
-          parentContext
-        ) as Promise<InferObjectOutput<T>>;
+    if ('return' in iterator && typeof (iterator as { return?: unknown }).return === 'function') {
+      const returnMethod = (iterator as { return: () => unknown | Promise<unknown> }).return;
+      try {
+        const returnValue = returnMethod.call(iterator);
+        if (returnValue && typeof (returnValue as { then?: unknown }).then === 'function') {
+          // Async iterator
+          return parser.parseObjectFromPosition(
+            iterator as AsyncIterator<AnyXmlEvent>,
+            startEvent,
+            startDepth,
+            this.shape,
+            this.options,
+            stateMachine,
+            parentContext
+          ) as Promise<InferObjectOutput<T>>;
+        }
+      } catch {
+        // Calling return() failed, assume sync iterator
       }
     }
 
@@ -130,50 +162,56 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
    * @internal
    */
   _writeContent(data: InferObjectOutput<T>, options?: XmlWriteOptions): string {
-    const writer = new XmlWriterInternal(options);
+    let content = '';
 
     // Write each field
     for (const [key, schema] of Object.entries(this.shape)) {
-      const value = (data as any)[key];
+      const value = (data as Record<string, unknown>)[key];
       if (value === undefined || value === null) {
         continue;
       }
 
-      const fieldConfig = (schema as any).writeConfig;
+      const fieldConfig = hasWriteConfig(schema) ? schema.writeConfig : undefined;
       if (fieldConfig?.asAttribute) {
         continue; // Attributes need parent element context
       }
 
-      const elementName = fieldConfig?.element || key;
-      writer.writeStartElement(elementName, undefined, fieldConfig);
+      const rawContent = hasWriteContentMethod(schema) ?
+        schema._writeContent(value, options) :
+        escapeXml(String(value));
 
-      const rawContent = (schema as any)._writeContent ?
-        (schema as any)._writeContent(value, options) :
-        (schema as any)._write(value, { ...options, rootElement: undefined, includeDeclaration: false });
-
-      if (fieldConfig?.cdata) {
-        writer.writeCData(rawContent);
-      } else if (rawContent.trim().startsWith('<')) {
-        writer.writeRaw(rawContent);
-      } else {
-        writer.writeCharacters(rawContent);
-      }
-
-      writer.writeEndElement();
+      content += rawContent;
     }
 
-    return writer.toString();
+    return content;
   }
 
   /**
    * Write object data to XML synchronously
    * @internal
    */
-  _write(data: InferObjectOutput<T>, options?: XmlWriteOptions): string {
-    const writer = new XmlWriterInternal(options);
+  _writeSync(data: InferObjectOutput<T>, options?: XmlWriteOptions): string {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriterSync;
+    let isInjected = false;
 
-    // Write declaration if requested
-    if (options?.includeDeclaration !== false) {
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriterSync) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('writeSync requires StaxXmlWriterSync instance');
+      }
+    } else {
+      writer = new StaxXmlWriterSync({
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
@@ -183,26 +221,35 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
 
       // Collect attributes from shape
       for (const [key, schema] of Object.entries(this.shape)) {
-        const fieldConfig = (schema as any).writeConfig;
+        const fieldConfig = hasWriteConfig(schema) ? schema.writeConfig : undefined;
         if (fieldConfig?.asAttribute) {
-          const value = (data as any)[key];
+          const value = (data as Record<string, unknown>)[key];
           if (value !== undefined && value !== null) {
             rootAttributes[fieldConfig.asAttribute] = String(value);
           }
         }
       }
 
-      writer.writeStartElement(options.rootElement, rootAttributes, this.writeConfig);
+      writer.writeStartElement(options.rootElement, {
+        attributes: rootAttributes,
+        comment: this.writeConfig?.comment
+      });
     }
 
     // Write each field
+    const nestedOptions: XmlWriteOptions = {
+      ...options,
+      writer, // Pass the writer to nested calls
+      includeDeclaration: false
+    };
+
     for (const [key, schema] of Object.entries(this.shape)) {
-      const value = (data as any)[key];
+      const value = (data as Record<string, unknown>)[key];
       if (value === undefined || value === null) {
         continue; // Skip undefined/null values
       }
 
-      const fieldConfig = (schema as any).writeConfig;
+      const fieldConfig = hasWriteConfig(schema) ? schema.writeConfig : undefined;
 
       // Skip if this field is an attribute (already written)
       if (fieldConfig?.asAttribute) {
@@ -210,28 +257,34 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       }
 
       const elementName = fieldConfig?.element || key;
-      const attributes: Record<string, string> = {};
 
-      // Write element start
-      writer.writeStartElement(elementName, attributes, fieldConfig);
+      // Check if this is an array field - arrays handle their own element wrapping
+      const isArray = Array.isArray(value);
 
-      // Get raw content from schema (without wrapping element)
-      const rawContent = (schema as any)._writeContent ?
-        (schema as any)._writeContent(value, options) :
-        (schema as any)._write(value, { ...options, rootElement: undefined, includeDeclaration: false });
-
-      // Write content
-      if (fieldConfig?.cdata) {
-        writer.writeCData(rawContent);
-      } else if (rawContent.trim().startsWith('<')) {
-        // Already XML, write as raw
-        writer.writeRaw(rawContent);
+      if (isArray) {
+        // For arrays, don't wrap with element - let the array schema handle it
+        schema._writeSync(value as never, nestedOptions);
       } else {
-        // Plain text - _writeContent already escaped it, so write as raw
-        writer.writeRaw(rawContent);
-      }
+        // Write element start
+        writer.writeStartElement(elementName, {
+          comment: fieldConfig?.comment
+        });
 
-      writer.writeEndElement();
+        // Get raw content from schema (without wrapping element)
+        const rawContent = hasWriteContentMethod(schema) ?
+          schema._writeContent(value, nestedOptions) :
+          schema._writeSync(value as never, { ...nestedOptions, rootElement: undefined });
+
+        // Write content
+        if (fieldConfig?.cdata) {
+          writer.writeCData(rawContent);
+        } else {
+          // _writeContent already escaped the content, so write as raw
+          writer.writeRaw(rawContent);
+        }
+
+        writer.writeEndElement();
+      }
     }
 
     // Close root element
@@ -239,16 +292,125 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       writer.writeEndElement();
     }
 
-    return writer.toString();
+    // End document if not injected
+    if (!isInjected) {
+      writer.writeEndDocument();
+    }
+
+    return isInjected ? '' : writer.getXmlString();
   }
 
   /**
-   * Write object data to XML asynchronously
+   * Write object data to WritableStream asynchronously
    * @internal
    */
-  async _writeAsync(data: InferObjectOutput<T>, options?: XmlWriteOptions): Promise<string> {
-    // For now, async is the same as sync for object writing
-    // In the future, this could support streaming to a WritableStream
-    return this._write(data, options);
+  async _write(
+    data: InferObjectOutput<T>,
+    stream: WritableStream<Uint8Array>,
+    options?: XmlWriteOptions
+  ): Promise<void> {
+    // Use injected writer or create new one
+    let writer: StaxXmlWriter;
+    let isInjected = false;
+
+    if (options?.writer) {
+      if (options.writer instanceof StaxXmlWriter) {
+        writer = options.writer;
+        isInjected = true;
+      } else {
+        throw new Error('write requires StaxXmlWriter instance');
+      }
+    } else {
+      writer = new StaxXmlWriter(stream, {
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+    }
+
+    // Write declaration if requested and not injected
+    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+      await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
+    }
+
+    // Write root element if specified
+    if (options?.rootElement) {
+      const rootAttributes: Record<string, string> = {};
+
+      // Collect attributes from shape
+      for (const [key, schema] of Object.entries(this.shape)) {
+        const fieldConfig = hasWriteConfig(schema) ? schema.writeConfig : undefined;
+        if (fieldConfig?.asAttribute) {
+          const value = (data as Record<string, unknown>)[key];
+          if (value !== undefined && value !== null) {
+            rootAttributes[fieldConfig.asAttribute] = String(value);
+          }
+        }
+      }
+
+      await writer.writeStartElement(options.rootElement, {
+        attributes: rootAttributes,
+        comment: this.writeConfig?.comment
+      });
+    }
+
+    // Write each field
+    for (const [key, schema] of Object.entries(this.shape)) {
+      const value = (data as Record<string, unknown>)[key];
+      if (value === undefined || value === null) {
+        continue; // Skip undefined/null values
+      }
+
+      const fieldConfig = hasWriteConfig(schema) ? schema.writeConfig : undefined;
+
+      // Skip if this field is an attribute (already written)
+      if (fieldConfig?.asAttribute) {
+        continue;
+      }
+
+      const elementName = fieldConfig?.element || key;
+
+      // Write element start
+      await writer.writeStartElement(elementName, {
+        comment: fieldConfig?.comment
+      });
+
+      // For nested schemas, use sync write with a temporary writer to generate content
+      // This ensures proper element nesting without double declarations
+      const tempWriter = new StaxXmlWriterSync({
+        prettyPrint: options?.prettyPrint,
+        indentString: options?.indentString,
+        encoding: options?.encoding
+      });
+      schema._writeSync(value as never, {
+        ...options,
+        writer: tempWriter,
+        rootElement: undefined,
+        includeDeclaration: false
+      });
+
+      // Get content from temp writer
+      const rawContent = tempWriter.getXmlString();
+
+      // Write content
+      if (fieldConfig?.cdata) {
+        await writer.writeCData(rawContent);
+      } else {
+        // _writeContent already escaped the content, so write as raw
+        await writer.writeRaw(rawContent);
+      }
+
+      await writer.writeEndElement();
+    }
+
+    // Close root element
+    if (options?.rootElement) {
+      await writer.writeEndElement();
+    }
+
+    // End document if not injected
+    if (!isInjected) {
+      await writer.writeEndDocument();
+    }
   }
 }
