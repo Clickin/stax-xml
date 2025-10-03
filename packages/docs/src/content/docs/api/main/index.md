@@ -1,6 +1,6 @@
 ---
-title: Core API Reference
-description: Complete API reference for StAX-XML core classes (StaxXmlParser, StaxXmlWriter)
+title: stax-xml
+description: API reference for stax-xml
 ---
 
 **stax-xml**
@@ -343,7 +343,7 @@ Defined in: [StaxXmlWriter.ts:149](https://github.com/Clickin/stax-xml/blob/mast
 
 > **writeStartDocument**(`version`, `encoding?`): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
-Defined in: [StaxXmlWriter.ts:244](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L244)
+Defined in: [StaxXmlWriter.ts:243](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L243)
 
 Write XML declaration
 
@@ -365,7 +365,7 @@ Write XML declaration
 
 > **writeEndDocument**(): `Promise`\<`void`\>
 
-Defined in: [StaxXmlWriter.ts:269](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L269)
+Defined in: [StaxXmlWriter.ts:268](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L268)
 
 End document (automatically close all elements)
 
@@ -377,7 +377,7 @@ End document (automatically close all elements)
 
 > **writeStartElement**(`localName`, `options?`): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
-Defined in: [StaxXmlWriter.ts:290](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L290)
+Defined in: [StaxXmlWriter.ts:289](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L289)
 
 Write start element
 
@@ -399,7 +399,7 @@ Write start element
 
 > **writeEndElement**(): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
-Defined in: [StaxXmlWriter.ts:367](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L367)
+Defined in: [StaxXmlWriter.ts:366](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L366)
 
 Write end element
 
@@ -411,7 +411,7 @@ Write end element
 
 > **writeCharacters**(`text`): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
-Defined in: [StaxXmlWriter.ts:403](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L403)
+Defined in: [StaxXmlWriter.ts:402](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L402)
 
 Write text
 
@@ -429,7 +429,7 @@ Write text
 
 > **writeCData**(`cdata`): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
-Defined in: [StaxXmlWriter.ts:425](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L425)
+Defined in: [StaxXmlWriter.ts:424](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L424)
 
 Write CDATA section
 
@@ -447,7 +447,7 @@ Write CDATA section
 
 > **writeComment**(`comment`): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
-Defined in: [StaxXmlWriter.ts:445](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L445)
+Defined in: [StaxXmlWriter.ts:444](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L444)
 
 Write comment
 
@@ -461,11 +461,33 @@ Write comment
 
 `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
 
+##### writeRaw()
+
+> **writeRaw**(`xml`): `Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
+
+Defined in: [StaxXmlWriter.ts:467](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L467)
+
+Write raw XML content without escaping
+
+###### Parameters
+
+###### xml
+
+`string`
+
+Raw XML string to write
+
+###### Returns
+
+`Promise`\<[`StaxXmlWriter`](#staxxmlwriter)\>
+
+this (chainable)
+
 ##### flush()
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [StaxXmlWriter.ts:466](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L466)
+Defined in: [StaxXmlWriter.ts:476](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L476)
 
 Manual flush
 
@@ -477,7 +499,7 @@ Manual flush
 
 > **getMetrics**(): `object`
 
-Defined in: [StaxXmlWriter.ts:473](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L473)
+Defined in: [StaxXmlWriter.ts:483](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriter.ts#L483)
 
 Return metrics
 
@@ -571,7 +593,7 @@ Error when called in incorrect state
 
 > **writeEndDocument**(): `void`
 
-Defined in: [StaxXmlWriterSync.ts:113](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L113)
+Defined in: [StaxXmlWriterSync.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L114)
 
 Indicates the end of the document and automatically closes all open elements.
 
@@ -585,7 +607,7 @@ Promise<void> Promise that resolves when stream is flushed
 
 > **getXmlString**(): `string`
 
-Defined in: [StaxXmlWriterSync.ts:130](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L130)
+Defined in: [StaxXmlWriterSync.ts:131](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L131)
 
 Returns the written XML string.
 Should be called after writeEndDocument() to get the complete XML.
@@ -600,7 +622,7 @@ The written XML string
 
 > **writeStartElement**(`localName`, `options?`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:141](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L141)
+Defined in: [StaxXmlWriterSync.ts:142](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L142)
 
 Writes a start element (e.g., <element> or <prefix:element>).
 
@@ -632,7 +654,7 @@ Error when called in incorrect state
 
 > **writeAttribute**(`localName`, `value`, `prefix?`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:220](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L220)
+Defined in: [StaxXmlWriterSync.ts:229](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L229)
 
 Writes an attribute. Can only be called immediately after writeStartElement().
 
@@ -670,7 +692,7 @@ Error when called in incorrect state
 
 > **writeNamespace**(`prefix`, `uri`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:240](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L240)
+Defined in: [StaxXmlWriterSync.ts:249](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L249)
 
 Writes a namespace declaration. Can only be called immediately after writeStartElement().
 This implementation simply writes the string in the form xmlns:prefix="uri" or xmlns="uri".
@@ -704,7 +726,7 @@ Error when called in incorrect state
 
 > **writeCharacters**(`text`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:264](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L264)
+Defined in: [StaxXmlWriterSync.ts:273](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L273)
 
 Writes text content.
 
@@ -730,7 +752,7 @@ Error when called in incorrect state
 
 > **writeCData**(`cdata`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:287](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L287)
+Defined in: [StaxXmlWriterSync.ts:296](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L296)
 
 Writes a CDATA section.
 
@@ -756,7 +778,7 @@ Error when called in incorrect state (especially when containing ']]>' sequence)
 
 > **writeComment**(`comment`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:314](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L314)
+Defined in: [StaxXmlWriterSync.ts:323](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L323)
 
 Writes a comment.
 
@@ -782,7 +804,7 @@ Error when called in incorrect state (especially when containing '--' sequence)
 
 > **writeProcessingInstruction**(`target`, `data?`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:337](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L337)
+Defined in: [StaxXmlWriterSync.ts:346](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L346)
 
 Writes a processing instruction (Processing Instruction).
 
@@ -810,11 +832,33 @@ this (chainable)
 
 Error when called in incorrect state (especially when containing '?>' sequence)
 
+##### writeRaw()
+
+> **writeRaw**(`xml`): `this`
+
+Defined in: [StaxXmlWriterSync.ts:372](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L372)
+
+Writes raw XML content without escaping
+
+###### Parameters
+
+###### xml
+
+`string`
+
+Raw XML string to write
+
+###### Returns
+
+`this`
+
+this (chainable)
+
 ##### writeEndElement()
 
 > **writeEndElement**(): `this`
 
-Defined in: [StaxXmlWriterSync.ts:363](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L363)
+Defined in: [StaxXmlWriterSync.ts:383](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L383)
 
 Closes the currently open element (e.g., </element> or </prefix:element>).
 
@@ -832,7 +876,7 @@ Error when called with no open elements
 
 > **setPrettyPrint**(`enabled`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:400](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L400)
+Defined in: [StaxXmlWriterSync.ts:420](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L420)
 
 Enables/disables pretty print functionality.
 
@@ -854,7 +898,7 @@ this (chainable)
 
 > **setIndentString**(`indentString`): `this`
 
-Defined in: [StaxXmlWriterSync.ts:410](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L410)
+Defined in: [StaxXmlWriterSync.ts:430](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L430)
 
 Sets the indentation string.
 
@@ -876,7 +920,7 @@ this (chainable)
 
 > **isPrettyPrintEnabled**(): `boolean`
 
-Defined in: [StaxXmlWriterSync.ts:419](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L419)
+Defined in: [StaxXmlWriterSync.ts:439](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L439)
 
 Returns the current pretty print setting.
 
@@ -890,7 +934,7 @@ Whether pretty print is enabled
 
 > **getIndentString**(): `string`
 
-Defined in: [StaxXmlWriterSync.ts:427](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L427)
+Defined in: [StaxXmlWriterSync.ts:447](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlWriterSync.ts#L447)
 
 Returns the current indentation string.
 
@@ -1433,6 +1477,12 @@ Defined in: [types.ts:357](https://github.com/Clickin/stax-xml/blob/master/packa
 > `optional` **selfClosing**: `boolean`
 
 Defined in: [types.ts:358](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/types.ts#L358)
+
+##### comment?
+
+> `optional` **comment**: `string`
+
+Defined in: [types.ts:359](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/types.ts#L359)
 
 ## Type Aliases
 

@@ -39,8 +39,14 @@ jobs:
       - name: Build stax-xml package
         run: pnpm --filter=stax-xml build
 
-      - name: Generate TypeDoc documentation
+      - name: Generate TypeDoc documentation (converter)
         run: pnpm --filter=stax-xml typedoc:converter
+
+      - name: Generate TypeDoc documentation (main)
+        run: pnpm --filter=stax-xml typedoc:main
+
+      - name: Add frontmatter to TypeDoc files
+        run: pnpm --filter=stax-xml-docs exec tsx scripts/add-frontmatter.ts
 
       - name: Build documentation
         run: pnpm docs:build
