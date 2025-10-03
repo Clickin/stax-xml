@@ -5,7 +5,7 @@ CLAUDE.md
 .gemini/
 .claude/
 .specify/
-spec
+spec/
 
 # pnpm
 pnpm-lock.yaml
