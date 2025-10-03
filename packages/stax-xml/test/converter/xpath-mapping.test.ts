@@ -522,12 +522,20 @@ describe('XPath Mapping Tests', () => {
         const userMap = data.users.reduce((acc, user) => {
           acc[user.id] = user;
           return acc;
-        }, {} as Record<string, string>);
+        }, {} as Record<string, {
+          id: string;
+          name: string;
+          departmentId: string;
+        }>);
 
         const deptMap = data.departments.reduce((acc, dept) => {
           acc[dept.id] = dept;
           return acc;
-        }, {} as Record<string, string>);
+        }, {} as Record<string, {
+          id: string;
+          name: string;
+          managerId: string;
+        }>);
 
         // Resolve relationships
         const usersWithDepts = data.users.map(user => ({
@@ -555,14 +563,13 @@ describe('XPath Mapping Tests', () => {
       });
 
       const result = schema.parseSync(xml);
-      console.dir(result, { depth: null })
-      /*
-            expect(result.users[0].department.name).toBe('Engineering');
-            expect(result.departments[0].manager.name).toBe('Alice');
-            expect(result.departments[0].employees).toHaveLength(2);
-            expect(result.projects[0].members).toHaveLength(2);
-            expect(result.projects[0].members[0].name).toBe('Alice');
-            */
+
+      expect(result.users[0].department.name).toBe('Engineering');
+      expect(result.departments[0].manager.name).toBe('Alice');
+      expect(result.departments[0].employees).toHaveLength(2);
+      expect(result.projects[0].members).toHaveLength(2);
+      expect(result.projects[0].members[0].name).toBe('Alice');
+
     });
   });
 
