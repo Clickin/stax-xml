@@ -320,6 +320,148 @@ describe('Optional Schema Write Operations', () => {
     });
   });
 
+  describe('Parse Method Coverage', () => {
+    it('should handle _parse with undefined input', () => {
+      const schema = x.string().optional();
+      // When schema has no xpath, it returns undefined
+      const result = (schema as any)._parse(undefined);
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle _parse with null input', () => {
+      const schema = x.string().optional();
+      const result = (schema as any)._parse(null);
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle _parseAsync with undefined input', async () => {
+      const schema = x.string().optional();
+      const result = await (schema as any)._parseAsync(undefined);
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle _parseAsync with null input', async () => {
+      const schema = x.string().optional();
+      const result = await (schema as any)._parseAsync(null);
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle _parseAsync with error scenario', async () => {
+      const xml = '<root><value>invalid</value></root>';
+      const schema = x.number().xpath('/root/value').optional();
+
+      const result = await schema.parse(xml);
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle _parseText with undefined schema', () => {
+      const schema = x.string().optional();
+      const result = (schema as any)._parseText('some text');
+      expect(result).toBe('some text');
+    });
+
+    it('should handle _parseText with error in inner schema', () => {
+      const schema = x.number().optional();
+      const result = (schema as any)._parseText('not a number');
+      // Optional catches error and returns undefined
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle _parseText with empty string', () => {
+      const schema = x.string().optional();
+      const result = (schema as any)._parseText('');
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined for empty string result', () => {
+      const xml = '<root><value></value></root>';
+      const schema = x.string().xpath('/root/value').optional();
+
+      const result = schema.parseSync(xml);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('Write Methods with Undefined/Null', () => {
+    it('should _write return empty string for undefined', () => {
+      const schema = x.string().optional().writer({ element: 'test' });
+      const result = (schema as any)._write(undefined);
+      expect(result).toBe('');
+    });
+
+    it('should _write return empty string for null', () => {
+      const schema = x.string().optional().writer({ element: 'test' });
+      const result = (schema as any)._write(null);
+      expect(result).toBe('');
+    });
+
+    it('should _writeAsync return empty string for undefined', async () => {
+      const schema = x.string().optional().writer({ element: 'test' });
+      const result = await (schema as any)._writeAsync(undefined);
+      expect(result).toBe('');
+    });
+
+    it('should _writeAsync return empty string for null', async () => {
+      const schema = x.string().optional().writer({ element: 'test' });
+      const result = await (schema as any)._writeAsync(null);
+      expect(result).toBe('');
+    });
+  });
+
+  describe('Nested Optional Schemas', () => {
+    it('should handle optional with nested schemas for parsing', () => {
+      const xml = '<root><value>hello</value></root>';
+      const schema = x.object({
+        value: x.string().xpath('./value').optional()
+      });
+
+      const parsed = schema.parseSync(xml);
+      expect(parsed.value).toBe('hello');
+    });
+
+    it('should handle optional when value is missing', () => {
+      const xml = '<root></root>';
+      const schema = x.object({
+        value: x.string().xpath('./value').optional()
+      });
+
+      const parsed = schema.parseSync(xml);
+      expect(parsed.value).toBeUndefined();
+    });
+
+    it('should handle deeply nested optionals', async () => {
+      const schema = x.object({
+        outer: x.object({
+          middle: x.object({
+            inner: x.string().optional().writer({ element: 'inner' })
+          }).optional().writer({ element: 'middle' })
+        }).optional().writer({ element: 'outer' })
+      });
+
+      // All defined
+      const xml1 = await schema.write(
+        { outer: { middle: { inner: 'value' } } },
+        { rootElement: 'root' }
+      );
+      expect(xml1).toContain('<inner>value</inner>');
+
+      // Middle undefined
+      const xml2 = await schema.write(
+        { outer: { middle: undefined } },
+        { rootElement: 'root' }
+      );
+      expect(xml2).toContain('<outer>');
+      expect(xml2).not.toContain('<middle>');
+
+      // Outer undefined
+      const xml3 = await schema.write(
+        { outer: undefined },
+        { rootElement: 'root' }
+      );
+      expect(xml3).not.toContain('<outer>');
+    });
+  });
+
   describe('Round-trip with Optional', () => {
     it('should round-trip optional values correctly', async () => {
       const schema = x.object({
