@@ -19,9 +19,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,17 +31,13 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: "10.18.0" 
+          version: "10.18.0"
 
       - name: Install dependencies
-        run: |
-          cd docs
-          pnpm install
+        run: pnpm install
 
       - name: Build documentation
-        run: |
-          cd docs
-          pnpm build
+        run: pnpm docs:build
         env:
           NODE_ENV: production
 
@@ -55,7 +48,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/dist
+          path: packages/docs/dist
 
   deploy:
     environment:

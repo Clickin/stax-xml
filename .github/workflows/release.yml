@@ -11,9 +11,6 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    defaults:
-      run:
-        working-directory: ./app
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,7 +25,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: "10.18.0" 
+          version: "10.18.0"
 
       - name: Install dependencies
         run: pnpm install
@@ -40,6 +37,7 @@ jobs:
         run: pnpm build
 
       - name: Publish to NPM
+        working-directory: packages/stax-xml
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

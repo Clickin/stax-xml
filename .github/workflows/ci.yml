@@ -4,17 +4,16 @@ on:
   push:
     branches:
       - main
+      - master
 
   pull_request:
     branches:
       - main
+      - master
 
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: ./app
 
     strategy:
       matrix:
@@ -24,7 +23,7 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - id: setup-node
         name: Setup Node.js
         uses: actions/setup-node@v4
@@ -37,9 +36,7 @@ jobs:
           version: "10.18.0"
       - id: install-deps
         name: Install dependencies
-        run: |
-          pnpm install
+        run: pnpm install
       - id: test
         name: Run test
-        run: |
-          pnpm test
+        run: pnpm test
