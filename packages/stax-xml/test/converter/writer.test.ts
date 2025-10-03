@@ -65,7 +65,7 @@ describe('Writer Tests', () => {
 
     it('should write object with attributes', async () => {
       const schema = x.object({
-        isbn: x.string().writer({ asAttribute: 'isbn' }),
+        isbn: x.string().writer({ element: 'isbn', asAttribute: 'isbn' }),
         title: x.string().writer({ element: 'title' }),
         price: x.number().writer({ element: 'price' })
       });
@@ -300,7 +300,16 @@ describe('Writer Tests', () => {
         prettyPrint: false
       });
 
+      console.log('\nDEBUG - Original Data:');
+      console.dir(originalData, { depth: null });
+      console.log('\nDEBUG - Generated XML:');
+      console.log(xml);
+
       const parsedData = await schema.parse(xml);
+
+      console.log('\nDEBUG - Parsed Data:');
+      console.dir(parsedData, { depth: null });
+
       expect(parsedData).toEqual(originalData);
     });
   });

@@ -158,6 +158,22 @@ export class XmlParserInternal {
         continue;
       }
 
+      // Special case: Array schema without its own XPath
+      // Check if element schema has XPath and use that instead
+      if (!xpath && schemaType === 'XmlArraySchema') {
+        const elementSchema = (unwrapped as any).element;
+        if (elementSchema) {
+          const elementXPath = this.extractXPath(elementSchema);
+          if (elementXPath) {
+            const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
+            stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
+            collectors.set(fieldName, collector);
+            fieldSchemas.set(fieldName, fieldSchema);
+            continue;
+          }
+        }
+      }
+
       if (!xpath) continue;
 
       let collector: Collector<unknown>;
@@ -236,6 +252,22 @@ export class XmlParserInternal {
         collectors.set(fieldName, objectCollector);
         fieldSchemas.set(fieldName, fieldSchema);
         continue;
+      }
+
+      // Special case: Array schema without its own XPath
+      // Check if element schema has XPath and use that instead
+      if (!xpath && schemaType === 'XmlArraySchema') {
+        const elementSchema = (unwrapped as any).element;
+        if (elementSchema) {
+          const elementXPath = this.extractXPath(elementSchema);
+          if (elementXPath) {
+            const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
+            stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
+            collectors.set(fieldName, collector);
+            fieldSchemas.set(fieldName, fieldSchema);
+            continue;
+          }
+        }
       }
 
       if (!xpath) continue;
