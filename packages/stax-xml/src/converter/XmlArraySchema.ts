@@ -115,7 +115,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
 
     // Write each array item without declaration
     // Access writeConfig via type assertion - it's protected but we need it here
-    const elementConfig = (this.element as XmlSchemaBase<unknown, unknown> & { writeConfig?: { element?: string } }).writeConfig;
+    const elementConfig = (this.element as unknown as { writeConfig?: { element?: string } }).writeConfig;
     const nestedOptions: XmlWriteOptions = {
       ...options,
       writer, // Pass the writer to nested calls
@@ -182,7 +182,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
 
     // Write each array item without declaration
     // Access writeConfig via type assertion - it's protected but we need it here
-    const elementConfig = (this.element as XmlSchemaBase<unknown, unknown> & { writeConfig?: { element?: string } }).writeConfig;
+    const elementConfig = (this.element as unknown as { writeConfig?: { element?: string } }).writeConfig;
     const nestedOptions: XmlWriteOptions = {
       ...options,
       writer, // Pass the writer to nested calls
