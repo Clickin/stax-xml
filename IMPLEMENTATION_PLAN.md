@@ -14,14 +14,15 @@
 | 1.1 - Number Validation | ✅ Complete | +5% | 37 | 1.5h |
 | 1.2 - String Position | ⏳ Pending | +4% | 4 | 1h |
 | 1.3 - Transform Errors | ⏳ Pending | +3% | 6 | 1h |
-| 1.4 - Optional Write | ⏳ Pending | +2% | 6 | 45m |
+| 1.4 - Optional Write | ✅ Complete | +5.4% | 26 | 1h |
 | 2.1 - Array Position | ⏳ Pending | +3% | 4 | 2h |
 | 2.2 - Object Position | ⏳ Pending | +5% | 9 | 2.5h |
 | 2.3 - Parser Internal | ⏳ Pending | +7% | 8 | 3h |
 | 3.1 - Writer Internal | ⏳ Pending | +5% | 9 | 1.5h |
 | 4.1 - Advanced Integration | ⏳ Pending | +5% | 6 | 3h |
 
-**Progress**: 37/59 tests completed (62.7%)
+**Progress**: 63/85 tests completed (74.1%)
+**Coverage**: Converter module 64.96% → 66.81% (+1.85%)
 
 ---
 
@@ -82,21 +83,21 @@
 
 ---
 
-### Phase 1.4: XmlOptionalSchema Write Methods ⏳
+### Phase 1.4: XmlOptionalSchema Write Methods ✅ **COMPLETE**
 
 **File**: `test/converter/optional-write.test.ts`
 **Target**: Lines 57, 64-68, 75-79 in XmlOptionalSchema.ts
-**Expected Coverage**: +2%
+**Actual Coverage**: +5.4% (XmlOptionalSchema: 51.78% → 57.14%)
 
-#### Test Cases:
-1. ✅ Write undefined optional value (returns empty)
-2. ✅ Write null optional value (returns empty)
-3. ✅ Write valid optional value
-4. ✅ Async write undefined optional
-5. ✅ Async write valid optional
-6. ✅ _parseText returns undefined on error
+#### Test Cases (26 total):
+1. ✅ Sync write methods - 6 tests (undefined, null, valid values)
+2. ✅ Async write methods - 6 tests (undefined, null, valid values)
+3. ✅ Parse with optional - 3 tests (error handling, valid, missing)
+4. ✅ Complex optional scenarios - 3 tests (multiple fields, nested, arrays)
+5. ✅ Edge cases - 5 tests (empty string, zero, falsy values)
+6. ✅ Round-trip with optional - 3 tests (with value, undefined, missing)
 
-**Success Criteria**: All 6 tests pass, write operations covered
+**Success Criteria**: ✅ All 26 tests pass, coverage increased from 51.78% to 57.14%
 
 ---
 
