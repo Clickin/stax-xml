@@ -356,10 +356,8 @@ describe('Complex Shapes Tests', () => {
       });
 
       const result = schema.parseSync(xml);
-      console.dir(result)
 
       expect(result.version).toBe('2.0');
-      //expect(result.fields.filter(v => v.name === "author")).toBe('author');
       expect(result.fields.find(v => v.name === "author")?.value).toBe("John Doe")
       expect(result.fields.find(v => v.name === "pages")?.value).toBe(150);
       expect(result.contentFormat).toBe('markdown');

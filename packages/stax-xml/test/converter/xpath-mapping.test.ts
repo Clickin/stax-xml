@@ -517,12 +517,12 @@ describe('XPath Mapping Tests', () => {
           }),
           '//projects/project'
         )
-      })/*.transform(data => {
+      }).transform(data => {
         // Create lookup maps
         const userMap = data.users.reduce((acc, user) => {
           acc[user.id] = user;
           return acc;
-        }, {} as Record<string, any>);
+        }, {} as Record<string, string>);
 
         const deptMap = data.departments.reduce((acc, dept) => {
           acc[dept.id] = dept;
@@ -552,7 +552,7 @@ describe('XPath Mapping Tests', () => {
           departments: deptsWithManagers,
           projects: projectsWithMembers
         };
-      });*/
+      });
 
       const result = schema.parseSync(xml);
       console.dir(result, { depth: null })

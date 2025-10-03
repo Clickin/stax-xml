@@ -300,15 +300,8 @@ describe('Writer Tests', () => {
         prettyPrint: false
       });
 
-      console.log('\nDEBUG - Original Data:');
-      console.dir(originalData, { depth: null });
-      console.log('\nDEBUG - Generated XML:');
-      console.log(xml);
 
       const parsedData = await schema.parse(xml);
-
-      console.log('\nDEBUG - Parsed Data:');
-      console.dir(parsedData, { depth: null });
 
       expect(parsedData).toEqual(originalData);
     });
