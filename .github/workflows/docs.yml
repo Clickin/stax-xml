@@ -23,20 +23,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js for NPM
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
       - name: Install dependencies
         run: |
           cd docs
-          npm install
+          pnpm install
 
       - name: Build documentation
         run: |
           cd docs
-          npm run build
+          pnpm build
         env:
           NODE_ENV: production
 
