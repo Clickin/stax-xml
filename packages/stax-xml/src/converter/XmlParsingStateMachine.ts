@@ -354,6 +354,23 @@ export class XmlParsingStateMachine {
         return event.name === elementName && activation.matcher.matches(event);
       }
 
+      // Check for element/text() pattern (e.g., "./name/text()")
+      if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 1] === 'text()') {
+        // This is an element with a text() selector
+        // Expected depth is context + (segments - 1) because text() doesn't increase depth
+        const expectedDepth = context.contextDepth + (pathSegments.length - 1);
+
+        if (this.currentDepth !== expectedDepth) {
+          return false;
+        }
+
+        // Check if element name matches (second to last segment)
+        const elementSegment = pathSegments[pathSegments.length - 2];
+        const elementName = elementSegment.split('[')[0]; // Remove predicates
+
+        return event.name === elementName && activation.matcher.matches(event);
+      }
+
       const expectedDepth = context.contextDepth + pathSegments.length;
 
       // Check depth matches and element name matches the last segment
@@ -540,7 +557,17 @@ export class XmlParsingStateMachine {
       }
     }
 
-    // Priority 2: Handle text node selectors (text())
+    const unwrappedSchema = this.unwrapSchema(activation.schema);
+
+    // Priority 2: Handle arrays before text() check
+    // Arrays with text() selectors need to create items before collecting text
+    if (isArraySchema(unwrappedSchema)) {
+      // Array element matched - start collecting first item
+      this.createArrayItemSync(activation, event);
+      return;
+    }
+
+    // Priority 3: Handle text node selectors (text())
     // Text nodes need to collect text content from the matched element
     if (activation.matcher.isTextNodeSelector()) {
       // Initialize buffer for text collection
@@ -551,15 +578,10 @@ export class XmlParsingStateMachine {
       return;
     }
 
-    const unwrappedSchema = this.unwrapSchema(activation.schema);
-
     if (isStringSchema(unwrappedSchema) || isNumberSchema(unwrappedSchema)) {
       if (activation.collector.type === 'string' || activation.collector.type === 'number') {
         activation.collector.buffer = '';
       }
-    } else if (isArraySchema(unwrappedSchema)) {
-      // Array element matched - start collecting first item
-      this.createArrayItemSync(activation, event);
     } else if (isObjectSchema(unwrappedSchema)) {
       // Object matched - dynamically register field schemas
       if (activation.collector.type !== 'object') return;
@@ -740,6 +762,11 @@ export class XmlParsingStateMachine {
       if (this.currentDepth === activation.depth) {
         if (collector.type === 'string' || collector.type === 'number') {
           collector.buffer += text;
+        } else if (collector.type === 'array') {
+          // For arrays with text() selector, collect into current item buffer
+          if (collector.currentItem && 'buffer' in collector.currentItem) {
+            collector.currentItem.buffer += text;
+          }
         }
       }
       return;

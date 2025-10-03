@@ -100,6 +100,15 @@ export class XPathCompiler {
       path = path.slice(1);
     }
 
+    // Check for nested descendant-or-self (//) in the remaining path
+    // After removing the leading //, check if there's another //
+    if (isDescendant && path.includes('//')) {
+      throw new Error(
+        'Nested descendant-or-self (//) is not supported. ' +
+        'Use // only at the beginning of XPath expression, e.g., "//element/path"'
+      );
+    }
+
     const segments: XPathSegment[] = [];
     const parts = path.split('/').filter(p => p.length > 0);
 

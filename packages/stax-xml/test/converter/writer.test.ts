@@ -301,7 +301,6 @@ describe('Writer Tests', () => {
       });
 
       const parsedData = await schema.parse(xml);
-      console.dir(parsedData, { depth: null })
       expect(parsedData).toEqual(originalData);
     });
   });
