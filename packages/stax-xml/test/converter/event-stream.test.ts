@@ -166,9 +166,11 @@ describe('Event Stream Tests', () => {
         { type: 'end', timestamp: 1003 }
       ];
 
-      let xml = '<events>';
       const stream = new ReadableStream({
         async start(controller) {
+          // Enqueue opening tag
+          controller.enqueue(new TextEncoder().encode('<events>'));
+
           for (const event of events) {
             const eventXml = `
               <event>

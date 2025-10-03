@@ -134,10 +134,32 @@ export class XmlParserInternal {
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
       const xpath = this.extractXPath(fieldSchema);
-      if (!xpath) continue;
-
       const unwrapped = this.unwrapSchema(fieldSchema);
       const schemaType = unwrapped?.constructor?.name;
+
+      // Special case: Object schema without its own XPath
+      // Register its child fields instead
+      if (!xpath && schemaType === 'XmlObjectSchema') {
+        const objectCollector: ObjectCollector = { type: 'object', fields: new Map() };
+        const objectShape = (unwrapped as any).shape as Record<string, XmlSchemaBase<unknown, unknown>>;
+
+        // Register child field schemas with absolute XPaths
+        for (const [childFieldName, childFieldSchema] of Object.entries(objectShape)) {
+          const childXPath = this.extractXPath(childFieldSchema);
+          if (!childXPath) continue;
+
+          const childCollector = this.createCollectorForSchema(childFieldSchema);
+          stateMachine.registerSchema(childFieldSchema, childXPath, childCollector, undefined, childFieldName);
+          objectCollector.fields.set(childFieldName, childCollector);
+        }
+
+        collectors.set(fieldName, objectCollector);
+        fieldSchemas.set(fieldName, fieldSchema);
+        continue;
+      }
+
+      if (!xpath) continue;
+
       let collector: Collector<unknown>;
 
       if (schemaType === 'XmlArraySchema') {
@@ -192,10 +214,32 @@ export class XmlParserInternal {
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
       const xpath = this.extractXPath(fieldSchema);
-      if (!xpath) continue;
-
       const unwrapped = this.unwrapSchema(fieldSchema);
       const schemaType = unwrapped?.constructor?.name;
+
+      // Special case: Object schema without its own XPath
+      // Register its child fields instead
+      if (!xpath && schemaType === 'XmlObjectSchema') {
+        const objectCollector: ObjectCollector = { type: 'object', fields: new Map() };
+        const objectShape = (unwrapped as any).shape as Record<string, XmlSchemaBase<unknown, unknown>>;
+
+        // Register child field schemas with absolute XPaths
+        for (const [childFieldName, childFieldSchema] of Object.entries(objectShape)) {
+          const childXPath = this.extractXPath(childFieldSchema);
+          if (!childXPath) continue;
+
+          const childCollector = this.createCollectorForSchema(childFieldSchema);
+          stateMachine.registerSchema(childFieldSchema, childXPath, childCollector, undefined, childFieldName);
+          objectCollector.fields.set(childFieldName, childCollector);
+        }
+
+        collectors.set(fieldName, objectCollector);
+        fieldSchemas.set(fieldName, fieldSchema);
+        continue;
+      }
+
+      if (!xpath) continue;
+
       let collector: Collector<unknown>;
 
       if (schemaType === 'XmlArraySchema') {

@@ -108,7 +108,7 @@ export interface SchemaActivation {
   schema: XmlSchemaBase<unknown, unknown>;
   xpath: string;
   matcher: XPathMatcher;
-  depth: number; // -1 = inactive, >= 0 = active at this depth
+  depth: number; // -2 = permanently deactivated (satisfied), -1 = inactive, >= 0 = active at this depth
   collector: Collector<unknown>;
   context?: MatchContext; // Context for relative XPath matching
   fieldName?: string; // For object fields
@@ -207,7 +207,10 @@ export class XmlParsingStateMachine {
       for (const activation of [...this.activeSchemas]) {
         if (activation.depth === this.currentDepth) {
           this.onSchemaDeactivatedSync(activation);
-          activation.depth = -1;
+          // Only set to -1 if not already permanently deactivated (-2)
+          if (activation.depth !== -2) {
+            activation.depth = -1;
+          }
         }
         activation.matcher.onEndElement();
       }
@@ -272,7 +275,10 @@ export class XmlParsingStateMachine {
       for (const activation of [...this.activeSchemas]) {
         if (activation.depth === this.currentDepth) {
           await this.onSchemaDeactivated(activation);
-          activation.depth = -1;
+          // Only set to -1 if not already permanently deactivated (-2)
+          if (activation.depth !== -2) {
+            activation.depth = -1;
+          }
         }
         activation.matcher.onEndElement();
       }
@@ -500,7 +506,18 @@ export class XmlParsingStateMachine {
 
         // Store value based on collector type
         if (activation.collector.type === 'array') {
-          activation.collector.items.push(value);
+          // Check if array elements need type conversion
+          const unwrappedSchema = this.unwrapSchema(activation.schema);
+          if (isArraySchema(unwrappedSchema)) {
+            const unwrappedElement = this.unwrapSchema(unwrappedSchema.element);
+            if (isNumberSchema(unwrappedElement) && unwrappedElement._parseText) {
+              activation.collector.items.push(unwrappedElement._parseText(value));
+            } else {
+              activation.collector.items.push(value);
+            }
+          } else {
+            activation.collector.items.push(value);
+          }
         } else if (activation.collector.type === 'string') {
           activation.collector.value = value;
         } else if (activation.collector.type === 'number' && activation.schema._parseText) {
@@ -591,6 +608,10 @@ export class XmlParsingStateMachine {
       if (activation.collector.type !== 'string') return;
       const stringCollector = activation.collector;
       stringCollector.value = stringCollector.buffer.trim();
+      // Mark as satisfied - non-array schemas should not reactivate
+      // Use depth = -2 as a sentinel for "permanently deactivated"
+      activation.depth = -2;
+      return;
     } else if (isNumberSchema(unwrappedSchema)) {
       if (activation.collector.type !== 'number') return;
       const numberCollector = activation.collector;
@@ -599,6 +620,9 @@ export class XmlParsingStateMachine {
       if (unwrappedSchema._parseText) {
         numberCollector.value = unwrappedSchema._parseText(text);
       }
+      // Mark as satisfied - non-array schemas should not reactivate
+      activation.depth = -2;
+      return;
     } else if (isArraySchema(unwrappedSchema)) {
       // Array element finished - add to items
       if (activation.collector.type !== 'array') return;
@@ -626,12 +650,18 @@ export class XmlParsingStateMachine {
           const text = arrayCollector.currentItem.buffer.trim();
 
           // Apply type conversion based on element schema
+          let value: unknown = text;
           if (isNumberSchema(unwrappedElement) && unwrappedElement._parseText) {
-            const numberValue = unwrappedElement._parseText(text);
-            arrayCollector.items.push(numberValue);
-          } else {
-            arrayCollector.items.push(text);
+            value = unwrappedElement._parseText(text);
           }
+
+          // Apply transforms from the element schema
+          const transforms = this.getAllTransforms(elementSchema);
+          for (const transformFn of transforms) {
+            value = transformFn(value);
+          }
+
+          arrayCollector.items.push(value);
         }
 
         // Clean up temporary child schemas for this array item
@@ -642,8 +672,12 @@ export class XmlParsingStateMachine {
 
         arrayCollector.currentItem = undefined;
       }
+    } else if (isObjectSchema(unwrappedSchema)) {
+      // Mark object as satisfied - non-array schemas should not reactivate
+      activation.depth = -2;
+      return;
     }
-    // XmlObjectSchema doesn't need special deactivation handling
+    // Other schema types default to depth = -1 (set in END_ELEMENT handler)
   }
 
   /**

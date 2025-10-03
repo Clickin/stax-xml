@@ -237,7 +237,12 @@ export class XPathMatcher {
       ? segments.slice(0, -1)
       : segments;
 
-    if (effectiveSegments.length === 0) return false;
+    // Special case: XPath '.' (current context) - should match the context element
+    // This happens when segments is empty and it's a relative path
+    if (effectiveSegments.length === 0) {
+      // For '.' or './@attr', match if we have a context (relative path)
+      return !isAbsolute && !isDescendant;
+    }
 
     if (isDescendant) {
       return this.matchesDescendant(event, effectiveSegments);
