@@ -348,7 +348,9 @@ export class XmlParsingStateMachine {
    */
   private createArrayItemSync(activation: SchemaActivation, event: StartElementEvent): void {
     const arrayCollector = activation.collector as ArrayCollector<any>;
-    const elementSchema = (activation.schema as any).element;
+    // Unwrap schema to get the actual array schema (in case it's wrapped in Transform/Optional)
+    const unwrappedArraySchema = this.unwrapSchema(activation.schema);
+    const elementSchema = (unwrappedArraySchema as any).element;
     const elementType = this.getSchemaType(elementSchema);
 
     if (elementType === 'XmlObjectSchema') {
@@ -575,7 +577,9 @@ export class XmlParsingStateMachine {
         // Array element finished - add to items
         const arrayCollector = activation.collector as ArrayCollector<any>;
         if (arrayCollector.currentItem) {
-          const elementSchema = (activation.schema as any).element;
+          // Unwrap schema to get the actual array schema (in case it's wrapped in Transform/Optional)
+          const unwrappedArraySchema = this.unwrapSchema(activation.schema);
+          const elementSchema = (unwrappedArraySchema as any).element;
           const elementType = this.getSchemaType(elementSchema);
 
           if (elementType === 'XmlObjectSchema' &&
@@ -593,9 +597,16 @@ export class XmlParsingStateMachine {
             // Complex element: nested array
             arrayCollector.items.push(arrayCollector.currentItem.items);
           } else if ('buffer' in arrayCollector.currentItem) {
-            // Simple element: text
+            // Simple element: string or number
             const text = arrayCollector.currentItem.buffer.trim();
-            arrayCollector.items.push(text);
+
+            // Apply type conversion based on element schema
+            if (elementType === 'XmlNumberSchema') {
+              const numberValue = (elementSchema as any)._parseText(text);
+              arrayCollector.items.push(numberValue);
+            } else {
+              arrayCollector.items.push(text);
+            }
           }
 
           // Clean up temporary child schemas for this array item
@@ -814,6 +825,7 @@ export class XmlParsingStateMachine {
     } else if (collector.type === 'number') {
       return collector.value ?? NaN;
     } else if (collector.type === 'array') {
+      // Array items are already extracted by onSchemaDeactivatedSync
       return collector.items;
     } else if (collector.type === 'object') {
       // Recursively extract object fields

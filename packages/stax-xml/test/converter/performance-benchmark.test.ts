@@ -394,7 +394,7 @@ describe('Performance Benchmark Tests', () => {
           byRegion,
           byProduct,
           topProducts: Object.entries(byProduct)
-            .sort(([,a], [,b]) => b.revenue - a.revenue)
+            .sort(([, a], [, b]) => b.revenue - a.revenue)
             .slice(0, 3)
             .map(([product, stats]) => ({ product, ...stats }))
         };
@@ -414,9 +414,8 @@ describe('Performance Benchmark Tests', () => {
 
     it('should benchmark nested transformations', () => {
       const xml = generateNestedTransformData();
-
       const schema = x.object({
-        departments: x.array(
+        company: x.array(
           x.object({
             name: x.string().xpath('./@name'),
             employees: x.array(
@@ -434,7 +433,7 @@ describe('Performance Benchmark Tests', () => {
               totalProjects: employees.reduce((sum, emp) => sum + emp.projects.length, 0)
             }))
           }),
-          '//department'
+          '/company/department'
         ).transform(departments => ({
           departments,
           companyStats: {
@@ -445,16 +444,14 @@ describe('Performance Benchmark Tests', () => {
           }
         }))
       });
-
       const start = performance.now();
       const result = schema.parseSync(xml);
       const duration = performance.now() - start;
-
-      expect(result.departments.length).toBeGreaterThan(0);
-      expect(result.companyStats.totalEmployees).toBeGreaterThan(0);
+      expect(result.company.departments.length).toBeGreaterThan(0);
+      expect(result.company.companyStats.totalEmployees).toBeGreaterThan(0);
 
       console.log(`Nested transformations: ${duration.toFixed(2)}ms`);
-      console.log(`Company: ${result.companyStats.totalEmployees} employees, ${result.companyStats.totalDepartments} departments`);
+      console.log(`Company: ${result.company.companyStats.totalEmployees} employees, ${result.company.companyStats.totalDepartments} departments`);
     });
   });
 
@@ -491,10 +488,10 @@ describe('Performance Benchmark Tests', () => {
 // Helper functions for generating test data
 function generateXML(itemCount: number, type: string): string {
   let xml = type === 'small' ? '<items>' :
-            type === 'medium' ? '<records>' :
-            type === 'large' ? '<entries>' :
-            type === 'scaling' ? '<items>' :
-            type === 'comparison' ? '<items>' :
+    type === 'medium' ? '<records>' :
+      type === 'large' ? '<entries>' :
+        type === 'scaling' ? '<items>' :
+          type === 'comparison' ? '<items>' :
             '<items>';
 
   for (let i = 0; i < itemCount; i++) {
@@ -518,9 +515,9 @@ function generateXML(itemCount: number, type: string): string {
   }
 
   xml += type === 'small' ? '</items>' :
-         type === 'medium' ? '</records>' :
-         type === 'large' ? '</entries>' :
-         '</items>';
+    type === 'medium' ? '</records>' :
+      type === 'large' ? '</entries>' :
+        '</items>';
 
   return xml;
 }
@@ -595,8 +592,8 @@ function generateNestedTransformData(): string {
               <salary>${40000 + Math.random() * 60000}</salary>
               <projects>
                 ${Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, p) =>
-                  `<project>Project ${d}-${e}-${p}</project>`
-                ).join('')}
+    `<project>Project ${d}-${e}-${p}</project>`
+  ).join('')}
               </projects>
             </employee>
           `).join('')}

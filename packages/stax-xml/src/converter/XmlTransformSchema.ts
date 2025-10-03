@@ -8,11 +8,18 @@ import type { AnyXmlEvent, StartElementEvent } from '../types.js';
  * @public
  */
 export class XmlTransformSchema<Output, Input> extends XmlSchemaBase<Output, Input> {
+  /** @internal */
+  public schema: XmlSchemaBase<any, Input>;
+  /** @internal */
+  public transformFn: (value: any) => Output;
+
   constructor(
-    private schema: XmlSchemaBase<any, Input>,
-    private transformFn: (value: any) => Output
+    schema: XmlSchemaBase<any, Input>,
+    transformFn: (value: any) => Output
   ) {
     super();
+    this.schema = schema;
+    this.transformFn = transformFn;
   }
 
   _parse(input: ParseInput, options?: ParseOptions): Output {

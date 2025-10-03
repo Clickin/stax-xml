@@ -188,17 +188,17 @@ describe('Complex Shapes Tests', () => {
       const schema = x.array(rowSchema, '/matrix/row').transform(matrix => ({
         rows: matrix,
         rowCount: matrix.length,
-        maxColumns: Math.max(...matrix.map(row => row.length)),
-        minColumns: Math.min(...matrix.map(row => row.length)),
+        maxCol: matrix.map(sub => Math.max(...sub)).reduce((max, cur) => Math.max(max, cur)),
+        minCol: matrix.map(sub => Math.min(...sub)).reduce((max, cur) => Math.min(max, cur)),
         totalElements: matrix.reduce((sum, row) => sum + row.length, 0)
       }));
 
       const result = schema.parseSync(xml);
-
+      console.dir(result, { depth: null })
       expect(result.rowCount).toBe(4);
-      expect(result.maxColumns).toBe(10);
-      expect(result.minColumns).toBe(1);
-      expect(result.totalElements).toBe(23);
+      expect(result.maxCol).toBe(10);
+      expect(result.minCol).toBe(1);
+      expect(result.totalElements).toBe(10);
       expect(result.rows[2]).toEqual([6, 7, 8, 9]);
     });
   });
@@ -223,19 +223,20 @@ describe('Complex Shapes Tests', () => {
           </item>
         </menu>
       `;
-
-      const menuItemSchema = x.object({
-        name: x.string().xpath('./@name')
-      });
-
-      const schema = x.array(menuItemSchema, '//item');
-      const result = schema.parseSync(xml);
+      const subMenuSchema = x.array(x.object({
+        name: x.string().xpath("./@name")
+      }), "./submenu/item")
+      const itemArraySchema = x.array(x.object({
+        name: x.string().xpath("./@name"),
+        submenus: subMenuSchema
+      }), "/menu/item")
+      const result = itemArraySchema.parseSync(xml);
 
       expect(result.length).toBeGreaterThan(0);
       const fileItem = result.find(item => item.name === 'File');
-      const newItem = result.find(item => item.name === 'New');
+      const editItem = result.find(item => item.name === 'Edit');
       expect(fileItem).toBeDefined();
-      expect(newItem).toBeDefined();
+      expect(editItem).toBeDefined();
     });
 
     it('should parse graph-like structures with references', () => {

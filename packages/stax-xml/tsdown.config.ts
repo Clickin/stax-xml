@@ -7,6 +7,7 @@ export default defineConfig([
     format: ['cjs', 'esm'],
     dts: true,
     outDir: 'dist',
+    logLevel: 'error',
   },
   // Build converter separately to prevent chunk splitting
   {
@@ -17,5 +18,6 @@ export default defineConfig([
     dts: true,
     outDir: 'dist',
     clean: false, // Don't clean to preserve index.* files
+    logLevel: 'error',
   },
 ]);
