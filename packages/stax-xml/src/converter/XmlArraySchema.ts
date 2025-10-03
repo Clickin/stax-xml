@@ -1,18 +1,22 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
+import { SchemaType } from './types.js';
 import { XmlWriterInternal } from './XmlWriterInternal.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
+import type { XmlParsingStateMachine } from './XmlParsingStateMachine.js';
 
 /**
  * Schema for parsing XML array values
  *
  * @public
  */
-export class XmlArraySchema<T extends XmlSchemaBase<any, any>> extends XmlSchemaBase<T['_output'][], T['_input'][]> {
+export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends XmlSchemaBase<T['_output'][], T['_input'][]> {
+  readonly schemaType = SchemaType.ARRAY;
+
   constructor(
-    private element: T,
-    private xpath?: string
+    public readonly element: T,
+    public readonly xpath?: string
   ) {
     super();
   }
@@ -36,8 +40,8 @@ export class XmlArraySchema<T extends XmlSchemaBase<any, any>> extends XmlSchema
     startEvent: StartElementEvent,
     startDepth: number,
     options?: ParseOptions,
-    stateMachine?: any,
-    parentContext?: any
+    stateMachine?: XmlParsingStateMachine,
+    parentContext?: unknown
   ): T['_output'][] | Promise<T['_output'][]> {
     const parser = new XmlParserInternal(options);
 

@@ -166,7 +166,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as any as StartDocumentEvent;
+    } as StartDocumentEvent;
   }
 
   /**
@@ -183,7 +183,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as any as EndDocumentEvent;
+    } as EndDocumentEvent;
   }
 
   /**
@@ -207,7 +207,7 @@ export class XmlEventFactory {
       attributesWithPrefix,
       value: undefined,
       error: undefined
-    } as UnifiedXmlEvent as StartElementEvent;
+    } as StartElementEvent;
   }
 
   /**
@@ -229,7 +229,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as UnifiedXmlEvent as EndElementEvent;
+    } as EndElementEvent;
   }
 
   /**
@@ -246,7 +246,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value,
       error: undefined
-    } as UnifiedXmlEvent as CharactersEvent;
+    } as CharactersEvent;
   }
 
   /**
@@ -263,7 +263,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value,
       error: undefined
-    } as UnifiedXmlEvent as CdataEvent;
+    } as CdataEvent;
   }
 
   /**
@@ -280,7 +280,7 @@ export class XmlEventFactory {
       attributesWithPrefix: undefined,
       value: undefined,
       error
-    } as UnifiedXmlEvent as ErrorEvent;
+    } as ErrorEvent;
   }
 }
 

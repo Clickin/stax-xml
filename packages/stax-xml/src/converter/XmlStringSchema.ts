@@ -1,6 +1,7 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlStringOptions, XmlWriteOptions } from './types.js';
+import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
 import { XmlWriterInternal, escapeXml } from './XmlWriterInternal.js';
 
@@ -10,6 +11,8 @@ import { XmlWriterInternal, escapeXml } from './XmlWriterInternal.js';
  * @public
  */
 export class XmlStringSchema extends XmlSchema<string, string> {
+  readonly schemaType = SchemaType.STRING;
+
   constructor(public options: XmlStringOptions = {}) {
     super();
   }

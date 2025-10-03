@@ -1,13 +1,21 @@
-import { XmlSchemaBase } from './base.js';
-import { XPathMatcher } from './XPathEngine.js';
-import type { ParseOptions } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import {
-  isStartElement,
-  isEndElement,
+  isCdata,
   isCharacters,
-  isCdata
+  isEndElement,
+  isStartElement
 } from '../types.js';
+import { XmlSchemaBase } from './base.js';
+import type { ParseOptions } from './types.js';
+import {
+  isArraySchema,
+  isNumberSchema,
+  isObjectSchema,
+  isOptionalSchema,
+  isStringSchema,
+  isTransformSchema
+} from './types.js';
+import { XPathMatcher } from './XPathEngine.js';
 
 /**
  * Collector types for different schema types
@@ -88,7 +96,7 @@ export class XmlParsingStateMachine {
   private eventCount = 0;
   private readonly maxDepth: number;
   private readonly maxEvents: number;
-
+  //@ts-ignore 
   constructor(private readonly options: ParseOptions = {}) {
     this.maxDepth = options.maxDepth ?? 1000;
     this.maxEvents = options.maxEvents ?? 1000000;
@@ -138,11 +146,12 @@ export class XmlParsingStateMachine {
         }
 
         // Check if this schema should activate using context-aware matching
-        const isArraySchema = this.getSchemaType(activation.schema) === 'XmlArraySchema';
+        const unwrappedSchema = this.unwrapSchema(activation.schema);
+        const isArray = isArraySchema(unwrappedSchema);
         const matches = this.matchesInContext(event, activation);
 
         // O(n) optimization: Arrays activate only once, then create items for subsequent matches
-        const shouldActivate = isArraySchema
+        const shouldActivate = isArray
           ? (activation.depth === -1 && matches)  // Activate once like others
           : (activation.depth === -1 && matches);  // Others activate once
 
@@ -151,7 +160,7 @@ export class XmlParsingStateMachine {
           this.onSchemaActivatedSync(activation, event);
         } else {
           // Handle already-active array matches
-          const isActiveArrayMatch = isArraySchema
+          const isActiveArrayMatch = isArray
             && activation.depth !== -1  // Already active
             && matches;  // Matches again
 
@@ -203,11 +212,12 @@ export class XmlParsingStateMachine {
         }
 
         // Check if this schema should activate using context-aware matching
-        const isArraySchema = this.getSchemaType(activation.schema) === 'XmlArraySchema';
+        const unwrappedSchema = this.unwrapSchema(activation.schema);
+        const isArray = isArraySchema(unwrappedSchema);
         const matches = this.matchesInContext(event, activation);
 
         // O(n) optimization: Arrays activate only once, then create items for subsequent matches
-        const shouldActivate = isArraySchema
+        const shouldActivate = isArray
           ? (activation.depth === -1 && matches)  // Activate once like others
           : (activation.depth === -1 && matches);  // Others activate once
 
@@ -216,7 +226,7 @@ export class XmlParsingStateMachine {
           await this.onSchemaActivated(activation, event);
         } else {
           // Handle already-active array matches
-          const isActiveArrayMatch = isArraySchema
+          const isActiveArrayMatch = isArray
             && activation.depth !== -1  // Already active
             && matches;  // Matches again
 
@@ -255,27 +265,14 @@ export class XmlParsingStateMachine {
   }
 
   /**
-   * Get schema type name (runtime type detection)
+   * Unwrap Transform and Optional wrappers to get core schema
    */
-  /**
-   * Unwrap Transform and Optional wrappers
-   */
-  private unwrapSchema(schema: any): any {
+  private unwrapSchema(schema: XmlSchemaBase<any, any>): XmlSchemaBase<any, any> {
     let unwrapped = schema;
-    while (unwrapped && 'schema' in unwrapped) {
-      const typeName = unwrapped.constructor?.name || '';
-      if (typeName === 'XmlTransformSchema' || typeName === 'XmlOptionalSchema') {
-        unwrapped = unwrapped.schema;
-      } else {
-        break;
-      }
+    while (isTransformSchema(unwrapped) || isOptionalSchema(unwrapped)) {
+      unwrapped = unwrapped.schema;
     }
-    return unwrapped || schema;
-  }
-
-  getSchemaType(schema: XmlSchemaBase<any, any>): string {
-    if (!schema) return 'undefined';
-    return this.unwrapSchema(schema)?.constructor?.name || schema?.constructor?.name || 'unknown';
+    return unwrapped;
   }
 
   /**
@@ -350,10 +347,12 @@ export class XmlParsingStateMachine {
     const arrayCollector = activation.collector as ArrayCollector<any>;
     // Unwrap schema to get the actual array schema (in case it's wrapped in Transform/Optional)
     const unwrappedArraySchema = this.unwrapSchema(activation.schema);
-    const elementSchema = (unwrappedArraySchema as any).element;
-    const elementType = this.getSchemaType(elementSchema);
+    if (!isArraySchema(unwrappedArraySchema)) return;
 
-    if (elementType === 'XmlObjectSchema') {
+    const elementSchema = unwrappedArraySchema.element;
+    const unwrappedElement = this.unwrapSchema(elementSchema);
+
+    if (isObjectSchema(unwrappedElement)) {
       // Complex element: object
       const itemCollector: ObjectCollector = {
         type: 'object',
@@ -369,9 +368,8 @@ export class XmlParsingStateMachine {
       };
 
       // Register object fields with context
-      const unwrappedElement = this.unwrapSchema(elementSchema);
-      const shape = (unwrappedElement as any).shape;
-      for (const [fieldName, fieldSchema] of Object.entries(shape)) {
+      const shape = unwrappedElement.shape;
+      for (const [fieldName, fieldSchema] of Object.entries(shape) as Array<[string, XmlSchemaBase<any, any>]>) {
         const xpath = this.extractXPath(fieldSchema);
         if (!xpath) continue;
 
@@ -406,7 +404,7 @@ export class XmlParsingStateMachine {
       }
 
       arrayCollector.currentItem = itemCollector;
-    } else if (elementType === 'XmlArraySchema') {
+    } else if (isArraySchema(unwrappedElement)) {
       // Complex element: nested array
       const itemCollector: ArrayCollector<any> = {
         type: 'array',
@@ -422,7 +420,7 @@ export class XmlParsingStateMachine {
       };
 
       // Register nested array with context
-      const nestedXPath = (elementSchema as any).xpath;
+      const nestedXPath = unwrappedElement.xpath;
       if (nestedXPath) {
         const nestedActivation = this.registerSchema(
           elementSchema,
@@ -482,67 +480,59 @@ export class XmlParsingStateMachine {
       }
     }
 
-    const schemaType = this.getSchemaType(activation.schema);
+    const unwrappedSchema = this.unwrapSchema(activation.schema);
 
-    switch (schemaType) {
-      case 'XmlStringSchema':
-      case 'XmlNumberSchema':
-        (activation.collector as StringCollector | NumberCollector).buffer = '';
-        break;
+    if (isStringSchema(unwrappedSchema) || isNumberSchema(unwrappedSchema)) {
+      (activation.collector as StringCollector | NumberCollector).buffer = '';
+    } else if (isArraySchema(unwrappedSchema)) {
+      // Array element matched - start collecting first item
+      this.createArrayItemSync(activation, event);
+    } else if (isObjectSchema(unwrappedSchema)) {
+      // Object matched - dynamically register field schemas
+      const objectCollector = activation.collector as ObjectCollector;
+      const shape = unwrappedSchema.shape;
 
-      case 'XmlArraySchema':
-        // Array element matched - start collecting first item
-        this.createArrayItemSync(activation, event);
-        break;
+      // Create context for this object's fields
+      const objectContext: MatchContext = {
+        contextElement: event,
+        contextDepth: this.currentDepth,
+        parentContext: activation.context,
+        contextXPath: activation.xpath
+      };
 
-      case 'XmlObjectSchema':
-        // Object matched - dynamically register field schemas
-        const objectCollector = activation.collector as ObjectCollector;
-        const unwrappedObject = this.unwrapSchema(activation.schema);
-        const shape = (unwrappedObject as any).shape as Record<string, any>;
+      for (const [fieldName, fieldSchema] of Object.entries(shape) as Array<[string, XmlSchemaBase<any, any>]>) {
+        const xpath = this.extractXPath(fieldSchema);
+        if (!xpath) continue;
 
-        // Create context for this object's fields
-        const objectContext: MatchContext = {
-          contextElement: event,
-          contextDepth: this.currentDepth,
-          parentContext: activation.context,
-          contextXPath: activation.xpath
-        };
+        // Create collector for this field
+        const childCollector = this.createCollectorForSchema(fieldSchema);
 
-        for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-          const xpath = this.extractXPath(fieldSchema);
-          if (!xpath) continue;
+        // Register child schema with context (no path resolution needed!)
+        this.registerSchema(
+          fieldSchema,
+          xpath,  // Keep original xpath (./price, ./name, etc.)
+          childCollector,
+          objectContext,  // Pass context for relative matching
+          fieldName
+        );
 
-          // Create collector for this field
-          const childCollector = this.createCollectorForSchema(fieldSchema);
+        // Store collector in object's fields map
+        objectCollector.fields.set(fieldName, childCollector);
 
-          // Register child schema with context (no path resolution needed!)
-          this.registerSchema(
-            fieldSchema,
-            xpath,  // Keep original xpath (./price, ./name, etc.)
-            childCollector,
-            objectContext,  // Pass context for relative matching
-            fieldName
-          );
-
-          // Store collector in object's fields map
-          objectCollector.fields.set(fieldName, childCollector);
-
-          // If this is an attribute selector, activate it immediately on current event
-          if (xpath.startsWith('./@') || xpath.startsWith('@')) {
-            const relativePath = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
-            if (event.attributes && relativePath in event.attributes) {
-              const attrValue = event.attributes[relativePath];
-              if (childCollector.type === 'string') {
-                childCollector.value = attrValue;
-              } else if (childCollector.type === 'number') {
-                // Call schema's _parseText to apply validation
-                childCollector.value = (fieldSchema as any)._parseText(attrValue);
-              }
+        // If this is an attribute selector, activate it immediately on current event
+        if (xpath.startsWith('./@') || xpath.startsWith('@')) {
+          const relativePath = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
+          if (event.attributes && relativePath in event.attributes) {
+            const attrValue = event.attributes[relativePath];
+            if (childCollector.type === 'string') {
+              childCollector.value = attrValue;
+            } else if (childCollector.type === 'number') {
+              // Call schema's _parseText to apply validation
+              childCollector.value = (fieldSchema as any)._parseText(attrValue);
             }
           }
         }
-        break;
+      }
     }
   }
 
@@ -558,71 +548,62 @@ export class XmlParsingStateMachine {
    * Schema deactivated (sync)
    */
   private onSchemaDeactivatedSync(activation: SchemaActivation): void {
-    const schemaType = this.getSchemaType(activation.schema);
+    const unwrappedSchema = this.unwrapSchema(activation.schema);
 
-    switch (schemaType) {
-      case 'XmlStringSchema':
-        const stringCollector = activation.collector as StringCollector;
-        stringCollector.value = stringCollector.buffer.trim();
-        break;
+    if (isStringSchema(unwrappedSchema)) {
+      const stringCollector = activation.collector as StringCollector;
+      stringCollector.value = stringCollector.buffer.trim();
+    } else if (isNumberSchema(unwrappedSchema)) {
+      const numberCollector = activation.collector as NumberCollector;
+      const text = numberCollector.buffer.trim();
+      // Call schema's _parseText to apply validation (min/max/int checks)
+      if (unwrappedSchema._parseText) {
+        numberCollector.value = unwrappedSchema._parseText(text);
+      }
+    } else if (isArraySchema(unwrappedSchema)) {
+      // Array element finished - add to items
+      const arrayCollector = activation.collector as ArrayCollector<any>;
+      if (arrayCollector.currentItem) {
+        const elementSchema = unwrappedSchema.element;
+        const unwrappedElement = this.unwrapSchema(elementSchema);
 
-      case 'XmlNumberSchema':
-        const numberCollector = activation.collector as NumberCollector;
-        const text = numberCollector.buffer.trim();
-        // Call schema's _parseText to apply validation (min/max/int checks)
-        numberCollector.value = (activation.schema as any)._parseText(text);
-        break;
-
-      case 'XmlArraySchema':
-        // Array element finished - add to items
-        const arrayCollector = activation.collector as ArrayCollector<any>;
-        if (arrayCollector.currentItem) {
-          // Unwrap schema to get the actual array schema (in case it's wrapped in Transform/Optional)
-          const unwrappedArraySchema = this.unwrapSchema(activation.schema);
-          const elementSchema = (unwrappedArraySchema as any).element;
-          const elementType = this.getSchemaType(elementSchema);
-
-          if (elementType === 'XmlObjectSchema' &&
-              typeof arrayCollector.currentItem === 'object' &&
-              'fields' in arrayCollector.currentItem) {
-            // Complex element: object
-            const itemObject = this.extractObjectFromCollector(
-              arrayCollector.currentItem,
-              elementSchema
-            );
-            arrayCollector.items.push(itemObject);
-          } else if (elementType === 'XmlArraySchema' &&
-                     typeof arrayCollector.currentItem === 'object' &&
-                     'items' in arrayCollector.currentItem) {
-            // Complex element: nested array
-            arrayCollector.items.push(arrayCollector.currentItem.items);
-          } else if ('buffer' in arrayCollector.currentItem) {
-            // Simple element: string or number
-            const text = arrayCollector.currentItem.buffer.trim();
-
-            // Apply type conversion based on element schema
-            if (elementType === 'XmlNumberSchema') {
-              const numberValue = (elementSchema as any)._parseText(text);
-              arrayCollector.items.push(numberValue);
-            } else {
-              arrayCollector.items.push(text);
-            }
-          }
-
-          // Clean up temporary child schemas for this array item
-          // Only remove schemas that were registered with this specific collector
-          this.activeSchemas = this.activeSchemas.filter(a =>
-            !(a.isTemporary && a.parentCollector === arrayCollector.currentItem)
+        if (isObjectSchema(unwrappedElement) &&
+          typeof arrayCollector.currentItem === 'object' &&
+          'fields' in arrayCollector.currentItem) {
+          // Complex element: object
+          const itemObject = this.extractObjectFromCollector(
+            arrayCollector.currentItem,
+            elementSchema
           );
+          arrayCollector.items.push(itemObject);
+        } else if (isArraySchema(unwrappedElement) &&
+          typeof arrayCollector.currentItem === 'object' &&
+          'items' in arrayCollector.currentItem) {
+          // Complex element: nested array
+          arrayCollector.items.push(arrayCollector.currentItem.items);
+        } else if ('buffer' in arrayCollector.currentItem) {
+          // Simple element: string or number
+          const text = arrayCollector.currentItem.buffer.trim();
 
-          arrayCollector.currentItem = undefined;
+          // Apply type conversion based on element schema
+          if (isNumberSchema(unwrappedElement) && unwrappedElement._parseText) {
+            const numberValue = unwrappedElement._parseText(text);
+            arrayCollector.items.push(numberValue);
+          } else {
+            arrayCollector.items.push(text);
+          }
         }
-        break;
 
-      case 'XmlObjectSchema':
-        // Object finished
-        break;
+        // Clean up temporary child schemas for this array item
+        // Only remove schemas that were registered with this specific collector
+        this.activeSchemas = this.activeSchemas.filter(a =>
+          !(a.isTemporary && a.parentCollector === arrayCollector.currentItem)
+        );
+
+        arrayCollector.currentItem = undefined;
+      }
     }
+    // XmlObjectSchema doesn't need special deactivation handling
   }
 
   /**
@@ -675,30 +656,21 @@ export class XmlParsingStateMachine {
    * Extract XPath from a schema (handles wrappers and different schema types)
    * @internal
    */
-  private extractXPath(schema: any): string | undefined {
-    if (!schema || typeof schema !== 'object') {
-      return undefined;
-    }
-
-    // Unwrap Transform/Optional wrappers first
-    let current = schema;
-    while (current) {
-      const typeName = current.constructor?.name || '';
-      if (typeName === 'XmlTransformSchema' || typeName === 'XmlOptionalSchema') {
-        current = current.schema;
-      } else {
-        break;
-      }
-    }
+  private extractXPath(schema: XmlSchemaBase<any, any>): string | undefined {
+    const unwrapped = this.unwrapSchema(schema);
 
     // XmlArraySchema has direct xpath property
-    if ('xpath' in current && typeof current.xpath === 'string') {
-      return current.xpath;
+    if (isArraySchema(unwrapped)) {
+      return unwrapped.xpath;
     }
 
-    // Other schemas use options.xpath
-    if ('options' in current && current.options?.xpath) {
-      return current.options.xpath;
+    // Other schemas (String, Number, Object) use options.xpath
+    if (isStringSchema(unwrapped) || isNumberSchema(unwrapped)) {
+      return unwrapped.options.xpath;
+    }
+
+    if (isObjectSchema(unwrapped)) {
+      return unwrapped.options.xpath;
     }
 
     return undefined;
@@ -708,33 +680,21 @@ export class XmlParsingStateMachine {
    * Create appropriate collector for a schema type
    * @internal
    */
-  private createCollectorForSchema(schema: any): Collector<any> {
-    // Unwrap wrappers to get core schema type
-    let unwrapped = schema;
-    while (unwrapped && 'schema' in unwrapped) {
-      const typeName = unwrapped.constructor?.name || '';
-      if (typeName === 'XmlTransformSchema' || typeName === 'XmlOptionalSchema') {
-        unwrapped = unwrapped.schema;
-      } else {
-        break;
-      }
+  private createCollectorForSchema(schema: XmlSchemaBase<any, any>): Collector<any> {
+    const unwrapped = this.unwrapSchema(schema);
+
+    if (isStringSchema(unwrapped)) {
+      return { type: 'string', buffer: '' };
+    } else if (isNumberSchema(unwrapped)) {
+      return { type: 'number', buffer: '' };
+    } else if (isArraySchema(unwrapped)) {
+      return { type: 'array', items: [] };
+    } else if (isObjectSchema(unwrapped)) {
+      return { type: 'object', fields: new Map() };
     }
 
-    const schemaType = unwrapped?.constructor?.name || '';
-
-    switch (schemaType) {
-      case 'XmlStringSchema':
-        return { type: 'string', buffer: '' };
-      case 'XmlNumberSchema':
-        return { type: 'number', buffer: '' };
-      case 'XmlArraySchema':
-        return { type: 'array', items: [] };
-      case 'XmlObjectSchema':
-        return { type: 'object', fields: new Map() };
-      default:
-        // Fallback to string
-        return { type: 'string', buffer: '' };
-    }
+    // Fallback to string
+    return { type: 'string', buffer: '' };
   }
 
   /**
@@ -743,11 +703,13 @@ export class XmlParsingStateMachine {
    */
   private extractObjectFromCollector(
     collector: ObjectCollector,
-    schema: any
+    schema: XmlSchemaBase<any, any>
   ): any {
     let result: any = {};
     const unwrappedSchema = this.unwrapSchema(schema);
-    const shape = (unwrappedSchema as any).shape;
+    if (!isObjectSchema(unwrappedSchema)) return result;
+
+    const shape = unwrappedSchema.shape;
 
     // 1. Extract field values from collectors
     for (const [fieldName, fieldCollector] of collector.fields) {
@@ -771,21 +733,18 @@ export class XmlParsingStateMachine {
    * Get all transform functions from schema chain
    * @internal
    */
-  private getAllTransforms(schema: any): Array<(value: any) => any> {
+  private getAllTransforms(schema: XmlSchemaBase<any, any>): Array<(value: any) => any> {
     const transforms: Array<(value: any) => any> = [];
-    let current = schema;
+    let current: XmlSchemaBase<any, any> = schema;
 
-    while (current) {
-      const typeName = current?.constructor?.name || '';
-      if (typeName === 'XmlTransformSchema') {
+    while (isTransformSchema(current) || isOptionalSchema(current)) {
+      if (isTransformSchema(current)) {
         if (current.transformFn) {
           transforms.unshift(current.transformFn); // Prepend for correct order
         }
         current = current.schema;
-      } else if (typeName === 'XmlOptionalSchema') {
+      } else if (isOptionalSchema(current)) {
         current = current.schema;
-      } else {
-        break;
       }
     }
 
@@ -796,10 +755,10 @@ export class XmlParsingStateMachine {
    * Extract value with field-level transforms
    * @internal
    */
-  private extractValueWithTransforms(collector: Collector<any>, schema: any): any {
+  private extractValueWithTransforms(collector: Collector<any>, schema: XmlSchemaBase<any, any>): any {
     // Check if schema is optional
-    const isOptional = this.isOptionalSchema(schema);
-    let value = this.extractSimpleValue(collector, isOptional);
+    const schemaIsOptional = this.hasOptionalWrapper(schema);
+    let value = this.extractSimpleValue(collector, schemaIsOptional);
 
     // Apply transforms for this field
     const transforms = this.getAllTransforms(schema);
@@ -839,21 +798,17 @@ export class XmlParsingStateMachine {
   }
 
   /**
-   * Check if schema is wrapped in XmlOptionalSchema
+   * Check if schema chain contains XmlOptionalSchema
    * @internal
    */
-  private isOptionalSchema(schema: any): boolean {
-    if (!schema) return false;
-    let current = schema;
-    while (current) {
-      const typeName = current?.constructor?.name || '';
-      if (typeName === 'XmlOptionalSchema') {
+  private hasOptionalWrapper(schema: XmlSchemaBase<any, any>): boolean {
+    let current: XmlSchemaBase<any, any> = schema;
+    while (isOptionalSchema(current) || isTransformSchema(current)) {
+      if (isOptionalSchema(current)) {
         return true;
       }
-      if (typeName === 'XmlTransformSchema' && current.schema) {
+      if (isTransformSchema(current)) {
         current = current.schema;
-      } else {
-        break;
       }
     }
     return false;

@@ -208,3 +208,114 @@ export interface XmlWriteOptions {
    */
   xmlVersion?: string;
 }
+
+/**
+ * Schema type constants for XML schema classification
+ *
+ * @public
+ */
+export const SchemaType = {
+  STRING: 'STRING',
+  NUMBER: 'NUMBER',
+  ARRAY: 'ARRAY',
+  OBJECT: 'OBJECT',
+  TRANSFORM: 'TRANSFORM',
+  OPTIONAL: 'OPTIONAL'
+} as const;
+
+/**
+ * Schema type union
+ *
+ * @public
+ */
+export type SchemaType = typeof SchemaType[keyof typeof SchemaType];
+
+// Forward declarations for type guards (will be imported from schema files)
+import type { XmlStringSchema } from './XmlStringSchema.js';
+import type { XmlNumberSchema } from './XmlNumberSchema.js';
+import type { XmlArraySchema } from './XmlArraySchema.js';
+import type { XmlObjectSchema, XmlObjectShape } from './XmlObjectSchema.js';
+import type { XmlTransformSchema } from './XmlTransformSchema.js';
+import type { XmlOptionalSchema } from './XmlOptionalSchema.js';
+import type { XmlSchemaBase } from './base.js';
+
+/**
+ * Core schema types (non-wrapper schemas)
+ *
+ * @public
+ */
+export type XmlCoreSchema =
+  | XmlStringSchema
+  | XmlNumberSchema
+  | XmlArraySchema<XmlSchemaBase<unknown, unknown>>
+  | XmlObjectSchema<XmlObjectShape>;
+
+/**
+ * Wrapper schema types (transform and optional)
+ *
+ * @public
+ */
+export type XmlWrappedSchema =
+  | XmlTransformSchema<unknown, unknown>
+  | XmlOptionalSchema<XmlSchemaBase<unknown, unknown>>;
+
+/**
+ * Any XML schema type
+ *
+ * @public
+ */
+export type AnyXmlSchema = XmlCoreSchema | XmlWrappedSchema;
+
+/**
+ * Type guard for string schema
+ *
+ * @public
+ */
+export function isStringSchema(schema: XmlSchemaBase<any, any>): schema is XmlStringSchema {
+  return schema.schemaType === SchemaType.STRING;
+}
+
+/**
+ * Type guard for number schema
+ *
+ * @public
+ */
+export function isNumberSchema(schema: XmlSchemaBase<any, any>): schema is XmlNumberSchema {
+  return schema.schemaType === SchemaType.NUMBER;
+}
+
+/**
+ * Type guard for array schema
+ *
+ * @public
+ */
+export function isArraySchema(schema: XmlSchemaBase<unknown, unknown>): schema is XmlArraySchema<XmlSchemaBase<unknown, unknown>> {
+  return schema.schemaType === SchemaType.ARRAY;
+}
+
+/**
+ * Type guard for object schema
+ *
+ * @public
+ */
+export function isObjectSchema(schema: XmlSchemaBase<unknown, unknown>): schema is XmlObjectSchema<XmlObjectShape> {
+  return schema.schemaType === SchemaType.OBJECT;
+}
+
+/**
+ * Type guard for transform schema
+ *
+ * @public
+ */
+export function isTransformSchema(schema: XmlSchemaBase<unknown, unknown>): schema is XmlTransformSchema<unknown, unknown> {
+  return schema.schemaType === SchemaType.TRANSFORM;
+}
+
+/**
+ * Type guard for optional schema
+ *
+ * @public
+ */
+export function isOptionalSchema(schema: XmlSchemaBase<unknown, unknown>): schema is XmlOptionalSchema<XmlSchemaBase<unknown, unknown>> {
+  return schema.schemaType === SchemaType.OPTIONAL;
+}

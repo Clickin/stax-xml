@@ -20,19 +20,8 @@ import {
   type ObjectCollector,
   type SchemaActivation
 } from './XmlParsingStateMachine.js';
+import { XmlSchemaBase } from './base.js';
 
-/**
- * Internal parse context for tracking state
- *
- * @internal
- */
-interface ParseContext {
-  matcher?: XPathMatcher;
-  currentDepth: number;
-  maxDepth: number;
-  eventCount: number;
-  maxEvents: number;
-}
 
 /**
  * Internal parser implementation
@@ -42,8 +31,6 @@ interface ParseContext {
  */
 export class XmlParserInternal {
   private options?: ParseOptions;
-  private static readonly DEFAULT_MAX_DEPTH = 1000;
-  private static readonly DEFAULT_MAX_EVENTS = 1000000;
 
   constructor(options?: ParseOptions) {
     this.options = options;
@@ -74,8 +61,11 @@ export class XmlParserInternal {
     const stateMachine = new XmlParsingStateMachine(this.options);
     const collector: StringCollector = { type: 'string', buffer: '' };
 
-    // Create a dummy schema object for registration
-    const dummySchema = { constructor: { name: 'XmlStringSchema' } };
+    // Create a dummy schema object for registration with schemaType
+    const dummySchema = {
+      schemaType: 'STRING' as const,
+      constructor: { name: 'XmlStringSchema' }
+    };
     stateMachine.registerSchema(dummySchema as any, xpath, collector);
 
     for await (const event of parser) {
@@ -107,7 +97,10 @@ export class XmlParserInternal {
     const stateMachine = new XmlParsingStateMachine(this.options);
     const collector: StringCollector = { type: 'string', buffer: '' };
 
-    const dummySchema = { constructor: { name: 'XmlStringSchema' } };
+    const dummySchema = {
+      schemaType: 'STRING' as const,
+      constructor: { name: 'XmlStringSchema' }
+    };
     stateMachine.registerSchema(dummySchema as any, xpath, collector);
 
     for (const event of parser) {
@@ -385,7 +378,7 @@ export class XmlParserInternal {
    */
   async parseArrayAsync<T>(
     input: ParseInput,
-    elementSchema: any,
+    elementSchema: XmlSchemaBase<unknown, unknown>,
     xpath?: string
   ): Promise<T[]> {
     if (!xpath) {
@@ -400,6 +393,7 @@ export class XmlParserInternal {
 
     // Create a dummy array schema for registration
     const dummyArraySchema = {
+      schemaType: 'ARRAY' as const,
       constructor: { name: 'XmlArraySchema' },
       element: elementSchema
     };
@@ -420,6 +414,7 @@ export class XmlParserInternal {
 
     // Extract results from collector
     return this.extractValueFromCollector(arrayCollector, {
+      schemaType: 'ARRAY' as const,
       constructor: { name: 'XmlArraySchema' },
       element: elementSchema
     } as any) as T[];
@@ -507,7 +502,7 @@ export class XmlParserInternal {
               const attrValue = event.attributes[attrName];
               if (attrValue !== undefined) {
                 const value = this.parseFieldValue(attrValue, elementSchema);
-                results.push(value);
+                results.push(value as T);
               }
             }
           } else if (needsRecursive && elementSchema._parseFromPosition) {
@@ -531,7 +526,7 @@ export class XmlParserInternal {
               sm,  // Pass State Machine
               arrayActivation  // Pass context
             );
-            results.push(value);
+            results.push(value as T);
             // _parseFromPosition consumed up to and including the closing tag
           } else if (elementXPath) {
             // Element has XPath - use matching logic
@@ -543,7 +538,7 @@ export class XmlParserInternal {
               elementMatcher!,
               elementSchema
             );
-            results.push(value);
+            results.push(value as T);
             matcher.onEndElement();
             currentDepth--;
           } else {
@@ -553,7 +548,7 @@ export class XmlParserInternal {
               currentDepth
             );
             const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
-            results.push(value);
+            results.push(value as T);
             matcher.onEndElement();
             currentDepth--;
           }
@@ -625,7 +620,7 @@ export class XmlParserInternal {
               const attrValue = event.attributes[attrName];
               if (attrValue !== undefined) {
                 const value = this.parseFieldValue(attrValue, elementSchema);
-                results.push(value);
+                results.push(value as T);
               }
             }
           } else if (needsRecursive && elementSchema._parseFromPosition) {
@@ -649,7 +644,7 @@ export class XmlParserInternal {
               sm,  // Pass State Machine
               arrayActivation  // Pass context
             );
-            results.push(value);
+            results.push(value as T);
             // _parseFromPosition consumed up to and including the closing tag
           } else if (elementXPath) {
             // Element has XPath - use matching logic
@@ -661,7 +656,7 @@ export class XmlParserInternal {
               elementMatcher!,
               elementSchema
             );
-            results.push(value);
+            results.push(value as T);
             matcher.onEndElement();
             currentDepth--;
           } else {
@@ -671,7 +666,7 @@ export class XmlParserInternal {
               currentDepth
             );
             const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
-            results.push(value);
+            results.push(value as T);
             matcher.onEndElement();
             currentDepth--;
           }
@@ -697,7 +692,7 @@ export class XmlParserInternal {
   /**
    * Parse array synchronously
    */
-  parseArray<T>(input: string, elementSchema: any, xpath?: string): T[] {
+  parseArray<T>(input: string, elementSchema: XmlSchemaBase<unknown, unknown>, xpath?: string): T[] {
     if (!xpath) {
       throw new Error('Array schema requires xpath');
     }
@@ -713,6 +708,7 @@ export class XmlParserInternal {
 
     // Create a dummy array schema for registration
     const dummyArraySchema = {
+      schemaType: 'ARRAY' as const,
       constructor: { name: 'XmlArraySchema' },
       element: elementSchema
     };
@@ -733,6 +729,7 @@ export class XmlParserInternal {
 
     // Extract results from collector
     return this.extractValueFromCollector(arrayCollector, {
+      schemaType: 'ARRAY' as const,
       constructor: { name: 'XmlArraySchema' },
       element: elementSchema
     } as any) as T[];
@@ -793,70 +790,54 @@ export class XmlParserInternal {
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
   }
 
-  private createContext(matcher?: XPathMatcher): ParseContext {
-    return {
-      matcher,
-      currentDepth: 0,
-      maxDepth: this.options?.maxDepth ?? XmlParserInternal.DEFAULT_MAX_DEPTH,
-      eventCount: 0,
-      maxEvents: this.options?.maxEvents ?? XmlParserInternal.DEFAULT_MAX_EVENTS
-    };
-  }
 
-  private checkLimits(context: ParseContext): void {
-    if (context.currentDepth > context.maxDepth) {
-      throw new Error(`XML depth limit exceeded: ${context.maxDepth}`);
-    }
-    if (context.eventCount > context.maxEvents) {
-      throw new Error(`XML event limit exceeded: ${context.maxEvents}`);
-    }
-  }
-
-  private extractXPath(schema: any): string | undefined {
+  private extractXPath(schema: unknown): string | undefined {
     if (!schema || typeof schema !== 'object') {
       return undefined;
     }
 
     // Unwrap wrappers (Transform, Optional) first to get to the core schema
     const unwrapped = this.unwrapSchema(schema);
+    if (!unwrapped || typeof unwrapped !== 'object') {
+      return undefined;
+    }
 
     // First check if xpath is a direct property (for XmlArraySchema)
     // Must be a string value, not just any property
-    if ('xpath' in unwrapped && typeof unwrapped.xpath === 'string') {
-      return unwrapped.xpath;
+    if ('xpath' in unwrapped) {
+      const xpathProp = (unwrapped as {xpath?: unknown}).xpath;
+      if (typeof xpathProp === 'string') {
+        return xpathProp;
+      }
     }
 
     // Then check options (for other schemas like XmlStringSchema, XmlNumberSchema)
-    if ('options' in unwrapped && unwrapped.options && typeof unwrapped.options === 'object') {
-      const xpath = unwrapped.options.xpath;
-      if (typeof xpath === 'string') {
-        return xpath;
+    if ('options' in unwrapped) {
+      const opts = (unwrapped as {options?: unknown}).options;
+      if (opts && typeof opts === 'object' && 'xpath' in opts) {
+        const xpath = (opts as {xpath?: unknown}).xpath;
+        if (typeof xpath === 'string') {
+          return xpath;
+        }
       }
     }
 
     return undefined;
   }
 
-  /**
-   * Check if a schema (possibly wrapped) is an array field
-   */
-  private isArrayField(schema: any): boolean {
-    const unwrapped = this.unwrapSchema(schema);
-    return unwrapped?.constructor?.name === 'XmlArraySchema';
-  }
 
   /**
    * Check if a schema is wrapped in XmlOptionalSchema
    */
-  private isOptionalSchema(schema: any): boolean {
-    if (!schema) return false;
-    let current = schema;
-    while (current) {
-      const typeName = current?.constructor?.name || '';
+  private isOptionalSchema(schema: unknown): boolean {
+    if (!schema || typeof schema !== 'object') return false;
+    let current: unknown = schema;
+    while (current && typeof current === 'object') {
+      const typeName = ('constructor' in current && current.constructor) ? current.constructor.name : '';
       if (typeName === 'XmlOptionalSchema') {
         return true;
       }
-      if (typeName === 'XmlTransformSchema' && current.schema) {
+      if (typeName === 'XmlTransformSchema' && 'schema' in current) {
         current = current.schema;
       } else {
         break;
@@ -868,11 +849,15 @@ export class XmlParserInternal {
   /**
    * Unwrap wrapper schemas (Optional, Transform) to get the inner schema
    */
-  private unwrapSchema(schema: any): any {
-    const typeName = schema?.constructor?.name || '';
+  private unwrapSchema(schema: unknown): unknown {
+    if (!schema || typeof schema !== 'object') {
+      return schema;
+    }
+
+    const typeName = ('constructor' in schema && schema.constructor) ? schema.constructor.name : '';
 
     // Unwrap Optional and Transform wrappers
-    if ((typeName === 'XmlOptionalSchema' || typeName === 'XmlTransformSchema') && schema.schema) {
+    if ((typeName === 'XmlOptionalSchema' || typeName === 'XmlTransformSchema') && 'schema' in schema) {
       return this.unwrapSchema(schema.schema); // Recursive unwrap
     }
 
@@ -882,19 +867,27 @@ export class XmlParserInternal {
   /**
    * Extract all Transform functions from a schema chain
    */
-  private getAllTransforms(schema: any): Array<(value: any) => any> {
-    const transforms: Array<(value: any) => any> = [];
-    let current = schema;
+  private getAllTransforms(schema: unknown): Array<(value: unknown) => unknown> {
+    const transforms: Array<(value: unknown) => unknown> = [];
+    let current: unknown = schema;
 
-    while (current) {
-      const typeName = current?.constructor?.name || '';
+    while (current && typeof current === 'object') {
+      const typeName = ('constructor' in current && current.constructor) ? current.constructor.name : '';
       if (typeName === 'XmlTransformSchema') {
-        if (current.transformFn) {
-          transforms.unshift(current.transformFn); // Prepend to maintain correct order
+        if ('transformFn' in current && typeof current.transformFn === 'function') {
+          transforms.unshift(current.transformFn as (value: unknown) => unknown);
         }
-        current = current.schema;
+        if ('schema' in current) {
+          current = current.schema;
+        } else {
+          break;
+        }
       } else if (typeName === 'XmlOptionalSchema') {
-        current = current.schema;
+        if ('schema' in current) {
+          current = current.schema;
+        } else {
+          break;
+        }
       } else {
         break;
       }
@@ -903,20 +896,10 @@ export class XmlParserInternal {
     return transforms;
   }
 
-  /**
-   * Get element schema from an array schema (unwrapping if needed)
-   */
-  private unwrapArraySchema(schema: any): any {
-    const unwrapped = this.unwrapSchema(schema);
-    if (unwrapped?.constructor?.name === 'XmlArraySchema' && unwrapped.element) {
-      return unwrapped.element;
-    }
-    return null;
-  }
 
-  private parseFieldValue(text: string, schema: any): any {
+  private parseFieldValue(text: string, schema: unknown): unknown {
     // For simple schemas with _parseText, use it directly
-    if (schema?._parseText) {
+    if (schema && typeof schema === 'object' && '_parseText' in schema && typeof schema._parseText === 'function') {
       return schema._parseText(text);
     }
 
@@ -924,50 +907,18 @@ export class XmlParserInternal {
     return text;
   }
 
-  private isComplexSchema(schema: any): boolean {
+  private isComplexSchema(schema: unknown): boolean {
     // Unwrap wrappers first
     const unwrapped = this.unwrapSchema(schema);
-    const typeName = unwrapped?.constructor?.name || '';
+    if (!unwrapped || typeof unwrapped !== 'object') {
+      return false;
+    }
+    const typeName = ('constructor' in unwrapped && unwrapped.constructor) ? unwrapped.constructor.name : '';
     // Only XmlObjectSchema needs recursive position-based parsing
     // Arrays, Transforms, and Optionals can be handled differently
     return typeName === 'XmlObjectSchema';
   }
 
-
-  private needsFullDocumentParsing(schema: any): boolean {
-    const typeName = schema?.constructor?.name || '';
-
-    // Direct array schema
-    if (typeName === 'XmlArraySchema') {
-      // Check if it uses relative XPath (starts with ./)
-      const xpath = this.extractArrayXPath(schema);
-      if (xpath && xpath.startsWith('./')) {
-        // Relative XPath - should be parsed within current context, not full document
-        return false;
-      }
-      return true; // Absolute XPath - needs full document parsing
-    }
-
-    // Transform schema wrapping an array
-    if (typeName === 'XmlTransformSchema' && schema.schema) {
-      return this.needsFullDocumentParsing(schema.schema);
-    }
-
-    // Optional schema wrapping an array
-    if (typeName === 'XmlOptionalSchema' && schema.schema) {
-      return this.needsFullDocumentParsing(schema.schema);
-    }
-
-    return false;
-  }
-
-  private extractArrayXPath(schema: any): string | undefined {
-    // For XmlArraySchema, xpath is a private field but can be accessed directly
-    if (schema && typeof schema === 'object' && 'xpath' in schema && typeof schema.xpath === 'string') {
-      return schema.xpath;
-    }
-    return undefined;
-  }
 
   private decodeText(text: string): string {
     if (this.options?.trimText) {
@@ -1081,7 +1032,7 @@ export class XmlParserInternal {
   /**
    * Extract final value from collector based on schema type
    */
-  private extractValueFromCollector(collector: Collector<any>, schema: any): any {
+  private extractValueFromCollector(collector: Collector<unknown>, schema: unknown): unknown {
     // Check if schema is Optional and collector is empty
     const isOptional = this.isOptionalSchema(schema);
     const isEmpty = (
@@ -1107,35 +1058,27 @@ export class XmlParserInternal {
     } else if (collector.type === 'array') {
       let items = collector.items;
 
-      // Parse each array element using element schema
-      const unwrapped = this.unwrapSchema(schema);
-      if (unwrapped?.constructor?.name === 'XmlArraySchema') {
-        const elementSchema = (unwrapped as any).element;
-        const elementUnwrapped = this.unwrapSchema(elementSchema);
-        const elementType = elementUnwrapped?.constructor?.name;
-
-        // Only parse text for scalar types (string, number)
-        // Complex types (array, object) are already parsed by the state machine
-        if (elementType === 'XmlStringSchema' || elementType === 'XmlNumberSchema') {
-          if (elementSchema?._parseText) {
-            // Parse text content for each item
-            items = items.map((text: string) => elementSchema._parseText(text));
-          }
-        }
-      }
+      // NOTE: Array items are already parsed by XmlParsingStateMachine.onSchemaDeactivatedSync()
+      // (lines 586-594), which applies type conversion for string/number element schemas.
+      // We should NOT call _parseText() again here as items are already processed.
 
       // Apply all transforms in the schema chain
       const transforms = this.getAllTransforms(schema);
       for (const transformFn of transforms) {
-        items = transformFn(items);
+        items = transformFn(items) as unknown[];
       }
 
       return items;
     } else if (collector.type === 'object') {
       // Reconstruct object from field collectors
-      let result: any = {};
+      let result: Record<string, unknown> = {};
       const unwrapped = this.unwrapSchema(schema);
-      const shape = (unwrapped as any).shape as Record<string, any>;
+
+      // Type guard to safely access shape
+      if (!unwrapped || typeof unwrapped !== 'object' || !('shape' in unwrapped)) {
+        return result;
+      }
+      const shape = unwrapped.shape as Record<string, unknown>;
 
       for (const [fieldName, fieldCollector] of collector.fields) {
         // Get the field schema from the object's shape
@@ -1149,7 +1092,7 @@ export class XmlParserInternal {
       // Apply all transforms to the object result
       const transforms = this.getAllTransforms(schema);
       for (const transformFn of transforms) {
-        result = transformFn(result);
+        result = transformFn(result) as Record<string, unknown>;
       }
 
       return result;
@@ -1162,21 +1105,21 @@ export class XmlParserInternal {
    * Create collector for a schema based on its type
    * @internal
    */
-  private createCollectorForSchema(schema: any): Collector<any> {
+  private createCollectorForSchema(schema: unknown): Collector<unknown> {
     const unwrapped = this.unwrapSchema(schema);
-    const schemaType = unwrapped?.constructor?.name;
+    const schemaType = (unwrapped && typeof unwrapped === 'object' && 'constructor' in unwrapped && unwrapped.constructor) ? unwrapped.constructor.name : '';
 
     switch (schemaType) {
       case 'XmlArraySchema':
-        return { type: 'array', items: [] } as ArrayCollector<any>;
+        return { type: 'array', items: [] };
       case 'XmlStringSchema':
-        return { type: 'string', buffer: '' } as StringCollector;
+        return { type: 'string', buffer: '' };
       case 'XmlNumberSchema':
-        return { type: 'number', buffer: '' } as NumberCollector;
+        return { type: 'number', buffer: '' };
       case 'XmlObjectSchema':
-        return { type: 'object', fields: new Map() } as ObjectCollector;
+        return { type: 'object', fields: new Map() };
       default:
-        return { type: 'string', buffer: '' } as StringCollector;
+        return { type: 'string', buffer: '' };
     }
   }
 

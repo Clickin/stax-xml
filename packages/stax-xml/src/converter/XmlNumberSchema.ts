@@ -2,6 +2,7 @@ import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
 import { XmlParseError } from './errors.js';
 import type { ParseOptions, XmlNumberOptions, XmlWriteOptions } from './types.js';
+import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
 import { XmlWriterInternal } from './XmlWriterInternal.js';
 
@@ -11,6 +12,8 @@ import { XmlWriterInternal } from './XmlWriterInternal.js';
  * @public
  */
 export class XmlNumberSchema extends XmlSchema<number, number> {
+  readonly schemaType = SchemaType.NUMBER;
+
   constructor(public options: XmlNumberOptions = {}) {
     super();
   }

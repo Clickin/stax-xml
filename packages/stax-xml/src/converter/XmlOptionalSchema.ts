@@ -1,13 +1,16 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
+import { SchemaType } from './types.js';
 
 /**
  * Schema for optional values
  *
  * @public
  */
-export class XmlOptionalSchema<T extends XmlSchemaBase<any, any>> extends XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined> {
-  constructor(private schema: T) {
+export class XmlOptionalSchema<T extends XmlSchemaBase<unknown, unknown>> extends XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined> {
+  readonly schemaType = SchemaType.OPTIONAL;
+
+  constructor(public readonly schema: T) {
     super();
   }
 

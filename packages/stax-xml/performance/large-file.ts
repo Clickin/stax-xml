@@ -2,7 +2,7 @@ import { createReadStream } from 'fs';
 import { dirname } from 'path';
 import StaxXmlParser from '../src/StaxXmlParser';
 import { StaxXmlParserSync } from '../src/StaxXmlParserSync'; // Add this import
-import { XmlEventType } from '../src/types';
+import { isCharacters, isStartElement } from '../src/types';
 
 // 어설션 헬퍼 함수
 function assert(condition: boolean, message: string): void {
@@ -102,15 +102,15 @@ async function parseTreebankWithMemoryMonitoring() {
     const eventStartTime = performance.now();
     eventCount++;
 
-    if (event.type === XmlEventType.START_ELEMENT) {
-      const elementName = (event as any).name;
+    if (isStartElement(event)) {
+      const elementName = event.name;
       if (elementName === 'S') { // treebank_e.xml의 주요 구조 단위는 문장(S)
         entryCount++;
       } else if (elementName === 'NP' || elementName === 'VP') { // 명사구(NP), 동사구(VP) 등도 카운트
         proteinCount++;
       }
-    } else if (event.type === XmlEventType.CHARACTERS) {
-      totalTextLength += (event as any).value.length;
+    } else if (isCharacters(event)) {
+      totalTextLength += event.value.length;
     }
 
     const eventEndTime = performance.now();
@@ -202,7 +202,7 @@ async function runTests() {
     for await (const event of reader) {
       eventCount++;
 
-      if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'S') {
+      if (isStartElement(event) && event.name === 'S') {
         entryCount++;
 
         // 1000개의 문장마다 메모리 사용량 체크
@@ -282,7 +282,7 @@ async function runTests() {
 
       for await (const event of reader) {
         eventCount++;
-        if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'S') {
+        if (isStartElement(event) && event.name === 'S') {
           entryCount++;
         }
       }
@@ -361,7 +361,7 @@ async function runTests() {
     for (const event of parser) {
       eventCount++;
 
-      if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'S') {
+      if (isStartElement(event) && event.name === 'S') {
         entryCount++;
       }
       // Update peak memory usage periodically or after a certain number of events
@@ -448,13 +448,13 @@ async function main() {
         const eventStart = performance.now();
         eventCount++;
 
-        if (event.type === XmlEventType.START_ELEMENT) {
+        if (isStartElement(event)) {
           elementCount++;
-          if ((event as any).name === 'S') {
+          if (event.name === 'S') {
             entryCount++;
           }
-        } else if (event.type === XmlEventType.CHARACTERS) {
-          textLength += (event as any).value.length;
+        } else if (isCharacters(event)) {
+          textLength += event.value.length;
         }
 
         const eventTime = performance.now() - eventStart;

@@ -1,5 +1,5 @@
 import type { ParseResult } from './errors.js';
-import type { ParseOptions, XmlWriteOptions, XmlElementWriteConfig } from './types.js';
+import type { ParseOptions, XmlWriteOptions, XmlElementWriteConfig, SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import { XmlParseError } from './errors.js';
 
@@ -19,9 +19,15 @@ export type ParseInput = string | ReadableStream<Uint8Array> | AsyncIterator<Any
  *
  * @public
  */
-export abstract class XmlSchemaBase<Output = any, Input = any> {
+export abstract class XmlSchemaBase<Output, Input = Output> {
   readonly _output!: Output;
   readonly _input!: Input;
+
+  /**
+   * Schema type identifier
+   * @internal
+   */
+  abstract readonly schemaType: SchemaType;
 
   /**
    * Writer configuration for this schema

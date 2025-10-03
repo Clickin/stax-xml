@@ -1,5 +1,6 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
+import { SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 
 /**
@@ -7,15 +8,17 @@ import type { AnyXmlEvent, StartElementEvent } from '../types.js';
  *
  * @public
  */
-export class XmlTransformSchema<Output, Input> extends XmlSchemaBase<Output, Input> {
+export class XmlTransformSchema<Output, Input, IntermediateOutput = unknown> extends XmlSchemaBase<Output, Input> {
+  readonly schemaType = SchemaType.TRANSFORM;
+
   /** @internal */
-  public schema: XmlSchemaBase<any, Input>;
+  public readonly schema: XmlSchemaBase<IntermediateOutput, Input>;
   /** @internal */
-  public transformFn: (value: any) => Output;
+  public readonly transformFn: (value: IntermediateOutput) => Output;
 
   constructor(
-    schema: XmlSchemaBase<any, Input>,
-    transformFn: (value: any) => Output
+    schema: XmlSchemaBase<IntermediateOutput, Input>,
+    transformFn: (value: IntermediateOutput) => Output
   ) {
     super();
     this.schema = schema;
@@ -46,11 +49,11 @@ export class XmlTransformSchema<Output, Input> extends XmlSchemaBase<Output, Inp
       const result = this.schema._parseFromPosition(iterator, startEvent, startDepth, options);
 
       // Check if result is a Promise
-      if (result && typeof (result as any).then === 'function') {
-        return (result as Promise<any>).then(r => this.transformFn(r));
+      if (result && typeof (result as unknown as {then?: unknown}).then === 'function') {
+        return (result as Promise<IntermediateOutput>).then(r => this.transformFn(r));
       }
 
-      return this.transformFn(result);
+      return this.transformFn(result as IntermediateOutput);
     }
 
     // Fallback: should not happen if schemas are properly implemented

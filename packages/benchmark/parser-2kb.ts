@@ -1,9 +1,9 @@
 import { XMLParser } from 'fast-xml-parser';
 import { barplot, bench, run, summary } from 'mitata';
-// @ts-ignore
+import { StaxXmlParserSync, XmlEventType, type AnyXmlEvent } from 'stax-xml';
+//@ts-ignore
 import * as txml from 'txml';
 import xml2js from 'xml2js';
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
 import { ASSET_PATHS, loadXmlFile } from './common/utils.js';
 
 const xmlString = loadXmlFile(ASSET_PATHS.complex); // 2KB
@@ -11,12 +11,11 @@ const xmlString = loadXmlFile(ASSET_PATHS.complex); // 2KB
 // XML을 JavaScript 객체로 변환하는 함수
 function parseXmlToObject(xmlString: string) {
   const parser = new StaxXmlParserSync(xmlString);
-  let elementStack: any[] = [];
-  let currentElement = null;
+  let elementStack: AnyXmlEvent[] = [];
   let root = null;
 
   for (const event of parser) {
-    elementStack.push(currentElement);
+    elementStack.push(event);
     // simulate actual behavior. large xml processing case usually does not store all events in memory.
     if (elementStack.length > 100) {
       elementStack.splice(0, elementStack.length);

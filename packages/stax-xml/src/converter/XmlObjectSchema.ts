@@ -1,16 +1,17 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
 import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
+import { SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import { XmlWriterInternal } from './XmlWriterInternal.js';
-import type { SchemaActivation } from './XmlParsingStateMachine.js';
+import type { XmlParsingStateMachine } from './XmlParsingStateMachine.js';
 
 /**
  * Shape type for object schema
  *
  * @public
  */
-export type XmlObjectShape = Record<string, XmlSchema<any, any>>;
+export type XmlObjectShape = Record<string, XmlSchema<unknown, unknown>>;
 
 /**
  * Infer output type from object shape
@@ -27,8 +28,10 @@ export type InferObjectOutput<T extends XmlObjectShape> = {
  * @public
  */
 export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferObjectOutput<T>, any> {
+  readonly schemaType = SchemaType.OBJECT;
+
   constructor(
-    private shape: T,
+    public readonly shape: T,
     public options: XmlObjectOptions = {}
   ) {
     super();
@@ -53,8 +56,8 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     startEvent: StartElementEvent,
     startDepth: number,
     options?: ParseOptions,
-    stateMachine?: any,
-    parentContext?: any
+    stateMachine?: XmlParsingStateMachine,
+    parentContext?: unknown
   ): InferObjectOutput<T> | Promise<InferObjectOutput<T>> {
     const parser = new XmlParserInternal(options);
 

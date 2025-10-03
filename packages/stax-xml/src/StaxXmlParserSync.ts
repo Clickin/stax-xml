@@ -3,6 +3,11 @@
 import {
   AnyXmlEvent,
   AttributeInfo,
+  CdataEvent,
+  CharactersEvent,
+  EndDocumentEvent,
+  EndElementEvent,
+  StartElementEvent,
   XmlEventType
 } from './types';
 
@@ -263,7 +268,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as any;
+    } as unknown as StartElementEvent;
 
     while (this.pos < this.xmlLength) {
       const ltPos = this.findChar(60, this.pos); // Find '<'
@@ -284,7 +289,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
               attributesWithPrefix: undefined,
               value: this.entityDecoder(text),
               error: undefined
-            } as any;
+            } as unknown as CharactersEvent;
           }
         }
         break;
@@ -305,7 +310,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
             attributesWithPrefix: undefined,
             value: this.entityDecoder(text),
             error: undefined
-          } as any;
+          } as unknown as CharactersEvent;
         }
       }
 
@@ -339,7 +344,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as any;
+    } as unknown as EndDocumentEvent;
   }
 
   public next(): IteratorResult<AnyXmlEvent> {
@@ -394,7 +399,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       attributesWithPrefix: undefined,
       value: undefined,
       error: undefined
-    } as any;
+    } as unknown as EndElementEvent;
 
     this.pos = tagClose + 1;
   }
@@ -416,7 +421,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
         attributesWithPrefix: undefined,
         value: cdataContent,
         error: undefined
-      } as any;
+      } as unknown as CdataEvent;
 
       this.pos = cdataEnd + 3;
     } else if (this.matchesAt('<!--', this.pos)) {
@@ -508,7 +513,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       attributesWithPrefix,
       value: undefined,
       error: undefined
-    } as any;
+    } as unknown as StartElementEvent;
 
     this.elementStack.push(tagName);
 
@@ -526,7 +531,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
         attributesWithPrefix: undefined,
         value: undefined,
         error: undefined
-      } as any;
+      } as unknown as EndElementEvent;
       this.elementStack.pop();
     }
 
