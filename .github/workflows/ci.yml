@@ -12,6 +12,9 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ./app
 
     strategy:
       matrix:
