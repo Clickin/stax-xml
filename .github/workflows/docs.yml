@@ -36,6 +36,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build stax-xml package
+        run: pnpm --filter=stax-xml build
+
+      - name: Generate TypeDoc documentation
+        run: pnpm --filter=stax-xml typedoc:converter
+
       - name: Build documentation
         run: pnpm docs:build
         env:
