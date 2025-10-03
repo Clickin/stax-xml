@@ -6,6 +6,7 @@ CLAUDE.md
 .claude/
 .specify/
 spec/
+specs/
 
 # pnpm
 pnpm-lock.yaml
