@@ -37,8 +37,7 @@ jobs:
         run: pnpm build
 
       - name: Publish to NPM
-        working-directory: packages/stax-xml
-        run: npm publish
+        run: pnpm --filter=stax-xml publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

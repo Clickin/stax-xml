@@ -29,7 +29,7 @@
     }
   },
   "bugs": "https://github.com/Clickin/stax-xml/issues",
-  "description": "",
+  "description": "High-performance, pull-based XML parser for JavaScript/TypeScript with declarative converter API",
   "files": [
     "dist"
   ],
