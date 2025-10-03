@@ -271,7 +271,7 @@ export type AnyXmlSchema = XmlCoreSchema | XmlWrappedSchema;
  *
  * @public
  */
-export function isStringSchema(schema: XmlSchemaBase<any, any>): schema is XmlStringSchema {
+export function isStringSchema(schema: XmlSchemaBase<unknown, unknown>): schema is XmlStringSchema {
   return schema.schemaType === SchemaType.STRING;
 }
 
@@ -280,7 +280,7 @@ export function isStringSchema(schema: XmlSchemaBase<any, any>): schema is XmlSt
  *
  * @public
  */
-export function isNumberSchema(schema: XmlSchemaBase<any, any>): schema is XmlNumberSchema {
+export function isNumberSchema(schema: XmlSchemaBase<unknown, unknown>): schema is XmlNumberSchema {
   return schema.schemaType === SchemaType.NUMBER;
 }
 

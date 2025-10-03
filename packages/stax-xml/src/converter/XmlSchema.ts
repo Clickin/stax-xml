@@ -8,7 +8,7 @@ export { ParseInput };
  *
  * @public
  */
-export abstract class XmlSchema<Output = any, Input = any> extends XmlSchemaBase<Output, Input> {
+export abstract class XmlSchema<Output, Input = Output> extends XmlSchemaBase<Output, Input> {
   // All methods (transform, optional, array, write, writeSync) are inherited from XmlSchemaBase
 
   // Abstract methods that must be implemented by subclasses

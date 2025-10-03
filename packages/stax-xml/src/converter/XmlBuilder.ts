@@ -45,7 +45,7 @@ export class XmlBuilder {
    * @param xpath - XPath expression for array elements
    * @returns Array schema
    */
-  array<T extends XmlSchema<any, any>>(element: T, xpath?: string): XmlArraySchema<T> {
+  array<T extends XmlSchema<unknown, unknown>>(element: T, xpath?: string): XmlArraySchema<T> {
     return new XmlArraySchema(element, xpath);
   }
 }

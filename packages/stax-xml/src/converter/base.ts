@@ -173,7 +173,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns New optional schema
    */
   optional(): XmlSchemaBase<Output | undefined, Input | undefined> {
-    return XmlSchemaBase._createOptional(this as any);
+    return XmlSchemaBase._createOptional(this as XmlSchemaBase<unknown, unknown>);
   }
 
   /**
@@ -182,7 +182,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns New array schema
    */
   array(xpath?: string): XmlSchemaBase<Output[], Input[]> {
-    return XmlSchemaBase._createArray(this as any, xpath);
+    return XmlSchemaBase._createArray(this as XmlSchemaBase<unknown, unknown>, xpath);
   }
 
   /**
@@ -217,6 +217,6 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
 
   // Static factory methods (will be set by initialization module)
   static _createTransform: <Output, Input, NewOutput>(schema: XmlSchemaBase<Output, Input>, fn: (value: Output) => NewOutput) => XmlSchemaBase<NewOutput, Input>;
-  static _createOptional: <T extends XmlSchemaBase<any, any>>(schema: T) => XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined>;
-  static _createArray: <T extends XmlSchemaBase<any, any>>(schema: T, xpath?: string) => XmlSchemaBase<T['_output'][], T['_input'][]>;
+  static _createOptional: <T extends XmlSchemaBase<unknown, unknown>>(schema: T) => XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined>;
+  static _createArray: <T extends XmlSchemaBase<unknown, unknown>>(schema: T, xpath?: string) => XmlSchemaBase<T['_output'][], T['_input'][]>;
 }

@@ -27,7 +27,7 @@ export type InferObjectOutput<T extends XmlObjectShape> = {
  *
  * @public
  */
-export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferObjectOutput<T>, any> {
+export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferObjectOutput<T>, unknown> {
   readonly schemaType = SchemaType.OBJECT;
 
   constructor(

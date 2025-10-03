@@ -59,4 +59,4 @@ export type {
 export { XmlParseError, type ParseResult } from './errors.js';
 
 // Type inference helper
-export type Infer<T extends XmlSchema<any, any>> = T['_output'];
+export type Infer<T extends XmlSchema<unknown, unknown>> = T['_output'];

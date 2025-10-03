@@ -64,7 +64,7 @@ export class XmlOptionalSchema<T extends XmlSchemaBase<unknown, unknown>> extend
     if (data === undefined || data === null) {
       return ''; // Skip undefined/null values
     }
-    return (this.schema as any)._write(data, options);
+    return this.schema._write(data as T['_input'], options);
   }
 
   /**
@@ -75,6 +75,6 @@ export class XmlOptionalSchema<T extends XmlSchemaBase<unknown, unknown>> extend
     if (data === undefined || data === null) {
       return '';
     }
-    return (this.schema as any)._writeAsync(data, options);
+    return this.schema._writeAsync(data as T['_input'], options);
   }
 }
