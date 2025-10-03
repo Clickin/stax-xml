@@ -194,7 +194,6 @@ describe('Complex Shapes Tests', () => {
       }));
 
       const result = schema.parseSync(xml);
-      console.dir(result, { depth: null })
       expect(result.rowCount).toBe(4);
       expect(result.maxCol).toBe(10);
       expect(result.minCol).toBe(1);
@@ -337,36 +336,32 @@ describe('Complex Shapes Tests', () => {
           </content>
         </document>
       `;
-
       const fieldSchema = x.object({
         name: x.string().xpath('./@name'),
         type: x.string().xpath('./@type'),
-        value: x.string().xpath('.')
+        value: x.string().xpath('./text()')
       }).transform(field => {
-        let parsedValue: any = field.value;
-        if (field.type === 'number') {
-          parsedValue = parseFloat(field.value);
+        let value: string | number = field.value;
+        if (field.type === 'number' && !isNaN(Number(field.value))) {
+          value = parseInt(field.value)
         }
-        return { name: field.name, value: parsedValue };
+        return { name: field.name, value: value }
       });
 
       const schema = x.object({
         version: x.string().xpath('/document/@version'),
-        fields: x.array(fieldSchema, '//metadata/field').transform(fields =>
-          fields.reduce((acc, field) => {
-            acc[field.name] = field.value;
-            return acc;
-          }, {} as Record<string, any>)
-        ),
+        fields: x.array(fieldSchema, '/document/metadata/field'),
         contentFormat: x.string().xpath('//content/@format'),
         content: x.string().xpath('//content')
       });
 
       const result = schema.parseSync(xml);
+      console.dir(result)
 
       expect(result.version).toBe('2.0');
-      expect(result.fields.author).toBe('John Doe');
-      expect(result.fields.pages).toBe(150);
+      //expect(result.fields.filter(v => v.name === "author")).toBe('author');
+      expect(result.fields.find(v => v.name === "author")?.value).toBe("John Doe")
+      expect(result.fields.find(v => v.name === "pages")?.value).toBe(150);
       expect(result.contentFormat).toBe('markdown');
     });
   });

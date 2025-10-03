@@ -441,6 +441,15 @@ export class XmlParsingStateMachine {
             }
           }
         }
+        // If this is a text() selector, activate it immediately on current element
+        // so it can collect text from the element's content
+        else if (xpath === './text()' || xpath === 'text()') {
+          // Activate the schema on current event to collect text
+          activation.depth = this.currentDepth;
+          if (childCollector.type === 'string' || childCollector.type === 'number') {
+            childCollector.buffer = '';
+          }
+        }
       }
 
       arrayCollector.currentItem = itemCollector;
@@ -531,6 +540,17 @@ export class XmlParsingStateMachine {
       }
     }
 
+    // Priority 2: Handle text node selectors (text())
+    // Text nodes need to collect text content from the matched element
+    if (activation.matcher.isTextNodeSelector()) {
+      // Initialize buffer for text collection
+      if (activation.collector.type === 'string' || activation.collector.type === 'number') {
+        activation.collector.buffer = '';
+      }
+      // Will collect text in onSchemaCollectText and finalize in deactivation
+      return;
+    }
+
     const unwrappedSchema = this.unwrapSchema(activation.schema);
 
     if (isStringSchema(unwrappedSchema) || isNumberSchema(unwrappedSchema)) {
@@ -603,6 +623,26 @@ export class XmlParsingStateMachine {
    */
   private onSchemaDeactivatedSync(activation: SchemaActivation): void {
     const unwrappedSchema = this.unwrapSchema(activation.schema);
+
+    // Handle text() node selectors
+    if (activation.matcher.isTextNodeSelector()) {
+      if (isStringSchema(unwrappedSchema)) {
+        if (activation.collector.type !== 'string') return;
+        const stringCollector = activation.collector;
+        stringCollector.value = stringCollector.buffer.trim();
+        activation.depth = -2;
+        return;
+      } else if (isNumberSchema(unwrappedSchema)) {
+        if (activation.collector.type !== 'number') return;
+        const numberCollector = activation.collector;
+        const text = numberCollector.buffer.trim();
+        if (unwrappedSchema._parseText) {
+          numberCollector.value = unwrappedSchema._parseText(text);
+        }
+        activation.depth = -2;
+        return;
+      }
+    }
 
     if (isStringSchema(unwrappedSchema)) {
       if (activation.collector.type !== 'string') return;
@@ -694,6 +734,18 @@ export class XmlParsingStateMachine {
   private onSchemaCollectText(activation: SchemaActivation, text: string): void {
     const collector = activation.collector;
 
+    // For text() selectors, only collect text at the exact activation depth
+    // (direct text content, not from nested elements)
+    if (activation.matcher.isTextNodeSelector()) {
+      if (this.currentDepth === activation.depth) {
+        if (collector.type === 'string' || collector.type === 'number') {
+          collector.buffer += text;
+        }
+      }
+      return;
+    }
+
+    // For regular selectors, collect text from activation depth and below
     if (collector.type === 'string' || collector.type === 'number') {
       collector.buffer += text;
     } else if (collector.type === 'array') {
@@ -849,13 +901,21 @@ export class XmlParsingStateMachine {
    */
   private extractSimpleValue(collector: Collector<unknown>, isOptional: boolean = false): unknown {
     if (collector.type === 'string') {
-      const stringValue = collector.value ?? '';
+      // If buffer has content but value is empty, use buffer (for text() selectors)
+      let stringValue = collector.value ?? '';
+      if (stringValue === '' && collector.buffer && collector.buffer.trim() !== '') {
+        stringValue = collector.buffer.trim();
+      }
       // For optional schemas, treat empty string as undefined
       if (isOptional && stringValue === '') {
         return undefined;
       }
       return stringValue;
     } else if (collector.type === 'number') {
+      // If buffer has content but value is NaN/undefined, parse buffer (for text() selectors)
+      if ((collector.value === undefined || isNaN(collector.value)) && collector.buffer && collector.buffer.trim() !== '') {
+        return parseFloat(collector.buffer.trim());
+      }
       return collector.value ?? NaN;
     } else if (collector.type === 'array') {
       // Array items are already extracted by onSchemaDeactivatedSync

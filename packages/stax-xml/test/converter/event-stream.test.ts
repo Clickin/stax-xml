@@ -71,7 +71,7 @@ describe('Event Stream Tests', () => {
       const schema = x.array(
         x.object({
           id: x.string().xpath('./@id'),
-          text: x.string().xpath('.')
+          text: x.string().xpath('./text()')
         }),
         '//item'
       );

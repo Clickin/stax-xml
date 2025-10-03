@@ -23,6 +23,7 @@ export interface XPathSegment {
   predicates: XPathPredicate[];
   isWildcard: boolean;
   isAttribute: boolean;
+  isTextNode: boolean;  // true for text() function
 }
 
 /**
@@ -117,7 +118,19 @@ export class XPathCompiler {
         name: attrName,
         predicates: [],
         isWildcard: false,
-        isAttribute: true
+        isAttribute: true,
+        isTextNode: false
+      };
+    }
+
+    // Check if this is a text() node function
+    if (segment === 'text()') {
+      return {
+        name: 'text()',
+        predicates: [],
+        isWildcard: false,
+        isAttribute: false,
+        isTextNode: true
       };
     }
 
@@ -180,7 +193,7 @@ export class XPathCompiler {
       }
     }
 
-    return { name, predicates, isWildcard, isAttribute: false };
+    return { name, predicates, isWildcard, isAttribute: false, isTextNode: false };
   }
 
   static clearCache(): void {
@@ -232,15 +245,15 @@ export class XPathMatcher {
   matches(event: StartElementEvent): boolean {
     const { segments, isAbsolute, isDescendant } = this.compiled;
 
-    // If last segment is attribute, match the element before it
-    const effectiveSegments = this.isAttributeSelector()
+    // If last segment is attribute or text node, match the element before it
+    const effectiveSegments = this.isAttributeSelector() || this.isTextNodeSelector()
       ? segments.slice(0, -1)
       : segments;
 
     // Special case: XPath '.' (current context) - should match the context element
     // This happens when segments is empty and it's a relative path
     if (effectiveSegments.length === 0) {
-      // For '.' or './@attr', match if we have a context (relative path)
+      // For '.' or './@attr' or './text()', match if we have a context (relative path)
       return !isAbsolute && !isDescendant;
     }
 
@@ -270,6 +283,14 @@ export class XPathMatcher {
       return segments[segments.length - 1].name;
     }
     return undefined;
+  }
+
+  /**
+   * Check if XPath selects a text node
+   */
+  isTextNodeSelector(): boolean {
+    const { segments } = this.compiled;
+    return segments.length > 0 && segments[segments.length - 1].isTextNode;
   }
 
   private matchesDescendant(event: StartElementEvent, segments: XPathSegment[]): boolean {

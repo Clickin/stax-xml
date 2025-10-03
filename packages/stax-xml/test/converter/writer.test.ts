@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { x } from '../../src/converter/index.js';
 
 describe('Writer Tests', () => {
@@ -301,7 +301,7 @@ describe('Writer Tests', () => {
       });
 
       const parsedData = await schema.parse(xml);
-
+      console.dir(parsedData, { depth: null })
       expect(parsedData).toEqual(originalData);
     });
   });
