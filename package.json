@@ -1,48 +1,37 @@
 {
-  "name": "stax-xml",
+  "name": "stax-xml-monorepo",
   "version": "0.4.0",
+  "private": true,
+  "description": "Monorepo for stax-xml library, benchmarks, and documentation",
   "author": "Clickin <josh87786@gmail.com>",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Clickin/stax-xml.git"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "devDependencies": {
-    "@astrojs/starlight": "^0.36.0",
-    "@types/bun": "^1.1.10",
-    "astro": "^5.13.9",
-    "bun-plugin-dts": "^0.3.0",
-    "starlight-typedoc": "^0.21.3",
-    "typedoc": "^0.28.13"
-  },
-  "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
-  },
-  "bugs": "https://github.com/Clickin/stax-xml/issues",
-  "description": "",
-  "files": [
-    "dist"
-  ],
   "homepage": "https://github.com/Clickin/stax-xml",
-  "keywords": [
-    "bun",
-    "xml",
-    "stax"
-  ],
-  "license": "MIT",
+  "bugs": "https://github.com/Clickin/stax-xml/issues",
   "scripts": {
-    "build": "bun run build.ts",
-    "performance": "bun run ./performance/large-file.ts",
-    "coverage": "bun test --coverage",
-    "prepublishOnly": "bun run build",
-    "docs:dev": "cd docs && bun run dev",
-    "docs:build": "cd docs && bun run build",
-    "docs:preview": "cd docs && bun run preview",
-    "typedoc": "typedoc"
+    "build": "pnpm -r --filter=stax-xml build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "docs:dev": "pnpm --filter=stax-xml-docs dev",
+    "docs:build": "pnpm --filter=stax-xml-docs build",
+    "docs:preview": "pnpm --filter=stax-xml-docs preview",
+    "benchmark": "pnpm --filter=benchmark dev:bench:all"
   },
-  "type": "module",
-  "types": "./dist/index.d.ts"
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "tsdown": "^0.15.5",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "packageManager": "pnpm@10.18.0"
 }

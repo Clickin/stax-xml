@@ -1,0 +1,34 @@
+{
+  "entryPoints": [
+    "./src/index.ts",
+    "./src/converter/index.ts"
+  ],
+  "out": "./docs/api",
+  "plugin": [
+    "typedoc-plugin-markdown"
+  ],
+  "gitRevision": "master",
+  "readme": "none",
+  "sort": [
+    "source-order"
+  ],
+  "categoryOrder": [
+    "*",
+    "Other"
+  ],
+  "hideGenerator": true,
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "searchInComments": true,
+  "cleanOutputDir": true,
+  "tsconfig": "./tsconfig.json",
+  "theme": "markdown",
+  "entryPointStrategy": "expand",
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  }
+}

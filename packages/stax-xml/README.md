@@ -10,11 +10,8 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 
 ### 🚀 Features
 
-- **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing
-- **XPath Support**: Use XPath expressions for flexible element selection
-- **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
-- **Fully Asynchronous (Stream-based)**: For memory-efficient processing of large XML files
-- **Synchronous (String-based)**: For high-performance parsing of smaller, in-memory XML strings
+- **Fully Asynchronous (Stream-based)**: For memory-efficient processing of large XML files.
+- **Synchronous (String-based)**: For high-performance parsing of smaller, in-memory XML strings.
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
 - **High Performance**: Optimized for speed and low memory usage
@@ -40,57 +37,13 @@ deno add npm:stax-xml
 
 ### 🔧 Quick Start
 
-Here are basic examples to get started. StAX-XML provides two parsing approaches:
+Here are basic examples to get started. For detailed usage and API references, please refer to the dedicated documentation files:
 
-1. **Event-based API**: Low-level streaming parser for fine-grained control
-2. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
+- [**StaxXmlParser (Asynchronous)**](docs/StaxXmlParser.md): For parsing XML from `ReadableStream`.
+- [**StaxXmlParserSync (Synchronous)**](docs/StaxXmlParserSync.md): For parsing XML from `string`.
+- [**StaxXmlWriter**](docs/StaxXmlWriter.md): For writing XML to `string`.
 
-#### Declarative Parsing with Converter API (Recommended)
-
-The converter module provides a zod-style declarative API for parsing and writing XML:
-
-```typescript
-import { x } from 'stax-xml/converter';
-
-// Define schema with XPath
-const bookSchema = x.object({
-  title: x.string().xpath('/book/title'),
-  author: x.string().xpath('/book/author'),
-  price: x.number().xpath('/book/price'),
-  tags: x.string().array().xpath('/book/tags/tag')
-});
-
-// Parse XML
-const xml = `
-  <book>
-    <title>TypeScript Deep Dive</title>
-    <author>John Smith</author>
-    <price>29.99</price>
-    <tags>
-      <tag>programming</tag>
-      <tag>typescript</tag>
-    </tags>
-  </book>
-`;
-
-const result = await bookSchema.parse(xml);
-// Result: { title: 'TypeScript Deep Dive', author: 'John Smith', price: 29.99, tags: ['programming', 'typescript'] }
-
-// Write XML back
-const newXml = await bookSchema.write(result, { rootElement: 'book' });
-```
-
-Key features of the Converter API:
-- **Type-safe parsing**: Infer TypeScript types from schemas
-- **XPath support**: Use XPath expressions for element selection
-- **Bidirectional**: Parse XML → Object and Object → XML
-- **Composable**: Build complex schemas from simple primitives
-- **Optional values**: Handle missing elements gracefully with `.optional()`
-- **Transformations**: Apply custom transformations with `.transform()`
-
-#### Event-based Parsing (Low-level API)
-
-##### Basic Asynchronous Parsing (StaxXmlParser)
+#### Basic Asynchronous Parsing (StaxXmlParser)
 
 ```typescript
 import { StaxXmlParser, XmlEventType } from 'stax-xml';
@@ -112,7 +65,7 @@ async function parseXml() {
 parseXml();
 ```
 
-##### Basic Synchronous Parsing (StaxXmlParserSync)
+#### Basic Synchronous Parsing (StaxXmlParserSync)
 
 ```typescript
 import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
@@ -124,11 +77,6 @@ for (const event of parser) {
   console.log(event);
 }
 ```
-
-For detailed API documentation:
-- [**Converter API Guide**](https://clickin.github.io/stax-xml): Declarative parsing with schemas
-- [**StaxXmlParser (Asynchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from streams
-- [**StaxXmlParserSync (Synchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from strings
 
 ### 🌐 Platform Compatibility
 
@@ -214,16 +162,11 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 
 ### 🚀 주요 기능
 
-- **선언적 Converter API**: 타입 안전한 XML 파싱과 쓰기를 위한 Zod 스타일 스키마 API
-- **XPath 지원**: 유연한 요소 선택을 위한 XPath 표현식 사용
-- **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
 - **완전 비동기 (스트림 기반)**: 대용량 XML 파일의 메모리 효율적 처리
 - **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
 - **고성능**: 속도와 낮은 메모리 사용량에 최적화
 - **범용 호환성**: 웹 표준 API만 사용하여 Node.js, Bun, Deno, 웹 브라우저에서 모두 동작
-- **네임스페이스 지원**: 기본 XML 네임스페이스 처리
-- **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
 - **TypeScript 지원**: 포괄적인 타입 정의로 완전한 TypeScript 지원
 
 ### 📦 설치
@@ -247,57 +190,7 @@ deno add npm:stax-xml
 
 ### 🔧 빠른 시작
 
-StAX-XML은 두 가지 파싱 방식을 제공합니다:
-
-1. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
-2. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
-
-#### Converter API를 사용한 선언적 파싱 (권장)
-
-Converter 모듈은 XML 파싱 및 쓰기를 위한 Zod 스타일의 선언적 API를 제공합니다:
-
-```typescript
-import { x } from 'stax-xml/converter';
-
-// XPath를 사용한 스키마 정의
-const bookSchema = x.object({
-  title: x.string().xpath('/book/title'),
-  author: x.string().xpath('/book/author'),
-  price: x.number().xpath('/book/price'),
-  tags: x.string().array().xpath('/book/tags/tag')
-});
-
-// XML 파싱
-const xml = `
-  <book>
-    <title>TypeScript 딥다이브</title>
-    <author>홍길동</author>
-    <price>29.99</price>
-    <tags>
-      <tag>프로그래밍</tag>
-      <tag>타입스크립트</tag>
-    </tags>
-  </book>
-`;
-
-const result = await bookSchema.parse(xml);
-// 결과: { title: 'TypeScript 딥다이브', author: '홍길동', price: 29.99, tags: ['프로그래밍', '타입스크립트'] }
-
-// XML로 다시 쓰기
-const newXml = await bookSchema.write(result, { rootElement: 'book' });
-```
-
-Converter API의 주요 기능:
-- **타입 안전 파싱**: 스키마에서 TypeScript 타입 자동 추론
-- **XPath 지원**: 요소 선택을 위한 XPath 표현식 사용
-- **양방향**: XML → 객체, 객체 → XML 변환
-- **조합 가능**: 단순 기본형에서 복잡한 스키마 구축
-- **선택적 값**: `.optional()`로 누락된 요소 우아하게 처리
-- **변환**: `.transform()`으로 사용자 정의 변환 적용
-
-#### 이벤트 기반 파싱 (저수준 API)
-
-##### 기본 비동기 파싱 (StaxXmlParser)
+#### 기본 비동기 파싱 (StaxXmlParser)
 
 ```typescript
 import { StaxXmlParser, XmlEventType } from 'stax-xml';
@@ -319,7 +212,7 @@ async function parseXml() {
 parseXml();
 ```
 
-##### 기본 동기 파싱 (StaxXmlParserSync)
+#### 기본 동기 파싱 (StaxXmlParserSync)
 
 ```typescript
 import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
@@ -331,11 +224,6 @@ for (const event of parser) {
   console.log(event);
 }
 ```
-
-자세한 API 문서는 다음을 참조하세요:
-- [**Converter API 가이드**](https://clickin.github.io/stax-xml): 스키마를 사용한 선언적 파싱
-- [**StaxXmlParser (비동기)**](https://clickin.github.io/stax-xml): 스트림 기반 이벤트 파싱
-- [**StaxXmlParserSync (동기)**](https://clickin.github.io/stax-xml): 문자열 기반 이벤트 파싱
 
 ### 🌐 플랫폼 호환성
 

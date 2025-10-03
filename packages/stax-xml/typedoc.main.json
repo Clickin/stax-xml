@@ -1,0 +1,22 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/index.ts"],
+  "out": "../docs/src/content/docs/api/main",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "hideGenerator": true,
+  "sort": ["source-order"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/converter/**"
+  ],
+  "excludeExternals": true,
+  "skipErrorChecking": false,
+  "cleanOutputDir": true,
+  "gitRevision": "master",
+  "outputFileStrategy": "modules",
+  "flattenOutputFiles": false,
+  "entryFileName": "index.md",
+  "membersWithOwnFile": ["Class", "Interface", "Enum"]
+}

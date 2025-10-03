@@ -1,0 +1,54 @@
+{
+  "name": "benchmark",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "// Development scripts (tsx)": "",
+    "dev:parser:2kb": "tsx --expose-gc ./parser-2kb.ts",
+    "dev:parser:4kb": "tsx --expose-gc ./parser-4kb.ts",
+    "dev:parser:13mb": "tsx --expose-gc ./parser-13mb.ts",
+    "dev:parser:98mb": "tsx --expose-gc ./parser-98mb.ts",
+    "dev:builder:small": "tsx --expose-gc ./builder-small.ts",
+    "dev:builder:big": "tsx --expose-gc ./builder-big.ts",
+    "dev:async:parser": "tsx --expose-gc ./async-parser.ts",
+    "dev:async:large-compare": "tsx --expose-gc ./large-file-parser-compare.ts",
+    "dev:async:writer": "tsx --expose-gc ./async-writer.ts",
+    "dev:bench:sync": "pnpm run dev:parser:2kb && pnpm run dev:parser:4kb && pnpm run dev:parser:13mb && pnpm run dev:parser:98mb && pnpm run dev:builder:small && pnpm run dev:builder:big",
+    "dev:bench:async": "pnpm run dev:async:parser && pnpm run dev:async:writer",
+    "dev:bench:all": "pnpm run dev:bench:sync && pnpm run dev:bench:async",
+    "// Build configuration": "",
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist",
+    "prebuild": "pnpm run clean",
+    "// Production benchmarks (compiled JS)": "",
+    "bench:parser:2kb": "node --expose-gc ./dist/parser-2kb.js",
+    "bench:parser:4kb": "node --expose-gc ./dist/parser-4kb.js",
+    "bench:parser:13mb": "node --expose-gc ./dist/parser-13mb.js",
+    "bench:parser:98mb": "node --expose-gc ./dist/parser-98mb.js",
+    "bench:builder:small": "node --expose-gc ./dist/builder-small.js",
+    "bench:builder:big": "node --expose-gc ./dist/builder-big.js",
+    "bench:async:parser": "node --expose-gc ./dist/async-parser.js",
+    "bench:async:writer": "node --expose-gc ./dist/async-writer.js",
+    "bench:sync": "pnpm run bench:parser:2kb && pnpm run bench:parser:4kb && pnpm run bench:parser:13mb && pnpm run bench:parser:98mb && pnpm run bench:builder:small && pnpm run bench:builder:big",
+    "bench:async": "pnpm run bench:async:parser && pnpm run bench:async:writer",
+    "bench:all": "pnpm run bench:sync && pnpm run bench:async",
+    "prebench:all": "pnpm run build"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/node": "^24.0.10",
+    "fast-xml-parser": "^5.2.5",
+    "mitata": "^1.0.34",
+    "stax-xml": "workspace:*",
+    "txml": "^5.1.1",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/xml2js": "^0.4.14",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.5"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "stax-xml-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "prebuild": "echo \"TypeDoc should be generated manually with: pnpm --filter=stax-xml typedoc:converter\"",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && cd ../docs && node scripts/add-frontmatter.js"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/starlight": "^0.36.0",
+    "astro": "^5.6.1",
+    "astro-og-canvas": "^0.7.0",
+    "sharp": "^0.34.2",
+    "starlight-typedoc": "^0.21.3",
+    "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typescript": "^5.9.2",
+    "stax-xml": "workspace:*"
+  }
+}
