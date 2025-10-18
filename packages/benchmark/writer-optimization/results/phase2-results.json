@@ -1,0 +1,206 @@
+{
+  "timestamp": "2025-10-18T12:23:04.538Z",
+  "tests": [
+    {
+      "name": "attribute-heavy-small",
+      "elementCount": 1000,
+      "baseline": {
+        "totalTime": 4.453800000000008,
+        "avgTimePerElement": 0.004453800000000009,
+        "throughput": 224527.36988638874
+      },
+      "optimized": {
+        "totalTime": 2.7924999999999898,
+        "avgTimePerElement": 0.00279249999999999,
+        "throughput": 358102.05908684107
+      },
+      "improvement": 37.30073195922618,
+      "speedup": 1.5949149507609757
+    },
+    {
+      "name": "text-with-entities-small",
+      "elementCount": 1000,
+      "baseline": {
+        "totalTime": 1.1831999999999994,
+        "avgTimePerElement": 0.0011831999999999993,
+        "throughput": 845165.6524678841
+      },
+      "optimized": {
+        "totalTime": 1.2058999999999997,
+        "avgTimePerElement": 0.0012058999999999998,
+        "throughput": 829256.1572269676
+      },
+      "improvement": -1.9185260311021297,
+      "speedup": 0.9811758852309476
+    },
+    {
+      "name": "text-no-entities-small",
+      "elementCount": 1000,
+      "baseline": {
+        "totalTime": 0.6338000000000079,
+        "avgTimePerElement": 0.0006338000000000079,
+        "throughput": 1577784.790154603
+      },
+      "optimized": {
+        "totalTime": 0.45120000000000005,
+        "avgTimePerElement": 0.00045120000000000007,
+        "throughput": 2216312.0567375887
+      },
+      "improvement": 28.810350268224294,
+      "speedup": 1.404698581560301
+    },
+    {
+      "name": "mixed-content-small",
+      "elementCount": 1000,
+      "baseline": {
+        "totalTime": 2.5309000000000026,
+        "avgTimePerElement": 0.0025309000000000026,
+        "throughput": 395116.36176854046
+      },
+      "optimized": {
+        "totalTime": 1.7394000000000034,
+        "avgTimePerElement": 0.0017394000000000034,
+        "throughput": 574910.888812233
+      },
+      "improvement": 31.273460033979944,
+      "speedup": 1.4550419684948819
+    },
+    {
+      "name": "deep-nested-small",
+      "elementCount": 1000,
+      "baseline": {
+        "totalTime": 2.0148999999999972,
+        "avgTimePerElement": 0.0020148999999999974,
+        "throughput": 496302.5460320618
+      },
+      "optimized": {
+        "totalTime": 1.2412999999999954,
+        "avgTimePerElement": 0.0012412999999999953,
+        "throughput": 805607.02489326
+      },
+      "improvement": 38.393964961040396,
+      "speedup": 1.6232175944574274
+    },
+    {
+      "name": "realistic-small",
+      "elementCount": 1000,
+      "baseline": {
+        "totalTime": 5.812200000000004,
+        "avgTimePerElement": 0.005812200000000004,
+        "throughput": 172051.89085028032
+      },
+      "optimized": {
+        "totalTime": 3.967500000000001,
+        "avgTimePerElement": 0.003967500000000001,
+        "throughput": 252047.88909892872
+      },
+      "improvement": 31.738412305151265,
+      "speedup": 1.4649527410207945
+    },
+    {
+      "name": "attribute-heavy-large",
+      "elementCount": 50000,
+      "baseline": {
+        "totalTime": 130.3136,
+        "avgTimePerElement": 0.002606272,
+        "throughput": 383689.80674311816
+      },
+      "optimized": {
+        "totalTime": 83.67349999999999,
+        "avgTimePerElement": 0.0016734699999999998,
+        "throughput": 597560.756989967
+      },
+      "improvement": 35.79066191095942,
+      "speedup": 1.5574058692417554
+    },
+    {
+      "name": "text-with-entities-large",
+      "elementCount": 50000,
+      "baseline": {
+        "totalTime": 39.45580000000001,
+        "avgTimePerElement": 0.0007891160000000002,
+        "throughput": 1267240.8112368772
+      },
+      "optimized": {
+        "totalTime": 31.35880000000003,
+        "avgTimePerElement": 0.0006271760000000007,
+        "throughput": 1594448.7671722118
+      },
+      "improvement": 20.52169769716994,
+      "speedup": 1.2582050333558674
+    },
+    {
+      "name": "text-no-entities-large",
+      "elementCount": 50000,
+      "baseline": {
+        "totalTime": 26.740499999999997,
+        "avgTimePerElement": 0.0005348099999999999,
+        "throughput": 1869822.9277687406
+      },
+      "optimized": {
+        "totalTime": 20.73320000000001,
+        "avgTimePerElement": 0.0004146640000000002,
+        "throughput": 2411591.0713252164
+      },
+      "improvement": 22.46517454797026,
+      "speedup": 1.2897430208554388
+    },
+    {
+      "name": "mixed-content-large",
+      "elementCount": 50000,
+      "baseline": {
+        "totalTime": 99.1619,
+        "avgTimePerElement": 0.001983238,
+        "throughput": 504225.9174138454
+      },
+      "optimized": {
+        "totalTime": 45.56449999999995,
+        "avgTimePerElement": 0.0009112899999999991,
+        "throughput": 1097345.5211842563
+      },
+      "improvement": 54.05039637199373,
+      "speedup": 2.1762973367424223
+    },
+    {
+      "name": "deep-nested-large",
+      "elementCount": 50000,
+      "baseline": {
+        "totalTime": 86.11169999999993,
+        "avgTimePerElement": 0.0017222339999999985,
+        "throughput": 580641.1904537948
+      },
+      "optimized": {
+        "totalTime": 31.154899999999998,
+        "avgTimePerElement": 0.000623098,
+        "throughput": 1604883.9829368736
+      },
+      "improvement": 63.820363551062144,
+      "speedup": 2.7639857614693013
+    },
+    {
+      "name": "realistic-large",
+      "elementCount": 50000,
+      "baseline": {
+        "totalTime": 179.7962,
+        "avgTimePerElement": 0.003595924,
+        "throughput": 278092.6404451262
+      },
+      "optimized": {
+        "totalTime": 146.74049999999988,
+        "avgTimePerElement": 0.0029348099999999978,
+        "throughput": 340737.56052350946
+      },
+      "improvement": 18.38509378952398,
+      "speedup": 1.2252663715879402
+    }
+  ],
+  "summary": {
+    "averageImprovement": 31.719315113766616,
+    "bestImprovement": 63.820363551062144,
+    "worstImprovement": -1.9185260311021297,
+    "bestTest": "deep-nested-large",
+    "worstTest": "text-with-entities-small",
+    "decision": "conditional",
+    "reason": "Moderate improvement (31.7% average). Consider accepting if specific use cases benefit more."
+  }
+}

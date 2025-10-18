@@ -1,0 +1,169 @@
+# Real Optimizations Benchmark Report
+
+**Date:** 2025. 10. 18. 오후 9:23:04
+
+## Decision: ⚠️ CONDITIONAL
+
+Moderate improvement (31.7% average). Consider accepting if specific use cases benefit more.
+
+## Summary Statistics
+
+| Metric | Value |
+|--------|-------|
+| Average Improvement | +31.7% |
+| Best Case | +63.8% (deep-nested-large) |
+| Worst Case | -1.9% (text-with-entities-small) |
+
+## Optimizations Tested
+
+1. **Regex Caching**: Pre-compile regex patterns at construction time instead of creating them on every _escapeXml() call
+2. **Attribute String Batching**: Build complete attribute string before calling _write() to reduce function call overhead
+3. **Early Entity Check**: Use fast string.includes() checks to skip regex execution when text has no entities
+
+## Detailed Results
+
+### Small Documents (1,000 elements)
+
+| Test | Baseline | Optimized | Improvement | Speedup |
+|------|----------|-----------|-------------|----------|
+| attribute-heavy-small | 4.45ms | 2.79ms | +37.3% | 1.59x |
+| text-with-entities-small | 1.18ms | 1.21ms | -1.9% | 0.98x |
+| text-no-entities-small | 0.63ms | 0.45ms | +28.8% | 1.40x |
+| mixed-content-small | 2.53ms | 1.74ms | +31.3% | 1.46x |
+| deep-nested-small | 2.01ms | 1.24ms | +38.4% | 1.62x |
+| realistic-small | 5.81ms | 3.97ms | +31.7% | 1.46x |
+
+### Large Documents (50,000 elements)
+
+| Test | Baseline | Optimized | Improvement | Speedup |
+|------|----------|-----------|-------------|----------|
+| attribute-heavy-large | 130.31ms | 83.67ms | +35.8% | 1.56x |
+| text-with-entities-large | 39.46ms | 31.36ms | +20.5% | 1.26x |
+| text-no-entities-large | 26.74ms | 20.73ms | +22.5% | 1.29x |
+| mixed-content-large | 99.16ms | 45.56ms | +54.1% | 2.18x |
+| deep-nested-large | 86.11ms | 31.15ms | +63.8% | 2.76x |
+| realistic-large | 179.80ms | 146.74ms | +18.4% | 1.23x |
+
+## Analysis by Test Type
+
+### Attribute-Heavy
+
+**Expected benefit:** Optimization #2 (attribute batching)
+
+**Average improvement:** +36.5%
+
+| Size | Improvement |
+|------|-------------|
+| 1,000 | +37.3% |
+| 50,000 | +35.8% |
+
+### Text with Entities
+
+**Expected benefit:** Optimizations #1 (regex caching) and #3 (early check)
+
+**Average improvement:** +9.3%
+
+| Size | Improvement |
+|------|-------------|
+| 1,000 | -1.9% |
+| 50,000 | +20.5% |
+
+### Text without Entities
+
+**Expected benefit:** Optimization #3 (early entity check - should be biggest win)
+
+**Average improvement:** +25.6%
+
+| Size | Improvement |
+|------|-------------|
+| 1,000 | +28.8% |
+| 50,000 | +22.5% |
+
+### Mixed Content
+
+**Expected benefit:** All 3 optimizations
+
+**Average improvement:** +42.7%
+
+| Size | Improvement |
+|------|-------------|
+| 1,000 | +31.3% |
+| 50,000 | +54.1% |
+
+### Deep Nested
+
+**Expected benefit:** All 3 optimizations under different call patterns
+
+**Average improvement:** +51.1%
+
+| Size | Improvement |
+|------|-------------|
+| 1,000 | +38.4% |
+| 50,000 | +63.8% |
+
+### Realistic Document
+
+**Expected benefit:** All 3 optimizations in real-world scenario
+
+**Average improvement:** +25.1%
+
+| Size | Improvement |
+|------|-------------|
+| 1,000 | +31.7% |
+| 50,000 | +18.4% |
+
+## Recommendations
+
+The optimizations show moderate improvement. Consider:
+
+1. **Profile specific use cases**: If your primary use case matches the tests with higher improvement, accept
+2. **Investigate further**: Some optimizations may work better than others - consider applying selectively
+3. **Measure in production**: Test with real-world data patterns before committing
+
+## Optimization Impact Analysis
+
+Based on the results, estimated individual contribution of each optimization:
+
+| Optimization | Estimated Impact | Evidence |
+|--------------|-----------------|----------|
+| #3: Early Entity Check | +25.6% | text-no-entities tests show pure impact |
+| #2: Attribute Batching | +36.5% | attribute-heavy tests emphasize this |
+| #1: Regex Caching | +9.3% | text-with-entities combined with early check |
+
+## Technical Details
+
+### Implementation Changes
+
+#### Optimization 1: Regex Caching
+```typescript
+// Before: Created on every _escapeXml() call
+const regex = new RegExp(Object.keys(entityMap).join('|'), 'g');
+
+// After: Created once at construction time
+private static readonly BASIC_ENTITY_REGEX = /[&<>"']/g;
+private customEntityRegex?: RegExp; // Built in constructor if needed
+```
+
+#### Optimization 2: Attribute String Batching
+```typescript
+// Before: Multiple _write() calls
+this._write(` ${key}="${value}"`);
+
+// After: Single _write() with batched string
+let attrString = '';
+// ... build attrString ...
+this._write(attrString);
+```
+
+#### Optimization 3: Early Entity Check
+```typescript
+// Fast check before regex
+const hasBasicEntities = text.includes('&') || text.includes('<') || ...;
+if (!hasBasicEntities && !hasCustomEntities) {
+  return text; // Skip expensive regex
+}
+```
+
+---
+
+*Generated by phase2-real-optimizations-benchmark.ts*

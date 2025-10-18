@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-10-18T12:13:37.101Z",
+  "results": [
+    {
+      "elementCount": 100,
+      "baseline": 0.8778000000000077,
+      "stringArray": 0.6251000000000033,
+      "uint8Array": 1.0985000000000014,
+      "baselineSize": 6821
+    },
+    {
+      "elementCount": 1000,
+      "baseline": 5.466000000000008,
+      "stringArray": 4.605400000000003,
+      "uint8Array": 10.126599999999996,
+      "baselineSize": 70721
+    },
+    {
+      "elementCount": 5000,
+      "baseline": 17.317399999999992,
+      "stringArray": 18.35409999999999,
+      "uint8Array": 28.513400000000047,
+      "baselineSize": 366721
+    },
+    {
+      "elementCount": 10000,
+      "baseline": 29.86130000000003,
+      "stringArray": 26.69599999999997,
+      "uint8Array": 42.47720000000004,
+      "baselineSize": 736721
+    },
+    {
+      "elementCount": 50000,
+      "baseline": 144.71629999999993,
+      "stringArray": 155.85669999999993,
+      "uint8Array": 206.18849999999998,
+      "baselineSize": 3816721
+    }
+  ],
+  "analysis": {
+    "baselineComplexity": "~O(n) [8.4x]",
+    "stringArrayComplexity": "~O(n) [8.5x]",
+    "uint8ArrayComplexity": "~O(n) [7.2x]"
+  }
+}
