@@ -1,4 +1,4 @@
-// StaxXmlWriter.ts
+// StaxXmlWriter.ts - Optimized version with real performance improvements
 import { NamespaceDeclaration, WriteElementOptions } from './types';
 
 /**
@@ -36,9 +36,22 @@ export interface StaxXmlWriterSyncOptions {
 
 /**
  * A class for writing XML similar to StAX XMLStreamWriter.
- * This is a simplified implementation that does not support namespace and complex PI/comment management.
+ * This is an optimized implementation with:
+ * - Optimization 1: Regex caching for entity escaping
+ * - Optimization 2: Attribute string batching
+ * - Optimization 3: Early entity check before regex execution
  */
 export class StaxXmlWriterSync {
+    // OPTIMIZATION 1: Static cached regex and entity map for basic entities
+    private static readonly BASIC_ENTITY_MAP: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        '\'': '&apos;'
+    };
+    private static readonly BASIC_ENTITY_REGEX = /[&<>"']/g;
+
     private xmlString: string = ''; // Buffer to store XML string
     private state: WriterState = WriterState.INITIAL;
     private elementStack: ElementInfo[] = []; // Stack of open element information
@@ -48,7 +61,11 @@ export class StaxXmlWriterSync {
     private readonly options: Required<StaxXmlWriterSyncOptions>;
     private currentIndentLevel: number = 0; // Current indentation level
     private needsIndent: boolean = false; // Whether indentation is needed for the next output
-    private entityMap: Record<string, string> = {};
+
+    // OPTIMIZATION 1: Instance fields for custom entity handling (if any)
+    private customEntityRegex?: RegExp;
+    private fullEntityMap?: Record<string, string>;
+    private customEntityKeys?: string[]; // For fast early checking
 
     constructor(options: StaxXmlWriterSyncOptions = {}) {
         // Initialize with default options
@@ -61,18 +78,32 @@ export class StaxXmlWriterSync {
             namespaces: [],
             ...options
         }
-        //this.options = { ...defaultOptions, ...options };
 
         // Initialize namespace stack (root namespace context)
         this.namespaceStack = [new Map<string, string>()];
 
-        // Add custom entities to entityMap if they exist
-        if (this.options.addEntities && Array.isArray(this.options.addEntities)) {
-            for (const entity of this.options.addEntities) {
-                if (entity.entity && entity.value) {
-                    this.entityMap[entity.entity] = entity.value;
-                }
-            }
+        // OPTIMIZATION 1: Build custom entity map and regex at construction time
+        if (this.options.addEntities && this.options.addEntities.length > 0) {
+            this.fullEntityMap = {
+                ...StaxXmlWriterSync.BASIC_ENTITY_MAP,
+                ...this.options.addEntities.reduce((map, entity) => {
+                    if (entity.entity && entity.value) {
+                        map[entity.entity] = entity.value;
+                    }
+                    return map;
+                }, {} as Record<string, string>)
+            };
+
+            // Build regex with proper escaping
+            const escapedKeys = Object.keys(this.fullEntityMap).map(k =>
+                k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            );
+            this.customEntityRegex = new RegExp(escapedKeys.join('|'), 'g');
+
+            // Store custom entity keys (excluding basic ones) for early check
+            this.customEntityKeys = Object.keys(this.fullEntityMap).filter(
+                k => !(k in StaxXmlWriterSync.BASIC_ENTITY_MAP)
+            );
         }
     }
 
@@ -172,12 +203,14 @@ export class StaxXmlWriterSync {
             currentNamespaces.set(prefix, uri);
         }
 
-        // Add attributes (if attributes are provided)
+        // OPTIMIZATION 2: Attribute string batching
+        // Build entire attribute string first, then single _write call
         if (attributes) {
+            let attrString = '';
             for (const [key, value] of Object.entries(attributes)) {
                 if (typeof value === 'string') {
                     // Simple string attribute
-                    this._write(` ${key}="${this._escapeXml(value)}"`);
+                    attrString += ` ${key}="${this._escapeXml(value)}"`;
                 } else {
                     // AttributeInfo object - attribute with prefix
                     const attrPrefix = value.prefix;
@@ -188,11 +221,14 @@ export class StaxXmlWriterSync {
                         if (!currentNamespaces.has(attrPrefix)) {
                             throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
                         }
-                        this._write(` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`);
+                        attrString += ` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`;
                     } else {
-                        this._write(` ${key}="${this._escapeXml(attrValue)}"`);
+                        attrString += ` ${key}="${this._escapeXml(attrValue)}"`;
                     }
                 }
+            }
+            if (attrString) {
+                this._write(attrString);
             }
         }
 
@@ -498,6 +534,10 @@ export class StaxXmlWriterSync {
 
     /**
      * Escapes XML text.
+     * OPTIMIZED with:
+     * - Cached regex patterns (Optimization 1)
+     * - Early entity check to skip regex when not needed (Optimization 3)
+     * - Fast path for no custom entities case (most common)
      * @param text Text to escape
      * @returns Escaped text
      * @private
@@ -509,32 +549,37 @@ export class StaxXmlWriterSync {
         if (!this.options.autoEncodeEntities) {
             return text; // Return original text if automatic entity encoding is disabled
         }
-        let entityMap: Record<string, string> = {
-            '&': '&amp;', // During write process, & does not conflict with other entities
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            '\'': '&apos;',
-            ...this.options.addEntities?.reduce((map, entity) => {
-                if (entity.entity && entity.value) {
-                    map[entity.entity] = entity.value;
-                }
-                return map;
-            }, {} as Record<string, string>)
-        };
-        // Convert entityMap keys to regex for escaping
-        const regex = new RegExp(Object.keys(entityMap).join('|'), 'g');
-        // Escape processing
-        return text.replace(regex, (match) => {
-            // If character is defined in entityMap, return mapped value
-            if (entityMap[match]) {
-                return entityMap[match];
+
+        // Fast path: No custom entities case (most common)
+        if (!this.customEntityRegex) {
+            // Early exit: Check if text contains basic entities
+            if (!text.includes('&') && !text.includes('<') && !text.includes('>') &&
+                !text.includes('"') && !text.includes("'")) {
+                return text; // No escaping needed
             }
-            else {
-                // Return undefined characters as-is
-                return match;
-            }
-        });
+
+            // Use cached basic entity regex
+            return text.replace(StaxXmlWriterSync.BASIC_ENTITY_REGEX,
+                (match) => StaxXmlWriterSync.BASIC_ENTITY_MAP[match] || match);
+        }
+
+        // Slow path: Custom entities exist
+        // OPTIMIZATION 3: Early exit check (including custom entities)
+        const hasBasicEntities = text.includes('&') || text.includes('<') || text.includes('>') ||
+                                 text.includes('"') || text.includes("'");
+
+        let hasCustomEntities = false;
+        if (this.customEntityKeys && this.customEntityKeys.length > 0) {
+            hasCustomEntities = this.customEntityKeys.some(entity => text.includes(entity));
+        }
+
+        // If no entities present, return original text
+        if (!hasBasicEntities && !hasCustomEntities) {
+            return text;
+        }
+
+        // OPTIMIZATION 1: Use cached custom entity regex
+        return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match] || match);
     }
 }
 
