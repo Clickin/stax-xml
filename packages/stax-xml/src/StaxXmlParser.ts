@@ -303,20 +303,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this.queueTail = this.queueSize;
   }
 
-  /**
-   * Check if queue is empty - O(1) operation
-   */
-  private _isQueueEmpty(): boolean {
-    return this.queueSize === 0;
-  }
-
-  /**
-   * Get current queue size - O(1) operation
-   */
-  private _getQueueSize(): number {
-    return this.queueSize;
-  }
-
   // ===== ASCII table utility methods =====
 
   /**
