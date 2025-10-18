@@ -33,7 +33,15 @@
     "bench:sync": "pnpm run bench:parser:2kb && pnpm run bench:parser:4kb && pnpm run bench:parser:13mb && pnpm run bench:parser:98mb && pnpm run bench:builder:small && pnpm run bench:builder:big",
     "bench:async": "pnpm run bench:async:parser && pnpm run bench:async:writer",
     "bench:all": "pnpm run bench:sync && pnpm run bench:async",
-    "prebench:all": "pnpm run build"
+    "prebench:all": "pnpm run build",
+    "// Baseline Performance Benchmarks": "",
+    "generate:testdata": "tsx generate-test-xmls.ts",
+    "bench:baseline": "tsx --expose-gc benchmark-baseline.ts",
+    "bench:baseline:quick": "tsx --expose-gc benchmark-baseline.ts --iterations 50",
+    "// GC Pressure Measurement": "",
+    "example:gc": "tsx --expose-gc example-gc-benchmark.ts",
+    "// Complete workflow": "",
+    "workflow:full": "pnpm run generate:testdata && pnpm run bench:baseline"
   },
   "peerDependencies": {
     "typescript": "^5"

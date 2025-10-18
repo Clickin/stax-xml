@@ -32,3 +32,19 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Benchmark test data and results
+test-data/*.xml
+test-data/manifest.json
+results/*.json
+results/*.txt
+results/*.csv
+results/*.md
+results/*.html
+profiles/**/*
+!profiles/.gitkeep
+
+# V8 profiling output
+isolate-*.log
+*.cpuprofile
+*.clinic-*

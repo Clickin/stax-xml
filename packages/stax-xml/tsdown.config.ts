@@ -6,8 +6,10 @@ export default defineConfig([
     entry: ['src/index.ts'],
     format: ['cjs', 'esm'],
     dts: true,
+    platform: "neutral",
     outDir: 'dist',
     logLevel: 'error',
+    minify: true
   },
   // Build converter separately to prevent chunk splitting
   {
@@ -18,6 +20,8 @@ export default defineConfig([
     dts: true,
     outDir: 'dist',
     clean: false, // Don't clean to preserve index.* files
+    platform: "neutral",
     logLevel: 'error',
+    minify: true
   },
 ]);
