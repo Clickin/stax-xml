@@ -1,16 +1,4 @@
-// StaxXmlParser.ts
-// High-performance asynchronous XML parser with Circular Buffer Queue optimization
-//
-// Performance: Achieved ~15% improvement vs array-based queue
-// Optimization: Replace Array.shift() (O(n)) with circular buffer (O(1))
-//
-// Key Optimizations:
-// 1. Circular buffer for event queue (O(1) operations)
-// 2. Boyer-Moore-Horspool pattern search
-// 3. UTF-8 safe processing
-// 4. Batch processing support
-// 5. Memory-efficient buffer compaction
-
+// StaxXmlParser.ts - UTF-8 safe version with Boyer-Moore-Horspool and Batch API
 import {
   AnyXmlEvent,
   CdataEvent,
@@ -70,22 +58,13 @@ export interface StaxXmlParserOptions {
    * @defaultValue 0
    */
   batchTimeout?: number;
-
-  /**
-   * Initial event queue capacity (circular buffer size)
-   * @defaultValue 1024
-   */
-  initialQueueCapacity?: number;
 }
 
 /**
- * High-performance asynchronous XML parser with circular buffer queue optimization.
+ * High-performance asynchronous XML parser implementing the StAX (Streaming API for XML) pattern.
  *
  * This parser provides memory-efficient processing of large XML files through streaming
  * with support for pull-based parsing, custom entity handling, and namespace processing.
- *
- * **OPTIMIZATION**: Replaces array-based queue with circular buffer for O(1) operations.
- * Achieved improvement: ~15% on large XML files (1GB+).
  *
  * @remarks
  * The parser uses UTF-8 safe processing with Boyer-Moore-Horspool pattern search optimization
@@ -108,6 +87,17 @@ export interface StaxXmlParserOptions {
  * }
  * ```
  *
+ * @example
+ * With custom options:
+ * ```typescript
+ * const options = {
+ *   autoDecodeEntities: true,
+ *   maxBufferSize: 128 * 1024,
+ *   addEntities: [{ entity: 'custom', value: 'replacement' }]
+ * };
+ * const parser = new StaxXmlParser(stream, options);
+ * ```
+ *
  * @public
  */
 export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
@@ -116,15 +106,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   private buffer: Uint8Array;
   private bufferLength: number = 0;
   private position: number = 0;
-
-  // ===== OPTIMIZED: Circular Buffer Queue =====
-  // Replaces: private eventQueue: AnyXmlEvent[] = [];
-  private eventQueue: AnyXmlEvent[];
-  private queueHead: number = 0;
-  private queueTail: number = 0;
-  private queueSize: number = 0;
-  private readonly initialCapacity: number;
-
+  private eventQueue: AnyXmlEvent[] = [];
   private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
   private error: Error | null = null;
   private isStreamEnded: boolean = false;
@@ -136,7 +118,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
   // ===== Optimization tables and caches =====
 
-  // ASCII character fast classification table
+  // ASCII character fast classification table (actually used)
   private static readonly ASCII_TABLE = (() => {
     const table = new Uint8Array(128);
     // Whitespace characters: 1
@@ -198,8 +180,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
    *
    * const parser = new StaxXmlParser(stream, {
    *   autoDecodeEntities: true,
-   *   maxBufferSize: 64 * 1024,
-   *   initialQueueCapacity: 2048
+   *   maxBufferSize: 64 * 1024
    * });
    * ```
    */
@@ -215,7 +196,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       enableBufferCompaction: true,
       batchSize: 10,
       batchTimeout: 10,
-      initialQueueCapacity: 1024,
       ...options
     };
 
@@ -226,10 +206,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     });
 
     this.buffer = new Uint8Array(this.options.maxBufferSize || 64 * 1024);
-
-    // Initialize circular buffer queue
-    this.initialCapacity = this.options.initialQueueCapacity || 1024;
-    this.eventQueue = new Array(this.initialCapacity);
 
     // Pre-compile entity decoder
     this.entityDecoder = this._compileEntityDecoder();
@@ -248,73 +224,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       value: undefined,
       error: undefined
     } as UnifiedXmlEvent as StartElementEvent);
-  }
-
-  // ===== OPTIMIZED: Circular Buffer Queue Operations =====
-
-  /**
-   * Enqueue event to circular buffer - O(1) operation
-   * Replaces: this.eventQueue.push(event)
-   */
-  private _enqueueEvent(event: AnyXmlEvent): void {
-    // Check if queue is full
-    if (this.queueSize === this.eventQueue.length) {
-      this._growQueue();
-    }
-
-    this.eventQueue[this.queueTail] = event;
-    this.queueTail = (this.queueTail + 1) % this.eventQueue.length;
-    this.queueSize++;
-  }
-
-  /**
-   * Dequeue event from circular buffer - O(1) operation
-   * Replaces: this.eventQueue.shift()
-   */
-  private _dequeueEvent(): AnyXmlEvent | null {
-    if (this.queueSize === 0) {
-      return null;
-    }
-
-    const event = this.eventQueue[this.queueHead];
-    this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
-    this.queueSize--;
-
-    return event;
-  }
-
-  /**
-   * Grow circular buffer when full - maintains O(1) amortized complexity
-   */
-  private _growQueue(): void {
-    const oldCapacity = this.eventQueue.length;
-    const newCapacity = oldCapacity * 2;
-    const newQueue = new Array(newCapacity);
-
-    // Copy elements in order from head to tail
-    let writeIndex = 0;
-    for (let i = 0; i < this.queueSize; i++) {
-      const readIndex = (this.queueHead + i) % oldCapacity;
-      newQueue[writeIndex++] = this.eventQueue[readIndex];
-    }
-
-    this.eventQueue = newQueue;
-    this.queueHead = 0;
-    this.queueTail = this.queueSize;
-  }
-
-  /**
-   * Check if queue is empty - O(1) operation
-   */
-  private _isQueueEmpty(): boolean {
-    return this.queueSize === 0;
-  }
-
-  /**
-   * Get current queue size - O(1) operation
-   */
-  private _getQueueSize(): number {
-    return this.queueSize;
   }
 
   // ===== ASCII table utility methods =====
@@ -557,9 +466,8 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     if (this.bufferLength < 1024) return MIN_BATCH;
     if (this.bufferLength > 10240) return MAX_BATCH;
 
-    if (this.queueSize > 0) {
-      const headIndex = this.queueHead;
-      const lastEvent = this.eventQueue[headIndex];
+    if (this.eventQueue.length > 0) {
+      const lastEvent = this.eventQueue[this.eventQueue.length - 1];
       if (lastEvent?.type === XmlEventType.CHARACTERS) {
         return MIN_BATCH;
       }
@@ -594,7 +502,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   public async *batchedIterator(batchSize?: number): AsyncGenerator<AnyXmlEvent[]> {
-    while (!this.parserFinished || this.queueSize > 0) {
+    while (!this.parserFinished || this.eventQueue.length > 0) {
       const targetSize = batchSize || this._calculateOptimalBatchSize();
       const batch = await this.nextBatch(targetSize);
       if (batch.length === 0) break;
@@ -675,7 +583,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
             this.parserFinished = true;
           }
 
-          if (this.resolveNext && this.queueSize === 0) {
+          if (this.resolveNext && this.eventQueue.length === 0) {
             this.resolveNext({ value: undefined, done: true });
             this.resolveNext = null;
           }
@@ -697,7 +605,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   }
 
   private _updateBatchMetrics(bytesProcessed: number): void {
-    const eventsDelta = this.queueSize;
+    const eventsDelta = this.eventQueue.length;
     if (eventsDelta > 0) {
       this.batchMetrics.eventCount += eventsDelta;
       this.batchMetrics.avgEventSize =
@@ -796,12 +704,8 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this.bmhCache.clear();
   }
 
-  /**
-   * OPTIMIZED: Add event to circular buffer queue
-   * Replaces: this.eventQueue.push(event)
-   */
   private _addEvent(event: AnyXmlEvent): void {
-    this._enqueueEvent(event);
+    this.eventQueue.push(event);
     if (this.resolveNext) {
       this.resolveNext(this._popNextEvent() as IteratorResult<AnyXmlEvent>);
       this.resolveNext = null;
@@ -833,14 +737,9 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     }
   }
 
-  /**
-   * OPTIMIZED: Pop next event from circular buffer queue
-   * Replaces: this.eventQueue.shift()
-   */
   private _popNextEvent(): IteratorResult<AnyXmlEvent> | null {
-    const event = this._dequeueEvent();
-    if (event !== null) {
-      return { value: event, done: false };
+    if (this.eventQueue.length > 0) {
+      return { value: this.eventQueue.shift()!, done: false };
     }
     if (this.parserFinished) {
       return { value: undefined, done: true };
