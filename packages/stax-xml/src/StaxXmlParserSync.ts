@@ -655,13 +655,13 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   } {
     if (start >= end) {
       return {
-        attributes: {},
-        attributesWithPrefix: {}
+        attributes: Object.create(null),
+        attributesWithPrefix: Object.create(null)
       };
     }
 
-    const attributes: Record<string, string> = {};
-    const attributesWithPrefix: Record<string, AttributeInfo> = {};
+    const attributes: Record<string, string> = Object.create(null);
+    const attributesWithPrefix: Record<string, AttributeInfo> = Object.create(null);
 
     let i = start;
     const xml = this.xml;

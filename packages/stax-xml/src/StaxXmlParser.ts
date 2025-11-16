@@ -1067,8 +1067,8 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         }
       }
 
-      const attributes: { [key: string]: string } = {};
-      const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
+      const attributes: { [key: string]: string } = Object.create(null);
+      const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = Object.create(null);
 
       // Attribute parsing - Unicode character support
       const attrRegex = /([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(?:\s*=\s*"([^"]*)"|\s*=\s*'([^']*)')?/g;
