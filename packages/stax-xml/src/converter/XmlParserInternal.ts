@@ -202,7 +202,7 @@ export class XmlParserInternal {
     }
 
     // Extract results from collectors
-    const result: Record<string, unknown> = {};
+    const result: Record<string, unknown> = Object.create(null);
     for (const [fieldName, collector] of collectors) {
       const fieldSchema = fieldSchemas.get(fieldName)!;
       result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
@@ -298,7 +298,7 @@ export class XmlParserInternal {
     }
 
     // Extract results from collectors
-    const result: Record<string, unknown> = {};
+    const result: Record<string, unknown> = Object.create(null);
     for (const [fieldName, collector] of collectors) {
       const fieldSchema = fieldSchemas.get(fieldName)!;
       result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
@@ -1119,7 +1119,7 @@ export class XmlParserInternal {
       return items;
     } else if (collector.type === 'object') {
       // Reconstruct object from field collectors
-      let result: Record<string, unknown> = {};
+      let result: Record<string, unknown> = Object.create(null);
       const unwrapped = this.unwrapSchema(schema);
 
       // Type guard to safely access shape
@@ -1181,7 +1181,7 @@ export class XmlParserInternal {
    * @internal
    */
   private buildResultFromCollector(collector: ObjectCollector, shape: Record<string, XmlSchemaBase<unknown, unknown>>): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
+    const result: Record<string, unknown> = Object.create(null);
 
     for (const [fieldName, fieldCollector] of collector.fields) {
       const schema = shape[fieldName];

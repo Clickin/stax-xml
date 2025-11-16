@@ -217,7 +217,7 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
 
     // Write root element if specified
     if (options?.rootElement) {
-      const rootAttributes: Record<string, string> = {};
+      const rootAttributes: Record<string, string> = Object.create(null);
 
       // Collect attributes from shape
       for (const [key, schema] of Object.entries(this.shape)) {
@@ -335,7 +335,7 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
 
     // Write root element if specified
     if (options?.rootElement) {
-      const rootAttributes: Record<string, string> = {};
+      const rootAttributes: Record<string, string> = Object.create(null);
 
       // Collect attributes from shape
       for (const [key, schema] of Object.entries(this.shape)) {

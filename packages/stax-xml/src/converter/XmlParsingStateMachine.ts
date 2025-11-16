@@ -858,7 +858,7 @@ export class XmlParsingStateMachine {
     collector: ObjectCollector,
     schema: XmlSchemaBase<unknown, unknown>
   ): Record<string, unknown> {
-    let result: Record<string, unknown> = {};
+    let result: Record<string, unknown> = Object.create(null);
     const unwrappedSchema = this.unwrapSchema(schema);
     if (!isObjectSchema(unwrappedSchema)) return result;
 
@@ -949,7 +949,7 @@ export class XmlParsingStateMachine {
       return collector.items;
     } else if (collector.type === 'object') {
       // Recursively extract object fields
-      const result: Record<string, unknown> = {};
+      const result: Record<string, unknown> = Object.create(null);
       for (const [key, childCollector] of collector.fields) {
         result[key] = this.extractSimpleValue(childCollector, false);
       }
