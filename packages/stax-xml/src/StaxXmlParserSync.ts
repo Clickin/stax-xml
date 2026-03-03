@@ -19,13 +19,17 @@ import {
   EndElementEvent,
   StartDocumentEvent,
   StartElementEvent,
-  XmlEventType
+  XmlEventType,
+  type ParserEventFilter
 } from './types';
+
 
 export interface StaxXmlParserSyncOptions {
   autoDecodeEntities?: boolean;
   addEntities?: { entity: string, value: string }[];
+  eventFilter?: ParserEventFilter;
 }
+
 
 /**
  * Parser state enumeration
@@ -56,6 +60,8 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private namespaceStack: Map<string, string>[] = [];
   private readonly options: StaxXmlParserSyncOptions;
   private readonly entityDecoder: (text: string) => string;
+  private readonly eventFilter?: ParserEventFilter;
+
 
   // ===== State Machine State =====
   private state: ParserState = ParserState.INITIAL;
@@ -109,8 +115,11 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       ...options
     };
 
+    this.eventFilter = options.eventFilter;
+
     this.namespaceStack.push(new Map<string, string>());
     this.entityDecoder = this.compileEntityDecoder();
+
   }
 
   // ===== Public Iterator API =====
@@ -189,9 +198,10 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
           const text = this.trimmedSlice(this.pos, this.xmlLength);
           this.pos = this.xmlLength;
 
-          if (text) {
+          if (text && (!this.eventFilter || this.eventFilter.includeCharacters)) {
             return this.createCharactersEvent(text);
           }
+
         }
         return null; // End of document
       }
@@ -201,9 +211,10 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
         const text = this.trimmedSlice(this.pos, ltPos);
         this.pos = ltPos;
 
-        if (text) {
+        if (text && (!this.eventFilter || this.eventFilter.includeCharacters)) {
           return this.createCharactersEvent(text);
         }
+
         // If text was only whitespace, continue to parse tag
       }
 
@@ -301,7 +312,11 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       const cdataContent = this.xml.slice(this.pos + 9, cdataEnd);
       this.pos = cdataEnd + 3;
 
-      return this.createCdataEvent(cdataContent);
+      if (!this.eventFilter || this.eventFilter.includeCdata) {
+        return this.createCdataEvent(cdataContent);
+      }
+      return null;
+
     } else if (this.matchesAt('<!--', this.pos)) {
       const commentEnd = this.findSequence('-->', this.pos + 4);
       if (commentEnd === -1) throw new Error('Unclosed comment');
@@ -371,11 +386,14 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     }
 
     // Parse attributes
+    const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
     const { attributes, attributesWithPrefix } = this.parseAttributesFast(
       nameEnd,
       actualEnd,
-      currentNamespaces
+      currentNamespaces,
+      includeAttributes
     );
+
 
     // QName parsing
     const colonIndex = tagName.indexOf(':');
@@ -648,11 +666,13 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private parseAttributesFast(
     start: number,
     end: number,
-    namespaces: Map<string, string>
+    namespaces: Map<string, string>,
+    includeAttributes: boolean = true
   ): {
     attributes: Record<string, string>,
     attributesWithPrefix: Record<string, AttributeInfo>
   } {
+
     if (start >= end) {
       return {
         attributes: {},
@@ -682,24 +702,27 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
 
       while (i < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(i))) i++;
       if (i >= end || xml.charCodeAt(i) !== 61) {
-        attributes[attrName] = 'true';
+        if (includeAttributes) {
+          attributes[attrName] = 'true';
 
-        const colonIndex = attrName.indexOf(':');
-        let localName: string, prefix: string | undefined, uri: string | undefined;
+          const colonIndex = attrName.indexOf(':');
+          let localName: string, prefix: string | undefined, uri: string | undefined;
 
-        if (colonIndex === -1) {
-          localName = attrName;
-          prefix = undefined;
-          uri = undefined;
-        } else {
-          prefix = attrName.slice(0, colonIndex);
-          localName = attrName.slice(colonIndex + 1);
-          uri = namespaces.get(prefix);
+          if (colonIndex === -1) {
+            localName = attrName;
+            prefix = undefined;
+            uri = undefined;
+          } else {
+            prefix = attrName.slice(0, colonIndex);
+            localName = attrName.slice(colonIndex + 1);
+            uri = namespaces.get(prefix);
+          }
+
+          attributesWithPrefix[attrName] = { value: 'true', localName, prefix, uri };
         }
-
-        attributesWithPrefix[attrName] = { value: 'true', localName, prefix, uri };
         continue;
       }
+
 
       i++; // Skip '='
 
@@ -716,7 +739,6 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
 
       const rawValue = xml.slice(valueStart, i);
       const attrValue = this.entityDecoder(rawValue);
-      attributes[attrName] = attrValue;
 
       if (attrName === 'xmlns') {
         namespaces.set('', attrValue);
@@ -724,35 +746,40 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
         namespaces.set(attrName.slice(6), attrValue);
       }
 
-      const colonIndex = attrName.indexOf(':');
-      let localName: string, prefix: string | undefined, uri: string | undefined;
+      if (includeAttributes) {
+        attributes[attrName] = attrValue;
 
-      if (colonIndex === -1) {
-        localName = attrName;
-        prefix = undefined;
-        uri = undefined;
-      } else {
-        prefix = attrName.slice(0, colonIndex);
-        localName = attrName.slice(colonIndex + 1);
-        uri = namespaces.get(prefix);
-      }
+        const colonIndex = attrName.indexOf(':');
+        let localName: string, prefix: string | undefined, uri: string | undefined;
 
-      if (attrName.startsWith('xmlns')) {
-        if (attrName === 'xmlns') {
-          localName = 'xmlns';
+        if (colonIndex === -1) {
+          localName = attrName;
           prefix = undefined;
+          uri = undefined;
         } else {
-          localName = attrName.slice(6);
-          prefix = 'xmlns';
+          prefix = attrName.slice(0, colonIndex);
+          localName = attrName.slice(colonIndex + 1);
+          uri = namespaces.get(prefix);
         }
+
+        if (attrName.startsWith('xmlns')) {
+          if (attrName === 'xmlns') {
+            localName = 'xmlns';
+            prefix = undefined;
+          } else {
+            localName = attrName.slice(6);
+            prefix = 'xmlns';
+          }
+        }
+
+        attributesWithPrefix[attrName] = {
+          value: attrValue,
+          localName,
+          prefix,
+          uri
+        };
       }
 
-      attributesWithPrefix[attrName] = {
-        value: attrValue,
-        localName,
-        prefix,
-        uri
-      };
 
       i++; // Skip closing quote
     }

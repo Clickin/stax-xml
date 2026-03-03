@@ -1,16 +1,3 @@
-// StaxXmlParser.ts
-// High-performance asynchronous XML parser with Circular Buffer Queue optimization
-//
-// Performance: Achieved ~15% improvement vs array-based queue
-// Optimization: Replace Array.shift() (O(n)) with circular buffer (O(1))
-//
-// Key Optimizations:
-// 1. Circular buffer for event queue (O(1) operations)
-// 2. Boyer-Moore-Horspool pattern search
-// 3. UTF-8 safe processing
-// 4. Batch processing support
-// 5. Memory-efficient buffer compaction
-
 import {
   AnyXmlEvent,
   CdataEvent,
@@ -21,197 +8,79 @@ import {
   StartElementEvent,
   UnifiedXmlEvent,
   XmlEventType,
-  type ParserEventFilter
-} from './types';
+} from '../../types';
 
-/**
- * Configuration options for the StaxXmlParser
- *
- * @public
- */
-export interface StaxXmlParserOptions {
-  /**
-   * Text encoding for the input stream
-   * @defaultValue 'utf-8'
-   */
+export interface XmlParserCoreOptions {
   encoding?: string;
-
-  /**
-   * Additional custom entities to decode
-   * @defaultValue []
-   */
   addEntities?: { entity: string, value: string }[];
-
-  /**
-   * Whether to automatically decode XML entities
-   * @defaultValue true
-   */
   autoDecodeEntities?: boolean;
-
-  /**
-   * Maximum buffer size in bytes
-   * @defaultValue 65536
-   */
   maxBufferSize?: number;
-
-  /**
-   * Whether to enable buffer compaction for memory efficiency
-   * @defaultValue true
-   */
   enableBufferCompaction?: boolean;
-
-  /**
-   * Number of events to batch together
-   * @defaultValue 1
-   */
   batchSize?: number;
-
-  /**
-   * Timeout for batch processing in milliseconds
-   * @defaultValue 0
-   */
   batchTimeout?: number;
-
-  /**
-   * Initial event queue capacity (circular buffer size)
-   * @defaultValue 1024
-   */
   initialQueueCapacity?: number;
-
-  eventFilter?: ParserEventFilter;
 }
 
-/**
- * High-performance asynchronous XML parser with circular buffer queue optimization.
- *
- * This parser provides memory-efficient processing of large XML files through streaming
- * with support for pull-based parsing, custom entity handling, and namespace processing.
- *
- * **OPTIMIZATION**: Replaces array-based queue with circular buffer for O(1) operations.
- * Achieved improvement: ~15% on large XML files (1GB+).
- *
- * @remarks
- * The parser uses UTF-8 safe processing with Boyer-Moore-Horspool pattern search optimization
- * and supports both single-event and batch processing modes for improved performance.
- *
- * @example
- * Basic usage:
- * ```typescript
- * const xmlContent = '<root><item>Hello</item></root>';
- * const stream = new ReadableStream({
- *   start(controller) {
- *     controller.enqueue(new TextEncoder().encode(xmlContent));
- *     controller.close();
- *   }
- * });
- *
- * const parser = new StaxXmlParser(stream);
- * for await (const event of parser) {
- *   console.log(event.type, event);
- * }
- * ```
- *
- * @public
- */
-export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
-  private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+export class XmlParserCore {
   private readonly decoder: TextDecoder;
   private buffer: Uint8Array;
-  private bufferLength: number = 0;
-  private position: number = 0;
+  private bufferLength = 0;
+  private position = 0;
 
-  // ===== OPTIMIZED: Circular Buffer Queue =====
-  // Replaces: private eventQueue: AnyXmlEvent[] = [];
   private eventQueue: AnyXmlEvent[];
-  private queueHead: number = 0;
-  private queueTail: number = 0;
-  private queueSize: number = 0;
+  private queueHead = 0;
+  private queueTail = 0;
+  private queueSize = 0;
   private readonly initialCapacity: number;
 
-  private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
   private error: Error | null = null;
-  private isStreamEnded: boolean = false;
-  private parserFinished: boolean = false;
-  private currentTextBuffer: string = '';
+  private isStreamEnded = false;
+  private parserFinished = false;
+  private currentTextBuffer = '';
   private elementStack: string[] = [];
   private namespaceStack: Map<string, string>[] = [];
-  private readonly options: StaxXmlParserOptions;
-  private readonly eventFilter?: ParserEventFilter;
+  private readonly options: XmlParserCoreOptions;
 
-  // ===== Optimization tables and caches =====
-
-  // ASCII character fast classification table
   private static readonly ASCII_TABLE = (() => {
     const table = new Uint8Array(128);
-    // Whitespace characters: 1
-    table[9] = 1;   // TAB
-    table[10] = 1;  // LF
-    table[13] = 1;  // CR
-    table[32] = 1;  // SPACE
-    // XML special characters: 2-12
-    table[60] = 2;  // '<'
-    table[62] = 3;  // '>'
-    table[47] = 4;  // '/'
-    table[61] = 5;  // '='
-    table[33] = 6;  // '!'
-    table[63] = 7;  // '?'
-    table[34] = 8;  // '"'
-    table[39] = 9;  // "'"
-    table[38] = 10; // '&'
-    table[91] = 11; // '['
-    table[93] = 12; // ']'
+    table[9] = 1;
+    table[10] = 1;
+    table[13] = 1;
+    table[32] = 1;
+    table[60] = 2;
+    table[62] = 3;
+    table[47] = 4;
+    table[61] = 5;
+    table[33] = 6;
+    table[63] = 7;
+    table[34] = 8;
+    table[39] = 9;
+    table[38] = 10;
+    table[91] = 11;
+    table[93] = 12;
     return table;
   })();
 
-  // Entity regex cache
   private static readonly ENTITY_REGEX_CACHE = new Map<string, RegExp>();
   private static readonly DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
   private static readonly DEFAULT_ENTITY_MAP: Record<string, string> = {
-    'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'", 'amp': '&'
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    amp: '&',
   };
 
-  // Compiled entity decoder
   private readonly entityDecoder: (text: string) => string;
-
-  // Boyer-Moore-Horspool pattern cache
   private readonly bmhCache = new Map<string, Uint8Array>();
 
-  // Batch processing state
   private batchMetrics = {
     avgEventSize: 100,
     lastBatchTime: 0,
-    eventCount: 0
+    eventCount: 0,
   };
 
-  /**
-   * Creates a new StaxXmlParser instance.
-   *
-   * @param xmlStream - The ReadableStream containing XML data as Uint8Array chunks
-   * @param options - Configuration options for the parser
-   * @throws {Error} When xmlStream is not a valid ReadableStream
-   *
-   * @example
-   * ```typescript
-   * const xmlData = '<root><item>content</item></root>';
-   * const stream = new ReadableStream({
-   *   start(controller) {
-   *     controller.enqueue(new TextEncoder().encode(xmlData));
-   *     controller.close();
-   *   }
-   * });
-   *
-   * const parser = new StaxXmlParser(stream, {
-   *   autoDecodeEntities: true,
-   *   maxBufferSize: 64 * 1024,
-   *   initialQueueCapacity: 2048
-   * });
-   * ```
-   */
-  constructor(xmlStream: ReadableStream<Uint8Array>, options: StaxXmlParserOptions = {}) {
-    if (!(xmlStream instanceof ReadableStream)) {
-      throw new Error('xmlStream must be a web standard ReadableStream.');
-    }
-
+  constructor(options: XmlParserCoreOptions = {}) {
     this.options = {
       encoding: 'utf-8',
       autoDecodeEntities: true,
@@ -220,29 +89,19 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       batchSize: 10,
       batchTimeout: 10,
       initialQueueCapacity: 1024,
-      ...options
+      ...options,
     };
 
-    this.eventFilter = this.options.eventFilter;
-
-    // TextDecoder optimization settings
     this.decoder = new TextDecoder(this.options.encoding, {
-      fatal: false,    // Use replacement character � instead of error
-      ignoreBOM: true  // Ignore BOM
+      fatal: false,
+      ignoreBOM: true,
     });
 
     this.buffer = new Uint8Array(this.options.maxBufferSize || 64 * 1024);
-
-    // Initialize circular buffer queue
     this.initialCapacity = this.options.initialQueueCapacity || 1024;
     this.eventQueue = new Array(this.initialCapacity);
-
-    // Pre-compile entity decoder
     this.entityDecoder = this._compileEntityDecoder();
 
-    this.reader = xmlStream.getReader();
-    this._startReading();
-    // Inline START_DOCUMENT creation - maintains V8 hidden class optimization
     this._addEvent({
       type: XmlEventType.START_DOCUMENT,
       name: undefined,
@@ -252,18 +111,75 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       attributes: undefined,
       attributesWithPrefix: undefined,
       value: undefined,
-      error: undefined
+      error: undefined,
     } as UnifiedXmlEvent as StartElementEvent);
   }
 
-  // ===== OPTIMIZED: Circular Buffer Queue Operations =====
+  public feed(chunk: Uint8Array): void {
+    if (this.parserFinished || this.error || this.isStreamEnded || chunk.length === 0) {
+      return;
+    }
 
-  /**
-   * Enqueue event to circular buffer - O(1) operation
-   * Replaces: this.eventQueue.push(event)
-   */
+    this._appendToBuffer(chunk);
+    this._parseBuffer();
+    this._compactBufferIfNeeded();
+    this._updateBatchMetrics(chunk.length);
+  }
+
+  public end(): void {
+    if (this.parserFinished || this.isStreamEnded) {
+      return;
+    }
+
+    this.isStreamEnded = true;
+    this._parseBuffer();
+
+    if (!this.parserFinished && this.elementStack.length > 0) {
+      this._addError(new Error('Unexpected end of document. Not all elements were closed.'));
+    }
+
+    if (!this.parserFinished) {
+      this._flushCharacters();
+      this._addEvent({
+        type: XmlEventType.END_DOCUMENT,
+        name: undefined,
+        localName: undefined,
+        prefix: undefined,
+        uri: undefined,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: undefined,
+        error: undefined,
+      } as UnifiedXmlEvent as EndDocumentEvent);
+      this.parserFinished = true;
+    }
+  }
+
+  public fail(err: Error): void {
+    this._addError(err);
+  }
+
+  public nextEvent(): AnyXmlEvent | null {
+    return this._dequeueEvent();
+  }
+
+  public getError(): Error | null {
+    return this.error;
+  }
+
+  public getDone(): boolean {
+    return this.parserFinished && this.queueSize === 0;
+  }
+
+  public getRecommendedBatchSize(): number {
+    return this._calculateOptimalBatchSize();
+  }
+
+  public getBatchTimeout(): number {
+    return this.options.batchTimeout || 10;
+  }
+
   private _enqueueEvent(event: AnyXmlEvent): void {
-    // Check if queue is full
     if (this.queueSize === this.eventQueue.length) {
       this._growQueue();
     }
@@ -273,10 +189,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this.queueSize++;
   }
 
-  /**
-   * Dequeue event from circular buffer - O(1) operation
-   * Replaces: this.eventQueue.shift()
-   */
   private _dequeueEvent(): AnyXmlEvent | null {
     if (this.queueSize === 0) {
       return null;
@@ -285,19 +197,14 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     const event = this.eventQueue[this.queueHead];
     this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
     this.queueSize--;
-
     return event;
   }
 
-  /**
-   * Grow circular buffer when full - maintains O(1) amortized complexity
-   */
   private _growQueue(): void {
     const oldCapacity = this.eventQueue.length;
     const newCapacity = oldCapacity * 2;
     const newQueue = new Array(newCapacity);
 
-    // Copy elements in order from head to tail
     let writeIndex = 0;
     for (let i = 0; i < this.queueSize; i++) {
       const readIndex = (this.queueHead + i) % oldCapacity;
@@ -309,108 +216,61 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this.queueTail = this.queueSize;
   }
 
-  // ===== ASCII table utility methods =====
-
-  /**
-   * Fast XML special character check
-   */
   private getXmlCharType(byte: number): number {
-    return byte < 128 ? StaxXmlParser.ASCII_TABLE[byte] : 0;
+    return byte < 128 ? XmlParserCore.ASCII_TABLE[byte] : 0;
   }
 
-  // ===== UTF-8 safety methods =====
-
-  /**
-   * Check if UTF-8 byte is the start of a character
-   * @param byte The byte to check
-   * @returns true if it's the start of a character
-   */
   private isUtf8CharStart(byte: number): boolean {
-    // ASCII (0xxxxxxx) or multibyte start (11xxxxxx)
-    // Not a continuation byte (10xxxxxx)
     return (byte & 0x80) === 0 || (byte & 0xC0) === 0xC0;
   }
 
-  /**
-   * Calculate UTF-8 sequence length
-   * @param byte The first byte
-   * @returns Sequence length (1-4)
-   */
   private getUtf8SequenceLength(byte: number): number {
-    if ((byte & 0x80) === 0) return 1;        // 0xxxxxxx
-    if ((byte & 0xE0) === 0xC0) return 2;      // 110xxxxx
-    if ((byte & 0xF0) === 0xE0) return 3;      // 1110xxxx
-    if ((byte & 0xF8) === 0xF0) return 4;      // 11110xxx
-    return 1; // Invalid sequence
+    if ((byte & 0x80) === 0) return 1;
+    if ((byte & 0xE0) === 0xC0) return 2;
+    if ((byte & 0xF0) === 0xE0) return 3;
+    if ((byte & 0xF8) === 0xF0) return 4;
+    return 1;
   }
 
-  /**
-   * Safely adjust position at UTF-8 character boundaries
-   * @param pos The position to adjust
-   * @param searchBackward Whether to search backwards
-   * @returns Safe UTF-8 boundary position
-   */
-  private findSafeUtf8Boundary(pos: number, searchBackward: boolean = true): number {
+  private findSafeUtf8Boundary(pos: number, searchBackward = true): number {
     if (pos <= 0 || pos >= this.bufferLength) return pos;
 
     if (searchBackward) {
-      // Search backwards to find character start
       let safePos = pos;
       let backtrack = 0;
 
       while (safePos > 0 && backtrack < 4) {
         if (this.isUtf8CharStart(this.buffer[safePos])) {
-          // Check if the sequence starting at this position includes the original pos
           const seqLen = this.getUtf8SequenceLength(this.buffer[safePos]);
           if (safePos + seqLen > pos) {
-            // pos is in the middle of this character, return safePos
             return safePos;
-          } else {
-            // pos is already at a safe boundary
-            return pos;
           }
+          return pos;
         }
         safePos--;
         backtrack++;
       }
-      return pos; // Could not find appropriate boundary
-    } else {
-      // Search forward to find next character start
-      while (pos < this.bufferLength && !this.isUtf8CharStart(this.buffer[pos])) {
-        pos++;
-      }
       return pos;
     }
+
+    while (pos < this.bufferLength && !this.isUtf8CharStart(this.buffer[pos])) {
+      pos++;
+    }
+    return pos;
   }
 
-  /**
-   * Safely extract UTF-8 string from buffer
-   * @param start Starting position
-   * @param end Ending position
-   * @returns Decoded string
-   */
   private safeDecodeRange(start: number, end: number): string {
-    // Adjust start and end to safe boundaries
     const safeStart = this.findSafeUtf8Boundary(start, false);
     const safeEnd = this.findSafeUtf8Boundary(end, true);
 
     if (safeStart >= safeEnd) return '';
 
-    return this.decoder.decode(
-      this.buffer.subarray(safeStart, safeEnd),
-      { stream: false }
-    );
+    return this.decoder.decode(this.buffer.subarray(safeStart, safeEnd), { stream: false });
   }
 
-  // ===== Boyer-Moore-Horspool pattern search implementation =====
-
-  /**
-   * Build Boyer-Moore-Horspool bad character table
-   */
   private _buildBMHTable(pattern: Uint8Array): Uint8Array {
     const table = new Uint8Array(256);
     const patternLength = pattern.length;
-
     table.fill(patternLength);
 
     for (let i = 0; i < patternLength - 1; i++) {
@@ -420,16 +280,11 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return table;
   }
 
-  /**
-   * Pattern search using Boyer-Moore-Horspool algorithm
-   * XML delimiters are all ASCII, so no UTF-8 boundary issues
-   */
   private _findPatternBMH(pattern: string, startPos?: number): number {
     const patternBytes = new TextEncoder().encode(pattern);
     const patternLength = patternBytes.length;
 
     if (patternLength === 0) return -1;
-
     if (patternLength === 1) {
       return this._findSingleByte(patternBytes[0], startPos);
     }
@@ -438,7 +293,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     if (!skipTable) {
       skipTable = this._buildBMHTable(patternBytes);
       if (this.bmhCache.size > 20) {
-        // Cache size limit
         this.bmhCache.clear();
       }
       this.bmhCache.set(pattern, skipTable);
@@ -464,9 +318,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return -1;
   }
 
-  /**
-   * Single byte search (optimized)
-   */
   private _findSingleByte(byte: number, startPos?: number): number {
     const start = startPos || this.position;
     const buffer = this.buffer;
@@ -489,15 +340,13 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return -1;
   }
 
-  // ===== Entity decoder compilation =====
-
   private _compileEntityDecoder(): (text: string) => string {
     if (!this.options.autoDecodeEntities) {
       return (text) => text;
     }
 
     if (this.options.addEntities && this.options.addEntities.length > 0) {
-      const entityMap: Record<string, string> = { ...StaxXmlParser.DEFAULT_ENTITY_MAP };
+      const entityMap: Record<string, string> = { ...XmlParserCore.DEFAULT_ENTITY_MAP };
       const patterns: string[] = ['lt', 'gt', 'quot', 'apos'];
 
       for (const { entity, value } of this.options.addEntities) {
@@ -512,15 +361,15 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       patterns.push('amp');
 
       const cacheKey = patterns.join(',');
-      let regex = StaxXmlParser.ENTITY_REGEX_CACHE.get(cacheKey);
+      let regex = XmlParserCore.ENTITY_REGEX_CACHE.get(cacheKey);
 
       if (!regex) {
         const pattern = patterns
           .sort((a, b) => b.length - a.length)
-          .map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
           .join('|');
         regex = new RegExp(`&(${pattern});`, 'g');
-        StaxXmlParser.ENTITY_REGEX_CACHE.set(cacheKey, regex);
+        XmlParserCore.ENTITY_REGEX_CACHE.set(cacheKey, regex);
       }
 
       return (text: string) => {
@@ -532,15 +381,10 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
     return (text: string) => {
       if (!text || text.indexOf('&') === -1) return text;
-      StaxXmlParser.DEFAULT_ENTITY_REGEX.lastIndex = 0;
-      return text.replace(
-        StaxXmlParser.DEFAULT_ENTITY_REGEX,
-        (_, entity) => StaxXmlParser.DEFAULT_ENTITY_MAP[entity] || _
-      );
+      XmlParserCore.DEFAULT_ENTITY_REGEX.lastIndex = 0;
+      return text.replace(XmlParserCore.DEFAULT_ENTITY_REGEX, (_, entity) => XmlParserCore.DEFAULT_ENTITY_MAP[entity] || _);
     };
   }
-
-  // ===== Batch processing API =====
 
   private _calculateOptimalBatchSize(): number {
     const MIN_BATCH = 1;
@@ -566,41 +410,10 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return Math.min(MAX_BATCH, Math.max(MIN_BATCH, Math.floor(this.bufferLength / 1024)));
   }
 
-  public async nextBatch(size?: number): Promise<AnyXmlEvent[]> {
-    const batch: AnyXmlEvent[] = [];
-    const targetSize = size || this._calculateOptimalBatchSize();
-    const startTime = Date.now();
-    const timeout = this.options.batchTimeout || 10;
-
-    for (let i = 0; i < targetSize; i++) {
-      if (Date.now() - startTime > timeout) {
-        break;
-      }
-
-      const result = await this.next();
-      if (result.done) break;
-      batch.push(result.value);
-    }
-
-    return batch;
-  }
-
-  public async *batchedIterator(batchSize?: number): AsyncGenerator<AnyXmlEvent[]> {
-    while (!this.parserFinished || this.queueSize > 0) {
-      const targetSize = batchSize || this._calculateOptimalBatchSize();
-      const batch = await this.nextBatch(targetSize);
-      if (batch.length === 0) break;
-      yield batch;
-    }
-  }
-
-  // ===== Improved buffer management =====
-
   private _compactBufferIfNeeded(): void {
     if (!this.options.enableBufferCompaction) return;
 
     const maxSize = this.options.maxBufferSize || 64 * 1024;
-
     const shouldCompact =
       (this.position > 8192 && this.bufferLength > 16384) ||
       (this.position > maxSize / 2) ||
@@ -613,9 +426,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
   private _compactBuffer(): void {
     if (this.position > 0 && this.position < this.bufferLength) {
-      // Check UTF-8 boundaries
       const safePos = this.findSafeUtf8Boundary(this.position, true);
-
       const remainingLength = this.bufferLength - safePos;
 
       if (remainingLength < safePos) {
@@ -635,59 +446,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     }
   }
 
-  // ===== Main parsing logic =====
-
-  private async _startReading(): Promise<void> {
-    try {
-      while (true) {
-        const { done, value } = await this.reader!.read();
-
-        if (done) {
-          this.isStreamEnded = true;
-          this._parseBuffer();
-
-          if (!this.parserFinished && this.elementStack.length > 0) {
-            this._addError(new Error('Unexpected end of document. Not all elements were closed.'));
-          }
-
-          if (!this.parserFinished) {
-            this._flushCharacters();
-            // Inline END_DOCUMENT creation - maintains V8 hidden class optimization
-            this._addEvent({
-              type: XmlEventType.END_DOCUMENT,
-              name: undefined,
-              localName: undefined,
-              prefix: undefined,
-              uri: undefined,
-              attributes: undefined,
-              attributesWithPrefix: undefined,
-              value: undefined,
-              error: undefined
-            } as UnifiedXmlEvent as EndDocumentEvent);
-            this.parserFinished = true;
-          }
-
-          if (this.resolveNext && this.queueSize === 0) {
-            this.resolveNext({ value: undefined, done: true });
-            this.resolveNext = null;
-          }
-          break;
-        }
-
-        this._appendToBuffer(value);
-        this._parseBuffer();
-        this._compactBufferIfNeeded();
-        this._updateBatchMetrics(value.length);
-      }
-    } catch (err) {
-      this._addError(err as Error);
-      if (this.resolveNext) {
-        this.resolveNext({ value: undefined, done: true });
-        this.resolveNext = null;
-      }
-    }
-  }
-
   private _updateBatchMetrics(bytesProcessed: number): void {
     const eventsDelta = this.queueSize;
     if (eventsDelta > 0) {
@@ -701,7 +459,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
   private _parseBuffer(): void {
     while (this.position < this.bufferLength && !this.parserFinished) {
-      const ltPos = this._findSingleByte(60, this.position); // '<'
+      const ltPos = this._findSingleByte(60, this.position);
 
       if (ltPos === -1) {
         if (this.isStreamEnded) {
@@ -725,14 +483,13 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
       this.position = ltPos;
 
-      // Fast tag type identification using ASCII table
       const nextByte = this.buffer[this.position + 1];
       const charType = this.getXmlCharType(nextByte);
 
-      if (charType === 4) { // '/' (47)
+      if (charType === 4) {
         this._flushCharacters();
         if (!this._parseEndTag()) break;
-      } else if (charType === 6) { // '!' (33)
+      } else if (charType === 6) {
         if (this._matchesPattern('<!--')) {
           if (!this._parseComment()) break;
         } else if (this._matchesPattern('<![CDATA[')) {
@@ -744,7 +501,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
           }
           break;
         }
-      } else if (charType === 7) { // '?' (63)
+      } else if (charType === 7) {
         if (this._matchesPattern('<?xml')) {
           if (!this._parseXmlDeclaration()) break;
         } else if (this._matchesPattern('<?')) {
@@ -764,19 +521,17 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       const decodedText = this.entityDecoder(this.currentTextBuffer);
 
       if (decodedText.trim().length > 0) {
-        if (!this.eventFilter || this.eventFilter.includeCharacters) {
-          this._addEvent({
-            type: XmlEventType.CHARACTERS,
-            name: undefined,
-            localName: undefined,
-            prefix: undefined,
-            uri: undefined,
-            attributes: undefined,
-            attributesWithPrefix: undefined,
-            value: decodedText,
-            error: undefined
-          } as UnifiedXmlEvent as CharactersEvent);
-        }
+        this._addEvent({
+          type: XmlEventType.CHARACTERS,
+          name: undefined,
+          localName: undefined,
+          prefix: undefined,
+          uri: undefined,
+          attributes: undefined,
+          attributesWithPrefix: undefined,
+          value: decodedText,
+          error: undefined,
+        } as UnifiedXmlEvent as CharactersEvent);
       }
       this.currentTextBuffer = '';
     }
@@ -789,22 +544,13 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this.bmhCache.clear();
   }
 
-  /**
-   * OPTIMIZED: Add event to circular buffer queue
-   * Replaces: this.eventQueue.push(event)
-   */
   private _addEvent(event: AnyXmlEvent): void {
     this._enqueueEvent(event);
-    if (this.resolveNext) {
-      this.resolveNext(this._popNextEvent() as IteratorResult<AnyXmlEvent>);
-      this.resolveNext = null;
-    }
   }
 
   private _addError(err: Error): void {
     if (this.error === null) {
       this.error = err;
-      // Inline ERROR creation - maintains V8 hidden class optimization
       this._addEvent({
         type: XmlEventType.ERROR,
         name: undefined,
@@ -814,54 +560,11 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         attributes: undefined,
         attributesWithPrefix: undefined,
         value: undefined,
-        error: err
+        error: err,
       } as UnifiedXmlEvent as ErrorEvent);
       this.parserFinished = true;
       this._clearBuffers();
-
-      if (this.reader) {
-        this.reader.releaseLock();
-        this.reader = null;
-      }
     }
-  }
-
-  /**
-   * OPTIMIZED: Pop next event from circular buffer queue
-   * Replaces: this.eventQueue.shift()
-   */
-  private _popNextEvent(): IteratorResult<AnyXmlEvent> | null {
-    const event = this._dequeueEvent();
-    if (event !== null) {
-      return { value: event, done: false };
-    }
-    if (this.parserFinished) {
-      return { value: undefined, done: true };
-    }
-    return null;
-  }
-
-  public async next(): Promise<IteratorResult<AnyXmlEvent>> {
-    if (this.error) {
-      throw this.error;
-    }
-
-    const nextEvent = this._popNextEvent();
-    if (nextEvent) {
-      return nextEvent;
-    }
-
-    if (this.parserFinished) {
-      return { value: undefined, done: true };
-    }
-
-    return new Promise((resolve) => {
-      this.resolveNext = resolve;
-    });
-  }
-
-  public [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
-    return this;
   }
 
   private _appendToBuffer(newData: Uint8Array): void {
@@ -878,14 +581,10 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     this.bufferLength += newData.length;
   }
 
-  /**
-   * UTF-8 safe buffer reading
-   */
   private _readBuffer(length?: number): string {
     const originalPos = this.position;
     let endPos = length ? Math.min(this.position + length, this.bufferLength) : this.bufferLength;
 
-    // If specified length exists and is in the middle of buffer, check UTF-8 boundaries
     if (length && endPos < this.bufferLength) {
       endPos = this.findSafeUtf8Boundary(endPos, true);
     }
@@ -897,9 +596,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       this.position = endPos;
       return result;
     } catch (error) {
-      // Handle incomplete UTF-8 sequences
       if (!this.isStreamEnded && endPos === this.bufferLength) {
-        // Backtrack up to the last 4 bytes
         for (let i = 1; i <= 4 && endPos - i > this.position; i++) {
           const testEnd = this.findSafeUtf8Boundary(endPos - i, true);
           if (testEnd > this.position) {
@@ -933,7 +630,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return true;
   }
 
-
   private _parseXmlDeclaration(): boolean {
     const endPos = this._findPatternBMH('?>');
     if (endPos === -1) return false;
@@ -948,37 +644,28 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return true;
   }
 
-  /**
-   * UTF-8 safe CDATA parsing
-   */
   private _parseCData(): boolean {
-    const startPos = this.position + 9; // After '<![CDATA['
+    const startPos = this.position + 9;
     const endPos = this._findPatternBMH(']]>');
     if (endPos === -1) return false;
 
     try {
-      // Check UTF-8 boundaries
       const safeStart = this.findSafeUtf8Boundary(startPos, false);
       const safeEnd = this.findSafeUtf8Boundary(endPos, true);
 
-      const cdataContent = this.decoder.decode(
-        this.buffer.subarray(safeStart, safeEnd),
-        { stream: false }
-      );
+      const cdataContent = this.decoder.decode(this.buffer.subarray(safeStart, safeEnd), { stream: false });
 
-      if (!this.eventFilter || this.eventFilter.includeCdata) {
-        this._addEvent({
-          type: XmlEventType.CDATA,
-          name: undefined,
-          localName: undefined,
-          prefix: undefined,
-          uri: undefined,
-          attributes: undefined,
-          attributesWithPrefix: undefined,
-          value: cdataContent,
-          error: undefined
-        } as UnifiedXmlEvent as CdataEvent);
-      }
+      this._addEvent({
+        type: XmlEventType.CDATA,
+        name: undefined,
+        localName: undefined,
+        prefix: undefined,
+        uri: undefined,
+        attributes: undefined,
+        attributesWithPrefix: undefined,
+        value: cdataContent,
+        error: undefined,
+      } as UnifiedXmlEvent as CdataEvent);
 
       this.position = endPos + 3;
       return true;
@@ -995,15 +682,11 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     return true;
   }
 
-  /**
-   * UTF-8 safe end tag parsing
-   */
   private _parseEndTag(): boolean {
-    const gtPos = this._findSingleByte(62, this.position); // '>'
+    const gtPos = this._findSingleByte(62, this.position);
     if (gtPos === -1) return false;
 
     try {
-      // Safely decode the entire tag
       const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
       const closeTagMatch = tagContent.match(/^<\/([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)\s*>$/);
 
@@ -1018,14 +701,14 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         return true;
       }
 
-      const currentNamespaces = this.namespaceStack.length > 0 ?
-        this.namespaceStack[this.namespaceStack.length - 1] : new Map();
+      const currentNamespaces = this.namespaceStack.length > 0
+        ? this.namespaceStack[this.namespaceStack.length - 1]
+        : new Map();
       const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
 
       this.elementStack.pop();
       this.namespaceStack.pop();
 
-      // Inline END_ELEMENT creation - maintains V8 hidden class optimization
       this._addEvent({
         type: XmlEventType.END_ELEMENT,
         name: tagName,
@@ -1035,7 +718,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         attributes: undefined,
         attributesWithPrefix: undefined,
         value: undefined,
-        error: undefined
+        error: undefined,
       } as UnifiedXmlEvent as EndElementEvent);
 
       this.position = gtPos + 1;
@@ -1046,15 +729,11 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
     }
   }
 
-  /**
-   * UTF-8 safe start tag parsing (using ASCII table)
-   */
   private _parseStartTag(): boolean {
-    const gtPos = this._findSingleByte(62, this.position); // '>'
+    const gtPos = this._findSingleByte(62, this.position);
     if (gtPos === -1) return false;
 
     try {
-      // Safely decode the entire tag
       const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
       const tagMatch = tagContent.match(/^<([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(\s+[^>]*?)?\s*(\/?)>$/);
 
@@ -1075,28 +754,23 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         }
       }
 
-      const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
       const attributes: { [key: string]: string } = {};
       const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
 
-      // Attribute parsing - Unicode character support
-      const attrRegex = /([a-zA-Z0-9_:. - A0-\uFFFF]+)(?:\s*=\s*"([^"]*)"|\s*=\s*'([^']*)')?/g;
-      let attrMatch;
+      const attrRegex = /([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(?:\s*=\s*"([^"]*)"|\s*=\s*'([^']*)')?/g;
+      let attrMatch = attrRegex.exec(attributesString);
 
-      while ((attrMatch = attrRegex.exec(attributesString)) !== null) {
+      while (attrMatch !== null) {
         const attrName = attrMatch[1];
         const attrValue = this.entityDecoder(attrMatch[2] || attrMatch[3] || 'true');
+        attributes[attrName] = attrValue;
 
-        if (includeAttributes) {
-          attributes[attrName] = attrValue;
-
-          const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
-          attributesWithPrefix[attrNamespaceInfo.localName] = {
-            value: attrValue,
-            prefix: attrNamespaceInfo.prefix,
-            uri: attrNamespaceInfo.uri
-          };
-        }
+        const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
+        attributesWithPrefix[attrNamespaceInfo.localName] = {
+          value: attrValue,
+          prefix: attrNamespaceInfo.prefix,
+          uri: attrNamespaceInfo.uri,
+        };
 
         if (attrName === 'xmlns') {
           currentNamespaces.set('', attrValue);
@@ -1104,21 +778,21 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
           const prefix = attrName.substring(6);
           currentNamespaces.set(prefix, attrValue);
         }
+        attrMatch = attrRegex.exec(attributesString);
       }
 
       const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
 
-      // Inline START_ELEMENT creation - maintains V8 hidden class optimization
       this._addEvent({
         type: XmlEventType.START_ELEMENT,
         name: tagName,
         localName,
         prefix,
         uri,
-        attributes: attributes,
-        attributesWithPrefix: attributesWithPrefix,
+        attributes,
+        attributesWithPrefix,
         value: undefined,
-        error: undefined
+        error: undefined,
       } as UnifiedXmlEvent as StartElementEvent);
 
       this.position = gtPos + 1;
@@ -1127,7 +801,6 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         this.elementStack.push(tagName);
         this.namespaceStack.push(currentNamespaces);
       } else {
-        // Inline END_ELEMENT creation for self-closing - maintains V8 hidden class optimization
         this._addEvent({
           type: XmlEventType.END_ELEMENT,
           name: tagName,
@@ -1137,7 +810,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
           attributes: undefined,
           attributesWithPrefix: undefined,
           value: undefined,
-          error: undefined
+          error: undefined,
         } as UnifiedXmlEvent as EndElementEvent);
       }
 
@@ -1151,7 +824,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
   private _parseQualifiedName(
     qname: string,
     namespaces: Map<string, string>,
-    isAttribute: boolean = false
+    isAttribute = false,
   ): {
     localName: string;
     prefix?: string;
@@ -1163,31 +836,27 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         return {
           localName: qname,
           prefix: undefined,
-          uri: undefined
-        };
-      } else {
-        const defaultUri = namespaces.get('');
-        return {
-          localName: qname,
-          prefix: undefined,
-          uri: defaultUri
+          uri: undefined,
         };
       }
-    } else {
-      const prefix = qname.substring(0, colonIndex);
-      const localName = qname.substring(colonIndex + 1);
-      const uri = namespaces.get(prefix);
+
+      const defaultUri = namespaces.get('');
       return {
-        localName,
-        prefix,
-        uri
+        localName: qname,
+        prefix: undefined,
+        uri: defaultUri,
       };
     }
-  }
 
-  public get XmlEventType(): typeof XmlEventType {
-    return XmlEventType;
+    const prefix = qname.substring(0, colonIndex);
+    const localName = qname.substring(colonIndex + 1);
+    const uri = namespaces.get(prefix);
+    return {
+      localName,
+      prefix,
+      uri,
+    };
   }
 }
 
-export default StaxXmlParser;
+export default XmlParserCore;

@@ -358,3 +358,9 @@ export interface WriteElementOptions {
   selfClosing?: boolean;
   comment?: string;
 }
+
+export interface ParserEventFilter {
+  includeAttributes: boolean;
+  includeCharacters: boolean;
+  includeCdata: boolean;
+}

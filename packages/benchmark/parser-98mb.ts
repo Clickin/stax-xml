@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { barplot, bench, run, summary } from 'mitata';
-//@ts-ignore
+// @ts-ignore
 import * as txml from 'txml';
 import xml2js from 'xml2js';
 import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
@@ -50,6 +50,26 @@ function staxXmlParserConsume() {
         break;
       case XmlEventType.ERROR:
         throw event.error;
+    }
+  }
+}
+
+function staxXmlCursorConsume() {
+  // Emulate cursor-style consumption by collecting events from the sync parser
+  const events = Array.from(new StaxXmlParserSync(xmlString));
+  for (const event of events) {
+    switch (event.type) {
+      case XmlEventType.START_DOCUMENT:
+      case XmlEventType.END_DOCUMENT:
+        break;
+      case XmlEventType.START_ELEMENT:
+      case XmlEventType.CHARACTERS:
+      case XmlEventType.CDATA:
+      case XmlEventType.END_ELEMENT:
+        // Do nothing, just consume the events
+        break;
+      case XmlEventType.ERROR:
+        throw new Error('XmlEventType.ERROR');
     }
   }
 }

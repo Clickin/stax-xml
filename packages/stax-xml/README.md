@@ -366,3 +366,35 @@ MIT
 ### 🤝 기여하기
 
 기여를 환영합니다! Pull Request를 자유롭게 제출해 주세요.
+## StaxXmlStreamReaderSync usage and key semantics
+
+- Initial token is START_DOCUMENT when a stream is opened.
+- next() advances the stream; END_DOCUMENT is returned once the document is fully consumed.
+- hasNext() becomes false after END_DOCUMENT is reached.
+- Getters read only the current token; values are overwritten after each subsequent next().
+- Optimized for low allocations to reduce GC pressure in tight loops.
+- Minimal runnable snippet (CommonJS) to demonstrate usage:
+
+```js
+// Minimal runnable example (adjust path as needed)
+const {StaxXmlStreamReaderSync} = require('./packages/stax-xml/dist/index.cjs');
+const fs = require('fs');
+
+const stream = fs.createReadStream('examples/sample.xml');
+const reader = new StaxXmlStreamReaderSync(stream);
+
+let token = reader.next(); // START_DOCUMENT
+console.log('First token:', token);
+
+while (reader.hasNext()) {
+  token = reader.next();
+  console.log('Next token:', token);
+}
+
+console.log('Document finished:', token === 'END_DOCUMENT');
+```
+
+Notes
+- Getters read the current token only; any value read (e.g., element name, attribute) reflects the current token and will be overwritten on the next next().
+- xmlns attributes are visible; getAttributeUri() for xmlns returns undefined. Whitespace-only CHARACTERS are suppressed.
+- Use this synchronously to minimize allocations in hot loops.

@@ -3,6 +3,7 @@ import type { ParseOptions, XmlWriteOptions, XmlElementWriteConfig, SchemaType }
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import { XmlParseError } from './errors.js';
 
+
 /**
  * Parse input type - accepts string, sync iterator, async iterator, or ReadableStream
  *
@@ -189,6 +190,11 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     return XmlSchemaBase._createArray(this as XmlSchemaBase<Output, Input>, xpath);
   }
 
+  compile(): XmlSchemaBase<Output, Input> {
+    return XmlSchemaBase._createCompiled(this);
+  }
+
+
   /**
    * Write data to XML string asynchronously (public API)
    * @param data - Data to write
@@ -250,4 +256,6 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
   static _createTransform: <Output, Input, NewOutput>(schema: XmlSchemaBase<Output, Input>, fn: (value: Output) => NewOutput) => XmlSchemaBase<NewOutput, Input>;
   static _createOptional: <T extends XmlSchemaBase<unknown, unknown>>(schema: T) => XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined>;
   static _createArray: <T extends XmlSchemaBase<unknown, unknown>>(schema: T, xpath?: string) => XmlSchemaBase<T['_output'][], T['_input'][]>;
+  static _createCompiled: <Output, Input>(schema: XmlSchemaBase<Output, Input>) => XmlSchemaBase<Output, Input>;
+
 }

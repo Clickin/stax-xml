@@ -17,6 +17,7 @@ import {
 } from './types.js';
 import { XPathMatcher } from './XPathEngine.js';
 
+
 /**
  * Collector types for different schema types
  * @internal
@@ -116,6 +117,8 @@ export interface SchemaActivation {
   parentCollector?: Collector<unknown>; // Parent collector for cleanup tracking
 }
 
+
+
 /**
  * Internal state machine for event-based XML parsing
  * Processes events and fills collectors without type awareness
@@ -133,6 +136,11 @@ export class XmlParsingStateMachine {
     this.maxDepth = options.maxDepth ?? 1000;
     this.maxEvents = options.maxEvents ?? 1000000;
   }
+
+  private getCandidateActivations(_event: StartElementEvent): SchemaActivation[] {
+    return this.activeSchemas;
+  }
+
 
   /**
    * Register a schema for event-based activation
@@ -158,18 +166,18 @@ export class XmlParsingStateMachine {
     return activation;
   }
 
-  /**
-   * Process events synchronously
-   */
+
   processEventSync(event: AnyXmlEvent): void {
+
     this.checkLimits();
 
     if (isStartElement(event)) {
       this.currentDepth++;
 
 
-      for (const activation of this.activeSchemas) {
+      for (const activation of this.getCandidateActivations(event)) {
         activation.matcher.onStartElement(event);
+
 
         // Check if we're within the activation's context
         const inContext = !activation.context || this.currentDepth > activation.context.contextDepth;
@@ -228,72 +236,10 @@ export class XmlParsingStateMachine {
     this.eventCount++;
   }
 
-  /**
-   * Process events asynchronously
-   */
   async processEvent(event: AnyXmlEvent): Promise<void> {
-    this.checkLimits();
-
-    if (isStartElement(event)) {
-      this.currentDepth++;
-
-      for (const activation of this.activeSchemas) {
-        activation.matcher.onStartElement(event);
-
-        // Check if we're within the activation's context
-        const inContext = !activation.context || this.currentDepth > activation.context.contextDepth;
-        if (!inContext) {
-          continue; // Skip if we're not within this schema's context
-        }
-
-        // Check if this schema should activate using context-aware matching
-        const unwrappedSchema = this.unwrapSchema(activation.schema);
-        const isArray = isArraySchema(unwrappedSchema);
-        const matches = this.matchesInContext(event, activation);
-
-        // O(n) optimization: Arrays activate only once, then create items for subsequent matches
-        const shouldActivate = isArray
-          ? (activation.depth === -1 && matches)  // Activate once like others
-          : (activation.depth === -1 && matches);  // Others activate once
-
-        if (shouldActivate) {
-          activation.depth = this.currentDepth;
-          await this.onSchemaActivated(activation, event);
-        } else {
-          // Handle already-active array matches
-          const isActiveArrayMatch = isArray
-            && activation.depth !== -1  // Already active
-            && matches;  // Matches again
-
-          if (isActiveArrayMatch) {
-            // Create new item WITHOUT activating again
-            await this.createArrayItemAsync(activation, event);
-          }
-        }
-      }
-    } else if (isEndElement(event)) {
-      for (const activation of [...this.activeSchemas]) {
-        if (activation.depth === this.currentDepth) {
-          await this.onSchemaDeactivated(activation);
-          // Only set to -1 if not already permanently deactivated (-2)
-          if (activation.depth !== -2) {
-            activation.depth = -1;
-          }
-        }
-        activation.matcher.onEndElement();
-      }
-
-      this.currentDepth--;
-    } else if (isCharacters(event) || isCdata(event)) {
-      for (const activation of this.activeSchemas) {
-        if (activation.depth !== -1 && activation.depth <= this.currentDepth) {
-          this.onSchemaCollectText(activation, event.value);
-        }
-      }
-    }
-
-    this.eventCount++;
+    this.processEventSync(event);
   }
+
 
   /**
    * Alias for processEvent (async)
@@ -511,19 +457,8 @@ export class XmlParsingStateMachine {
     }
   }
 
-  /**
-   * Create a new array item for an already-active array schema (async)
-   * @internal
-   */
-  private async createArrayItemAsync(activation: SchemaActivation, event: StartElementEvent): Promise<void> {
-    // Same logic as sync version for now
-    this.createArrayItemSync(activation, event);
-  }
-
-  /**
-   * Schema activated (sync)
-   */
   private onSchemaActivatedSync(activation: SchemaActivation, event: StartElementEvent): void {
+
     // Priority 1: Handle attribute selectors immediately
     if (activation.matcher.isAttributeSelector()) {
       const attrName = activation.matcher.getAttributeName();
@@ -632,18 +567,8 @@ export class XmlParsingStateMachine {
     }
   }
 
-  /**
-   * Schema activated (async)
-   */
-  private async onSchemaActivated(activation: SchemaActivation, event: StartElementEvent): Promise<void> {
-    // Same logic as sync for now
-    this.onSchemaActivatedSync(activation, event);
-  }
-
-  /**
-   * Schema deactivated (sync)
-   */
   private onSchemaDeactivatedSync(activation: SchemaActivation): void {
+
     const unwrappedSchema = this.unwrapSchema(activation.schema);
 
     // Handle text() node selectors
@@ -742,18 +667,8 @@ export class XmlParsingStateMachine {
     // Other schema types default to depth = -1 (set in END_ELEMENT handler)
   }
 
-  /**
-   * Schema deactivated (async)
-   */
-  private async onSchemaDeactivated(activation: SchemaActivation): Promise<void> {
-    // Same logic as sync for now
-    this.onSchemaDeactivatedSync(activation);
-  }
-
-  /**
-   * Collect text content for active schema
-   */
   private onSchemaCollectText(activation: SchemaActivation, text: string): void {
+
     const collector = activation.collector;
 
     // For text() selectors, only collect text at the exact activation depth

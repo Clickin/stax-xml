@@ -6,8 +6,10 @@ import {
   isEndElement,
   isStartElement,
   type AnyXmlEvent,
-  type StartElementEvent
+  type StartElementEvent,
+  type ParserEventFilter
 } from '../types.js';
+
 import { XPathMatcher } from './XPathEngine.js';
 import {
   XmlParsingStateMachine,
@@ -18,6 +20,8 @@ import {
   type SchemaActivation,
   type StringCollector
 } from './XmlParsingStateMachine.js';
+import type { CompiledSchemaPlan } from './compiled-plan.js';
+
 import type { ParseInput } from './XmlSchema.js';
 import { XmlSchemaBase } from './base.js';
 import type { ParseOptions } from './types.js';
@@ -31,6 +35,7 @@ import {
 } from './types.js';
 
 
+
 /**
  * Internal parser implementation
  * Handles both sync and async parsing with XPath support
@@ -40,9 +45,26 @@ import {
 export class XmlParserInternal {
   private options?: ParseOptions;
 
-  constructor(options?: ParseOptions) {
+  constructor(options?: ParseOptions, private readonly compiledPlan?: CompiledSchemaPlan) {
     this.options = options;
   }
+
+  parseWithSchema<T>(input: ParseInput, schema: XmlSchemaBase<T, unknown>): T {
+    const unwrapped = this.unwrapSchema(schema) as XmlSchemaBase<unknown, unknown>;
+    if (isObjectSchema(unwrapped) && this.compiledPlan && typeof input === 'string') {
+      return this.parseObjectCompiled(input, this.compiledPlan) as T;
+    }
+    return schema._parse(input, this.options) as T;
+  }
+
+  async parseWithSchemaAsync<T>(input: ParseInput, schema: XmlSchemaBase<T, unknown>): Promise<T> {
+    const unwrapped = this.unwrapSchema(schema) as XmlSchemaBase<unknown, unknown>;
+    if (isObjectSchema(unwrapped) && this.compiledPlan) {
+      return this.parseObjectCompiledAsync(input, this.compiledPlan) as Promise<T>;
+    }
+    return schema._parseAsync(input, this.options) as Promise<T>;
+  }
+
 
   /**
    * Parse string value asynchronously
@@ -54,10 +76,12 @@ export class XmlParserInternal {
     const xpath = schemaOptions.xpath;
 
     if (!xpath) {
-      // No XPath - just get first text content
-      const parser = this.createParser(input);
+    const parser = this.createParser(input);
+
+
       for await (const event of parser) {
         if (isCharacters(event) || isCdata(event)) {
+
           return this.decodeText(event.value);
         }
       }
@@ -126,10 +150,14 @@ export class XmlParserInternal {
     shape: Record<string, XmlSchemaBase<unknown, unknown>>,
     schemaOptions: { xpath?: string }
   ): Promise<T> {
+    if (this.compiledPlan) {
+      return this.parseObjectCompiledAsync(input, this.compiledPlan) as Promise<T>;
+    }
     const parser = this.createParser(input);
     const stateMachine = new XmlParsingStateMachine(this.options);
     const collectors = new Map<string, Collector<unknown>>();
     const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
+
 
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
@@ -219,6 +247,9 @@ export class XmlParserInternal {
     shape: Record<string, XmlSchemaBase<unknown, unknown>>,
     schemaOptions: { xpath?: string }
   ): T {
+    if (this.compiledPlan) {
+      return this.parseObjectCompiled(input, this.compiledPlan) as T;
+    }
     const parser = new StaxXmlParserSync(input, {
       autoDecodeEntities: this.options?.decodeEntities
     });
@@ -226,6 +257,7 @@ export class XmlParserInternal {
     const stateMachine = new XmlParsingStateMachine(this.options);
     const collectors = new Map<string, Collector<unknown>>();
     const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
+
 
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
@@ -822,7 +854,7 @@ export class XmlParserInternal {
 
   // Helper methods
 
-  private createParser(input: ParseInput): AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> {
+  private createParser(input: ParseInput, eventFilter?: ParserEventFilter): AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> {
     if (typeof input === 'string') {
       const stream = new ReadableStream({
         start(controller) {
@@ -831,16 +863,19 @@ export class XmlParserInternal {
         }
       });
       return new StaxXmlParser(stream, {
-        autoDecodeEntities: this.options?.decodeEntities
-      }) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+        autoDecodeEntities: this.options?.decodeEntities,
+        eventFilter
+      } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
     }
     if (input instanceof ReadableStream) {
       return new StaxXmlParser(input, {
-        autoDecodeEntities: this.options?.decodeEntities
-      }) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+        autoDecodeEntities: this.options?.decodeEntities,
+        eventFilter
+      } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
     }
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
   }
+
 
 
   private extractXPath(schema: unknown): string | undefined {
@@ -974,6 +1009,94 @@ export class XmlParserInternal {
     }
     return text;
   }
+
+  private parseObjectCompiled<T>(
+    input: string,
+    plan: CompiledSchemaPlan
+  ): T {
+    const parser = new StaxXmlParserSync(input, {
+      autoDecodeEntities: this.options?.decodeEntities,
+      eventFilter: plan.eventFilter
+    } as never);
+
+    const stateMachine = new XmlParsingStateMachine(this.options);
+    const collectors = new Map<string, Collector<unknown>>();
+    const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
+
+    this.registerCompiledRoot(plan, stateMachine, collectors, fieldSchemas);
+
+    for (const event of parser) {
+      stateMachine.processEventSync(event);
+    }
+
+    const result: Record<string, unknown> = {};
+    for (const [fieldName, collector] of collectors) {
+      const fieldSchema = fieldSchemas.get(fieldName)!;
+      result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
+    }
+
+    return result as T;
+  }
+
+  private async parseObjectCompiledAsync<T>(
+    input: ParseInput,
+    plan: CompiledSchemaPlan
+  ): Promise<T> {
+    const parser = this.createParser(input, plan.eventFilter);
+    const stateMachine = new XmlParsingStateMachine(this.options);
+    const collectors = new Map<string, Collector<unknown>>();
+    const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
+
+    this.registerCompiledRoot(plan, stateMachine, collectors, fieldSchemas);
+
+    for await (const event of parser) {
+      stateMachine.processEventSync(event);
+    }
+
+    const result: Record<string, unknown> = {};
+    for (const [fieldName, collector] of collectors) {
+      const fieldSchema = fieldSchemas.get(fieldName)!;
+      result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
+    }
+
+    return result as T;
+  }
+
+
+  private registerCompiledRoot(
+    plan: CompiledSchemaPlan,
+    stateMachine: XmlParsingStateMachine,
+    collectors: Map<string, Collector<unknown>>,
+    fieldSchemas: Map<string, XmlSchemaBase<unknown, unknown>>
+  ): void {
+    for (const entry of plan.rootPlan) {
+      if (entry.kind === 'object') {
+        const collector: ObjectCollector = { type: 'object', fields: new Map() };
+        for (const template of entry.childTemplates) {
+          const childCollector = this.createCollectorForSchema(template.schema);
+          collector.fields.set(template.fieldName, childCollector);
+          stateMachine.registerSchema(template.schema, template.xpath, childCollector, undefined, template.fieldName);
+        }
+        collectors.set(entry.fieldName, collector);
+        fieldSchemas.set(entry.fieldName, entry.schema);
+        continue;
+      }
+
+      if (entry.kind === 'array') {
+        const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
+        stateMachine.registerSchema(entry.schema, entry.elementXPath, collector, undefined, entry.fieldName);
+        collectors.set(entry.fieldName, collector);
+        fieldSchemas.set(entry.fieldName, entry.schema);
+        continue;
+      }
+
+      const collector = this.createCollectorForSchema(entry.schema);
+      stateMachine.registerSchema(entry.schema, entry.xpath, collector, undefined, entry.fieldName);
+      collectors.set(entry.fieldName, collector);
+      fieldSchemas.set(entry.fieldName, entry.schema);
+    }
+  }
+
 
   /**
    * Extract value using XPath matching within a single element scope (sync)

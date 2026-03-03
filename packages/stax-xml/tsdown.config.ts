@@ -24,4 +24,15 @@ export default defineConfig([
     logLevel: 'error',
     minify: true
   },
+  // Build internal entry for minimal internal API exposure
+  {
+    entry: { internal: 'src/internal/index.ts' },
+    format: ['cjs', 'esm'],
+    dts: true,
+    outDir: 'dist',
+    clean: false,
+    platform: 'neutral',
+    minify: true,
+    logLevel: 'error'
+  }
 ]);

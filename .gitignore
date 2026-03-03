@@ -5,16 +5,20 @@ CLAUDE.md
 .gemini/
 .claude/
 .specify/
+.planning/
 spec/
 specs/
+.sisyphus
 
 # pnpm
 pnpm-lock.yaml
 
 # Build outputs
 packages/*/dist
+packages/*/dist_tmp_*
 packages/*/coverage
 packages/*/node_modules
+packages/benchmark/*.log
 coverage/
 directions
 

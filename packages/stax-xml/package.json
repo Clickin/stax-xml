@@ -10,7 +10,7 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "starlight-typedoc": "^0.21.3",
-    "tsdown": "^0.15.5",
+    "tsdown": "^0.20.3",
     "typedoc": "^0.28.13",
     "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.2",
@@ -26,6 +26,11 @@
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js",
       "require": "./dist/converter.cjs"
+    },
+    "./internal": {
+      "types": "./dist/internal.d.ts",
+      "import": "./dist/internal.js",
+      "require": "./dist/internal.cjs"
     }
   },
   "bugs": "https://github.com/Clickin/stax-xml/issues",
