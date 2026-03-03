@@ -323,7 +323,7 @@ describe('Large File Tests', () => {
 
   describe('Performance Benchmarks', () => {
     it('should maintain performance with various data sizes', () => {
-      const sizes = [100, 500, 1000];
+      const sizes = [200, 1000, 3000];
       const benchmarks: { size: number; duration: number }[] = [];
 
       sizes.forEach(size => {
@@ -335,21 +335,39 @@ describe('Large File Tests', () => {
 
         const schema = x.array(x.number(), '//item');
 
-        const start = performance.now();
-        const result = schema.parseSync(xml);
-        const duration = performance.now() - start;
+        // Warm-up once to reduce JIT/cache noise across CI runners.
+        schema.parseSync(xml);
+
+        const samples: number[] = [];
+        let result: number[] = [];
+
+        for (let sample = 0; sample < 5; sample++) {
+          const start = performance.now();
+          result = schema.parseSync(xml);
+          samples.push(performance.now() - start);
+        }
+
+        const duration = samples.sort((a, b) => a - b)[Math.floor(samples.length / 2)];
 
         benchmarks.push({ size, duration });
         expect(result).toHaveLength(size);
       });
 
-      // Performance should scale reasonably (not exponentially)
+      // Performance should scale reasonably (not exponentially).
+      // Use generous bounds because CI machines (especially macOS shared runners)
+      // can show bursty timing variance.
       benchmarks.forEach((benchmark, i) => {
         if (i > 0) {
           const ratio = benchmark.duration / benchmarks[i - 1].duration;
           const sizeRatio = benchmark.size / benchmarks[i - 1].size;
-          // Duration ratio should be less than size ratio squared (sub-quadratic)
-          expect(ratio).toBeLessThan(sizeRatio * sizeRatio);
+
+          // Sub-quadratic upper bound with CI tolerance.
+          expect(ratio).toBeLessThan(sizeRatio * sizeRatio * 1.5);
+
+          // Per-item processing time should not regress excessively between sizes.
+          const perItem = benchmark.duration / benchmark.size;
+          const previousPerItem = benchmarks[i - 1].duration / benchmarks[i - 1].size;
+          expect(perItem).toBeLessThan(previousPerItem * 3);
         }
       });
     });
