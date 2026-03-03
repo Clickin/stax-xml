@@ -109,6 +109,56 @@ export type AnyXmlEvent =
   | ErrorEvent;
 
 /**
+ * Cursor-compatible XML event type.
+ *
+ * @public
+ */
+export type CursorXmlEventType = XmlEventType;
+
+/**
+ * Attribute shape used by the cursor API.
+ *
+ * @public
+ */
+export interface CursorAttribute {
+  name: string;
+  localName: string;
+  prefix?: string;
+  uri?: string;
+  value: string;
+}
+
+/**
+ * Read-only view for cursor events.
+ *
+ * @public
+ */
+export interface XmlCursorEventLike {
+  readonly type: CursorXmlEventType;
+  readonly name: string | undefined;
+  readonly localName: string | undefined;
+  readonly prefix: string | undefined;
+  readonly uri: string | undefined;
+  readonly text: string | undefined;
+  readonly error: Error | undefined;
+  getAttributeCount(): number;
+  getAttribute(index: number): CursorAttribute | undefined;
+  getAttributeValue(name: string): string | undefined;
+}
+
+/**
+ * Synchronous cursor-style reader API.
+ *
+ * @public
+ */
+export interface XmlCursorReaderSyncLike {
+  hasNext(): boolean;
+  read(): boolean;
+  getEvent(): XmlCursorEventLike | null;
+  requireEvent(): XmlCursorEventLike;
+}
+
+/**
  * Attribute interface (for Writer)
  */
 export interface XmlAttribute {

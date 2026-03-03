@@ -125,10 +125,33 @@ for (const event of parser) {
 }
 ```
 
+
+##### Cursor-style Synchronous Parsing (StaxXmlCursorReaderSync)
+
+```typescript
+import { StaxXmlCursorReaderSync, XmlEventType } from 'stax-xml';
+
+const reader = new StaxXmlCursorReaderSync('<root id="1"><item>text</item></root>');
+
+while (reader.read()) {
+  const event = reader.requireEvent();
+
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log(event.name, event.getAttributeCount());
+    console.log(event.getAttributeValue('id'));
+  }
+
+  if (event.type === XmlEventType.CHARACTERS) {
+    console.log(event.text);
+  }
+}
+```
+
 For detailed API documentation:
 - [**Converter API Guide**](https://clickin.github.io/stax-xml): Declarative parsing with schemas
 - [**StaxXmlParser (Asynchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from streams
 - [**StaxXmlParserSync (Synchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from strings
+- **StaxXmlCursorReaderSync (Synchronous Cursor)**: Cursor-style pull reader from strings
 
 ### 🌐 Platform Compatibility
 
