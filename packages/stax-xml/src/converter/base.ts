@@ -92,7 +92,9 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     iterator: Iterator<AnyXmlEvent> | AsyncIterator<AnyXmlEvent>,
     startEvent: StartElementEvent,
     startDepth: number,
-    options?: ParseOptions
+    options?: ParseOptions,
+    stateMachine?: unknown,
+    parentContext?: unknown
   ): Output | Promise<Output>;
 
   /**
@@ -173,7 +175,9 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns New optional schema
    */
   optional(): XmlSchemaBase<Output | undefined, Input | undefined> {
-    return XmlSchemaBase._createOptional(this as XmlSchemaBase<unknown, unknown>);
+    return XmlSchemaBase._createOptional(
+      this as XmlSchemaBase<unknown, unknown>
+    ) as XmlSchemaBase<Output | undefined, Input | undefined>;
   }
 
   /**
@@ -182,7 +186,10 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns New array schema
    */
   array(xpath?: string): XmlSchemaBase<Output[], Input[]> {
-    return XmlSchemaBase._createArray(this as XmlSchemaBase<unknown, unknown>, xpath);
+    return XmlSchemaBase._createArray(
+      this as XmlSchemaBase<unknown, unknown>,
+      xpath
+    ) as XmlSchemaBase<Output[], Input[]>;
   }
 
   /**

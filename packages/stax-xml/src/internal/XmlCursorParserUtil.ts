@@ -326,8 +326,8 @@ export function collectAttributesFromSource(
       pending.localName,
       pending.prefix,
       uri,
-      pending.sourceStart,
-      pending.sourceEnd
+      pending.sourceStart!,
+      pending.sourceEnd!
     );
   }
 }

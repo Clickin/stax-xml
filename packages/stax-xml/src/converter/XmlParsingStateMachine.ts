@@ -548,7 +548,7 @@ export class XmlParsingStateMachine {
           activation.collector.value = value;
         } else if (activation.collector.type === 'number' && activation.schema._parseText) {
           // Call schema's _parseText to apply validation
-          activation.collector.value = activation.schema._parseText(value);
+          activation.collector.value = activation.schema._parseText(value) as number;
         }
 
         // Immediately deactivate - no need to process children
@@ -624,7 +624,7 @@ export class XmlParsingStateMachine {
               childCollector.value = attrValue;
             } else if (childCollector.type === 'number' && fieldSchema._parseText) {
               // Call schema's _parseText to apply validation
-              childCollector.value = fieldSchema._parseText(attrValue);
+              childCollector.value = fieldSchema._parseText(attrValue) as number;
             }
           }
         }
@@ -876,7 +876,7 @@ export class XmlParsingStateMachine {
     // 2. Apply object-level transforms
     const transforms = this.getAllTransforms(schema);
     for (const transformFn of transforms) {
-      result = transformFn(result);
+      result = transformFn(result) as Record<string, unknown>;
     }
 
     return result;

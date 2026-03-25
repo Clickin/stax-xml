@@ -573,7 +573,7 @@ export class StaxXmlCursor {
     }
 
     this.compactBufferIfNeeded();
-    const { done, value } = await this.reader.read();
+    const { done, value } = await this.reader!.read();
     if (done) {
       this.inputState = 'STREAM_ENDED';
       this.releaseReader();

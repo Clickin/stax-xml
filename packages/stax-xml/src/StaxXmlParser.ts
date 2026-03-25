@@ -104,16 +104,16 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         return XmlEventFactory.endDocument() as EndDocumentEvent;
       case XmlEventType.START_ELEMENT:
         return XmlEventFactory.startElement(
-          this.cursor.name,
+          this.cursor.name!,
           this.cursor.localName,
           this.cursor.prefix,
           this.cursor.uri,
           this.cursor.getAttributes(),
-          this.toLegacyAsyncAttributesWithPrefix()
+          this.toLegacyAsyncAttributesWithPrefix() as unknown as StartElementEvent['attributesWithPrefix']
         ) as StartElementEvent;
       case XmlEventType.END_ELEMENT:
         return XmlEventFactory.endElement(
-          this.cursor.name,
+          this.cursor.name!,
           this.cursor.localName,
           this.cursor.prefix,
           this.cursor.uri

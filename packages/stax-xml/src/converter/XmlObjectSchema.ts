@@ -1,5 +1,5 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
-import { XmlParserInternal } from './XmlParserInternal.js';
+import { XmlParserInternal, type ParseParentContext } from './XmlParserInternal.js';
 import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
@@ -57,7 +57,7 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     startDepth: number,
     options?: ParseOptions,
     stateMachine?: XmlParsingStateMachine,
-    parentContext?: unknown
+    parentContext?: ParseParentContext
   ): InferObjectOutput<T> | Promise<InferObjectOutput<T>> {
     const parser = new XmlParserInternal(options);
 

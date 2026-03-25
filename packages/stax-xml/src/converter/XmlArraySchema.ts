@@ -1,5 +1,5 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
-import { XmlParserInternal } from './XmlParserInternal.js';
+import { XmlParserInternal, type ParseParentContext } from './XmlParserInternal.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { XmlWriterInternal } from './XmlWriterInternal.js';
@@ -41,7 +41,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
     startDepth: number,
     options?: ParseOptions,
     stateMachine?: XmlParsingStateMachine,
-    parentContext?: unknown
+    parentContext?: ParseParentContext
   ): T['_output'][] | Promise<T['_output'][]> {
     const parser = new XmlParserInternal(options);
 

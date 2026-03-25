@@ -26,9 +26,15 @@ import {
   type NumberCollector,
   type ArrayCollector,
   type ObjectCollector,
-  type SchemaActivation
+  type SchemaActivation,
+  type MatchContext
 } from './XmlParsingStateMachine.js';
 import { XmlSchemaBase } from './base.js';
+
+export interface ParseParentContext {
+  collector?: Collector<unknown>;
+  context?: MatchContext;
+}
 
 
 /**
@@ -318,7 +324,7 @@ export class XmlParserInternal {
     shape: Record<string, XmlSchemaBase<unknown, unknown>>,
     schemaOptions: { xpath?: string },
     stateMachine?: XmlParsingStateMachine,
-    parentContext?: unknown
+    parentContext?: ParseParentContext
   ): T {
     // Use provided State Machine or create new one
     const sm = stateMachine || new XmlParsingStateMachine(this.options);
@@ -393,7 +399,7 @@ export class XmlParserInternal {
     shape: Record<string, XmlSchemaBase<unknown, unknown>>,
     schemaOptions: { xpath?: string },
     stateMachine?: XmlParsingStateMachine,
-    parentContext?: unknown
+    parentContext?: ParseParentContext
   ): Promise<T> {
     // Use provided State Machine or create new one
     const sm = stateMachine || new XmlParsingStateMachine(this.options);
