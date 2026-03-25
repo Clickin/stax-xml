@@ -441,4 +441,37 @@ describe('StaxXmlParserSync', () => {
     });
     expect((events.at(-1) as { error: Error }).error.message).toContain('Mismatched closing tag');
   });
+
+  it('should keep namespace overrides scoped to the current element and its descendants', () => {
+    const parser = new StaxXmlParserSync('<root xmlns="urn:root"><child xmlns="urn:child"/><sibling/></root>');
+    const events = Array.from(parser);
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'urn:root', attributes: { xmlns: 'urn:root' }, attributesWithPrefix: { xmlns: { value: 'urn:root', localName: 'xmlns', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.START_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: 'urn:child', attributes: { xmlns: 'urn:child' }, attributesWithPrefix: { xmlns: { value: 'urn:child', localName: 'xmlns', prefix: undefined, uri: undefined } } },
+      { type: XmlEventType.END_ELEMENT, name: 'child', localName: 'child', prefix: undefined, uri: 'urn:child' },
+      { type: XmlEventType.START_ELEMENT, name: 'sibling', localName: 'sibling', prefix: undefined, uri: 'urn:root', attributes: {}, attributesWithPrefix: {} },
+      { type: XmlEventType.END_ELEMENT, name: 'sibling', localName: 'sibling', prefix: undefined, uri: 'urn:root' },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: 'urn:root' },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('should return a terminal ERROR event once and then finish for explicit next calls', () => {
+    const parser = new StaxXmlParserSync('<root><item></root>');
+
+    expect(parser.next()).toEqual({ value: { type: XmlEventType.START_DOCUMENT }, done: false });
+    expect((parser.next().value as { type: string }).type).toBe(XmlEventType.START_ELEMENT);
+    expect((parser.next().value as { type: string }).type).toBe(XmlEventType.START_ELEMENT);
+
+    const errorResult = parser.next();
+    expect(errorResult.done).toBe(false);
+    expect(errorResult.value).toEqual({
+      type: XmlEventType.ERROR,
+      error: expect.any(Error),
+    });
+    expect((errorResult.value as { error: Error }).error.message).toContain('Mismatched closing tag');
+    expect(parser.next()).toEqual({ value: undefined, done: true });
+  });
 });

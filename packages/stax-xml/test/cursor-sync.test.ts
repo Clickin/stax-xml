@@ -60,6 +60,34 @@ describe('StaxXmlCursorSync', () => {
     expect(cursor.uri).toBeUndefined();
   });
 
+  it('should keep namespace overrides scoped to the overridden subtree', () => {
+    const cursor = new StaxXmlCursorSync('<root xmlns="urn:root"><child xmlns="urn:child"><leaf/></child><sibling/></root>');
+
+    expect(cursor.next()).toBe(XmlEventType.START_DOCUMENT);
+    expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+    expect(cursor.uri).toBe('urn:root');
+
+    expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+    expect(cursor.name).toBe('child');
+    expect(cursor.uri).toBe('urn:child');
+
+    expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+    expect(cursor.name).toBe('leaf');
+    expect(cursor.uri).toBe('urn:child');
+
+    expect(cursor.next()).toBe(XmlEventType.END_ELEMENT);
+    expect(cursor.name).toBe('leaf');
+    expect(cursor.uri).toBe('urn:child');
+
+    expect(cursor.next()).toBe(XmlEventType.END_ELEMENT);
+    expect(cursor.name).toBe('child');
+    expect(cursor.uri).toBe('urn:child');
+
+    expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+    expect(cursor.name).toBe('sibling');
+    expect(cursor.uri).toBe('urn:root');
+  });
+
   it('should fail on malformed XML and rethrow the same error after failure', () => {
     const cursor = new StaxXmlCursorSync('<root><item></root>');
 

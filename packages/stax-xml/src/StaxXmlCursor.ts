@@ -512,12 +512,13 @@ export class StaxXmlCursor {
     const nameEnd = 1 + tagName.length;
     const actualEnd = tagContent.length - (isSelfClosing ? 2 : 1);
     const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
-    const namespaces = hasNamespaceDeclarationInSource(
+    const hasNamespaceDeclarations = hasNamespaceDeclarationInSource(
       tagContent,
       nameEnd,
       actualEnd,
       StaxXmlCursor.isWhitespaceCode
-    )
+    );
+    const namespaces = hasNamespaceDeclarations
       ? cloneNamespaces(parentNamespaces)
       : parentNamespaces;
 
@@ -528,7 +529,8 @@ export class StaxXmlCursor {
       namespaces,
       this.attributeCollector,
       this.entityDecoder,
-      StaxXmlCursor.isWhitespaceCode
+      StaxXmlCursor.isWhitespaceCode,
+      hasNamespaceDeclarations
     );
 
     const nameInfo = resolveElementName(tagName, namespaces);

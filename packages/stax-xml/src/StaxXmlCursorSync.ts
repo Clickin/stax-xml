@@ -4,8 +4,6 @@ import {
   cloneNamespaces,
   collectAttributesFromSource,
   hasNamespaceDeclarationInSource,
-  resolveElementName,
-  type QualifiedNameInfo,
 } from './internal/XmlCursorParserUtil';
 
 export interface StaxXmlCursorSyncOptions {
@@ -90,7 +88,12 @@ export class StaxXmlCursorSync {
     try {
       if (this.lifecycleState === 'INITIAL') {
         this.lifecycleState = 'ACTIVE';
-        this.setCurrentType(XmlEventType.START_DOCUMENT);
+        this.currentType = XmlEventType.START_DOCUMENT;
+        this.currentName = undefined;
+        this.currentLocalName = undefined;
+        this.currentPrefix = undefined;
+        this.currentUri = undefined;
+        this.currentText = undefined;
         return XmlEventType.START_DOCUMENT;
       }
 
@@ -113,7 +116,12 @@ export class StaxXmlCursorSync {
           }
 
           this.lifecycleState = 'DONE';
-          this.setCurrentType(XmlEventType.END_DOCUMENT);
+          this.currentType = XmlEventType.END_DOCUMENT;
+          this.currentName = undefined;
+          this.currentLocalName = undefined;
+          this.currentPrefix = undefined;
+          this.currentUri = undefined;
+          this.currentText = undefined;
           return XmlEventType.END_DOCUMENT;
         }
 
@@ -125,7 +133,12 @@ export class StaxXmlCursorSync {
             continue;
           }
 
-          this.setCurrentText(XmlEventType.CHARACTERS, this.entityDecoder(text));
+          this.currentType = XmlEventType.CHARACTERS;
+          this.currentName = undefined;
+          this.currentLocalName = undefined;
+          this.currentPrefix = undefined;
+          this.currentUri = undefined;
+          this.currentText = this.entityDecoder(text);
           return XmlEventType.CHARACTERS;
         }
 
@@ -136,7 +149,12 @@ export class StaxXmlCursorSync {
             continue;
           }
 
-          this.setCurrentText(XmlEventType.CHARACTERS, this.entityDecoder(text));
+          this.currentType = XmlEventType.CHARACTERS;
+          this.currentName = undefined;
+          this.currentLocalName = undefined;
+          this.currentPrefix = undefined;
+          this.currentUri = undefined;
+          this.currentText = this.entityDecoder(text);
           return XmlEventType.CHARACTERS;
         }
 
@@ -239,14 +257,13 @@ export class StaxXmlCursorSync {
 
     const tagName = this.xml.slice(tagStart, nameEnd);
     const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
-    const namespaces = hasNamespaceDeclarationInSource(
+    const hasNamespaceDeclarations = hasNamespaceDeclarationInSource(
       this.xml,
       nameEnd,
       actualEnd,
       StaxXmlCursorSync.isWhitespace
-    )
-      ? cloneNamespaces(parentNamespaces)
-      : parentNamespaces;
+    );
+    const namespaces = hasNamespaceDeclarations ? cloneNamespaces(parentNamespaces) : parentNamespaces;
     collectAttributesFromSource(
       this.xml,
       nameEnd,
@@ -254,16 +271,28 @@ export class StaxXmlCursorSync {
       namespaces,
       this.attributeCollector,
       this.entityDecoder,
-      StaxXmlCursorSync.isWhitespace
+      StaxXmlCursorSync.isWhitespace,
+      hasNamespaceDeclarations
     );
 
-    const nameInfo = resolveElementName(tagName, namespaces);
-    this.setCurrentNameInfo(XmlEventType.START_ELEMENT, nameInfo);
+    const colonIndex = tagName.indexOf(':');
+    const prefix = colonIndex === -1 ? undefined : tagName.slice(0, colonIndex);
+    const localName = colonIndex === -1 ? tagName : tagName.slice(colonIndex + 1);
+    const uri = prefix === undefined ? namespaces.get('') : namespaces.get(prefix);
+    this.currentType = XmlEventType.START_ELEMENT;
+    this.currentName = tagName;
+    this.currentLocalName = localName;
+    this.currentPrefix = prefix;
+    this.currentUri = uri;
+    this.currentText = undefined;
 
     this.pos = tagEnd + 1;
 
     if (isSelfClosing) {
-      this.setPendingEnd(nameInfo);
+      this.pendingEndName = tagName;
+      this.pendingEndLocalName = localName;
+      this.pendingEndPrefix = prefix;
+      this.pendingEndUri = uri;
       return XmlEventType.START_ELEMENT;
     }
 
@@ -290,7 +319,14 @@ export class StaxXmlCursorSync {
 
     this.elementStack.pop();
     const namespaces = this.namespaceStack.pop() ?? new Map<string, string>();
-    this.setCurrentNameInfo(XmlEventType.END_ELEMENT, resolveElementName(fullTagName, namespaces));
+    const colonIndex = fullTagName.indexOf(':');
+    const prefix = colonIndex === -1 ? undefined : fullTagName.slice(0, colonIndex);
+    this.currentType = XmlEventType.END_ELEMENT;
+    this.currentName = fullTagName;
+    this.currentLocalName = colonIndex === -1 ? fullTagName : fullTagName.slice(colonIndex + 1);
+    this.currentPrefix = prefix;
+    this.currentUri = prefix === undefined ? namespaces.get('') : namespaces.get(prefix);
+    this.currentText = undefined;
     this.pos = tagClose + 1;
     return XmlEventType.END_ELEMENT;
   }
@@ -302,7 +338,12 @@ export class StaxXmlCursorSync {
         throw new Error('Unclosed CDATA section');
       }
 
-      this.setCurrentText(XmlEventType.CDATA, this.xml.slice(this.pos + 9, cdataEnd));
+      this.currentType = XmlEventType.CDATA;
+      this.currentName = undefined;
+      this.currentLocalName = undefined;
+      this.currentPrefix = undefined;
+      this.currentUri = undefined;
+      this.currentText = this.xml.slice(this.pos + 9, cdataEnd);
       this.pos = cdataEnd + 3;
       return XmlEventType.CDATA;
     }
@@ -434,25 +475,6 @@ export class StaxXmlCursorSync {
     this.currentPrefix = prefix;
     this.currentUri = uri;
     this.currentText = text;
-  }
-
-  private setCurrentType(type: XmlEventType): void {
-    this.setCurrent(type);
-  }
-
-  private setCurrentText(type: XmlEventType, text: string): void {
-    this.setCurrent(type, undefined, undefined, undefined, undefined, text);
-  }
-
-  private setCurrentNameInfo(type: XmlEventType, nameInfo: QualifiedNameInfo): void {
-    this.setCurrent(type, nameInfo.name, nameInfo.localName, nameInfo.prefix, nameInfo.uri);
-  }
-
-  private setPendingEnd(nameInfo: QualifiedNameInfo): void {
-    this.pendingEndName = nameInfo.name;
-    this.pendingEndLocalName = nameInfo.localName;
-    this.pendingEndPrefix = nameInfo.prefix;
-    this.pendingEndUri = nameInfo.uri;
   }
 
   private findChar(targetCode: number, start = this.pos): number {

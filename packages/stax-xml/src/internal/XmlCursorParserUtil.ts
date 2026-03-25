@@ -192,14 +192,18 @@ export function collectAttributesFromSource(
   namespaces: Map<string, string>,
   collector: AttributeCollector,
   decodeValue: (text: string) => string,
-  isWhitespace: (code: number) => boolean
+  isWhitespace: (code: number) => boolean,
+  hasNamespaceDeclarations?: boolean
 ): void {
   collector.reset(source);
   if (start >= end) {
     return;
   }
 
-  if (!hasNamespaceDeclarationInSource(source, start, end, isWhitespace)) {
+  const shouldResolveNamespaces = hasNamespaceDeclarations
+    ?? hasNamespaceDeclarationInSource(source, start, end, isWhitespace);
+
+  if (!shouldResolveNamespaces) {
     collector.defer(source, start, end, namespaces, isWhitespace);
     return;
   }

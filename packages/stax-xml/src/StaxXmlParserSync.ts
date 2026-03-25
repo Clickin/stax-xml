@@ -22,7 +22,6 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private namespaceStack: Map<string, string>[] = [];
   private readonly options: StaxXmlParserSyncOptions;
   private internalIterator?: Generator<AnyXmlEvent>;
-  private done = false;
 
   private static readonly ASCII_TABLE = (() => {
     const table = new Uint8Array(128);
@@ -82,37 +81,11 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   }
 
   public next(): IteratorResult<AnyXmlEvent> {
-    if (this.done) {
-      return { value: undefined, done: true };
-    }
-
     if (!this.internalIterator) {
       this.internalIterator = this.internalGenerator();
     }
 
-    try {
-      const result = this.internalIterator.next();
-      if (result.done) {
-        this.done = true;
-      }
-      return result;
-    } catch (error) {
-      this.done = true;
-      return {
-        value: {
-          type: XmlEventType.ERROR,
-          name: undefined,
-          localName: undefined,
-          prefix: undefined,
-          uri: undefined,
-          attributes: undefined,
-          attributesWithPrefix: undefined,
-          value: undefined,
-          error: error as Error,
-        } as unknown as AnyXmlEvent,
-        done: false,
-      };
-    }
+    return this.consumeIterator(this.internalIterator);
   }
 
   private *internalGenerator(): Generator<AnyXmlEvent> {
@@ -315,8 +288,9 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     }
 
     let nameEnd = tagStart;
+    const xml = this.xml;
     while (nameEnd < actualEnd) {
-      const code = this.xml.charCodeAt(nameEnd);
+      const code = xml.charCodeAt(nameEnd);
       if (code <= 32) {
         if (StaxXmlParserSync.isWhitespace(code)) break;
       } else if (code === 62 || code === 47) {
@@ -325,18 +299,13 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       nameEnd++;
     }
 
-    const tagName = this.xml.slice(tagStart, nameEnd);
-    const parentNamespaces = this.namespaceStack.length > 0
-      ? this.namespaceStack[this.namespaceStack.length - 1]
-      : new Map<string, string>();
-    const currentNamespaces = this.hasNamespaceDeclaration(nameEnd, actualEnd)
-      ? new Map<string, string>(parentNamespaces)
-      : parentNamespaces;
+    const tagName = xml.slice(tagStart, nameEnd);
+    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1] ?? new Map<string, string>();
 
-    const { attributes, attributesWithPrefix } = this.parseAttributesFast(
+    const { attributes, attributesWithPrefix, namespaces } = this.parseAttributesFast(
       nameEnd,
       actualEnd,
-      currentNamespaces
+      parentNamespaces
     );
 
     const colonIndex = tagName.indexOf(':');
@@ -347,11 +316,11 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     if (colonIndex === -1) {
       localName = tagName;
       prefix = undefined;
-      uri = currentNamespaces.get('');
+      uri = namespaces.get('');
     } else {
       prefix = tagName.slice(0, colonIndex);
       localName = tagName.slice(colonIndex + 1);
-      uri = currentNamespaces.get(prefix);
+      uri = namespaces.get(prefix);
     }
 
     yield {
@@ -369,7 +338,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     this.elementStack.push(tagName);
 
     if (!isSelfClosing) {
-      this.namespaceStack.push(currentNamespaces);
+      this.namespaceStack.push(namespaces);
     } else {
       yield {
         type: XmlEventType.END_ELEMENT,
@@ -391,24 +360,29 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private parseAttributesFast(
     start: number,
     end: number,
-    namespaces: Map<string, string>
+    parentNamespaces: Map<string, string>
   ): {
     attributes: Record<string, string>;
     attributesWithPrefix: Record<string, AttributeInfo>;
+    namespaces: Map<string, string>;
   } {
     if (start >= end) {
       return {
         attributes: {},
         attributesWithPrefix: {},
+        namespaces: parentNamespaces,
       };
     }
 
     const attributes: Record<string, string> = {};
     const attributesWithPrefix: Record<string, AttributeInfo> = {};
+    let namespaces = parentNamespaces;
+    let ownsNamespaces = false;
+    const xml = this.xml;
 
     let index = start;
     while (index < end) {
-      while (index < end && StaxXmlParserSync.isWhitespace(this.xml.charCodeAt(index))) {
+      while (index < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(index))) {
         index++;
       }
       if (index >= end) {
@@ -417,7 +391,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
 
       const nameStart = index;
       while (index < end) {
-        const code = this.xml.charCodeAt(index);
+        const code = xml.charCodeAt(index);
         if (code === 61 || StaxXmlParserSync.isWhitespace(code)) {
           break;
         }
@@ -427,12 +401,12 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       if (index === nameStart) {
         break;
       }
-      const attrName = this.xml.slice(nameStart, index);
+      const attrName = xml.slice(nameStart, index);
 
-      while (index < end && StaxXmlParserSync.isWhitespace(this.xml.charCodeAt(index))) {
+      while (index < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(index))) {
         index++;
       }
-      if (index >= end || this.xml.charCodeAt(index) !== 61) {
+      if (index >= end || xml.charCodeAt(index) !== 61) {
         attributes[attrName] = 'true';
 
         const colonIndex = attrName.indexOf(':');
@@ -455,30 +429,38 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       }
 
       index++;
-      while (index < end && StaxXmlParserSync.isWhitespace(this.xml.charCodeAt(index))) {
+      while (index < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(index))) {
         index++;
       }
       if (index >= end) {
         break;
       }
 
-      const quote = this.xml.charCodeAt(index);
+      const quote = xml.charCodeAt(index);
       if (quote !== 34 && quote !== 39) {
         break;
       }
 
       index++;
       const valueStart = index;
-      while (index < end && this.xml.charCodeAt(index) !== quote) {
+      while (index < end && xml.charCodeAt(index) !== quote) {
         index++;
       }
 
-      const attrValue = this.entityDecoder(this.xml.slice(valueStart, index));
+      const attrValue = this.entityDecoder(xml.slice(valueStart, index));
       attributes[attrName] = attrValue;
 
       if (attrName === 'xmlns') {
+        if (!ownsNamespaces) {
+          namespaces = new Map<string, string>(parentNamespaces);
+          ownsNamespaces = true;
+        }
         namespaces.set('', attrValue);
       } else if (attrName.startsWith('xmlns:')) {
+        if (!ownsNamespaces) {
+          namespaces = new Map<string, string>(parentNamespaces);
+          ownsNamespaces = true;
+        }
         namespaces.set(attrName.slice(6), attrValue);
       }
 
@@ -517,68 +499,32 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       index++;
     }
 
-    return { attributes, attributesWithPrefix };
+    return { attributes, attributesWithPrefix, namespaces };
   }
 
-  private hasNamespaceDeclaration(start: number, end: number): boolean {
-    let index = start;
-
-    while (index < end) {
-      while (index < end && StaxXmlParserSync.isWhitespace(this.xml.charCodeAt(index))) {
-        index++;
-      }
-      if (index >= end) {
-        return false;
-      }
-
-      const nameStart = index;
-      while (index < end) {
-        const code = this.xml.charCodeAt(index);
-        if (code === 61 || StaxXmlParserSync.isWhitespace(code)) {
-          break;
-        }
-        index++;
-      }
-
-      if (index === nameStart) {
-        return false;
-      }
-
-      const attrName = this.xml.slice(nameStart, index);
-      if (attrName === 'xmlns' || attrName.startsWith('xmlns:')) {
-        return true;
-      }
-
-      while (index < end && StaxXmlParserSync.isWhitespace(this.xml.charCodeAt(index))) {
-        index++;
-      }
-      if (index >= end || this.xml.charCodeAt(index) !== 61) {
-        continue;
-      }
-
-      index++;
-      while (index < end && StaxXmlParserSync.isWhitespace(this.xml.charCodeAt(index))) {
-        index++;
-      }
-      if (index >= end) {
-        return false;
-      }
-
-      const quote = this.xml.charCodeAt(index);
-      if (quote !== 34 && quote !== 39) {
-        return false;
-      }
-
-      index++;
-      while (index < end && this.xml.charCodeAt(index) !== quote) {
-        index++;
-      }
-      if (index < end) {
-        index++;
-      }
+  /**
+   * Keep the steady-state path free of try/catch so V8 can optimize `next()`.
+   * Error-to-event conversion stays in this cold helper to preserve the public contract.
+   */
+  private consumeIterator(iterator: Generator<AnyXmlEvent>): IteratorResult<AnyXmlEvent> {
+    try {
+      return iterator.next();
+    } catch (error) {
+      return {
+        value: {
+          type: XmlEventType.ERROR,
+          name: undefined,
+          localName: undefined,
+          prefix: undefined,
+          uri: undefined,
+          attributes: undefined,
+          attributesWithPrefix: undefined,
+          value: undefined,
+          error: error as Error,
+        } as unknown as AnyXmlEvent,
+        done: false,
+      };
     }
-
-    return false;
   }
 
   private findTagEnd(start: number): number {
