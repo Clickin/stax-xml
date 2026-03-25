@@ -5,7 +5,7 @@ export default defineConfig([
   {
     entry: ['src/index.ts'],
     format: ['cjs', 'esm'],
-    dts: false,
+    dts: true,
     outDir: 'dist',
     logLevel: 'error',
   },
@@ -15,7 +15,7 @@ export default defineConfig([
       converter: 'src/converter/index.ts',
     },
     format: ['cjs', 'esm'],
-    dts: false,
+    dts: true,
     outDir: 'dist',
     clean: false, // Don't clean to preserve index.* files
     logLevel: 'error',

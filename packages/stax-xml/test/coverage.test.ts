@@ -89,11 +89,12 @@ describe('Coverage Tests for Missing Areas', () => {
       const xml = '<root>Some text content</root>';
       const parser = new StaxXmlParser(stringToReadableStream(xml), { batchSize: 5 });
 
-      // First batch should contain start elements
+      // With configured batchSize, the parser may consume the whole document in one batch.
       const batch1 = await parser.nextBatch();
       expect(batch1.length).toBeGreaterThan(0);
+      expect(batch1.some((event) => event.type === XmlEventType.CHARACTERS)).toBe(true);
 
-      // Continue processing to trigger CHARACTERS handling
+      // Continue processing to ensure remaining batches, if any, are still well-formed.
       let totalBatches = 0;
       while (totalBatches < 10) {
         const batch = await parser.nextBatch();
@@ -101,7 +102,7 @@ describe('Coverage Tests for Missing Areas', () => {
         totalBatches++;
       }
 
-      expect(totalBatches).toBeGreaterThan(0);
+      expect(totalBatches).toBeGreaterThanOrEqual(0);
     });
   });
 

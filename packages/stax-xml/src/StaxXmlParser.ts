@@ -55,7 +55,7 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
   public async nextBatch(size?: number): Promise<AnyXmlEvent[]> {
     const batch: AnyXmlEvent[] = [];
-    const targetSize = size ?? 1;
+    const targetSize = size ?? this.options.batchSize ?? 1;
     const timeout = this.options.batchTimeout ?? 10;
     const startedAt = Date.now();
 
