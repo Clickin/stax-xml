@@ -430,4 +430,15 @@ describe('StaxXmlParserSync', () => {
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
+
+  it('should emit a terminal ERROR event for malformed XML', () => {
+    const parser = new StaxXmlParserSync('<root><item></root>');
+    const events = Array.from(parser);
+
+    expect(events.at(-1)).toEqual({
+      type: XmlEventType.ERROR,
+      error: expect.any(Error),
+    });
+    expect((events.at(-1) as { error: Error }).error.message).toContain('Mismatched closing tag');
+  });
 });

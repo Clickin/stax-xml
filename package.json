@@ -19,7 +19,9 @@
     "docs:dev": "pnpm --filter=stax-xml-docs dev",
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
-    "benchmark": "pnpm --filter=benchmark dev:bench:all"
+    "benchmark": "pnpm --filter=benchmark dev:bench:all",
+    "bench:run": "node ./scripts/run-benchmark.mjs",
+    "profile:run": "node ./scripts/run-node-cpu-prof.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.10",
