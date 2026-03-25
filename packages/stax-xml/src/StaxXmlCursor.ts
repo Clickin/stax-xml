@@ -3,6 +3,7 @@ import { AttributeCollector } from './internal/AttributeCollector';
 import {
   cloneNamespaces,
   collectAttributesFromSource,
+  hasNamespaceDeclarationInSource,
   resolveElementName,
   type QualifiedNameInfo,
 } from './internal/XmlCursorParserUtil';
@@ -10,15 +11,6 @@ import {
 type CursorLifecycleState = 'INITIAL' | 'ACTIVE' | 'DONE' | 'FAILED';
 type AsyncInputState = 'BUFFER_READY' | 'NEED_INPUT' | 'STREAM_ENDED';
 type ParseAction = XmlEventType | 'need_input' | 'skip';
-
-interface CursorToken {
-  type: XmlEventType;
-  name?: string;
-  localName?: string;
-  prefix?: string;
-  uri?: string;
-  text?: string;
-}
 
 export interface StaxXmlCursorOptions {
   encoding?: string;
@@ -47,8 +39,16 @@ export class StaxXmlCursor {
   private readonly namespaceStack: Map<string, string>[] = [new Map<string, string>()];
   private lifecycleState: CursorLifecycleState = 'INITIAL';
   private inputState: AsyncInputState = 'NEED_INPUT';
-  private currentToken?: CursorToken;
-  private pendingEndElement?: QualifiedNameInfo;
+  private currentType?: XmlEventType;
+  private currentName?: string;
+  private currentLocalName?: string;
+  private currentPrefix?: string;
+  private currentUri?: string;
+  private currentText?: string;
+  private pendingEndName?: string;
+  private pendingEndLocalName?: string;
+  private pendingEndPrefix?: string;
+  private pendingEndUri?: string;
   private storedError?: Error;
   private busy = false;
 
@@ -128,35 +128,35 @@ export class StaxXmlCursor {
   }
 
   get eventType(): XmlEventType | undefined {
-    return this.currentToken?.type;
+    return this.currentType;
   }
 
   get name(): string | undefined {
-    return this.currentToken?.name;
+    return this.currentName;
   }
 
   get localName(): string | undefined {
-    return this.currentToken?.localName;
+    return this.currentLocalName;
   }
 
   get prefix(): string | undefined {
-    return this.currentToken?.prefix;
+    return this.currentPrefix;
   }
 
   get uri(): string | undefined {
-    return this.currentToken?.uri;
+    return this.currentUri;
   }
 
   get text(): string | undefined {
-    return this.currentToken?.text;
+    return this.currentText;
   }
 
   getText(): string {
-    if (this.currentToken?.type !== XmlEventType.CHARACTERS && this.currentToken?.type !== XmlEventType.CDATA) {
+    if (this.currentType !== XmlEventType.CHARACTERS && this.currentType !== XmlEventType.CDATA) {
       throw new Error('Current token does not expose text.');
     }
 
-    return this.currentToken.text;
+    return this.currentText!;
   }
 
   getAttributes(): Record<string, string> {
@@ -179,17 +179,19 @@ export class StaxXmlCursor {
 
     if (this.lifecycleState === 'INITIAL') {
       this.lifecycleState = 'ACTIVE';
-      this.currentToken = { type: XmlEventType.START_DOCUMENT };
+      this.setCurrentType(XmlEventType.START_DOCUMENT);
       return XmlEventType.START_DOCUMENT;
     }
 
-    if (this.pendingEndElement) {
-      const pending = this.pendingEndElement;
-      this.pendingEndElement = undefined;
-      this.currentToken = {
-        type: XmlEventType.END_ELEMENT,
-        ...pending,
-      };
+    if (this.pendingEndName !== undefined) {
+      this.setCurrent(
+        XmlEventType.END_ELEMENT,
+        this.pendingEndName,
+        this.pendingEndLocalName,
+        this.pendingEndPrefix,
+        this.pendingEndUri
+      );
+      this.clearPendingEnd();
       return XmlEventType.END_ELEMENT;
     }
 
@@ -209,7 +211,7 @@ export class StaxXmlCursor {
         }
 
         this.markDone();
-        this.currentToken = { type: XmlEventType.END_DOCUMENT };
+        this.setCurrentType(XmlEventType.END_DOCUMENT);
         return XmlEventType.END_DOCUMENT;
       }
 
@@ -339,7 +341,7 @@ export class StaxXmlCursor {
   }
 
   private parseDoctype(): ParseAction {
-    const endPos = this.findSingleByte(62, this.position);
+    const endPos = this.findDoctypeEnd(this.position + 9);
     if (endPos === -1) {
       if (this.inputState === 'STREAM_ENDED') {
         throw new Error('Unclosed DOCTYPE declaration');
@@ -349,6 +351,81 @@ export class StaxXmlCursor {
 
     this.position = endPos + 1;
     return 'skip';
+  }
+
+  private findDoctypeEnd(startPos: number): number {
+    let position = startPos;
+    let bracketDepth = 0;
+    let quoteChar = 0;
+    let inComment = false;
+
+    while (position < this.bufferLength) {
+      const currentByte = this.buffer[position];
+
+      if (inComment) {
+        if (currentByte === 45) {
+          const commentTerminator = this.matchesAsciiPattern(position, '-->');
+          if (commentTerminator === 'match') {
+            inComment = false;
+            position += 3;
+            continue;
+          }
+          if (commentTerminator === 'incomplete') {
+            return -1;
+          }
+        }
+        position++;
+        continue;
+      }
+
+      if (quoteChar !== 0) {
+        if (currentByte === quoteChar) {
+          quoteChar = 0;
+        }
+        position++;
+        continue;
+      }
+
+      if (currentByte === 34 || currentByte === 39) {
+        quoteChar = currentByte;
+        position++;
+        continue;
+      }
+
+      if (currentByte === 60) {
+        const commentStart = this.matchesAsciiPattern(position, '<!--');
+        if (commentStart === 'match') {
+          inComment = true;
+          position += 4;
+          continue;
+        }
+        if (commentStart === 'incomplete') {
+          return -1;
+        }
+      }
+
+      if (currentByte === 91) {
+        bracketDepth++;
+        position++;
+        continue;
+      }
+
+      if (currentByte === 93) {
+        if (bracketDepth > 0) {
+          bracketDepth--;
+        }
+        position++;
+        continue;
+      }
+
+      if (currentByte === 62 && bracketDepth === 0) {
+        return position;
+      }
+
+      position++;
+    }
+
+    return -1;
   }
 
   private parseCData(): ParseAction {
@@ -362,10 +439,10 @@ export class StaxXmlCursor {
 
     const safeStart = this.findSafeUtf8Boundary(this.position + 9, false);
     const safeEnd = this.findSafeUtf8Boundary(endPos, true);
-    this.currentToken = {
-      type: XmlEventType.CDATA,
-      text: this.decoder.decode(this.buffer.subarray(safeStart, safeEnd), { stream: false }),
-    };
+    this.setCurrentText(
+      XmlEventType.CDATA,
+      this.decoder.decode(this.buffer.subarray(safeStart, safeEnd), { stream: false })
+    );
     this.position = endPos + 3;
     return XmlEventType.CDATA;
   }
@@ -409,10 +486,7 @@ export class StaxXmlCursor {
     const namespaces = this.namespaceStack[this.namespaceStack.length - 1] ?? new Map<string, string>();
     this.elementStack.pop();
     this.namespaceStack.pop();
-    this.currentToken = {
-      type: XmlEventType.END_ELEMENT,
-      ...resolveElementName(tagName, namespaces),
-    };
+    this.setCurrentNameInfo(XmlEventType.END_ELEMENT, resolveElementName(tagName, namespaces));
     this.position = gtPos + 1;
     return XmlEventType.END_ELEMENT;
   }
@@ -434,10 +508,18 @@ export class StaxXmlCursor {
 
     const tagName = tagMatch[1];
     const isSelfClosing = tagMatch[3] === '/';
-    const namespaces = cloneNamespaces(this.namespaceStack[this.namespaceStack.length - 1]);
     this.currentStartTagSource = tagContent;
     const nameEnd = 1 + tagName.length;
     const actualEnd = tagContent.length - (isSelfClosing ? 2 : 1);
+    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+    const namespaces = hasNamespaceDeclarationInSource(
+      tagContent,
+      nameEnd,
+      actualEnd,
+      StaxXmlCursor.isWhitespaceCode
+    )
+      ? cloneNamespaces(parentNamespaces)
+      : parentNamespaces;
 
     collectAttributesFromSource(
       tagContent,
@@ -450,14 +532,11 @@ export class StaxXmlCursor {
     );
 
     const nameInfo = resolveElementName(tagName, namespaces);
-    this.currentToken = {
-      type: XmlEventType.START_ELEMENT,
-      ...nameInfo,
-    };
+    this.setCurrentNameInfo(XmlEventType.START_ELEMENT, nameInfo);
     this.position = gtPos + 1;
 
     if (isSelfClosing) {
-      this.pendingEndElement = nameInfo;
+      this.setPendingEnd(nameInfo);
       return XmlEventType.START_ELEMENT;
     }
 
@@ -477,15 +556,12 @@ export class StaxXmlCursor {
       return false;
     }
 
-    this.currentToken = {
-      type: XmlEventType.CHARACTERS,
-      text: decodedText,
-    };
+    this.setCurrentText(XmlEventType.CHARACTERS, decodedText);
     return true;
   }
 
   private releaseCurrentStartTagSource(): void {
-    if (this.currentToken?.type === XmlEventType.START_ELEMENT && this.currentStartTagSource.length > 0) {
+    if (this.currentType === XmlEventType.START_ELEMENT && this.currentStartTagSource.length > 0) {
       this.currentStartTagSource = '';
       this.attributeCollector.reset('');
     }
@@ -709,6 +785,25 @@ export class StaxXmlCursor {
     return true;
   }
 
+  private matchesAsciiPattern(
+    startPos: number,
+    pattern: string
+  ): 'match' | 'mismatch' | 'incomplete' {
+    if (startPos + pattern.length > this.bufferLength) {
+      return this.inputState === 'STREAM_ENDED'
+        ? 'mismatch'
+        : 'incomplete';
+    }
+
+    for (let index = 0; index < pattern.length; index++) {
+      if (this.buffer[startPos + index] !== pattern.charCodeAt(index)) {
+        return 'mismatch';
+      }
+    }
+
+    return 'match';
+  }
+
   private compileEntityDecoder(): (text: string) => string {
     if (this.options.autoDecodeEntities === false) {
       return (text) => text;
@@ -771,7 +866,7 @@ export class StaxXmlCursor {
   }
 
   private assertStartElementToken(): void {
-    if (this.currentToken?.type !== XmlEventType.START_ELEMENT) {
+    if (this.currentType !== XmlEventType.START_ELEMENT) {
       throw new Error('Current token does not expose attributes.');
     }
   }
@@ -784,11 +879,62 @@ export class StaxXmlCursor {
   private markFailed(error: Error): void {
     this.lifecycleState = 'FAILED';
     this.storedError = error;
-    this.currentToken = undefined;
+    this.clearCurrent();
     this.currentTextBuffer = '';
     this.currentStartTagSource = '';
     this.attributeCollector.reset('');
     this.releaseReader();
+  }
+
+  private clearCurrent(): void {
+    this.currentType = undefined;
+    this.currentName = undefined;
+    this.currentLocalName = undefined;
+    this.currentPrefix = undefined;
+    this.currentUri = undefined;
+    this.currentText = undefined;
+  }
+
+  private clearPendingEnd(): void {
+    this.pendingEndName = undefined;
+    this.pendingEndLocalName = undefined;
+    this.pendingEndPrefix = undefined;
+    this.pendingEndUri = undefined;
+  }
+
+  private setCurrent(
+    type: XmlEventType,
+    name?: string,
+    localName?: string,
+    prefix?: string,
+    uri?: string,
+    text?: string
+  ): void {
+    this.currentType = type;
+    this.currentName = name;
+    this.currentLocalName = localName;
+    this.currentPrefix = prefix;
+    this.currentUri = uri;
+    this.currentText = text;
+  }
+
+  private setCurrentType(type: XmlEventType): void {
+    this.setCurrent(type);
+  }
+
+  private setCurrentText(type: XmlEventType, text: string): void {
+    this.setCurrent(type, undefined, undefined, undefined, undefined, text);
+  }
+
+  private setCurrentNameInfo(type: XmlEventType, nameInfo: QualifiedNameInfo): void {
+    this.setCurrent(type, nameInfo.name, nameInfo.localName, nameInfo.prefix, nameInfo.uri);
+  }
+
+  private setPendingEnd(nameInfo: QualifiedNameInfo): void {
+    this.pendingEndName = nameInfo.name;
+    this.pendingEndLocalName = nameInfo.localName;
+    this.pendingEndPrefix = nameInfo.prefix;
+    this.pendingEndUri = nameInfo.uri;
   }
 
   private releaseReader(): void {

@@ -10,7 +10,7 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "starlight-typedoc": "^0.21.3",
-    "tsdown": "^0.15.5",
+    "tsdown": "^0.21.4",
     "typedoc": "^0.28.13",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

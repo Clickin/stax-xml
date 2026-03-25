@@ -28,6 +28,72 @@ export function cloneNamespaces(parent: Map<string, string> | undefined): Map<st
   return namespaces;
 }
 
+export function hasNamespaceDeclarationInSource(
+  source: string,
+  start: number,
+  end: number,
+  isWhitespace: (code: number) => boolean
+): boolean {
+  let index = start;
+
+  while (index < end) {
+    while (index < end && isWhitespace(source.charCodeAt(index))) {
+      index++;
+    }
+    if (index >= end) {
+      return false;
+    }
+
+    const nameStart = index;
+    while (index < end) {
+      const code = source.charCodeAt(index);
+      if (code === 61 || isWhitespace(code)) {
+        break;
+      }
+      index++;
+    }
+
+    if (index === nameStart) {
+      return false;
+    }
+
+    const rawName = source.slice(nameStart, index);
+    if (rawName === 'xmlns' || rawName.startsWith('xmlns:')) {
+      return true;
+    }
+
+    while (index < end && isWhitespace(source.charCodeAt(index))) {
+      index++;
+    }
+    if (index >= end || source.charCodeAt(index) !== 61) {
+      continue;
+    }
+
+    index++;
+    while (index < end && isWhitespace(source.charCodeAt(index))) {
+      index++;
+    }
+    if (index >= end) {
+      return false;
+    }
+
+    const quote = source.charCodeAt(index);
+    if (quote !== 34 && quote !== 39) {
+      return false;
+    }
+
+    index++;
+    while (index < end && source.charCodeAt(index) !== quote) {
+      index++;
+    }
+    if (index < end) {
+      index++;
+    }
+  }
+
+  return false;
+}
+
 export function resolveElementName(
   qname: string,
   namespaces: Map<string, string>
@@ -111,6 +177,9 @@ export function applyNamespaceDeclaration(
 
 interface PendingAttribute {
   rawName: string;
+  localName: string;
+  prefix?: string;
+  isNamespaceDeclaration: boolean;
   sourceStart?: number;
   sourceEnd?: number;
   decodedValue?: string;
@@ -127,6 +196,11 @@ export function collectAttributesFromSource(
 ): void {
   collector.reset(source);
   if (start >= end) {
+    return;
+  }
+
+  if (!hasNamespaceDeclarationInSource(source, start, end, isWhitespace)) {
+    collector.defer(source, start, end, namespaces, isWhitespace);
     return;
   }
 
@@ -155,13 +229,17 @@ export function collectAttributesFromSource(
     }
 
     const rawName = source.slice(nameStart, i);
+    const nameInfo = resolveAttributeName(rawName, namespaces);
     while (i < end && isWhitespace(source.charCodeAt(i))) {
       i++;
     }
 
     if (i >= end || source.charCodeAt(i) !== 61) {
       pendingAttributes.push({
-        rawName,
+        rawName: nameInfo.rawName,
+        localName: nameInfo.localName,
+        prefix: nameInfo.prefix,
+        isNamespaceDeclaration: nameInfo.isNamespaceDeclaration,
         decodedValue: 'true',
       });
       continue;
@@ -190,7 +268,10 @@ export function collectAttributesFromSource(
     }
 
     pendingAttributes.push({
-      rawName,
+      rawName: nameInfo.rawName,
+      localName: nameInfo.localName,
+      prefix: nameInfo.prefix,
+      isNamespaceDeclaration: nameInfo.isNamespaceDeclaration,
       sourceStart: valueStart,
       sourceEnd: i,
     });
@@ -198,45 +279,53 @@ export function collectAttributesFromSource(
   }
 
   for (const pending of pendingAttributes) {
-    const value = pending.decodedValue ?? decodeValue(source.slice(pending.sourceStart, pending.sourceEnd));
-    const nameInfo = resolveAttributeName(pending.rawName, namespaces);
-
-    if (!nameInfo.isNamespaceDeclaration) {
+    if (!pending.isNamespaceDeclaration) {
       continue;
     }
+    const value = pending.decodedValue ?? decodeValue(source.slice(pending.sourceStart, pending.sourceEnd));
 
-    applyNamespaceDeclaration(nameInfo, value, namespaces);
+    applyNamespaceDeclaration(
+      {
+        rawName: pending.rawName,
+        localName: pending.localName,
+        prefix: pending.prefix,
+        uri: pending.prefix ? namespaces.get(pending.prefix) : undefined,
+        isNamespaceDeclaration: true,
+      },
+      value,
+      namespaces
+    );
     collector.addDecoded(
-      nameInfo.rawName,
-      nameInfo.localName,
-      nameInfo.prefix,
-      nameInfo.uri,
+      pending.rawName,
+      pending.localName,
+      pending.prefix,
+      pending.prefix ? namespaces.get(pending.prefix) : undefined,
       value
     );
   }
 
   for (const pending of pendingAttributes) {
-    const nameInfo = resolveAttributeName(pending.rawName, namespaces);
-    if (nameInfo.isNamespaceDeclaration) {
+    if (pending.isNamespaceDeclaration) {
       continue;
     }
+    const uri = pending.prefix ? namespaces.get(pending.prefix) : undefined;
 
     if (pending.decodedValue !== undefined) {
       collector.addDecoded(
-        nameInfo.rawName,
-        nameInfo.localName,
-        nameInfo.prefix,
-        nameInfo.uri,
+        pending.rawName,
+        pending.localName,
+        pending.prefix,
+        uri,
         pending.decodedValue
       );
       continue;
     }
 
     collector.addLazy(
-      nameInfo.rawName,
-      nameInfo.localName,
-      nameInfo.prefix,
-      nameInfo.uri,
+      pending.rawName,
+      pending.localName,
+      pending.prefix,
+      uri,
       pending.sourceStart,
       pending.sourceEnd
     );
