@@ -4,7 +4,7 @@ export default defineConfig([
   // Build main index separately to prevent chunk splitting
   {
     entry: ['src/index.ts'],
-    format: ['cjs', 'esm'],
+    format: ['esm'],
     dts: true,
     platform: "neutral",
     outDir: 'dist',
@@ -16,7 +16,7 @@ export default defineConfig([
     entry: {
       converter: 'src/converter/index.ts',
     },
-    format: ['cjs', 'esm'],
+    format: ['esm'],
     dts: true,
     outDir: 'dist',
     clean: false, // Don't clean to preserve index.* files
@@ -27,7 +27,7 @@ export default defineConfig([
   // Build internal entry for minimal internal API exposure
   {
     entry: { internal: 'src/internal/index.ts' },
-    format: ['cjs', 'esm'],
+    format: ['esm'],
     dts: true,
     outDir: 'dist',
     clean: false,

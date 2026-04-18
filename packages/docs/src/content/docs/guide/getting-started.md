@@ -43,6 +43,8 @@ bun add stax-xml
 deno add npm:stax-xml
 ```
 
+**ESM-only package:** StAX-XML is published as ESM-only. Use `import { ... } from 'stax-xml'`; `require('stax-xml')` is not supported.
+
 ## Platform Compatibility
 
 StAX-XML uses only Web Standard APIs, making it compatible with:

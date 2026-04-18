@@ -46,6 +46,7 @@ The sync parser received the same hot-path optimizations: native `indexOf` for s
 - `StaxXmlParser` now uses the new fast-path implementation
 - `StaxXmlParserFastPathExperimental` remains exported as a backward-compatible alias for `StaxXmlParser`
 - `createStaxXmlParser()` factory function added (mirrors existing `createStaxXmlParserFastPathExperimental`)
+- The package now publishes ESM-only artifacts; CommonJS entrypoints were removed before the first `0.6.0` npm release
 - All 800 unit tests pass
 
 ---

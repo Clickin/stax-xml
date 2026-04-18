@@ -22,6 +22,8 @@ head:
 
 This guide will help you parse your first XML document with StAX-XML.
 
+**ESM-only package:** All examples use `import` syntax because `require('stax-xml')` is not supported.
+
 ## Basic Asynchronous Parsing
 
 Here's how to parse XML from a `ReadableStream` using the asynchronous parser:

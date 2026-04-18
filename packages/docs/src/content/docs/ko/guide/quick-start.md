@@ -22,6 +22,8 @@ head:
 
 이 가이드는 StAX-XML로 첫 번째 XML 문서를 파싱하는 방법을 도와드립니다.
 
+**ESM-only 패키지:** 모든 예제는 `import` 문법을 사용합니다. `require('stax-xml')`는 지원되지 않습니다.
+
 ## 기본 비동기 파싱
 
 비동기 파서를 사용하여 `ReadableStream`에서 XML을 파싱하는 방법입니다:
