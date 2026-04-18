@@ -119,6 +119,8 @@ async function measure(
 
 async function loadPublishedModule() {
   const candidates = [
+    resolve(__dirname, '..', '..', 'node_modules', '.pnpm', 'node_modules', 'stax-xml-published', 'dist', 'index.js'),
+    resolve(__dirname, '..', '..', 'node_modules', 'stax-xml-published', 'dist', 'index.js'),
     resolve(__dirname, '..', '..', '..', 'node_modules', '.pnpm', 'node_modules', 'stax-xml-published', 'dist', 'index.js'),
     resolve(__dirname, '..', '..', '..', 'node_modules', 'stax-xml-published', 'dist', 'index.js'),
   ];

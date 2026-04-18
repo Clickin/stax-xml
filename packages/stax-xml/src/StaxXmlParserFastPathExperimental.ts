@@ -34,17 +34,27 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
     amp: '&',
   };
 
+  // Singleton empty objects for fast-path elements (no attributes)
+  private static readonly EMPTY_ATTRS: Record<string, string> = Object.freeze({});
+  private static readonly EMPTY_ATTRS_WITH_PREFIX: Record<string, AttributeInfo> = Object.freeze({});
+
   private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
   private readonly decoder: TextDecoder;
   private readonly options: StaxXmlParserOptions;
   private readonly eventFilter?: ParserEventFilter;
   private readonly entityDecoder: (text: string) => string;
 
-  private readonly eventQueue: AnyXmlEvent[] = [];
+  // Circular buffer queue (O(1) enqueue and dequeue)
+  private eventQueue: AnyXmlEvent[];
+  private queueHead = 0;
+  private queueTail = 0;
+  private queueSize = 0;
+
   private readonly elementStack: string[] = [];
   private readonly namespaceStack: Map<string, string>[] = [];
   private readonly pendingTextSegments: string[] = [];
-  private pendingStructuralSegments: string[] = [];
+  // Carry tail: a single incomplete structural fragment from the previous chunk
+  private pendingTail = '';
 
   private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
   private error: Error | null = null;
@@ -72,6 +82,8 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
       ignoreBOM: true,
     });
     this.entityDecoder = this.compileEntityDecoder();
+    // Initialize circular buffer queue
+    this.eventQueue = new Array(this.options.initialQueueCapacity ?? 1024);
     this.reader = xmlStream.getReader();
 
     this.enqueueEvent(XmlEventFactory.startDocument());
@@ -87,9 +99,11 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
       throw this.error;
     }
 
-    const queued = this.eventQueue.shift();
-    if (queued !== undefined) {
-      return { value: queued, done: false };
+    if (this.queueSize > 0) {
+      const event = this.eventQueue[this.queueHead]!;
+      this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
+      this.queueSize--;
+      return { value: event, done: false };
     }
 
     if (this.parserFinished) {
@@ -103,8 +117,10 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
 
   async return(): Promise<IteratorResult<AnyXmlEvent>> {
     this.parserFinished = true;
-    this.eventQueue.length = 0;
-    this.pendingStructuralSegments = [];
+    this.queueHead = 0;
+    this.queueTail = 0;
+    this.queueSize = 0;
+    this.pendingTail = '';
     this.pendingTextSegments.length = 0;
     await this.reader.cancel();
     this.resolveDoneIfNeeded();
@@ -120,7 +136,7 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
           const flushed = this.decoder.decode();
           this.processDecodedChunk(flushed, true);
 
-          if (!this.parserFinished && this.pendingStructuralSegments.length > 0) {
+          if (!this.parserFinished && this.pendingTail.length > 0) {
             this.addError(new Error('Unexpected end of document. Incomplete markup at end of stream.'));
             break;
           }
@@ -148,14 +164,9 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
   }
 
   private processDecodedChunk(decodedChunk: string, isFinal: boolean): void {
-    let window = decodedChunk;
-    if (this.pendingStructuralSegments.length > 0) {
-      this.pendingStructuralSegments.push(decodedChunk);
-      window = this.pendingStructuralSegments.length === 1
-        ? this.pendingStructuralSegments[0]!
-        : this.pendingStructuralSegments.join('');
-      this.pendingStructuralSegments = [];
-    }
+    // Prepend any incomplete structural tail from the previous chunk
+    const window = this.pendingTail.length > 0 ? this.pendingTail + decodedChunk : decodedChunk;
+    this.pendingTail = '';
 
     let position = 0;
     while (position < window.length && !this.parserFinished) {
@@ -177,7 +188,8 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
 
       const result = this.parseTag(window, ltPos, isFinal);
       if (result === null) {
-        this.pendingStructuralSegments.push(window.slice(ltPos));
+        // Incomplete markup: carry the tail to the next chunk
+        this.pendingTail = window.slice(ltPos);
         return;
       }
 
@@ -291,9 +303,12 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
       }
     }
 
+    // Extract tag name and detect colon in a single pass
     let nameEnd = position + 1;
+    let colonPos = -1;
     while (nameEnd < actualEnd) {
       const code = window.charCodeAt(nameEnd);
+      if (code === 58 /* ':' */ && colonPos === -1) colonPos = nameEnd;
       if (StaxXmlParserFastPathExperimental.isWhitespace(code) || code === 47 || code === 62) {
         break;
       }
@@ -301,16 +316,49 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
     }
 
     const tagName = window.slice(position + 1, nameEnd);
-    const currentNamespaces = new Map<string, string>(this.namespaceStack[this.namespaceStack.length - 1] ?? undefined);
+    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+
+    // Fast path: simple element with no namespace prefix and no attributes
+    if (colonPos === -1 && nameEnd === tagEnd && window.charCodeAt(nameEnd) === 62) {
+      const uri = parentNamespaces?.get('');
+      this.enqueueEvent(XmlEventFactory.startElement(
+        tagName, tagName, undefined, uri,
+        StaxXmlParserFastPathExperimental.EMPTY_ATTRS,
+        StaxXmlParserFastPathExperimental.EMPTY_ATTRS_WITH_PREFIX,
+      ));
+      if (isSelfClosing) {
+        this.enqueueEvent(XmlEventFactory.endElement(tagName, tagName, undefined, uri));
+      } else {
+        this.elementStack.push(tagName);
+        // Share parent namespace map — no copy needed when no xmlns declared
+        this.namespaceStack.push(parentNamespaces ?? new Map());
+      }
+      return tagEnd + 1;
+    }
+
+    // General path: parse attributes (handles xmlns, prefixed names, etc.)
     const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
-    const { attributes, attributesWithPrefix } = this.parseAttributesFast(
+    const { attributes, attributesWithPrefix, namespaces } = this.parseAttributesFast(
       window,
       nameEnd,
       actualEnd,
-      currentNamespaces,
+      parentNamespaces ?? new Map(),
       includeAttributes,
     );
-    const { localName, prefix, uri } = this.parseQualifiedName(tagName, currentNamespaces);
+
+    let localName: string;
+    let prefix: string | undefined;
+    let uri: string | undefined;
+
+    if (colonPos === -1) {
+      localName = tagName;
+      prefix = undefined;
+      uri = namespaces.get('');
+    } else {
+      prefix = tagName.slice(0, colonPos - (position + 1));
+      localName = tagName.slice(colonPos - (position + 1) + 1);
+      uri = namespaces.get(prefix);
+    }
 
     this.enqueueEvent(XmlEventFactory.startElement(
       tagName,
@@ -325,7 +373,7 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
       this.enqueueEvent(XmlEventFactory.endElement(tagName, localName, prefix, uri));
     } else {
       this.elementStack.push(tagName);
-      this.namespaceStack.push(currentNamespaces);
+      this.namespaceStack.push(namespaces);
     }
 
     return tagEnd + 1;
@@ -335,18 +383,22 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
     window: string,
     start: number,
     end: number,
-    namespaces: Map<string, string>,
+    parentNamespaces: Map<string, string>,
     includeAttributes: boolean,
-  ): { attributes: Record<string, string>; attributesWithPrefix: Record<string, AttributeInfo> } {
+  ): { attributes: Record<string, string>; attributesWithPrefix: Record<string, AttributeInfo>; namespaces: Map<string, string> } {
     if (start >= end) {
       return {
-        attributes: {},
-        attributesWithPrefix: {},
+        attributes: StaxXmlParserFastPathExperimental.EMPTY_ATTRS,
+        attributesWithPrefix: StaxXmlParserFastPathExperimental.EMPTY_ATTRS_WITH_PREFIX,
+        namespaces: parentNamespaces,
       };
     }
 
     const attributes: Record<string, string> = {};
     const attributesWithPrefix: Record<string, AttributeInfo> = {};
+    // Lazy copy: only create new Map when first xmlns attr is found
+    let namespaces: Map<string, string> = parentNamespaces;
+    let namespaceCopied = false;
 
     let index = start;
     while (index < end) {
@@ -405,10 +457,17 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
       }
 
       const attrValue = this.entityDecoder(window.slice(valueStart, index));
-      if (attrName === 'xmlns') {
-        namespaces.set('', attrValue);
-      } else if (attrName.startsWith('xmlns:')) {
-        namespaces.set(attrName.slice(6), attrValue);
+
+      // xmlns pre-filter: 'x'=120, min length 5 ('xmlns')
+      const c0 = attrName.charCodeAt(0);
+      if (c0 === 120 && attrName.length >= 5) {
+        if (attrName === 'xmlns') {
+          if (!namespaceCopied) { namespaces = new Map(parentNamespaces); namespaceCopied = true; }
+          namespaces.set('', attrValue);
+        } else if (attrName.charCodeAt(5) === 58 && attrName.slice(0, 5) === 'xmlns') {
+          if (!namespaceCopied) { namespaces = new Map(parentNamespaces); namespaceCopied = true; }
+          namespaces.set(attrName.slice(6), attrValue);
+        }
       }
 
       if (includeAttributes) {
@@ -417,7 +476,7 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
       index++;
     }
 
-    return { attributes, attributesWithPrefix };
+    return { attributes, attributesWithPrefix, namespaces };
   }
 
   private recordAttribute(
@@ -490,7 +549,20 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
     this.pendingTextSegments.length = 0;
 
     const decodedText = this.entityDecoder(rawText);
-    if (!decodedText || decodedText.trim().length === 0) {
+    if (!decodedText) {
+      return;
+    }
+
+    // Check for whitespace-only text without allocating trim()
+    let isWs = true;
+    for (let i = 0; i < decodedText.length; i++) {
+      const c = decodedText.charCodeAt(i);
+      if (c !== 32 && c !== 9 && c !== 10 && c !== 13) {
+        isWs = false;
+        break;
+      }
+    }
+    if (isWs) {
       return;
     }
 
@@ -500,17 +572,35 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
   }
 
   private enqueueEvent(event: AnyXmlEvent): void {
-    this.eventQueue.push(event);
+    // Circular buffer enqueue
+    if (this.queueSize === this.eventQueue.length) {
+      this.growQueue();
+    }
+    this.eventQueue[this.queueTail] = event;
+    this.queueTail = (this.queueTail + 1) % this.eventQueue.length;
+    this.queueSize++;
+
     if (this.resolveNext !== null) {
       const resolve = this.resolveNext;
       this.resolveNext = null;
-      const next = this.eventQueue.shift();
-      if (next === undefined) {
-        resolve({ value: undefined, done: true });
-      } else {
-        resolve({ value: next, done: false });
-      }
+      // Dequeue the event we just enqueued and resolve the pending consumer
+      const next = this.eventQueue[this.queueHead]!;
+      this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
+      this.queueSize--;
+      resolve({ value: next, done: false });
     }
+  }
+
+  private growQueue(): void {
+    const oldCapacity = this.eventQueue.length;
+    const newCapacity = oldCapacity * 2;
+    const newQueue = new Array<AnyXmlEvent>(newCapacity);
+    for (let i = 0; i < this.queueSize; i++) {
+      newQueue[i] = this.eventQueue[(this.queueHead + i) % oldCapacity]!;
+    }
+    this.eventQueue = newQueue;
+    this.queueHead = 0;
+    this.queueTail = this.queueSize;
   }
 
   private addError(error: Error): void {
@@ -521,13 +611,13 @@ export class StaxXmlParserFastPathExperimental implements AsyncIterable<AnyXmlEv
     this.error = error;
     this.enqueueEvent(XmlEventFactory.error(error));
     this.parserFinished = true;
-    this.pendingStructuralSegments = [];
+    this.pendingTail = '';
     this.pendingTextSegments.length = 0;
     this.resolveDoneIfNeeded();
   }
 
   private resolveDoneIfNeeded(): void {
-    if (this.resolveNext !== null && this.eventQueue.length === 0 && this.parserFinished) {
+    if (this.resolveNext !== null && this.queueSize === 0 && this.parserFinished) {
       const resolve = this.resolveNext;
       this.resolveNext = null;
       resolve({ value: undefined, done: true });

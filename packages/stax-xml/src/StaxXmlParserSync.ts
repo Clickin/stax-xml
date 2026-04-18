@@ -79,6 +79,10 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   };
 
   // ===== Static optimization tables (copied from baseline) =====
+  // Singleton empty objects for fast-path elements (no attributes)
+  private static readonly EMPTY_ATTRS: Record<string, string> = Object.freeze({});
+  private static readonly EMPTY_ATTRS_WITH_PREFIX: Record<string, AttributeInfo> = Object.freeze({});
+
   private static readonly ASCII_TABLE = (() => {
     const table = new Uint8Array(128);
     table[9] = 1;   // TAB
@@ -189,7 +193,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private parseNextEvent(): AnyXmlEvent | null {
     // Loop until we find an event or reach end of document
     while (this.pos < this.xmlLength) {
-      const ltPos = this.findChar(60, this.pos); // Find '<'
+      const ltPos = this.xml.indexOf('<', this.pos);
 
       // Case 1: No more tags found
       if (ltPos === -1) {
@@ -264,7 +268,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
    * Returns END_ELEMENT event
    */
   private parseEndTag(): AnyXmlEvent {
-    const tagClose = this.findChar(62, this.pos); // '>'
+    const tagClose = this.xml.indexOf('>', this.pos); // '>'
     if (tagClose === -1) throw new Error('Unclosed end tag');
 
     const fullTagName = this.trimmedSlice(this.pos + 2, tagClose);
@@ -305,7 +309,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
    * Returns CDATA event or null (comments/DOCTYPE produce no events)
    */
   private parseCdataCommentDoctype(): AnyXmlEvent | null {
-    if (this.matchesAt('<![CDATA[', this.pos)) {
+    if (this.xml.startsWith('<![CDATA[', this.pos)) {
       const cdataEnd = this.findSequence(']]>', this.pos + 9);
       if (cdataEnd === -1) throw new Error('Unclosed CDATA section');
 
@@ -317,13 +321,13 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       }
       return null;
 
-    } else if (this.matchesAt('<!--', this.pos)) {
+    } else if (this.xml.startsWith('<!--', this.pos)) {
       const commentEnd = this.findSequence('-->', this.pos + 4);
       if (commentEnd === -1) throw new Error('Unclosed comment');
       this.pos = commentEnd + 3;
       return null; // Comments produce no events
-    } else if (this.matchesAt('<!DOCTYPE', this.pos)) {
-      const doctypeEnd = this.findChar(62, this.pos); // '>'
+    } else if (this.xml.startsWith('<!DOCTYPE', this.pos)) {
+      const doctypeEnd = this.xml.indexOf('>', this.pos); // '>'
       if (doctypeEnd === -1) throw new Error('Unclosed DOCTYPE declaration');
       this.pos = doctypeEnd + 1;
       return null; // DOCTYPE produces no events
@@ -360,56 +364,67 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       actualEnd = tagEnd - 1;
     }
 
-    // Extract tag name
+    // Extract tag name; detect colon in same pass
     let nameEnd = tagStart;
+    let colonPos = -1;
     const xml = this.xml;
 
     while (nameEnd < actualEnd) {
       const code = xml.charCodeAt(nameEnd);
-      if (code <= 32) {
+      if (code === 58 /* ':' */ && colonPos === -1) {
+        colonPos = nameEnd;
+      } else if (code <= 32) {
         if (StaxXmlParserSync.isWhitespace(code)) break;
-      } else if (code === 62 || code === 47) { // '>' or '/'
+      } else if (code === 62 || code === 47) {
         break;
       }
       nameEnd++;
     }
 
-    const tagName = xml.slice(tagStart, nameEnd);
+    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1]!;
 
-    // Create namespace context
-    const currentNamespaces = new Map<string, string>();
-    if (this.namespaceStack.length > 0) {
-      const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
-      for (const [prefix, uri] of parentNamespaces) {
-        currentNamespaces.set(prefix, uri);
+    // Fast path: simple element with no namespace prefix and no attributes
+    if (colonPos === -1 && nameEnd === actualEnd) {
+      const tagName = xml.slice(tagStart, nameEnd);
+      const uri = parentNamespaces.get('');
+      const startEvent = this.createStartElementEvent(
+        tagName, tagName, undefined, uri,
+        StaxXmlParserSync.EMPTY_ATTRS,
+        StaxXmlParserSync.EMPTY_ATTRS_WITH_PREFIX,
+      );
+      this.elementStack.push(tagName);
+      if (isSelfClosing) {
+        this.pendingEvent = this.createEndElementEvent(tagName, tagName, undefined, uri);
+        this.elementStack.pop();
+      } else {
+        // Share parent namespace map — no copy needed, no xmlns declared
+        this.namespaceStack.push(parentNamespaces);
       }
+      this.pos = tagEnd + 1;
+      return startEvent;
     }
 
-    // Parse attributes
+    // General path: may have attributes or a namespace prefix
+    const tagName = xml.slice(tagStart, nameEnd);
     const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
-    const { attributes, attributesWithPrefix } = this.parseAttributesFast(
+    const { attributes, attributesWithPrefix, namespaces } = this.parseAttributesFast(
       nameEnd,
       actualEnd,
-      currentNamespaces,
+      parentNamespaces,
       includeAttributes
     );
 
-
-    // QName parsing
-    const colonIndex = tagName.indexOf(':');
     let localName: string, prefix: string | undefined, uri: string | undefined;
-
-    if (colonIndex === -1) {
+    if (colonPos === -1) {
       localName = tagName;
       prefix = undefined;
-      uri = currentNamespaces.get('');
+      uri = namespaces.get('');
     } else {
-      prefix = tagName.slice(0, colonIndex);
-      localName = tagName.slice(colonIndex + 1);
-      uri = currentNamespaces.get(prefix);
+      prefix = tagName.slice(0, colonPos - tagStart);
+      localName = tagName.slice(colonPos - tagStart + 1);
+      uri = namespaces.get(prefix);
     }
 
-    // Create START_ELEMENT event
     const startEvent = this.createStartElementEvent(
       tagName, localName, prefix, uri, attributes, attributesWithPrefix
     );
@@ -417,9 +432,8 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     this.elementStack.push(tagName);
 
     if (!isSelfClosing) {
-      this.namespaceStack.push(currentNamespaces);
+      this.namespaceStack.push(namespaces);
     } else {
-      // Self-closing tag: Create END_ELEMENT and queue it
       this.pendingEvent = this.createEndElementEvent(tagName, localName, prefix, uri);
       this.elementStack.pop();
     }
@@ -666,22 +680,27 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private parseAttributesFast(
     start: number,
     end: number,
-    namespaces: Map<string, string>,
+    parentNamespaces: Map<string, string>,
     includeAttributes: boolean = true
   ): {
     attributes: Record<string, string>,
-    attributesWithPrefix: Record<string, AttributeInfo>
+    attributesWithPrefix: Record<string, AttributeInfo>,
+    namespaces: Map<string, string>
   } {
 
     if (start >= end) {
       return {
-        attributes: {},
-        attributesWithPrefix: {}
+        attributes: StaxXmlParserSync.EMPTY_ATTRS,
+        attributesWithPrefix: StaxXmlParserSync.EMPTY_ATTRS_WITH_PREFIX,
+        namespaces: parentNamespaces
       };
     }
 
     const attributes: Record<string, string> = {};
     const attributesWithPrefix: Record<string, AttributeInfo> = {};
+    // Lazy copy: only create new Map when first xmlns attr is found
+    let namespaces: Map<string, string> = parentNamespaces;
+    let namespaceCopied = false;
 
     let i = start;
     const xml = this.xml;
@@ -723,7 +742,6 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
         continue;
       }
 
-
       i++; // Skip '='
 
       while (i < end && StaxXmlParserSync.isWhitespace(xml.charCodeAt(i))) i++;
@@ -740,10 +758,16 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
       const rawValue = xml.slice(valueStart, i);
       const attrValue = this.entityDecoder(rawValue);
 
-      if (attrName === 'xmlns') {
-        namespaces.set('', attrValue);
-      } else if (attrName.startsWith('xmlns:')) {
-        namespaces.set(attrName.slice(6), attrValue);
+      // xmlns pre-filter: 'x'=120, min length 5 ('xmlns')
+      const c0 = attrName.charCodeAt(0);
+      if (c0 === 120 && attrName.length >= 5) {
+        if (attrName === 'xmlns') {
+          if (!namespaceCopied) { namespaces = new Map(parentNamespaces); namespaceCopied = true; }
+          namespaces.set('', attrValue);
+        } else if (attrName.length >= 6 && attrName.charCodeAt(5) === 58 && attrName.slice(0, 5) === 'xmlns') {
+          if (!namespaceCopied) { namespaces = new Map(parentNamespaces); namespaceCopied = true; }
+          namespaces.set(attrName.slice(6), attrValue);
+        }
       }
 
       if (includeAttributes) {
@@ -762,7 +786,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
           uri = namespaces.get(prefix);
         }
 
-        if (attrName.startsWith('xmlns')) {
+        if (c0 === 120 && attrName.length >= 5 && attrName.slice(0, 5) === 'xmlns') {
           if (attrName === 'xmlns') {
             localName = 'xmlns';
             prefix = undefined;
@@ -770,6 +794,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
             localName = attrName.slice(6);
             prefix = 'xmlns';
           }
+          uri = undefined;
         }
 
         attributesWithPrefix[attrName] = {
@@ -780,11 +805,10 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
         };
       }
 
-
       i++; // Skip closing quote
     }
 
-    return { attributes, attributesWithPrefix };
+    return { attributes, attributesWithPrefix, namespaces };
   }
 
   private findTagEnd(start: number): number {
@@ -816,7 +840,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     const maxPos = this.xmlLength - seqLen;
 
     for (let i = start; i <= maxPos; i++) {
-      if (this.matchesAt(sequence, i)) {
+      if (this.xml.startsWith(sequence, i)) {
         return i;
       }
     }
