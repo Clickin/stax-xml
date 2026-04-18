@@ -17,26 +17,24 @@ function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
 
 describe('Coverage Tests for Missing Areas', () => {
   describe('StaxXmlParser Batch Processing API', () => {
-    test('should handle nextBatch with different buffer sizes and calculate optimal batch size', async () => {
+    test('should drain the currently available chunk-derived batch', async () => {
       const xml = '<root><item>1</item><item>2</item><item>3</item><item>4</item><item>5</item></root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml), { batchSize: 5, batchTimeout: 20 });
+      const parser = new StaxXmlParser(stringToReadableStream(xml));
 
-      // Test with small buffer (should return MIN_BATCH = 1)
       const batch1 = await parser.nextBatch();
+
       expect(batch1).toBeDefined();
       expect(Array.isArray(batch1)).toBe(true);
-
-      // Test with custom batch size
-      const batch2 = await parser.nextBatch(3);
-      expect(batch2.length).toBeLessThanOrEqual(3);
+      expect(batch1[0]?.type).toBe(XmlEventType.START_DOCUMENT);
+      expect(batch1.length).toBeGreaterThan(1);
     });
 
     test('should handle batchedIterator and complete batches', async () => {
       const xml = '<root><a>1</a><b>2</b><c>3</c></root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml), { batchSize: 2 });
+      const parser = new StaxXmlParser(stringToReadableStream(xml));
 
       const batches: any[][] = [];
-      for await (const batch of parser.batchedIterator(2)) {
+      for await (const batch of parser.batchedIterator()) {
         batches.push(batch);
         if (batches.length > 10) break; // Safety limit
       }
@@ -45,49 +43,59 @@ describe('Coverage Tests for Missing Areas', () => {
       expect(batches.every(batch => Array.isArray(batch))).toBe(true);
     });
 
-    test('should handle timeout in nextBatch', async () => {
-      const xml = '<root><item>test</item></root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml), { batchTimeout: 1 }); // Very short timeout
+    test('should drain multiple queued events per batch after a single chunk read', async () => {
+      const xml = '<root>' + '<item>value</item>'.repeat(20) + '</root>';
+      const parser = new StaxXmlParser(stringToReadableStream(xml));
 
-      const batch = await parser.nextBatch(100); // Request large batch
-      expect(batch).toBeDefined();
-      expect(Array.isArray(batch)).toBe(true);
+      const batch = await parser.nextBatch();
+
+      expect(batch[0]?.type).toBe(XmlEventType.START_DOCUMENT);
+      expect(batch.length).toBeGreaterThan(1);
+      expect(batch.some(event => event.type === XmlEventType.START_ELEMENT)).toBe(true);
+      expect(batch.some(event => event.type === XmlEventType.END_ELEMENT)).toBe(true);
     });
 
-    test('should calculate optimal batch size based on buffer length', async () => {
-      // Test with various XML sizes to trigger different batch size calculations
+    test('should return an empty batch after stream completion', async () => {
+      const xml = '<root><item>test</item></root>';
+      const parser = new StaxXmlParser(stringToReadableStream(xml));
+
+      while ((await parser.nextBatch()).length > 0) {
+        // drain all batches
+      }
+
+      await expect(parser.nextBatch()).resolves.toEqual([]);
+    });
+
+    test('should handle nextBatch on small and large XML inputs', async () => {
       const smallXml = '<a/>';
-      const parser1 = new StaxXmlParser(stringToReadableStream(smallXml), { batchSize: 10 });
+      const parser1 = new StaxXmlParser(stringToReadableStream(smallXml));
 
       const batch1 = await parser1.nextBatch();
       expect(batch1).toBeDefined();
 
-      // Test with larger XML
       const largeXml = '<root>' + '<item>data</item>'.repeat(100) + '</root>';
-      const parser2 = new StaxXmlParser(stringToReadableStream(largeXml), { batchSize: 10 });
+      const parser2 = new StaxXmlParser(stringToReadableStream(largeXml));
 
       const batch2 = await parser2.nextBatch();
       expect(batch2).toBeDefined();
     });
 
-    test('should handle batch metrics and event size calculations', async () => {
+    test('should continue draining batches until completion', async () => {
       const xml = '<root>' + '<item>'.repeat(50) + 'large content data'.repeat(10) + '</item>'.repeat(50) + '</root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml), { batchSize: 8 });
+      const parser = new StaxXmlParser(stringToReadableStream(xml));
 
-      // Process several batches to build up metrics
       for (let i = 0; i < 5; i++) {
         const batch = await parser.nextBatch();
         if (batch.length === 0) break;
       }
 
-      // Should handle different event sizes and adjust batch size accordingly
       const finalBatch = await parser.nextBatch();
       expect(Array.isArray(finalBatch)).toBe(true);
     });
 
-    test('should handle CHARACTERS event in batch size calculation', async () => {
+    test('should include character-heavy content in chunk-derived batches', async () => {
       const xml = '<root>Some text content</root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml), { batchSize: 5 });
+      const parser = new StaxXmlParser(stringToReadableStream(xml));
 
       // First batch should contain start elements
       const batch1 = await parser.nextBatch();

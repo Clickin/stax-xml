@@ -1,5 +1,6 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
+import { isAsyncEventIterator } from './AsyncEventBatchIterator.js';
 import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
@@ -87,34 +88,7 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     parentContext?: SchemaActivation
   ): InferObjectOutput<T> | Promise<InferObjectOutput<T>> {
     const parser = new XmlParserInternal(options);
-
-    // Check if async iterator by checking if return method returns a Promise
-    // We cannot call next() here as it would consume an event
-    // Instead, check if the iterator has async methods
-    if ('return' in iterator && typeof (iterator as { return?: unknown }).return === 'function') {
-      const returnMethod = (iterator as { return: () => unknown | Promise<unknown> }).return;
-      try {
-        const returnValue = returnMethod.call(iterator);
-        if (returnValue && typeof (returnValue as { then?: unknown }).then === 'function') {
-          // Async iterator
-          return parser.parseObjectFromPosition(
-            iterator as AsyncIterator<AnyXmlEvent>,
-            startEvent,
-            startDepth,
-            this.shape,
-            this.options,
-            stateMachine,
-            parentContext
-          ) as Promise<InferObjectOutput<T>>;
-        }
-      } catch {
-        // Calling return() failed, assume sync iterator
-      }
-    }
-
-    // Try another approach: check if iterator is from StaxXmlParser (async) or StaxXmlParserSync
-    const iteratorConstructorName = iterator?.constructor?.name || '';
-    if (iteratorConstructorName === 'StaxXmlParser' || iteratorConstructorName.includes('Async')) {
+    if (isAsyncEventIterator(iterator)) {
       return parser.parseObjectFromPosition(
         iterator as AsyncIterator<AnyXmlEvent>,
         startEvent,

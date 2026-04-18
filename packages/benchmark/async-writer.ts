@@ -1,9 +1,12 @@
 import { createWriteStream, writeFileSync } from 'fs';
-import { barplot, bench, run, summary } from 'mitata';
+import { barplot, bench, summary } from 'mitata';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
 import { Writable } from 'stream';
+import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
+
+const cli = parseMitataCliArgs();
 
 // Node.js Writable을 Web WritableStream으로 변환
 function nodeStreamToWritableStream(nodeStream: Writable): WritableStream<Uint8Array> {
@@ -177,7 +180,9 @@ function generateXmlWithSyncWriter(numElements: number): string {
 }
 
 
-console.log('📊 XML Writer Benchmark - Async vs Sync Comparison');
+if (shouldPrintHumanReadableBanner(cli)) {
+  console.log('📊 XML Writer Benchmark - Async vs Sync Comparison');
+}
 
 const tempDir = tmpdir();
 
@@ -224,4 +229,4 @@ barplot(() => {
   });
 });
 
-await run();
+await runMitataWithCli(cli);

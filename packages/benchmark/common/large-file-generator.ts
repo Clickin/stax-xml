@@ -1,6 +1,7 @@
 export interface LargeStreamConfig {
   sizeGB: number;
   chunkSize?: number;
+  verbose?: boolean;
 }
 
 /**
@@ -8,7 +9,7 @@ export interface LargeStreamConfig {
  * without writing to disk. Memory-efficient and safe for concurrent tests.
  */
 export function createLargeXMLStream(config: LargeStreamConfig): ReadableStream<Uint8Array> {
-  const { sizeGB, chunkSize = 1024 * 64 } = config; // 64KB default chunk size
+  const { sizeGB, chunkSize = 1024 * 64, verbose = true } = config; // 64KB default chunk size
 
   const targetSize = sizeGB * 1024 * 1024 * 1024;
   const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
@@ -40,9 +41,11 @@ export function createLargeXMLStream(config: LargeStreamConfig): ReadableStream<
   const contentSize = targetSize - headerSize - footerSize;
   const numElements = Math.floor(contentSize / elementSize);
 
-  console.log(`📊 Creating ${sizeGB}GB XML stream`);
-  console.log(`📊 Element size: ${elementSize} bytes`);
-  console.log(`📊 Number of elements: ${numElements.toLocaleString()}`);
+  if (verbose) {
+    console.log(`📊 Creating ${sizeGB}GB XML stream`);
+    console.log(`📊 Element size: ${elementSize} bytes`);
+    console.log(`📊 Number of elements: ${numElements.toLocaleString()}`);
+  }
 
   return new ReadableStream<Uint8Array>({
     start(controller) {
@@ -88,7 +91,9 @@ export function createLargeXMLStream(config: LargeStreamConfig): ReadableStream<
           controller.enqueue(encoder.encode(xmlFooter));
           written += footerSize;
           controller.close();
-          console.log(`✅ Generated ${(written / 1024 / 1024).toFixed(2)} MB XML stream with ${currentId.toLocaleString()} elements`);
+          if (verbose) {
+            console.log(`✅ Generated ${(written / 1024 / 1024).toFixed(2)} MB XML stream with ${currentId.toLocaleString()} elements`);
+          }
         } else {
           // Schedule next chunk asynchronously
           setImmediate(generateChunk);
@@ -106,7 +111,7 @@ export function createLargeXMLStream(config: LargeStreamConfig): ReadableStream<
  * without writing to disk. Memory-efficient and safe for concurrent tests.
  */
 export function createLargeJSONStream(config: LargeStreamConfig): ReadableStream<Uint8Array> {
-  const { sizeGB, chunkSize = 1024 * 64 } = config; // 64KB default chunk size
+  const { sizeGB, chunkSize = 1024 * 64, verbose = true } = config; // 64KB default chunk size
 
   const targetSize = sizeGB * 1024 * 1024 * 1024;
   const jsonHeader = '{\n  "books": [\n';
@@ -134,9 +139,11 @@ export function createLargeJSONStream(config: LargeStreamConfig): ReadableStream
   const contentSize = targetSize - headerSize - footerSize;
   const numElements = Math.floor(contentSize / elementSize);
 
-  console.log(`📊 Creating ${sizeGB}GB JSON stream`);
-  console.log(`📊 Element size: ${elementSize} bytes`);
-  console.log(`📊 Number of elements: ${numElements.toLocaleString()}`);
+  if (verbose) {
+    console.log(`📊 Creating ${sizeGB}GB JSON stream`);
+    console.log(`📊 Element size: ${elementSize} bytes`);
+    console.log(`📊 Number of elements: ${numElements.toLocaleString()}`);
+  }
 
   return new ReadableStream<Uint8Array>({
     start(controller) {
@@ -185,7 +192,9 @@ export function createLargeJSONStream(config: LargeStreamConfig): ReadableStream
           controller.enqueue(encoder.encode(jsonFooter));
           written += footerSize;
           controller.close();
-          console.log(`✅ Generated ${(written / 1024 / 1024).toFixed(2)} MB JSON stream with ${currentId.toLocaleString()} objects`);
+          if (verbose) {
+            console.log(`✅ Generated ${(written / 1024 / 1024).toFixed(2)} MB JSON stream with ${currentId.toLocaleString()} objects`);
+          }
         } else {
           // Schedule next chunk asynchronously
           setImmediate(generateChunk);

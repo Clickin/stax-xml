@@ -11,10 +11,17 @@ import {
 } from './types.js';
 import type { XmlObjectSchema, XmlObjectShape } from './XmlObjectSchema.js';
 import type { ParserEventFilter } from '../types.js';
-import type { CompiledSchemaPlan, ObjectFieldTemplate, RootFieldPlan } from './compiled-plan.js';
+import type {
+  ActivationMatchProfile,
+  CollectorKind,
+  CompiledSchemaPlan,
+  ObjectFieldTemplate,
+  RootFieldPlan
+} from './compiled-plan.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
-import { XPathCompiler, type CompiledXPath } from './XPathEngine.js';
+import { createXPathMatcherTemplate, XPathCompiler, type CompiledXPath } from './XPathEngine.js';
 
+const SYNTHETIC_ROOT_FIELD = '__root__';
 
 export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Output, Input> {
   private readonly plan: CompiledSchemaPlan;
@@ -28,12 +35,9 @@ export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Out
       return;
     }
     const unwrapped = unwrapSchema(schema);
-    if (!isObjectSchema(unwrapped)) {
-      throw new Error('compile() supports only XmlObjectSchema root');
-    }
     assertNoCompiledSchema(unwrapped);
     this.schema = schema;
-    this.plan = buildCompiledPlan(unwrapped);
+    this.plan = buildCompiledPlan(schema, unwrapped);
   }
 
   get schemaType(): XmlSchemaBase<Output, Input>['schemaType'] {
@@ -81,7 +85,10 @@ const defaultEventFilter: ParserEventFilter = {
   includeCdata: true
 };
 
-function buildCompiledPlan(schema: XmlObjectSchema<XmlObjectShape>): CompiledSchemaPlan {
+function buildCompiledPlan(
+  schema: XmlSchemaBase<unknown, unknown>,
+  unwrappedRoot: XmlSchemaBase<unknown, unknown>
+): CompiledSchemaPlan {
   const objectFieldTemplates = new WeakMap<XmlObjectSchema<XmlObjectShape>, ObjectFieldTemplate[]>();
   const rootPlan: RootFieldPlan[] = [];
   const eventFilter: ParserEventFilter = {
@@ -111,7 +118,7 @@ function buildCompiledPlan(schema: XmlObjectSchema<XmlObjectShape>): CompiledSch
     for (const [fieldName, fieldSchema] of Object.entries(objectSchema.shape)) {
       const xpath = extractXPath(fieldSchema);
       if (xpath) {
-        templates.push({ fieldName, schema: fieldSchema, xpath });
+        templates.push(buildObjectFieldTemplate(fieldName, fieldSchema, xpath));
         recordXPath(xpath, fieldSchema);
       }
       traverseSchema(fieldSchema);
@@ -145,44 +152,66 @@ function buildCompiledPlan(schema: XmlObjectSchema<XmlObjectShape>): CompiledSch
     }
   };
 
-  for (const [fieldName, fieldSchema] of Object.entries(schema.shape)) {
-    const xpath = extractXPath(fieldSchema);
-    const unwrapped = unwrapSchema(fieldSchema);
+  if (isObjectSchema(unwrappedRoot) && !extractXPath(unwrappedRoot)) {
+    for (const [fieldName, fieldSchema] of Object.entries(unwrappedRoot.shape)) {
+      traverseSchema(fieldSchema);
+      const xpath = extractXPath(fieldSchema);
+      const unwrapped = unwrapSchema(fieldSchema);
 
-    if (!xpath && isObjectSchema(unwrapped)) {
-      const childTemplates = collectObjectTemplates(unwrapped);
-      rootPlan.push({ kind: 'object', fieldName, schema: fieldSchema, childTemplates });
-      continue;
-    }
-
-    if (!xpath && isArraySchema(unwrapped)) {
-      const elementXPath = extractXPath(unwrapped.element);
-      if (elementXPath) {
-        recordXPath(elementXPath, unwrapped.element);
-        rootPlan.push({ kind: 'array', fieldName, schema: fieldSchema, elementXPath });
+      if (!xpath && isObjectSchema(unwrapped)) {
+        const childTemplates = collectObjectTemplates(unwrapped);
+        rootPlan.push({ kind: 'object', fieldName, schema: fieldSchema, childTemplates });
+        continue;
       }
-      continue;
+
+      if (!xpath && isArraySchema(unwrapped)) {
+        const elementXPath = extractXPath(unwrapped.element);
+        if (elementXPath) {
+          recordXPath(elementXPath, unwrapped.element);
+          rootPlan.push({ kind: 'array', fieldName, schema: fieldSchema, elementXPath });
+        }
+        continue;
+      }
+
+      if (xpath) {
+        rootPlan.push({ kind: 'direct', fieldName, schema: fieldSchema, xpath });
+        recordXPath(xpath, fieldSchema);
+      }
+    }
+  } else {
+    const xpath = extractXPath(schema);
+    if (!xpath) {
+      throw new Error('compile() requires an xpath for non-object roots and xpath-scoped object roots');
     }
 
-    if (xpath) {
-      rootPlan.push({ kind: 'direct', fieldName, schema: fieldSchema, xpath });
-      recordXPath(xpath, fieldSchema);
-      continue;
-    }
+    traverseSchema(schema);
+    rootPlan.push({
+      kind: 'direct',
+      fieldName: SYNTHETIC_ROOT_FIELD,
+      schema,
+      xpath
+    });
+    recordXPath(xpath, schema);
   }
 
   if (!eventFilter.includeAttributes && !eventFilter.includeCharacters && !eventFilter.includeCdata) {
     return {
       rootPlan,
       objectFieldTemplates,
-      eventFilter: { ...defaultEventFilter }
+      eventFilter: { ...defaultEventFilter },
+      rootFieldName: rootPlan.length === 1 && rootPlan[0].fieldName === SYNTHETIC_ROOT_FIELD
+        ? SYNTHETIC_ROOT_FIELD
+        : undefined
     };
   }
 
   return {
     rootPlan,
     objectFieldTemplates,
-    eventFilter
+    eventFilter,
+    rootFieldName: rootPlan.length === 1 && rootPlan[0].fieldName === SYNTHETIC_ROOT_FIELD
+      ? SYNTHETIC_ROOT_FIELD
+      : undefined
   };
 }
 
@@ -215,6 +244,82 @@ function extractXPath(schema: XmlSchemaBase<unknown, unknown>): string | undefin
   }
 
   return undefined;
+}
+
+function buildObjectFieldTemplate(
+  fieldName: string,
+  schema: XmlSchemaBase<unknown, unknown>,
+  xpath: string
+): ObjectFieldTemplate {
+  const unwrappedSchema = unwrapSchema(schema);
+  const matcherTemplate = createXPathMatcherTemplate(xpath);
+
+  return {
+    fieldName,
+    schema,
+    unwrappedSchema,
+    xpath,
+    matcherTemplate,
+    collectorKind: getCollectorKind(unwrappedSchema),
+    isArraySchema: isArraySchema(unwrappedSchema),
+    isAttributeSelector: matcherTemplate.attributeSelector,
+    attributeName: matcherTemplate.attributeName,
+    isTextNodeSelector: matcherTemplate.textNodeSelector,
+    matchProfile: createMatchProfile(xpath)
+  };
+}
+
+function getCollectorKind(schema: XmlSchemaBase<unknown, unknown>): CollectorKind {
+  if (isStringSchema(schema)) return 'string';
+  if (isNumberSchema(schema)) return 'number';
+  if (isArraySchema(schema)) return 'array';
+  if (isObjectSchema(schema)) return 'object';
+  return 'string';
+}
+
+function createMatchProfile(xpath: string): ActivationMatchProfile {
+  if (xpath.startsWith('./')) {
+    const relativePath = xpath.slice(2);
+
+    if (relativePath.startsWith('@')) {
+      return { mode: 'relative-attribute' };
+    }
+
+    const pathSegments = relativePath.split('/').filter(segment => segment.length > 0);
+
+    if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 1].startsWith('@')) {
+      const elementSegment = pathSegments[pathSegments.length - 2];
+      return {
+        mode: 'relative-element',
+        expectedDepthOffset: pathSegments.length - 1,
+        expectedElementName: elementSegment.split('[')[0]
+      };
+    }
+
+    if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 1] === 'text()') {
+      const elementSegment = pathSegments[pathSegments.length - 2];
+      return {
+        mode: 'relative-element',
+        expectedDepthOffset: pathSegments.length - 1,
+        expectedElementName: elementSegment.split('[')[0]
+      };
+    }
+
+    if (pathSegments.length > 0) {
+      const lastSegment = pathSegments[pathSegments.length - 1];
+      return {
+        mode: 'relative-element',
+        expectedDepthOffset: pathSegments.length,
+        expectedElementName: lastSegment.split('[')[0]
+      };
+    }
+  }
+
+  if (xpath.startsWith('//')) {
+    return { mode: 'descendant' };
+  }
+
+  return { mode: 'default' };
 }
 
 function schemaNeedsText(schema: XmlSchemaBase<unknown, unknown>, compiled: CompiledXPath): boolean {

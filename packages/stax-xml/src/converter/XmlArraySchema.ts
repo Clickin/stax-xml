@@ -1,5 +1,6 @@
 import { XmlSchemaBase, type ParseInput } from './base.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
+import { isAsyncEventIterator } from './AsyncEventBatchIterator.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
@@ -46,10 +47,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
   ): T['_output'][] | Promise<T['_output'][]> {
     const parser = new XmlParserInternal(options);
 
-    // Check if async iterator by checking constructor name
-    const iteratorConstructorName = iterator?.constructor?.name || '';
-    if (iteratorConstructorName === 'StaxXmlParser' || iteratorConstructorName.includes('Async')) {
-      // Async iterator
+    if (isAsyncEventIterator(iterator)) {
       return parser.parseArrayFromPosition(
         iterator as AsyncIterator<AnyXmlEvent>,
         startEvent,

@@ -43,18 +43,6 @@ export interface StaxXmlParserOptions {
   enableBufferCompaction?: boolean;
 
   /**
-   * Number of events to batch together
-   * @defaultValue 1
-   */
-  batchSize?: number;
-
-  /**
-   * Timeout for batch processing in milliseconds
-   * @defaultValue 0
-   */
-  batchTimeout?: number;
-
-  /**
    * Initial event queue capacity (circular buffer size)
    * @defaultValue 1024
    */
@@ -112,13 +100,10 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
   private pendingTail = '';
 
   private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
+  private resolveBatchReady: (() => void) | null = null;
   private error: Error | null = null;
   private parserFinished = false;
-  private batchMetrics = {
-    avgEventSize: 100,
-    lastBatchTime: 0,
-    eventCount: 0,
-  };
+  private documentStarted = false;
 
   constructor(xmlStream: ReadableStream<Uint8Array>, options: StaxXmlParserOptions = {}) {
     if (!(xmlStream instanceof ReadableStream)) {
@@ -130,8 +115,6 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
       autoDecodeEntities: true,
       maxBufferSize: 64 * 1024,
       enableBufferCompaction: true,
-      batchSize: 10,
-      batchTimeout: 10,
       initialQueueCapacity: 1024,
       ...options,
     };
@@ -145,7 +128,6 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     this.eventQueue = new Array(this.options.initialQueueCapacity ?? 1024);
     this.reader = xmlStream.getReader();
 
-    this.enqueueEvent(XmlEventFactory.startDocument());
     void this.startReading();
   }
 
@@ -159,10 +141,7 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     }
 
     if (this.queueSize > 0) {
-      const event = this.eventQueue[this.queueHead]!;
-      this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
-      this.queueSize--;
-      return { value: event, done: false };
+      return { value: this.dequeueEvent(), done: false };
     }
 
     if (this.parserFinished) {
@@ -182,36 +161,39 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     this.pendingTail = '';
     this.pendingTextSegments.length = 0;
     await this.reader.cancel();
+    this.resolveBatchReadyIfNeeded();
     this.resolveDoneIfNeeded();
     return { value: undefined, done: true };
   }
 
-  async nextBatch(size?: number): Promise<AnyXmlEvent[]> {
-    const batch: AnyXmlEvent[] = [];
-    const targetSize = size ?? this.calculateOptimalBatchSize();
-    const timeout = this.options.batchTimeout ?? 10;
-    const startedAt = Date.now();
+  async nextBatch(): Promise<AnyXmlEvent[]> {
+    if (this.error) {
+      throw this.error;
+    }
 
-    for (let index = 0; index < targetSize; index++) {
-      if (Date.now() - startedAt > timeout) {
-        break;
-      }
+    if (this.queueSize === 0 && !this.parserFinished) {
+      await this.waitForBatchReady();
+    }
 
-      const next = await this.next();
-      if (next.done) {
-        break;
-      }
+    if (this.error) {
+      throw this.error;
+    }
 
-      batch.push(next.value);
-      this.updateBatchMetrics(next.value);
+    if (this.queueSize === 0) {
+      return [];
+    }
+
+    const batch = new Array<AnyXmlEvent>(this.queueSize);
+    for (let index = 0; index < batch.length; index++) {
+      batch[index] = this.dequeueEvent();
     }
 
     return batch;
   }
 
-  async *batchedIterator(batchSize?: number): AsyncGenerator<AnyXmlEvent[]> {
+  async *batchedIterator(): AsyncGenerator<AnyXmlEvent[]> {
     while (!this.parserFinished || this.queueSize > 0) {
-      const batch = await this.nextBatch(batchSize);
+      const batch = await this.nextBatch();
       if (batch.length === 0) {
         break;
       }
@@ -227,6 +209,8 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     try {
       while (!this.parserFinished) {
         const { done, value } = await this.reader.read();
+        this.enqueueStartDocumentIfNeeded();
+
         if (done) {
           const flushed = this.decoder.decode();
           this.processDecodedChunk(flushed, true);
@@ -247,11 +231,13 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
             this.parserFinished = true;
             this.resolveDoneIfNeeded();
           }
+          this.resolveBatchReadyIfNeeded();
           break;
         }
 
         const decoded = this.decoder.decode(value, { stream: true });
         this.processDecodedChunk(decoded, false);
+        this.resolveBatchReadyIfNeeded();
       }
     } catch (error) {
       this.addError(error as Error);
@@ -679,11 +665,16 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
       const resolve = this.resolveNext;
       this.resolveNext = null;
       // Dequeue the event we just enqueued and resolve the pending consumer
-      const next = this.eventQueue[this.queueHead]!;
-      this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
-      this.queueSize--;
+      const next = this.dequeueEvent();
       resolve({ value: next, done: false });
     }
+  }
+
+  private dequeueEvent(): AnyXmlEvent {
+    const event = this.eventQueue[this.queueHead]!;
+    this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
+    this.queueSize--;
+    return event;
   }
 
   private growQueue(): void {
@@ -698,39 +689,6 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     this.queueTail = this.queueSize;
   }
 
-  private calculateOptimalBatchSize(): number {
-    const minBatch = 1;
-    const maxBatch = this.options.batchSize ?? 10;
-
-    if (this.queueSize === 0) {
-      return minBatch;
-    }
-
-    const headEvent = this.eventQueue[this.queueHead];
-    if (headEvent?.type === XmlEventType.CHARACTERS) {
-      return minBatch;
-    }
-
-    if (this.batchMetrics.eventCount > 100) {
-      if (this.batchMetrics.avgEventSize > 1000) {
-        return minBatch;
-      }
-      if (this.batchMetrics.avgEventSize < 100) {
-        return maxBatch;
-      }
-    }
-
-    return Math.min(maxBatch, Math.max(minBatch, this.queueSize));
-  }
-
-  private updateBatchMetrics(event: AnyXmlEvent): void {
-    const approxSize = JSON.stringify(event).length;
-    this.batchMetrics.eventCount += 1;
-    this.batchMetrics.avgEventSize =
-      (this.batchMetrics.avgEventSize * 0.9) + (approxSize * 0.1);
-    this.batchMetrics.lastBatchTime = Date.now();
-  }
-
   private addError(error: Error): void {
     if (this.error !== null) {
       return;
@@ -741,6 +699,7 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     this.parserFinished = true;
     this.pendingTail = '';
     this.pendingTextSegments.length = 0;
+    this.resolveBatchReadyIfNeeded();
     this.resolveDoneIfNeeded();
   }
 
@@ -750,6 +709,33 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
       this.resolveNext = null;
       resolve({ value: undefined, done: true });
     }
+  }
+
+  private waitForBatchReady(): Promise<void> {
+    if (this.queueSize > 0 || this.parserFinished || this.error) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      this.resolveBatchReady = resolve;
+    });
+  }
+
+  private resolveBatchReadyIfNeeded(): void {
+    if (this.resolveBatchReady !== null && (this.queueSize > 0 || this.parserFinished || this.error)) {
+      const resolve = this.resolveBatchReady;
+      this.resolveBatchReady = null;
+      resolve();
+    }
+  }
+
+  private enqueueStartDocumentIfNeeded(): void {
+    if (this.documentStarted) {
+      return;
+    }
+
+    this.documentStarted = true;
+    this.enqueueEvent(XmlEventFactory.startDocument());
   }
 
   private findTagEnd(window: string, start: number): number {

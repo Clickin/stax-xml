@@ -1,6 +1,10 @@
-import { barplot, bench, run, summary } from 'mitata';
+import { barplot, bench, summary } from 'mitata';
 import { StaxXmlParser, StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 import { createLargeXMLStream, type LargeStreamConfig } from './common/large-file-generator.js';
+
+const cli = parseMitataCliArgs();
+const verboseStreams = shouldPrintHumanReadableBanner(cli);
 
 // Async StAX XML Parser 테스트
 async function testAsyncStaxParser(stream: ReadableStream<Uint8Array>): Promise<number> {
@@ -99,24 +103,25 @@ function testSyncStaxParser(xmlContent: string): number {
 }
 
 async function main() {
-  console.log('🚀 Async XML Parser Benchmark - Performance Test with mitata');
-  console.log('============================================================');
-
-  console.log('\n📊 Running mitata benchmarks...');
+  if (shouldPrintHumanReadableBanner(cli)) {
+    console.log('🚀 Async XML Parser Benchmark - Performance Test with mitata');
+    console.log('============================================================');
+    console.log('\n📊 Running mitata benchmarks...');
+  }
 
   // mitata 벤치마크 실행
   barplot(() => {
     summary(() => {
       // 1MB 스트림 테스트
       bench('async parser (1MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.001 });
+        const stream = createLargeXMLStream({ sizeGB: 0.001, verbose: verboseStreams });
         const events = await testAsyncStaxParser(stream);
         return events;
       }).gc('inner');
 
       bench('sync parser (1MB)', async () => {
         // For sync parser, we need to collect all data first
-        const stream = createLargeXMLStream({ sizeGB: 0.001 });
+        const stream = createLargeXMLStream({ sizeGB: 0.001, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -141,13 +146,13 @@ async function main() {
 
       // 10MB 스트림 테스트
       bench('async parser (10MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.01 });
+        const stream = createLargeXMLStream({ sizeGB: 0.01, verbose: verboseStreams });
         const events = await testAsyncStaxParser(stream);
         return events;
       }).gc('inner');
 
       bench('sync parser (10MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.01 });
+        const stream = createLargeXMLStream({ sizeGB: 0.01, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -172,13 +177,13 @@ async function main() {
 
       // 100MB 스트림 테스트
       bench('async parser (100MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.1 });
+        const stream = createLargeXMLStream({ sizeGB: 0.1, verbose: verboseStreams });
         const events = await testAsyncStaxParser(stream);
         return events;
       }).gc('inner');
 
       bench('sync parser (100MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.1 });
+        const stream = createLargeXMLStream({ sizeGB: 0.1, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -204,19 +209,21 @@ async function main() {
       // 1GB 스트림 테스트 (async만 - sync는 메모리 한계로 제외)
       // javascript max string length가 2^53 - 1(약 900MB) 이므로 1GB xml을 string으로 읽을 수 없음
       bench('async parser (1GB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 1.0 });
+        const stream = createLargeXMLStream({ sizeGB: 1.0, verbose: verboseStreams });
         const events = await testAsyncStaxParser(stream);
         return events;
       }).gc('inner');
     });
   });
 
-  await run();
+  await runMitataWithCli(cli);
 
-  console.log('\n✅ Benchmark completed!');
-  console.log('📝 Note: Streams are generated on-the-fly without disk I/O');
-  console.log('📝 Note: Sync parser tested up to 100MB due to memory limitations');
-  console.log('🚀 1GB stream test demonstrates the streaming capability of async parser');
+  if (shouldPrintHumanReadableBanner(cli)) {
+    console.log('\n✅ Benchmark completed!');
+    console.log('📝 Note: Streams are generated on-the-fly without disk I/O');
+    console.log('📝 Note: Sync parser tested up to 100MB due to memory limitations');
+    console.log('🚀 1GB stream test demonstrates the streaming capability of async parser');
+  }
 }
 
 // 메인 실행
