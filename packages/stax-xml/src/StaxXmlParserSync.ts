@@ -559,51 +559,6 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     return code >= 0xDC00 && code <= 0xDFFF;
   }
 
-  private findChar(targetCode: number, start: number = this.pos): number {
-    const xml = this.xml;
-    const len = this.xmlLength;
-    const len16 = len - 15;
-    let i = start;
-
-    // 16-byte unrolling
-    for (; i < len16; i += 16) {
-      if (xml.charCodeAt(i) === targetCode) return i;
-      if (xml.charCodeAt(i + 1) === targetCode) return i + 1;
-      if (xml.charCodeAt(i + 2) === targetCode) return i + 2;
-      if (xml.charCodeAt(i + 3) === targetCode) return i + 3;
-      if (xml.charCodeAt(i + 4) === targetCode) return i + 4;
-      if (xml.charCodeAt(i + 5) === targetCode) return i + 5;
-      if (xml.charCodeAt(i + 6) === targetCode) return i + 6;
-      if (xml.charCodeAt(i + 7) === targetCode) return i + 7;
-      if (xml.charCodeAt(i + 8) === targetCode) return i + 8;
-      if (xml.charCodeAt(i + 9) === targetCode) return i + 9;
-      if (xml.charCodeAt(i + 10) === targetCode) return i + 10;
-      if (xml.charCodeAt(i + 11) === targetCode) return i + 11;
-      if (xml.charCodeAt(i + 12) === targetCode) return i + 12;
-      if (xml.charCodeAt(i + 13) === targetCode) return i + 13;
-      if (xml.charCodeAt(i + 14) === targetCode) return i + 14;
-      if (xml.charCodeAt(i + 15) === targetCode) return i + 15;
-    }
-
-    for (; i < len; i++) {
-      if (xml.charCodeAt(i) === targetCode) return i;
-    }
-
-    return -1;
-  }
-
-  private matchesAt(str: string, pos: number): boolean {
-    const len = str.length;
-    if (pos + len > this.xmlLength) return false;
-
-    for (let i = 0; i < len; i++) {
-      if (this.xml.charCodeAt(pos + i) !== str.charCodeAt(i)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private trimmedSlice(start: number, end: number): string {
     const xml = this.xml;
 
