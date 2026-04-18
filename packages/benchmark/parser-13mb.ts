@@ -73,7 +73,11 @@ function staxXmlCursorConsume() {
 }
 
 async function xml2jsParser() {
-  await xml2js.parseStringPromise(xmlString);
+  xml2js.parseString(xmlString, function (err) {
+    if (err) {
+      throw err;
+    }
+  });
 }
 
 function txmlParser() {

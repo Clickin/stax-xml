@@ -26,6 +26,7 @@ head:
 
 - [StaxXmlParser](/stax-xml/ko/api-guides/staxxml-parser/) - 비동기 XML 파싱
 - [StaxXmlParserSync](/stax-xml/ko/api-guides/staxxml-parser-sync/) - 동기 XML 파싱
+- [StaxXmlStreamReaderSync](/stax-xml/ko/api-guides/staxxml-parser-sync/) - 저할당 cursor 스타일 동기 XML 읽기
 - [StaxXmlWriter](/stax-xml/ko/api-guides/staxxml-writer/) - 비동기 XML 작성
 - [StaxXmlWriterSync](/stax-xml/ko/api-guides/staxxml-writer-sync/) - 동기 XML 작성
 

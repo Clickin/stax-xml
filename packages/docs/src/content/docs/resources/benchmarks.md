@@ -24,11 +24,13 @@ StAX-XML is designed for high performance across various XML processing scenario
 
 ## Benchmark Environment
 
-All benchmarks are conducted with:
+The refreshed parser comparison tables on this page were rerun with:
 - **CPU**: 13th Gen Intel(R) Core(TM) i5-13600K (~4.70-4.80 GHz)
-- **Runtime**: Node.js 22.17.0 (x64-win32) with garbage collection exposed (`--expose-gc`)
+- **Runtime**: Node.js 24.12.0 (x64-win32) with garbage collection exposed (`--expose-gc`)
 - **Tool**: [Mitata](https://github.com/evanw/mitata) for accurate performance measurement
 - **Libraries Compared**: fast-xml-parser, xml2js, txml, and StAX-XML
+
+Async size-comparison and writer sections later on this page are older reference measurements and were not rerun as part of this release.
 
 ## Parser Performance
 
@@ -38,11 +40,11 @@ For typical web service responses and configuration files (complex.xml):
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 9.51 µs | ~105,263 ops/sec | 2.09 kb | Fastest, lightweight |
-| **stax-xml consume** | 170.03 µs | ~5,882 ops/sec | 73.12 kb | Stream processing |
-| **stax-xml to object** | 173.19 µs | ~5,774 ops/sec | 75.37 kb | Object conversion |
-| fast-xml-parser | 267.11 µs | ~3,744 ops/sec | 115.67 kb | DOM-based |
-| xml2js | 543.60 µs | ~1,840 ops/sec | 219.80 kb | Callback-based, memory intensive |
+| **txml** | 121.03 µs | ~8,262 ops/sec | 26.41 kb | Fastest, lightweight |
+| **stax-xml to object** | 260.88 µs | ~3,833 ops/sec | 28.51 kb | Object conversion |
+| **stax-xml consume** | 269.33 µs | ~3,713 ops/sec | 24.28 kb | Stream processing |
+| fast-xml-parser | 555.92 µs | ~1,799 ops/sec | 129.73 kb | DOM-based |
+| xml2js | 1.00 ms | ~1,000 ops/sec | 203.56 kb | Callback-based, memory intensive |
 
 ### Medium Documents (4KB)
 
@@ -50,11 +52,11 @@ For larger API responses and data files (books.xml):
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 18.87 µs | ~53,004 ops/sec | 3.17 kb | Fastest, lightweight |
-| **stax-xml to object** | 218.85 µs | ~4,569 ops/sec | 193.37 kb | Object conversion |
-| **stax-xml consume** | 222.93 µs | ~4,486 ops/sec | 194.87 kb | Stream processing |
-| fast-xml-parser | 388.58 µs | ~2,574 ops/sec | 513.58 kb | Good balance |
-| xml2js | 777.43 µs | ~1,286 ops/sec | 773.91 kb | Memory intensive |
+| **txml** | 126.53 µs | ~7,903 ops/sec | 46.32 kb | Fastest, lightweight |
+| **stax-xml consume** | 295.36 µs | ~3,386 ops/sec | 45.30 kb | Stream processing |
+| **stax-xml to object** | 342.66 µs | ~2,918 ops/sec | 52.95 kb | Object conversion |
+| fast-xml-parser | 727.33 µs | ~1,375 ops/sec | 560.08 kb | Good balance |
+| xml2js | 1.28 ms | ~781 ops/sec | 544.96 kb | Memory intensive |
 
 ### Large Documents (1MB to 1GB)
 
@@ -85,11 +87,12 @@ Performance results on midsize.xml (13MB):
 
 | Library | Average Time | Operations/sec | Memory Usage | Performance Notes |
 |---------|--------------|----------------|--------------|------------------|
-| **xml2js** | 518.94 µs | ~1,927 ops/sec | 391.08 kb | Exceptional performance* |
-| **txml** | 108.09 ms | ~9.3 ops/sec | 125.62 mb | Lightweight DOM |
-| **stax-xml consume** | 142.40 ms | ~7.0 ops/sec | 15.39 mb | Stream processing |
-| **stax-xml to object** | 146.14 ms | ~6.8 ops/sec | 13.78 mb | Object conversion |
-| fast-xml-parser | 533.81 ms | ~1.9 ops/sec | 126.26 mb | Memory intensive |
+| **xml2js** | 663.47 µs | ~1,507 ops/sec | 323.69 kb | Exceptional performance* |
+| **stax-xml cursor consume** | 66.18 ms | ~15.1 ops/sec | 214.37 kb | Lowest-allocation StAX path |
+| **stax-xml consume** | 89.07 ms | ~11.2 ops/sec | 4.93 mb | Stream processing |
+| **stax-xml to object** | 95.21 ms | ~10.5 ops/sec | 35.41 mb | Object conversion |
+| **txml** | 128.58 ms | ~7.8 ops/sec | 126.90 mb | Lightweight DOM |
+| fast-xml-parser | 642.49 ms | ~1.6 ops/sec | 128.11 mb | Memory intensive |
 
 *xml2js shows exceptional performance on this 13MB file (1000x faster than normal), likely due to the XML structure being optimized for DOM parsing environments with frequent element reuse and shallow nesting.
 
@@ -99,15 +102,15 @@ Performance results on large.xml (98MB):
 
 | Library | Average Time | Operations/sec | Memory Usage | Performance Notes |
 |---------|--------------|----------------|--------------|------------------|
-| **stax-xml consume** | 1.02 s | ~0.98 ops/sec | 13.88 mb | Best overall |
-| **txml** | 1.02 s | ~0.98 ops/sec | 897.50 mb | High memory |
-| **stax-xml to object** | 1.05 s | ~0.95 ops/sec | 8.89 mb | Memory efficient |
-| fast-xml-parser | 4.41 s | ~0.23 ops/sec | 886.33 mb | Slow, memory intensive |
-| xml2js | 6.06 s | ~0.17 ops/sec | 608.21 mb | Slowest performance |
+| **stax-xml consume** | 660.41 ms | ~1.51 ops/sec | 35.12 mb | Best overall |
+| **stax-xml to object** | 676.93 ms | ~1.48 ops/sec | 7.38 mb | Memory efficient |
+| **txml** | 1.93 s | ~0.52 ops/sec | 890.28 mb | High memory |
+| fast-xml-parser | 7.85 s | ~0.13 ops/sec | 1.08 gb | Slow, memory intensive |
+| xml2js | 9.30 s | ~0.11 ops/sec | 656.68 mb | Slowest performance |
 
 **Performance Crossover Analysis:**
-- **Small files (2-4KB)**: txml dominates (~50,000-100,000 ops/sec)
-- **Medium files (13MB)**: xml2js exceptional performance due to DOM-optimized structure
+- **Small files (2-4KB)**: txml still leads raw parser throughput
+- **Medium files (13MB)**: `StaxXmlStreamReaderSync` is the fastest StAX path, while xml2js remains an anomalous outlier on this fixture
 - **Large files (98MB)**: StAX-XML provides best balance of speed and memory efficiency
 - **Very large files (1GB+)**: Only async parsers remain viable
 

@@ -60,16 +60,19 @@ describe('Attribute Prefix Support Tests', () => {
     expect(pageEvent.attributesWithPrefix).toBeDefined();
     expect(pageEvent.attributesWithPrefix.id).toEqual({
       value: 'p1',
+      localName: 'id',
       prefix: undefined,
       uri: undefined
     });
-    expect(pageEvent.attributesWithPrefix.author).toEqual({
+    expect(pageEvent.attributesWithPrefix['meta:author']).toEqual({
       value: '김민준',
+      localName: 'author',
       prefix: 'meta',
       uri: 'http://www.example.com/metadata'
     });
-    expect(pageEvent.attributesWithPrefix.status).toEqual({
+    expect(pageEvent.attributesWithPrefix['meta:status']).toEqual({
       value: 'draft',
+      localName: 'status',
       prefix: 'meta',
       uri: 'http://www.example.com/metadata'
     });
@@ -85,13 +88,15 @@ describe('Attribute Prefix Support Tests', () => {
     expect(aEvent.attributes['html:target']).toBe('_blank');
 
     // attributesWithPrefix 확인
-    expect(aEvent.attributesWithPrefix.href).toEqual({
+    expect(aEvent.attributesWithPrefix['html:href']).toEqual({
       value: 'http://www.w3.org/TR/REC-xml-names/',
+      localName: 'href',
       prefix: 'html',
       uri: 'http://www.w3.org/1999/xhtml'
     });
-    expect(aEvent.attributesWithPrefix.target).toEqual({
+    expect(aEvent.attributesWithPrefix['html:target']).toEqual({
       value: '_blank',
+      localName: 'target',
       prefix: 'html',
       uri: 'http://www.w3.org/1999/xhtml'
     });
