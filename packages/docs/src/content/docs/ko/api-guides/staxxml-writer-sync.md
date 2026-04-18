@@ -200,14 +200,15 @@ export default app;
 Node.js/Bun/Deno는 기본 import를 건드리지 않도록 런타임별 어댑터 경로를 사용하세요.
 
 ```typescript
-import { createWriteStream } from 'fs';
+import { openSync } from 'fs';
 import { StaxXmlWriterSyncSink } from 'stax-xml';
-import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
 import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
+const fd = openSync('./catalog.xml', 'w');
 const writer = new StaxXmlWriterSyncSink(
-  createNodeSyncTextSink(createWriteStream('./catalog.xml'), { closeMethod: 'close' }),
+  createNodeFileSyncTextSink(fd),
   {
     bufferSize: 4096,
     enableAutoFlush: true,
@@ -233,8 +234,8 @@ writer.close(); // 버퍼 flush + 출력 대상 종료
 // const denoWriter = new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
-`writer.flush()`는 버퍼를 즉시 비우고,
-`writer.close()`는 마지막 정리를 담당합니다.
+`writer.flush()`는 writer 버퍼를 비우고 가능하면 `sink.flush()`도 호출합니다.
+`writer.close()`는 필요하면 문서를 마무리하고, 설정에 따라 `sink.flush()`를 호출한 뒤 target을 닫습니다.
 
 ##### 고급 라이터 기능
 

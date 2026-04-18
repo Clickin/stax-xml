@@ -39,7 +39,7 @@ export interface StaxXmlWriterSyncSinkOptions extends StaxXmlWriterSyncOptions {
   enableAutoFlush?: boolean;
 
   /**
-   * Whether to flush the sink after writeEndDocument() closes this writer.
+   * Whether to call sink.flush() when the writer is finalized.
    * @defaultValue false
    */
   flushOnClose?: boolean;
@@ -527,34 +527,79 @@ export class StaxXmlWriterSyncSink extends AbstractStaxXmlWriterSync {
   }
 
   protected _emit(chunk: string): void {
-    this.buffer += chunk;
-    if (this.enableAutoFlush && this.buffer.length >= this.flushThreshold) {
-      this.flush();
+    if (chunk.length === 0) {
+      return;
+    }
+
+    let remaining = chunk;
+
+    while (remaining.length > 0) {
+      if (this.buffer.length === 0 && remaining.length >= this.bufferSize) {
+        this.sink.write(remaining);
+        return;
+      }
+
+      const available = this.bufferSize - this.buffer.length;
+      if (available === 0) {
+        this.flushBuffer();
+        continue;
+      }
+
+      if (remaining.length <= available) {
+        this.buffer += remaining;
+        remaining = '';
+      } else {
+        this.buffer += remaining.slice(0, available);
+        remaining = remaining.slice(available);
+      }
+
+      if (this.buffer.length >= this.bufferSize) {
+        this.flushBuffer();
+        continue;
+      }
+
+      if (this.enableAutoFlush && this.buffer.length >= this.flushThreshold) {
+        this.flushBuffer();
+      }
     }
   }
 
   public writeEndDocument(): void {
     super.writeEndDocument();
-    this.flush();
+    this.flushBuffer();
+    if (this.flushOnClose && this.sink.flush) {
+      this.sink.flush();
+    }
   }
 
   public flush(): void {
-    if (this.buffer.length === 0) {
-      return;
+    this.flushBuffer();
+    if (this.sink.flush) {
+      this.sink.flush();
     }
-    const output = this.buffer;
-    this.buffer = '';
-    this.sink.write(output);
   }
 
   public close(): void {
-    this.flush();
+    if (this.state !== WriterState.CLOSED && this.state !== WriterState.ERROR) {
+      super.writeEndDocument();
+    }
+    this.flushBuffer();
     if (this.flushOnClose && this.sink.flush) {
       this.sink.flush();
     }
     if (this.sink.close) {
       this.sink.close();
     }
+    this.state = WriterState.CLOSED;
+  }
+
+  private flushBuffer(): void {
+    if (this.buffer.length === 0) {
+      return;
+    }
+    const output = this.buffer;
+    this.sink.write(output);
+    this.buffer = '';
   }
 }
 
