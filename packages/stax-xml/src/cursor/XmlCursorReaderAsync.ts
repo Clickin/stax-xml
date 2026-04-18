@@ -87,6 +87,9 @@ export class XmlCursorReaderAsync {
   private readonly _nsStack: Map<string, string>[] = [new Map()];
   private _nsStackLen: number = 1;
 
+  // -- Namespace optimization (SMI) -----------------------------------
+  private _nsActive: number = 0;  // 0|1 — set to 1 when first xmlns encountered
+
   // -- Entity decoder ------------------------------------------------
   private readonly entityDecode: (text: string) => string;
 
@@ -171,6 +174,7 @@ export class XmlCursorReaderAsync {
   }
 
   uri(): string | undefined {
+    if (this._nsActive === 0) return undefined;
     if (this._nsIdx < 0) return undefined;
     const b = this._base;
     const key = this._colonPos >= 0 ? this.window.slice(b + this._nameStart, b + this._colonPos) : '';
@@ -232,6 +236,7 @@ export class XmlCursorReaderAsync {
   }
 
   getAttributeUri(i: number): string | undefined {
+    if (this._nsActive === 0) return undefined;
     if (i < 0 || i >= this._attrCount) return undefined;
     const o = i * ATTR_STRIDE;
     const cp = this._attrData[o + 2]!;
@@ -670,9 +675,11 @@ export class XmlCursorReaderAsync {
           if (nameLen === 5) {
             if (!nsCopied) { ns = new Map(parentNs); nsCopied = true; }
             ns.set('', this.entityDecode(win.slice(valS, valE)));
+            this._nsActive = 1;
           } else if (win.charCodeAt(nameS + 5) === 58) {
             if (!nsCopied) { ns = new Map(parentNs); nsCopied = true; }
             ns.set(win.slice(nameS + 6, nameE), this.entityDecode(win.slice(valS, valE)));
+            this._nsActive = 1;
           }
         }
       }

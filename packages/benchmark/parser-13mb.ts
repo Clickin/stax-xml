@@ -69,6 +69,30 @@ function txmlParser() {
   txml.parse(xmlString);
 }
 
+function staxCursorIterate() {
+  const cursor = new XmlCursorReader(xmlString);
+  while (cursor.next()) {
+    cursor.eventType();
+  }
+}
+
+function staxCursorSelective() {
+  const cursor = new XmlCursorReader(xmlString);
+  while (cursor.next()) {
+    const t = cursor.eventType();
+    switch (t) {
+      case CursorEventType.START_ELEMENT:
+      case CursorEventType.END_ELEMENT:
+        cursor.name();
+        break;
+      case CursorEventType.CHARACTERS:
+      case CursorEventType.CDATA:
+        cursor.text();
+        break;
+    }
+  }
+}
+
 function staxCursorConsume() {
   const cursor = new XmlCursorReader(xmlString);
   while (cursor.next()) {
@@ -109,6 +133,8 @@ if (shouldPrintHumanReadableBanner(cli)) {
 
 barplot(() => {
   summary(() => {
+    bench('stax-xml cursor iterate', () => staxCursorIterate()).gc('inner');
+    bench('stax-xml cursor selective', () => staxCursorSelective()).gc('inner');
     bench('stax-xml cursor consume', () => staxCursorConsume()).gc('inner');
     bench('stax-xml to object', () => staxXmlParserObject()).gc('inner');
     bench('stax-xml consume', () => staxXmlParserConsume()).gc('inner');
