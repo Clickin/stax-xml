@@ -10,6 +10,19 @@ This benchmarking infrastructure was created to address the limitations discover
 - **GC pressure measurement**: Object pooling failed due to V8 hidden class conflicts
 - **Statistical significance**: Need to know if optimizations are real improvements or noise
 
+## Cursor regression contract
+
+Node async cursor regression measurement now uses the native async buffer path. The old `AsyncIterable<Buffer> -> ReadableStream adapter -> StaxXmlParser` compare logic was invalid for Node hot path measurement and must not be reintroduced.
+
+Mainline keeps only the contract and evidence documents for this regression. To rerun the cursor benchmark harness or regenerate the published-regression outputs, return to the `feat/cursor-optimizations` branch and run the scripts there.
+
+The published regression contract has only two approved rows:
+
+* `buffered-small`, which includes read time
+* `streaming-large`, which compares the native current async buffer cursor against the published `ReadableStream` parser
+
+Do not adapt Node async cursor hot paths through `ReadableStream` when measuring this regression.
+
 ## Tools
 
 ### 1. GC Pressure Benchmark (`benchmark-gc-pressure.ts`)

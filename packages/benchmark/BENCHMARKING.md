@@ -25,6 +25,19 @@ This benchmarking infrastructure provides:
 - **Comparative analysis**: Side-by-side comparison of baseline vs inlined parsers
 - **Multiple output formats**: Console, JSON, CSV, Markdown, HTML
 
+## Cursor regression contract
+
+Node async cursor regression measurement depends on the native async buffer path. The previous `AsyncIterable<Buffer> -> ReadableStream adapter -> StaxXmlParser` compare logic was invalid for Node hot path regression measurement, so it should not be used again.
+
+Mainline carries only the contract and evidence documents for this regression. If you need to rerun the cursor-vs-parser experiment or regenerate the published-regression snapshots, switch back to the `feat/cursor-optimizations` branch and use the harness there.
+
+Only two benchmark rows are approved for this contract:
+
+* `buffered-small`, which includes read time
+* `streaming-large`, which compares the native current async buffer cursor with the published `ReadableStream` parser
+
+For this regression, do not route Node async cursor hot paths through `ReadableStream`.
+
 ## Quick Start
 
 ### 1. Generate Test Data
