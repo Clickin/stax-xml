@@ -150,47 +150,11 @@ bun test
 
 #### Benchmark Results
 
-**Disclaimer:** These parser benchmarks were rerun on a specific system (`cpu: 13th Gen Intel(R) Core(TM) i5-13600K`, `runtime: node 24.12.0 (x64-win32)`) and may vary on different hardware and environments.
+Benchmark tables are maintained in the generated root report:
 
-**large.xml (97MB) parsing**
+- [BENCHMARK.md](../../BENCHMARK.md)
 
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 1.06 s/iter     | 1.30 s / 1.35 s | 7.45 mb      |
-| stax-xml consume    | 755.27 ms/iter  | 798.89 ms / 887.00 ms | 35.10 mb |
-| xml2js              | 6.83 s/iter     | 6.77 s / 7.52 s | 651.69 mb    |
-| fast-xml-parser     | 5.26 s/iter     | 5.32 s / 5.55 s | 1.03 gb      |
-| txml                | 1.23 s/iter     | 1.27 s / 1.31 s | 890.25 mb    |
-
-**midsize.xml (13MB) parsing**
-
-| Benchmark                   | avg (min … max) | p75 / p99       | Memory (avg) |
-| :-------------------------- | :-------------- | :-------------- | :----------- |
-| stax-xml to object          | 163.03 ms/iter  | 162.98 ms / 166.69 ms | 35.40 mb |
-| stax-xml consume            | 167.10 ms/iter  | 170.37 ms / 181.17 ms | 4.92 mb  |
-| xml2js                      | 1.00 ms/iter    | 1.08 ms / 1.49 ms | 310.71 kb   |
-| fast-xml-parser             | 781.16 ms/iter  | 851.96 ms / 895.28 ms | 148.02 mb |
-| txml                        | 178.27 ms/iter  | 192.34 ms / 196.72 ms | 126.93 mb |
-
-**complex.xml (2KB) parsing**
-
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 288.04 µs/iter  | 305.00 µs / 371.60 µs | 28.70 kb |
-| stax-xml consume    | 294.19 µs/iter  | 312.50 µs / 485.90 µs | 24.75 kb |
-| xml2js              | 1.03 ms/iter    | 1.11 ms / 1.54 ms | 204.75 kb   |
-| fast-xml-parser     | 568.46 µs/iter  | 611.50 µs / 889.90 µs | 125.91 kb |
-| txml                | 140.73 µs/iter  | 150.50 µs / 233.10 µs | 25.90 kb |
-
-**books.xml (4KB) parsing**
-
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 367.73 µs/iter  | 393.10 µs / 484.50 µs | 53.85 kb |
-| stax-xml consume    | 365.77 µs/iter  | 396.40 µs / 459.60 µs | 44.32 kb |
-| xml2js              | 1.59 ms/iter    | 1.73 ms / 2.15 ms | 489.41 kb   |
-| fast-xml-parser     | 897.18 µs/iter  | 981.50 µs / 1.48 ms | 470.77 kb |
-| txml                | 167.32 µs/iter  | 178.00 µs / 289.90 µs | 46.68 kb |
+The release benchmark pipeline reruns the canonical benchmark set, writes raw JSON artifacts, and regenerates both `BENCHMARK.md` and the docs benchmark pages from those results.
 
 ### 📁 Sample File Sources
 

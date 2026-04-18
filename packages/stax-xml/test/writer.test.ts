@@ -801,4 +801,31 @@ describe('StaxXmlWriter Tests', () => {
     expect(result).toContain('</ns2:section>');
     expect(result).toContain('</root>');
   });
+
+  it('should not leak namespace declarations from one child to siblings', () => {
+    const writer = new StaxXmlWriterSync({
+      encoding: 'utf-8',
+      prettyPrint: false,
+      indentString: '  '
+    });
+
+    writer.writeStartDocument();
+    writer.writeStartElement('root');
+
+    writer.writeStartElement('first');
+    writer.writeNamespace('local', 'http://example.com/local');
+    writer.writeStartElement('item', {
+      attributes: {
+        value: { value: 'ok', prefix: 'local' }
+      }
+    });
+    writer.writeEndElement();
+    writer.writeEndElement();
+
+    expect(() => writer.writeStartElement('second', {
+      attributes: {
+        value: { value: 'should-fail', prefix: 'local' }
+      }
+    })).toThrow("Namespace prefix 'local' is not defined");
+  });
 });
