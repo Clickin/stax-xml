@@ -1,8 +1,11 @@
 import { XMLBuilder } from 'fast-xml-parser';
-import { barplot, bench, run, summary } from 'mitata';
+import { barplot, bench, summary } from 'mitata';
 import { Builder } from "xml2js";
 import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.js';
+
+const cli = parseMitataCliArgs();
 
 const jsonOrderedContent = loadJsonFile(ASSET_PATHS.testOrdered);
 const jsonContent = loadJsonFile(ASSET_PATHS.test);
@@ -141,7 +144,9 @@ function xml2jsBuilder() {
   builder.buildObject(jsonContent);
 }
 
-console.log('📊 XML Builder Benchmark - Small files (test_ordered.json)');
+if (shouldPrintHumanReadableBanner(cli)) {
+  console.log('📊 XML Builder Benchmark - Small files (test_ordered.json)');
+}
 
 barplot(() => {
   summary(() => {
@@ -152,4 +157,4 @@ barplot(() => {
   });
 });
 
-await run();
+await runMitataWithCli(cli);

@@ -152,15 +152,9 @@ Defined in: [StaxXmlParser.ts:1089](https://github.com/Clickin/stax-xml/blob/mas
 
 ##### nextBatch()
 
-> **nextBatch**(`size?`): `Promise`\<[`AnyXmlEvent`](#anyxmlevent)[]\>
+> **nextBatch**(): `Promise`\<[`AnyXmlEvent`](#anyxmlevent)[]\>
 
 Defined in: [StaxXmlParser.ts:485](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlParser.ts#L485)
-
-###### Parameters
-
-###### size?
-
-`number`
 
 ###### Returns
 
@@ -168,15 +162,9 @@ Defined in: [StaxXmlParser.ts:485](https://github.com/Clickin/stax-xml/blob/mast
 
 ##### batchedIterator()
 
-> **batchedIterator**(`batchSize?`): `AsyncGenerator`\<[`AnyXmlEvent`](#anyxmlevent)[]\>
+> **batchedIterator**(): `AsyncGenerator`\<[`AnyXmlEvent`](#anyxmlevent)[]\>
 
 Defined in: [StaxXmlParser.ts:504](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlParser.ts#L504)
-
-###### Parameters
-
-###### batchSize?
-
-`number`
 
 ###### Returns
 
@@ -1030,34 +1018,6 @@ Whether to enable buffer compaction for memory efficiency
 
 ```ts
 true
-```
-
-##### batchSize?
-
-> `optional` **batchSize**: `number`
-
-Defined in: [StaxXmlParser.ts:54](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlParser.ts#L54)
-
-Number of events to batch together
-
-###### Default Value
-
-```ts
-1
-```
-
-##### batchTimeout?
-
-> `optional` **batchTimeout**: `number`
-
-Defined in: [StaxXmlParser.ts:60](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StaxXmlParser.ts#L60)
-
-Timeout for batch processing in milliseconds
-
-###### Default Value
-
-```ts
-0
 ```
 
 ***

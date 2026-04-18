@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-04-18
+
+### Performance Improvements
+
+#### Async parser batch semantics and throughput
+
+- `StaxXmlParser.nextBatch()` and `batchedIterator()` now operate on chunk-derived batches instead of caller-sized batches.
+- Async parsing no longer yields on every event while buffered events are still available; chunk boundaries are now the primary async suspension points.
+- Nested converter parsing paths reuse buffered async batches instead of repeatedly calling `await iterator.next()`.
+
+#### Converter compile path
+
+- Compiled converter execution continues to use a single root processor while reducing async overhead in nested parsing paths.
+- Bare `x.array(...).compile()` and root-processor async cases were rerun against the new batch-backed iterator behavior.
+
 ## [0.6.0] - 2026-04-18
 
 ### Performance Improvements
@@ -35,7 +50,6 @@ The async XML parser has been completely rewritten with a new fast-path architec
 - `stax-xml` async (experimental → main): **309ms** vs published v0.5.2 **516ms** (−40%)
 - `stax-xml` async vs txml: **309ms** vs **516ms** (txml comparison on same dataset)
 - `stax-xml` sync consume: **108ms** vs txml **156ms** (−31%)
-- `stax-xml` cursor consume (`StaxXmlStreamReaderSync`): **87ms** vs txml **156ms** (−44%)
 
 #### StaxXmlParserSync
 

@@ -1,10 +1,13 @@
 import { XMLParser } from 'fast-xml-parser';
-import { barplot, bench, run, summary } from 'mitata';
+import { barplot, bench, summary } from 'mitata';
 import { StaxXmlParserSync, XmlEventType, type AnyXmlEvent } from 'stax-xml';
 //@ts-ignore
 import * as txml from 'txml';
 import xml2js from 'xml2js';
+import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 import { ASSET_PATHS, loadXmlFile } from './common/utils.js';
+
+const cli = parseMitataCliArgs();
 
 const xmlString = loadXmlFile(ASSET_PATHS.complex); // 2KB
 
@@ -65,7 +68,9 @@ function txmlParser() {
   txml.parse(xmlString);
 }
 
-console.log('📊 XML Parser Benchmark - 2KB file (complex.xml)');
+if (shouldPrintHumanReadableBanner(cli)) {
+  console.log('📊 XML Parser Benchmark - 2KB file (complex.xml)');
+}
 
 barplot(() => {
   summary(() => {
@@ -77,4 +82,4 @@ barplot(() => {
   });
 });
 
-await run();
+await runMitataWithCli(cli);

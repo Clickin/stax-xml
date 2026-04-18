@@ -7,8 +7,8 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
         'stax-xml/converter': fileURLToPath(new URL('../stax-xml/src/converter/index.ts', import.meta.url)),
+        'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
       },
     },
   },

@@ -1,5 +1,6 @@
 import { XmlSchema, type ParseInput } from './XmlSchema.js';
 import { XmlParserInternal } from './XmlParserInternal.js';
+import { asAsyncEventBatchIterator, isAsyncEventIterator } from './AsyncEventBatchIterator.js';
 import type { ParseOptions, XmlStringOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
@@ -54,10 +55,7 @@ export class XmlStringSchema extends XmlSchema<string, string> {
     startDepth: number,
     options?: ParseOptions
   ): string | Promise<string> {
-    // Check if async iterator by checking constructor name
-    // We cannot call next() here as it would consume an event
-    const iteratorConstructorName = iterator?.constructor?.name || '';
-    if (iteratorConstructorName === 'StaxXmlParser' || iteratorConstructorName.includes('Async')) {
+    if (isAsyncEventIterator(iterator)) {
       return this.collectTextAsync(iterator as AsyncIterator<AnyXmlEvent>, startDepth);
     }
 
@@ -90,25 +88,28 @@ export class XmlStringSchema extends XmlSchema<string, string> {
   }
 
   private async collectTextAsync(iterator: AsyncIterator<AnyXmlEvent>, startDepth: number): Promise<string> {
+    const eventReader = asAsyncEventBatchIterator(iterator);
     let currentDepth = startDepth;
     let buffer = '';
-    let iterResult = await iterator.next();
-
-    while (!iterResult.done) {
-      const event = iterResult.value;
-
-      if (isStartElement(event)) {
-        currentDepth++;
-      } else if (isEndElement(event)) {
-        currentDepth--;
-        if (currentDepth < startDepth) {
+    while (await eventReader.ensureBatch()) {
+      while (eventReader.hasBufferedEvents()) {
+        const iterResult = eventReader.nextBuffered();
+        if (iterResult.done) {
           break;
         }
-      } else if ((isCharacters(event) || isCdata(event)) && currentDepth === startDepth) {
-        buffer += event.value;
-      }
+        const event = iterResult.value;
 
-      iterResult = await iterator.next();
+        if (isStartElement(event)) {
+          currentDepth++;
+        } else if (isEndElement(event)) {
+          currentDepth--;
+          if (currentDepth < startDepth) {
+            return buffer;
+          }
+        } else if ((isCharacters(event) || isCdata(event)) && currentDepth === startDepth) {
+          buffer += event.value;
+        }
+      }
     }
 
     return buffer;

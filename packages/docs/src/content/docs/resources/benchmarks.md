@@ -30,7 +30,7 @@ The refreshed parser comparison tables on this page were rerun with:
 - **Tool**: [Mitata](https://github.com/evanw/mitata) for accurate performance measurement
 - **Libraries Compared**: fast-xml-parser, xml2js, txml, and StAX-XML
 
-Async size-comparison and writer sections later on this page are older reference measurements and were not rerun as part of this release.
+Writer sections later on this page are older reference measurements and were not rerun as part of this release.
 
 ## Parser Performance
 
@@ -40,11 +40,11 @@ For typical web service responses and configuration files (complex.xml):
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 121.03 µs | ~8,262 ops/sec | 26.41 kb | Fastest, lightweight |
-| **stax-xml to object** | 260.88 µs | ~3,833 ops/sec | 28.51 kb | Object conversion |
-| **stax-xml consume** | 269.33 µs | ~3,713 ops/sec | 24.28 kb | Stream processing |
-| fast-xml-parser | 555.92 µs | ~1,799 ops/sec | 129.73 kb | DOM-based |
-| xml2js | 1.00 ms | ~1,000 ops/sec | 203.56 kb | Callback-based, memory intensive |
+| **txml** | 140.73 µs | ~7,106 ops/sec | 25.90 kb | Fastest, lightweight |
+| **stax-xml to object** | 288.04 µs | ~3,472 ops/sec | 28.70 kb | Object conversion |
+| **stax-xml consume** | 294.19 µs | ~3,399 ops/sec | 24.75 kb | Stream processing |
+| fast-xml-parser | 568.46 µs | ~1,759 ops/sec | 125.91 kb | DOM-based |
+| xml2js | 1.03 ms | ~971 ops/sec | 204.75 kb | Callback-based, memory intensive |
 
 ### Medium Documents (4KB)
 
@@ -52,11 +52,11 @@ For larger API responses and data files (books.xml):
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 126.53 µs | ~7,903 ops/sec | 46.32 kb | Fastest, lightweight |
-| **stax-xml consume** | 295.36 µs | ~3,386 ops/sec | 45.30 kb | Stream processing |
-| **stax-xml to object** | 342.66 µs | ~2,918 ops/sec | 52.95 kb | Object conversion |
-| fast-xml-parser | 727.33 µs | ~1,375 ops/sec | 560.08 kb | Good balance |
-| xml2js | 1.28 ms | ~781 ops/sec | 544.96 kb | Memory intensive |
+| **txml** | 167.32 µs | ~5,977 ops/sec | 46.68 kb | Fastest, lightweight |
+| **stax-xml consume** | 365.77 µs | ~2,734 ops/sec | 44.32 kb | Stream processing |
+| **stax-xml to object** | 367.73 µs | ~2,719 ops/sec | 53.85 kb | Object conversion |
+| fast-xml-parser | 897.18 µs | ~1,115 ops/sec | 470.77 kb | Good balance |
+| xml2js | 1.59 ms | ~629 ops/sec | 489.41 kb | Memory intensive |
 
 ### Large Documents (1MB to 1GB)
 
@@ -64,13 +64,13 @@ For processing large XML files (RSS feeds, data exports, etc.):
 
 | File Size | Parser Type | Processing Time | Memory Usage | Performance Ratio |
 |-----------|-------------|-----------------|--------------|-------------------|
-| 1MB | **sync parser** | 14.36 ms | 3.09 mb | Baseline |
-| 1MB | async parser | 27.86 ms | 1.98 mb | 1.94x slower |
-| 10MB | **sync parser** | 66.68 ms | 24.03 mb | Baseline |
-| 10MB | async parser | 155.85 ms | 10.30 mb | 2.34x slower |
-| 100MB | **sync parser** | 737.16 ms | 209.26 mb | Baseline |
-| 100MB | async parser | 1.43 s | 9.82 mb | 1.94x slower |
-| 1GB | async parser | 14.20 s | 4.81 mb | Memory efficient |
+| 1MB | **sync parser** | 16.73 ms | 14.36 mb | Baseline |
+| 1MB | async parser | 29.82 ms | 28.88 mb | 1.78x slower |
+| 10MB | **sync parser** | 138.98 ms | 20.99 mb | Baseline |
+| 10MB | async parser | 266.30 ms | 28.16 mb | 1.92x slower |
+| 100MB | **sync parser** | 772.70 ms | 143.40 mb | Baseline |
+| 100MB | async parser | 1.31 s | 42.58 mb | 1.70x slower |
+| 1GB | async parser | 11.90 s | 35.88 mb | Memory efficient |
 
 **Key Insights:**
 - Sync parser is faster for smaller files but uses more memory
@@ -87,11 +87,11 @@ Performance results on midsize.xml (13MB):
 
 | Library | Average Time | Operations/sec | Memory Usage | Performance Notes |
 |---------|--------------|----------------|--------------|------------------|
-| **xml2js** | 663.47 µs | ~1,507 ops/sec | 323.69 kb | Exceptional performance* |
-| **stax-xml consume** | 89.07 ms | ~11.2 ops/sec | 4.93 mb | Stream processing |
-| **stax-xml to object** | 95.21 ms | ~10.5 ops/sec | 35.41 mb | Object conversion |
-| **txml** | 128.58 ms | ~7.8 ops/sec | 126.90 mb | Lightweight DOM |
-| fast-xml-parser | 642.49 ms | ~1.6 ops/sec | 128.11 mb | Memory intensive |
+| **xml2js** | 1.00 ms | ~1,000 ops/sec | 310.71 kb | Exceptional performance* |
+| **stax-xml to object** | 163.03 ms | ~6.13 ops/sec | 35.40 mb | Object conversion |
+| **stax-xml consume** | 167.10 ms | ~5.98 ops/sec | 4.92 mb | Stream processing |
+| **txml** | 178.27 ms | ~5.61 ops/sec | 126.93 mb | Lightweight DOM |
+| fast-xml-parser | 781.16 ms | ~1.28 ops/sec | 148.02 mb | Memory intensive |
 
 *xml2js shows exceptional performance on this 13MB file (1000x faster than normal), likely due to the XML structure being optimized for DOM parsing environments with frequent element reuse and shallow nesting.
 
@@ -101,17 +101,62 @@ Performance results on large.xml (98MB):
 
 | Library | Average Time | Operations/sec | Memory Usage | Performance Notes |
 |---------|--------------|----------------|--------------|------------------|
-| **stax-xml consume** | 660.41 ms | ~1.51 ops/sec | 35.12 mb | Best overall |
-| **stax-xml to object** | 676.93 ms | ~1.48 ops/sec | 7.38 mb | Memory efficient |
-| **txml** | 1.93 s | ~0.52 ops/sec | 890.28 mb | High memory |
-| fast-xml-parser | 7.85 s | ~0.13 ops/sec | 1.08 gb | Slow, memory intensive |
-| xml2js | 9.30 s | ~0.11 ops/sec | 656.68 mb | Slowest performance |
+| **stax-xml consume** | 755.27 ms | ~1.32 ops/sec | 35.10 mb | Best overall |
+| **stax-xml to object** | 1.06 s | ~0.94 ops/sec | 7.45 mb | Memory efficient |
+| **txml** | 1.23 s | ~0.81 ops/sec | 890.25 mb | High memory |
+| fast-xml-parser | 5.26 s | ~0.19 ops/sec | 1.03 gb | Slow, memory intensive |
+| xml2js | 6.83 s | ~0.15 ops/sec | 651.69 mb | Slowest performance |
 
 **Performance Crossover Analysis:**
 - **Small files (2-4KB)**: txml still leads raw parser throughput
 - **Medium files (13MB)**: xml2js remains an anomalous outlier on this fixture, while `stax-xml consume` and `stax-xml to object` stay in the same general throughput band
 - **Large files (98MB)**: StAX-XML provides best balance of speed and memory efficiency
 - **Very large files (1GB+)**: Only async parsers remain viable
+
+## Converter API vs Plain Parser
+
+The benchmark below compares three ways to build the **same object output**:
+
+- A handwritten plain parser built directly on `StaxXmlParserSync`
+- The declarative converter API
+- The converter API with `.compile()` enabled
+
+Fixture used in the current workspace run:
+
+- `catalog` document
+- `800` `<featured>` elements
+- `800` `<book>` elements
+- output includes:
+  - root object field
+  - root array of objects
+  - direct scalar field
+  - transformed derived field
+
+Local loop-average run on the same Node.js 24.12.0 / i5-13600K environment:
+
+| Implementation | Average time | Notes |
+| --- | ---: | --- |
+| plain parser | **3.01 ms** | Lowest overhead, handwritten state machine |
+| converter api | 311.49 ms | Declarative but uncompiled |
+| converter api compiled | **248.05 ms** | Declarative schema with compiled root processor |
+
+What this means:
+
+- The handwritten parser is still the raw-throughput ceiling for this fixture.
+- The uncompiled converter API pays a large abstraction cost.
+- The compiled converter path still carries substantial abstraction overhead on this fixture, but it now beats the uncompiled converter path.
+
+The benchmark script verifies that all three implementations produce identical JSON before measuring:
+
+```bash
+pnpm --filter=benchmark run dev:converter:plain-output
+```
+
+The script also writes a markdown summary under:
+
+```text
+packages/benchmark/results/converter-plain-output-benchmark.md
+```
 
 ## Writer Performance
 
@@ -204,6 +249,7 @@ npm run dev:parser:13mb      # Medium-large document parsing (13MB)
 npm run dev:parser:98mb      # Large document parsing (98MB)
 npm run dev:builder:small    # Small document building
 npm run dev:builder:big      # Large document building (1MB)
+npm run dev:converter:plain-output   # Plain parser vs converter API parity benchmark
 npm run dev:async:parser     # Async parser with various file sizes
 npm run dev:async:writer     # Async vs sync writer comparison
 ```

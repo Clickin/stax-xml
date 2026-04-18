@@ -21,6 +21,8 @@ import {
   type StringCollector
 } from './XmlParsingStateMachine.js';
 import type { CompiledSchemaPlan } from './compiled-plan.js';
+import { CompiledRootProcessor } from './CompiledRootProcessor.js';
+import { asAsyncEventBatchIterator } from './AsyncEventBatchIterator.js';
 
 import type { ParseInput } from './XmlSchema.js';
 import { XmlSchemaBase } from './base.js';
@@ -33,6 +35,20 @@ import {
   isStringSchema,
   isTransformSchema
 } from './types.js';
+
+class EarlyReturn<T> {
+  constructor(readonly value: T) {}
+}
+
+type BatchCapableParser = AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> & {
+  batchedIterator(): AsyncGenerator<AnyXmlEvent[]>;
+};
+
+function hasBatchedIterator(
+  parser: AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>
+): parser is BatchCapableParser {
+  return 'batchedIterator' in parser && typeof parser.batchedIterator === 'function';
+}
 
 
 
@@ -50,19 +66,33 @@ export class XmlParserInternal {
   }
 
   parseWithSchema<T>(input: ParseInput, schema: XmlSchemaBase<T, unknown>): T {
-    const unwrapped = this.unwrapSchema(schema) as XmlSchemaBase<unknown, unknown>;
-    if (isObjectSchema(unwrapped) && this.compiledPlan && typeof input === 'string') {
-      return this.parseObjectCompiled(input, this.compiledPlan) as T;
+    if (this.compiledPlan && typeof input === 'string') {
+      return this.parseCompiledWithPlan(input, this.compiledPlan) as T;
     }
     return schema._parse(input, this.options) as T;
   }
 
   async parseWithSchemaAsync<T>(input: ParseInput, schema: XmlSchemaBase<T, unknown>): Promise<T> {
-    const unwrapped = this.unwrapSchema(schema) as XmlSchemaBase<unknown, unknown>;
-    if (isObjectSchema(unwrapped) && this.compiledPlan) {
-      return this.parseObjectCompiledAsync(input, this.compiledPlan) as Promise<T>;
+    if (this.compiledPlan) {
+      return this.parseCompiledWithPlanAsync(input, this.compiledPlan) as Promise<T>;
     }
     return schema._parseAsync(input, this.options) as Promise<T>;
+  }
+
+  createCollectorForCompiledSchema(schema: unknown): Collector<unknown> {
+    return this.createCollectorForSchema(schema);
+  }
+
+  extractCompiledCollectorValue(collector: Collector<unknown>, schema: unknown): unknown {
+    return this.extractValueFromCollector(collector, schema);
+  }
+
+  applyCompiledSchemaTransforms(schema: unknown, value: unknown): unknown {
+    let result = value;
+    for (const transformFn of this.getAllTransforms(schema)) {
+      result = transformFn(result);
+    }
+    return result;
   }
 
 
@@ -76,14 +106,18 @@ export class XmlParserInternal {
     const xpath = schemaOptions.xpath;
 
     if (!xpath) {
-    const parser = this.createParser(input);
-
-
-      for await (const event of parser) {
-        if (isCharacters(event) || isCdata(event)) {
-
-          return this.decodeText(event.value);
+      const parser = this.createParser(input);
+      try {
+        await this.consumeAsyncEvents(parser, (event) => {
+          if (isCharacters(event) || isCdata(event)) {
+            throw new EarlyReturn(this.decodeText(event.value));
+          }
+        });
+      } catch (error) {
+        if (error instanceof EarlyReturn) {
+          return error.value;
         }
+        throw error;
       }
       return '';
     }
@@ -100,9 +134,9 @@ export class XmlParserInternal {
     };
     stateMachine.registerSchema(dummySchema as unknown as XmlSchemaBase<unknown, unknown>, xpath, collector);
 
-    for await (const event of parser) {
-      await stateMachine.processEvent(event);
-    }
+    await this.consumeAsyncEvents(parser, (event) => {
+      stateMachine.processEventSync(event);
+    });
 
     return this.decodeText(collector.value ?? '');
   }
@@ -151,7 +185,7 @@ export class XmlParserInternal {
     schemaOptions: { xpath?: string }
   ): Promise<T> {
     if (this.compiledPlan) {
-      return this.parseObjectCompiledAsync(input, this.compiledPlan) as Promise<T>;
+      return this.parseCompiledWithPlanAsync(input, this.compiledPlan) as Promise<T>;
     }
     const parser = this.createParser(input);
     const stateMachine = new XmlParsingStateMachine(this.options);
@@ -225,9 +259,9 @@ export class XmlParserInternal {
     }
 
     // Process events
-    for await (const event of parser) {
-      await stateMachine.processEvent(event);
-    }
+    await this.consumeAsyncEvents(parser, (event) => {
+      stateMachine.processEventSync(event);
+    });
 
     // Extract results from collectors
     const result: Record<string, unknown> = {};
@@ -248,7 +282,7 @@ export class XmlParserInternal {
     schemaOptions: { xpath?: string }
   ): T {
     if (this.compiledPlan) {
-      return this.parseObjectCompiled(input, this.compiledPlan) as T;
+      return this.parseCompiledWithPlan(input, this.compiledPlan) as T;
     }
     const parser = new StaxXmlParserSync(input, {
       autoDecodeEntities: this.options?.decodeEntities
@@ -382,6 +416,14 @@ export class XmlParserInternal {
 
         rootCollector.fields.set(fieldName, childCollector);
       }
+
+      if (parentContext?.context?.contextElement) {
+        this.hydrateCurrentElementAttributeFields(
+          rootCollector,
+          shape,
+          parentContext.context.contextElement
+        );
+      }
     }
 
     // Process startEvent
@@ -427,6 +469,7 @@ export class XmlParserInternal {
     stateMachine?: XmlParsingStateMachine,
     parentContext?: SchemaActivation
   ): Promise<T> {
+    const eventReader = asAsyncEventBatchIterator(iterator);
     // Use provided State Machine or create new one
     const sm = stateMachine || new XmlParsingStateMachine(this.options);
 
@@ -457,32 +500,40 @@ export class XmlParserInternal {
 
         rootCollector.fields.set(fieldName, childCollector);
       }
+
+      if (parentContext?.context?.contextElement) {
+        this.hydrateCurrentElementAttributeFields(
+          rootCollector,
+          shape,
+          parentContext.context.contextElement
+        );
+      }
     }
 
     // Process startEvent
-    await sm.processEventAsync(startEvent);
+    sm.processEventSync(startEvent);
 
     // Iterate through events using State Machine
     let currentDepth = startDepth;
-    let iterResult = await iterator.next();
-
-    while (!iterResult.done && currentDepth >= startDepth) {
-      const event = iterResult.value;
-
-      // Let State Machine handle event processing
-      await sm.processEventAsync(event);
-
-      // Track depth
-      if (isStartElement(event)) {
-        currentDepth++;
-      } else if (isEndElement(event)) {
-        currentDepth--;
-        if (currentDepth < startDepth) {
+    while (currentDepth >= startDepth && await eventReader.ensureBatch()) {
+      while (currentDepth >= startDepth && eventReader.hasBufferedEvents()) {
+        const iterResult = eventReader.nextBuffered();
+        if (iterResult.done) {
           break;
         }
-      }
+        const event = iterResult.value;
 
-      iterResult = await iterator.next();
+        sm.processEventSync(event);
+
+        if (isStartElement(event)) {
+          currentDepth++;
+        } else if (isEndElement(event)) {
+          currentDepth--;
+          if (currentDepth < startDepth) {
+            break;
+          }
+        }
+      }
     }
 
     // Extract result from collectors
@@ -524,9 +575,9 @@ export class XmlParserInternal {
     );
 
     // Process all events through State Machine
-    for await (const event of parser) {
-      await stateMachine.processEventAsync(event);
-    }
+    await this.consumeAsyncEvents(parser, (event) => {
+      stateMachine.processEventSync(event);
+    });
 
     // Extract results from collector
     return this.extractValueFromCollector(arrayCollector, {
@@ -543,26 +594,27 @@ export class XmlParserInternal {
     parser: AsyncIterator<AnyXmlEvent>,
     startDepth: number
   ): Promise<string> {
+    const eventReader = asAsyncEventBatchIterator(parser);
     let currentDepth = startDepth;
     let buffer = '';
-    let iterResult = await parser.next();
-
-    while (!iterResult.done && currentDepth >= startDepth) {
-      const event = iterResult.value;
-
-      if (isStartElement(event)) {
-        currentDepth++;
-      } else if (isEndElement(event)) {
-        currentDepth--;
-        if (currentDepth < startDepth) {
+    while (currentDepth >= startDepth && await eventReader.ensureBatch()) {
+      while (currentDepth >= startDepth && eventReader.hasBufferedEvents()) {
+        const iterResult = eventReader.nextBuffered();
+        if (iterResult.done) {
           break;
         }
-      } else if ((isCharacters(event) || isCdata(event)) && currentDepth === startDepth) {
-        buffer += event.value;
-      }
+        const event = iterResult.value;
 
-      if (currentDepth >= startDepth) {
-        iterResult = await parser.next();
+        if (isStartElement(event)) {
+          currentDepth++;
+        } else if (isEndElement(event)) {
+          currentDepth--;
+          if (currentDepth < startDepth) {
+            break;
+          }
+        } else if ((isCharacters(event) || isCdata(event)) && currentDepth === startDepth) {
+          buffer += event.value;
+        }
       }
     }
 
@@ -686,6 +738,7 @@ export class XmlParserInternal {
     if (!xpath) {
       throw new Error('Array schema requires xpath');
     }
+    const eventReader = asAsyncEventBatchIterator(iterator);
 
     // For relative paths, pass the context depth (startDepth) to the matcher
     const isRelativePath = xpath.startsWith('./') || xpath === '.';
@@ -697,76 +750,70 @@ export class XmlParserInternal {
     // Process the start event for the parent element
     matcher.onStartElement(startEvent);
 
-    let iterResult = await iterator.next();
-
-    while (!iterResult.done && currentDepth >= startDepth) {
-      const event = iterResult.value;
-
-      if (isStartElement(event)) {
-        currentDepth++;
-        matcher.onStartElement(event);
-
-        if (matcher.matches(event)) {
-          // Found matching element
-          const elementXPath = this.extractXPath(elementSchema);
-          const elementMatcher = elementXPath ? new XPathMatcher(elementXPath) : null;
-
-          if (elementMatcher && elementMatcher.isAttributeSelector()) {
-            const attrName = elementMatcher.getAttributeName();
-            if (attrName && event.attributes) {
-              const attrValue = event.attributes[attrName];
-              if (attrValue !== undefined) {
-                const value = this.parseFieldValue(attrValue, elementSchema);
-                results.push(value as T);
-              }
-            }
-          } else if (needsRecursive && elementSchema._parseFromPosition) {
-            // Use recursive position-based parsing
-            const value = await elementSchema._parseFromPosition(
-              iterator,
-              event,
-              currentDepth,
-              this.options
-            );
-            results.push(value as T);
-            // _parseFromPosition consumed up to and including the closing tag
-          } else if (elementXPath) {
-            // Element has XPath - use matching logic
-            elementMatcher!.onStartElement(event);
-            const value = await this.extractValueWithElementMatcherAsync(
-              iterator,
-              event,
-              currentDepth,
-              elementMatcher!,
-              elementSchema
-            );
-            results.push(value as T);
-            matcher.onEndElement();
-            currentDepth--;
-          } else {
-            // Simple schema - collect text
-            const textBuffer = await this.collectTextUntilClose(
-              iterator,
-              currentDepth
-            );
-            const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
-            results.push(value as T);
-            matcher.onEndElement();
-            currentDepth--;
-          }
-        }
-      } else if (isEndElement(event)) {
-        currentDepth--;
-        matcher.onEndElement();
-
-        // Exit when we close the parent element
-        if (currentDepth < startDepth) {
+    while (currentDepth >= startDepth && await eventReader.ensureBatch()) {
+      while (currentDepth >= startDepth && eventReader.hasBufferedEvents()) {
+        const iterResult = eventReader.nextBuffered();
+        if (iterResult.done) {
           break;
         }
-      }
+        const event = iterResult.value;
 
-      if (currentDepth >= startDepth) {
-        iterResult = await iterator.next();
+        if (isStartElement(event)) {
+          currentDepth++;
+          matcher.onStartElement(event);
+
+          if (matcher.matches(event)) {
+            const elementXPath = this.extractXPath(elementSchema);
+            const elementMatcher = elementXPath ? new XPathMatcher(elementXPath) : null;
+
+            if (elementMatcher && elementMatcher.isAttributeSelector()) {
+              const attrName = elementMatcher.getAttributeName();
+              if (attrName && event.attributes) {
+                const attrValue = event.attributes[attrName];
+                if (attrValue !== undefined) {
+                  const value = this.parseFieldValue(attrValue, elementSchema);
+                  results.push(value as T);
+                }
+              }
+            } else if (needsRecursive && elementSchema._parseFromPosition) {
+              const value = await elementSchema._parseFromPosition(
+                eventReader,
+                event,
+                currentDepth,
+                this.options
+              );
+              results.push(value as T);
+            } else if (elementXPath) {
+              elementMatcher!.onStartElement(event);
+              const value = await this.extractValueWithElementMatcherAsync(
+                eventReader,
+                event,
+                currentDepth,
+                elementMatcher!,
+                elementSchema
+              );
+              results.push(value as T);
+              matcher.onEndElement();
+              currentDepth--;
+            } else {
+              const textBuffer = await this.collectTextUntilClose(
+                eventReader,
+                currentDepth
+              );
+              const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
+              results.push(value as T);
+              matcher.onEndElement();
+              currentDepth--;
+            }
+          }
+        } else if (isEndElement(event)) {
+          currentDepth--;
+          matcher.onEndElement();
+
+          if (currentDepth < startDepth) {
+            break;
+          }
+        }
       }
     }
 
@@ -874,6 +921,31 @@ export class XmlParserInternal {
       } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
     }
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+  }
+
+  private async consumeAsyncEvents(
+    parser: AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>,
+    onEvent: (event: AnyXmlEvent) => void
+  ): Promise<void> {
+    if (hasBatchedIterator(parser)) {
+      for await (const batch of parser.batchedIterator()) {
+        for (const event of batch) {
+          onEvent(event);
+        }
+      }
+      return;
+    }
+
+    const eventReader = asAsyncEventBatchIterator(parser);
+    while (await eventReader.ensureBatch()) {
+      while (eventReader.hasBufferedEvents()) {
+        const iterResult = eventReader.nextBuffered();
+        if (iterResult.done) {
+          break;
+        }
+        onEvent(iterResult.value);
+      }
+    }
   }
 
 
@@ -1010,91 +1082,26 @@ export class XmlParserInternal {
     return text;
   }
 
-  private parseObjectCompiled<T>(
+  private parseCompiledWithPlan<T>(
     input: string,
     plan: CompiledSchemaPlan
   ): T {
-    const parser = new StaxXmlParserSync(input, {
-      autoDecodeEntities: this.options?.decodeEntities,
-      eventFilter: plan.eventFilter
-    } as never);
-
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const collectors = new Map<string, Collector<unknown>>();
-    const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
-
-    this.registerCompiledRoot(plan, stateMachine, collectors, fieldSchemas);
-
-    for (const event of parser) {
-      stateMachine.processEventSync(event);
+    const result = new CompiledRootProcessor(plan, this.options).parseSync<Record<string, unknown>>(input);
+    if (plan.rootFieldName) {
+      return result[plan.rootFieldName] as T;
     }
-
-    const result: Record<string, unknown> = {};
-    for (const [fieldName, collector] of collectors) {
-      const fieldSchema = fieldSchemas.get(fieldName)!;
-      result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
-    }
-
     return result as T;
   }
 
-  private async parseObjectCompiledAsync<T>(
+  private async parseCompiledWithPlanAsync<T>(
     input: ParseInput,
     plan: CompiledSchemaPlan
   ): Promise<T> {
-    const parser = this.createParser(input, plan.eventFilter);
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const collectors = new Map<string, Collector<unknown>>();
-    const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
-
-    this.registerCompiledRoot(plan, stateMachine, collectors, fieldSchemas);
-
-    for await (const event of parser) {
-      stateMachine.processEventSync(event);
+    const result = await new CompiledRootProcessor(plan, this.options).parse<Record<string, unknown>>(input);
+    if (plan.rootFieldName) {
+      return result[plan.rootFieldName] as T;
     }
-
-    const result: Record<string, unknown> = {};
-    for (const [fieldName, collector] of collectors) {
-      const fieldSchema = fieldSchemas.get(fieldName)!;
-      result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
-    }
-
     return result as T;
-  }
-
-
-  private registerCompiledRoot(
-    plan: CompiledSchemaPlan,
-    stateMachine: XmlParsingStateMachine,
-    collectors: Map<string, Collector<unknown>>,
-    fieldSchemas: Map<string, XmlSchemaBase<unknown, unknown>>
-  ): void {
-    for (const entry of plan.rootPlan) {
-      if (entry.kind === 'object') {
-        const collector: ObjectCollector = { type: 'object', fields: new Map() };
-        for (const template of entry.childTemplates) {
-          const childCollector = this.createCollectorForSchema(template.schema);
-          collector.fields.set(template.fieldName, childCollector);
-          stateMachine.registerSchema(template.schema, template.xpath, childCollector, undefined, template.fieldName);
-        }
-        collectors.set(entry.fieldName, collector);
-        fieldSchemas.set(entry.fieldName, entry.schema);
-        continue;
-      }
-
-      if (entry.kind === 'array') {
-        const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
-        stateMachine.registerSchema(entry.schema, entry.elementXPath, collector, undefined, entry.fieldName);
-        collectors.set(entry.fieldName, collector);
-        fieldSchemas.set(entry.fieldName, entry.schema);
-        continue;
-      }
-
-      const collector = this.createCollectorForSchema(entry.schema);
-      stateMachine.registerSchema(entry.schema, entry.xpath, collector, undefined, entry.fieldName);
-      collectors.set(entry.fieldName, collector);
-      fieldSchemas.set(entry.fieldName, entry.schema);
-    }
   }
 
 
@@ -1159,40 +1166,39 @@ export class XmlParserInternal {
     elementMatcher: XPathMatcher,
     elementSchema: XmlSchemaBase<unknown, unknown>
   ): Promise<unknown> {
+    const eventReader = asAsyncEventBatchIterator(parser);
     let currentDepth = startDepth;
     let textBuffer = '';
     let matchedDepth = -1;
-    let iterResult = await parser.next();
-
-    while (!iterResult.done && currentDepth >= startDepth) {
-      const event = iterResult.value;
-
-      if (isStartElement(event)) {
-        currentDepth++;
-        elementMatcher.onStartElement(event);
-
-        if (elementMatcher.matches(event) && matchedDepth === -1) {
-          matchedDepth = currentDepth;
-          textBuffer = ''; // Reset buffer for this match
-        }
-      } else if (isEndElement(event)) {
-        if (matchedDepth !== -1 && currentDepth === matchedDepth) {
-          // We're closing the matched element - return the collected text
-          const value = this.parseFieldValue(textBuffer.trim(), elementSchema);
-          return value;
-        }
-        elementMatcher.onEndElement();
-        currentDepth--;
-
-        if (currentDepth < startDepth) {
+    while (currentDepth >= startDepth && await eventReader.ensureBatch()) {
+      while (currentDepth >= startDepth && eventReader.hasBufferedEvents()) {
+        const iterResult = eventReader.nextBuffered();
+        if (iterResult.done) {
           break;
         }
-      } else if ((isCharacters(event) || isCdata(event)) && matchedDepth !== -1 && currentDepth === matchedDepth) {
-        textBuffer += event.value;
-      }
+        const event = iterResult.value;
 
-      if (currentDepth >= startDepth) {
-        iterResult = await parser.next();
+        if (isStartElement(event)) {
+          currentDepth++;
+          elementMatcher.onStartElement(event);
+
+          if (elementMatcher.matches(event) && matchedDepth === -1) {
+            matchedDepth = currentDepth;
+            textBuffer = '';
+          }
+        } else if (isEndElement(event)) {
+          if (matchedDepth !== -1 && currentDepth === matchedDepth) {
+            return this.parseFieldValue(textBuffer.trim(), elementSchema);
+          }
+          elementMatcher.onEndElement();
+          currentDepth--;
+
+          if (currentDepth < startDepth) {
+            break;
+          }
+        } else if ((isCharacters(event) || isCdata(event)) && matchedDepth !== -1 && currentDepth === matchedDepth) {
+          textBuffer += event.value;
+        }
       }
     }
 
@@ -1313,6 +1319,36 @@ export class XmlParserInternal {
     }
 
     return result;
+  }
+
+  private hydrateCurrentElementAttributeFields(
+    collector: ObjectCollector,
+    shape: Record<string, XmlSchemaBase<unknown, unknown>>,
+    startEvent: StartElementEvent
+  ): void {
+    for (const [fieldName, fieldSchema] of Object.entries(shape)) {
+      const xpath = this.extractXPath(fieldSchema);
+      if (!xpath || (!xpath.startsWith('./@') && !xpath.startsWith('@'))) {
+        continue;
+      }
+
+      const attrName = xpath.startsWith('./@') ? xpath.slice(3) : xpath.slice(1);
+      const attrValue = startEvent.attributes?.[attrName];
+      if (attrValue === undefined) {
+        continue;
+      }
+
+      const fieldCollector = collector.fields.get(fieldName);
+      if (!fieldCollector) {
+        continue;
+      }
+
+      if (fieldCollector.type === 'string') {
+        fieldCollector.value = attrValue;
+      } else if (fieldCollector.type === 'number' && fieldSchema._parseText) {
+        fieldCollector.value = fieldSchema._parseText(attrValue) as number;
+      }
+    }
   }
   /* v8 ignore end */
 }

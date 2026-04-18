@@ -1,7 +1,10 @@
 import { XMLBuilder } from 'fast-xml-parser';
-import { barplot, bench, run, summary } from 'mitata';
+import { barplot, bench, summary } from 'mitata';
 import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.js';
+
+const cli = parseMitataCliArgs();
 
 const bigJsonContent = loadJsonFile(ASSET_PATHS.big); // 1MB
 
@@ -122,7 +125,9 @@ function jsonToStaxXmlSync(writer: StaxXmlWriterSync, jsonNode: any): void {
   }
 }
 
-console.log('📊 XML Builder Benchmark - Big file (1MB big.json)');
+if (shouldPrintHumanReadableBanner(cli)) {
+  console.log('📊 XML Builder Benchmark - Big file (1MB big.json)');
+}
 
 barplot(() => {
   summary(() => {
@@ -132,4 +137,4 @@ barplot(() => {
   });
 });
 
-await run();
+await runMitataWithCli(cli);

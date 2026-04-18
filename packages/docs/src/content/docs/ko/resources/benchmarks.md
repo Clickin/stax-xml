@@ -30,7 +30,7 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 - **도구**: 정확한 성능 측정을 위한 [Mitata](https://github.com/evanw/mitata)
 - **비교 라이브러리**: fast-xml-parser, xml2js, txml, StAX-XML
 
-아래의 async 크기 비교 및 writer 섹션은 이번 release에서 다시 측정하지 않은 기존 reference 수치입니다.
+아래의 writer 섹션은 이번 release에서 다시 측정하지 않은 기존 reference 수치입니다.
 
 ## 파서 성능
 
@@ -40,11 +40,11 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 비고 |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 121.03 µs | ~8,262 ops/sec | 26.41 kb | 가장 빠름, 경량 |
-| **stax-xml to object** | 260.88 µs | ~3,833 ops/sec | 28.51 kb | 객체 변환 |
-| **stax-xml consume** | 269.33 µs | ~3,713 ops/sec | 24.28 kb | 스트림 처리 |
-| fast-xml-parser | 555.92 µs | ~1,799 ops/sec | 129.73 kb | DOM 기반 |
-| xml2js | 1.00 ms | ~1,000 ops/sec | 203.56 kb | 콜백 기반, 메모리 집약적 |
+| **txml** | 140.73 µs | ~7,106 ops/sec | 25.90 kb | 가장 빠름, 경량 |
+| **stax-xml to object** | 288.04 µs | ~3,472 ops/sec | 28.70 kb | 객체 변환 |
+| **stax-xml consume** | 294.19 µs | ~3,399 ops/sec | 24.75 kb | 스트림 처리 |
+| fast-xml-parser | 568.46 µs | ~1,759 ops/sec | 125.91 kb | DOM 기반 |
+| xml2js | 1.03 ms | ~971 ops/sec | 204.75 kb | 콜백 기반, 메모리 집약적 |
 
 ### 중형 문서 (4KB)
 
@@ -52,11 +52,11 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 비고 |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 126.53 µs | ~7,903 ops/sec | 46.32 kb | 가장 빠름, 경량 |
-| **stax-xml consume** | 295.36 µs | ~3,386 ops/sec | 45.30 kb | 스트림 처리 |
-| **stax-xml to object** | 342.66 µs | ~2,918 ops/sec | 52.95 kb | 객체 변환 |
-| fast-xml-parser | 727.33 µs | ~1,375 ops/sec | 560.08 kb | 좋은 균형 |
-| xml2js | 1.28 ms | ~781 ops/sec | 544.96 kb | 메모리 집약적 |
+| **txml** | 167.32 µs | ~5,977 ops/sec | 46.68 kb | 가장 빠름, 경량 |
+| **stax-xml consume** | 365.77 µs | ~2,734 ops/sec | 44.32 kb | 스트림 처리 |
+| **stax-xml to object** | 367.73 µs | ~2,719 ops/sec | 53.85 kb | 객체 변환 |
+| fast-xml-parser | 897.18 µs | ~1,115 ops/sec | 470.77 kb | 좋은 균형 |
+| xml2js | 1.59 ms | ~629 ops/sec | 489.41 kb | 메모리 집약적 |
 
 ### 대용량 문서 (1MB ~ 1GB)
 
@@ -64,13 +64,13 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 | 파일 크기 | 파서 유형 | 처리 시간 | 메모리 사용량 | 성능 비율 |
 |-----------|-------------|-----------------|--------------|-------------------|
-| 1MB | **sync parser** | 14.36 ms | 3.09 mb | 기준선 |
-| 1MB | async parser | 27.86 ms | 1.98 mb | 1.94배 느림 |
-| 10MB | **sync parser** | 66.68 ms | 24.03 mb | 기준선 |
-| 10MB | async parser | 155.85 ms | 10.30 mb | 2.34배 느림 |
-| 100MB | **sync parser** | 737.16 ms | 209.26 mb | 기준선 |
-| 100MB | async parser | 1.43 s | 9.82 mb | 1.94배 느림 |
-| 1GB | async parser | 14.20 s | 4.81 mb | 메모리 효율적 |
+| 1MB | **sync parser** | 16.73 ms | 14.36 mb | 기준선 |
+| 1MB | async parser | 29.82 ms | 28.88 mb | 1.78배 느림 |
+| 10MB | **sync parser** | 138.98 ms | 20.99 mb | 기준선 |
+| 10MB | async parser | 266.30 ms | 28.16 mb | 1.92배 느림 |
+| 100MB | **sync parser** | 772.70 ms | 143.40 mb | 기준선 |
+| 100MB | async parser | 1.31 s | 42.58 mb | 1.70배 느림 |
+| 1GB | async parser | 11.90 s | 35.88 mb | 메모리 효율적 |
 
 **주요 인사이트:**
 - 동기 파서가 작은 파일에는 더 빠르지만 더 많은 메모리를 사용함
@@ -87,11 +87,11 @@ midsize.xml (13MB) 성능 결과:
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 성능 비고 |
 |---------|--------------|----------------|--------------|------------------|
-| **xml2js** | 663.47 µs | ~1,507 ops/sec | 323.69 kb | 예외적 성능* |
-| **stax-xml consume** | 89.07 ms | ~11.2 ops/sec | 4.93 mb | 스트림 처리 |
-| **stax-xml to object** | 95.21 ms | ~10.5 ops/sec | 35.41 mb | 객체 변환 |
-| **txml** | 128.58 ms | ~7.8 ops/sec | 126.90 mb | 경량 DOM |
-| fast-xml-parser | 642.49 ms | ~1.6 ops/sec | 128.11 mb | 메모리 집약적 |
+| **xml2js** | 1.00 ms | ~1,000 ops/sec | 310.71 kb | 예외적 성능* |
+| **stax-xml to object** | 163.03 ms | ~6.13 ops/sec | 35.40 mb | 객체 변환 |
+| **stax-xml consume** | 167.10 ms | ~5.98 ops/sec | 4.92 mb | 스트림 처리 |
+| **txml** | 178.27 ms | ~5.61 ops/sec | 126.93 mb | 경량 DOM |
+| fast-xml-parser | 781.16 ms | ~1.28 ops/sec | 148.02 mb | 메모리 집약적 |
 
 *xml2js가 이 13MB 파일에서 예외적인 성능(평소보다 1000배 빠름)을 보이는 것은 XML 구조가 DOM 파싱 환경에 최적화되어 있고 요소 재사용과 얕은 중첩이 빈번하기 때문으로 추정됩니다.
 
@@ -101,17 +101,62 @@ large.xml (98MB) 성능 결과:
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 성능 비고 |
 |---------|--------------|----------------|--------------|------------------|
-| **stax-xml consume** | 660.41 ms | ~1.51 ops/sec | 35.12 mb | 최고 전체 성능 |
-| **stax-xml to object** | 676.93 ms | ~1.48 ops/sec | 7.38 mb | 메모리 효율적 |
-| **txml** | 1.93 s | ~0.52 ops/sec | 890.28 mb | 높은 메모리 |
-| fast-xml-parser | 7.85 s | ~0.13 ops/sec | 1.08 gb | 느림, 메모리 집약적 |
-| xml2js | 9.30 s | ~0.11 ops/sec | 656.68 mb | 가장 느린 성능 |
+| **stax-xml consume** | 755.27 ms | ~1.32 ops/sec | 35.10 mb | 최고 전체 성능 |
+| **stax-xml to object** | 1.06 s | ~0.94 ops/sec | 7.45 mb | 메모리 효율적 |
+| **txml** | 1.23 s | ~0.81 ops/sec | 890.25 mb | 높은 메모리 |
+| fast-xml-parser | 5.26 s | ~0.19 ops/sec | 1.03 gb | 느림, 메모리 집약적 |
+| xml2js | 6.83 s | ~0.15 ops/sec | 651.69 mb | 가장 느린 성능 |
 
 **성능 교차점 분석:**
 - **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섬
 - **중형 파일 (13MB)**: xml2js는 이 fixture에서만 보이는 이상치에 가깝고, `stax-xml consume`와 `stax-xml to object`는 비슷한 처리량 대역에 머뭅니다
 - **대형 파일 (98MB)**: StAX-XML이 속도와 메모리 효율성의 최고 균형 제공
 - **초대형 파일 (1GB+)**: 비동기 파서만 실행 가능
+
+## Converter API vs Plain Parser
+
+아래 벤치마크는 **동일한 object output**을 만드는 세 가지 방식을 비교합니다.
+
+- `StaxXmlParserSync` 위에 직접 작성한 plain parser
+- 선언형 converter API
+- `.compile()`을 적용한 converter API
+
+현재 workspace에서 측정한 fixture:
+
+- `catalog` 문서
+- `800`개의 `<featured>` 요소
+- `800`개의 `<book>` 요소
+- 결과 object에 포함된 항목:
+  - root object field
+  - root array of objects
+  - direct scalar field
+  - transform 기반 파생 필드
+
+동일한 Node.js 24.12.0 / i5-13600K 환경에서 측정한 loop 평균:
+
+| 구현 | 평균 시간 | 비고 |
+| --- | ---: | --- |
+| plain parser | **3.01 ms** | 가장 낮은 오버헤드, 수동 상태 관리 |
+| converter api | 311.49 ms | 선언형이지만 uncompiled 경로 |
+| converter api compiled | **248.05 ms** | 선언형 스키마 + compiled root processor |
+
+해석:
+
+- 순수 처리량 기준 최상한은 여전히 handwritten plain parser입니다.
+- uncompiled converter API는 추상화 비용이 큽니다.
+- compiled converter 경로는 여전히 추상화 비용이 크지만, 현재 fixture에서는 uncompiled converter보다 앞섭니다.
+
+이 벤치마크 스크립트는 측정 전에 세 구현이 모두 동일한 JSON을 생성하는지 먼저 검증합니다.
+
+```bash
+pnpm --filter=benchmark run dev:converter:plain-output
+```
+
+실행 후 markdown 요약은 아래 경로에 저장됩니다.
+
+```text
+packages/benchmark/results/converter-plain-output-benchmark.md
+```
 
 ## 라이터 성능
 
@@ -204,6 +249,7 @@ npm run dev:parser:13mb      # 중대형 문서 파싱 (13MB)
 npm run dev:parser:98mb      # 대형 문서 파싱 (98MB)
 npm run dev:builder:small    # 소형 문서 생성
 npm run dev:builder:big      # 대형 문서 생성 (1MB)
+npm run dev:converter:plain-output   # plain parser vs converter API parity benchmark
 npm run dev:async:parser     # 다양한 파일 크기의 비동기 파서
 npm run dev:async:writer     # 비동기 vs 동기 라이터 비교
 ```

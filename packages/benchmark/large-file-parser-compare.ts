@@ -1,6 +1,10 @@
-import { barplot, bench, run, summary } from 'mitata';
+import { barplot, bench, summary } from 'mitata';
 import { StaxXmlParser, StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 import { createLargeXMLStream, type LargeStreamConfig } from './common/large-file-generator.js';
+
+const cli = parseMitataCliArgs();
+const verboseStreams = shouldPrintHumanReadableBanner(cli);
 
 // Async StAX XML Parser 테스트
 async function testAsyncStaxParser(stream: ReadableStream<Uint8Array>): Promise<number> {
@@ -42,7 +46,7 @@ async function testBatchAsyncStaxParser(stream: ReadableStream<Uint8Array>): Pro
   const parser = new StaxXmlParser(stream);
 
   // 이벤트 처리
-  for await (const events of parser.batchedIterator(100)) {
+  for await (const events of parser.batchedIterator()) {
     for (const event of events) {
       eventsProcessed++;
 
@@ -98,29 +102,30 @@ function testSyncStaxParser(xmlContent: string): number {
 }
 
 async function main() {
-  console.log('🚀 Async XML Parser Benchmark - Performance Test with mitata');
-  console.log('============================================================');
-
-  console.log('\n📊 Running mitata benchmarks...');
+  if (shouldPrintHumanReadableBanner(cli)) {
+    console.log('🚀 Async XML Parser Benchmark - Performance Test with mitata');
+    console.log('============================================================');
+    console.log('\n📊 Running mitata benchmarks...');
+  }
 
   // mitata 벤치마크 실행
   barplot(() => {
     summary(() => {
       // 500MB 스트림 테스트
       bench('async stax parser (500MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const stream = createLargeXMLStream({ sizeGB: 0.5, verbose: verboseStreams });
         const events = await testAsyncStaxParser(stream);
         return events;
       }).gc('inner');
 
       bench('batch async stax parser (500MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const stream = createLargeXMLStream({ sizeGB: 0.5, verbose: verboseStreams });
         const events = await testBatchAsyncStaxParser(stream);
         return events;
       }).gc('inner');
 
       bench('sync stax parser (500MB)', async () => {
-        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const stream = createLargeXMLStream({ sizeGB: 0.5, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -144,7 +149,7 @@ async function main() {
 
       bench('fast-xml-parser (500MB)', async () => {
         const { XMLParser } = await import('fast-xml-parser');
-        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const stream = createLargeXMLStream({ sizeGB: 0.5, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -171,7 +176,7 @@ async function main() {
       bench('txml (500MB)', async () => {
         //@ts-ignore
         const txml = await import('txml');
-        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const stream = createLargeXMLStream({ sizeGB: 0.5, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -196,7 +201,7 @@ async function main() {
 
       bench('xml2js (500MB)', async () => {
         const xml2js = await import('xml2js');
-        const stream = createLargeXMLStream({ sizeGB: 0.5 });
+        const stream = createLargeXMLStream({ sizeGB: 0.5, verbose: verboseStreams });
         const reader = stream.getReader();
         const chunks: Uint8Array[] = [];
 
@@ -229,12 +234,14 @@ async function main() {
     });
   });
 
-  await run();
+  await runMitataWithCli(cli);
 
-  console.log('\n✅ Benchmark completed!');
-  console.log('📝 Note: Streams are generated on-the-fly without disk I/O');
-  console.log('📝 Note: All parsers compared with 500MB stream data');
-  console.log('🚀 Demonstrates the streaming capability of async parser vs DOM-based parsers');
+  if (shouldPrintHumanReadableBanner(cli)) {
+    console.log('\n✅ Benchmark completed!');
+    console.log('📝 Note: Streams are generated on-the-fly without disk I/O');
+    console.log('📝 Note: All parsers compared with 500MB stream data');
+    console.log('🚀 Demonstrates the streaming capability of async parser vs DOM-based parsers');
+  }
 }
 
 // 메인 실행
