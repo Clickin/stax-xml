@@ -10,6 +10,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 
 ### 🚀 Features
 
+- **Cursor Reader API**: Zero-allocation cursor-based XML traversal for maximum throughput
 - **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing
 - **XPath Support**: Use XPath expressions for flexible element selection
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
@@ -44,8 +45,9 @@ deno add npm:stax-xml
 
 Here are basic examples to get started. StAX-XML provides two parsing approaches:
 
-1. **Event-based API**: Low-level streaming parser for fine-grained control
-2. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
+1. **Cursor Reader API**: Zero-allocation cursor for maximum throughput and minimal memory
+2. **Event-based API**: Low-level streaming parser for fine-grained control
+3. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
 
 #### Declarative Parsing with Converter API (Recommended)
 
@@ -89,6 +91,44 @@ Key features of the Converter API:
 - **Composable**: Build complex schemas from simple primitives
 - **Optional values**: Handle missing elements gracefully with `.optional()`
 - **Transformations**: Apply custom transformations with `.transform()`
+
+#### Cursor Reader API (Zero-Allocation)
+
+The cursor API provides a **mutable singleton cursor** that advances through XML events without creating objects per node. It offers dramatically lower memory usage and higher throughput on large files.
+
+```typescript
+import { XmlCursorReader, CursorEventType } from 'stax-xml/cursor';
+
+const xml = '<root><item id="1">Hello</item><item id="2">World</item></root>';
+const cursor = new XmlCursorReader(xml);
+
+while (cursor.next()) {
+  switch (cursor.eventType) {
+    case CursorEventType.START_ELEMENT:
+      console.log(`<${cursor.name}>`);           // element name
+      console.log(cursor.getAttribute('id'));     // attribute access
+      break;
+    case CursorEventType.CHARACTERS:
+      console.log(cursor.text);                   // text content
+      break;
+  }
+}
+```
+
+For large files via `ReadableStream`:
+
+```typescript
+import { XmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+
+const response = await fetch('https://example.com/large.xml');
+const cursor = new XmlCursorReaderAsync(response.body!);
+
+while (await cursor.next()) {
+  if (cursor.eventType === CursorEventType.START_ELEMENT) {
+    console.log(cursor.name);
+  }
+}
+```
 
 #### Event-based Parsing (Low-level API)
 
@@ -216,6 +256,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 
 ### 🚀 주요 기능
 
+- **커서 Reader API**: 최대 처리량을 위한 제로 할당 커서 기반 XML 순회
 - **선언적 Converter API**: 타입 안전한 XML 파싱과 쓰기를 위한 Zod 스타일 스키마 API
 - **XPath 지원**: 유연한 요소 선택을 위한 XPath 표현식 사용
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
@@ -251,8 +292,9 @@ deno add npm:stax-xml
 
 StAX-XML은 두 가지 파싱 방식을 제공합니다:
 
-1. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
-2. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
+1. **커서 Reader API**: 최대 처리량과 최소 메모리를 위한 제로 할당 커서
+2. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
+3. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
 
 #### Converter API를 사용한 선언적 파싱 (권장)
 
@@ -296,6 +338,44 @@ Converter API의 주요 기능:
 - **조합 가능**: 단순 기본형에서 복잡한 스키마 구축
 - **선택적 값**: `.optional()`로 누락된 요소 우아하게 처리
 - **변환**: `.transform()`으로 사용자 정의 변환 적용
+
+#### 커서 Reader API (제로 할당)
+
+커서 API는 노드마다 객체를 생성하지 않고 **뮤터블 싱글톤 커서**를 통해 XML 이벤트를 순회합니다. 대용량 파일에서 극적으로 낮은 메모리 사용량과 높은 처리량을 제공합니다.
+
+```typescript
+import { XmlCursorReader, CursorEventType } from 'stax-xml/cursor';
+
+const xml = '<root><item id="1">안녕</item><item id="2">세계</item></root>';
+const cursor = new XmlCursorReader(xml);
+
+while (cursor.next()) {
+  switch (cursor.eventType) {
+    case CursorEventType.START_ELEMENT:
+      console.log(`<${cursor.name}>`);           // 요소 이름
+      console.log(cursor.getAttribute('id'));     // 속성 접근
+      break;
+    case CursorEventType.CHARACTERS:
+      console.log(cursor.text);                   // 텍스트 내용
+      break;
+  }
+}
+```
+
+대용량 파일을 `ReadableStream`으로 처리:
+
+```typescript
+import { XmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+
+const response = await fetch('https://example.com/large.xml');
+const cursor = new XmlCursorReaderAsync(response.body!);
+
+while (await cursor.next()) {
+  if (cursor.eventType === CursorEventType.START_ELEMENT) {
+    console.log(cursor.name);
+  }
+}
+```
 
 #### 이벤트 기반 파싱 (저수준 API)
 
