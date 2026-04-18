@@ -27,6 +27,11 @@
       "import": "./dist/converter.js",
       "require": "./dist/converter.cjs"
     },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.cjs"
+    },
     "./internal": {
       "types": "./dist/internal.d.ts",
       "import": "./dist/internal.js",
@@ -48,9 +53,10 @@
   "license": "MIT",
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
+    "test": "vitest run --config vitest.unit.config.ts",
+    "test:watch": "vitest --config vitest.unit.config.ts",
+    "test:perf": "vitest run test/converter/performance-benchmark.test.ts --config vitest.config.ts",
+    "coverage": "vitest run --config vitest.unit.config.ts --coverage",
     "performance": "node --expose-gc ./performance/large-file.ts",
     "prepublishOnly": "pnpm build",
     "typedoc": "typedoc",

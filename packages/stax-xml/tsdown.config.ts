@@ -15,6 +15,7 @@ export default defineConfig([
   {
     entry: {
       converter: 'src/converter/index.ts',
+      browser: 'src/browser.ts',
     },
     format: ['cjs', 'esm'],
     dts: true,

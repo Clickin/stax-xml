@@ -34,3 +34,5 @@ export class InMemoryByteSink implements ByteSink {
     // no-op for in-memory sink
   }
 }
+
+export { InMemoryByteSink as MinimalByteSink };

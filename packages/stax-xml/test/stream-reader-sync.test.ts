@@ -2,14 +2,8 @@ import { describe, it, expect } from 'vitest';
 import path from 'path';
 import fs from 'fs';
 import { StaxXmlParserSync } from '../src/StaxXmlParserSync';
+import { StaxXmlStreamReaderSync } from '../src/StaxXmlStreamReaderSync';
 import { XmlEventType } from '../src/types';
-let StaxXmlStreamReaderSync: any = null;
-try {
-  // @ts-ignore
-  StaxXmlStreamReaderSync = require('../src/StaxXmlStreamReaderSync').StaxXmlStreamReaderSync;
-} catch {
-  StaxXmlStreamReaderSync = null;
-}
 
 const comprehensivePath = path.resolve(__dirname, './samples/comprehensive.xml');
 const complexPath = path.resolve(__dirname, './samples/complex.xml');
@@ -33,15 +27,35 @@ function collectEventsFromParser(xml: string): any[] {
 }
 
 function collectTokensFromReader(xml: string): any[] {
-  if (!StaxXmlStreamReaderSync) {
-    return [];
-  }
   const ReaderClass = StaxXmlStreamReaderSync as any;
   const reader = new ReaderClass(xml);
   const tokens: any[] = [];
   if (typeof reader.hasNext === 'function' && typeof reader.next === 'function') {
     while (reader.hasNext()) {
-      tokens.push(reader.next());
+      const token = reader.next();
+      switch (token) {
+        case XmlEventType.START_ELEMENT:
+        case XmlEventType.END_ELEMENT:
+          tokens.push({
+            name: reader.getName?.(),
+            localName: reader.getLocalName?.(),
+            prefix: reader.getPrefix?.(),
+            uri: reader.getUri?.(),
+          });
+          break;
+        case XmlEventType.CHARACTERS:
+        case XmlEventType.CDATA:
+          tokens.push({
+            type: token,
+            value: reader.getText?.(),
+          });
+          break;
+        default:
+          tokens.push({
+            type: token,
+          });
+          break;
+      }
     }
   } else {
     throw new Error('Unsupported reader interface');

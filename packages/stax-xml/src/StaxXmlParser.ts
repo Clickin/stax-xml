@@ -1050,22 +1050,39 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
    * UTF-8 safe start tag parsing (using ASCII table)
    */
   private _parseStartTag(): boolean {
-    const gtPos = this._findSingleByte(62, this.position); // '>'
+    const gtPos = this._findTagEnd(this.position + 1);
     if (gtPos === -1) return false;
 
     try {
       // Safely decode the entire tag
       const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
-      const tagMatch = tagContent.match(/^<([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(\s+[^>]*?)?\s*(\/?)>$/);
+      const rawTagBody = tagContent.slice(1, -1);
+      let bodyEnd = rawTagBody.length;
+      while (bodyEnd > 0 && this._isWhitespaceCode(rawTagBody.charCodeAt(bodyEnd - 1))) {
+        bodyEnd--;
+      }
 
-      if (!tagMatch) {
+      let isSelfClosing = false;
+      if (bodyEnd > 0 && rawTagBody.charCodeAt(bodyEnd - 1) === 47) {
+        isSelfClosing = true;
+        bodyEnd--;
+        while (bodyEnd > 0 && this._isWhitespaceCode(rawTagBody.charCodeAt(bodyEnd - 1))) {
+          bodyEnd--;
+        }
+      }
+
+      let nameEnd = 0;
+      while (nameEnd < bodyEnd && !this._isWhitespaceCode(rawTagBody.charCodeAt(nameEnd))) {
+        nameEnd++;
+      }
+
+      const tagName = rawTagBody.slice(0, nameEnd);
+      if (!tagName) {
         this._addError(new Error('Malformed start tag'));
         return true;
       }
 
-      const tagName = tagMatch[1];
-      const attributesString = tagMatch[2] || '';
-      const isSelfClosing = tagMatch[3] === '/';
+      const attributesString = rawTagBody.slice(nameEnd, bodyEnd);
 
       const currentNamespaces = new Map<string, string>();
       if (this.namespaceStack.length > 0) {
@@ -1075,36 +1092,11 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
         }
       }
 
-      const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
-      const attributes: { [key: string]: string } = {};
-      const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
-
-      // Attribute parsing - Unicode character support
-      const attrRegex = /([a-zA-Z0-9_:. - A0-\uFFFF]+)(?:\s*=\s*"([^"]*)"|\s*=\s*'([^']*)')?/g;
-      let attrMatch;
-
-      while ((attrMatch = attrRegex.exec(attributesString)) !== null) {
-        const attrName = attrMatch[1];
-        const attrValue = this.entityDecoder(attrMatch[2] || attrMatch[3] || 'true');
-
-        if (includeAttributes) {
-          attributes[attrName] = attrValue;
-
-          const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
-          attributesWithPrefix[attrNamespaceInfo.localName] = {
-            value: attrValue,
-            prefix: attrNamespaceInfo.prefix,
-            uri: attrNamespaceInfo.uri
-          };
-        }
-
-        if (attrName === 'xmlns') {
-          currentNamespaces.set('', attrValue);
-        } else if (attrName.startsWith('xmlns:')) {
-          const prefix = attrName.substring(6);
-          currentNamespaces.set(prefix, attrValue);
-        }
-      }
+      const { attributes, attributesWithPrefix } = this._parseAttributesString(
+        attributesString,
+        currentNamespaces,
+        !this.eventFilter || this.eventFilter.includeAttributes,
+      );
 
       const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
 
@@ -1146,6 +1138,133 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       if (!this.isStreamEnded) return false;
       throw error;
     }
+  }
+
+  private _findTagEnd(start: number): number {
+    let i = start;
+    let inQuote = false;
+    let quoteChar = 0;
+
+    while (i < this.bufferLength) {
+      const code = this.buffer[i];
+      if (code === 34 || code === 39) {
+        if (!inQuote) {
+          inQuote = true;
+          quoteChar = code;
+        } else if (quoteChar === code) {
+          inQuote = false;
+          quoteChar = 0;
+        }
+      } else if (code === 62 && !inQuote) {
+        return i;
+      }
+      i++;
+    }
+
+    return -1;
+  }
+
+  private _parseAttributesString(
+    attributesString: string,
+    currentNamespaces: Map<string, string>,
+    includeAttributes: boolean,
+  ): {
+    attributes: { [key: string]: string };
+    attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } };
+  } {
+    const attributes: { [key: string]: string } = {};
+    const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
+
+    let index = 0;
+    while (index < attributesString.length) {
+      while (index < attributesString.length && this._isWhitespaceCode(attributesString.charCodeAt(index))) {
+        index++;
+      }
+      if (index >= attributesString.length) {
+        break;
+      }
+
+      const nameStart = index;
+      while (index < attributesString.length) {
+        const code = attributesString.charCodeAt(index);
+        if (code === 61 || this._isWhitespaceCode(code)) {
+          break;
+        }
+        index++;
+      }
+
+      if (index === nameStart) {
+        break;
+      }
+
+      const attrName = attributesString.slice(nameStart, index);
+      while (index < attributesString.length && this._isWhitespaceCode(attributesString.charCodeAt(index))) {
+        index++;
+      }
+
+      let attrValue = 'true';
+      if (index < attributesString.length && attributesString.charCodeAt(index) === 61) {
+        index++;
+        while (index < attributesString.length && this._isWhitespaceCode(attributesString.charCodeAt(index))) {
+          index++;
+        }
+
+        if (index >= attributesString.length) {
+          break;
+        }
+
+        const quote = attributesString.charCodeAt(index);
+        if (quote !== 34 && quote !== 39) {
+          break;
+        }
+
+        index++;
+        const valueStart = index;
+        while (index < attributesString.length && attributesString.charCodeAt(index) !== quote) {
+          index++;
+        }
+
+        attrValue = this.entityDecoder(attributesString.slice(valueStart, index));
+        index++;
+      }
+
+      if (attrName === 'xmlns') {
+        currentNamespaces.set('', attrValue);
+      } else if (attrName.startsWith('xmlns:')) {
+        currentNamespaces.set(attrName.substring(6), attrValue);
+      }
+
+      if (includeAttributes) {
+        attributes[attrName] = attrValue;
+
+        const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
+        if (attrName === 'xmlns') {
+          attributesWithPrefix.xmlns = {
+            value: attrValue,
+            prefix: undefined,
+            uri: undefined,
+          };
+        } else if (attrName.startsWith('xmlns:')) {
+          attributesWithPrefix[attrName.substring(6)] = {
+            value: attrValue,
+            prefix: 'xmlns',
+            uri: undefined,
+          };
+        } else {
+          attributesWithPrefix[attrNamespaceInfo.localName] = {
+            value: attrValue,
+            prefix: attrNamespaceInfo.prefix,
+            uri: attrNamespaceInfo.uri,
+          };
+        }
+      }
+    }
+
+    return { attributes, attributesWithPrefix };
+  }
+
+  private _isWhitespaceCode(code: number): boolean {
+    return code < 128 ? StaxXmlParser.ASCII_TABLE[code] === 1 : code <= 32;
   }
 
   private _parseQualifiedName(
