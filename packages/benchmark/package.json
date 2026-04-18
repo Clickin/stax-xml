@@ -49,6 +49,11 @@
     "bench:baseline:quick": "tsx --expose-gc benchmark-baseline.ts --iterations 50",
     "// GC Pressure Measurement": "",
     "example:gc": "tsx --expose-gc example-gc-benchmark.ts",
+    "// Cursor benchmarks (.mjs — no build required)": "",
+    "bench:cursor:2kb": "node --expose-gc ./cursor-2kb.mjs",
+    "bench:cursor:4kb": "node --expose-gc ./cursor-4kb.mjs",
+    "bench:cursor:async": "node --expose-gc ./cursor-async.mjs",
+    "bench:cursor": "pnpm run bench:cursor:2kb && pnpm run bench:cursor:4kb && pnpm run bench:cursor:async",
     "// Complete workflow": "",
     "workflow:full": "pnpm run generate:testdata && pnpm run bench:baseline"
   },

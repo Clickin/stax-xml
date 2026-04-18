@@ -11,6 +11,19 @@ export default defineConfig([
     logLevel: 'error',
     minify: true
   },
+  // Build cursor entry separately for direct cursor-only imports
+  {
+    entry: {
+      cursor: 'src/cursor/index.ts',
+    },
+    format: ['esm'],
+    dts: true,
+    outDir: 'dist',
+    clean: false,
+    platform: "neutral",
+    logLevel: 'error',
+    minify: true
+  },
   // Build converter separately to prevent chunk splitting
   {
     entry: {

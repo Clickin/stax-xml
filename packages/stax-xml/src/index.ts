@@ -8,3 +8,7 @@ export type {
   AnyXmlEvent, CdataEvent, CharactersEvent, ErrorEvent, StartElementEvent, WriteElementOptions, XmlAttribute
 } from "./types.js";
 
+// Cursor API
+export { CursorEventType, XmlCursorReader, XmlCursorReaderAsync } from "./cursor/index.js";
+export type { XmlCursorReaderOptions, XmlCursorReaderAsyncOptions } from "./cursor/index.js";
+
