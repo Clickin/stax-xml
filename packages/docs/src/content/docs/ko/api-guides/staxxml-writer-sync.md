@@ -194,6 +194,48 @@ app.get('/api/products', (c) => {
 export default app;
 ```
 
+##### Sink 기반 증분 쓰기
+
+`StaxXmlWriterSync`는 `StaxXmlWriterSyncSink`를 통해 커스텀 동기 sink로 바로 쓸 수 있습니다.
+Node.js/Bun/Deno는 기본 import를 건드리지 않도록 런타임별 어댑터 경로를 사용하세요.
+
+```typescript
+import { createWriteStream } from 'fs';
+import { StaxXmlWriterSyncSink } from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
+import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
+
+const writer = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./catalog.xml'), { closeMethod: 'close' }),
+  {
+    bufferSize: 4096,
+    enableAutoFlush: true,
+    flushThreshold: 0.7
+  }
+);
+
+writer.writeStartDocument('1.0', 'utf-8');
+writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
+writer.writeStartElement('product', { attributes: { id: '001' } });
+writer.writeStartElement('name');
+writer.writeCharacters('노트북 컴퓨터');
+writer.writeEndElement();
+writer.writeEndElement(); // product
+writer.writeEndElement(); // catalog
+writer.writeEndDocument();
+writer.flush(); // 수동 flush (자동 flush 사용 시 선택)
+writer.close(); // 버퍼 flush + 출력 대상 종료
+
+// Bun 예시:
+// const bunWriter = new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// Deno 예시:
+// const denoWriter = new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+```
+
+`writer.flush()`는 버퍼를 즉시 비우고,
+`writer.close()`는 마지막 정리를 담당합니다.
+
 ##### 고급 라이터 기능
 
 ```typescript
@@ -387,6 +429,30 @@ interface StaxXmlWriterSyncOptions {
   addEntities?: { entity: string, value: string }[];
   autoEncodeEntities?: boolean; // 기본값: true
   namespaces?: NamespaceDeclaration[];
+}
+
+interface SyncTextSink {
+  write(chunk: string): void;
+  flush?(): void;
+  close?(): void;
+}
+
+interface StaxXmlWriterSyncSinkOptions extends StaxXmlWriterSyncOptions {
+  bufferSize?: number;       // 기본값: 16 * 1024
+  enableAutoFlush?: boolean; // 기본값: true
+  flushThreshold?: number;   // 기본값: 0.8 또는 절대 문자 수
+  flushOnClose?: boolean;    // 기본값: false
+}
+
+class StaxXmlWriterSyncSink {
+  constructor(
+    sink: SyncTextSink,
+    options?: StaxXmlWriterSyncSinkOptions
+  )
+
+  // 문서 레벨 메서드
+  flush(): void
+  close(): void
 }
 
 interface XmlAttribute {

@@ -194,6 +194,48 @@ app.get('/api/products', (c) => {
 export default app;
 ```
 
+##### Sink-Based Incremental Writing
+
+`StaxXmlWriterSync` can write directly to any custom sync target through `StaxXmlWriterSyncSink`.
+Use runtime-specific adapters for Node.js, Bun, or Deno so the browser-compatible default import stays unchanged.
+
+```typescript
+import { createWriteStream } from 'fs';
+import { StaxXmlWriterSyncSink } from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
+import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
+
+const writer = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./catalog.xml'), { closeMethod: 'close' }),
+  {
+    bufferSize: 4096,
+    enableAutoFlush: true,
+    flushThreshold: 0.7
+  }
+);
+
+writer.writeStartDocument('1.0', 'utf-8');
+writer.writeStartElement('catalog', { attributes: { version: '1.0' } });
+writer.writeStartElement('product', { attributes: { id: '001' } });
+writer.writeStartElement('name');
+writer.writeCharacters('Laptop Computer');
+writer.writeEndElement();
+writer.writeEndElement(); // product
+writer.writeEndElement(); // catalog
+writer.writeEndDocument();
+writer.flush();     // manual flush (optional when auto-flush is enabled)
+writer.close();     // flush + close adapter target
+
+// Bun example:
+// const bunWriter = new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// Deno example:
+// const denoWriter = new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+```
+
+`writer.flush()` pushes buffered chunks immediately.
+`writer.close()` calls flush (if enabled) and closes the underlying target.
+
 ##### Advanced Writer Features
 
 ```typescript
@@ -387,6 +429,30 @@ interface StaxXmlWriterSyncOptions {
   addEntities?: { entity: string, value: string }[];
   autoEncodeEntities?: boolean; // Default: true
   namespaces?: NamespaceDeclaration[];
+}
+
+interface SyncTextSink {
+  write(chunk: string): void;
+  flush?(): void;
+  close?(): void;
+}
+
+interface StaxXmlWriterSyncSinkOptions extends StaxXmlWriterSyncOptions {
+  bufferSize?: number;       // default: 16 * 1024
+  enableAutoFlush?: boolean; // default: true
+  flushThreshold?: number;   // default: 0.8 or absolute char count
+  flushOnClose?: boolean;    // default: false
+}
+
+class StaxXmlWriterSyncSink {
+  constructor(
+    sink: SyncTextSink,
+    options?: StaxXmlWriterSyncSinkOptions
+  )
+
+  // Document Level Methods
+  flush(): void
+  close(): void
 }
 
 interface XmlAttribute {

@@ -1,5 +1,5 @@
 import type { StaxXmlWriter } from '../StaxXmlWriter.js';
-import type { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import type { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
 
 /**
  * Parse options for XML converter
@@ -214,9 +214,10 @@ export interface XmlWriteOptions {
   /**
    * Custom writer instance
    * - StaxXmlWriterSync: for writeSync() method
+   * - StaxXmlWriterSyncSink: for writeSync() with custom sink
    * - StaxXmlWriter: for write() async method
    */
-  writer?: StaxXmlWriterSync | StaxXmlWriter;
+  writer?: StaxXmlWriterSync | StaxXmlWriterSyncSink | StaxXmlWriter;
 }
 
 /**

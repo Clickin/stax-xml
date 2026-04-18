@@ -4,7 +4,7 @@ import { isAsyncEventIterator } from './AsyncEventBatchIterator.js';
 import type { ParseOptions, XmlObjectOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
-import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
 import { StaxXmlWriter } from '../StaxXmlWriter.js';
 import type { XmlParsingStateMachine, SchemaActivation } from './XmlParsingStateMachine.js';
 
@@ -166,15 +166,18 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
    */
   _writeSync(data: InferObjectOutput<T>, options?: XmlWriteOptions): string {
     // Use injected writer or create new one
-    let writer: StaxXmlWriterSync;
+    let writer: StaxXmlWriterSync | StaxXmlWriterSyncSink;
     let isInjected = false;
 
     if (options?.writer) {
-      if (options.writer instanceof StaxXmlWriterSync) {
+      if (
+        options.writer instanceof StaxXmlWriterSync ||
+        options.writer instanceof StaxXmlWriterSyncSink
+      ) {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires StaxXmlWriterSync instance');
+        throw new Error('writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance');
       }
     } else {
       writer = new StaxXmlWriterSync({
@@ -271,7 +274,10 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       writer.writeEndDocument();
     }
 
-    return isInjected ? '' : writer.getXmlString();
+    if (writer instanceof StaxXmlWriterSync) {
+      return writer.getXmlString();
+    }
+    return '';
   }
 
   /**

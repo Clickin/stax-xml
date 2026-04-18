@@ -315,8 +315,51 @@ interface XmlWriteOptions {
   xmlVersion?: string;         // XML version (default: "1.0")
   encoding?: string;           // Encoding (default: "UTF-8")
   prettyPrint?: boolean;       // Format with indentation
-  indent?: string;             // Indent string (default: "  ")
+  indentString?: string;       // Indent string (default: "  ")
+  writer?: StaxXmlWriterSync | StaxXmlWriterSyncSink | StaxXmlWriter; // Optional injected writer
 }
+```
+
+### Sink-Based Sync Writing
+
+Use `writeSync()` with an injected `StaxXmlWriterSyncSink` to avoid building the whole XML string in memory.
+
+```typescript
+import { x } from 'stax-xml/converter';
+import { createWriteStream } from 'fs';
+import {
+  StaxXmlWriterSyncSink,
+  StaxXmlWriterSync
+} from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+
+const schema = x.object({
+  id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
+  title: x.string().xpath('/book/title').writer({ element: 'title' }),
+  price: x.number().xpath('/book/price').writer({ element: 'price' })
+});
+
+const sink = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./catalog.xml')),
+  { flushThreshold: 0.8, enableAutoFlush: true }
+);
+
+const data = {
+  id: 1001,
+  title: 'High-Performance XML',
+  price: 12345
+};
+
+schema.writeSync(data, {
+  rootElement: 'book',
+  writer: sink,
+  prettyPrint: true
+});
+
+// Because writer is injected, writeSync writes directly to the sink
+// and returns an empty string.
+sink.flush();
+sink.close();
 ```
 
 ### Pretty Printing
@@ -337,7 +380,7 @@ const compact = schema.writeSync(data, { rootElement: 'data' });
 const formatted = schema.writeSync(data, {
   rootElement: 'data',
   prettyPrint: true,
-  indent: '  '
+  indentString: '  '
 });
 // <data>
 //   <name>Test</name>
@@ -364,7 +407,7 @@ const xml = schema.writeSync(data, {
 const xml = schema.writeSync(data, {
   rootElement: 'root',
   prettyPrint: true,
-  indent: '\t'  // Use tabs
+  indentString: '\t'  // Use tabs
 });
 ```
 

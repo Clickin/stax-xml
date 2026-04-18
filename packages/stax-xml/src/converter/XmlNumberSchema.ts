@@ -5,7 +5,7 @@ import { asAsyncEventBatchIterator, isAsyncEventIterator } from './AsyncEventBat
 import type { ParseOptions, XmlNumberOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
-import { StaxXmlWriterSync } from '../StaxXmlWriterSync.js';
+import { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
 import { StaxXmlWriter } from '../StaxXmlWriter.js';
 
 /**
@@ -203,15 +203,18 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    */
   _writeSync(data: number, options?: XmlWriteOptions): string {
     // Use injected writer or create new one
-    let writer: StaxXmlWriterSync;
+    let writer: StaxXmlWriterSync | StaxXmlWriterSyncSink;
     let isInjected = false;
 
     if (options?.writer) {
-      if (options.writer instanceof StaxXmlWriterSync) {
+      if (
+        options.writer instanceof StaxXmlWriterSync ||
+        options.writer instanceof StaxXmlWriterSyncSink
+      ) {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires StaxXmlWriterSync instance');
+        throw new Error('writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance');
       }
     } else {
       writer = new StaxXmlWriterSync({
@@ -257,7 +260,10 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
       writer.writeEndDocument();
     }
 
-    return writer.getXmlString();
+    if (writer instanceof StaxXmlWriterSync) {
+      return writer.getXmlString();
+    }
+    return '';
   }
 
   /**

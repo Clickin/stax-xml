@@ -26,6 +26,18 @@
     "./converter": {
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js"
+    },
+    "./adapters/node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js"
+    },
+    "./adapters/bun": {
+      "types": "./dist/bun.d.ts",
+      "import": "./dist/bun.js"
+    },
+    "./adapters/deno": {
+      "types": "./dist/deno.d.ts",
+      "import": "./dist/deno.js"
     }
   },
   "bugs": "https://github.com/Clickin/stax-xml/issues",
