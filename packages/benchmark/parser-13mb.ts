@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { barplot, bench, run, summary } from 'mitata';
 //@ts-ignore
-import { StaxXmlParserSync, StaxXmlStreamReaderSync, XmlEventType, type AnyXmlEvent } from 'stax-xml';
+import { StaxXmlParserSync, XmlEventType, type AnyXmlEvent } from 'stax-xml';
 import * as txml from 'txml';
 import xml2js from 'xml2js';
 import { ASSET_PATHS, loadXmlFile } from './common/utils.js';
@@ -53,25 +53,6 @@ function staxXmlParserConsume() {
   }
 }
 
-function staxXmlCursorConsume() {
-  const cursor = new StaxXmlStreamReaderSync(xmlString);
-  while (cursor.hasNext()) {
-    switch (cursor.next()) {
-      case XmlEventType.START_DOCUMENT:
-      case XmlEventType.END_DOCUMENT:
-        break;
-      case XmlEventType.START_ELEMENT:
-      case XmlEventType.CHARACTERS:
-      case XmlEventType.CDATA:
-      case XmlEventType.END_ELEMENT:
-        // Do nothing, just consume the events
-        break;
-      case XmlEventType.ERROR:
-        throw new Error('XmlEventType.ERROR');
-    }
-  }
-}
-
 async function xml2jsParser() {
   xml2js.parseString(xmlString, function (err) {
     if (err) {
@@ -90,7 +71,6 @@ barplot(() => {
   summary(() => {
     bench('stax-xml to object', () => staxXmlParserObject()).gc('inner');
     bench('stax-xml consume', () => staxXmlParserConsume()).gc('inner');
-    bench('stax-xml cursor consume', () => staxXmlCursorConsume()).gc('inner');
     bench('xml2js', async () => await xml2jsParser()).gc('inner');
     bench('fast-xml-parser', () => fastXmlParser()).gc('inner');
     bench('txml', () => txmlParser()).gc('inner');

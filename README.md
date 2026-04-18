@@ -15,7 +15,6 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
 - **Fully Asynchronous (Stream-based)**: For memory-efficient processing of large XML files
 - **Synchronous (String-based)**: For high-performance parsing of smaller, in-memory XML strings
-- **Cursor-style Sync Reader**: `StaxXmlStreamReaderSync` for low-allocation hot loops
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
 - **High Performance**: Optimized for speed and low memory usage
@@ -169,7 +168,6 @@ bun test
 | :-------------------------- | :-------------- | :-------------- | :----------- |
 | stax-xml to object          | 95.21 ms/iter   | 96.31 ms        | 35.41 mb     |
 | stax-xml consume            | 89.07 ms/iter   | 90.81 ms        | 4.93 mb      |
-| stax-xml cursor consume     | 66.18 ms/iter   | 67.68 ms        | 214.37 kb    |
 | xml2js                      | 663.47 µs/iter  | 713.90 µs       | 323.69 kb    |
 | fast-xml-parser             | 642.49 ms/iter  | 651.85 ms       | 128.11 mb    |
 | txml                        | 128.58 ms/iter  | 128.63 ms       | 126.90 mb    |
