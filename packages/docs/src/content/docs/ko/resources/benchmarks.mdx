@@ -100,6 +100,10 @@ large.xml (98MB) 성능 결과:
 
 ## 라이터 성능
 
+이 builder 벤치마크는 각 라이브러리에 맞는 builder-friendly intermediate representation을 사용합니다.
+`fast-xml-parser`는 ordered object tree를 그대로 소비하고, `stax-xml` writer 벤치마크는 입력 fixture를 timed region 밖에서 writer-friendly precompiled tree로 한 번 정규화합니다.
+즉 측정값은 반복적인 JSON shape 변환보다 XML emission throughput에 더 가깝습니다.
+
 ### 소형 문서 생성
 
 작은 JSON 데이터에서 XML 문서 생성:
@@ -113,6 +117,9 @@ large.xml (98MB) 성능 결과:
 <BenchmarkSection locale="ko" section="writer-big" />
 
 ### Async vs Sync Writer 비교
+
+이 비교는 동일한 문서 shape에서 `stax-xml` writer API 자체를 측정합니다.
+의도는 async와 sync의 오버헤드를 보는 것이며, async writer가 synchronous DOM-style builder와 같은 속도를 내야 한다는 의미는 아닙니다.
 
 <BenchmarkSection locale="ko" section="writer-async" />
 

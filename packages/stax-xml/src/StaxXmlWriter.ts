@@ -89,6 +89,11 @@ export interface StaxXmlWriterOptions {
  * - Optimization 1: Regex caching for entity escaping
  * - Optimization 2: Attribute string batching
  * - Optimization 3: Early entity check before regex execution
+ * - Optimization 4: Qualified closing-tag stack (avoid rebuilding end tags)
+ * - Optimization 5: Copy-on-write namespace frames
+ * - Optimization 6: Indentation cache for pretty-print output
+ * - Optimization 7: `TextEncoder.encodeInto()` buffering to reduce intermediate byte arrays
+ * - Optimization 8: Flush by buffer view to avoid per-flush copy slices
  *
  * @remarks
  * The writer supports streaming output with configurable buffering, automatic entity encoding,

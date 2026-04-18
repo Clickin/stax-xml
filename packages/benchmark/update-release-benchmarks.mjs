@@ -16,6 +16,7 @@ import {
   XmlEventType,
 } from 'stax-xml';
 import { createLargeXMLStream } from './common/large-file-generator.mjs';
+import { normalizeFxpWriterTree, normalizeOrderedWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
 import { ASSET_PATHS, loadJsonFile, loadXmlFile } from './common/utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -363,6 +364,7 @@ function buildXmlSyncFromJson(data) {
 function registerWriterSmallSuite() {
   const jsonOrderedContent = loadJsonFile(ASSET_PATHS.testOrdered);
   const jsonContent = loadJsonFile(ASSET_PATHS.test);
+  const orderedWriterTree = normalizeOrderedWriterTree(jsonOrderedContent);
 
   barplot(() => {
     summary(() => {
@@ -372,11 +374,25 @@ function registerWriterSmallSuite() {
       }).gc('inner');
 
       bench('stax-xml writer', async () => {
-        await buildXmlAsyncFromJson(jsonOrderedContent);
+        const stream = new WritableStream();
+        const writer = new StaxXmlWriter(stream, {
+          prettyPrint: true,
+          indentString: '  ',
+        });
+        await writer.writeStartDocument();
+        await writeWriterTreeAsync(writer, orderedWriterTree);
+        await writer.writeEndDocument();
       }).gc('inner');
 
       bench('stax-xml writer sync', () => {
-        buildXmlSyncFromJson(jsonOrderedContent);
+        const writer = new StaxXmlWriterSync({
+          prettyPrint: true,
+          indentString: '  ',
+        });
+        writer.writeStartDocument();
+        writeWriterTreeSync(writer, orderedWriterTree);
+        writer.writeEndDocument();
+        writer.getXmlString();
       }).gc('inner');
 
       bench('xml2js builder', () => {
@@ -389,6 +405,7 @@ function registerWriterSmallSuite() {
 
 function registerWriterBigSuite() {
   const bigJsonContent = loadJsonFile(ASSET_PATHS.big);
+  const bigWriterTree = normalizeFxpWriterTree(bigJsonContent);
 
   barplot(() => {
     summary(() => {
@@ -398,11 +415,19 @@ function registerWriterBigSuite() {
       }).gc('inner');
 
       bench('stax-xml writer (big.json)', async () => {
-        await buildXmlAsyncFromJson(bigJsonContent);
+        const stream = new WritableStream();
+        const writer = new StaxXmlWriter(stream);
+        await writer.writeStartDocument();
+        await writeWriterTreeAsync(writer, bigWriterTree);
+        await writer.writeEndDocument();
       }).gc('inner');
 
       bench('stax-xml writer sync (big.json)', () => {
-        buildXmlSyncFromJson(bigJsonContent);
+        const writer = new StaxXmlWriterSync();
+        writer.writeStartDocument();
+        writeWriterTreeSync(writer, bigWriterTree);
+        writer.writeEndDocument();
+        writer.getXmlString();
       }).gc('inner');
     });
   });
@@ -639,11 +664,14 @@ function renderConverterTable(summary) {
 
 function renderWriterSmallTable(summary) {
   const rows = [
-    ['fast-xml-parser builder', 'Fastest'],
+    ['fast-xml-parser builder', 'fast-xml-parser builder'],
     ['stax-xml writer', 'Writer API'],
     ['stax-xml writer sync', 'Sync writer API'],
     ['xml2js builder', 'xml2js builder'],
   ];
+  const fastestLabel = rows
+    .map(([label]) => [label, suiteCase(summary, 'writer-small', label).avgNs])
+    .sort((a, b) => a[1] - b[1])[0][0];
 
   return [
     '| Library | Average Time | Operations/sec | Memory Usage | Notes |',
@@ -653,17 +681,25 @@ function renderWriterSmallTable(summary) {
       const display = label === 'fast-xml-parser builder' ? '**fast-xml-parser builder**'
         : label === 'stax-xml writer sync' ? '**stax-xml writer sync**'
         : label;
-      return `| ${display} | ${formatDurationNsCompact(stats.avgNs)} | ${formatOps(stats.avgNs)} | ${formatMemory(stats.heapAvgBytes)} | ${notes} |`;
+      const resolvedNotes = label === fastestLabel && notes !== 'Fastest'
+        ? `Fastest, ${notes}`
+        : label === fastestLabel
+          ? 'Fastest'
+          : notes;
+      return `| ${display} | ${formatDurationNsCompact(stats.avgNs)} | ${formatOps(stats.avgNs)} | ${formatMemory(stats.heapAvgBytes)} | ${resolvedNotes} |`;
     }),
   ].join('\n');
 }
 
 function renderWriterBigTable(summary) {
   const rows = [
-    ['fast-xml-parser builder (big.json)', 'Fastest'],
+    ['fast-xml-parser builder (big.json)', 'fast-xml-parser builder'],
     ['stax-xml writer sync (big.json)', 'Sync writer API'],
     ['stax-xml writer (big.json)', 'Writer API'],
   ];
+  const fastestLabel = rows
+    .map(([label]) => [label, suiteCase(summary, 'writer-big', label).avgNs])
+    .sort((a, b) => a[1] - b[1])[0][0];
 
   return [
     '| Library | Average Time | Operations/sec | Memory Usage | Notes |',
@@ -673,7 +709,12 @@ function renderWriterBigTable(summary) {
       const display = label === 'fast-xml-parser builder (big.json)' ? '**fast-xml-parser builder**'
         : label === 'stax-xml writer sync (big.json)' ? '**stax-xml writer sync**'
         : 'stax-xml writer';
-      return `| ${display} | ${formatDurationNsCompact(stats.avgNs)} | ${formatOps(stats.avgNs)} | ${formatMemory(stats.heapAvgBytes)} | ${notes} |`;
+      const resolvedNotes = label === fastestLabel && notes !== 'Fastest'
+        ? `Fastest, ${notes}`
+        : label === fastestLabel
+          ? 'Fastest'
+          : notes;
+      return `| ${display} | ${formatDurationNsCompact(stats.avgNs)} | ${formatOps(stats.avgNs)} | ${formatMemory(stats.heapAvgBytes)} | ${resolvedNotes} |`;
     }),
   ].join('\n');
 }
@@ -800,6 +841,11 @@ Interpretation:
 
 ## Writer Performance
 
+These builder benchmarks use a builder-friendly intermediate representation on each side.
+\`fast-xml-parser\` consumes its ordered object tree directly, while the \`stax-xml\` writer benchmarks normalize the source fixture once into a writer-friendly precompiled tree outside the timed region.
+The measured time therefore focuses on XML emission throughput rather than repeated JSON-shape adaptation.
+The memory column is Mitata's average heap footprint for the benchmark case, so it includes fixture/tree residency and harness overhead rather than only the incremental output buffer.
+
 ### Small Document Building
 
 Building XML documents from small JSON data:
@@ -813,6 +859,9 @@ Building large XML documents from big JSON data:
 ${renderWriterBigTable(summary)}
 
 ### Async vs Sync Writer Comparison
+
+This comparison measures the writer APIs themselves on the same generated document shape.
+It is intended to show \`stax-xml\` async vs sync overhead, not to imply that the async writer should match a synchronous DOM-style builder.
 
 ${renderAsyncWriterTable(summary)}
 
