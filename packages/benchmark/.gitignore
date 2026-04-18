@@ -48,3 +48,5 @@ profiles/**/*
 isolate-*.log
 *.cpuprofile
 *.clinic-*
+
+results/release/raw/*.json

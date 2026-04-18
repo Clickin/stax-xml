@@ -1,0 +1,250 @@
+---
+title: Benchmarks
+description: Performance comparisons and benchmark results for StAX-XML
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/resources/benchmarks.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/resources/benchmarks.png
+---
+
+import BenchmarkSection from '../../../components/BenchmarkSection.astro';
+
+StAX-XML is designed for high performance across various XML processing scenarios. This page presents benchmark results comparing StAX-XML with other popular XML parsing libraries.
+
+## Benchmark Environment
+
+<BenchmarkSection locale="en" section="environment" />
+
+## Parser Performance
+
+### Small Documents (2KB)
+
+For typical web service responses and configuration files (complex.xml):
+
+<BenchmarkSection locale="en" section="parser-2kb" />
+
+### Medium Documents (4KB)
+
+For larger API responses and data files (books.xml):
+
+<BenchmarkSection locale="en" section="parser-4kb" />
+
+### Large Documents (1MB to 1GB)
+
+For processing large XML files (RSS feeds, data exports, etc.):
+
+<BenchmarkSection locale="en" section="async-size" />
+
+**Key Insights:**
+- Sync parser is faster for smaller files.
+- Async parser keeps memory usage flatter as file size grows.
+- For files above 100MB, async parsing is the practical low-memory path.
+
+### Sync Parser Library Comparison
+
+#### Medium-Large Documents (13MB)
+
+Performance results on midsize.xml (13MB):
+
+<BenchmarkSection locale="en" section="parser-13mb" />
+
+*xml2js remains an outlier on this fixture, likely because the document shape heavily favors its DOM-oriented parsing model.*
+
+#### Large Documents (98MB)
+
+Performance results on large.xml (98MB):
+
+<BenchmarkSection locale="en" section="parser-98mb" />
+
+**Performance Crossover Analysis:**
+- **Small files (2-4KB)**: txml still leads raw parser throughput
+- **Medium files (13MB)**: xml2js remains an anomalous outlier on this fixture, while `stax-xml consume` and `stax-xml to object` stay in the same general throughput band
+- **Large files (98MB)**: StAX-XML provides best balance of speed and memory efficiency
+- **Very large files (1GB+)**: Only async parsers remain viable
+
+## Converter API vs Plain Parser
+
+The benchmark below compares three ways to build the **same object output**:
+
+- A handwritten plain parser built directly on `StaxXmlParserSync`
+- The declarative converter API
+- The converter API with `.compile()` enabled
+
+Fixture used in the current workspace run:
+
+- `catalog` document
+- `800` `<featured>` elements
+- `800` `<book>` elements
+- output includes:
+  - root object field
+  - root array of objects
+  - direct scalar field
+  - transformed derived field
+
+<BenchmarkSection locale="en" section="converter" />
+
+What this means:
+
+- The handwritten parser remains the raw-throughput ceiling.
+- The uncompiled converter API pays a large abstraction cost.
+- The compiled converter path still carries meaningful overhead, but it is faster than the uncompiled converter path on this fixture.
+
+## Writer Performance
+
+### Small Document Building
+
+Building XML documents from small JSON data:
+
+<BenchmarkSection locale="en" section="writer-small" />
+
+### Large Document Building (1MB)
+
+Building large XML documents from big JSON data:
+
+<BenchmarkSection locale="en" section="writer-big" />
+
+### Async vs Sync Writer Comparison
+
+<BenchmarkSection locale="en" section="writer-async" />
+
+## Memory Efficiency
+
+### Large File Memory Usage
+
+<BenchmarkSection locale="en" section="memory" />
+
+## Benchmark Scripts
+
+You can run these benchmarks yourself using the included benchmark suite:
+
+```bash
+# Run all benchmarks
+npm run dev:bench:all
+
+# Regenerate release benchmark artifacts
+pnpm --filter=benchmark run release:update
+
+# Run specific benchmark categories
+npm run dev:bench:sync       # Sync parser and writer benchmarks
+npm run dev:bench:async      # Async parser and writer benchmarks
+
+# Individual benchmarks
+npm run dev:parser:2kb       # Small document parsing (2KB)
+npm run dev:parser:4kb       # Medium document parsing (4KB)
+npm run dev:parser:13mb      # Medium-large document parsing (13MB)
+npm run dev:parser:98mb      # Large document parsing (98MB)
+npm run dev:builder:small    # Small document building
+npm run dev:builder:big      # Large document building (1MB)
+npm run dev:converter:plain-output   # Plain parser vs converter API parity benchmark
+npm run dev:async:parser     # Async parser with various file sizes
+npm run dev:async:writer     # Async vs sync writer comparison
+```
+
+### Custom Benchmark
+
+Create your own performance test:
+
+```typescript
+import { bench, run } from 'mitata';
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+
+const testXml = '<root><item>test</item></root>';
+
+bench('StAX-XML Parsing', () => {
+  const parser = new StaxXmlParserSync(testXml);
+  let count = 0;
+
+  for (const event of parser) {
+    if (event.type === XmlEventType.START_ELEMENT) {
+      count++;
+    }
+  }
+
+  return count;
+});
+
+await run();
+```
+
+## Performance Tips
+
+### Optimization Strategies
+
+1. **Choose the Right Parser**
+   - Use `StaxXmlParserSync` for documents `<10MB`
+   - Use `StaxXmlParser` for larger files or streaming scenarios
+
+2. **Minimize Memory Allocation**
+   - Process events as they arrive rather than storing them
+   - Use object pooling for frequently created objects
+   - Avoid string concatenation in hot paths
+
+3. **Efficient Event Handling**
+   - Use switch statements instead of if-else chains
+   - Pre-compile regular expressions outside parsing loops
+   - Use Set for element name lookups instead of arrays
+
+4. **Streaming Best Practices**
+   - Configure appropriate chunk sizes (default 64KB)
+   - Implement backpressure handling for writers
+   - Use async iteration for non-blocking processing
+
+### Performance Monitoring
+
+```typescript
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+
+function benchmarkParsing(xml: string, iterations: number = 1000) {
+  const start = performance.now();
+
+  for (let i = 0; i < iterations; i++) {
+    const parser = new StaxXmlParserSync(xml);
+    let eventCount = 0;
+
+    for (const event of parser) {
+      eventCount++;
+    }
+  }
+
+  const end = performance.now();
+  const totalTime = end - start;
+  const avgTime = totalTime / iterations;
+  const opsPerSec = 1000 / avgTime;
+
+  console.log(`Average time per parse: ${avgTime.toFixed(2)}ms`);
+  console.log(`Operations per second: ${opsPerSec.toFixed(0)}`);
+}
+```
+
+## Continuous Benchmarking
+
+We continuously monitor performance to ensure StAX-XML maintains its speed advantages:
+
+- **Automated benchmarks** run on every release
+- **Regression testing** prevents performance degradation
+- **Memory profiling** ensures efficient resource usage
+- **Cross-platform testing** on Node.js, Bun, and Deno
+
+## Contributing Benchmarks
+
+Help improve our benchmarks:
+
+1. **Add new test cases** for your specific use cases
+2. **Report performance issues** with reproducible examples
+3. **Submit optimizations** with benchmark evidence
+4. **Test on different platforms** and share results
+
+See our [GitHub repository](https://github.com/Clickin/stax-xml) for contribution guidelines.

@@ -1,3 +1,4 @@
+import mdx from '@astrojs/mdx';
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
@@ -242,6 +243,7 @@ export default defineConfig({
         },
       ],
     }),
+    mdx(),
   ],
   output: 'static',
   site: 'https://clickin.github.io',

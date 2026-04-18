@@ -1,0 +1,246 @@
+---
+title: Benchmarks
+description: Performance comparisons and benchmark results for StAX-XML
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+---
+
+import BenchmarkSection from '../../../../components/BenchmarkSection.astro';
+
+StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계되었습니다. 이 페이지는 StAX-XML과 다른 인기 있는 XML 파싱 라이브러리들을 비교한 벤치마크 결과를 제시합니다.
+
+## 벤치마크 환경
+
+<BenchmarkSection locale="ko" section="environment" />
+
+## 파서 성능
+
+### 소형 문서 (2KB)
+
+일반적인 웹 서비스 응답 및 설정 파일 (complex.xml):
+
+<BenchmarkSection locale="ko" section="parser-2kb" />
+
+### 중형 문서 (4KB)
+
+일반적인 API 응답 및 데이터 파일 (books.xml):
+
+<BenchmarkSection locale="ko" section="parser-4kb" />
+
+### 대용량 문서 (1MB ~ 1GB)
+
+대용량 XML 파일 처리:
+
+<BenchmarkSection locale="ko" section="async-size" />
+
+**주요 인사이트:**
+- 작은 파일에서는 sync parser가 더 빠릅니다.
+- 파일이 커질수록 async parser가 메모리 사용량을 더 안정적으로 유지합니다.
+- 100MB 이상에서는 async parser가 현실적인 저메모리 경로입니다.
+
+### 동기 파서 라이브러리 비교
+
+#### 중대형 문서 (13MB)
+
+midsize.xml (13MB) 성능 결과:
+
+<BenchmarkSection locale="ko" section="parser-13mb" />
+
+*xml2js는 이 fixture에서만 유난히 빠른 이상치에 가깝습니다.*
+
+#### 대형 문서 (98MB)
+
+large.xml (98MB) 성능 결과:
+
+<BenchmarkSection locale="ko" section="parser-98mb" />
+
+**성능 교차점 분석:**
+- **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섭니다
+- **중형 파일 (13MB)**: xml2js는 이 fixture에서만 보이는 이상치에 가깝고, `stax-xml consume`와 `stax-xml to object`는 비슷한 처리량 대역에 머뭅니다
+- **대형 파일 (98MB)**: StAX-XML이 속도와 메모리 효율성의 최고 균형을 제공합니다
+- **초대형 파일 (1GB+)**: 비동기 파서만 실행 가능합니다
+
+## Converter API vs Plain Parser
+
+아래 벤치마크는 **동일한 object output**을 만드는 세 가지 방식을 비교합니다.
+
+- `StaxXmlParserSync` 위에 직접 작성한 plain parser
+- 선언형 converter API
+- `.compile()`을 적용한 converter API
+
+현재 fixture:
+
+- `catalog` 문서
+- `800`개의 `<featured>` 요소
+- `800`개의 `<book>` 요소
+- 결과에는 root object field, root array, direct scalar, transform 파생 field가 포함됩니다
+
+<BenchmarkSection locale="ko" section="converter" />
+
+해석:
+
+- 순수 처리량 기준 최상한은 여전히 handwritten plain parser입니다.
+- uncompiled converter API는 추상화 비용이 큽니다.
+- compiled converter 경로는 여전히 의미 있는 오버헤드가 있지만, 현재 fixture에서는 uncompiled 경로보다 빠릅니다.
+
+## 라이터 성능
+
+### 소형 문서 생성
+
+작은 JSON 데이터에서 XML 문서 생성:
+
+<BenchmarkSection locale="ko" section="writer-small" />
+
+### 대용량 문서 생성 (1MB)
+
+큰 JSON 데이터에서 대용량 XML 문서 생성:
+
+<BenchmarkSection locale="ko" section="writer-big" />
+
+### Async vs Sync Writer 비교
+
+<BenchmarkSection locale="ko" section="writer-async" />
+
+## 메모리 효율성
+
+### 대용량 파일 메모리 사용량
+
+<BenchmarkSection locale="ko" section="memory" />
+
+## 벤치마크 스크립트
+
+포함된 벤치마크 스위트를 사용하여 직접 이러한 벤치마크를 실행할 수 있습니다:
+
+```bash
+# 모든 벤치마크 실행
+npm run dev:bench:all
+
+# release benchmark artifact 재생성
+pnpm --filter=benchmark run release:update
+
+# 특정 벤치마크 카테고리 실행
+npm run dev:bench:sync       # 동기 파서 및 라이터 벤치마크
+npm run dev:bench:async      # 비동기 파서 및 라이터 벤치마크
+
+# 개별 벤치마크
+npm run dev:parser:2kb       # 소형 문서 파싱 (2KB)
+npm run dev:parser:4kb       # 중형 문서 파싱 (4KB)
+npm run dev:parser:13mb      # 중대형 문서 파싱 (13MB)
+npm run dev:parser:98mb      # 대형 문서 파싱 (98MB)
+npm run dev:builder:small    # 소형 문서 생성
+npm run dev:builder:big      # 대형 문서 생성 (1MB)
+npm run dev:converter:plain-output   # plain parser vs converter API parity benchmark
+npm run dev:async:parser     # 다양한 파일 크기의 비동기 파서
+npm run dev:async:writer     # 비동기 vs 동기 라이터 비교
+```
+
+### 사용자 정의 벤치마크
+
+자신만의 성능 테스트 생성:
+
+```typescript
+import { bench, run } from 'mitata';
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+
+const testXml = '<root><item>test</item></root>';
+
+bench('StAX-XML 파싱', () => {
+  const parser = new StaxXmlParserSync(testXml);
+  let count = 0;
+
+  for (const event of parser) {
+    if (event.type === XmlEventType.START_ELEMENT) {
+      count++;
+    }
+  }
+
+  return count;
+});
+
+await run();
+```
+
+## 성능 팁
+
+### 최적화 전략
+
+1. **올바른 파서 선택**
+   - 10MB 미만 문서에는 `StaxXmlParserSync` 사용
+   - 대용량 파일이나 스트리밍 시나리오에는 `StaxXmlParser` 사용
+
+2. **메모리 할당 최소화**
+   - 이벤트를 저장하지 말고 도착 즉시 처리
+   - 자주 생성되는 객체에 객체 풀링 사용
+   - 핫 패스에서 문자열 연결 피하기
+
+3. **효율적인 이벤트 처리**
+   - if-else 체인 대신 switch 문 사용
+   - 파싱 루프 밖에서 정규 표현식 미리 컴파일
+   - 배열 대신 Set을 사용하여 요소 이름 조회
+
+4. **스트리밍 모범 사례**
+   - 적절한 청크 크기 구성 (기본값 64KB)
+   - 라이터에 백프레셔 처리 구현
+   - 논블로킹 처리를 위해 비동기 반복 사용
+
+### 성능 모니터링
+
+```typescript
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+
+function benchmarkParsing(xml: string, iterations: number = 1000) {
+  const start = performance.now();
+
+  for (let i = 0; i < iterations; i++) {
+    const parser = new StaxXmlParserSync(xml);
+    let eventCount = 0;
+
+    for (const event of parser) {
+      eventCount++;
+    }
+  }
+
+  const end = performance.now();
+  const totalTime = end - start;
+  const avgTime = totalTime / iterations;
+  const opsPerSec = 1000 / avgTime;
+
+  console.log(`파싱당 평균 시간: ${avgTime.toFixed(2)}ms`);
+  console.log(`초당 작업 수: ${opsPerSec.toFixed(0)}`);
+}
+```
+
+## 지속적인 벤치마킹
+
+StAX-XML이 속도 우위를 유지할 수 있도록 성능을 지속적으로 모니터링합니다:
+
+- 모든 릴리스에서 **자동화된 벤치마크** 실행
+- 성능 저하를 방지하는 **회귀 테스트**
+- 효율적인 리소스 사용을 보장하는 **메모리 프로파일링**
+- Node.js, Bun, Deno에서 **크로스 플랫폼 테스트**
+
+## 벤치마크 기여
+
+벤치마크 개선에 도움을 주세요:
+
+1. 특정 사용 사례에 대한 **새로운 테스트 케이스 추가**
+2. 재현 가능한 예제로 **성능 문제 보고**
+3. 벤치마크 증거와 함께 **최적화 제출**
+4. **다양한 플랫폼에서 테스트**하고 결과 공유
+
+기여 가이드라인은 [GitHub 저장소](https://github.com/Clickin/stax-xml)를 참조하세요.

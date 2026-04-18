@@ -15,15 +15,6 @@ const WriterState = {
 
 type WriterState = typeof WriterState[keyof typeof WriterState];
 
-/**
- * Element information stored in the element stack
- */
-interface ElementInfo {
-    localName: string;
-    prefix?: string;
-}
-
-
 export interface StaxXmlWriterSyncOptions {
     encoding?: string; // Output encoding (default: 'utf-8')
     prettyPrint?: boolean; // Enable pretty print (default: false)
@@ -54,13 +45,15 @@ export class StaxXmlWriterSync {
 
     private xmlString: string = ''; // Buffer to store XML string
     private state: WriterState = WriterState.INITIAL;
-    private elementStack: ElementInfo[] = []; // Stack of open element information
+    private elementStack: string[] = []; // Stack of qualified element names
     private hasTextContentStack: boolean[] = []; // Stack tracking whether each element has text content
     private namespaceStack: Map<string, string>[] = []; // Namespace mapping stack
+    private namespaceOwnedStack: boolean[] = []; // Tracks whether each namespace frame is independently owned
     // Changed to options object
     private readonly options: Required<StaxXmlWriterSyncOptions>;
     private currentIndentLevel: number = 0; // Current indentation level
     private needsIndent: boolean = false; // Whether indentation is needed for the next output
+    private indentCache: string[] = [''];
 
     // OPTIMIZATION 1: Instance fields for custom entity handling (if any)
     private customEntityRegex?: RegExp;
@@ -81,6 +74,7 @@ export class StaxXmlWriterSync {
 
         // Initialize namespace stack (root namespace context)
         this.namespaceStack = [new Map<string, string>()];
+        this.namespaceOwnedStack = [true];
 
         // OPTIMIZATION 1: Build custom entity map and regex at construction time
         if (this.options.addEntities && this.options.addEntities.length > 0) {
@@ -191,23 +185,32 @@ export class StaxXmlWriterSync {
         }
 
         this._writeIndent(); // Indentation for pretty print
-        const tagName = prefix ? `${prefix}:${localName}` : localName;
-        this._write(`<${tagName}`);
+        const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
+        this._write(`<${qualifiedName}`);
 
-        // Create namespace context (new namespace mapping for current level)
-        const currentNamespaces = new Map(this.namespaceStack[this.namespaceStack.length - 1]);
+        const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1]!;
+        let currentNamespaces = parentNamespaces;
+        let ownsNamespaces = false;
 
         // Element-level namespace declaration if prefix and uri provided
         if (prefix && uri) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-            currentNamespaces.set(prefix, uri);
+            if (parentNamespaces.get(prefix) !== uri) {
+                currentNamespaces = new Map(parentNamespaces);
+                currentNamespaces.set(prefix, uri);
+                ownsNamespaces = true;
+            }
         }
 
         // OPTIMIZATION 2: Attribute string batching
         // Build entire attribute string first, then single _write call
         if (attributes) {
             let attrString = '';
-            for (const [key, value] of Object.entries(attributes)) {
+            for (const key in attributes) {
+                const value = attributes[key];
+                if (value === undefined) {
+                    continue;
+                }
                 if (typeof value === 'string') {
                     // Simple string attribute
                     attrString += ` ${key}="${this._escapeXml(value)}"`;
@@ -240,12 +243,10 @@ export class StaxXmlWriterSync {
             return this;
         }
 
-        this.elementStack.push({
-            localName,
-            prefix
-        });
+        this.elementStack.push(qualifiedName);
         this.hasTextContentStack.push(false); // New element has no text content yet
         this.namespaceStack.push(currentNamespaces); // Save namespace context
+        this.namespaceOwnedStack.push(ownsNamespaces);
         this.state = WriterState.START_ELEMENT_OPEN; // Now attributes or namespaces can be written
         this.currentIndentLevel++; // Increase indentation level
         return this;
@@ -288,7 +289,7 @@ export class StaxXmlWriterSync {
         }
 
         // Add to current namespace context
-        const currentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+        const currentNamespaces = this._ensureMutableNamespaceContext();
 
         if (prefix) {
             this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
@@ -436,9 +437,9 @@ export class StaxXmlWriterSync {
 
         this._closeStartElementTag(); // If there's an open tag, close it first before writing closing tag
 
-        const elementInfo = this.elementStack.pop()!;
+        const closingTagName = this.elementStack.pop()!;
         this.namespaceStack.pop(); // Remove namespace context
-        const closingTagName = elementInfo.prefix ? `${elementInfo.prefix}:${elementInfo.localName}` : elementInfo.localName;
+        this.namespaceOwnedStack.pop();
         this._write(`</${closingTagName}>`);
         this.state = WriterState.AFTER_ELEMENT; // After closing element, next element or comment is possible
 
@@ -465,6 +466,7 @@ export class StaxXmlWriterSync {
      */
     public setIndentString(indentString: string): this {
         this.options.indentString = indentString;
+        this.indentCache = [''];
         return this;
     }
 
@@ -506,7 +508,7 @@ export class StaxXmlWriterSync {
     private _writeIndent(): void {
         if (this.options.prettyPrint && this.needsIndent) {
             this.xmlString += '\n';
-            this.xmlString += this.options.indentString.repeat(this.currentIndentLevel);
+            this.xmlString += this._getIndent(this.currentIndentLevel);
             this.needsIndent = false;
         }
     }
@@ -530,6 +532,27 @@ export class StaxXmlWriterSync {
     private _write(chunk: string): void {
         if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) return;
         this.xmlString += chunk;
+    }
+
+    private _ensureMutableNamespaceContext(): Map<string, string> {
+        const index = this.namespaceStack.length - 1;
+        let namespaces = this.namespaceStack[index]!;
+        if (!this.namespaceOwnedStack[index]) {
+            namespaces = new Map(namespaces);
+            this.namespaceStack[index] = namespaces;
+            this.namespaceOwnedStack[index] = true;
+        }
+        return namespaces;
+    }
+
+    private _getIndent(level: number): string {
+        const cached = this.indentCache[level];
+        if (cached !== undefined) {
+            return cached;
+        }
+        const indent = this.options.indentString.repeat(level);
+        this.indentCache[level] = indent;
+        return indent;
     }
 
     /**

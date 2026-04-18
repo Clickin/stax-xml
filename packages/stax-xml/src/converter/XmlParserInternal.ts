@@ -196,14 +196,13 @@ export class XmlParserInternal {
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
       const xpath = this.extractXPath(fieldSchema);
-      const unwrapped = this.unwrapSchema(fieldSchema);
-      const schemaType = unwrapped?.constructor?.name;
+      const unwrapped = this.unwrapSchema(fieldSchema) as XmlSchemaBase<unknown, unknown>;
 
       // Special case: Object schema without its own XPath
       // Register its child fields instead
-      if (!xpath && schemaType === 'XmlObjectSchema') {
+      if (!xpath && isObjectSchema(unwrapped)) {
         const objectCollector: ObjectCollector = { type: 'object', fields: new Map() };
-        const objectShape = (unwrapped as any).shape as Record<string, XmlSchemaBase<unknown, unknown>>;
+        const objectShape = unwrapped.shape as Record<string, XmlSchemaBase<unknown, unknown>>;
 
         // Register child field schemas with absolute XPaths
         for (const [childFieldName, childFieldSchema] of Object.entries(objectShape)) {
@@ -222,8 +221,8 @@ export class XmlParserInternal {
 
       // Special case: Array schema without its own XPath
       // Check if element schema has XPath and use that instead
-      if (!xpath && schemaType === 'XmlArraySchema') {
-        const elementSchema = (unwrapped as any).element;
+      if (!xpath && isArraySchema(unwrapped)) {
+        const elementSchema = unwrapped.element;
         if (elementSchema) {
           const elementXPath = this.extractXPath(elementSchema);
           if (elementXPath) {
@@ -240,13 +239,13 @@ export class XmlParserInternal {
 
       let collector: Collector<unknown>;
 
-      if (schemaType === 'XmlArraySchema') {
+      if (isArraySchema(unwrapped)) {
         collector = { type: 'array', items: [] } as ArrayCollector<unknown>;
-      } else if (schemaType === 'XmlStringSchema') {
+      } else if (isStringSchema(unwrapped)) {
         collector = { type: 'string', buffer: '' } as StringCollector;
-      } else if (schemaType === 'XmlNumberSchema') {
+      } else if (isNumberSchema(unwrapped)) {
         collector = { type: 'number', buffer: '' } as NumberCollector;
-      } else if (schemaType === 'XmlObjectSchema') {
+      } else if (isObjectSchema(unwrapped)) {
         collector = { type: 'object', fields: new Map() } as ObjectCollector;
       } else {
         // Fallback: treat as string
@@ -296,14 +295,13 @@ export class XmlParserInternal {
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
       const xpath = this.extractXPath(fieldSchema);
-      const unwrapped = this.unwrapSchema(fieldSchema);
-      const schemaType = unwrapped?.constructor?.name;
+      const unwrapped = this.unwrapSchema(fieldSchema) as XmlSchemaBase<unknown, unknown>;
 
       // Special case: Object schema without its own XPath
       // Register its child fields instead
-      if (!xpath && schemaType === 'XmlObjectSchema') {
+      if (!xpath && isObjectSchema(unwrapped)) {
         const objectCollector: ObjectCollector = { type: 'object', fields: new Map() };
-        const objectShape = (unwrapped as any).shape as Record<string, XmlSchemaBase<unknown, unknown>>;
+        const objectShape = unwrapped.shape as Record<string, XmlSchemaBase<unknown, unknown>>;
 
         // Register child field schemas with absolute XPaths
         for (const [childFieldName, childFieldSchema] of Object.entries(objectShape)) {
@@ -322,8 +320,8 @@ export class XmlParserInternal {
 
       // Special case: Array schema without its own XPath
       // Check if element schema has XPath and use that instead
-      if (!xpath && schemaType === 'XmlArraySchema') {
-        const elementSchema = (unwrapped as any).element;
+      if (!xpath && isArraySchema(unwrapped)) {
+        const elementSchema = unwrapped.element;
         if (elementSchema) {
           const elementXPath = this.extractXPath(elementSchema);
           if (elementXPath) {
@@ -340,13 +338,13 @@ export class XmlParserInternal {
 
       let collector: Collector<unknown>;
 
-      if (schemaType === 'XmlArraySchema') {
+      if (isArraySchema(unwrapped)) {
         collector = { type: 'array', items: [] } as ArrayCollector<unknown>;
-      } else if (schemaType === 'XmlStringSchema') {
+      } else if (isStringSchema(unwrapped)) {
         collector = { type: 'string', buffer: '' } as StringCollector;
-      } else if (schemaType === 'XmlNumberSchema') {
+      } else if (isNumberSchema(unwrapped)) {
         collector = { type: 'number', buffer: '' } as NumberCollector;
-      } else if (schemaType === 'XmlObjectSchema') {
+      } else if (isObjectSchema(unwrapped)) {
         collector = { type: 'object', fields: new Map() } as ObjectCollector;
       } else {
         // Fallback: treat as string

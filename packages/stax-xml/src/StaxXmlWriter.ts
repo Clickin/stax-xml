@@ -12,11 +12,6 @@ const WriterState = {
 
 type WriterState = typeof WriterState[keyof typeof WriterState];
 
-interface ElementInfo {
-  localName: string;
-  prefix?: string;
-}
-
 /**
  * Configuration options for the StaxXmlWriter
  *
@@ -145,13 +140,15 @@ export class StaxXmlWriter {
   private bufferPosition: number = 0;
 
   private state: WriterState = WriterState.INITIAL;
-  private elementStack: ElementInfo[] = [];
+  private elementStack: string[] = [];
   private hasTextContentStack: boolean[] = [];
   private namespaceStack: Map<string, string>[] = [];
+  private namespaceOwnedStack: boolean[] = [];
 
   private readonly options: Required<StaxXmlWriterOptions>;
   private currentIndentLevel: number = 0;
   private needsIndent: boolean = false;
+  private indentCache: string[] = [''];
 
   // OPTIMIZATION 1: Instance fields for custom entity handling (if any)
   private customEntityRegex?: RegExp;
@@ -195,6 +192,7 @@ export class StaxXmlWriter {
 
     // Initialize namespace stack
     this.namespaceStack = [new Map<string, string>()];
+    this.namespaceOwnedStack = [true];
 
     // OPTIMIZATION 1: Build custom entity map and regex at construction time
     if (this.options.addEntities && this.options.addEntities.length > 0) {
@@ -225,29 +223,33 @@ export class StaxXmlWriter {
    * Write data to buffer (with automatic flush)
    */
   private async _writeToBuffer(text: string): Promise<void> {
-    const bytes = this.encoder.encode(text);
-
-    // If single chunk is larger than buffer, write directly to stream
-    if (bytes.length > this.options.bufferSize) {
-      await this._flushBuffer();
-      await this.writer.write(bytes);
-      this.metrics.totalBytesWritten += bytes.length;
+    if (text.length === 0) {
       return;
     }
 
-    // Flush if buffer doesn't have enough space
-    if (this.bufferPosition + bytes.length > this.options.bufferSize) {
-      await this._flushBuffer();
-    }
+    let readOffset = 0;
 
-    // Write to buffer
-    this.buffer.set(bytes, this.bufferPosition);
-    this.bufferPosition += bytes.length;
+    while (readOffset < text.length) {
+      if (this.bufferPosition >= this.options.bufferSize) {
+        await this._flushBuffer();
+      }
 
-    // Auto flush when threshold is reached
-    if (this.options.enableAutoFlush &&
-      this.bufferPosition >= this.options.flushThreshold) {
-      await this._flushBuffer();
+      const source = readOffset === 0 ? text : text.slice(readOffset);
+      const target = this.buffer.subarray(this.bufferPosition);
+      const { read, written } = this.encoder.encodeInto(source, target);
+
+      if (written === 0) {
+        await this._flushBuffer();
+        continue;
+      }
+
+      this.bufferPosition += written;
+      readOffset += read;
+
+      if (this.options.enableAutoFlush &&
+        this.bufferPosition >= this.options.flushThreshold) {
+        await this._flushBuffer();
+      }
     }
   }
 
@@ -257,14 +259,18 @@ export class StaxXmlWriter {
   private async _flushBuffer(): Promise<void> {
     if (this.bufferPosition === 0) return;
 
-    const chunk = this.buffer.slice(0, this.bufferPosition);
+    const bytesWritten = this.bufferPosition;
+    const chunk = bytesWritten === this.buffer.length
+      ? this.buffer
+      : this.buffer.subarray(0, bytesWritten);
+    this.buffer = new Uint8Array(this.options.bufferSize);
+    this.bufferPosition = 0;
+
     await this.writer.write(chunk);
 
-    this.metrics.totalBytesWritten += this.bufferPosition;
+    this.metrics.totalBytesWritten += bytesWritten;
     this.metrics.flushCount++;
     this.metrics.lastFlushTime = Date.now();
-
-    this.bufferPosition = 0;
   }
 
   /**
@@ -336,24 +342,32 @@ export class StaxXmlWriter {
       await this._writeIndent();
     }
 
-    const tagName = prefix ? `${prefix}:${localName}` : localName;
-    await this._writeToBuffer(`<${tagName}`);
+    const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
+    await this._writeToBuffer(`<${qualifiedName}`);
 
     // Namespace processing
-    const currentNamespaces = new Map(
-      this.namespaceStack[this.namespaceStack.length - 1]
-    );
+    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1]!;
+    let currentNamespaces = parentNamespaces;
+    let ownsNamespaces = false;
 
     if (prefix && uri) {
       await this._writeToBuffer(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-      currentNamespaces.set(prefix, uri);
+      if (parentNamespaces.get(prefix) !== uri) {
+        currentNamespaces = new Map(parentNamespaces);
+        currentNamespaces.set(prefix, uri);
+        ownsNamespaces = true;
+      }
     }
 
     // OPTIMIZATION 2: Attribute string batching
     // Build entire attribute string first, then single _writeToBuffer call
     if (attributes) {
       let attrString = '';
-      for (const [key, value] of Object.entries(attributes)) {
+      for (const key in attributes) {
+        const value = attributes[key];
+        if (value === undefined) {
+          continue;
+        }
         if (typeof value === 'string') {
           // Simple string attribute
           attrString += ` ${key}="${this._escapeXml(value)}"`;
@@ -387,9 +401,10 @@ export class StaxXmlWriter {
       return this;
     }
 
-    this.elementStack.push({ localName, prefix });
+    this.elementStack.push(qualifiedName);
     this.hasTextContentStack.push(false);
     this.namespaceStack.push(currentNamespaces);
+    this.namespaceOwnedStack.push(ownsNamespaces);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
 
@@ -414,12 +429,9 @@ export class StaxXmlWriter {
 
     await this._closeStartElementTag();
 
-    const elementInfo = this.elementStack.pop()!;
+    const closingTagName = this.elementStack.pop()!;
     this.namespaceStack.pop();
-
-    const closingTagName = elementInfo.prefix
-      ? `${elementInfo.prefix}:${elementInfo.localName}`
-      : elementInfo.localName;
+    this.namespaceOwnedStack.pop();
 
     await this._writeToBuffer(`</${closingTagName}>`);
 
@@ -540,7 +552,7 @@ export class StaxXmlWriter {
 
   private async _writeIndent(): Promise<void> {
     if (this.options.prettyPrint && this.needsIndent) {
-      const indent = '\n' + this.options.indentString.repeat(this.currentIndentLevel);
+      const indent = '\n' + this._getIndent(this.currentIndentLevel);
       await this._writeToBuffer(indent);
       this.needsIndent = false;
     }
@@ -601,5 +613,15 @@ export class StaxXmlWriter {
 
     // OPTIMIZATION 1: Use cached custom entity regex
     return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match] || match);
+  }
+
+  private _getIndent(level: number): string {
+    const cached = this.indentCache[level];
+    if (cached !== undefined) {
+      return cached;
+    }
+    const indent = this.options.indentString.repeat(level);
+    this.indentCache[level] = indent;
+    return indent;
   }
 }
