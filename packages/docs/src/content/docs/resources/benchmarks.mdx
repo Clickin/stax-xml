@@ -104,6 +104,10 @@ What this means:
 
 ## Writer Performance
 
+These builder benchmarks use a builder-friendly intermediate representation on each side.
+`fast-xml-parser` consumes its ordered object tree directly, while the `stax-xml` writer benchmarks normalize the source fixture once into a writer-friendly precompiled tree outside the timed region.
+The measured time therefore focuses on XML emission throughput rather than repeated JSON-shape adaptation.
+
 ### Small Document Building
 
 Building XML documents from small JSON data:
@@ -117,6 +121,9 @@ Building large XML documents from big JSON data:
 <BenchmarkSection locale="en" section="writer-big" />
 
 ### Async vs Sync Writer Comparison
+
+This comparison measures the writer APIs themselves on the same generated document shape.
+It is intended to show `stax-xml` async vs sync overhead, not to imply that the async writer should match a synchronous DOM-style builder.
 
 <BenchmarkSection locale="en" section="writer-async" />
 

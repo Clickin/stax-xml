@@ -31,6 +31,9 @@ export interface StaxXmlWriterSyncOptions {
  * - Optimization 1: Regex caching for entity escaping
  * - Optimization 2: Attribute string batching
  * - Optimization 3: Early entity check before regex execution
+ * - Optimization 4: Qualified closing-tag stack (avoid rebuilding end tags)
+ * - Optimization 5: Copy-on-write namespace frames
+ * - Optimization 6: Indentation cache for pretty-print output
  */
 export class StaxXmlWriterSync {
     // OPTIMIZATION 1: Static cached regex and entity map for basic entities

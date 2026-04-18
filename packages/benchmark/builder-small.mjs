@@ -3,11 +3,13 @@ import { barplot, bench, summary } from 'mitata';
 import { Builder } from 'xml2js';
 import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
+import { normalizeOrderedWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.mjs';
 
 const cli = parseMitataCliArgs();
 const jsonOrderedContent = loadJsonFile(ASSET_PATHS.testOrdered);
 const jsonContent = loadJsonFile(ASSET_PATHS.test);
+const orderedWriterTree = normalizeOrderedWriterTree(jsonOrderedContent);
 
 function fastXmlParserBuilder() {
   const builder = new XMLBuilder({
@@ -24,53 +26,8 @@ async function staxXmlWriterBuilder() {
     indentString: '  ',
   });
 
-  async function buildElement(element) {
-    if (Array.isArray(element)) {
-      for (const item of element) {
-        await buildElement(item);
-      }
-      return;
-    }
-
-    const tagName = Object.keys(element)[0];
-    const content = element[tagName];
-
-    if (Array.isArray(content)) {
-      if (content.length === 0) {
-        await writer.writeStartElement(tagName);
-        await writer.writeEndElement();
-      } else {
-        for (const item of content) {
-          if (item['#text'] !== undefined) {
-            await writer.writeStartElement(tagName);
-            await writer.writeCharacters(String(item['#text']));
-            await writer.writeEndElement();
-          } else if (Object.keys(item).length === 0) {
-            await writer.writeStartElement(tagName);
-            await writer.writeEndElement();
-          } else {
-            await writer.writeStartElement(tagName);
-            await buildElement(item);
-            await writer.writeEndElement();
-          }
-        }
-      }
-    } else if (content['#text'] !== undefined) {
-      await writer.writeStartElement(tagName);
-      await writer.writeCharacters(String(content['#text']));
-      await writer.writeEndElement();
-    } else if (Object.keys(content).length === 0) {
-      await writer.writeStartElement(tagName);
-      await writer.writeEndElement();
-    } else {
-      await writer.writeStartElement(tagName);
-      await buildElement(content);
-      await writer.writeEndElement();
-    }
-  }
-
   await writer.writeStartDocument();
-  await buildElement(jsonOrderedContent);
+  await writeWriterTreeAsync(writer, orderedWriterTree);
   await writer.writeEndDocument();
 }
 
@@ -80,53 +37,8 @@ function staxXmlWriterBuilderSync() {
     indentString: '  ',
   });
 
-  function buildElement(element) {
-    if (Array.isArray(element)) {
-      for (const item of element) {
-        buildElement(item);
-      }
-      return;
-    }
-
-    const tagName = Object.keys(element)[0];
-    const content = element[tagName];
-
-    if (Array.isArray(content)) {
-      if (content.length === 0) {
-        writer.writeStartElement(tagName);
-        writer.writeEndElement();
-      } else {
-        for (const item of content) {
-          if (item['#text'] !== undefined) {
-            writer.writeStartElement(tagName);
-            writer.writeCharacters(String(item['#text']));
-            writer.writeEndElement();
-          } else if (Object.keys(item).length === 0) {
-            writer.writeStartElement(tagName);
-            writer.writeEndElement();
-          } else {
-            writer.writeStartElement(tagName);
-            buildElement(item);
-            writer.writeEndElement();
-          }
-        }
-      }
-    } else if (content['#text'] !== undefined) {
-      writer.writeStartElement(tagName);
-      writer.writeCharacters(String(content['#text']));
-      writer.writeEndElement();
-    } else if (Object.keys(content).length === 0) {
-      writer.writeStartElement(tagName);
-      writer.writeEndElement();
-    } else {
-      writer.writeStartElement(tagName);
-      buildElement(content);
-      writer.writeEndElement();
-    }
-  }
-
   writer.writeStartDocument();
-  buildElement(jsonOrderedContent);
+  writeWriterTreeSync(writer, orderedWriterTree);
   writer.writeEndDocument();
   return writer.getXmlString();
 }
