@@ -1,4 +1,5 @@
 export * from "./StaxXmlParser.js";
+export * from "./StaxXmlParserFastPathExperimental.js";
 export * from "./StaxXmlParserSync.js";
 export * from "./StaxXmlStreamReaderSync.js";
 export * from "./StaxXmlWriter.js";
