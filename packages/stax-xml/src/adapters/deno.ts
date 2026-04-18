@@ -1,10 +1,10 @@
 import type { SyncTextSink } from '../StaxXmlWriterSync.js';
 
 export interface DenoSyncTextSinkTarget {
-  writeText?: (text: string) => unknown;
   writeTextSync?: (text: string) => unknown;
   writeSync?: (chunk: Uint8Array) => number;
-  write?: (chunk: Uint8Array) => Promise<number> | number;
+  flushSync?: () => unknown;
+  flush?: () => unknown;
   close?: () => unknown;
 }
 
@@ -19,28 +19,22 @@ export class StaxXmlWriterDenoSink implements SyncTextSink {
       return;
     }
 
-    if (typeof this.target.writeText === 'function') {
-      this.target.writeText(chunk);
-      return;
-    }
-
     if (typeof this.target.writeSync === 'function') {
       this.target.writeSync(this.encoder.encode(chunk));
       return;
     }
 
-    if (typeof this.target.write === 'function') {
-      this.target.write(this.encoder.encode(chunk));
-      return;
-    }
-
-    throw new Error('Unsupported Deno sink: provide writeTextSync, writeText, writeSync, or write');
+    throw new Error('Unsupported Deno sink: provide writeTextSync or writeSync');
   }
 
   flush(): void {
-    // Optional, if target adds a sync flush API in future.
-    if ('flush' in this.target && typeof (this.target as { flush?: () => unknown }).flush === 'function') {
-      (this.target as { flush: () => unknown }).flush();
+    if (typeof this.target.flushSync === 'function') {
+      this.target.flushSync();
+      return;
+    }
+
+    if (typeof this.target.flush === 'function') {
+      this.target.flush();
     }
   }
 

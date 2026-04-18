@@ -326,12 +326,12 @@ Use `writeSync()` with an injected `StaxXmlWriterSyncSink` to avoid building the
 
 ```typescript
 import { x } from 'stax-xml/converter';
-import { createWriteStream } from 'fs';
+import { openSync } from 'fs';
 import {
   StaxXmlWriterSyncSink,
   StaxXmlWriterSync
 } from 'stax-xml';
-import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 
 const schema = x.object({
   id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
@@ -339,8 +339,9 @@ const schema = x.object({
   price: x.number().xpath('/book/price').writer({ element: 'price' })
 });
 
+const fd = openSync('./catalog.xml', 'w');
 const sink = new StaxXmlWriterSyncSink(
-  createNodeSyncTextSink(createWriteStream('./catalog.xml')),
+  createNodeFileSyncTextSink(fd),
   { flushThreshold: 0.8, enableAutoFlush: true }
 );
 

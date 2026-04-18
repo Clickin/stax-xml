@@ -200,14 +200,15 @@ export default app;
 Use runtime-specific adapters for Node.js, Bun, or Deno so the browser-compatible default import stays unchanged.
 
 ```typescript
-import { createWriteStream } from 'fs';
+import { openSync } from 'fs';
 import { StaxXmlWriterSyncSink } from 'stax-xml';
-import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
 import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
+const fd = openSync('./catalog.xml', 'w');
 const writer = new StaxXmlWriterSyncSink(
-  createNodeSyncTextSink(createWriteStream('./catalog.xml'), { closeMethod: 'close' }),
+  createNodeFileSyncTextSink(fd),
   {
     bufferSize: 4096,
     enableAutoFlush: true,
@@ -233,8 +234,8 @@ writer.close();     // flush + close adapter target
 // const denoWriter = new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
-`writer.flush()` pushes buffered chunks immediately.
-`writer.close()` calls flush (if enabled) and closes the underlying target.
+`writer.flush()` drains buffered chunks and calls `sink.flush()` when available.
+`writer.close()` finalizes the document if needed, optionally calls `sink.flush()`, and closes the underlying target.
 
 ##### Advanced Writer Features
 

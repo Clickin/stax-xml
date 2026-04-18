@@ -90,10 +90,13 @@ For large documents, use `StaxXmlWriterSyncSink` with platform-specific sink ada
 
 ```typescript
 import { x } from 'stax-xml/converter';
-import { writeFileSync, createWriteStream } from 'fs';
+import { openSync, writeFileSync, createWriteStream } from 'fs';
 
 import StaxXmlWriterSync, { StaxXmlWriterSyncSink } from 'stax-xml';
-import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import {
+  createNodeFileSyncTextSink,
+  createNodeSyncTextSink
+} from 'stax-xml/adapters/node';
 import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
 import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
@@ -114,9 +117,10 @@ new StaxXmlWriterSync();
 // Optional: write to file synchronously in one shot
 writeFileSync('./books-inline.xml', booksSchema.writeSync(books, { rootElement: 'catalog' }));
 
-// Node target: sink-based and incremental writing
+// Node target: truly synchronous local-file sink
+const fd = openSync('./books-node-sync.xml', 'w');
 const fileSink = new StaxXmlWriterSyncSink(
-  createNodeSyncTextSink(createWriteStream('./books-node.xml'), { closeMethod: 'close' }),
+  createNodeFileSyncTextSink(fd),
   {
     enableAutoFlush: true,
     flushThreshold: 0.75,
@@ -126,6 +130,13 @@ const fileSink = new StaxXmlWriterSyncSink(
 booksSchema.writeSync(books, { rootElement: 'catalog', writer: fileSink });
 fileSink.close();
 
+// Node writable streams are still supported through the stream adapter
+const streamSink = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./books-node-stream.xml'), { closeMethod: 'close' })
+);
+booksSchema.writeSync(books, { rootElement: 'catalog', writer: streamSink });
+streamSink.close();
+
 // Bun / Deno targets (subpath adapters)
 // Bun: new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
 // Deno: new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
@@ -133,7 +144,8 @@ fileSink.close();
 
 When `writer` is provided to `writeSync()`, output is written directly to the sink and the return value is an empty string.
 
-If you need manual control, use `writer.flush()` and `writer.close()` to force flush/close behavior.
+`writer.flush()` drains the writer buffer and calls `sink.flush()` when available.
+`writer.close()` finalizes the document if needed, optionally flushes the sink, and closes the target.
 
 Key features of the Converter API:
 - **Type-safe parsing**: Infer TypeScript types from schemas
@@ -312,13 +324,16 @@ const newXml = await bookSchema.write(result, { rootElement: 'book' });
 
 ```typescript
 import { x } from 'stax-xml/converter';
-import { writeFileSync, createWriteStream } from 'fs';
+import { openSync, writeFileSync, createWriteStream } from 'fs';
 
 import {
   StaxXmlWriterSync,
   StaxXmlWriterSyncSink
 } from 'stax-xml';
-import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import {
+  createNodeFileSyncTextSink,
+  createNodeSyncTextSink
+} from 'stax-xml/adapters/node';
 import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
 import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
@@ -338,9 +353,10 @@ new StaxXmlWriterSync();
 // 동기/인메모리: 문자열로 한 번에 생성
 writeFileSync('./books-inline.xml', booksSchema.writeSync(books, { rootElement: 'catalog' }));
 
-// Node 대상: sink 기반 증분 쓰기
+// Node 대상: 진짜 동기 로컬 파일 sink
+const fd = openSync('./books-node-sync.xml', 'w');
 const fileSink = new StaxXmlWriterSyncSink(
-  createNodeSyncTextSink(createWriteStream('./books-node.xml'), { closeMethod: 'close' }),
+  createNodeFileSyncTextSink(fd),
   {
     enableAutoFlush: true,
     flushThreshold: 0.75,
@@ -350,13 +366,21 @@ const fileSink = new StaxXmlWriterSyncSink(
 booksSchema.writeSync(books, { rootElement: 'catalog', writer: fileSink });
 fileSink.close();
 
+// Node writable stream도 별도 stream adapter로 계속 지원됩니다.
+const streamSink = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./books-node-stream.xml'), { closeMethod: 'close' })
+);
+booksSchema.writeSync(books, { rootElement: 'catalog', writer: streamSink });
+streamSink.close();
+
 // Bun / Deno 대상 (subpath adapter)
 // Bun: new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
 // Deno: new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
 `writeSync()`에 `writer`를 전달하면 sink로 바로 쓰며 반환 문자열은 빈 문자열(`""`)입니다.
-메모리 임계치 기반 배치 쓰기가 필요하면 `fileSink.flush()`와 `fileSink.close()`를 함께 사용하세요.
+`writer.flush()`는 writer 버퍼를 비우고 가능하면 `sink.flush()`도 호출합니다.
+`writer.close()`는 필요하면 문서를 마무리하고, 설정에 따라 sink를 flush한 뒤 target을 닫습니다.
 
 Converter API의 주요 기능:
 - **타입 안전 파싱**: 스키마에서 TypeScript 타입 자동 추론
