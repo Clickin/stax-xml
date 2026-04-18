@@ -113,7 +113,6 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
 
   private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
   private error: Error | null = null;
-  private isStreamEnded = false;
   private parserFinished = false;
   private batchMetrics = {
     avgEventSize: 100,
@@ -229,7 +228,6 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
       while (!this.parserFinished) {
         const { done, value } = await this.reader.read();
         if (done) {
-          this.isStreamEnded = true;
           const flushed = this.decoder.decode();
           this.processDecodedChunk(flushed, true);
 
