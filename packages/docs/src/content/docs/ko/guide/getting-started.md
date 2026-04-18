@@ -43,6 +43,8 @@ bun add stax-xml
 deno add npm:stax-xml
 ```
 
+**ESM-only 패키지:** StAX-XML은 ESM-only로 배포됩니다. `require('stax-xml')` 대신 `import { ... } from 'stax-xml'`를 사용하세요.
+
 ## 플랫폼 호환성
 
 StAX-XML은 웹 표준 API만을 사용하여 다음과 호환됩니다:

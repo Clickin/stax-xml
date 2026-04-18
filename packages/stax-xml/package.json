@@ -6,8 +6,6 @@
     "type": "git",
     "url": "git+https://github.com/Clickin/stax-xml.git"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "devDependencies": {
     "starlight-typedoc": "^0.21.3",
     "tsdown": "^0.20.3",
@@ -19,18 +17,15 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     },
     "./converter": {
       "types": "./dist/converter.d.ts",
-      "import": "./dist/converter.js",
-      "require": "./dist/converter.cjs"
+      "import": "./dist/converter.js"
     },
     "./internal": {
       "types": "./dist/internal.d.ts",
-      "import": "./dist/internal.js",
-      "require": "./dist/internal.cjs"
+      "import": "./dist/internal.js"
     }
   },
   "bugs": "https://github.com/Clickin/stax-xml/issues",

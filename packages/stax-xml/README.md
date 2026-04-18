@@ -39,6 +39,8 @@ bun add stax-xml
 deno add npm:stax-xml
 ```
 
+**ESM-only package:** StAX-XML is published as ESM-only. Use `import { ... } from 'stax-xml'`; `require('stax-xml')` is not supported.
+
 ### 🔧 Quick Start
 
 Here are basic examples to get started. StAX-XML provides two parsing approaches:
@@ -375,14 +377,13 @@ MIT
 - hasNext() becomes false after END_DOCUMENT is reached.
 - Getters read only the current token; values are overwritten after each subsequent next().
 - Optimized for low allocations to reduce GC pressure in tight loops.
-- Minimal runnable snippet (CommonJS) to demonstrate usage:
+- Minimal runnable snippet (ESM):
 
 ```js
-// Minimal runnable example (adjust path as needed)
-const {StaxXmlStreamReaderSync} = require('./packages/stax-xml/dist/index.cjs');
-const fs = require('fs');
+import { createReadStream } from 'node:fs';
+import { StaxXmlStreamReaderSync } from 'stax-xml';
 
-const stream = fs.createReadStream('examples/sample.xml');
+const stream = createReadStream('examples/sample.xml');
 const reader = new StaxXmlStreamReaderSync(stream);
 
 let token = reader.next(); // START_DOCUMENT

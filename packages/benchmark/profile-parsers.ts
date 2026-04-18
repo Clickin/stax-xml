@@ -76,8 +76,7 @@ async function profileWithV8Prof(
   // Create a temporary script that runs the parser
   const scriptPath = path.join(profileDir, `profile-${config.variant}-temp.js`);
   const scriptContent = `
-    const { StaxXmlParserSync } = require('stax-xml');
-    const fs = require('fs');
+    import { StaxXmlParserSync } from 'stax-xml';
 
     const xml = ${JSON.stringify(xml)};
     const iterations = ${config.iterations || 100};
@@ -246,7 +245,7 @@ async function profileWithClinic(
   // Create a temporary script
   const scriptPath = path.join(profileDir, `profile-${config.variant}-temp.js`);
   const scriptContent = `
-    const { StaxXmlParserSync } = require('stax-xml');
+    import { StaxXmlParserSync } from 'stax-xml';
 
     const xml = ${JSON.stringify(xml)};
     const iterations = ${config.iterations || 100};

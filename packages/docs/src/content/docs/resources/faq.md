@@ -102,6 +102,8 @@ bun add stax-xml         # bun
 deno add npm:stax-xml    # deno
 ```
 
+StAX-XML is published as an **ESM-only package**. Use `import { ... } from 'stax-xml'`; `require('stax-xml')` is not supported.
+
 ### Does StAX-XML work in browsers?
 
 Yes! StAX-XML uses only Web Standard APIs, so it works in all modern browsers. You can use it with any bundler (Webpack, Vite, Rollup, etc.) or directly in browser environments.

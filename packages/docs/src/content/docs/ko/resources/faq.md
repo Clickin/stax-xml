@@ -53,6 +53,8 @@ bun add stax-xml         # bun
 deno add npm:stax-xml    # deno
 ```
 
+StAX-XML은 **ESM-only 패키지**로 배포됩니다. `require('stax-xml')` 대신 `import { ... } from 'stax-xml'`를 사용하세요.
+
 ### StAX-XML은 브라우저에서 작동하나요?
 
 네! StAX-XML은 웹 표준 API만을 사용하므로 모든 최신 브라우저에서 작동합니다. 모든 번들러(Webpack, Vite, Rollup 등)와 함께 사용하거나 브라우저 환경에서 직접 사용할 수 있습니다.
