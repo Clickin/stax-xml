@@ -1,27 +1,9 @@
-// StaxXmlParser.ts
-// High-performance asynchronous XML parser with Circular Buffer Queue optimization
-//
-// Performance: Achieved ~15% improvement vs array-based queue
-// Optimization: Replace Array.shift() (O(n)) with circular buffer (O(1))
-//
-// Key Optimizations:
-// 1. Circular buffer for event queue (O(1) operations)
-// 2. Boyer-Moore-Horspool pattern search
-// 3. UTF-8 safe processing
-// 4. Batch processing support
-// 5. Memory-efficient buffer compaction
-
 import {
-  AnyXmlEvent,
-  CdataEvent,
-  CharactersEvent,
-  EndDocumentEvent,
-  EndElementEvent,
-  ErrorEvent,
-  StartElementEvent,
-  UnifiedXmlEvent,
+  XmlEventFactory,
   XmlEventType,
-  type ParserEventFilter
+  type AnyXmlEvent,
+  type AttributeInfo,
+  type ParserEventFilter,
 } from './types';
 
 /**
@@ -80,133 +62,60 @@ export interface StaxXmlParserOptions {
 
   eventFilter?: ParserEventFilter;
 }
+type IteratorResultLike<T> = IteratorResult<T> | Promise<IteratorResult<T>>;
 
-/**
- * High-performance asynchronous XML parser with circular buffer queue optimization.
- *
- * This parser provides memory-efficient processing of large XML files through streaming
- * with support for pull-based parsing, custom entity handling, and namespace processing.
- *
- * **OPTIMIZATION**: Replaces array-based queue with circular buffer for O(1) operations.
- * Achieved improvement: ~15% on large XML files (1GB+).
- *
- * @remarks
- * The parser uses UTF-8 safe processing with Boyer-Moore-Horspool pattern search optimization
- * and supports both single-event and batch processing modes for improved performance.
- *
- * @example
- * Basic usage:
- * ```typescript
- * const xmlContent = '<root><item>Hello</item></root>';
- * const stream = new ReadableStream({
- *   start(controller) {
- *     controller.enqueue(new TextEncoder().encode(xmlContent));
- *     controller.close();
- *   }
- * });
- *
- * const parser = new StaxXmlParser(stream);
- * for await (const event of parser) {
- *   console.log(event.type, event);
- * }
- * ```
- *
- * @public
- */
-export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
-  private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-  private readonly decoder: TextDecoder;
-  private buffer: Uint8Array;
-  private bufferLength: number = 0;
-  private position: number = 0;
-
-  // ===== OPTIMIZED: Circular Buffer Queue =====
-  // Replaces: private eventQueue: AnyXmlEvent[] = [];
-  private eventQueue: AnyXmlEvent[];
-  private queueHead: number = 0;
-  private queueTail: number = 0;
-  private queueSize: number = 0;
-  private readonly initialCapacity: number;
-
-  private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
-  private error: Error | null = null;
-  private isStreamEnded: boolean = false;
-  private parserFinished: boolean = false;
-  private currentTextBuffer: string = '';
-  private elementStack: string[] = [];
-  private namespaceStack: Map<string, string>[] = [];
-  private readonly options: StaxXmlParserOptions;
-  private readonly eventFilter?: ParserEventFilter;
-
-  // ===== Optimization tables and caches =====
-
-  // ASCII character fast classification table
+export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
   private static readonly ASCII_TABLE = (() => {
     const table = new Uint8Array(128);
-    // Whitespace characters: 1
-    table[9] = 1;   // TAB
-    table[10] = 1;  // LF
-    table[13] = 1;  // CR
-    table[32] = 1;  // SPACE
-    // XML special characters: 2-12
-    table[60] = 2;  // '<'
-    table[62] = 3;  // '>'
-    table[47] = 4;  // '/'
-    table[61] = 5;  // '='
-    table[33] = 6;  // '!'
-    table[63] = 7;  // '?'
-    table[34] = 8;  // '"'
-    table[39] = 9;  // "'"
-    table[38] = 10; // '&'
-    table[91] = 11; // '['
-    table[93] = 12; // ']'
+    table[9] = 1;
+    table[10] = 1;
+    table[13] = 1;
+    table[32] = 1;
     return table;
   })();
 
-  // Entity regex cache
+  private static readonly UNICODE_WHITESPACE = new Set([
+    0x00A0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
+    0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF,
+  ]);
+
   private static readonly ENTITY_REGEX_CACHE = new Map<string, RegExp>();
   private static readonly DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
   private static readonly DEFAULT_ENTITY_MAP: Record<string, string> = {
-    'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'", 'amp': '&'
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    amp: '&',
   };
 
-  // Compiled entity decoder
+  // Singleton empty objects for fast-path elements (no attributes)
+  private static readonly EMPTY_ATTRS: Record<string, string> = Object.freeze({});
+  private static readonly EMPTY_ATTRS_WITH_PREFIX: Record<string, AttributeInfo> = Object.freeze({});
+
+  private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
+  private readonly decoder: TextDecoder;
+  private readonly options: StaxXmlParserOptions;
+  private readonly eventFilter?: ParserEventFilter;
   private readonly entityDecoder: (text: string) => string;
 
-  // Boyer-Moore-Horspool pattern cache
-  private readonly bmhCache = new Map<string, Uint8Array>();
+  // Circular buffer queue (O(1) enqueue and dequeue)
+  private eventQueue: AnyXmlEvent[];
+  private queueHead = 0;
+  private queueTail = 0;
+  private queueSize = 0;
 
-  // Batch processing state
-  private batchMetrics = {
-    avgEventSize: 100,
-    lastBatchTime: 0,
-    eventCount: 0
-  };
+  private readonly elementStack: string[] = [];
+  private readonly namespaceStack: Map<string, string>[] = [];
+  private readonly pendingTextSegments: string[] = [];
+  // Carry tail: a single incomplete structural fragment from the previous chunk
+  private pendingTail = '';
 
-  /**
-   * Creates a new StaxXmlParser instance.
-   *
-   * @param xmlStream - The ReadableStream containing XML data as Uint8Array chunks
-   * @param options - Configuration options for the parser
-   * @throws {Error} When xmlStream is not a valid ReadableStream
-   *
-   * @example
-   * ```typescript
-   * const xmlData = '<root><item>content</item></root>';
-   * const stream = new ReadableStream({
-   *   start(controller) {
-   *     controller.enqueue(new TextEncoder().encode(xmlData));
-   *     controller.close();
-   *   }
-   * });
-   *
-   * const parser = new StaxXmlParser(stream, {
-   *   autoDecodeEntities: true,
-   *   maxBufferSize: 64 * 1024,
-   *   initialQueueCapacity: 2048
-   * });
-   * ```
-   */
+  private resolveNext: ((value: IteratorResult<AnyXmlEvent>) => void) | null = null;
+  private error: Error | null = null;
+  private isStreamEnded = false;
+  private parserFinished = false;
+
   constructor(xmlStream: ReadableStream<Uint8Array>, options: StaxXmlParserOptions = {}) {
     if (!(xmlStream instanceof ReadableStream)) {
       throw new Error('xmlStream must be a web standard ReadableStream.');
@@ -220,278 +129,591 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
       batchSize: 10,
       batchTimeout: 10,
       initialQueueCapacity: 1024,
-      ...options
+      ...options,
     };
-
     this.eventFilter = this.options.eventFilter;
-
-    // TextDecoder optimization settings
     this.decoder = new TextDecoder(this.options.encoding, {
-      fatal: false,    // Use replacement character � instead of error
-      ignoreBOM: true  // Ignore BOM
+      fatal: false,
+      ignoreBOM: true,
     });
-
-    this.buffer = new Uint8Array(this.options.maxBufferSize || 64 * 1024);
-
+    this.entityDecoder = this.compileEntityDecoder();
     // Initialize circular buffer queue
-    this.initialCapacity = this.options.initialQueueCapacity || 1024;
-    this.eventQueue = new Array(this.initialCapacity);
-
-    // Pre-compile entity decoder
-    this.entityDecoder = this._compileEntityDecoder();
-
+    this.eventQueue = new Array(this.options.initialQueueCapacity ?? 1024);
     this.reader = xmlStream.getReader();
-    this._startReading();
-    // Inline START_DOCUMENT creation - maintains V8 hidden class optimization
-    this._addEvent({
-      type: XmlEventType.START_DOCUMENT,
-      name: undefined,
-      localName: undefined,
-      prefix: undefined,
-      uri: undefined,
-      attributes: undefined,
-      attributesWithPrefix: undefined,
-      value: undefined,
-      error: undefined
-    } as UnifiedXmlEvent as StartElementEvent);
+
+    this.enqueueEvent(XmlEventFactory.startDocument());
+    void this.startReading();
   }
 
-  // ===== OPTIMIZED: Circular Buffer Queue Operations =====
+  [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
+    return this as AsyncIterator<AnyXmlEvent>;
+  }
 
-  /**
-   * Enqueue event to circular buffer - O(1) operation
-   * Replaces: this.eventQueue.push(event)
-   */
-  private _enqueueEvent(event: AnyXmlEvent): void {
-    // Check if queue is full
-    if (this.queueSize === this.eventQueue.length) {
-      this._growQueue();
+  next(): IteratorResultLike<AnyXmlEvent> {
+    if (this.error) {
+      throw this.error;
     }
 
-    this.eventQueue[this.queueTail] = event;
-    this.queueTail = (this.queueTail + 1) % this.eventQueue.length;
-    this.queueSize++;
+    if (this.queueSize > 0) {
+      const event = this.eventQueue[this.queueHead]!;
+      this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
+      this.queueSize--;
+      return { value: event, done: false };
+    }
+
+    if (this.parserFinished) {
+      return { value: undefined, done: true };
+    }
+
+    return new Promise((resolve) => {
+      this.resolveNext = resolve;
+    });
   }
 
-  /**
-   * Dequeue event from circular buffer - O(1) operation
-   * Replaces: this.eventQueue.shift()
-   */
-  private _dequeueEvent(): AnyXmlEvent | null {
-    if (this.queueSize === 0) {
+  async return(): Promise<IteratorResult<AnyXmlEvent>> {
+    this.parserFinished = true;
+    this.queueHead = 0;
+    this.queueTail = 0;
+    this.queueSize = 0;
+    this.pendingTail = '';
+    this.pendingTextSegments.length = 0;
+    await this.reader.cancel();
+    this.resolveDoneIfNeeded();
+    return { value: undefined, done: true };
+  }
+
+  private async startReading(): Promise<void> {
+    try {
+      while (!this.parserFinished) {
+        const { done, value } = await this.reader.read();
+        if (done) {
+          this.isStreamEnded = true;
+          const flushed = this.decoder.decode();
+          this.processDecodedChunk(flushed, true);
+
+          if (!this.parserFinished && this.pendingTail.length > 0) {
+            this.addError(new Error('Unexpected end of document. Incomplete markup at end of stream.'));
+            break;
+          }
+
+          if (!this.parserFinished) {
+            this.flushTextSegments();
+            if (this.elementStack.length > 0) {
+              this.addError(new Error('Unexpected end of document. Not all elements were closed.'));
+              break;
+            }
+
+            this.enqueueEvent(XmlEventFactory.endDocument());
+            this.parserFinished = true;
+            this.resolveDoneIfNeeded();
+          }
+          break;
+        }
+
+        const decoded = this.decoder.decode(value, { stream: true });
+        this.processDecodedChunk(decoded, false);
+      }
+    } catch (error) {
+      this.addError(error as Error);
+    }
+  }
+
+  private processDecodedChunk(decodedChunk: string, isFinal: boolean): void {
+    // Prepend any incomplete structural tail from the previous chunk
+    const window = this.pendingTail.length > 0 ? this.pendingTail + decodedChunk : decodedChunk;
+    this.pendingTail = '';
+
+    let position = 0;
+    while (position < window.length && !this.parserFinished) {
+      const ltPos = window.indexOf('<', position);
+      if (ltPos === -1) {
+        if (position < window.length) {
+          this.pendingTextSegments.push(window.slice(position));
+        }
+        return;
+      }
+
+      if (ltPos > position) {
+        this.pendingTextSegments.push(window.slice(position, ltPos));
+      }
+
+      if (this.pendingTextSegments.length > 0) {
+        this.flushTextSegments();
+      }
+
+      const result = this.parseTag(window, ltPos, isFinal);
+      if (result === null) {
+        // Incomplete markup: carry the tail to the next chunk
+        this.pendingTail = window.slice(ltPos);
+        return;
+      }
+
+      position = result;
+    }
+  }
+
+  private parseTag(window: string, position: number, isFinal: boolean): number | null {
+    if (window.startsWith('<?xml', position)) {
+      const end = window.indexOf('?>', position + 5);
+      if (end === -1) {
+        if (isFinal) {
+          throw new Error('Unclosed XML declaration');
+        }
+        return null;
+      }
+      return end + 2;
+    }
+
+    if (window.startsWith('<!--', position)) {
+      const end = window.indexOf('-->', position + 4);
+      if (end === -1) {
+        if (isFinal) {
+          throw new Error('Unclosed comment');
+        }
+        return null;
+      }
+      return end + 3;
+    }
+
+    if (window.startsWith('<![CDATA[', position)) {
+      const end = window.indexOf(']]>', position + 9);
+      if (end === -1) {
+        if (isFinal) {
+          throw new Error('Unclosed CDATA section');
+        }
+        return null;
+      }
+
+      if (!this.eventFilter || this.eventFilter.includeCdata) {
+        this.enqueueEvent(XmlEventFactory.cdata(window.slice(position + 9, end)));
+      }
+      return end + 3;
+    }
+
+    if (window.startsWith('<?', position)) {
+      const end = window.indexOf('?>', position + 2);
+      if (end === -1) {
+        if (isFinal) {
+          throw new Error('Unclosed processing instruction');
+        }
+        return null;
+      }
+      return end + 2;
+    }
+
+    if (window.startsWith('</', position)) {
+      return this.parseEndTag(window, position, isFinal);
+    }
+
+    return this.parseStartTag(window, position, isFinal);
+  }
+
+  private parseEndTag(window: string, position: number, isFinal: boolean): number | null {
+    const end = window.indexOf('>', position + 2);
+    if (end === -1) {
+      if (isFinal) {
+        throw new Error('Unclosed end tag');
+      }
       return null;
     }
 
-    const event = this.eventQueue[this.queueHead];
-    this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
-    this.queueSize--;
-
-    return event;
-  }
-
-  /**
-   * Grow circular buffer when full - maintains O(1) amortized complexity
-   */
-  private _growQueue(): void {
-    const oldCapacity = this.eventQueue.length;
-    const newCapacity = oldCapacity * 2;
-    const newQueue = new Array(newCapacity);
-
-    // Copy elements in order from head to tail
-    let writeIndex = 0;
-    for (let i = 0; i < this.queueSize; i++) {
-      const readIndex = (this.queueHead + i) % oldCapacity;
-      newQueue[writeIndex++] = this.eventQueue[readIndex];
+    const fullTagName = this.trimmedSlice(window, position + 2, end);
+    if (this.elementStack.length === 0) {
+      throw new Error(`Mismatched closing tag: </${fullTagName}>. No open elements.`);
     }
 
+    const expectedTagName = this.elementStack[this.elementStack.length - 1]!;
+    if (fullTagName !== expectedTagName) {
+      throw new Error(`Mismatched closing tag: </${fullTagName}>. Expected </${expectedTagName}>.`);
+    }
+
+    this.elementStack.pop();
+    const currentNamespaces = this.namespaceStack.pop();
+    const { localName, prefix, uri } = this.parseQualifiedName(fullTagName, currentNamespaces);
+    this.enqueueEvent(XmlEventFactory.endElement(fullTagName, localName, prefix, uri));
+    return end + 1;
+  }
+
+  private parseStartTag(window: string, position: number, isFinal: boolean): number | null {
+    const tagEnd = this.findTagEnd(window, position + 1);
+    if (tagEnd === -1) {
+      if (isFinal) {
+        throw new Error('Unclosed start tag');
+      }
+      return null;
+    }
+
+    let contentEnd = tagEnd;
+    while (contentEnd > position + 1 && StaxXmlParser.isWhitespace(window.charCodeAt(contentEnd - 1))) {
+      contentEnd--;
+    }
+
+    let isSelfClosing = false;
+    let actualEnd = contentEnd;
+    if (actualEnd > position + 1 && window.charCodeAt(actualEnd - 1) === 47) {
+      isSelfClosing = true;
+      actualEnd--;
+      while (actualEnd > position + 1 && StaxXmlParser.isWhitespace(window.charCodeAt(actualEnd - 1))) {
+        actualEnd--;
+      }
+    }
+
+    // Extract tag name and detect colon in a single pass
+    let nameEnd = position + 1;
+    let colonPos = -1;
+    while (nameEnd < actualEnd) {
+      const code = window.charCodeAt(nameEnd);
+      if (code === 58 /* ':' */ && colonPos === -1) colonPos = nameEnd;
+      if (StaxXmlParser.isWhitespace(code) || code === 47 || code === 62) {
+        break;
+      }
+      nameEnd++;
+    }
+
+    const tagName = window.slice(position + 1, nameEnd);
+    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+
+    // Fast path: simple element with no namespace prefix and no attributes
+    if (colonPos === -1 && nameEnd === tagEnd && window.charCodeAt(nameEnd) === 62) {
+      const uri = parentNamespaces?.get('');
+      this.enqueueEvent(XmlEventFactory.startElement(
+        tagName, tagName, undefined, uri,
+        StaxXmlParser.EMPTY_ATTRS,
+        StaxXmlParser.EMPTY_ATTRS_WITH_PREFIX,
+      ));
+      if (isSelfClosing) {
+        this.enqueueEvent(XmlEventFactory.endElement(tagName, tagName, undefined, uri));
+      } else {
+        this.elementStack.push(tagName);
+        // Share parent namespace map — no copy needed when no xmlns declared
+        this.namespaceStack.push(parentNamespaces ?? new Map());
+      }
+      return tagEnd + 1;
+    }
+
+    // General path: parse attributes (handles xmlns, prefixed names, etc.)
+    const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
+    const { attributes, attributesWithPrefix, namespaces } = this.parseAttributesFast(
+      window,
+      nameEnd,
+      actualEnd,
+      parentNamespaces ?? new Map(),
+      includeAttributes,
+    );
+
+    let localName: string;
+    let prefix: string | undefined;
+    let uri: string | undefined;
+
+    if (colonPos === -1) {
+      localName = tagName;
+      prefix = undefined;
+      uri = namespaces.get('');
+    } else {
+      prefix = tagName.slice(0, colonPos - (position + 1));
+      localName = tagName.slice(colonPos - (position + 1) + 1);
+      uri = namespaces.get(prefix);
+    }
+
+    this.enqueueEvent(XmlEventFactory.startElement(
+      tagName,
+      localName,
+      prefix,
+      uri,
+      attributes,
+      attributesWithPrefix,
+    ));
+
+    if (isSelfClosing) {
+      this.enqueueEvent(XmlEventFactory.endElement(tagName, localName, prefix, uri));
+    } else {
+      this.elementStack.push(tagName);
+      this.namespaceStack.push(namespaces);
+    }
+
+    return tagEnd + 1;
+  }
+
+  private parseAttributesFast(
+    window: string,
+    start: number,
+    end: number,
+    parentNamespaces: Map<string, string>,
+    includeAttributes: boolean,
+  ): { attributes: Record<string, string>; attributesWithPrefix: Record<string, AttributeInfo>; namespaces: Map<string, string> } {
+    if (start >= end) {
+      return {
+        attributes: StaxXmlParser.EMPTY_ATTRS,
+        attributesWithPrefix: StaxXmlParser.EMPTY_ATTRS_WITH_PREFIX,
+        namespaces: parentNamespaces,
+      };
+    }
+
+    const attributes: Record<string, string> = {};
+    const attributesWithPrefix: Record<string, AttributeInfo> = {};
+    // Lazy copy: only create new Map when first xmlns attr is found
+    let namespaces: Map<string, string> = parentNamespaces;
+    let namespaceCopied = false;
+
+    let index = start;
+    while (index < end) {
+      while (index < end && StaxXmlParser.isWhitespace(window.charCodeAt(index))) {
+        index++;
+      }
+      if (index >= end) {
+        break;
+      }
+
+      const nameStart = index;
+      while (index < end) {
+        const code = window.charCodeAt(index);
+        if (code === 61 || StaxXmlParser.isWhitespace(code)) {
+          break;
+        }
+        index++;
+      }
+
+      if (index === nameStart) {
+        break;
+      }
+
+      const attrName = window.slice(nameStart, index);
+      while (index < end && StaxXmlParser.isWhitespace(window.charCodeAt(index))) {
+        index++;
+      }
+
+      if (index >= end || window.charCodeAt(index) !== 61) {
+        if (includeAttributes) {
+          this.recordAttribute(attributes, attributesWithPrefix, namespaces, attrName, 'true');
+        }
+        continue;
+      }
+
+      index++;
+      while (index < end && StaxXmlParser.isWhitespace(window.charCodeAt(index))) {
+        index++;
+      }
+      if (index >= end) {
+        break;
+      }
+
+      const quote = window.charCodeAt(index);
+      if (quote !== 34 && quote !== 39) {
+        break;
+      }
+
+      index++;
+      const valueStart = index;
+      while (index < end && window.charCodeAt(index) !== quote) {
+        index++;
+      }
+      if (index >= end) {
+        break;
+      }
+
+      const attrValue = this.entityDecoder(window.slice(valueStart, index));
+
+      // xmlns pre-filter: 'x'=120, min length 5 ('xmlns')
+      const c0 = attrName.charCodeAt(0);
+      if (c0 === 120 && attrName.length >= 5) {
+        if (attrName === 'xmlns') {
+          if (!namespaceCopied) { namespaces = new Map(parentNamespaces); namespaceCopied = true; }
+          namespaces.set('', attrValue);
+        } else if (attrName.charCodeAt(5) === 58 && attrName.slice(0, 5) === 'xmlns') {
+          if (!namespaceCopied) { namespaces = new Map(parentNamespaces); namespaceCopied = true; }
+          namespaces.set(attrName.slice(6), attrValue);
+        }
+      }
+
+      if (includeAttributes) {
+        this.recordAttribute(attributes, attributesWithPrefix, namespaces, attrName, attrValue);
+      }
+      index++;
+    }
+
+    return { attributes, attributesWithPrefix, namespaces };
+  }
+
+  private recordAttribute(
+    attributes: Record<string, string>,
+    attributesWithPrefix: Record<string, AttributeInfo>,
+    namespaces: Map<string, string>,
+    attrName: string,
+    attrValue: string,
+  ): void {
+    attributes[attrName] = attrValue;
+
+    let localName = attrName;
+    let prefix: string | undefined;
+    let uri: string | undefined;
+    const colonIndex = attrName.indexOf(':');
+    if (colonIndex !== -1) {
+      prefix = attrName.slice(0, colonIndex);
+      localName = attrName.slice(colonIndex + 1);
+      uri = namespaces.get(prefix);
+    }
+
+    if (attrName.startsWith('xmlns')) {
+      if (attrName === 'xmlns') {
+        localName = 'xmlns';
+        prefix = undefined;
+      } else {
+        localName = attrName.slice(6);
+        prefix = 'xmlns';
+      }
+      uri = undefined;
+    }
+
+    attributesWithPrefix[attrName] = {
+      value: attrValue,
+      localName,
+      prefix,
+      uri,
+    };
+  }
+
+  private parseQualifiedName(
+    qname: string,
+    namespaces?: Map<string, string>,
+  ): { localName: string; prefix: string | undefined; uri: string | undefined } {
+    const colonIndex = qname.indexOf(':');
+    if (colonIndex === -1) {
+      return {
+        localName: qname,
+        prefix: undefined,
+        uri: namespaces?.get(''),
+      };
+    }
+
+    const prefix = qname.slice(0, colonIndex);
+    return {
+      localName: qname.slice(colonIndex + 1),
+      prefix,
+      uri: namespaces?.get(prefix),
+    };
+  }
+
+  private flushTextSegments(): void {
+    if (this.pendingTextSegments.length === 0) {
+      return;
+    }
+
+    const rawText = this.pendingTextSegments.length === 1
+      ? this.pendingTextSegments[0]!
+      : this.pendingTextSegments.join('');
+    this.pendingTextSegments.length = 0;
+
+    const decodedText = this.entityDecoder(rawText);
+    if (!decodedText) {
+      return;
+    }
+
+    // Check for whitespace-only text without allocating trim()
+    let isWs = true;
+    for (let i = 0; i < decodedText.length; i++) {
+      const c = decodedText.charCodeAt(i);
+      if (c !== 32 && c !== 9 && c !== 10 && c !== 13) {
+        isWs = false;
+        break;
+      }
+    }
+    if (isWs) {
+      return;
+    }
+
+    if (!this.eventFilter || this.eventFilter.includeCharacters) {
+      this.enqueueEvent(XmlEventFactory.characters(decodedText));
+    }
+  }
+
+  private enqueueEvent(event: AnyXmlEvent): void {
+    // Circular buffer enqueue
+    if (this.queueSize === this.eventQueue.length) {
+      this.growQueue();
+    }
+    this.eventQueue[this.queueTail] = event;
+    this.queueTail = (this.queueTail + 1) % this.eventQueue.length;
+    this.queueSize++;
+
+    if (this.resolveNext !== null) {
+      const resolve = this.resolveNext;
+      this.resolveNext = null;
+      // Dequeue the event we just enqueued and resolve the pending consumer
+      const next = this.eventQueue[this.queueHead]!;
+      this.queueHead = (this.queueHead + 1) % this.eventQueue.length;
+      this.queueSize--;
+      resolve({ value: next, done: false });
+    }
+  }
+
+  private growQueue(): void {
+    const oldCapacity = this.eventQueue.length;
+    const newCapacity = oldCapacity * 2;
+    const newQueue = new Array<AnyXmlEvent>(newCapacity);
+    for (let i = 0; i < this.queueSize; i++) {
+      newQueue[i] = this.eventQueue[(this.queueHead + i) % oldCapacity]!;
+    }
     this.eventQueue = newQueue;
     this.queueHead = 0;
     this.queueTail = this.queueSize;
   }
 
-  // ===== ASCII table utility methods =====
+  private addError(error: Error): void {
+    if (this.error !== null) {
+      return;
+    }
 
-  /**
-   * Fast XML special character check
-   */
-  private getXmlCharType(byte: number): number {
-    return byte < 128 ? StaxXmlParser.ASCII_TABLE[byte] : 0;
+    this.error = error;
+    this.enqueueEvent(XmlEventFactory.error(error));
+    this.parserFinished = true;
+    this.pendingTail = '';
+    this.pendingTextSegments.length = 0;
+    this.resolveDoneIfNeeded();
   }
 
-  // ===== UTF-8 safety methods =====
-
-  /**
-   * Check if UTF-8 byte is the start of a character
-   * @param byte The byte to check
-   * @returns true if it's the start of a character
-   */
-  private isUtf8CharStart(byte: number): boolean {
-    // ASCII (0xxxxxxx) or multibyte start (11xxxxxx)
-    // Not a continuation byte (10xxxxxx)
-    return (byte & 0x80) === 0 || (byte & 0xC0) === 0xC0;
+  private resolveDoneIfNeeded(): void {
+    if (this.resolveNext !== null && this.queueSize === 0 && this.parserFinished) {
+      const resolve = this.resolveNext;
+      this.resolveNext = null;
+      resolve({ value: undefined, done: true });
+    }
   }
 
-  /**
-   * Calculate UTF-8 sequence length
-   * @param byte The first byte
-   * @returns Sequence length (1-4)
-   */
-  private getUtf8SequenceLength(byte: number): number {
-    if ((byte & 0x80) === 0) return 1;        // 0xxxxxxx
-    if ((byte & 0xE0) === 0xC0) return 2;      // 110xxxxx
-    if ((byte & 0xF0) === 0xE0) return 3;      // 1110xxxx
-    if ((byte & 0xF8) === 0xF0) return 4;      // 11110xxx
-    return 1; // Invalid sequence
-  }
+  private findTagEnd(window: string, start: number): number {
+    let index = start;
+    let inQuote = false;
+    let quoteChar = 0;
 
-  /**
-   * Safely adjust position at UTF-8 character boundaries
-   * @param pos The position to adjust
-   * @param searchBackward Whether to search backwards
-   * @returns Safe UTF-8 boundary position
-   */
-  private findSafeUtf8Boundary(pos: number, searchBackward: boolean = true): number {
-    if (pos <= 0 || pos >= this.bufferLength) return pos;
-
-    if (searchBackward) {
-      // Search backwards to find character start
-      let safePos = pos;
-      let backtrack = 0;
-
-      while (safePos > 0 && backtrack < 4) {
-        if (this.isUtf8CharStart(this.buffer[safePos])) {
-          // Check if the sequence starting at this position includes the original pos
-          const seqLen = this.getUtf8SequenceLength(this.buffer[safePos]);
-          if (safePos + seqLen > pos) {
-            // pos is in the middle of this character, return safePos
-            return safePos;
-          } else {
-            // pos is already at a safe boundary
-            return pos;
-          }
+    while (index < window.length) {
+      const code = window.charCodeAt(index);
+      if (code === 34 || code === 39) {
+        if (!inQuote) {
+          inQuote = true;
+          quoteChar = code;
+        } else if (quoteChar === code) {
+          inQuote = false;
+          quoteChar = 0;
         }
-        safePos--;
-        backtrack++;
+      } else if (code === 62 && !inQuote) {
+        return index;
       }
-      return pos; // Could not find appropriate boundary
-    } else {
-      // Search forward to find next character start
-      while (pos < this.bufferLength && !this.isUtf8CharStart(this.buffer[pos])) {
-        pos++;
-      }
-      return pos;
-    }
-  }
-
-  /**
-   * Safely extract UTF-8 string from buffer
-   * @param start Starting position
-   * @param end Ending position
-   * @returns Decoded string
-   */
-  private safeDecodeRange(start: number, end: number): string {
-    // Adjust start and end to safe boundaries
-    const safeStart = this.findSafeUtf8Boundary(start, false);
-    const safeEnd = this.findSafeUtf8Boundary(end, true);
-
-    if (safeStart >= safeEnd) return '';
-
-    return this.decoder.decode(
-      this.buffer.subarray(safeStart, safeEnd),
-      { stream: false }
-    );
-  }
-
-  // ===== Boyer-Moore-Horspool pattern search implementation =====
-
-  /**
-   * Build Boyer-Moore-Horspool bad character table
-   */
-  private _buildBMHTable(pattern: Uint8Array): Uint8Array {
-    const table = new Uint8Array(256);
-    const patternLength = pattern.length;
-
-    table.fill(patternLength);
-
-    for (let i = 0; i < patternLength - 1; i++) {
-      table[pattern[i]] = patternLength - 1 - i;
-    }
-
-    return table;
-  }
-
-  /**
-   * Pattern search using Boyer-Moore-Horspool algorithm
-   * XML delimiters are all ASCII, so no UTF-8 boundary issues
-   */
-  private _findPatternBMH(pattern: string, startPos?: number): number {
-    const patternBytes = new TextEncoder().encode(pattern);
-    const patternLength = patternBytes.length;
-
-    if (patternLength === 0) return -1;
-
-    if (patternLength === 1) {
-      return this._findSingleByte(patternBytes[0], startPos);
-    }
-
-    let skipTable = this.bmhCache.get(pattern);
-    if (!skipTable) {
-      skipTable = this._buildBMHTable(patternBytes);
-      if (this.bmhCache.size > 20) {
-        // Cache size limit
-        this.bmhCache.clear();
-      }
-      this.bmhCache.set(pattern, skipTable);
-    }
-
-    const start = startPos || this.position;
-    const bufferEnd = this.bufferLength - patternLength;
-    let pos = start;
-
-    while (pos <= bufferEnd) {
-      let i = patternLength - 1;
-      while (i >= 0 && this.buffer[pos + i] === patternBytes[i]) {
-        i--;
-      }
-
-      if (i < 0) {
-        return pos;
-      }
-
-      pos += skipTable[this.buffer[pos + patternLength - 1]];
+      index++;
     }
 
     return -1;
   }
 
-  /**
-   * Single byte search (optimized)
-   */
-  private _findSingleByte(byte: number, startPos?: number): number {
-    const start = startPos || this.position;
-    const buffer = this.buffer;
-    const end = this.bufferLength;
-
-    const end4 = end - 3;
-    let i = start;
-
-    for (; i < end4; i += 4) {
-      if (buffer[i] === byte) return i;
-      if (buffer[i + 1] === byte) return i + 1;
-      if (buffer[i + 2] === byte) return i + 2;
-      if (buffer[i + 3] === byte) return i + 3;
+  private trimmedSlice(window: string, start: number, end: number): string {
+    while (start < end && StaxXmlParser.isWhitespace(window.charCodeAt(start))) {
+      start++;
     }
-
-    for (; i < end; i++) {
-      if (buffer[i] === byte) return i;
+    while (end > start && StaxXmlParser.isWhitespace(window.charCodeAt(end - 1))) {
+      end--;
     }
-
-    return -1;
+    return start < end ? window.slice(start, end) : '';
   }
 
-  // ===== Entity decoder compilation =====
-
-  private _compileEntityDecoder(): (text: string) => string {
+  private compileEntityDecoder(): (text: string) => string {
     if (!this.options.autoDecodeEntities) {
       return (text) => text;
     }
@@ -513,800 +735,48 @@ export class StaxXmlParser implements AsyncIterator<AnyXmlEvent> {
 
       const cacheKey = patterns.join(',');
       let regex = StaxXmlParser.ENTITY_REGEX_CACHE.get(cacheKey);
-
       if (!regex) {
         const pattern = patterns
-          .sort((a, b) => b.length - a.length)
-          .map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .sort((left, right) => right.length - left.length)
+          .map((entity) => entity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
           .join('|');
         regex = new RegExp(`&(${pattern});`, 'g');
         StaxXmlParser.ENTITY_REGEX_CACHE.set(cacheKey, regex);
       }
 
       return (text: string) => {
-        if (!text || text.indexOf('&') === -1) return text;
+        if (!text || text.indexOf('&') === -1) {
+          return text;
+        }
         regex!.lastIndex = 0;
         return text.replace(regex!, (_, entity) => entityMap[entity] || _);
       };
     }
 
     return (text: string) => {
-      if (!text || text.indexOf('&') === -1) return text;
+      if (!text || text.indexOf('&') === -1) {
+        return text;
+      }
       StaxXmlParser.DEFAULT_ENTITY_REGEX.lastIndex = 0;
       return text.replace(
         StaxXmlParser.DEFAULT_ENTITY_REGEX,
-        (_, entity) => StaxXmlParser.DEFAULT_ENTITY_MAP[entity] || _
+        (_, entity) => StaxXmlParser.DEFAULT_ENTITY_MAP[entity] || _,
       );
     };
   }
 
-  // ===== Batch processing API =====
-
-  private _calculateOptimalBatchSize(): number {
-    const MIN_BATCH = 1;
-    const MAX_BATCH = this.options.batchSize || 10;
-
-    if (this.bufferLength < 1024) return MIN_BATCH;
-    if (this.bufferLength > 10240) return MAX_BATCH;
-
-    if (this.queueSize > 0) {
-      const headIndex = this.queueHead;
-      const lastEvent = this.eventQueue[headIndex];
-      if (lastEvent?.type === XmlEventType.CHARACTERS) {
-        return MIN_BATCH;
-      }
+  private static isWhitespace(code: number): boolean {
+    if (code < 128) {
+      return StaxXmlParser.ASCII_TABLE[code] === 1;
     }
-
-    if (this.batchMetrics.eventCount > 100) {
-      const avgSize = this.batchMetrics.avgEventSize;
-      if (avgSize > 1000) return MIN_BATCH;
-      if (avgSize < 100) return MAX_BATCH;
-    }
-
-    return Math.min(MAX_BATCH, Math.max(MIN_BATCH, Math.floor(this.bufferLength / 1024)));
-  }
-
-  public async nextBatch(size?: number): Promise<AnyXmlEvent[]> {
-    const batch: AnyXmlEvent[] = [];
-    const targetSize = size || this._calculateOptimalBatchSize();
-    const startTime = Date.now();
-    const timeout = this.options.batchTimeout || 10;
-
-    for (let i = 0; i < targetSize; i++) {
-      if (Date.now() - startTime > timeout) {
-        break;
-      }
-
-      const result = await this.next();
-      if (result.done) break;
-      batch.push(result.value);
-    }
-
-    return batch;
-  }
-
-  public async *batchedIterator(batchSize?: number): AsyncGenerator<AnyXmlEvent[]> {
-    while (!this.parserFinished || this.queueSize > 0) {
-      const targetSize = batchSize || this._calculateOptimalBatchSize();
-      const batch = await this.nextBatch(targetSize);
-      if (batch.length === 0) break;
-      yield batch;
-    }
-  }
-
-  // ===== Improved buffer management =====
-
-  private _compactBufferIfNeeded(): void {
-    if (!this.options.enableBufferCompaction) return;
-
-    const maxSize = this.options.maxBufferSize || 64 * 1024;
-
-    const shouldCompact =
-      (this.position > 8192 && this.bufferLength > 16384) ||
-      (this.position > maxSize / 2) ||
-      (this.bufferLength > maxSize && this.position > maxSize / 4);
-
-    if (shouldCompact) {
-      this._compactBuffer();
-    }
-  }
-
-  private _compactBuffer(): void {
-    if (this.position > 0 && this.position < this.bufferLength) {
-      // Check UTF-8 boundaries
-      const safePos = this.findSafeUtf8Boundary(this.position, true);
-
-      const remainingLength = this.bufferLength - safePos;
-
-      if (remainingLength < safePos) {
-        const newBuffer = new Uint8Array(this.buffer.length);
-        newBuffer.set(this.buffer.subarray(safePos, this.bufferLength));
-        this.buffer = newBuffer;
-      } else {
-        this.buffer.copyWithin(0, safePos, this.bufferLength);
-      }
-
-      this.bufferLength = remainingLength;
-      this.position = this.position - safePos;
-
-      if (this.bmhCache.size > 20) {
-        this.bmhCache.clear();
-      }
-    }
-  }
-
-  // ===== Main parsing logic =====
-
-  private async _startReading(): Promise<void> {
-    try {
-      while (true) {
-        const { done, value } = await this.reader!.read();
-
-        if (done) {
-          this.isStreamEnded = true;
-          this._parseBuffer();
-
-          if (!this.parserFinished && this.elementStack.length > 0) {
-            this._addError(new Error('Unexpected end of document. Not all elements were closed.'));
-          }
-
-          if (!this.parserFinished) {
-            this._flushCharacters();
-            // Inline END_DOCUMENT creation - maintains V8 hidden class optimization
-            this._addEvent({
-              type: XmlEventType.END_DOCUMENT,
-              name: undefined,
-              localName: undefined,
-              prefix: undefined,
-              uri: undefined,
-              attributes: undefined,
-              attributesWithPrefix: undefined,
-              value: undefined,
-              error: undefined
-            } as UnifiedXmlEvent as EndDocumentEvent);
-            this.parserFinished = true;
-          }
-
-          if (this.resolveNext && this.queueSize === 0) {
-            this.resolveNext({ value: undefined, done: true });
-            this.resolveNext = null;
-          }
-          break;
-        }
-
-        this._appendToBuffer(value);
-        this._parseBuffer();
-        this._compactBufferIfNeeded();
-        this._updateBatchMetrics(value.length);
-      }
-    } catch (err) {
-      this._addError(err as Error);
-      if (this.resolveNext) {
-        this.resolveNext({ value: undefined, done: true });
-        this.resolveNext = null;
-      }
-    }
-  }
-
-  private _updateBatchMetrics(bytesProcessed: number): void {
-    const eventsDelta = this.queueSize;
-    if (eventsDelta > 0) {
-      this.batchMetrics.eventCount += eventsDelta;
-      this.batchMetrics.avgEventSize =
-        (this.batchMetrics.avgEventSize * 0.9) +
-        ((bytesProcessed / eventsDelta) * 0.1);
-    }
-    this.batchMetrics.lastBatchTime = Date.now();
-  }
-
-  private _parseBuffer(): void {
-    while (this.position < this.bufferLength && !this.parserFinished) {
-      const ltPos = this._findSingleByte(60, this.position); // '<'
-
-      if (ltPos === -1) {
-        if (this.isStreamEnded) {
-          const remainingText = this._readBuffer();
-          this.currentTextBuffer += remainingText;
-          this._flushCharacters();
-        }
-        break;
-      }
-
-      if (ltPos > this.position) {
-        try {
-          const textLength = ltPos - this.position;
-          const text = this._readBuffer(textLength);
-          this.currentTextBuffer += text;
-        } catch (error) {
-          if (!this.isStreamEnded) break;
-          throw error;
-        }
-      }
-
-      this.position = ltPos;
-
-      // Fast tag type identification using ASCII table
-      const nextByte = this.buffer[this.position + 1];
-      const charType = this.getXmlCharType(nextByte);
-
-      if (charType === 4) { // '/' (47)
-        this._flushCharacters();
-        if (!this._parseEndTag()) break;
-      } else if (charType === 6) { // '!' (33)
-        if (this._matchesPattern('<!--')) {
-          if (!this._parseComment()) break;
-        } else if (this._matchesPattern('<![CDATA[')) {
-          if (!this._parseCData()) break;
-        } else {
-          if (this.isStreamEnded) {
-            this._addError(new Error(`Malformed XML near position ${this.position}`));
-            return;
-          }
-          break;
-        }
-      } else if (charType === 7) { // '?' (63)
-        if (this._matchesPattern('<?xml')) {
-          if (!this._parseXmlDeclaration()) break;
-        } else if (this._matchesPattern('<?')) {
-          if (!this._parseProcessingInstruction()) break;
-        }
-      } else {
-        this._flushCharacters();
-        if (!this._parseStartTag()) break;
-      }
-
-      this._compactBufferIfNeeded();
-    }
-  }
-
-  private _flushCharacters(): void {
-    if (this.currentTextBuffer.length > 0) {
-      const decodedText = this.entityDecoder(this.currentTextBuffer);
-
-      if (decodedText.trim().length > 0) {
-        if (!this.eventFilter || this.eventFilter.includeCharacters) {
-          this._addEvent({
-            type: XmlEventType.CHARACTERS,
-            name: undefined,
-            localName: undefined,
-            prefix: undefined,
-            uri: undefined,
-            attributes: undefined,
-            attributesWithPrefix: undefined,
-            value: decodedText,
-            error: undefined
-          } as UnifiedXmlEvent as CharactersEvent);
-        }
-      }
-      this.currentTextBuffer = '';
-    }
-  }
-
-  private _clearBuffers(): void {
-    this.bufferLength = 0;
-    this.position = 0;
-    this.currentTextBuffer = '';
-    this.bmhCache.clear();
-  }
-
-  /**
-   * OPTIMIZED: Add event to circular buffer queue
-   * Replaces: this.eventQueue.push(event)
-   */
-  private _addEvent(event: AnyXmlEvent): void {
-    this._enqueueEvent(event);
-    if (this.resolveNext) {
-      this.resolveNext(this._popNextEvent() as IteratorResult<AnyXmlEvent>);
-      this.resolveNext = null;
-    }
-  }
-
-  private _addError(err: Error): void {
-    if (this.error === null) {
-      this.error = err;
-      // Inline ERROR creation - maintains V8 hidden class optimization
-      this._addEvent({
-        type: XmlEventType.ERROR,
-        name: undefined,
-        localName: undefined,
-        prefix: undefined,
-        uri: undefined,
-        attributes: undefined,
-        attributesWithPrefix: undefined,
-        value: undefined,
-        error: err
-      } as UnifiedXmlEvent as ErrorEvent);
-      this.parserFinished = true;
-      this._clearBuffers();
-
-      if (this.reader) {
-        this.reader.releaseLock();
-        this.reader = null;
-      }
-    }
-  }
-
-  /**
-   * OPTIMIZED: Pop next event from circular buffer queue
-   * Replaces: this.eventQueue.shift()
-   */
-  private _popNextEvent(): IteratorResult<AnyXmlEvent> | null {
-    const event = this._dequeueEvent();
-    if (event !== null) {
-      return { value: event, done: false };
-    }
-    if (this.parserFinished) {
-      return { value: undefined, done: true };
-    }
-    return null;
-  }
-
-  public async next(): Promise<IteratorResult<AnyXmlEvent>> {
-    if (this.error) {
-      throw this.error;
-    }
-
-    const nextEvent = this._popNextEvent();
-    if (nextEvent) {
-      return nextEvent;
-    }
-
-    if (this.parserFinished) {
-      return { value: undefined, done: true };
-    }
-
-    return new Promise((resolve) => {
-      this.resolveNext = resolve;
-    });
-  }
-
-  public [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
-    return this;
-  }
-
-  private _appendToBuffer(newData: Uint8Array): void {
-    const requiredSize = this.bufferLength + newData.length;
-
-    if (requiredSize > this.buffer.length) {
-      const newSize = Math.max(this.buffer.length * 2, requiredSize);
-      const newBuffer = new Uint8Array(newSize);
-      newBuffer.set(this.buffer.subarray(0, this.bufferLength));
-      this.buffer = newBuffer;
-    }
-
-    this.buffer.set(newData, this.bufferLength);
-    this.bufferLength += newData.length;
-  }
-
-  /**
-   * UTF-8 safe buffer reading
-   */
-  private _readBuffer(length?: number): string {
-    const originalPos = this.position;
-    let endPos = length ? Math.min(this.position + length, this.bufferLength) : this.bufferLength;
-
-    // If specified length exists and is in the middle of buffer, check UTF-8 boundaries
-    if (length && endPos < this.bufferLength) {
-      endPos = this.findSafeUtf8Boundary(endPos, true);
-    }
-
-    const slice = this.buffer.subarray(this.position, endPos);
-
-    try {
-      const result = this.decoder.decode(slice, { stream: !this.isStreamEnded });
-      this.position = endPos;
-      return result;
-    } catch (error) {
-      // Handle incomplete UTF-8 sequences
-      if (!this.isStreamEnded && endPos === this.bufferLength) {
-        // Backtrack up to the last 4 bytes
-        for (let i = 1; i <= 4 && endPos - i > this.position; i++) {
-          const testEnd = this.findSafeUtf8Boundary(endPos - i, true);
-          if (testEnd > this.position) {
-            try {
-              const safeSlice = this.buffer.subarray(this.position, testEnd);
-              const result = this.decoder.decode(safeSlice, { stream: true });
-              this.position = testEnd;
-              return result;
-            } catch {
-              continue;
-            }
-          }
-        }
-      }
-      this.position = originalPos;
-      throw error;
-    }
-  }
-
-  private _matchesPattern(pattern: string): boolean {
-    const patternBytes = new TextEncoder().encode(pattern);
-    if (this.position + patternBytes.length > this.bufferLength) {
-      return false;
-    }
-
-    for (let i = 0; i < patternBytes.length; i++) {
-      if (this.buffer[this.position + i] !== patternBytes[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-
-  private _parseXmlDeclaration(): boolean {
-    const endPos = this._findPatternBMH('?>');
-    if (endPos === -1) return false;
-    this.position = endPos + 2;
-    return true;
-  }
-
-  private _parseComment(): boolean {
-    const endPos = this._findPatternBMH('-->');
-    if (endPos === -1) return false;
-    this.position = endPos + 3;
-    return true;
-  }
-
-  /**
-   * UTF-8 safe CDATA parsing
-   */
-  private _parseCData(): boolean {
-    const startPos = this.position + 9; // After '<![CDATA['
-    const endPos = this._findPatternBMH(']]>');
-    if (endPos === -1) return false;
-
-    try {
-      // Check UTF-8 boundaries
-      const safeStart = this.findSafeUtf8Boundary(startPos, false);
-      const safeEnd = this.findSafeUtf8Boundary(endPos, true);
-
-      const cdataContent = this.decoder.decode(
-        this.buffer.subarray(safeStart, safeEnd),
-        { stream: false }
-      );
-
-      if (!this.eventFilter || this.eventFilter.includeCdata) {
-        this._addEvent({
-          type: XmlEventType.CDATA,
-          name: undefined,
-          localName: undefined,
-          prefix: undefined,
-          uri: undefined,
-          attributes: undefined,
-          attributesWithPrefix: undefined,
-          value: cdataContent,
-          error: undefined
-        } as UnifiedXmlEvent as CdataEvent);
-      }
-
-      this.position = endPos + 3;
-      return true;
-    } catch (error) {
-      if (!this.isStreamEnded) return false;
-      throw error;
-    }
-  }
-
-  private _parseProcessingInstruction(): boolean {
-    const endPos = this._findPatternBMH('?>');
-    if (endPos === -1) return false;
-    this.position = endPos + 2;
-    return true;
-  }
-
-  /**
-   * UTF-8 safe end tag parsing
-   */
-  private _parseEndTag(): boolean {
-    const gtPos = this._findSingleByte(62, this.position); // '>'
-    if (gtPos === -1) return false;
-
-    try {
-      // Safely decode the entire tag
-      const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
-      const closeTagMatch = tagContent.match(/^<\/([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)\s*>$/);
-
-      if (!closeTagMatch) {
-        this._addError(new Error('Malformed closing tag'));
-        return true;
-      }
-
-      const tagName = closeTagMatch[1];
-      if (this.elementStack.length === 0 || this.elementStack[this.elementStack.length - 1] !== tagName) {
-        this._addError(new Error(`Mismatched closing tag: </${tagName}>. Expected </${this.elementStack[this.elementStack.length - 1] || 'nothing'}>`));
-        return true;
-      }
-
-      const currentNamespaces = this.namespaceStack.length > 0 ?
-        this.namespaceStack[this.namespaceStack.length - 1] : new Map();
-      const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
-
-      this.elementStack.pop();
-      this.namespaceStack.pop();
-
-      // Inline END_ELEMENT creation - maintains V8 hidden class optimization
-      this._addEvent({
-        type: XmlEventType.END_ELEMENT,
-        name: tagName,
-        localName,
-        prefix,
-        uri,
-        attributes: undefined,
-        attributesWithPrefix: undefined,
-        value: undefined,
-        error: undefined
-      } as UnifiedXmlEvent as EndElementEvent);
-
-      this.position = gtPos + 1;
-      return true;
-    } catch (error) {
-      if (!this.isStreamEnded) return false;
-      throw error;
-    }
-  }
-
-  /**
-   * UTF-8 safe start tag parsing (using ASCII table)
-   */
-  private _parseStartTag(): boolean {
-    const gtPos = this._findTagEnd(this.position + 1);
-    if (gtPos === -1) return false;
-
-    try {
-      // Safely decode the entire tag
-      const tagContent = this.safeDecodeRange(this.position, gtPos + 1);
-      const rawTagBody = tagContent.slice(1, -1);
-      let bodyEnd = rawTagBody.length;
-      while (bodyEnd > 0 && this._isWhitespaceCode(rawTagBody.charCodeAt(bodyEnd - 1))) {
-        bodyEnd--;
-      }
-
-      let isSelfClosing = false;
-      if (bodyEnd > 0 && rawTagBody.charCodeAt(bodyEnd - 1) === 47) {
-        isSelfClosing = true;
-        bodyEnd--;
-        while (bodyEnd > 0 && this._isWhitespaceCode(rawTagBody.charCodeAt(bodyEnd - 1))) {
-          bodyEnd--;
-        }
-      }
-
-      let nameEnd = 0;
-      while (nameEnd < bodyEnd && !this._isWhitespaceCode(rawTagBody.charCodeAt(nameEnd))) {
-        nameEnd++;
-      }
-
-      const tagName = rawTagBody.slice(0, nameEnd);
-      if (!tagName) {
-        this._addError(new Error('Malformed start tag'));
-        return true;
-      }
-
-      const attributesString = rawTagBody.slice(nameEnd, bodyEnd);
-
-      const currentNamespaces = new Map<string, string>();
-      if (this.namespaceStack.length > 0) {
-        const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
-        for (const [prefix, uri] of parentNamespaces) {
-          currentNamespaces.set(prefix, uri);
-        }
-      }
-
-      const { attributes, attributesWithPrefix } = this._parseAttributesString(
-        attributesString,
-        currentNamespaces,
-        !this.eventFilter || this.eventFilter.includeAttributes,
-      );
-
-      const { localName, prefix, uri } = this._parseQualifiedName(tagName, currentNamespaces);
-
-      // Inline START_ELEMENT creation - maintains V8 hidden class optimization
-      this._addEvent({
-        type: XmlEventType.START_ELEMENT,
-        name: tagName,
-        localName,
-        prefix,
-        uri,
-        attributes: attributes,
-        attributesWithPrefix: attributesWithPrefix,
-        value: undefined,
-        error: undefined
-      } as UnifiedXmlEvent as StartElementEvent);
-
-      this.position = gtPos + 1;
-
-      if (!isSelfClosing) {
-        this.elementStack.push(tagName);
-        this.namespaceStack.push(currentNamespaces);
-      } else {
-        // Inline END_ELEMENT creation for self-closing - maintains V8 hidden class optimization
-        this._addEvent({
-          type: XmlEventType.END_ELEMENT,
-          name: tagName,
-          localName,
-          prefix,
-          uri,
-          attributes: undefined,
-          attributesWithPrefix: undefined,
-          value: undefined,
-          error: undefined
-        } as UnifiedXmlEvent as EndElementEvent);
-      }
-
-      return true;
-    } catch (error) {
-      if (!this.isStreamEnded) return false;
-      throw error;
-    }
-  }
-
-  private _findTagEnd(start: number): number {
-    let i = start;
-    let inQuote = false;
-    let quoteChar = 0;
-
-    while (i < this.bufferLength) {
-      const code = this.buffer[i];
-      if (code === 34 || code === 39) {
-        if (!inQuote) {
-          inQuote = true;
-          quoteChar = code;
-        } else if (quoteChar === code) {
-          inQuote = false;
-          quoteChar = 0;
-        }
-      } else if (code === 62 && !inQuote) {
-        return i;
-      }
-      i++;
-    }
-
-    return -1;
-  }
-
-  private _parseAttributesString(
-    attributesString: string,
-    currentNamespaces: Map<string, string>,
-    includeAttributes: boolean,
-  ): {
-    attributes: { [key: string]: string };
-    attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } };
-  } {
-    const attributes: { [key: string]: string } = {};
-    const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
-
-    let index = 0;
-    while (index < attributesString.length) {
-      while (index < attributesString.length && this._isWhitespaceCode(attributesString.charCodeAt(index))) {
-        index++;
-      }
-      if (index >= attributesString.length) {
-        break;
-      }
-
-      const nameStart = index;
-      while (index < attributesString.length) {
-        const code = attributesString.charCodeAt(index);
-        if (code === 61 || this._isWhitespaceCode(code)) {
-          break;
-        }
-        index++;
-      }
-
-      if (index === nameStart) {
-        break;
-      }
-
-      const attrName = attributesString.slice(nameStart, index);
-      while (index < attributesString.length && this._isWhitespaceCode(attributesString.charCodeAt(index))) {
-        index++;
-      }
-
-      let attrValue = 'true';
-      if (index < attributesString.length && attributesString.charCodeAt(index) === 61) {
-        index++;
-        while (index < attributesString.length && this._isWhitespaceCode(attributesString.charCodeAt(index))) {
-          index++;
-        }
-
-        if (index >= attributesString.length) {
-          break;
-        }
-
-        const quote = attributesString.charCodeAt(index);
-        if (quote !== 34 && quote !== 39) {
-          break;
-        }
-
-        index++;
-        const valueStart = index;
-        while (index < attributesString.length && attributesString.charCodeAt(index) !== quote) {
-          index++;
-        }
-
-        attrValue = this.entityDecoder(attributesString.slice(valueStart, index));
-        index++;
-      }
-
-      if (attrName === 'xmlns') {
-        currentNamespaces.set('', attrValue);
-      } else if (attrName.startsWith('xmlns:')) {
-        currentNamespaces.set(attrName.substring(6), attrValue);
-      }
-
-      if (includeAttributes) {
-        attributes[attrName] = attrValue;
-
-        const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
-        if (attrName === 'xmlns') {
-          attributesWithPrefix.xmlns = {
-            value: attrValue,
-            prefix: undefined,
-            uri: undefined,
-          };
-        } else if (attrName.startsWith('xmlns:')) {
-          attributesWithPrefix[attrName.substring(6)] = {
-            value: attrValue,
-            prefix: 'xmlns',
-            uri: undefined,
-          };
-        } else {
-          attributesWithPrefix[attrNamespaceInfo.localName] = {
-            value: attrValue,
-            prefix: attrNamespaceInfo.prefix,
-            uri: attrNamespaceInfo.uri,
-          };
-        }
-      }
-    }
-
-    return { attributes, attributesWithPrefix };
-  }
-
-  private _isWhitespaceCode(code: number): boolean {
-    return code < 128 ? StaxXmlParser.ASCII_TABLE[code] === 1 : code <= 32;
-  }
-
-  private _parseQualifiedName(
-    qname: string,
-    namespaces: Map<string, string>,
-    isAttribute: boolean = false
-  ): {
-    localName: string;
-    prefix?: string;
-    uri?: string;
-  } {
-    const colonIndex = qname.indexOf(':');
-    if (colonIndex === -1) {
-      if (isAttribute) {
-        return {
-          localName: qname,
-          prefix: undefined,
-          uri: undefined
-        };
-      } else {
-        const defaultUri = namespaces.get('');
-        return {
-          localName: qname,
-          prefix: undefined,
-          uri: defaultUri
-        };
-      }
-    } else {
-      const prefix = qname.substring(0, colonIndex);
-      const localName = qname.substring(colonIndex + 1);
-      const uri = namespaces.get(prefix);
-      return {
-        localName,
-        prefix,
-        uri
-      };
-    }
-  }
-
-  public get XmlEventType(): typeof XmlEventType {
-    return XmlEventType;
+    return code <= 32 || StaxXmlParser.UNICODE_WHITESPACE.has(code);
   }
 }
 
-export default StaxXmlParser;
+export function createStaxXmlParser(
+  xmlStream: ReadableStream<Uint8Array>,
+  options: StaxXmlParserOptions = {},
+): StaxXmlParser {
+  return new StaxXmlParser(xmlStream, options);
+}
+

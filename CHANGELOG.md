@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-04-18
+
+### Performance Improvements
+
+#### StaxXmlParser (Async) — Promoted Fast-Path Architecture
+
+The async XML parser has been completely rewritten with a new fast-path architecture, replacing the previous generator-based implementation. `StaxXmlParserFastPathExperimental` is now the main `StaxXmlParser` (the old name remains as a backward-compatible alias).
+
+**Key optimizations applied:**
+
+1. **Sync Fast-Path in Custom Async Iterator** — `next()` returns a plain `{ value, done }` object synchronously when buffered events are available, bypassing the microtask queue. A `Promise` is only created when a new chunk is needed from the stream. This eliminates thousands of Promise allocations per document.
+
+2. **Single-string Pending Tail** — Replaced `pendingStructuralSegments: string[]` with a single `pendingTail: string`, removing array allocation overhead at chunk boundaries.
+
+3. **Circular Buffer Queue (O(1) dequeue)** — Event queue uses a circular buffer with head/tail pointers instead of `Array.shift()`, eliminating O(n) dequeue cost.
+
+4. **Simple-Element Fast Path** — Elements with no namespace prefix and no attributes (≈65% of elements in typical XML) bypass attribute parsing entirely and share the parent namespace map (no `new Map()` copy).
+
+5. **Lazy Namespace Map Copy** — `new Map(parentNamespaces)` is deferred until the first `xmlns` attribute is encountered, avoiding allocations for non-namespace elements.
+
+6. **xmlns Pre-filter** — Attribute namespace checks gate on `charCodeAt(0) === 120` (`x`) before any string comparison, skipping the check for non-xmlns attributes in a single instruction.
+
+7. **Native `string.indexOf()` for tag scanning** — Replaced manual `charCodeAt` loops with `string.indexOf('<', pos)` and `string.indexOf('>', pos)`, leveraging V8's SIMD-optimized native search.
+
+8. **Whitespace check without `trim()`** — `flushTextSegments` checks whitespace via `charCodeAt` loop instead of allocating a trimmed copy.
+
+**Benchmark Results (midsize.xml — 13MB):**
+- `stax-xml` async (experimental → main): **309ms** vs published v0.5.2 **516ms** (−40%)
+- `stax-xml` async vs txml: **309ms** vs **516ms** (txml comparison on same dataset)
+- `stax-xml` sync consume: **108ms** vs txml **156ms** (−31%)
+- `stax-xml` cursor consume (`StaxXmlStreamReaderSync`): **87ms** vs txml **156ms** (−44%)
+
+#### StaxXmlParserSync
+
+The sync parser received the same hot-path optimizations: native `indexOf` for scanning, `startsWith` for pattern matching, simple-element fast path, lazy namespace copy, and xmlns pre-filter.
+
+### API
+
+- `StaxXmlParser` now uses the new fast-path implementation
+- `StaxXmlParserFastPathExperimental` remains exported as a backward-compatible alias for `StaxXmlParser`
+- `createStaxXmlParser()` factory function added (mirrors existing `createStaxXmlParserFastPathExperimental`)
+- All 800 unit tests pass
+
+---
+
 ## [0.5.2] - 2025-10-19
 
 ### Performance Improvements
