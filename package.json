@@ -1,6 +1,6 @@
 {
   "name": "stax-xml-monorepo",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "private": true,
   "description": "Monorepo for stax-xml library, benchmarks, and documentation",
   "author": "Clickin <josh87786@gmail.com>",
@@ -13,9 +13,9 @@
   "bugs": "https://github.com/Clickin/stax-xml/issues",
   "scripts": {
     "build": "pnpm -r --filter=stax-xml build",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
+    "test": "pnpm --filter=stax-xml test",
+    "test:watch": "pnpm --filter=stax-xml test:watch",
+    "coverage": "pnpm --filter=stax-xml coverage",
     "docs:dev": "pnpm --filter=stax-xml-docs dev",
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",

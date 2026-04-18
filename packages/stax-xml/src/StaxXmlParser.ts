@@ -115,6 +115,11 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
   private error: Error | null = null;
   private isStreamEnded = false;
   private parserFinished = false;
+  private batchMetrics = {
+    avgEventSize: 100,
+    lastBatchTime: 0,
+    eventCount: 0,
+  };
 
   constructor(xmlStream: ReadableStream<Uint8Array>, options: StaxXmlParserOptions = {}) {
     if (!(xmlStream instanceof ReadableStream)) {
@@ -180,6 +185,43 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     await this.reader.cancel();
     this.resolveDoneIfNeeded();
     return { value: undefined, done: true };
+  }
+
+  async nextBatch(size?: number): Promise<AnyXmlEvent[]> {
+    const batch: AnyXmlEvent[] = [];
+    const targetSize = size ?? this.calculateOptimalBatchSize();
+    const timeout = this.options.batchTimeout ?? 10;
+    const startedAt = Date.now();
+
+    for (let index = 0; index < targetSize; index++) {
+      if (Date.now() - startedAt > timeout) {
+        break;
+      }
+
+      const next = await this.next();
+      if (next.done) {
+        break;
+      }
+
+      batch.push(next.value);
+      this.updateBatchMetrics(next.value);
+    }
+
+    return batch;
+  }
+
+  async *batchedIterator(batchSize?: number): AsyncGenerator<AnyXmlEvent[]> {
+    while (!this.parserFinished || this.queueSize > 0) {
+      const batch = await this.nextBatch(batchSize);
+      if (batch.length === 0) {
+        break;
+      }
+      yield batch;
+    }
+  }
+
+  get XmlEventType(): typeof XmlEventType {
+    return XmlEventType;
   }
 
   private async startReading(): Promise<void> {
@@ -658,6 +700,39 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     this.queueTail = this.queueSize;
   }
 
+  private calculateOptimalBatchSize(): number {
+    const minBatch = 1;
+    const maxBatch = this.options.batchSize ?? 10;
+
+    if (this.queueSize === 0) {
+      return minBatch;
+    }
+
+    const headEvent = this.eventQueue[this.queueHead];
+    if (headEvent?.type === XmlEventType.CHARACTERS) {
+      return minBatch;
+    }
+
+    if (this.batchMetrics.eventCount > 100) {
+      if (this.batchMetrics.avgEventSize > 1000) {
+        return minBatch;
+      }
+      if (this.batchMetrics.avgEventSize < 100) {
+        return maxBatch;
+      }
+    }
+
+    return Math.min(maxBatch, Math.max(minBatch, this.queueSize));
+  }
+
+  private updateBatchMetrics(event: AnyXmlEvent): void {
+    const approxSize = JSON.stringify(event).length;
+    this.batchMetrics.eventCount += 1;
+    this.batchMetrics.avgEventSize =
+      (this.batchMetrics.avgEventSize * 0.9) + (approxSize * 0.1);
+    this.batchMetrics.lastBatchTime = Date.now();
+  }
+
   private addError(error: Error): void {
     if (this.error !== null) {
       return;
@@ -779,4 +854,6 @@ export function createStaxXmlParser(
 ): StaxXmlParser {
   return new StaxXmlParser(xmlStream, options);
 }
+
+export default StaxXmlParser;
 

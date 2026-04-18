@@ -755,7 +755,7 @@ export class XmlParserCore {
       }
 
       const attributes: { [key: string]: string } = {};
-      const attributesWithPrefix: { [key: string]: { value: string; prefix?: string; uri?: string } } = {};
+      const attributesWithPrefix: { [key: string]: { value: string; localName: string; prefix?: string; uri?: string } } = {};
 
       const attrRegex = /([a-zA-Z0-9_:.\-\u0080-\uFFFF]+)(?:\s*=\s*"([^"]*)"|\s*=\s*'([^']*)')?/g;
       let attrMatch = attrRegex.exec(attributesString);
@@ -766,10 +766,25 @@ export class XmlParserCore {
         attributes[attrName] = attrValue;
 
         const attrNamespaceInfo = this._parseQualifiedName(attrName, currentNamespaces, true);
-        attributesWithPrefix[attrNamespaceInfo.localName] = {
+        let attributeLocalName = attrNamespaceInfo.localName;
+        let attributePrefix = attrNamespaceInfo.prefix;
+        let attributeUri = attrNamespaceInfo.uri;
+
+        if (attrName === 'xmlns') {
+          attributeLocalName = 'xmlns';
+          attributePrefix = undefined;
+          attributeUri = undefined;
+        } else if (attrName.startsWith('xmlns:')) {
+          attributeLocalName = attrName.substring(6);
+          attributePrefix = 'xmlns';
+          attributeUri = undefined;
+        }
+
+        attributesWithPrefix[attrName] = {
           value: attrValue,
-          prefix: attrNamespaceInfo.prefix,
-          uri: attrNamespaceInfo.uri,
+          localName: attributeLocalName,
+          prefix: attributePrefix,
+          uri: attributeUri,
         };
 
         if (attrName === 'xmlns') {

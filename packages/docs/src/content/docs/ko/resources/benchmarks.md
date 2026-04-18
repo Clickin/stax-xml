@@ -24,11 +24,13 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 ## 벤치마크 환경
 
-모든 벤치마크는 다음 환경에서 수행됩니다:
+이 페이지의 parser comparison 표는 다음 환경에서 다시 측정했습니다:
 - **CPU**: 13th Gen Intel(R) Core(TM) i5-13600K (~4.70-4.80 GHz)
-- **런타임**: Node.js 22.17.0 (x64-win32) with garbage collection exposed (`--expose-gc`)
+- **런타임**: Node.js 24.12.0 (x64-win32) with garbage collection exposed (`--expose-gc`)
 - **도구**: 정확한 성능 측정을 위한 [Mitata](https://github.com/evanw/mitata)
 - **비교 라이브러리**: fast-xml-parser, xml2js, txml, StAX-XML
+
+아래의 async 크기 비교 및 writer 섹션은 이번 release에서 다시 측정하지 않은 기존 reference 수치입니다.
 
 ## 파서 성능
 
@@ -38,11 +40,11 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 비고 |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 9.51 µs | ~105,263 ops/sec | 2.09 kb | 가장 빠름, 경량 |
-| **stax-xml consume** | 170.03 µs | ~5,882 ops/sec | 73.12 kb | 스트림 처리 |
-| **stax-xml to object** | 173.19 µs | ~5,774 ops/sec | 75.37 kb | 객체 변환 |
-| fast-xml-parser | 267.11 µs | ~3,744 ops/sec | 115.67 kb | DOM 기반 |
-| xml2js | 543.60 µs | ~1,840 ops/sec | 219.80 kb | 콜백 기반, 메모리 집약적 |
+| **txml** | 121.03 µs | ~8,262 ops/sec | 26.41 kb | 가장 빠름, 경량 |
+| **stax-xml to object** | 260.88 µs | ~3,833 ops/sec | 28.51 kb | 객체 변환 |
+| **stax-xml consume** | 269.33 µs | ~3,713 ops/sec | 24.28 kb | 스트림 처리 |
+| fast-xml-parser | 555.92 µs | ~1,799 ops/sec | 129.73 kb | DOM 기반 |
+| xml2js | 1.00 ms | ~1,000 ops/sec | 203.56 kb | 콜백 기반, 메모리 집약적 |
 
 ### 중형 문서 (4KB)
 
@@ -50,11 +52,11 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 비고 |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 18.87 µs | ~53,004 ops/sec | 3.17 kb | 가장 빠름, 경량 |
-| **stax-xml to object** | 218.85 µs | ~4,569 ops/sec | 193.37 kb | 객체 변환 |
-| **stax-xml consume** | 222.93 µs | ~4,486 ops/sec | 194.87 kb | 스트림 처리 |
-| fast-xml-parser | 388.58 µs | ~2,574 ops/sec | 513.58 kb | 좋은 균형 |
-| xml2js | 777.43 µs | ~1,286 ops/sec | 773.91 kb | 메모리 집약적 |
+| **txml** | 126.53 µs | ~7,903 ops/sec | 46.32 kb | 가장 빠름, 경량 |
+| **stax-xml consume** | 295.36 µs | ~3,386 ops/sec | 45.30 kb | 스트림 처리 |
+| **stax-xml to object** | 342.66 µs | ~2,918 ops/sec | 52.95 kb | 객체 변환 |
+| fast-xml-parser | 727.33 µs | ~1,375 ops/sec | 560.08 kb | 좋은 균형 |
+| xml2js | 1.28 ms | ~781 ops/sec | 544.96 kb | 메모리 집약적 |
 
 ### 대용량 문서 (1MB ~ 1GB)
 
@@ -79,17 +81,18 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 다양한 파일 크기에 대한 동기 파서의 상세 비교:
 
-#### 중대형 문서 (13MB다다
+#### 중대형 문서 (13MB)
 
 midsize.xml (13MB) 성능 결과:
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 성능 비고 |
 |---------|--------------|----------------|--------------|------------------|
-| **xml2js** | 518.94 µs | ~1,927 ops/sec | 391.08 kb | 예외적 성능* |
-| **txml** | 108.09 ms | ~9.3 ops/sec | 125.62 mb | 경량 DOM |
-| **stax-xml consume** | 142.40 ms | ~7.0 ops/sec | 15.39 mb | 스트림 처리 |
-| **stax-xml to object** | 146.14 ms | ~6.8 ops/sec | 13.78 mb | 객체 변환 |
-| fast-xml-parser | 533.81 ms | ~1.9 ops/sec | 126.26 mb | 메모리 집약적 |
+| **xml2js** | 663.47 µs | ~1,507 ops/sec | 323.69 kb | 예외적 성능* |
+| **stax-xml cursor consume** | 66.18 ms | ~15.1 ops/sec | 214.37 kb | 가장 낮은 할당량의 StAX 경로 |
+| **stax-xml consume** | 89.07 ms | ~11.2 ops/sec | 4.93 mb | 스트림 처리 |
+| **stax-xml to object** | 95.21 ms | ~10.5 ops/sec | 35.41 mb | 객체 변환 |
+| **txml** | 128.58 ms | ~7.8 ops/sec | 126.90 mb | 경량 DOM |
+| fast-xml-parser | 642.49 ms | ~1.6 ops/sec | 128.11 mb | 메모리 집약적 |
 
 *xml2js가 이 13MB 파일에서 예외적인 성능(평소보다 1000배 빠름)을 보이는 것은 XML 구조가 DOM 파싱 환경에 최적화되어 있고 요소 재사용과 얕은 중첩이 빈번하기 때문으로 추정됩니다.
 
@@ -99,15 +102,15 @@ large.xml (98MB) 성능 결과:
 
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 성능 비고 |
 |---------|--------------|----------------|--------------|------------------|
-| **stax-xml consume** | 1.02 s | ~0.98 ops/sec | 13.88 mb | 최고 전체 성능 |
-| **txml** | 1.02 s | ~0.98 ops/sec | 897.50 mb | 높은 메모리 |
-| **stax-xml to object** | 1.05 s | ~0.95 ops/sec | 8.89 mb | 메모리 효율적 |
-| fast-xml-parser | 4.41 s | ~0.23 ops/sec | 886.33 mb | 느림, 메모리 집약적 |
-| xml2js | 6.06 s | ~0.17 ops/sec | 608.21 mb | 가장 느린 성능 |
+| **stax-xml consume** | 660.41 ms | ~1.51 ops/sec | 35.12 mb | 최고 전체 성능 |
+| **stax-xml to object** | 676.93 ms | ~1.48 ops/sec | 7.38 mb | 메모리 효율적 |
+| **txml** | 1.93 s | ~0.52 ops/sec | 890.28 mb | 높은 메모리 |
+| fast-xml-parser | 7.85 s | ~0.13 ops/sec | 1.08 gb | 느림, 메모리 집약적 |
+| xml2js | 9.30 s | ~0.11 ops/sec | 656.68 mb | 가장 느린 성능 |
 
 **성능 교차점 분석:**
-- **소형 파일 (2-4KB)**: txml이 압도적 (~50,000-100,000 ops/sec)
-- **중형 파일 (13MB)**: DOM 최적화 구조로 인한 xml2js 예외적 성능
+- **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섬
+- **중형 파일 (13MB)**: `StaxXmlStreamReaderSync`가 StAX 계열 중 가장 빠르며, xml2js는 이 fixture에서만 보이는 이상치에 가깝습니다
 - **대형 파일 (98MB)**: StAX-XML이 속도와 메모리 효율성의 최고 균형 제공
 - **초대형 파일 (1GB+)**: 비동기 파서만 실행 가능
 

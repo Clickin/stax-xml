@@ -15,6 +15,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
 - **Fully Asynchronous (Stream-based)**: For memory-efficient processing of large XML files
 - **Synchronous (String-based)**: For high-performance parsing of smaller, in-memory XML strings
+- **Cursor-style Sync Reader**: `StaxXmlStreamReaderSync` for low-allocation hot loops
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
 - **High Performance**: Optimized for speed and low memory usage
@@ -148,47 +149,48 @@ bun test
 
 #### Benchmark Results
 
-**Disclaimer:** These benchmarks were performed on a specific system (`cpu: 13th Gen Intel(R) Core(TM) i5-13600K`, `runtime: node 22.17.0 (x64-win32)`) and may vary on different hardware and environments.
+**Disclaimer:** These parser benchmarks were rerun on a specific system (`cpu: 13th Gen Intel(R) Core(TM) i5-13600K`, `runtime: node 24.12.0 (x64-win32)`) and may vary on different hardware and environments.
 
 **large.xml (97MB) parsing**
 
 | Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
 | :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 4.36 s/iter     | 4.42 s          | 2.66 mb      |
-| stax-xml consume    | 3.61 s/iter     | 3.65 s          | 3.13 mb      |
-| xml2js              | 6.00 s/iter     | 6.00 s          | 1.80 mb      |
-| fast-xml-parser     | 4.25 s/iter     | 4.26 s          | 151.81 mb    |
-| txml                | 1.05 s/iter     | 1.06 s          | 179.81 mb    |
+| stax-xml to object  | 676.93 ms/iter  | 689.57 ms       | 7.38 mb      |
+| stax-xml consume    | 660.41 ms/iter  | 682.57 ms       | 35.12 mb     |
+| xml2js              | 9.30 s/iter     | 11.09 s         | 656.68 mb    |
+| fast-xml-parser     | 7.85 s/iter     | 9.70 s          | 1.08 gb      |
+| txml                | 1.93 s/iter     | 1.97 s          | 890.28 mb    |
 
 **midsize.xml (13MB) parsing**
 
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 492.06 ms/iter  | 493.28 ms       | 326.28 kb    |
-| stax-xml consume    | 469.66 ms/iter  | 471.54 ms       | 174.51 kb    |
-| xml2js              | 163.26 µs/iter  | 161.20 µs       | 89.89 kb     |
-| fast-xml-parser     | 529.99 ms/iter  | 531.12 ms       | 1.92 mb      |
-| txml                | 112.81 ms/iter  | 113.26 ms       | 1.00 mb      |
+| Benchmark                   | avg (min … max) | p75 / p99       | Memory (avg) |
+| :-------------------------- | :-------------- | :-------------- | :----------- |
+| stax-xml to object          | 95.21 ms/iter   | 96.31 ms        | 35.41 mb     |
+| stax-xml consume            | 89.07 ms/iter   | 90.81 ms        | 4.93 mb      |
+| stax-xml cursor consume     | 66.18 ms/iter   | 67.68 ms        | 214.37 kb    |
+| xml2js                      | 663.47 µs/iter  | 713.90 µs       | 323.69 kb    |
+| fast-xml-parser             | 642.49 ms/iter  | 651.85 ms       | 128.11 mb    |
+| txml                        | 128.58 ms/iter  | 128.63 ms       | 126.90 mb    |
 
 **complex.xml (2KB) parsing**
 
 | Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
 | :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 85.79 µs/iter   | 75.60 µs        | 105.11 kb    |
-| stax-xml consume    | 50.38 µs/iter   | 49.43 µs        | 271.12 b     |
-| xml2js              | 147.45 µs/iter  | 153.50 µs       | 89.42 kb     |
-| fast-xml-parser     | 101.11 µs/iter  | 102.20 µs       | 92.92 kb     |
-| txml                | 9.40 µs/iter    | 9.41 µs         | 125.89 b     |
+| stax-xml to object  | 260.88 µs/iter  | 300.20 µs       | 28.51 kb     |
+| stax-xml consume    | 269.33 µs/iter  | 303.20 µs       | 24.28 kb     |
+| xml2js              | 1.00 ms/iter    | 1.23 ms         | 203.56 kb    |
+| fast-xml-parser     | 555.92 µs/iter  | 681.60 µs       | 129.73 kb    |
+| txml                | 121.03 µs/iter  | 131.50 µs       | 26.41 kb     |
 
 **books.xml (4KB) parsing**
 
 | Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
 | :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 166.73 µs/iter  | 156.20 µs       | 221.40 kb    |
-| stax-xml consume    | 176.45 µs/iter  | 151.70 µs       | 202.08 kb    |
-| xml2js              | 259.90 µs/iter  | 254.50 µs       | 161.25 kb    |
-| fast-xml-parser     | 239.57 µs/iter  | 203.30 µs       | 226.17 kb    |
-| txml                | 19.18 µs/iter   | 19.26 µs        | 303.13 b     |
+| stax-xml to object  | 342.66 µs/iter  | 392.70 µs       | 52.95 kb     |
+| stax-xml consume    | 295.36 µs/iter  | 347.80 µs       | 45.30 kb     |
+| xml2js              | 1.28 ms/iter    | 1.63 ms         | 544.96 kb    |
+| fast-xml-parser     | 727.33 µs/iter  | 898.40 µs       | 560.08 kb    |
+| txml                | 126.53 µs/iter  | 138.10 µs       | 46.32 kb     |
 
 ### 📁 Sample File Sources
 
