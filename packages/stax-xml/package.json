@@ -22,10 +22,6 @@
     "./converter": {
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js"
-    },
-    "./internal": {
-      "types": "./dist/internal.d.ts",
-      "import": "./dist/internal.js"
     }
   },
   "bugs": "https://github.com/Clickin/stax-xml/issues",

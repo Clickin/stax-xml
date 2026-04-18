@@ -1,14 +1,5 @@
 // StaxXmlParserSync.ts
 // TRUE INCREMENTAL State Machine (Generator-Free)
-//
-// Performance: +20.67% improvement vs Generator baseline
-// Achieved: 92.00ms vs 115.98ms on 10MB file (CV: 2.52%)
-//
-// Key Optimizations:
-// 1. No Generator overhead (~95ns/event → ~10ns/event)
-// 2. IteratorResult object reuse (avoid allocation)
-// 3. Pending event queue for self-closing tags
-// 4. >95% code reuse from baseline
 
 import {
   AnyXmlEvent,

@@ -88,7 +88,6 @@ Performance results on midsize.xml (13MB):
 | Library | Average Time | Operations/sec | Memory Usage | Performance Notes |
 |---------|--------------|----------------|--------------|------------------|
 | **xml2js** | 663.47 µs | ~1,507 ops/sec | 323.69 kb | Exceptional performance* |
-| **stax-xml cursor consume** | 66.18 ms | ~15.1 ops/sec | 214.37 kb | Lowest-allocation StAX path |
 | **stax-xml consume** | 89.07 ms | ~11.2 ops/sec | 4.93 mb | Stream processing |
 | **stax-xml to object** | 95.21 ms | ~10.5 ops/sec | 35.41 mb | Object conversion |
 | **txml** | 128.58 ms | ~7.8 ops/sec | 126.90 mb | Lightweight DOM |
@@ -110,7 +109,7 @@ Performance results on large.xml (98MB):
 
 **Performance Crossover Analysis:**
 - **Small files (2-4KB)**: txml still leads raw parser throughput
-- **Medium files (13MB)**: `StaxXmlStreamReaderSync` is the fastest StAX path, while xml2js remains an anomalous outlier on this fixture
+- **Medium files (13MB)**: xml2js remains an anomalous outlier on this fixture, while `stax-xml consume` and `stax-xml to object` stay in the same general throughput band
 - **Large files (98MB)**: StAX-XML provides best balance of speed and memory efficiency
 - **Very large files (1GB+)**: Only async parsers remain viable
 

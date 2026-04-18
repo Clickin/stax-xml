@@ -26,7 +26,6 @@ For now, please refer to our comprehensive API guides:
 
 - [StaxXmlParser](/stax-xml/api-guides/staxxml-parser/) - Asynchronous XML parsing
 - [StaxXmlParserSync](/stax-xml/api-guides/staxxml-parser-sync/) - Synchronous XML parsing
-- [StaxXmlStreamReaderSync](/stax-xml/api-guides/staxxml-parser-sync/) - Low-allocation cursor-style synchronous reading
 - [StaxXmlWriter](/stax-xml/api-guides/staxxml-writer/) - XML writing functionality
 
 ## Type Definitions

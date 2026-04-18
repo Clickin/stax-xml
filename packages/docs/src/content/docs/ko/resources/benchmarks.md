@@ -88,7 +88,6 @@ midsize.xml (13MB) 성능 결과:
 | 라이브러리 | 평균 시간 | 초당 작업 수 | 메모리 사용량 | 성능 비고 |
 |---------|--------------|----------------|--------------|------------------|
 | **xml2js** | 663.47 µs | ~1,507 ops/sec | 323.69 kb | 예외적 성능* |
-| **stax-xml cursor consume** | 66.18 ms | ~15.1 ops/sec | 214.37 kb | 가장 낮은 할당량의 StAX 경로 |
 | **stax-xml consume** | 89.07 ms | ~11.2 ops/sec | 4.93 mb | 스트림 처리 |
 | **stax-xml to object** | 95.21 ms | ~10.5 ops/sec | 35.41 mb | 객체 변환 |
 | **txml** | 128.58 ms | ~7.8 ops/sec | 126.90 mb | 경량 DOM |
@@ -110,7 +109,7 @@ large.xml (98MB) 성능 결과:
 
 **성능 교차점 분석:**
 - **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섬
-- **중형 파일 (13MB)**: `StaxXmlStreamReaderSync`가 StAX 계열 중 가장 빠르며, xml2js는 이 fixture에서만 보이는 이상치에 가깝습니다
+- **중형 파일 (13MB)**: xml2js는 이 fixture에서만 보이는 이상치에 가깝고, `stax-xml consume`와 `stax-xml to object`는 비슷한 처리량 대역에 머뭅니다
 - **대형 파일 (98MB)**: StAX-XML이 속도와 메모리 효율성의 최고 균형 제공
 - **초대형 파일 (1GB+)**: 비동기 파서만 실행 가능
 
