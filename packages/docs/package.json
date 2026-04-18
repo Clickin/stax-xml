@@ -12,16 +12,16 @@
     "typedoc": "cd ../stax-xml && pnpm typedoc:converter && cd ../docs && node scripts/add-frontmatter.js"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.36.0",
-    "astro": "^5.6.1",
-    "astro-og-canvas": "^0.7.0",
-    "canvaskit-wasm": "^0.40.0",
-    "sharp": "^0.34.2",
-    "starlight-typedoc": "^0.21.3",
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/starlight": "^0.38.3",
+    "astro": "^6.1.7",
+    "astro-og-canvas": "^0.11.1",
+    "canvaskit-wasm": "^0.41.1",
+    "sharp": "^0.34.5",
+    "starlight-typedoc": "^0.21.5",
     "stax-xml": "workspace:*",
-    "typedoc": "^0.28.13",
-    "typedoc-plugin-markdown": "^4.9.0",
-    "typescript": "^5.9.2"
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.11.0",
+    "typescript": "^6.0.3"
   }
 }

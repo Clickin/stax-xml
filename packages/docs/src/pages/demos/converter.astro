@@ -327,7 +327,6 @@
         <button class="btn-secondary" id="clearBtn">🗑️ Clear</button>
         <div class="file-upload">
           <input type="file" id="fileInput" accept=".xml,text/xml,application/xml">
-          <button class="btn-success" id="loadFileBtn">📁 Load File</button>
         </div>
       </div>
 
@@ -362,9 +361,14 @@
     // Import from local build (copied to public folder)
     // Run: cp packages/stax-xml/dist/converter.js packages/docs/public/stax-xml-converter.js
     import {x} from "/stax-xml/stax-xml-converter.js";
+    import { resetFileInputValue } from "/stax-xml/converter-demo-ui.js";
 
     // State management for loaded file
     let loadedFile = null;
+    let parseWorker = null;
+    let parseWorkerRequestId = 0;
+    const LARGE_INPUT_THRESHOLD = 5 * 1024 * 1024;
+    const LARGE_INPUT_MAX_EVENTS = 5_000_000;
 
     const examples = {
       basic: {
@@ -556,6 +560,54 @@
   }),
   '//item'
 )`
+      },
+
+      midsizeBenchmark: {
+        name: 'Midsize Benchmark (packages/benchmark/assets)',
+        preferredMode: 'async',
+        note: 'Load `packages/benchmark/assets/midsize.xml` and keep Async mode selected. The demo will raise `maxEvents` automatically for large inputs.',
+        xml: `<!-- Load packages/benchmark/assets/midsize.xml to test the full benchmark fixture -->
+<any_name attr="https://example.com/somepath">
+  <person id="101">
+    <phone>+122233344550</phone>
+    <name>Jack</name>
+    <phone>+122233344551</phone>
+    <age>33</age>
+    <emptyNode></emptyNode>
+    <booleanNode>false</booleanNode>
+    <booleanNode>true</booleanNode>
+    <married firstTime="No" attr="val 2">Yes</married>
+    <birthday>Wed, 28 Mar 1979 12:13:14 +0300</birthday>
+  </person>
+  <person id="102">
+    <phone>+122233344553</phone>
+    <name>Boris</name>
+    <phone>+122233344554</phone>
+    <age>34</age>
+    <married firstTime="Yes">Yes</married>
+    <birthday>Mon, 31 Aug 1970 02:03:04 +0300</birthday>
+  </person>
+</any_name>`,
+        schema: `x.array(
+  x.object({
+    id: x.number().xpath('./@id').int(),
+    name: x.string().xpath('./name'),
+    age: x.number().xpath('./age').int(),
+    primaryPhone: x.string().xpath('./phone[1]'),
+    secondaryPhone: x.string().xpath('./phone[2]').optional(),
+    birthday: x.string().xpath('./birthday'),
+    married: x.string().xpath('./married'),
+    firstTime: x.string().xpath('./married/@firstTime'),
+    hasEmptyNode: x.string().xpath('./emptyNode').optional().transform(value => value !== undefined),
+    firstBoolean: x.string().xpath('./booleanNode[1]').optional().transform(value => value === 'true')
+  }),
+  '//person'
+).transform(people => ({
+  personCount: people.length,
+  uniqueNames: [...new Set(people.map(person => person.name))],
+  firstFive: people.slice(0, 5),
+  lastFive: people.slice(-5)
+}))`
       }
     };
 
@@ -577,6 +629,14 @@
         document.getElementById('schemaInput').value = example.schema;
         clearOutput();
 
+        if (example.preferredMode) {
+          document.querySelector(`input[name="mode"][value="${example.preferredMode}"]`).checked = true;
+        }
+
+        if (example.note) {
+          document.getElementById('message').innerHTML = `<div class="info">ℹ️ ${example.note}</div>`;
+        }
+
         // Update active state
         document.querySelectorAll('.example-btn').forEach(btn => {
           btn.classList.remove('active');
@@ -595,7 +655,57 @@
       document.getElementById('mode').textContent = '-';
       document.getElementById('xmlSize').textContent = '-';
       document.getElementById('throughput').textContent = '-';
+      resetFileInputValue(document.getElementById('fileInput'));
       loadedFile = null;
+    }
+
+    function getParseWorker() {
+      if (!parseWorker) {
+        parseWorker = new Worker('/stax-xml/converter-demo-worker.js', { type: 'module' });
+      }
+      return parseWorker;
+    }
+
+    function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions }) {
+      const worker = getParseWorker();
+      const requestId = ++parseWorkerRequestId;
+
+      return new Promise((resolve, reject) => {
+        const handleMessage = (event) => {
+          if (event.data?.id !== requestId) {
+            return;
+          }
+
+          cleanup();
+
+          if (event.data.ok) {
+            resolve(event.data);
+            return;
+          }
+
+          reject(new Error(event.data.errorMessage || 'Worker parse failed'));
+        };
+
+        const handleError = (event) => {
+          cleanup();
+          reject(event.error || new Error(event.message || 'Worker parse failed'));
+        };
+
+        const cleanup = () => {
+          worker.removeEventListener('message', handleMessage);
+          worker.removeEventListener('error', handleError);
+        };
+
+        worker.addEventListener('message', handleMessage);
+        worker.addEventListener('error', handleError);
+        worker.postMessage({
+          id: requestId,
+          schemaInput,
+          xmlInput,
+          file: file ?? null,
+          parseOptions
+        });
+      });
     }
 
     // Parse XML
@@ -624,41 +734,32 @@
       const startTime = performance.now();
 
       try {
-        // Evaluate the schema definition using new Function (safer than eval)
-        const schemaFunction = new Function('x', `return ${schemaInput}`);
-        const schema = schemaFunction(x);
-
         let result;
         let xmlSize;
+        const inputSize = loadedFile ? loadedFile.size : new Blob([xmlInput]).size;
+        const parseOptions = inputSize > LARGE_INPUT_THRESHOLD
+          ? { maxEvents: LARGE_INPUT_MAX_EVENTS }
+          : undefined;
 
         if (mode === 'sync') {
           if (loadedFile && loadedFile.size > 10 * 1024 * 1024) {
             messageDiv.innerHTML = '<div class="error">⚠️ Files over 10MB must use async mode</div>';
             return;
           }
-          result = schema.parseSync(xmlInput);
-          xmlSize = new Blob([xmlInput]).size;
+          // Evaluate the schema definition using new Function (safer than eval)
+          const schemaFunction = new Function('x', `return ${schemaInput}`);
+          const schema = schemaFunction(x);
+          result = schema.parseSync(xmlInput, parseOptions);
+          xmlSize = inputSize;
         } else {
-          // Async mode with ReadableStream
-          let stream;
-
-          if (loadedFile) {
-            // Use file stream directly for better memory efficiency
-            stream = loadedFile.stream();
-            xmlSize = loadedFile.size;
-          } else {
-            // Create stream from text input
-            const encoder = new TextEncoder();
-            stream = new ReadableStream({
-              start(controller) {
-                controller.enqueue(encoder.encode(xmlInput));
-                controller.close();
-              }
-            });
-            xmlSize = new Blob([xmlInput]).size;
-          }
-
-          result = await schema.parse(stream);
+          const workerResponse = await parseXmlInWorker({
+            schemaInput,
+            xmlInput,
+            file: loadedFile,
+            parseOptions
+          });
+          result = workerResponse.result;
+          xmlSize = workerResponse.xmlSize;
         }
 
         const endTime = performance.now();
@@ -673,7 +774,10 @@
         const throughput = ((xmlSize / 1024) / (duration / 1000)).toFixed(2);
         document.getElementById('throughput').textContent = throughput;
 
-        messageDiv.innerHTML = `<div class="success">✅ Successfully parsed XML in ${duration}ms using ${mode} mode</div>`;
+        const parseOptionSuffix = parseOptions
+          ? ` with maxEvents=${parseOptions.maxEvents.toLocaleString()}`
+          : '';
+        messageDiv.innerHTML = `<div class="success">✅ Successfully parsed XML in ${duration}ms using ${mode} mode${parseOptionSuffix}</div>`;
 
       } catch (error) {
         output.textContent = '';
@@ -708,7 +812,7 @@
           // Force async mode for large files
           document.querySelector('input[name="mode"][value="async"]').checked = true;
           document.getElementById('xmlInput').value = `[Large file loaded: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)]`;
-          document.getElementById('message').innerHTML = `<div class="info">ℹ️ Large file loaded. Async mode required for files over 10MB. File will be streamed during parsing.</div>`;
+          document.getElementById('message').innerHTML = `<div class="info">ℹ️ Large file loaded. Async mode required for files over 10MB. File will be streamed during parsing with maxEvents=${LARGE_INPUT_MAX_EVENTS.toLocaleString()}.</div>`;
           console.log('Large file loaded:', file.name, file.size);
         } else {
           // For smaller files, load text into textarea
@@ -733,9 +837,14 @@
     // Event listeners
     document.getElementById('parseBtn').addEventListener('click', parseXML);
     document.getElementById('clearBtn').addEventListener('click', clearOutput);
-    document.getElementById('loadFileBtn').addEventListener('click', loadFile);
     // Auto-load when file is selected
     document.getElementById('fileInput').addEventListener('change', loadFile);
+    window.addEventListener('beforeunload', () => {
+      if (parseWorker) {
+        parseWorker.terminate();
+        parseWorker = null;
+      }
+    });
 
     // Load first example on page load
     loadExample('basic');
