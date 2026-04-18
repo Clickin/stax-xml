@@ -82,6 +82,59 @@ const result = await bookSchema.parse(xml);
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
 ```
 
+### 💾 Memory-efficient sync writing
+
+`StaxXmlWriterSync` returns an XML string by default, and `writeSync()` is still useful for small to medium documents.
+
+For large documents, use `StaxXmlWriterSyncSink` with platform-specific sink adapters to write incrementally.
+
+```typescript
+import { x } from 'stax-xml/converter';
+import { writeFileSync, createWriteStream } from 'fs';
+
+import StaxXmlWriterSync, { StaxXmlWriterSyncSink } from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
+import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
+
+// Parser/import examples
+const booksSchema = x.object({
+  title: x.string().xpath('/book/title').writer({ element: 'title' }),
+  author: x.string().xpath('/book/author').writer({ element: 'author' })
+});
+
+const books = [
+  { title: 'TypeScript Deep Dive', author: 'John Smith' },
+  { title: 'StAX-XML Guide', author: 'The Team' }
+];
+
+// Optional: default import (package default is StaxXmlWriterSync)
+new StaxXmlWriterSync();
+
+// Optional: write to file synchronously in one shot
+writeFileSync('./books-inline.xml', booksSchema.writeSync(books, { rootElement: 'catalog' }));
+
+// Node target: sink-based and incremental writing
+const fileSink = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./books-node.xml'), { closeMethod: 'close' }),
+  {
+    enableAutoFlush: true,
+    flushThreshold: 0.75,
+    flushOnClose: true
+  }
+);
+booksSchema.writeSync(books, { rootElement: 'catalog', writer: fileSink });
+fileSink.close();
+
+// Bun / Deno targets (subpath adapters)
+// Bun: new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// Deno: new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+```
+
+When `writer` is provided to `writeSync()`, output is written directly to the sink and the return value is an empty string.
+
+If you need manual control, use `writer.flush()` and `writer.close()` to force flush/close behavior.
+
 Key features of the Converter API:
 - **Type-safe parsing**: Infer TypeScript types from schemas
 - **XPath support**: Use XPath expressions for element selection
@@ -252,6 +305,58 @@ const result = await bookSchema.parse(xml);
 // XML로 다시 쓰기
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
 ```
+
+### 💾 메모리 효율적인 동기 쓰기
+
+`StaxXmlWriterSync`는 기본적으로 최종 XML 문자열을 반환합니다. 대용량 문서에서는 `StaxXmlWriterSyncSink`를 사용해 증분 쓰기를 하세요.
+
+```typescript
+import { x } from 'stax-xml/converter';
+import { writeFileSync, createWriteStream } from 'fs';
+
+import {
+  StaxXmlWriterSync,
+  StaxXmlWriterSyncSink
+} from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
+import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
+
+const booksSchema = x.object({
+  title: x.string().xpath('/book/title').writer({ element: 'title' }),
+  author: x.string().xpath('/book/author').writer({ element: 'author' })
+});
+
+const books = [
+  { title: 'TypeScript Deep Dive', author: '홍길동' },
+  { title: 'StAX-XML 가이드', author: '팀' }
+];
+
+// 기본 import 방식 (패키지 기본 export가 StaxXmlWriterSync)
+new StaxXmlWriterSync();
+
+// 동기/인메모리: 문자열로 한 번에 생성
+writeFileSync('./books-inline.xml', booksSchema.writeSync(books, { rootElement: 'catalog' }));
+
+// Node 대상: sink 기반 증분 쓰기
+const fileSink = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./books-node.xml'), { closeMethod: 'close' }),
+  {
+    enableAutoFlush: true,
+    flushThreshold: 0.75,
+    flushOnClose: true
+  }
+);
+booksSchema.writeSync(books, { rootElement: 'catalog', writer: fileSink });
+fileSink.close();
+
+// Bun / Deno 대상 (subpath adapter)
+// Bun: new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// Deno: new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+```
+
+`writeSync()`에 `writer`를 전달하면 sink로 바로 쓰며 반환 문자열은 빈 문자열(`""`)입니다.
+메모리 임계치 기반 배치 쓰기가 필요하면 `fileSink.flush()`와 `fileSink.close()`를 함께 사용하세요.
 
 Converter API의 주요 기능:
 - **타입 안전 파싱**: 스키마에서 TypeScript 타입 자동 추론

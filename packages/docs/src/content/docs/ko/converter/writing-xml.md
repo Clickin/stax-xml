@@ -215,7 +215,50 @@ interface XmlWriteOptions {
   encoding?: string;           // 인코딩 (기본: "UTF-8")
   prettyPrint?: boolean;       // 들여쓰기로 포맷
   indent?: string;             // 들여쓰기 문자열 (기본: "  ")
+  writer?: StaxXmlWriterSync | StaxXmlWriterSyncSink | StaxXmlWriter; // 주입형 writer
 }
+```
+
+### Sink 기반 동기 쓰기
+
+`writeSync()`에 `writer`를 주입하면 전체 문자열을 만들지 않고 동기 sink로 바로 쓸 수 있습니다.
+
+```typescript
+import { x } from 'stax-xml/converter';
+import { createWriteStream } from 'fs';
+import {
+  StaxXmlWriterSyncSink,
+  StaxXmlWriterSync
+} from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+
+const schema = x.object({
+  id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
+  title: x.string().xpath('/book/title').writer({ element: 'title' }),
+  price: x.number().xpath('/book/price').writer({ element: 'price' })
+});
+
+const sink = new StaxXmlWriterSyncSink(
+  createNodeSyncTextSink(createWriteStream('./catalog.xml')),
+  { flushThreshold: 0.8, enableAutoFlush: true }
+);
+
+const data = {
+  id: 1001,
+  title: '고성능 XML',
+  price: 12345
+};
+
+schema.writeSync(data, {
+  rootElement: 'book',
+  writer: sink,
+  prettyPrint: true
+});
+
+// writer를 주입하면 output은 sink로 바로 쓰이고
+// writeSync의 반환값은 빈 문자열입니다.
+sink.flush();
+sink.close();
 ```
 
 ### Pretty Printing
@@ -236,7 +279,7 @@ const compact = schema.writeSync(data, { rootElement: 'data' });
 const formatted = schema.writeSync(data, {
   rootElement: 'data',
   prettyPrint: true,
-  indent: '  '
+  indentString: '  '
 });
 // <data>
 //   <name>Test</name>
