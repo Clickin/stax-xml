@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-07-22
+
+### Added
+
+#### Cursor Reader API — Zero-Allocation XML Traversal
+
+A new cursor-based XML reader API that provides a **mutable singleton cursor** instead of creating event objects per node. Ideal for high-throughput and memory-constrained environments.
+
+- `XmlCursorReader` — Sync cursor for in-memory XML strings
+- `XmlCursorReaderAsync` — Async cursor for `ReadableStream` (Web Standard), chunk-based parsing for multi-GB files
+- `CursorEventType` — SMI integer constants (0–6) for cursor event types
+
+Import from `stax-xml/cursor`:
+
+```typescript
+import { XmlCursorReader, XmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+```
+
+**Design Principles:**
+- All mutable cursor fields are V8 SMI (Small Integer) to **bypass write barriers**
+- Sync cursor uses absolute positions (JS string max ≪ SMI max)
+- Async cursor uses relative offsets from a `_base` anchor, enabling multi-GB stream parsing
+- Position-based element stack eliminates string allocations during traversal
+- Lazy attribute parsing defers work until `getAttribute*()` is called
+- Namespace fast-path (`_nsActive` flag) skips namespace resolution for non-namespaced XML
+
+**Benchmark Results (vs event parser):**
+
+| Size | Iterate (cursor) | Selective (cursor) | Consume (cursor) | GC Memory |
+|------|-------------------|--------------------|-------------------|-----------|
+| 2KB  | 10% faster        | 5% faster          | 11% slower        | 10 KB     |
+| 4KB  | 12% faster        | ~parity            | 24% slower        | 10 KB     |
+| 13MB | 40% faster        | 34% faster         | 24% faster        | 78 KB     |
+| 98MB | **47% faster**    | **38% faster**     | **30% faster**    | 80 KB     |
+
+Cursor excels at large files where reduced GC pressure and skipped work compound. Small-file consume is slower due to per-getter string slicing overhead vs parser's V8-optimized young-gen scavenger.
+
+---
+
 ## [0.6.1] - 2026-04-18
 
 ### Performance Improvements
