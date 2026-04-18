@@ -2,6 +2,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { barplot, bench, summary } from 'mitata';
 //@ts-ignore
 import { StaxXmlParserSync, XmlEventType, type AnyXmlEvent } from 'stax-xml';
+import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
 import * as txml from 'txml';
 import xml2js from 'xml2js';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
@@ -68,12 +69,50 @@ function txmlParser() {
   txml.parse(xmlString);
 }
 
+/**
+ * Cursor consume — reads ALL the same information the event parser materialises.
+ */
+function staxCursorConsume() {
+  const cursor = new XmlCursorReader(xmlString);
+  while (cursor.next()) {
+    const t = cursor.eventType();
+    switch (t) {
+      case CursorEventType.START_ELEMENT: {
+        cursor.name();
+        cursor.localName();
+        cursor.prefix();
+        cursor.uri();
+        const ac = cursor.getAttributeCount();
+        for (let i = 0; i < ac; i++) {
+          cursor.getAttributeName(i);
+          cursor.getAttributeLocalName(i);
+          cursor.getAttributePrefix(i);
+          cursor.getAttributeValue(i);
+          cursor.getAttributeUri(i);
+        }
+        break;
+      }
+      case CursorEventType.END_ELEMENT:
+        cursor.name();
+        cursor.localName();
+        cursor.prefix();
+        cursor.uri();
+        break;
+      case CursorEventType.CHARACTERS:
+      case CursorEventType.CDATA:
+        cursor.text();
+        break;
+    }
+  }
+}
+
 if (shouldPrintHumanReadableBanner(cli)) {
   console.log('📊 XML Parser Benchmark - 4KB file (books.xml)');
 }
 
 barplot(() => {
   summary(() => {
+    bench('stax-xml cursor consume', () => staxCursorConsume()).gc('inner');
     bench('stax-xml to object', () => staxXmlParserObject()).gc('inner');
     bench('stax-xml consume', () => staxXmlParserConsume()).gc('inner');
     bench('xml2js', () => xml2jsParser()).gc('inner');

@@ -4,6 +4,7 @@ import { barplot, bench, summary } from 'mitata';
 import * as txml from 'txml';
 import xml2js from 'xml2js';
 import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 import { ASSET_PATHS, loadXmlFile } from './common/utils.js';
 
@@ -69,12 +70,47 @@ function txmlParser() {
   txml.parse(xmlString);
 }
 
+function staxCursorConsume() {
+  const cursor = new XmlCursorReader(xmlString);
+  while (cursor.next()) {
+    const t = cursor.eventType();
+    switch (t) {
+      case CursorEventType.START_ELEMENT: {
+        cursor.name();
+        cursor.localName();
+        cursor.prefix();
+        cursor.uri();
+        const ac = cursor.getAttributeCount();
+        for (let i = 0; i < ac; i++) {
+          cursor.getAttributeName(i);
+          cursor.getAttributeLocalName(i);
+          cursor.getAttributePrefix(i);
+          cursor.getAttributeValue(i);
+          cursor.getAttributeUri(i);
+        }
+        break;
+      }
+      case CursorEventType.END_ELEMENT:
+        cursor.name();
+        cursor.localName();
+        cursor.prefix();
+        cursor.uri();
+        break;
+      case CursorEventType.CHARACTERS:
+      case CursorEventType.CDATA:
+        cursor.text();
+        break;
+    }
+  }
+}
+
 if (shouldPrintHumanReadableBanner(cli)) {
   console.log('📊 XML Parser Benchmark - 98MB file (large.xml)');
 }
 
 barplot(() => {
   summary(() => {
+    bench('stax-xml cursor consume', () => staxCursorConsume()).gc('inner');
     bench('stax-xml to object', () => staxXmlParserObject()).gc('inner');
     bench('stax-xml consume', () => staxXmlParserConsume()).gc('inner');
     bench('xml2js', () => xml2jsParser()).gc('inner');
