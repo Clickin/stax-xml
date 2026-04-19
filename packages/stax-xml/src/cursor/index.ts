@@ -1,4 +1,4 @@
 export { CursorEventType } from './types.js';
-export type { XmlCursorReaderOptions, XmlCursorReaderAsyncOptions } from './types.js';
-export { XmlCursorReader } from './XmlCursorReader.js';
-export { XmlCursorReaderAsync } from './XmlCursorReaderAsync.js';
+export type { StaxXmlCursorReaderOptions, StaxXmlCursorReaderAsyncOptions } from './types.js';
+export { StaxXmlCursorReader } from './StaxXmlCursorReader.js';
+export { StaxXmlCursorReaderAsync } from './StaxXmlCursorReaderAsync.js';

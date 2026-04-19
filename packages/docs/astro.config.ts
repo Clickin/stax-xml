@@ -211,7 +211,7 @@ export default defineConfig({
           items: [
             { label: 'StaxXmlParser', slug: 'api-guides/staxxml-parser' },
             { label: 'StaxXmlParserSync', slug: 'api-guides/staxxml-parser-sync' },
-            { label: 'XmlCursorReader', slug: 'api-guides/xmlcursorreader' },
+            { label: 'StaxXmlCursorReader', slug: 'api-guides/staxxmlcursorreader' },
             { label: 'StaxXmlWriter', slug: 'api-guides/staxxml-writer' },
             { label: 'StaxXmlWriterSync', slug: 'api-guides/staxxml-writer-sync' },
           ],

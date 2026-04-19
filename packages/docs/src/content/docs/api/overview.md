@@ -26,7 +26,7 @@ For now, please refer to our comprehensive API guides:
 
 - [StaxXmlParser](/stax-xml/api-guides/staxxml-parser/) - Asynchronous XML parsing
 - [StaxXmlParserSync](/stax-xml/api-guides/staxxml-parser-sync/) - Synchronous XML parsing
-- [XmlCursorReader](/stax-xml/api-guides/xmlcursorreader/) - Zero-allocation cursor traversal
+- [StaxXmlCursorReader](/stax-xml/api-guides/staxxmlcursorreader/) - Zero-allocation cursor traversal
 - [StaxXmlWriter](/stax-xml/api-guides/staxxml-writer/) - XML writing functionality
 - [StaxXmlWriterSync](/stax-xml/api-guides/staxxml-writer-sync/) - Synchronous XML writing and sync sink adapters
 
@@ -42,7 +42,7 @@ The main types exported by StAX-XML are:
 - `ErrorEvent` - Parsing error events
 - `XmlAttribute` - XML attribute interface
 - `WriteElementOptions` - Options for XML writing
-- `XmlCursorReaderOptions` - Options for sync cursor readers
-- `XmlCursorReaderAsyncOptions` - Options for async cursor readers
+- `StaxXmlCursorReaderOptions` - Options for sync cursor readers
+- `StaxXmlCursorReaderAsyncOptions` - Options for async cursor readers
 
 For detailed type information and method signatures, please refer to the individual API guides above.

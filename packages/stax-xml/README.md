@@ -88,9 +88,9 @@ const newXml = await bookSchema.write(result, { rootElement: 'book' });
 For hot paths that only need to inspect events in sequence, use the cursor API from the `stax-xml/cursor` subpath. Accessors are methods because the same cursor instance is reused for every event.
 
 ```typescript
-import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
 
-const cursor = new XmlCursorReader('<root><item id="1">Hello</item></root>');
+const cursor = new StaxXmlCursorReader('<root><item id="1">Hello</item></root>');
 
 while (cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -104,7 +104,7 @@ while (cursor.next()) {
 }
 ```
 
-For streamed input, use `XmlCursorReaderAsync` with a web standard `ReadableStream<Uint8Array>`.
+For streamed input, use `StaxXmlCursorReaderAsync` with a web standard `ReadableStream<Uint8Array>`.
 
 ### 💾 Memory-efficient sync writing
 
@@ -348,9 +348,9 @@ const newXml = await bookSchema.write(result, { rootElement: 'book' });
 이벤트를 순서대로 검사하는 hot path에서는 `stax-xml/cursor` subpath의 cursor API를 사용하세요. 같은 cursor 인스턴스가 모든 이벤트에 재사용되므로 accessor는 메서드 형태입니다.
 
 ```typescript
-import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
 
-const cursor = new XmlCursorReader('<root><item id="1">안녕</item></root>');
+const cursor = new StaxXmlCursorReader('<root><item id="1">안녕</item></root>');
 
 while (cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -364,7 +364,7 @@ while (cursor.next()) {
 }
 ```
 
-스트리밍 입력에는 web standard `ReadableStream<Uint8Array>`와 함께 `XmlCursorReaderAsync`를 사용하세요.
+스트리밍 입력에는 web standard `ReadableStream<Uint8Array>`와 함께 `StaxXmlCursorReaderAsync`를 사용하세요.
 
 ### 💾 메모리 효율적인 동기 쓰기
 

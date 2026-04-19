@@ -97,10 +97,10 @@ Key features of the Converter API:
 The cursor API provides a **mutable singleton cursor** that advances through XML events without creating objects per node. It offers dramatically lower memory usage and higher throughput on large files.
 
 ```typescript
-import { XmlCursorReader, CursorEventType } from 'stax-xml/cursor';
+import { StaxXmlCursorReader, CursorEventType } from 'stax-xml/cursor';
 
 const xml = '<root><item id="1">Hello</item><item id="2">World</item></root>';
-const cursor = new XmlCursorReader(xml);
+const cursor = new StaxXmlCursorReader(xml);
 
 while (cursor.next()) {
   switch (cursor.eventType()) {
@@ -118,10 +118,10 @@ while (cursor.next()) {
 For large files via `ReadableStream`:
 
 ```typescript
-import { XmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+import { StaxXmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
 
 const response = await fetch('https://example.com/large.xml');
-const cursor = new XmlCursorReaderAsync(response.body!);
+const cursor = new StaxXmlCursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -344,10 +344,10 @@ Converter API의 주요 기능:
 커서 API는 노드마다 객체를 생성하지 않고 **뮤터블 싱글톤 커서**를 통해 XML 이벤트를 순회합니다. 대용량 파일에서 극적으로 낮은 메모리 사용량과 높은 처리량을 제공합니다.
 
 ```typescript
-import { XmlCursorReader, CursorEventType } from 'stax-xml/cursor';
+import { StaxXmlCursorReader, CursorEventType } from 'stax-xml/cursor';
 
 const xml = '<root><item id="1">안녕</item><item id="2">세계</item></root>';
-const cursor = new XmlCursorReader(xml);
+const cursor = new StaxXmlCursorReader(xml);
 
 while (cursor.next()) {
   switch (cursor.eventType()) {
@@ -365,10 +365,10 @@ while (cursor.next()) {
 대용량 파일을 `ReadableStream`으로 처리:
 
 ```typescript
-import { XmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+import { StaxXmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
 
 const response = await fetch('https://example.com/large.xml');
-const cursor = new XmlCursorReaderAsync(response.body!);
+const cursor = new StaxXmlCursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {

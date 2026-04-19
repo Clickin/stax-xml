@@ -1480,17 +1480,17 @@ Defined in: [StaxXmlWriterSync.ts:595](https://github.com/Clickin/stax-xml/blob/
 
 ***
 
-### XmlCursorReader
+### StaxXmlCursorReader
 
-Defined in: [cursor/XmlCursorReader.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L52)
+Defined in: [cursor/StaxXmlCursorReader.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L52)
 
 #### Constructors
 
 ##### Constructor
 
-> **new XmlCursorReader**(`xml`, `options?`): [`XmlCursorReader`](#xmlcursorreader)
+> **new StaxXmlCursorReader**(`xml`, `options?`): [`StaxXmlCursorReader`](#staxxmlcursorreader)
 
-Defined in: [cursor/XmlCursorReader.ts:103](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L103)
+Defined in: [cursor/StaxXmlCursorReader.ts:103](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L103)
 
 ###### Parameters
 
@@ -1500,11 +1500,11 @@ Defined in: [cursor/XmlCursorReader.ts:103](https://github.com/Clickin/stax-xml/
 
 ###### options?
 
-[`XmlCursorReaderOptions`](#xmlcursorreaderoptions) = `{}`
+[`StaxXmlCursorReaderOptions`](#staxxmlcursorreaderoptions) = `{}`
 
 ###### Returns
 
-[`XmlCursorReader`](#xmlcursorreader)
+[`StaxXmlCursorReader`](#staxxmlcursorreader)
 
 #### Methods
 
@@ -1512,7 +1512,7 @@ Defined in: [cursor/XmlCursorReader.ts:103](https://github.com/Clickin/stax-xml/
 
 > **next**(): `boolean`
 
-Defined in: [cursor/XmlCursorReader.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L114)
+Defined in: [cursor/StaxXmlCursorReader.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L114)
 
 ###### Returns
 
@@ -1522,7 +1522,7 @@ Defined in: [cursor/XmlCursorReader.ts:114](https://github.com/Clickin/stax-xml/
 
 > **eventType**(): [`CursorEventType`](#cursoreventtype-1)
 
-Defined in: [cursor/XmlCursorReader.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L153)
+Defined in: [cursor/StaxXmlCursorReader.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L153)
 
 ###### Returns
 
@@ -1532,7 +1532,7 @@ Defined in: [cursor/XmlCursorReader.ts:153](https://github.com/Clickin/stax-xml/
 
 > **name**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:157](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L157)
+Defined in: [cursor/StaxXmlCursorReader.ts:157](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L157)
 
 ###### Returns
 
@@ -1542,7 +1542,7 @@ Defined in: [cursor/XmlCursorReader.ts:157](https://github.com/Clickin/stax-xml/
 
 > **localName**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:162](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L162)
+Defined in: [cursor/StaxXmlCursorReader.ts:162](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L162)
 
 ###### Returns
 
@@ -1552,7 +1552,7 @@ Defined in: [cursor/XmlCursorReader.ts:162](https://github.com/Clickin/stax-xml/
 
 > **prefix**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:169](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L169)
+Defined in: [cursor/StaxXmlCursorReader.ts:169](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L169)
 
 ###### Returns
 
@@ -1562,7 +1562,7 @@ Defined in: [cursor/XmlCursorReader.ts:169](https://github.com/Clickin/stax-xml/
 
 > **uri**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:174](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L174)
+Defined in: [cursor/StaxXmlCursorReader.ts:174](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L174)
 
 ###### Returns
 
@@ -1572,7 +1572,7 @@ Defined in: [cursor/XmlCursorReader.ts:174](https://github.com/Clickin/stax-xml/
 
 > **text**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:183](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L183)
+Defined in: [cursor/StaxXmlCursorReader.ts:183](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L183)
 
 ###### Returns
 
@@ -1582,7 +1582,7 @@ Defined in: [cursor/XmlCursorReader.ts:183](https://github.com/Clickin/stax-xml/
 
 > **getAttributeCount**(): `number`
 
-Defined in: [cursor/XmlCursorReader.ts:189](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L189)
+Defined in: [cursor/StaxXmlCursorReader.ts:189](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L189)
 
 ###### Returns
 
@@ -1592,7 +1592,7 @@ Defined in: [cursor/XmlCursorReader.ts:189](https://github.com/Clickin/stax-xml/
 
 > **getAttributeName**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:195](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L195)
+Defined in: [cursor/StaxXmlCursorReader.ts:195](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L195)
 
 ###### Parameters
 
@@ -1608,7 +1608,7 @@ Defined in: [cursor/XmlCursorReader.ts:195](https://github.com/Clickin/stax-xml/
 
 > **getAttributeLocalName**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:203](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L203)
+Defined in: [cursor/StaxXmlCursorReader.ts:203](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L203)
 
 ###### Parameters
 
@@ -1624,7 +1624,7 @@ Defined in: [cursor/XmlCursorReader.ts:203](https://github.com/Clickin/stax-xml/
 
 > **getAttributePrefix**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:215](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L215)
+Defined in: [cursor/StaxXmlCursorReader.ts:215](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L215)
 
 ###### Parameters
 
@@ -1640,7 +1640,7 @@ Defined in: [cursor/XmlCursorReader.ts:215](https://github.com/Clickin/stax-xml/
 
 > **getAttributeValue**(`indexOrName`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:225](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L225)
+Defined in: [cursor/StaxXmlCursorReader.ts:225](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L225)
 
 ###### Parameters
 
@@ -1656,7 +1656,7 @@ Defined in: [cursor/XmlCursorReader.ts:225](https://github.com/Clickin/stax-xml/
 
 > **getAttributeUri**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReader.ts:245](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L245)
+Defined in: [cursor/StaxXmlCursorReader.ts:245](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L245)
 
 ###### Parameters
 
@@ -1672,7 +1672,7 @@ Defined in: [cursor/XmlCursorReader.ts:245](https://github.com/Clickin/stax-xml/
 
 > **depth**(): `number`
 
-Defined in: [cursor/XmlCursorReader.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReader.ts#L258)
+Defined in: [cursor/StaxXmlCursorReader.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReader.ts#L258)
 
 ###### Returns
 
@@ -1680,17 +1680,17 @@ Defined in: [cursor/XmlCursorReader.ts:258](https://github.com/Clickin/stax-xml/
 
 ***
 
-### XmlCursorReaderAsync
+### StaxXmlCursorReaderAsync
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:46](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L46)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:46](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L46)
 
 #### Constructors
 
 ##### Constructor
 
-> **new XmlCursorReaderAsync**(`stream`, `options?`): [`XmlCursorReaderAsync`](#xmlcursorreaderasync)
+> **new StaxXmlCursorReaderAsync**(`stream`, `options?`): [`StaxXmlCursorReaderAsync`](#staxxmlcursorreaderasync)
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:96](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L96)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:96](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L96)
 
 ###### Parameters
 
@@ -1700,11 +1700,11 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:96](https://github.com/Clickin/stax-
 
 ###### options?
 
-[`XmlCursorReaderAsyncOptions`](#xmlcursorreaderasyncoptions) = `{}`
+[`StaxXmlCursorReaderAsyncOptions`](#staxxmlcursorreaderasyncoptions) = `{}`
 
 ###### Returns
 
-[`XmlCursorReaderAsync`](#xmlcursorreaderasync)
+[`StaxXmlCursorReaderAsync`](#staxxmlcursorreaderasync)
 
 #### Methods
 
@@ -1712,7 +1712,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:96](https://github.com/Clickin/stax-
 
 > **next**(): `Promise`\<`boolean`\>
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L112)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L112)
 
 ###### Returns
 
@@ -1722,7 +1722,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:112](https://github.com/Clickin/stax
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:149](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L149)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:149](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L149)
 
 ###### Returns
 
@@ -1732,7 +1732,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:149](https://github.com/Clickin/stax
 
 > **eventType**(): [`CursorEventType`](#cursoreventtype-1)
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:156](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L156)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:156](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L156)
 
 ###### Returns
 
@@ -1742,7 +1742,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:156](https://github.com/Clickin/stax
 
 > **name**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:158](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L158)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:158](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L158)
 
 ###### Returns
 
@@ -1752,7 +1752,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:158](https://github.com/Clickin/stax
 
 > **localName**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:164](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L164)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:164](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L164)
 
 ###### Returns
 
@@ -1762,7 +1762,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:164](https://github.com/Clickin/stax
 
 > **prefix**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:172](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L172)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:172](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L172)
 
 ###### Returns
 
@@ -1772,7 +1772,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:172](https://github.com/Clickin/stax
 
 > **uri**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:178](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L178)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:178](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L178)
 
 ###### Returns
 
@@ -1782,7 +1782,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:178](https://github.com/Clickin/stax
 
 > **text**(): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:186](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L186)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:186](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L186)
 
 ###### Returns
 
@@ -1792,7 +1792,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:186](https://github.com/Clickin/stax
 
 > **getAttributeCount**(): `number`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L193)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L193)
 
 ###### Returns
 
@@ -1802,7 +1802,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:193](https://github.com/Clickin/stax
 
 > **getAttributeName**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:195](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L195)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:195](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L195)
 
 ###### Parameters
 
@@ -1818,7 +1818,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:195](https://github.com/Clickin/stax
 
 > **getAttributeLocalName**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:202](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L202)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:202](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L202)
 
 ###### Parameters
 
@@ -1834,7 +1834,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:202](https://github.com/Clickin/stax
 
 > **getAttributePrefix**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:212](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L212)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:212](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L212)
 
 ###### Parameters
 
@@ -1850,7 +1850,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:212](https://github.com/Clickin/stax
 
 > **getAttributeValue**(`indexOrName`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:220](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L220)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:220](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L220)
 
 ###### Parameters
 
@@ -1866,7 +1866,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:220](https://github.com/Clickin/stax
 
 > **getAttributeUri**(`i`): `string` \| `undefined`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L241)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L241)
 
 ###### Parameters
 
@@ -1882,7 +1882,7 @@ Defined in: [cursor/XmlCursorReaderAsync.ts:241](https://github.com/Clickin/stax
 
 > **depth**(): `number`
 
-Defined in: [cursor/XmlCursorReaderAsync.ts:252](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/XmlCursorReaderAsync.ts#L252)
+Defined in: [cursor/StaxXmlCursorReaderAsync.ts:252](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/StaxXmlCursorReaderAsync.ts#L252)
 
 ###### Returns
 
@@ -2433,7 +2433,7 @@ If <= 1, treated as percentage of bufferSize. Otherwise absolute char count.
 
 ***
 
-### XmlCursorReaderOptions
+### StaxXmlCursorReaderOptions
 
 Defined in: [cursor/types.ts:32](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/types.ts#L32)
 
@@ -2441,7 +2441,7 @@ Options for the sync cursor reader.
 
 #### Extended by
 
-- [`XmlCursorReaderAsyncOptions`](#xmlcursorreaderasyncoptions)
+- [`StaxXmlCursorReaderAsyncOptions`](#staxxmlcursorreaderasyncoptions)
 
 #### Properties
 
@@ -2471,7 +2471,7 @@ Additional custom entities to decode
 
 ***
 
-### XmlCursorReaderAsyncOptions
+### StaxXmlCursorReaderAsyncOptions
 
 Defined in: [cursor/types.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/cursor/types.ts#L43)
 
@@ -2479,7 +2479,7 @@ Options for the async cursor reader.
 
 #### Extends
 
-- [`XmlCursorReaderOptions`](#xmlcursorreaderoptions)
+- [`StaxXmlCursorReaderOptions`](#staxxmlcursorreaderoptions)
 
 #### Properties
 
@@ -2493,7 +2493,7 @@ Whether to automatically decode XML entities. Default: true
 
 ###### Inherited from
 
-[`XmlCursorReaderOptions`](#xmlcursorreaderoptions).[`autoDecodeEntities`](#autodecodeentities-2)
+[`StaxXmlCursorReaderOptions`](#staxxmlcursorreaderoptions).[`autoDecodeEntities`](#autodecodeentities-2)
 
 ##### addEntities?
 
@@ -2513,7 +2513,7 @@ Additional custom entities to decode
 
 ###### Inherited from
 
-[`XmlCursorReaderOptions`](#xmlcursorreaderoptions).[`addEntities`](#addentities-5)
+[`StaxXmlCursorReaderOptions`](#staxxmlcursorreaderoptions).[`addEntities`](#addentities-5)
 
 ##### encoding?
 
