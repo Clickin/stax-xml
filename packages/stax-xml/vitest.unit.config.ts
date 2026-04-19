@@ -5,7 +5,9 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     exclude: [
+      'test/performance.test.ts',
       'test/converter/performance-benchmark.test.ts',
+      'test/converter/large-file-performance.test.ts',
     ],
     coverage: {
       provider: 'v8',

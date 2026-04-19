@@ -260,5 +260,34 @@ describe('Error Handling Tests', () => {
         expect(result.error.issues[0].message).toBe('String error');
       }
     });
+
+    it('should wrap non-XmlParseError in async safeParse', async () => {
+      const xml = '<root><value>test</value></root>';
+      const schema = x.string()
+        .xpath('/root/value')
+        .transform(() => { throw new Error('Async custom error'); });
+
+      const result = await schema.safeParse(xml);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBeInstanceOf(XmlParseError);
+        expect(result.error.issues[0].message).toContain('Async custom error');
+        expect(result.error.issues[0].code).toBe('parse_error');
+      }
+    });
+
+    it('should wrap async string errors', async () => {
+      const xml = '<root><value>test</value></root>';
+      const schema = x.string()
+        .xpath('/root/value')
+        .transform(() => { throw 'Async string error'; });
+
+      const result = await schema.safeParse(xml);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBeInstanceOf(XmlParseError);
+        expect(result.error.issues[0].message).toBe('Async string error');
+      }
+    });
   });
 });

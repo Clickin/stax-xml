@@ -1,5 +1,61 @@
 import { describe, expect, it } from 'vitest';
+import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
 import { x } from '../../src/converter/index.js';
+import { XmlParserInternal } from '../../src/converter/XmlParserInternal.js';
+import {
+  isEndElement,
+  isStartElement,
+  type AnyXmlEvent,
+  type StartElementEvent
+} from '../../src/types.js';
+
+function eventsFromXml(xml: string): AnyXmlEvent[] {
+  return Array.from(new StaxXmlParserSync(xml));
+}
+
+function findStartPosition(
+  events: AnyXmlEvent[],
+  name: string,
+  occurrence = 1
+): { index: number; startEvent: StartElementEvent; depth: number } {
+  let depth = 0;
+  let matches = 0;
+
+  for (let index = 0; index < events.length; index++) {
+    const event = events[index];
+    if (isStartElement(event)) {
+      depth++;
+      if (event.name === name) {
+        matches++;
+        if (matches === occurrence) {
+          return { index, startEvent: event, depth };
+        }
+      }
+    } else if (isEndElement(event)) {
+      depth--;
+    }
+  }
+
+  throw new Error(`Could not find <${name}> start event`);
+}
+
+function syncIteratorFrom(events: AnyXmlEvent[], startIndex: number): Iterator<AnyXmlEvent> {
+  let index = startIndex;
+  return {
+    next(): IteratorResult<AnyXmlEvent> {
+      if (index >= events.length) {
+        return { value: undefined, done: true };
+      }
+      return { value: events[index++], done: false };
+    }
+  };
+}
+
+async function* asyncIteratorFrom(events: AnyXmlEvent[], startIndex: number): AsyncGenerator<AnyXmlEvent> {
+  for (let index = startIndex; index < events.length; index++) {
+    yield events[index];
+  }
+}
 
 describe('XmlParserInternal Position-Based Parsing Methods', () => {
   describe('parseArrayFromPosition - Attribute Selectors', () => {
@@ -875,6 +931,154 @@ describe('XmlParserInternal Position-Based Parsing Methods', () => {
 
       const result = await schema.parse(xml);
       expect(result.items).toEqual([]);
+    });
+  });
+
+  describe('Direct internal position parsing coverage', () => {
+    it('parses number text from sync and async current-position iterators', async () => {
+      const xml = '<root><value>4<![CDATA[2]]><nested>ignored</nested></value></root>';
+      const events = eventsFromXml(xml);
+      const position = findStartPosition(events, 'value');
+      const schema = x.number().int();
+
+      const syncResult = (schema as any)._parseFromPosition(
+        syncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth
+      );
+      const asyncResult = await (schema as any)._parseFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth
+      );
+
+      expect(syncResult).toBe(42);
+      expect(asyncResult).toBe(42);
+    });
+
+    it('parses string text from sync and async current-position iterators', async () => {
+      const xml = '<root><value>left<![CDATA[-right]]><nested>ignored</nested></value></root>';
+      const events = eventsFromXml(xml);
+      const position = findStartPosition(events, 'value');
+      const schema = x.string();
+
+      const syncResult = (schema as any)._parseFromPosition(
+        syncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth
+      );
+      const asyncResult = await (schema as any)._parseFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth
+      );
+
+      expect(syncResult).toBe('left-right');
+      expect(asyncResult).toBe('left-right');
+    });
+
+    it('parses array item attributes directly from a sync position', () => {
+      const xml = `
+        <root>
+          <section>
+            <item code="a">ignored</item>
+            <item code="b">ignored</item>
+          </section>
+        </root>
+      `;
+      const events = eventsFromXml(xml);
+      const position = findStartPosition(events, 'section');
+      const parser = new XmlParserInternal();
+
+      const values = (parser as any).parseArrayFromPositionSync(
+        syncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        1,
+        x.string().xpath('./@code'),
+        './item'
+      );
+
+      expect(values).toEqual(['a', 'b']);
+    });
+
+    it('parses array item attributes directly from an async position', async () => {
+      const xml = `
+        <root>
+          <section>
+            <line qty="2">ignored</line>
+            <line qty="4">ignored</line>
+          </section>
+        </root>
+      `;
+      const events = eventsFromXml(xml);
+      const position = findStartPosition(events, 'section');
+      const parser = new XmlParserInternal();
+
+      const values = await (parser as any).parseArrayFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        1,
+        x.number().xpath('./@qty').int(),
+        './line'
+      );
+
+      expect(values).toEqual([2, 4]);
+    });
+
+    it('parses object fields directly from sync and async positions', async () => {
+      const xml = `
+        <root>
+          <book>
+            <title>Streaming XML</title>
+            <pages>320</pages>
+          </book>
+        </root>
+      `;
+      const events = eventsFromXml(xml);
+      const position = findStartPosition(events, 'book');
+      const parser = new XmlParserInternal();
+      const shape = {
+        title: x.string().xpath('./title'),
+        pages: x.number().xpath('./pages').int()
+      };
+
+      const syncResult = (parser as any).parseObjectFromPositionSync(
+        syncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth,
+        shape,
+        {}
+      );
+      const asyncResult = await (parser as any).parseObjectFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth,
+        shape,
+        {}
+      );
+
+      expect(syncResult).toEqual({ title: 'Streaming XML', pages: 320 });
+      expect(asyncResult).toEqual({ title: 'Streaming XML', pages: 320 });
+    });
+
+    it('throws when direct array position parsing has no xpath', async () => {
+      const events = eventsFromXml('<root><section><item>A</item></section></root>');
+      const position = findStartPosition(events, 'section');
+      const parser = new XmlParserInternal();
+
+      expect(() => (parser as any).parseArrayFromPositionSync(
+        syncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth,
+        x.string()
+      )).toThrow('Array schema requires xpath');
+
+      await expect((parser as any).parseArrayFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.startEvent,
+        position.depth,
+        x.string()
+      )).rejects.toThrow('Array schema requires xpath');
     });
   });
 });

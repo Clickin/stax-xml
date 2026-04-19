@@ -57,7 +57,7 @@
     "build": "tsdown",
     "test": "vitest run --config vitest.unit.config.ts",
     "test:watch": "vitest --config vitest.unit.config.ts",
-    "test:perf": "vitest run test/converter/performance-benchmark.test.ts --config vitest.config.ts",
+    "test:perf": "vitest run --config vitest.perf.config.ts",
     "coverage": "vitest run --config vitest.unit.config.ts --coverage",
     "performance": "node --expose-gc ./performance/large-file.ts",
     "prepublishOnly": "pnpm build",

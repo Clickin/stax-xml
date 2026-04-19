@@ -317,5 +317,59 @@ describe('Writer Tests', () => {
         schema.write('hello', { rootElement: 'root' })
       ).rejects.toThrow('Transform schema does not support writing');
     });
+
+    it('should reject invalid injected writer instances for primitive and array schemas', async () => {
+      const invalidWriter = {} as any;
+
+      expect(() => x.string().writeSync('text', { writer: invalidWriter })).toThrow(
+        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+      );
+      await expect(x.string().write('text', { writer: invalidWriter })).rejects.toThrow(
+        'write requires StaxXmlWriter instance'
+      );
+
+      expect(() => x.number().writeSync(1, { writer: invalidWriter })).toThrow(
+        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+      );
+      await expect(x.number().write(1, { writer: invalidWriter })).rejects.toThrow(
+        'write requires StaxXmlWriter instance'
+      );
+
+      const arraySchema = x.array(x.string().writer({ element: 'item' }));
+      expect(() => arraySchema.writeSync(['a'], { writer: invalidWriter })).toThrow(
+        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+      );
+      await expect(arraySchema.write(['a'], { writer: invalidWriter })).rejects.toThrow(
+        'write requires StaxXmlWriter instance'
+      );
+    });
+  });
+
+  describe('Stream Writing', () => {
+    it('should write directly to a provided WritableStream', async () => {
+      const chunks: Uint8Array[] = [];
+      const stream = new WritableStream<Uint8Array>({
+        write(chunk) {
+          chunks.push(chunk);
+        }
+      });
+      const schema = x.object({
+        title: x.string().writer({ element: 'title' }),
+        tags: x.array(x.string().writer({ element: 'tag' })).writer({ element: 'tags' })
+      });
+
+      await schema.writeToStream(
+        { title: 'Guide', tags: ['xml', 'stream'] },
+        stream,
+        { rootElement: 'book', includeDeclaration: false, prettyPrint: false }
+      );
+
+      const decoder = new TextDecoder();
+      const xml = chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('') + decoder.decode();
+      expect(xml).toContain('<book>');
+      expect(xml).toContain('<title>Guide</title>');
+      expect(xml).toContain('<tag>xml</tag>');
+      expect(xml).toContain('<tag>stream</tag>');
+    });
   });
 });
