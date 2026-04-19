@@ -31,7 +31,6 @@ export const benchmarkMarkdownPath = join(repoRoot, 'BENCHMARK.md');
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
     only: null,
-    skipBuild: false,
     verbose: true,
   };
 
@@ -39,10 +38,6 @@ function parseArgs(argv = process.argv.slice(2)) {
     const arg = argv[index];
     if (!arg) continue;
 
-    if (arg === '--skip-build') {
-      args.skipBuild = true;
-      continue;
-    }
     if (arg === '--quiet') {
       args.verbose = false;
       continue;
@@ -130,6 +125,36 @@ function normalizeSuiteResult(id, title, result) {
 export function normalizeSuiteResultFromRawFile(id, title, rawFilePath) {
   const raw = JSON.parse(readFileSync(rawFilePath, 'utf8'));
   return normalizeSuiteResult(id, title, raw);
+}
+
+function normalizeWriter1gbSuiteResult(id, title, raw) {
+  return {
+    id,
+    title,
+    context: raw.context,
+    cases: raw.results.map((entry) => {
+      const elapsedNs = entry.elapsedMs * 1e6;
+      return {
+        label: entry.label,
+        avgNs: elapsedNs,
+        minNs: elapsedNs,
+        p75Ns: elapsedNs,
+        p99Ns: elapsedNs,
+        maxNs: elapsedNs,
+        heapAvgBytes: entry.memoryPeak?.heapUsed ?? null,
+        rssPeakBytes: entry.memoryPeak?.rss ?? null,
+        bytesWritten: entry.bytesWritten,
+        records: entry.records,
+        throughputMiBs: entry.throughputMiBs,
+        targetBytes: raw.targetBytes,
+      };
+    }),
+  };
+}
+
+export function normalizeWriter1gbSuiteResultFromRawFile(rawFilePath) {
+  const raw = JSON.parse(readFileSync(rawFilePath, 'utf8'));
+  return normalizeWriter1gbSuiteResult('writer-1gb', 'Writer 1GiB async vs sync sink', raw);
 }
 
 async function runSuite(id, title, registerSuite, verbose) {
@@ -396,6 +421,18 @@ function registerWriterSmallSuite() {
         writer.getXmlString();
       }).gc('inner');
 
+      bench('stax-xml writer sync sink', () => {
+        const { sink, getBytesWritten } = createInMemoryFileSink();
+        const writer = new StaxXmlWriterSyncSink(sink, {
+          prettyPrint: true,
+          indentString: '  ',
+        });
+        writer.writeStartDocument();
+        writeWriterTreeSync(writer, orderedWriterTree);
+        writer.writeEndDocument();
+        return getBytesWritten();
+      }).gc('inner');
+
       bench('xml2js builder', () => {
         const builder = new Builder({});
         builder.buildObject(jsonContent);
@@ -429,6 +466,15 @@ function registerWriterBigSuite() {
         writeWriterTreeSync(writer, bigWriterTree);
         writer.writeEndDocument();
         writer.getXmlString();
+      }).gc('inner');
+
+      bench('stax-xml writer sync sink (big.json)', () => {
+        const { sink, getBytesWritten } = createInMemoryFileSink();
+        const writer = new StaxXmlWriterSyncSink(sink);
+        writer.writeStartDocument();
+        writeWriterTreeSync(writer, bigWriterTree);
+        writer.writeEndDocument();
+        return getBytesWritten();
       }).gc('inner');
     });
   });
@@ -642,6 +688,11 @@ export const manifest = [
     run: () => runSuite('writer-async', 'Writer async vs sync', registerAsyncWriterSuite, true),
   },
   {
+    id: 'writer-1gb',
+    title: 'Writer 1GiB async vs sync sink',
+    run: () => Promise.resolve(normalizeWriter1gbSuiteResultFromRawFile(join(rawDir, 'writer-1gb.json'))),
+  },
+  {
     id: 'converter-parity',
     title: 'Converter API vs Plain Parser',
     run: () => {
@@ -725,6 +776,7 @@ function renderWriterSmallTable(summary) {
     ['fast-xml-parser builder', 'fast-xml-parser builder'],
     ['stax-xml writer', 'Writer API'],
     ['stax-xml writer sync', 'Sync writer API'],
+    ['stax-xml writer sync sink', 'Sync streaming sink API'],
     ['xml2js builder', 'xml2js builder'],
   ];
   const fastestLabel = rows
@@ -738,6 +790,7 @@ function renderWriterSmallTable(summary) {
       const stats = suiteCase(summary, 'writer-small', label);
       const display = label === 'fast-xml-parser builder' ? '**fast-xml-parser builder**'
         : label === 'stax-xml writer sync' ? '**stax-xml writer sync**'
+        : label === 'stax-xml writer sync sink' ? '**stax-xml writer sync sink**'
         : label;
       const resolvedNotes = label === fastestLabel && notes !== 'Fastest'
         ? `Fastest, ${notes}`
@@ -753,6 +806,7 @@ function renderWriterBigTable(summary) {
   const rows = [
     ['fast-xml-parser builder (big.json)', 'fast-xml-parser builder'],
     ['stax-xml writer sync (big.json)', 'Sync writer API'],
+    ['stax-xml writer sync sink (big.json)', 'Sync streaming sink API'],
     ['stax-xml writer (big.json)', 'Writer API'],
   ];
   const fastestLabel = rows
@@ -766,6 +820,7 @@ function renderWriterBigTable(summary) {
       const stats = suiteCase(summary, 'writer-big', label);
       const display = label === 'fast-xml-parser builder (big.json)' ? '**fast-xml-parser builder**'
         : label === 'stax-xml writer sync (big.json)' ? '**stax-xml writer sync**'
+        : label === 'stax-xml writer sync sink (big.json)' ? '**stax-xml writer sync sink**'
         : 'stax-xml writer';
       const resolvedNotes = label === fastestLabel && notes !== 'Fastest'
         ? `Fastest, ${notes}`
@@ -796,11 +851,27 @@ function renderAsyncWriterTable(summary) {
   ].join('\n');
 }
 
+function renderWriter1gbTable(summary) {
+  const rows = [
+    ['async writer memory WritableStream', 'Async writer + memory WritableStream'],
+    ['sync writer sink memory', 'Sync sink writer + memory sink'],
+    ['async writer temp file', 'Async writer + temp file'],
+    ['sync writer sink temp file', 'Sync sink writer + temp file'],
+  ];
+
+  return [
+    '| Target | Time | Throughput | Peak Heap | Peak RSS | Written | Records |',
+    '|--------|-----:|-----------:|----------:|---------:|--------:|--------:|',
+    ...rows.map(([label, display]) => {
+      const stats = suiteCase(summary, 'writer-1gb', label);
+      const resolvedDisplay = label.startsWith('sync writer sink') ? `**${display}**` : display;
+      return `| ${resolvedDisplay} | ${formatDurationNsCompact(stats.avgNs)} | ${stats.throughputMiBs.toFixed(2)} MiB/s | ${formatMemory(stats.heapAvgBytes)} | ${formatMemory(stats.rssPeakBytes)} | ${formatMemory(stats.bytesWritten)} | ${stats.records.toLocaleString()} |`;
+    }),
+  ].join('\n');
+}
+
 function createEnglishBenchmarkBlock(summary) {
   const env = summary.environment;
-  const async100 = suiteCase(summary, 'async-size', 'async parser (100MB)');
-  const sync100 = suiteCase(summary, 'async-size', 'sync parser (100MB)');
-  const async1gb = suiteCase(summary, 'async-size', 'async parser (1GB)');
 
   return `## Benchmark Environment
 
@@ -924,20 +995,15 @@ It is intended to show \`stax-xml\` async vs sync overhead and sink overhead, no
 
 ${renderAsyncWriterTable(summary)}
 
-## Memory Efficiency
+### 1GiB Writer Comparison
 
-### Large File Memory Usage
+This one-shot benchmark writes a 1GiB XML document through both async writer and sync sink writer paths.
+It includes in-memory targets and temp-file targets to separate writer overhead from file I/O cost.
 
-\`\`\`
-File Size: 100MB XML Document
+${renderWriter1gbTable(summary)}
 
-stax-xml async parser:     ~${(async100.heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory
-stax-xml sync parser:      ~${(sync100.heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory
-
-File Size: 1GB XML Document
-
-stax-xml async parser:     ~${(async1gb.heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory
-\`\`\``;
+Based on this run, \`StaxXmlWriterSyncSink\` is the recommended path for large XML file output. It provides the highest write throughput, and peak RSS stays in the same range as async writing.
+`;
 }
 
 function createBenchmarkMarkdown(summary) {
@@ -958,13 +1024,6 @@ ${createEnglishBenchmarkBlock(summary)}
 async function main() {
   const args = parseArgs();
   mkdirSync(rawDir, { recursive: true });
-
-  if (!args.skipBuild) {
-    if (args.verbose) {
-      console.log('Building stax-xml before running canonical benchmarks...');
-    }
-    runCommand('pnpm', ['--filter=stax-xml', 'build']);
-  }
 
   const suites = {};
   for (const entry of manifest) {
@@ -997,9 +1056,10 @@ export async function aggregateReleaseBenchmarks({ verbose = true } = {}) {
   const suites = {};
   for (const entry of manifest) {
     const rawFile = join(rawDir, `${entry.id}.json`);
-    suites[entry.id] = normalizeSuiteResultFromRawFile(entry.id, entry.title, rawFile);
+    suites[entry.id] = entry.id === 'writer-1gb'
+      ? normalizeWriter1gbSuiteResultFromRawFile(rawFile)
+      : normalizeSuiteResultFromRawFile(entry.id, entry.title, rawFile);
   }
-
   const firstSuite = Object.values(suites)[0];
   if (!firstSuite) {
     throw new Error('No canonical benchmark results found');

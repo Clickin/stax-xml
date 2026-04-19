@@ -22,7 +22,9 @@ head:
 
 ## StaxXmlWriterSync - Synchronous XML Generation
 
-StAX-XML includes a synchronous XML writer that generates XML documents programmatically by building the XML string in memory. This writer provides better performance for smaller documents and synchronous workflows.
+StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `StaxXmlWriterSync` builds the XML string in memory for small and medium documents, while `StaxXmlWriterSyncSink` writes incrementally to a sink for large documents.
+
+For large file output, prefer the sink path. The 1GiB writer benchmark shows `StaxXmlWriterSyncSink` has the best write throughput while peak RSS stays in the same range as async writing.
 
 ### 🔧 Quick Start
 
@@ -196,7 +198,7 @@ export default app;
 
 ##### Sink-Based Incremental Writing
 
-`StaxXmlWriterSync` can write directly to any custom sync target through `StaxXmlWriterSyncSink`.
+`StaxXmlWriterSync` can write directly to any custom sync target through `StaxXmlWriterSyncSink`. Use this path for large XML output.
 Use runtime-specific adapters for Node.js, Bun, or Deno so the browser-compatible default import stays unchanged.
 
 ```typescript

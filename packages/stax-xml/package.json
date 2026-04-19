@@ -7,12 +7,12 @@
     "url": "git+https://github.com/Clickin/stax-xml.git"
   },
   "devDependencies": {
-    "starlight-typedoc": "^0.21.3",
-    "tsdown": "^0.20.3",
-    "typedoc": "^0.28.13",
-    "typedoc-plugin-markdown": "^4.9.0",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "starlight-typedoc": "^0.21.5",
+    "tsdown": "^0.21.9",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.11.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4"
   },
   "exports": {
     ".": {

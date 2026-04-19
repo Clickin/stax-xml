@@ -13,7 +13,7 @@ type Section =
   | 'writer-small'
   | 'writer-big'
   | 'writer-async'
-  | 'memory';
+  | 'writer-1gb';
 
 interface Props {
   locale: Locale;
@@ -66,6 +66,12 @@ function parseLabel(label: string) {
     .replace('Sync Writer', 'Sync Writer')
     .replace('Average Time', '평균 시간')
     .replace('Operations/sec', '초당 작업 수')
+    .replace('Throughput', '처리량')
+    .replace('Peak RSS', '최대 RSS')
+    .replace('Peak heap', '최대 heap')
+    .replace('Written', '기록량')
+    .replace('Records', '레코드 수')
+    .replace('Target', '목표')
     .replace('Library', '라이브러리')
     .replace('Notes', '비고')
     .replace('Implementation', '구현')
@@ -147,25 +153,59 @@ function buildTable(section: Section): TableModel | null {
           ['converter api compiled', formatDurationNsCompact(suiteCase('converter-parity', 'converter api compiled').avgNs), locale === 'en' ? 'Declarative schema with compiled root processor' : '선언형 스키마 + compiled root processor'],
         ],
       };
-    case 'writer-small':
+    case 'writer-small': {
+      const rows: Array<[string, string]> = [
+        ['fast-xml-parser builder', 'fast-xml-parser builder'],
+        ['stax-xml writer', 'Writer API'],
+        ['stax-xml writer sync', 'Sync writer API'],
+      ];
+      if (findSuiteCase('writer-small', 'stax-xml writer sync sink')) {
+        rows.push(['stax-xml writer sync sink', 'Sync streaming sink API']);
+      }
+      rows.push(['xml2js builder', 'xml2js builder']);
+      const fastestLabel = rows
+        .map(([label]) => [label, suiteCase('writer-small', label).avgNs] as [string, number])
+        .sort((a, b) => a[1] - b[1])[0]?.[0];
+      const fastestNote = locale === 'en' ? 'Fastest' : '가장 빠름';
       return {
         headers: ['Library', 'Average Time', 'Operations/sec', 'Memory Usage', 'Notes'],
-        rows: [
-          ['**fast-xml-parser builder**', formatDurationNsCompact(suiteCase('writer-small', 'fast-xml-parser builder').avgNs), formatOps(suiteCase('writer-small', 'fast-xml-parser builder').avgNs), formatMemory(suiteCase('writer-small', 'fast-xml-parser builder').heapAvgBytes), locale === 'en' ? 'Fastest' : '가장 빠름'],
-          ['stax-xml writer', formatDurationNsCompact(suiteCase('writer-small', 'stax-xml writer').avgNs), formatOps(suiteCase('writer-small', 'stax-xml writer').avgNs), formatMemory(suiteCase('writer-small', 'stax-xml writer').heapAvgBytes), 'Writer API'],
-          ['**stax-xml writer sync**', formatDurationNsCompact(suiteCase('writer-small', 'stax-xml writer sync').avgNs), formatOps(suiteCase('writer-small', 'stax-xml writer sync').avgNs), formatMemory(suiteCase('writer-small', 'stax-xml writer sync').heapAvgBytes), locale === 'en' ? 'Sync writer API' : 'Sync writer API'],
-          ['xml2js builder', formatDurationNsCompact(suiteCase('writer-small', 'xml2js builder').avgNs), formatOps(suiteCase('writer-small', 'xml2js builder').avgNs), formatMemory(suiteCase('writer-small', 'xml2js builder').heapAvgBytes), 'xml2js builder'],
-        ],
+        rows: rows.map(([label, notes]) => {
+          const stats = suiteCase('writer-small', label);
+          const display = label === 'fast-xml-parser builder' ? '**fast-xml-parser builder**'
+            : label === 'stax-xml writer sync' ? '**stax-xml writer sync**'
+            : label === 'stax-xml writer sync sink' ? '**stax-xml writer sync sink**'
+            : label;
+          const resolvedNotes = label === fastestLabel ? `${fastestNote}, ${notes}` : notes;
+          return [display, formatDurationNsCompact(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), resolvedNotes];
+        }),
       };
-    case 'writer-big':
+    }
+    case 'writer-big': {
+      const rows: Array<[string, string]> = [
+        ['fast-xml-parser builder (big.json)', 'fast-xml-parser builder'],
+        ['stax-xml writer sync (big.json)', 'Sync writer API'],
+      ];
+      if (findSuiteCase('writer-big', 'stax-xml writer sync sink (big.json)')) {
+        rows.push(['stax-xml writer sync sink (big.json)', 'Sync streaming sink API']);
+      }
+      rows.push(['stax-xml writer (big.json)', 'Writer API']);
+      const fastestLabel = rows
+        .map(([label]) => [label, suiteCase('writer-big', label).avgNs] as [string, number])
+        .sort((a, b) => a[1] - b[1])[0]?.[0];
+      const fastestNote = locale === 'en' ? 'Fastest' : '가장 빠름';
       return {
         headers: ['Library', 'Average Time', 'Operations/sec', 'Memory Usage', 'Notes'],
-        rows: [
-          ['**fast-xml-parser builder**', formatDurationNsCompact(suiteCase('writer-big', 'fast-xml-parser builder (big.json)').avgNs), formatOps(suiteCase('writer-big', 'fast-xml-parser builder (big.json)').avgNs), formatMemory(suiteCase('writer-big', 'fast-xml-parser builder (big.json)').heapAvgBytes), locale === 'en' ? 'Fastest' : '가장 빠름'],
-          ['**stax-xml writer sync**', formatDurationNsCompact(suiteCase('writer-big', 'stax-xml writer sync (big.json)').avgNs), formatOps(suiteCase('writer-big', 'stax-xml writer sync (big.json)').avgNs), formatMemory(suiteCase('writer-big', 'stax-xml writer sync (big.json)').heapAvgBytes), locale === 'en' ? 'Sync writer API' : 'Sync writer API'],
-          ['stax-xml writer', formatDurationNsCompact(suiteCase('writer-big', 'stax-xml writer (big.json)').avgNs), formatOps(suiteCase('writer-big', 'stax-xml writer (big.json)').avgNs), formatMemory(suiteCase('writer-big', 'stax-xml writer (big.json)').heapAvgBytes), 'Writer API'],
-        ],
+        rows: rows.map(([label, notes]) => {
+          const stats = suiteCase('writer-big', label);
+          const display = label === 'fast-xml-parser builder (big.json)' ? '**fast-xml-parser builder**'
+            : label === 'stax-xml writer sync (big.json)' ? '**stax-xml writer sync**'
+            : label === 'stax-xml writer sync sink (big.json)' ? '**stax-xml writer sync sink**'
+            : 'stax-xml writer';
+          const resolvedNotes = label === fastestLabel ? `${fastestNote}, ${notes}` : notes;
+          return [display, formatDurationNsCompact(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), resolvedNotes];
+        }),
       };
+    }
     case 'writer-async':
       if (findSuiteCase('writer-async', 'sync writer sink in-memory (1K elements)')) {
         return {
@@ -185,17 +225,35 @@ function buildTable(section: Section): TableModel | null {
           ['10K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (10K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (10K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (10K elements)').avgNs / suiteCase('writer-async', 'sync writer (10K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sync)' : '빠름 (sync)'}`],
         ],
       };
+    case 'writer-1gb': {
+      const rows = [
+        ['async writer memory WritableStream', locale === 'en' ? 'Async writer + memory WritableStream' : 'Async writer + 메모리 WritableStream'],
+        ['sync writer sink memory', locale === 'en' ? 'Sync sink writer + memory sink' : 'Sync sink writer + 메모리 sink'],
+        ['async writer temp file', locale === 'en' ? 'Async writer + temp file' : 'Async writer + 임시 파일'],
+        ['sync writer sink temp file', locale === 'en' ? 'Sync sink writer + temp file' : 'Sync sink writer + 임시 파일'],
+      ];
+      return {
+        headers: ['Target', 'Average Time', 'Throughput', 'Peak heap', 'Peak RSS', 'Written', 'Records'],
+        rows: rows.map(([label, display]) => {
+          const stats = suiteCase('writer-1gb', label);
+          return [
+            label.includes('sync writer sink') ? `**${display}**` : display,
+            formatDurationNsCompact(stats.avgNs),
+            `${stats.throughputMiBs.toFixed(2)} MiB/s`,
+            formatMemory(stats.heapAvgBytes),
+            formatMemory(stats.rssPeakBytes),
+            formatMemory(stats.bytesWritten),
+            stats.records.toLocaleString(),
+          ];
+        }),
+      };
+    }
     default:
       return null;
   }
 }
 
 const table = buildTable(section);
-const memoryBlock = section === 'memory'
-  ? (locale === 'en'
-      ? `File Size: 100MB XML Document\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory\nstax-xml sync parser:      ~${(suiteCase('async-size', 'sync parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory\n\nFile Size: 1GB XML Document\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (1GB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory`
-      : `파일 크기: 100MB XML 문서\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB 최대 메모리\nstax-xml sync parser:      ~${(suiteCase('async-size', 'sync parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB 최대 메모리\n\n파일 크기: 1GB XML 문서\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (1GB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB 최대 메모리`)
-  : null;
 ---
 {section === 'environment' && (
   <ul>
@@ -227,6 +285,3 @@ const memoryBlock = section === 'memory'
   </table>
 )}
 
-{memoryBlock && (
-  <pre><code>{memoryBlock}</code></pre>
-)}

@@ -57,7 +57,7 @@ run_controlled_benchmark() {
 #!/bin/bash
 cd "${SCRIPT_DIR}"
 export NODE_OPTIONS="--expose-gc"
-npx tsx benchmark-controlled-runner.ts "${variant}" "${test_file}" "${output_file}"
+node benchmark-controlled-runner.mjs "${variant}" "${test_file}" "${output_file}"
 EOF
 
     chmod +x /tmp/bench_runner.sh
@@ -96,7 +96,7 @@ echo ""
 echo "Results saved to: ${RESULT_FILE}"
 echo ""
 echo "To analyze results, run:"
-echo "  npx tsx compare-results.ts ${RESULT_FILE}"
+echo "  node compare-results.mjs ${RESULT_FILE}"
 echo ""
 echo -e "${YELLOW}Tip: For even more controlled results, consider:${NC}"
 echo "  1. Disable CPU frequency scaling (sudo cpupower frequency-set -g performance)"

@@ -42,20 +42,7 @@ For larger API responses and data files (books.xml):
 
 <BenchmarkSection locale="en" section="parser-4kb" />
 
-### Large Documents (1MB to 1GB)
-
-For processing large XML files (RSS feeds, data exports, etc.):
-
-<BenchmarkSection locale="en" section="async-size" />
-
-**Key Insights:**
-- Sync parser is faster for smaller files.
-- Async parser keeps memory usage flatter as file size grows.
-- For files above 100MB, async parsing is the practical low-memory path.
-
-### Sync Parser Library Comparison
-
-#### Medium-Large Documents (13MB)
+### Medium-Large Documents (13MB)
 
 Performance results on midsize.xml (13MB):
 
@@ -63,7 +50,7 @@ Performance results on midsize.xml (13MB):
 
 *xml2js remains an outlier on this fixture, likely because the document shape heavily favors its DOM-oriented parsing model.*
 
-#### Large Documents (98MB)
+### Large Documents (98MB)
 
 Performance results on large.xml (98MB):
 
@@ -74,6 +61,19 @@ Performance results on large.xml (98MB):
 - **Medium files (13MB)**: xml2js remains an anomalous outlier on this fixture, while `stax-xml consume` and `stax-xml to object` stay in the same general throughput band
 - **Large files (98MB)**: StAX-XML provides best balance of speed and memory efficiency
 - **Very large files (1GB+)**: Only async parsers remain viable
+
+
+### stax-xml sync vs async (1MB to 1GB)
+
+sync vs async perfromance :
+
+<BenchmarkSection locale="en" section="async-size" />
+
+**Key Insights:**
+- Sync parser is faster for smaller files.
+- Async parser keeps memory usage flatter as file size grows.
+- For files above 100MB, async parsing is the practical low-memory path.
+
 
 ## Converter API vs Plain Parser
 
@@ -127,11 +127,14 @@ It is intended to show `stax-xml` async vs sync overhead, not to imply that the 
 
 <BenchmarkSection locale="en" section="writer-async" />
 
-## Memory Efficiency
+### 1GiB Writer Comparison
 
-### Large File Memory Usage
+This one-shot benchmark writes a 1GiB XML document through both async writer and sync sink writer paths.
+It includes in-memory targets and temp-file targets to separate writer overhead from file I/O cost.
 
-<BenchmarkSection locale="en" section="memory" />
+<BenchmarkSection locale="en" section="writer-1gb" />
+
+Based on this run, `StaxXmlWriterSyncSink` is the recommended path for large XML file output. It provides the highest write throughput, and peak RSS stays in the same range as async writing.
 
 ## Benchmark Scripts
 

@@ -42,20 +42,7 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 <BenchmarkSection locale="ko" section="parser-4kb" />
 
-### 대용량 문서 (1MB ~ 1GB)
-
-대용량 XML 파일 처리:
-
-<BenchmarkSection locale="ko" section="async-size" />
-
-**주요 인사이트:**
-- 작은 파일에서는 sync parser가 더 빠릅니다.
-- 파일이 커질수록 async parser가 메모리 사용량을 더 안정적으로 유지합니다.
-- 100MB 이상에서는 async parser가 현실적인 저메모리 경로입니다.
-
-### 동기 파서 라이브러리 비교
-
-#### 중대형 문서 (13MB)
+### 중대형 문서 (13MB)
 
 midsize.xml (13MB) 성능 결과:
 
@@ -63,7 +50,7 @@ midsize.xml (13MB) 성능 결과:
 
 *xml2js는 이 fixture에서만 유난히 빠른 이상치에 가깝습니다.*
 
-#### 대형 문서 (98MB)
+### 대형 문서 (98MB)
 
 large.xml (98MB) 성능 결과:
 
@@ -73,7 +60,19 @@ large.xml (98MB) 성능 결과:
 - **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섭니다
 - **중형 파일 (13MB)**: xml2js는 이 fixture에서만 보이는 이상치에 가깝고, `stax-xml consume`와 `stax-xml to object`는 비슷한 처리량 대역에 머뭅니다
 - **대형 파일 (98MB)**: StAX-XML이 속도와 메모리 효율성의 최고 균형을 제공합니다
-- **초대형 파일 (1GB+)**: 비동기 파서만 실행 가능합니다
+- **초대형 파일 (1GB+)**: string max length를 넘는 파일은 StAX-XML의 비동기 파서만 실행 가능합니다
+
+### stax-xml sync vs async (1MB ~ 1GB)
+
+sync vs async 성능 비교:
+
+<BenchmarkSection locale="ko" section="async-size" />
+
+**주요 인사이트:**
+- 작은 파일에서는 sync parser가 더 빠릅니다.
+- 파일이 커질수록 async parser가 메모리 사용량을 더 안정적으로 유지합니다.
+- 100MB 이상에서는 async parser가 현실적인 저메모리 경로입니다.
+
 
 ## Converter API vs Plain Parser
 
@@ -123,11 +122,14 @@ large.xml (98MB) 성능 결과:
 
 <BenchmarkSection locale="ko" section="writer-async" />
 
-## 메모리 효율성
+### 1GiB Writer 비교
 
-### 대용량 파일 메모리 사용량
+이 one-shot 벤치마크는 1GiB XML 문서를 async writer와 sync sink writer 경로로 각각 생성합니다.
+writer 자체의 오버헤드와 파일 I/O 비용을 분리해 볼 수 있도록 메모리 target과 임시 파일 target을 모두 포함합니다.
 
-<BenchmarkSection locale="ko" section="memory" />
+<BenchmarkSection locale="ko" section="writer-1gb" />
+
+이 결과 기준으로 대용량 XML 파일 출력에는 `StaxXmlWriterSyncSink`를 권장합니다. 가장 높은 쓰기 처리량을 보이며, peak RSS도 async 쓰기와 같은 범위에 머뭅니다.
 
 ## 벤치마크 스크립트
 

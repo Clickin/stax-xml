@@ -345,8 +345,8 @@ Use the formatting options:
 import { StaxXmlWriterSync } from 'stax-xml';
 
 const writer = new StaxXmlWriterSync({
-  indentSize: 2,
-  newlineAfterDeclaration: true
+  prettyPrint: true,
+  indentString: '  '
 });
 
 writer.writeStartDocument();
@@ -357,7 +357,7 @@ writer.writeEndElement();
 writer.writeEndElement();
 writer.writeEndDocument();
 
-console.log(writer.toString());
+console.log(writer.getXmlString());
 ```
 
 ### How do I handle special characters in XML content?
@@ -374,29 +374,36 @@ writer.writeAttribute('attr', 'value with "quotes"');
 
 ### Can I stream XML generation?
 
-Yes, use the asynchronous writer:
+Yes. For large file output, prefer the synchronous sink writer. It writes incrementally without building the full XML string, and the 1GiB writer benchmark shows it has the best throughput while peak RSS stays in the same range as async writing.
 
 ```typescript
-import { StaxXmlWriter } from 'stax-xml';
+import { openSync } from 'fs';
+import { StaxXmlWriterSyncSink } from 'stax-xml';
+import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 
-const writer = new StaxXmlWriter();
+const fd = openSync('./large.xml', 'w');
+const writer = new StaxXmlWriterSyncSink(createNodeFileSyncTextSink(fd), {
+  bufferSize: 64 * 1024,
+  enableAutoFlush: true,
+  flushThreshold: 0.8,
+  flushOnClose: true
+});
 
-await writer.writeStartDocument();
-await writer.writeStartElement('largeDocument');
+writer.writeStartDocument();
+writer.writeStartElement('largeDocument');
 
 for (let i = 0; i < 100000; i++) {
-  await writer.writeStartElement('item');
-  await writer.writeAttribute('id', i.toString());
-  await writer.writeCharacters(`Item ${i}`);
-  await writer.writeEndElement();
+  writer.writeStartElement('item', { attributes: { id: i.toString() } });
+  writer.writeCharacters(`Item ${i}`);
+  writer.writeEndElement();
 }
 
-await writer.writeEndElement();
-await writer.writeEndDocument();
-
-// Get the result as string or stream
-const xml = writer.toString();
+writer.writeEndElement();
+writer.writeEndDocument();
+writer.close();
 ```
+
+Use `StaxXmlWriter` instead when the surrounding architecture requires an asynchronous `WritableStream`, such as HTTP streaming responses.
 
 ## Compatibility Questions
 

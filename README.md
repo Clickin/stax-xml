@@ -14,6 +14,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 - **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing
 - **XPath Support**: Use XPath expressions for flexible element selection
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
+- **Synchronous Sink Writing**: Recommended high-throughput path for large XML output
 - **Fully Asynchronous (Stream-based)**: For memory-efficient processing of large XML files
 - **Synchronous (String-based)**: For high-performance parsing of smaller, in-memory XML strings
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
@@ -260,6 +261,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 - **선언적 Converter API**: 타입 안전한 XML 파싱과 쓰기를 위한 Zod 스타일 스키마 API
 - **XPath 지원**: 유연한 요소 선택을 위한 XPath 표현식 사용
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
+- **동기 sink 쓰기**: 대용량 XML 출력에 권장되는 고처리량 경로
 - **완전 비동기 (스트림 기반)**: 대용량 XML 파일의 메모리 효율적 처리
 - **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능

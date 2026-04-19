@@ -22,7 +22,9 @@ head:
 
 ## StaxXmlWriterSync - 동기식 XML 생성
 
-StAX-XML에는 메모리에서 XML 문자열을 빌드하여 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML 라이터가 포함되어 있습니다. 이 라이터는 작은 문서와 동기식 워크플로우에서 더 나은 성능을 제공합니다.
+StAX-XML에는 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML 라이터가 포함되어 있습니다. `StaxXmlWriterSync`는 소형/중형 문서를 메모리에서 문자열로 만들고, `StaxXmlWriterSyncSink`는 대용량 문서를 sink로 증분 출력합니다.
+
+대용량 파일 출력에는 sink 경로를 권장합니다. 1GiB writer 벤치마크에서 `StaxXmlWriterSyncSink`가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
 ### 🔧 빠른 시작
 
@@ -196,7 +198,7 @@ export default app;
 
 ##### Sink 기반 증분 쓰기
 
-`StaxXmlWriterSync`는 `StaxXmlWriterSyncSink`를 통해 커스텀 동기 sink로 바로 쓸 수 있습니다.
+`StaxXmlWriterSync`는 `StaxXmlWriterSyncSink`를 통해 커스텀 동기 sink로 바로 쓸 수 있습니다. 대용량 XML 출력에는 이 경로를 사용하세요.
 Node.js/Bun/Deno는 기본 import를 건드리지 않도록 런타임별 어댑터 경로를 사용하세요.
 
 ```typescript

@@ -1,6 +1,6 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { barplot, bench, summary } from 'mitata';
-import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { StaxXmlWriter, StaxXmlWriterSync, StaxXmlWriterSyncSink } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import { normalizeFxpWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.mjs';
@@ -33,6 +33,28 @@ function staxXmlWriterBigJsonBuilderSync() {
   return writer.getXmlString();
 }
 
+function createCountingSink() {
+  let charsWritten = 0;
+
+  return {
+    sink: {
+      write(chunk) {
+        charsWritten += chunk.length;
+      }
+    },
+    getCharsWritten: () => charsWritten
+  };
+}
+
+function staxXmlWriterBigJsonBuilderSyncSink() {
+  const { sink, getCharsWritten } = createCountingSink();
+  const writer = new StaxXmlWriterSyncSink(sink);
+  writer.writeStartDocument();
+  writeWriterTreeSync(writer, bigWriterTree);
+  writer.writeEndDocument();
+  return getCharsWritten();
+}
+
 if (shouldPrintHumanReadableBanner(cli)) {
   console.log('📊 XML Builder Benchmark - Big file (1MB big.json)');
 }
@@ -42,6 +64,7 @@ barplot(() => {
     bench('fast-xml-parser builder (big.json)', () => fastXmlParserBigJsonBuilder()).gc('inner');
     bench('stax-xml writer (big.json)', async () => await staxXmlWriterBigJsonBuilder()).gc('inner');
     bench('stax-xml writer sync (big.json)', () => staxXmlWriterBigJsonBuilderSync()).gc('inner');
+    bench('stax-xml writer sync sink (big.json)', () => staxXmlWriterBigJsonBuilderSyncSink()).gc('inner');
   });
 });
 

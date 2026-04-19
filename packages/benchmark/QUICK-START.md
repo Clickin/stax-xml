@@ -24,13 +24,13 @@ pnpm example:gc
 
 ```bash
 # Quick check (50 iterations)
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.myoptimization.js \
   --size medium --iterations 50
 
 # If looks good, run thorough test
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.myoptimization.js \
   --size large --iterations 200
@@ -66,7 +66,7 @@ pnpm bench:gc:thorough
 pnpm report:latest
 
 # Or specify a file
-tsx generate-report.ts results/benchmark-2024-01-15.json report.md
+node generate-report.mjs results/benchmark-2024-01-15.json report.md
 ```
 
 ## 📖 Reading Results
@@ -174,7 +174,7 @@ if (tTest.significant && tTest.improvement > 5) {
 
 ```bash
 # Run baseline benchmark
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.js \
   --size medium
@@ -190,7 +190,7 @@ Create your optimized version:
 ### Step 3: Quick Test
 
 ```bash
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.myopt.js \
   --size small --iterations 50
@@ -201,7 +201,7 @@ node --expose-gc quick-benchmark.js \
 ### Step 4: Thorough Test
 
 ```bash
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.myopt.js \
   --size large --iterations 200 --heap
@@ -210,7 +210,7 @@ node --expose-gc quick-benchmark.js \
 ### Step 5: Full Benchmark Suite
 
 ```bash
-# Update benchmark-optimizations.ts to include your variant
+# Update benchmark-optimizations.mjs to include your variant
 # Then run full suite
 pnpm bench:gc:full
 ```
@@ -250,7 +250,7 @@ pnpm bench:gc:full
 
 ```bash
 # Ensure --expose-gc is used
-node --expose-gc script.js
+node --expose-gc script.mjs
 
 # Increase test data size
 --size large
@@ -272,7 +272,7 @@ node --expose-gc script.js
 
 - Full documentation: `README-BENCHMARKING.md`
 - Example usage: `pnpm example:gc`
-- Statistical details: See `statistical-analysis.ts`
+- Statistical details: See `statistical-analysis.mjs`
 
 ## 💡 Tips
 

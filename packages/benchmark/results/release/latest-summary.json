@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-04-18T17:14:32.868Z",
+  "generatedAt": "2026-04-19T07:07:50.177Z",
   "environment": {
     "arch": "x64-win32",
     "runtime": "node",
     "version": "24.12.0",
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-    "cpuGHz": 4.84
+    "cpuGHz": 4.85
   },
   "suites": {
     "parser-2kb": {
@@ -16,53 +16,53 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.84
+        "cpuGHz": 4.85
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 269297.7491961415,
-          "minNs": 163600,
-          "p75Ns": 294100,
-          "p99Ns": 425300,
-          "maxNs": 446700,
-          "heapAvgBytes": 29345.064935064936
+          "avgNs": 148065.12915128976,
+          "minNs": 132800,
+          "p75Ns": 158000,
+          "p99Ns": 194700,
+          "maxNs": 248500,
+          "heapAvgBytes": 28125.91881918819
         },
         {
           "label": "stax-xml consume",
-          "avgNs": 273098.2035928087,
-          "minNs": 160600,
-          "p75Ns": 300300,
-          "p99Ns": 402000,
-          "maxNs": 503300,
-          "heapAvgBytes": 24016.47619047619
+          "avgNs": 146281.18081180812,
+          "minNs": 132900,
+          "p75Ns": 150100,
+          "p99Ns": 198400,
+          "maxNs": 216300,
+          "heapAvgBytes": 23486.323529411766
         },
         {
           "label": "xml2js",
-          "avgNs": 937492.0318725175,
-          "minNs": 541500,
-          "p75Ns": 1103800,
-          "p99Ns": 1749800,
-          "maxNs": 1771500,
-          "heapAvgBytes": 217415.26857142858
+          "avgNs": 528981.2917594655,
+          "minNs": 488500,
+          "p75Ns": 544700,
+          "p99Ns": 640500,
+          "maxNs": 709400,
+          "heapAvgBytes": 215968.4488448845
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 530772.5239616614,
-          "minNs": 260000,
-          "p75Ns": 594700,
-          "p99Ns": 1063200,
-          "maxNs": 1201100,
-          "heapAvgBytes": 132561.40127388536
+          "avgNs": 254277.07509878595,
+          "minNs": 227000,
+          "p75Ns": 266799.9999990463,
+          "p99Ns": 350900,
+          "maxNs": 381700,
+          "heapAvgBytes": 129350.53677932406
         },
         {
           "label": "txml",
-          "avgNs": 103585.75667655787,
-          "minNs": 55200,
-          "p75Ns": 113000,
-          "p99Ns": 197200,
-          "maxNs": 235100,
-          "heapAvgBytes": 25544.141176470588
+          "avgNs": 9854.86537388393,
+          "minNs": 9151.2451171875,
+          "p75Ns": 9630.2734375,
+          "p99Ns": 14236.8896484375,
+          "maxNs": 14343.7744140625,
+          "heapAvgBytes": 1921.0230712890625
         }
       ]
     },
@@ -74,53 +74,53 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.82
+        "cpuGHz": 4.79
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 296611.6580311128,
-          "minNs": 160800.00000190735,
-          "p75Ns": 347500,
-          "p99Ns": 441800,
-          "maxNs": 465700,
-          "heapAvgBytes": 52851.08196721312
+          "avgNs": 216369.898989899,
+          "minNs": 105100,
+          "p75Ns": 232200,
+          "p99Ns": 372800,
+          "maxNs": 389300,
+          "heapAvgBytes": 53276.946058091286
         },
         {
           "label": "stax-xml consume",
-          "avgNs": 298344.358974359,
-          "minNs": 119100,
-          "p75Ns": 343000,
-          "p99Ns": 489600,
-          "maxNs": 629000,
-          "heapAvgBytes": 46347.62059620596
+          "avgNs": 207447.46093758568,
+          "minNs": 108500.0000038147,
+          "p75Ns": 220300.00000190735,
+          "p99Ns": 313800,
+          "maxNs": 363600.00000190735,
+          "heapAvgBytes": 46648.756539235415
         },
         {
           "label": "xml2js",
-          "avgNs": 1159838.2758620689,
-          "minNs": 413600,
-          "p75Ns": 1517400,
-          "p99Ns": 1823600,
-          "maxNs": 1957500,
-          "heapAvgBytes": 650945.8257261411
+          "avgNs": 864755.4959785523,
+          "minNs": 348300,
+          "p75Ns": 894300,
+          "p99Ns": 1504500,
+          "maxNs": 1751700,
+          "heapAvgBytes": 643395.8646153846
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 627702.2435897436,
-          "minNs": 275100,
-          "p75Ns": 818800,
-          "p99Ns": 1113900,
-          "maxNs": 1379000,
-          "heapAvgBytes": 644488.0675105485
+          "avgNs": 434199.4858611825,
+          "minNs": 256200,
+          "p75Ns": 458100,
+          "p99Ns": 1105500,
+          "maxNs": 1247900,
+          "heapAvgBytes": 592146.2857142857
         },
         {
           "label": "txml",
-          "avgNs": 18951.070731026786,
-          "minNs": 18719.6533203125,
-          "p75Ns": 18993.9208984375,
-          "p99Ns": 19341.1376953125,
-          "maxNs": 19610.400390625,
-          "heapAvgBytes": 5359.878472222223
+          "avgNs": 123331.42857142857,
+          "minNs": 53200,
+          "p75Ns": 144500,
+          "p99Ns": 239500,
+          "maxNs": 273000,
+          "heapAvgBytes": 121027.85815602836
         }
       ]
     },
@@ -132,53 +132,53 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.86
+        "cpuGHz": 4.85
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 91745527.27272727,
-          "minNs": 90133800,
-          "p75Ns": 92165800,
-          "p99Ns": 93327300,
-          "maxNs": 95485400,
-          "heapAvgBytes": 37176806.4
+          "avgNs": 99009770,
+          "minNs": 97168500,
+          "p75Ns": 99125500,
+          "p99Ns": 100541600,
+          "maxNs": 102422300,
+          "heapAvgBytes": 37178072
         },
         {
           "label": "stax-xml consume",
-          "avgNs": 87032025,
-          "minNs": 85114900,
-          "p75Ns": 88224000,
-          "p99Ns": 88444600,
-          "maxNs": 88987900,
-          "heapAvgBytes": 5243483
+          "avgNs": 95405863.63636364,
+          "minNs": 93530500,
+          "p75Ns": 95622000,
+          "p99Ns": 97936300,
+          "maxNs": 98931200,
+          "heapAvgBytes": 5258666.666666667
         },
         {
           "label": "xml2js",
-          "avgNs": 734627.4924471299,
-          "minNs": 314800,
-          "p75Ns": 954500,
-          "p99Ns": 1298100,
-          "maxNs": 1545400,
-          "heapAvgBytes": 481732.5833333333
+          "avgNs": 533226.7326732674,
+          "minNs": 258500,
+          "p75Ns": 567400,
+          "p99Ns": 1002900,
+          "maxNs": 1033600,
+          "heapAvgBytes": 489832.8163265306
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 586304341.666667,
-          "minNs": 572720800,
-          "p75Ns": 597344500,
-          "p99Ns": 599745800,
-          "maxNs": 614488400,
-          "heapAvgBytes": 147661182
+          "avgNs": 564539766.666667,
+          "minNs": 550901800,
+          "p75Ns": 567971900,
+          "p99Ns": 574024300,
+          "maxNs": 585051300,
+          "heapAvgBytes": 155260449.33333334
         },
         {
           "label": "txml",
-          "avgNs": 117840875,
-          "minNs": 108176000,
-          "p75Ns": 119769200,
-          "p99Ns": 126759300,
-          "maxNs": 148571700,
-          "heapAvgBytes": 123307804
+          "avgNs": 104012133.33333333,
+          "minNs": 101923000,
+          "p75Ns": 104834500,
+          "p99Ns": 106719800,
+          "maxNs": 107245900,
+          "heapAvgBytes": 123322215.38461539
         }
       ]
     },
@@ -190,53 +190,53 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.69
+        "cpuGHz": 4.83
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 678968958.3333334,
-          "minNs": 637447700,
-          "p75Ns": 667923600,
-          "p99Ns": 765106900,
-          "maxNs": 807417100,
-          "heapAvgBytes": 7853520
+          "avgNs": 749057383.3333334,
+          "minNs": 702162800,
+          "p75Ns": 768659800,
+          "p99Ns": 802830600,
+          "maxNs": 851412200,
+          "heapAvgBytes": 7844650.666666667
         },
         {
           "label": "stax-xml consume",
-          "avgNs": 613114641.6666666,
-          "minNs": 606210000,
-          "p75Ns": 614544100,
-          "p99Ns": 619027800,
-          "maxNs": 627563200,
-          "heapAvgBytes": 36842608
+          "avgNs": 728923591.6666666,
+          "minNs": 671214400,
+          "p75Ns": 770176400,
+          "p99Ns": 818133600,
+          "maxNs": 827702900,
+          "heapAvgBytes": 36863418
         },
         {
           "label": "xml2js",
-          "avgNs": 6502547633.333333,
-          "minNs": 5643203200,
-          "p75Ns": 7145542300,
-          "p99Ns": 7399894600,
-          "maxNs": 7859551700,
-          "heapAvgBytes": 682193468
+          "avgNs": 6038716233.333335,
+          "minNs": 5771343700,
+          "p75Ns": 6112434500,
+          "p99Ns": 6350610900,
+          "maxNs": 6581498100,
+          "heapAvgBytes": 679338918.6666666
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 4931405550,
-          "minNs": 4699538800,
-          "p75Ns": 4895567300,
-          "p99Ns": 5130080400,
-          "maxNs": 6096235700,
-          "heapAvgBytes": 1172455193.3333333
+          "avgNs": 5316982191.666667,
+          "minNs": 4757331400,
+          "p75Ns": 5432249800,
+          "p99Ns": 5989482200,
+          "maxNs": 6105847900,
+          "heapAvgBytes": 1213811835.3333333
         },
         {
           "label": "txml",
-          "avgNs": 1124730591.6666667,
-          "minNs": 1014412100,
-          "p75Ns": 1151837500,
-          "p99Ns": 1191615300,
-          "maxNs": 1236679100,
-          "heapAvgBytes": 900626178
+          "avgNs": 1077896916.6666667,
+          "minNs": 978898100,
+          "p75Ns": 1105014700,
+          "p99Ns": 1132885000,
+          "maxNs": 1146875900,
+          "heapAvgBytes": 901013237.3333334
         }
       ]
     },
@@ -248,71 +248,71 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.89
+        "cpuGHz": 4.66
       },
       "cases": [
         {
           "label": "async parser (1MB)",
-          "avgNs": 14395640.845070422,
-          "minNs": 10840400,
-          "p75Ns": 19924100,
-          "p99Ns": 21147900,
-          "maxNs": 21462900,
-          "heapAvgBytes": 29913285.12
+          "avgNs": 14793341.791044775,
+          "minNs": 9495700,
+          "p75Ns": 20031500,
+          "p99Ns": 22753500,
+          "maxNs": 23918600,
+          "heapAvgBytes": 29994573.85915493
         },
         {
           "label": "sync parser (1MB)",
-          "avgNs": 8830789.62264151,
-          "minNs": 5900800,
-          "p75Ns": 11410300,
-          "p99Ns": 15159100,
-          "maxNs": 15283400,
-          "heapAvgBytes": 15020992.363636363
+          "avgNs": 9167875.510204082,
+          "minNs": 6044900,
+          "p75Ns": 9312600,
+          "p99Ns": 18994400,
+          "maxNs": 19098700,
+          "heapAvgBytes": 15118610.039215686
         },
         {
           "label": "async parser (10MB)",
-          "avgNs": 115422366.66666667,
-          "minNs": 105878200,
-          "p75Ns": 118575700,
-          "p99Ns": 125370200,
-          "maxNs": 126269700,
-          "heapAvgBytes": 66934910.666666664
+          "avgNs": 105281266.66666667,
+          "minNs": 97660600,
+          "p75Ns": 108292600,
+          "p99Ns": 109275600,
+          "maxNs": 109875800,
+          "heapAvgBytes": 29410984.615384616
         },
         {
           "label": "sync parser (10MB)",
-          "avgNs": 72249266.66666667,
-          "minNs": 66706300,
-          "p75Ns": 72967800,
-          "p99Ns": 77538500,
-          "maxNs": 92966100,
-          "heapAvgBytes": 22044676.63157895
+          "avgNs": 73803846.66666667,
+          "minNs": 68962800,
+          "p75Ns": 77113600,
+          "p99Ns": 78958000,
+          "maxNs": 82771600,
+          "heapAvgBytes": 22054788.63157895
         },
         {
           "label": "async parser (100MB)",
-          "avgNs": 1205407716.6666667,
-          "minNs": 1117720800,
-          "p75Ns": 1190797300,
-          "p99Ns": 1397301300,
-          "maxNs": 1444958300,
-          "heapAvgBytes": 28472431.333333332
+          "avgNs": 1008192866.6666666,
+          "minNs": 953953100,
+          "p75Ns": 1022759600,
+          "p99Ns": 1029460000,
+          "maxNs": 1031208700,
+          "heapAvgBytes": 46056298
         },
         {
           "label": "sync parser (100MB)",
-          "avgNs": 638568841.6666666,
-          "minNs": 618822100,
-          "p75Ns": 643786500,
-          "p99Ns": 657038300,
-          "maxNs": 669227900,
-          "heapAvgBytes": 150313526.66666666
+          "avgNs": 664913441.6666666,
+          "minNs": 623638300,
+          "p75Ns": 670839200,
+          "p99Ns": 697339400,
+          "maxNs": 771290200,
+          "heapAvgBytes": 150191209.33333334
         },
         {
           "label": "async parser (1GB)",
-          "avgNs": 11469399700,
-          "minNs": 11048427900,
-          "p75Ns": 11612828400,
-          "p99Ns": 11889246500,
-          "maxNs": 11915840400,
-          "heapAvgBytes": 114896208.66666667
+          "avgNs": 9664741358.333336,
+          "minNs": 9567073900,
+          "p75Ns": 9682135200,
+          "p99Ns": 9722474500,
+          "maxNs": 9883721200.00003,
+          "heapAvgBytes": 30121754.666666668
         }
       ]
     },
@@ -324,44 +324,53 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.88
+        "cpuGHz": 4.82
       },
       "cases": [
         {
           "label": "fast-xml-parser builder",
-          "avgNs": 202275.50505050505,
-          "minNs": 112300,
-          "p75Ns": 250400,
-          "p99Ns": 332800,
-          "maxNs": 395800,
-          "heapAvgBytes": 49101.19298245614
+          "avgNs": 195886.4265927978,
+          "minNs": 119600,
+          "p75Ns": 223200,
+          "p99Ns": 579200,
+          "maxNs": 596400,
+          "heapAvgBytes": 48899.375342465755
         },
         {
           "label": "stax-xml writer",
-          "avgNs": 338221.40992167103,
-          "minNs": 212500,
-          "p75Ns": 406200,
-          "p99Ns": 574000,
-          "maxNs": 693400,
-          "heapAvgBytes": 268143.66925064597
+          "avgNs": 391741.8461538461,
+          "minNs": 219300,
+          "p75Ns": 475900,
+          "p99Ns": 1028000,
+          "maxNs": 1238300,
+          "heapAvgBytes": 269061.4146341463
         },
         {
           "label": "stax-xml writer sync",
-          "avgNs": 5345.324937352594,
-          "minNs": 4969.8974609375,
-          "p75Ns": 5435.595703125,
-          "p99Ns": 5966.3818359375,
-          "maxNs": 6322.94921875,
-          "heapAvgBytes": 13785.287314967105
+          "avgNs": 141243.4017595308,
+          "minNs": 84300,
+          "p75Ns": 148700,
+          "p99Ns": 373900,
+          "maxNs": 391200,
+          "heapAvgBytes": 21174.144927536232
+        },
+        {
+          "label": "stax-xml writer sync sink",
+          "avgNs": 171674.22969187674,
+          "minNs": 115400,
+          "p75Ns": 165200,
+          "p99Ns": 467100,
+          "maxNs": 506500,
+          "heapAvgBytes": 24423.97783933518
         },
         {
           "label": "xml2js builder",
-          "avgNs": 423159.3123209169,
-          "minNs": 260000,
-          "p75Ns": 500600,
-          "p99Ns": 714900,
-          "maxNs": 1076600,
-          "heapAvgBytes": 130098.62857142858
+          "avgNs": 399024.19825072883,
+          "minNs": 265500,
+          "p75Ns": 366900,
+          "p99Ns": 1194600,
+          "maxNs": 1420300,
+          "heapAvgBytes": 130285.02052785923
         }
       ]
     },
@@ -373,35 +382,44 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.72
+        "cpuGHz": 4.85
       },
       "cases": [
         {
           "label": "fast-xml-parser builder (big.json)",
-          "avgNs": 19117236.53846154,
-          "minNs": 14837900,
-          "p75Ns": 20292300,
-          "p99Ns": 25160500,
-          "maxNs": 27899100,
-          "heapAvgBytes": 18396414.57142857
+          "avgNs": 16785288.333333332,
+          "minNs": 14320800,
+          "p75Ns": 17691000,
+          "p99Ns": 19505700,
+          "maxNs": 20472700,
+          "heapAvgBytes": 18324845.5
         },
         {
           "label": "stax-xml writer (big.json)",
-          "avgNs": 44956241.666666664,
-          "minNs": 41061200,
-          "p75Ns": 47494600,
-          "p99Ns": 49330000,
-          "maxNs": 49545800,
-          "heapAvgBytes": 44420168.28571428
+          "avgNs": 41454729.62962963,
+          "minNs": 39291800,
+          "p75Ns": 42114000,
+          "p99Ns": 43823600,
+          "maxNs": 45720100,
+          "heapAvgBytes": 44435471.741935484
         },
         {
           "label": "stax-xml writer sync (big.json)",
-          "avgNs": 5946824.80620155,
-          "minNs": 2752200,
-          "p75Ns": 8739800,
-          "p99Ns": 9468800,
-          "maxNs": 9692700,
-          "heapAvgBytes": 9511071.939849624
+          "avgNs": 6814697.247706422,
+          "minNs": 2659900,
+          "p75Ns": 10690700,
+          "p99Ns": 12210300,
+          "maxNs": 13071800,
+          "heapAvgBytes": 10159519.646017699
+        },
+        {
+          "label": "stax-xml writer sync sink (big.json)",
+          "avgNs": 8458151.063829787,
+          "minNs": 3913900,
+          "p75Ns": 12475700,
+          "p99Ns": 15477600,
+          "maxNs": 15614700,
+          "heapAvgBytes": 11136937.959183674
         }
       ]
     },
@@ -413,62 +431,158 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.86
+        "cpuGHz": 4.81
       },
       "cases": [
         {
           "label": "async writer (1K elements)",
-          "avgNs": 6560361.313868613,
-          "minNs": 4767200,
-          "p75Ns": 7321200,
-          "p99Ns": 8012500,
-          "maxNs": 8223500,
-          "heapAvgBytes": 18708164.368794326
+          "avgNs": 8747275.238095239,
+          "minNs": 5416400,
+          "p75Ns": 9906800,
+          "p99Ns": 14300000,
+          "maxNs": 15294900,
+          "heapAvgBytes": 18832990.458715595
         },
         {
           "label": "sync writer (1K elements)",
-          "avgNs": 2730628.0172413792,
-          "minNs": 2014200,
-          "p75Ns": 2782300,
-          "p99Ns": 3274400,
-          "maxNs": 12596000,
-          "heapAvgBytes": 1642504.0338983051
+          "avgNs": 3401080.9523809524,
+          "minNs": 2162500,
+          "p75Ns": 3484500,
+          "p99Ns": 6496300,
+          "maxNs": 7982400,
+          "heapAvgBytes": 1746659.4404145079
+        },
+        {
+          "label": "sync writer sink in-memory (1K elements)",
+          "avgNs": 2538543.9814814813,
+          "minNs": 621400,
+          "p75Ns": 3345100,
+          "p99Ns": 4458200,
+          "maxNs": 5716200,
+          "heapAvgBytes": 1758540.4
         },
         {
           "label": "async writer (5K elements)",
-          "avgNs": 24308614.893617023,
-          "minNs": 19118700,
-          "p75Ns": 26784900,
-          "p99Ns": 29041900,
-          "maxNs": 29046600,
-          "heapAvgBytes": 35889134.90196078
+          "avgNs": 27514917.073170733,
+          "minNs": 20235100,
+          "p75Ns": 31198500,
+          "p99Ns": 37087800,
+          "maxNs": 40273900,
+          "heapAvgBytes": 36283047.46666667
         },
         {
           "label": "sync writer (5K elements)",
-          "avgNs": 6602729.197080292,
-          "minNs": 3711900,
-          "p75Ns": 7668600,
-          "p99Ns": 9071800,
-          "maxNs": 9356400,
-          "heapAvgBytes": 7965825.304964539
+          "avgNs": 7807149.557522124,
+          "minNs": 3937100,
+          "p75Ns": 9738300,
+          "p99Ns": 11271300,
+          "maxNs": 12119500,
+          "heapAvgBytes": 8478207.17948718
+        },
+        {
+          "label": "sync writer sink in-memory (5K elements)",
+          "avgNs": 6798878.1512605045,
+          "minNs": 2913900,
+          "p75Ns": 9405700,
+          "p99Ns": 13269700,
+          "maxNs": 14130700,
+          "heapAvgBytes": 8620345.75609756
         },
         {
           "label": "async writer (10K elements)",
-          "avgNs": 46169876,
-          "minNs": 41473400,
-          "p75Ns": 47263400,
-          "p99Ns": 48427200,
-          "maxNs": 48611200,
-          "heapAvgBytes": 11533686.896551725
+          "avgNs": 57098384.21052632,
+          "minNs": 47801800,
+          "p75Ns": 60087200,
+          "p99Ns": 71718100,
+          "maxNs": 72490900,
+          "heapAvgBytes": 11567968.347826088
         },
         {
           "label": "sync writer (10K elements)",
-          "avgNs": 11631873.033707865,
-          "minNs": 10158600,
-          "p75Ns": 12032500,
-          "p99Ns": 13922500,
-          "maxNs": 14216400,
-          "heapAvgBytes": 15215773.935483871
+          "avgNs": 14133416.90140845,
+          "minNs": 7647100,
+          "p75Ns": 15345100,
+          "p99Ns": 17571000,
+          "maxNs": 18327600,
+          "heapAvgBytes": 16524505.92
+        },
+        {
+          "label": "sync writer sink in-memory (10K elements)",
+          "avgNs": 10149924.175824177,
+          "minNs": 5595300,
+          "p75Ns": 13550800,
+          "p99Ns": 18607900,
+          "maxNs": 19024400,
+          "heapAvgBytes": 17203839.32631579
+        }
+      ]
+    },
+    "writer-1gb": {
+      "id": "writer-1gb",
+      "title": "Writer 1GiB async vs sync sink",
+      "context": {
+        "arch": "x64-win32",
+        "runtime": "node",
+        "version": "24.12.0",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "cpuGHz": 4.85
+      },
+      "cases": [
+        {
+          "label": "async writer memory WritableStream",
+          "avgNs": 15975208500,
+          "minNs": 15975208500,
+          "p75Ns": 15975208500,
+          "p99Ns": 15975208500,
+          "maxNs": 15975208500,
+          "heapAvgBytes": 111721960,
+          "rssPeakBytes": 233783296,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 64.10203778462592,
+          "targetBytes": 1073741824
+        },
+        {
+          "label": "sync writer sink memory",
+          "avgNs": 3114693899.9999986,
+          "minNs": 3114693899.9999986,
+          "p75Ns": 3114693899.9999986,
+          "p99Ns": 3114693899.9999986,
+          "maxNs": 3114693899.9999986,
+          "heapAvgBytes": 77748976,
+          "rssPeakBytes": 233263104,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 328.77818872804096,
+          "targetBytes": 1073741824
+        },
+        {
+          "label": "async writer temp file",
+          "avgNs": 20374708300,
+          "minNs": 20374708300,
+          "p75Ns": 20374708300,
+          "p99Ns": 20374708300,
+          "maxNs": 20374708300,
+          "heapAvgBytes": 65109176,
+          "rssPeakBytes": 237260800,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 50.26051925780343,
+          "targetBytes": 1073741824
+        },
+        {
+          "label": "sync writer sink temp file",
+          "avgNs": 4053882300.000005,
+          "minNs": 4053882300.000005,
+          "p75Ns": 4053882300.000005,
+          "p99Ns": 4053882300.000005,
+          "maxNs": 4053882300.000005,
+          "heapAvgBytes": 76917728,
+          "rssPeakBytes": 234541056,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 252.6080786519816,
+          "targetBytes": 1073741824
         }
       ]
     },
@@ -480,35 +594,35 @@
         "runtime": "node",
         "version": "24.12.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.79
+        "cpuGHz": 4.82
       },
       "cases": [
         {
           "label": "plain parser",
-          "avgNs": 1488485.1293103448,
-          "minNs": 1344100,
-          "p75Ns": 1424800,
-          "p99Ns": 2752600,
-          "maxNs": 4312300,
-          "heapAvgBytes": 2901674.285714286
+          "avgNs": 1415034.5528455372,
+          "minNs": 1336000,
+          "p75Ns": 1403900,
+          "p99Ns": 1797700,
+          "maxNs": 2114900,
+          "heapAvgBytes": 2909931.385263158
         },
         {
           "label": "converter api",
-          "avgNs": 174807358.33333334,
-          "minNs": 147814100,
-          "p75Ns": 178142700,
-          "p99Ns": 214176400,
-          "maxNs": 222628900,
-          "heapAvgBytes": 84263070.22222222
+          "avgNs": 148600725,
+          "minNs": 138434700,
+          "p75Ns": 153567100,
+          "p99Ns": 159232600,
+          "maxNs": 166359200,
+          "heapAvgBytes": 85310085.6
         },
         {
           "label": "converter api compiled",
-          "avgNs": 163648316.66666636,
-          "minNs": 139919099.99999905,
-          "p75Ns": 161531600,
-          "p99Ns": 196154499.9999981,
-          "maxNs": 228907599.99999905,
-          "heapAvgBytes": 83049556
+          "avgNs": 2774768.9516129033,
+          "minNs": 2564000,
+          "p75Ns": 2767300,
+          "p99Ns": 4260900,
+          "maxNs": 4666800,
+          "heapAvgBytes": 6086028.452173913
         }
       ]
     }
