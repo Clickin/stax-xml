@@ -66,14 +66,20 @@ export class XmlParserInternal {
   }
 
   parseWithSchema<T>(input: ParseInput, schema: XmlSchemaBase<T, unknown>): T {
-    if (this.compiledPlan && typeof input === 'string') {
+    if (this.compiledPlan?.kind === 'runtime') {
+      return schema._parse(input, this.options) as T;
+    }
+    if (this.compiledPlan?.kind === 'dispatch' && typeof input === 'string') {
       return this.parseCompiledWithPlan(input, this.compiledPlan) as T;
     }
     return schema._parse(input, this.options) as T;
   }
 
   async parseWithSchemaAsync<T>(input: ParseInput, schema: XmlSchemaBase<T, unknown>): Promise<T> {
-    if (this.compiledPlan) {
+    if (this.compiledPlan?.kind === 'runtime') {
+      return schema._parseAsync(input, this.options) as Promise<T>;
+    }
+    if (this.compiledPlan?.kind === 'dispatch') {
       return this.parseCompiledWithPlanAsync(input, this.compiledPlan) as Promise<T>;
     }
     return schema._parseAsync(input, this.options) as Promise<T>;
@@ -184,7 +190,7 @@ export class XmlParserInternal {
     shape: Record<string, XmlSchemaBase<unknown, unknown>>,
     schemaOptions: { xpath?: string }
   ): Promise<T> {
-    if (this.compiledPlan) {
+    if (this.compiledPlan?.kind === 'dispatch') {
       return this.parseCompiledWithPlanAsync(input, this.compiledPlan) as Promise<T>;
     }
     const parser = this.createParser(input);
@@ -282,7 +288,7 @@ export class XmlParserInternal {
     shape: Record<string, XmlSchemaBase<unknown, unknown>>,
     schemaOptions: { xpath?: string }
   ): T {
-    if (this.compiledPlan) {
+    if (this.compiledPlan?.kind === 'dispatch') {
       return this.parseCompiledWithPlan(input, this.compiledPlan) as T;
     }
     const parser = new StaxXmlParserSync(input, {
@@ -1106,22 +1112,20 @@ export class XmlParserInternal {
     input: string,
     plan: CompiledSchemaPlan
   ): T {
-    const result = new CompiledRootProcessor(plan, this.options).parseSync<Record<string, unknown>>(input);
-    if (plan.rootFieldName) {
-      return result[plan.rootFieldName] as T;
+    if (plan.kind !== 'dispatch') {
+      throw new Error(`Compiled runtime fallback cannot be executed without the wrapped schema: ${plan.reason}`);
     }
-    return result as T;
+    return new CompiledRootProcessor(plan, this.options).parseSync<T>(input);
   }
 
   private async parseCompiledWithPlanAsync<T>(
     input: ParseInput,
     plan: CompiledSchemaPlan
   ): Promise<T> {
-    const result = await new CompiledRootProcessor(plan, this.options).parse<Record<string, unknown>>(input);
-    if (plan.rootFieldName) {
-      return result[plan.rootFieldName] as T;
+    if (plan.kind !== 'dispatch') {
+      throw new Error(`Compiled runtime fallback cannot be executed without the wrapped schema: ${plan.reason}`);
     }
-    return result as T;
+    return new CompiledRootProcessor(plan, this.options).parse<T>(input);
   }
 
 

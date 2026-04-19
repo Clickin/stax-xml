@@ -1,9 +1,10 @@
 import type { XmlSchemaBase } from './base.js';
 import type { ParserEventFilter } from '../types.js';
-import type { XmlObjectSchema, XmlObjectShape } from './XmlObjectSchema.js';
 import type { XPathMatcherTemplate } from './XPathEngine.js';
 
 export type CollectorKind = 'string' | 'number' | 'array' | 'object';
+export type DispatchValueKind = 'string' | 'number' | 'object' | 'array';
+export type DispatchTransform = (value: unknown) => unknown;
 
 export type ActivationMatchProfile =
   | { mode: 'default' }
@@ -30,9 +31,67 @@ export type RootFieldPlan =
   | { kind: 'object'; fieldName: string; schema: XmlSchemaBase<unknown, unknown>; childTemplates: ObjectFieldTemplate[] }
   | { kind: 'array'; fieldName: string; schema: XmlSchemaBase<unknown, unknown>; elementXPath: string };
 
-export interface CompiledSchemaPlan {
-  rootPlan: RootFieldPlan[];
-  objectFieldTemplates: WeakMap<XmlObjectSchema<XmlObjectShape>, ObjectFieldTemplate[]>;
+export type DispatchSelectorMode = 'absolute' | 'relative' | 'descendant';
+export type DispatchSelectorTerminal = 'element' | 'attribute';
+export type DispatchTextMode = 'subtree' | 'direct';
+
+export interface DispatchSelector {
+  mode: DispatchSelectorMode;
+  segments: string[];
+  terminal: DispatchSelectorTerminal;
+  attributeName?: string;
+  textMode: DispatchTextMode;
+  lastElementName?: string;
+}
+
+export interface DispatchBasePlan {
+  id: number;
+  kind: DispatchValueKind;
+  schema: XmlSchemaBase<unknown, unknown>;
+  unwrappedSchema: XmlSchemaBase<unknown, unknown>;
+  optional: boolean;
+  transforms: DispatchTransform[];
+  selector?: DispatchSelector;
+}
+
+export interface DispatchScalarPlan extends DispatchBasePlan {
+  kind: 'string' | 'number';
+}
+
+export interface DispatchFieldPlan {
+  fieldName: string;
+  value: DispatchValuePlan;
+}
+
+export interface DispatchObjectPlan extends DispatchBasePlan {
+  kind: 'object';
+  fields: DispatchFieldPlan[];
+  inline: boolean;
+}
+
+export interface DispatchArrayPlan extends DispatchBasePlan {
+  kind: 'array';
+  element: DispatchValuePlan;
+  itemSelector: DispatchSelector;
+}
+
+export type DispatchValuePlan =
+  | DispatchScalarPlan
+  | DispatchObjectPlan
+  | DispatchArrayPlan;
+
+export interface DispatchCompiledPlan {
+  kind: 'dispatch';
+  root: DispatchValuePlan;
   eventFilter: ParserEventFilter;
   rootFieldName?: string;
 }
+
+export interface RuntimeCompiledPlan {
+  kind: 'runtime';
+  reason: string;
+  eventFilter: ParserEventFilter;
+  rootFieldName?: string;
+}
+
+export type CompiledSchemaPlan = DispatchCompiledPlan | RuntimeCompiledPlan;

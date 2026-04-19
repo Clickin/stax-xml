@@ -256,7 +256,7 @@ describe('Converter internal coverage guard rails', () => {
           custom: new UnknownSchema({ xpath: './custom' }) as any
         })
       }).compile();
-      expect(relativeCompiled.compiledPlan.rootPlan).toHaveLength(1);
+      expect(relativeCompiled.compiledPlan.kind).toBe('runtime');
       expect(relativeCompiled.parseSync('<root />')).toEqual({
         item: {
           id: '',
@@ -270,6 +270,15 @@ describe('Converter internal coverage guard rails', () => {
 
       const syntheticDefaultCompiled = new CompiledXmlSchema(new UnknownSchema({ xpath: '/root/value' }) as any);
       expect(syntheticDefaultCompiled.compiledPlan.rootFieldName).toBe('__root__');
+      expect(syntheticDefaultCompiled.compiledPlan.kind).toBe('runtime');
+
+      const wildcardCompiled = x.string().xpath('/root/*').compile();
+      expect(wildcardCompiled.compiledPlan.kind).toBe('runtime');
+      expect(wildcardCompiled.parseSync('<root><value>wild</value></root>')).toBe('wild');
+
+      const predicateCompiled = x.string().xpath("//item[@id='2']").compile();
+      expect(predicateCompiled.compiledPlan.kind).toBe('runtime');
+      expect(predicateCompiled.parseSync('<root><item id="1">A</item><item id="2">B</item></root>')).toBe('B');
     });
 
     it('rejects unsupported compile shapes', () => {
@@ -280,39 +289,19 @@ describe('Converter internal coverage guard rails', () => {
   });
 
   describe('compiled root processor defensive branches', () => {
-    it('covers supports, private lane fallbacks, missing collectors, and raw text fallback', () => {
+    it('covers supports, dispatch execution, and runtime-plan rejection', () => {
       const compiled = x.object({
         value: x.string().xpath('/root/value')
       }).compile();
       const processor = new CompiledRootProcessor(compiled.compiledPlan);
+      const runtimeCompiled = new CompiledXmlSchema(new UnknownSchema({ xpath: '/root/value' }) as any);
 
       expect(CompiledRootProcessor.supports(compiled.compiledPlan)).toBe(true);
-      expect(() => (new CompiledRootProcessor({
-        ...compiled.compiledPlan,
-        rootPlan: [{
-          kind: 'object',
-          fieldName: 'bad',
-          schema: x.string() as any,
-          childTemplates: []
-        }]
-      }) as any).createRuntime()).toThrow('expected object collector');
-      expect((processor as any).createLane(x.object({}), '/root/value', { type: 'string', buffer: '' })).toBeUndefined();
-      expect((processor as any).createLane({ schemaType: 'UNKNOWN' }, '/root/value', { type: 'string', buffer: '' })).toBeUndefined();
-      expect((processor as any).createLane(x.array(x.string()), '/root/value', { type: 'string', buffer: '' })).toBeUndefined();
-      expect((processor as any).createLane(x.array(x.object({})), '/root/value', { type: 'string', buffer: '' })).toBeUndefined();
-      expect((processor as any).createLaneFromRootEntry({
-        kind: 'object',
-        fieldName: 'object',
-        schema: x.object({}),
-        childTemplates: []
-      }, { type: 'object', fields: new Map() })).toBeUndefined();
-      expect((processor as any).buildResult({
-        collectors: [undefined],
-        helper: new XmlParserInternal(),
-        primitiveLanes: [],
-        fallbackLanes: []
-      })).toEqual({});
-      expect((processor as any).parseSchemaText({}, 'raw')).toBe('raw');
+      expect(CompiledRootProcessor.supports(runtimeCompiled.compiledPlan)).toBe(false);
+      expect(compiled.compiledPlan.kind).toBe('dispatch');
+      expect(processor.parseSync('<root><value>ok</value></root>')).toEqual({ value: 'ok' });
+      expect(() => new CompiledRootProcessor(runtimeCompiled.compiledPlan).parseSync('<root><value>ok</value></root>'))
+        .toThrow('requires a dispatch plan');
     });
   });
 

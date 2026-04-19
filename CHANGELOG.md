@@ -58,6 +58,15 @@ Cursor excels at large files where reduced GC pressure and skipped work compound
 - Added a writer benchmark case for `StaxXmlWriterSyncSink` with an in-memory file-like target.
 - Split performance tests out of the unit-test matrix; performance validation remains a manual benchmark workflow.
 
+### Performance Improvements
+
+#### Converter API true compile path
+
+- Reworked converter API `.compile()` so supported schemas lower to a true dispatch-based compiled path instead of the previous matcher/state-machine execution path.
+- Static XPath selectors are analyzed at compile time and executed as fixed XML event dispatch during parsing. This covers absolute selectors, simple descendant selectors, relative selectors inside object or array items, attributes, `text()`, nested objects, scalar arrays, object arrays, optional fields, and transforms.
+- Unsupported compiled shapes now fall back directly to the normal runtime converter path, preserving compatibility without pretending to use the fast path.
+- The `converter-plain-output` benchmark now shows the compiled converter path running close to the handwritten parser path while remaining declarative.
+
 ### Fixed
 
 - Tightened sync sink close/flush semantics and added regression coverage.
