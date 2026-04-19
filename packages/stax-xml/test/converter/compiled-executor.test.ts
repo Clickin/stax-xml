@@ -1,6 +1,23 @@
 import { describe, expect, it } from 'vitest';
+import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
 import { x } from '../../src/converter/index.js';
 import { CompiledRootProcessor } from '../../src/converter/CompiledRootProcessor.js';
+import type { AnyXmlEvent } from '../../src/types.js';
+
+async function* asyncEventsFromXml(xml: string): AsyncGenerator<AnyXmlEvent> {
+  for (const event of new StaxXmlParserSync(xml)) {
+    yield event;
+  }
+}
+
+function streamFromXml(xml: string): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(xml));
+      controller.close();
+    }
+  });
+}
 
 describe('CompiledRootProcessor', () => {
   it('matches compiled schema output for complex nested sync parsing', () => {
@@ -313,5 +330,44 @@ describe('CompiledRootProcessor', () => {
     const executor = new CompiledRootProcessor(compiled.compiledPlan);
 
     expect(executor.parseSync(xml)).toEqual(compiled.parseSync(xml));
+  });
+
+  it('handles compiled primitive scalar roots from elements and attributes', async () => {
+    const xml = `
+      <doc id="d-1">
+        <title>Streaming XML</title>
+        <pages>320</pages>
+      </doc>
+    `;
+
+    const titleSchema = x.string().xpath('/doc/title').compile();
+    const idSchema = x.string().xpath('/doc/@id').compile();
+    const pagesSchema = x.number().xpath('/doc/pages').int().compile();
+
+    expect(titleSchema.parseSync(xml)).toBe('Streaming XML');
+    await expect(titleSchema.parse(asyncEventsFromXml(xml))).resolves.toBe('Streaming XML');
+    expect(idSchema.parseSync(xml)).toBe('d-1');
+    await expect(pagesSchema.parse(streamFromXml(xml))).resolves.toBe(320);
+  });
+
+  it('handles compiled primitive arrays from element text and attributes', async () => {
+    const xml = `
+      <catalog>
+        <item code="a"><qty>2</qty></item>
+        <item code="b"><qty>4</qty></item>
+      </catalog>
+    `;
+
+    const schema = x.object({
+      codes: x.array(x.string(), '/catalog/item/@code'),
+      quantities: x.array(x.number().int(), '/catalog/item/qty')
+    });
+    const compiled = schema.compile();
+
+    expect(compiled.parseSync(xml)).toEqual(schema.parseSync(xml));
+    await expect(compiled.parse(asyncEventsFromXml(xml))).resolves.toEqual({
+      codes: ['a', 'b'],
+      quantities: [2, 4]
+    });
   });
 });
