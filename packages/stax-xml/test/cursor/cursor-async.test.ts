@@ -27,6 +27,10 @@ function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array>
   });
 }
 
+async function drainCursor(cursor: XmlCursorReaderAsync): Promise<void> {
+  while (await cursor.next()) { /* drain */ }
+}
+
 describe('XmlCursorReaderAsync', () => {
   // ── Basic parsing ─────────────────────────────────────────────────
 
@@ -63,6 +67,11 @@ describe('XmlCursorReaderAsync', () => {
       CursorEventType.END_ELEMENT,
       CursorEventType.END_DOCUMENT,
     ]);
+  });
+
+  it('should reject non-web streams', () => {
+    expect(() => new XmlCursorReaderAsync({} as ReadableStream<Uint8Array>))
+      .toThrow('stream must be a web standard ReadableStream');
   });
 
   // ── Chunk boundary handling ───────────────────────────────────────
@@ -117,6 +126,20 @@ describe('XmlCursorReaderAsync', () => {
       CursorEventType.START_ELEMENT,
       CursorEventType.START_ELEMENT,
       CursorEventType.END_ELEMENT,
+      CursorEventType.END_ELEMENT,
+      CursorEventType.END_DOCUMENT,
+    ]);
+  });
+
+  it('should skip DOCTYPE and unknown bang markup', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom('<!DOCTYPE html><!BROKEN><root/>', 3));
+    const types: number[] = [];
+
+    while (await cursor.next()) types.push(cursor.eventType());
+
+    expect(types).toEqual([
+      CursorEventType.START_DOCUMENT,
+      CursorEventType.START_ELEMENT,
       CursorEventType.END_ELEMENT,
       CursorEventType.END_DOCUMENT,
     ]);
@@ -196,6 +219,82 @@ describe('XmlCursorReaderAsync', () => {
     expect(cursor.getAttributeValue('attr')).toBe('a&b');
   });
 
+  it('should expose attribute accessor variants', async () => {
+    const xml = '<root plain="v" empty="" xmlns:ns="urn:ns" ns:attr="namespaced" other="a&gt;b"/>';
+    const cursor = new XmlCursorReaderAsync(streamFrom(xml));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // START_ELEMENT root
+
+    expect(cursor.getAttributeCount()).toBe(5);
+    expect(cursor.getAttributeName(-1)).toBeUndefined();
+    expect(cursor.getAttributeName(99)).toBeUndefined();
+    expect(cursor.getAttributeLocalName(-1)).toBeUndefined();
+    expect(cursor.getAttributeLocalName(99)).toBeUndefined();
+    expect(cursor.getAttributeLocalName(0)).toBe('plain');
+    expect(cursor.getAttributeLocalName(3)).toBe('attr');
+    expect(cursor.getAttributePrefix(-1)).toBeUndefined();
+    expect(cursor.getAttributePrefix(0)).toBeUndefined();
+    expect(cursor.getAttributePrefix(3)).toBe('ns');
+    expect(cursor.getAttributePrefix(99)).toBeUndefined();
+    expect(cursor.getAttributeValue(-1)).toBeUndefined();
+    expect(cursor.getAttributeValue(1)).toBe('');
+    expect(cursor.getAttributeValue(99)).toBeUndefined();
+    expect(cursor.getAttributeValue('empty')).toBe('');
+    expect(cursor.getAttributeValue('other')).toBe('a>b');
+    expect(cursor.getAttributeValue('plaxx')).toBeUndefined();
+    expect(cursor.getAttributeUri(-1)).toBeUndefined();
+    expect(cursor.getAttributeUri(0)).toBeUndefined();
+    expect(cursor.getAttributeUri(3)).toBe('urn:ns');
+    expect(cursor.getAttributeUri(99)).toBeUndefined();
+  });
+
+  it('should tolerate valueless attributes', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom('<root disabled bare/>'));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // START_ELEMENT root
+
+    expect(cursor.getAttributeCount()).toBe(2);
+    expect(cursor.getAttributeValue('disabled')).toBe('disabled');
+    expect(cursor.getAttributeValue('bare')).toBe('bare');
+    expect(cursor.getAttributeUri(0)).toBeUndefined();
+  });
+
+  it('should parse attribute names with prefixes', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom('<root ns:attr="value" ns:flag/>'));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // START_ELEMENT root
+
+    expect(cursor.getAttributeCount()).toBe(2);
+    expect(cursor.getAttributeName(0)).toBe('ns:attr');
+    expect(cursor.getAttributeLocalName(0)).toBe('attr');
+    expect(cursor.getAttributePrefix(0)).toBe('ns');
+    expect(cursor.getAttributeValue('ns:attr')).toBe('value');
+    expect(cursor.getAttributeName(1)).toBe('ns:flag');
+    expect(cursor.getAttributeLocalName(1)).toBe('flag');
+    expect(cursor.getAttributePrefix(1)).toBe('ns');
+    expect(cursor.getAttributeValue('ns:flag')).toBe('ns:flag');
+  });
+
+  it('should stop attribute parsing on malformed separators', async () => {
+    const emptyName = new XmlCursorReaderAsync(streamFrom('<root = "value"/>'));
+    await emptyName.next(); // START_DOCUMENT
+    await emptyName.next(); // START_ELEMENT root
+    expect(emptyName.getAttributeCount()).toBe(0);
+
+    const missingValue = new XmlCursorReaderAsync(streamFrom('<root attr=/>'));
+    await missingValue.next(); // START_DOCUMENT
+    await missingValue.next(); // START_ELEMENT root
+    expect(missingValue.getAttributeCount()).toBe(0);
+
+    const unquoted = new XmlCursorReaderAsync(streamFrom('<root attr=value/>'));
+    await unquoted.next(); // START_DOCUMENT
+    await unquoted.next(); // START_ELEMENT root
+    expect(unquoted.getAttributeCount()).toBe(0);
+  });
+
   // ── Error handling ────────────────────────────────────────────────
 
   it('should throw on mismatched closing tag', async () => {
@@ -215,6 +314,25 @@ describe('XmlCursorReaderAsync', () => {
     await expect(async () => {
       while (await cursor.next()) { /* drain */ }
     }).rejects.toThrow('Not all elements were closed');
+  });
+
+  it('should throw on malformed markup variants', async () => {
+    const cases: Array<[string, string]> = [
+      ['<', 'Incomplete markup at end of stream'],
+      ['<root></root', 'Unclosed end tag'],
+      ['</root>', 'No open elements'],
+      ['<root><![CDATA[text', 'Unclosed CDATA section'],
+      ['<root><!-- comment', 'Unclosed comment'],
+      ['<!DOCTYPE html', 'Unclosed DOCTYPE declaration'],
+      ['<root><?pi target', 'Unclosed processing instruction'],
+      ['<!BROKEN', 'Unclosed markup'],
+      ['<root attr="unterminated', 'Unclosed start tag'],
+    ];
+
+    for (const [xml, message] of cases) {
+      await expect(drainCursor(new XmlCursorReaderAsync(streamFrom(xml))))
+        .rejects.toThrow(message);
+    }
   });
 
   // ── Depth tracking ────────────────────────────────────────────────
@@ -284,6 +402,20 @@ describe('XmlCursorReaderAsync', () => {
     ]);
   });
 
+  it('should reuse element and namespace stack slots for sibling elements', async () => {
+    const xml = '<root><a></a><b></b><c attr="1"></c><d attr="2"></d></root>';
+    const cursor = new XmlCursorReaderAsync(streamFrom(xml));
+    const starts: string[] = [];
+
+    while (await cursor.next()) {
+      if (cursor.eventType() === CursorEventType.START_ELEMENT) {
+        starts.push(cursor.name() ?? '');
+      }
+    }
+
+    expect(starts).toEqual(['root', 'a', 'b', 'c', 'd']);
+  });
+
   // ── XML declaration ───────────────────────────────────────────────
 
   it('should skip XML declaration', async () => {
@@ -321,6 +453,38 @@ describe('XmlCursorReaderAsync', () => {
     ]);
   });
 
+  it('should trim leading document whitespace and padded end tags', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom(' \u00A0 <root></ root >', 2));
+    const names: Array<string | undefined> = [];
+
+    while (await cursor.next()) names.push(cursor.name());
+
+    expect(names).toEqual([undefined, 'root', 'root', undefined]);
+  });
+
+  it('should emit top-level trailing text when no tags are present', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom('  trailing text  ', 2));
+
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.CHARACTERS);
+    expect(cursor.text()).toBe('trailing text');
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.END_DOCUMENT);
+    expect(await cursor.next()).toBe(false);
+  });
+
+  it('should emit END_DOCUMENT for top-level whitespace-only input', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom('  \n  ', 2));
+
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.END_DOCUMENT);
+    expect(await cursor.next()).toBe(false);
+  });
+
   // ── Accessor on wrong event type ──────────────────────────────────
 
   it('should return undefined for name on non-element events', async () => {
@@ -328,6 +492,9 @@ describe('XmlCursorReaderAsync', () => {
 
     await cursor.next(); // START_DOCUMENT
     expect(cursor.name()).toBeUndefined();
+    expect(cursor.localName()).toBeUndefined();
+    expect(cursor.prefix()).toBeUndefined();
+    expect(cursor.uri()).toBeUndefined();
     expect(cursor.text()).toBeUndefined();
 
     await cursor.next(); // START_ELEMENT
@@ -335,5 +502,17 @@ describe('XmlCursorReaderAsync', () => {
 
     await cursor.next(); // CHARACTERS
     expect(cursor.name()).toBeUndefined();
+    expect(cursor.localName()).toBeUndefined();
+  });
+
+  it('should return undefined uri for text inside a namespaced element', async () => {
+    const cursor = new XmlCursorReaderAsync(streamFrom('<root xmlns="urn:default">text</root>'));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // START_ELEMENT root
+    expect(cursor.uri()).toBe('urn:default');
+    await cursor.next(); // CHARACTERS
+
+    expect(cursor.uri()).toBeUndefined();
   });
 });

@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { XmlCursorReader, CursorEventType } from '../../src/cursor/index';
 
+function drainCursor(cursor: XmlCursorReader): void {
+  while (cursor.next()) { /* drain */ }
+}
+
 describe('XmlCursorReader (sync)', () => {
   // ── Basic parsing ─────────────────────────────────────────────────
 
@@ -249,6 +253,20 @@ describe('XmlCursorReader (sync)', () => {
     ]);
   });
 
+  it('should skip unknown bang markup', () => {
+    const cursor = new XmlCursorReader('<!BROKEN><root/>');
+    const types: number[] = [];
+
+    while (cursor.next()) types.push(cursor.eventType());
+
+    expect(types).toEqual([
+      CursorEventType.START_DOCUMENT,
+      CursorEventType.START_ELEMENT,
+      CursorEventType.END_ELEMENT,
+      CursorEventType.END_DOCUMENT,
+    ]);
+  });
+
   // ── Entity decoding ───────────────────────────────────────────────
 
   it('should decode XML entities in text', () => {
@@ -283,6 +301,22 @@ describe('XmlCursorReader (sync)', () => {
     cursor.next(); // CHARACTERS
 
     expect(cursor.text()).toBe('© text');
+  });
+
+  it('should support custom entities declared with entity delimiters', () => {
+    const xml = '<root>&copy; &smile;</root>';
+    const cursor = new XmlCursorReader(xml, {
+      addEntities: [
+        { entity: '&copy;', value: 'C' },
+        { entity: 'smile', value: ':)' },
+      ],
+    });
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // START_ELEMENT root
+    cursor.next(); // CHARACTERS
+
+    expect(cursor.text()).toBe('C :)');
   });
 
   it('should not decode entities when autoDecodeEntities is false', () => {
@@ -342,6 +376,29 @@ describe('XmlCursorReader (sync)', () => {
     expect(() => cursor.next()).toThrow('No open elements');
   });
 
+  it('should throw on same-length mismatched closing tag names', () => {
+    const cursor = new XmlCursorReader('<root><item></itxm></root>');
+
+    expect(() => drainCursor(cursor)).toThrow('Expected </item>');
+  });
+
+  it('should throw on malformed markup variants', () => {
+    const cases: Array<[string, string]> = [
+      ['<root></root', 'Unclosed end tag'],
+      ['<root><![CDATA[text</root>', 'Unclosed CDATA section'],
+      ['<root><!-- comment</root>', 'Unclosed comment'],
+      ['<!DOCTYPE html', 'Unclosed DOCTYPE declaration'],
+      ['<root><?pi target</root>', 'Unclosed processing instruction'],
+      ['<!BROKEN', 'Unclosed markup'],
+      ['<root/', 'Unclosed start tag'],
+      ['<root attr="unterminated', 'Unclosed start tag'],
+    ];
+
+    for (const [xml, message] of cases) {
+      expect(() => drainCursor(new XmlCursorReader(xml))).toThrow(message);
+    }
+  });
+
   // ── Whitespace handling ───────────────────────────────────────────
 
   it('should skip whitespace-only text', () => {
@@ -362,6 +419,15 @@ describe('XmlCursorReader (sync)', () => {
     ]);
   });
 
+  it('should trim leading document whitespace and padded end tags', () => {
+    const cursor = new XmlCursorReader(' \u00A0 <root></ root >');
+    const names: Array<string | undefined> = [];
+
+    while (cursor.next()) names.push(cursor.name());
+
+    expect(names).toEqual([undefined, 'root', 'root', undefined]);
+  });
+
   // ── Boundary conditions ───────────────────────────────────────────
 
   it('should return false after END_DOCUMENT', () => {
@@ -369,6 +435,29 @@ describe('XmlCursorReader (sync)', () => {
     while (cursor.next()) { /* drain */ }
 
     expect(cursor.next()).toBe(false);
+    expect(cursor.next()).toBe(false);
+  });
+
+  it('should emit top-level trailing text when no tags are present', () => {
+    const cursor = new XmlCursorReader('  trailing text  ');
+
+    expect(cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
+    expect(cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.CHARACTERS);
+    expect(cursor.text()).toBe('trailing text');
+    expect(cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.END_DOCUMENT);
+    expect(cursor.next()).toBe(false);
+  });
+
+  it('should emit END_DOCUMENT for top-level whitespace-only input', () => {
+    const cursor = new XmlCursorReader('  \n  ');
+
+    expect(cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
+    expect(cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.END_DOCUMENT);
     expect(cursor.next()).toBe(false);
   });
 
@@ -404,6 +493,84 @@ describe('XmlCursorReader (sync)', () => {
     cursor.next(); // START_ELEMENT root
 
     expect(cursor.getAttributeValue('attr')).toBe('value');
+  });
+
+  it('should expose attribute accessor variants', () => {
+    const xml = '<root plain="v" empty="" xmlns:ns="urn:ns" ns:attr="namespaced" other="a&gt;b"/>';
+    const cursor = new XmlCursorReader(xml);
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // START_ELEMENT root
+
+    expect(cursor.getAttributeCount()).toBe(5);
+    expect(cursor.getAttributeLocalName(0)).toBe('plain');
+    expect(cursor.getAttributePrefix(0)).toBeUndefined();
+    expect(cursor.getAttributeUri(0)).toBeUndefined();
+    expect(cursor.getAttributeLocalName(3)).toBe('attr');
+    expect(cursor.getAttributePrefix(3)).toBe('ns');
+    expect(cursor.getAttributeUri(3)).toBe('urn:ns');
+    expect(cursor.getAttributeValue(1)).toBe('');
+    expect(cursor.getAttributeValue('empty')).toBe('');
+    expect(cursor.getAttributeValue('other')).toBe('a>b');
+    expect(cursor.getAttributeValue('plaxx')).toBeUndefined();
+    expect(cursor.getAttributeLocalName(-1)).toBeUndefined();
+    expect(cursor.getAttributeLocalName(99)).toBeUndefined();
+    expect(cursor.getAttributePrefix(-1)).toBeUndefined();
+    expect(cursor.getAttributePrefix(99)).toBeUndefined();
+    expect(cursor.getAttributeUri(-1)).toBeUndefined();
+    expect(cursor.getAttributeUri(99)).toBeUndefined();
+  });
+
+  it('should tolerate valueless attributes in lazy and namespace-aware paths', () => {
+    const lazy = new XmlCursorReader('<root disabled bare/>');
+
+    lazy.next(); // START_DOCUMENT
+    lazy.next(); // START_ELEMENT root
+    expect(lazy.getAttributeCount()).toBe(2);
+    expect(lazy.getAttributeValue('disabled')).toBe('disabled');
+    expect(lazy.getAttributeValue('bare')).toBe('bare');
+
+    const namespaceAware = new XmlCursorReader('<root xmlns:ns="urn:ns" disabled ns:flag/>');
+
+    namespaceAware.next(); // START_DOCUMENT
+    namespaceAware.next(); // START_ELEMENT root
+    expect(namespaceAware.getAttributeValue('disabled')).toBe('disabled');
+    expect(namespaceAware.getAttributeLocalName(2)).toBe('flag');
+    expect(namespaceAware.getAttributeValue('ns:flag')).toBe('ns:flag');
+  });
+
+  it('should parse lazy attribute names with prefixes', () => {
+    const cursor = new XmlCursorReader('<root ns:attr="value" ns:flag/>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // START_ELEMENT root
+
+    expect(cursor.getAttributeCount()).toBe(2);
+    expect(cursor.getAttributeName(0)).toBe('ns:attr');
+    expect(cursor.getAttributeLocalName(0)).toBe('attr');
+    expect(cursor.getAttributePrefix(0)).toBe('ns');
+    expect(cursor.getAttributeValue('ns:attr')).toBe('value');
+    expect(cursor.getAttributeName(1)).toBe('ns:flag');
+    expect(cursor.getAttributeLocalName(1)).toBe('flag');
+    expect(cursor.getAttributePrefix(1)).toBe('ns');
+    expect(cursor.getAttributeValue('ns:flag')).toBe('ns:flag');
+  });
+
+  it('should stop lazy attribute parsing on malformed separators', () => {
+    const emptyName = new XmlCursorReader('<root = "value"/>');
+    emptyName.next(); // START_DOCUMENT
+    emptyName.next(); // START_ELEMENT root
+    expect(emptyName.getAttributeCount()).toBe(0);
+
+    const missingValue = new XmlCursorReader('<root attr=/>');
+    missingValue.next(); // START_DOCUMENT
+    missingValue.next(); // START_ELEMENT root
+    expect(missingValue.getAttributeCount()).toBe(0);
+
+    const unquoted = new XmlCursorReader('<root attr=value/>');
+    unquoted.next(); // START_DOCUMENT
+    unquoted.next(); // START_ELEMENT root
+    expect(unquoted.getAttributeCount()).toBe(0);
   });
 
   it('should return undefined for out-of-range attribute index', () => {
@@ -479,5 +646,16 @@ describe('XmlCursorReader (sync)', () => {
 
     cursor.next(); // CHARACTERS
     expect(cursor.name()).toBeUndefined();
+  });
+
+  it('should return undefined uri for text inside a namespaced element', () => {
+    const cursor = new XmlCursorReader('<root xmlns="urn:default">text</root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // START_ELEMENT root
+    expect(cursor.uri()).toBe('urn:default');
+    cursor.next(); // CHARACTERS
+
+    expect(cursor.uri()).toBeUndefined();
   });
 });

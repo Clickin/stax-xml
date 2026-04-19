@@ -17,6 +17,13 @@ describe('Converter Basic Tests', () => {
       expect(result).toBe('Test Value');
     });
 
+    it('should parse string with builder xpath shorthand', () => {
+      const xml = '<root><item>Test Value</item></root>';
+      const schema = x.string('/root/item');
+      const result = schema.parseSync(xml);
+      expect(result).toBe('Test Value');
+    });
+
     it('should parse string async', async () => {
       const xml = '<root><item>Async Test</item></root>';
       const schema = x.string().xpath('/root/item');
@@ -36,6 +43,13 @@ describe('Converter Basic Tests', () => {
     it('should parse integer', () => {
       const xml = '<root><count>42</count></root>';
       const schema = x.number().xpath('/root/count');
+      const result = schema.parseSync(xml);
+      expect(result).toBe(42);
+    });
+
+    it('should parse number with builder xpath shorthand', () => {
+      const xml = '<root><count>42</count></root>';
+      const schema = x.number('/root/count');
       const result = schema.parseSync(xml);
       expect(result).toBe(42);
     });
