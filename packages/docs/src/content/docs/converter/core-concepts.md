@@ -447,6 +447,79 @@ const schema = x.object({
 }).xpath('/root');
 ```
 
+### Compiled Schemas
+
+Use `compile()` when you parse many documents with the same schema:
+
+```typescript
+const personSchema = x.object({
+  id: x.number().xpath('./@id').int(),
+  name: x.string().xpath('./name'),
+  age: x.number().xpath('./age').int(),
+  birthday: x.string().xpath('./birthday'),
+  married: x.string()
+    .xpath('./married')
+    .transform(value => value === 'true'),
+  firstTime: x.string().xpath('./married/@firstTime'),
+  nickname: x.string().xpath('./nickname').optional(),
+  address: x.object({
+    city: x.string().xpath('./city'),
+    zip: x.string().xpath('./zip/text()')
+  }).xpath('./address'),
+  aliases: x.array(x.string(), './alias'),
+  contacts: x.array(
+    x.object({
+      type: x.string().xpath('./@type'),
+      value: x.string().xpath('./value/text()')
+    }),
+    './contact'
+  )
+});
+
+const compiledSchema = x.object({
+  datasetId: x.string().xpath('/dataset/@id'),
+  title: x.string().xpath('/dataset/title/text()'),
+  metadata: x.object({
+    source: x.string().xpath('./source'),
+    generatedAt: x.string().xpath('./generatedAt')
+  }).xpath('/dataset/metadata'),
+  labels: x.array(x.string(), '/dataset/labels/label'),
+  people: x.array(personSchema, '//person')
+}).compile();
+
+const result = compiledSchema.parseSync(xml);
+```
+
+`compile()` keeps the same public API, but the fastest path is available only for schema shapes that can be lowered to fixed XML event dispatch.
+
+The schema above combines the common fast-path shapes in one compiled schema: absolute element and attribute selectors, direct `text()` selectors, a descendant array boundary with `//person`, relative selectors inside each person item, nested objects, scalar arrays, object arrays, optional fields, and transforms. Numeric validation like `.int()` is still applied after text extraction.
+
+**Fast-path friendly shapes:**
+
+| Shape | Example |
+|-------|---------|
+| Absolute element paths | `/catalog/book/title` |
+| Descendant element paths | `//book` |
+| Absolute or relative attributes | `/catalog/book/@id`, `./@id` |
+| Relative fields inside object or array items | `./title`, `./author/name` |
+| Direct text selection | `/message/text()`, `./title/text()` |
+| Objects with scalar fields | `x.object({ title: x.string().xpath('./title') }).xpath('/book')` |
+| Arrays of scalars or objects | `x.array(x.string(), '/tags/tag')`, `x.array(bookSchema, '/catalog/book')` |
+| Nested objects, optional fields, transforms | `x.object({...}).optional().transform(...)` |
+
+**Shapes that fall back to the normal converter path:**
+
+| Shape | Example |
+|-------|---------|
+| Wildcards | `/catalog/*` |
+| Predicates | `//book[@id="1"]`, `//book[1]` |
+| Ambiguous relative paths without `./` | `title` |
+| Nested arrays | `x.array(x.array(x.string(), './value'), '/group')` |
+| Arrays that define both an array XPath and an element XPath | `x.array(x.string().xpath('./title'), '/book')` |
+| Custom or unsupported schema wrappers | User-defined schema subclasses |
+
+Fallback preserves behavior, so these schemas still parse correctly after `compile()`. They just do not get the dispatch fast path.
+
 ### Schema Reuse
 
 ```typescript

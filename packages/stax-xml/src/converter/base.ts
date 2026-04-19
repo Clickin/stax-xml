@@ -190,6 +190,30 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     return XmlSchemaBase._createArray(this as XmlSchemaBase<Output, Input>, xpath);
   }
 
+  /**
+   * Compile this schema for repeated parsing.
+   *
+   * @remarks
+   * `compile()` preserves the public parsing API and can speed up schemas that can
+   * be lowered to fixed XML event dispatch. The optimized path works best when the
+   * root schema is an object, array, string, or number with static XPath selectors.
+   *
+   * Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+   * descendant paths such as `//book`, and relative selectors inside object or
+   * array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+   * Object fields, arrays of scalar values, arrays of objects, nested objects,
+   * optional fields, and transforms are supported.
+   *
+   * Selectors with wildcards or predicates, ambiguous relative paths such as
+   * `title`, nested arrays, and arrays that combine an array XPath with an element
+   * XPath are parsed with the normal runtime converter path instead. This keeps
+   * behavior compatible, but does not get the dispatch fast path.
+   *
+   * Call `compile()` once on the root schema and reuse the returned schema.
+   * Non-object root schemas need an XPath.
+   *
+   * @returns New compiled schema
+   */
   compile(): XmlSchemaBase<Output, Input> {
     return XmlSchemaBase._createCompiled(this);
   }

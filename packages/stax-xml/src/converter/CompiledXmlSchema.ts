@@ -1,4 +1,16 @@
+import type { ParserEventFilter } from '../types.js';
 import { XmlSchemaBase } from './base.js';
+import { CompiledRootProcessor } from './CompiledRootProcessor.js';
+import type {
+  CompiledSchemaPlan,
+  DispatchArrayPlan,
+  DispatchObjectPlan,
+  DispatchScalarPlan,
+  DispatchSelector,
+  DispatchTransform,
+  DispatchValuePlan,
+  RuntimeCompiledPlan
+} from './compiled-plan.js';
 import type { ParseInput } from './XmlSchema.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
 import {
@@ -9,19 +21,27 @@ import {
   isStringSchema,
   isTransformSchema
 } from './types.js';
-import type { XmlObjectSchema, XmlObjectShape } from './XmlObjectSchema.js';
-import type { ParserEventFilter } from '../types.js';
-import type {
-  ActivationMatchProfile,
-  CollectorKind,
-  CompiledSchemaPlan,
-  ObjectFieldTemplate,
-  RootFieldPlan
-} from './compiled-plan.js';
-import { XmlParserInternal } from './XmlParserInternal.js';
-import { createXPathMatcherTemplate, XPathCompiler, type CompiledXPath } from './XPathEngine.js';
+import { XPathCompiler, type CompiledXPath } from './XPathEngine.js';
 
 const SYNTHETIC_ROOT_FIELD = '__root__';
+
+type Effects = {
+  schema: XmlSchemaBase<unknown, unknown>;
+  optional: boolean;
+  transforms: DispatchTransform[];
+};
+
+type LoweringContext = {
+  nextId: number;
+  eventFilter: ParserEventFilter;
+};
+
+class UnsupportedDispatchPlan extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnsupportedDispatchPlan';
+  }
+}
 
 export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Output, Input> {
   private readonly plan: CompiledSchemaPlan;
@@ -34,6 +54,7 @@ export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Out
       this.plan = schema.plan;
       return;
     }
+
     const unwrapped = unwrapSchema(schema);
     assertNoCompiledSchema(unwrapped);
     this.schema = schema;
@@ -45,13 +66,17 @@ export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Out
   }
 
   _parse(input: ParseInput, options?: ParseOptions): Output {
-    const parser = new XmlParserInternal(options, this.plan);
-    return parser.parseWithSchema(input, this.schema);
+    if (this.plan.kind === 'dispatch' && typeof input === 'string') {
+      return new CompiledRootProcessor(this.plan, options).parseSync<Output>(input);
+    }
+    return this.schema._parse(input, options);
   }
 
   async _parseAsync(input: ParseInput, options?: ParseOptions): Promise<Output> {
-    const parser = new XmlParserInternal(options, this.plan);
-    return parser.parseWithSchemaAsync(input, this.schema);
+    if (this.plan.kind === 'dispatch') {
+      return new CompiledRootProcessor(this.plan, options).parse<Output>(input);
+    }
+    return this.schema._parseAsync(input, options);
   }
 
   _parseText(text: string): Output {
@@ -79,141 +104,345 @@ export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Out
   }
 }
 
-const defaultEventFilter: ParserEventFilter = {
-  includeAttributes: true,
-  includeCharacters: true,
-  includeCdata: true
-};
-
 function buildCompiledPlan(
   schema: XmlSchemaBase<unknown, unknown>,
   unwrappedRoot: XmlSchemaBase<unknown, unknown>
 ): CompiledSchemaPlan {
-  const objectFieldTemplates = new WeakMap<XmlObjectSchema<XmlObjectShape>, ObjectFieldTemplate[]>();
-  const rootPlan: RootFieldPlan[] = [];
-  const eventFilter: ParserEventFilter = {
-    includeAttributes: false,
-    includeCharacters: false,
-    includeCdata: false
-  };
-  const visited = new WeakSet<XmlSchemaBase<unknown, unknown>>();
+  const rootXPath = extractXPath(schema);
+  const rootFieldName = isObjectSchema(unwrappedRoot) && !rootXPath ? undefined : SYNTHETIC_ROOT_FIELD;
 
-  const recordXPath = (xpath: string, schemaForXpath: XmlSchemaBase<unknown, unknown>) => {
-    const compiled = XPathCompiler.compile(xpath);
-    if (xpathNeedsAttributes(compiled)) {
-      eventFilter.includeAttributes = true;
-    }
-    if (schemaNeedsText(schemaForXpath, compiled)) {
-      eventFilter.includeCharacters = true;
-      eventFilter.includeCdata = true;
-    }
-  };
-
-  const collectObjectTemplates = (objectSchema: XmlObjectSchema<XmlObjectShape>) => {
-    const existing = objectFieldTemplates.get(objectSchema);
-    if (existing) return existing;
-    const templates: ObjectFieldTemplate[] = [];
-    objectFieldTemplates.set(objectSchema, templates);
-
-    for (const [fieldName, fieldSchema] of Object.entries(objectSchema.shape)) {
-      const xpath = extractXPath(fieldSchema);
-      if (xpath) {
-        templates.push(buildObjectFieldTemplate(fieldName, fieldSchema, xpath));
-        recordXPath(xpath, fieldSchema);
-      }
-      traverseSchema(fieldSchema);
-    }
-
-    return templates;
-  };
-
-  const traverseSchema = (schemaToTraverse: XmlSchemaBase<unknown, unknown>) => {
-    const unwrapped = unwrapSchema(schemaToTraverse);
-    /* v8 ignore next -- cycle guard for user-mutated schemas */
-    if (visited.has(unwrapped)) return;
-    visited.add(unwrapped);
-
-    if (isObjectSchema(unwrapped)) {
-      collectObjectTemplates(unwrapped);
-      return;
-    }
-
-    if (isArraySchema(unwrapped)) {
-      traverseSchema(unwrapped.element);
-      const xpath = extractXPath(unwrapped);
-      if (xpath) {
-        recordXPath(xpath, unwrapped);
-      }
-      return;
-    }
-
-    const xpath = extractXPath(unwrapped);
-    if (xpath) {
-      recordXPath(xpath, unwrapped);
-    }
-  };
-
-  if (isObjectSchema(unwrappedRoot) && !extractXPath(unwrappedRoot)) {
-    for (const [fieldName, fieldSchema] of Object.entries(unwrappedRoot.shape)) {
-      traverseSchema(fieldSchema);
-      const xpath = extractXPath(fieldSchema);
-      const unwrapped = unwrapSchema(fieldSchema);
-
-      if (!xpath && isObjectSchema(unwrapped)) {
-        const childTemplates = collectObjectTemplates(unwrapped);
-        rootPlan.push({ kind: 'object', fieldName, schema: fieldSchema, childTemplates });
-        continue;
-      }
-
-      if (!xpath && isArraySchema(unwrapped)) {
-        const elementXPath = extractXPath(unwrapped.element);
-        if (elementXPath) {
-          recordXPath(elementXPath, unwrapped.element);
-          rootPlan.push({ kind: 'array', fieldName, schema: fieldSchema, elementXPath });
-        }
-        continue;
-      }
-
-      if (xpath) {
-        rootPlan.push({ kind: 'direct', fieldName, schema: fieldSchema, xpath });
-        recordXPath(xpath, fieldSchema);
-      }
-    }
-  } else {
-    const xpath = extractXPath(schema);
-    if (!xpath) {
-      throw new Error('compile() requires an xpath for non-object roots and xpath-scoped object roots');
-    }
-
-    traverseSchema(schema);
-    rootPlan.push({
-      kind: 'direct',
-      fieldName: SYNTHETIC_ROOT_FIELD,
-      schema,
-      xpath
-    });
-    recordXPath(xpath, schema);
+  if (!isObjectSchema(unwrappedRoot) && !rootXPath && !(isArraySchema(unwrappedRoot) && extractArrayItemXPath(unwrappedRoot))) {
+    throw new Error('compile() requires an xpath for non-object roots and xpath-scoped object roots');
   }
 
+  try {
+    const context: LoweringContext = {
+      nextId: 0,
+      eventFilter: {
+        includeAttributes: false,
+        includeCharacters: false,
+        includeCdata: false
+      }
+    };
+
+    const root = isObjectSchema(unwrappedRoot) && !rootXPath
+      ? buildObjectPlan(schema, undefined, false, context, true)
+      : buildValuePlan(schema, rootXPath ? compileSelector(rootXPath, context) : undefined, false, context, true);
+
+    return {
+      kind: 'dispatch',
+      root,
+      eventFilter: normalizeEventFilter(context.eventFilter),
+      rootFieldName
+    };
+  } catch (error) {
+    if (!(error instanceof UnsupportedDispatchPlan)) {
+      throw error;
+    }
+    return runtimePlan(error.message, rootFieldName);
+  }
+}
+
+function runtimePlan(reason: string, rootFieldName?: string): RuntimeCompiledPlan {
+  return {
+    kind: 'runtime',
+    reason,
+    eventFilter: {
+      includeAttributes: true,
+      includeCharacters: true,
+      includeCdata: true
+    },
+    rootFieldName
+  };
+}
+
+function normalizeEventFilter(eventFilter: ParserEventFilter): ParserEventFilter {
   if (!eventFilter.includeAttributes && !eventFilter.includeCharacters && !eventFilter.includeCdata) {
     return {
-      rootPlan,
-      objectFieldTemplates,
-      eventFilter: { ...defaultEventFilter },
-      rootFieldName: rootPlan.length === 1 && rootPlan[0].fieldName === SYNTHETIC_ROOT_FIELD
-        ? SYNTHETIC_ROOT_FIELD
-        : undefined
+      includeAttributes: true,
+      includeCharacters: true,
+      includeCdata: true
     };
+  }
+  return {
+    includeAttributes: eventFilter.includeAttributes,
+    includeCharacters: eventFilter.includeCharacters,
+    includeCdata: eventFilter.includeCdata
+  };
+}
+
+function buildValuePlan(
+  schema: XmlSchemaBase<unknown, unknown>,
+  selector: DispatchSelector | undefined,
+  contextual: boolean,
+  context: LoweringContext,
+  ignoreOwnXPath = false
+): DispatchValuePlan {
+  const effects = unwrapEffects(schema);
+  const unwrapped = effects.schema;
+
+  if (isStringSchema(unwrapped)) {
+    return buildScalarPlan('string', schema, effects, selector, contextual, context, ignoreOwnXPath);
+  }
+
+  if (isNumberSchema(unwrapped)) {
+    return buildScalarPlan('number', schema, effects, selector, contextual, context, ignoreOwnXPath);
+  }
+
+  if (isObjectSchema(unwrapped)) {
+    const objectSelector = selector ?? (!ignoreOwnXPath ? selectorFromSchema(schema, context) : undefined);
+    return buildObjectPlan(schema, objectSelector, contextual, context, ignoreOwnXPath);
+  }
+
+  if (isArraySchema(unwrapped)) {
+    const arraySelector = selector ?? compileArraySelector(unwrapped, context, ignoreOwnXPath);
+    return buildArrayPlan(schema, effects, arraySelector, contextual, context);
+  }
+
+  throw new UnsupportedDispatchPlan(`Unsupported schema type for compiled dispatch: ${String(unwrapped.schemaType)}`);
+}
+
+function buildScalarPlan(
+  kind: 'string' | 'number',
+  schema: XmlSchemaBase<unknown, unknown>,
+  effects: Effects,
+  selector: DispatchSelector | undefined,
+  contextual: boolean,
+  context: LoweringContext,
+  ignoreOwnXPath: boolean
+): DispatchScalarPlan {
+  const scalarSelector = selector ?? (!ignoreOwnXPath ? selectorFromSchema(schema, context) : undefined);
+  if (!scalarSelector) {
+    if (!ignoreOwnXPath) {
+      throw new UnsupportedDispatchPlan(`${kind} dispatch requires an XPath selector`);
+    }
+    return {
+      id: nextId(context),
+      kind,
+      schema,
+      unwrappedSchema: effects.schema,
+      optional: effects.optional,
+      transforms: effects.transforms
+    };
+  }
+  assertSelectorContext(scalarSelector, contextual);
+
+  return {
+    id: nextId(context),
+    kind,
+    schema,
+    unwrappedSchema: effects.schema,
+    optional: effects.optional,
+    transforms: effects.transforms,
+    selector: scalarSelector
+  };
+}
+
+function buildObjectPlan(
+  schema: XmlSchemaBase<unknown, unknown>,
+  selector: DispatchSelector | undefined,
+  contextual: boolean,
+  context: LoweringContext,
+  ignoreOwnXPath: boolean
+): DispatchObjectPlan {
+  const effects = unwrapEffects(schema);
+  const objectSchema = effects.schema;
+  if (!isObjectSchema(objectSchema)) {
+    throw new UnsupportedDispatchPlan('Object dispatch requires an object schema');
+  }
+
+  const objectSelector = selector ?? (!ignoreOwnXPath ? selectorFromSchema(schema, context) : undefined);
+  if (objectSelector) {
+    assertSelectorContext(objectSelector, contextual);
+    if (objectSelector.terminal !== 'element') {
+      throw new UnsupportedDispatchPlan('Object dispatch only supports element XPath selectors');
+    }
+  }
+
+  const fieldContextual = contextual || Boolean(objectSelector);
+  const fields = Object.entries(objectSchema.shape).map(([fieldName, fieldSchema]) => ({
+    fieldName,
+    value: buildFieldPlan(fieldSchema, fieldContextual, context)
+  }));
+
+  return {
+    id: nextId(context),
+    kind: 'object',
+    schema,
+    unwrappedSchema: objectSchema,
+    optional: effects.optional,
+    transforms: effects.transforms,
+    selector: objectSelector,
+    fields,
+    inline: !objectSelector
+  };
+}
+
+function buildFieldPlan(
+  schema: XmlSchemaBase<unknown, unknown>,
+  contextual: boolean,
+  context: LoweringContext
+): DispatchValuePlan {
+  const effects = unwrapEffects(schema);
+  const unwrapped = effects.schema;
+
+  if (isObjectSchema(unwrapped)) {
+    const selector = selectorFromSchema(schema, context);
+    return buildObjectPlan(schema, selector, contextual, context, false);
+  }
+
+  if (isArraySchema(unwrapped)) {
+    const selector = compileArraySelector(unwrapped, context, false);
+    return buildArrayPlan(schema, effects, selector, contextual, context);
+  }
+
+  return buildValuePlan(schema, undefined, contextual, context);
+}
+
+function buildArrayPlan(
+  schema: XmlSchemaBase<unknown, unknown>,
+  effects: Effects,
+  itemSelector: DispatchSelector,
+  contextual: boolean,
+  context: LoweringContext
+): DispatchArrayPlan {
+  assertSelectorContext(itemSelector, contextual);
+  const arraySchema = effects.schema;
+  if (!isArraySchema(arraySchema)) {
+    throw new UnsupportedDispatchPlan('Array dispatch requires an array schema');
+  }
+
+  const elementHasOwnXPath = Boolean(extractXPath(arraySchema.element));
+  const arrayHasOwnXPath = Boolean(arraySchema.xpath);
+  if (arrayHasOwnXPath && elementHasOwnXPath) {
+    throw new UnsupportedDispatchPlan('Array dispatch does not support element XPath inside an array XPath yet');
+  }
+
+  const element = buildValuePlan(
+    arraySchema.element,
+    undefined,
+    true,
+    context,
+    true
+  );
+
+  if (element.kind === 'array') {
+    throw new UnsupportedDispatchPlan('Nested array dispatch is not supported yet');
+  }
+  if (itemSelector.terminal === 'attribute' && element.kind === 'object') {
+    throw new UnsupportedDispatchPlan('Attribute array dispatch requires scalar element schemas');
   }
 
   return {
-    rootPlan,
-    objectFieldTemplates,
-    eventFilter,
-    rootFieldName: rootPlan.length === 1 && rootPlan[0].fieldName === SYNTHETIC_ROOT_FIELD
-      ? SYNTHETIC_ROOT_FIELD
-      : undefined
+    id: nextId(context),
+    kind: 'array',
+    schema,
+    unwrappedSchema: arraySchema,
+    optional: effects.optional,
+    transforms: effects.transforms,
+    selector: undefined,
+    element,
+    itemSelector
   };
+}
+
+function compileArraySelector(
+  schema: XmlSchemaBase<unknown, unknown>,
+  context: LoweringContext,
+  ignoreOwnXPath: boolean
+): DispatchSelector {
+  const xpath = !ignoreOwnXPath && isArraySchema(schema)
+    ? extractArrayItemXPath(schema)
+    : undefined;
+  if (!xpath) {
+    throw new UnsupportedDispatchPlan('Array dispatch requires an array XPath or element XPath');
+  }
+  return compileSelector(xpath, context);
+}
+
+function extractArrayItemXPath(schema: XmlSchemaBase<unknown, unknown>): string | undefined {
+  if (!isArraySchema(schema)) return undefined;
+  return schema.xpath ?? extractXPath(schema.element);
+}
+
+function selectorFromSchema(
+  schema: XmlSchemaBase<unknown, unknown>,
+  context: LoweringContext
+): DispatchSelector | undefined {
+  const xpath = extractXPath(schema);
+  return xpath ? compileSelector(xpath, context) : undefined;
+}
+
+function compileSelector(xpath: string, context: LoweringContext): DispatchSelector {
+  if (!xpath.startsWith('/') && !xpath.startsWith('./') && xpath !== '.') {
+    throw new UnsupportedDispatchPlan(`Unsupported ambiguous relative XPath: ${xpath}`);
+  }
+
+  const compiled = XPathCompiler.compile(xpath);
+  assertSupportedCompiledXPath(xpath, compiled);
+
+  const lastSegment = compiled.segments[compiled.segments.length - 1];
+  const terminal = lastSegment?.isAttribute ? 'attribute' : 'element';
+  const textMode = lastSegment?.isTextNode ? 'direct' : 'subtree';
+  const segments = (lastSegment?.isAttribute || lastSegment?.isTextNode)
+    ? compiled.segments.slice(0, -1).map(segment => segment.name)
+    : compiled.segments.map(segment => segment.name);
+
+  if (terminal === 'attribute') {
+    context.eventFilter.includeAttributes = true;
+  } else {
+    context.eventFilter.includeCharacters = true;
+    context.eventFilter.includeCdata = true;
+  }
+
+  if (segments.length === 0 && (compiled.isAbsolute || compiled.isDescendant)) {
+    throw new UnsupportedDispatchPlan(`Unsupported XPath without an element owner: ${xpath}`);
+  }
+
+  return {
+    mode: compiled.isDescendant ? 'descendant' : (compiled.isAbsolute ? 'absolute' : 'relative'),
+    segments,
+    terminal,
+    attributeName: terminal === 'attribute' ? lastSegment?.name : undefined,
+    textMode,
+    lastElementName: segments[segments.length - 1]
+  };
+}
+
+function assertSupportedCompiledXPath(xpath: string, compiled: CompiledXPath): void {
+  for (const segment of compiled.segments) {
+    if (segment.isWildcard) {
+      throw new UnsupportedDispatchPlan(`Wildcard XPath is not supported by compiled dispatch: ${xpath}`);
+    }
+    if (segment.predicates.length > 0) {
+      throw new UnsupportedDispatchPlan(`Predicate XPath is not supported by compiled dispatch: ${xpath}`);
+    }
+  }
+}
+
+function assertSelectorContext(selector: DispatchSelector, contextual: boolean): void {
+  if (selector.mode === 'relative' && !contextual) {
+    throw new UnsupportedDispatchPlan('Relative XPath requires an element context for compiled dispatch');
+  }
+}
+
+function unwrapEffects(schema: XmlSchemaBase<unknown, unknown>): Effects {
+  const transforms: DispatchTransform[] = [];
+  let current: XmlSchemaBase<unknown, unknown> = schema;
+  let optional = false;
+
+  while (isOptionalSchema(current) || isTransformSchema(current)) {
+    if (isOptionalSchema(current)) {
+      optional = true;
+      current = current.schema;
+      continue;
+    }
+
+    transforms.unshift(current.transformFn as DispatchTransform);
+    current = current.schema;
+  }
+
+  return { schema: current, optional, transforms };
 }
 
 function unwrapSchema(schema: XmlSchemaBase<unknown, unknown>): XmlSchemaBase<unknown, unknown> {
@@ -247,104 +476,10 @@ function extractXPath(schema: XmlSchemaBase<unknown, unknown>): string | undefin
   return undefined;
 }
 
-function buildObjectFieldTemplate(
-  fieldName: string,
-  schema: XmlSchemaBase<unknown, unknown>,
-  xpath: string
-): ObjectFieldTemplate {
-  const unwrappedSchema = unwrapSchema(schema);
-  const matcherTemplate = createXPathMatcherTemplate(xpath);
-
-  return {
-    fieldName,
-    schema,
-    unwrappedSchema,
-    xpath,
-    matcherTemplate,
-    collectorKind: getCollectorKind(unwrappedSchema),
-    isArraySchema: isArraySchema(unwrappedSchema),
-    isAttributeSelector: matcherTemplate.attributeSelector,
-    attributeName: matcherTemplate.attributeName,
-    isTextNodeSelector: matcherTemplate.textNodeSelector,
-    matchProfile: createMatchProfile(xpath)
-  };
-}
-
-function getCollectorKind(schema: XmlSchemaBase<unknown, unknown>): CollectorKind {
-  if (isStringSchema(schema)) return 'string';
-  if (isNumberSchema(schema)) return 'number';
-  if (isArraySchema(schema)) return 'array';
-  if (isObjectSchema(schema)) return 'object';
-  return 'string';
-}
-
-function createMatchProfile(xpath: string): ActivationMatchProfile {
-  if (xpath.startsWith('./')) {
-    const relativePath = xpath.slice(2);
-
-    if (relativePath.startsWith('@')) {
-      return { mode: 'relative-attribute' };
-    }
-
-    const pathSegments = relativePath.split('/').filter(segment => segment.length > 0);
-
-    if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 1].startsWith('@')) {
-      const elementSegment = pathSegments[pathSegments.length - 2];
-      return {
-        mode: 'relative-element',
-        expectedDepthOffset: pathSegments.length - 1,
-        expectedElementName: elementSegment.split('[')[0]
-      };
-    }
-
-    if (pathSegments.length >= 2 && pathSegments[pathSegments.length - 1] === 'text()') {
-      const elementSegment = pathSegments[pathSegments.length - 2];
-      return {
-        mode: 'relative-element',
-        expectedDepthOffset: pathSegments.length - 1,
-        expectedElementName: elementSegment.split('[')[0]
-      };
-    }
-
-    if (pathSegments.length > 0) {
-      const lastSegment = pathSegments[pathSegments.length - 1];
-      return {
-        mode: 'relative-element',
-        expectedDepthOffset: pathSegments.length,
-        expectedElementName: lastSegment.split('[')[0]
-      };
-    }
-  }
-
-  if (xpath.startsWith('//')) {
-    return { mode: 'descendant' };
-  }
-
-  return { mode: 'default' };
-}
-
-function schemaNeedsText(schema: XmlSchemaBase<unknown, unknown>, compiled: CompiledXPath): boolean {
-  const unwrapped = unwrapSchema(schema);
-  const lastSegment = compiled.segments[compiled.segments.length - 1];
-
-  if (lastSegment?.isTextNode) return true;
-  if (lastSegment?.isAttribute) return false;
-
-  if (isStringSchema(unwrapped) || isNumberSchema(unwrapped)) return true;
-  if (isArraySchema(unwrapped)) {
-    const elementUnwrapped = unwrapSchema(unwrapped.element);
-    return isStringSchema(elementUnwrapped) || isNumberSchema(elementUnwrapped);
-  }
-  return false;
-}
-
-function xpathNeedsAttributes(compiled: CompiledXPath): boolean {
-  for (const segment of compiled.segments) {
-    if (segment.isAttribute) return true;
-    /* v8 ignore next -- attribute predicate detection is covered by XPathEngine tests */
-    if (segment.predicates.some(predicate => predicate.type === 'attribute')) return true;
-  }
-  return false;
+function nextId(context: LoweringContext): number {
+  const id = context.nextId;
+  context.nextId++;
+  return id;
 }
 
 function assertNoCompiledSchema(schema: XmlSchemaBase<unknown, unknown>): void {

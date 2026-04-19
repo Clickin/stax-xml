@@ -309,6 +309,79 @@ const schema = x.object({
 }).xpath('/root');
 ```
 
+### 컴파일된 스키마
+
+같은 스키마로 여러 문서를 반복 파싱할 때는 `compile()`을 사용하세요:
+
+```typescript
+const personSchema = x.object({
+  id: x.number().xpath('./@id').int(),
+  name: x.string().xpath('./name'),
+  age: x.number().xpath('./age').int(),
+  birthday: x.string().xpath('./birthday'),
+  married: x.string()
+    .xpath('./married')
+    .transform(value => value === 'true'),
+  firstTime: x.string().xpath('./married/@firstTime'),
+  nickname: x.string().xpath('./nickname').optional(),
+  address: x.object({
+    city: x.string().xpath('./city'),
+    zip: x.string().xpath('./zip/text()')
+  }).xpath('./address'),
+  aliases: x.array(x.string(), './alias'),
+  contacts: x.array(
+    x.object({
+      type: x.string().xpath('./@type'),
+      value: x.string().xpath('./value/text()')
+    }),
+    './contact'
+  )
+});
+
+const compiledSchema = x.object({
+  datasetId: x.string().xpath('/dataset/@id'),
+  title: x.string().xpath('/dataset/title/text()'),
+  metadata: x.object({
+    source: x.string().xpath('./source'),
+    generatedAt: x.string().xpath('./generatedAt')
+  }).xpath('/dataset/metadata'),
+  labels: x.array(x.string(), '/dataset/labels/label'),
+  people: x.array(personSchema, '//person')
+}).compile();
+
+const result = compiledSchema.parseSync(xml);
+```
+
+`compile()`은 동일한 공개 API를 유지하지만, 가장 빠른 경로는 고정된 XML 이벤트 dispatch로 낮출 수 있는 스키마 형태에서만 사용됩니다.
+
+위 스키마는 주요 fast-path shape를 하나의 compiled schema 안에 조합한 예시입니다. 절대 element/attribute selector, 직접 `text()` selector, `//person` descendant 배열 경계, person item 내부의 상대 selector, 중첩 객체, scalar 배열, 객체 배열, optional 필드, transform을 모두 포함합니다. `.int()` 같은 숫자 검증은 텍스트 추출 후 그대로 적용됩니다.
+
+**fast path에 적합한 형태:**
+
+| 형태 | 예시 |
+|------|------|
+| 절대 요소 경로 | `/catalog/book/title` |
+| descendant 요소 경로 | `//book` |
+| 절대 또는 상대 속성 | `/catalog/book/@id`, `./@id` |
+| 객체 또는 배열 item 안의 상대 필드 | `./title`, `./author/name` |
+| 직접 텍스트 선택 | `/message/text()`, `./title/text()` |
+| scalar 필드를 가진 객체 | `x.object({ title: x.string().xpath('./title') }).xpath('/book')` |
+| scalar 또는 객체 배열 | `x.array(x.string(), '/tags/tag')`, `x.array(bookSchema, '/catalog/book')` |
+| 중첩 객체, optional 필드, transform | `x.object({...}).optional().transform(...)` |
+
+**일반 converter 경로로 fallback 되는 형태:**
+
+| 형태 | 예시 |
+|------|------|
+| wildcard | `/catalog/*` |
+| predicate | `//book[@id="1"]`, `//book[1]` |
+| `./`가 없는 모호한 상대 경로 | `title` |
+| 중첩 배열 | `x.array(x.array(x.string(), './value'), '/group')` |
+| 배열 XPath와 element XPath를 동시에 지정한 배열 | `x.array(x.string().xpath('./title'), '/book')` |
+| custom 또는 미지원 스키마 wrapper | 사용자 정의 schema subclass |
+
+fallback은 동작 호환성을 유지하므로 이런 스키마도 `compile()` 후 정상 파싱됩니다. 다만 dispatch fast path의 성능 이점은 받지 않습니다.
+
 ### 스키마 재사용
 
 ```typescript

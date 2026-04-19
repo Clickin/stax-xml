@@ -143,7 +143,7 @@ Writer configuration for this schema
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -181,7 +181,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -207,7 +207,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -237,7 +237,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -681,11 +681,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -695,7 +719,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -727,7 +751,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -763,7 +787,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -795,7 +819,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 
@@ -1043,7 +1067,7 @@ Writer configuration for this schema
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -1081,7 +1105,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -1107,7 +1131,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -1137,7 +1161,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -1677,11 +1701,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<`number`, `number`\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<`number`, `number`\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -1691,7 +1739,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -1723,7 +1771,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -1759,7 +1807,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -1791,7 +1839,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 
@@ -1923,7 +1971,7 @@ Writer configuration for this schema
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -1961,7 +2009,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -1987,7 +2035,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -2017,7 +2065,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -2507,11 +2555,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<[`InferObjectOutput`](#inferobjectoutput)\<`T`\>, `unknown`\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<[`InferObjectOutput`](#inferobjectoutput)\<`T`\>, `unknown`\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -2521,7 +2593,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -2553,7 +2625,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -2589,7 +2661,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -2621,7 +2693,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 
@@ -2743,7 +2815,7 @@ Writer configuration for this schema
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -2781,7 +2853,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -2807,7 +2879,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -2837,7 +2909,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -3287,11 +3359,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -3301,7 +3397,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -3333,7 +3429,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -3369,7 +3465,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -3401,7 +3497,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 
@@ -3471,7 +3567,7 @@ Main XML schema class (extends XmlSchemaBase with all methods)
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -3509,7 +3605,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -3535,7 +3631,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -3565,7 +3661,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -3637,7 +3733,7 @@ Writer configuration for this schema
 
 ###### Inherited from
 
-[`XmlNumberSchema`](#xmlnumberschema).[`writeConfig`](#writeconfig-1)
+[`XmlStringSchema`](#xmlstringschema).[`writeConfig`](#writeconfig-5)
 
 #### Methods
 
@@ -4075,11 +4171,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<`Output`, `Input`\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -4089,7 +4209,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -4121,7 +4241,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -4157,7 +4277,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -4189,7 +4309,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 
@@ -4299,13 +4419,13 @@ Writer configuration for this schema
 
 ###### Inherited from
 
-[`XmlNumberSchema`](#xmlnumberschema).[`writeConfig`](#writeconfig-1)
+[`XmlSchema`](#abstract-xmlschema).[`writeConfig`](#writeconfig-4)
 
 ##### \_createTransform
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -4343,7 +4463,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -4369,7 +4489,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -4399,7 +4519,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -4881,11 +5001,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<`string`, `string`\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<`string`, `string`\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -4895,7 +5039,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -4927,7 +5071,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -4963,7 +5107,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -4995,7 +5139,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 
@@ -5149,7 +5293,7 @@ Writer configuration for this schema
 
 > `static` **\_createTransform**: \<`Output`, `Input`, `NewOutput`\>(`schema`, `fn`) => `XmlSchemaBase`\<`NewOutput`, `Input`\>
 
-Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L256)
+Defined in: [base.ts:280](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L280)
 
 ###### Type Parameters
 
@@ -5187,7 +5331,7 @@ Defined in: [base.ts:256](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createOptional**: \<`T`\>(`schema`) => `XmlSchemaBase`\<`T`\[`"_output"`\] \| `undefined`, `T`\[`"_input"`\] \| `undefined`\>
 
-Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L257)
+Defined in: [base.ts:281](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L281)
 
 ###### Type Parameters
 
@@ -5213,7 +5357,7 @@ Defined in: [base.ts:257](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createArray**: \<`T`\>(`schema`, `xpath?`) => `XmlSchemaBase`\<`T`\[`"_output"`\][], `T`\[`"_input"`\][]\>
 
-Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L258)
+Defined in: [base.ts:282](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L282)
 
 ###### Type Parameters
 
@@ -5243,7 +5387,7 @@ Defined in: [base.ts:258](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > `static` **\_createCompiled**: \<`Output`, `Input`\>(`schema`) => `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L259)
+Defined in: [base.ts:283](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L283)
 
 ###### Type Parameters
 
@@ -5685,11 +5829,35 @@ New array schema
 
 > **compile**(): `XmlSchemaBase`\<`Output`, `Input`\>
 
-Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L193)
+Defined in: [base.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L217)
+
+Compile this schema for repeated parsing.
 
 ###### Returns
 
 `XmlSchemaBase`\<`Output`, `Input`\>
+
+New compiled schema
+
+###### Remarks
+
+`compile()` preserves the public parsing API and can speed up schemas that can
+be lowered to fixed XML event dispatch. The optimized path works best when the
+root schema is an object, array, string, or number with static XPath selectors.
+
+Fast-path friendly selectors use absolute paths such as `/catalog/book`,
+descendant paths such as `//book`, and relative selectors inside object or
+array items such as `./title`, `./@id`, `./name/text()`, or `./name/@code`.
+Object fields, arrays of scalar values, arrays of objects, nested objects,
+optional fields, and transforms are supported.
+
+Selectors with wildcards or predicates, ambiguous relative paths such as
+`title`, nested arrays, and arrays that combine an array XPath with an element
+XPath are parsed with the normal runtime converter path instead. This keeps
+behavior compatible, but does not get the dispatch fast path.
+
+Call `compile()` once on the root schema and reuse the returned schema.
+Non-object root schemas need an XPath.
 
 ###### Inherited from
 
@@ -5699,7 +5867,7 @@ Defined in: [base.ts:193](https://github.com/Clickin/stax-xml/blob/master/packag
 
 > **write**(`data`, `options?`): `Promise`\<`string`\>
 
-Defined in: [base.ts:204](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L204)
+Defined in: [base.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L228)
 
 Write data to XML string asynchronously (public API)
 
@@ -5731,7 +5899,7 @@ XML string
 
 > **writeToStream**(`data`, `stream`, `options?`): `Promise`\<`void`\>
 
-Defined in: [base.ts:227](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L227)
+Defined in: [base.ts:251](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L251)
 
 Write data to WritableStream asynchronously (public API)
 
@@ -5767,7 +5935,7 @@ Write options
 
 > **writeSync**(`data`, `options?`): `string`
 
-Defined in: [base.ts:241](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L241)
+Defined in: [base.ts:265](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L265)
 
 Write data to XML string synchronously (public API)
 
@@ -5799,7 +5967,7 @@ XML string
 
 > **writer**(`config`): `this`
 
-Defined in: [base.ts:250](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L250)
+Defined in: [base.ts:274](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/base.ts#L274)
 
 Configure writer settings for this schema
 

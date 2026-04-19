@@ -4,45 +4,77 @@ import {
   isCdata,
   isCharacters,
   isEndElement,
+  isError,
   isStartElement,
-  type AnyXmlEvent
+  type AnyXmlEvent,
+  type StartElementEvent
 } from '../types.js';
-import { XPathMatcher } from './XPathEngine.js';
-import { XmlParserInternal } from './XmlParserInternal.js';
+import type {
+  CompiledSchemaPlan,
+  DispatchArrayPlan,
+  DispatchCompiledPlan,
+  DispatchFieldPlan,
+  DispatchObjectPlan,
+  DispatchScalarPlan,
+  DispatchSelector,
+  DispatchValuePlan
+} from './compiled-plan.js';
 import type { ParseInput } from './XmlSchema.js';
-import { XmlSchemaBase } from './base.js';
-import { XmlParsingStateMachine, type Collector, type ArrayCollector, type ObjectCollector } from './XmlParsingStateMachine.js';
-import type { CompiledSchemaPlan, ObjectFieldTemplate, RootFieldPlan } from './compiled-plan.js';
 import type { ParseOptions } from './types.js';
-import { isArraySchema, isNumberSchema, isObjectSchema, isOptionalSchema, isStringSchema, isTransformSchema } from './types.js';
 
-type ScalarLane = {
-  mode: 'scalar';
-  schema: XmlSchemaBase<unknown, unknown>;
-  collector: Collector<unknown>;
-  matcher: XPathMatcher;
-  done?: boolean;
-  activeDepth?: number;
+type ParentBinding =
+  | { kind: 'root' }
+  | { kind: 'field'; object: ObjectState; field: DispatchFieldPlan }
+  | { kind: 'array'; array: ArrayState };
+
+type ObjectState = {
+  plan: DispatchObjectPlan;
+  depth: number;
+  values: Record<string, unknown>;
+  completedFields: Set<number>;
+  childObjects: ObjectState[];
+  childArrays: ArrayState[];
+  parent: ParentBinding;
+  active: boolean;
 };
 
-type ArrayPrimitiveLane = {
-  mode: 'array-primitive';
-  schema: XmlSchemaBase<unknown, unknown>;
-  itemSchema: XmlSchemaBase<unknown, unknown>;
-  collector: ArrayCollector<unknown>;
-  matcher: XPathMatcher;
-  currentItem?: { depth: number; buffer: string };
+type ArrayState = {
+  plan: DispatchArrayPlan;
+  contextDepth?: number;
+  items: unknown[];
+  parent: ParentBinding;
+  active: boolean;
+  finalized: boolean;
 };
 
-type FallbackLane = {
-  mode: 'fallback';
-  schema: XmlSchemaBase<unknown, unknown>;
-  collector: ObjectCollector | ArrayCollector<unknown>;
-  stateMachine: XmlParsingStateMachine;
+type CaptureState = {
+  plan: DispatchScalarPlan;
+  depth: number;
+  buffer: string;
+  textMode: 'subtree' | 'direct';
+  parent: ParentBinding;
+  field?: DispatchFieldPlan;
+  active: boolean;
 };
 
-type PrimitiveLane = ScalarLane | ArrayPrimitiveLane;
-type RootLane = PrimitiveLane | FallbackLane;
+type RuntimeState = {
+  plan: DispatchCompiledPlan;
+  options?: ParseOptions;
+  depth: number;
+  eventCount: number;
+  maxDepth: number;
+  maxEvents: number;
+  elementStack: string[];
+  rootValue: unknown;
+  rootSet: boolean;
+  rootDone: boolean;
+  rootObject?: ObjectState;
+  rootArray?: ArrayState;
+  objects: ObjectState[];
+  arrays: ArrayState[];
+  captures: CaptureState[];
+  currentAttributes?: Record<string, string>;
+};
 
 type BatchCapableParser = AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> & {
   batchedIterator(): AsyncGenerator<AnyXmlEvent[]>;
@@ -54,13 +86,6 @@ function hasBatchedIterator(
   return 'batchedIterator' in parser && typeof parser.batchedIterator === 'function';
 }
 
-type RuntimeState = {
-  collectors: Array<Collector<unknown> | undefined>;
-  helper: XmlParserInternal;
-  primitiveLanes: PrimitiveLane[];
-  fallbackLanes: FallbackLane[];
-};
-
 export class CompiledRootProcessor {
   constructor(
     private readonly plan: CompiledSchemaPlan,
@@ -68,381 +93,551 @@ export class CompiledRootProcessor {
   ) {}
 
   static supports(plan: CompiledSchemaPlan): boolean {
-    return plan.rootPlan.length > 0;
+    return plan.kind === 'dispatch';
   }
 
-  parseSync<T>(input: string, options?: ParseOptions): T {
-    const effectiveOptions = options ?? this.options;
-    const runtime = this.createRuntime(effectiveOptions);
+  parseSync<T>(input: string, options?: ParseOptions | unknown): T {
+    if (this.plan.kind !== 'dispatch') {
+      throw new Error(`CompiledRootProcessor requires a dispatch plan: ${this.plan.reason}`);
+    }
+    const effectiveOptions = normalizeOptions(options) ?? this.options;
+    const runtime = this.createRuntime(this.plan, effectiveOptions);
     const parser = new StaxXmlParserSync(input, {
       autoDecodeEntities: effectiveOptions?.decodeEntities,
       eventFilter: this.plan.eventFilter
-    } as never);
-    const iterator = parser[Symbol.iterator]();
-    let depth = 0;
-    let iterResult = iterator.next();
+    });
 
-    while (!iterResult.done) {
-      const event = iterResult.value;
-
-      if (isStartElement(event)) {
-        depth++;
-        this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-      } else if (isEndElement(event)) {
-        this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-        depth--;
-      } else if (isCharacters(event) || isCdata(event)) {
-        this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-      }
-
-      iterResult = iterator.next();
+    for (const event of parser) {
+      this.processEvent(runtime, event);
     }
 
-    return this.buildResult<T>(runtime);
+    return this.finish<T>(runtime);
   }
 
-  async parse<T>(input: ParseInput, options?: ParseOptions): Promise<T> {
-    const effectiveOptions = options ?? this.options;
-    const runtime = this.createRuntime(effectiveOptions);
+  async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
+    if (this.plan.kind !== 'dispatch') {
+      throw new Error(`CompiledRootProcessor requires a dispatch plan: ${this.plan.reason}`);
+    }
+
+    if (typeof input === 'string') {
+      return this.parseSync<T>(input, options);
+    }
+
+    const effectiveOptions = normalizeOptions(options) ?? this.options;
+    const runtime = this.createRuntime(this.plan, effectiveOptions);
     const parser = this.createParser(input, effectiveOptions);
-    let depth = 0;
+
+    if (isSyncIterator(input)) {
+      for (const event of input) {
+        this.processEvent(runtime, event);
+      }
+      return this.finish<T>(runtime);
+    }
 
     if (hasBatchedIterator(parser)) {
       for await (const batch of parser.batchedIterator()) {
         for (const event of batch) {
-          if (isStartElement(event)) {
-            depth++;
-            this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-          } else if (isEndElement(event)) {
-            this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-            depth--;
-          } else if (isCharacters(event) || isCdata(event)) {
-            this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-          }
+          this.processEvent(runtime, event);
         }
       }
     } else {
-      for await (const event of parser) {
-        if (isStartElement(event)) {
-          depth++;
-          this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-        } else if (isEndElement(event)) {
-          this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-          depth--;
-        } else if (isCharacters(event) || isCdata(event)) {
-          this.processEvent(event, depth, runtime.primitiveLanes, runtime.fallbackLanes);
-        }
+      let iterResult = await parser.next();
+      while (!iterResult.done) {
+        const event = iterResult.value;
+        this.processEvent(runtime, event);
+        iterResult = await parser.next();
       }
     }
 
-    return this.buildResult<T>(runtime);
+    return this.finish<T>(runtime);
   }
 
-  private createRuntime(options?: ParseOptions): RuntimeState {
-    const helper = new XmlParserInternal(options, this.plan);
-    const collectors = new Array<Collector<unknown> | undefined>(this.plan.rootPlan.length);
-    const primitiveLanes: PrimitiveLane[] = [];
-    const fallbackLanes: FallbackLane[] = [];
-
-    for (let index = 0; index < this.plan.rootPlan.length; index++) {
-      const entry = this.plan.rootPlan[index];
-
-      if (entry.kind === 'object') {
-        const collector = helper.createCollectorForCompiledSchema(entry.schema);
-        if (collector?.type !== 'object') {
-          throw new Error('CompiledRootProcessor expected object collector for root object field');
-        }
-        collectors[index] = collector;
-        for (const template of entry.childTemplates) {
-          const childCollector = helper.createCollectorForCompiledSchema(template.schema);
-          collector.fields.set(template.fieldName, childCollector);
-          const lane = this.createLaneFromTemplate(template, childCollector);
-          if (lane) {
-            if (lane.mode === 'fallback') {
-              fallbackLanes.push(lane);
-            } else {
-              primitiveLanes.push(lane);
-            }
-          }
-        }
-        continue;
-      }
-
-      const collector = helper.createCollectorForCompiledSchema(entry.schema);
-      collectors[index] = collector;
-      const lane = this.createLaneFromRootEntry(entry, collector);
-      if (lane) {
-        if (lane.mode === 'fallback') {
-          fallbackLanes.push(lane);
-        } else {
-          primitiveLanes.push(lane);
-        }
-      }
-    }
-
-    return { collectors, helper, primitiveLanes, fallbackLanes };
-  }
-
-  private createLaneFromRootEntry(
-    entry: RootFieldPlan,
-    collector: Collector<unknown>
-  ): RootLane | undefined {
-    if (entry.kind === 'array') {
-      return this.createLane(entry.schema, entry.elementXPath, collector);
-    }
-
-    if (entry.kind === 'direct') {
-      return this.createLane(entry.schema, entry.xpath, collector);
-    }
-
-    return undefined;
-  }
-
-  private createLaneFromTemplate(
-    template: ObjectFieldTemplate,
-    collector: Collector<unknown>
-  ): RootLane | undefined {
-    return this.createLane(template.schema, template.xpath, collector);
-  }
-
-  private createLane(
-    schema: XmlSchemaBase<unknown, unknown>,
-    xpath: string,
-    collector: Collector<unknown>
-  ): RootLane | undefined {
-    const unwrappedSchema = unwrapSchema(schema);
-
-    if (isStringSchema(unwrappedSchema) || isNumberSchema(unwrappedSchema)) {
-      return {
-        mode: 'scalar',
-        schema,
-        collector,
-        matcher: new XPathMatcher(xpath)
-      };
-    }
-
-    if (isObjectSchema(unwrappedSchema)) {
-      if (collector.type !== 'object') {
-        return undefined;
-      }
-      const stateMachine = new XmlParsingStateMachine(this.options, this.plan.objectFieldTemplates);
-      stateMachine.registerSchema(schema, xpath, collector);
-      return {
-        mode: 'fallback',
-        schema,
-        collector,
-        stateMachine
-      };
-    }
-
-    if (!isArraySchema(unwrappedSchema)) {
-      return undefined;
-    }
-
-    const itemSchema = unwrappedSchema.element;
-    const unwrappedItemSchema = unwrapSchema(itemSchema);
-    if (isStringSchema(unwrappedItemSchema) || isNumberSchema(unwrappedItemSchema)) {
-      if (collector.type !== 'array') {
-        return undefined;
-      }
-      return {
-        mode: 'array-primitive',
-        schema,
-        itemSchema,
-        collector,
-        matcher: new XPathMatcher(xpath)
-      };
-    }
-
-    if (!isObjectSchema(unwrappedItemSchema) || collector.type !== 'array') {
-      return undefined;
-    }
-
-    const stateMachine = new XmlParsingStateMachine(this.options, this.plan.objectFieldTemplates);
-    stateMachine.registerSchema(schema, xpath, collector);
-
-    return {
-      mode: 'fallback',
-      schema,
-      collector,
-      stateMachine
+  private createRuntime(plan: DispatchCompiledPlan, options?: ParseOptions): RuntimeState {
+    const runtime: RuntimeState = {
+      plan,
+      options,
+      depth: 0,
+      eventCount: 0,
+      maxDepth: options?.maxDepth ?? 1000,
+      maxEvents: options?.maxEvents ?? 1000000,
+      elementStack: [],
+      rootValue: defaultValue(plan.root, true),
+      rootSet: false,
+      rootDone: false,
+      objects: [],
+      arrays: [],
+      captures: []
     };
+
+    if (plan.root.kind === 'object' && !plan.root.selector) {
+      runtime.rootObject = this.createObjectState(runtime, plan.root, 0, { kind: 'root' });
+    } else if (plan.root.kind === 'array') {
+      runtime.rootArray = this.createArrayState(runtime, plan.root, undefined, { kind: 'root' });
+    }
+
+    return runtime;
   }
 
-  private processEvent(
-    event: AnyXmlEvent,
+  private processEvent(runtime: RuntimeState, event: AnyXmlEvent): void {
+    this.checkEventLimit(runtime);
+
+    if (isError(event)) {
+      throw event.error;
+    }
+
+    if (isStartElement(event)) {
+      runtime.depth++;
+      runtime.elementStack.push(event.name);
+      runtime.currentAttributes = event.attributes;
+      this.checkDepthLimit(runtime);
+      this.processStart(runtime, event);
+      runtime.currentAttributes = undefined;
+    } else if (isCharacters(event) || isCdata(event)) {
+      this.processText(runtime, event.value);
+    } else if (isEndElement(event)) {
+      this.processEnd(runtime);
+      runtime.elementStack.pop();
+      runtime.depth--;
+    }
+  }
+
+  private processStart(runtime: RuntimeState, event: StartElementEvent): void {
+    const root = runtime.plan.root;
+    if (!runtime.rootDone && root.kind !== 'array' && !(root.kind === 'object' && !root.selector)) {
+      this.tryStartValue(runtime, root, undefined, { kind: 'root' }, undefined);
+    }
+
+    for (let index = 0; index < runtime.arrays.length; index++) {
+      const array = runtime.arrays[index];
+      if (!array.active || !matchesSelector(array.plan.itemSelector, runtime, array.contextDepth)) {
+        continue;
+      }
+      this.startArrayItem(runtime, array, event);
+    }
+
+    for (let index = 0; index < runtime.objects.length; index++) {
+      const object = runtime.objects[index];
+      if (!object.active) continue;
+      this.processObjectStart(runtime, object);
+    }
+  }
+
+  private processObjectStart(runtime: RuntimeState, object: ObjectState): void {
+    for (const field of object.plan.fields) {
+      const value = field.value;
+      if (value.kind === 'array') {
+        continue;
+      }
+
+      if (object.completedFields.has(value.id)) {
+        continue;
+      }
+
+      if (value.kind === 'object') {
+        if (!value.selector) {
+          continue;
+        }
+        if (matchesSelector(value.selector, runtime, object.depth)) {
+          this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field });
+        }
+        continue;
+      }
+
+      this.tryStartScalar(runtime, value, object.depth, { kind: 'field', object, field }, field);
+    }
+  }
+
+  private tryStartValue(
+    runtime: RuntimeState,
+    value: DispatchValuePlan,
+    contextDepth: number | undefined,
+    parent: ParentBinding,
+    field: DispatchFieldPlan | undefined
+  ): void {
+    if (value.kind === 'string' || value.kind === 'number') {
+      this.tryStartScalar(runtime, value, contextDepth, parent, field);
+      return;
+    }
+
+    if (value.kind === 'object') {
+      if (value.selector && matchesSelector(value.selector, runtime, contextDepth)) {
+        this.createObjectState(runtime, value, runtime.depth, parent);
+      }
+    }
+  }
+
+  private tryStartScalar(
+    runtime: RuntimeState,
+    plan: DispatchScalarPlan,
+    contextDepth: number | undefined,
+    parent: ParentBinding,
+    field: DispatchFieldPlan | undefined
+  ): void {
+    const selector = plan.selector;
+    if (!selector || !matchesSelector(selector, runtime, contextDepth)) {
+      return;
+    }
+
+    if (selector.terminal === 'attribute') {
+      const value = selector.attributeName ? currentAttributes(runtime)?.[selector.attributeName] : undefined;
+      if (value !== undefined) {
+        this.assignScalar(runtime, plan, value, parent, field);
+      } else {
+        markCompleted(parent, field, plan);
+      }
+      return;
+    }
+
+    runtime.captures.push({
+      plan,
+      depth: runtime.depth,
+      buffer: '',
+      textMode: selector.textMode,
+      parent,
+      field,
+      active: true
+    });
+  }
+
+  private startArrayItem(runtime: RuntimeState, array: ArrayState, event: StartElementEvent): void {
+    const itemSelector = array.plan.itemSelector;
+    const element = array.plan.element;
+
+    if (itemSelector.terminal === 'attribute') {
+      const value = itemSelector.attributeName ? event.attributes?.[itemSelector.attributeName] : undefined;
+      if (value !== undefined && (element.kind === 'string' || element.kind === 'number')) {
+        array.items.push(parseScalar(element, value));
+      }
+      return;
+    }
+
+    if (element.kind === 'object') {
+      this.createObjectState(runtime, element, runtime.depth, { kind: 'array', array });
+      return;
+    }
+
+    if (element.kind === 'string' || element.kind === 'number') {
+      runtime.captures.push({
+        plan: element,
+        depth: runtime.depth,
+        buffer: '',
+        textMode: itemSelector.textMode,
+        parent: { kind: 'array', array },
+        active: true
+      });
+    }
+  }
+
+  private processText(runtime: RuntimeState, text: string): void {
+    for (const capture of runtime.captures) {
+      if (!capture.active) continue;
+      if (capture.textMode === 'direct') {
+        if (runtime.depth === capture.depth) {
+          capture.buffer += text;
+        }
+        continue;
+      }
+      if (runtime.depth >= capture.depth) {
+        capture.buffer += text;
+      }
+    }
+  }
+
+  private processEnd(runtime: RuntimeState): void {
+    for (const capture of runtime.captures) {
+      if (!capture.active || capture.depth !== runtime.depth) {
+        continue;
+      }
+      capture.active = false;
+      this.assignScalar(runtime, capture.plan, capture.buffer.trim(), capture.parent, capture.field);
+    }
+    runtime.captures = runtime.captures.filter(capture => capture.active);
+
+    for (let index = runtime.objects.length - 1; index >= 0; index--) {
+      const object = runtime.objects[index];
+      if (object.active && object.depth === runtime.depth) {
+        this.finalizeObject(runtime, object);
+      }
+    }
+  }
+
+  private createObjectState(
+    runtime: RuntimeState,
+    plan: DispatchObjectPlan,
     depth: number,
-    primitiveLanes: PrimitiveLane[],
-    fallbackLanes: FallbackLane[]
-  ): void {
-    for (const lane of fallbackLanes) {
-      lane.stateMachine.processEventSync(event);
+    parent: ParentBinding
+  ): ObjectState {
+    const object: ObjectState = {
+      plan,
+      depth,
+      values: {},
+      completedFields: new Set(),
+      childObjects: [],
+      childArrays: [],
+      parent,
+      active: true
+    };
+
+    for (const field of plan.fields) {
+      const value = field.value;
+      if (value.kind === 'array') {
+        const array = this.createArrayState(runtime, value, depth, { kind: 'field', object, field });
+        object.childArrays.push(array);
+        object.values[field.fieldName] = value.optional ? undefined : [];
+        continue;
+      }
+
+      if (value.kind === 'object' && !value.selector) {
+        const child = this.createObjectState(runtime, value, depth, { kind: 'field', object, field });
+        object.childObjects.push(child);
+        continue;
+      }
+
+      object.values[field.fieldName] = defaultValue(value, true);
     }
 
-    if (primitiveLanes.length === 0) {
+    runtime.objects.push(object);
+    return object;
+  }
+
+  private createArrayState(
+    runtime: RuntimeState,
+    plan: DispatchArrayPlan,
+    contextDepth: number | undefined,
+    parent: ParentBinding
+  ): ArrayState {
+    const array: ArrayState = {
+      plan,
+      contextDepth,
+      items: [],
+      parent,
+      active: true,
+      finalized: false
+    };
+    runtime.arrays.push(array);
+    return array;
+  }
+
+  private assignScalar(
+    runtime: RuntimeState,
+    plan: DispatchScalarPlan,
+    rawValue: string,
+    parent: ParentBinding,
+    field: DispatchFieldPlan | undefined
+  ): void {
+    const value = parseScalar(plan, rawValue);
+    this.assignValue(runtime, value, parent, field, plan);
+  }
+
+  private assignValue(
+    runtime: RuntimeState,
+    value: unknown,
+    parent: ParentBinding,
+    field: DispatchFieldPlan | undefined,
+    plan: DispatchValuePlan
+  ): void {
+    if (parent.kind === 'root') {
+      runtime.rootValue = value;
+      runtime.rootSet = true;
+      runtime.rootDone = true;
       return;
     }
 
-    for (const lane of primitiveLanes) {
-      if (!isStartElement(event)) {
-        continue;
-      }
-
-      lane.matcher.onStartElement(event);
-
-      if (lane.mode === 'scalar') {
-        if (lane.done || !lane.matcher.matches(event)) {
-          continue;
-        }
-
-        if (lane.matcher.isAttributeSelector()) {
-          const attrName = lane.matcher.getAttributeName();
-          /* v8 ignore next -- compiled attribute extraction is covered through parser-level object tests */
-          const attrValue = attrName ? event.attributes?.[attrName] : undefined;
-          if (attrValue !== undefined) {
-            this.assignScalarCollector(lane.collector, lane.schema, attrValue);
-          }
-          lane.done = true;
-          continue;
-        }
-
-        if (lane.collector.type === 'string' || lane.collector.type === 'number') {
-          lane.collector.buffer = '';
-        }
-        lane.activeDepth = depth;
-        continue;
-      }
-
-      if (lane.mode === 'array-primitive') {
-        if (!lane.matcher.matches(event)) {
-          continue;
-        }
-
-        if (lane.matcher.isAttributeSelector()) {
-          const attrName = lane.matcher.getAttributeName();
-          /* v8 ignore next -- compiled attribute extraction is covered through parser-level object tests */
-          const attrValue = attrName ? event.attributes?.[attrName] : undefined;
-          if (attrValue !== undefined) {
-            lane.collector.items.push(this.parseSchemaText(lane.itemSchema, attrValue));
-          }
-          continue;
-        }
-
-        lane.currentItem = { depth, buffer: '' };
-      }
-    }
-
-    if (isCharacters(event) || isCdata(event)) {
-      for (const lane of primitiveLanes) {
-        if (lane.mode === 'scalar') {
-          if (lane.activeDepth !== undefined && depth >= lane.activeDepth) {
-            if (lane.collector.type === 'string' || lane.collector.type === 'number') {
-              lane.collector.buffer += event.value;
-            }
-          }
-          continue;
-        }
-
-        if (lane.mode === 'array-primitive' && lane.currentItem && depth >= lane.currentItem.depth) {
-          lane.currentItem.buffer += event.value;
-        }
-      }
+    if (parent.kind === 'array') {
+      parent.array.items.push(value);
       return;
     }
 
-    if (isEndElement(event)) {
-      for (const lane of primitiveLanes) {
-        if (lane.mode === 'scalar') {
-          if (lane.activeDepth === depth) {
-            if (lane.collector.type === 'string' || lane.collector.type === 'number') {
-              this.assignScalarCollector(lane.collector, lane.schema, lane.collector.buffer.trim());
-            }
-            lane.activeDepth = undefined;
-            lane.done = true;
-          }
-          lane.matcher.onEndElement();
-          continue;
-        }
+    if (!field) {
+      return;
+    }
+    parent.object.values[field.fieldName] = value;
+    parent.object.completedFields.add(plan.id);
+  }
 
-        if (lane.mode === 'array-primitive') {
-          if (lane.currentItem?.depth === depth) {
-            lane.collector.items.push(this.parseSchemaText(lane.itemSchema, lane.currentItem.buffer.trim()));
-            lane.currentItem = undefined;
-          }
-          lane.matcher.onEndElement();
-        }
+  private finalizeObject(runtime: RuntimeState, object: ObjectState): unknown {
+    if (!object.active) {
+      return object.values;
+    }
+
+    for (const child of object.childObjects) {
+      if (child.active) {
+        this.finalizeObject(runtime, child);
       }
     }
-  }
 
-  private buildResult<T>(runtime: RuntimeState): T {
-    const result: Record<string, unknown> = {};
-
-    for (let index = 0; index < this.plan.rootPlan.length; index++) {
-      const collector = runtime.collectors[index];
-      if (!collector) {
-        continue;
+    for (const array of object.childArrays) {
+      if (array.active) {
+        this.finalizeArray(runtime, array);
       }
-      const entry = this.plan.rootPlan[index];
-      result[entry.fieldName] = runtime.helper.extractCompiledCollectorValue(collector, entry.schema);
     }
 
-    return result as T;
+    object.active = false;
+    runtime.objects = runtime.objects.filter(candidate => candidate !== object);
+    let value: unknown = object.values;
+    for (const transformFn of object.plan.transforms) {
+      value = transformFn(value);
+    }
+
+    this.assignValue(runtime, value, object.parent, object.parent.kind === 'field' ? object.parent.field : undefined, object.plan);
+    return value;
   }
 
-  private assignScalarCollector(
-    collector: Collector<unknown>,
-    schema: XmlSchemaBase<unknown, unknown>,
-    value: string
-  ): void {
-    if (collector.type === 'string') {
-      collector.value = this.parseSchemaText(schema, value) as string;
-    } else if (collector.type === 'number') {
-      collector.value = this.parseSchemaText(schema, value) as number;
+  private finalizeArray(runtime: RuntimeState, array: ArrayState): unknown {
+    if (array.finalized) {
+      return array.items;
+    }
+
+    array.active = false;
+    array.finalized = true;
+    runtime.arrays = runtime.arrays.filter(candidate => candidate !== array);
+
+    let value: unknown = array.plan.optional && array.items.length === 0 ? undefined : array.items;
+    if (!(array.plan.optional && array.items.length === 0)) {
+      for (const transformFn of array.plan.transforms) {
+        value = transformFn(value);
+      }
+    }
+
+    this.assignValue(runtime, value, array.parent, array.parent.kind === 'field' ? array.parent.field : undefined, array.plan);
+    return value;
+  }
+
+  private finish<T>(runtime: RuntimeState): T {
+    if (runtime.rootObject?.active) {
+      this.finalizeObject(runtime, runtime.rootObject);
+    }
+    if (runtime.rootArray?.active) {
+      this.finalizeArray(runtime, runtime.rootArray);
+    }
+    return runtime.rootValue as T;
+  }
+
+  private checkDepthLimit(runtime: RuntimeState): void {
+    if (runtime.depth > runtime.maxDepth) {
+      throw new Error(`XML depth limit exceeded: ${runtime.maxDepth}`);
     }
   }
 
-  private parseSchemaText(schema: XmlSchemaBase<unknown, unknown>, text: string): unknown {
-    if (schema._parseText) {
-      return schema._parseText(text);
+  private checkEventLimit(runtime: RuntimeState): void {
+    if (runtime.eventCount > runtime.maxEvents) {
+      throw new Error(`XML event limit exceeded: ${runtime.maxEvents}`);
     }
-    return text;
+    runtime.eventCount++;
   }
 
   private createParser(
     input: ParseInput,
     options?: ParseOptions
   ): AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> {
-    if (typeof input === 'string') {
-      const stream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode(input));
-          controller.close();
-        }
-      });
-      return new StaxXmlParser(stream, {
-        /* v8 ignore next -- decodeEntities option is normalized by parser integration tests */
-        autoDecodeEntities: options?.decodeEntities,
-        eventFilter: this.plan.eventFilter
-      } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
-    }
-
     if (input instanceof ReadableStream) {
       return new StaxXmlParser(input, {
-        /* v8 ignore next -- decodeEntities option is normalized by parser integration tests */
         autoDecodeEntities: options?.decodeEntities,
-        eventFilter: this.plan.eventFilter
-      } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+        eventFilter: this.plan.kind === 'dispatch' ? this.plan.eventFilter : undefined
+      }) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
     }
-
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
   }
 }
 
-function unwrapSchema(schema: XmlSchemaBase<unknown, unknown>): XmlSchemaBase<unknown, unknown> {
-  let current = schema;
-  while (isOptionalSchema(current) || isTransformSchema(current)) {
-    current = current.schema;
+function matchesSelector(
+  selector: DispatchSelector,
+  runtime: RuntimeState,
+  contextDepth: number | undefined
+): boolean {
+  if (selector.lastElementName && runtime.elementStack[runtime.depth - 1] !== selector.lastElementName) {
+    return false;
   }
-  return current;
+
+  const segments = selector.segments;
+  if (selector.mode === 'absolute') {
+    if (runtime.depth !== segments.length) return false;
+    for (let index = 0; index < segments.length; index++) {
+      if (runtime.elementStack[index] !== segments[index]) return false;
+    }
+    return true;
+  }
+
+  if (selector.mode === 'descendant') {
+    if (runtime.depth < segments.length) return false;
+    const offset = runtime.depth - segments.length;
+    for (let index = 0; index < segments.length; index++) {
+      if (runtime.elementStack[offset + index] !== segments[index]) return false;
+    }
+    return true;
+  }
+
+  if (contextDepth === undefined) {
+    return false;
+  }
+  if (runtime.depth !== contextDepth + segments.length) {
+    return false;
+  }
+  for (let index = 0; index < segments.length; index++) {
+    if (runtime.elementStack[contextDepth + index] !== segments[index]) return false;
+  }
+  return true;
+}
+
+function parseScalar(plan: DispatchScalarPlan, rawValue: string): unknown {
+  if (plan.schema._parseText) {
+    return plan.schema._parseText(rawValue);
+  }
+  return rawValue;
+}
+
+function defaultValue(plan: DispatchValuePlan, missingSelectableObject: boolean): unknown {
+  if (plan.optional) {
+    return undefined;
+  }
+  if (plan.kind === 'string') {
+    return '';
+  }
+  if (plan.kind === 'number') {
+    return NaN;
+  }
+  if (plan.kind === 'array') {
+    return [];
+  }
+  if (missingSelectableObject && plan.selector) {
+    return {};
+  }
+
+  if (plan.kind !== 'object') {
+    return undefined;
+  }
+
+  const result: Record<string, unknown> = {};
+  for (const field of plan.fields) {
+    result[field.fieldName] = defaultValue(field.value, true);
+  }
+  return result;
+}
+
+function currentAttributes(runtime: RuntimeState): Record<string, string> | undefined {
+  return runtime.currentAttributes;
+}
+
+function markCompleted(parent: ParentBinding, field: DispatchFieldPlan | undefined, plan: DispatchScalarPlan): void {
+  if (parent.kind === 'field' && field) {
+    parent.object.completedFields.add(plan.id);
+  }
+}
+
+function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undefined {
+  if (!options || typeof options !== 'object') {
+    return undefined;
+  }
+  if ('schemaType' in options) {
+    return undefined;
+  }
+  return options as ParseOptions;
+}
+
+function isSyncIterator(input: ParseInput): input is Iterator<AnyXmlEvent> & Iterable<AnyXmlEvent> {
+  return typeof input === 'object'
+    && input !== null
+    && !(input instanceof ReadableStream)
+    && Symbol.iterator in input
+    && typeof (input as Iterable<AnyXmlEvent>)[Symbol.iterator] === 'function';
 }
