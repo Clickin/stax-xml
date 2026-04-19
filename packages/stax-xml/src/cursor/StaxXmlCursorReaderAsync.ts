@@ -1,5 +1,5 @@
 /**
- * XmlCursorReaderAsync - All-SMI async cursor-based XML reader for ReadableStream.
+ * StaxXmlCursorReaderAsync - All-SMI async cursor-based XML reader for ReadableStream.
  *
  * Same relative-offset design as the sync cursor: _base anchors the current
  * event's position in the window, and all other position fields are relative
@@ -13,8 +13,8 @@
  * @public
  */
 
-import { CursorEventType, type XmlCursorReaderAsyncOptions } from './types.js';
-import { compileEntityDecoder } from './XmlCursorReader.js';
+import { CursorEventType, type StaxXmlCursorReaderAsyncOptions } from './types.js';
+import { compileEntityDecoder } from './StaxXmlCursorReader.js';
 
 // -- Static helpers (shared with sync, duplicated for tree-shake) ----
 
@@ -43,7 +43,7 @@ const S_DONE    = 2;
 // -- Attribute data layout (flat SMI array, offsets relative to _base)
 const ATTR_STRIDE = 5;
 
-export class XmlCursorReaderAsync {
+export class StaxXmlCursorReaderAsync {
   // -- Stream --------------------------------------------------------
   private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
   private readonly decoder: TextDecoder;
@@ -93,7 +93,7 @@ export class XmlCursorReaderAsync {
   // -- Entity decoder ------------------------------------------------
   private readonly entityDecode: (text: string) => string;
 
-  constructor(stream: ReadableStream<Uint8Array>, options: XmlCursorReaderAsyncOptions = {}) {
+  constructor(stream: ReadableStream<Uint8Array>, options: StaxXmlCursorReaderAsyncOptions = {}) {
     if (!(stream instanceof ReadableStream)) {
       throw new Error('stream must be a web standard ReadableStream.');
     }

@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { XmlCursorReader, CursorEventType } from '../../src/cursor/index';
+import { StaxXmlCursorReader, CursorEventType } from '../../src/cursor/index';
 
-function drainCursor(cursor: XmlCursorReader): void {
+function drainCursor(cursor: StaxXmlCursorReader): void {
   while (cursor.next()) { /* drain */ }
 }
 
-describe('XmlCursorReader (sync)', () => {
+describe('StaxXmlCursorReader (sync)', () => {
   // ── Basic parsing ─────────────────────────────────────────────────
 
   it('should produce START_DOCUMENT and END_DOCUMENT for empty-ish XML', () => {
-    const cursor = new XmlCursorReader('<root/>');
+    const cursor = new StaxXmlCursorReader('<root/>');
     const events: number[] = [];
     while (cursor.next()) {
       events.push(cursor.eventType());
@@ -23,7 +23,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should parse a simple XML document', () => {
-    const cursor = new XmlCursorReader('<root><item>text</item></root>');
+    const cursor = new StaxXmlCursorReader('<root><item>text</item></root>');
     const events: { type: number; name?: string; text?: string }[] = [];
 
     while (cursor.next()) {
@@ -49,7 +49,7 @@ describe('XmlCursorReader (sync)', () => {
   // ── Self-closing tags ─────────────────────────────────────────────
 
   it('should handle self-closing tags', () => {
-    const cursor = new XmlCursorReader('<root><empty/><item/></root>');
+    const cursor = new StaxXmlCursorReader('<root><empty/><item/></root>');
     const names: (string | undefined)[] = [];
     const types: number[] = [];
 
@@ -78,7 +78,7 @@ describe('XmlCursorReader (sync)', () => {
   // ── Attributes ────────────────────────────────────────────────────
 
   it('should parse attributes', () => {
-    const cursor = new XmlCursorReader('<root attr1="value1" attr2="value2"><child/></root>');
+    const cursor = new StaxXmlCursorReader('<root attr1="value1" attr2="value2"><child/></root>');
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT <root>
@@ -98,7 +98,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should have zero attributes after self-closing END_ELEMENT', () => {
-    const cursor = new XmlCursorReader('<root><item id="1"/></root>');
+    const cursor = new StaxXmlCursorReader('<root><item id="1"/></root>');
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT <root>
@@ -115,7 +115,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should parse namespaced elements', () => {
     const xml = '<ns:root xmlns:ns="http://example.com"><ns:child/></ns:root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT ns:root
@@ -133,7 +133,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should handle default namespace', () => {
     const xml = '<root xmlns="http://default.ns"><child/></root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT <root>
@@ -148,7 +148,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should handle multiple namespace prefixes', () => {
     const xml = '<root xmlns:a="http://a.com" xmlns:b="http://b.com"><a:x/><b:y/></root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -164,7 +164,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should handle namespace on attributes', () => {
     const xml = '<root xmlns:ns="http://example.com" ns:attr="val"><child/></root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -189,7 +189,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should parse CDATA sections', () => {
     const xml = '<root><![CDATA[<data>text</data>]]></root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -203,7 +203,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should skip comments and processing instructions', () => {
     const xml = '<root><!-- comment --><?pi target data?><item/></root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
     const names: (string | undefined)[] = [];
     const types: number[] = [];
 
@@ -225,7 +225,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should skip XML declaration', () => {
     const xml = '<?xml version="1.0" encoding="UTF-8"?><root/>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
     const types: number[] = [];
 
     while (cursor.next()) types.push(cursor.eventType());
@@ -240,7 +240,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should skip DOCTYPE', () => {
     const xml = '<!DOCTYPE html><root/>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
     const types: number[] = [];
 
     while (cursor.next()) types.push(cursor.eventType());
@@ -254,7 +254,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should skip unknown bang markup', () => {
-    const cursor = new XmlCursorReader('<!BROKEN><root/>');
+    const cursor = new StaxXmlCursorReader('<!BROKEN><root/>');
     const types: number[] = [];
 
     while (cursor.next()) types.push(cursor.eventType());
@@ -271,7 +271,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should decode XML entities in text', () => {
     const xml = '<root>&lt;hello&gt; &amp; &quot;world&quot;</root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -282,7 +282,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should decode entities in attribute values', () => {
     const xml = '<root attr="a&amp;b"/>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -292,7 +292,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should support custom entities', () => {
     const xml = '<root>&copy; text</root>';
-    const cursor = new XmlCursorReader(xml, {
+    const cursor = new StaxXmlCursorReader(xml, {
       addEntities: [{ entity: 'copy', value: '©' }],
     });
 
@@ -305,7 +305,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should support custom entities declared with entity delimiters', () => {
     const xml = '<root>&copy; &smile;</root>';
-    const cursor = new XmlCursorReader(xml, {
+    const cursor = new StaxXmlCursorReader(xml, {
       addEntities: [
         { entity: '&copy;', value: 'C' },
         { entity: 'smile', value: ':)' },
@@ -321,7 +321,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should not decode entities when autoDecodeEntities is false', () => {
     const xml = '<root>&lt;test&gt;</root>';
-    const cursor = new XmlCursorReader(xml, { autoDecodeEntities: false });
+    const cursor = new StaxXmlCursorReader(xml, { autoDecodeEntities: false });
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -334,7 +334,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should track element depth', () => {
     const xml = '<a><b><c/></b></a>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
     const depths: number[] = [];
 
     while (cursor.next()) {
@@ -349,7 +349,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should throw on mismatched closing tag', () => {
     const xml = '<root><item></wrong></root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -360,7 +360,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should throw on unclosed tag', () => {
     const xml = '<root><item';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -370,14 +370,14 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should throw on closing tag with no open elements', () => {
     const xml = '</root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     expect(() => cursor.next()).toThrow('No open elements');
   });
 
   it('should throw on same-length mismatched closing tag names', () => {
-    const cursor = new XmlCursorReader('<root><item></itxm></root>');
+    const cursor = new StaxXmlCursorReader('<root><item></itxm></root>');
 
     expect(() => drainCursor(cursor)).toThrow('Expected </item>');
   });
@@ -395,7 +395,7 @@ describe('XmlCursorReader (sync)', () => {
     ];
 
     for (const [xml, message] of cases) {
-      expect(() => drainCursor(new XmlCursorReader(xml))).toThrow(message);
+      expect(() => drainCursor(new StaxXmlCursorReader(xml))).toThrow(message);
     }
   });
 
@@ -403,7 +403,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should skip whitespace-only text', () => {
     const xml = '<root>  \n  <item>text</item>  \n  </root>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
     const types: number[] = [];
 
     while (cursor.next()) types.push(cursor.eventType());
@@ -420,7 +420,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should trim leading document whitespace and padded end tags', () => {
-    const cursor = new XmlCursorReader(' \u00A0 <root></ root >');
+    const cursor = new StaxXmlCursorReader(' \u00A0 <root></ root >');
     const names: Array<string | undefined> = [];
 
     while (cursor.next()) names.push(cursor.name());
@@ -431,7 +431,7 @@ describe('XmlCursorReader (sync)', () => {
   // ── Boundary conditions ───────────────────────────────────────────
 
   it('should return false after END_DOCUMENT', () => {
-    const cursor = new XmlCursorReader('<r/>');
+    const cursor = new StaxXmlCursorReader('<r/>');
     while (cursor.next()) { /* drain */ }
 
     expect(cursor.next()).toBe(false);
@@ -439,7 +439,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should emit top-level trailing text when no tags are present', () => {
-    const cursor = new XmlCursorReader('  trailing text  ');
+    const cursor = new StaxXmlCursorReader('  trailing text  ');
 
     expect(cursor.next()).toBe(true);
     expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
@@ -452,7 +452,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should emit END_DOCUMENT for top-level whitespace-only input', () => {
-    const cursor = new XmlCursorReader('  \n  ');
+    const cursor = new StaxXmlCursorReader('  \n  ');
 
     expect(cursor.next()).toBe(true);
     expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
@@ -462,7 +462,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should handle single-character elements', () => {
-    const cursor = new XmlCursorReader('<a><b/></a>');
+    const cursor = new StaxXmlCursorReader('<a><b/></a>');
     const names: string[] = [];
 
     while (cursor.next()) {
@@ -477,7 +477,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should handle single-quoted attributes', () => {
     const xml = "<root attr='value'/>";
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -487,7 +487,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should handle attributes with spaces around =', () => {
     const xml = '<root attr = "value" />';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -497,7 +497,7 @@ describe('XmlCursorReader (sync)', () => {
 
   it('should expose attribute accessor variants', () => {
     const xml = '<root plain="v" empty="" xmlns:ns="urn:ns" ns:attr="namespaced" other="a&gt;b"/>';
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -522,7 +522,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should tolerate valueless attributes in lazy and namespace-aware paths', () => {
-    const lazy = new XmlCursorReader('<root disabled bare/>');
+    const lazy = new StaxXmlCursorReader('<root disabled bare/>');
 
     lazy.next(); // START_DOCUMENT
     lazy.next(); // START_ELEMENT root
@@ -530,7 +530,7 @@ describe('XmlCursorReader (sync)', () => {
     expect(lazy.getAttributeValue('disabled')).toBe('disabled');
     expect(lazy.getAttributeValue('bare')).toBe('bare');
 
-    const namespaceAware = new XmlCursorReader('<root xmlns:ns="urn:ns" disabled ns:flag/>');
+    const namespaceAware = new StaxXmlCursorReader('<root xmlns:ns="urn:ns" disabled ns:flag/>');
 
     namespaceAware.next(); // START_DOCUMENT
     namespaceAware.next(); // START_ELEMENT root
@@ -540,7 +540,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should parse lazy attribute names with prefixes', () => {
-    const cursor = new XmlCursorReader('<root ns:attr="value" ns:flag/>');
+    const cursor = new StaxXmlCursorReader('<root ns:attr="value" ns:flag/>');
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -557,24 +557,24 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should stop lazy attribute parsing on malformed separators', () => {
-    const emptyName = new XmlCursorReader('<root = "value"/>');
+    const emptyName = new StaxXmlCursorReader('<root = "value"/>');
     emptyName.next(); // START_DOCUMENT
     emptyName.next(); // START_ELEMENT root
     expect(emptyName.getAttributeCount()).toBe(0);
 
-    const missingValue = new XmlCursorReader('<root attr=/>');
+    const missingValue = new StaxXmlCursorReader('<root attr=/>');
     missingValue.next(); // START_DOCUMENT
     missingValue.next(); // START_ELEMENT root
     expect(missingValue.getAttributeCount()).toBe(0);
 
-    const unquoted = new XmlCursorReader('<root attr=value/>');
+    const unquoted = new StaxXmlCursorReader('<root attr=value/>');
     unquoted.next(); // START_DOCUMENT
     unquoted.next(); // START_ELEMENT root
     expect(unquoted.getAttributeCount()).toBe(0);
   });
 
   it('should return undefined for out-of-range attribute index', () => {
-    const cursor = new XmlCursorReader('<root attr="val"/>');
+    const cursor = new StaxXmlCursorReader('<root attr="val"/>');
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root
@@ -598,7 +598,7 @@ describe('XmlCursorReader (sync)', () => {
       </bk:book>
     </library>`;
 
-    const cursor = new XmlCursorReader(xml);
+    const cursor = new StaxXmlCursorReader(xml);
     const books: { id: string; title: string }[] = [];
     let currentBook: { id: string; title: string } | null = null;
     let inTitle = false;
@@ -632,7 +632,7 @@ describe('XmlCursorReader (sync)', () => {
   // ── Accessor on wrong event type ──────────────────────────────────
 
   it('should return undefined for name/localName/prefix on non-element events', () => {
-    const cursor = new XmlCursorReader('<r>text</r>');
+    const cursor = new StaxXmlCursorReader('<r>text</r>');
 
     cursor.next(); // START_DOCUMENT
     expect(cursor.name()).toBeUndefined();
@@ -649,7 +649,7 @@ describe('XmlCursorReader (sync)', () => {
   });
 
   it('should return undefined uri for text inside a namespaced element', () => {
-    const cursor = new XmlCursorReader('<root xmlns="urn:default">text</root>');
+    const cursor = new StaxXmlCursorReader('<root xmlns="urn:default">text</root>');
 
     cursor.next(); // START_DOCUMENT
     cursor.next(); // START_ELEMENT root

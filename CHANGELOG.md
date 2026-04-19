@@ -13,14 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 A new cursor-based XML reader API that provides a **mutable singleton cursor** instead of creating event objects per node. Ideal for high-throughput and memory-constrained environments.
 
-- `XmlCursorReader` — Sync cursor for in-memory XML strings
-- `XmlCursorReaderAsync` — Async cursor for `ReadableStream` (Web Standard), chunk-based parsing for multi-GB files
+- `StaxXmlCursorReader` — Sync cursor for in-memory XML strings
+- `StaxXmlCursorReaderAsync` — Async cursor for `ReadableStream` (Web Standard), chunk-based parsing for multi-GB files
 - `CursorEventType` — SMI integer constants (0–6) for cursor event types
 
 Import from `stax-xml/cursor`:
 
 ```typescript
-import { XmlCursorReader, XmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+import { StaxXmlCursorReader, StaxXmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
 ```
 
 **Design Principles:**

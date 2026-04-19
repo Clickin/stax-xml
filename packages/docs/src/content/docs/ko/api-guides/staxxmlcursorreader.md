@@ -1,11 +1,11 @@
 ---
-title: XmlCursorReader - 제로 할당 XML Cursor
+title: StaxXmlCursorReader - 제로 할당 XML Cursor
 description: 고처리량 XML 파싱을 위한 뮤터블 cursor 기반 순회
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/xmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxmlcursorreader.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,21 +17,21 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/xmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxmlcursorreader.png
 ---
 
-## XmlCursorReader - 제로 할당 XML Cursor
+## StaxXmlCursorReader - 제로 할당 XML Cursor
 
-`XmlCursorReader`는 XML을 순차적으로 훑는 hot path에서 최대 처리량을 얻기 위한 저수준 cursor API입니다. 노드마다 이벤트 객체를 새로 만들지 않고 하나의 뮤터블 cursor를 재사용하므로, accessor는 현재 cursor 위치를 읽는 메서드 형태입니다.
+`StaxXmlCursorReader`는 XML을 순차적으로 훑는 hot path에서 최대 처리량을 얻기 위한 저수준 cursor API입니다. 노드마다 이벤트 객체를 새로 만들지 않고 하나의 뮤터블 cursor를 재사용하므로, accessor는 현재 cursor 위치를 읽는 메서드 형태입니다.
 
 XML 이벤트를 최소 할당으로 검사, 필터링, 집계하려면 cursor API를 사용하세요. 이벤트 객체, async iteration 편의성, 선언적 객체 매핑이 필요하면 `StaxXmlParser`나 Converter API가 더 적합합니다.
 
 ### 빠른 시작
 
 ```typescript
-import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
 
-const cursor = new XmlCursorReader('<root><item id="1">안녕</item></root>');
+const cursor = new StaxXmlCursorReader('<root><item id="1">안녕</item></root>');
 
 while (cursor.next()) {
   switch (cursor.eventType()) {
@@ -48,13 +48,13 @@ while (cursor.next()) {
 
 ### Async Streams
 
-`XmlCursorReaderAsync`는 web standard `ReadableStream<Uint8Array>`를 받고 같은 accessor 형태를 유지합니다.
+`StaxXmlCursorReaderAsync`는 web standard `ReadableStream<Uint8Array>`를 받고 같은 accessor 형태를 유지합니다.
 
 ```typescript
-import { CursorEventType, XmlCursorReaderAsync } from 'stax-xml/cursor';
+import { CursorEventType, StaxXmlCursorReaderAsync } from 'stax-xml/cursor';
 
 const response = await fetch('/large.xml');
-const cursor = new XmlCursorReaderAsync(response.body!);
+const cursor = new StaxXmlCursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -87,12 +87,12 @@ await cursor.close();
 ### Options
 
 ```typescript
-const cursor = new XmlCursorReader(xml, {
+const cursor = new StaxXmlCursorReader(xml, {
   autoDecodeEntities: true,
   addEntities: [{ entity: '&copy;', value: '©' }]
 });
 
-const asyncCursor = new XmlCursorReaderAsync(stream, {
+const asyncCursor = new StaxXmlCursorReaderAsync(stream, {
   encoding: 'utf-8',
   autoDecodeEntities: true
 });

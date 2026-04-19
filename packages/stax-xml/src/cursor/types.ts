@@ -29,7 +29,7 @@ export type CursorEventType = typeof CursorEventType[keyof typeof CursorEventTyp
  * Options for the sync cursor reader.
  * @public
  */
-export interface XmlCursorReaderOptions {
+export interface StaxXmlCursorReaderOptions {
   /** Whether to automatically decode XML entities. Default: true */
   autoDecodeEntities?: boolean;
   /** Additional custom entities to decode */
@@ -40,7 +40,7 @@ export interface XmlCursorReaderOptions {
  * Options for the async cursor reader.
  * @public
  */
-export interface XmlCursorReaderAsyncOptions extends XmlCursorReaderOptions {
+export interface StaxXmlCursorReaderAsyncOptions extends StaxXmlCursorReaderOptions {
   /** Text encoding for the input stream. Default: 'utf-8' */
   encoding?: string;
 }

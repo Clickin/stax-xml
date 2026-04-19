@@ -10,5 +10,5 @@ export type {
 } from "./types.js";
 
 // Cursor API
-export { CursorEventType, XmlCursorReader, XmlCursorReaderAsync } from "./cursor/index.js";
-export type { XmlCursorReaderOptions, XmlCursorReaderAsyncOptions } from "./cursor/index.js";
+export { CursorEventType, StaxXmlCursorReader, StaxXmlCursorReaderAsync } from "./cursor/index.js";
+export type { StaxXmlCursorReaderOptions, StaxXmlCursorReaderAsyncOptions } from "./cursor/index.js";

@@ -1,11 +1,11 @@
 ---
-title: XmlCursorReader - Zero-Allocation XML Cursor
+title: StaxXmlCursorReader - Zero-Allocation XML Cursor
 description: Mutable cursor-based XML traversal for high-throughput parsing
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/xmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxmlcursorreader.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,21 +17,21 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/xmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/staxxmlcursorreader.png
 ---
 
-## XmlCursorReader - Zero-Allocation XML Cursor
+## StaxXmlCursorReader - Zero-Allocation XML Cursor
 
-`XmlCursorReader` is a low-level cursor API for code that needs maximum throughput while scanning XML sequentially. It reuses one mutable cursor instead of allocating an event object for every node, so accessors are methods that read the current cursor position.
+`StaxXmlCursorReader` is a low-level cursor API for code that needs maximum throughput while scanning XML sequentially. It reuses one mutable cursor instead of allocating an event object for every node, so accessors are methods that read the current cursor position.
 
 Use the cursor API when you want to inspect, filter, or count XML events with minimal allocation. Use `StaxXmlParser` or the Converter API when you need event objects, async iteration ergonomics, or declarative object mapping.
 
 ### Quick Start
 
 ```typescript
-import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
 
-const cursor = new XmlCursorReader('<root><item id="1">Hello</item></root>');
+const cursor = new StaxXmlCursorReader('<root><item id="1">Hello</item></root>');
 
 while (cursor.next()) {
   switch (cursor.eventType()) {
@@ -48,13 +48,13 @@ while (cursor.next()) {
 
 ### Async Streams
 
-`XmlCursorReaderAsync` accepts a web standard `ReadableStream<Uint8Array>` and keeps the same accessor shape.
+`StaxXmlCursorReaderAsync` accepts a web standard `ReadableStream<Uint8Array>` and keeps the same accessor shape.
 
 ```typescript
-import { CursorEventType, XmlCursorReaderAsync } from 'stax-xml/cursor';
+import { CursorEventType, StaxXmlCursorReaderAsync } from 'stax-xml/cursor';
 
 const response = await fetch('/large.xml');
-const cursor = new XmlCursorReaderAsync(response.body!);
+const cursor = new StaxXmlCursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -87,12 +87,12 @@ await cursor.close();
 ### Options
 
 ```typescript
-const cursor = new XmlCursorReader(xml, {
+const cursor = new StaxXmlCursorReader(xml, {
   autoDecodeEntities: true,
   addEntities: [{ entity: '&copy;', value: '©' }]
 });
 
-const asyncCursor = new XmlCursorReaderAsync(stream, {
+const asyncCursor = new StaxXmlCursorReaderAsync(stream, {
   encoding: 'utf-8',
   autoDecodeEntities: true
 });

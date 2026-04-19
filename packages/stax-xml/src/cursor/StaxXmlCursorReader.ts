@@ -1,5 +1,5 @@
 /**
- * XmlCursorReader — High-performance sync cursor-based XML reader.
+ * StaxXmlCursorReader — High-performance sync cursor-based XML reader.
  *
  * Key optimizations:
  * - ABSOLUTE positions (JS string max ~268M << SMI max ~2.1B): no _base offset arithmetic
@@ -12,7 +12,7 @@
  * @public
  */
 
-import { CursorEventType, type XmlCursorReaderOptions } from './types.js';
+import { CursorEventType, type StaxXmlCursorReaderOptions } from './types.js';
 
 // ── Static tables (shared across all instances) ─────────────────────
 
@@ -49,7 +49,7 @@ const S_DONE    = 2;
 //   [nameStart, nameEnd, colonPos, valueStart, valueEnd]
 const ATTR_STRIDE = 5;
 
-export class XmlCursorReader {
+export class StaxXmlCursorReader {
   // ── Source (readonly, set once) ──────────────────────────────────
   private readonly xml: string;
   private readonly xmlLen: number;
@@ -100,7 +100,7 @@ export class XmlCursorReader {
   // ── Entity decoder ───────────────────────────────────────────────
   private readonly entityDecode: (text: string) => string;
 
-  constructor(xml: string, options: XmlCursorReaderOptions = {}) {
+  constructor(xml: string, options: StaxXmlCursorReaderOptions = {}) {
     this.xml = xml;
     this.xmlLen = xml.length;
     this.entityDecode = compileEntityDecoder(options);
@@ -781,7 +781,7 @@ export class XmlCursorReader {
 
 /** @internal */
 export function compileEntityDecoder(
-  options: XmlCursorReaderOptions,
+  options: StaxXmlCursorReaderOptions,
 ): (text: string) => string {
   if (options.autoDecodeEntities === false) {
     return (t) => t;

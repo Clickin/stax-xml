@@ -26,7 +26,7 @@ head:
 
 - [StaxXmlParser](/stax-xml/ko/api-guides/staxxml-parser/) - 비동기 XML 파싱
 - [StaxXmlParserSync](/stax-xml/ko/api-guides/staxxml-parser-sync/) - 동기 XML 파싱
-- [XmlCursorReader](/stax-xml/ko/api-guides/xmlcursorreader/) - 제로 할당 cursor 순회
+- [StaxXmlCursorReader](/stax-xml/ko/api-guides/staxxmlcursorreader/) - 제로 할당 cursor 순회
 - [StaxXmlWriter](/stax-xml/ko/api-guides/staxxml-writer/) - 비동기 XML 작성
 - [StaxXmlWriterSync](/stax-xml/ko/api-guides/staxxml-writer-sync/) - 동기 XML 작성
 
@@ -43,7 +43,7 @@ StAX-XML에서 내보내는 주요 타입들:
 - `ErrorEvent` - 파싱 오류 이벤트
 - `XmlAttribute` - XML 속성 인터페이스
 - `WriteElementOptions` - XML 작성 옵션
-- `XmlCursorReaderOptions` - 동기 cursor reader 옵션
-- `XmlCursorReaderAsyncOptions` - 비동기 cursor reader 옵션
+- `StaxXmlCursorReaderOptions` - 동기 cursor reader 옵션
+- `StaxXmlCursorReaderAsyncOptions` - 비동기 cursor reader 옵션
 
 자세한 타입 정보와 메서드 시그니처는 위의 개별 API 가이드를 참조하세요.
