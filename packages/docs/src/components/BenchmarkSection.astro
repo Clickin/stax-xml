@@ -32,6 +32,11 @@ function suiteCase(suiteId: string, label: string) {
   return found;
 }
 
+function findSuiteCase(suiteId: string, label: string) {
+  const suite = summary.suites[suiteId as keyof typeof summary.suites] as any;
+  return suite?.cases.find((entry: any) => entry.label === label);
+}
+
 function formatDurationNsCompact(ns: number) {
   if (ns >= 1e9) return `${(ns / 1e9).toFixed(2)} s`;
   if (ns >= 1e6) return `${(ns / 1e6).toFixed(2)} ms`;
@@ -162,6 +167,16 @@ function buildTable(section: Section): TableModel | null {
         ],
       };
     case 'writer-async':
+      if (findSuiteCase('writer-async', 'sync writer sink in-memory (1K elements)')) {
+        return {
+          headers: ['Element Count', 'Async Writer', 'Sync Writer + File', 'Sync Writer + Sink', 'Performance Ratio'],
+          rows: [
+            ['1K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (1K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (1K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer sink in-memory (1K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (1K elements)').avgNs / suiteCase('writer-async', 'sync writer sink in-memory (1K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sink)' : '빠름 (sink)'}`],
+            ['5K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (5K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (5K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer sink in-memory (5K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (5K elements)').avgNs / suiteCase('writer-async', 'sync writer sink in-memory (5K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sink)' : '빠름 (sink)'}`],
+            ['10K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (10K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (10K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer sink in-memory (10K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (10K elements)').avgNs / suiteCase('writer-async', 'sync writer sink in-memory (10K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sink)' : '빠름 (sink)'}`],
+          ],
+        };
+      }
       return {
         headers: ['Element Count', 'Async Writer', 'Sync Writer', 'Performance Ratio'],
         rows: [

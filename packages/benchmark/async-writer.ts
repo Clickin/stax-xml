@@ -2,7 +2,7 @@ import { createWriteStream, writeFileSync } from 'fs';
 import { barplot, bench, summary } from 'mitata';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { StaxXmlWriter, StaxXmlWriterSync, StaxXmlWriterSyncSink, type SyncTextSink } from 'stax-xml';
 import { Writable } from 'stream';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.js';
 
@@ -179,6 +179,95 @@ function generateXmlWithSyncWriter(numElements: number): string {
   return writer.getXmlString();
 }
 
+function createInMemoryFileSink(): { sink: SyncTextSink; getBytesWritten: () => number } {
+  let bytesWritten = 0;
+
+  return {
+    sink: {
+      write(chunk) {
+        bytesWritten += Buffer.byteLength(chunk);
+      },
+      flush() {},
+      close() {}
+    },
+    getBytesWritten: () => bytesWritten
+  };
+}
+
+function generateXmlWithSyncWriterSink(numElements: number): number {
+  const { sink, getBytesWritten } = createInMemoryFileSink();
+  const writer = new StaxXmlWriterSyncSink(sink, {
+    prettyPrint: true,
+    indentString: '  ',
+    bufferSize: 64 * 1024,
+    enableAutoFlush: true,
+    flushThreshold: 0.8,
+    flushOnClose: true
+  });
+
+  writer.writeStartDocument();
+  writer.writeStartElement('books');
+
+  for (let i = 0; i < numElements; i++) {
+    const bookId = i + 1;
+    const isbn = `978${Math.floor(Math.random() * 900000000) + 100000000}`;
+    const year = 2020 + (i % 5);
+    const month = (i % 12) + 1;
+    const day = (i % 28) + 1;
+
+    writer.writeStartElement('book', {
+      attributes: { id: `book-${bookId}` }
+    });
+
+    writer.writeStartElement('title');
+    writer.writeCharacters(`Sample Book Title Number ${bookId} - Lorem ipsum dolor sit amet, consectetur adipiscing elit`);
+    writer.writeEndElement();
+
+    writer.writeStartElement('author');
+    writer.writeCharacters(`Author Name ${bookId}`);
+    writer.writeEndElement();
+
+    writer.writeStartElement('isbn');
+    writer.writeCharacters(isbn);
+    writer.writeEndElement();
+
+    writer.writeStartElement('publisher');
+    writer.writeCharacters(`Sample Publisher ${bookId}`);
+    writer.writeEndElement();
+
+    writer.writeStartElement('publishDate');
+    writer.writeCharacters(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+    writer.writeEndElement();
+
+    writer.writeStartElement('description');
+    writer.writeCharacters(
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ' +
+      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ' +
+      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
+    );
+    writer.writeEndElement();
+
+    writer.writeStartElement('chapters');
+
+    for (let j = 1; j <= 3; j++) {
+      writer.writeStartElement('chapter', {
+        attributes: { number: j.toString() }
+      });
+      writer.writeCharacters(`${j === 1 ? 'Introduction' : j === 2 ? 'Main Content' : 'Conclusion'} Chapter for Book ${bookId}`);
+      writer.writeEndElement();
+    }
+
+    writer.writeEndElement();
+    writer.writeEndElement();
+  }
+
+  writer.writeEndElement();
+  writer.writeEndDocument();
+  writer.close();
+
+  return getBytesWritten();
+}
+
 
 if (shouldPrintHumanReadableBanner(cli)) {
   console.log('📊 XML Writer Benchmark - Async vs Sync Comparison');
@@ -207,6 +296,10 @@ barplot(() => {
       writeFileSync(syncPath1k, result);
     }).gc('inner');
 
+    bench('sync writer sink in-memory (1K elements)', () => {
+      generateXmlWithSyncWriterSink(1000);
+    }).gc('inner');
+
     // Medium dataset tests (5K elements)
     bench('async writer (5K elements)', async () => {
       await generateXmlWithAsyncWriter(asyncPath5k, 5000);
@@ -217,6 +310,10 @@ barplot(() => {
       writeFileSync(syncPath5k, result);
     }).gc('inner');
 
+    bench('sync writer sink in-memory (5K elements)', () => {
+      generateXmlWithSyncWriterSink(5000);
+    }).gc('inner');
+
     // Large dataset tests (10K elements)
     bench('async writer (10K elements)', async () => {
       await generateXmlWithAsyncWriter(asyncPath10k, 10000);
@@ -225,6 +322,10 @@ barplot(() => {
     bench('sync writer (10K elements)', () => {
       const result = generateXmlWithSyncWriter(10000);
       writeFileSync(syncPath10k, result);
+    }).gc('inner');
+
+    bench('sync writer sink in-memory (10K elements)', () => {
+      generateXmlWithSyncWriterSink(10000);
     }).gc('inner');
   });
 });

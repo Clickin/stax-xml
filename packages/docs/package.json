@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "echo \"TypeDoc should be generated manually with: pnpm --filter=stax-xml typedoc:converter\"",
+    "prebuild": "echo \"TypeDoc should be generated manually with: pnpm --filter=stax-xml-docs typedoc\"",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && cd ../docs && node scripts/add-frontmatter.js"
+    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && pnpm typedoc:main && cd ../docs && tsx scripts/add-frontmatter.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",

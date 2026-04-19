@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] - 2025-07-22
+## [0.7.0] - 2026-04-19
 
 ### Added
 
@@ -41,6 +41,27 @@ import { XmlCursorReader, XmlCursorReaderAsync, CursorEventType } from 'stax-xml
 | 98MB | **47% faster**    | **38% faster**     | **30% faster**    | 80 KB     |
 
 Cursor excels at large files where reduced GC pressure and skipped work compound. Small-file consume is slower due to per-getter string slicing overhead vs parser's V8-optimized young-gen scavenger.
+
+#### Memory-efficient sync writer sinks
+
+- Added `StaxXmlWriterSyncSink` for incremental synchronous XML writing without building the full XML string in memory.
+- Added platform adapter subpaths:
+  - `stax-xml/adapters/node` with `createNodeSyncTextSink()` and `createNodeFileSyncTextSink()`
+  - `stax-xml/adapters/bun` with `createBunSyncTextSink()`
+  - `stax-xml/adapters/deno` with `createDenoSyncTextSink()`
+- `writeSync()` can now accept an injected `StaxXmlWriterSyncSink` through `WriteOptions.writer`.
+
+### Changed
+
+- Updated README and docs for the cursor API, sync writer sinks, and converter writer injection.
+- Refreshed canonical release benchmark artifacts and docs benchmark pages from local benchmark output.
+- Added a writer benchmark case for `StaxXmlWriterSyncSink` with an in-memory file-like target.
+- Split performance tests out of the unit-test matrix; performance validation remains a manual benchmark workflow.
+
+### Fixed
+
+- Tightened sync sink close/flush semantics and added regression coverage.
+- Improved converter, cursor, parser, and writer branch coverage. The package test suite now reports 100% branch coverage.
 
 ---
 
@@ -209,4 +230,3 @@ For detailed performance analysis and benchmarking methodology, see:
 ## [0.5.0] - Previous releases
 
 (Release notes to be added for previous versions)
-
