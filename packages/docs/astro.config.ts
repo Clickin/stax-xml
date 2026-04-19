@@ -146,6 +146,14 @@ export default defineConfig({
         {
           tag: 'link',
           attrs: {
+            rel: 'preconnect',
+            href: 'https://fonts.gstatic.com',
+            crossorigin: ''
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
             rel: 'dns-prefetch',
             href: 'https://github.com'
           }
@@ -203,6 +211,7 @@ export default defineConfig({
           items: [
             { label: 'StaxXmlParser', slug: 'api-guides/staxxml-parser' },
             { label: 'StaxXmlParserSync', slug: 'api-guides/staxxml-parser-sync' },
+            { label: 'XmlCursorReader', slug: 'api-guides/xmlcursorreader' },
             { label: 'StaxXmlWriter', slug: 'api-guides/staxxml-writer' },
             { label: 'StaxXmlWriterSync', slug: 'api-guides/staxxml-writer-sync' },
           ],

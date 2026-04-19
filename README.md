@@ -103,13 +103,13 @@ const xml = '<root><item id="1">Hello</item><item id="2">World</item></root>';
 const cursor = new XmlCursorReader(xml);
 
 while (cursor.next()) {
-  switch (cursor.eventType) {
+  switch (cursor.eventType()) {
     case CursorEventType.START_ELEMENT:
-      console.log(`<${cursor.name}>`);           // element name
-      console.log(cursor.getAttribute('id'));     // attribute access
+      console.log(`<${cursor.name()}>`);         // element name
+      console.log(cursor.getAttributeValue('id'));// attribute access
       break;
     case CursorEventType.CHARACTERS:
-      console.log(cursor.text);                   // text content
+      console.log(cursor.text());                 // text content
       break;
   }
 }
@@ -124,8 +124,8 @@ const response = await fetch('https://example.com/large.xml');
 const cursor = new XmlCursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
-  if (cursor.eventType === CursorEventType.START_ELEMENT) {
-    console.log(cursor.name);
+  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
+    console.log(cursor.name());
   }
 }
 ```
@@ -350,13 +350,13 @@ const xml = '<root><item id="1">안녕</item><item id="2">세계</item></root>';
 const cursor = new XmlCursorReader(xml);
 
 while (cursor.next()) {
-  switch (cursor.eventType) {
+  switch (cursor.eventType()) {
     case CursorEventType.START_ELEMENT:
-      console.log(`<${cursor.name}>`);           // 요소 이름
-      console.log(cursor.getAttribute('id'));     // 속성 접근
+      console.log(`<${cursor.name()}>`);         // 요소 이름
+      console.log(cursor.getAttributeValue('id'));// 속성 접근
       break;
     case CursorEventType.CHARACTERS:
-      console.log(cursor.text);                   // 텍스트 내용
+      console.log(cursor.text());                 // 텍스트 내용
       break;
   }
 }
@@ -371,8 +371,8 @@ const response = await fetch('https://example.com/large.xml');
 const cursor = new XmlCursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
-  if (cursor.eventType === CursorEventType.START_ELEMENT) {
-    console.log(cursor.name);
+  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
+    console.log(cursor.name());
   }
 }
 ```

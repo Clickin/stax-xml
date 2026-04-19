@@ -42,10 +42,11 @@ deno add npm:stax-xml
 
 ### 🔧 Quick Start
 
-Here are basic examples to get started. StAX-XML provides two parsing approaches:
+Here are basic examples to get started. StAX-XML provides three parsing approaches:
 
 1. **Event-based API**: Low-level streaming parser for fine-grained control
 2. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
+3. **Cursor API**: Mutable cursor traversal for maximum throughput and minimal allocation
 
 #### Declarative Parsing with Converter API (Recommended)
 
@@ -81,6 +82,29 @@ const result = await bookSchema.parse(xml);
 // Write XML back
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
 ```
+
+#### Cursor Reader API (Zero-Allocation)
+
+For hot paths that only need to inspect events in sequence, use the cursor API from the `stax-xml/cursor` subpath. Accessors are methods because the same cursor instance is reused for every event.
+
+```typescript
+import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
+
+const cursor = new XmlCursorReader('<root><item id="1">Hello</item></root>');
+
+while (cursor.next()) {
+  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
+    console.log(cursor.name());
+    console.log(cursor.getAttributeValue('id'));
+  }
+
+  if (cursor.eventType() === CursorEventType.CHARACTERS) {
+    console.log(cursor.text());
+  }
+}
+```
+
+For streamed input, use `XmlCursorReaderAsync` with a web standard `ReadableStream<Uint8Array>`.
 
 ### 💾 Memory-efficient sync writing
 
@@ -278,10 +302,11 @@ deno add npm:stax-xml
 
 ### 🔧 빠른 시작
 
-StAX-XML은 두 가지 파싱 방식을 제공합니다:
+StAX-XML은 세 가지 파싱 방식을 제공합니다:
 
 1. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
 2. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
+3. **Cursor API**: 최대 처리량과 최소 할당을 위한 뮤터블 cursor 순회
 
 #### Converter API를 사용한 선언적 파싱 (권장)
 
@@ -317,6 +342,29 @@ const result = await bookSchema.parse(xml);
 // XML로 다시 쓰기
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
 ```
+
+#### Cursor Reader API (제로 할당)
+
+이벤트를 순서대로 검사하는 hot path에서는 `stax-xml/cursor` subpath의 cursor API를 사용하세요. 같은 cursor 인스턴스가 모든 이벤트에 재사용되므로 accessor는 메서드 형태입니다.
+
+```typescript
+import { CursorEventType, XmlCursorReader } from 'stax-xml/cursor';
+
+const cursor = new XmlCursorReader('<root><item id="1">안녕</item></root>');
+
+while (cursor.next()) {
+  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
+    console.log(cursor.name());
+    console.log(cursor.getAttributeValue('id'));
+  }
+
+  if (cursor.eventType() === CursorEventType.CHARACTERS) {
+    console.log(cursor.text());
+  }
+}
+```
+
+스트리밍 입력에는 web standard `ReadableStream<Uint8Array>`와 함께 `XmlCursorReaderAsync`를 사용하세요.
 
 ### 💾 메모리 효율적인 동기 쓰기
 

@@ -33,6 +33,9 @@ export const { getStaticPaths, GET } = await OGImageRoute({
         color: [156, 163, 175], // Light gray for description
       },
     },
-    fonts: ['https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap'],
+    fonts: [
+      'https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf',
+      'https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuDyYMZg.ttf',
+    ],
   }),
 })

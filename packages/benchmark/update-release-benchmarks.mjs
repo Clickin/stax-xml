@@ -13,6 +13,7 @@ import {
   StaxXmlParserSync,
   StaxXmlWriter,
   StaxXmlWriterSync,
+  StaxXmlWriterSyncSink,
   XmlEventType,
 } from 'stax-xml';
 import { createLargeXMLStream } from './common/large-file-generator.mjs';
@@ -505,6 +506,51 @@ function writeBooksSync(count) {
   return writer.getXmlString();
 }
 
+function createInMemoryFileSink() {
+  let bytesWritten = 0;
+
+  return {
+    sink: {
+      write(chunk) {
+        bytesWritten += Buffer.byteLength(chunk);
+      },
+      flush() {},
+      close() {},
+    },
+    getBytesWritten: () => bytesWritten,
+  };
+}
+
+function writeBooksSyncSink(count) {
+  const { sink, getBytesWritten } = createInMemoryFileSink();
+  const writer = new StaxXmlWriterSyncSink(sink, {
+    prettyPrint: true,
+    indentString: '  ',
+    bufferSize: 64 * 1024,
+    enableAutoFlush: true,
+    flushThreshold: 0.8,
+    flushOnClose: true,
+  });
+
+  writer.writeStartDocument();
+  writer.writeStartElement('books');
+  for (let index = 0; index < count; index++) {
+    const bookId = index + 1;
+    writer.writeStartElement('book', { attributes: { id: `book-${bookId}` } });
+    writer.writeStartElement('title');
+    writer.writeCharacters(`Sample Book Title Number ${bookId} - Lorem ipsum dolor sit amet, consectetur adipiscing elit`);
+    writer.writeEndElement();
+    writer.writeStartElement('author');
+    writer.writeCharacters(`Author Name ${bookId}`);
+    writer.writeEndElement();
+    writer.writeEndElement();
+  }
+  writer.writeEndElement();
+  writer.writeEndDocument();
+  writer.close();
+  return getBytesWritten();
+}
+
 function registerAsyncWriterSuite() {
   const asyncPath1k = join(tmpdir(), 'stax-xml-bench-async-1k.xml');
   const syncPath1k = join(tmpdir(), 'stax-xml-bench-sync-1k.xml');
@@ -523,6 +569,10 @@ function registerAsyncWriterSuite() {
         writeFileSync(syncPath1k, writeBooksSync(1000));
       }).gc('inner');
 
+      bench('sync writer sink in-memory (1K elements)', () => {
+        writeBooksSyncSink(1000);
+      }).gc('inner');
+
       bench('async writer (5K elements)', async () => {
         await writeBooksAsync(asyncPath5k, 5000);
       }).gc('inner');
@@ -531,12 +581,20 @@ function registerAsyncWriterSuite() {
         writeFileSync(syncPath5k, writeBooksSync(5000));
       }).gc('inner');
 
+      bench('sync writer sink in-memory (5K elements)', () => {
+        writeBooksSyncSink(5000);
+      }).gc('inner');
+
       bench('async writer (10K elements)', async () => {
         await writeBooksAsync(asyncPath10k, 10000);
       }).gc('inner');
 
       bench('sync writer (10K elements)', () => {
         writeFileSync(syncPath10k, writeBooksSync(10000));
+      }).gc('inner');
+
+      bench('sync writer sink in-memory (10K elements)', () => {
+        writeBooksSyncSink(10000);
       }).gc('inner');
     });
   });
@@ -721,18 +779,19 @@ function renderWriterBigTable(summary) {
 
 function renderAsyncWriterTable(summary) {
   const elementCounts = [
-    ['1K elements', 'async writer (1K elements)', 'sync writer (1K elements)'],
-    ['5K elements', 'async writer (5K elements)', 'sync writer (5K elements)'],
-    ['10K elements', 'async writer (10K elements)', 'sync writer (10K elements)'],
+    ['1K elements', 'async writer (1K elements)', 'sync writer (1K elements)', 'sync writer sink in-memory (1K elements)'],
+    ['5K elements', 'async writer (5K elements)', 'sync writer (5K elements)', 'sync writer sink in-memory (5K elements)'],
+    ['10K elements', 'async writer (10K elements)', 'sync writer (10K elements)', 'sync writer sink in-memory (10K elements)'],
   ];
 
   return [
-    '| Element Count | Async Writer | Sync Writer | Performance Ratio |',
-    '|---------------|--------------|-------------|-------------------|',
-    ...elementCounts.map(([label, asyncLabel, syncLabel]) => {
+    '| Element Count | Async Writer | Sync Writer + File | Sync Writer + Sink | Performance Ratio |',
+    '|---------------|--------------|--------------------|--------------------|-------------------|',
+    ...elementCounts.map(([label, asyncLabel, syncLabel, sinkLabel]) => {
       const asyncStats = suiteCase(summary, 'writer-async', asyncLabel);
       const syncStats = suiteCase(summary, 'writer-async', syncLabel);
-      return `| ${label} | ${formatDurationNsCompact(asyncStats.avgNs)} | ${formatDurationNsCompact(syncStats.avgNs)} | ${(asyncStats.avgNs / syncStats.avgNs).toFixed(2)}x faster (sync) |`;
+      const sinkStats = suiteCase(summary, 'writer-async', sinkLabel);
+      return `| ${label} | ${formatDurationNsCompact(asyncStats.avgNs)} | ${formatDurationNsCompact(syncStats.avgNs)} | ${formatDurationNsCompact(sinkStats.avgNs)} | ${(asyncStats.avgNs / sinkStats.avgNs).toFixed(2)}x faster (sink) |`;
     }),
   ].join('\n');
 }
@@ -860,8 +919,8 @@ ${renderWriterBigTable(summary)}
 
 ### Async vs Sync Writer Comparison
 
-This comparison measures the writer APIs themselves on the same generated document shape.
-It is intended to show \`stax-xml\` async vs sync overhead, not to imply that the async writer should match a synchronous DOM-style builder.
+This comparison measures the writer APIs themselves on the same generated document shape. It includes async file output, sync string output followed by file write, and the sync sink path with an in-memory file-like target.
+It is intended to show \`stax-xml\` async vs sync overhead and sink overhead, not to imply that all paths have identical durability guarantees.
 
 ${renderAsyncWriterTable(summary)}
 

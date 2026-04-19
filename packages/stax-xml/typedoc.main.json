@@ -2,7 +2,7 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["./src/index.ts"],
   "out": "../docs/src/content/docs/api/main",
-  "plugin": ["typedoc-plugin-markdown"],
+  "plugin": ["./node_modules/typedoc-plugin-markdown/dist/index.js"],
   "readme": "none",
   "hideGenerator": true,
   "sort": ["source-order"],

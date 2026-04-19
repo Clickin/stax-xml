@@ -496,6 +496,10 @@ abstract class AbstractStaxXmlWriterSync {
 export class StaxXmlWriterSync extends AbstractStaxXmlWriterSync {
   private xmlString = '';
 
+  public constructor(options: StaxXmlWriterSyncOptions = {}) {
+    super(options);
+  }
+
   public getXmlString(): string {
     return this.xmlString;
   }
