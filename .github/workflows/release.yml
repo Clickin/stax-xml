@@ -38,7 +38,13 @@ jobs:
 
       - name: Publish to NPM
         working-directory: packages/stax-xml
-        run: npm publish --access public
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "stax-xml@$VERSION" version >/dev/null 2>&1; then
+            echo "stax-xml@$VERSION is already published; skipping npm publish."
+          else
+            npm publish --access public
+          fi
 
       - name: Generate changelog
         run: pnpm dlx changelogithub
