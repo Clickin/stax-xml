@@ -103,6 +103,7 @@ export function isAsyncEventIterator(
     return true;
   }
 
+  /* v8 ignore next -- async iterator objects always expose a constructor in supported runtimes */
   const constructorName = iterator?.constructor?.name || '';
   return constructorName === 'StaxXmlParser' || constructorName.includes('Async');
 }

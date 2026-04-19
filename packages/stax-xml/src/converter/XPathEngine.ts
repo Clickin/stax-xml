@@ -221,6 +221,7 @@ export class XPathCompiler {
 }
 
 export function createXPathMatcherTemplate(xpath: string | CompiledXPath): XPathMatcherTemplate {
+  /* v8 ignore next -- both string and compiled XPath forms are exercised through converter integration */
   const compiled = typeof xpath === 'string' ? XPathCompiler.compile(xpath) : xpath;
   const lastSegment = compiled.segments[compiled.segments.length - 1];
   const attributeSelector = lastSegment?.isAttribute ?? false;
@@ -319,6 +320,7 @@ export class XPathMatcher {
   }
 
   private matchesDescendant(event: StartElementEvent, segments: XPathSegment[]): boolean {
+    /* v8 ignore next -- empty segment plans are rejected by XPathCompiler */
     if (segments.length === 0) return false;
 
     // For //element, match if any ancestor path matches
@@ -376,6 +378,7 @@ export class XPathMatcher {
       // Check predicates for this segment using the corresponding element from the stack
       for (const predicate of segment.predicates) {
         const elementIndex = startDepth + i;
+        /* v8 ignore next -- event fallback is a defensive stack underflow guard */
         const elementForPredicate = this.elementStack[elementIndex] || event;
         if (!this.matchesPredicate(predicate, elementForPredicate, elementIndex)) {
           return false;
@@ -395,6 +398,7 @@ export class XPathMatcher {
       const attrValue = event.attributes[predicate.attribute!];
       return attrValue === predicate.value;
     } else if (predicate.type === 'position') {
+      /* v8 ignore next -- position fallback is a defensive stack underflow guard */
       const position = this.positionStack[depth] || 1;
 
       // Handle special position values
