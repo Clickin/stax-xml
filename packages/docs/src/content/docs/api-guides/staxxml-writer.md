@@ -22,17 +22,19 @@ head:
 
 ## StaxXmlWriter - Asynchronous XML Stream Writer
 
-`StaxXmlWriter` is an asynchronous, stream-based XML writer designed for large documents and memory-efficient processing. It writes XML data directly to a WritableStream, making it ideal for streaming responses and real-time XML generation.
+`StaxXmlWriter` is an asynchronous, stream-based XML writer for non-blocking `WritableStream` workflows, streaming responses, and real-time XML generation.
+
+For large file or large document output where maximum write throughput matters, prefer [`StaxXmlWriterSyncSink`](/stax-xml/api-guides/staxxml-writer-sync/#sink-based-incremental-writing). The 1GiB writer benchmark shows the sync sink path has the best write throughput while peak RSS stays in the same range as async writing.
 
 ### Key Features
 
 - **Stream-Based**: Writes directly to WritableStream for memory efficiency
 - **Asynchronous**: All methods return promises for non-blocking operations
-- **Large Document Support**: Handles arbitrarily large XML documents
+- **Large Document Support**: Handles arbitrarily large XML documents when an async stream architecture is required
 - **Memory Efficient**: No need to store entire XML in memory
 - **Real-time Generation**: Perfect for streaming APIs and live data
 
-> **Note**: For synchronous, in-memory XML generation, see [StaxXmlWriterSync](/stax-xml/api-guides/staxxml-writer-sync/) which builds XML as a string.
+> **Note**: For small synchronous output, use `StaxXmlWriterSync` as a string builder. For large file output, use `StaxXmlWriterSyncSink`.
 
 ### 🔧 Quick Start
 
@@ -283,7 +285,6 @@ interface NamespaceDeclaration {
 ### 🚀 When to Use StaxXmlWriter
 
 **Use StaxXmlWriter when:**
-- Building large XML documents (> 100MB)
 - Streaming XML to clients in real-time
 - Memory efficiency is critical
 - Working with asynchronous/streaming architectures
@@ -291,4 +292,4 @@ interface NamespaceDeclaration {
 - Building APIs that need to stream responses
 - Real-time XML generation from live data sources
 
-**For small documents or synchronous operations**, consider [StaxXmlWriterSync](/api-guides/staxxml-writer-sync/) which builds XML in memory as a string.
+**For large file generation**, prefer [StaxXmlWriterSyncSink](/api-guides/staxxml-writer-sync/#sink-based-incremental-writing). **For small documents or synchronous operations**, use [StaxXmlWriterSync](/api-guides/staxxml-writer-sync/) as an in-memory string builder.

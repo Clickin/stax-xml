@@ -1,0 +1,130 @@
+{
+  "context": {
+    "arch": "x64-win32",
+    "runtime": "node",
+    "version": "24.12.0",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "cpuGHz": 4.85
+  },
+  "targetBytes": 1073741824,
+  "prettyPrint": true,
+  "probeEvery": 2048,
+  "results": [
+    {
+      "label": "async writer memory WritableStream",
+      "kind": "async",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 15975.2085,
+      "throughputMiBs": 64.10203778462592,
+      "memoryBefore": {
+        "rss": 51769344,
+        "heapTotal": 7663616,
+        "heapUsed": 4744768,
+        "external": 1966388,
+        "arrayBuffers": 10991
+      },
+      "memoryAfter": {
+        "rss": 233562112,
+        "heapTotal": 148959232,
+        "heapUsed": 57640184,
+        "external": 3208824,
+        "arrayBuffers": 1190639
+      },
+      "memoryPeak": {
+        "rss": 233783296,
+        "heapTotal": 181989376,
+        "heapUsed": 111721960,
+        "external": 17888888,
+        "arrayBuffers": 15870703
+      }
+    },
+    {
+      "label": "sync writer sink memory",
+      "kind": "sync-sink",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 3114.6938999999984,
+      "throughputMiBs": 328.77818872804096,
+      "memoryBefore": {
+        "rss": 233111552,
+        "heapTotal": 141094912,
+        "heapUsed": 5116552,
+        "external": 3208824,
+        "arrayBuffers": 10991
+      },
+      "memoryAfter": {
+        "rss": 232808448,
+        "heapTotal": 146075648,
+        "heapUsed": 68997512,
+        "external": 2029176,
+        "arrayBuffers": 10991
+      },
+      "memoryPeak": {
+        "rss": 233263104,
+        "heapTotal": 146075648,
+        "heapUsed": 77748976,
+        "external": 3208824,
+        "arrayBuffers": 10991
+      }
+    },
+    {
+      "label": "async writer temp file",
+      "kind": "async",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 20374.7083,
+      "throughputMiBs": 50.26051925780343,
+      "memoryBefore": {
+        "rss": 232861696,
+        "heapTotal": 142667776,
+        "heapUsed": 5097912,
+        "external": 2029176,
+        "arrayBuffers": 10991
+      },
+      "memoryAfter": {
+        "rss": 234217472,
+        "heapTotal": 147648512,
+        "heapUsed": 48422496,
+        "external": 3075198,
+        "arrayBuffers": 1059567
+      },
+      "memoryPeak": {
+        "rss": 237260800,
+        "heapTotal": 150269952,
+        "heapUsed": 65109176,
+        "external": 3274360,
+        "arrayBuffers": 1256175
+      }
+    },
+    {
+      "label": "sync writer sink temp file",
+      "kind": "sync-sink",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 4053.8823000000048,
+      "throughputMiBs": 252.6080786519816,
+      "memoryBefore": {
+        "rss": 233037824,
+        "heapTotal": 144502784,
+        "heapUsed": 4388512,
+        "external": 3075198,
+        "arrayBuffers": 76527
+      },
+      "memoryAfter": {
+        "rss": 234516480,
+        "heapTotal": 145813504,
+        "heapUsed": 72395880,
+        "external": 2092158,
+        "arrayBuffers": 76527
+      },
+      "memoryPeak": {
+        "rss": 234541056,
+        "heapTotal": 145813504,
+        "heapUsed": 76917728,
+        "external": 3075198,
+        "arrayBuffers": 76527
+      }
+    }
+  ]
+}

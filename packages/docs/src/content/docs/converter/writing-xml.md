@@ -322,7 +322,7 @@ interface XmlWriteOptions {
 
 ### Sink-Based Sync Writing
 
-Use `writeSync()` with an injected `StaxXmlWriterSyncSink` to avoid building the whole XML string in memory.
+Use `writeSync()` with an injected `StaxXmlWriterSyncSink` to avoid building the whole XML string in memory. This is the recommended converter write path for large XML output.
 
 ```typescript
 import { x } from 'stax-xml/converter';

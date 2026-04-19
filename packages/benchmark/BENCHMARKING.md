@@ -89,7 +89,7 @@ pnpm run generate:testdata
 ### Manual Generation
 
 ```bash
-tsx generate-test-xmls.ts
+node generate-test-xmls.mjs
 ```
 
 ### Custom Test Files
@@ -133,7 +133,7 @@ BENCHMARK_CONFIG=ci pnpm run bench:inlining
 For accurate memory measurements, always run with `--expose-gc`:
 
 ```bash
-tsx --expose-gc benchmark-inlining.ts
+node --expose-gc benchmark-inlining.mjs
 ```
 
 The `--expose-gc` flag is already included in the npm scripts.
@@ -180,11 +180,11 @@ pnpm run profile:all
 
 ```bash
 # Profile specific variant, test file, method, and iterations
-tsx profile-parsers.ts <variant> <testfile> <method> <iterations>
+node profile-parsers.mjs <variant> <testfile> <method> <iterations>
 
 # Examples:
-tsx profile-parsers.ts inlined medium-nested.xml inspector 100
-tsx profile-parsers.ts baseline large-complex.xml v8-prof 50
+node profile-parsers.mjs inlined medium-nested.xml inspector 100
+node profile-parsers.mjs baseline large-complex.xml v8-prof 50
 ```
 
 **Profiling methods:**
@@ -246,17 +246,17 @@ Include in documentation or GitHub comments.
 ### Manual Comparison
 
 ```bash
-tsx compare-results.ts <results-file.json> --format=<format>
+node compare-results.mjs <results-file.json> --format=<format>
 
 # Example:
-tsx compare-results.ts results/inlining-benchmark-2024-01-15.json --format=html
+node compare-results.mjs results/inlining-benchmark-2024-01-15.json --format=html
 ```
 
 ## Configuration
 
 ### Benchmark Configuration
 
-Edit `benchmark.config.ts` to customize:
+Edit `benchmark.config.mjs` to customize:
 
 - **warmupRuns**: Number of warmup iterations (default: 3)
 - **measurementRuns**: Number of measured iterations (default: 10)
@@ -435,7 +435,7 @@ Ensure `StaxXmlParserSync.baseline.ts` exists in the source directory.
 
 ### Custom Test Patterns
 
-Add to `generate-test-xmls.ts`:
+Add to `generate-test-xmls.mjs`:
 
 ```typescript
 {

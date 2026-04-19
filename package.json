@@ -23,16 +23,16 @@
     "benchmark:release": "pnpm --filter=benchmark run release:update"
   },
   "devDependencies": {
-    "@types/node": "^24.0.10",
-    "@vitest/coverage-v8": "^3.2.4",
-    "@vitest/ui": "^3.2.4",
-    "tsdown": "^0.15.5",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "@types/node": "^24.12.2",
+    "@vitest/coverage-v8": "^4.1.4",
+    "@vitest/ui": "^4.1.4",
+    "tsdown": "^0.21.9",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4"
   },
   "engines": {
     "node": ">=20.19.0"
   },
-  "packageManager": "pnpm@10.18.0"
+  "packageManager": "pnpm@10.33.0"
 }

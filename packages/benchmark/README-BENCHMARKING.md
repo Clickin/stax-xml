@@ -25,7 +25,7 @@ Do not adapt Node async cursor hot paths through `ReadableStream` when measuring
 
 ## Tools
 
-### 1. GC Pressure Benchmark (`benchmark-gc-pressure.ts`)
+### 1. GC Pressure Benchmark (`benchmark-gc-pressure.mjs`)
 
 Measures garbage collection metrics during benchmarks:
 
@@ -52,7 +52,7 @@ console.log(`Heap delta: ${result.gcMetrics.heapUsedDelta} MB`);
 - Heap memory delta
 - Individual GC events with timestamps
 
-### 2. Memory Tracker (`memory-tracker.ts`)
+### 2. Memory Tracker (`memory-tracker.mjs`)
 
 Continuous memory profiling during operations:
 
@@ -73,7 +73,7 @@ console.log(`Growth rate: ${memoryReport.growthRate} MB/s`);
 - `HeapProfiler` - Snapshot and statistics
 - `AllocationProfiler` - Allocation rate tracking
 
-### 3. Statistical Analysis (`statistical-analysis.ts`)
+### 3. Statistical Analysis (`statistical-analysis.mjs`)
 
 Statistical significance testing for benchmark comparisons:
 
@@ -95,12 +95,31 @@ if (tTest.significant && tTest.improvement > 5) {
 - Outlier detection
 - Descriptive statistics
 
-### 4. Comprehensive Benchmark (`benchmark-optimizations.ts`)
+### 4. 1GiB Writer Comparison (`writer-1gb.mjs`)
+
+One-shot large-document writer comparison. This intentionally does not use Mitata because a repeated 1GiB benchmark can run for a long time and create misleading repeated I/O load.
+
+```bash
+# 16 MiB smoke test
+pnpm run dev:writer:1gb
+
+# Full 1 GiB run
+pnpm run bench:writer:1gb
+```
+
+It measures four cases:
+
+- async writer to in-memory `WritableStream`
+- sync writer sink to in-memory sink
+- async writer to temp-file `WritableStream`
+- sync writer sink to temp file
+
+### 5. Comprehensive Benchmark (`benchmark-optimizations.mjs`)
 
 Full benchmark suite comparing all parser/writer variants:
 
 ```bash
-node --expose-gc benchmark-optimizations.js [options]
+node --expose-gc benchmark-optimizations.mjs [options]
 
 Options:
   --iterations, -i <n>   Number of iterations (default: 100)
@@ -116,12 +135,12 @@ Options:
 - Automatic statistical comparison
 - Recommendations based on results
 
-### 5. Quick Benchmark (`quick-benchmark.ts`)
+### 6. Quick Benchmark (`quick-benchmark.mjs`)
 
 Fast iteration tool for development:
 
 ```bash
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.js \
   --size medium --iterations 50 --heap
@@ -138,7 +157,7 @@ node --expose-gc quick-benchmark.js \
 ### 1. Generate Test Data
 
 ```bash
-pnpm tsx generate-test-xmls.ts
+pnpm run generate:testdata
 ```
 
 This creates test XML files in `test-data/`:
@@ -155,7 +174,7 @@ This creates test XML files in `test-data/`:
 pnpm bench:full
 
 # Or manually with custom options
-node --expose-gc benchmark-optimizations.js --iterations 200
+node --expose-gc benchmark-optimizations.mjs --iterations 200
 ```
 
 Results saved to `results/benchmark-<timestamp>.json`
@@ -167,7 +186,7 @@ Results saved to `results/benchmark-<timestamp>.json`
 pnpm bench:quick
 
 # Or compare specific files
-node --expose-gc quick-benchmark.js \
+node --expose-gc quick-benchmark.mjs \
   ../stax-xml/src/StaxXmlParserSync.baseline.js \
   ../stax-xml/src/StaxXmlParserSync.inlined.js
 ```
@@ -226,14 +245,14 @@ Issues Detected:
 
 All benchmarks should be run with:
 ```bash
-node --expose-gc <script>.js
+node --expose-gc <script>.mjs
 ```
 
 Or via package.json:
 ```json
 {
   "scripts": {
-    "bench:full": "node --expose-gc benchmark-optimizations.js"
+    "bench:full": "node --expose-gc benchmark-optimizations.mjs"
   }
 }
 ```
@@ -376,7 +395,7 @@ Add performance regression detection to CI:
 
 ```bash
 # Run benchmark and check for regressions
-node --expose-gc benchmark-optimizations.js --iterations 50
+node --expose-gc benchmark-optimizations.mjs --iterations 50
 
 # Parse results and fail if regression > 10%
 node check-regression.js results/latest.json

@@ -221,7 +221,7 @@ interface XmlWriteOptions {
 
 ### Sink 기반 동기 쓰기
 
-`writeSync()`에 `writer`를 주입하면 전체 문자열을 만들지 않고 동기 sink로 바로 쓸 수 있습니다.
+`writeSync()`에 `writer`를 주입하면 전체 문자열을 만들지 않고 동기 sink로 바로 쓸 수 있습니다. 대용량 XML 출력에는 이 converter 쓰기 경로를 권장합니다.
 
 ```typescript
 import { x } from 'stax-xml/converter';

@@ -22,17 +22,19 @@ head:
 
 ## StaxXmlWriter - 비동기 XML 스트림 라이터
 
-`StaxXmlWriter`는 대용량 문서와 메모리 효율적인 처리를 위해 설계된 비동기, 스트림 기반 XML 라이터입니다. XML 데이터를 WritableStream에 직접 작성하여 스트리밍 응답과 실시간 XML 생성에 이상적입니다.
+`StaxXmlWriter`는 논블로킹 `WritableStream` 워크플로우, 스트리밍 응답, 실시간 XML 생성을 위한 비동기 스트림 기반 XML 라이터입니다.
+
+대용량 파일이나 대용량 문서를 최대 처리량으로 생성해야 한다면 [`StaxXmlWriterSyncSink`](/stax-xml/ko/api-guides/staxxml-writer-sync/#sink-기반-증분-쓰기)를 권장합니다. 1GiB writer 벤치마크에서 sync sink 경로가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
 ### 주요 기능
 
 - **스트림 기반**: 메모리 효율성을 위해 WritableStream에 직접 작성
 - **비동기**: 논블로킹 작업을 위해 모든 메서드가 promise 반환
-- **대용량 문서 지원**: 임의의 크기의 XML 문서 처리
+- **대용량 문서 지원**: 비동기 스트림 아키텍처가 필요한 경우 임의 크기의 XML 문서 처리
 - **메모리 효율적**: 전체 XML을 메모리에 저장할 필요 없음
 - **실시간 생성**: 스트리밍 API와 라이브 데이터에 완벽
 
-> **참고**: 동기식, 메모리 내 XML 생성을 위해서는 XML을 문자열로 구성하는 [StaxXmlWriterSync](/stax-xml/ko/api-guides/staxxml-writer-sync/)를 참조하세요.
+> **참고**: 작은 동기식 출력에는 문자열 builder인 `StaxXmlWriterSync`를 사용하고, 대용량 파일 출력에는 `StaxXmlWriterSyncSink`를 사용하세요.
 
 ### 🔧 빠른 시작
 
@@ -283,7 +285,6 @@ interface NamespaceDeclaration {
 ### 🚀 StaxXmlWriter를 언제 사용해야 할까요?
 
 **StaxXmlWriter를 사용하는 경우:**
-- 대용량 XML 문서 구성 (> 100MB)
 - 클라이언트에 실시간 XML 스트리밍
 - 메모리 효율성이 중요한 경우
 - 비동기/스트리밍 아키텍처 작업
@@ -291,4 +292,4 @@ interface NamespaceDeclaration {
 - 응답을 스트리밍해야 하는 API 구축
 - 라이브 데이터 소스에서 실시간 XML 생성
 
-**소규모 문서나 동기식 작업**의 경우 XML을 메모리에서 문자열로 구성하는 [StaxXmlWriterSync](/ko/api-guides/staxxml-writer-sync/)를 고려하세요.
+**대용량 파일 생성**에는 [StaxXmlWriterSyncSink](/ko/api-guides/staxxml-writer-sync/#sink-기반-증분-쓰기)를 권장합니다. **소규모 문서나 동기식 작업**에는 XML을 메모리에서 문자열로 구성하는 [StaxXmlWriterSync](/ko/api-guides/staxxml-writer-sync/)를 사용하세요.

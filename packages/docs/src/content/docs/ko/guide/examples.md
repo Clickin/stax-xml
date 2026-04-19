@@ -99,51 +99,12 @@ async function processLargeXml(filePath: string) {
 
 ## XML Generation with Writer
 
-Create XML documents using the StaxXmlWriter:
+작은 XML 문서는 `StaxXmlWriterSync`로 메모리에서 생성할 수 있습니다. 대용량 파일 출력에는 writer sync 가이드의 `StaxXmlWriterSyncSink`를 사용하세요.
 
 ```typescript
-import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { StaxXmlWriterSync } from 'stax-xml';
 
-// Async writer
-async function generateBookCatalog() {
-  const writer = new StaxXmlWriter();
-
-  await writer.writeStartDocument();
-  await writer.writeStartElement('catalog');
-  await writer.writeAttribute('version', '1.0');
-
-  const books = [
-    { id: '1', title: 'JavaScript Guide', author: 'John Doe', price: 29.99 },
-    { id: '2', title: 'TypeScript Handbook', author: 'Jane Smith', price: 34.99 }
-  ];
-
-  for (const book of books) {
-    await writer.writeStartElement('book');
-    await writer.writeAttribute('id', book.id);
-
-    await writer.writeStartElement('title');
-    await writer.writeCharacters(book.title);
-    await writer.writeEndElement();
-
-    await writer.writeStartElement('author');
-    await writer.writeCharacters(book.author);
-    await writer.writeEndElement();
-
-    await writer.writeStartElement('price');
-    await writer.writeCharacters(book.price.toString());
-    await writer.writeEndElement();
-
-    await writer.writeEndElement(); // book
-  }
-
-  await writer.writeEndElement(); // catalog
-  await writer.writeEndDocument();
-
-  return writer.toString();
-}
-
-// Sync writer
-function generateBookCatalogSync() {
+function generateBookCatalog() {
   const writer = new StaxXmlWriterSync();
 
   writer.writeStartDocument();
@@ -177,7 +138,7 @@ function generateBookCatalogSync() {
   writer.writeEndElement(); // catalog
   writer.writeEndDocument();
 
-  return writer.toString();
+  return writer.getXmlString();
 }
 ```
 

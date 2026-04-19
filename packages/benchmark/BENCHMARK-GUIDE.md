@@ -44,6 +44,18 @@ pnpm run example:gc
 - Demonstrates GC monitoring capabilities
 - Shows how to measure memory allocation patterns
 
+### 1GiB Writer Comparison
+```bash
+# Quick smoke test, 16 MiB per case
+pnpm run dev:writer:1gb
+
+# Full 1 GiB comparison
+pnpm run bench:writer:1gb
+```
+- Compares async writer and sync sink writer
+- Runs both in-memory targets and temp-file targets
+- Reports written bytes, records, elapsed time, throughput, peak RSS, and peak heap
+
 ---
 
 ## Understanding Results
@@ -162,14 +174,14 @@ pnpm run bench:baseline
 
 ### Custom Iterations
 ```bash
-# Modify benchmark-baseline.ts
+# Modify benchmark-baseline.mjs
 # Change: await benchmarkFile(testFile, 100)
 # To:     await benchmarkFile(testFile, 500)
 ```
 
 ### Profile with Chrome DevTools
 ```bash
-node --inspect --expose-gc benchmark-baseline.ts
+node --inspect --expose-gc benchmark-baseline.mjs
 
 # Then open chrome://inspect
 # Click "Open dedicated DevTools for Node"
@@ -179,14 +191,14 @@ node --inspect --expose-gc benchmark-baseline.ts
 
 ### Memory Profiling
 ```bash
-node --expose-gc --trace-gc benchmark-baseline.ts
+node --expose-gc --trace-gc benchmark-baseline.mjs
 
 # Watch GC events in real-time
 ```
 
 ### CPU Profiling (V8)
 ```bash
-node --prof --expose-gc benchmark-baseline.ts
+node --prof --expose-gc benchmark-baseline.mjs
 node --prof-process isolate-*.log > profile.txt
 
 # Analyze profile.txt for hot functions
@@ -224,7 +236,7 @@ pnpm run generate:testdata
 ### "GC control not available"
 ```bash
 # Always use --expose-gc flag
-npx tsx --expose-gc benchmark-baseline.ts
+node --expose-gc benchmark-baseline.mjs
 ```
 
 ### Inconsistent Results
@@ -238,7 +250,7 @@ npx tsx --expose-gc benchmark-baseline.ts
 ### Out of Memory
 ```bash
 # Increase Node.js heap
-node --max-old-space-size=8192 --expose-gc benchmark-baseline.ts
+node --max-old-space-size=8192 --expose-gc benchmark-baseline.mjs
 ```
 
 ---

@@ -1,7 +1,7 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { barplot, bench, summary } from 'mitata';
 import { Builder } from 'xml2js';
-import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { StaxXmlWriter, StaxXmlWriterSync, StaxXmlWriterSyncSink } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import { normalizeOrderedWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.mjs';
@@ -43,6 +43,32 @@ function staxXmlWriterBuilderSync() {
   return writer.getXmlString();
 }
 
+function createCountingSink() {
+  let charsWritten = 0;
+
+  return {
+    sink: {
+      write(chunk) {
+        charsWritten += chunk.length;
+      }
+    },
+    getCharsWritten: () => charsWritten
+  };
+}
+
+function staxXmlWriterBuilderSyncSink() {
+  const { sink, getCharsWritten } = createCountingSink();
+  const writer = new StaxXmlWriterSyncSink(sink, {
+    prettyPrint: true,
+    indentString: '  ',
+  });
+
+  writer.writeStartDocument();
+  writeWriterTreeSync(writer, orderedWriterTree);
+  writer.writeEndDocument();
+  return getCharsWritten();
+}
+
 function xml2jsBuilder() {
   const builder = new Builder({});
   builder.buildObject(jsonContent);
@@ -57,6 +83,7 @@ barplot(() => {
     bench('fast-xml-parser builder', () => fastXmlParserBuilder()).gc('inner');
     bench('stax-xml writer', async () => await staxXmlWriterBuilder()).gc('inner');
     bench('stax-xml writer sync', () => staxXmlWriterBuilderSync()).gc('inner');
+    bench('stax-xml writer sync sink', () => staxXmlWriterBuilderSyncSink()).gc('inner');
     bench('xml2js builder', () => xml2jsBuilder()).gc('inner');
   });
 });

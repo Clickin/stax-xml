@@ -50,3 +50,4 @@ isolate-*.log
 *.clinic-*
 
 results/release/raw/*.json
+!results/release/raw/writer-1gb.json

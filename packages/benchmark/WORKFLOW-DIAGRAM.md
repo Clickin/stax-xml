@@ -317,7 +317,7 @@
     Need thorough validation        →   pnpm bench:gc:thorough
 
     Compare two specific files      →   node --expose-gc
-                                        quick-benchmark.js
+                                        quick-benchmark.mjs
                                         file1.js file2.js
 
     Learning how to use tools       →   pnpm example:gc
@@ -426,14 +426,14 @@
     STEP 5: Deep dive
     ──────────────────
     → Read README-BENCHMARKING.md
-    → Review statistical-analysis.ts
+    → Review statistical-analysis.mjs
     → Understand the decision criteria
 
 
     STEP 6: Create optimization
     ────────────────────────────
     → Write your optimization
-    → Test with quick-benchmark.js
+    → Test with quick-benchmark.mjs
     → Iterate based on verdict
     → Validate with full benchmark
 
@@ -459,7 +459,7 @@ pnpm bench:gc:full
 pnpm report:latest
 
 # Compare two specific files
-node --expose-gc quick-benchmark.js baseline.js optimized.js
+node --expose-gc quick-benchmark.mjs baseline.js optimized.js
 
 # Generate test data (run once)
 pnpm generate:testdata
