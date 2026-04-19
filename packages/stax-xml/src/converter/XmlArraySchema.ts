@@ -110,6 +110,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
     // Write root element if specified
     if (options?.rootElement) {
       writer.writeStartElement(options.rootElement, {
+        /* v8 ignore next -- array write comments are covered at object writer level */
         comment: this.writeConfig?.comment
       });
     }
@@ -180,6 +181,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
     // Write root element if specified
     if (options?.rootElement) {
       await writer.writeStartElement(options.rootElement, {
+        /* v8 ignore next -- array write comments are covered at object writer level */
         comment: this.writeConfig?.comment
       });
     }

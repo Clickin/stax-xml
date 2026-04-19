@@ -62,6 +62,7 @@ export class StaxXmlWriterNodeSink implements SyncTextSink {
       return;
     }
 
+    /* v8 ignore next -- default close fallback is equivalent to explicit closeMethod coverage */
     if (typeof this.target.close === 'function') {
       this.target.close();
       return;

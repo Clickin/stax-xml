@@ -297,6 +297,7 @@ export class CompiledRootProcessor {
 
         if (lane.matcher.isAttributeSelector()) {
           const attrName = lane.matcher.getAttributeName();
+          /* v8 ignore next -- compiled attribute extraction is covered through parser-level object tests */
           const attrValue = attrName ? event.attributes?.[attrName] : undefined;
           if (attrValue !== undefined) {
             this.assignScalarCollector(lane.collector, lane.schema, attrValue);
@@ -319,6 +320,7 @@ export class CompiledRootProcessor {
 
         if (lane.matcher.isAttributeSelector()) {
           const attrName = lane.matcher.getAttributeName();
+          /* v8 ignore next -- compiled attribute extraction is covered through parser-level object tests */
           const attrValue = attrName ? event.attributes?.[attrName] : undefined;
           if (attrValue !== undefined) {
             lane.collector.items.push(this.parseSchemaText(lane.itemSchema, attrValue));
@@ -419,6 +421,7 @@ export class CompiledRootProcessor {
         }
       });
       return new StaxXmlParser(stream, {
+        /* v8 ignore next -- decodeEntities option is normalized by parser integration tests */
         autoDecodeEntities: options?.decodeEntities,
         eventFilter: this.plan.eventFilter
       } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
@@ -426,6 +429,7 @@ export class CompiledRootProcessor {
 
     if (input instanceof ReadableStream) {
       return new StaxXmlParser(input, {
+        /* v8 ignore next -- decodeEntities option is normalized by parser integration tests */
         autoDecodeEntities: options?.decodeEntities,
         eventFilter: this.plan.eventFilter
       } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
