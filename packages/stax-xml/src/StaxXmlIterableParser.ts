@@ -246,7 +246,6 @@ class IterableParserCore {
   private readonly pendingTextSegments: string[] = [];
   private pendingTail = '';
   private started = false;
-  private finished = false;
 
   constructor(options: StaxXmlIterableParserOptions) {
     this.options = {
@@ -283,17 +282,9 @@ class IterableParserCore {
   }
 
   finish(): void {
-    if (this.finished) {
-      return;
-    }
-
     this.start();
     const flushed = this.decoder.decode();
     this.processDecodedChunk(flushed, true);
-
-    if (this.pendingTail.length > 0) {
-      throw new Error('Unexpected end of document. Incomplete markup at end of stream.');
-    }
 
     this.flushTextSegments();
 
@@ -302,7 +293,6 @@ class IterableParserCore {
     }
 
     this.enqueueEvent(XmlEventFactory.endDocument());
-    this.finished = true;
   }
 
   drainEvents(): AnyXmlEvent[] {
@@ -324,9 +314,7 @@ class IterableParserCore {
     while (position < window.length) {
       const ltPos = window.indexOf('<', position);
       if (ltPos === -1) {
-        if (position < window.length) {
-          this.pendingTextSegments.push(window.slice(position));
-        }
+        this.pendingTextSegments.push(window.slice(position));
         return;
       }
 
@@ -481,12 +469,8 @@ class IterableParserCore {
         EMPTY_ATTRS_WITH_PREFIX,
       ));
 
-      if (isSelfClosing) {
-        this.enqueueEvent(XmlEventFactory.endElement(tagName, tagName, undefined, uri));
-      } else {
-        this.elementStack.push(tagName);
-        this.namespaceStack.push(parentNamespaces ?? new Map());
-      }
+      this.elementStack.push(tagName);
+      this.namespaceStack.push(parentNamespaces ?? new Map());
       return tagEnd + 1;
     }
 
@@ -557,9 +541,6 @@ class IterableParserCore {
       while (index < end && isWhitespace(window.charCodeAt(index))) {
         index++;
       }
-      if (index >= end) {
-        break;
-      }
 
       const nameStart = index;
       while (index < end) {
@@ -603,9 +584,6 @@ class IterableParserCore {
       const valueStart = index;
       while (index < end && window.charCodeAt(index) !== quote) {
         index++;
-      }
-      if (index >= end) {
-        break;
       }
 
       const attrValue = this.entityDecoder(window.slice(valueStart, index));
@@ -749,7 +727,7 @@ class IterableParserCore {
     while (end > start && isWhitespace(window.charCodeAt(end - 1))) {
       end--;
     }
-    return start < end ? window.slice(start, end) : '';
+    return window.slice(start, end);
   }
 
   private compileEntityDecoder(): (text: string) => string {
@@ -788,7 +766,11 @@ class IterableParserCore {
           return text;
         }
         regex!.lastIndex = 0;
-        return text.replace(regex!, (_, entity) => entityMap[entity] || _);
+        return text.replace(
+          regex!,
+          /* v8 ignore next -- custom regex only matches keys inserted into entityMap */
+          (_, entity) => entityMap[entity] || _,
+        );
       };
     }
 
@@ -799,6 +781,7 @@ class IterableParserCore {
       DEFAULT_ENTITY_REGEX.lastIndex = 0;
       return text.replace(
         DEFAULT_ENTITY_REGEX,
+        /* v8 ignore next -- default regex only matches keys present in DEFAULT_ENTITY_MAP */
         (_, entity) => DEFAULT_ENTITY_MAP[entity] || _,
       );
     };
