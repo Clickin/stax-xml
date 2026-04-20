@@ -15,6 +15,7 @@ export default defineConfig([
   {
     entry: {
       cursor: 'src/cursor/index.ts',
+      iterable: 'src/iterable/index.ts',
     },
     format: ['esm'],
     dts: true,

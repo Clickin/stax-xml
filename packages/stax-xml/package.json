@@ -27,6 +27,10 @@
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js"
     },
+    "./iterable": {
+      "types": "./dist/iterable.d.ts",
+      "import": "./dist/iterable.js"
+    },
     "./adapters/node": {
       "types": "./dist/node.d.ts",
       "import": "./dist/node.js"
