@@ -1,84 +1,23 @@
-import {
-  XmlEventFactory,
-  type AnyXmlEvent,
-  type AttributeInfo,
-  type ParserEventFilter,
-} from './types.js';
+export const IterableEventType = {
+  START_DOCUMENT: 0,
+  END_DOCUMENT: 1,
+  START_ELEMENT: 2,
+  END_ELEMENT: 3,
+  CHARACTERS: 4,
+  CDATA: 5,
+} as const;
 
-/**
- * Configuration options shared by iterable byte-batch parsers.
- *
- * @public
- */
-export interface StaxXmlIterableParserOptions {
-  /**
-   * Text encoding for byte chunks.
-   * @defaultValue 'utf-8'
-   */
-  encoding?: string;
-
-  /**
-   * Additional custom entities to decode.
-   * @defaultValue []
-   */
-  addEntities?: { entity: string; value: string }[];
-
-  /**
-   * Whether to automatically decode XML entities.
-   * @defaultValue true
-   */
-  autoDecodeEntities?: boolean;
-
-  /**
-   * Event materialization filter used by converter fast paths.
-   */
-  eventFilter?: ParserEventFilter;
-}
+export type IterableEventType = typeof IterableEventType[keyof typeof IterableEventType];
 
 export type ByteBatch = readonly Uint8Array[];
 
 export interface ByteBatchOptions {
-  /**
-   * Number of chunks to group into each yielded batch.
-   * @defaultValue 16
-   */
   batchSize?: number;
 }
 
 const DEFAULT_BATCH_SIZE = 16;
+const EMPTY_BUFFER = new Uint8Array(0);
 
-const ASCII_TABLE = /* @__PURE__ */ (() => {
-  const table = new Uint8Array(128);
-  table[9] = 1;
-  table[10] = 1;
-  table[13] = 1;
-  table[32] = 1;
-  return table;
-})();
-
-const UNICODE_WHITESPACE = /* @__PURE__ */ new Set([
-  0x00A0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
-  0x2028, 0x2029, 0x202F, 0x205F, 0x3000, 0xFEFF,
-]);
-
-const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
-const ENTITY_REGEX_CACHE = new Map<string, RegExp>();
-const DEFAULT_ENTITY_MAP: Record<string, string> = {
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  amp: '&',
-};
-
-const EMPTY_ATTRS: Record<string, string> = Object.freeze({});
-const EMPTY_ATTRS_WITH_PREFIX: Record<string, AttributeInfo> = Object.freeze({});
-
-/**
- * Convert a chunk iterable into the byte-batch ABI consumed by StAX iterable parsers.
- *
- * @public
- */
 export function* toByteBatches(
   source: Iterable<Uint8Array>,
   options: ByteBatchOptions = {},
@@ -99,11 +38,6 @@ export function* toByteBatches(
   }
 }
 
-/**
- * Convert an async chunk iterable into the byte-batch ABI consumed by async StAX iterable parsers.
- *
- * @public
- */
 export async function* toAsyncByteBatches(
   source: AsyncIterable<Uint8Array>,
   options: ByteBatchOptions = {},
@@ -124,667 +58,491 @@ export async function* toAsyncByteBatches(
   }
 }
 
-/**
- * Synchronous StAX pull parser for iterable byte batches.
- *
- * @public
- */
-export class StaxXmlIterableParser implements Iterable<AnyXmlEvent[]> {
+export class StaxXmlIterableParser {
   private readonly iterator: Iterator<ByteBatch>;
-  private readonly core: IterableParserCore;
-  private sourceDone = false;
+  private readonly decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
 
-  constructor(source: Iterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
+  private currentBuffer: Uint8Array = EMPTY_BUFFER;
+  private pendingTail: Uint8Array = EMPTY_BUFFER;
+  private started = false;
+  private sourceDone = false;
+  private finished = false;
+
+  private eventTypes = new Uint8Array(1024);
+  private nameStarts = new Int32Array(1024);
+  private nameEnds = new Int32Array(1024);
+  private nameIdsForEvents = new Int32Array(1024);
+  private textStarts = new Int32Array(1024);
+  private textEnds = new Int32Array(1024);
+  private attrStarts = new Int32Array(1024);
+  private attrCounts = new Int32Array(1024);
+  private eventCursor = 0;
+
+  private attrNameStarts = new Int32Array(1024);
+  private attrNameEnds = new Int32Array(1024);
+  private attrNameIds = new Int32Array(1024);
+  private attrValueStarts = new Int32Array(1024);
+  private attrValueEnds = new Int32Array(1024);
+  private attrCursor = 0;
+
+  private readonly elementNameIds: number[] = [];
+  private readonly nameIds = new Map<number, number>();
+  private readonly nameStrings: string[] = [];
+
+  constructor(source: Iterable<ByteBatch>) {
     this.iterator = source[Symbol.iterator]();
-    this.core = new IterableParserCore(options);
   }
 
-  nextBatch(): AnyXmlEvent[] {
-    if (!this.core.hasStarted()) {
-      this.core.start();
+  nextBatch(): boolean {
+    if (this.finished) {
+      return false;
     }
+
+    this.resetFrames();
+    const startedThisBatch = !this.started;
+    if (!this.started) {
+      this.started = true;
+      this.addEvent(IterableEventType.START_DOCUMENT);
+    }
+    const minEventsToReturn = startedThisBatch ? 2 : 1;
 
     while (!this.sourceDone) {
       const result = this.iterator.next();
       if (result.done) {
         this.sourceDone = true;
-        this.core.finish();
-      } else {
-        this.core.pushBatch(result.value);
-      }
-
-      const batch = this.core.drainEvents();
-      if (batch.length > 0) {
-        return batch;
-      }
-    }
-
-    return this.core.drainEvents();
-  }
-
-  *batchedIterator(): IterableIterator<AnyXmlEvent[]> {
-    while (true) {
-      const batch = this.nextBatch();
-      if (batch.length === 0) {
+        this.finish();
         break;
       }
-      yield batch;
-    }
-  }
 
-  [Symbol.iterator](): Iterator<AnyXmlEvent[]> {
-    return this.batchedIterator();
-  }
-}
-
-/**
- * Asynchronous StAX pull parser for async iterable byte batches.
- *
- * The async surface is batch-oriented: each pull returns a non-empty event
- * batch until EOF, where it returns an empty array.
- *
- * @public
- */
-export class StaxXmlAsyncIterableParser implements AsyncIterable<AnyXmlEvent[]> {
-  private readonly iterator: AsyncIterator<ByteBatch>;
-  private readonly core: IterableParserCore;
-  private sourceDone = false;
-
-  constructor(source: AsyncIterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
-    this.iterator = source[Symbol.asyncIterator]();
-    this.core = new IterableParserCore(options);
-  }
-
-  async nextBatch(): Promise<AnyXmlEvent[]> {
-    if (!this.core.hasStarted()) {
-      this.core.start();
-    }
-
-    while (!this.sourceDone) {
-      const result = await this.iterator.next();
-      if (result.done) {
-        this.sourceDone = true;
-        this.core.finish();
-      } else {
-        this.core.pushBatch(result.value);
-      }
-
-      const batch = this.core.drainEvents();
-      if (batch.length > 0) {
-        return batch;
+      const buffer = this.prepareBuffer(result.value);
+      this.currentBuffer = buffer;
+      this.parseBuffer(buffer, false);
+      if (this.eventCursor >= minEventsToReturn) {
+        return true;
       }
     }
 
-    return this.core.drainEvents();
+    return this.eventCursor > 0;
   }
 
-  async *batchedIterator(): AsyncGenerator<AnyXmlEvent[]> {
-    while (true) {
-      const batch = await this.nextBatch();
-      if (batch.length === 0) {
-        break;
-      }
-      yield batch;
+  eventCount(): number {
+    return this.eventCursor;
+  }
+
+  buffer(): Uint8Array {
+    return this.currentBuffer;
+  }
+
+  eventType(index: number): IterableEventType {
+    return this.eventTypes[index] as IterableEventType;
+  }
+
+  nameStart(index: number): number {
+    return this.nameStarts[index]!;
+  }
+
+  nameEnd(index: number): number {
+    return this.nameEnds[index]!;
+  }
+
+  textStart(index: number): number {
+    return this.textStarts[index]!;
+  }
+
+  textEnd(index: number): number {
+    return this.textEnds[index]!;
+  }
+
+  attrCount(index: number): number {
+    return this.attrCounts[index]!;
+  }
+
+  attrNameStart(eventIndex: number, attrIndex: number): number {
+    return this.attrNameStarts[this.attrStarts[eventIndex]! + attrIndex]!;
+  }
+
+  attrNameEnd(eventIndex: number, attrIndex: number): number {
+    return this.attrNameEnds[this.attrStarts[eventIndex]! + attrIndex]!;
+  }
+
+  attrValueStart(eventIndex: number, attrIndex: number): number {
+    return this.attrValueStarts[this.attrStarts[eventIndex]! + attrIndex]!;
+  }
+
+  attrValueEnd(eventIndex: number, attrIndex: number): number {
+    return this.attrValueEnds[this.attrStarts[eventIndex]! + attrIndex]!;
+  }
+
+  decodeSpan(start: number, end: number): string {
+    return this.decoder.decode(this.currentBuffer.subarray(start, end));
+  }
+
+  copyName(index: number): string | undefined {
+    const nameId = this.nameIdsForEvents[index]!;
+    if (nameId >= 0) {
+      return this.nameStrings[nameId];
     }
+    const start = this.nameStarts[index]!;
+    return start < 0 ? undefined : this.decodeSpan(start, this.nameEnds[index]!);
   }
 
-  [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent[]> {
-    return this.batchedIterator();
-  }
-}
-
-class IterableParserCore {
-  private readonly decoder: TextDecoder;
-  private readonly options: Required<Pick<StaxXmlIterableParserOptions, 'encoding' | 'autoDecodeEntities'>> & StaxXmlIterableParserOptions;
-  private readonly eventFilter?: ParserEventFilter;
-  private readonly entityDecoder: (text: string) => string;
-
-  private readonly eventQueue: AnyXmlEvent[] = [];
-  private queueHead = 0;
-  private readonly elementStack: string[] = [];
-  private readonly namespaceStack: Map<string, string>[] = [];
-  private readonly pendingTextSegments: string[] = [];
-  private pendingTail = '';
-  private started = false;
-
-  constructor(options: StaxXmlIterableParserOptions) {
-    this.options = {
-      encoding: 'utf-8',
-      autoDecodeEntities: true,
-      ...options,
-    };
-    this.eventFilter = options.eventFilter;
-    this.decoder = new TextDecoder(this.options.encoding, {
-      fatal: false,
-      ignoreBOM: true,
-    });
-    this.entityDecoder = this.compileEntityDecoder();
+  copyText(index: number): string | undefined {
+    const start = this.textStarts[index]!;
+    return start < 0 ? undefined : this.decodeSpan(start, this.textEnds[index]!);
   }
 
-  hasStarted(): boolean {
-    return this.started;
-  }
-
-  start(): void {
-    if (this.started) {
-      return;
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
+    if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
+      return undefined;
     }
-    this.started = true;
-    this.enqueueEvent(XmlEventFactory.startDocument());
+    const index = this.attrStarts[eventIndex]! + attrIndex;
+    const nameId = this.attrNameIds[index]!;
+    return nameId >= 0
+      ? this.nameStrings[nameId]
+      : this.decodeSpan(this.attrNameStarts[index]!, this.attrNameEnds[index]!);
   }
 
-  pushBatch(batch: ByteBatch): void {
-    this.start();
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
+    if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
+      return undefined;
+    }
+    return this.decodeSpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
+  }
+
+  private resetFrames(): void {
+    this.eventCursor = 0;
+    this.attrCursor = 0;
+  }
+
+  private prepareBuffer(batch: ByteBatch): Uint8Array {
+    const hasTail = this.pendingTail.byteLength > 0;
+    if (!hasTail && batch.length === 1) {
+      return batch[0]!;
+    }
+
+    let total = hasTail ? this.pendingTail.byteLength : 0;
     for (let index = 0; index < batch.length; index++) {
-      const decoded = this.decoder.decode(batch[index], { stream: true });
-      this.processDecodedChunk(decoded, false);
+      total += batch[index]!.byteLength;
     }
+
+    const buffer = new Uint8Array(total);
+    let offset = 0;
+    if (hasTail) {
+      buffer.set(this.pendingTail, offset);
+      offset += this.pendingTail.byteLength;
+      this.pendingTail = EMPTY_BUFFER;
+    }
+    for (let index = 0; index < batch.length; index++) {
+      const chunk = batch[index]!;
+      buffer.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return buffer;
   }
 
-  finish(): void {
-    this.start();
-    const flushed = this.decoder.decode();
-    this.processDecodedChunk(flushed, true);
+  private finish(): void {
+    if (this.pendingTail.byteLength > 0) {
+      this.currentBuffer = this.pendingTail;
+      this.pendingTail = EMPTY_BUFFER;
+      this.parseBuffer(this.currentBuffer, true);
+    } else {
+      this.currentBuffer = EMPTY_BUFFER;
+    }
 
-    this.flushTextSegments();
-
-    if (this.elementStack.length > 0) {
+    if (this.elementNameIds.length > 0) {
       throw new Error('Unexpected end of document. Not all elements were closed.');
     }
 
-    this.enqueueEvent(XmlEventFactory.endDocument());
+    this.addEvent(IterableEventType.END_DOCUMENT);
+    this.finished = true;
   }
 
-  drainEvents(): AnyXmlEvent[] {
-    if (this.queueHead >= this.eventQueue.length) {
-      return [];
-    }
-
-    const batch = this.eventQueue.slice(this.queueHead);
-    this.eventQueue.length = 0;
-    this.queueHead = 0;
-    return batch;
-  }
-
-  private processDecodedChunk(decodedChunk: string, isFinal: boolean): void {
-    const window = this.pendingTail.length > 0 ? this.pendingTail + decodedChunk : decodedChunk;
-    this.pendingTail = '';
-
+  private parseBuffer(buffer: Uint8Array, isFinal: boolean): void {
     let position = 0;
-    while (position < window.length) {
-      const ltPos = window.indexOf('<', position);
+    while (position < buffer.byteLength) {
+      const ltPos = buffer.indexOf(60, position);
       if (ltPos === -1) {
-        this.pendingTextSegments.push(window.slice(position));
+        if (isFinal) {
+          this.addText(position, buffer.byteLength);
+        } else {
+          this.pendingTail = buffer.slice(position);
+        }
         return;
       }
 
       if (ltPos > position) {
-        this.pendingTextSegments.push(window.slice(position, ltPos));
+        this.addText(position, ltPos);
       }
 
-      if (this.pendingTextSegments.length > 0) {
-        this.flushTextSegments();
-      }
-
-      const result = this.parseTag(window, ltPos, isFinal);
-      if (result === null) {
-        this.pendingTail = window.slice(ltPos);
+      const next = this.parseTag(buffer, ltPos, isFinal);
+      if (next < 0) {
+        this.pendingTail = buffer.slice(ltPos);
         return;
       }
-
-      position = result;
+      position = next;
     }
   }
 
-  private parseTag(window: string, position: number, isFinal: boolean): number | null {
-    if (window.startsWith('<?xml', position)) {
-      const end = window.indexOf('?>', position + 5);
-      if (end === -1) {
-        if (isFinal) {
-          throw new Error('Unclosed XML declaration');
-        }
-        return null;
+  private parseTag(buffer: Uint8Array, position: number, isFinal: boolean): number {
+    if (position + 1 >= buffer.byteLength) {
+      if (isFinal) {
+        throw new Error('Unclosed start tag');
       }
-      return end + 2;
+      return -1;
     }
 
-    if (window.startsWith('<!--', position)) {
-      const end = window.indexOf('-->', position + 4);
-      if (end === -1) {
-        if (isFinal) {
-          throw new Error('Unclosed comment');
-        }
-        return null;
-      }
-      return end + 3;
+    const next = buffer[position + 1]!;
+    if (next === 47) {
+      return this.parseEndTag(buffer, position, isFinal);
     }
+    if (next === 33) {
+      return this.parseBangTag(buffer, position, isFinal);
+    }
+    if (next === 63) {
+      return this.parseProcessingInstruction(buffer, position, isFinal);
+    }
+    return this.parseStartTag(buffer, position, isFinal);
+  }
 
-    if (window.startsWith('<![CDATA[', position)) {
-      const end = window.indexOf(']]>', position + 9);
+  private parseBangTag(buffer: Uint8Array, position: number, isFinal: boolean): number {
+    if (startsWithAscii(buffer, position, '<![CDATA[')) {
+      const end = indexOfAscii(buffer, ']]>', position + 9);
       if (end === -1) {
         if (isFinal) {
           throw new Error('Unclosed CDATA section');
         }
-        return null;
+        return -1;
       }
-
-      if (!this.eventFilter || this.eventFilter.includeCdata) {
-        this.enqueueEvent(XmlEventFactory.cdata(window.slice(position + 9, end)));
+      this.addTextEvent(IterableEventType.CDATA, position + 9, end);
+      return end + 3;
+    }
+    if (startsWithAscii(buffer, position, '<!--')) {
+      const end = indexOfAscii(buffer, '-->', position + 4);
+      if (end === -1) {
+        if (isFinal) {
+          throw new Error('Unclosed comment');
+        }
+        return -1;
       }
       return end + 3;
     }
-
-    if (window.startsWith('<?', position)) {
-      const end = window.indexOf('?>', position + 2);
+    if (startsWithAscii(buffer, position, '<!DOCTYPE')) {
+      const end = findGt(buffer, position + 2);
       if (end === -1) {
         if (isFinal) {
-          throw new Error('Unclosed processing instruction');
+          throw new Error('Unclosed DOCTYPE declaration');
         }
-        return null;
+        return -1;
       }
-      return end + 2;
+      return end + 1;
     }
 
-    if (window.startsWith('</', position)) {
-      return this.parseEndTag(window, position, isFinal);
+    const end = findGt(buffer, position + 2);
+    if (end === -1) {
+      if (isFinal) {
+        throw new Error('Unclosed markup');
+      }
+      return -1;
     }
-
-    return this.parseStartTag(window, position, isFinal);
+    return end + 1;
   }
 
-  private parseEndTag(window: string, position: number, isFinal: boolean): number | null {
-    const end = window.indexOf('>', position + 2);
+  private parseProcessingInstruction(buffer: Uint8Array, position: number, isFinal: boolean): number {
+    const end = indexOfAscii(buffer, '?>', position + 2);
+    if (end === -1) {
+      if (isFinal) {
+        throw new Error(startsWithAscii(buffer, position, '<?xml') ? 'Unclosed XML declaration' : 'Unclosed processing instruction');
+      }
+      return -1;
+    }
+    return end + 2;
+  }
+
+  private parseEndTag(buffer: Uint8Array, position: number, isFinal: boolean): number {
+    const end = findGt(buffer, position + 2);
     if (end === -1) {
       if (isFinal) {
         throw new Error('Unclosed end tag');
       }
-      return null;
+      return -1;
     }
 
-    const fullTagName = this.trimmedSlice(window, position + 2, end);
-    if (this.elementStack.length === 0) {
-      throw new Error(`Mismatched closing tag: </${fullTagName}>. No open elements.`);
+    let nameStart = position + 2;
+    let nameEnd = end;
+    while (nameStart < nameEnd && isWhitespace(buffer[nameStart]!)) nameStart++;
+    while (nameEnd > nameStart && isWhitespace(buffer[nameEnd - 1]!)) nameEnd--;
+
+    if (this.elementNameIds.length === 0) {
+      throw new Error(`Mismatched closing tag: </${this.decoder.decode(buffer.subarray(nameStart, nameEnd))}>. No open elements.`);
     }
 
-    const expectedTagName = this.elementStack[this.elementStack.length - 1]!;
-    if (fullTagName !== expectedTagName) {
-      throw new Error(`Mismatched closing tag: </${fullTagName}>. Expected </${expectedTagName}>.`);
+    const foundId = this.lookupNameId(buffer, nameStart, nameEnd);
+    const expectedId = this.elementNameIds.pop()!;
+    if (foundId !== expectedId) {
+      const found = this.decoder.decode(buffer.subarray(nameStart, nameEnd));
+      const expected = this.nameStrings[expectedId]!;
+      throw new Error(`Mismatched closing tag: </${found}>. Expected </${expected}>.`);
     }
 
-    this.elementStack.pop();
-    const currentNamespaces = this.namespaceStack.pop();
-    const { localName, prefix, uri } = this.parseQualifiedName(fullTagName, currentNamespaces);
-    this.enqueueEvent(XmlEventFactory.endElement(fullTagName, localName, prefix, uri));
+    this.addEvent(IterableEventType.END_ELEMENT, nameStart, nameEnd, -1, -1, foundId);
     return end + 1;
   }
 
-  private parseStartTag(window: string, position: number, isFinal: boolean): number | null {
-    const tagEnd = this.findTagEnd(window, position + 1);
+  private parseStartTag(buffer: Uint8Array, position: number, isFinal: boolean): number {
+    const tagEnd = findTagEnd(buffer, position + 1);
     if (tagEnd === -1) {
       if (isFinal) {
         throw new Error('Unclosed start tag');
       }
-      return null;
+      return -1;
     }
 
-    let contentEnd = tagEnd;
-    while (contentEnd > position + 1 && isWhitespace(window.charCodeAt(contentEnd - 1))) {
-      contentEnd--;
-    }
+    let actualEnd = tagEnd;
+    while (actualEnd > position + 1 && isWhitespace(buffer[actualEnd - 1]!)) actualEnd--;
 
-    let isSelfClosing = false;
-    let actualEnd = contentEnd;
-    if (actualEnd > position + 1 && window.charCodeAt(actualEnd - 1) === 47) {
-      isSelfClosing = true;
+    let selfClosing = false;
+    if (actualEnd > position + 1 && buffer[actualEnd - 1] === 47) {
+      selfClosing = true;
       actualEnd--;
-      while (actualEnd > position + 1 && isWhitespace(window.charCodeAt(actualEnd - 1))) {
-        actualEnd--;
-      }
+      while (actualEnd > position + 1 && isWhitespace(buffer[actualEnd - 1]!)) actualEnd--;
     }
 
-    let nameEnd = position + 1;
-    let colonPos = -1;
+    let nameStart = position + 1;
+    let nameEnd = nameStart;
     while (nameEnd < actualEnd) {
-      const code = window.charCodeAt(nameEnd);
-      if (code === 58 && colonPos === -1) {
-        colonPos = nameEnd;
-      }
-      if (isWhitespace(code) || code === 47 || code === 62) {
-        break;
-      }
+      const byte = buffer[nameEnd]!;
+      if (isWhitespace(byte) || byte === 47 || byte === 62) break;
       nameEnd++;
     }
 
-    const tagName = window.slice(position + 1, nameEnd);
-    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1];
+    const nameId = this.internName(buffer, nameStart, nameEnd);
+    const eventIndex = this.addEvent(IterableEventType.START_ELEMENT, nameStart, nameEnd, -1, -1, nameId);
+    const attrStart = this.attrCursor;
+    this.parseAttributes(buffer, nameEnd, actualEnd);
+    this.attrStarts[eventIndex] = attrStart;
+    this.attrCounts[eventIndex] = this.attrCursor - attrStart;
 
-    if (colonPos === -1 && nameEnd === tagEnd && window.charCodeAt(nameEnd) === 62) {
-      const uri = parentNamespaces?.get('');
-      this.enqueueEvent(XmlEventFactory.startElement(
-        tagName,
-        tagName,
-        undefined,
-        uri,
-        EMPTY_ATTRS,
-        EMPTY_ATTRS_WITH_PREFIX,
-      ));
-
-      this.elementStack.push(tagName);
-      this.namespaceStack.push(parentNamespaces ?? new Map());
-      return tagEnd + 1;
-    }
-
-    const includeAttributes = !this.eventFilter || this.eventFilter.includeAttributes;
-    const { attributes, attributesWithPrefix, namespaces } = this.parseAttributesFast(
-      window,
-      nameEnd,
-      actualEnd,
-      parentNamespaces ?? new Map(),
-      includeAttributes,
-    );
-
-    let localName: string;
-    let prefix: string | undefined;
-    let uri: string | undefined;
-
-    if (colonPos === -1) {
-      localName = tagName;
-      prefix = undefined;
-      uri = namespaces.get('');
+    if (selfClosing) {
+      this.addEvent(IterableEventType.END_ELEMENT, nameStart, nameEnd, -1, -1, nameId);
     } else {
-      prefix = tagName.slice(0, colonPos - (position + 1));
-      localName = tagName.slice(colonPos - (position + 1) + 1);
-      uri = namespaces.get(prefix);
+      this.elementNameIds.push(nameId);
     }
-
-    this.enqueueEvent(XmlEventFactory.startElement(
-      tagName,
-      localName,
-      prefix,
-      uri,
-      attributes,
-      attributesWithPrefix,
-    ));
-
-    if (isSelfClosing) {
-      this.enqueueEvent(XmlEventFactory.endElement(tagName, localName, prefix, uri));
-    } else {
-      this.elementStack.push(tagName);
-      this.namespaceStack.push(namespaces);
-    }
-
     return tagEnd + 1;
   }
 
-  private parseAttributesFast(
-    window: string,
-    start: number,
-    end: number,
-    parentNamespaces: Map<string, string>,
-    includeAttributes: boolean,
-  ): { attributes: Record<string, string>; attributesWithPrefix: Record<string, AttributeInfo>; namespaces: Map<string, string> } {
-    if (start >= end) {
-      return {
-        attributes: EMPTY_ATTRS,
-        attributesWithPrefix: EMPTY_ATTRS_WITH_PREFIX,
-        namespaces: parentNamespaces,
-      };
-    }
-
-    const attributes: Record<string, string> = {};
-    const attributesWithPrefix: Record<string, AttributeInfo> = {};
-    let namespaces: Map<string, string> = parentNamespaces;
-    let namespaceCopied = false;
-
+  private parseAttributes(buffer: Uint8Array, start: number, end: number): void {
     let index = start;
     while (index < end) {
-      while (index < end && isWhitespace(window.charCodeAt(index))) {
-        index++;
-      }
+      while (index < end && isWhitespace(buffer[index]!)) index++;
+      if (index >= end) break;
 
       const nameStart = index;
       while (index < end) {
-        const code = window.charCodeAt(index);
-        if (code === 61 || isWhitespace(code)) {
-          break;
-        }
+        const byte = buffer[index]!;
+        if (byte === 61 || isWhitespace(byte)) break;
         index++;
       }
+      const nameEnd = index;
 
-      if (index === nameStart) {
-        break;
-      }
-
-      const attrName = window.slice(nameStart, index);
-      while (index < end && isWhitespace(window.charCodeAt(index))) {
-        index++;
-      }
-
-      if (index >= end || window.charCodeAt(index) !== 61) {
-        if (includeAttributes) {
-          this.recordAttribute(attributes, attributesWithPrefix, namespaces, attrName, 'true');
-        }
+      while (index < end && isWhitespace(buffer[index]!)) index++;
+      if (index >= end || buffer[index] !== 61) {
+        this.addAttribute(buffer, nameStart, nameEnd, nameStart, nameEnd);
         continue;
       }
 
       index++;
-      while (index < end && isWhitespace(window.charCodeAt(index))) {
-        index++;
-      }
-      if (index >= end) {
-        break;
-      }
+      while (index < end && isWhitespace(buffer[index]!)) index++;
+      if (index >= end) break;
 
-      const quote = window.charCodeAt(index);
-      if (quote !== 34 && quote !== 39) {
-        break;
-      }
-
+      const quote = buffer[index]!;
+      if (quote !== 34 && quote !== 39) break;
       index++;
       const valueStart = index;
-      while (index < end && window.charCodeAt(index) !== quote) {
-        index++;
-      }
-
-      const attrValue = this.entityDecoder(window.slice(valueStart, index));
-      const c0 = attrName.charCodeAt(0);
-      if (c0 === 120 && attrName.length >= 5) {
-        if (attrName === 'xmlns') {
-          if (!namespaceCopied) {
-            namespaces = new Map(parentNamespaces);
-            namespaceCopied = true;
-          }
-          namespaces.set('', attrValue);
-        } else if (attrName.charCodeAt(5) === 58 && attrName.slice(0, 5) === 'xmlns') {
-          if (!namespaceCopied) {
-            namespaces = new Map(parentNamespaces);
-            namespaceCopied = true;
-          }
-          namespaces.set(attrName.slice(6), attrValue);
-        }
-      }
-
-      if (includeAttributes) {
-        this.recordAttribute(attributes, attributesWithPrefix, namespaces, attrName, attrValue);
-      }
+      while (index < end && buffer[index] !== quote) index++;
+      const valueEnd = index;
+      this.addAttribute(buffer, nameStart, nameEnd, valueStart, valueEnd);
       index++;
     }
-
-    return { attributes, attributesWithPrefix, namespaces };
   }
 
-  private recordAttribute(
-    attributes: Record<string, string>,
-    attributesWithPrefix: Record<string, AttributeInfo>,
-    namespaces: Map<string, string>,
-    attrName: string,
-    attrValue: string,
-  ): void {
-    attributes[attrName] = attrValue;
-
-    let localName = attrName;
-    let prefix: string | undefined;
-    let uri: string | undefined;
-    const colonIndex = attrName.indexOf(':');
-    if (colonIndex !== -1) {
-      prefix = attrName.slice(0, colonIndex);
-      localName = attrName.slice(colonIndex + 1);
-      uri = namespaces.get(prefix);
-    }
-
-    if (attrName.startsWith('xmlns')) {
-      if (attrName === 'xmlns') {
-        localName = 'xmlns';
-        prefix = undefined;
-      } else {
-        localName = attrName.slice(6);
-        prefix = 'xmlns';
-      }
-      uri = undefined;
-    }
-
-    attributesWithPrefix[attrName] = {
-      value: attrValue,
-      localName,
-      prefix,
-      uri,
-    };
-  }
-
-  private parseQualifiedName(
-    qname: string,
-    namespaces?: Map<string, string>,
-  ): { localName: string; prefix: string | undefined; uri: string | undefined } {
-    const colonIndex = qname.indexOf(':');
-    if (colonIndex === -1) {
-      return {
-        localName: qname,
-        prefix: undefined,
-        uri: namespaces?.get(''),
-      };
-    }
-
-    const prefix = qname.slice(0, colonIndex);
-    return {
-      localName: qname.slice(colonIndex + 1),
-      prefix,
-      uri: namespaces?.get(prefix),
-    };
-  }
-
-  private flushTextSegments(): void {
-    if (this.pendingTextSegments.length === 0) {
-      return;
-    }
-
-    const rawText = this.pendingTextSegments.length === 1
-      ? this.pendingTextSegments[0]!
-      : this.pendingTextSegments.join('');
-    this.pendingTextSegments.length = 0;
-
-    const trimmedText = trimmedString(rawText);
-    if (!trimmedText) {
-      return;
-    }
-
-    if (!this.eventFilter || this.eventFilter.includeCharacters) {
-      this.enqueueEvent(XmlEventFactory.characters(this.entityDecoder(trimmedText)));
+  private addText(start: number, end: number): void {
+    if (start < end && !isWhitespaceOnly(this.currentBuffer, start, end)) {
+      this.addTextEvent(IterableEventType.CHARACTERS, start, end);
     }
   }
 
-  private enqueueEvent(event: AnyXmlEvent): void {
-    this.eventQueue.push(event);
+  private internName(buffer: Uint8Array, start: number, end: number): number {
+    const key = nameKey(buffer, start, end);
+    const existing = this.nameIds.get(key);
+    if (existing !== undefined) {
+      return existing;
+    }
+    const id = this.nameStrings.length;
+    this.nameIds.set(key, id);
+    this.nameStrings.push(this.decoder.decode(buffer.subarray(start, end)));
+    return id;
   }
 
-  private findTagEnd(window: string, start: number): number {
-    let index = start;
-    let inQuote = false;
-    let quoteChar = 0;
-
-    while (index < window.length) {
-      const code = window.charCodeAt(index);
-      if (code === 34 || code === 39) {
-        if (!inQuote) {
-          inQuote = true;
-          quoteChar = code;
-        } else if (quoteChar === code) {
-          inQuote = false;
-          quoteChar = 0;
-        }
-      } else if (code === 62 && !inQuote) {
-        return index;
-      }
-      index++;
-    }
-
-    return -1;
+  private lookupNameId(buffer: Uint8Array, start: number, end: number): number {
+    return this.nameIds.get(nameKey(buffer, start, end)) ?? -1;
   }
 
-  private trimmedSlice(window: string, start: number, end: number): string {
-    while (start < end && isWhitespace(window.charCodeAt(start))) {
-      start++;
-    }
-    while (end > start && isWhitespace(window.charCodeAt(end - 1))) {
-      end--;
-    }
-    return window.slice(start, end);
+  private addTextEvent(type: IterableEventType, start: number, end: number): void {
+    this.addEvent(type, -1, -1, start, end);
   }
 
-  private compileEntityDecoder(): (text: string) => string {
-    if (!this.options.autoDecodeEntities) {
-      return (text) => text;
-    }
+  private addEvent(
+    type: IterableEventType,
+    nameStart = -1,
+    nameEnd = -1,
+    textStart = -1,
+    textEnd = -1,
+    nameId = -1,
+  ): number {
+    this.ensureEventCapacity(this.eventCursor + 1);
+    const index = this.eventCursor++;
+    this.eventTypes[index] = type;
+    this.nameStarts[index] = nameStart;
+    this.nameEnds[index] = nameEnd;
+    this.nameIdsForEvents[index] = nameId;
+    this.textStarts[index] = textStart;
+    this.textEnds[index] = textEnd;
+    this.attrStarts[index] = this.attrCursor;
+    this.attrCounts[index] = 0;
+    return index;
+  }
 
-    if (this.options.addEntities && this.options.addEntities.length > 0) {
-      const entityMap: Record<string, string> = { ...DEFAULT_ENTITY_MAP };
-      const patterns: string[] = ['lt', 'gt', 'quot', 'apos'];
+  private addAttribute(buffer: Uint8Array, nameStart: number, nameEnd: number, valueStart: number, valueEnd: number): void {
+    this.ensureAttrCapacity(this.attrCursor + 1);
+    const index = this.attrCursor++;
+    this.attrNameStarts[index] = nameStart;
+    this.attrNameEnds[index] = nameEnd;
+    this.attrNameIds[index] = this.internName(buffer, nameStart, nameEnd);
+    this.attrValueStarts[index] = valueStart;
+    this.attrValueEnds[index] = valueEnd;
+  }
 
-      for (const { entity, value } of this.options.addEntities) {
-        if (entity && value) {
-          const key = entity.startsWith('&') && entity.endsWith(';')
-            ? entity.slice(1, -1)
-            : entity;
-          entityMap[key] = value;
-          patterns.push(key);
-        }
-      }
-      patterns.push('amp');
+  private ensureEventCapacity(size: number): void {
+    if (size <= this.eventTypes.length) return;
+    const nextSize = this.eventTypes.length * 2;
+    this.eventTypes = growUint8(this.eventTypes, nextSize);
+    this.nameStarts = growInt32(this.nameStarts, nextSize);
+    this.nameEnds = growInt32(this.nameEnds, nextSize);
+    this.nameIdsForEvents = growInt32(this.nameIdsForEvents, nextSize);
+    this.textStarts = growInt32(this.textStarts, nextSize);
+    this.textEnds = growInt32(this.textEnds, nextSize);
+    this.attrStarts = growInt32(this.attrStarts, nextSize);
+    this.attrCounts = growInt32(this.attrCounts, nextSize);
+  }
 
-      const cacheKey = patterns.join(',');
-      let regex = ENTITY_REGEX_CACHE.get(cacheKey);
-      if (!regex) {
-        const pattern = patterns
-          .sort((left, right) => right.length - left.length)
-          .map((entity) => entity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-          .join('|');
-        regex = new RegExp(`&(${pattern});`, 'g');
-        ENTITY_REGEX_CACHE.set(cacheKey, regex);
-      }
-
-      return (text: string) => {
-        if (!text || text.indexOf('&') === -1) {
-          return text;
-        }
-        regex!.lastIndex = 0;
-        return text.replace(
-          regex!,
-          /* v8 ignore next -- custom regex only matches keys inserted into entityMap */
-          (_, entity) => entityMap[entity] || _,
-        );
-      };
-    }
-
-    return (text: string) => {
-      if (!text || text.indexOf('&') === -1) {
-        return text;
-      }
-      DEFAULT_ENTITY_REGEX.lastIndex = 0;
-      return text.replace(
-        DEFAULT_ENTITY_REGEX,
-        /* v8 ignore next -- default regex only matches keys present in DEFAULT_ENTITY_MAP */
-        (_, entity) => DEFAULT_ENTITY_MAP[entity] || _,
-      );
-    };
+  private ensureAttrCapacity(size: number): void {
+    if (size <= this.attrNameStarts.length) return;
+    const nextSize = this.attrNameStarts.length * 2;
+    this.attrNameStarts = growInt32(this.attrNameStarts, nextSize);
+    this.attrNameEnds = growInt32(this.attrNameEnds, nextSize);
+    this.attrNameIds = growInt32(this.attrNameIds, nextSize);
+    this.attrValueStarts = growInt32(this.attrValueStarts, nextSize);
+    this.attrValueEnds = growInt32(this.attrValueEnds, nextSize);
   }
 }
 
@@ -796,22 +554,79 @@ function normalizeBatchSize(value: number | undefined): number {
   return batchSize;
 }
 
-function isWhitespace(code: number): boolean {
-  if (code < 128) {
-    return ASCII_TABLE[code] === 1;
-  }
-  return code <= 32 || UNICODE_WHITESPACE.has(code);
+function growInt32(source: Int32Array, size: number): Int32Array {
+  const next = new Int32Array(size);
+  next.set(source);
+  return next;
 }
 
-function trimmedString(value: string): string {
-  let start = 0;
-  let end = value.length;
+function growUint8(source: Uint8Array, size: number): Uint8Array {
+  const next = new Uint8Array(size);
+  next.set(source);
+  return next;
+}
 
-  while (start < end && isWhitespace(value.charCodeAt(start))) {
-    start++;
+function isWhitespace(byte: number): boolean {
+  return byte === 32 || byte === 9 || byte === 10 || byte === 13;
+}
+
+function isWhitespaceOnly(buffer: Uint8Array, start: number, end: number): boolean {
+  for (let index = start; index < end; index++) {
+    if (!isWhitespace(buffer[index]!)) {
+      return false;
+    }
   }
-  while (end > start && isWhitespace(value.charCodeAt(end - 1))) {
-    end--;
+  return true;
+}
+
+function nameKey(buffer: Uint8Array, start: number, end: number): number {
+  let hash = 2166136261;
+  for (let index = start; index < end; index++) {
+    hash ^= buffer[index]!;
+    hash = Math.imul(hash, 16777619) >>> 0;
   }
-  return start < end ? value.slice(start, end) : '';
+  return hash + ((end - start) * 0x1_0000_0000);
+}
+
+function startsWithAscii(buffer: Uint8Array, position: number, value: string): boolean {
+  if (position + value.length > buffer.byteLength) return false;
+  for (let index = 0; index < value.length; index++) {
+    if (buffer[position + index] !== value.charCodeAt(index)) return false;
+  }
+  return true;
+}
+
+function indexOfAscii(buffer: Uint8Array, value: string, from: number): number {
+  const first = value.charCodeAt(0);
+  const max = buffer.byteLength - value.length;
+  for (let index = from; index <= max; index++) {
+    if (buffer[index] !== first) continue;
+    let matched = true;
+    for (let offset = 1; offset < value.length; offset++) {
+      if (buffer[index + offset] !== value.charCodeAt(offset)) {
+        matched = false;
+        break;
+      }
+    }
+    if (matched) return index;
+  }
+  return -1;
+}
+
+function findGt(buffer: Uint8Array, from: number): number {
+  return buffer.indexOf(62, from);
+}
+
+function findTagEnd(buffer: Uint8Array, from: number): number {
+  let quote = 0;
+  for (let index = from; index < buffer.byteLength; index++) {
+    const byte = buffer[index]!;
+    if (byte === 34 || byte === 39) {
+      if (quote === 0) quote = byte;
+      else if (quote === byte) quote = 0;
+    } else if (byte === 62 && quote === 0) {
+      return index;
+    }
+  }
+  return -1;
 }
