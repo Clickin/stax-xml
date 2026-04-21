@@ -1,5 +1,5 @@
 export {
-  StaxXmlAsyncIterableParser,
+  IterableEventType,
   StaxXmlIterableParser,
   toAsyncByteBatches,
   toByteBatches,
@@ -7,5 +7,4 @@ export {
 export type {
   ByteBatch,
   ByteBatchOptions,
-  StaxXmlIterableParserOptions,
 } from '../StaxXmlIterableParser.js';
