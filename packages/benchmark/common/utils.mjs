@@ -19,6 +19,10 @@ export function loadXmlFile(filePath) {
   return readFileSync(filePath, 'utf8');
 }
 
+export function loadXmlBuffer(filePath) {
+  return readFileSync(filePath);
+}
+
 export function loadJsonFile(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
 }

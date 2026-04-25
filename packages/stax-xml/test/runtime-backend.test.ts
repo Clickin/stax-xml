@@ -77,9 +77,18 @@ const platformPackages = [
   {
     dir: 'native-wasm32-wasi',
     name: WASM_PACKAGE_NAME,
-    os: ['darwin', 'linux', 'win32'],
-    cpu: ['arm64', 'x64'],
-    files: ['index.mjs', 'stax_xml_native.wasm', 'README.md', 'LICENSE']
+    cpu: ['wasm32'],
+    files: [
+      'index.mjs',
+      'index.d.ts',
+      'stax_xml_native.wasi.cjs',
+      'stax_xml_native.wasi-browser.js',
+      'stax_xml_native.wasm32-wasi.wasm',
+      'wasi-worker.mjs',
+      'wasi-worker-browser.mjs',
+      'README.md',
+      'LICENSE'
+    ]
   }
 ] as const;
 
@@ -100,7 +109,11 @@ describe('runtime backend package topology', () => {
 
       expect(manifest.name).toBe(expected.name);
       expect(manifest.version).toBe(staxPackage.version);
-      expect(manifest.os).toEqual(expected.os);
+      if ('os' in expected) {
+        expect(manifest.os).toEqual(expected.os);
+      } else {
+        expect(manifest.os).toBeUndefined();
+      }
       expect(manifest.cpu).toEqual(expected.cpu);
       expect(manifest.files).toEqual(expected.files);
       expect(manifest.publishConfig).toEqual({ access: 'public' });
@@ -223,14 +236,14 @@ describe('runtime backend resolver', () => {
     expect(jsBackend.errors).toHaveLength(1);
   });
 
-  it('uses dynamic import in the default resolver and still reaches JavaScript fallback', async () => {
+  it('uses dynamic import in the default resolver and reaches the locally staged wasm package', async () => {
     const backend = await resolveStaxXmlRuntimeBackend({
       platform: { platform: 'freebsd', arch: 'x64' }
     });
 
-    expect(backend.kind).toBe('js');
-    expect(backend.packageName).toBe('stax-xml');
-    expect(backend.errors.map(error => error.packageName)).toEqual([WASM_PACKAGE_NAME]);
+    expect(backend.kind).toBe('wasm');
+    expect(backend.packageName).toBe(WASM_PACKAGE_NAME);
+    expect(backend.errors).toEqual([]);
   });
 });
 

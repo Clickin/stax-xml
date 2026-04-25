@@ -1,7 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { open as openFile } from 'node:fs/promises';
+import { cpus, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import { bench, barplot, run, summary } from 'mitata';
@@ -9,16 +11,20 @@ import { Builder } from 'xml2js';
 import xml2js from 'xml2js';
 import * as txml from 'txml';
 import {
-  StaxXmlParser,
   StaxXmlParserSync,
   StaxXmlWriter,
   StaxXmlWriterSync,
   StaxXmlWriterSyncSink,
-  XmlEventType,
 } from 'stax-xml';
-import { createLargeXMLStream } from './common/large-file-generator.mjs';
+import { StaxXmlNodeIterableParser, nodeFileByteBatchesSync } from 'stax-xml/iterable/node';
+import {
+  createStaxParserSurfaceRunners,
+  loadNativeAggregateProbe,
+  parseXmlToObjectBaseline,
+  STAX_PARSER_SURFACE_SCENARIOS,
+} from './common/parser-scenarios.mjs';
 import { normalizeFxpWriterTree, normalizeOrderedWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
-import { ASSET_PATHS, loadJsonFile, loadXmlFile } from './common/utils.mjs';
+import { ASSET_PATHS, loadJsonFile, loadXmlBuffer } from './common/utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, '..', '..');
@@ -29,6 +35,18 @@ export const summaryPath = join(resultsDir, 'latest-summary.json');
 export const benchmarkMarkdownPath = join(repoRoot, 'BENCHMARK.md');
 const runtimeMatrixPath = join(resultsDir, 'runtime-matrix.json');
 const crossRuntimeComparisonPath = join(resultsDir, 'cross-runtime-comparison.json');
+const benchmarkPackageJsonPath = join(benchmarkDir, 'package.json');
+const rootPackageJsonPath = join(repoRoot, 'package.json');
+const iterableFileChunkSize = 1024 * 1024;
+const iterableFileBatchSize = 1;
+const iterableFileSizeCases = [
+  { id: '1mib', display: '1MiB', targetBytes: 1024 ** 2 },
+  { id: '10mib', display: '10MiB', targetBytes: 10 * 1024 ** 2 },
+  { id: '100mib', display: '100MiB', targetBytes: 100 * 1024 ** 2 },
+  { id: '1gib', display: '1GiB', targetBytes: 1024 ** 3 },
+];
+const largeAsyncFileCase = { id: '4gib', display: '4GiB', targetBytes: 4 * 1024 ** 3 };
+const githubBlobBase = 'https://github.com/Clickin/stax-xml/blob/master/';
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
@@ -72,6 +90,191 @@ function runCommand(command, commandArgs, options = {}) {
   if (result.status !== 0) {
     throw new Error(`Command failed: ${command} ${commandArgs.join(' ')}`);
   }
+}
+
+function readJsonFile(filePath) {
+  return JSON.parse(readFileSync(filePath, 'utf8'));
+}
+
+function readJsonFileIfExists(filePath) {
+  if (!existsSync(filePath)) return null;
+  return readJsonFile(filePath);
+}
+
+function packageJsonPathFor(packageName) {
+  switch (packageName) {
+    case 'stax-xml':
+      return join(repoRoot, 'packages', 'stax-xml', 'package.json');
+    case '@stax-xml/native-aggregate-probe':
+      return join(repoRoot, 'packages', 'native-aggregate', 'package.json');
+    default: {
+      const segments = packageName.startsWith('@') ? packageName.split('/') : [packageName];
+      return join(benchmarkDir, 'node_modules', ...segments, 'package.json');
+    }
+  }
+}
+
+function collectBenchmarkPackageVersions() {
+  const benchmarkPackage = readJsonFile(benchmarkPackageJsonPath);
+  return Object.entries(benchmarkPackage.dependencies ?? {})
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([name, declared]) => {
+      const packageJsonPath = packageJsonPathFor(name);
+      const packageJson = readJsonFileIfExists(packageJsonPath);
+      return {
+        name,
+        declared,
+        version: packageJson?.version ?? null,
+        source: name === 'stax-xml' || name.startsWith('@stax-xml/') ? 'workspace' : 'npm',
+        status: packageJson ? 'ok' : 'missing',
+      };
+    });
+}
+
+function commandCandidates(command) {
+  if (process.platform !== 'win32' || /\.[a-z0-9]+$/i.test(command)) {
+    return [command];
+  }
+  return [command, `${command}.exe`, `${command}.cmd`, `${command}.bat`];
+}
+
+function quoteCmdArgument(value) {
+  const text = String(value);
+  if (/^[A-Za-z0-9_./:@=+-]+$/.test(text)) return text;
+  return `"${text.replace(/"/g, '\\"')}"`;
+}
+
+function spawnVersionCandidate(candidate, args) {
+  if (process.platform === 'win32' && /\.(cmd|bat)$/i.test(candidate)) {
+    return spawnSync('cmd.exe', ['/d', '/s', '/c', [candidate, ...args].map(quoteCmdArgument).join(' ')], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  }
+  return spawnSync(candidate, args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+}
+
+function spawnCommandVersion(command, args) {
+  let missing;
+  for (const candidate of commandCandidates(command)) {
+    const result = spawnVersionCandidate(candidate, args);
+    if (!result.error) {
+      return { command: candidate, result };
+    }
+    missing = result.error;
+  }
+  return { command, result: { error: missing } };
+}
+
+function commandVersion(id, command, args, { stderr = false } = {}) {
+  const { command: resolvedCommand, result } = spawnCommandVersion(command, args);
+  if (result.error) {
+    return { id, command: [command, ...args].join(' '), version: null, status: 'missing', reason: result.error.message };
+  }
+  if (result.status !== 0) {
+    return {
+      id,
+      command: [resolvedCommand, ...args].join(' '),
+      version: null,
+      status: 'failed',
+      reason: (result.stderr || result.stdout || `exit ${result.status}`).trim(),
+    };
+  }
+  const output = stderr ? `${result.stderr}\n${result.stdout}` : `${result.stdout}\n${result.stderr}`;
+  const version = output.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? null;
+  return { id, command: [resolvedCommand, ...args].join(' '), version, status: version ? 'ok' : 'unknown' };
+}
+
+function collectRuntimeVersions() {
+  return [
+    { id: 'node', command: process.execPath, version: process.version, status: 'ok' },
+    commandVersion('pnpm', 'pnpm', ['--version']),
+    commandVersion('bun', 'bun', ['--version']),
+    commandVersion('deno', 'deno', ['--version']),
+    commandVersion('java', 'java', ['-version'], { stderr: true }),
+    commandVersion('rustc', 'rustc', ['--version']),
+    commandVersion('cargo', 'cargo', ['--version']),
+  ];
+}
+
+function collectNodeComponentVersions() {
+  const keys = ['node', 'v8', 'uv', 'openssl', 'zlib', 'brotli', 'ares', 'icu', 'unicode', 'modules', 'napi'];
+  return keys
+    .filter((key) => process.versions[key])
+    .map((key) => ({ name: key, version: process.versions[key] }));
+}
+
+function collectBenchmarkEnvironment(baseEnvironment) {
+  const rootPackage = readJsonFileIfExists(rootPackageJsonPath);
+  return {
+    ...baseEnvironment,
+    packageManager: rootPackage?.packageManager ?? null,
+    packages: collectBenchmarkPackageVersions(),
+    runtimes: collectRuntimeVersions(),
+    nodeComponents: collectNodeComponentVersions(),
+  };
+}
+
+const benchmarkSourceLinks = {
+  environment: [
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'parser-2kb': [
+    ['parser-2kb.mjs', 'packages/benchmark/parser-2kb.mjs'],
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'parser-4kb': [
+    ['parser-4kb.mjs', 'packages/benchmark/parser-4kb.mjs'],
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'parser-13mb': [
+    ['parser-13mb.mjs', 'packages/benchmark/parser-13mb.mjs'],
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'parser-98mb': [
+    ['parser-98mb.mjs', 'packages/benchmark/parser-98mb.mjs'],
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'async-size': [
+    ['sync/async release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'runtime-matrix': [
+    ['runtime-matrix.mjs', 'packages/benchmark/runtime-matrix.mjs'],
+  ],
+  'cross-runtime': [
+    ['cross-runtime-comparison.mjs', 'packages/benchmark/cross-runtime-comparison.mjs'],
+  ],
+  converter: [
+    ['converter-plain-output-benchmark.mjs', 'packages/benchmark/converter-plain-output-benchmark.mjs'],
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'writer-small': [
+    ['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'writer-big': [
+    ['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'writer-async': [
+    ['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+  'writer-1gb': [
+    ['writer-1gb.mjs', 'packages/benchmark/writer-1gb.mjs'],
+    ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'],
+  ],
+};
+
+function githubSourceLink(label, path) {
+  return `[${label}](${githubBlobBase}${path})`;
+}
+
+function renderBenchmarkSourceLinks(sectionId) {
+  const links = benchmarkSourceLinks[sectionId] ?? benchmarkSourceLinks.environment;
+  return `Benchmark source: ${links.map(([label, path]) => githubSourceLink(label, path)).join(', ')}.`;
 }
 
 function formatDurationNs(ns) {
@@ -164,47 +367,23 @@ async function runSuite(id, title, registerSuite, verbose) {
     console.log(`\n== ${title} ==`);
   }
 
-  registerSuite();
+  await registerSuite();
   const result = await run({ format: 'quiet', throw: true });
   const normalized = normalizeSuiteResult(id, title, result);
   writeFileSync(join(rawDir, `${id}.json`), `${JSON.stringify(result, null, 2)}\n`, 'utf8');
   return normalized;
 }
 
-function parseXmlToObjectBaseline(xmlString) {
-  const parser = new StaxXmlParserSync(xmlString);
-  let elementStack = [];
-  let currentElement = null;
-  let root = null;
-
-  for (const event of parser) {
-    elementStack.push(currentElement ?? event);
-    if (elementStack.length > 100) {
-      elementStack.splice(0, elementStack.length);
-    }
-  }
-
-  return root;
-}
-
-function registerParserSyncSuite(xmlString) {
+async function registerParserSyncSuite(assetPath) {
+  const inputBuffer = loadXmlBuffer(assetPath);
+  const xmlString = inputBuffer.toString('utf8');
+  const nativeAggregate = await loadNativeAggregateProbe();
+  const staxSurfaceRunners = createStaxParserSurfaceRunners({
+    xmlString,
+    inputBuffer,
+    native: nativeAggregate,
+  });
   const parseObject = () => parseXmlToObjectBaseline(xmlString);
-  const consume = () => {
-    const parser = new StaxXmlParserSync(xmlString);
-    for (const event of parser) {
-      switch (event.type) {
-        case XmlEventType.START_DOCUMENT:
-        case XmlEventType.END_DOCUMENT:
-        case XmlEventType.START_ELEMENT:
-        case XmlEventType.CHARACTERS:
-        case XmlEventType.CDATA:
-        case XmlEventType.END_ELEMENT:
-          break;
-        case XmlEventType.ERROR:
-          throw event.error;
-      }
-    }
-  };
   const parseXml2js = async () => {
     await new Promise((resolve, reject) => {
       xml2js.parseString(xmlString, (err) => (err ? reject(err) : resolve(undefined)));
@@ -221,7 +400,9 @@ function registerParserSyncSuite(xmlString) {
   barplot(() => {
     summary(() => {
       bench('stax-xml to object', () => parseObject()).gc('inner');
-      bench('stax-xml consume', () => consume()).gc('inner');
+      for (const scenario of staxSurfaceRunners) {
+        bench(scenario.label, scenario.run).gc('inner');
+      }
       bench('xml2js', async () => await parseXml2js()).gc('inner');
       bench('fast-xml-parser', () => parseFastXml()).gc('inner');
       bench('txml', () => parseTxml()).gc('inner');
@@ -229,73 +410,412 @@ function registerParserSyncSuite(xmlString) {
   });
 }
 
-function createAsyncEventConsumer(stream) {
-  const parser = new StaxXmlParser(stream);
-  return (async () => {
-    let eventsProcessed = 0;
-    for await (const event of parser) {
-      eventsProcessed++;
-      switch (event.type) {
-        case XmlEventType.START_DOCUMENT:
-        case XmlEventType.END_DOCUMENT:
-        case XmlEventType.START_ELEMENT:
-        case XmlEventType.CHARACTERS:
-        case XmlEventType.CDATA:
-        case XmlEventType.END_ELEMENT:
-          break;
-        case XmlEventType.ERROR:
-          throw event.error;
-      }
-      if (eventsProcessed % 10000 === 0) {
-        await new Promise((resolve) => setImmediate(resolve));
-      }
-    }
-    return eventsProcessed;
-  })();
+function createLargeXmlBookElement(id) {
+  return `  <book id="book-${id}" lang="en" code="${id % 97}">` +
+    `<title>4GiB Iterable Benchmark ${id}</title>` +
+    `<author>Author ${id % 4096}</author>` +
+    `<description>Stable text payload for synchronous and asynchronous iterable parsing.</description>` +
+    `<chapter number="1">Intro ${id}</chapter>` +
+    `<chapter number="2">Body ${id}</chapter>` +
+    '</book>\n';
 }
 
-async function consumeSyncFromGeneratedStream(stream) {
-  const reader = stream.getReader();
-  const chunks = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
+function createLargeXmlElementBlock(targetBytes = 1024 * 1024) {
+  const parts = [];
+  let total = 0;
+  let id = 0;
+  while (total < targetBytes) {
+    const element = createLargeXmlBookElement(id++);
+    total += Buffer.byteLength(element);
+    parts.push(element);
   }
-
-  const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
-  const combined = new Uint8Array(totalLength);
-  let offset = 0;
-  for (const chunk of chunks) {
-    combined.set(chunk, offset);
-    offset += chunk.length;
-  }
-
-  const content = new TextDecoder().decode(combined);
-  const parser = new StaxXmlParserSync(content);
-  let eventsProcessed = 0;
-  for (const event of parser) {
-    eventsProcessed++;
-    if (event.type === XmlEventType.ERROR) {
-      throw event.error;
-    }
-  }
-  return eventsProcessed;
+  return Buffer.from(parts.join(''), 'utf8');
 }
 
-function registerAsyncParserSizeSuite(verboseStreams) {
-  barplot(() => {
-    summary(() => {
-      bench('async parser (1MB)', async () => createAsyncEventConsumer(createLargeXMLStream({ sizeGB: 0.001, verbose: verboseStreams }))).gc('inner');
-      bench('sync parser (1MB)', async () => consumeSyncFromGeneratedStream(createLargeXMLStream({ sizeGB: 0.001, verbose: verboseStreams }))).gc('inner');
-      bench('async parser (10MB)', async () => createAsyncEventConsumer(createLargeXMLStream({ sizeGB: 0.01, verbose: verboseStreams }))).gc('inner');
-      bench('sync parser (10MB)', async () => consumeSyncFromGeneratedStream(createLargeXMLStream({ sizeGB: 0.01, verbose: verboseStreams }))).gc('inner');
-      bench('async parser (100MB)', async () => createAsyncEventConsumer(createLargeXMLStream({ sizeGB: 0.1, verbose: verboseStreams }))).gc('inner');
-      bench('sync parser (100MB)', async () => consumeSyncFromGeneratedStream(createLargeXMLStream({ sizeGB: 0.1, verbose: verboseStreams }))).gc('inner');
-      bench('async parser (1GB)', async () => createAsyncEventConsumer(createLargeXMLStream({ sizeGB: 1.0, verbose: verboseStreams }))).gc('inner');
+function iterableFixturePath(fixtureCase) {
+  return join(tmpdir(), `stax-xml-benchmark-${fixtureCase.id}.xml`);
+}
+
+function ensureIterableXmlFile(fixtureCase, verbose = true) {
+  const filePath = iterableFixturePath(fixtureCase);
+  const reusableSlack = Math.min(1024 * 1024, Math.max(4096, Math.floor(fixtureCase.targetBytes / 64)));
+  const minimumReusableBytes = fixtureCase.targetBytes - reusableSlack;
+  if (existsSync(filePath)) {
+    const existing = statSync(filePath);
+    if (existing.size >= minimumReusableBytes) {
+      if (verbose) {
+        console.log(`Reusing ${fixtureCase.display} XML fixture: ${filePath} (${formatMemory(existing.size)})`);
+      }
+      return { filePath, bytes: existing.size, targetBytes: fixtureCase.targetBytes, label: fixtureCase.display, reused: true };
+    }
+  }
+
+  if (verbose) {
+    console.log(`Creating ${fixtureCase.display} XML fixture: ${filePath}`);
+  }
+
+  const fd = openSync(filePath, 'w');
+  const header = Buffer.from('<?xml version="1.0" encoding="UTF-8"?>\n<root>\n');
+  const footer = Buffer.from('</root>\n');
+  const block = createLargeXmlElementBlock();
+  let written = 0;
+  let tailId = 0;
+  const progressBytes = Math.max(512 * 1024 * 1024, Math.floor(fixtureCase.targetBytes / 8));
+
+  try {
+    writeSync(fd, header);
+    written += header.byteLength;
+
+    while (written + block.byteLength + footer.byteLength <= fixtureCase.targetBytes) {
+      writeSync(fd, block);
+      written += block.byteLength;
+      if (verbose && written % progressBytes < block.byteLength) {
+        console.log(`  wrote ${formatMemory(written)}`);
+      }
+    }
+
+    while (true) {
+      const element = Buffer.from(createLargeXmlBookElement(tailId++), 'utf8');
+      if (written + element.byteLength + footer.byteLength > fixtureCase.targetBytes) {
+        break;
+      }
+      writeSync(fd, element);
+      written += element.byteLength;
+    }
+
+    writeSync(fd, footer);
+    written += footer.byteLength;
+  } finally {
+    closeSync(fd);
+  }
+
+  if (verbose) {
+    console.log(`Created ${formatMemory(written)} XML fixture.`);
+  }
+  return { filePath, bytes: written, targetBytes: fixtureCase.targetBytes, label: fixtureCase.display, reused: false };
+}
+
+function ensureLargeAsyncFile(verbose = true) {
+  return ensureIterableXmlFile(largeAsyncFileCase, verbose);
+}
+
+function updateMemoryPeak(peak) {
+  const current = process.memoryUsage();
+  peak.heapUsed = Math.max(peak.heapUsed, current.heapUsed);
+  peak.rss = Math.max(peak.rss, current.rss);
+}
+
+function mixChecksum(checksum, value) {
+  return Math.imul(checksum ^ (value >>> 0), 16777619) >>> 0;
+}
+
+function mixSpanChecksum(checksum, buffer, start, end) {
+  if (start < 0 || end <= start) {
+    return mixChecksum(checksum, 0);
+  }
+  const length = end - start;
+  checksum = mixChecksum(checksum, length);
+  checksum = mixChecksum(checksum, buffer[start] ?? 0);
+  checksum = mixChecksum(checksum, buffer[start + (length >> 1)] ?? 0);
+  checksum = mixChecksum(checksum, buffer[end - 1] ?? 0);
+  return checksum;
+}
+
+function consumeNodeIterableFrame(parser, state) {
+  const buffer = parser.buffer();
+  const eventCount = parser.eventCount();
+  for (let index = 0; index < eventCount; index++) {
+    const type = parser.eventType(index);
+    state.events++;
+    state.checksum = mixChecksum(state.checksum, type);
+    state.checksum = mixSpanChecksum(state.checksum, buffer, parser.nameStart(index), parser.nameEnd(index));
+    state.checksum = mixSpanChecksum(state.checksum, buffer, parser.textStart(index), parser.textEnd(index));
+
+    const attrCount = parser.attrCount(index);
+    state.checksum = mixChecksum(state.checksum, attrCount);
+    for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+      state.checksum = mixSpanChecksum(
+        state.checksum,
+        buffer,
+        parser.attrNameStart(index, attrIndex),
+        parser.attrNameEnd(index, attrIndex),
+      );
+      state.checksum = mixSpanChecksum(
+        state.checksum,
+        buffer,
+        parser.attrValueStart(index, attrIndex),
+        parser.attrValueEnd(index, attrIndex),
+      );
+    }
+  }
+}
+
+function parseSyncIterableFile(filePath, onProgress) {
+  const parser = new StaxXmlNodeIterableParser(
+    nodeFileByteBatchesSync(filePath, {
+      chunkSize: iterableFileChunkSize,
+      batchSize: iterableFileBatchSize,
+    }),
+  );
+  const state = { events: 0, checksum: 2166136261, batches: 0 };
+  while (parser.nextBatch()) {
+    consumeNodeIterableFrame(parser, state);
+    state.batches++;
+    if ((state.batches & 255) === 0) {
+      onProgress();
+    }
+  }
+  onProgress();
+  return state;
+}
+
+async function* asyncNodeFileByteBatches(filePath) {
+  const handle = await openFile(filePath, 'r');
+  let batch = [];
+  try {
+    while (true) {
+      const chunk = Buffer.allocUnsafe(iterableFileChunkSize);
+      const { bytesRead } = await handle.read(chunk, 0, iterableFileChunkSize, null);
+      if (bytesRead === 0) {
+        break;
+      }
+      batch.push(bytesRead === iterableFileChunkSize ? chunk : chunk.subarray(0, bytesRead));
+      if (batch.length >= iterableFileBatchSize) {
+        yield batch;
+        batch = [];
+      }
+    }
+    if (batch.length > 0) {
+      yield batch;
+    }
+  } finally {
+    await handle.close();
+  }
+}
+
+class SingleBatchIterableSource {
+  current = undefined;
+  closed = false;
+
+  [Symbol.iterator]() {
+    return this;
+  }
+
+  push(batch) {
+    if (this.current) {
+      throw new Error('Async iterable parser source already has a pending batch.');
+    }
+    this.current = batch;
+  }
+
+  close() {
+    this.closed = true;
+  }
+
+  next() {
+    if (this.current) {
+      const value = this.current;
+      this.current = undefined;
+      return { value, done: false };
+    }
+    if (this.closed) {
+      return { value: undefined, done: true };
+    }
+    throw new Error('Parser requested another async batch before the benchmark awaited one; increase chunk size for this fixture.');
+  }
+}
+
+async function parseAsyncIterableFile(filePath, onProgress) {
+  const source = new SingleBatchIterableSource();
+  const parser = new StaxXmlNodeIterableParser(source);
+  const state = { events: 0, checksum: 2166136261, batches: 0 };
+
+  for await (const batch of asyncNodeFileByteBatches(filePath)) {
+    source.push(batch);
+    if (parser.nextBatch()) {
+      consumeNodeIterableFrame(parser, state);
+    }
+    state.batches++;
+    if ((state.batches & 255) === 0) {
+      onProgress();
+    }
+  }
+
+  source.close();
+  while (parser.nextBatch()) {
+    consumeNodeIterableFrame(parser, state);
+  }
+  onProgress();
+  return state;
+}
+
+async function measureLargeFileCase(label, fileBytes, runCase) {
+  globalThis.gc?.();
+  const peak = { heapUsed: 0, rss: 0 };
+  updateMemoryPeak(peak);
+  const start = performance.now();
+  const result = await runCase(() => updateMemoryPeak(peak));
+  const elapsedNs = (performance.now() - start) * 1e6;
+  updateMemoryPeak(peak);
+  globalThis.gc?.();
+
+  return {
+    label,
+    elapsedNs,
+    events: result.events,
+    checksum: result.checksum >>> 0,
+    batches: result.batches,
+    heapPeakBytes: peak.heapUsed,
+    rssPeakBytes: peak.rss,
+    throughputMiBs: fileBytes / 1024 / 1024 / (elapsedNs / 1e9),
+  };
+}
+
+function createManualNodeContext() {
+  const cpu = cpus()[0];
+  return {
+    arch: process.arch,
+    runtime: 'node',
+    version: process.version,
+    cpuName: cpu?.model ?? 'manual',
+    cpuGHz: cpu?.speed ? Number((cpu.speed / 1000).toFixed(2)) : 0,
+  };
+}
+
+function normalizeIterableSizeSuiteResult(id, title, raw) {
+  return {
+    id,
+    title,
+    context: raw.context,
+    fixtures: raw.fixtures,
+    cases: raw.cases.map((entry) => ({
+      label: entry.label,
+      avgNs: entry.elapsedNs,
+      minNs: entry.elapsedNs,
+      p75Ns: entry.elapsedNs,
+      p99Ns: entry.elapsedNs,
+      maxNs: entry.elapsedNs,
+      heapAvgBytes: entry.heapPeakBytes,
+      rssPeakBytes: entry.rssPeakBytes,
+      bytesRead: entry.bytes,
+      targetBytes: entry.targetBytes,
+      fixtureLabel: entry.fixtureLabel,
+      eventCount: entry.events,
+      checksum: entry.checksum,
+      batches: entry.batches,
+      throughputMiBs: entry.throughputMiBs,
+    })),
+  };
+}
+
+async function runIterableParserSizeSuite(verbose) {
+  const raw = {
+    id: 'async-size',
+    title: 'Iterable parser sync vs async size comparison',
+    generatedAt: new Date().toISOString(),
+    context: createManualNodeContext(),
+    chunkSize: iterableFileChunkSize,
+    batchSize: iterableFileBatchSize,
+    fixtures: [],
+    cases: [],
+  };
+
+  for (const fixtureCase of iterableFileSizeCases) {
+    const fixture = ensureIterableXmlFile(fixtureCase, verbose);
+    raw.fixtures.push({
+      label: fixture.label,
+      path: fixture.filePath,
+      bytes: fixture.bytes,
+      targetBytes: fixture.targetBytes,
+      chunkSize: iterableFileChunkSize,
+      batchSize: iterableFileBatchSize,
+      reused: fixture.reused,
     });
-  });
+
+    raw.cases.push({
+      ...await measureLargeFileCase(
+        `sync Iterable parser (${fixture.label} temp file)`,
+        fixture.bytes,
+        (onProgress) => parseSyncIterableFile(fixture.filePath, onProgress),
+      ),
+      fixtureLabel: fixture.label,
+      bytes: fixture.bytes,
+      targetBytes: fixture.targetBytes,
+    });
+    raw.cases.push({
+      ...await measureLargeFileCase(
+        `async Iterable parser (${fixture.label} temp file)`,
+        fixture.bytes,
+        (onProgress) => parseAsyncIterableFile(fixture.filePath, onProgress),
+      ),
+      fixtureLabel: fixture.label,
+      bytes: fixture.bytes,
+      targetBytes: fixture.targetBytes,
+    });
+  }
+
+  writeFileSync(join(rawDir, 'async-size.json'), `${JSON.stringify(raw, null, 2)}\n`, 'utf8');
+  return normalizeIterableSizeSuiteResult('async-size', raw.title, raw);
+}
+
+function normalizeAsyncFile4gbSuiteResult(id, title, raw) {
+  return {
+    id,
+    title,
+    context: raw.context,
+    fixture: raw.fixture,
+    cases: raw.cases.map((entry) => ({
+      label: entry.label,
+      avgNs: entry.elapsedNs,
+      minNs: entry.elapsedNs,
+      p75Ns: entry.elapsedNs,
+      p99Ns: entry.elapsedNs,
+      maxNs: entry.elapsedNs,
+      heapAvgBytes: entry.heapPeakBytes,
+      rssPeakBytes: entry.rssPeakBytes,
+      bytesRead: raw.fixture.bytes,
+      eventCount: entry.events,
+      checksum: entry.checksum,
+      batches: entry.batches,
+      throughputMiBs: entry.throughputMiBs,
+    })),
+  };
+}
+
+async function runAsyncFile4gbSuite(verbose) {
+  const fixture = ensureLargeAsyncFile(verbose);
+  const context = {
+    ...createManualNodeContext(),
+  };
+  const raw = {
+    id: 'async-file-4gb',
+    title: '4GiB temp-file Iterable vs AsyncIterable parser',
+    generatedAt: new Date().toISOString(),
+    context,
+    fixture: {
+      path: fixture.filePath,
+      bytes: fixture.bytes,
+      targetBytes: fixture.targetBytes,
+      chunkSize: iterableFileChunkSize,
+      batchSize: iterableFileBatchSize,
+      reused: fixture.reused,
+    },
+    cases: [],
+  };
+
+  raw.cases.push(await measureLargeFileCase(
+    'sync Iterable parser (4GiB temp file)',
+    fixture.bytes,
+    (onProgress) => parseSyncIterableFile(fixture.filePath, onProgress),
+  ));
+  raw.cases.push(await measureLargeFileCase(
+    'async Iterable parser (4GiB temp file)',
+    fixture.bytes,
+    (onProgress) => parseAsyncIterableFile(fixture.filePath, onProgress),
+  ));
+
+  writeFileSync(join(rawDir, 'async-file-4gb.json'), `${JSON.stringify(raw, null, 2)}\n`, 'utf8');
+  return normalizeAsyncFile4gbSuiteResult('async-file-4gb', raw.title, raw);
 }
 
 async function buildXmlAsyncFromJson(data) {
@@ -652,27 +1172,34 @@ export const manifest = [
   {
     id: 'parser-2kb',
     title: 'Parser 2KB (complex.xml)',
-    run: () => runSuite('parser-2kb', 'Parser 2KB (complex.xml)', () => registerParserSyncSuite(loadXmlFile(ASSET_PATHS.complex)), true),
+    run: () => runSuite('parser-2kb', 'Parser 2KB (complex.xml)', () => registerParserSyncSuite(ASSET_PATHS.complex), true),
   },
   {
     id: 'parser-4kb',
     title: 'Parser 4KB (books.xml)',
-    run: () => runSuite('parser-4kb', 'Parser 4KB (books.xml)', () => registerParserSyncSuite(loadXmlFile(ASSET_PATHS.books)), true),
+    run: () => runSuite('parser-4kb', 'Parser 4KB (books.xml)', () => registerParserSyncSuite(ASSET_PATHS.books), true),
   },
   {
     id: 'parser-13mb',
     title: 'Parser 13MB (midsize.xml)',
-    run: () => runSuite('parser-13mb', 'Parser 13MB (midsize.xml)', () => registerParserSyncSuite(loadXmlFile(ASSET_PATHS.midsize)), true),
+    run: () => runSuite('parser-13mb', 'Parser 13MB (midsize.xml)', () => registerParserSyncSuite(ASSET_PATHS.midsize), true),
   },
   {
     id: 'parser-98mb',
     title: 'Parser 98MB (large.xml)',
-    run: () => runSuite('parser-98mb', 'Parser 98MB (large.xml)', () => registerParserSyncSuite(loadXmlFile(ASSET_PATHS.large)), true),
+    run: () => runSuite('parser-98mb', 'Parser 98MB (large.xml)', () => registerParserSyncSuite(ASSET_PATHS.large), true),
   },
   {
     id: 'async-size',
-    title: 'Async parser size comparison',
-    run: () => runSuite('async-size', 'Async parser size comparison', () => registerAsyncParserSizeSuite(false), true),
+    title: 'Iterable parser sync vs async size comparison',
+    run: () => runIterableParserSizeSuite(true),
+    normalize: (rawFilePath) => normalizeIterableSizeSuiteResult('async-size', 'Iterable parser sync vs async size comparison', readJsonFile(rawFilePath)),
+  },
+  {
+    id: 'async-file-4gb',
+    title: '4GiB temp-file Iterable vs AsyncIterable parser',
+    run: () => runAsyncFile4gbSuite(true),
+    normalize: (rawFilePath) => normalizeAsyncFile4gbSuiteResult('async-file-4gb', '4GiB temp-file Iterable vs AsyncIterable parser', readJsonFile(rawFilePath)),
   },
   {
     id: 'writer-small',
@@ -722,6 +1249,14 @@ function suiteCase(summary, suiteId, label) {
   return found;
 }
 
+function staxParserSurfaceRows() {
+  return STAX_PARSER_SURFACE_SCENARIOS.map((scenario) => ({
+    display: scenario.display,
+    label: scenario.label,
+    notes: scenario.notes,
+  }));
+}
+
 function renderParserTable(summary, suiteId, rows) {
   return [
     '| Library | Average Time | Operations/sec | Memory Usage | Notes |',
@@ -734,24 +1269,27 @@ function renderParserTable(summary, suiteId, rows) {
 }
 
 function renderAsyncSizeTable(summary) {
-  const rows = [
-    ['1MB', 'sync parser (1MB)', 'Baseline'],
-    ['1MB', 'async parser (1MB)', null],
-    ['10MB', 'sync parser (10MB)', 'Baseline'],
-    ['10MB', 'async parser (10MB)', null],
-    ['100MB', 'sync parser (100MB)', 'Baseline'],
-    ['100MB', 'async parser (100MB)', null],
-    ['1GB', 'async parser (1GB)', 'Memory efficient'],
+  const sizeRows = [
+    ['async-size', '1MiB'],
+    ['async-size', '10MiB'],
+    ['async-size', '100MiB'],
+    ['async-size', '1GiB'],
+    ['async-file-4gb', '4GiB'],
   ];
 
   return [
     '| File Size | Parser Type | Processing Time | Memory Usage | Performance Ratio |',
     '|-----------|-------------|-----------------|--------------|-------------------|',
-    ...rows.map(([size, label, ratioNote]) => {
-      const stats = suiteCase(summary, 'async-size', label);
-      const ratio = ratioNote ?? `${(stats.avgNs / suiteCase(summary, 'async-size', `sync parser (${size})`).avgNs).toFixed(2)}x slower`;
-      const type = label.startsWith('sync') ? '**sync parser**' : 'async parser';
-      return `| ${size} | ${type} | ${formatDurationNsCompact(stats.avgNs)} | ${formatMemory(stats.heapAvgBytes)} | ${ratio} |`;
+    ...sizeRows.flatMap(([suiteId, size]) => {
+      const syncStats = suiteCase(summary, suiteId, `sync Iterable parser (${size} temp file)`);
+      const asyncStats = suiteCase(summary, suiteId, `async Iterable parser (${size} temp file)`);
+      const asyncRatio = asyncStats.avgNs >= syncStats.avgNs
+        ? `${(asyncStats.avgNs / syncStats.avgNs).toFixed(2)}x slower`
+        : `${(syncStats.avgNs / asyncStats.avgNs).toFixed(2)}x faster`;
+      return [
+        `| ${size} temp file | **sync Iterable parser** | ${formatDurationNsCompact(syncStats.avgNs)} | ${formatMemory(syncStats.heapAvgBytes)} | Baseline, ${syncStats.throughputMiBs.toFixed(2)} MiB/s |`,
+        `| ${size} temp file | async Iterable parser | ${formatDurationNsCompact(asyncStats.avgNs)} | ${formatMemory(asyncStats.heapAvgBytes)} | ${asyncRatio}, ${asyncStats.throughputMiBs.toFixed(2)} MiB/s |`,
+      ];
     }),
   ].join('\n');
 }
@@ -759,8 +1297,8 @@ function renderAsyncSizeTable(summary) {
 function renderConverterTable(summary) {
   const rows = [
     ['plain parser', 'Lowest overhead, handwritten state machine'],
-    ['converter api', 'Declarative but uncompiled'],
-    ['converter api compiled', 'Declarative schema with compiled root processor'],
+    ['converter api', 'Declarative schema with automatic dispatch plan'],
+    ['converter api compiled', 'Explicit compile() with cached dispatch plan'],
   ];
 
   return [
@@ -910,20 +1448,51 @@ function findScenario(tier, id) {
   return tier.scenarios.find((scenario) => scenario.id === id);
 }
 
+function crossTierById(crossRuntime, tierId) {
+  return crossRuntime.nodeStringReturn.files[0].tiers.find((tier) => tier.id === tierId);
+}
+
+function crossNativeTierById(crossRuntime, tierId) {
+  return crossRuntime.nativeAddon?.tiers?.find((tier) => tier.tier === tierId);
+}
+
+function crossScenarioById(crossRuntime, tierId, scenarioId) {
+  return crossTierById(crossRuntime, tierId)?.scenarios.find((scenario) => scenario.id === scenarioId);
+}
+
+function crossComparatorStatus(result) {
+  if (!result) return 'missing';
+  if (result.status === 'ok') return 'ok';
+  return result.reason ?? result.status ?? 'n/a';
+}
+
+function crossRelativeToJs(result, jsNode) {
+  if (!result?.mibPerSec || !jsNode?.mibPerSec) return 'n/a';
+  return `${(result.mibPerSec / jsNode.mibPerSec).toFixed(2)}x`;
+}
+
+function renderCrossTierTable(crossRuntime, tierId) {
+  const jsNode = crossScenarioById(crossRuntime, tierId, 'node');
+  const rows = [
+    ['stax-xml JS on Node', jsNode],
+    ['stax-xml native addon (JS wrapper)', crossNativeTierById(crossRuntime, tierId)],
+    ['Woodstox on Java 8', crossScenarioById(crossRuntime, tierId, 'woodstox')],
+    ['quick-xml', crossScenarioById(crossRuntime, tierId, 'quick-xml')],
+  ];
+  return [
+    `### ${tierId}`,
+    '',
+    '| Implementation | Throughput | Average | Relative to stax-xml JS | Status |',
+    '| --- | ---: | ---: | ---: | --- |',
+    ...rows.map(([label, result]) =>
+      `| ${label} | ${formatRate(result?.mibPerSec)} | ${formatMs(result?.avgMs)} | ${crossRelativeToJs(result, jsNode)} | ${tableCell(crossComparatorStatus(result))} |`
+    ),
+  ].join('\n');
+}
+
 function renderCrossRuntimeTable(crossRuntime) {
   const tiers = crossRuntime.nodeStringReturn.files[0].tiers;
-  return [
-    '| Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml | Node/Woodstox | Node/quick-xml |',
-    '| --- | ---: | ---: | ---: | ---: | ---: |',
-    ...tiers.map((tier) => {
-      const node = findScenario(tier, 'node');
-      const woodstox = findScenario(tier, 'woodstox');
-      const quickXml = findScenario(tier, 'quick-xml');
-      const nodeWoodstox = node?.mibPerSec && woodstox?.mibPerSec ? `${(node.mibPerSec / woodstox.mibPerSec).toFixed(2)}x` : 'n/a';
-      const nodeQuickXml = node?.mibPerSec && quickXml?.mibPerSec ? `${(node.mibPerSec / quickXml.mibPerSec).toFixed(2)}x` : 'n/a';
-      return `| ${tier.id} | ${formatRate(node?.mibPerSec)} | ${formatRate(woodstox?.mibPerSec)} | ${formatRate(quickXml?.mibPerSec)} | ${nodeWoodstox} | ${nodeQuickXml} |`;
-    }),
-  ].join('\n');
+  return tiers.map((tier) => renderCrossTierTable(crossRuntime, tier.id)).join('\n\n');
 }
 
 function renderJava25Table(crossRuntime) {
@@ -937,6 +1506,40 @@ function renderJava25Table(crossRuntime) {
     ...rows.map((entry) =>
       `| ${entry.tier} | ${formatRate(entry.java8MibPerSec)} | ${formatRate(entry.java25?.mibPerSec)} | ${formatPct(entry.deltaVsJava8)} | ${entry.java25?.status ?? 'skipped'} |`
     ),
+  ].join('\n');
+}
+
+function tableCell(value) {
+  if (value === null || value === undefined || value === '') return 'n/a';
+  return String(value).replace(/\r?\n/g, '<br>').replace(/\|/g, '\\|');
+}
+
+function renderEnvironmentVersionDetails(env) {
+  const packages = env.packages ?? [];
+  const runtimes = env.runtimes ?? [];
+  const nodeComponents = env.nodeComponents ?? [];
+
+  return [
+    '<details>',
+    '<summary>Resolved package and runtime versions</summary>',
+    '',
+    '| Benchmark package | Resolved version | Declared range | Source |',
+    '| --- | ---: | --- | --- |',
+    ...packages.map((entry) =>
+      `| ${tableCell(entry.name)} | ${tableCell(entry.version)} | ${tableCell(entry.declared)} | ${tableCell(entry.source)} |`
+    ),
+    '',
+    '| Runtime/tool | Version | Status |',
+    '| --- | --- | --- |',
+    ...runtimes.map((entry) =>
+      `| ${tableCell(entry.id)} | ${tableCell(entry.version)} | ${tableCell(entry.status === 'ok' ? 'ok' : entry.reason ?? entry.status)} |`
+    ),
+    '',
+    '| Node component | Version |',
+    '| --- | ---: |',
+    ...nodeComponents.map((entry) => `| ${tableCell(entry.name)} | ${tableCell(entry.version)} |`),
+    '',
+    '</details>',
   ].join('\n');
 }
 
@@ -978,10 +1581,14 @@ function createParserScenarioDetails() {
     '',
     'Runtime methods:',
     '',
-    '- `stax-xml consume`: `StaxXmlParserSync` event loop; events are consumed and no retained object tree is produced.',
+    '- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes.',
+    '- `stax-xml JS fallback raw iterable`: `StaxXmlIterableParser` byte-frame loop with the same checksum contract.',
+    '- `stax-xml native addon event aggregate`: native aggregate probe using the event-object tier inside Rust; it is not a public per-event JavaScript iterator.',
+    '- `stax-xml native addon raw aggregate`: native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.',
     '- `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.',
     '- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.',
-    '- The 13 MiB `xml2js` outlier is preserved as measured instead of normalized away.',
+    '- The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.',
+    '- The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.',
     '',
     '</details>',
   ].join('\n');
@@ -990,7 +1597,7 @@ function createParserScenarioDetails() {
 function createLargeFileScenarioDetails() {
   return [
     '<details>',
-    '<summary>Scenario contract: large-file sync, async stream, and iterable parsing</summary>',
+    '<summary>Scenario contract: iterable parser sync and async file traversal</summary>',
     '',
     'Generated XML shape, shortened:',
     '',
@@ -1013,15 +1620,17 @@ function createLargeFileScenarioDetails() {
     '~~~text',
     'parse-result = {',
     '  events: number,',
-    '  checksum: fold(event type, element name, text, attributes)',
+    '  checksum: structural fold(event type, element/text/attribute span lengths and boundary bytes)',
     '}',
     '~~~',
     '',
     'Parsing methods:',
     '',
-    '- Public sync string parsing reads the fixture into one string and runs `StaxXmlParserSync`.',
-    '- Public async stream parsing reads file chunks asynchronously, then feeds the parser without requiring one retained input string.',
-    '- Synchronous iterable byte-batch parsing accepts `Iterable<Uint8Array>` / byte batches, parses synchronously, and is suitable for blocking batch jobs when the caller already controls chunking.',
+    '- Every row in this section uses the same Node iterable event-frame parser over bounded temp-file chunks.',
+    '- `sync Iterable parser` uses synchronous file reads and `Iterable<Buffer[]>` batches.',
+    '- `async Iterable parser` uses asynchronous file reads as an `AsyncIterable<Buffer[]>`, then hands each awaited batch to the synchronous iterable parser frame loop without retaining one full XML string.',
+    '- XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.',
+    '- These rows intentionally use a structural checksum rather than full string materialization so the table measures iterable backend tokenization/event-frame traversal.',
     '',
     '</details>',
   ].join('\n');
@@ -1076,7 +1685,7 @@ function createRuntimeMatrixScenarioDetails(sizeMiB) {
 function createCrossRuntimeScenarioDetails(sizeMiB) {
   return [
     '<details>',
-    '<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>',
+    '<summary>Scenario contract: stax-xml JS/native, Woodstox, and quick-xml comparator</summary>',
     '',
     `The comparator uses the same generated ${sizeMiB} MiB XML fixture shape as the runtime matrix.`,
     '',
@@ -1085,6 +1694,7 @@ function createCrossRuntimeScenarioDetails(sizeMiB) {
     '~~~text',
     'comparator-result = {',
     '  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",',
+    '  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",',
     '  eventCount: number,',
     '  checksum: fold(selected event data for tier)',
     '}',
@@ -1092,7 +1702,8 @@ function createCrossRuntimeScenarioDetails(sizeMiB) {
     '',
     'Parsing methods:',
     '',
-    '- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
+    '- `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
+    '- `stax-xml native addon`: JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process.',
     '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
     '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
     '- Java 8 is the public Woodstox row because it is Woodstox\'s minimum runtime target; Java 25 is a separate verification row.',
@@ -1113,12 +1724,14 @@ function createRuntimeAndNativeDirectionBlock() {
   if (runtimeMatrix) {
     sections.push(`The same built JavaScript implementation was measured on Node, Bun, and Deno with a generated single-root ${runtimeMatrix.fixture.sizeMiB.toFixed(2)} MiB XML fixture. This is a runtime-codegen and compatibility check, not a native-addon benchmark.`);
     sections.push(createRuntimeMatrixScenarioDetails(runtimeMatrix.fixture.sizeMiB.toFixed(2)));
+    sections.push(renderBenchmarkSourceLinks('runtime-matrix'));
     sections.push(renderRuntimeMatrixTable(runtimeMatrix));
   }
 
   if (crossRuntime) {
-    sections.push('The non-JS comparator uses the same event-count and checksum contract. Woodstox is reported on Java 8 for the public baseline because Java 8 is its minimum supported runtime target; Java 25 is measured only as a verification check.');
+    sections.push('The non-JS comparator uses the same event-count and checksum contract. It reports stax-xml JS on Node, the stax-xml native addon through its JavaScript package wrapper, Woodstox on Java 8, and quick-xml. Woodstox is reported on Java 8 for the public baseline because Java 8 is its minimum supported runtime target; Java 25 is measured only as a verification check.');
     sections.push(createCrossRuntimeScenarioDetails(crossRuntime.fixture.sizeMiB.toFixed(2)));
+    sections.push(renderBenchmarkSourceLinks('cross-runtime'));
     sections.push(renderCrossRuntimeTable(crossRuntime));
     sections.push('### Woodstox Java 25 Verification');
     sections.push(renderJava25Table(crossRuntime));
@@ -1142,7 +1755,9 @@ The refreshed benchmark tables on this page were rerun with:
 - **CPU**: ${env.cpuName} (~${env.cpuGHz.toFixed(2)} GHz)
 - **Runtime**: ${env.runtime} ${env.version} (${env.arch}) with garbage collection exposed (\`--expose-gc\`)
 - **Tool**: [Mitata](https://github.com/evanw/mitata)
-- **Canonical Set**: parser 2KB / 4KB / 13MB / 98MB, async size-comparison, writer small / big / async, converter parity
+- **Canonical Set**: parser 2KB / 4KB / 13MB / 98MB with stax-xml backend/surface rows, iterable sync/async size comparison from 1MiB to 4GiB, writer small / big / async, converter parity
+
+${renderEnvironmentVersionDetails(env)}
 
 ## Parser Performance
 
@@ -1152,38 +1767,45 @@ ${createParserScenarioDetails()}
 
 For typical web service responses and configuration files (complex.xml):
 
+${renderBenchmarkSourceLinks('parser-2kb')}
+
 ${renderParserTable(summary, 'parser-2kb', [
-  { display: '**txml**', label: 'txml', notes: 'Fastest, lightweight' },
+  { display: '**txml**', label: 'txml', notes: 'Lightweight object parser' },
   { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Object conversion' },
-  { display: '**stax-xml consume**', label: 'stax-xml consume', notes: 'Stream processing' },
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'DOM-based' },
-  { display: 'xml2js', label: 'xml2js', notes: 'Callback-based, memory intensive' },
+  ...staxParserSurfaceRows(),
+  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
+  { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
 ### Medium Documents (4KB)
 
 For larger API responses and data files (books.xml):
 
+${renderBenchmarkSourceLinks('parser-4kb')}
+
 ${renderParserTable(summary, 'parser-4kb', [
-  { display: '**txml**', label: 'txml', notes: 'Fastest, lightweight' },
-  { display: '**stax-xml consume**', label: 'stax-xml consume', notes: 'Stream processing' },
+  { display: '**txml**', label: 'txml', notes: 'Lightweight object parser' },
   { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Object conversion' },
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Good balance' },
-  { display: 'xml2js', label: 'xml2js', notes: 'Memory intensive' },
+  ...staxParserSurfaceRows(),
+  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
+  { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
-### Large Documents (1MB to 1GB)
+### Large Documents (1MiB to 4GiB)
 
 For processing large XML files (RSS feeds, data exports, etc.):
 
 ${createLargeFileScenarioDetails()}
 
+${renderBenchmarkSourceLinks('async-size')}
+
 ${renderAsyncSizeTable(summary)}
 
 **Key Insights:**
-- Sync parsing is the direct in-memory path; async parsing trades some scheduling overhead for flatter memory behavior.
-- The relative timing can move by fixture and runtime, so the generated table is the source of truth.
-- For files above 100MB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking work or the synchronous iterable byte-batch backend for blocking batch jobs.
+- This section is the iterable backend throughput view, not a public string parser vs stream parser API comparison.
+- The sync and async rows share the same tokenization/event-frame path; the difference is synchronous file reads versus awaited file batches.
+- Async iterable parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
+- For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking API ergonomics or the synchronous iterable byte-batch backend for blocking batch jobs.
 
 ${createRuntimeAndNativeDirectionBlock()}
 
@@ -1193,26 +1815,30 @@ ${createRuntimeAndNativeDirectionBlock()}
 
 Performance results on midsize.xml (13MB):
 
+${renderBenchmarkSourceLinks('parser-13mb')}
+
 ${renderParserTable(summary, 'parser-13mb', [
-  { display: '**xml2js**', label: 'xml2js', notes: 'Exceptional performance*' },
+  { display: 'xml2js', label: 'xml2js', notes: 'Invalid comparator: first top-level element only*' },
   { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Object conversion' },
-  { display: '**stax-xml consume**', label: 'stax-xml consume', notes: 'Stream processing' },
-  { display: '**txml**', label: 'txml', notes: 'Lightweight DOM' },
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Memory intensive' },
+  ...staxParserSurfaceRows(),
+  { display: '**txml**', label: 'txml', notes: 'Lightweight object parser' },
+  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
 ])}
 
-*xml2js remains an outlier on this fixture, likely because the document shape heavily favors its DOM-oriented parsing model.
+*xml2js is not a valid whole-document comparator for this fixture. \`midsize.xml\` contains repeated top-level \`<any_name>\` roots, and xml2js returns only the first top-level element shape.
 
 #### Large Documents (98MB)
 
 Performance results on large.xml (98MB):
 
+${renderBenchmarkSourceLinks('parser-98mb')}
+
 ${renderParserTable(summary, 'parser-98mb', [
-  { display: '**stax-xml consume**', label: 'stax-xml consume', notes: 'Best overall' },
   { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Memory efficient' },
-  { display: '**txml**', label: 'txml', notes: 'High memory' },
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Slow, memory intensive' },
-  { display: 'xml2js', label: 'xml2js', notes: 'Slowest performance' },
+  ...staxParserSurfaceRows(),
+  { display: '**txml**', label: 'txml', notes: 'Object parser' },
+  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
+  { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
 ## Converter API vs Plain Parser
@@ -1220,7 +1846,7 @@ ${renderParserTable(summary, 'parser-98mb', [
 The benchmark below compares three ways to build the **same object output**:
 
 - A handwritten plain parser built directly on \`StaxXmlParserSync\`
-- The declarative converter API
+- The declarative converter API with automatic dispatch-plan routing
 - The converter API with \`.compile()\` enabled
 
 Current fixture:
@@ -1230,13 +1856,15 @@ Current fixture:
 - \`800\` \`<book>\` elements
 - result includes root object fields, root arrays, direct scalar fields, and transformed derived fields
 
+${renderBenchmarkSourceLinks('converter')}
+
 ${renderConverterTable(summary)}
 
 Interpretation:
 
 - The handwritten parser remains the raw-throughput ceiling.
-- The uncompiled converter API pays a large abstraction cost.
-- The compiled converter path still carries meaningful overhead, but it is faster than the uncompiled converter path on this fixture.
+- The normal converter API now auto-routes dispatch-friendly schemas onto the iterable backend and caches the plan on the schema object.
+- \`.compile()\` keeps the same output contract while making that dispatch choice explicit and reusable.
 
 ## Writer Performance
 
@@ -1249,11 +1877,15 @@ The memory column is Mitata's average heap footprint for the benchmark case, so 
 
 Building XML documents from small JSON data:
 
+${renderBenchmarkSourceLinks('writer-small')}
+
 ${renderWriterSmallTable(summary)}
 
 ### Large Document Building (1MB)
 
 Building large XML documents from big JSON data:
+
+${renderBenchmarkSourceLinks('writer-big')}
 
 ${renderWriterBigTable(summary)}
 
@@ -1262,12 +1894,16 @@ ${renderWriterBigTable(summary)}
 This comparison measures the writer APIs themselves on the same generated document shape. It includes async file output, sync string output followed by file write, and the sync sink path with an in-memory file-like target.
 It is intended to show \`stax-xml\` async vs sync overhead and sink overhead, not to imply that all paths have identical durability guarantees.
 
+${renderBenchmarkSourceLinks('writer-async')}
+
 ${renderAsyncWriterTable(summary)}
 
 ### 1GiB Writer Comparison
 
 This one-shot benchmark writes a 1GiB XML document through both async writer and sync sink writer paths.
 It includes in-memory targets and temp-file targets to separate writer overhead from file I/O cost.
+
+${renderBenchmarkSourceLinks('writer-1gb')}
 
 ${renderWriter1gbTable(summary)}
 
@@ -1325,9 +1961,11 @@ export async function aggregateReleaseBenchmarks({ verbose = true } = {}) {
   const suites = {};
   for (const entry of manifest) {
     const rawFile = join(rawDir, `${entry.id}.json`);
-    suites[entry.id] = entry.id === 'writer-1gb'
-      ? normalizeWriter1gbSuiteResultFromRawFile(rawFile)
-      : normalizeSuiteResultFromRawFile(entry.id, entry.title, rawFile);
+    suites[entry.id] = entry.normalize
+      ? entry.normalize(rawFile)
+      : entry.id === 'writer-1gb'
+        ? normalizeWriter1gbSuiteResultFromRawFile(rawFile)
+        : normalizeSuiteResultFromRawFile(entry.id, entry.title, rawFile);
   }
   const firstSuite = Object.values(suites)[0];
   if (!firstSuite) {
@@ -1336,7 +1974,7 @@ export async function aggregateReleaseBenchmarks({ verbose = true } = {}) {
 
   const summary = {
     generatedAt: new Date().toISOString(),
-    environment: firstSuite.context,
+    environment: collectBenchmarkEnvironment(firstSuite.context),
     suites,
   };
 

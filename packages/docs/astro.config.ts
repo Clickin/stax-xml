@@ -4,10 +4,57 @@ import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 // import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
+function crossOriginIsolationHeaders() {
+  function applyHeaders(response: { setHeader(name: string, value: string): void }) {
+    response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  }
+
+  return {
+    name: 'stax-xml-cross-origin-isolation',
+    configureServer(server: {
+      middlewares: {
+        use(handler: (
+          request: unknown,
+          response: { setHeader(name: string, value: string): void },
+          next: () => void,
+        ) => void): void;
+      };
+    }) {
+      server.middlewares.use((_request, response, next) => {
+        applyHeaders(response);
+        next();
+      });
+    },
+    configurePreviewServer(server: {
+      middlewares: {
+        use(handler: (
+          request: unknown,
+          response: { setHeader(name: string, value: string): void },
+          next: () => void,
+        ) => void): void;
+      };
+    }) {
+      server.middlewares.use((_request, response, next) => {
+        applyHeaders(response);
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
+  devToolbar: {
+    enabled: false,
+  },
   vite: {
+    plugins: [
+      crossOriginIsolationHeaders(),
+    ],
     resolve: {
       alias: {
+        '@napi-rs/wasm-runtime': fileURLToPath(new URL('./node_modules/@napi-rs/wasm-runtime/runtime.js', import.meta.url)),
+        '@stax-xml/native-wasm32-wasi': fileURLToPath(new URL('../native-wasm32-wasi/stax_xml_native.wasi-browser.js', import.meta.url)),
         'stax-xml/converter': fileURLToPath(new URL('../stax-xml/src/converter/index.ts', import.meta.url)),
         'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
       },
@@ -211,6 +258,7 @@ export default defineConfig({
           items: [
             { label: 'StaxXmlParser', slug: 'api-guides/staxxml-parser' },
             { label: 'StaxXmlParserSync', slug: 'api-guides/staxxml-parser-sync' },
+            { label: 'StaxXmlIterableParser', slug: 'api-guides/staxxml-iterable-parser' },
             { label: 'StaxXmlCursorReader', slug: 'api-guides/staxxmlcursorreader' },
             { label: 'StaxXmlWriter', slug: 'api-guides/staxxml-writer' },
             { label: 'StaxXmlWriterSync', slug: 'api-guides/staxxml-writer-sync' },

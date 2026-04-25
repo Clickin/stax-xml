@@ -67,10 +67,14 @@ object-output:
 
 Runtime methods:
 
-- `stax-xml consume`: `StaxXmlParserSync` event loop; events are consumed and no retained object tree is produced.
+- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes.
+- `stax-xml JS fallback raw iterable`: `StaxXmlIterableParser` byte-frame loop with the same checksum contract.
+- `stax-xml native addon event aggregate`: native aggregate probe using the event-object tier inside Rust; it is not a public per-event JavaScript iterator.
+- `stax-xml native addon raw aggregate`: native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.
 - `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.
 - `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.
-- The 13 MiB `xml2js` outlier is preserved as measured instead of normalized away.
+- The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.
+- The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.
 
 </details>
 
@@ -92,7 +96,7 @@ Performance results on midsize.xml (13MB):
 
 <BenchmarkSection locale="en" section="parser-13mb" />
 
-*xml2js remains an outlier on this fixture, likely because the document shape heavily favors its DOM-oriented parsing model.*
+*xml2js is not a valid whole-document comparator for this fixture. `midsize.xml` contains repeated top-level `<any_name>` roots, and xml2js returns only the first top-level element shape.*
 
 ### Large Documents (98MB)
 
@@ -101,18 +105,18 @@ Performance results on large.xml (98MB):
 <BenchmarkSection locale="en" section="parser-98mb" />
 
 **Performance Crossover Analysis:**
-- **Small files (2-4KB)**: txml still leads raw parser throughput
-- **Medium files (13MB)**: xml2js remains an anomalous outlier on this fixture, while `stax-xml consume` and `stax-xml to object` stay in the same general throughput band
+- **Small files (2-4KB)**: compare the generated table directly; the stax-xml rows now show JS fallback and native-addon surfaces beside third-party parsers
+- **Medium files (13MB)**: xml2js is excluded from whole-document conclusions because it only reports the first top-level element shape; use the stax-xml backend/surface rows and the remaining parser rows for this fixture
 - **Large files (98MB)**: compare the generated table directly; throughput and memory trade-offs move by parser and fixture
 - **Very large files (1GB+)**: async streams and synchronous iterable byte-batch parsing avoid retaining one full XML string; the public sync string parser remains the in-memory path
 
 
-### stax-xml sync vs async (1MB to 1GB)
+### stax-xml sync vs async (1MiB to 4GiB)
 
 sync vs async performance:
 
 <details>
-<summary>Scenario contract: large-file sync, async stream, and iterable parsing</summary>
+<summary>Scenario contract: iterable parser sync and async file traversal</summary>
 
 Generated XML shape, shortened:
 
@@ -135,24 +139,27 @@ Consumer/output shape:
 ~~~text
 parse-result = {
   events: number,
-  checksum: fold(event type, element name, text, attributes)
+  checksum: structural fold(event type, element/text/attribute span lengths and boundary bytes)
 }
 ~~~
 
 Parsing methods:
 
-- Public sync string parsing reads the fixture into one string and runs `StaxXmlParserSync`.
-- Public async stream parsing reads file chunks asynchronously, then feeds the parser without requiring one retained input string.
-- Synchronous iterable byte-batch parsing accepts `Iterable<Uint8Array>` / byte batches, parses synchronously, and is suitable for blocking batch jobs when the caller already controls chunking.
+- Every row in this section uses the same Node iterable event-frame parser over bounded temp-file chunks.
+- `sync Iterable parser` uses synchronous file reads and `Iterable<Buffer[]>` batches.
+- `async Iterable parser` uses asynchronous file reads as an `AsyncIterable<Buffer[]>`, then hands each awaited batch to the synchronous iterable parser frame loop without retaining one full XML string.
+- XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.
+- These rows use a structural checksum rather than full string materialization so the table measures iterable backend tokenization/event-frame traversal.
 
 </details>
 
 <BenchmarkSection locale="en" section="async-size" />
 
 **Key Insights:**
-- Sync parsing is the direct in-memory path; async parsing trades some scheduling overhead for flatter memory behavior.
-- The relative timing can move by fixture and runtime, so the generated table is the source of truth.
-- For files above 100MB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking work or the synchronous iterable byte-batch backend for blocking batch jobs.
+- This section is the iterable backend throughput view, not a public string parser vs stream parser API comparison.
+- The sync and async rows share the same tokenization/event-frame path; the difference is synchronous file reads versus awaited file batches.
+- Async iterable parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
+- For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking API ergonomics or the synchronous iterable byte-batch backend for blocking batch jobs.
 
 ## Runtime Matrix
 
@@ -204,11 +211,11 @@ Runtime methods:
 
 ## Cross-Runtime Comparator
 
-The table below compares `stax-xml` on Node with Woodstox and `quick-xml` under the same event-count and checksum contract.
+The table below compares `stax-xml` JS on Node, the `stax-xml` native addon through its JavaScript package wrapper, Woodstox, and `quick-xml` under the same event-count and checksum contract.
 Woodstox is shown with Java 8 for the public baseline because Java 8 is its minimum supported runtime target. Java 25 is measured separately to confirm whether the JVM version changes the conclusion.
 
 <details>
-<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>
+<summary>Scenario contract: stax-xml JS/native, Woodstox, and quick-xml comparator</summary>
 
 Sample XML shape is the same generated 16 MiB `<root><book>...</book></root>` fixture used by the runtime matrix.
 
@@ -217,6 +224,7 @@ Output shape:
 ~~~text
 comparator-result = {
   tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",
   eventCount: number,
   checksum: fold(selected event data for tier)
 }
@@ -224,7 +232,8 @@ comparator-result = {
 
 Parsing methods:
 
-- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
+- `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
+- `stax-xml native addon`: JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process.
 - Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.
 - `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.
 - Java 8 is the public Woodstox row because it is Woodstox's minimum runtime target; Java 25 is a separate verification row.
@@ -251,7 +260,7 @@ The package therefore keeps `stax-xml` as the public facade while adding optiona
 The benchmark below compares three ways to build the **same object output**:
 
 - A handwritten plain parser built directly on `StaxXmlParserSync`
-- The declarative converter API
+- The declarative converter API with automatic dispatch-plan routing
 - The converter API with `.compile()` enabled
 
 Fixture used in the current workspace run:
@@ -270,8 +279,8 @@ Fixture used in the current workspace run:
 What this means:
 
 - The handwritten parser remains the raw-throughput ceiling.
-- The uncompiled converter API pays a large abstraction cost.
-- The compiled converter path still carries meaningful overhead, but it is faster than the uncompiled converter path on this fixture.
+- The normal converter API now auto-routes dispatch-friendly schemas onto the iterable backend and caches the plan on the schema object.
+- `.compile()` keeps the same output contract while making that dispatch choice explicit and reusable.
 
 ## Writer Performance
 

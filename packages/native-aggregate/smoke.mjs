@@ -27,11 +27,18 @@ const sampleText =
 const sample = Buffer.from(sampleText);
 const sampleUint8 = new Uint8Array(sample.buffer, sample.byteOffset, sample.byteLength);
 
-for (const tier of ['count-only', 'full-string-direct', 'event-object-full']) {
+for (const tier of [
+  'count-only',
+  'name-string-only',
+  'text-string-only',
+  'attr-value-string-only',
+  'full-string-direct',
+  'event-object-full',
+]) {
   const bufferResult = normalize(parse_aggregate_buffer(sample, tier));
   assertEqual(bufferResult.tier, tier, `${tier} tier echo`);
   assertEqual(bufferResult.eventCount, 10, `${tier} event count`);
-  assertEqual(bufferResult.attrCountTotal, 2, `${tier} attr count`);
+  assertEqual(bufferResult.attrCountTotal, expectedAttrCountTotal(tier), `${tier} attr count`);
 
   const uint8ArrayResult = normalize(parse_aggregate_uint8array(sampleUint8, tier));
   assertEqual(uint8ArrayResult.eventCount, bufferResult.eventCount, `${tier} uint8array event count`);
@@ -49,7 +56,7 @@ for (const tier of ['count-only', 'full-string-direct', 'event-object-full']) {
   assertEqual(Buffer.isBuffer(spanTable), true, `${tier} span table buffer`);
   assertEqual(spanTable.readUInt32LE(0), 0x31545053, `${tier} span table magic`);
   assertEqual(spanTable.readUInt32LE(4), bufferResult.eventCount, `${tier} span table event count`);
-  assertEqual(spanTable.readUInt32LE(8), bufferResult.attrCountTotal, `${tier} span table attr count`);
+  assertEqual(spanTable.readUInt32LE(8), 2, `${tier} span table attr count`);
 
   mkdirSync(join(__dirname, 'target'), { recursive: true });
   const filePath = join(__dirname, 'target', 'smoke.xml');
@@ -84,6 +91,10 @@ function normalize(result) {
     checksum: result.checksum,
     attrCountTotal: result.attrCountTotal ?? result.attr_count_total,
   };
+}
+
+function expectedAttrCountTotal(tier) {
+  return tier === 'name-string-only' || tier === 'text-string-only' ? 0 : 2;
 }
 
 function assertEqual(actual, expected, label) {

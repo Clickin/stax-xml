@@ -498,7 +498,7 @@ while (parser.nextBatch()) {
 }
 ```
 
-This avoids materializing one full XML string, but the parse loop is synchronous once it starts. For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` for fixed-size synchronous file chunks.
+This avoids materializing one full XML string, but the parse loop is synchronous once it starts. Async file reads do not make XML parsing non-blocking; on a latency-sensitive main event loop thread, offload parsing to a Web Worker or Node worker thread. For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` for fixed-size synchronous file chunks.
 
 #### Namespace Handling
 

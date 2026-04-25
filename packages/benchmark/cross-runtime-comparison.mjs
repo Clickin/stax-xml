@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -12,6 +13,7 @@ const defaultMdOut = join(__dirname, 'results', 'release', 'cross-runtime-compar
 const woodstoxDir = join(__dirname, 'external', 'woodstox');
 const quickXmlDir = join(__dirname, 'external', 'quick-xml-bench');
 const nodeStringReturnPath = join(__dirname, 'node-string-return.mjs');
+const nativeAggregatePackageJsonPath = join(__dirname, '..', 'native-aggregate', 'package.json');
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -317,6 +319,104 @@ function runExternalCommand(command, file, tier, runs, warmups) {
   };
 }
 
+function nativeTierForComparatorTier(tier) {
+  if (tier === 'count-only') return 'count-only';
+  if (tier === 'name-string-only') return 'name-string-only';
+  if (tier === 'text-string-only') return 'text-string-only';
+  if (tier === 'attr-value-string-only') return 'attr-value-string-only';
+  if (tier === 'full-string') return 'full-string-direct';
+  return null;
+}
+
+function normalizeNativeAggregateResult(result) {
+  return {
+    eventCount: result.eventCount ?? result.event_count,
+    checksum: result.checksum,
+    attrCountTotal: result.attrCountTotal ?? result.attr_count_total,
+    objectCount: result.objectCount ?? result.object_count ?? 0,
+  };
+}
+
+async function measureNativeAddon(options) {
+  let native;
+  try {
+    native = await import('@stax-xml/native-aggregate-probe');
+  } catch (error) {
+    return {
+      status: 'skipped',
+      reason: error instanceof Error ? error.message : String(error),
+      tiers: options.tiers.map(tier => ({
+        tier,
+        id: 'stax-xml-native-addon-js-wrapper',
+        status: 'skipped',
+        reason: '@stax-xml/native-aggregate-probe could not be loaded.',
+      })),
+    };
+  }
+
+  const fileSizeMiB = statSync(options.file).size / 1024 / 1024;
+  const tiers = options.tiers.map(tier => {
+    const nativeTier = nativeTierForComparatorTier(tier);
+    if (!nativeTier) {
+      return {
+        tier,
+        nativeTier: null,
+        id: 'stax-xml-native-addon-js-wrapper',
+        status: 'not-supported',
+        reason: `Current native aggregate probe does not define a tier for ${tier}.`,
+      };
+    }
+
+    for (let index = 0; index < options.warmups; index++) {
+      native.parse_aggregate_file(options.file, nativeTier);
+    }
+
+    const samplesMs = [];
+    let eventCount = 0;
+    let checksum = 0;
+    let attrCountTotal = 0;
+    let objectCount = 0;
+    for (let index = 0; index < options.runs; index++) {
+      if (globalThis.gc) globalThis.gc();
+      const startedAt = performance.now();
+      const result = normalizeNativeAggregateResult(native.parse_aggregate_file(options.file, nativeTier));
+      const elapsedMs = performance.now() - startedAt;
+      if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
+        throw new Error(`stax-xml native addon ${tier} produced unstable event count or checksum between runs.`);
+      }
+      eventCount = result.eventCount;
+      checksum = result.checksum;
+      attrCountTotal = result.attrCountTotal;
+      objectCount = result.objectCount;
+      samplesMs.push(elapsedMs);
+    }
+
+    const avgMs = samplesMs.reduce((sum, value) => sum + value, 0) / samplesMs.length;
+    return {
+      tier,
+      nativeTier,
+      id: 'stax-xml-native-addon-js-wrapper',
+      status: 'ok',
+      avgMs,
+      minMs: Math.min(...samplesMs),
+      maxMs: Math.max(...samplesMs),
+      mibPerSec: fileSizeMiB / (avgMs / 1000),
+      eventCount,
+      checksum,
+      attrCountTotal,
+      objectCount,
+      samplesMs,
+    };
+  });
+
+  return {
+    status: tiers.every(entry => entry.status === 'ok') ? 'ok' : 'partial',
+    packageName: '@stax-xml/native-aggregate-probe',
+    entrypoint: '@stax-xml/native-aggregate-probe JS module',
+    tiers,
+  };
+}
+
 function javaVersion(command) {
   const result = spawnSync(command, ['-version'], {
     encoding: 'utf8',
@@ -400,7 +500,7 @@ function escapePipe(value) {
 function createScenarioDetails(report) {
   return [
     '<details>',
-    '<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>',
+    '<summary>Scenario contract: stax-xml JS/native, Woodstox, and quick-xml comparator</summary>',
     '',
     `The comparator uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
     '',
@@ -424,6 +524,7 @@ function createScenarioDetails(report) {
     '~~~text',
     'comparator-result = {',
     '  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",',
+    '  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",',
     '  eventCount: number,',
     '  checksum: fold(selected event data for tier)',
     '}',
@@ -431,7 +532,8 @@ function createScenarioDetails(report) {
     '',
     'Parsing methods:',
     '',
-    '- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
+    '- `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
+    '- `stax-xml native addon`: JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process.',
     '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
     '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
     '- Java 8 is the public Woodstox row because it is Woodstox\'s minimum runtime target; Java 25 is a separate verification row.',
@@ -446,7 +548,7 @@ function createMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This artifact compares the Node stax-xml iterable backend with non-JS parser baselines under the same checksum contract.',
+    'This artifact compares the Node stax-xml iterable backend, the native addon through its JavaScript package wrapper, and non-JS parser baselines under the same checksum contract.',
     'The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its minimum runtime target; Java 25 is reported only as a verification check.',
     '',
     '## Environment',
@@ -459,26 +561,22 @@ function createMarkdown(report) {
     `- Java 8: ${escapePipe(report.tools.java8Version ?? 'unknown')}`,
     `- Java 25 check: ${escapePipe(report.java25Verification.java25Version ?? report.java25Verification.reason ?? 'not available')}`,
     `- quick-xml crate: ${report.tools.quickXmlVersion ?? 'unknown'}`,
+    `- stax-xml native addon: ${report.tools.nativeAggregateVersion ?? 'unknown'}`,
     '',
     '## Scenario',
     '',
     createScenarioDetails(report),
     '',
-    '## Public Comparator Table',
+    '## Public Comparator Tables',
     '',
-    '| Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml | Node/Woodstox | Node/quick-xml |',
-    '| --- | ---: | ---: | ---: | ---: | ---: |',
   ];
 
   const firstFile = report.nodeStringReturn.files[0];
   for (const tier of firstFile.tiers) {
-    const node = tier.scenarios.find(scenario => scenario.id === 'node');
-    const woodstox = tier.scenarios.find(scenario => scenario.id === 'woodstox');
-    const quickXml = tier.scenarios.find(scenario => scenario.id === 'quick-xml');
-    lines.push(
-      `| ${tier.id} | ${formatRate(node?.mibPerSec)} | ${formatRate(woodstox?.mibPerSec)} | ` +
-      `${formatRate(quickXml?.mibPerSec)} | ${ratio(node, woodstox)} | ${ratio(node, quickXml)} |`,
-    );
+    lines.push(`### ${tier.id}`);
+    lines.push('');
+    lines.push(renderTierComparatorTable(report, tier.id));
+    lines.push('');
   }
 
   lines.push('');
@@ -513,10 +611,63 @@ function ratio(a, b) {
   return `${(a.mibPerSec / b.mibPerSec).toFixed(2)}x`;
 }
 
+function tierById(report, tierId) {
+  return report.nodeStringReturn.files[0].tiers.find(tier => tier.id === tierId);
+}
+
+function nativeTierById(report, tierId) {
+  return report.nativeAddon?.tiers?.find(tier => tier.tier === tierId);
+}
+
+function scenarioById(report, tierId, scenarioId) {
+  return tierById(report, tierId)?.scenarios.find(scenario => scenario.id === scenarioId);
+}
+
+function comparatorRows(report, tierId) {
+  const jsNode = scenarioById(report, tierId, 'node');
+  return [
+    ['stax-xml JS on Node', jsNode],
+    ['stax-xml native addon (JS wrapper)', nativeTierById(report, tierId)],
+    ['Woodstox on Java 8', scenarioById(report, tierId, 'woodstox')],
+    ['quick-xml', scenarioById(report, tierId, 'quick-xml')],
+  ];
+}
+
+function comparatorStatus(result) {
+  if (!result) return 'missing';
+  if (result.status === 'ok') return 'ok';
+  return result.reason ?? result.status ?? 'n/a';
+}
+
+function relativeToJs(result, jsNode) {
+  if (!result?.mibPerSec || !jsNode?.mibPerSec) return 'n/a';
+  return `${(result.mibPerSec / jsNode.mibPerSec).toFixed(2)}x`;
+}
+
+function renderTierComparatorTable(report, tierId) {
+  const jsNode = scenarioById(report, tierId, 'node');
+  return [
+    '| Implementation | Throughput | Average | Relative to stax-xml JS | Status |',
+    '| --- | ---: | ---: | ---: | --- |',
+    ...comparatorRows(report, tierId).map(([label, result]) =>
+      `| ${label} | ${formatRate(result?.mibPerSec)} | ${formatMs(result?.avgMs)} | ${relativeToJs(result, jsNode)} | ${escapePipe(comparatorStatus(result))} |`
+    ),
+  ].join('\n');
+}
+
+function nativeAggregateVersion() {
+  try {
+    return JSON.parse(readFileSync(nativeAggregatePackageJsonPath, 'utf8')).version;
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const options = parseArgs();
   const tools = buildExternalTools(options);
   const nodeStringReturn = runNodeStringReturn(options, tools);
+  const nativeAddon = await measureNativeAddon(options);
   const java25Verification = verifyJava25(options, tools, nodeStringReturn.report);
   const fileStat = statSync(options.file);
 
@@ -544,9 +695,12 @@ async function main() {
       java25Command: tools.java25 ?? null,
       quickXmlCommand: tools.quickXmlExe,
       quickXmlVersion: quickXmlVersion(tools.quickXmlExe),
+      nativeAggregatePackage: '@stax-xml/native-aggregate-probe',
+      nativeAggregateVersion: nativeAggregateVersion(),
     },
     rawNodeStringReturnPath: nodeStringReturn.rawOut,
     nodeStringReturn: nodeStringReturn.report,
+    nativeAddon,
     java25Verification,
   };
 

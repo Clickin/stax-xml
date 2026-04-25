@@ -498,7 +498,7 @@ while (parser.nextBatch()) {
 }
 ```
 
-이 방식은 전체 XML 문자열을 만들지 않지만, parse loop가 시작된 뒤에는 동기적으로 실행됩니다. Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 고정 크기 동기 파일 chunk를 사용할 수 있습니다.
+이 방식은 전체 XML 문자열을 만들지 않지만, parse loop가 시작된 뒤에는 동기적으로 실행됩니다. async file read를 사용해도 XML parsing 자체가 non-blocking이 되지는 않으므로, latency-sensitive main event loop thread에서는 Web Worker 또는 Node worker thread로 offload할지 결정하세요. Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 고정 크기 동기 파일 chunk를 사용할 수 있습니다.
 
 #### 네임스페이스 처리
 

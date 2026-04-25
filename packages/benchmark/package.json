@@ -11,6 +11,8 @@
     "dev:builder:small": "node --expose-gc ./builder-small.mjs",
     "dev:builder:big": "node --expose-gc ./builder-big.mjs",
     "dev:async:parser": "node --expose-gc ./async-parser.mjs",
+    "dev:async:iterable-size": "node --expose-gc ./update-release-benchmarks.mjs --only async-size",
+    "dev:async:file-4gb": "node --expose-gc ./update-release-benchmarks.mjs --only async-file-4gb",
     "dev:async:fast-path:poc": "node --expose-gc ./async-fast-path-poc.mjs --quick",
     "dev:async:large-compare": "node --expose-gc ./large-file-parser-compare.mjs",
     "dev:async:writer": "node --expose-gc ./async-writer.mjs",

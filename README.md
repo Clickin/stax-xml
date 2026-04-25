@@ -10,7 +10,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 
 ### 🚀 Features
 
-- **Cursor Reader API**: Zero-allocation cursor-based XML traversal for maximum throughput
+- **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser`
 - **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing
 - **XPath Support**: Use XPath expressions for flexible element selection
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
@@ -44,9 +44,9 @@ deno add npm:stax-xml
 
 ### 🔧 Quick Start
 
-Here are basic examples to get started. StAX-XML provides two parsing approaches:
+Here are basic examples to get started. StAX-XML provides three parsing approaches:
 
-1. **Cursor Reader API**: Zero-allocation cursor for maximum throughput and minimal memory
+1. **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser`
 2. **Event-based API**: Low-level streaming parser for fine-grained control
 3. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
 
@@ -93,9 +93,9 @@ Key features of the Converter API:
 - **Optional values**: Handle missing elements gracefully with `.optional()`
 - **Transformations**: Apply custom transformations with `.transform()`
 
-#### Cursor Reader API (Zero-Allocation)
+#### Cursor Reader API (IterableParser Wrapper)
 
-The cursor API provides a **mutable singleton cursor** that advances through XML events without creating objects per node. It offers dramatically lower memory usage and higher throughput on large files.
+The cursor API is a thin, ergonomic wrapper over the iterable parser backend. It exposes one-event-at-a-time cursor accessors for code that prefers cursor traversal, while batch/span-oriented work should use `StaxXmlIterableParser` directly.
 
 ```typescript
 import { StaxXmlCursorReader, CursorEventType } from 'stax-xml/cursor';
@@ -313,7 +313,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 
 ### 🚀 주요 기능
 
-- **커서 Reader API**: 최대 처리량을 위한 제로 할당 커서 기반 XML 순회
+- **커서 Reader API**: `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
 - **선언적 Converter API**: 타입 안전한 XML 파싱과 쓰기를 위한 Zod 스타일 스키마 API
 - **XPath 지원**: 유연한 요소 선택을 위한 XPath 표현식 사용
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
@@ -348,9 +348,9 @@ deno add npm:stax-xml
 
 ### 🔧 빠른 시작
 
-StAX-XML은 두 가지 파싱 방식을 제공합니다:
+StAX-XML은 세 가지 파싱 방식을 제공합니다:
 
-1. **커서 Reader API**: 최대 처리량과 최소 메모리를 위한 제로 할당 커서
+1. **커서 Reader API**: `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
 2. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
 3. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
 
@@ -397,9 +397,9 @@ Converter API의 주요 기능:
 - **선택적 값**: `.optional()`로 누락된 요소 우아하게 처리
 - **변환**: `.transform()`으로 사용자 정의 변환 적용
 
-#### 커서 Reader API (제로 할당)
+#### 커서 Reader API (IterableParser Wrapper)
 
-커서 API는 노드마다 객체를 생성하지 않고 **뮤터블 싱글톤 커서**를 통해 XML 이벤트를 순회합니다. 대용량 파일에서 극적으로 낮은 메모리 사용량과 높은 처리량을 제공합니다.
+커서 API는 iterable parser backend 위의 얇은 ergonomic wrapper입니다. cursor 순회를 선호하는 코드에 one-event-at-a-time accessor를 제공하며, batch/span 중심 작업은 `StaxXmlIterableParser`를 직접 사용하는 편이 적합합니다.
 
 ```typescript
 import { StaxXmlCursorReader, CursorEventType } from 'stax-xml/cursor';

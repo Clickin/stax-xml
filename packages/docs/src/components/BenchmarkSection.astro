@@ -22,7 +22,21 @@ interface Props {
 
 const { locale, section } = Astro.props as Props;
 
-const env = summary.environment;
+const env = summary.environment as any;
+const githubBlobBase = 'https://github.com/Clickin/stax-xml/blob/master/';
+const sourceLinks: Record<Section, Array<[string, string]>> = {
+  environment: [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-2kb': [['parser-2kb.mjs', 'packages/benchmark/parser-2kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-4kb': [['parser-4kb.mjs', 'packages/benchmark/parser-4kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'async-size': [['sync/async release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-13mb': [['parser-13mb.mjs', 'packages/benchmark/parser-13mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-98mb': [['parser-98mb.mjs', 'packages/benchmark/parser-98mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  converter: [['converter-plain-output-benchmark.mjs', 'packages/benchmark/converter-plain-output-benchmark.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-small': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-big': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-async': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-1gb': [['writer-1gb.mjs', 'packages/benchmark/writer-1gb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+};
 
 function suiteCase(suiteId: string, label: string) {
   const suite = summary.suites[suiteId as keyof typeof summary.suites] as any;
@@ -53,6 +67,17 @@ function formatOps(avgNs: number) {
   return `~${(1e9 / avgNs).toLocaleString(undefined, { maximumFractionDigits: avgNs < 1e6 ? 0 : 2 })} ops/sec`;
 }
 
+function formatThroughput(stats: any) {
+  return Number.isFinite(stats?.throughputMiBs) ? `${Number(stats.throughputMiBs).toFixed(2)} MiB/s` : 'n/a';
+}
+
+function formatRelative(candidate: any, baseline: any) {
+  if (!candidate?.avgNs || !baseline?.avgNs) return 'n/a';
+  return candidate.avgNs >= baseline.avgNs
+    ? `${(candidate.avgNs / baseline.avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`
+    : `${(baseline.avgNs / candidate.avgNs).toFixed(2)}x ${locale === 'en' ? 'faster' : '빠름'}`;
+}
+
 function parseLabel(label: string) {
   if (locale === 'en') return label;
   return label
@@ -75,7 +100,13 @@ function parseLabel(label: string) {
     .replace('Library', '라이브러리')
     .replace('Notes', '비고')
     .replace('Implementation', '구현')
-    .replace('Average time', '평균 시간');
+    .replace('Average time', '평균 시간')
+    .replace('Fixture', 'fixture')
+    .replace('Backend', 'backend')
+    .replace('Surface', 'surface')
+    .replace('Average', '평균')
+    .replace('Peak heap', '최대 heap')
+    .replace('Events', '이벤트 수');
 }
 
 type TableModel = {
@@ -97,60 +128,73 @@ function buildTable(section: Section): TableModel | null {
       ];
     }),
   });
+  const staxSurfaceRows = (): Array<[string, string, string]> => [
+    ['stax-xml JS event parser', 'stax-xml JS fallback event parser', locale === 'en' ? 'Public StaxXmlParserSync event API' : 'Public event parser'],
+    ['stax-xml JS raw iterable', 'stax-xml JS fallback raw iterable', locale === 'en' ? 'Iterable byte frames with checksum' : 'Iterable byte frames + checksum'],
+    ['**stax-xml native event aggregate**', 'stax-xml native addon event aggregate', locale === 'en' ? 'N-API aggregate probe' : 'N-API aggregate probe'],
+    ['**stax-xml native raw aggregate**', 'stax-xml native addon raw aggregate', locale === 'en' ? 'Coarse Buffer call' : 'Coarse Buffer call'],
+  ];
 
   switch (section) {
     case 'parser-2kb':
       return parserRows('parser-2kb', [
-        ['**txml**', 'txml', locale === 'en' ? 'Fastest, lightweight' : '가장 빠름, 경량'],
+        ['**txml**', 'txml', locale === 'en' ? 'Lightweight object parser' : '경량 object parser'],
         ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
-        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Stream processing' : '스트림 처리'],
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'DOM-based' : 'DOM 기반'],
-        ['xml2js', 'xml2js', locale === 'en' ? 'Callback-based, memory intensive' : '콜백 기반, 메모리 집약적'],
+        ...staxSurfaceRows(),
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Callback object parser' : 'Callback object parser'],
       ]);
     case 'parser-4kb':
       return parserRows('parser-4kb', [
-        ['**txml**', 'txml', locale === 'en' ? 'Fastest, lightweight' : '가장 빠름, 경량'],
-        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Stream processing' : '스트림 처리'],
+        ['**txml**', 'txml', locale === 'en' ? 'Lightweight object parser' : '경량 object parser'],
         ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Good balance' : '좋은 균형'],
-        ['xml2js', 'xml2js', locale === 'en' ? 'Memory intensive' : '메모리 집약적'],
+        ...staxSurfaceRows(),
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Callback object parser' : 'Callback object parser'],
       ]);
     case 'parser-13mb':
       return parserRows('parser-13mb', [
-        ['**xml2js**', 'xml2js', locale === 'en' ? 'Exceptional performance*' : '예외적 성능*'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Invalid comparator: first top-level element only*' : '비교 무효: 첫 top-level element만 처리*'],
         ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
-        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Stream processing' : '스트림 처리'],
-        ['**txml**', 'txml', locale === 'en' ? 'Lightweight DOM' : '경량 DOM'],
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Memory intensive' : '메모리 집약적'],
+        ...staxSurfaceRows(),
+        ['**txml**', 'txml', locale === 'en' ? 'Lightweight object parser' : '경량 object parser'],
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
       ]);
     case 'parser-98mb':
       return parserRows('parser-98mb', [
-        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Best overall' : '최고 전체 성능'],
         ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Memory efficient' : '메모리 효율적'],
-        ['**txml**', 'txml', locale === 'en' ? 'High memory' : '높은 메모리'],
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Slow, memory intensive' : '느림, 메모리 집약적'],
-        ['xml2js', 'xml2js', locale === 'en' ? 'Slowest performance' : '가장 느린 성능'],
+        ...staxSurfaceRows(),
+        ['**txml**', 'txml', locale === 'en' ? 'Object parser' : 'Object parser'],
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Callback object parser' : 'Callback object parser'],
       ]);
-    case 'async-size':
+    case 'async-size': {
+      const sizeRows: Array<[string, string]> = [
+        ['async-size', '1MiB'],
+        ['async-size', '10MiB'],
+        ['async-size', '100MiB'],
+        ['async-size', '1GiB'],
+        ['async-file-4gb', '4GiB'],
+      ];
       return {
         headers: ['File Size', 'Parser Type', 'Processing Time', 'Memory Usage', 'Performance Ratio'],
-        rows: [
-          ['1MB', '**sync parser**', formatDurationNsCompact(suiteCase('async-size', 'sync parser (1MB)').avgNs), formatMemory(suiteCase('async-size', 'sync parser (1MB)').heapAvgBytes), locale === 'en' ? 'Baseline' : '기준선'],
-          ['1MB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (1MB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (1MB)').heapAvgBytes), `${(suiteCase('async-size', 'async parser (1MB)').avgNs / suiteCase('async-size', 'sync parser (1MB)').avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`],
-          ['10MB', '**sync parser**', formatDurationNsCompact(suiteCase('async-size', 'sync parser (10MB)').avgNs), formatMemory(suiteCase('async-size', 'sync parser (10MB)').heapAvgBytes), locale === 'en' ? 'Baseline' : '기준선'],
-          ['10MB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (10MB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (10MB)').heapAvgBytes), `${(suiteCase('async-size', 'async parser (10MB)').avgNs / suiteCase('async-size', 'sync parser (10MB)').avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`],
-          ['100MB', '**sync parser**', formatDurationNsCompact(suiteCase('async-size', 'sync parser (100MB)').avgNs), formatMemory(suiteCase('async-size', 'sync parser (100MB)').heapAvgBytes), locale === 'en' ? 'Baseline' : '기준선'],
-          ['100MB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (100MB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (100MB)').heapAvgBytes), `${(suiteCase('async-size', 'async parser (100MB)').avgNs / suiteCase('async-size', 'sync parser (100MB)').avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`],
-          ['1GB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (1GB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (1GB)').heapAvgBytes), locale === 'en' ? 'Memory efficient' : '메모리 효율적'],
-        ],
+        rows: sizeRows.flatMap(([suiteId, size]) => {
+          const syncStats = suiteCase(suiteId, `sync Iterable parser (${size} temp file)`);
+          const asyncStats = suiteCase(suiteId, `async Iterable parser (${size} temp file)`);
+          return [
+            [`${size} temp file`, '**sync Iterable parser**', formatDurationNsCompact(syncStats.avgNs), formatMemory(syncStats.heapAvgBytes), `${locale === 'en' ? 'Baseline' : '기준선'}, ${formatThroughput(syncStats)}`],
+            [`${size} temp file`, 'async Iterable parser', formatDurationNsCompact(asyncStats.avgNs), formatMemory(asyncStats.heapAvgBytes), `${formatRelative(asyncStats, syncStats)}, ${formatThroughput(asyncStats)}`],
+          ];
+        }),
       };
+    }
     case 'converter':
       return {
         headers: ['Implementation', 'Average time', 'Notes'],
         rows: [
           ['plain parser', formatDurationNsCompact(suiteCase('converter-parity', 'plain parser').avgNs), locale === 'en' ? 'Lowest overhead, handwritten state machine' : '가장 낮은 오버헤드, 수동 상태 관리'],
-          ['converter api', formatDurationNsCompact(suiteCase('converter-parity', 'converter api').avgNs), locale === 'en' ? 'Declarative but uncompiled' : '선언형이지만 uncompiled 경로'],
-          ['converter api compiled', formatDurationNsCompact(suiteCase('converter-parity', 'converter api compiled').avgNs), locale === 'en' ? 'Declarative schema with compiled root processor' : '선언형 스키마 + compiled root processor'],
+          ['converter api', formatDurationNsCompact(suiteCase('converter-parity', 'converter api').avgNs), locale === 'en' ? 'Declarative schema with automatic dispatch plan' : '선언형 스키마 + 자동 dispatch plan'],
+          ['converter api compiled', formatDurationNsCompact(suiteCase('converter-parity', 'converter api compiled').avgNs), locale === 'en' ? 'Explicit compile() with cached dispatch plan' : '명시적 compile() + cached dispatch plan'],
         ],
       };
     case 'writer-small': {
@@ -254,34 +298,117 @@ function buildTable(section: Section): TableModel | null {
 }
 
 const table = buildTable(section);
+const currentSourceLinks = sourceLinks[section] ?? [];
 ---
 {section === 'environment' && (
-  <ul>
-    <li><strong>CPU:</strong> {env.cpuName} (~{env.cpuGHz.toFixed(2)} GHz)</li>
-    <li><strong>{locale === 'en' ? 'Runtime' : '런타임'}:</strong> {env.runtime} {env.version} ({env.arch}) {locale === 'en' ? 'with garbage collection exposed' : '(`--expose-gc`)'} <code>--expose-gc</code></li>
-    <li><strong>{locale === 'en' ? 'Tool' : '도구'}:</strong> <a href="https://github.com/evanw/mitata">Mitata</a></li>
-    <li><strong>Canonical Set:</strong> parser 2KB / 4KB / 13MB / 98MB, async size-comparison, writer small / big / async, converter parity</li>
-  </ul>
+  <>
+    <ul>
+      <li><strong>CPU:</strong> {env.cpuName} (~{env.cpuGHz.toFixed(2)} GHz)</li>
+      <li><strong>{locale === 'en' ? 'Runtime' : '런타임'}:</strong> {env.runtime} {env.version} ({env.arch}) {locale === 'en' ? 'with garbage collection exposed' : '(`--expose-gc`)'} <code>--expose-gc</code></li>
+      <li><strong>{locale === 'en' ? 'Tool' : '도구'}:</strong> <a href="https://github.com/evanw/mitata">Mitata</a></li>
+      {env.packageManager && <li><strong>{locale === 'en' ? 'Package manager' : '패키지 매니저'}:</strong> {env.packageManager}</li>}
+      <li><strong>Canonical Set:</strong> parser 2KB / 4KB / 13MB / 98MB with stax-xml backend/surface rows, iterable sync/async size comparison from 1MiB to 4GiB, writer small / big / async, converter parity</li>
+      <li><strong>{locale === 'en' ? 'Source' : '소스'}:</strong> <a href={`${githubBlobBase}${sourceLinks.environment[0][1]}`}>{sourceLinks.environment[0][0]}</a></li>
+    </ul>
+    {(env.packages?.length || env.runtimes?.length || env.nodeComponents?.length) && (
+      <details>
+        <summary>{locale === 'en' ? 'Resolved package and runtime versions' : '해결된 패키지와 런타임 버전'}</summary>
+        {env.packages?.length && (
+          <table>
+            <thead>
+              <tr>
+                <th>{locale === 'en' ? 'Benchmark package' : 'Benchmark package'}</th>
+                <th>{locale === 'en' ? 'Resolved version' : 'Resolved version'}</th>
+                <th>{locale === 'en' ? 'Declared range' : 'Declared range'}</th>
+                <th>{locale === 'en' ? 'Source' : 'Source'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {env.packages.map((entry: any) => (
+                <tr>
+                  <td><code>{entry.name}</code></td>
+                  <td>{entry.version ?? 'n/a'}</td>
+                  <td><code>{entry.declared}</code></td>
+                  <td>{entry.source}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {env.runtimes?.length && (
+          <table>
+            <thead>
+              <tr>
+                <th>{locale === 'en' ? 'Runtime/tool' : 'Runtime/tool'}</th>
+                <th>{locale === 'en' ? 'Version' : 'Version'}</th>
+                <th>{locale === 'en' ? 'Status' : 'Status'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {env.runtimes.map((entry: any) => (
+                <tr>
+                  <td><code>{entry.id}</code></td>
+                  <td>{entry.version ?? 'n/a'}</td>
+                  <td>{entry.status === 'ok' ? 'ok' : entry.reason ?? entry.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {env.nodeComponents?.length && (
+          <table>
+            <thead>
+              <tr>
+                <th>{locale === 'en' ? 'Node component' : 'Node component'}</th>
+                <th>{locale === 'en' ? 'Version' : 'Version'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {env.nodeComponents.map((entry: any) => (
+                <tr>
+                  <td><code>{entry.name}</code></td>
+                  <td>{entry.version}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </details>
+    )}
+  </>
 )}
 
 {table && (
-  <table>
-    <thead>
-      <tr>
-        {table.headers.map((header) => <th>{parseLabel(header)}</th>)}
-      </tr>
-    </thead>
-    <tbody>
-      {table.rows.map((row) => (
+  <>
+    {currentSourceLinks.length > 0 && (
+      <p>
+        <strong>{locale === 'en' ? 'Benchmark source' : '벤치마크 소스'}:</strong>{' '}
+        {currentSourceLinks.map(([label, path], index) => (
+          <>
+            {index > 0 && ', '}
+            <a href={`${githubBlobBase}${path}`}>{label}</a>
+          </>
+        ))}
+      </p>
+    )}
+    <table>
+      <thead>
         <tr>
-          {row.map((cell, index) => (
-            index === 0 && cell.startsWith('**') && cell.endsWith('**')
-              ? <td><strong>{cell.slice(2, -2)}</strong></td>
-              : <td>{cell}</td>
-          ))}
+          {table.headers.map((header) => <th>{parseLabel(header)}</th>)}
         </tr>
-      ))}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {table.rows.map((row) => (
+          <tr>
+            {row.map((cell, index) => (
+              index === 0 && cell.startsWith('**') && cell.endsWith('**')
+                ? <td><strong>{cell.slice(2, -2)}</strong></td>
+                : <td>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </>
 )}
 
