@@ -124,6 +124,13 @@ describe('String Schema Position Parsing', () => {
       expect(xml).toContain('<data>Async Content</data>');
     });
 
+    it('should write async string content without a root wrapper', async () => {
+      const schema = x.string();
+      const xml = await schema.write('Bare & Content');
+
+      expect(xml).toBe('Bare &amp; Content');
+    });
+
     it('should write content with CDATA config', () => {
       const schema = x.string().writer({ cdata: true, element: 'content' });
       const xml = (schema as any)._writeSync('Special <> Content', { rootElement: 'root' });

@@ -1,0 +1,231 @@
+{
+  "generatedAt": "2026-04-25T15:45:36.305Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "sizeBytes": 16777038,
+    "sizeMiB": 15.99983024597168
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1,
+    "runtimes": [
+      "node",
+      "bun",
+      "deno"
+    ]
+  },
+  "results": [
+    {
+      "runtime": {
+        "id": "node",
+        "version": "24.15.0"
+      },
+      "file": {
+        "path": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "sizeBytes": 16777038,
+        "sizeMiB": 15.99983024597168
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      },
+      "scenarios": [
+        {
+          "id": "public-sync-full-string",
+          "status": "ok",
+          "avgMs": 290.7814,
+          "minMs": 280.89390000000003,
+          "maxMs": 303.71309999999994,
+          "mibPerSec": 55.023568378072596,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakRssBytes": 456269824,
+          "peakHeapUsedBytes": 209928824,
+          "samplesMs": [
+            287.73720000000003,
+            303.71309999999994,
+            280.89390000000003
+          ]
+        },
+        {
+          "id": "iterable-count-only",
+          "status": "ok",
+          "avgMs": 75.10903333333333,
+          "minMs": 73.86540000000014,
+          "maxMs": 76.8735999999999,
+          "mibPerSec": 213.02138419175964,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakRssBytes": 407703552,
+          "peakHeapUsedBytes": 27981192,
+          "samplesMs": [
+            76.8735999999999,
+            74.58809999999994,
+            73.86540000000014
+          ]
+        },
+        {
+          "id": "iterable-full-string",
+          "status": "ok",
+          "avgMs": 137.3576333333332,
+          "minMs": 136.6715999999999,
+          "maxMs": 138.48699999999985,
+          "mibPerSec": 116.48300758898507,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakRssBytes": 407576576,
+          "peakHeapUsedBytes": 57125808,
+          "samplesMs": [
+            138.48699999999985,
+            136.9142999999999,
+            136.6715999999999
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "runtime": {
+        "id": "bun",
+        "version": "1.3.13"
+      },
+      "file": {
+        "path": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "sizeBytes": 16777038,
+        "sizeMiB": 15.99983024597168
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      },
+      "scenarios": [
+        {
+          "id": "public-sync-full-string",
+          "status": "ok",
+          "avgMs": 188.5186,
+          "minMs": 176.933,
+          "maxMs": 201.0376,
+          "mibPerSec": 84.87136147823972,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakRssBytes": 620298240,
+          "peakHeapUsedBytes": 80759027,
+          "samplesMs": [
+            176.933,
+            201.0376,
+            187.5852
+          ]
+        },
+        {
+          "id": "iterable-count-only",
+          "status": "ok",
+          "avgMs": 61.77356666666666,
+          "minMs": 59.76350000000002,
+          "maxMs": 63.38460000000009,
+          "mibPerSec": 259.00771332028773,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakRssBytes": 651378688,
+          "peakHeapUsedBytes": 71626916,
+          "samplesMs": [
+            63.38460000000009,
+            62.172599999999875,
+            59.76350000000002
+          ]
+        },
+        {
+          "id": "iterable-full-string",
+          "status": "ok",
+          "avgMs": 99.00966666666666,
+          "minMs": 98.02420000000006,
+          "maxMs": 99.54859999999985,
+          "mibPerSec": 161.59866793449476,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakRssBytes": 473661440,
+          "peakHeapUsedBytes": 71725437,
+          "samplesMs": [
+            99.54859999999985,
+            99.45620000000008,
+            98.02420000000006
+          ]
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "runtime": {
+        "id": "deno",
+        "version": "2.7.13 (v8 14.7.173.20-rusty)"
+      },
+      "file": {
+        "path": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "sizeBytes": 16777038,
+        "sizeMiB": 15.99983024597168
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      },
+      "scenarios": [
+        {
+          "id": "public-sync-full-string",
+          "status": "ok",
+          "avgMs": 279.28340000000003,
+          "minMs": 248.97809999999998,
+          "maxMs": 326.0027,
+          "mibPerSec": 57.28886946367625,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakRssBytes": 379727872,
+          "peakHeapUsedBytes": 200596976,
+          "samplesMs": [
+            248.97809999999998,
+            262.86940000000004,
+            326.0027
+          ]
+        },
+        {
+          "id": "iterable-count-only",
+          "status": "ok",
+          "avgMs": 72.5499666666667,
+          "minMs": 69.42849999999999,
+          "maxMs": 76.92380000000003,
+          "mibPerSec": 220.53532180770594,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakRssBytes": 354713600,
+          "peakHeapUsedBytes": 31913448,
+          "samplesMs": [
+            71.2976000000001,
+            69.42849999999999,
+            76.92380000000003
+          ]
+        },
+        {
+          "id": "iterable-full-string",
+          "status": "ok",
+          "avgMs": 128.0952666666668,
+          "minMs": 113.45770000000016,
+          "maxMs": 147.30050000000006,
+          "mibPerSec": 124.90571011969475,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakRssBytes": 356659200,
+          "peakHeapUsedBytes": 27572728,
+          "samplesMs": [
+            123.52760000000012,
+            147.30050000000006,
+            113.45770000000016
+          ]
+        }
+      ],
+      "status": "ok"
+    }
+  ]
+}

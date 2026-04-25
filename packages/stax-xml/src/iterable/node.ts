@@ -14,12 +14,18 @@ export type IterableEventType = typeof IterableEventType[keyof typeof IterableEv
 
 export type NodeByteBatch = readonly Buffer[];
 
+export type NodeAttributeScanner = 'general' | 'simple';
+
 export interface NodeByteBatchOptions {
   batchSize?: number;
 }
 
 export interface NodeFileByteBatchOptions extends NodeByteBatchOptions {
   chunkSize?: number;
+}
+
+export interface StaxXmlNodeIterableParserOptions {
+  attributeScanner?: NodeAttributeScanner;
 }
 
 const DEFAULT_BATCH_SIZE = 16;
@@ -60,6 +66,7 @@ export function* nodeFileByteBatchesSync(
 
 export class StaxXmlNodeIterableParser {
   private readonly iterator: Iterator<NodeByteBatch>;
+  private readonly useSimpleAttributeScanner: boolean;
 
   private currentBuffer: Buffer = EMPTY_BUFFER;
   private pendingTail: Buffer = EMPTY_BUFFER;
@@ -88,8 +95,13 @@ export class StaxXmlNodeIterableParser {
   private readonly nameIds = new Map<number, number>();
   private readonly nameStrings: string[] = [];
 
-  constructor(source: Iterable<NodeByteBatch>) {
+  constructor(source: Iterable<NodeByteBatch>, options: StaxXmlNodeIterableParserOptions = {}) {
     this.iterator = source[Symbol.iterator]();
+    const attributeScanner = options.attributeScanner ?? 'general';
+    if (attributeScanner !== 'general' && attributeScanner !== 'simple') {
+      throw new RangeError(`Unknown attributeScanner: ${String(attributeScanner)}.`);
+    }
+    this.useSimpleAttributeScanner = attributeScanner === 'simple';
   }
 
   nextBatch(): boolean {
@@ -178,11 +190,10 @@ export class StaxXmlNodeIterableParser {
 
   copyName(index: number): string | undefined {
     const nameId = this.nameIdsForEvents[index]!;
-    if (nameId >= 0) {
-      return this.nameStrings[nameId];
+    if (nameId < 0) {
+      return undefined;
     }
-    const start = this.nameStarts[index]!;
-    return start < 0 ? undefined : this.decodeSpan(start, this.nameEnds[index]!);
+    return this.nameStrings[nameId];
   }
 
   copyText(index: number): string | undefined {
@@ -196,9 +207,7 @@ export class StaxXmlNodeIterableParser {
     }
     const index = this.attrStarts[eventIndex]! + attrIndex;
     const nameId = this.attrNameIds[index]!;
-    return nameId >= 0
-      ? this.nameStrings[nameId]
-      : this.decodeSpan(this.attrNameStarts[index]!, this.attrNameEnds[index]!);
+    return this.nameStrings[nameId];
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
@@ -206,6 +215,24 @@ export class StaxXmlNodeIterableParser {
       return undefined;
     }
     return this.decodeSpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
+  }
+
+  copyAttributesObject(eventIndex: number): Record<string, string> {
+    const count = this.attrCounts[eventIndex]!;
+    if (count === 0) {
+      return {};
+    }
+
+    const attributes: Record<string, string> = {};
+    let attrIndex = this.attrStarts[eventIndex]!;
+    const attrEnd = attrIndex + count;
+    while (attrIndex < attrEnd) {
+      const nameId = this.attrNameIds[attrIndex]!;
+      const name = this.nameStrings[nameId]!;
+      attributes[name] = this.decodeSpan(this.attrValueStarts[attrIndex]!, this.attrValueEnds[attrIndex]!);
+      attrIndex++;
+    }
+    return attributes;
   }
 
   private resetFrames(): void {
@@ -427,10 +454,62 @@ export class StaxXmlNodeIterableParser {
   }
 
   private parseAttributes(buffer: Buffer, start: number, end: number): void {
+    if (this.useSimpleAttributeScanner && this.tryParseSimpleQuotedAttributes(buffer, start, end)) {
+      return;
+    }
+    this.parseAttributesGeneral(buffer, start, end);
+  }
+
+  private tryParseSimpleQuotedAttributes(buffer: Buffer, start: number, end: number): boolean {
+    const initialAttrCursor = this.attrCursor;
+    let index = start;
+    while (index < end) {
+      while (index < end) {
+        const byte = buffer[index]!;
+        if (byte !== 32 && byte !== 9 && byte !== 10 && byte !== 13) break;
+        index++;
+      }
+
+      const nameStart = index;
+      while (index < end) {
+        const byte = buffer[index]!;
+        if (byte === 61) break;
+        if (byte === 32 || byte === 9 || byte === 10 || byte === 13 || byte === 34 || byte === 39) {
+          this.attrCursor = initialAttrCursor;
+          return false;
+        }
+        index++;
+      }
+      if (index >= end || index === nameStart || buffer[index] !== 61) {
+        this.attrCursor = initialAttrCursor;
+        return false;
+      }
+      const nameEnd = index;
+
+      index++;
+      if (index >= end) {
+        this.attrCursor = initialAttrCursor;
+        return false;
+      }
+      const quote = buffer[index]!;
+      if (quote !== 34 && quote !== 39) {
+        this.attrCursor = initialAttrCursor;
+        return false;
+      }
+      index++;
+      const valueStart = index;
+      while (index < end && buffer[index] !== quote) index++;
+      const valueEnd = index;
+      this.addAttribute(buffer, nameStart, nameEnd, valueStart, valueEnd);
+      index++;
+    }
+    return true;
+  }
+
+  private parseAttributesGeneral(buffer: Buffer, start: number, end: number): void {
     let index = start;
     while (index < end) {
       while (index < end && isWhitespace(buffer[index]!)) index++;
-      if (index >= end) break;
 
       const nameStart = index;
       while (index < end) {
@@ -439,6 +518,9 @@ export class StaxXmlNodeIterableParser {
         index++;
       }
       const nameEnd = index;
+      if (nameEnd === nameStart) {
+        break;
+      }
 
       while (index < end && isWhitespace(buffer[index]!)) index++;
       if (index >= end || buffer[index] !== 61) {
@@ -558,13 +640,13 @@ function normalizeChunkSize(value: number | undefined): number {
   return chunkSize;
 }
 
-function growInt32(source: Int32Array, size: number): Int32Array {
+function growInt32(source: Int32Array<ArrayBufferLike>, size: number): Int32Array<ArrayBuffer> {
   const next = new Int32Array(size);
   next.set(source);
   return next;
 }
 
-function growUint8(source: Uint8Array, size: number): Uint8Array {
+function growUint8(source: Uint8Array<ArrayBufferLike>, size: number): Uint8Array<ArrayBuffer> {
   const next = new Uint8Array(size);
   next.set(source);
   return next;

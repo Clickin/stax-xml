@@ -46,11 +46,13 @@ function parseArgs(argv) {
     sampleEvery: 65_536,
     woodstoxCmd: undefined,
     quickXmlCmd: undefined,
+    tiers: TIER_IDS,
   };
 
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
     if (!arg) continue;
+    if (arg === '--') continue;
 
     if (arg === '--quick') {
       options.quick = true;
@@ -105,6 +107,16 @@ function parseArgs(argv) {
       case '--sample-every':
         options.sampleEvery = parsePositiveInteger(readValue(), '--sample-every');
         break;
+      case '--tiers': {
+        const tiers = readValue().split(',').map(value => value.trim()).filter(Boolean);
+        for (const tier of tiers) {
+          if (!TIER_IDS.includes(tier)) {
+            throw new Error(`Unknown tier: ${tier}`);
+          }
+        }
+        options.tiers = tiers;
+        break;
+      }
       case '--woodstox-cmd':
         options.woodstoxCmd = readValue();
         break;
@@ -350,7 +362,7 @@ function measureScenario(id, createParser, fileSizeMiB, tier, options) {
   };
 }
 
-function measureExternal(id, command, filePath, fileSizeMiB, tier) {
+function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
   if (!command) {
     return {
       id,
@@ -367,6 +379,8 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier) {
       ...process.env,
       STAX_XML_BENCH_FILE: filePath,
       STAX_XML_BENCH_TIER: tier,
+      STAX_XML_BENCH_RUNS: String(options.runs),
+      STAX_XML_BENCH_WARMUPS: String(options.warmups),
       STAX_XML_BENCH_CONTRACT: 'namespace-off,skip-decl-comment-pi-doctype,cdata-event,skip-whitespace-text,trim-text-checksum,entity-decode-off',
     },
   });
@@ -414,6 +428,9 @@ function formatRate(value) {
 }
 
 function formatMiB(bytes) {
+  if (!Number.isFinite(bytes)) {
+    return 'n/a';
+  }
   return (bytes / 1024 / 1024).toFixed(1);
 }
 
@@ -529,6 +546,7 @@ async function main(argv = process.argv.slice(2)) {
       chunkSize: options.chunkSize,
       batchSize: options.batchSize,
       sampleEvery: options.sampleEvery,
+      tiers: options.tiers,
     },
     files: [],
   };
@@ -544,12 +562,12 @@ async function main(argv = process.argv.slice(2)) {
       gate: undefined,
     };
 
-    for (const tierId of TIER_IDS) {
+    for (const tierId of options.tiers) {
       const scenarios = [
         measureScenario('neutral', () => makeNeutralParser(filePath, options), fileSizeMiB, tierId, options),
         measureScenario('node', () => makeNodeParser(filePath, options), fileSizeMiB, tierId, options),
-        measureExternal('woodstox', options.woodstoxCmd, filePath, fileSizeMiB, tierId),
-        measureExternal('quick-xml', options.quickXmlCmd, filePath, fileSizeMiB, tierId),
+        measureExternal('woodstox', options.woodstoxCmd, filePath, fileSizeMiB, tierId, options),
+        measureExternal('quick-xml', options.quickXmlCmd, filePath, fileSizeMiB, tierId, options),
       ];
       fileReport.tiers.push({ id: tierId, scenarios });
     }

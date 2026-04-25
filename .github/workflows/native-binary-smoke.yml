@@ -1,0 +1,138 @@
+name: Native Binary Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/native-binary-smoke.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'packages/native-aggregate/**'
+      - 'packages/native-*/**'
+      - 'packages/stax-xml/package.json'
+      - 'packages/stax-xml/src/runtime/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.package_dir }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package_dir: native-linux-x64-gnu
+            runner: ubuntu-24.04
+            rust_target: ''
+            install_musl: false
+            smoke: true
+          - package_dir: native-linux-x64-musl
+            runner: ubuntu-24.04
+            rust_target: x86_64-unknown-linux-musl
+            install_musl: true
+            smoke: false
+          - package_dir: native-linux-arm64-gnu
+            runner: ubuntu-24.04-arm
+            rust_target: ''
+            install_musl: false
+            smoke: true
+          - package_dir: native-linux-arm64-musl
+            runner: ubuntu-24.04-arm
+            rust_target: aarch64-unknown-linux-musl
+            install_musl: true
+            smoke: false
+          - package_dir: native-darwin-x64
+            runner: macos-15-intel
+            rust_target: ''
+            install_musl: false
+            smoke: true
+          - package_dir: native-darwin-arm64
+            runner: macos-15
+            rust_target: ''
+            install_musl: false
+            smoke: true
+          - package_dir: native-win32-x64-msvc
+            runner: windows-2025
+            rust_target: ''
+            install_musl: false
+            smoke: true
+          - package_dir: native-win32-arm64-msvc
+            runner: windows-11-arm
+            rust_target: ''
+            install_musl: false
+            smoke: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Enable pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.18.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install musl toolchain
+        if: matrix.install_musl
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Ensure Rust target
+        shell: bash
+        run: |
+          rustup default stable
+          if [ -n "${{ matrix.rust_target }}" ]; then
+            rustup target add "${{ matrix.rust_target }}"
+          fi
+          cargo --version
+
+      - name: Build native addon
+        shell: bash
+        run: |
+          if [[ "${{ matrix.rust_target }}" == *musl ]]; then
+            export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=-crt-static"
+          fi
+          if [ -n "${{ matrix.rust_target }}" ]; then
+            pnpm --dir packages/native-aggregate run build:native -- --target "${{ matrix.rust_target }}"
+          else
+            pnpm --dir packages/native-aggregate run build:native
+          fi
+
+      - name: Smoke native addon
+        if: matrix.smoke
+        run: pnpm --dir packages/native-aggregate smoke
+
+      - name: Stage platform package
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_dir="packages/${{ matrix.package_dir }}"
+          cp packages/native-aggregate/stax_xml_native_aggregate.node "$package_dir/stax_xml_native.node"
+          if [ "${{ matrix.smoke }}" = "true" ]; then
+            node -e "import('./${package_dir}/index.mjs').then((m) => { if (typeof m.parseAggregateBuffer !== 'function') throw new Error('parseAggregateBuffer export missing'); })"
+          fi
+          npm --prefix "$package_dir" pack --dry-run --json
+          mkdir -p "artifacts/${{ matrix.package_dir }}"
+          cp "$package_dir/package.json" "$package_dir/README.md" "$package_dir/LICENSE" "$package_dir/index.mjs" "$package_dir/stax_xml_native.node" "artifacts/${{ matrix.package_dir }}/"
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.package_dir }}
+          path: artifacts/${{ matrix.package_dir }}
+          if-no-files-found: error

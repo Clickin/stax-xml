@@ -1,0 +1,29 @@
+{
+  "name": "@stax-xml/native-wasm32-wasi",
+  "version": "0.7.0",
+  "description": "WASI WebAssembly acceleration package for stax-xml.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "stax_xml_native.wasm",
+    "README.md",
+    "LICENSE"
+  ],
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "arm64",
+    "x64"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

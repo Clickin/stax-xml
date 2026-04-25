@@ -30,13 +30,19 @@ import { XmlTransformSchema } from './XmlTransformSchema.js';
 import { XmlOptionalSchema } from './XmlOptionalSchema.js';
 import { XmlArraySchema } from './XmlArraySchema.js';
 import { XmlSchema } from './XmlSchema.js';
-import { CompiledXmlSchema } from './CompiledXmlSchema.js';
+import {
+  CompiledXmlSchema,
+  tryParseAsyncWithCompiledPlan,
+  tryParseWithCompiledPlan
+} from './CompiledXmlSchema.js';
 
 
 XmlSchemaBase._createTransform = (schema, fn) => new XmlTransformSchema(schema, fn);
 XmlSchemaBase._createOptional = (schema) => new XmlOptionalSchema(schema);
 XmlSchemaBase._createArray = (schema, xpath) => new XmlArraySchema(schema, xpath);
 XmlSchemaBase._createCompiled = (schema) => new CompiledXmlSchema(schema);
+XmlSchemaBase._tryParseWithCompiledPlan = tryParseWithCompiledPlan;
+XmlSchemaBase._tryParseAsyncWithCompiledPlan = tryParseAsyncWithCompiledPlan;
 
 
 // Core classes

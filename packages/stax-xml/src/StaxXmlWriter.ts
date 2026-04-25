@@ -244,9 +244,15 @@ export class StaxXmlWriter {
       const target = this.buffer.subarray(this.bufferPosition);
       const { read, written } = this.encoder.encodeInto(source, target);
 
-      /* v8 ignore next -- encodeInto can only write zero for pathological tiny UTF-8 buffers */
       if (written === 0) {
         await this._flushBuffer();
+        const codePoint = Array.from(source)[0]!;
+        const encoded = this.encoder.encode(codePoint);
+        await this.writer.write(encoded);
+        this.metrics.totalBytesWritten += encoded.byteLength;
+        this.metrics.flushCount++;
+        this.metrics.lastFlushTime = Date.now();
+        readOffset += codePoint.length;
         continue;
       }
 
@@ -293,8 +299,7 @@ export class StaxXmlWriter {
 
     this.state = WriterState.AFTER_ELEMENT;
 
-    /* v8 ignore next -- constructor always supplies the default encoding option */
-    const actualEncoding = encoding || this.options.encoding || 'UTF-8';
+    const actualEncoding = encoding ?? this.options.encoding;
     const declaration = `<?xml version="${version}" encoding="${actualEncoding.toUpperCase()}"?>`;
 
     await this._writeToBuffer(declaration);
@@ -567,10 +572,8 @@ export class StaxXmlWriter {
   }
 
   private async _writeNewline(): Promise<void> {
-    if (this.options.prettyPrint) {
-      await this._writeToBuffer('\n');
-      this.needsIndent = true;
-    }
+    await this._writeToBuffer('\n');
+    this.needsIndent = true;
   }
 
   /**
@@ -602,8 +605,7 @@ export class StaxXmlWriter {
       // Use cached basic entity regex
       /* v8 ignore next -- regex only matches keys present in BASIC_ENTITY_MAP */
       return text.replace(StaxXmlWriter.BASIC_ENTITY_REGEX,
-        /* v8 ignore next -- regex only matches keys present in BASIC_ENTITY_MAP */
-        (match) => StaxXmlWriter.BASIC_ENTITY_MAP[match] || match);
+        (match) => StaxXmlWriter.BASIC_ENTITY_MAP[match]!);
     }
 
     // Slow path: Custom entities exist
@@ -623,7 +625,7 @@ export class StaxXmlWriter {
 
     // OPTIMIZATION 1: Use cached custom entity regex
     /* v8 ignore next -- regex only matches keys present in fullEntityMap */
-    return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match] || match);
+    return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match]!);
   }
 
   private _getIndent(level: number): string {

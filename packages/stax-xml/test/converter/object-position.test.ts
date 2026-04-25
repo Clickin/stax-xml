@@ -25,6 +25,34 @@ describe('Object Schema Position and Write Tests', () => {
     });
   });
 
+  describe('Root Object XPath', () => {
+    it('should scope relative fields to the matched root object xpath (sync)', () => {
+      const xml = '<root><noise id="wrong"><name>Wrong</name></noise><person id="p1"><name>Right</name></person></root>';
+      const schema = x.object({
+        id: x.string().xpath('./@id'),
+        name: x.string().xpath('./name')
+      }).xpath('/root/person');
+
+      expect(schema.parseSync(xml)).toEqual({
+        id: 'p1',
+        name: 'Right'
+      });
+    });
+
+    it('should scope relative fields to the matched root object xpath (async)', async () => {
+      const xml = '<root><noise id="wrong"><name>Wrong</name></noise><person id="p1"><name>Right</name></person></root>';
+      const schema = x.object({
+        id: x.string().xpath('./@id'),
+        name: x.string().xpath('./name')
+      }).xpath('/root/person');
+
+      await expect(schema.parse(xml)).resolves.toEqual({
+        id: 'p1',
+        name: 'Right'
+      });
+    });
+  });
+
   describe('Async Iterator Detection', () => {
     it('should handle object with async iterator check', async () => {
       const xml = `

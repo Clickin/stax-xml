@@ -22,7 +22,7 @@ head:
 
 ## StaxXmlParser - 비동기 XML 파싱
 
-`StaxXmlParser`는 Java의 StAX(Streaming API for XML)에서 영감을 받은 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 모든 파싱 작업이 완전히 비동기적으로 수행되어 메인 스레드를 차단하지 않고 대용량 XML 파일을 처리하기에 이상적입니다.
+`StaxXmlParser`는 Java의 StAX(Streaming API for XML)에서 영감을 받은 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 공개 API는 stream/backpressure 연동을 위해 비동기이며, tokenizer backend는 도착한 byte batch를 동기적으로 소비합니다.
 
 ### 🔧 빠른 시작
 
@@ -448,18 +448,57 @@ parseCatalog(stream).then(result => {
 #### 대용량 파일 처리
 
 ```typescript
-// 대용량 XML 파일의 효율적인 처리
-const parser = new StaxXmlParser(largeXmlStream, {
-  maxBufferSize: 128 * 1024, // 128KB 버퍼
-  enableBufferCompaction: true
-});
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
 
-// 전체 파일을 메모리에 로드하지 않고 이벤트가 발생할 때마다 처리
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+
 for await (const event of parser) {
-  // 각 이벤트를 개별적으로 처리
-  processEvent(event);
+  if (event.type === XmlEventType.START_ELEMENT) {
+    processElement(event.name, event.attributes);
+  }
 }
 ```
+
+이 경로는 API 경계에서는 end-to-end async입니다. 내부에서는 도착한 byte batch가 iterable tokenizer로 넘어가 동기적으로 처리되므로, 큰 batch를 처리하는 동안에는 현재 worker를 점유할 수 있습니다.
+
+파일 I/O는 비동기로 처리하되 chunk가 준비된 뒤에는 동기 iterable parser로 처리하려면, 모은 chunk를 `StaxXmlIterableParser`에 전달하세요:
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      processElement(parser.copyName(index), parser.copyAttributesObject(index));
+    }
+  }
+}
+```
+
+이 방식은 전체 XML 문자열을 만들지 않지만, parse loop가 시작된 뒤에는 동기적으로 실행됩니다. Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 고정 크기 동기 파일 chunk를 사용할 수 있습니다.
 
 #### 네임스페이스 처리
 
