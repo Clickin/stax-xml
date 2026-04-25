@@ -257,4 +257,7 @@ export default defineConfig({
   output: 'static',
   site: 'https://clickin.github.io',
   base: '/stax-xml',
+  experimental: {
+    rustCompiler: true
+  }
 });

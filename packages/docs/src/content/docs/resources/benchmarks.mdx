@@ -31,6 +31,49 @@ StAX-XML is designed for high performance across various XML processing scenario
 
 ## Parser Performance
 
+<details>
+<summary>Scenario contract: parser library comparisons</summary>
+
+Sample XML shape, shortened:
+
+~~~xml
+<catalog>
+  <book id="..." category="...">
+    <title>...</title>
+    <author>...</author>
+    <price currency="USD">...</price>
+    <tags><tag>...</tag></tags>
+  </book>
+</catalog>
+~~~
+
+Consumer/output shape, expressed without library-specific syntax:
+
+~~~text
+consume-only:
+  for each parser event:
+    count or inspect the event
+    do not retain a full output tree
+
+object-output:
+  document = {
+    catalog: {
+      book: [
+        { attributes, title, author, price, tags }
+      ]
+    }
+  }
+~~~
+
+Runtime methods:
+
+- `stax-xml consume`: `StaxXmlParserSync` event loop; events are consumed and no retained object tree is produced.
+- `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.
+- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.
+- The 13 MiB `xml2js` outlier is preserved as measured instead of normalized away.
+
+</details>
+
 ### Small Documents (2KB)
 
 For typical web service responses and configuration files (complex.xml):
@@ -68,6 +111,42 @@ Performance results on large.xml (98MB):
 
 sync vs async performance:
 
+<details>
+<summary>Scenario contract: large-file sync, async stream, and iterable parsing</summary>
+
+Generated XML shape, shortened:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N">
+    <title>Sample Book Title Number N ...</title>
+    <author>Author Name N</author>
+    <description>...</description>
+    <chapters>
+      <chapter number="1">...</chapter>
+    </chapters>
+  </book>
+</root>
+~~~
+
+Consumer/output shape:
+
+~~~text
+parse-result = {
+  events: number,
+  checksum: fold(event type, element name, text, attributes)
+}
+~~~
+
+Parsing methods:
+
+- Public sync string parsing reads the fixture into one string and runs `StaxXmlParserSync`.
+- Public async stream parsing reads file chunks asynchronously, then feeds the parser without requiring one retained input string.
+- Synchronous iterable byte-batch parsing accepts `Iterable<Uint8Array>` / byte batches, parses synchronously, and is suitable for blocking batch jobs when the caller already controls chunking.
+
+</details>
+
 <BenchmarkSection locale="en" section="async-size" />
 
 **Key Insights:**
@@ -81,12 +160,76 @@ The release artifact also measures the same built JavaScript implementation on N
 This matrix is a compatibility and runtime-codegen check; it does not include native addons.
 The `iterable-*` rows are synchronous byte-batch parser paths, not async parser rows.
 
+<details>
+<summary>Scenario contract: Node, Bun, and Deno runtime matrix</summary>
+
+Sample XML shape, shortened:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N" lang="en" code="...">
+    <title>Runtime Benchmark N</title>
+    <author>Author ...</author>
+    <description>Full string checksum text payload ...</description>
+    <chapter number="1">Intro ...</chapter>
+    <chapter number="2">Body ...</chapter>
+  </book>
+</root>
+~~~
+
+Output shape:
+
+~~~text
+runtime-result = {
+  scenario: "public-sync-full-string" | "iterable-count-only" | "iterable-full-string",
+  eventCount: number,
+  checksum: fold(event type, names, text, attr names, attr values),
+  peakHeapUsedBytes: number
+}
+~~~
+
+Runtime methods:
+
+- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.
+- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.
+- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.
+- `public-sync-full-string` uses `StaxXmlParserSync` over one string.
+- `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.
+- This matrix intentionally excludes native addons.
+
+</details>
+
 <RuntimeBenchmarkSection locale="en" section="runtime-matrix" />
 
 ## Cross-Runtime Comparator
 
 The table below compares `stax-xml` on Node with Woodstox and `quick-xml` under the same event-count and checksum contract.
 Woodstox is shown with Java 8 for the public baseline because Java 8 is its minimum supported runtime target. Java 25 is measured separately to confirm whether the JVM version changes the conclusion.
+
+<details>
+<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>
+
+Sample XML shape is the same generated 16 MiB `<root><book>...</book></root>` fixture used by the runtime matrix.
+
+Output shape:
+
+~~~text
+comparator-result = {
+  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  eventCount: number,
+  checksum: fold(selected event data for tier)
+}
+~~~
+
+Parsing methods:
+
+- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
+- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.
+- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.
+- Java 8 is the public Woodstox row because it is Woodstox's minimum runtime target; Java 25 is a separate verification row.
+
+</details>
 
 <RuntimeBenchmarkSection locale="en" section="cross-runtime" />
 

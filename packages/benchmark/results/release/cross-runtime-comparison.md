@@ -1,6 +1,6 @@
 # Cross-Runtime Parser Comparator
 
-Generated: 2026-04-25T13:37:23.824Z
+Generated: 2026-04-25T15:45:53.482Z
 
 This artifact compares the Node stax-xml iterable backend with non-JS parser baselines under the same checksum contract.
 The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its minimum runtime target; Java 25 is reported only as a verification check.
@@ -16,25 +16,66 @@ The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its mini
 - Java 25 check: openjdk version "25.0.1" 2025-10-21 LTS
 - quick-xml crate: 0.39.2
 
+## Scenario
+
+<details>
+<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>
+
+The comparator uses one generated single-root 16.00 MiB XML fixture.
+
+Sample XML shape, shortened:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N" lang="en" code="...">
+    <title>Runtime Benchmark N</title>
+    <author>Author ...</author>
+    <description>Full string checksum text payload ...</description>
+    <chapter number="1">Intro ...</chapter>
+    <chapter number="2">Body ...</chapter>
+  </book>
+</root>
+~~~
+
+Output shape:
+
+~~~text
+comparator-result = {
+  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  eventCount: number,
+  checksum: fold(selected event data for tier)
+}
+~~~
+
+Parsing methods:
+
+- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
+- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.
+- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.
+- Java 8 is the public Woodstox row because it is Woodstox's minimum runtime target; Java 25 is a separate verification row.
+
+</details>
+
 ## Public Comparator Table
 
 | Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml | Node/Woodstox | Node/quick-xml |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| count-only | 182.7 MiB/s | 309.4 MiB/s | 303.4 MiB/s | 0.59x | 0.60x |
-| name-string-only | 138.2 MiB/s | 323.1 MiB/s | 256.5 MiB/s | 0.43x | 0.54x |
-| text-string-only | 104.8 MiB/s | 316.2 MiB/s | 271.0 MiB/s | 0.33x | 0.39x |
-| attr-value-string-only | 113.6 MiB/s | 294.1 MiB/s | 297.3 MiB/s | 0.39x | 0.38x |
-| full-string | 93.1 MiB/s | 246.0 MiB/s | 214.8 MiB/s | 0.38x | 0.43x |
+| count-only | 180.2 MiB/s | 346.3 MiB/s | 304.5 MiB/s | 0.52x | 0.59x |
+| name-string-only | 141.6 MiB/s | 314.9 MiB/s | 268.9 MiB/s | 0.45x | 0.53x |
+| text-string-only | 111.3 MiB/s | 315.8 MiB/s | 284.7 MiB/s | 0.35x | 0.39x |
+| attr-value-string-only | 130.8 MiB/s | 315.2 MiB/s | 285.4 MiB/s | 0.41x | 0.46x |
+| full-string | 100.9 MiB/s | 257.1 MiB/s | 228.9 MiB/s | 0.39x | 0.44x |
 
 ## Java 25 Verification
 
 | Tier | Woodstox Java 8 | Woodstox Java 25 | Delta | Java 25 avg | Status |
 | --- | ---: | ---: | ---: | ---: | --- |
-| count-only | 309.4 MiB/s | 303.0 MiB/s | -2.1% | 52.80 ms | ok |
-| name-string-only | 323.1 MiB/s | 276.2 MiB/s | -14.5% | 57.93 ms | ok |
-| text-string-only | 316.2 MiB/s | 272.7 MiB/s | -13.8% | 58.68 ms | ok |
-| attr-value-string-only | 294.1 MiB/s | 239.3 MiB/s | -18.6% | 66.85 ms | ok |
-| full-string | 246.0 MiB/s | 226.2 MiB/s | -8.0% | 70.72 ms | ok |
+| count-only | 346.3 MiB/s | 301.4 MiB/s | -13.0% | 53.09 ms | ok |
+| name-string-only | 314.9 MiB/s | 271.7 MiB/s | -13.7% | 58.88 ms | ok |
+| text-string-only | 315.8 MiB/s | 292.8 MiB/s | -7.3% | 54.65 ms | ok |
+| attr-value-string-only | 315.2 MiB/s | 248.6 MiB/s | -21.1% | 64.37 ms | ok |
+| full-string | 257.1 MiB/s | 237.6 MiB/s | -7.6% | 67.34 ms | ok |
 
 ## Contract
 
