@@ -13,7 +13,6 @@ specs/
 .sisyphus
 
 # pnpm
-pnpm-lock.yaml
 .pnpm-store/
 
 # Build outputs

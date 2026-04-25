@@ -83,7 +83,7 @@ jobs:
           corepack prepare pnpm@10.18.0 --activate
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install musl toolchain
         if: matrix.install_musl
@@ -104,6 +104,9 @@ jobs:
       - name: Build native addon
         shell: bash
         run: |
+          if [[ "${{ matrix.rust_target }}" == *musl ]]; then
+            export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=-crt-static"
+          fi
           if [ -n "${{ matrix.rust_target }}" ]; then
             pnpm --dir packages/native-aggregate run build:native -- --target "${{ matrix.rust_target }}"
           else
