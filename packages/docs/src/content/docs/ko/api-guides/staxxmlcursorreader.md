@@ -1,6 +1,6 @@
 ---
-title: StaxXmlCursorReader - 제로 할당 XML Cursor
-description: 고처리량 XML 파싱을 위한 뮤터블 cursor 기반 순회
+title: StaxXmlCursorReader - Iterable Parser Cursor Wrapper
+description: iterable parser backend 위의 얇은 cursor wrapper
 head:
   - tag: meta
     attrs:
@@ -20,11 +20,11 @@ head:
       content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxmlcursorreader.png
 ---
 
-## StaxXmlCursorReader - 제로 할당 XML Cursor
+## StaxXmlCursorReader - Iterable Parser Cursor Wrapper
 
-`StaxXmlCursorReader`는 XML을 순차적으로 훑는 hot path에서 최대 처리량을 얻기 위한 저수준 cursor API입니다. 노드마다 이벤트 객체를 새로 만들지 않고 하나의 뮤터블 cursor를 재사용하므로, accessor는 현재 cursor 위치를 읽는 메서드 형태입니다.
+`StaxXmlCursorReader`는 one-event-at-a-time cursor accessor를 선호하는 코드를 위한 `StaxXmlIterableParser`의 얇은 wrapper입니다. tokenization은 iterable parser backend에 위임하고, 현재 이벤트를 `name()`, `text()`, `getAttributeValue()` 같은 메서드로 노출합니다.
 
-XML 이벤트를 최소 할당으로 검사, 필터링, 집계하려면 cursor API를 사용하세요. 이벤트 객체, async iteration 편의성, 선언적 객체 매핑이 필요하면 `StaxXmlParser`나 Converter API가 더 적합합니다.
+ergonomic cursor 순회가 필요할 때 사용하세요. batch frame, byte span, 가장 낮은 수준의 backend surface가 필요하면 `StaxXmlIterableParser`를 직접 사용하는 편이 적합합니다.
 
 ### 빠른 시작
 

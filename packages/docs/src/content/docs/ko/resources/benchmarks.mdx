@@ -67,10 +67,14 @@ object-output:
 
 런타임별 파싱 방법:
 
-- `stax-xml consume`: `StaxXmlParserSync` event loop를 돌며 event를 소비하고 retained object tree를 만들지 않습니다.
+- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop에서 event type, name, text, attribute checksum을 계산합니다.
+- `stax-xml JS fallback raw iterable`: `StaxXmlIterableParser` byte-frame loop에서 같은 checksum 계약을 사용합니다.
+- `stax-xml native addon event aggregate`: Rust 내부 event-object tier를 사용하는 native aggregate probe입니다. public per-event JavaScript iterator는 아닙니다.
+- `stax-xml native addon raw aggregate`: coarse Buffer call과 Rust 내부 direct string materialization을 사용하는 native aggregate probe입니다.
 - `stax-xml to object`: `StaxXmlParserSync` 위에서 benchmark object shape으로 local projection을 수행합니다.
 - `txml`, `fast-xml-parser`, `xml2js`: 각 라이브러리의 native object/DOM-style parse API를 사용합니다.
-- 13 MiB `xml2js` 이상치는 제거하거나 보정하지 않고 측정값 그대로 보존합니다.
+- 13 MiB `xml2js` 행은 비교 무효로 표시합니다. `midsize.xml`은 top-level element가 반복되는 형태이며, xml2js는 전체 문서가 아니라 첫 top-level element shape만 반환합니다.
+- stax-xml backend/surface 행은 각 parser table에 직접 포함되어 fixture와 실행 환경이 타 라이브러리 행과 동일합니다.
 
 </details>
 
@@ -92,7 +96,7 @@ midsize.xml (13MB) 성능 결과:
 
 <BenchmarkSection locale="ko" section="parser-13mb" />
 
-*xml2js는 이 fixture에서만 유난히 빠른 이상치에 가깝습니다.*
+*xml2js는 이 fixture에서 whole-document comparator가 아닙니다. `midsize.xml`은 반복된 top-level `<any_name>` root를 포함하고, xml2js는 첫 top-level element shape만 반환합니다.*
 
 ### 대형 문서 (98MB)
 
@@ -101,17 +105,17 @@ large.xml (98MB) 성능 결과:
 <BenchmarkSection locale="ko" section="parser-98mb" />
 
 **성능 교차점 분석:**
-- **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섭니다
-- **중형 파일 (13MB)**: xml2js는 이 fixture에서만 보이는 이상치에 가깝고, `stax-xml consume`와 `stax-xml to object`는 비슷한 처리량 대역에 머뭅니다
+- **소형 파일 (2-4KB)**: 생성된 표를 직접 기준으로 봅니다. stax-xml 행은 이제 JS fallback과 native-addon surface를 타 라이브러리와 같은 표에 보여줍니다
+- **중형 파일 (13MB)**: xml2js는 첫 top-level element shape만 반환하므로 whole-document 결론에서는 제외합니다. 이 fixture는 stax-xml backend/surface 행과 나머지 parser 행을 기준으로 봅니다
 - **대형 파일 (98MB)**: parser와 fixture에 따라 처리량과 메모리 trade-off가 달라지므로 생성된 표를 직접 기준으로 봅니다
 - **초대형 파일 (1GB+)**: async stream과 synchronous iterable byte-batch 파싱은 전체 XML string 보관을 피할 수 있습니다. public sync string parser는 in-memory 경로입니다
 
-### stax-xml sync vs async (1MB ~ 1GB)
+### stax-xml sync vs async (1MiB ~ 4GiB)
 
 sync vs async 성능 비교:
 
 <details>
-<summary>Scenario contract: large-file sync, async stream, iterable parsing</summary>
+<summary>Scenario contract: iterable parser sync/async file traversal</summary>
 
 Generated XML shape, 축약:
 
@@ -134,24 +138,27 @@ Consumer/output shape:
 ~~~text
 parse-result = {
   events: number,
-  checksum: fold(event type, element name, text, attributes)
+  checksum: structural fold(event type, element/text/attribute span lengths and boundary bytes)
 }
 ~~~
 
 파싱 방법:
 
-- Public sync string parsing은 fixture 전체를 하나의 string으로 읽은 뒤 `StaxXmlParserSync`를 실행합니다.
-- Public async stream parsing은 파일을 비동기 chunk로 읽고, 전체 input string 보관 없이 parser에 공급합니다.
-- Synchronous iterable byte-batch parsing은 `Iterable<Uint8Array>` / byte batch를 받아 동기적으로 파싱하며, 호출자가 chunking을 제어하는 blocking batch 작업에 적합합니다.
+- 이 섹션의 모든 row는 bounded temp-file chunk 위에서 같은 Node iterable event-frame parser를 사용합니다.
+- `sync Iterable parser`는 synchronous file read와 `Iterable<Buffer[]>` batch를 사용합니다.
+- `async Iterable parser`는 asynchronous file read를 `AsyncIterable<Buffer[]>`로 수행한 뒤, await된 각 batch를 synchronous iterable parser frame loop에 넘기며 전체 XML string을 보관하지 않습니다.
+- XML tokenization은 CPU-intensive 작업입니다. async file read를 사용해도 parse loop 자체가 non-blocking이 되지는 않으므로, latency-sensitive main event loop thread에서 실행해야 한다면 Worker 또는 worker thread로 offload할지 결정하세요.
+- 이 row들은 full string materialization 대신 structural checksum을 사용하므로 iterable backend tokenization/event-frame traversal 비용을 측정합니다.
 
 </details>
 
 <BenchmarkSection locale="ko" section="async-size" />
 
 **주요 인사이트:**
-- sync parsing은 직접적인 in-memory 경로이고, async parsing은 일정 수준의 scheduling overhead를 감수하는 대신 메모리 사용량을 더 안정적으로 유지합니다.
-- 상대적인 시간은 fixture와 runtime에 따라 움직일 수 있으므로 생성된 표를 기준으로 봅니다.
-- 100MB 이상에서 전체 XML string을 보관하기 어렵다면 public full-string sync 경로는 피하고, non-blocking 작업은 async stream을, blocking batch 작업은 synchronous iterable byte-batch backend를 사용합니다.
+- 이 섹션은 public string parser vs stream parser API 비교가 아니라 iterable backend throughput view입니다.
+- sync/async row는 같은 tokenization/event-frame path를 공유하며, 차이는 synchronous file read와 awaited file batch handoff입니다.
+- async iterable parsing도 각 CPU parse batch가 실행되는 동안 main event loop를 block할 수 있습니다. visible latency가 중요하면 Worker 또는 worker thread를 사용하세요.
+- 100MiB를 넘는 파일에서 전체 XML string을 보관할 수 없다면 public full-string sync path를 피하세요. non-blocking API ergonomics에는 async stream을, blocking batch job에는 synchronous iterable byte-batch backend를 사용하세요.
 
 ## 런타임 매트릭스
 
@@ -203,11 +210,11 @@ runtime-result = {
 
 ## 타 런타임 비교
 
-아래 표는 동일한 event count와 checksum 계약에서 `stax-xml` on Node, Woodstox, `quick-xml`을 비교합니다.
+아래 표는 동일한 event count와 checksum 계약에서 `stax-xml` JS on Node, JavaScript package wrapper를 통해 호출한 `stax-xml` native addon, Woodstox, `quick-xml`을 비교합니다.
 Woodstox는 Java 8이 minimum runtime이므로 공개 기준은 Java 8입니다. Java 25는 JVM 버전 차이가 결론을 바꾸는지 확인하기 위해 별도로 측정합니다.
 
 <details>
-<summary>Scenario contract: stax-xml, Woodstox, quick-xml 비교</summary>
+<summary>Scenario contract: stax-xml JS/native, Woodstox, quick-xml 비교</summary>
 
 Sample XML shape은 runtime matrix와 같은 16 MiB 생성 `<root><book>...</book></root>` fixture입니다.
 
@@ -216,6 +223,7 @@ Output shape:
 ~~~text
 comparator-result = {
   tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",
   eventCount: number,
   checksum: fold(selected event data for tier)
 }
@@ -223,7 +231,8 @@ comparator-result = {
 
 파싱 방법:
 
-- `stax-xml on Node`: built JavaScript iterable backend를 Node에서 실행하고 tier별 checksum folding을 수행합니다.
+- `stax-xml JS on Node`: built JavaScript iterable backend를 Node에서 실행하고 tier별 checksum folding을 수행합니다.
+- `stax-xml native addon`: JS package wrapper가 sampling 전에 N-API aggregate addon을 import하고, 각 sample은 같은 Node process에서 wrapper와 N-API boundary를 거쳐 호출합니다.
 - Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input입니다.
 - `quick-xml`: Rust `Reader` over buffered file input입니다. declaration, PI, doctype, comment는 skip하고, text는 checksum parity를 위해 trim합니다.
 - Java 8은 Woodstox의 minimum runtime target이므로 public Woodstox row로 사용하고, Java 25는 별도 verification row입니다.
@@ -250,7 +259,7 @@ Rust native addon은 native tokenizer와 SIMD-oriented scanning 전략을 사용
 아래 벤치마크는 **동일한 object output**을 만드는 세 가지 방식을 비교합니다.
 
 - `StaxXmlParserSync` 위에 직접 작성한 plain parser
-- 선언형 converter API
+- automatic dispatch-plan routing이 적용되는 선언형 converter API
 - `.compile()`을 적용한 converter API
 
 현재 fixture:
@@ -265,8 +274,8 @@ Rust native addon은 native tokenizer와 SIMD-oriented scanning 전략을 사용
 해석:
 
 - 순수 처리량 기준 최상한은 여전히 handwritten plain parser입니다.
-- uncompiled converter API는 추상화 비용이 큽니다.
-- compiled converter 경로는 여전히 의미 있는 오버헤드가 있지만, 현재 fixture에서는 uncompiled 경로보다 빠릅니다.
+- 일반 converter API는 dispatch-friendly schema를 iterable backend로 자동 route하고 schema object에 plan을 cache합니다.
+- `.compile()`은 같은 output contract를 유지하면서 dispatch 선택을 명시적이고 재사용 가능하게 만듭니다.
 
 ## 라이터 성능
 

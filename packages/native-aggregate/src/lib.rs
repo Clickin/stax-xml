@@ -23,6 +23,9 @@ const NO_SPAN: i32 = -1;
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Tier {
     CountOnly,
+    NameStringOnly,
+    TextStringOnly,
+    AttrValueStringOnly,
     FullStringDirect,
     EventObjectFull,
 }
@@ -177,6 +180,9 @@ pub unsafe extern "C" fn stax_xml_parse_aggregate_utf16_units(
         0 => Tier::CountOnly,
         1 => Tier::FullStringDirect,
         2 => Tier::EventObjectFull,
+        3 => Tier::NameStringOnly,
+        4 => Tier::TextStringOnly,
+        5 => Tier::AttrValueStringOnly,
         _ => return -3,
     };
     let input = unsafe { std::slice::from_raw_parts(input, len) };
@@ -200,6 +206,9 @@ pub unsafe extern "C" fn stax_xml_parse_aggregate_utf16_units(
 fn parse_tier(value: &str) -> Result<Tier> {
     match value {
         "count-only" => Ok(Tier::CountOnly),
+        "name-string-only" => Ok(Tier::NameStringOnly),
+        "text-string-only" => Ok(Tier::TextStringOnly),
+        "attr-value-string-only" => Ok(Tier::AttrValueStringOnly),
         "full-string-direct" => Ok(Tier::FullStringDirect),
         "event-object-full" => Ok(Tier::EventObjectFull),
         _ => Err(Error::from_reason(format!(
@@ -272,6 +281,9 @@ fn parse_span_table_utf16(input: &[u16]) -> Result<Vec<u8>> {
 fn tier_name(tier: Tier) -> &'static str {
     match tier {
         Tier::CountOnly => "count-only",
+        Tier::NameStringOnly => "name-string-only",
+        Tier::TextStringOnly => "text-string-only",
+        Tier::AttrValueStringOnly => "attr-value-string-only",
         Tier::FullStringDirect => "full-string-direct",
         Tier::EventObjectFull => "event-object-full",
     }
@@ -453,6 +465,15 @@ impl<'a> Parser<'a> {
                 self.state.attr_count_total =
                     self.state.attr_count_total.wrapping_add(attr_len as u32);
             }
+            Tier::NameStringOnly => {
+                self.consume_name_string_only(name)?;
+            }
+            Tier::TextStringOnly => {
+                self.consume_text_string_only(text)?;
+            }
+            Tier::AttrValueStringOnly => {
+                self.consume_attr_value_string_only(attrs)?;
+            }
             Tier::FullStringDirect => {
                 self.consume_full_string_direct(name, text, attrs)?;
             }
@@ -461,6 +482,37 @@ impl<'a> Parser<'a> {
             }
         }
 
+        Ok(())
+    }
+
+    fn consume_name_string_only(&mut self, name: Option<(usize, usize)>) -> Result<()> {
+        if let Some((start, end)) = name {
+            self.state.checksum = fold_span(self.state.checksum, self.input, start, end)?;
+        }
+        Ok(())
+    }
+
+    fn consume_text_string_only(&mut self, text: Option<(usize, usize)>) -> Result<()> {
+        if let Some((start, end)) = text {
+            self.state.checksum = fold_trimmed_span(self.state.checksum, self.input, start, end)?;
+        }
+        Ok(())
+    }
+
+    fn consume_attr_value_string_only(&mut self, attrs: Option<&AttrSpans>) -> Result<()> {
+        let attr_len = attrs.map_or(0, AttrSpans::len);
+        self.state.checksum = mix_checksum(self.state.checksum, attr_len as i32);
+        self.state.attr_count_total = self.state.attr_count_total.wrapping_add(attr_len as u32);
+        if let Some(attrs) = attrs {
+            for attr in attrs.iter() {
+                self.state.checksum = fold_span(
+                    self.state.checksum,
+                    self.input,
+                    attr.value_start,
+                    attr.value_end,
+                )?;
+            }
+        }
         Ok(())
     }
 
@@ -724,6 +776,15 @@ impl<'a> Utf16Parser<'a> {
                 self.state.attr_count_total =
                     self.state.attr_count_total.wrapping_add(attr_len as u32);
             }
+            Tier::NameStringOnly => {
+                self.consume_name_string_only(name);
+            }
+            Tier::TextStringOnly => {
+                self.consume_text_string_only(text);
+            }
+            Tier::AttrValueStringOnly => {
+                self.consume_attr_value_string_only(attrs);
+            }
             Tier::FullStringDirect => {
                 self.consume_full_string_direct(name, text, attrs);
             }
@@ -733,6 +794,34 @@ impl<'a> Utf16Parser<'a> {
         }
 
         Ok(())
+    }
+
+    fn consume_name_string_only(&mut self, name: Option<(usize, usize)>) {
+        if let Some((start, end)) = name {
+            self.state.checksum = fold_units(self.state.checksum, self.input, start, end);
+        }
+    }
+
+    fn consume_text_string_only(&mut self, text: Option<(usize, usize)>) {
+        if let Some((start, end)) = text {
+            self.state.checksum = fold_trimmed_units(self.state.checksum, self.input, start, end);
+        }
+    }
+
+    fn consume_attr_value_string_only(&mut self, attrs: Option<&AttrSpans>) {
+        let attr_len = attrs.map_or(0, AttrSpans::len);
+        self.state.checksum = mix_checksum(self.state.checksum, attr_len as i32);
+        self.state.attr_count_total = self.state.attr_count_total.wrapping_add(attr_len as u32);
+        if let Some(attrs) = attrs {
+            for attr in attrs.iter() {
+                self.state.checksum = fold_units(
+                    self.state.checksum,
+                    self.input,
+                    attr.value_start,
+                    attr.value_end,
+                );
+            }
+        }
     }
 
     fn consume_full_string_direct(
@@ -1569,6 +1658,9 @@ mod tests {
 
         for tier in [
             Tier::CountOnly,
+            Tier::NameStringOnly,
+            Tier::TextStringOnly,
+            Tier::AttrValueStringOnly,
             Tier::FullStringDirect,
             Tier::EventObjectFull,
         ] {
@@ -1723,6 +1815,18 @@ mod tests {
     fn tier_parsing_accepts_known_names_and_rejects_unknown_names() {
         assert_eq!(parse_tier("count-only").unwrap(), Tier::CountOnly);
         assert_eq!(
+            parse_tier("name-string-only").unwrap(),
+            Tier::NameStringOnly
+        );
+        assert_eq!(
+            parse_tier("text-string-only").unwrap(),
+            Tier::TextStringOnly
+        );
+        assert_eq!(
+            parse_tier("attr-value-string-only").unwrap(),
+            Tier::AttrValueStringOnly
+        );
+        assert_eq!(
             parse_tier("full-string-direct").unwrap(),
             Tier::FullStringDirect
         );
@@ -1732,6 +1836,12 @@ mod tests {
         );
         assert!(parse_tier("missing").is_err());
         assert_eq!(tier_name(Tier::CountOnly), "count-only");
+        assert_eq!(tier_name(Tier::NameStringOnly), "name-string-only");
+        assert_eq!(tier_name(Tier::TextStringOnly), "text-string-only");
+        assert_eq!(
+            tier_name(Tier::AttrValueStringOnly),
+            "attr-value-string-only"
+        );
         assert_eq!(tier_name(Tier::FullStringDirect), "full-string-direct");
         assert_eq!(tier_name(Tier::EventObjectFull), "event-object-full");
     }

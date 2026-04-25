@@ -1,6 +1,6 @@
 ---
-title: StaxXmlCursorReader - Zero-Allocation XML Cursor
-description: Mutable cursor-based XML traversal for high-throughput parsing
+title: StaxXmlCursorReader - Iterable Parser Cursor Wrapper
+description: Thin cursor wrapper over the iterable parser backend
 head:
   - tag: meta
     attrs:
@@ -20,11 +20,11 @@ head:
       content: https://clickin.github.io/stax-xml/og/api-guides/staxxmlcursorreader.png
 ---
 
-## StaxXmlCursorReader - Zero-Allocation XML Cursor
+## StaxXmlCursorReader - Iterable Parser Cursor Wrapper
 
-`StaxXmlCursorReader` is a low-level cursor API for code that needs maximum throughput while scanning XML sequentially. It reuses one mutable cursor instead of allocating an event object for every node, so accessors are methods that read the current cursor position.
+`StaxXmlCursorReader` is a thin wrapper over `StaxXmlIterableParser` for code that prefers one-event-at-a-time cursor accessors. It delegates tokenization to the iterable parser backend and presents methods such as `name()`, `text()`, and `getAttributeValue()` on the current event.
 
-Use the cursor API when you want to inspect, filter, or count XML events with minimal allocation. Use `StaxXmlParser` or the Converter API when you need event objects, async iteration ergonomics, or declarative object mapping.
+Use it for ergonomic cursor traversal. Use `StaxXmlIterableParser` directly when you need batch frames, byte spans, or the lowest-level backend surface.
 
 ### Quick Start
 

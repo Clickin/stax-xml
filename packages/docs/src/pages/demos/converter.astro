@@ -246,6 +246,12 @@
       margin-bottom: 5px;
     }
 
+    .backend-value {
+      font-size: 1.35em;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
     .stat-label {
       color: #6c757d;
       font-size: 0.9em;
@@ -332,7 +338,7 @@
       <div class="panel" style="grid-column: 1 / -1;">
         <h2>ℹ️ Demo Notes</h2>
         <div id="modeNotice" class="message info">
-          Sync mode parses the textarea contents directly. Async mode runs the converter in a Web Worker and is required for files over 10MB.
+          Sync mode parses the textarea contents directly. Async mode runs the converter in a Web Worker and is required for files over 10MB. Backend shows whether this demo is using the JS fallback or a native/Wasm path.
         </div>
       </div>
 
@@ -358,6 +364,10 @@
         <div class="stat">
           <div class="stat-value" id="throughput">-</div>
           <div class="stat-label">Throughput (KB/s)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value backend-value" id="backend">JS fallback</div>
+          <div class="stat-label">Converter Backend</div>
         </div>
       </div>
     </div>

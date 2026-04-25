@@ -1,6 +1,11 @@
 import { x } from 'stax-xml/converter';
 
 const WORKER_STRING_PARSE_THRESHOLD = 25 * 1024 * 1024;
+const CONVERTER_BACKEND = {
+  kind: 'js',
+  label: 'JS fallback',
+  detail: 'The docs demo currently bundles stax-xml/converter from TypeScript source. The wasm addon is not bundled or wired into converter execution yet.'
+};
 
 function createXmlStream(xmlInput: string) {
   const encoder = new TextEncoder();
@@ -39,6 +44,7 @@ self.onmessage = async (event) => {
         id,
         ok: true,
         result,
+        backend: CONVERTER_BACKEND,
         xmlSize,
         timings: {
           parseMode,
@@ -63,6 +69,7 @@ self.onmessage = async (event) => {
         id,
         ok: true,
         result,
+        backend: CONVERTER_BACKEND,
         xmlSize,
         timings: {
           parseMode,
@@ -87,6 +94,7 @@ self.onmessage = async (event) => {
         id,
         ok: true,
         result,
+        backend: CONVERTER_BACKEND,
         xmlSize,
         timings: {
           parseMode,
@@ -109,6 +117,7 @@ self.onmessage = async (event) => {
         id,
         ok: true,
         result,
+        backend: CONVERTER_BACKEND,
         xmlSize,
         timings: {
           parseMode,

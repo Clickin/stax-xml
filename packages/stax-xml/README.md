@@ -47,7 +47,7 @@ Here are basic examples to get started. StAX-XML provides three parsing approach
 
 1. **Event-based API**: Low-level streaming parser for fine-grained control
 2. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
-3. **Cursor API**: Mutable cursor traversal for maximum throughput and minimal allocation
+3. **Cursor API**: Thin cursor-style wrapper over `StaxXmlIterableParser`
 
 #### Declarative Parsing with Converter API (Recommended)
 
@@ -84,9 +84,9 @@ const result = await bookSchema.parse(xml);
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
 ```
 
-#### Cursor Reader API (Zero-Allocation)
+#### Cursor Reader API (IterableParser Wrapper)
 
-For hot paths that only need to inspect events in sequence, use the cursor API from the `stax-xml/cursor` subpath. Accessors are methods because the same cursor instance is reused for every event.
+For code that prefers cursor traversal, use the cursor API from the `stax-xml/cursor` subpath. It is a thin wrapper over the iterable parser backend and exposes one-event-at-a-time accessors such as `name()`, `text()`, and `getAttributeValue()`.
 
 ```typescript
 import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
@@ -375,7 +375,7 @@ StAX-XML은 세 가지 파싱 방식을 제공합니다:
 
 1. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
 2. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
-3. **Cursor API**: 최대 처리량과 최소 할당을 위한 뮤터블 cursor 순회
+3. **Cursor API**: `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
 
 #### Converter API를 사용한 선언적 파싱 (권장)
 
@@ -412,9 +412,9 @@ const result = await bookSchema.parse(xml);
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
 ```
 
-#### Cursor Reader API (제로 할당)
+#### Cursor Reader API (IterableParser Wrapper)
 
-이벤트를 순서대로 검사하는 hot path에서는 `stax-xml/cursor` subpath의 cursor API를 사용하세요. 같은 cursor 인스턴스가 모든 이벤트에 재사용되므로 accessor는 메서드 형태입니다.
+cursor 순회를 선호하는 코드에서는 `stax-xml/cursor` subpath의 cursor API를 사용하세요. 이 API는 iterable parser backend 위의 얇은 wrapper이며 `name()`, `text()`, `getAttributeValue()` 같은 one-event-at-a-time accessor를 제공합니다.
 
 ```typescript
 import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';

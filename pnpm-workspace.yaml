@@ -1,5 +1,9 @@
 packages:
   - packages/*
+  - '!packages/native-darwin-*'
+  - '!packages/native-linux-*'
+  - '!packages/native-win32-*'
+  - '!packages/native-wasm32-wasi'
 
 linkWorkspacePackages: true
 

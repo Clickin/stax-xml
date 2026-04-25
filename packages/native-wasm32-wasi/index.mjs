@@ -1,3 +1,12 @@
-throw new Error(
-  '@stax-xml/native-wasm32-wasi must be populated with the release WebAssembly artifact before publishing.',
-);
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const binding = require('./stax_xml_native.wasi.cjs');
+
+export default binding;
+export const parseAggregateBuffer = binding.parseAggregateBuffer;
+export const parseAggregateFile = binding.parseAggregateFile;
+export const parseAggregateStringUtf16 = binding.parseAggregateStringUtf16;
+export const parseAggregateStringUtf8 = binding.parseAggregateStringUtf8;
+export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
+export const parseSpanTableStringUtf16 = binding.parseSpanTableStringUtf16;

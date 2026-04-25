@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build:native": "node ./build.mjs",
+    "build:wasm": "napi build --release --target wasm32-wasip1-threads --package-json-path ../native-wasm32-wasi/package.json --output-dir ../native-wasm32-wasi && node ./scripts/stage-wasm-package.mjs",
     "coverage:native": "node ./scripts/native-branch-coverage.mjs",
     "smoke": "node ./smoke.mjs"
   },
@@ -32,5 +33,8 @@
         "asyncInit": true
       }
     }
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "3.6.2"
   }
 }

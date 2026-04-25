@@ -15,6 +15,11 @@ let parseWorker = null;
 let parseWorkerRequestId = 0;
 const LARGE_INPUT_THRESHOLD = 5 * 1024 * 1024;
 const LARGE_INPUT_MAX_EVENTS = 5_000_000;
+const CONVERTER_BACKEND = {
+  kind: 'js',
+  label: 'JS fallback',
+  detail: 'The docs demo currently bundles stax-xml/converter from TypeScript source. The wasm addon is not bundled or wired into converter execution yet.'
+};
 
 const examples = {
   basic: {
@@ -266,6 +271,7 @@ const parseTimeEl = document.getElementById('parseTime');
 const modeEl = document.getElementById('mode');
 const xmlSizeEl = document.getElementById('xmlSize');
 const throughputEl = document.getElementById('throughput');
+const backendEl = document.getElementById('backend');
 const parseBtn = document.getElementById('parseBtn');
 const clearBtn = document.getElementById('clearBtn');
 const fileInputEl = document.getElementById('fileInput');
@@ -314,6 +320,8 @@ function clearOutput() {
   modeEl.textContent = '-';
   xmlSizeEl.textContent = '-';
   throughputEl.textContent = '-';
+  backendEl.textContent = CONVERTER_BACKEND.label;
+  backendEl.title = CONVERTER_BACKEND.detail;
   resetFileInputValue(fileInputEl);
   loadedFile = null;
 }
@@ -389,13 +397,14 @@ async function parseXML() {
 
   const startTime = performance.now();
 
-      try {
-        let result;
-        let xmlSize;
-        let workerTimings = null;
-        const inputSize = loadedFile ? loadedFile.size : new Blob([xmlInput]).size;
-        const parseOptions = inputSize > LARGE_INPUT_THRESHOLD
-          ? { maxEvents: LARGE_INPUT_MAX_EVENTS }
+  try {
+    let result;
+    let xmlSize;
+    let workerTimings = null;
+    let activeBackend = CONVERTER_BACKEND;
+    const inputSize = loadedFile ? loadedFile.size : new Blob([xmlInput]).size;
+    const parseOptions = inputSize > LARGE_INPUT_THRESHOLD
+      ? { maxEvents: LARGE_INPUT_MAX_EVENTS }
       : undefined;
 
     if (mode === 'sync') {
@@ -407,7 +416,7 @@ async function parseXML() {
       const schema = schemaFunction(x);
       result = schema.parseSync(xmlInput, parseOptions);
       xmlSize = inputSize;
-        } else {
+    } else {
       const workerResponse = await parseXmlInWorker({
         schemaInput,
         xmlInput,
@@ -415,13 +424,14 @@ async function parseXML() {
         parseOptions,
         requestedMode: mode
       });
-          result = workerResponse.result;
-          xmlSize = workerResponse.xmlSize;
-          workerTimings = workerResponse.timings ?? null;
-          if (workerTimings) {
-            console.info('converter-demo worker timings', workerTimings);
-          }
-        }
+      result = workerResponse.result;
+      xmlSize = workerResponse.xmlSize;
+      activeBackend = workerResponse.backend ?? CONVERTER_BACKEND;
+      workerTimings = workerResponse.timings ?? null;
+      if (workerTimings) {
+        console.info('converter-demo worker timings', workerTimings);
+      }
+    }
 
     const endTime = performance.now();
     const durationMs = endTime - startTime;
@@ -431,6 +441,8 @@ async function parseXML() {
     parseTimeEl.textContent = durationLabel;
     modeEl.textContent = mode.toUpperCase();
     xmlSizeEl.textContent = xmlSize.toLocaleString();
+    backendEl.textContent = activeBackend.label;
+    backendEl.title = activeBackend.detail;
     const throughput = ((xmlSize / 1024) / (durationMs / 1000)).toFixed(2);
     throughputEl.textContent = throughput;
 
@@ -440,8 +452,8 @@ async function parseXML() {
     const timingSuffix = mode === 'async' && typeof workerTimings?.workerTotalMs === 'number'
       ? ` (worker ${workerTimings.workerTotalMs.toFixed(2)}ms, parse ${workerTimings.parseMs.toFixed(2)}ms, mode ${workerTimings.parseMode})`
       : '';
-    messageEl.innerHTML = `<div class="success">✅ Successfully parsed XML in ${durationLabel}ms using ${mode} mode${parseOptionSuffix}${timingSuffix}.</div>`;
-      } catch (error) {
+    messageEl.innerHTML = `<div class="success">✅ Successfully parsed XML in ${durationLabel}ms using ${mode} mode on ${activeBackend.label}${parseOptionSuffix}${timingSuffix}.</div>`;
+  } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     outputEl.textContent = '';
     messageEl.innerHTML = `<div class="error">❌ Error: ${errorMessage}</div>`;

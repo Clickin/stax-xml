@@ -322,6 +322,8 @@ describe('Converter internal coverage guard rails', () => {
       try {
         expect(x.string().xpath('/root/value').parseSync('<root><value>sync</value></root>')).toBe('sync');
         await expect(x.string().xpath('/root/value').parse('<root><value>async</value></root>')).resolves.toBe('async');
+        expect(x.number().xpath('/root/count/text()').int().parseSync('<root><count>7</count></root>')).toBe(7);
+        await expect(x.number().xpath('/root/count/text()').int().parse('<root><count>8</count></root>')).resolves.toBe(8);
       } finally {
         XmlSchemaBase._tryParseWithCompiledPlan = originalSync;
         XmlSchemaBase._tryParseAsyncWithCompiledPlan = originalAsync;
@@ -493,7 +495,7 @@ describe('Converter internal coverage guard rails', () => {
     });
 
     it('registers unscoped object fields, unscoped arrays, and fallback collectors', async () => {
-      const xml = '<root><name>Alice</name><item>A</item><item>B</item><fallback>ignored</fallback></root>';
+      const xml = '<root><name>Alice</name><count>3</count><item>A</item><item>B</item><fallback>ignored</fallback></root>';
       const fakeSchema = {
         schemaType: 'UNKNOWN',
         options: { xpath: '/root/fallback' }
@@ -503,6 +505,11 @@ describe('Converter internal coverage guard rails', () => {
           name: x.string().xpath('/root/name'),
           skipped: x.string()
         }),
+        count: x.number().xpath('/root/count').int(),
+        countText: x.number().xpath('/root/count/text()').int(),
+        nested: x.object({
+          name: x.string().xpath('/root/name')
+        }).xpath('/root'),
         values: x.array(x.string().xpath('/root/item')),
         skippedValues: x.array(x.string()),
         fallback: fakeSchema as any
@@ -511,11 +518,17 @@ describe('Converter internal coverage guard rails', () => {
 
       expect(parser.parseObject(xml, shape as any, {})).toEqual({
         inline: { name: 'Alice' },
+        count: 3,
+        countText: 3,
+        nested: { name: 'Alice' },
         values: ['A', 'B'],
         fallback: ''
       });
       await expect(parser.parseObjectAsync(xml, shape as any, {})).resolves.toEqual({
         inline: { name: 'Alice' },
+        count: 3,
+        countText: 3,
+        nested: { name: 'Alice' },
         values: ['A', 'B'],
         fallback: ''
       });

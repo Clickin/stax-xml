@@ -281,6 +281,52 @@ describe('release API parity matrix', () => {
     }
   });
 
+  it('auto-routes mixed root object schemas through the dispatch executor', () => {
+    const xml = '<catalog><summary><source>benchmark</source></summary><book id="b1"><title>Native XML</title><meta><rating>5</rating></meta></book></catalog>';
+    const schema = x.object({
+      summary: x.object({
+        source: x.string().xpath('./source')
+      }).xpath('/catalog/summary'),
+      books: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title'),
+          rating: x.number().xpath('./meta/rating')
+        }),
+        '/catalog/book'
+      ),
+      sourceName: x.string().xpath('/catalog/summary/source')
+    });
+    const expected = {
+      summary: { source: 'benchmark' },
+      books: [{ id: 'b1', title: 'Native XML', rating: 5 }],
+      sourceName: 'benchmark'
+    };
+
+    const originalParseObject = XmlParserInternal.prototype.parseObject;
+    XmlParserInternal.prototype.parseObject = function blockedParseObject() {
+      throw new Error('XmlParserInternal.parseObject should not be used by mixed auto-dispatch parseSync');
+    } as typeof XmlParserInternal.prototype.parseObject;
+
+    try {
+      expect(schema.parseSync(xml)).toEqual(expected);
+      expect(schema.parseSync(xml)).toEqual(expected);
+    } finally {
+      XmlParserInternal.prototype.parseObject = originalParseObject;
+    }
+  });
+
+  it('caches unsupported auto-dispatch attempts before falling back to runtime converter', () => {
+    const xml = '<root><item><value>one</value></item><item><value>two</value></item></root>';
+    const schema = x.object({
+      values: x.array(x.string().xpath('./value'), '/root/item')
+    });
+    const expected = { values: ['one', 'two'] };
+
+    expect(schema.parseSync(xml)).toEqual(expected);
+    expect(schema.parseSync(xml)).toEqual(expected);
+  });
+
   it('auto-routes uncompiled async stream parsing through the dispatch executor', async () => {
     const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
     const schema = x.object({

@@ -126,8 +126,8 @@ jobs:
           if [ "${{ matrix.smoke }}" = "true" ]; then
             node -e "import('./${package_dir}/index.mjs').then((m) => { if (typeof m.parseAggregateBuffer !== 'function') throw new Error('parseAggregateBuffer export missing'); })"
           fi
-          npm --prefix "$package_dir" pack --dry-run --json
           mkdir -p "artifacts/${{ matrix.package_dir }}"
+          pnpm --dir "$package_dir" pack --json --pack-destination "$PWD/artifacts/${{ matrix.package_dir }}"
           cp "$package_dir/package.json" "$package_dir/README.md" "$package_dir/LICENSE" "$package_dir/index.mjs" "$package_dir/stax_xml_native.node" "artifacts/${{ matrix.package_dir }}/"
 
       - name: Upload binary artifact
@@ -135,4 +135,72 @@ jobs:
         with:
           name: ${{ matrix.package_dir }}
           path: artifacts/${{ matrix.package_dir }}
+          if-no-files-found: error
+
+  wasm:
+    name: native-wasm32-wasi
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Enable pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.18.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Ensure Rust wasm target
+        shell: bash
+        run: |
+          rustup default stable
+          rustup target add wasm32-wasip1-threads
+          cargo --version
+
+      - name: Build wasm addon
+        run: pnpm --dir packages/native-aggregate run build:wasm
+
+      - name: Pack wasm package
+        id: pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/native-wasm32-wasi
+          pnpm --dir packages/native-wasm32-wasi pack --json --pack-destination "$PWD/artifacts/native-wasm32-wasi" | tee /tmp/stax-xml-wasm-pack.json
+          tgz="$(node -e "const fs = require('node:fs'); const path = require('node:path'); const data = JSON.parse(fs.readFileSync('/tmp/stax-xml-wasm-pack.json', 'utf8')); console.log(path.basename(data.filename));")"
+          echo "tgz=$tgz" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke installed wasm package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/stax-xml-wasm-smoke
+          mkdir -p /tmp/stax-xml-wasm-smoke
+          cd /tmp/stax-xml-wasm-smoke
+          npm init -y >/dev/null
+          npm install --force "$GITHUB_WORKSPACE/artifacts/native-wasm32-wasi/${{ steps.pack.outputs.tgz }}"
+          node --input-type=module <<'NODE'
+          import { parseAggregateStringUtf8 } from '@stax-xml/native-wasm32-wasi';
+
+          const result = parseAggregateStringUtf8('<root><item id="1">hello</item></root>', 'count-only');
+          const eventCount = result.eventCount ?? result.event_count;
+          if (eventCount !== 7) {
+            throw new Error(`unexpected wasm event count: ${eventCount}`);
+          }
+          console.log('wasm package smoke ok');
+          NODE
+
+      - name: Upload wasm artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: native-wasm32-wasi
+          path: artifacts/native-wasm32-wasi
           if-no-files-found: error

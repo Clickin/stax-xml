@@ -111,6 +111,8 @@ export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Out
   }
 }
 
+const autoDispatchPlanCache = new WeakMap<XmlSchemaBase<unknown, unknown>, DispatchCompiledPlan | false>();
+
 export function tryParseWithCompiledPlan<Output, Input>(
   schema: XmlSchemaBase<Output, Input>,
   input: string | Iterator<unknown>,
@@ -142,29 +144,31 @@ export async function tryParseAsyncWithCompiledPlan<Output, Input>(
 }
 
 function tryBuildDispatchPlan(schema: XmlSchemaBase<unknown, unknown>): DispatchCompiledPlan | undefined {
+  if (!(schema instanceof CompiledXmlSchema)) {
+    const cached = autoDispatchPlanCache.get(schema);
+    if (cached !== undefined) {
+      return cached === false ? undefined : cached;
+    }
+  }
+
   try {
     const plan = schema instanceof CompiledXmlSchema
       ? schema.compiledPlan
       : (isAutoDispatchEligible(schema) ? buildCompiledPlan(schema, unwrapSchema(schema)) : undefined);
-    return plan?.kind === 'dispatch' ? plan : undefined;
+    const dispatchPlan = plan?.kind === 'dispatch' ? plan : undefined;
+    if (!(schema instanceof CompiledXmlSchema)) {
+      autoDispatchPlanCache.set(schema, dispatchPlan ?? false);
+    }
+    return dispatchPlan;
   } catch {
+    autoDispatchPlanCache.set(schema, false);
     return undefined;
   }
 }
 
 function isAutoDispatchEligible(schema: XmlSchemaBase<unknown, unknown>): boolean {
   const root = unwrapSchema(schema);
-  if (root !== schema || !isObjectSchema(root) || extractXPath(root)) {
-    return false;
-  }
-
-  for (const fieldSchema of Object.values(root.shape)) {
-    if (!isArraySchema(unwrapSchema(fieldSchema))) {
-      return false;
-    }
-  }
-
-  return true;
+  return root === schema && isObjectSchema(root) && !extractXPath(root);
 }
 
 function buildCompiledPlan(
