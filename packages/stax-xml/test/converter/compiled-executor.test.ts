@@ -496,4 +496,17 @@ describe('CompiledRootProcessor', () => {
 
     expect(compiledProcessor(x.string().xpath('/root/@missing')).parseSync('<root/>')).toBe('');
   });
+
+  it('handles streamable positive position predicates in compiled selectors', () => {
+    const xml = '<root><item>A</item><item>B</item><item>C</item></root>';
+    expect(compiledProcessor(x.object({
+      first: x.string().xpath('/root/item[1]'),
+      firstFn: x.string().xpath('/root/item[first()]'),
+      second: x.string().xpath('/root/item[position() = 2]')
+    })).parseSync(xml)).toEqual({
+      first: 'A',
+      firstFn: 'A',
+      second: 'B'
+    });
+  });
 });

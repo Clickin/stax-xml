@@ -23,6 +23,8 @@ import {
   IterableEventBackendIterator,
   createIterableParserFromChunks,
   getIterableEventBackend,
+  getIterableEventTable,
+  type IterableEventTable,
   readReadableStreamChunks
 } from './IterableEventBackend.js';
 
@@ -74,6 +76,7 @@ type RuntimeState = {
   maxDepth: number;
   maxEvents: number;
   elementStack: string[];
+  positionStack: number[];
   rootValue: unknown;
   rootSet: boolean;
   rootDone: boolean;
@@ -127,6 +130,12 @@ export class CompiledRootProcessor {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     const runtime = this.createRuntime(this.plan, effectiveOptions);
 
+    const eventTable = getIterableEventTable(input);
+    if (eventTable) {
+      this.processEventTable(runtime, eventTable);
+      return this.finish<T>(runtime);
+    }
+
     if (isSyncIterator(input)) {
       for (const event of input) {
         this.processEvent(runtime, event);
@@ -174,6 +183,7 @@ export class CompiledRootProcessor {
       maxDepth: options?.maxDepth ?? 1000,
       maxEvents: options?.maxEvents ?? 1000000,
       elementStack: [],
+      positionStack: [],
       rootValue: defaultValue(plan.root, true, 'root'),
       rootSet: false,
       rootDone: false,
@@ -201,6 +211,7 @@ export class CompiledRootProcessor {
     if (isStartElement(event)) {
       runtime.depth++;
       runtime.elementStack.push(event.name);
+      recordElementPosition(runtime);
       runtime.currentAttributes = event.attributes;
       this.checkDepthLimit(runtime);
       this.processStart(runtime, event.attributes);
@@ -208,6 +219,7 @@ export class CompiledRootProcessor {
     } else if (isCharacters(event) || isCdata(event)) {
       this.processText(runtime, event.value);
     } else if (isEndElement(event)) {
+      popCompletedChildPositionScope(runtime);
       this.processEnd(runtime);
       runtime.elementStack.pop();
       runtime.depth--;
@@ -216,7 +228,7 @@ export class CompiledRootProcessor {
 
   private processIterableEvent(
     runtime: RuntimeState,
-    parser: StaxXmlIterableParser,
+    parser: StaxXmlIterableParser | IterableEventTable,
     index: number
   ): void {
     const type = parser.eventType(index);
@@ -236,6 +248,7 @@ export class CompiledRootProcessor {
         : undefined;
       runtime.depth++;
       runtime.elementStack.push(name);
+      recordElementPosition(runtime);
       runtime.currentAttributes = attributes;
       this.checkDepthLimit(runtime);
       this.processStart(runtime, attributes);
@@ -250,6 +263,7 @@ export class CompiledRootProcessor {
     }
 
     if (type === IterableEventType.END_ELEMENT) {
+      popCompletedChildPositionScope(runtime);
       this.processEnd(runtime);
       runtime.elementStack.pop();
       runtime.depth--;
@@ -573,6 +587,18 @@ export class CompiledRootProcessor {
       }
     }
   }
+
+  private processEventTable(
+    runtime: RuntimeState,
+    eventTable: IterableEventTable
+  ): void {
+    while (eventTable.nextBatch()) {
+      const count = eventTable.eventCount;
+      for (let index = 0; index < count; index++) {
+        this.processIterableEvent(runtime, eventTable, index);
+      }
+    }
+  }
 }
 
 function matchesSelector(
@@ -590,7 +616,7 @@ function matchesSelector(
     for (let index = 0; index < segments.length; index++) {
       if (runtime.elementStack[index] !== segments[index]) return false;
     }
-    return true;
+    return matchesPositionFilters(selector, runtime, 0);
   }
 
   if (selector.mode === 'descendant') {
@@ -599,7 +625,7 @@ function matchesSelector(
     for (let index = 0; index < segments.length; index++) {
       if (runtime.elementStack[offset + index] !== segments[index]) return false;
     }
-    return true;
+    return matchesPositionFilters(selector, runtime, offset);
   }
 
   if (runtime.depth !== contextDepth! + segments.length) {
@@ -608,7 +634,36 @@ function matchesSelector(
   for (let index = 0; index < segments.length; index++) {
     if (runtime.elementStack[contextDepth! + index] !== segments[index]) return false;
   }
+  return matchesPositionFilters(selector, runtime, contextDepth!);
+}
+
+function matchesPositionFilters(selector: DispatchSelector, runtime: RuntimeState, offset: number): boolean {
+  const filters = selector.positionFilters;
+  if (!filters) {
+    return true;
+  }
+
+  for (let index = 0; index < filters.length; index++) {
+    const expected = filters[index];
+    if (expected !== undefined && runtime.positionStack[offset + index] !== expected) {
+      return false;
+    }
+  }
   return true;
+}
+
+function recordElementPosition(runtime: RuntimeState): void {
+  if (runtime.positionStack.length < runtime.depth) {
+    runtime.positionStack.push(1);
+    return;
+  }
+  runtime.positionStack[runtime.depth - 1]++;
+}
+
+function popCompletedChildPositionScope(runtime: RuntimeState): void {
+  if (runtime.positionStack.length > runtime.depth) {
+    runtime.positionStack.pop();
+  }
 }
 
 function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOptional: boolean): unknown {
@@ -678,11 +733,11 @@ function markCompleted(parent: ParentBinding, plan: DispatchScalarPlan): void {
 }
 
 function copyAttributes(
-  parser: StaxXmlIterableParser,
+  parser: StaxXmlIterableParser | IterableEventTable,
   eventIndex: number,
   options?: ParseOptions
 ): Record<string, string> {
-  const count = parser.attrCount(eventIndex);
+  const count = attributeCount(parser, eventIndex);
   if (count === 0) {
     return {};
   }
@@ -695,6 +750,12 @@ function copyAttributes(
     );
   }
   return attributes;
+}
+
+function attributeCount(parser: StaxXmlIterableParser | IterableEventTable, eventIndex: number): number {
+  return parser instanceof StaxXmlIterableParser
+    ? parser.attrCount(eventIndex)
+    : parser.eventAttrCount(eventIndex);
 }
 
 function decodeEntities(value: string, options?: ParseOptions): string {

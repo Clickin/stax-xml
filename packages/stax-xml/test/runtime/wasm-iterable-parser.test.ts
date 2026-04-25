@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { x } from '../../src/converter';
+import { getIterableEventTable, STAX_XML_EVENT_TABLE } from '../../src/IterableEventBackend';
+import { IterableEventType } from '../../src/StaxXmlIterableParser';
 import {
   StaxXmlWasmIterableParser,
   type StaxXmlWasmSpanTable,
@@ -28,6 +31,7 @@ describe('StaxXmlWasmIterableParser', () => {
     expect(parser.eventCount).toBe(6);
     expect(parser.attrCount).toBe(2);
     expect(parser.spanTableBytes).toBe(HEADER_BYTES + 6 * EVENT_BYTES + 2 * ATTR_BYTES);
+    expect(parser.eventType(3)).toBe(IterableEventType.CDATA);
 
     expect(parser.next().value).toEqual({ type: XmlEventType.START_DOCUMENT });
     expect(parser.next().value).toEqual({
@@ -67,6 +71,7 @@ describe('StaxXmlWasmIterableParser', () => {
     const parser = new StaxXmlWasmIterableParser(input, encodeSpanTable(input, [
       event(99),
     ], [], 'view'));
+    expect(() => parser.eventType(0)).toThrow(/Unsupported wasm span table event type/);
     const result = parser.next();
     expect(result.done).toBe(false);
     expect(result.value.type).toBe(XmlEventType.ERROR);
@@ -87,6 +92,71 @@ describe('StaxXmlWasmIterableParser', () => {
       .toThrow(/Unsupported wasm span table strides/);
     expect(() => new StaxXmlWasmIterableParser(input, valid.slice(0, valid.byteLength - 4)))
       .toThrow(/length mismatch/);
+  });
+
+  it('exposes a compiled event-table view before iterator consumption', () => {
+    const input = '<r a="x">text</r>';
+    const parser = new StaxXmlWasmIterableParser(input, encodeSpanTable(input, [
+      event(0),
+      event(2, span(input, 'r'), none(), 0, 2),
+      event(4, none(), span(input, 'text')),
+      event(3, span(input, 'r')),
+      event(1),
+    ], [
+      attr(span(input, 'a'), span(input, 'x')),
+      attr(none(), none()),
+    ], 'view'));
+
+    expect(getIterableEventTable(null)).toBeUndefined();
+    expect(getIterableEventTable({})).toBeUndefined();
+    const table = parser[STAX_XML_EVENT_TABLE]();
+    expect(table).toBe(parser);
+    expect(parser.copyName(0)).toBeUndefined();
+    expect(parser.copyText(0)).toBeUndefined();
+    expect(parser.copyName(1)).toBe('r');
+    expect(parser.eventAttrCount(1)).toBe(2);
+    expect(parser.copyAttrName(1, 0)).toBe('a');
+    expect(parser.copyAttrValue(1, 0)).toBe('x');
+    expect(parser.copyAttrName(1, 1)).toBeUndefined();
+    expect(parser.copyAttrValue(1, 1)).toBeUndefined();
+    expect(parser.copyText(2)).toBe('text');
+    expect(parser.nextBatch()).toBe(true);
+    expect(parser.nextBatch()).toBe(false);
+    expect(parser[STAX_XML_EVENT_TABLE]()).toBeUndefined();
+    expect(parser.next()).toEqual({ value: undefined, done: true });
+  });
+
+  it('lets transformed array converters consume wasm span tables without event iterator materialization', async () => {
+    const input = '<r><person id="7"><name>Alice</name></person></r>';
+    const parser = new StaxXmlWasmIterableParser(input, encodeSpanTable(input, [
+      event(0),
+      event(2, span(input, 'r')),
+      event(2, span(input, 'person'), none(), 0, 1),
+      event(2, span(input, 'name')),
+      event(4, none(), span(input, 'Alice')),
+      event(3, span(input, 'name')),
+      event(3, span(input, 'person')),
+      event(3, span(input, 'r')),
+      event(1),
+    ], [
+      attr(span(input, 'id'), span(input, '7')),
+    ], 'view'));
+    parser.next = () => {
+      throw new Error('event iterator should not be used by compiled converter path');
+    };
+
+    const schema = x.array(
+      x.object({
+        id: x.number().xpath('./@id').int(),
+        name: x.string().xpath('./name'),
+      }),
+      '//person'
+    ).transform(people => ({
+      personCount: people.length,
+      firstName: people[0]?.name,
+    }));
+
+    await expect(schema.compile().parse(parser)).resolves.toEqual({ personCount: 1, firstName: 'Alice' });
   });
 });
 
