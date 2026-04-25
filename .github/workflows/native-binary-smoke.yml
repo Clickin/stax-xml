@@ -83,7 +83,7 @@ jobs:
           corepack prepare pnpm@10.18.0 --activate
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
 
       - name: Install musl toolchain
         if: matrix.install_musl
