@@ -7,4 +7,5 @@ export {
 export type {
   ByteBatch,
   ByteBatchOptions,
+  StaxXmlIterableBatchFrame,
 } from '../StaxXmlIterableParser.js';

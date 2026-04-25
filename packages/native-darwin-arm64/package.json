@@ -1,0 +1,26 @@
+{
+  "name": "@stax-xml/native-darwin-arm64",
+  "version": "0.7.0",
+  "description": "macOS arm64 native acceleration package for stax-xml.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "stax_xml_native.node",
+    "README.md",
+    "LICENSE"
+  ],
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -19,7 +19,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
 - **High Performance**: Optimized for speed and low memory usage
-- **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers using only Web Standard APIs
+- **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers, with WebAssembly recommended for browser performance paths and pure JavaScript kept as the compatibility fallback
 - **Namespace Support**: Basic XML namespace handling
 - **Entity Support**: Built-in entity decoding with custom entity support
 - **TypeScript Ready**: Full TypeScript support with comprehensive type definitions
@@ -105,7 +105,59 @@ while (cursor.next()) {
 }
 ```
 
-For streamed input, use `StaxXmlCursorReaderAsync` with a web standard `ReadableStream<Uint8Array>`.
+For large files, choose the boundary that matches the workload:
+
+- Use `StaxXmlParser` when file/network I/O should stay async. The public API is end-to-end async, while the parser backend consumes byte batches synchronously after chunks arrive.
+- Use the iterable parser when a batch job can block the current worker/thread and you want to avoid creating one full XML string.
+
+```typescript
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
+
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log(event.name);
+  }
+}
+```
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      console.log(parser.copyName(index));
+    }
+  }
+}
+```
+
+For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` also exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` so the file can be read and parsed synchronously in fixed-size byte chunks.
 
 ### 💾 Memory-efficient sync writing
 
@@ -224,13 +276,28 @@ For detailed API documentation:
 
 ### 🌐 Platform Compatibility
 
-StAX-XML uses only Web Standard APIs, making it compatible with:
+StAX-XML keeps a Web Standard API baseline, making it compatible with:
 
 - **Node.js** (v18+)
 - **Bun** (any version)
 - **Deno** (any version)
 - **Web Browsers** (modern browsers)
 - **Edge Runtime** (Vercel, Cloudflare Workers, etc.)
+
+For performance-sensitive browser workloads, prefer the WebAssembly runtime when it is available. The pure JavaScript parser remains the compatibility fallback for environments that cannot load Wasm, cannot enable cross-origin isolation, or need a no-binary policy.
+
+#### Native and Wasm Resolution
+
+`stax-xml` remains the public facade package. Platform artifacts are published as exact-version optional dependencies under `@stax-xml/*`, and runtime-specific probing is available through the `stax-xml/runtime` subpath:
+
+```typescript
+import { resolveStaxXmlRuntimeBackend } from 'stax-xml/runtime';
+
+const backend = await resolveStaxXmlRuntimeBackend();
+// backend.kind is "native", "wasm", or "js"
+```
+
+Resolution order is native for the current Node-API platform, then `@stax-xml/native-wasm32-wasi`, then the JavaScript implementation in `stax-xml`. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
 
 ### 🧪 Testing
 
@@ -278,7 +345,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 - **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
 - **고성능**: 속도와 낮은 메모리 사용량에 최적화
-- **범용 호환성**: 웹 표준 API만 사용하여 Node.js, Bun, Deno, 웹 브라우저에서 모두 동작
+- **범용 호환성**: Node.js, Bun, Deno, 웹 브라우저에서 동작하며, 브라우저 고성능 경로는 WebAssembly를 권장하고 순수 JavaScript 파서는 호환 fallback으로 유지
 - **네임스페이스 지원**: 기본 XML 네임스페이스 처리
 - **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
 - **TypeScript 지원**: 포괄적인 타입 정의로 완전한 TypeScript 지원
@@ -366,7 +433,59 @@ while (cursor.next()) {
 }
 ```
 
-스트리밍 입력에는 web standard `ReadableStream<Uint8Array>`와 함께 `StaxXmlCursorReaderAsync`를 사용하세요.
+대용량 파일은 workload 경계에 맞춰 선택하세요:
+
+- 파일/네트워크 I/O까지 비동기로 유지해야 하면 `StaxXmlParser`를 사용합니다. 공개 API는 end-to-end async이고, 내부 parser backend는 도착한 byte batch를 동기적으로 소비합니다.
+- 현재 worker/thread를 막아도 되는 batch job에서는 iterable parser를 사용하면 전체 XML 문자열을 만들지 않고 byte chunk 단위로 파싱할 수 있습니다.
+
+```typescript
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
+
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log(event.name);
+  }
+}
+```
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      console.log(parser.copyName(index));
+    }
+  }
+}
+```
+
+Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 파일 읽기와 파싱을 모두 고정 크기 byte chunk 단위의 동기 작업으로 처리할 수 있습니다.
 
 ### 💾 메모리 효율적인 동기 쓰기
 
@@ -484,13 +603,15 @@ for (const event of parser) {
 
 ### 🌐 플랫폼 호환성
 
-StAX-XML은 웹 표준 API만을 사용하여 다음 환경에서 동작합니다:
+StAX-XML은 웹 표준 API 기반의 기본 호환성을 유지하여 다음 환경에서 동작합니다:
 
 - **Node.js** (v18+)
 - **Bun** (모든 버전)
 - **Deno** (모든 버전)
 - **웹 브라우저** (최신 브라우저)
 - **Edge Runtime** (Vercel, Cloudflare Workers 등)
+
+브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 우선 권장합니다. 순수 JavaScript 파서는 Wasm을 로드할 수 없거나, 교차 출처 격리를 사용할 수 없거나, 바이너리 없는 정책이 필요한 환경을 위한 호환 fallback으로 유지합니다.
 
 ### 📁 테스트 파일 출처
 

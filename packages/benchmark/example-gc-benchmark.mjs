@@ -40,7 +40,7 @@ async function exampleMemoryTracking() {
     console.log('\n\n=== Memory Tracking Example ===\n');
     HeapProfiler.printHeapInfo('Before Large Allocation');
     // Allocate some memory
-    const largeArray = new Array(1_000_000).fill(0).map((_, i) => ({
+    const largeArray = Array.from({ length: 1_000_000 }, (_, i) => ({
         id: i,
         data: Math.random().toString(36),
         nested: { value: i * 2 }
@@ -61,10 +61,11 @@ async function exampleGCDetails() {
         // Create objects that will trigger GC
         const objects = [];
         for (let i = 0; i < 10000; i++) {
+            const dataValue = Math.random();
             objects.push({
                 id: i,
                 name: `object-${i}`,
-                data: new Array(100).fill(Math.random())
+                data: Array.from({ length: 100 }, () => dataValue)
             });
         }
         return objects;

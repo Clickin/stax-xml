@@ -15,6 +15,37 @@ export interface ByteBatchOptions {
   batchSize?: number;
 }
 
+export interface StaxXmlIterableParserOptions {
+  encoding?: string;
+  incompleteFinalMarkupMessage?: string;
+  emitStartDocumentBatchImmediately?: boolean;
+}
+
+/**
+ * Reusable low-level view over the current iterable parser batch.
+ *
+ * The object and typed-array fields are owned by the parser and are only valid
+ * until the next nextBatch()/nextBatchFrame() call.
+ */
+export interface StaxXmlIterableBatchFrame<BufferType extends Uint8Array = Uint8Array> {
+  eventCount: number;
+  attrCount: number;
+  buffer: BufferType;
+  eventTypes: Uint8Array;
+  nameStarts: Int32Array;
+  nameEnds: Int32Array;
+  nameIds: Int32Array;
+  textStarts: Int32Array;
+  textEnds: Int32Array;
+  attrStarts: Int32Array;
+  attrCounts: Int32Array;
+  attrNameStarts: Int32Array;
+  attrNameEnds: Int32Array;
+  attrNameIds: Int32Array;
+  attrValueStarts: Int32Array;
+  attrValueEnds: Int32Array;
+}
+
 const DEFAULT_BATCH_SIZE = 16;
 const EMPTY_BUFFER = new Uint8Array(0);
 
@@ -60,7 +91,9 @@ export async function* toAsyncByteBatches(
 
 export class StaxXmlIterableParser {
   private readonly iterator: Iterator<ByteBatch>;
-  private readonly decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
+  private readonly decoder: TextDecoder;
+  private readonly incompleteFinalMarkupMessage?: string;
+  private readonly emitStartDocumentBatchImmediately: boolean;
 
   private currentBuffer: Uint8Array = EMPTY_BUFFER;
   private pendingTail: Uint8Array = EMPTY_BUFFER;
@@ -85,12 +118,38 @@ export class StaxXmlIterableParser {
   private attrValueEnds = new Int32Array(1024);
   private attrCursor = 0;
 
-  private readonly elementNameIds: number[] = [];
+  private elementNameIds = new Int32Array(1024);
+  private elementNameBuffers: Uint8Array[] = createSparseSlots(1024);
+  private elementNameStarts = new Int32Array(1024);
+  private elementNameEnds = new Int32Array(1024);
+  private elementDepth = 0;
   private readonly nameIds = new Map<number, number>();
-  private readonly nameStrings: string[] = [];
+  private readonly nameStrings: Array<string | undefined> = [];
 
-  constructor(source: Iterable<ByteBatch>) {
+  private readonly frame: StaxXmlIterableBatchFrame = {
+    eventCount: 0,
+    attrCount: 0,
+    buffer: EMPTY_BUFFER,
+    eventTypes: this.eventTypes,
+    nameStarts: this.nameStarts,
+    nameEnds: this.nameEnds,
+    nameIds: this.nameIdsForEvents,
+    textStarts: this.textStarts,
+    textEnds: this.textEnds,
+    attrStarts: this.attrStarts,
+    attrCounts: this.attrCounts,
+    attrNameStarts: this.attrNameStarts,
+    attrNameEnds: this.attrNameEnds,
+    attrNameIds: this.attrNameIds,
+    attrValueStarts: this.attrValueStarts,
+    attrValueEnds: this.attrValueEnds,
+  };
+
+  constructor(source: Iterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
     this.iterator = source[Symbol.iterator]();
+    this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: false, ignoreBOM: true });
+    this.incompleteFinalMarkupMessage = options.incompleteFinalMarkupMessage;
+    this.emitStartDocumentBatchImmediately = options.emitStartDocumentBatchImmediately ?? false;
   }
 
   nextBatch(): boolean {
@@ -103,6 +162,9 @@ export class StaxXmlIterableParser {
     if (!this.started) {
       this.started = true;
       this.addEvent(IterableEventType.START_DOCUMENT);
+      if (this.emitStartDocumentBatchImmediately) {
+        return true;
+      }
     }
     const minEventsToReturn = startedThisBatch ? 2 : 1;
 
@@ -125,8 +187,17 @@ export class StaxXmlIterableParser {
     return this.eventCursor > 0;
   }
 
+  nextBatchFrame(): StaxXmlIterableBatchFrame | undefined {
+    return this.nextBatch() ? this.batchFrame() : undefined;
+  }
+
   eventCount(): number {
     return this.eventCursor;
+  }
+
+  batchFrame(): StaxXmlIterableBatchFrame {
+    this.refreshFrame();
+    return this.frame;
   }
 
   buffer(): Uint8Array {
@@ -174,16 +245,19 @@ export class StaxXmlIterableParser {
   }
 
   decodeSpan(start: number, end: number): string {
+    const ascii = decodeShortAsciiSpan(this.currentBuffer, start, end);
+    if (ascii !== undefined) {
+      return ascii;
+    }
     return this.decoder.decode(this.currentBuffer.subarray(start, end));
   }
 
   copyName(index: number): string | undefined {
     const nameId = this.nameIdsForEvents[index]!;
-    if (nameId >= 0) {
-      return this.nameStrings[nameId];
+    if (nameId < 0) {
+      return undefined;
     }
-    const start = this.nameStarts[index]!;
-    return start < 0 ? undefined : this.decodeSpan(start, this.nameEnds[index]!);
+    return this.materializeName(nameId, this.currentBuffer, this.nameStarts[index]!, this.nameEnds[index]!);
   }
 
   copyText(index: number): string | undefined {
@@ -197,9 +271,7 @@ export class StaxXmlIterableParser {
     }
     const index = this.attrStarts[eventIndex]! + attrIndex;
     const nameId = this.attrNameIds[index]!;
-    return nameId >= 0
-      ? this.nameStrings[nameId]
-      : this.decodeSpan(this.attrNameStarts[index]!, this.attrNameEnds[index]!);
+    return this.materializeName(nameId, this.currentBuffer, this.attrNameStarts[index]!, this.attrNameEnds[index]!);
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
@@ -209,15 +281,66 @@ export class StaxXmlIterableParser {
     return this.decodeSpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
   }
 
+  isImplicitAttributeValue(eventIndex: number, attrIndex: number): boolean {
+    if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
+      return false;
+    }
+    const index = this.attrStarts[eventIndex]! + attrIndex;
+    return this.attrNameStarts[index] === this.attrValueStarts[index]
+      && this.attrNameEnds[index] === this.attrValueEnds[index];
+  }
+
+  copyAttributesObject(eventIndex: number): Record<string, string> {
+    const count = this.attrCounts[eventIndex]!;
+    if (count === 0) {
+      return {};
+    }
+
+    const attributes: Record<string, string> = {};
+    let attrIndex = this.attrStarts[eventIndex]!;
+    const attrEnd = attrIndex + count;
+    while (attrIndex < attrEnd) {
+      const nameId = this.attrNameIds[attrIndex]!;
+      const name = this.materializeName(
+        nameId,
+        this.currentBuffer,
+        this.attrNameStarts[attrIndex]!,
+        this.attrNameEnds[attrIndex]!,
+      );
+      attributes[name] = this.decodeSpan(this.attrValueStarts[attrIndex]!, this.attrValueEnds[attrIndex]!);
+      attrIndex++;
+    }
+    return attributes;
+  }
+
   private resetFrames(): void {
     this.eventCursor = 0;
     this.attrCursor = 0;
   }
 
+  private refreshFrame(): void {
+    this.frame.eventCount = this.eventCursor;
+    this.frame.attrCount = this.attrCursor;
+    this.frame.buffer = this.currentBuffer;
+    this.frame.eventTypes = this.eventTypes;
+    this.frame.nameStarts = this.nameStarts;
+    this.frame.nameEnds = this.nameEnds;
+    this.frame.nameIds = this.nameIdsForEvents;
+    this.frame.textStarts = this.textStarts;
+    this.frame.textEnds = this.textEnds;
+    this.frame.attrStarts = this.attrStarts;
+    this.frame.attrCounts = this.attrCounts;
+    this.frame.attrNameStarts = this.attrNameStarts;
+    this.frame.attrNameEnds = this.attrNameEnds;
+    this.frame.attrNameIds = this.attrNameIds;
+    this.frame.attrValueStarts = this.attrValueStarts;
+    this.frame.attrValueEnds = this.attrValueEnds;
+  }
+
   private prepareBuffer(batch: ByteBatch): Uint8Array {
     const hasTail = this.pendingTail.byteLength > 0;
     if (!hasTail && batch.length === 1) {
-      return batch[0]!;
+      return asPlainUint8Array(batch[0]!);
     }
 
     let total = hasTail ? this.pendingTail.byteLength : 0;
@@ -249,7 +372,7 @@ export class StaxXmlIterableParser {
       this.currentBuffer = EMPTY_BUFFER;
     }
 
-    if (this.elementNameIds.length > 0) {
+    if (this.elementDepth > 0) {
       throw new Error('Unexpected end of document. Not all elements were closed.');
     }
 
@@ -286,7 +409,7 @@ export class StaxXmlIterableParser {
   private parseTag(buffer: Uint8Array, position: number, isFinal: boolean): number {
     if (position + 1 >= buffer.byteLength) {
       if (isFinal) {
-        throw new Error('Unclosed start tag');
+        throw new Error(this.incompleteFinalMarkupMessage ?? 'Unclosed start tag');
       }
       return -1;
     }
@@ -372,15 +495,20 @@ export class StaxXmlIterableParser {
     while (nameStart < nameEnd && isWhitespace(buffer[nameStart]!)) nameStart++;
     while (nameEnd > nameStart && isWhitespace(buffer[nameEnd - 1]!)) nameEnd--;
 
-    if (this.elementNameIds.length === 0) {
+    if (this.elementDepth === 0) {
       throw new Error(`Mismatched closing tag: </${this.decoder.decode(buffer.subarray(nameStart, nameEnd))}>. No open elements.`);
     }
 
     const foundId = this.lookupNameId(buffer, nameStart, nameEnd);
-    const expectedId = this.elementNameIds.pop()!;
+    const expectedDepth = --this.elementDepth;
+    const expectedId = this.elementNameIds[expectedDepth]!;
+    const expectedBuffer = this.elementNameBuffers[expectedDepth]!;
+    const expectedStart = this.elementNameStarts[expectedDepth]!;
+    const expectedEnd = this.elementNameEnds[expectedDepth]!;
+    this.elementNameBuffers[expectedDepth] = EMPTY_BUFFER;
     if (foundId !== expectedId) {
       const found = this.decoder.decode(buffer.subarray(nameStart, nameEnd));
-      const expected = this.nameStrings[expectedId]!;
+      const expected = this.materializeName(expectedId, expectedBuffer, expectedStart, expectedEnd);
       throw new Error(`Mismatched closing tag: </${found}>. Expected </${expected}>.`);
     }
 
@@ -425,40 +553,69 @@ export class StaxXmlIterableParser {
     if (selfClosing) {
       this.addEvent(IterableEventType.END_ELEMENT, nameStart, nameEnd, -1, -1, nameId);
     } else {
-      this.elementNameIds.push(nameId);
+      this.ensureElementCapacity(this.elementDepth + 1);
+      const depth = this.elementDepth++;
+      this.elementNameIds[depth] = nameId;
+      this.elementNameBuffers[depth] = buffer;
+      this.elementNameStarts[depth] = nameStart;
+      this.elementNameEnds[depth] = nameEnd;
     }
     return tagEnd + 1;
   }
 
   private parseAttributes(buffer: Uint8Array, start: number, end: number): void {
+    const limit = end;
     let index = start;
-    while (index < end) {
-      while (index < end && isWhitespace(buffer[index]!)) index++;
-      if (index >= end) break;
+    while (index < limit) {
+      while (index < limit) {
+        const byte = buffer[index]!;
+        if (!isWhitespace(byte)) break;
+        index++;
+      }
 
       const nameStart = index;
-      while (index < end) {
+      while (index < limit) {
         const byte = buffer[index]!;
-        if (byte === 61 || isWhitespace(byte)) break;
+        if (byte === 61) break;
+        if (isWhitespace(byte)) break;
         index++;
       }
       const nameEnd = index;
+      if (nameEnd === nameStart) {
+        break;
+      }
 
-      while (index < end && isWhitespace(buffer[index]!)) index++;
-      if (index >= end || buffer[index] !== 61) {
+      while (index < limit) {
+        const byte = buffer[index]!;
+        if (!isWhitespace(byte)) break;
+        index++;
+      }
+      if (index >= limit) {
+        this.addAttribute(buffer, nameStart, nameEnd, nameStart, nameEnd);
+        continue;
+      }
+      if (buffer[index] !== 61) {
         this.addAttribute(buffer, nameStart, nameEnd, nameStart, nameEnd);
         continue;
       }
 
       index++;
-      while (index < end && isWhitespace(buffer[index]!)) index++;
-      if (index >= end) break;
+      while (index < limit) {
+        const byte = buffer[index]!;
+        if (!isWhitespace(byte)) break;
+        index++;
+      }
+      if (index >= limit) break;
 
       const quote = buffer[index]!;
       if (quote !== 34 && quote !== 39) break;
       index++;
       const valueStart = index;
-      while (index < end && buffer[index] !== quote) index++;
+      while (index < limit) {
+        const byte = buffer[index]!;
+        if (byte === quote) break;
+        index++;
+      }
       const valueEnd = index;
       this.addAttribute(buffer, nameStart, nameEnd, valueStart, valueEnd);
       index++;
@@ -479,8 +636,20 @@ export class StaxXmlIterableParser {
     }
     const id = this.nameStrings.length;
     this.nameIds.set(key, id);
-    this.nameStrings.push(this.decoder.decode(buffer.subarray(start, end)));
+    this.nameStrings.push(undefined);
     return id;
+  }
+
+  private materializeName(nameId: number, buffer: Uint8Array, start: number, end: number): string {
+    const existing = this.nameStrings[nameId];
+    if (existing !== undefined) {
+      return existing;
+    }
+
+    const ascii = decodeShortAsciiSpan(buffer, start, end);
+    const name = ascii ?? this.decoder.decode(buffer.subarray(start, end));
+    this.nameStrings[nameId] = name;
+    return name;
   }
 
   private lookupNameId(buffer: Uint8Array, start: number, end: number): number {
@@ -544,6 +713,19 @@ export class StaxXmlIterableParser {
     this.attrValueStarts = growInt32(this.attrValueStarts, nextSize);
     this.attrValueEnds = growInt32(this.attrValueEnds, nextSize);
   }
+
+  private ensureElementCapacity(size: number): void {
+    if (size <= this.elementNameIds.length) return;
+    const nextSize = this.elementNameIds.length * 2;
+    this.elementNameIds = growInt32(this.elementNameIds, nextSize);
+    this.elementNameStarts = growInt32(this.elementNameStarts, nextSize);
+    this.elementNameEnds = growInt32(this.elementNameEnds, nextSize);
+    const nextBuffers = createSparseSlots<Uint8Array>(nextSize);
+    for (let index = 0; index < this.elementNameBuffers.length; index++) {
+      nextBuffers[index] = this.elementNameBuffers[index]!;
+    }
+    this.elementNameBuffers = nextBuffers;
+  }
 }
 
 function normalizeBatchSize(value: number | undefined): number {
@@ -554,16 +736,29 @@ function normalizeBatchSize(value: number | undefined): number {
   return batchSize;
 }
 
-function growInt32(source: Int32Array, size: number): Int32Array {
+function growInt32(source: Int32Array<ArrayBufferLike>, size: number): Int32Array<ArrayBuffer> {
   const next = new Int32Array(size);
   next.set(source);
   return next;
 }
 
-function growUint8(source: Uint8Array, size: number): Uint8Array {
+function growUint8(source: Uint8Array<ArrayBufferLike>, size: number): Uint8Array<ArrayBuffer> {
   const next = new Uint8Array(size);
   next.set(source);
   return next;
+}
+
+function createSparseSlots<T>(size: number): T[] {
+  const slots: T[] = [];
+  slots.length = size;
+  return slots;
+}
+
+function asPlainUint8Array(source: Uint8Array): Uint8Array {
+  if (Object.getPrototypeOf(source) === Uint8Array.prototype) {
+    return source;
+  }
+  return new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
 }
 
 function isWhitespace(byte: number): boolean {
@@ -577,6 +772,129 @@ function isWhitespaceOnly(buffer: Uint8Array, start: number, end: number): boole
     }
   }
   return true;
+}
+
+function decodeShortAsciiSpan(buffer: Uint8Array, start: number, end: number): string | undefined {
+  switch (end - start) {
+    case 0:
+      return '';
+    case 1: {
+      const b0 = buffer[start]!;
+      return b0 <= 0x7f ? String.fromCharCode(b0) : undefined;
+    }
+    case 2: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      return (b0 | b1) <= 0x7f ? String.fromCharCode(b0, b1) : undefined;
+    }
+    case 3: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      return (b0 | b1 | b2) <= 0x7f ? String.fromCharCode(b0, b1, b2) : undefined;
+    }
+    case 4: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      return (b0 | b1 | b2 | b3) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3) : undefined;
+    }
+    case 5: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      return (b0 | b1 | b2 | b3 | b4) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4) : undefined;
+    }
+    case 6: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5) : undefined;
+    }
+    case 7: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6) : undefined;
+    }
+    case 8: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7) : undefined;
+    }
+    case 9: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8) : undefined;
+    }
+    case 10: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      const b9 = buffer[start + 9]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9) : undefined;
+    }
+    case 11: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      const b9 = buffer[start + 9]!;
+      const b10 = buffer[start + 10]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10) : undefined;
+    }
+    case 12: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      const b9 = buffer[start + 9]!;
+      const b10 = buffer[start + 10]!;
+      const b11 = buffer[start + 11]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11) : undefined;
+    }
+    default:
+      return undefined;
+  }
 }
 
 function nameKey(buffer: Uint8Array, start: number, end: number): number {
@@ -618,13 +936,24 @@ function findGt(buffer: Uint8Array, from: number): number {
 }
 
 function findTagEnd(buffer: Uint8Array, from: number): number {
+  const length = buffer.byteLength;
   let quote = 0;
-  for (let index = from; index < buffer.byteLength; index++) {
+  for (let index = from; index < length; index++) {
     const byte = buffer[index]!;
     if (byte === 34 || byte === 39) {
-      if (quote === 0) quote = byte;
-      else if (quote === byte) quote = 0;
-    } else if (byte === 62 && quote === 0) {
+      if (quote === 0) {
+        quote = byte;
+        continue;
+      } else if (quote === byte) {
+        quote = 0;
+        continue;
+      }
+      continue;
+    }
+    if (byte !== 62) {
+      continue;
+    }
+    if (quote === 0) {
       return index;
     }
   }

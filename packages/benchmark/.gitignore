@@ -41,6 +41,9 @@ results/*.txt
 results/*.csv
 results/*.md
 results/*.html
+results/integrated-parser-evidence/**/*
+results/iterable-v8-validation/**/*
+results/v8-codegen/**/*
 profiles/**/*
 !profiles/.gitkeep
 

@@ -3,6 +3,8 @@ import type { ParseOptions, XmlWriteOptions, XmlElementWriteConfig, SchemaType }
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import { XmlParseError } from './errors.js';
 
+export const AUTO_PARSE_UNHANDLED: unique symbol = Symbol('stax-xml.autoParse.unhandled');
+export type AutoParseResult<T> = T | typeof AUTO_PARSE_UNHANDLED;
 
 /**
  * Parse input type - accepts string, sync iterator, async iterator, or ReadableStream
@@ -108,6 +110,13 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @throws {XmlParseError} If parsing fails
    */
   async parse(input: ParseInput, options?: ParseOptions): Promise<Output> {
+    const autoParse = XmlSchemaBase._tryParseAsyncWithCompiledPlan;
+    if (autoParse) {
+      const result = await autoParse(this, input, options);
+      if (result !== AUTO_PARSE_UNHANDLED) {
+        return result;
+      }
+    }
     return this._parseAsync(input, options);
   }
 
@@ -119,6 +128,13 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @throws {XmlParseError} If parsing fails
    */
   parseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): Output {
+    const autoParse = XmlSchemaBase._tryParseWithCompiledPlan;
+    if (autoParse) {
+      const result = autoParse(this, input, options);
+      if (result !== AUTO_PARSE_UNHANDLED) {
+        return result;
+      }
+    }
     return this._parse(input, options);
   }
 
@@ -130,7 +146,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    */
   async safeParse(input: ParseInput, options?: ParseOptions): Promise<ParseResult<Output>> {
     try {
-      return { success: true, data: await this._parseAsync(input, options) };
+      return { success: true, data: await this.parse(input, options) };
     } catch (error) {
       return {
         success: false,
@@ -151,7 +167,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    */
   safeParseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): ParseResult<Output> {
     try {
-      return { success: true, data: this._parse(input, options) };
+      return { success: true, data: this.parseSync(input, options) };
     } catch (error) {
       return {
         success: false,
@@ -281,5 +297,15 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
   static _createOptional: <T extends XmlSchemaBase<unknown, unknown>>(schema: T) => XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined>;
   static _createArray: <T extends XmlSchemaBase<unknown, unknown>>(schema: T, xpath?: string) => XmlSchemaBase<T['_output'][], T['_input'][]>;
   static _createCompiled: <Output, Input>(schema: XmlSchemaBase<Output, Input>) => XmlSchemaBase<Output, Input>;
+  static _tryParseWithCompiledPlan?: <Output, Input>(
+    schema: XmlSchemaBase<Output, Input>,
+    input: string | Iterator<AnyXmlEvent>,
+    options?: ParseOptions
+  ) => AutoParseResult<Output>;
+  static _tryParseAsyncWithCompiledPlan?: <Output, Input>(
+    schema: XmlSchemaBase<Output, Input>,
+    input: ParseInput,
+    options?: ParseOptions
+  ) => Promise<AutoParseResult<Output>>;
 
 }

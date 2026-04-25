@@ -1,0 +1,12 @@
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const binding = require('./stax_xml_native.node');
+
+export default binding;
+export const parseAggregateBuffer = binding.parseAggregateBuffer;
+export const parseAggregateFile = binding.parseAggregateFile;
+export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
+export const parseAggregateStringUtf8 = binding.parseAggregateStringUtf8;
+export const parseAggregateStringUtf16 = binding.parseAggregateStringUtf16;
+export const parseSpanTableStringUtf16 = binding.parseSpanTableStringUtf16;
