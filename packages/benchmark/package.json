@@ -14,6 +14,14 @@
     "dev:async:fast-path:poc": "node --expose-gc ./async-fast-path-poc.mjs --quick",
     "dev:async:large-compare": "node --expose-gc ./large-file-parser-compare.mjs",
     "dev:async:writer": "node --expose-gc ./async-writer.mjs",
+    "dev:node-string-return": "node --expose-gc ./node-string-return.mjs --quick",
+    "dev:iterable-attr-materialization": "node --expose-gc ./iterable-attr-materialization.mjs --quick",
+    "dev:iterable-attr-materialization:stats": "node --expose-gc ./iterable-attr-materialization.mjs --quick --fixtures attribute-heavy --tiers attr-object-batch,full-string-direct --scenarios neutral --materialization-stats",
+    "build:native-aggregate": "pnpm --filter @stax-xml/native-aggregate-probe build:native",
+    "smoke:native-aggregate": "pnpm --filter @stax-xml/native-aggregate-probe smoke",
+    "dev:rust-native-aggregate": "node --expose-gc ./rust-native-chunk-aggregate.mjs --quick",
+    "dev:v8-iterable-codegen-trace": "node ./v8-iterable-codegen-trace.mjs --quick --whole-parser --skip-bytecode",
+    "dev:sax-object-shape": "node --expose-gc ./sax-object-shape.mjs --quick",
     "dev:converter:plain-output": "node --expose-gc ./converter-plain-output-benchmark.mjs",
     "dev:bench:sync": "pnpm run dev:parser:2kb && pnpm run dev:parser:4kb && pnpm run dev:parser:13mb && pnpm run dev:parser:98mb && pnpm run dev:builder:small && pnpm run dev:builder:big",
     "dev:bench:async": "pnpm run dev:async:parser && pnpm run dev:async:writer",
@@ -33,6 +41,11 @@
     "bench:async:parser": "node --expose-gc ./async-parser.mjs",
     "bench:async:fast-path:poc": "node --expose-gc ./async-fast-path-poc.mjs",
     "bench:async:writer": "node --expose-gc ./async-writer.mjs",
+    "bench:node-string-return": "node --expose-gc ./node-string-return.mjs --sizes-mib 512,1024 --fail-gate",
+    "bench:iterable-attr-materialization": "node --expose-gc ./iterable-attr-materialization.mjs --sizes-mib 128 --fixtures attribute-heavy,mixed-utf8,high-cardinality,shuffled-attribute-order",
+    "bench:rust-native-aggregate": "node --expose-gc ./rust-native-chunk-aggregate.mjs --sizes-mib 16,128 --fixtures quoted-gt,attr-heavy,high-cardinality,mixed-utf8 --tiers count-only,full-string-direct,event-object-full",
+    "bench:v8-iterable-codegen-trace": "node ./v8-iterable-codegen-trace.mjs --whole-parser --skip-bytecode",
+    "bench:sax-object-shape": "node --expose-gc ./sax-object-shape.mjs --sizes-mib 512 --fixtures mixed-utf8",
     "bench:converter:plain-output": "node --expose-gc ./converter-plain-output-benchmark.mjs",
     "bench:writer:core": "node --expose-gc ./writer-core.mjs",
     "bench:writer:1gb": "node --expose-gc ./writer-1gb.mjs --size-gb 1",
@@ -50,11 +63,16 @@
     "workflow:full": "pnpm run generate:testdata && pnpm run bench:baseline"
   },
   "dependencies": {
+    "@stax-xml/native-aggregate-probe": "workspace:*",
     "fast-xml-parser": "^5.2.5",
+    "htmlparser2": "^12.0.0",
     "mitata": "^1.0.34",
     "sax": "^1.4.1",
+    "saxes": "^6.0.0",
+    "saxophone": "^0.8.0",
     "stax-xml": "workspace:*",
     "txml": "^5.1.1",
+    "xml-stream": "^0.4.5",
     "xml2js": "^0.6.2"
   }
 }

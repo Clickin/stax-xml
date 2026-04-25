@@ -20,7 +20,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 - **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
 - **High Performance**: Optimized for speed and low memory usage
-- **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers using only Web Standard APIs
+- **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers, with WebAssembly recommended for browser performance paths and pure JavaScript kept as the compatibility fallback
 - **Namespace Support**: Basic XML namespace handling
 - **Entity Support**: Built-in entity decoding with custom entity support
 - **TypeScript Ready**: Full TypeScript support with comprehensive type definitions
@@ -175,13 +175,28 @@ For detailed API documentation:
 
 ### 🌐 Platform Compatibility
 
-StAX-XML uses only Web Standard APIs, making it compatible with:
+StAX-XML keeps a Web Standard API baseline, making it compatible with:
 
 - **Node.js** (v18+)
 - **Bun** (any version)
 - **Deno** (any version)
 - **Web Browsers** (modern browsers)
 - **Edge Runtime** (Vercel, Cloudflare Workers, etc.)
+
+For performance-sensitive browser workloads, prefer the WebAssembly runtime when it is available. The pure JavaScript parser remains the compatibility fallback for environments that cannot load Wasm, cannot enable cross-origin isolation, or need a no-binary policy.
+
+#### Native and Wasm Resolution
+
+`stax-xml` remains the public facade package. Platform artifacts are published as exact-version optional dependencies under `@stax-xml/*`, and runtime-specific probing is available through the `stax-xml/runtime` subpath:
+
+```typescript
+import { resolveStaxXmlRuntimeBackend } from 'stax-xml/runtime';
+
+const backend = await resolveStaxXmlRuntimeBackend();
+// backend.kind is "native", "wasm", or "js"
+```
+
+Resolution order is native for the current Node-API platform, then `@stax-xml/native-wasm32-wasi`, then the JavaScript implementation in `stax-xml`. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
 
 ### 🧪 Testing
 
@@ -266,7 +281,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 - **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
 - **고성능**: 속도와 낮은 메모리 사용량에 최적화
-- **범용 호환성**: 웹 표준 API만 사용하여 Node.js, Bun, Deno, 웹 브라우저에서 모두 동작
+- **범용 호환성**: Node.js, Bun, Deno, 웹 브라우저에서 동작하며, 브라우저 고성능 경로는 WebAssembly를 권장하고 순수 JavaScript 파서는 호환 fallback으로 유지
 - **네임스페이스 지원**: 기본 XML 네임스페이스 처리
 - **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
 - **TypeScript 지원**: 포괄적인 타입 정의로 완전한 TypeScript 지원
@@ -423,13 +438,15 @@ for (const event of parser) {
 
 ### 🌐 플랫폼 호환성
 
-StAX-XML은 웹 표준 API만을 사용하여 다음 환경에서 동작합니다:
+StAX-XML은 웹 표준 API 기반의 기본 호환성을 유지하여 다음 환경에서 동작합니다:
 
 - **Node.js** (v18+)
 - **Bun** (모든 버전)
 - **Deno** (모든 버전)
 - **웹 브라우저** (최신 브라우저)
 - **Edge Runtime** (Vercel, Cloudflare Workers 등)
+
+브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 우선 권장합니다. 순수 JavaScript 파서는 Wasm을 로드할 수 없거나, 교차 출처 격리를 사용할 수 없거나, 바이너리 없는 정책이 필요한 환경을 위한 호환 fallback으로 유지합니다.
 
 ### 📁 테스트 파일 출처
 

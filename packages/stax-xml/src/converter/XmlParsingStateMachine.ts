@@ -17,6 +17,7 @@ import {
 } from './types.js';
 import { createXPathMatcherTemplate, XPathMatcher } from './XPathEngine.js';
 import type { ActivationMatchProfile, CollectorKind, ObjectFieldTemplate } from './compiled-plan.js';
+import type { XmlArraySchema } from './XmlArraySchema.js';
 import type { XmlObjectSchema, XmlObjectShape } from './XmlObjectSchema.js';
 
 
@@ -232,9 +233,7 @@ export class XmlParsingStateMachine {
         const matches = this.matchesInContext(event, activation);
 
         // O(n) optimization: Arrays activate only once, then create items for subsequent matches
-        const shouldActivate = activation.isArraySchema
-          ? (activation.depth === -1 && matches)  // Activate once like others
-          : (activation.depth === -1 && matches);  // Others activate once
+        const shouldActivate = activation.depth === -1 && matches;
 
         if (shouldActivate) {
           activation.depth = this.currentDepth;
@@ -384,12 +383,8 @@ export class XmlParsingStateMachine {
    * @internal
    */
   private createArrayItemSync(activation: SchemaActivation, event: StartElementEvent): void {
-    /* v8 ignore next -- activation collector kind is validated at registration */
-    if (activation.collector.type !== 'array') return;
-    const arrayCollector = activation.collector;
-    const unwrappedArraySchema = activation.unwrappedSchema;
-    /* v8 ignore next -- activation schema kind is validated at registration */
-    if (!isArraySchema(unwrappedArraySchema)) return;
+    const arrayCollector = activation.collector as ArrayCollector<unknown>;
+    const unwrappedArraySchema = activation.unwrappedSchema as XmlArraySchema<XmlSchemaBase<unknown, unknown>>;
 
     const elementSchema = unwrappedArraySchema.element;
     const unwrappedElement = this.unwrapSchema(elementSchema);
@@ -445,10 +440,7 @@ export class XmlParsingStateMachine {
         else if (xpath === './text()' || xpath === 'text()') {
           // Activate the schema on current event to collect text
           activation.depth = this.currentDepth;
-          /* v8 ignore next -- child collector kinds are derived from registered schema kind */
-          if (childCollector.type === 'string' || childCollector.type === 'number') {
-            childCollector.buffer = '';
-          }
+          (childCollector as StringCollector | NumberCollector).buffer = '';
         }
       }
 
@@ -543,22 +535,16 @@ export class XmlParsingStateMachine {
     // Text nodes need to collect text content from the matched element
     if (activation.isTextNodeSelector) {
       // Initialize buffer for text collection
-      if (activation.collector.type === 'string' || activation.collector.type === 'number') {
-        activation.collector.buffer = '';
-      }
+      (activation.collector as StringCollector | NumberCollector).buffer = '';
       // Will collect text in onSchemaCollectText and finalize in deactivation
       return;
     }
 
     if (isStringSchema(unwrappedSchema) || isNumberSchema(unwrappedSchema)) {
-      if (activation.collector.type === 'string' || activation.collector.type === 'number') {
-        activation.collector.buffer = '';
-      }
+      (activation.collector as StringCollector | NumberCollector).buffer = '';
     } else if (isObjectSchema(unwrappedSchema)) {
       // Object matched - dynamically register field schemas
-      /* v8 ignore next -- activation collector kind is validated at registration */
-      if (activation.collector.type !== 'object') return;
-      const objectCollector = activation.collector;
+      const objectCollector = activation.collector as ObjectCollector;
 
       // Create context for this object's fields
       const objectContext: MatchContext = {
@@ -604,16 +590,12 @@ export class XmlParsingStateMachine {
     // Handle text() node selectors
     if (activation.isTextNodeSelector) {
       if (isStringSchema(unwrappedSchema)) {
-        /* v8 ignore next -- activation collector kind is validated at registration */
-        if (activation.collector.type !== 'string') return;
-        const stringCollector = activation.collector;
+        const stringCollector = activation.collector as StringCollector;
         stringCollector.value = stringCollector.buffer.trim();
         activation.depth = -2;
         return;
       } else if (isNumberSchema(unwrappedSchema)) {
-        /* v8 ignore next -- activation collector kind is validated at registration */
-        if (activation.collector.type !== 'number') return;
-        const numberCollector = activation.collector;
+        const numberCollector = activation.collector as NumberCollector;
         const text = numberCollector.buffer.trim();
         if (unwrappedSchema._parseText) {
           numberCollector.value = unwrappedSchema._parseText(text);
@@ -624,18 +606,14 @@ export class XmlParsingStateMachine {
     }
 
     if (isStringSchema(unwrappedSchema)) {
-      /* v8 ignore next -- activation collector kind is validated at registration */
-      if (activation.collector.type !== 'string') return;
-      const stringCollector = activation.collector;
+      const stringCollector = activation.collector as StringCollector;
       stringCollector.value = stringCollector.buffer.trim();
       // Mark as satisfied - non-array schemas should not reactivate
       // Use depth = -2 as a sentinel for "permanently deactivated"
       activation.depth = -2;
       return;
     } else if (isNumberSchema(unwrappedSchema)) {
-      /* v8 ignore next -- activation collector kind is validated at registration */
-      if (activation.collector.type !== 'number') return;
-      const numberCollector = activation.collector;
+      const numberCollector = activation.collector as NumberCollector;
       const text = numberCollector.buffer.trim();
       // Call schema's _parseText to apply validation (min/max/int checks)
       if (unwrappedSchema._parseText) {
@@ -646,54 +624,51 @@ export class XmlParsingStateMachine {
       return;
     } else if (isArraySchema(unwrappedSchema)) {
       // Array element finished - add to items
-      /* v8 ignore next -- activation collector kind is validated at registration */
-      if (activation.collector.type !== 'array') return;
-      const arrayCollector = activation.collector;
-      if (arrayCollector.currentItem) {
-        const elementSchema = unwrappedSchema.element;
-        const unwrappedElement = this.unwrapSchema(elementSchema);
+      const arrayCollector = activation.collector as ArrayCollector<unknown>;
+      const currentItem = arrayCollector.currentItem!;
+      const elementSchema = unwrappedSchema.element;
+      const unwrappedElement = this.unwrapSchema(elementSchema);
 
-        if (isObjectSchema(unwrappedElement) &&
-          typeof arrayCollector.currentItem === 'object' &&
-          'fields' in arrayCollector.currentItem) {
-          // Complex element: object
-          const itemObject = this.extractObjectFromCollector(
-            arrayCollector.currentItem,
-            elementSchema
-          );
-          arrayCollector.items.push(itemObject);
-        } else if (isArraySchema(unwrappedElement) &&
-          typeof arrayCollector.currentItem === 'object' &&
-          'items' in arrayCollector.currentItem) {
-          // Complex element: nested array
-          arrayCollector.items.push(arrayCollector.currentItem.items);
-        } else if ('buffer' in arrayCollector.currentItem) {
-          // Simple element: string or number
-          const text = arrayCollector.currentItem.buffer.trim();
+      if (isObjectSchema(unwrappedElement) &&
+        typeof currentItem === 'object' &&
+        'fields' in currentItem) {
+        // Complex element: object
+        const itemObject = this.extractObjectFromCollector(
+          currentItem,
+          elementSchema
+        );
+        arrayCollector.items.push(itemObject);
+      } else if (isArraySchema(unwrappedElement) &&
+        typeof currentItem === 'object' &&
+        'items' in currentItem) {
+        // Complex element: nested array
+        arrayCollector.items.push(currentItem.items);
+      } else if ('buffer' in currentItem) {
+        // Simple element: string or number
+        const text = currentItem.buffer.trim();
 
-          // Apply type conversion based on element schema
-          let value: unknown = text;
-          if (isNumberSchema(unwrappedElement) && unwrappedElement._parseText) {
-            value = unwrappedElement._parseText(text);
-          }
-
-          // Apply transforms from the element schema
-          const transforms = this.getAllTransforms(elementSchema);
-          for (const transformFn of transforms) {
-            value = transformFn(value);
-          }
-
-          arrayCollector.items.push(value);
+        // Apply type conversion based on element schema
+        let value: unknown = text;
+        if (isNumberSchema(unwrappedElement) && unwrappedElement._parseText) {
+          value = unwrappedElement._parseText(text);
         }
 
-        // Clean up temporary child schemas for this array item
-        // Only remove schemas that were registered with this specific collector
-        this.activeSchemas = this.activeSchemas.filter(a =>
-          !(a.isTemporary && a.parentCollector === arrayCollector.currentItem)
-        );
+        // Apply transforms from the element schema
+        const transforms = this.getAllTransforms(elementSchema);
+        for (const transformFn of transforms) {
+          value = transformFn(value);
+        }
 
-        arrayCollector.currentItem = undefined;
+        arrayCollector.items.push(value);
       }
+
+      // Clean up temporary child schemas for this array item
+      // Only remove schemas that were registered with this specific collector
+      this.activeSchemas = this.activeSchemas.filter(a =>
+        !(a.isTemporary && a.parentCollector === currentItem)
+      );
+
+      arrayCollector.currentItem = undefined;
     } else if (isObjectSchema(unwrappedSchema)) {
       // Mark object as satisfied - non-array schemas should not reactivate
       activation.depth = -2;
@@ -847,9 +822,7 @@ export class XmlParsingStateMachine {
     schema: XmlSchemaBase<unknown, unknown>
   ): Record<string, unknown> {
     let result: Record<string, unknown> = {};
-    const unwrappedSchema = this.unwrapSchema(schema);
-    /* v8 ignore next -- object collector extraction is only called for object schemas */
-    if (!isObjectSchema(unwrappedSchema)) return result;
+    const unwrappedSchema = this.unwrapSchema(schema) as XmlObjectSchema<XmlObjectShape>;
 
     const shape = unwrappedSchema.shape;
 
@@ -881,9 +854,7 @@ export class XmlParsingStateMachine {
 
     while (isTransformSchema(current) || isOptionalSchema(current)) {
       if (isTransformSchema(current)) {
-        if (current.transformFn) {
-          transforms.unshift(current.transformFn); // Prepend for correct order
-        }
+        transforms.unshift(current.transformFn); // Prepend for correct order
         current = current.schema;
       } else if (isOptionalSchema(current)) {
         current = current.schema;
@@ -957,9 +928,7 @@ export class XmlParsingStateMachine {
       if (isOptionalSchema(current)) {
         return true;
       }
-      if (isTransformSchema(current)) {
-        current = current.schema;
-      }
+      current = current.schema;
     }
     return false;
   }

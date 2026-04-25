@@ -319,6 +319,17 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
       return end + 3;
     }
 
+    if (window.startsWith('<!DOCTYPE', position)) {
+      const end = window.indexOf('>', position + 9);
+      if (end === -1) {
+        if (isFinal) {
+          throw new Error('Unclosed DOCTYPE declaration');
+        }
+        return null;
+      }
+      return end + 1;
+    }
+
     if (window.startsWith('<?', position)) {
       const end = window.indexOf('?>', position + 2);
       if (end === -1) {

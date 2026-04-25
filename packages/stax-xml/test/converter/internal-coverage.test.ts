@@ -66,6 +66,70 @@ class UnknownSchema extends XmlSchemaBase<string, string> {
   async _write(): Promise<void> {}
 }
 
+class NoOptionsStringSchema extends XmlSchemaBase<string, string> {
+  readonly schemaType = SchemaType.STRING;
+
+  _parse(): string {
+    return 'no-options';
+  }
+
+  async _parseAsync(): Promise<string> {
+    return 'no-options';
+  }
+
+  _writeSync(data: string): string {
+    return data;
+  }
+
+  async _write(): Promise<void> {}
+}
+
+class NumericXPathSchema extends XmlSchemaBase<string, string> {
+  readonly schemaType = SchemaType.STRING;
+  readonly options = { xpath: 123 };
+
+  _parse(): string {
+    return 'numeric-xpath';
+  }
+
+  async _parseAsync(): Promise<string> {
+    return 'numeric-xpath';
+  }
+
+  _writeSync(data: string): string {
+    return data;
+  }
+
+  async _write(): Promise<void> {}
+}
+
+class ThrowingObjectSchema extends XmlSchemaBase<Record<string, unknown>, Record<string, unknown>> {
+  readonly schemaType = SchemaType.OBJECT;
+  private shapeReads = 0;
+
+  get shape(): Record<string, XmlSchemaBase<unknown, unknown>> {
+    this.shapeReads++;
+    if (this.shapeReads > 1) {
+      throw new Error('shape exploded');
+    }
+    return {};
+  }
+
+  _parse(): Record<string, unknown> {
+    return {};
+  }
+
+  async _parseAsync(): Promise<Record<string, unknown>> {
+    return {};
+  }
+
+  _writeSync(): string {
+    return '';
+  }
+
+  async _write(): Promise<void> {}
+}
+
 class DoneAfterBufferedBatchIterator extends AsyncEventBatchIterator {
   private ensured = false;
   private returnedDone = false;
@@ -216,9 +280,11 @@ describe('Converter internal coverage guard rails', () => {
       const xml = chunks.map(chunk => new TextDecoder().decode(chunk, { stream: true })).join('');
       expect(xml).toContain('<value>streamed</value>');
       expect((noTextCompiled as any)._parseText('fallback')).toBe('fallback');
+      expect(noTextCompiled.parseSync('<root><value>raw</value></root>')).toBe('raw');
+      await expect(noTextCompiled.parse('<root><value>raw-async</value></root>')).resolves.toBe('raw-async');
     });
 
-    it('builds default, object, and element-xpath array compiled plans', () => {
+    it('builds default, object, and element-xpath array compiled plans', async () => {
       const emptyObjectCompiled = x.object({
         empty: x.object({})
       }).compile();
@@ -243,6 +309,12 @@ describe('Converter internal coverage guard rails', () => {
       expect(arrayCompiled.parseSync('<doc><item>A</item><item>B</item></doc>')).toEqual({
         values: ['A', 'B']
       });
+
+      const bareElementArray = x.array(x.string().xpath('/doc/item')).compile();
+      expect(bareElementArray.parseSync('<doc><item>A</item><item>B</item></doc>')).toEqual(['A', 'B']);
+
+      const reused = x.string().xpath('/doc/title');
+      expect(x.object({ first: reused, second: reused }).compile().compiledPlan.kind).toBe('dispatch');
 
       const relativeCompiled = x.object({
         item: x.object({
@@ -275,6 +347,7 @@ describe('Converter internal coverage guard rails', () => {
       const wildcardCompiled = x.string().xpath('/root/*').compile();
       expect(wildcardCompiled.compiledPlan.kind).toBe('runtime');
       expect(wildcardCompiled.parseSync('<root><value>wild</value></root>')).toBe('wild');
+      await expect(wildcardCompiled.parse('<root><value>wild-async</value></root>')).resolves.toBe('wild-async');
 
       const predicateCompiled = x.string().xpath("//item[@id='2']").compile();
       expect(predicateCompiled.compiledPlan.kind).toBe('runtime');
@@ -283,13 +356,34 @@ describe('Converter internal coverage guard rails', () => {
 
     it('rejects unsupported compile shapes', () => {
       expect(() => x.string().compile()).toThrow('compile() requires an xpath');
+      expect(() => new CompiledXmlSchema(new NoOptionsStringSchema())).toThrow('compile() requires an xpath');
+      expect(() => new CompiledXmlSchema(new NumericXPathSchema())).toThrow('compile() requires an xpath');
+      expect(() => new CompiledXmlSchema(new ThrowingObjectSchema())).toThrow('shape exploded');
+
+      const runtimeFallbacks = [
+        x.object({ value: x.string() }),
+        x.object({ value: x.object({}).xpath('/root/@id') }),
+        x.object({ values: x.array(x.string().xpath('./value'), '/root/item') }),
+        x.object({ values: x.array(x.array(x.string(), './value'), '/root/item') }),
+        x.object({ values: x.array(x.array(x.string()), '/root/item') }),
+        x.object({ values: x.array(x.object({ id: x.string().xpath('./@id') }), '/root/item/@id') }),
+        x.object({ values: x.array(x.string()) }),
+        x.object({ value: x.string().xpath('value') }),
+        x.object({ value: x.string().xpath('.') }),
+        x.string().xpath('/@id')
+      ];
+
+      for (const schema of runtimeFallbacks) {
+        expect(schema.compile().compiledPlan.kind).toBe('runtime');
+      }
+
       const compiledChild = x.string().xpath('/root/value').compile();
       expect(() => x.object({ child: compiledChild }).compile()).toThrow('compile() must be called only on the root schema');
     });
   });
 
-  describe('compiled root processor defensive branches', () => {
-    it('covers supports, dispatch execution, and runtime-plan rejection', () => {
+  describe('compiled root processor branches', () => {
+    it('covers supports and dispatch execution', () => {
       const compiled = x.object({
         value: x.string().xpath('/root/value')
       }).compile();
@@ -300,8 +394,6 @@ describe('Converter internal coverage guard rails', () => {
       expect(CompiledRootProcessor.supports(runtimeCompiled.compiledPlan)).toBe(false);
       expect(compiled.compiledPlan.kind).toBe('dispatch');
       expect(processor.parseSync('<root><value>ok</value></root>')).toEqual({ value: 'ok' });
-      expect(() => new CompiledRootProcessor(runtimeCompiled.compiledPlan).parseSync('<root><value>ok</value></root>'))
-        .toThrow('requires a dispatch plan');
     });
   });
 

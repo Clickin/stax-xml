@@ -20,7 +20,7 @@ head:
       content: https://clickin.github.io/stax-xml/og/guide/getting-started.png
 ---
 
-StAX-XML is a high-performance, pull-based XML parser for JavaScript/TypeScript that works across all JavaScript runtimes.
+StAX-XML is a high-performance, pull-based XML parser for JavaScript/TypeScript that works across JavaScript runtimes. For browser workloads where throughput matters, use the WebAssembly runtime when it is available and keep the pure JavaScript parser as the compatibility fallback.
 
 ## Installation
 
@@ -47,13 +47,15 @@ deno add npm:stax-xml
 
 ## Platform Compatibility
 
-StAX-XML uses only Web Standard APIs, making it compatible with:
+StAX-XML keeps a Web Standard API baseline, making it compatible with:
 
 - **Node.js** (v18+)
 - **Bun** (any version)
 - **Deno** (any version)
 - **Web Browsers** (modern browsers)
 - **Edge Runtime** (Vercel, Cloudflare Workers, etc.)
+
+For browser parsing, the recommended performance path is WebAssembly running in a Worker. It requires a browser that can load Wasm; threaded Wasm paths also require cross-origin isolation. Use the pure JavaScript parser when those requirements cannot be met or when a deployment policy forbids binary artifacts.
 
 ## Core Concepts
 

@@ -122,6 +122,7 @@ describe('core branch coverage guards', () => {
         ['<?xml version="1.0"', 'Unclosed XML declaration'],
         ['<root><!-- comment', 'Unclosed comment'],
         ['<root><![CDATA[text', 'Unclosed CDATA section'],
+        ['<!DOCTYPE root', 'Unclosed DOCTYPE declaration'],
         ['<root><?pi data', 'Unclosed processing instruction'],
         ['<root></root', 'Unclosed end tag'],
         ['</root>', 'No open elements'],
