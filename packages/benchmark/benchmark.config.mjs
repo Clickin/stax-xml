@@ -144,15 +144,15 @@ export function mergeConfig(custom, base = defaultConfig) {
         testPatterns: custom.testPatterns || base.testPatterns,
         profiling: {
             ...base.profiling,
-            ...(custom.profiling || {})
+            ...custom.profiling
         },
         output: {
             ...base.output,
-            ...(custom.output || {})
+            ...custom.output
         },
         thresholds: {
             ...base.thresholds,
-            ...(custom.thresholds || {})
+            ...custom.thresholds
         }
     };
 }

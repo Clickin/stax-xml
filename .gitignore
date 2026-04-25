@@ -22,6 +22,7 @@ packages/*/coverage
 packages/*/node_modules
 packages/benchmark/*.log
 packages/benchmark/native/
+packages/benchmark/external/*/target/
 coverage/
 directions
 

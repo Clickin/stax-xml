@@ -21,6 +21,7 @@ head:
 ---
 
 import BenchmarkSection from '../../../../components/BenchmarkSection.astro';
+import RuntimeBenchmarkSection from '../../../../components/RuntimeBenchmarkSection.astro';
 
 StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계되었습니다. 이 페이지는 StAX-XML과 다른 인기 있는 XML 파싱 라이브러리들을 비교한 벤치마크 결과를 제시합니다.
 
@@ -59,8 +60,8 @@ large.xml (98MB) 성능 결과:
 **성능 교차점 분석:**
 - **소형 파일 (2-4KB)**: txml이 여전히 순수 파싱 처리량에서 앞섭니다
 - **중형 파일 (13MB)**: xml2js는 이 fixture에서만 보이는 이상치에 가깝고, `stax-xml consume`와 `stax-xml to object`는 비슷한 처리량 대역에 머뭅니다
-- **대형 파일 (98MB)**: StAX-XML이 속도와 메모리 효율성의 최고 균형을 제공합니다
-- **초대형 파일 (1GB+)**: string max length를 넘는 파일은 StAX-XML의 비동기 파서만 실행 가능합니다
+- **대형 파일 (98MB)**: parser와 fixture에 따라 처리량과 메모리 trade-off가 달라지므로 생성된 표를 직접 기준으로 봅니다
+- **초대형 파일 (1GB+)**: async stream과 synchronous iterable byte-batch 파싱은 전체 XML string 보관을 피할 수 있습니다. public sync string parser는 in-memory 경로입니다
 
 ### stax-xml sync vs async (1MB ~ 1GB)
 
@@ -69,10 +70,37 @@ sync vs async 성능 비교:
 <BenchmarkSection locale="ko" section="async-size" />
 
 **주요 인사이트:**
-- 작은 파일에서는 sync parser가 더 빠릅니다.
-- 파일이 커질수록 async parser가 메모리 사용량을 더 안정적으로 유지합니다.
-- 100MB 이상에서는 async parser가 현실적인 저메모리 경로입니다.
+- sync parsing은 직접적인 in-memory 경로이고, async parsing은 일정 수준의 scheduling overhead를 감수하는 대신 메모리 사용량을 더 안정적으로 유지합니다.
+- 상대적인 시간은 fixture와 runtime에 따라 움직일 수 있으므로 생성된 표를 기준으로 봅니다.
+- 100MB 이상에서 전체 XML string을 보관하기 어렵다면 public full-string sync 경로는 피하고, non-blocking 작업은 async stream을, blocking batch 작업은 synchronous iterable byte-batch backend를 사용합니다.
 
+## 런타임 매트릭스
+
+release artifact는 단일 root를 가진 16 MiB 생성 XML fixture로 동일한 JavaScript 구현을 Node, Bun, Deno에서 측정합니다.
+이 매트릭스는 호환성과 런타임별 코드 생성 차이를 확인하기 위한 것이며 native addon은 포함하지 않습니다.
+`iterable-*` 행은 async parser가 아니라 synchronous byte-batch parser 경로입니다.
+
+<RuntimeBenchmarkSection locale="ko" section="runtime-matrix" />
+
+## 타 런타임 비교
+
+아래 표는 동일한 event count와 checksum 계약에서 `stax-xml` on Node, Woodstox, `quick-xml`을 비교합니다.
+Woodstox는 Java 8이 minimum runtime이므로 공개 기준은 Java 8입니다. Java 25는 JVM 버전 차이가 결론을 바꾸는지 확인하기 위해 별도로 측정합니다.
+
+<RuntimeBenchmarkSection locale="ko" section="cross-runtime" />
+
+### Woodstox Java 25 확인
+
+<RuntimeBenchmarkSection locale="ko" section="java25" />
+
+### 왜 native addon이 acceleration 경로인가
+
+pure JavaScript 경로는 계속 compatibility fallback으로 유지하지만, 더 이상 release 성능 상한으로 보지는 않습니다.
+이번 release 전까지의 parser 작업에서는 V8에 맞춘 JavaScript loop shape가 iterable backend를 개선할 수는 있었지만, full-string workload에서는 특히 `quick-xml` 같은 native parser baseline을 충분히 따라잡지 못했습니다.
+남은 주요 비용은 delimiter scanning, string materialization, attribute/text 주변의 안정적인 object/API shape입니다.
+
+Rust native addon은 native tokenizer와 SIMD-oriented scanning 전략을 사용할 수 있는 경로입니다. 방향성은 `quick-xml`이나 simdjson류 native/vectorized parser와 더 가깝습니다.
+따라서 package topology는 `stax-xml` facade를 유지하면서 optional native/Wasm acceleration package를 추가하고, binary를 로드할 수 없거나 원하지 않는 환경은 JavaScript fallback을 사용합니다.
 
 ## Converter API vs Plain Parser
 

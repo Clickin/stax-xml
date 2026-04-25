@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build:native": "node ./build.mjs",
+    "coverage:native": "node ./scripts/native-branch-coverage.mjs",
     "smoke": "node ./smoke.mjs"
   },
   "dependencies": {

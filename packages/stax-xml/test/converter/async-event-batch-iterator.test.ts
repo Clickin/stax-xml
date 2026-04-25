@@ -108,5 +108,6 @@ describe('AsyncEventBatchIterator', () => {
     expect(isAsyncEventIterator(asyncIterable)).toBe(true);
     expect(isAsyncEventIterator(new AsyncNamedSource())).toBe(true);
     expect(isAsyncEventIterator(syncIterator)).toBe(false);
+    expect(isAsyncEventIterator(Object.create(null))).toBe(false);
   });
 });

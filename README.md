@@ -116,20 +116,71 @@ while (cursor.next()) {
 }
 ```
 
-For large files via `ReadableStream`:
+For large files, choose the boundary that matches the workload:
+
+- Use `StaxXmlParser` when file/network I/O should stay async. The public API is end-to-end async, while the parser backend consumes byte batches synchronously after chunks arrive.
+- Use the iterable parser when a batch job can block the current worker/thread and you want to avoid creating one full XML string.
+
+End-to-end async file parsing:
 
 ```typescript
-import { StaxXmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
 
-const response = await fetch('https://example.com/large.xml');
-const cursor = new StaxXmlCursorReaderAsync(response.body!);
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+let elementCount = 0;
 
-while (await cursor.next()) {
-  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
-    console.log(cursor.name());
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    elementCount++;
+    console.log(event.name);
   }
 }
+
+console.log(`Total elements processed: ${elementCount}`);
 ```
+
+Async file read, then synchronous iterable batch parsing:
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+let elementCount = 0;
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      elementCount++;
+      console.log(parser.copyName(index));
+    }
+  }
+}
+
+console.log(`Total elements processed: ${elementCount}`);
+```
+
+For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` also exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` so the file can be read and parsed synchronously in fixed-size byte chunks.
 
 #### Event-based Parsing (Low-level API)
 
@@ -206,47 +257,37 @@ bun test
 
 #### Benchmark Results
 
-**Disclaimer:** These parser benchmarks were rerun on a specific system (`cpu: 13th Gen Intel(R) Core(TM) i5-13600K`, `runtime: node 24.12.0 (x64-win32)`) and may vary on different hardware and environments.
+**Disclaimer:** These benchmarks were rerun on a specific system (`cpu: 13th Gen Intel(R) Core(TM) i5-13600K`, `runtime: node 24.15.0 (x64-win32)`) and may vary on different hardware and environments. The full generated report is in [BENCHMARK.md](./BENCHMARK.md), with JSON fixtures under `packages/benchmark/results/release/`.
 
-**large.xml (97MB) parsing**
+**Node ecosystem parser benchmark**
 
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 676.93 ms/iter  | 689.57 ms       | 7.38 mb      |
-| stax-xml consume    | 660.41 ms/iter  | 682.57 ms       | 35.12 mb     |
-| xml2js              | 9.30 s/iter     | 11.09 s         | 656.68 mb    |
-| fast-xml-parser     | 7.85 s/iter     | 9.70 s          | 1.08 gb      |
-| txml                | 1.93 s/iter     | 1.97 s          | 890.28 mb    |
+| Fixture | stax-xml consume | stax-xml to object | txml | fast-xml-parser | xml2js |
+| :-- | --: | --: | --: | --: | --: |
+| midsize.xml (13MB) | 208.24 ms | 223.37 ms | 118.36 ms | 720.42 ms | 593.45 µs* |
+| large.xml (98MB) | 1.93 s | 1.82 s | 1.15 s | 6.22 s | 6.71 s |
 
-**midsize.xml (13MB) parsing**
+*`xml2js` remains an outlier on `midsize.xml`; the full report keeps that result visible instead of hiding it.
 
-| Benchmark                   | avg (min … max) | p75 / p99       | Memory (avg) |
-| :-------------------------- | :-------------- | :-------------- | :----------- |
-| stax-xml to object          | 95.21 ms/iter   | 96.31 ms        | 35.41 mb     |
-| stax-xml consume            | 89.07 ms/iter   | 90.81 ms        | 4.93 mb      |
-| xml2js                      | 663.47 µs/iter  | 713.90 µs       | 323.69 kb    |
-| fast-xml-parser             | 642.49 ms/iter  | 651.85 ms       | 128.11 mb    |
-| txml                        | 128.58 ms/iter  | 128.63 ms       | 126.90 mb    |
+**JavaScript runtime matrix** (`runtime-matrix.json`, generated 16 MiB fixture)
 
-**complex.xml (2KB) parsing**
+| Runtime | public sync full-string | iterable count-only | iterable full-string |
+| :-- | --: | --: | --: |
+| Node 24.15.0 | 52.2 MiB/s | 197.1 MiB/s | 112.6 MiB/s |
+| Bun 1.3.13 | 78.7 MiB/s | 265.8 MiB/s | 158.9 MiB/s |
+| Deno 2.7.13 | 56.5 MiB/s | 204.0 MiB/s | 123.0 MiB/s |
 
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 260.88 µs/iter  | 300.20 µs       | 28.51 kb     |
-| stax-xml consume    | 269.33 µs/iter  | 303.20 µs       | 24.28 kb     |
-| xml2js              | 1.00 ms/iter    | 1.23 ms         | 203.56 kb    |
-| fast-xml-parser     | 555.92 µs/iter  | 681.60 µs       | 129.73 kb    |
-| txml                | 121.03 µs/iter  | 131.50 µs       | 26.41 kb     |
+The `iterable-*` rows are synchronous byte-batch parser paths. Use async streams for non-blocking work; use the iterable byte-batch backend for blocking batch jobs that should not retain one full XML string.
 
-**books.xml (4KB) parsing**
+**Cross-runtime parser comparator** (`cross-runtime-comparison.json`, generated 16 MiB fixture)
 
-| Benchmark           | avg (min … max) | p75 / p99       | Memory (avg) |
-| :------------------ | :-------------- | :-------------- | :----------- |
-| stax-xml to object  | 342.66 µs/iter  | 392.70 µs       | 52.95 kb     |
-| stax-xml consume    | 295.36 µs/iter  | 347.80 µs       | 45.30 kb     |
-| xml2js              | 1.28 ms/iter    | 1.63 ms         | 544.96 kb    |
-| fast-xml-parser     | 727.33 µs/iter  | 898.40 µs       | 560.08 kb    |
-| txml                | 126.53 µs/iter  | 138.10 µs       | 46.32 kb     |
+| Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml |
+| :-- | --: | --: | --: |
+| count-only | 182.7 MiB/s | 309.4 MiB/s | 303.4 MiB/s |
+| full-string | 93.1 MiB/s | 246.0 MiB/s | 214.8 MiB/s |
+
+Woodstox was also checked on Java 25; Java 8 remains the public baseline because it is Woodstox's minimum supported runtime target.
+
+These results are why native addons are now the acceleration path. The pure JavaScript parser stays as the compatibility fallback, but V8-oriented loop-shape work did not close the full-string gap against native parsers. The Rust native path lets the hot tokenizer and string/span aggregation move toward native and SIMD-oriented scanning, closer in direction to `quick-xml` and simdjson-style designs.
 
 ### 📁 Sample File Sources
 
@@ -379,20 +420,71 @@ while (cursor.next()) {
 }
 ```
 
-대용량 파일을 `ReadableStream`으로 처리:
+대용량 파일은 workload 경계에 맞춰 선택하세요:
+
+- 파일/네트워크 I/O까지 비동기로 유지해야 하면 `StaxXmlParser`를 사용합니다. 공개 API는 end-to-end async이고, 내부 parser backend는 도착한 byte batch를 동기적으로 소비합니다.
+- 현재 worker/thread를 막아도 되는 batch job에서는 iterable parser를 사용하면 전체 XML 문자열을 만들지 않고 byte chunk 단위로 파싱할 수 있습니다.
+
+End-to-end 비동기 파일 파싱:
 
 ```typescript
-import { StaxXmlCursorReaderAsync, CursorEventType } from 'stax-xml/cursor';
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
 
-const response = await fetch('https://example.com/large.xml');
-const cursor = new StaxXmlCursorReaderAsync(response.body!);
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+let elementCount = 0;
 
-while (await cursor.next()) {
-  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
-    console.log(cursor.name());
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    elementCount++;
+    console.log(event.name);
   }
 }
+
+console.log(`처리한 전체 요소 수: ${elementCount}`);
 ```
+
+파일은 비동기로 chunk 단위로 읽고, chunk는 동기 iterable parser로 처리:
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+let elementCount = 0;
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      elementCount++;
+      console.log(parser.copyName(index));
+    }
+  }
+}
+
+console.log(`처리한 전체 요소 수: ${elementCount}`);
+```
+
+Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 파일 읽기와 파싱을 모두 고정 크기 byte chunk 단위의 동기 작업으로 처리할 수 있습니다.
 
 #### 이벤트 기반 파싱 (저수준 API)
 

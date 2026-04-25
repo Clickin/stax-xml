@@ -31,6 +31,10 @@
       "types": "./dist/iterable.d.ts",
       "import": "./dist/iterable.js"
     },
+    "./iterable/node": {
+      "types": "./dist/iterable/node.d.ts",
+      "import": "./dist/iterable/node.js"
+    },
     "./runtime": {
       "types": "./dist/runtime.d.ts",
       "import": "./dist/runtime.js"

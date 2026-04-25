@@ -1,9 +1,14 @@
 import type { ParserEventFilter } from '../types.js';
-import { XmlSchemaBase } from './base.js';
+import {
+  AUTO_PARSE_UNHANDLED,
+  XmlSchemaBase,
+  type AutoParseResult
+} from './base.js';
 import { CompiledRootProcessor } from './CompiledRootProcessor.js';
 import type {
   CompiledSchemaPlan,
   DispatchArrayPlan,
+  DispatchCompiledPlan,
   DispatchObjectPlan,
   DispatchScalarPlan,
   DispatchSelector,
@@ -104,6 +109,62 @@ export class CompiledXmlSchema<Output, Input = Output> extends XmlSchemaBase<Out
   get compiledPlan(): CompiledSchemaPlan {
     return this.plan;
   }
+}
+
+export function tryParseWithCompiledPlan<Output, Input>(
+  schema: XmlSchemaBase<Output, Input>,
+  input: string | Iterator<unknown>,
+  options?: ParseOptions
+): AutoParseResult<Output> {
+  if (typeof input !== 'string') {
+    return AUTO_PARSE_UNHANDLED;
+  }
+
+  const plan = tryBuildDispatchPlan(schema);
+  if (!plan) {
+    return AUTO_PARSE_UNHANDLED;
+  }
+
+  return new CompiledRootProcessor(plan, options).parseSync<Output>(input);
+}
+
+export async function tryParseAsyncWithCompiledPlan<Output, Input>(
+  schema: XmlSchemaBase<Output, Input>,
+  input: ParseInput,
+  options?: ParseOptions
+): Promise<AutoParseResult<Output>> {
+  const plan = tryBuildDispatchPlan(schema);
+  if (!plan) {
+    return AUTO_PARSE_UNHANDLED;
+  }
+
+  return new CompiledRootProcessor(plan, options).parse<Output>(input);
+}
+
+function tryBuildDispatchPlan(schema: XmlSchemaBase<unknown, unknown>): DispatchCompiledPlan | undefined {
+  try {
+    const plan = schema instanceof CompiledXmlSchema
+      ? schema.compiledPlan
+      : (isAutoDispatchEligible(schema) ? buildCompiledPlan(schema, unwrapSchema(schema)) : undefined);
+    return plan?.kind === 'dispatch' ? plan : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function isAutoDispatchEligible(schema: XmlSchemaBase<unknown, unknown>): boolean {
+  const root = unwrapSchema(schema);
+  if (root !== schema || !isObjectSchema(root) || extractXPath(root)) {
+    return false;
+  }
+
+  for (const fieldSchema of Object.values(root.shape)) {
+    if (!isArraySchema(unwrapSchema(fieldSchema))) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function buildCompiledPlan(

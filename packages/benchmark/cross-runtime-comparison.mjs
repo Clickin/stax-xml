@@ -1,0 +1,514 @@
+import { spawnSync } from 'node:child_process';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { cpus } from 'node:os';
+import { basename, delimiter, dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, '..', '..');
+const defaultFile = join(__dirname, 'test-data', 'runtime-comparison-16mib.xml');
+const defaultJsonOut = join(__dirname, 'results', 'release', 'cross-runtime-comparison.json');
+const defaultMdOut = join(__dirname, 'results', 'release', 'cross-runtime-comparison.md');
+const woodstoxDir = join(__dirname, 'external', 'woodstox');
+const quickXmlDir = join(__dirname, 'external', 'quick-xml-bench');
+const nodeStringReturnPath = join(__dirname, 'node-string-return.mjs');
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const options = {
+    file: defaultFile,
+    runs: 3,
+    warmups: 1,
+    tiers: ['count-only', 'name-string-only', 'text-string-only', 'attr-value-string-only', 'full-string'],
+    jsonOut: defaultJsonOut,
+    mdOut: defaultMdOut,
+    skipBuild: false,
+    skipJava25: false,
+    fileExplicit: false,
+  };
+
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+    if (!arg) continue;
+    if (arg === '--') continue;
+    if (arg === '--skip-build') {
+      options.skipBuild = true;
+      continue;
+    }
+    if (arg === '--skip-java25') {
+      options.skipJava25 = true;
+      continue;
+    }
+
+    const [name, inlineValue] = arg.includes('=') ? arg.split(/=(.*)/s, 2) : [arg, undefined];
+    const readValue = () => {
+      if (inlineValue !== undefined) return inlineValue;
+      const value = argv[index + 1];
+      if (value === undefined) {
+        throw new Error(`${arg} requires a value.`);
+      }
+      index++;
+      return value;
+    };
+
+    switch (name) {
+      case '--file':
+        options.file = resolve(process.cwd(), readValue());
+        options.fileExplicit = true;
+        break;
+      case '--runs':
+        options.runs = parsePositiveInteger(readValue(), '--runs');
+        break;
+      case '--warmups':
+        options.warmups = parseNonNegativeInteger(readValue(), '--warmups');
+        break;
+      case '--tiers':
+        options.tiers = readValue().split(',').map(value => value.trim()).filter(Boolean);
+        break;
+      case '--json-out':
+        options.jsonOut = resolve(process.cwd(), readValue());
+        break;
+      case '--md-out':
+        options.mdOut = resolve(process.cwd(), readValue());
+        break;
+      default:
+        throw new Error(`Unknown argument: ${arg}`);
+    }
+  }
+
+  if (!existsSync(options.file) && !options.fileExplicit) {
+    generateXmlFile(options.file, 16 * 1024 * 1024);
+  }
+  if (!existsSync(options.file)) {
+    throw new Error(`Benchmark fixture does not exist: ${options.file}`);
+  }
+  return options;
+}
+
+function generateXmlFile(filePath, targetBytes) {
+  mkdirSync(dirname(filePath), { recursive: true });
+  const fd = openSync(filePath, 'w');
+  const header = Buffer.from('<?xml version="1.0" encoding="UTF-8"?>\n<root>\n');
+  const footer = Buffer.from('</root>\n');
+  const pending = [];
+  let pendingBytes = 0;
+  let written = 0;
+  let id = 0;
+
+  try {
+    writeSync(fd, header);
+    written += header.byteLength;
+    while (written + pendingBytes + footer.byteLength < targetBytes) {
+      const element = Buffer.from(
+        `  <book id="book-${id}" lang="en" code="${id % 97}">` +
+          `<title>Runtime Benchmark ${id}</title>` +
+          `<author>Author ${id % 4096}</author>` +
+          `<description>Full string checksum text payload ${id} with stable words and numbers.</description>` +
+          `<chapter number="1">Intro ${id}</chapter>` +
+          `<chapter number="2">Body ${id}</chapter>` +
+        '</book>\n',
+      );
+      if (written + pendingBytes + element.byteLength + footer.byteLength > targetBytes) {
+        break;
+      }
+      pending.push(element);
+      pendingBytes += element.byteLength;
+      id++;
+      if (pendingBytes >= 1024 * 1024) {
+        writeSync(fd, Buffer.concat(pending, pendingBytes));
+        written += pendingBytes;
+        pending.length = 0;
+        pendingBytes = 0;
+      }
+    }
+    if (pendingBytes > 0) {
+      writeSync(fd, Buffer.concat(pending, pendingBytes));
+    }
+    writeSync(fd, footer);
+  } finally {
+    closeSync(fd);
+  }
+}
+
+function parsePositiveInteger(value, flag) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`${flag} must be a positive integer.`);
+  }
+  return parsed;
+}
+
+function parseNonNegativeInteger(value, flag) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(`${flag} must be a non-negative integer.`);
+  }
+  return parsed;
+}
+
+function run(command, args, options = {}) {
+  const useCmd = process.platform === 'win32' && command === 'mvn';
+  const resolvedCommand = useCmd ? 'cmd.exe' : command;
+  const resolvedArgs = useCmd
+    ? ['/d', '/s', '/c', ['mvn', ...args].map(quoteWindowsShellArg).join(' ')]
+    : args;
+  const result = spawnSync(resolvedCommand, resolvedArgs, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    ...options,
+  });
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(
+      `Command failed: ${resolvedCommand} ${resolvedArgs.join(' ')}\n${result.stderr.trim() || result.stdout.trim()}`,
+    );
+  }
+  return result;
+}
+
+function quoteWindowsShellArg(value) {
+  if (!/[ \t"&|<>^]/.test(value)) {
+    return value;
+  }
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function buildExternalTools(options) {
+  if (!options.skipBuild) {
+    run('mvn', [
+      '-q',
+      '-f',
+      join(woodstoxDir, 'pom.xml'),
+      '-DskipTests',
+      'package',
+      'dependency:build-classpath',
+      `-Dmdep.outputFile=${join(woodstoxDir, 'target', 'classpath.txt')}`,
+    ]);
+    run('cargo', [
+      'build',
+      '--manifest-path',
+      join(quickXmlDir, 'Cargo.toml'),
+      '--release',
+      '--locked',
+    ]);
+  }
+
+  const classpathFile = join(woodstoxDir, 'target', 'classpath.txt');
+  const depsClasspath = readFileSync(classpathFile, 'utf8').trim();
+  const woodstoxClasspath = [
+    join(woodstoxDir, 'target', 'classes'),
+    depsClasspath,
+  ].filter(Boolean).join(delimiter);
+
+  const quickXmlExe = join(
+    quickXmlDir,
+    'target',
+    'release',
+    process.platform === 'win32' ? 'quick-xml-bench.exe' : 'quick-xml-bench',
+  );
+
+  return {
+    java8: findJava8(),
+    java25: options.skipJava25 ? undefined : findJava25(),
+    woodstoxClasspath,
+    quickXmlExe,
+  };
+}
+
+function findJava8() {
+  if (process.env.STAX_XML_JAVA8) return process.env.STAX_XML_JAVA8;
+  if (process.env.STAX_XML_JAVA8_HOME) return join(process.env.STAX_XML_JAVA8_HOME, 'bin', javaExeName());
+  return 'java';
+}
+
+function findJava25() {
+  if (process.env.STAX_XML_JAVA25) return process.env.STAX_XML_JAVA25;
+  if (process.env.STAX_XML_JAVA25_HOME) return join(process.env.STAX_XML_JAVA25_HOME, 'bin', javaExeName());
+
+  const candidates = [
+    'C:\\sdkman\\candidates\\java\\25.0.1-tem\\bin\\java.exe',
+    'C:\\sdkman\\candidates\\java\\25-zulu\\bin\\java.exe',
+    '/usr/lib/jvm/java-25-openjdk/bin/java',
+  ];
+  return candidates.find(candidate => existsSync(candidate));
+}
+
+function javaExeName() {
+  return process.platform === 'win32' ? 'java.exe' : 'java';
+}
+
+function quoteCommandPart(value) {
+  if (!/[ "';&|<>]/.test(value)) {
+    return value;
+  }
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function woodstoxCommand(javaExe, classpath) {
+  return [
+    quoteCommandPart(javaExe),
+    '-cp',
+    quoteCommandPart(classpath),
+    'com.staxxml.bench.WoodstoxBench',
+  ].join(' ');
+}
+
+function quickXmlCommand(exe) {
+  return quoteCommandPart(exe);
+}
+
+function runNodeStringReturn(options, tools) {
+  const rawOut = join(dirname(options.jsonOut), 'raw', 'cross-runtime-node-string-return.json');
+  mkdirSync(dirname(rawOut), { recursive: true });
+  run(process.execPath, [
+    '--expose-gc',
+    nodeStringReturnPath,
+    '--file',
+    options.file,
+    '--runs',
+    String(options.runs),
+    '--warmups',
+    String(options.warmups),
+    '--tiers',
+    options.tiers.join(','),
+    '--woodstox-cmd',
+    woodstoxCommand(tools.java8, tools.woodstoxClasspath),
+    '--quick-xml-cmd',
+    quickXmlCommand(tools.quickXmlExe),
+    '--json-out',
+    rawOut,
+  ], { stdio: 'inherit' });
+
+  return {
+    rawOut,
+    report: JSON.parse(readFileSync(rawOut, 'utf8')),
+  };
+}
+
+function runExternalCommand(command, file, tier, runs, warmups) {
+  const result = spawnSync(command, [], {
+    shell: true,
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: {
+      ...process.env,
+      STAX_XML_BENCH_FILE: file,
+      STAX_XML_BENCH_TIER: tier,
+      STAX_XML_BENCH_RUNS: String(runs),
+      STAX_XML_BENCH_WARMUPS: String(warmups),
+      STAX_XML_BENCH_CONTRACT: 'namespace-off,skip-decl-comment-pi-doctype,cdata-event,skip-whitespace-text,trim-text-checksum,entity-decode-off',
+    },
+  });
+  if (result.error) {
+    return { status: 'skipped', reason: result.error.message };
+  }
+  if (result.status !== 0) {
+    return {
+      status: 'failed',
+      reason: result.stderr.trim() || result.stdout.trim() || `exit ${result.status}`,
+    };
+  }
+  return {
+    status: 'ok',
+    ...JSON.parse(result.stdout),
+  };
+}
+
+function javaVersion(command) {
+  const result = spawnSync(command, ['-version'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.error || result.status !== 0) {
+    return null;
+  }
+  return (result.stderr || result.stdout).split(/\r?\n/)[0].trim();
+}
+
+function quickXmlVersion(exe) {
+  const result = spawnSync(exe, ['--version'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.error || result.status !== 0) {
+    return null;
+  }
+  try {
+    return JSON.parse(result.stdout).quickXmlVersion;
+  } catch {
+    return null;
+  }
+}
+
+function verifyJava25(options, tools, baseReport) {
+  if (!tools.java25) {
+    return {
+      status: 'skipped',
+      reason: 'Java 25 executable was not found. Set STAX_XML_JAVA25 or STAX_XML_JAVA25_HOME to enable verification.',
+      tiers: [],
+    };
+  }
+
+  const command = woodstoxCommand(tools.java25, tools.woodstoxClasspath);
+  const tiers = [];
+  for (const tier of options.tiers) {
+    const result = runExternalCommand(command, options.file, tier, options.runs, options.warmups);
+    const base = findScenario(baseReport, tier, 'woodstox');
+    tiers.push({
+      tier,
+      java25: result,
+      java8MibPerSec: base?.mibPerSec ?? null,
+      deltaVsJava8: result.status === 'ok' && base?.mibPerSec
+        ? (result.mibPerSec - base.mibPerSec) / base.mibPerSec
+        : null,
+    });
+  }
+
+  return {
+    status: tiers.every(entry => entry.java25.status === 'ok') ? 'ok' : 'partial',
+    java25Version: javaVersion(tools.java25),
+    tiers,
+  };
+}
+
+function findScenario(report, tierId, scenarioId) {
+  return report.files
+    .flatMap(file => file.tiers)
+    .find(tier => tier.id === tierId)
+    ?.scenarios.find(scenario => scenario.id === scenarioId);
+}
+
+function formatRate(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)} MiB/s` : 'n/a';
+}
+
+function formatMs(value) {
+  return Number.isFinite(value) ? `${value.toFixed(2)} ms` : 'n/a';
+}
+
+function formatPct(value) {
+  return Number.isFinite(value) ? `${value >= 0 ? '+' : ''}${(value * 100).toFixed(1)}%` : 'n/a';
+}
+
+function escapePipe(value) {
+  return String(value ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
+}
+
+function createMarkdown(report) {
+  const lines = [
+    '# Cross-Runtime Parser Comparator',
+    '',
+    `Generated: ${report.generatedAt}`,
+    '',
+    'This artifact compares the Node stax-xml iterable backend with non-JS parser baselines under the same checksum contract.',
+    'The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its minimum runtime target; Java 25 is reported only as a verification check.',
+    '',
+    '## Environment',
+    '',
+    `- CPU: ${report.environment.cpuName}`,
+    `- Platform: ${report.environment.platform}`,
+    `- Fixture: ${report.fixture.path}`,
+    `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
+    `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- Java 8: ${escapePipe(report.tools.java8Version ?? 'unknown')}`,
+    `- Java 25 check: ${escapePipe(report.java25Verification.java25Version ?? report.java25Verification.reason ?? 'not available')}`,
+    `- quick-xml crate: ${report.tools.quickXmlVersion ?? 'unknown'}`,
+    '',
+    '## Public Comparator Table',
+    '',
+    '| Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml | Node/Woodstox | Node/quick-xml |',
+    '| --- | ---: | ---: | ---: | ---: | ---: |',
+  ];
+
+  const firstFile = report.nodeStringReturn.files[0];
+  for (const tier of firstFile.tiers) {
+    const node = tier.scenarios.find(scenario => scenario.id === 'node');
+    const woodstox = tier.scenarios.find(scenario => scenario.id === 'woodstox');
+    const quickXml = tier.scenarios.find(scenario => scenario.id === 'quick-xml');
+    lines.push(
+      `| ${tier.id} | ${formatRate(node?.mibPerSec)} | ${formatRate(woodstox?.mibPerSec)} | ` +
+      `${formatRate(quickXml?.mibPerSec)} | ${ratio(node, woodstox)} | ${ratio(node, quickXml)} |`,
+    );
+  }
+
+  lines.push('');
+  lines.push('## Java 25 Verification');
+  lines.push('');
+  lines.push('| Tier | Woodstox Java 8 | Woodstox Java 25 | Delta | Java 25 avg | Status |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | --- |');
+  for (const entry of report.java25Verification.tiers) {
+    lines.push(
+      `| ${entry.tier} | ${formatRate(entry.java8MibPerSec)} | ${formatRate(entry.java25?.mibPerSec)} | ` +
+      `${formatPct(entry.deltaVsJava8)} | ${formatMs(entry.java25?.avgMs)} | ${entry.java25?.status ?? 'skipped'} |`,
+    );
+  }
+  if (report.java25Verification.tiers.length === 0) {
+    lines.push(`| n/a | n/a | n/a | n/a | n/a | ${escapePipe(report.java25Verification.reason)} |`);
+  }
+
+  lines.push('');
+  lines.push('## Contract');
+  lines.push('');
+  for (const item of report.nodeStringReturn.contract) {
+    lines.push(`- ${item}`);
+  }
+  lines.push('');
+  lines.push('Checksum and event counts are preserved by the compared rows for the current fixture. If a future fixture introduces namespaces or entity-heavy content, this contract must be reviewed before publishing the table.');
+  lines.push('');
+
+  return `${lines.join('\n')}\n`;
+}
+
+function ratio(a, b) {
+  if (!a?.mibPerSec || !b?.mibPerSec) return 'n/a';
+  return `${(a.mibPerSec / b.mibPerSec).toFixed(2)}x`;
+}
+
+async function main() {
+  const options = parseArgs();
+  const tools = buildExternalTools(options);
+  const nodeStringReturn = runNodeStringReturn(options, tools);
+  const java25Verification = verifyJava25(options, tools, nodeStringReturn.report);
+  const fileStat = statSync(options.file);
+
+  const report = {
+    generatedAt: new Date().toISOString(),
+    environment: {
+      cpuName: cpus()[0]?.model ?? 'unknown',
+      platform: `${process.platform}-${process.arch}`,
+      node: process.version,
+    },
+    fixture: {
+      path: options.file,
+      name: basename(options.file),
+      sizeBytes: fileStat.size,
+      sizeMiB: fileStat.size / 1024 / 1024,
+    },
+    options: {
+      runs: options.runs,
+      warmups: options.warmups,
+      tiers: options.tiers,
+    },
+    tools: {
+      java8Command: tools.java8,
+      java8Version: javaVersion(tools.java8),
+      java25Command: tools.java25 ?? null,
+      quickXmlCommand: tools.quickXmlExe,
+      quickXmlVersion: quickXmlVersion(tools.quickXmlExe),
+    },
+    rawNodeStringReturnPath: nodeStringReturn.rawOut,
+    nodeStringReturn: nodeStringReturn.report,
+    java25Verification,
+  };
+
+  mkdirSync(dirname(options.jsonOut), { recursive: true });
+  writeFileSync(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeFileSync(options.mdOut, createMarkdown(report), 'utf8');
+  console.log(`Wrote ${options.jsonOut}`);
+  console.log(`Wrote ${options.mdOut}`);
+}
+
+void main();

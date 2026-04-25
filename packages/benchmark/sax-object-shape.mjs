@@ -39,7 +39,13 @@ const DEFAULT_BATCH_SIZE = 1;
 const GENERATED_DIR = join(__dirname, 'test-data');
 const EVENT_OBJECT_SINK_SIZE = 1024;
 
-const eventObjectSink = new Array(EVENT_OBJECT_SINK_SIZE);
+const eventObjectSink = createSparseSlots(EVENT_OBJECT_SINK_SIZE);
+
+function createSparseSlots(size) {
+  const slots = [];
+  slots.length = size;
+  return slots;
+}
 
 function parseArgs(argv) {
   const options = {

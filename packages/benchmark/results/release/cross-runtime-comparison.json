@@ -1,0 +1,577 @@
+{
+  "generatedAt": "2026-04-25T13:37:23.824Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "name": "runtime-comparison-16mib.xml",
+    "sizeBytes": 16777038,
+    "sizeMiB": 15.99983024597168
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1,
+    "tiers": [
+      "count-only",
+      "name-string-only",
+      "text-string-only",
+      "attr-value-string-only",
+      "full-string"
+    ]
+  },
+  "tools": {
+    "java8Command": "java",
+    "java8Version": "openjdk version \"1.8.0_472\"",
+    "java25Command": "C:\\sdkman\\candidates\\java\\25.0.1-tem\\bin\\java.exe",
+    "quickXmlCommand": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\external\\quick-xml-bench\\target\\release\\quick-xml-bench.exe",
+    "quickXmlVersion": "0.39.2"
+  },
+  "rawNodeStringReturnPath": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\results\\release\\raw\\cross-runtime-node-string-return.json",
+  "nodeStringReturn": {
+    "generatedAt": "2026-04-25T13:37:11.379Z",
+    "contract": [
+      "namespace off",
+      "XML declaration/comment/PI/DOCTYPE skipped",
+      "CDATA remains a separate event",
+      "whitespace-only text skipped",
+      "text trimmed before checksum",
+      "entity decode off"
+    ],
+    "options": {
+      "runs": 3,
+      "warmups": 1,
+      "chunkSize": 1048576,
+      "batchSize": 1,
+      "sampleEvery": 65536,
+      "tiers": [
+        "count-only",
+        "name-string-only",
+        "text-string-only",
+        "attr-value-string-only",
+        "full-string"
+      ]
+    },
+    "files": [
+      {
+        "path": "G:\\programming\\stax-xml-spike-rust-native\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "sizeBytes": 16777038,
+        "sizeMiB": 15.99983024597168,
+        "tiers": [
+          {
+            "id": "count-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 83.47716666666666,
+                "minMs": 79.59910000000002,
+                "maxMs": 87.3168,
+                "mibPerSec": 191.66714545859864,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakRssBytes": 71745536,
+                "peakHeapUsedBytes": 7460264,
+                "samplesMs": [
+                  87.3168,
+                  83.51559999999998,
+                  79.59910000000002
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 87.57533333333329,
+                "minMs": 86.16509999999994,
+                "maxMs": 89.35659999999996,
+                "mibPerSec": 182.69790861169074,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakRssBytes": 70864896,
+                "peakHeapUsedBytes": 7481408,
+                "samplesMs": [
+                  89.35659999999996,
+                  87.20429999999999,
+                  86.16509999999994
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 51.71736666666667,
+                "minMs": 46.5675,
+                "maxMs": 61.0519,
+                "mibPerSec": 309.37055146475643,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakHeapUsedBytes": 38675984,
+                "samplesMs": [
+                  61.0519,
+                  46.5675,
+                  47.5327
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 52.73916666666667,
+                "minMs": 52.333600000000004,
+                "maxMs": 53.2942,
+                "mibPerSec": 303.3766222947211,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  52.333600000000004,
+                  52.5897,
+                  53.2942
+                ]
+              }
+            ]
+          },
+          {
+            "id": "name-string-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 109.80813333333337,
+                "minMs": 109.2183,
+                "maxMs": 110.83200000000011,
+                "mibPerSec": 145.70715083009947,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakRssBytes": 71761920,
+                "peakHeapUsedBytes": 7554800,
+                "samplesMs": [
+                  110.83200000000011,
+                  109.3741,
+                  109.2183
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 115.77326666666674,
+                "minMs": 114.4010000000003,
+                "maxMs": 117.31790000000001,
+                "mibPerSec": 138.19969589385633,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakRssBytes": 72761344,
+                "peakHeapUsedBytes": 7605384,
+                "samplesMs": [
+                  117.31790000000001,
+                  114.4010000000003,
+                  115.60089999999991
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 49.519133333333336,
+                "minMs": 43.7862,
+                "maxMs": 58.6038,
+                "mibPerSec": 323.1040038255586,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakHeapUsedBytes": 38676184,
+                "samplesMs": [
+                  58.6038,
+                  46.1674,
+                  43.7862
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 62.36723333333333,
+                "minMs": 60.1328,
+                "maxMs": 63.7543,
+                "mibPerSec": 256.54224808173865,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  60.1328,
+                  63.7543,
+                  63.2146
+                ]
+              }
+            ]
+          },
+          {
+            "id": "text-string-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 185.76566666666653,
+                "minMs": 167.48989999999958,
+                "maxMs": 211.00030000000015,
+                "mibPerSec": 86.12910304185215,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakRssBytes": 78790656,
+                "peakHeapUsedBytes": 7563760,
+                "samplesMs": [
+                  167.48989999999958,
+                  211.00030000000015,
+                  178.80679999999984
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 152.63750000000013,
+                "minMs": 150.33600000000024,
+                "maxMs": 156.3152,
+                "mibPerSec": 104.82240763882838,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakRssBytes": 74526720,
+                "peakHeapUsedBytes": 7745072,
+                "samplesMs": [
+                  150.33600000000024,
+                  156.3152,
+                  151.26130000000012
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 50.597833333333334,
+                "minMs": 45.4479,
+                "maxMs": 60.6261,
+                "mibPerSec": 316.2157189729141,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakHeapUsedBytes": 43546024,
+                "samplesMs": [
+                  60.6261,
+                  45.4479,
+                  45.7195
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 59.04313333333334,
+                "minMs": 58.4578,
+                "maxMs": 59.7031,
+                "mibPerSec": 270.98545322185385,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  59.7031,
+                  58.4578,
+                  58.9685
+                ]
+              }
+            ]
+          },
+          {
+            "id": "attr-value-string-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 115.28923333333326,
+                "minMs": 109.24170000000049,
+                "maxMs": 122.26059999999961,
+                "mibPerSec": 138.77991711256956,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakRssBytes": 77307904,
+                "peakHeapUsedBytes": 7851032,
+                "samplesMs": [
+                  114.36539999999968,
+                  109.24170000000049,
+                  122.26059999999961
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 140.82460000000023,
+                "minMs": 126.5555000000004,
+                "maxMs": 161.4459999999999,
+                "mibPerSec": 113.61530759520461,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakRssBytes": 75202560,
+                "peakHeapUsedBytes": 7860456,
+                "samplesMs": [
+                  126.5555000000004,
+                  161.4459999999999,
+                  134.47230000000036
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 54.40753333333333,
+                "minMs": 48.9267,
+                "maxMs": 63.3914,
+                "mibPerSec": 294.073803124782,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakHeapUsedBytes": 59589560,
+                "samplesMs": [
+                  63.3914,
+                  50.9045,
+                  48.9267
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 53.817933333333336,
+                "minMs": 53.576100000000004,
+                "maxMs": 54.085,
+                "mibPerSec": 297.29551573214775,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  54.085,
+                  53.792699999999996,
+                  53.576100000000004
+                ]
+              }
+            ]
+          },
+          {
+            "id": "full-string",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 157.6260333333336,
+                "minMs": 155.9877000000006,
+                "maxMs": 159.53970000000027,
+                "mibPerSec": 101.50499830276547,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakRssBytes": 85843968,
+                "peakHeapUsedBytes": 7941000,
+                "samplesMs": [
+                  159.53970000000027,
+                  155.9877000000006,
+                  157.35069999999996
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 171.79466666666698,
+                "minMs": 159.44999999999982,
+                "maxMs": 188.9316000000017,
+                "mibPerSec": 93.13345144186655,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakRssBytes": 73392128,
+                "peakHeapUsedBytes": 7440784,
+                "samplesMs": [
+                  159.44999999999982,
+                  167.0023999999994,
+                  188.9316000000017
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 65.04180000000001,
+                "minMs": 57.881,
+                "maxMs": 74.9488,
+                "mibPerSec": 245.99304210479534,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakHeapUsedBytes": 59589496,
+                "samplesMs": [
+                  74.9488,
+                  62.2956,
+                  57.881
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 74.49946666666666,
+                "minMs": 69.7686,
+                "maxMs": 80.59729999999999,
+                "mibPerSec": 214.7643595565563,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  80.59729999999999,
+                  73.13250000000001,
+                  69.7686
+                ]
+              }
+            ]
+          }
+        ],
+        "gate": {
+          "status": "fail",
+          "countOnlyRegression": 0.049093265024567144,
+          "fullStringImprovement": -0.08988764757767403,
+          "failures": [
+            "count-only regression +4.9% exceeds +3.0%",
+            "full-string improvement -9.0% and 93.1 MiB/s miss gate"
+          ]
+        }
+      }
+    ]
+  },
+  "java25Verification": {
+    "status": "ok",
+    "java25Version": "openjdk version \"25.0.1\" 2025-10-21 LTS",
+    "tiers": [
+      {
+        "tier": "count-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 52.8034,
+          "minMs": 50.3648,
+          "maxMs": 57.2903,
+          "mibPerSec": 303.007576140394,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakHeapUsedBytes": 28647256,
+          "samplesMs": [
+            57.2903,
+            50.3648,
+            50.7551
+          ]
+        },
+        "java8MibPerSec": 309.37055146475643,
+        "deltaVsJava8": -0.02056748870969154
+      },
+      {
+        "tier": "name-string-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 57.9304,
+          "minMs": 53.024,
+          "maxMs": 66.3692,
+          "mibPerSec": 276.19057085695385,
+          "eventCount": 967967,
+          "checksum": 974533206,
+          "peakHeapUsedBytes": 28647192,
+          "samplesMs": [
+            66.3692,
+            53.024,
+            54.398
+          ]
+        },
+        "java8MibPerSec": 323.1040038255586,
+        "deltaVsJava8": -0.14519607436970344
+      },
+      {
+        "tier": "text-string-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 58.677,
+          "minMs": 53.604,
+          "maxMs": 65.0339,
+          "mibPerSec": 272.6763509717893,
+          "eventCount": 967967,
+          "checksum": -1012768158,
+          "peakHeapUsedBytes": 28647256,
+          "samplesMs": [
+            65.0339,
+            53.604,
+            57.3931
+          ]
+        },
+        "java8MibPerSec": 316.2157189729141,
+        "deltaVsJava8": -0.1376888161744237
+      },
+      {
+        "tier": "attr-value-string-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 66.85053333333333,
+          "minMs": 63.6506,
+          "maxMs": 72.7121,
+          "mibPerSec": 239.33736124725525,
+          "eventCount": 967967,
+          "checksum": 1105386208,
+          "peakHeapUsedBytes": 31475848,
+          "samplesMs": [
+            72.7121,
+            64.1889,
+            63.6506
+          ]
+        },
+        "java8MibPerSec": 294.073803124782,
+        "deltaVsJava8": -0.18613164891229997
+      },
+      {
+        "tier": "full-string",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 70.72296666666666,
+          "minMs": 64.2706,
+          "maxMs": 78.6252,
+          "mibPerSec": 226.2324531913727,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakHeapUsedBytes": 31475840,
+          "samplesMs": [
+            78.6252,
+            69.2731,
+            64.2706
+          ]
+        },
+        "java8MibPerSec": 245.99304210479534,
+        "deltaVsJava8": -0.08032986926924716
+      }
+    ]
+  }
+}

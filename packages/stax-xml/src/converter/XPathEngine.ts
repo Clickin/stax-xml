@@ -68,10 +68,7 @@ export class XPathCompiler {
 
     // Cache with size limit
     if (this.cache.size >= this.MAX_CACHE_SIZE) {
-      const firstKey = this.cache.keys().next().value;
-      if (firstKey !== undefined) {
-        this.cache.delete(firstKey);
-      }
+      this.cache.delete(this.cache.keys().next().value!);
     }
     this.cache.set(xpath, compiled);
 
@@ -320,9 +317,6 @@ export class XPathMatcher {
   }
 
   private matchesDescendant(event: StartElementEvent, segments: XPathSegment[]): boolean {
-    /* v8 ignore next -- empty segment plans are rejected by XPathCompiler */
-    if (segments.length === 0) return false;
-
     // For //element, match if any ancestor path matches
     const currentDepth = this.currentPath.length;
 
@@ -378,8 +372,7 @@ export class XPathMatcher {
       // Check predicates for this segment using the corresponding element from the stack
       for (const predicate of segment.predicates) {
         const elementIndex = startDepth + i;
-        /* v8 ignore next -- event fallback is a defensive stack underflow guard */
-        const elementForPredicate = this.elementStack[elementIndex] || event;
+        const elementForPredicate = this.elementStack[elementIndex]!;
         if (!this.matchesPredicate(predicate, elementForPredicate, elementIndex)) {
           return false;
         }
@@ -398,8 +391,7 @@ export class XPathMatcher {
       const attrValue = event.attributes[predicate.attribute!];
       return attrValue === predicate.value;
     } else if (predicate.type === 'position') {
-      /* v8 ignore next -- position fallback is a defensive stack underflow guard */
-      const position = this.positionStack[depth] || 1;
+      const position = this.positionStack[depth]!;
 
       // Handle special position values
       if (predicate.position === -1) {

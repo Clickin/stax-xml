@@ -55,32 +55,16 @@ for (const event of parser) {
 
 ## Processing Large Files with Async Parser
 
-Handle large XML files efficiently using streaming:
+파일/네트워크 I/O까지 비동기로 유지해야 하면 `StaxXmlParser`를 사용하세요. API는 end-to-end async이고, parser backend는 도착한 byte batch를 동기적으로 소비합니다.
 
 ```typescript
 import { StaxXmlParser, XmlEventType } from 'stax-xml';
-import { createReadStream } from 'fs';
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
 
 async function processLargeXml(filePath: string) {
-  const fileStream = createReadStream(filePath);
-
-  // Convert Node.js readable stream to Web ReadableStream
-  const webStream = new ReadableStream({
-    start(controller) {
-      fileStream.on('data', (chunk) => {
-        controller.enqueue(chunk);
-      });
-
-      fileStream.on('end', () => {
-        controller.close();
-      });
-
-      fileStream.on('error', (err) => {
-        controller.error(err);
-      });
-    }
-  });
-
+  const fileStream = createReadStream(filePath, { highWaterMark: 1024 * 1024 });
+  const webStream = Readable.toWeb(fileStream) as ReadableStream<Uint8Array>;
   const parser = new StaxXmlParser(webStream);
   let elementCount = 0;
 
@@ -96,6 +80,42 @@ async function processLargeXml(filePath: string) {
   console.log(`Total elements processed: ${elementCount}`);
 }
 ```
+
+파일 I/O는 비동기로 처리하되, chunk가 준비된 뒤 parse 자체는 동기 iterable parser로 실행할 수도 있습니다:
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function processLargeXmlWithSyncIterable(filePath: string) {
+  const file = await open(filePath, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+  let elementCount = 0;
+
+  while (parser.nextBatch()) {
+    for (let index = 0; index < parser.eventCount(); index++) {
+      if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+        elementCount++;
+        console.log(parser.copyName(index));
+      }
+    }
+  }
+
+  console.log(`Total elements processed: ${elementCount}`);
+}
+```
+
+iterable 경로는 전체 XML 문자열을 만들지 않지만, parse loop 동안에는 현재 worker/thread를 점유합니다. Node 전용 batch job에서 파일 I/O도 blocking이어도 된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`를 사용하세요.
 
 ## XML Generation with Writer
 

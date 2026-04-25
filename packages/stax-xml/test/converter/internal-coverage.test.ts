@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { StaxXmlParser } from '../../src/StaxXmlParser.js';
 import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
 import { StaxXmlWriter } from '../../src/StaxXmlWriter.js';
 import { StaxXmlWriterSyncSink } from '../../src/StaxXmlWriterSync.js';
 import { AsyncEventBatchIterator } from '../../src/converter/AsyncEventBatchIterator.js';
 import { CompiledRootProcessor } from '../../src/converter/CompiledRootProcessor.js';
-import { CompiledXmlSchema } from '../../src/converter/CompiledXmlSchema.js';
+import { CompiledXmlSchema, tryParseWithCompiledPlan } from '../../src/converter/CompiledXmlSchema.js';
 import { XmlOptionalSchema } from '../../src/converter/XmlOptionalSchema.js';
 import { XmlParserInternal } from '../../src/converter/XmlParserInternal.js';
 import {
@@ -14,8 +15,8 @@ import {
   isStringCollector,
   XmlParsingStateMachine
 } from '../../src/converter/XmlParsingStateMachine.js';
-import { XPathCompiler, XPathMatcher } from '../../src/converter/XPathEngine.js';
-import { XmlSchemaBase } from '../../src/converter/base.js';
+import { createXPathMatcherTemplate, XPathCompiler, XPathMatcher } from '../../src/converter/XPathEngine.js';
+import { AUTO_PARSE_UNHANDLED, XmlSchemaBase } from '../../src/converter/base.js';
 import { x } from '../../src/converter/index.js';
 import { SchemaType } from '../../src/converter/types.js';
 import { XmlEventFactory, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../../src/types.js';
@@ -165,6 +166,16 @@ function eventsFromXml(xml: string): AnyXmlEvent[] {
   return Array.from(new StaxXmlParserSync(xml));
 }
 
+function streamFrom(xml: string): ReadableStream<Uint8Array> {
+  const bytes = new TextEncoder().encode(xml);
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes);
+      controller.close();
+    }
+  });
+}
+
 function findStartPosition(events: AnyXmlEvent[], name: string): { index: number; event: StartElementEvent; depth: number } {
   let depth = 0;
   for (let index = 0; index < events.length; index++) {
@@ -211,6 +222,10 @@ function text(value: string): AnyXmlEvent {
   return XmlEventFactory.characters(value);
 }
 
+function cdata(value: string): AnyXmlEvent {
+  return XmlEventFactory.cdata(value);
+}
+
 function writableChunks(): { stream: WritableStream<Uint8Array>; chunks: Uint8Array[] } {
   const chunks: Uint8Array[] = [];
   return {
@@ -242,6 +257,7 @@ describe('Converter internal coverage guard rails', () => {
       expect(() => XPathCompiler.compile('//root//item')).toThrow('Nested descendant-or-self');
       expect(() => XPathCompiler.compile('/root/[')).toThrow('Invalid XPath segment');
       expect(() => XPathCompiler.compile('/items/item[unknown()]')).toThrow('Unsupported predicate');
+      expect(createXPathMatcherTemplate(XPathCompiler.compile('/root/@id')).attributeName).toBe('id');
 
       const currentMatcher = new XPathMatcher('.');
       const root = start('root');
@@ -265,11 +281,15 @@ describe('Converter internal coverage guard rails', () => {
       const compiled = x.string().xpath('/root/value').compile();
       const compiledAgain = compiled.compile();
       const noTextCompiled = new CompiledXmlSchema(new NoTextSchema());
+      const events = eventsFromXml('<root><value>iterator</value></root>');
 
       expect(compiledAgain.compiledPlan).toBe(compiled.compiledPlan);
       expect(compiled.schemaType).toBe('STRING');
       expect(compiled.parseSync('<root><value>ok</value></root>')).toBe('ok');
       await expect(compiled.parse('<root><value>async</value></root>')).resolves.toBe('async');
+      expect((compiled as any)._parse('<root><value>direct</value></root>')).toBe('direct');
+      await expect((compiled as any)._parseAsync('<root><value>direct-async</value></root>')).resolves.toBe('direct-async');
+      expect(() => (compiled as any)._parse(syncIteratorFrom(events, 0))).toThrow('xml must be a string');
       expect((compiled as any)._parseText('raw')).toBe('raw');
       expect(compiled.writer({ element: 'value' }).writeSync('written', { rootElement: 'root' })).toContain(
         '<value>written</value>'
@@ -282,6 +302,36 @@ describe('Converter internal coverage guard rails', () => {
       expect((noTextCompiled as any)._parseText('fallback')).toBe('fallback');
       expect(noTextCompiled.parseSync('<root><value>raw</value></root>')).toBe('raw');
       await expect(noTextCompiled.parse('<root><value>raw-async</value></root>')).resolves.toBe('raw-async');
+    });
+
+    it('covers automatic compiled-plan fallback and backend extraction branches', async () => {
+      const eligible = x.object({
+        values: x.array(x.string(), '/root/value')
+      });
+      const events = eventsFromXml('<root><value>A</value></root>');
+
+      expect(tryParseWithCompiledPlan(eligible, syncIteratorFrom(events, 0))).toBe(AUTO_PARSE_UNHANDLED);
+
+      const throwing = new ThrowingObjectSchema();
+      expect(throwing.parseSync('<root></root>')).toEqual({});
+
+      const originalSync = XmlSchemaBase._tryParseWithCompiledPlan;
+      const originalAsync = XmlSchemaBase._tryParseAsyncWithCompiledPlan;
+      XmlSchemaBase._tryParseWithCompiledPlan = undefined;
+      XmlSchemaBase._tryParseAsyncWithCompiledPlan = undefined;
+      try {
+        expect(x.string().xpath('/root/value').parseSync('<root><value>sync</value></root>')).toBe('sync');
+        await expect(x.string().xpath('/root/value').parse('<root><value>async</value></root>')).resolves.toBe('async');
+      } finally {
+        XmlSchemaBase._tryParseWithCompiledPlan = originalSync;
+        XmlSchemaBase._tryParseAsyncWithCompiledPlan = originalAsync;
+      }
+
+      const parser = new StaxXmlParser(streamFrom('<root><value>backend</value></root>'));
+      await expect(x.string().xpath('/root/value').parse(parser as unknown as AsyncIterator<AnyXmlEvent>))
+        .resolves.toBe('backend');
+
+      expect(x.array(x.string(), '/root/missing').optional().compile().parseSync('<root></root>')).toEqual([]);
     });
 
     it('builds default, object, and element-xpath array compiled plans', async () => {
@@ -404,6 +454,27 @@ describe('Converter internal coverage guard rails', () => {
 
       expect(parser.parseWithSchema('<root><value>sync</value></root>', schema)).toBe('sync');
       await expect(parser.parseWithSchemaAsync('<root><value>async</value></root>', schema)).resolves.toBe('async');
+
+      const dispatchCompiled = x.object({
+        value: x.string().xpath('/root/value')
+      }).compile();
+      const dispatchParser = new XmlParserInternal(undefined, dispatchCompiled.compiledPlan);
+      expect(dispatchParser.parseWithSchema('<root><value>compiled</value></root>', dispatchCompiled)).toEqual({
+        value: 'compiled'
+      });
+      await expect(dispatchParser.parseWithSchemaAsync(
+        '<root><value>compiled-async</value></root>',
+        dispatchCompiled
+      )).resolves.toEqual({ value: 'compiled-async' });
+      expect(dispatchParser.parseWithSchema({} as any, new UnknownSchema())).toBe('unknown');
+
+      const runtimeCompiled = new CompiledXmlSchema(new UnknownSchema({ xpath: '/root/value' }) as any);
+      const runtimeParser = new XmlParserInternal(undefined, runtimeCompiled.compiledPlan);
+      expect(runtimeParser.parseWithSchema('<root><value>runtime</value></root>', new UnknownSchema())).toBe('unknown');
+      await expect(runtimeParser.parseWithSchemaAsync(
+        '<root><value>runtime-async</value></root>',
+        new UnknownSchema()
+      )).resolves.toBe('unknown');
     });
 
     it('uses compiled parseObject branches and compiled transform helpers', async () => {
@@ -429,9 +500,11 @@ describe('Converter internal coverage guard rails', () => {
       };
       const shape = {
         inline: x.object({
-          name: x.string().xpath('/root/name')
+          name: x.string().xpath('/root/name'),
+          skipped: x.string()
         }),
         values: x.array(x.string().xpath('/root/item')),
+        skippedValues: x.array(x.string()),
         fallback: fakeSchema as any
       };
       const parser = new XmlParserInternal();
@@ -457,6 +530,8 @@ describe('Converter internal coverage guard rails', () => {
             <record><value>1<nested>ignored</nested></value></record>
             <record><value>2</value></record>
             <user><name>Alice</name></user>
+            <withAttr code="x">ignored</withAttr>
+            <withAttr>missing</withAttr>
           </section>
         </root>
       `;
@@ -478,6 +553,22 @@ describe('Converter internal coverage guard rails', () => {
         1,
         x.string(),
         './item'
+      )).resolves.toEqual(['A', 'B']);
+
+      expect((parser as any).parseArrayFromPositionSync(
+        syncIteratorFrom(events, position.index + 1),
+        position.event,
+        1,
+        x.string(),
+        '/section/item'
+      )).toEqual(['A', 'B']);
+
+      await expect((parser as any).parseArrayFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.event,
+        1,
+        x.string(),
+        '/section/item'
       )).resolves.toEqual(['A', 'B']);
 
       expect((parser as any).parseArrayFromPositionSync(
@@ -512,6 +603,22 @@ describe('Converter internal coverage guard rails', () => {
         './user'
       )).resolves.toEqual([{ name: 'Alice' }]);
 
+      expect((parser as any).parseArrayFromPositionSync(
+        syncIteratorFrom(events, position.index + 1),
+        position.event,
+        1,
+        x.string().xpath('./@code'),
+        './withAttr'
+      )).toEqual(['x']);
+
+      await expect((parser as any).parseArrayFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.event,
+        1,
+        x.string().xpath('./@code'),
+        './withAttr'
+      )).resolves.toEqual(['x']);
+
       await expect((parser as any).parseArrayFromPosition(
         new DoneAfterBufferedBatchIterator(),
         start('section'),
@@ -529,7 +636,8 @@ describe('Converter internal coverage guard rails', () => {
       const shape = {
         id: x.string().xpath('./@id'),
         pages: x.number().xpath('./@pages').int(),
-        title: x.string().xpath('./title')
+        title: x.string().xpath('./title'),
+        skipped: x.string()
       };
       const parentContext = {
         schema: x.object(shape),
@@ -555,6 +663,23 @@ describe('Converter internal coverage guard rails', () => {
         parentContext
       )).toEqual({ id: 'b1', pages: 9, title: '' });
 
+      const populatedParentContext = {
+        ...parentContext,
+        collector: {
+          type: 'object',
+          fields: new Map([['title', { type: 'string', buffer: '', value: 'preloaded' }]])
+        }
+      };
+      expect((parser as any).parseObjectFromPositionSync(
+        syncIteratorFrom(events, position.index + 1),
+        position.event,
+        position.depth,
+        shape,
+        {},
+        undefined,
+        populatedParentContext
+      )).toEqual({ title: 'preloaded' });
+
       const asyncParentContext = {
         ...parentContext,
         collector: { type: 'object', fields: new Map() }
@@ -569,18 +694,39 @@ describe('Converter internal coverage guard rails', () => {
         asyncParentContext
       )).resolves.toEqual({ id: 'b1', pages: 9, title: '' });
 
+      await expect((parser as any).parseObjectFromPosition(
+        asyncIteratorFrom(events, position.index + 1),
+        position.event,
+        position.depth,
+        shape,
+        {},
+        undefined,
+        {
+          ...asyncParentContext,
+          collector: {
+            type: 'object',
+            fields: new Map([['title', { type: 'string', buffer: '', value: 'preloaded-async' }]])
+          }
+        }
+      )).resolves.toEqual({ title: 'preloaded-async' });
+
       expect((parser as any).extractXPath(null)).toBeUndefined();
       expect((parser as any).extractXPath({})).toBeUndefined();
       expect((parser as any).extractXPath({ schemaType: SchemaType.OPTIONAL, schema: null })).toBeUndefined();
       expect((parser as any).extractXPath(x.array(x.string(), '//item'))).toBe('//item');
-
-      await expect((parser as any).parseObjectFromPosition(
-        new DoneAfterBufferedBatchIterator(),
-        position.event,
-        position.depth,
-        {},
-        {}
-      )).resolves.toEqual({});
+      expect((parser as any).extractXPath(new NumericXPathSchema())).toBeUndefined();
+      expect((parser as any).isOptionalSchemaWrapper(null)).toBe(false);
+      await expect((parser as any).collectTextUntilClose(
+        asyncIteratorFrom([start('inner'), cdata('nested'), end('inner'), cdata('tail'), end('value')], 0),
+        1
+      )).resolves.toBe('tail');
+      expect((parser as any).collectTextUntilCloseSync(
+        syncIteratorFrom([start('inner'), cdata('nested'), end('inner'), cdata('tail'), end('value')], 0),
+        1
+      )).toBe('tail');
+      await expect((parser as any).consumeAsyncEvents(new DoneAfterBufferedBatchIterator(), () => {
+        throw new Error('done guard failed');
+      })).resolves.toBeUndefined();
 
       await expect(parser.parseObjectAsync(
         asyncIteratorFrom(eventsFromXml('<root><value>fallback</value></root>'), 0),
@@ -753,6 +899,53 @@ describe('Converter internal coverage guard rails', () => {
         text: 'hello',
         raw: '<raw>'
       })).toBe('hello&lt;raw&gt;');
+
+      const bareSchema = {
+        schemaType: SchemaType.STRING,
+        _parse: () => 'bare',
+        _parseAsync: async () => 'bare',
+        _writeContent: (data: string) => data,
+        _writeSync: (data: string, options?: { writer?: { writeRaw(xml: string): unknown } }) => {
+          options?.writer?.writeRaw(String(data));
+          return String(data);
+        },
+        _write: async () => {}
+      };
+      const mixedObjectSchema = x.object({
+        id: x.string().writer({ asAttribute: 'id' }),
+        bare: bareSchema as never,
+        named: x.string()
+      });
+      expect((mixedObjectSchema as any)._writeContent({ id: 'skip', bare: 'B', named: 'N' })).toBe('BN');
+
+      const rootWithoutAttribute = mixedObjectSchema.writeSync(
+        { id: null, bare: 'B', named: 'N' } as never,
+        { rootElement: 'mixed', includeDeclaration: false }
+      );
+      expect(rootWithoutAttribute).not.toContain('id=');
+      expect(rootWithoutAttribute).toContain('<bare>B</bare>');
+      expect(rootWithoutAttribute).toContain('<named>N</named>');
+
+      const noRoot = mixedObjectSchema.writeSync(
+        { id: undefined, bare: 'B', named: 'N' } as never,
+        { includeDeclaration: false }
+      );
+      expect(noRoot).toContain('<bare>B</bare>');
+      expect(noRoot).toContain('<named>N</named>');
+
+      const asyncNoRoot = await mixedObjectSchema.write(
+        { id: undefined, bare: 'B', named: 'N' } as never,
+        { includeDeclaration: false }
+      );
+      expect(asyncNoRoot).toContain('<bare>B</bare>');
+      expect(asyncNoRoot).toContain('<named>N</named>');
+
+      const asyncRootWithoutAttribute = await mixedObjectSchema.write(
+        { id: null, bare: 'B', named: 'N' } as never,
+        { rootElement: 'mixed', includeDeclaration: false }
+      );
+      expect(asyncRootWithoutAttribute).not.toContain('id=');
+      expect(asyncRootWithoutAttribute).toContain('<bare>B</bare>');
     });
   });
 
@@ -801,10 +994,29 @@ describe('Converter internal coverage guard rails', () => {
         matchProfile: { mode: 'default' },
         matcher: defaultMatcher
       })).toBe(true);
+
+      (sm as any).currentDepth = 1;
+      expect((sm as any).matchesInContext(start('item', { id: 'a' }), {
+        context: { contextDepth: 1 },
+        matchProfile: { mode: 'relative-attribute' },
+        matcher: { matches: () => false }
+      })).toBe(false);
+      expect((sm as any).createMatchProfile('./')).toEqual({ mode: 'default' });
+
+      const compiledTemplateSchema = x.object({ value: x.string().xpath('./value') });
+      const compiledTemplates = new WeakMap();
+      compiledTemplates.set(compiledTemplateSchema, []);
+      expect((new XmlParsingStateMachine({}, compiledTemplates) as any).getObjectFieldTemplates(compiledTemplateSchema))
+        .toEqual([]);
+      expect((sm as any).getObjectFieldTemplates(x.object({ skipped: x.string() }))).toEqual([]);
+      expect((sm as any).extractObjectFromCollector({
+        type: 'object',
+        fields: new Map([['missing', { type: 'string', buffer: '', value: 'nope' }]])
+      }, x.object({}))).toEqual({});
+      expect((sm as any).getAllTransforms(x.string().optional())).toEqual([]);
     });
 
     it('handles immediate relative object attributes and text node number deactivation', () => {
-      const xml = '<root><item id="a" qty="2"><value>42</value></item></root>';
       const schema = x.object({
         item: x.object({
           id: x.string().xpath('./@id'),
@@ -813,7 +1025,7 @@ describe('Converter internal coverage guard rails', () => {
         }).xpath('/root/item')
       });
 
-      expect(schema.parseSync(xml)).toEqual({
+      expect(schema.parseSync('<root><item id="a" qty="2"><value>42</value></item></root>')).toEqual({
         item: { id: 'a', qty: 2, value: 42 }
       });
 
@@ -829,6 +1041,101 @@ describe('Converter internal coverage guard rails', () => {
       activation.depth = 1;
       activeArray.processEventSync(start('item'));
       expect(arrayCollector.currentItem).toEqual({ depth: 1, buffer: '' });
+
+      const directObjectActivation = new XmlParsingStateMachine() as any;
+      const directObjectCollector = { type: 'object', fields: new Map() };
+      directObjectActivation.currentDepth = 1;
+      directObjectActivation.onSchemaActivatedSync({
+        isAttributeSelector: false,
+        collector: directObjectCollector,
+        unwrappedSchema: x.object({
+          code: x.string().xpath('@code'),
+          missing: x.string().xpath('@missing'),
+          count: x.number().xpath('@count').int(),
+          meta: x.object({}).xpath('@meta')
+        }),
+        context: undefined,
+        xpath: '/root/item'
+      }, start('item', { code: 'b', count: '3', meta: 'm' }));
+      expect(directObjectCollector.fields.get('code')).toMatchObject({ value: 'b' });
+      expect(directObjectCollector.fields.get('count')).toMatchObject({ value: 3 });
+      expect(directObjectCollector.fields.get('missing')).toMatchObject({ buffer: '' });
+
+      const shorthandAttrArray = new XmlParsingStateMachine() as any;
+      const shorthandCollector = { type: 'array', items: [] };
+      const shorthandActivation = shorthandAttrArray.registerSchema(
+        x.array(
+          x.object({
+            id: x.string().xpath('@id'),
+            qty: x.number().xpath('@qty').int(),
+            meta: x.object({}).xpath('@meta'),
+            missing: x.string().xpath('@missing')
+          }),
+          '/root/item'
+        ) as any,
+        '/root/item',
+        shorthandCollector
+      );
+      shorthandAttrArray.currentDepth = 1;
+      shorthandAttrArray.createArrayItemSync(shorthandActivation, start('item', { id: 'a', qty: '2', meta: 'm' }));
+      expect(shorthandCollector.currentItem.fields.get('id')).toMatchObject({ value: 'a' });
+      expect(shorthandCollector.currentItem.fields.get('qty')).toMatchObject({ value: 2 });
+      expect(shorthandCollector.currentItem.fields.get('missing')).toMatchObject({ buffer: '' });
+
+      const nestedArrayWithoutXPath = new XmlParsingStateMachine() as any;
+      const nestedArrayCollector = { type: 'array', items: [] };
+      const nestedArrayActivation = nestedArrayWithoutXPath.registerSchema(
+        x.array(x.array(x.string()), '/root/group') as any,
+        '/root/group',
+        nestedArrayCollector
+      );
+      nestedArrayWithoutXPath.currentDepth = 1;
+      nestedArrayWithoutXPath.createArrayItemSync(nestedArrayActivation, start('group'));
+      expect(nestedArrayCollector.currentItem).toEqual({ type: 'array', items: [] });
+
+      const direct = new XmlParsingStateMachine() as any;
+      direct.onSchemaActivatedSync({
+        isAttributeSelector: true,
+        attributeName: 'n',
+        collector: { type: 'number', buffer: '' },
+        schema: { schemaType: SchemaType.NUMBER },
+        unwrappedSchema: { schemaType: SchemaType.NUMBER }
+      }, start('item', { n: '7' }));
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: true,
+        collector: { type: 'number', buffer: '7' },
+        unwrappedSchema: { schemaType: SchemaType.NUMBER },
+        depth: 1
+      });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: { type: 'number', buffer: '8' },
+        unwrappedSchema: { schemaType: SchemaType.NUMBER },
+        depth: 1
+      });
+      const mismatchedArrayCollector = {
+        type: 'array',
+        items: [],
+        currentItem: { type: 'array', items: [] }
+      };
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: mismatchedArrayCollector,
+        unwrappedSchema: x.array(x.object({})),
+        depth: 1
+      });
+      expect(mismatchedArrayCollector.items).toEqual([]);
+      direct.currentDepth = 1;
+      direct.onSchemaCollectText({
+        isTextNodeSelector: true,
+        collector: { type: 'object', fields: new Map() },
+        depth: 1
+      }, 'ignored');
+      direct.onSchemaCollectText({
+        isTextNodeSelector: true,
+        collector: { type: 'array', items: [] },
+        depth: 1
+      }, 'ignored');
     });
   });
 });

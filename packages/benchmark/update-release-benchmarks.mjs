@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +27,8 @@ export const resultsDir = join(benchmarkDir, 'results', 'release');
 export const rawDir = join(resultsDir, 'raw');
 export const summaryPath = join(resultsDir, 'latest-summary.json');
 export const benchmarkMarkdownPath = join(repoRoot, 'BENCHMARK.md');
+const runtimeMatrixPath = join(resultsDir, 'runtime-matrix.json');
+const crossRuntimeComparisonPath = join(resultsDir, 'cross-runtime-comparison.json');
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
@@ -870,6 +872,104 @@ function renderWriter1gbTable(summary) {
   ].join('\n');
 }
 
+function readJsonIfExists(path) {
+  if (!existsSync(path)) {
+    return undefined;
+  }
+  return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+function formatRate(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)} MiB/s` : 'n/a';
+}
+
+function formatMs(value) {
+  return Number.isFinite(value) ? `${value.toFixed(2)} ms` : 'n/a';
+}
+
+function formatPct(value) {
+  return Number.isFinite(value) ? `${value >= 0 ? '+' : ''}${(value * 100).toFixed(1)}%` : 'n/a';
+}
+
+function renderRuntimeMatrixTable(runtimeMatrix) {
+  return [
+    '| Runtime | Version | Scenario | Throughput | Average | Checksum |',
+    '| --- | --- | --- | ---: | ---: | ---: |',
+    ...runtimeMatrix.results.flatMap((result) => {
+      if (result.status !== 'ok') {
+        return [`| ${result.runtime.id} | n/a | n/a | n/a | n/a | ${result.status} |`];
+      }
+      return result.scenarios.map((scenario) =>
+        `| ${result.runtime.id} | ${result.runtime.version} | ${scenario.id} | ${formatRate(scenario.mibPerSec)} | ${formatMs(scenario.avgMs)} | ${scenario.checksum} |`
+      );
+    }),
+  ].join('\n');
+}
+
+function findScenario(tier, id) {
+  return tier.scenarios.find((scenario) => scenario.id === id);
+}
+
+function renderCrossRuntimeTable(crossRuntime) {
+  const tiers = crossRuntime.nodeStringReturn.files[0].tiers;
+  return [
+    '| Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml | Node/Woodstox | Node/quick-xml |',
+    '| --- | ---: | ---: | ---: | ---: | ---: |',
+    ...tiers.map((tier) => {
+      const node = findScenario(tier, 'node');
+      const woodstox = findScenario(tier, 'woodstox');
+      const quickXml = findScenario(tier, 'quick-xml');
+      const nodeWoodstox = node?.mibPerSec && woodstox?.mibPerSec ? `${(node.mibPerSec / woodstox.mibPerSec).toFixed(2)}x` : 'n/a';
+      const nodeQuickXml = node?.mibPerSec && quickXml?.mibPerSec ? `${(node.mibPerSec / quickXml.mibPerSec).toFixed(2)}x` : 'n/a';
+      return `| ${tier.id} | ${formatRate(node?.mibPerSec)} | ${formatRate(woodstox?.mibPerSec)} | ${formatRate(quickXml?.mibPerSec)} | ${nodeWoodstox} | ${nodeQuickXml} |`;
+    }),
+  ].join('\n');
+}
+
+function renderJava25Table(crossRuntime) {
+  const rows = crossRuntime.java25Verification.tiers;
+  if (rows.length === 0) {
+    return `Java 25 verification was skipped: ${crossRuntime.java25Verification.reason}`;
+  }
+  return [
+    '| Tier | Woodstox Java 8 | Woodstox Java 25 | Delta | Status |',
+    '| --- | ---: | ---: | ---: | --- |',
+    ...rows.map((entry) =>
+      `| ${entry.tier} | ${formatRate(entry.java8MibPerSec)} | ${formatRate(entry.java25?.mibPerSec)} | ${formatPct(entry.deltaVsJava8)} | ${entry.java25?.status ?? 'skipped'} |`
+    ),
+  ].join('\n');
+}
+
+function createRuntimeAndNativeDirectionBlock() {
+  const runtimeMatrix = readJsonIfExists(runtimeMatrixPath);
+  const crossRuntime = readJsonIfExists(crossRuntimeComparisonPath);
+  if (!runtimeMatrix && !crossRuntime) {
+    return '';
+  }
+
+  const sections = ['## Runtime Matrix And Native Direction'];
+
+  if (runtimeMatrix) {
+    sections.push(`The same built JavaScript implementation was measured on Node, Bun, and Deno with a generated single-root ${runtimeMatrix.fixture.sizeMiB.toFixed(2)} MiB XML fixture. This is a runtime-codegen and compatibility check, not a native-addon benchmark.`);
+    sections.push(renderRuntimeMatrixTable(runtimeMatrix));
+  }
+
+  if (crossRuntime) {
+    sections.push('The non-JS comparator uses the same event-count and checksum contract. Woodstox is reported on Java 8 for the public baseline because Java 8 is its minimum supported runtime target; Java 25 is measured only as a verification check.');
+    sections.push(renderCrossRuntimeTable(crossRuntime));
+    sections.push('### Woodstox Java 25 Verification');
+    sections.push(renderJava25Table(crossRuntime));
+  }
+
+  sections.push(`### Why Native Addons Are The Acceleration Path
+
+The JavaScript parser remains the compatibility fallback, but it is not the release performance ceiling. Prior pure-JS optimization work improved the iterable event-frame backend, yet full-string workloads still stayed behind native parser baselines, especially \`quick-xml\`. The remaining costs are delimiter scanning, string materialization, and stable object/API shapes around attributes and text.
+
+The Rust native path is intended to move the hot tokenizer and string/span aggregation work into code that can use native and SIMD-oriented scanning strategies, closer in direction to native parsers such as \`quick-xml\` and simdjson-style designs. The package topology therefore keeps \`stax-xml\` as the facade while adding optional native/Wasm acceleration packages; environments that cannot load binaries continue to use the JavaScript fallback.`);
+
+  return `${sections.join('\n\n')}\n`;
+}
+
 function createEnglishBenchmarkBlock(summary) {
   const env = summary.environment;
 
@@ -914,9 +1014,11 @@ For processing large XML files (RSS feeds, data exports, etc.):
 ${renderAsyncSizeTable(summary)}
 
 **Key Insights:**
-- Sync parser is faster for smaller files.
-- Async parser keeps memory usage flatter as file size grows.
-- For files above 100MB, async parsing is the practical low-memory path.
+- Sync parsing is the direct in-memory path; async parsing trades some scheduling overhead for flatter memory behavior.
+- The relative timing can move by fixture and runtime, so the generated table is the source of truth.
+- For files above 100MB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking work or the synchronous iterable byte-batch backend for blocking batch jobs.
+
+${createRuntimeAndNativeDirectionBlock()}
 
 ### Sync Parser Library Comparison
 

@@ -10,6 +10,7 @@ import {
 } from '../src/index';
 import { CursorEventType, StaxXmlCursorReader, StaxXmlCursorReaderAsync } from '../src/cursor';
 import { x } from '../src/converter';
+import { XmlParserInternal } from '../src/converter/XmlParserInternal';
 
 type NormalizedEvent = {
   type: 'start-document' | 'end-document' | 'start' | 'end' | 'text' | 'cdata';
@@ -72,6 +73,273 @@ describe('release API parity matrix', () => {
     expect(await schema.parse(streamFrom(xml, 6))).toEqual(expected);
     expect(compiled.parseSync(xml)).toEqual(expected);
     expect(await compiled.parse(streamFrom(xml, 6))).toEqual(expected);
+  });
+
+  it('routes public async parser streams through the iterable backend', async () => {
+    const originalNextBatch = StaxXmlIterableParser.prototype.nextBatch;
+    let nextBatchCalls = 0;
+    StaxXmlIterableParser.prototype.nextBatch = function countedNextBatch() {
+      nextBatchCalls++;
+      return originalNextBatch.call(this);
+    };
+
+    try {
+      await expect(collectAsyncParserEvents('<root><item>text</item></root>', 3)).resolves.toEqual([
+        { type: 'start-document' },
+        { type: 'start', name: 'root', attributes: {} },
+        { type: 'start', name: 'item', attributes: {} },
+        { type: 'text', text: 'text' },
+        { type: 'end', name: 'item' },
+        { type: 'end', name: 'root' },
+        { type: 'end-document' }
+      ]);
+      expect(nextBatchCalls).toBeGreaterThan(0);
+    } finally {
+      StaxXmlIterableParser.prototype.nextBatch = originalNextBatch;
+    }
+  });
+
+  it('routes public sync parser strings through the iterable backend', () => {
+    const originalNextBatch = StaxXmlIterableParser.prototype.nextBatch;
+    let nextBatchCalls = 0;
+    StaxXmlIterableParser.prototype.nextBatch = function countedNextBatch() {
+      nextBatchCalls++;
+      return originalNextBatch.call(this);
+    };
+
+    try {
+      expect(collectSyncParserEvents('<root><item>text</item></root>')).toEqual([
+        { type: 'start-document' },
+        { type: 'start', name: 'root', attributes: {} },
+        { type: 'start', name: 'item', attributes: {} },
+        { type: 'text', text: 'text' },
+        { type: 'end', name: 'item' },
+        { type: 'end', name: 'root' },
+        { type: 'end-document' }
+      ]);
+      expect(nextBatchCalls).toBeGreaterThan(0);
+    } finally {
+      StaxXmlIterableParser.prototype.nextBatch = originalNextBatch;
+    }
+  });
+
+  it('routes cursor readers through the iterable backend', async () => {
+    const originalNextBatch = StaxXmlIterableParser.prototype.nextBatch;
+    let nextBatchCalls = 0;
+    StaxXmlIterableParser.prototype.nextBatch = function countedNextBatch() {
+      nextBatchCalls++;
+      return originalNextBatch.call(this);
+    };
+
+    try {
+      expect(collectSyncCursorEvents('<root><item>text</item></root>')).toEqual([
+        { type: 'start-document' },
+        { type: 'start', name: 'root', attributes: {} },
+        { type: 'start', name: 'item', attributes: {} },
+        { type: 'text', text: 'text' },
+        { type: 'end', name: 'item' },
+        { type: 'end', name: 'root' },
+        { type: 'end-document' }
+      ]);
+      await expect(collectAsyncCursorEvents('<root><item>text</item></root>', 3)).resolves.toEqual([
+        { type: 'start-document' },
+        { type: 'start', name: 'root', attributes: {} },
+        { type: 'start', name: 'item', attributes: {} },
+        { type: 'text', text: 'text' },
+        { type: 'end', name: 'item' },
+        { type: 'end', name: 'root' },
+        { type: 'end-document' }
+      ]);
+      expect(nextBatchCalls).toBeGreaterThan(0);
+    } finally {
+      StaxXmlIterableParser.prototype.nextBatch = originalNextBatch;
+    }
+  });
+
+  it('routes compiled async stream parsing through the iterable backend', async () => {
+    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const schema = x.object({
+      books: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title')
+        }),
+        '/catalog/book'
+      )
+    }).compile();
+
+    const originalNext = StaxXmlParser.prototype.next;
+    const originalBatchedIterator = StaxXmlParser.prototype.batchedIterator;
+    StaxXmlParser.prototype.next = function blockedNext() {
+      throw new Error('StaxXmlParser.next should not be used by compiled stream parsing');
+    };
+    StaxXmlParser.prototype.batchedIterator = async function* blockedBatchedIterator() {
+      yield* [];
+      throw new Error('StaxXmlParser.batchedIterator should not be used by compiled stream parsing');
+    };
+
+    try {
+      await expect(schema.parse(streamFrom(xml, 3))).resolves.toEqual({
+        books: [{ id: 'b1', title: 'Native XML' }]
+      });
+    } finally {
+      StaxXmlParser.prototype.next = originalNext;
+      StaxXmlParser.prototype.batchedIterator = originalBatchedIterator;
+    }
+  });
+
+  it('routes runtime converter async stream parsing through the iterable backend', async () => {
+    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const schema = x.object({
+      books: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title')
+        }),
+        '/catalog/book'
+      )
+    });
+
+    const originalNext = StaxXmlParser.prototype.next;
+    const originalBatchedIterator = StaxXmlParser.prototype.batchedIterator;
+    StaxXmlParser.prototype.next = function blockedNext() {
+      throw new Error('StaxXmlParser.next should not be used by runtime stream parsing');
+    };
+    StaxXmlParser.prototype.batchedIterator = async function* blockedBatchedIterator() {
+      yield* [];
+      throw new Error('StaxXmlParser.batchedIterator should not be used by runtime stream parsing');
+    };
+
+    try {
+      await expect(schema.parse(streamFrom(xml, 3))).resolves.toEqual({
+        books: [{ id: 'b1', title: 'Native XML' }]
+      });
+    } finally {
+      StaxXmlParser.prototype.next = originalNext;
+      StaxXmlParser.prototype.batchedIterator = originalBatchedIterator;
+    }
+  });
+
+  it('keeps compiled parsing compatible with custom batched async event sources', async () => {
+    const schema = x.object({
+      books: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title')
+        }),
+        '/catalog/book'
+      )
+    }).compile();
+
+    const source = {
+      async next(): Promise<IteratorResult<AnyXmlEvent>> {
+        return { value: undefined, done: true };
+      },
+      async *batchedIterator(): AsyncGenerator<AnyXmlEvent[]> {
+        yield [
+          { type: XmlEventType.START_DOCUMENT },
+          start('catalog'),
+          start('book', { id: 'b1' }),
+          start('title'),
+          { type: XmlEventType.CHARACTERS, value: 'Native XML' },
+          end('title'),
+          end('book'),
+          end('catalog'),
+          { type: XmlEventType.END_DOCUMENT }
+        ];
+      }
+    };
+
+    await expect(schema.parse(source)).resolves.toEqual({
+      books: [{ id: 'b1', title: 'Native XML' }]
+    });
+  });
+
+  it('auto-routes uncompiled parseSync through the dispatch executor', () => {
+    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const schema = x.object({
+      books: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title')
+        }),
+        '/catalog/book'
+      )
+    });
+
+    const originalParseObject = XmlParserInternal.prototype.parseObject;
+    XmlParserInternal.prototype.parseObject = function blockedParseObject() {
+      throw new Error('XmlParserInternal.parseObject should not be used by auto-dispatch parseSync');
+    } as typeof XmlParserInternal.prototype.parseObject;
+
+    try {
+      expect(schema.parseSync(xml)).toEqual({
+        books: [{ id: 'b1', title: 'Native XML' }]
+      });
+    } finally {
+      XmlParserInternal.prototype.parseObject = originalParseObject;
+    }
+  });
+
+  it('auto-routes uncompiled async stream parsing through the dispatch executor', async () => {
+    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const schema = x.object({
+      books: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title')
+        }),
+        '/catalog/book'
+      )
+    });
+
+    const originalParseObjectAsync = XmlParserInternal.prototype.parseObjectAsync;
+    XmlParserInternal.prototype.parseObjectAsync = async function blockedParseObjectAsync() {
+      throw new Error('XmlParserInternal.parseObjectAsync should not be used by auto-dispatch parse');
+    } as typeof XmlParserInternal.prototype.parseObjectAsync;
+
+    try {
+      await expect(schema.parse(streamFrom(xml, 3))).resolves.toEqual({
+        books: [{ id: 'b1', title: 'Native XML' }]
+      });
+    } finally {
+      XmlParserInternal.prototype.parseObjectAsync = originalParseObjectAsync;
+    }
+  });
+
+  it('reads already-consumed StaxXmlParser inputs from the current position without the public event parser facade', async () => {
+    const xml = '<root><item id="skip"><title>Skip</title></item><item id="keep"><title>Keep</title></item></root>';
+    const parser = new StaxXmlParser(streamFrom(xml, 4));
+    await consumeThroughFirstItem(parser);
+
+    const schema = x.object({
+      items: x.array(
+        x.object({
+          id: x.string().xpath('./@id'),
+          title: x.string().xpath('./title')
+        }),
+        '//item'
+      )
+    });
+
+    const originalNext = StaxXmlParser.prototype.next;
+    const originalBatchedIterator = StaxXmlParser.prototype.batchedIterator;
+    StaxXmlParser.prototype.next = function blockedNext() {
+      throw new Error('StaxXmlParser.next should not be used after handing a parser to converter');
+    };
+    StaxXmlParser.prototype.batchedIterator = async function* blockedBatchedIterator() {
+      yield* [];
+      throw new Error('StaxXmlParser.batchedIterator should not be used after handing a parser to converter');
+    };
+
+    try {
+      await expect(schema.parse(parser as unknown as AsyncIterator<AnyXmlEvent>)).resolves.toEqual({
+        items: [{ id: 'keep', title: 'Keep' }]
+      });
+    } finally {
+      StaxXmlParser.prototype.next = originalNext;
+      StaxXmlParser.prototype.batchedIterator = originalBatchedIterator;
+    }
   });
 });
 
@@ -204,5 +472,32 @@ function* byteChunks(xml: string, chunkSize: number): Iterable<Uint8Array> {
   const bytes = new TextEncoder().encode(xml);
   for (let offset = 0; offset < bytes.length; offset += chunkSize) {
     yield bytes.slice(offset, offset + chunkSize);
+  }
+}
+
+function start(name: string, attributes: Record<string, string> = {}): AnyXmlEvent {
+  return {
+    type: XmlEventType.START_ELEMENT,
+    name,
+    attributes
+  };
+}
+
+function end(name: string): AnyXmlEvent {
+  return {
+    type: XmlEventType.END_ELEMENT,
+    name
+  };
+}
+
+async function consumeThroughFirstItem(parser: StaxXmlParser): Promise<void> {
+  while (true) {
+    const next = await parser.next();
+    if (next.done) {
+      throw new Error('fixture ended before first item closed');
+    }
+    if (next.value.type === XmlEventType.END_ELEMENT && next.value.name === 'item') {
+      return;
+    }
   }
 }

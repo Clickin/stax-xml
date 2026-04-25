@@ -1,4 +1,3 @@
-import { StaxXmlParser } from '../StaxXmlParser.js';
 import { StaxXmlParserSync } from '../StaxXmlParserSync.js';
 import {
   isCdata,
@@ -11,6 +10,11 @@ import {
 } from '../types.js';
 
 import { XPathMatcher } from './XPathEngine.js';
+import {
+  IterableEventBackendIterator,
+  getIterableEventBackend,
+  type IterableEventBackendOptions
+} from './IterableEventBackend.js';
 import {
   XmlParsingStateMachine,
   type ArrayCollector,
@@ -198,6 +202,17 @@ export class XmlParserInternal {
     const collectors = new Map<string, Collector<unknown>>();
     const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
 
+    if (schemaOptions.xpath) {
+      const rootCollector: ObjectCollector = { type: 'object', fields: new Map() };
+      const rootSchema = this.createRootObjectSchema(shape, schemaOptions);
+      stateMachine.registerSchema(rootSchema, schemaOptions.xpath, rootCollector);
+
+      await this.consumeAsyncEvents(parser, (event) => {
+        stateMachine.processEventSync(event);
+      });
+
+      return this.extractValueFromCollector(rootCollector, rootSchema) as T;
+    }
 
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
@@ -229,16 +244,13 @@ export class XmlParserInternal {
       // Special case: Array schema without its own XPath
       // Check if element schema has XPath and use that instead
       if (!xpath && isArraySchema(unwrapped)) {
-        const elementSchema = unwrapped.element;
-        if (elementSchema) {
-          const elementXPath = this.extractXPath(elementSchema);
-          if (elementXPath) {
-            const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
-            stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
-            collectors.set(fieldName, collector);
-            fieldSchemas.set(fieldName, fieldSchema);
-            continue;
-          }
+        const elementXPath = this.extractXPath(unwrapped.element);
+        if (elementXPath) {
+          const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
+          stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
+          collectors.set(fieldName, collector);
+          fieldSchemas.set(fieldName, fieldSchema);
+          continue;
         }
       }
 
@@ -300,6 +312,17 @@ export class XmlParserInternal {
     const collectors = new Map<string, Collector<unknown>>();
     const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
 
+    if (schemaOptions.xpath) {
+      const rootCollector: ObjectCollector = { type: 'object', fields: new Map() };
+      const rootSchema = this.createRootObjectSchema(shape, schemaOptions);
+      stateMachine.registerSchema(rootSchema, schemaOptions.xpath, rootCollector);
+
+      for (const event of parser) {
+        stateMachine.processEventSync(event);
+      }
+
+      return this.extractValueFromCollector(rootCollector, rootSchema) as T;
+    }
 
     // Register all field schemas
     for (const [fieldName, fieldSchema] of Object.entries(shape)) {
@@ -331,16 +354,13 @@ export class XmlParserInternal {
       // Special case: Array schema without its own XPath
       // Check if element schema has XPath and use that instead
       if (!xpath && isArraySchema(unwrapped)) {
-        const elementSchema = unwrapped.element;
-        if (elementSchema) {
-          const elementXPath = this.extractXPath(elementSchema);
-          if (elementXPath) {
-            const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
-            stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
-            collectors.set(fieldName, collector);
-            fieldSchemas.set(fieldName, fieldSchema);
-            continue;
-          }
+        const elementXPath = this.extractXPath(unwrapped.element);
+        if (elementXPath) {
+          const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
+          stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
+          collectors.set(fieldName, collector);
+          fieldSchemas.set(fieldName, fieldSchema);
+          continue;
         }
       }
 
@@ -528,12 +548,7 @@ export class XmlParserInternal {
     let currentDepth = startDepth;
     while (currentDepth >= startDepth && await eventReader.ensureBatch()) {
       while (currentDepth >= startDepth && eventReader.hasBufferedEvents()) {
-        const iterResult = eventReader.nextBuffered();
-        /* v8 ignore next -- buffered iterator done guard is defensive */
-        if (iterResult.done) {
-          break;
-        }
-        const event = iterResult.value;
+        const event = eventReader.nextBuffered().value as AnyXmlEvent;
 
         sm.processEventSync(event);
 
@@ -612,12 +627,7 @@ export class XmlParserInternal {
     let buffer = '';
     while (currentDepth >= startDepth && await eventReader.ensureBatch()) {
       while (currentDepth >= startDepth && eventReader.hasBufferedEvents()) {
-        const iterResult = eventReader.nextBuffered();
-        /* v8 ignore next -- buffered iterator done guard is defensive */
-        if (iterResult.done) {
-          break;
-        }
-        const event = iterResult.value;
+        const event = eventReader.nextBuffered().value as AnyXmlEvent;
 
         /* v8 ignore next -- nested start handling is covered by state-machine integration */
         if (isStartElement(event)) {
@@ -680,13 +690,11 @@ export class XmlParserInternal {
           const elementMatcher = elementXPath ? new XPathMatcher(elementXPath) : null;
 
           if (elementMatcher && elementMatcher.isAttributeSelector()) {
-            const attrName = elementMatcher.getAttributeName();
-            if (attrName && event.attributes) {
-              const attrValue = event.attributes[attrName];
-              if (attrValue !== undefined) {
-                const value = this.parseFieldValue(attrValue, elementSchema);
-                results.push(value as T);
-              }
+            const attrName = elementMatcher.getAttributeName()!;
+            const attrValue = event.attributes[attrName];
+            if (attrValue !== undefined) {
+              const value = this.parseFieldValue(attrValue, elementSchema);
+              results.push(value as T);
             }
           } else if (needsRecursive && elementSchema._parseFromPosition) {
             // Use recursive position-based parsing
@@ -733,9 +741,7 @@ export class XmlParserInternal {
         }
       }
 
-      if (currentDepth >= startDepth) {
-        iterResult = iterator.next();
-      }
+      iterResult = iterator.next();
     }
 
     return results;
@@ -787,13 +793,11 @@ export class XmlParserInternal {
             const elementMatcher = elementXPath ? new XPathMatcher(elementXPath) : null;
 
             if (elementMatcher && elementMatcher.isAttributeSelector()) {
-              const attrName = elementMatcher.getAttributeName();
-              if (attrName && event.attributes) {
-                const attrValue = event.attributes[attrName];
-                if (attrValue !== undefined) {
-                  const value = this.parseFieldValue(attrValue, elementSchema);
-                  results.push(value as T);
-                }
+              const attrName = elementMatcher.getAttributeName()!;
+              const attrValue = event.attributes[attrName];
+              if (attrValue !== undefined) {
+                const value = this.parseFieldValue(attrValue, elementSchema);
+                results.push(value as T);
               }
             } else if (needsRecursive && elementSchema._parseFromPosition) {
               const value = await elementSchema._parseFromPosition(
@@ -913,9 +917,7 @@ export class XmlParserInternal {
         buffer += event.value;
       }
 
-      if (currentDepth >= startDepth) {
-        iterResult = parser.next();
-      }
+      iterResult = parser.next();
     }
 
     return buffer;
@@ -924,6 +926,10 @@ export class XmlParserInternal {
   // Helper methods
 
   private createParser(input: ParseInput, eventFilter?: ParserEventFilter): AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> {
+    const backend = getIterableEventBackend(input);
+    if (backend) {
+      return backend;
+    }
     if (typeof input === 'string') {
       const stream = new ReadableStream({
         start(controller) {
@@ -931,18 +937,10 @@ export class XmlParserInternal {
           controller.close();
         }
       });
-      return new StaxXmlParser(stream, {
-        /* v8 ignore next -- decodeEntities option is covered by public parser tests */
-        autoDecodeEntities: this.options?.decodeEntities,
-        eventFilter
-      } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+      return new IterableEventBackendIterator(stream, toIterableBackendOptions(this.options, eventFilter));
     }
     if (input instanceof ReadableStream) {
-      return new StaxXmlParser(input, {
-        /* v8 ignore next -- decodeEntities option is covered by public parser tests */
-        autoDecodeEntities: this.options?.decodeEntities,
-        eventFilter
-      } as never) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+      return new IterableEventBackendIterator(input, toIterableBackendOptions(this.options, eventFilter));
     }
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
   }
@@ -1007,6 +1005,18 @@ export class XmlParserInternal {
     }
 
     return undefined;
+  }
+
+  private createRootObjectSchema(
+    shape: Record<string, XmlSchemaBase<unknown, unknown>>,
+    schemaOptions: { xpath?: string }
+  ): XmlSchemaBase<unknown, unknown> {
+    return {
+      schemaType: 'OBJECT' as const,
+      shape,
+      options: schemaOptions,
+      constructor: { name: 'XmlObjectSchema' }
+    } as unknown as XmlSchemaBase<unknown, unknown>;
   }
 
 
@@ -1375,4 +1385,14 @@ export class XmlParserInternal {
     }
   }
   /* v8 ignore end */
+}
+
+function toIterableBackendOptions(
+  options: ParseOptions | undefined,
+  eventFilter: ParserEventFilter | undefined
+): IterableEventBackendOptions {
+  return {
+    autoDecodeEntities: options?.decodeEntities === true,
+    eventFilter
+  };
 }
