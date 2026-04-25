@@ -11,3 +11,10 @@ export type {
   StaxXmlRuntimePlatform,
   StaxXmlRuntimeResolverOptions,
 } from './native-backend.js';
+export {
+  StaxXmlWasmIterableParser,
+} from './wasm-iterable-parser.js';
+export type {
+  StaxXmlWasmIterableParserOptions,
+  StaxXmlWasmSpanTable,
+} from './wasm-iterable-parser.js';

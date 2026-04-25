@@ -56,8 +56,12 @@ export default defineConfig({
         '@napi-rs/wasm-runtime': fileURLToPath(new URL('./node_modules/@napi-rs/wasm-runtime/runtime.js', import.meta.url)),
         '@stax-xml/native-wasm32-wasi': fileURLToPath(new URL('../native-wasm32-wasi/stax_xml_native.wasi-browser.js', import.meta.url)),
         'stax-xml/converter': fileURLToPath(new URL('../stax-xml/src/converter/index.ts', import.meta.url)),
+        'stax-xml/runtime': fileURLToPath(new URL('../stax-xml/src/runtime/index.ts', import.meta.url)),
         'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
       },
+    },
+    worker: {
+      format: 'es',
     },
   },
   integrations: [
