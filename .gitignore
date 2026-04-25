@@ -7,12 +7,14 @@ CLAUDE.md
 .specify/
 .planning/
 .omx/
+.cargo/
 spec/
 specs/
 .sisyphus
 
 # pnpm
 pnpm-lock.yaml
+.pnpm-store/
 
 # Build outputs
 packages/*/dist
@@ -20,6 +22,7 @@ packages/*/dist_tmp_*
 packages/*/coverage
 packages/*/node_modules
 packages/benchmark/*.log
+packages/benchmark/native/
 coverage/
 directions
 

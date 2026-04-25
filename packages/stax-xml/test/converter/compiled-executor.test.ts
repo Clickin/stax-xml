@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
 import { x } from '../../src/converter/index.js';
 import { CompiledRootProcessor } from '../../src/converter/CompiledRootProcessor.js';
-import type { AnyXmlEvent } from '../../src/types.js';
+import { XmlEventFactory, type AnyXmlEvent } from '../../src/types.js';
 
 async function* asyncEventsFromXml(xml: string): AsyncGenerator<AnyXmlEvent> {
   for (const event of new StaxXmlParserSync(xml)) {
@@ -17,6 +17,12 @@ function streamFromXml(xml: string): ReadableStream<Uint8Array> {
       controller.close();
     }
   });
+}
+
+function compiledProcessor(schema: ReturnType<typeof x.object> | ReturnType<typeof x.string> | ReturnType<typeof x.number> | ReturnType<typeof x.array>): CompiledRootProcessor {
+  const compiled = schema.compile();
+  expect(compiled.compiledPlan.kind).toBe('dispatch');
+  return new CompiledRootProcessor(compiled.compiledPlan);
 }
 
 describe('CompiledRootProcessor', () => {
@@ -369,5 +375,125 @@ describe('CompiledRootProcessor', () => {
       codes: ['a', 'b'],
       quantities: [2, 4]
     });
+  });
+
+  it('uses the iterable sync path for entity decoding, CDATA, and filtered text', () => {
+    const xml = '<root id="a&amp;b"><title>Hi &lt;there&gt;</title><skip><![CDATA[ignored]]></skip><item code="x"><text>one</text></item><item code="y"><text><![CDATA[two]]></text></item></root>';
+    const schema = x.object({
+      id: x.string().xpath('/root/@id'),
+      title: x.string().xpath('/root/title'),
+      items: x.array(
+        x.object({
+          code: x.string().xpath('./@code'),
+          text: x.string().xpath('./text')
+        }),
+        '/root/item'
+      )
+    }).compile();
+
+    expect(schema.parseSync(xml)).toEqual({
+      id: 'a&amp;b',
+      title: 'Hi &lt;there&gt;',
+      items: [
+        { code: 'x', text: 'one' },
+        { code: 'y', text: 'two' }
+      ]
+    });
+
+    expect(schema.parseSync(xml, { decodeEntities: true })).toEqual({
+      id: 'a&b',
+      title: 'Hi <there>',
+      items: [
+        { code: 'x', text: 'one' },
+        { code: 'y', text: 'two' }
+      ]
+    });
+
+    expect(x.string().xpath('/root/@id').compile().parseSync('<root id="only-attr">filtered text<![CDATA[filtered cdata]]></root>'))
+      .toBe('only-attr');
+  });
+
+  it('accepts sync event iterables and surfaces parser error events', async () => {
+    const xml = '<root><value>ok</value></root>';
+    const schema = x.object({
+      value: x.string().xpath('/root/value')
+    });
+    const processor = compiledProcessor(schema);
+
+    expect(await processor.parse(Array.from(new StaxXmlParserSync(xml)))).toEqual({ value: 'ok' });
+
+    async function* errorEvents(): AsyncGenerator<AnyXmlEvent> {
+      yield XmlEventFactory.error(new Error('compiled event failure'));
+    }
+
+    await expect(processor.parse(errorEvents())).rejects.toThrow('compiled event failure');
+  });
+
+  it('enforces compiled depth and event limits', async () => {
+    const schema = x.object({
+      value: x.string().xpath('/root/a/b')
+    });
+    const processor = compiledProcessor(schema);
+
+    expect(() => processor.parseSync('<root><a><b>deep</b></a></root>', { maxDepth: 2 }))
+      .toThrow('XML depth limit exceeded: 2');
+    await expect(processor.parse(streamFromXml('<root><a><b>deep</b></a></root>'), { maxEvents: 1 }))
+      .rejects.toThrow('XML event limit exceeded: 1');
+  });
+
+  it('handles missing attribute selectors and xpath-scoped object roots', () => {
+    const xml = '<root><item><name>Alice</name></item><item id="b"><name>Bob</name></item></root>';
+
+    const objectRoot = x.object({
+      id: x.string().xpath('./@id'),
+      name: x.string().xpath('./name')
+    }).xpath('/root/item');
+    expect(compiledProcessor(objectRoot).parseSync(xml)).toEqual({
+      id: '',
+      name: 'Alice'
+    });
+
+    const fieldAttribute = x.object({
+      id: x.string().xpath('/root/missing/@id'),
+      name: x.string().xpath('/root/item/name')
+    });
+    expect(compiledProcessor(fieldAttribute).parseSync(xml)).toEqual({
+      id: '',
+      name: 'Alice'
+    });
+  });
+
+  it('handles direct text selectors, selector misses, and optional empty arrays', () => {
+    const textXml = '<root><value>before<nested>inside</nested>after</value></root>';
+    expect(compiledProcessor(x.object({
+      direct: x.string().xpath('/root/value/text()'),
+      subtree: x.string().xpath('/root/value')
+    })).parseSync(textXml)).toEqual({
+      direct: 'beforeafter',
+      subtree: 'beforeinsideafter'
+    });
+
+    const missXml = '<item>too shallow</item><other><item>wrong</item></other><root><wrapper><item>deep</item></wrapper><object><wrapper><name>too deep</name></wrapper><other><name>wrong parent</name></other></object><entry code="a"/><entry/></root>';
+    expect(compiledProcessor(x.object({
+      absolute: x.string().xpath('/root/item'),
+      descendant: x.string().xpath('//root/item'),
+      optionalItems: x.array(x.string(), '/root/missing').optional(),
+      codes: x.array(x.string(), '/root/entry/@code'),
+      object: x.object({
+        shallow: x.string().xpath('./name'),
+        nested: x.string().xpath('./meta/name')
+      }).xpath('/root/object')
+    })).parseSync(missXml)).toEqual({
+      absolute: '',
+      descendant: '',
+      optionalItems: undefined,
+      codes: ['a'],
+      object: {
+        shallow: '',
+        nested: ''
+      }
+    });
+
+    expect(compiledProcessor(x.string().xpath('/root/@missing')).parseSync('<root/>')).toBe('');
   });
 });

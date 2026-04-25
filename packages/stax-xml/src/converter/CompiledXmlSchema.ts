@@ -13,6 +13,8 @@ import type {
 } from './compiled-plan.js';
 import type { ParseInput } from './XmlSchema.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
+import type { XmlArraySchema } from './XmlArraySchema.js';
+import type { XmlObjectSchema, XmlObjectShape } from './XmlObjectSchema.js';
 import {
   isArraySchema,
   isNumberSchema,
@@ -127,7 +129,7 @@ function buildCompiledPlan(
 
     const root = isObjectSchema(unwrappedRoot) && !rootXPath
       ? buildObjectPlan(schema, undefined, false, context, true)
-      : buildValuePlan(schema, rootXPath ? compileSelector(rootXPath, context) : undefined, false, context, true);
+      : buildValuePlan(schema, rootXPath ? compileSelector(rootXPath, context) : undefined, false, context, Boolean(rootXPath));
 
     return {
       kind: 'dispatch',
@@ -190,12 +192,14 @@ function buildValuePlan(
   }
 
   if (isObjectSchema(unwrapped)) {
-    const objectSelector = selector ?? (!ignoreOwnXPath ? selectorFromSchema(schema, context) : undefined);
-    return buildObjectPlan(schema, objectSelector, contextual, context, ignoreOwnXPath);
+    return buildObjectPlan(schema, selector, contextual, context, ignoreOwnXPath);
   }
 
   if (isArraySchema(unwrapped)) {
-    const arraySelector = selector ?? compileArraySelector(unwrapped, context, ignoreOwnXPath);
+    if (ignoreOwnXPath && !selector) {
+      throw new UnsupportedDispatchPlan('Nested array dispatch is not supported yet');
+    }
+    const arraySelector = selector ?? compileArraySelector(unwrapped, context);
     return buildArrayPlan(schema, effects, arraySelector, contextual, context);
   }
 
@@ -246,10 +250,7 @@ function buildObjectPlan(
   ignoreOwnXPath: boolean
 ): DispatchObjectPlan {
   const effects = unwrapEffects(schema);
-  const objectSchema = effects.schema;
-  if (!isObjectSchema(objectSchema)) {
-    throw new UnsupportedDispatchPlan('Object dispatch requires an object schema');
-  }
+  const objectSchema = effects.schema as XmlObjectSchema<XmlObjectShape>;
 
   const objectSelector = selector ?? (!ignoreOwnXPath ? selectorFromSchema(schema, context) : undefined);
   if (objectSelector) {
@@ -292,7 +293,7 @@ function buildFieldPlan(
   }
 
   if (isArraySchema(unwrapped)) {
-    const selector = compileArraySelector(unwrapped, context, false);
+    const selector = compileArraySelector(unwrapped, context);
     return buildArrayPlan(schema, effects, selector, contextual, context);
   }
 
@@ -307,10 +308,7 @@ function buildArrayPlan(
   context: LoweringContext
 ): DispatchArrayPlan {
   assertSelectorContext(itemSelector, contextual);
-  const arraySchema = effects.schema;
-  if (!isArraySchema(arraySchema)) {
-    throw new UnsupportedDispatchPlan('Array dispatch requires an array schema');
-  }
+  const arraySchema = effects.schema as XmlArraySchema<XmlSchemaBase<unknown, unknown>>;
 
   const elementHasOwnXPath = Boolean(extractXPath(arraySchema.element));
   const arrayHasOwnXPath = Boolean(arraySchema.xpath);
@@ -326,9 +324,6 @@ function buildArrayPlan(
     true
   );
 
-  if (element.kind === 'array') {
-    throw new UnsupportedDispatchPlan('Nested array dispatch is not supported yet');
-  }
   if (itemSelector.terminal === 'attribute' && element.kind === 'object') {
     throw new UnsupportedDispatchPlan('Attribute array dispatch requires scalar element schemas');
   }
@@ -347,21 +342,17 @@ function buildArrayPlan(
 }
 
 function compileArraySelector(
-  schema: XmlSchemaBase<unknown, unknown>,
-  context: LoweringContext,
-  ignoreOwnXPath: boolean
+  schema: XmlArraySchema<XmlSchemaBase<unknown, unknown>>,
+  context: LoweringContext
 ): DispatchSelector {
-  const xpath = !ignoreOwnXPath && isArraySchema(schema)
-    ? extractArrayItemXPath(schema)
-    : undefined;
+  const xpath = extractArrayItemXPath(schema);
   if (!xpath) {
     throw new UnsupportedDispatchPlan('Array dispatch requires an array XPath or element XPath');
   }
   return compileSelector(xpath, context);
 }
 
-function extractArrayItemXPath(schema: XmlSchemaBase<unknown, unknown>): string | undefined {
-  if (!isArraySchema(schema)) return undefined;
+function extractArrayItemXPath(schema: XmlArraySchema<XmlSchemaBase<unknown, unknown>>): string | undefined {
   return schema.xpath ?? extractXPath(schema.element);
 }
 
@@ -487,9 +478,7 @@ function assertNoCompiledSchema(schema: XmlSchemaBase<unknown, unknown>): void {
   const stack: XmlSchemaBase<unknown, unknown>[] = [schema];
 
   while (stack.length > 0) {
-    const current = stack.pop();
-    /* v8 ignore next -- defensive traversal guard for malformed compiled plans */
-    if (!current) continue;
+    const current = stack.pop()!;
     if (current instanceof CompiledXmlSchema) {
       throw new Error('compile() must be called only on the root schema');
     }

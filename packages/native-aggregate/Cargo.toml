@@ -1,0 +1,16 @@
+[package]
+name = "stax_xml_native_aggregate"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+memchr = "2.7.6"
+napi = { version = "3.8.5", default-features = false, features = ["napi4"] }
+napi-derive = "3.5.4"
+
+[build-dependencies]
+napi-build = "2.3.1"

@@ -1,0 +1,516 @@
+{
+  "generatedAt": "2026-04-24T14:44:34.048Z",
+  "runtime": {
+    "node": "v24.15.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "nativeApi": [
+    "parse_aggregate_buffer(input: Buffer, tier: string)",
+    "parse_aggregate_file(path: string, tier: string)"
+  ],
+  "contract": [
+    "quoted > inside single and double quoted attributes is not a tag end",
+    "comments, CDATA, processing instructions, and simple DOCTYPE are handled with JS parser parity",
+    "incomplete quoted tail fails instead of producing a false aggregate",
+    "count-only is diagnostic and cannot pass the spike alone"
+  ],
+  "options": {
+    "sizesMiB": [
+      128
+    ],
+    "fixtures": [
+      "quoted-gt",
+      "attr-heavy",
+      "high-cardinality",
+      "mixed-utf8"
+    ],
+    "tiers": [
+      "full-string-direct",
+      "event-object-full"
+    ],
+    "scenarios": [
+      "js-node",
+      "native-buffer"
+    ],
+    "runs": 3,
+    "warmups": 1,
+    "chunkSize": 1048576,
+    "batchSize": 1
+  },
+  "files": [
+    {
+      "path": "G:\\programming\\stax-xml\\.omx\\worktrees\\rust-native-chunk-aggregate\\packages\\benchmark\\test-data\\rust-native-aggregate-v2-quoted-gt-128mib.xml",
+      "fixtureId": "quoted-gt",
+      "requestedSizeMiB": 128,
+      "sizeMiB": 127.99991989135742,
+      "tiers": [
+        {
+          "id": "full-string-direct",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "full-string-direct",
+              "avgMs": 1389.8795,
+              "minMs": 1335.6125000000002,
+              "maxMs": 1423.6981999999998,
+              "mibPerSec": 92.09425701390475,
+              "eventCount": 8265108,
+              "checksum": 321484033,
+              "attrCountTotal": 4128612,
+              "objectCount": 0,
+              "peakRssBytes": 269000704,
+              "peakHeapUsedBytes": 6716328,
+              "samplesMs": [
+                1410.3278,
+                1423.6981999999998,
+                1335.6125000000002
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "full-string-direct",
+              "avgMs": 299.54806666666656,
+              "minMs": 298.46450000000004,
+              "maxMs": 300.8643999999995,
+              "mibPerSec": 427.31011859206615,
+              "eventCount": 8265108,
+              "checksum": 321484033,
+              "attrCountTotal": 4128612,
+              "objectCount": 0,
+              "peakRssBytes": 196091904,
+              "peakHeapUsedBytes": 4377328,
+              "samplesMs": [
+                299.3153000000002,
+                298.46450000000004,
+                300.8643999999995
+              ]
+            }
+          ]
+        },
+        {
+          "id": "event-object-full",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "event-object-full",
+              "avgMs": 1538.3381666666671,
+              "minMs": 1524.7137000000002,
+              "maxMs": 1554.9688999999998,
+              "mibPerSec": 83.20662040695044,
+              "eventCount": 8265108,
+              "checksum": 321484033,
+              "attrCountTotal": 4128612,
+              "objectCount": 8265108,
+              "peakRssBytes": 275976192,
+              "peakHeapUsedBytes": 38380824,
+              "samplesMs": [
+                1535.331900000001,
+                1554.9688999999998,
+                1524.7137000000002
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "event-object-full",
+              "avgMs": 788.0962666666674,
+              "minMs": 778.2394000000004,
+              "maxMs": 794.0899000000009,
+              "mibPerSec": 162.41660480482415,
+              "eventCount": 8265108,
+              "checksum": 321484033,
+              "attrCountTotal": 4128612,
+              "objectCount": 8265108,
+              "peakRssBytes": 261337088,
+              "peakHeapUsedBytes": 4576696,
+              "samplesMs": [
+                791.9595000000008,
+                778.2394000000004,
+                794.0899000000009
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "G:\\programming\\stax-xml\\.omx\\worktrees\\rust-native-chunk-aggregate\\packages\\benchmark\\test-data\\rust-native-aggregate-v2-attr-heavy-128mib.xml",
+      "fixtureId": "attr-heavy",
+      "requestedSizeMiB": 128,
+      "sizeMiB": 127.99980735778809,
+      "tiers": [
+        {
+          "id": "full-string-direct",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "full-string-direct",
+              "avgMs": 1260.2893000000004,
+              "minMs": 1248.1153999999988,
+              "maxMs": 1268.6039000000019,
+              "mibPerSec": 101.56382931902068,
+              "eventCount": 4172750,
+              "checksum": -1543980770,
+              "attrCountTotal": 6774248,
+              "objectCount": 0,
+              "peakRssBytes": 332419072,
+              "peakHeapUsedBytes": 5852048,
+              "samplesMs": [
+                1268.6039000000019,
+                1248.1153999999988,
+                1264.1486000000004
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "full-string-direct",
+              "avgMs": 286.5044000000016,
+              "minMs": 286.2263000000021,
+              "maxMs": 286.7985000000008,
+              "mibPerSec": 446.76384501525064,
+              "eventCount": 4172750,
+              "checksum": -1543980770,
+              "attrCountTotal": 6774248,
+              "objectCount": 0,
+              "peakRssBytes": 261890048,
+              "peakHeapUsedBytes": 4582360,
+              "samplesMs": [
+                286.7985000000008,
+                286.488400000002,
+                286.2263000000021
+              ]
+            }
+          ]
+        },
+        {
+          "id": "event-object-full",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "event-object-full",
+              "avgMs": 1435.3697666666678,
+              "minMs": 1386.3899999999994,
+              "maxMs": 1478.7580000000016,
+              "mibPerSec": 89.17549354201574,
+              "eventCount": 4172750,
+              "checksum": -1543980770,
+              "attrCountTotal": 6774248,
+              "objectCount": 4172750,
+              "peakRssBytes": 298291200,
+              "peakHeapUsedBytes": 38476240,
+              "samplesMs": [
+                1478.7580000000016,
+                1440.9613000000027,
+                1386.3899999999994
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "event-object-full",
+              "avgMs": 827.4574666666667,
+              "minMs": 786.5191999999988,
+              "maxMs": 862.1218000000008,
+              "mibPerSec": 154.69049771636367,
+              "eventCount": 4172750,
+              "checksum": -1543980770,
+              "attrCountTotal": 6774248,
+              "objectCount": 4172750,
+              "peakRssBytes": 262115328,
+              "peakHeapUsedBytes": 4661048,
+              "samplesMs": [
+                786.5191999999988,
+                862.1218000000008,
+                833.7314000000006
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "G:\\programming\\stax-xml\\.omx\\worktrees\\rust-native-chunk-aggregate\\packages\\benchmark\\test-data\\rust-native-aggregate-v2-high-cardinality-128mib.xml",
+      "fixtureId": "high-cardinality",
+      "requestedSizeMiB": 128,
+      "sizeMiB": 127.99994945526123,
+      "tiers": [
+        {
+          "id": "full-string-direct",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "full-string-direct",
+              "avgMs": 1284.7093666666624,
+              "minMs": 1233.9358999999968,
+              "maxMs": 1317.9768999999942,
+              "mibPerSec": 99.63339006967229,
+              "eventCount": 3404554,
+              "checksum": 1097295130,
+              "attrCountTotal": 4079232,
+              "objectCount": 0,
+              "peakRssBytes": 276717568,
+              "peakHeapUsedBytes": 15861928,
+              "samplesMs": [
+                1317.9768999999942,
+                1233.9358999999968,
+                1302.2152999999962
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "full-string-direct",
+              "avgMs": 253.49526666666497,
+              "minMs": 252.48999999999796,
+              "maxMs": 254.92119999999704,
+              "mibPerSec": 504.9401952880464,
+              "eventCount": 3404554,
+              "checksum": 1097295130,
+              "attrCountTotal": 4079232,
+              "objectCount": 0,
+              "peakRssBytes": 262393856,
+              "peakHeapUsedBytes": 4678200,
+              "samplesMs": [
+                254.92119999999704,
+                253.07459999999992,
+                252.48999999999796
+              ]
+            }
+          ]
+        },
+        {
+          "id": "event-object-full",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "event-object-full",
+              "avgMs": 1389.0070000000003,
+              "minMs": 1364.5602,
+              "maxMs": 1425.6561000000002,
+              "mibPerSec": 92.15212699090876,
+              "eventCount": 3404554,
+              "checksum": 1097295130,
+              "attrCountTotal": 4079232,
+              "objectCount": 3404554,
+              "peakRssBytes": 276422656,
+              "peakHeapUsedBytes": 40961400,
+              "samplesMs": [
+                1376.8047000000006,
+                1364.5602,
+                1425.6561000000002
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "event-object-full",
+              "avgMs": 653.6094000000012,
+              "minMs": 644.1373999999996,
+              "maxMs": 672.5456000000049,
+              "mibPerSec": 195.83553947550476,
+              "eventCount": 3404554,
+              "checksum": 1097295130,
+              "attrCountTotal": 4079232,
+              "objectCount": 3404554,
+              "peakRssBytes": 263421952,
+              "peakHeapUsedBytes": 4785408,
+              "samplesMs": [
+                672.5456000000049,
+                644.145199999999,
+                644.1373999999996
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "G:\\programming\\stax-xml\\.omx\\worktrees\\rust-native-chunk-aggregate\\packages\\benchmark\\test-data\\rust-native-aggregate-v2-mixed-utf8-128mib.xml",
+      "fixtureId": "mixed-utf8",
+      "requestedSizeMiB": 128,
+      "sizeMiB": 127.99993228912354,
+      "tiers": [
+        {
+          "id": "full-string-direct",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "full-string-direct",
+              "avgMs": 1334.4459000000036,
+              "minMs": 1325.754200000003,
+              "maxMs": 1342.566700000003,
+              "mibPerSec": 95.91991124490187,
+              "eventCount": 5822107,
+              "checksum": -583677570,
+              "attrCountTotal": 2908276,
+              "objectCount": 0,
+              "peakRssBytes": 334286848,
+              "peakHeapUsedBytes": 6101104,
+              "samplesMs": [
+                1342.566700000003,
+                1335.0168000000049,
+                1325.754200000003
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "full-string-direct",
+              "avgMs": 276.9130666666679,
+              "minMs": 274.72350000000006,
+              "maxMs": 279.50740000000224,
+              "mibPerSec": 462.2386867832515,
+              "eventCount": 5822107,
+              "checksum": -583677570,
+              "attrCountTotal": 2908276,
+              "objectCount": 0,
+              "peakRssBytes": 263606272,
+              "peakHeapUsedBytes": 4779536,
+              "samplesMs": [
+                274.72350000000006,
+                279.50740000000224,
+                276.5083000000013
+              ]
+            }
+          ]
+        },
+        {
+          "id": "event-object-full",
+          "scenarios": [
+            {
+              "scenario": "js-node",
+              "tier": "event-object-full",
+              "avgMs": 1514.5133666666686,
+              "minMs": 1504.1792999999961,
+              "maxMs": 1522.633400000006,
+              "mibPerSec": 84.51555140172971,
+              "eventCount": 5822107,
+              "checksum": -583677570,
+              "attrCountTotal": 2908276,
+              "objectCount": 5822107,
+              "peakRssBytes": 291934208,
+              "peakHeapUsedBytes": 38458368,
+              "samplesMs": [
+                1504.1792999999961,
+                1516.7274000000034,
+                1522.633400000006
+              ]
+            },
+            {
+              "scenario": "native-buffer",
+              "tier": "event-object-full",
+              "avgMs": 659.0842999999999,
+              "minMs": 650.7569000000003,
+              "maxMs": 665.0794999999998,
+              "mibPerSec": 194.20874126287572,
+              "eventCount": 5822107,
+              "checksum": -583677570,
+              "attrCountTotal": 2908276,
+              "objectCount": 5822107,
+              "peakRssBytes": 263794688,
+              "peakHeapUsedBytes": 4682360,
+              "samplesMs": [
+                650.7569000000003,
+                665.0794999999998,
+                661.4164999999994
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "gate": {
+    "representativeSizeMiB": 128,
+    "status": "pass",
+    "fullString": {
+      "tier": "full-string-direct",
+      "minimumImprovement": 0.2,
+      "nativeWins": 4,
+      "fixtures": [
+        {
+          "fixtureId": "quoted-gt",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 92.09425701390475,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 427.31011859206615,
+          "improvement": 3.6399214505585205,
+          "pass": true
+        },
+        {
+          "fixtureId": "attr-heavy",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 101.56382931902068,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 446.76384501525064,
+          "improvement": 3.398847975807678,
+          "pass": true
+        },
+        {
+          "fixtureId": "high-cardinality",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 99.63339006967229,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 504.9401952880464,
+          "improvement": 4.067981676975445,
+          "pass": true
+        },
+        {
+          "fixtureId": "mixed-utf8",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 95.91991124490187,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 462.2386867832515,
+          "improvement": 3.8190066148316983,
+          "pass": true
+        }
+      ]
+    },
+    "eventObject": {
+      "tier": "event-object-full",
+      "minimumImprovement": 0.1,
+      "nativeWins": 4,
+      "fixtures": [
+        {
+          "fixtureId": "quoted-gt",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 83.20662040695044,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 162.41660480482415,
+          "improvement": 0.9519673315713364,
+          "pass": true
+        },
+        {
+          "fixtureId": "attr-heavy",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 89.17549354201574,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 154.69049771636367,
+          "improvement": 0.7346749826899472,
+          "pass": true
+        },
+        {
+          "fixtureId": "high-cardinality",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 92.15212699090876,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 195.83553947550476,
+          "improvement": 1.125133145269939,
+          "pass": true
+        },
+        {
+          "fixtureId": "mixed-utf8",
+          "bestJs": "js-node",
+          "bestJsMiBPerSec": 84.51555140172971,
+          "bestNative": "native-buffer",
+          "bestNativeMiBPerSec": 194.20874126287572,
+          "improvement": 1.2979053918697028,
+          "pass": true
+        }
+      ]
+    },
+    "countOnlyDiagnostic": {
+      "tier": "count-only",
+      "minimumImprovement": 0,
+      "nativeWins": 0,
+      "fixtures": []
+    },
+    "rejectionRules": []
+  }
+}

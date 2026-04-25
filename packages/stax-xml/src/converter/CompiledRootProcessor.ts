@@ -1,13 +1,12 @@
 import { StaxXmlParser } from '../StaxXmlParser.js';
-import { StaxXmlParserSync } from '../StaxXmlParserSync.js';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from '../StaxXmlIterableParser.js';
 import {
   isCdata,
   isCharacters,
   isEndElement,
   isError,
   isStartElement,
-  type AnyXmlEvent,
-  type StartElementEvent
+  type AnyXmlEvent
 } from '../types.js';
 import type {
   CompiledSchemaPlan,
@@ -22,6 +21,16 @@ import type {
 import type { ParseInput } from './XmlSchema.js';
 import type { ParseOptions } from './types.js';
 
+const textEncoder = new TextEncoder();
+const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
+const DEFAULT_ENTITY_MAP: Record<string, string> = {
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  amp: '&'
+};
+
 type ParentBinding =
   | { kind: 'root' }
   | { kind: 'field'; object: ObjectState; field: DispatchFieldPlan }
@@ -35,7 +44,6 @@ type ObjectState = {
   childObjects: ObjectState[];
   childArrays: ArrayState[];
   parent: ParentBinding;
-  active: boolean;
 };
 
 type ArrayState = {
@@ -43,8 +51,6 @@ type ArrayState = {
   contextDepth?: number;
   items: unknown[];
   parent: ParentBinding;
-  active: boolean;
-  finalized: boolean;
 };
 
 type CaptureState = {
@@ -53,8 +59,6 @@ type CaptureState = {
   buffer: string;
   textMode: 'subtree' | 'direct';
   parent: ParentBinding;
-  field?: DispatchFieldPlan;
-  active: boolean;
 };
 
 type RuntimeState = {
@@ -88,7 +92,7 @@ function hasBatchedIterator(
 
 export class CompiledRootProcessor {
   constructor(
-    private readonly plan: CompiledSchemaPlan,
+    private readonly plan: DispatchCompiledPlan,
     private readonly options?: ParseOptions
   ) {}
 
@@ -97,28 +101,20 @@ export class CompiledRootProcessor {
   }
 
   parseSync<T>(input: string, options?: ParseOptions | unknown): T {
-    if (this.plan.kind !== 'dispatch') {
-      throw new Error(`CompiledRootProcessor requires a dispatch plan: ${this.plan.reason}`);
-    }
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     const runtime = this.createRuntime(this.plan, effectiveOptions);
-    const parser = new StaxXmlParserSync(input, {
-      autoDecodeEntities: effectiveOptions?.decodeEntities,
-      eventFilter: this.plan.eventFilter
-    });
+    const parser = new StaxXmlIterableParser(toByteBatches([textEncoder.encode(input)], { batchSize: 1 }));
 
-    for (const event of parser) {
-      this.processEvent(runtime, event);
+    while (parser.nextBatch()) {
+      for (let index = 0; index < parser.eventCount(); index++) {
+        this.processIterableEvent(runtime, parser, index);
+      }
     }
 
     return this.finish<T>(runtime);
   }
 
   async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
-    if (this.plan.kind !== 'dispatch') {
-      throw new Error(`CompiledRootProcessor requires a dispatch plan: ${this.plan.reason}`);
-    }
-
     if (typeof input === 'string') {
       return this.parseSync<T>(input, options);
     }
@@ -190,7 +186,7 @@ export class CompiledRootProcessor {
       runtime.elementStack.push(event.name);
       runtime.currentAttributes = event.attributes;
       this.checkDepthLimit(runtime);
-      this.processStart(runtime, event);
+      this.processStart(runtime, event.attributes);
       runtime.currentAttributes = undefined;
     } else if (isCharacters(event) || isCdata(event)) {
       this.processText(runtime, event.value);
@@ -201,24 +197,64 @@ export class CompiledRootProcessor {
     }
   }
 
-  private processStart(runtime: RuntimeState, event: StartElementEvent): void {
+  private processIterableEvent(
+    runtime: RuntimeState,
+    parser: StaxXmlIterableParser,
+    index: number
+  ): void {
+    const type = parser.eventType(index);
+    if (type === IterableEventType.CHARACTERS && !runtime.plan.eventFilter.includeCharacters) {
+      return;
+    }
+    if (type === IterableEventType.CDATA && !runtime.plan.eventFilter.includeCdata) {
+      return;
+    }
+
+    this.checkEventLimit(runtime);
+
+    if (type === IterableEventType.START_ELEMENT) {
+      const name = parser.copyName(index)!;
+      const attributes = runtime.plan.eventFilter.includeAttributes
+        ? copyAttributes(parser, index, runtime.options)
+        : undefined;
+      runtime.depth++;
+      runtime.elementStack.push(name);
+      runtime.currentAttributes = attributes;
+      this.checkDepthLimit(runtime);
+      this.processStart(runtime, attributes);
+      runtime.currentAttributes = undefined;
+      return;
+    }
+
+    if (type === IterableEventType.CHARACTERS || type === IterableEventType.CDATA) {
+      const text = parser.copyText(index)!;
+      this.processText(runtime, decodeEntities(text, runtime.options));
+      return;
+    }
+
+    if (type === IterableEventType.END_ELEMENT) {
+      this.processEnd(runtime);
+      runtime.elementStack.pop();
+      runtime.depth--;
+    }
+  }
+
+  private processStart(runtime: RuntimeState, attributes: Record<string, string> | undefined): void {
     const root = runtime.plan.root;
     if (!runtime.rootDone && root.kind !== 'array' && !(root.kind === 'object' && !root.selector)) {
-      this.tryStartValue(runtime, root, undefined, { kind: 'root' }, undefined);
+      this.tryStartValue(runtime, root, undefined, { kind: 'root' });
     }
 
     for (let index = 0; index < runtime.arrays.length; index++) {
       const array = runtime.arrays[index];
-      if (!array.active || !matchesSelector(array.plan.itemSelector, runtime, array.contextDepth)) {
+      if (!matchesSelector(array.plan.itemSelector, runtime, array.contextDepth)) {
         continue;
       }
-      this.startArrayItem(runtime, array, event);
+      this.startArrayItem(runtime, array, attributes);
     }
 
     for (let index = 0; index < runtime.objects.length; index++) {
-      const object = runtime.objects[index];
-      if (!object.active) continue;
-      this.processObjectStart(runtime, object);
+      this.processObjectStart(runtime, runtime.objects[index]);
     }
   }
 
@@ -243,7 +279,7 @@ export class CompiledRootProcessor {
         continue;
       }
 
-      this.tryStartScalar(runtime, value, object.depth, { kind: 'field', object, field }, field);
+      this.tryStartScalar(runtime, value, object.depth, { kind: 'field', object, field });
     }
   }
 
@@ -251,18 +287,16 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     value: DispatchValuePlan,
     contextDepth: number | undefined,
-    parent: ParentBinding,
-    field: DispatchFieldPlan | undefined
+    parent: ParentBinding
   ): void {
     if (value.kind === 'string' || value.kind === 'number') {
-      this.tryStartScalar(runtime, value, contextDepth, parent, field);
+      this.tryStartScalar(runtime, value, contextDepth, parent);
       return;
     }
 
-    if (value.kind === 'object') {
-      if (value.selector && matchesSelector(value.selector, runtime, contextDepth)) {
-        this.createObjectState(runtime, value, runtime.depth, parent);
-      }
+    const object = value as DispatchObjectPlan;
+    if (object.selector && matchesSelector(object.selector, runtime, contextDepth)) {
+      this.createObjectState(runtime, object, runtime.depth, parent);
     }
   }
 
@@ -270,8 +304,7 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     plan: DispatchScalarPlan,
     contextDepth: number | undefined,
-    parent: ParentBinding,
-    field: DispatchFieldPlan | undefined
+    parent: ParentBinding
   ): void {
     const selector = plan.selector;
     if (!selector || !matchesSelector(selector, runtime, contextDepth)) {
@@ -279,11 +312,11 @@ export class CompiledRootProcessor {
     }
 
     if (selector.terminal === 'attribute') {
-      const value = selector.attributeName ? currentAttributes(runtime)?.[selector.attributeName] : undefined;
+      const value = currentAttributes(runtime)?.[selector.attributeName!];
       if (value !== undefined) {
-        this.assignScalar(runtime, plan, value, parent, field);
+        this.assignScalar(runtime, plan, value, parent);
       } else {
-        markCompleted(parent, field, plan);
+        markCompleted(parent, plan);
       }
       return;
     }
@@ -293,20 +326,18 @@ export class CompiledRootProcessor {
       depth: runtime.depth,
       buffer: '',
       textMode: selector.textMode,
-      parent,
-      field,
-      active: true
+      parent
     });
   }
 
-  private startArrayItem(runtime: RuntimeState, array: ArrayState, event: StartElementEvent): void {
+  private startArrayItem(runtime: RuntimeState, array: ArrayState, attributes: Record<string, string> | undefined): void {
     const itemSelector = array.plan.itemSelector;
     const element = array.plan.element;
 
     if (itemSelector.terminal === 'attribute') {
-      const value = itemSelector.attributeName ? event.attributes?.[itemSelector.attributeName] : undefined;
-      if (value !== undefined && (element.kind === 'string' || element.kind === 'number')) {
-        array.items.push(parseScalar(element, value));
+      const value = attributes?.[itemSelector.attributeName!];
+      if (value !== undefined) {
+        array.items.push(parseScalar(element as DispatchScalarPlan, value));
       }
       return;
     }
@@ -316,46 +347,41 @@ export class CompiledRootProcessor {
       return;
     }
 
-    if (element.kind === 'string' || element.kind === 'number') {
-      runtime.captures.push({
-        plan: element,
-        depth: runtime.depth,
-        buffer: '',
-        textMode: itemSelector.textMode,
-        parent: { kind: 'array', array },
-        active: true
-      });
-    }
+    runtime.captures.push({
+      plan: element as DispatchScalarPlan,
+      depth: runtime.depth,
+      buffer: '',
+      textMode: itemSelector.textMode,
+      parent: { kind: 'array', array }
+    });
   }
 
   private processText(runtime: RuntimeState, text: string): void {
     for (const capture of runtime.captures) {
-      if (!capture.active) continue;
       if (capture.textMode === 'direct') {
         if (runtime.depth === capture.depth) {
           capture.buffer += text;
         }
         continue;
       }
-      if (runtime.depth >= capture.depth) {
-        capture.buffer += text;
-      }
+      capture.buffer += text;
     }
   }
 
   private processEnd(runtime: RuntimeState): void {
+    const activeCaptures: CaptureState[] = [];
     for (const capture of runtime.captures) {
-      if (!capture.active || capture.depth !== runtime.depth) {
+      if (capture.depth !== runtime.depth) {
+        activeCaptures.push(capture);
         continue;
       }
-      capture.active = false;
-      this.assignScalar(runtime, capture.plan, capture.buffer.trim(), capture.parent, capture.field);
+      this.assignScalar(runtime, capture.plan, capture.buffer.trim(), capture.parent);
     }
-    runtime.captures = runtime.captures.filter(capture => capture.active);
+    runtime.captures = activeCaptures;
 
     for (let index = runtime.objects.length - 1; index >= 0; index--) {
       const object = runtime.objects[index];
-      if (object.active && object.depth === runtime.depth) {
+      if (object.depth === runtime.depth) {
         this.finalizeObject(runtime, object);
       }
     }
@@ -374,8 +400,7 @@ export class CompiledRootProcessor {
       completedFields: new Set(),
       childObjects: [],
       childArrays: [],
-      parent,
-      active: true
+      parent
     };
 
     for (const field of plan.fields) {
@@ -410,9 +435,7 @@ export class CompiledRootProcessor {
       plan,
       contextDepth,
       items: [],
-      parent,
-      active: true,
-      finalized: false
+      parent
     };
     runtime.arrays.push(array);
     return array;
@@ -422,18 +445,16 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     plan: DispatchScalarPlan,
     rawValue: string,
-    parent: ParentBinding,
-    field: DispatchFieldPlan | undefined
+    parent: ParentBinding
   ): void {
     const value = parseScalar(plan, rawValue);
-    this.assignValue(runtime, value, parent, field, plan);
+    this.assignValue(runtime, value, parent, plan);
   }
 
   private assignValue(
     runtime: RuntimeState,
     value: unknown,
     parent: ParentBinding,
-    field: DispatchFieldPlan | undefined,
     plan: DispatchValuePlan
   ): void {
     if (parent.kind === 'root') {
@@ -448,48 +469,30 @@ export class CompiledRootProcessor {
       return;
     }
 
-    if (!field) {
-      return;
-    }
-    parent.object.values[field.fieldName] = value;
+    parent.object.values[parent.field.fieldName] = value;
     parent.object.completedFields.add(plan.id);
   }
 
   private finalizeObject(runtime: RuntimeState, object: ObjectState): unknown {
-    if (!object.active) {
-      return object.values;
-    }
-
     for (const child of object.childObjects) {
-      if (child.active) {
-        this.finalizeObject(runtime, child);
-      }
+      this.finalizeObject(runtime, child);
     }
 
     for (const array of object.childArrays) {
-      if (array.active) {
-        this.finalizeArray(runtime, array);
-      }
+      this.finalizeArray(runtime, array);
     }
 
-    object.active = false;
     runtime.objects = runtime.objects.filter(candidate => candidate !== object);
     let value: unknown = object.values;
     for (const transformFn of object.plan.transforms) {
       value = transformFn(value);
     }
 
-    this.assignValue(runtime, value, object.parent, object.parent.kind === 'field' ? object.parent.field : undefined, object.plan);
+    this.assignValue(runtime, value, object.parent, object.plan);
     return value;
   }
 
   private finalizeArray(runtime: RuntimeState, array: ArrayState): unknown {
-    if (array.finalized) {
-      return array.items;
-    }
-
-    array.active = false;
-    array.finalized = true;
     runtime.arrays = runtime.arrays.filter(candidate => candidate !== array);
 
     let value: unknown = array.plan.optional && array.items.length === 0 ? undefined : array.items;
@@ -499,15 +502,15 @@ export class CompiledRootProcessor {
       }
     }
 
-    this.assignValue(runtime, value, array.parent, array.parent.kind === 'field' ? array.parent.field : undefined, array.plan);
+    this.assignValue(runtime, value, array.parent, array.plan);
     return value;
   }
 
   private finish<T>(runtime: RuntimeState): T {
-    if (runtime.rootObject?.active) {
+    if (runtime.rootObject) {
       this.finalizeObject(runtime, runtime.rootObject);
     }
-    if (runtime.rootArray?.active) {
+    if (runtime.rootArray) {
       this.finalizeArray(runtime, runtime.rootArray);
     }
     return runtime.rootValue as T;
@@ -533,7 +536,7 @@ export class CompiledRootProcessor {
     if (input instanceof ReadableStream) {
       return new StaxXmlParser(input, {
         autoDecodeEntities: options?.decodeEntities,
-        eventFilter: this.plan.kind === 'dispatch' ? this.plan.eventFilter : undefined
+        eventFilter: this.plan.eventFilter
       }) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
     }
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
@@ -567,14 +570,11 @@ function matchesSelector(
     return true;
   }
 
-  if (contextDepth === undefined) {
-    return false;
-  }
-  if (runtime.depth !== contextDepth + segments.length) {
+  if (runtime.depth !== contextDepth! + segments.length) {
     return false;
   }
   for (let index = 0; index < segments.length; index++) {
-    if (runtime.elementStack[contextDepth + index] !== segments[index]) return false;
+    if (runtime.elementStack[contextDepth! + index] !== segments[index]) return false;
   }
   return true;
 }
@@ -603,12 +603,9 @@ function defaultValue(plan: DispatchValuePlan, missingSelectableObject: boolean)
     return {};
   }
 
-  if (plan.kind !== 'object') {
-    return undefined;
-  }
-
   const result: Record<string, unknown> = {};
-  for (const field of plan.fields) {
+  const objectPlan = plan as DispatchObjectPlan;
+  for (const field of objectPlan.fields) {
     result[field.fieldName] = defaultValue(field.value, true);
   }
   return result;
@@ -618,10 +615,42 @@ function currentAttributes(runtime: RuntimeState): Record<string, string> | unde
   return runtime.currentAttributes;
 }
 
-function markCompleted(parent: ParentBinding, field: DispatchFieldPlan | undefined, plan: DispatchScalarPlan): void {
-  if (parent.kind === 'field' && field) {
+function markCompleted(parent: ParentBinding, plan: DispatchScalarPlan): void {
+  if (parent.kind === 'field') {
     parent.object.completedFields.add(plan.id);
   }
+}
+
+function copyAttributes(
+  parser: StaxXmlIterableParser,
+  eventIndex: number,
+  options?: ParseOptions
+): Record<string, string> {
+  const count = parser.attrCount(eventIndex);
+  if (count === 0) {
+    return {};
+  }
+
+  const attributes: Record<string, string> = {};
+  for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+    attributes[parser.copyAttrName(eventIndex, attrIndex)!] = decodeEntities(
+      parser.copyAttrValue(eventIndex, attrIndex)!,
+      options
+    );
+  }
+  return attributes;
+}
+
+function decodeEntities(value: string, options?: ParseOptions): string {
+  if (options?.decodeEntities !== true) {
+    return value;
+  }
+  if (value.indexOf('&') === -1) {
+    return value;
+  }
+
+  DEFAULT_ENTITY_REGEX.lastIndex = 0;
+  return value.replace(DEFAULT_ENTITY_REGEX, (_, entity: string) => DEFAULT_ENTITY_MAP[entity]!);
 }
 
 function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undefined {
