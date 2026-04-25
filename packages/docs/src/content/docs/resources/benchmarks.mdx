@@ -21,6 +21,7 @@ head:
 ---
 
 import BenchmarkSection from '../../../components/BenchmarkSection.astro';
+import RuntimeBenchmarkSection from '../../../components/RuntimeBenchmarkSection.astro';
 
 StAX-XML is designed for high performance across various XML processing scenarios. This page presents benchmark results comparing StAX-XML with other popular XML parsing libraries.
 
@@ -59,21 +60,48 @@ Performance results on large.xml (98MB):
 **Performance Crossover Analysis:**
 - **Small files (2-4KB)**: txml still leads raw parser throughput
 - **Medium files (13MB)**: xml2js remains an anomalous outlier on this fixture, while `stax-xml consume` and `stax-xml to object` stay in the same general throughput band
-- **Large files (98MB)**: StAX-XML provides best balance of speed and memory efficiency
-- **Very large files (1GB+)**: Only async parsers remain viable
+- **Large files (98MB)**: compare the generated table directly; throughput and memory trade-offs move by parser and fixture
+- **Very large files (1GB+)**: async streams and synchronous iterable byte-batch parsing avoid retaining one full XML string; the public sync string parser remains the in-memory path
 
 
 ### stax-xml sync vs async (1MB to 1GB)
 
-sync vs async perfromance :
+sync vs async performance:
 
 <BenchmarkSection locale="en" section="async-size" />
 
 **Key Insights:**
-- Sync parser is faster for smaller files.
-- Async parser keeps memory usage flatter as file size grows.
-- For files above 100MB, async parsing is the practical low-memory path.
+- Sync parsing is the direct in-memory path; async parsing trades some scheduling overhead for flatter memory behavior.
+- The relative timing can move by fixture and runtime, so the generated table is the source of truth.
+- For files above 100MB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking work or the synchronous iterable byte-batch backend for blocking batch jobs.
 
+## Runtime Matrix
+
+The release artifact also measures the same built JavaScript implementation on Node, Bun, and Deno using a generated, single-root 16 MiB XML fixture.
+This matrix is a compatibility and runtime-codegen check; it does not include native addons.
+The `iterable-*` rows are synchronous byte-batch parser paths, not async parser rows.
+
+<RuntimeBenchmarkSection locale="en" section="runtime-matrix" />
+
+## Cross-Runtime Comparator
+
+The table below compares `stax-xml` on Node with Woodstox and `quick-xml` under the same event-count and checksum contract.
+Woodstox is shown with Java 8 for the public baseline because Java 8 is its minimum supported runtime target. Java 25 is measured separately to confirm whether the JVM version changes the conclusion.
+
+<RuntimeBenchmarkSection locale="en" section="cross-runtime" />
+
+### Woodstox Java 25 Check
+
+<RuntimeBenchmarkSection locale="en" section="java25" />
+
+### Why Native Addons Are Now the Acceleration Path
+
+The pure JavaScript path remains the compatibility fallback, but it is not the release performance ceiling anymore.
+The parser work leading up to this release repeatedly found that V8-friendly JavaScript loop shapes could improve the iterable backend, yet the full-string workload still stayed behind native parser baselines, especially `quick-xml`.
+The main remaining costs are delimiter scanning, string materialization, and stable object/API shapes around attributes and text.
+
+Rust native addons give the project a path to use a native tokenizer and SIMD-oriented scanning strategy, closer in direction to native parsers such as `quick-xml` and simdjson-style designs.
+The package therefore keeps `stax-xml` as the public facade while adding optional native/Wasm acceleration packages; environments that cannot or should not load binaries still use the JavaScript fallback.
 
 ## Converter API vs Plain Parser
 

@@ -405,7 +405,7 @@ impl<'a> Parser<'a> {
         let mut name_end = name_start;
         while name_end < actual_end {
             let byte = self.input[name_end];
-            if is_whitespace(byte) || byte == b'/' || byte == b'>' {
+            if is_whitespace(byte) || byte == b'/' {
                 break;
             }
             name_end += 1;
@@ -676,7 +676,7 @@ impl<'a> Utf16Parser<'a> {
         let mut name_end = name_start;
         while name_end < actual_end {
             let unit = self.input[name_end];
-            if is_whitespace_u16(unit) || unit == b'/' as u16 || unit == b'>' as u16 {
+            if is_whitespace_u16(unit) || unit == b'/' as u16 {
                 break;
             }
             name_end += 1;
@@ -946,7 +946,7 @@ impl<'a> SpanTableUtf16Parser<'a> {
         let mut name_end = name_start;
         while name_end < actual_end {
             let unit = self.input[name_end];
-            if is_whitespace_u16(unit) || unit == b'/' as u16 || unit == b'>' as u16 {
+            if is_whitespace_u16(unit) || unit == b'/' as u16 {
                 break;
             }
             name_end += 1;
@@ -1660,6 +1660,298 @@ mod tests {
         assert_eq!(out.input_units, units.len());
         assert!(out.event_count > 0);
         assert_eq!(out.attr_count_total, 1);
+    }
+
+    #[test]
+    fn ffi_utf16_units_reports_error_statuses() {
+        let units: Vec<u16> = "<root>".encode_utf16().collect();
+        let mut out = FfiAggregateResult {
+            event_count: 0,
+            checksum: 0,
+            attr_count_total: 0,
+            object_count: 0,
+            input_units: 0,
+        };
+
+        assert_eq!(
+            unsafe {
+                stax_xml_parse_aggregate_utf16_units(
+                    std::ptr::null(),
+                    0,
+                    0,
+                    &mut out as *mut FfiAggregateResult,
+                )
+            },
+            -1
+        );
+        assert_eq!(
+            unsafe {
+                stax_xml_parse_aggregate_utf16_units(
+                    units.as_ptr(),
+                    units.len(),
+                    0,
+                    std::ptr::null_mut(),
+                )
+            },
+            -1
+        );
+        assert_eq!(
+            unsafe {
+                stax_xml_parse_aggregate_utf16_units(
+                    units.as_ptr(),
+                    units.len(),
+                    99,
+                    &mut out as *mut FfiAggregateResult,
+                )
+            },
+            -3
+        );
+        assert_eq!(
+            unsafe {
+                stax_xml_parse_aggregate_utf16_units(
+                    units.as_ptr(),
+                    units.len(),
+                    0,
+                    &mut out as *mut FfiAggregateResult,
+                )
+            },
+            -2
+        );
+    }
+
+    #[test]
+    fn tier_parsing_accepts_known_names_and_rejects_unknown_names() {
+        assert_eq!(parse_tier("count-only").unwrap(), Tier::CountOnly);
+        assert_eq!(
+            parse_tier("full-string-direct").unwrap(),
+            Tier::FullStringDirect
+        );
+        assert_eq!(
+            parse_tier("event-object-full").unwrap(),
+            Tier::EventObjectFull
+        );
+        assert!(parse_tier("missing").is_err());
+        assert_eq!(tier_name(Tier::CountOnly), "count-only");
+        assert_eq!(tier_name(Tier::FullStringDirect), "full-string-direct");
+        assert_eq!(tier_name(Tier::EventObjectFull), "event-object-full");
+    }
+
+    #[test]
+    fn utf8_parser_covers_markup_boundaries_and_errors() {
+        for input in [
+            &b""[..],
+            &b"text only"[..],
+            &b"   "[..],
+            &b"< />"[..],
+            &b"<root ></root>"[..],
+            &b"<a/b></a>"[..],
+            &b"<root></ root >"[..],
+            &b"<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>"[..],
+        ] {
+            parse_aggregate(input, Tier::CountOnly).unwrap();
+        }
+
+        for input in [
+            &b"<"[..],
+            &b"<>"[..],
+            &b"<root"[..],
+            &b"<root>"[..],
+            &b"</"[..],
+            &b"</>"[..],
+            &b"</root>"[..],
+            &b"</ root >"[..],
+            &b"<a></b>"[..],
+            &b"<![CDATA[open"[..],
+            &b"<!--open"[..],
+            &b"<!DOCTYPE"[..],
+            &b"<!BROKEN"[..],
+            &b"<?xml version=\"1.0\""[..],
+            &b"<?pi"[..],
+        ] {
+            assert!(
+                parse_aggregate(input, Tier::CountOnly).is_err(),
+                "expected utf8 parser to reject {}",
+                String::from_utf8_lossy(input)
+            );
+        }
+    }
+
+    #[test]
+    fn utf16_parser_covers_markup_boundaries_and_errors() {
+        for input in [
+            "",
+            "text only",
+            "   ",
+            "< />",
+            "<root ></root>",
+            "<a/b></a>",
+            "<root></ root >",
+            "<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>",
+        ] {
+            parse_aggregate_utf16(&utf16(input), Tier::CountOnly).unwrap();
+        }
+
+        for input in [
+            "<",
+            "<>",
+            "<root",
+            "<root>",
+            "</",
+            "</>",
+            "</root>",
+            "</ root >",
+            "<a></b>",
+            "<![CDATA[open",
+            "<!--open",
+            "<!DOCTYPE",
+            "<!BROKEN",
+            "<?xml version=\"1.0\"",
+            "<?pi",
+        ] {
+            assert!(
+                parse_aggregate_utf16(&utf16(input), Tier::CountOnly).is_err(),
+                "expected utf16 parser to reject {input}"
+            );
+        }
+    }
+
+    #[test]
+    fn span_table_parser_covers_markup_boundaries_and_errors() {
+        for input in [
+            "",
+            "text only",
+            "   ",
+            "< />",
+            "<root ></root>",
+            "<a/b></a>",
+            "<root></ root >",
+            "<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>",
+        ] {
+            parse_span_table_utf16(&utf16(input)).unwrap();
+        }
+
+        for input in [
+            "<",
+            "<>",
+            "<root",
+            "<root>",
+            "</",
+            "</>",
+            "</root>",
+            "</ root >",
+            "<a></b>",
+            "<![CDATA[open",
+            "<!--open",
+            "<!DOCTYPE",
+            "<!BROKEN",
+            "<?xml version=\"1.0\"",
+            "<?pi",
+        ] {
+            assert!(
+                parse_span_table_utf16(&utf16(input)).is_err(),
+                "expected span table parser to reject {input}"
+            );
+        }
+    }
+
+    #[test]
+    fn attribute_scanners_cover_edge_cases_and_overflow() {
+        assert_eq!(parse_attributes(b"", 0, 0).len(), 0);
+        assert_eq!(parse_attributes(b"   ", 0, 3).len(), 0);
+        assert_eq!(parse_attributes(b"name", 0, 4).len(), 1);
+        assert_eq!(parse_attributes(b"name other", 0, 10).len(), 2);
+        assert_eq!(parse_attributes(b"name = \"v\"", 0, 10).len(), 1);
+        assert_eq!(parse_attributes(b"name='v'", 0, 8).len(), 1);
+        assert_eq!(parse_attributes(b"name=   ", 0, 8).len(), 0);
+        assert_eq!(parse_attributes(b"name=x", 0, 6).len(), 0);
+        assert_eq!(parse_attributes(b"name=\"unterminated", 0, 18).len(), 0);
+
+        let many = b"a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
+        let attrs = parse_attributes(many, 0, many.len());
+        assert_eq!(attrs.len(), 17);
+        assert_eq!(attrs.overflow_len_for_test(), 1);
+        assert_eq!(attrs.to_vec_for_test().len(), 17);
+    }
+
+    #[test]
+    fn utf16_attribute_scanner_covers_edge_cases_and_overflow() {
+        assert_eq!(parse_attributes_utf16(&utf16(""), 0, 0).len(), 0);
+        assert_eq!(parse_attributes_utf16(&utf16("   "), 0, 3).len(), 0);
+        assert_eq!(parse_attributes_utf16(&utf16("name"), 0, 4).len(), 1);
+        assert_eq!(parse_attributes_utf16(&utf16("name other"), 0, 10).len(), 2);
+        assert_eq!(
+            parse_attributes_utf16(&utf16("name = \"v\""), 0, 10).len(),
+            1
+        );
+        assert_eq!(parse_attributes_utf16(&utf16("name='v'"), 0, 8).len(), 1);
+        assert_eq!(parse_attributes_utf16(&utf16("name=   "), 0, 8).len(), 0);
+        assert_eq!(parse_attributes_utf16(&utf16("name=x"), 0, 6).len(), 0);
+        assert_eq!(
+            parse_attributes_utf16(&utf16("name=\"unterminated"), 0, 18).len(),
+            0
+        );
+
+        let many =
+            "a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
+        let attrs = parse_attributes_utf16(&utf16(many), 0, many.encode_utf16().count());
+        assert_eq!(attrs.len(), 17);
+        assert_eq!(attrs.overflow_len_for_test(), 1);
+        assert_eq!(attrs.to_vec_for_test().len(), 17);
+    }
+
+    #[test]
+    fn low_level_helpers_cover_negative_and_boundary_paths() {
+        assert_eq!(fold_string(9, ""), 9);
+
+        assert!(starts_with(b"abc", 0, b"ab"));
+        assert!(!starts_with(b"abc", 2, b"abc"));
+        assert!(!starts_with(b"abc", 0, b"ax"));
+
+        let abc = utf16("abc");
+        assert!(starts_with_ascii_u16(&abc, 0, b"ab"));
+        assert!(!starts_with_ascii_u16(&abc, 2, b"abc"));
+        assert!(!starts_with_ascii_u16(&abc, 0, b"ax"));
+
+        assert_eq!(find_bytes(b"abc", b"", 0), None);
+        assert_eq!(find_bytes(b"abc", b"a", 3), None);
+        assert_eq!(find_bytes(b"ab", b"abc", 1), None);
+        assert_eq!(find_bytes(b"bbb", b"a", 0), None);
+        assert_eq!(find_bytes(b"abac", b"ac", 0), Some(2));
+
+        assert_eq!(find_ascii_sequence_u16(&abc, b"", 0), None);
+        assert_eq!(find_ascii_sequence_u16(&abc, b"a", 3), None);
+        assert_eq!(find_ascii_sequence_u16(&utf16("ab"), b"abc", 1), None);
+        assert_eq!(find_ascii_sequence_u16(&utf16("bbb"), b"a", 0), None);
+        assert_eq!(find_ascii_sequence_u16(&utf16("abac"), b"ac", 0), Some(2));
+
+        assert_eq!(find_unit(&[1, 2], 3, 0, 2), None);
+        assert_eq!(find_unit(&[1], 1, 1, 1), None);
+        assert_eq!(find_unit(&[1, 2], 2, 0, 9), Some(1));
+
+        assert_eq!(trim_units(&utf16(""), 0, 0), (0, 0));
+        assert_eq!(trim_units(&utf16("x"), 0, 1), (0, 1));
+        assert_eq!(trim_units(&utf16(" x "), 0, 3), (1, 2));
+        assert_eq!(trim_units(&utf16("   "), 0, 3), (3, 3));
+
+        let double_quote = br#"<item text="it's fine">"#;
+        assert_eq!(find_tag_end(double_quote, 1), Some(double_quote.len() - 1));
+        let single_quote = br#"<item text='a " b'>"#;
+        assert_eq!(find_tag_end(single_quote, 1), Some(single_quote.len() - 1));
+
+        let double_quote_utf16 = utf16("<item text=\"it's fine\">");
+        assert_eq!(
+            find_tag_end_utf16(&double_quote_utf16, 1),
+            Some(double_quote_utf16.len() - 1)
+        );
+        let single_quote_utf16 = utf16("<item text='a \" b'>");
+        assert_eq!(
+            find_tag_end_utf16(&single_quote_utf16, 1),
+            Some(single_quote_utf16.len() - 1)
+        );
+    }
+
+    fn utf16(value: &str) -> Vec<u16> {
+        value.encode_utf16().collect()
     }
 
     fn read_u32(input: &[u8], offset: usize) -> u32 {

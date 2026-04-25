@@ -53,7 +53,13 @@ const SCENARIO_IDS = [
   'native-string-utf16',
   'native-span-table-string-utf16',
 ];
-const eventObjectSink = new Array(EVENT_OBJECT_SINK_SIZE);
+const eventObjectSink = createSparseSlots(EVENT_OBJECT_SINK_SIZE);
+
+function createSparseSlots(size) {
+  const slots = [];
+  slots.length = size;
+  return slots;
+}
 
 function parseArgs(argv) {
   const options = {

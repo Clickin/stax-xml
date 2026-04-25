@@ -1,0 +1,133 @@
+---
+import runtimeMatrix from '../../../benchmark/results/release/runtime-matrix.json';
+import crossRuntime from '../../../benchmark/results/release/cross-runtime-comparison.json';
+
+type Locale = 'en' | 'ko';
+type Section = 'runtime-matrix' | 'cross-runtime' | 'java25';
+
+interface Props {
+  locale: Locale;
+  section: Section;
+}
+
+const { locale, section } = Astro.props as Props;
+
+function formatRate(value: number | null | undefined) {
+  return Number.isFinite(value) ? `${Number(value).toFixed(1)} MiB/s` : 'n/a';
+}
+
+function formatMs(value: number | null | undefined) {
+  return Number.isFinite(value) ? `${Number(value).toFixed(2)} ms` : 'n/a';
+}
+
+function formatPct(value: number | null | undefined) {
+  return Number.isFinite(value) ? `${Number(value) >= 0 ? '+' : ''}${(Number(value) * 100).toFixed(1)}%` : 'n/a';
+}
+
+function scenarioLabel(id: string) {
+  if (locale === 'en') return id;
+  return id
+    .replace('public-sync-full-string', 'public sync full-string')
+    .replace('iterable-count-only', 'iterable count-only')
+    .replace('iterable-full-string', 'iterable full-string');
+}
+
+function crossScenario(tier: any, id: string) {
+  return tier.scenarios.find((scenario: any) => scenario.id === id);
+}
+
+const runtimeRows = runtimeMatrix.results.flatMap((result: any) => {
+  if (result.status !== 'ok') {
+    return [[result.runtime.id, result.status, 'n/a', 'n/a', 'n/a', result.reason ?? '']];
+  }
+  return result.scenarios.map((scenario: any) => [
+    result.runtime.id,
+    result.runtime.version,
+    scenarioLabel(scenario.id),
+    formatRate(scenario.mibPerSec),
+    formatMs(scenario.avgMs),
+    String(scenario.checksum),
+  ]);
+});
+
+const crossRows = crossRuntime.nodeStringReturn.files[0].tiers.map((tier: any) => {
+  const node = crossScenario(tier, 'node');
+  const woodstox = crossScenario(tier, 'woodstox');
+  const quickXml = crossScenario(tier, 'quick-xml');
+  return [
+    tier.id,
+    formatRate(node?.mibPerSec),
+    formatRate(woodstox?.mibPerSec),
+    formatRate(quickXml?.mibPerSec),
+    node?.mibPerSec && woodstox?.mibPerSec ? `${(node.mibPerSec / woodstox.mibPerSec).toFixed(2)}x` : 'n/a',
+    node?.mibPerSec && quickXml?.mibPerSec ? `${(node.mibPerSec / quickXml.mibPerSec).toFixed(2)}x` : 'n/a',
+  ];
+});
+
+const java25Rows = crossRuntime.java25Verification.tiers.map((entry: any) => [
+  entry.tier,
+  formatRate(entry.java8MibPerSec),
+  formatRate(entry.java25?.mibPerSec),
+  formatPct(entry.deltaVsJava8),
+  entry.java25?.status ?? 'skipped',
+]);
+---
+
+{section === 'runtime-matrix' && (
+  <table>
+    <thead>
+      <tr>
+        <th>{locale === 'en' ? 'Runtime' : '런타임'}</th>
+        <th>{locale === 'en' ? 'Version' : '버전'}</th>
+        <th>{locale === 'en' ? 'Scenario' : '시나리오'}</th>
+        <th>{locale === 'en' ? 'Throughput' : '처리량'}</th>
+        <th>{locale === 'en' ? 'Average' : '평균'}</th>
+        <th>Checksum</th>
+      </tr>
+    </thead>
+    <tbody>
+      {runtimeRows.map((row: string[]) => (
+        <tr>{row.map((cell) => <td>{cell}</td>)}</tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
+{section === 'cross-runtime' && (
+  <table>
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th>stax-xml Node</th>
+        <th>Woodstox Java 8</th>
+        <th>quick-xml</th>
+        <th>Node/Woodstox</th>
+        <th>Node/quick-xml</th>
+      </tr>
+    </thead>
+    <tbody>
+      {crossRows.map((row: string[]) => (
+        <tr>{row.map((cell) => <td>{cell}</td>)}</tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
+{section === 'java25' && (
+  <table>
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th>Woodstox Java 8</th>
+        <th>Woodstox Java 25</th>
+        <th>{locale === 'en' ? 'Delta' : '차이'}</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {java25Rows.map((row: string[]) => (
+        <tr>{row.map((cell) => <td>{cell}</td>)}</tr>
+      ))}
+    </tbody>
+  </table>
+)}

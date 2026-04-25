@@ -15,6 +15,12 @@ export interface ByteBatchOptions {
   batchSize?: number;
 }
 
+export interface StaxXmlIterableParserOptions {
+  encoding?: string;
+  incompleteFinalMarkupMessage?: string;
+  emitStartDocumentBatchImmediately?: boolean;
+}
+
 /**
  * Reusable low-level view over the current iterable parser batch.
  *
@@ -85,7 +91,9 @@ export async function* toAsyncByteBatches(
 
 export class StaxXmlIterableParser {
   private readonly iterator: Iterator<ByteBatch>;
-  private readonly decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
+  private readonly decoder: TextDecoder;
+  private readonly incompleteFinalMarkupMessage?: string;
+  private readonly emitStartDocumentBatchImmediately: boolean;
 
   private currentBuffer: Uint8Array = EMPTY_BUFFER;
   private pendingTail: Uint8Array = EMPTY_BUFFER;
@@ -111,7 +119,7 @@ export class StaxXmlIterableParser {
   private attrCursor = 0;
 
   private elementNameIds = new Int32Array(1024);
-  private elementNameBuffers: Uint8Array[] = new Array(1024);
+  private elementNameBuffers: Uint8Array[] = createSparseSlots(1024);
   private elementNameStarts = new Int32Array(1024);
   private elementNameEnds = new Int32Array(1024);
   private elementDepth = 0;
@@ -137,8 +145,11 @@ export class StaxXmlIterableParser {
     attrValueEnds: this.attrValueEnds,
   };
 
-  constructor(source: Iterable<ByteBatch>) {
+  constructor(source: Iterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
     this.iterator = source[Symbol.iterator]();
+    this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: false, ignoreBOM: true });
+    this.incompleteFinalMarkupMessage = options.incompleteFinalMarkupMessage;
+    this.emitStartDocumentBatchImmediately = options.emitStartDocumentBatchImmediately ?? false;
   }
 
   nextBatch(): boolean {
@@ -151,6 +162,9 @@ export class StaxXmlIterableParser {
     if (!this.started) {
       this.started = true;
       this.addEvent(IterableEventType.START_DOCUMENT);
+      if (this.emitStartDocumentBatchImmediately) {
+        return true;
+      }
     }
     const minEventsToReturn = startedThisBatch ? 2 : 1;
 
@@ -265,6 +279,15 @@ export class StaxXmlIterableParser {
       return undefined;
     }
     return this.decodeSpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
+  }
+
+  isImplicitAttributeValue(eventIndex: number, attrIndex: number): boolean {
+    if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
+      return false;
+    }
+    const index = this.attrStarts[eventIndex]! + attrIndex;
+    return this.attrNameStarts[index] === this.attrValueStarts[index]
+      && this.attrNameEnds[index] === this.attrValueEnds[index];
   }
 
   copyAttributesObject(eventIndex: number): Record<string, string> {
@@ -386,7 +409,7 @@ export class StaxXmlIterableParser {
   private parseTag(buffer: Uint8Array, position: number, isFinal: boolean): number {
     if (position + 1 >= buffer.byteLength) {
       if (isFinal) {
-        throw new Error('Unclosed start tag');
+        throw new Error(this.incompleteFinalMarkupMessage ?? 'Unclosed start tag');
       }
       return -1;
     }
@@ -558,6 +581,9 @@ export class StaxXmlIterableParser {
         index++;
       }
       const nameEnd = index;
+      if (nameEnd === nameStart) {
+        break;
+      }
 
       while (index < limit) {
         const byte = buffer[index]!;
@@ -694,7 +720,7 @@ export class StaxXmlIterableParser {
     this.elementNameIds = growInt32(this.elementNameIds, nextSize);
     this.elementNameStarts = growInt32(this.elementNameStarts, nextSize);
     this.elementNameEnds = growInt32(this.elementNameEnds, nextSize);
-    const nextBuffers = new Array<Uint8Array>(nextSize);
+    const nextBuffers = createSparseSlots<Uint8Array>(nextSize);
     for (let index = 0; index < this.elementNameBuffers.length; index++) {
       nextBuffers[index] = this.elementNameBuffers[index]!;
     }
@@ -720,6 +746,12 @@ function growUint8(source: Uint8Array<ArrayBufferLike>, size: number): Uint8Arra
   const next = new Uint8Array(size);
   next.set(source);
   return next;
+}
+
+function createSparseSlots<T>(size: number): T[] {
+  const slots: T[] = [];
+  slots.length = size;
+  return slots;
 }
 
 function asPlainUint8Array(source: Uint8Array): Uint8Array {

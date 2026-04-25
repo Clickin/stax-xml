@@ -105,7 +105,59 @@ while (cursor.next()) {
 }
 ```
 
-For streamed input, use `StaxXmlCursorReaderAsync` with a web standard `ReadableStream<Uint8Array>`.
+For large files, choose the boundary that matches the workload:
+
+- Use `StaxXmlParser` when file/network I/O should stay async. The public API is end-to-end async, while the parser backend consumes byte batches synchronously after chunks arrive.
+- Use the iterable parser when a batch job can block the current worker/thread and you want to avoid creating one full XML string.
+
+```typescript
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
+
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log(event.name);
+  }
+}
+```
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      console.log(parser.copyName(index));
+    }
+  }
+}
+```
+
+For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` also exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` so the file can be read and parsed synchronously in fixed-size byte chunks.
 
 ### 💾 Memory-efficient sync writing
 
@@ -381,7 +433,59 @@ while (cursor.next()) {
 }
 ```
 
-스트리밍 입력에는 web standard `ReadableStream<Uint8Array>`와 함께 `StaxXmlCursorReaderAsync`를 사용하세요.
+대용량 파일은 workload 경계에 맞춰 선택하세요:
+
+- 파일/네트워크 I/O까지 비동기로 유지해야 하면 `StaxXmlParser`를 사용합니다. 공개 API는 end-to-end async이고, 내부 parser backend는 도착한 byte batch를 동기적으로 소비합니다.
+- 현재 worker/thread를 막아도 되는 batch job에서는 iterable parser를 사용하면 전체 XML 문자열을 만들지 않고 byte chunk 단위로 파싱할 수 있습니다.
+
+```typescript
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
+
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+
+for await (const event of parser) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log(event.name);
+  }
+}
+```
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      console.log(parser.copyName(index));
+    }
+  }
+}
+```
+
+Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 파일 읽기와 파싱을 모두 고정 크기 byte chunk 단위의 동기 작업으로 처리할 수 있습니다.
 
 ### 💾 메모리 효율적인 동기 쓰기
 

@@ -1,4 +1,3 @@
-import { StaxXmlParser } from '../StaxXmlParser.js';
 import { IterableEventType, StaxXmlIterableParser, toByteBatches } from '../StaxXmlIterableParser.js';
 import {
   isCdata,
@@ -20,6 +19,12 @@ import type {
 } from './compiled-plan.js';
 import type { ParseInput } from './XmlSchema.js';
 import type { ParseOptions } from './types.js';
+import {
+  IterableEventBackendIterator,
+  createIterableParserFromChunks,
+  getIterableEventBackend,
+  readReadableStreamChunks
+} from './IterableEventBackend.js';
 
 const textEncoder = new TextEncoder();
 const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
@@ -121,7 +126,6 @@ export class CompiledRootProcessor {
 
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     const runtime = this.createRuntime(this.plan, effectiveOptions);
-    const parser = this.createParser(input, effectiveOptions);
 
     if (isSyncIterator(input)) {
       for (const event of input) {
@@ -129,6 +133,19 @@ export class CompiledRootProcessor {
       }
       return this.finish<T>(runtime);
     }
+
+    if (input instanceof ReadableStream) {
+      await this.processReadableStream(runtime, input);
+      return this.finish<T>(runtime);
+    }
+
+    const backend = getIterableEventBackend(input);
+    if (backend) {
+      await this.processEventBackend(runtime, backend);
+      return this.finish<T>(runtime);
+    }
+
+    const parser = this.createParser(input);
 
     if (hasBatchedIterator(parser)) {
       for await (const batch of parser.batchedIterator()) {
@@ -157,7 +174,7 @@ export class CompiledRootProcessor {
       maxDepth: options?.maxDepth ?? 1000,
       maxEvents: options?.maxEvents ?? 1000000,
       elementStack: [],
-      rootValue: defaultValue(plan.root, true),
+      rootValue: defaultValue(plan.root, true, 'root'),
       rootSet: false,
       rootDone: false,
       objects: [],
@@ -337,7 +354,7 @@ export class CompiledRootProcessor {
     if (itemSelector.terminal === 'attribute') {
       const value = attributes?.[itemSelector.attributeName!];
       if (value !== undefined) {
-        array.items.push(parseScalar(element as DispatchScalarPlan, value));
+        array.items.push(parseScalar(element as DispatchScalarPlan, value, true));
       }
       return;
     }
@@ -408,7 +425,7 @@ export class CompiledRootProcessor {
       if (value.kind === 'array') {
         const array = this.createArrayState(runtime, value, depth, { kind: 'field', object, field });
         object.childArrays.push(array);
-        object.values[field.fieldName] = value.optional ? undefined : [];
+        object.values[field.fieldName] = defaultValue(value, true, 'field');
         continue;
       }
 
@@ -418,7 +435,7 @@ export class CompiledRootProcessor {
         continue;
       }
 
-      object.values[field.fieldName] = defaultValue(value, true);
+      object.values[field.fieldName] = defaultValue(value, true, 'field');
     }
 
     runtime.objects.push(object);
@@ -447,7 +464,7 @@ export class CompiledRootProcessor {
     rawValue: string,
     parent: ParentBinding
   ): void {
-    const value = parseScalar(plan, rawValue);
+    const value = parseScalar(plan, rawValue, parent.kind === 'array');
     this.assignValue(runtime, value, parent, plan);
   }
 
@@ -495,11 +512,10 @@ export class CompiledRootProcessor {
   private finalizeArray(runtime: RuntimeState, array: ArrayState): unknown {
     runtime.arrays = runtime.arrays.filter(candidate => candidate !== array);
 
-    let value: unknown = array.plan.optional && array.items.length === 0 ? undefined : array.items;
-    if (!(array.plan.optional && array.items.length === 0)) {
-      for (const transformFn of array.plan.transforms) {
-        value = transformFn(value);
-      }
+    const missingOptional = array.plan.optional && array.items.length === 0;
+    let value: unknown = missingOptional && array.parent.kind !== 'root' ? undefined : array.items;
+    if (!missingOptional || array.plan.transforms.length > 0) {
+      value = applyTransforms(array.plan, value);
     }
 
     this.assignValue(runtime, value, array.parent, array.plan);
@@ -530,16 +546,32 @@ export class CompiledRootProcessor {
   }
 
   private createParser(
-    input: ParseInput,
-    options?: ParseOptions
+    input: ParseInput
   ): AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> {
-    if (input instanceof ReadableStream) {
-      return new StaxXmlParser(input, {
-        autoDecodeEntities: options?.decodeEntities,
-        eventFilter: this.plan.eventFilter
-      }) as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
-    }
     return input as AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent>;
+  }
+
+  private async processReadableStream(
+    runtime: RuntimeState,
+    stream: ReadableStream<Uint8Array>
+  ): Promise<void> {
+    const parser = createIterableParserFromChunks(await readReadableStreamChunks(stream), { batchSize: 1 });
+    while (parser.nextBatch()) {
+      for (let index = 0; index < parser.eventCount(); index++) {
+        this.processIterableEvent(runtime, parser, index);
+      }
+    }
+  }
+
+  private async processEventBackend(
+    runtime: RuntimeState,
+    backend: IterableEventBackendIterator
+  ): Promise<void> {
+    for await (const batch of backend.batchedIterator()) {
+      for (const event of batch) {
+        this.processEvent(runtime, event);
+      }
+    }
   }
 }
 
@@ -579,34 +611,58 @@ function matchesSelector(
   return true;
 }
 
-function parseScalar(plan: DispatchScalarPlan, rawValue: string): unknown {
-  if (plan.schema._parseText) {
+function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOptional: boolean): unknown {
+  if (!(plan.optional && rawValue === '' && preserveEmptyOptional) && plan.schema._parseText) {
     return plan.schema._parseText(rawValue);
   }
-  return rawValue;
+
+  let value: unknown;
+  if (plan.unwrappedSchema._parseText) {
+    try {
+      value = plan.unwrappedSchema._parseText(rawValue);
+    } catch {
+      value = undefined;
+    }
+  } else {
+    value = rawValue;
+  }
+  return applyTransforms(plan, value);
 }
 
-function defaultValue(plan: DispatchValuePlan, missingSelectableObject: boolean): unknown {
+function defaultValue(
+  plan: DispatchValuePlan,
+  missingSelectableObject: boolean,
+  context: 'root' | 'field'
+): unknown {
+  let value: unknown;
+  if ((plan.kind === 'string' || plan.kind === 'number') && plan.optional) {
+    return parseScalar(plan, '', false);
+  }
   if (plan.optional) {
-    return undefined;
+    value = plan.kind === 'array' && context === 'root' ? [] : undefined;
+  } else if (plan.kind === 'string') {
+    value = '';
+  } else if (plan.kind === 'number') {
+    value = NaN;
+  } else if (plan.kind === 'array') {
+    value = [];
+  } else if (missingSelectableObject && plan.selector) {
+    value = {};
+  } else {
+    const result: Record<string, unknown> = {};
+    const objectPlan = plan as DispatchObjectPlan;
+    for (const field of objectPlan.fields) {
+      result[field.fieldName] = defaultValue(field.value, true, 'field');
+    }
+    value = result;
   }
-  if (plan.kind === 'string') {
-    return '';
-  }
-  if (plan.kind === 'number') {
-    return NaN;
-  }
-  if (plan.kind === 'array') {
-    return [];
-  }
-  if (missingSelectableObject && plan.selector) {
-    return {};
-  }
+  return applyTransforms(plan, value);
+}
 
-  const result: Record<string, unknown> = {};
-  const objectPlan = plan as DispatchObjectPlan;
-  for (const field of objectPlan.fields) {
-    result[field.fieldName] = defaultValue(field.value, true);
+function applyTransforms(plan: DispatchValuePlan, value: unknown): unknown {
+  let result = value;
+  for (const transformFn of plan.transforms) {
+    result = transformFn(result);
   }
   return result;
 }

@@ -31,8 +31,14 @@ const DEFAULT_RUNS = 3;
 const DEFAULT_WARMUPS = 1;
 const GENERATED_DIR = join(__dirname, 'test-data');
 const ATTR_OBJECT_SINK_SIZE = 1024;
-const attrObjectSink = new Array(ATTR_OBJECT_SINK_SIZE);
+const attrObjectSink = createSparseSlots(ATTR_OBJECT_SINK_SIZE);
 const frameChecksumDecoder = new TextDecoder('utf-8');
+
+function createSparseSlots(size) {
+  const slots = [];
+  slots.length = size;
+  return slots;
+}
 
 function parseArgs(argv) {
   const options = {

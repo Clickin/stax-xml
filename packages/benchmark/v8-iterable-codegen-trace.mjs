@@ -93,10 +93,16 @@ const DEFAULT_CHUNK_SIZE = 4096;
 const DEFAULT_BATCH_SIZE = 4;
 const ATTR_OBJECT_SINK_SIZE = 1024;
 const WARMUP_COMPLETE_MARKER = '[stax-v8-trace] warmup-complete';
-const attrObjectSink = new Array(ATTR_OBJECT_SINK_SIZE);
+const attrObjectSink = createSparseSlots(ATTR_OBJECT_SINK_SIZE);
 const frameChecksumDecoder = new TextDecoder('utf-8');
 
 globalThis.__staxXmlV8TraceSink = 0;
+
+function createSparseSlots(size) {
+  const slots = [];
+  slots.length = size;
+  return slots;
+}
 
 function parseArgs(argv) {
   const options = {

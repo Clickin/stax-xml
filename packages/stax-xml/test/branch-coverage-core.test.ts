@@ -2,14 +2,19 @@ import { describe, expect, it } from 'vitest';
 import {
   StaxXmlParser,
   StaxXmlParserSync,
+  StaxXmlCursorReader,
   StaxXmlWriter,
   StaxXmlWriterSync,
   StaxXmlWriterSyncSink,
+  createStaxXmlParser,
+  CursorEventType,
   XmlEventType,
   type AnyXmlEvent
 } from '../src/index';
 import { createBunSyncTextSink } from '../src/adapters/bun';
+import { createDenoSyncTextSink } from '../src/adapters/deno';
 import { createNodeFileSyncTextSink, createNodeSyncTextSink } from '../src/adapters/node';
+import { CursorEventView } from '../src/cursor/CursorEventView';
 
 function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
@@ -114,6 +119,7 @@ describe('core branch coverage guards', () => {
       const parser = new StaxXmlParser(streamFrom('<root', 2));
 
       await expect(drainBatches(parser)).rejects.toThrow('Unclosed start tag');
+      await expect(parser.nextBatch()).rejects.toThrow('Unclosed start tag');
       expect(() => parser.next()).toThrow('Unclosed start tag');
     });
 
@@ -151,6 +157,26 @@ describe('core branch coverage guards', () => {
       const text = events.find(event => event.type === XmlEventType.CHARACTERS);
       expect(start?.attributes).toEqual({ attr: 'C &unknown;' });
       expect(text?.value).toBe('C &unknown;');
+    });
+
+    it('should keep parser factory defaults and buffered batch leftovers stable', async () => {
+      const parser = createStaxXmlParser(streamFrom('<root><a/></root>'));
+
+      await expect(parser.next()).resolves.toMatchObject({
+        value: { type: XmlEventType.START_DOCUMENT },
+        done: false
+      });
+      const remaining = await parser.nextBatch();
+
+      expect(remaining.map(event => event.type)).toEqual([
+        XmlEventType.START_ELEMENT,
+        XmlEventType.START_ELEMENT,
+        XmlEventType.END_ELEMENT,
+        XmlEventType.END_ELEMENT
+      ]);
+      expect((await parser.nextBatch()).map(event => event.type)).toEqual([
+        XmlEventType.END_DOCUMENT
+      ]);
     });
   });
 
@@ -210,6 +236,82 @@ describe('core branch coverage guards', () => {
       expect(events.find(event => event.type === XmlEventType.CHARACTERS)?.value)
         .toBe('C &unknown;');
     });
+
+    it('should expose iterator return and filtered-empty batch control flow', () => {
+      const returned = new StaxXmlParserSync('<root/>');
+      expect(returned.return()).toEqual({ value: undefined, done: true });
+      expect(returned.next()).toEqual({ value: undefined, done: true });
+
+      const filtered = Array.from(new StaxXmlParserSync('text', {
+        eventFilter: {
+          includeAttributes: true,
+          includeCharacters: false,
+          includeCdata: true
+        }
+      }));
+      expect(filtered.map(event => event.type)).toEqual([
+        XmlEventType.START_DOCUMENT,
+        XmlEventType.END_DOCUMENT
+      ]);
+
+      const internal = new StaxXmlParserSync('<root/>') as unknown as {
+        parser: { nextBatch(): boolean };
+        materializer: { materializeBatch(): AnyXmlEvent[] };
+      };
+      let parserCalls = 0;
+      let materializerCalls = 0;
+      internal.parser = {
+        nextBatch() {
+          parserCalls++;
+          return parserCalls <= 2;
+        }
+      };
+      internal.materializer = {
+        materializeBatch() {
+          materializerCalls++;
+          return materializerCalls === 1
+            ? []
+            : [{ type: XmlEventType.START_DOCUMENT }];
+        }
+      };
+
+      expect((internal as unknown as StaxXmlParserSync).next()).toEqual({
+        value: { type: XmlEventType.START_DOCUMENT },
+        done: false
+      });
+    });
+  });
+
+  describe('cursor event view branches', () => {
+    it('should reject non-string sync cursor input', () => {
+      expect(() => new StaxXmlCursorReader(null as unknown as string))
+        .toThrow('xml must be a string');
+    });
+
+    it('should cover defensive cursor view accessors', () => {
+      const view = new CursorEventView();
+
+      expect(view.getAttributeValue('missing')).toBeUndefined();
+
+      view.moveTo({
+        type: XmlEventType.START_ELEMENT,
+        name: 'root',
+        attributes: {
+          plain: 'a',
+          'p:name': 'b'
+        }
+      });
+
+      expect(view.getAttributeLocalName(0)).toBe('plain');
+      expect(view.getAttributePrefix(0)).toBeUndefined();
+      expect(view.getAttributeLocalName(1)).toBe('name');
+      expect(view.getAttributePrefix(1)).toBe('p');
+      expect(view.getAttributeValue(99)).toBeUndefined();
+      expect(view.getAttributeUri(99)).toBeUndefined();
+
+      view.moveTo({ type: XmlEventType.ERROR, error: new Error('boom') });
+      expect(view.eventType()).toBe(CursorEventType.ERROR);
+    });
   });
 
   describe('writer branches', () => {
@@ -240,6 +342,13 @@ describe('core branch coverage guards', () => {
     });
 
     it('should cover sync writer namespace attributes, invalid content, and custom entities', () => {
+      new StaxXmlWriterSync({
+        addEntities: [
+          { entity: '', value: 'ignored' },
+          { entity: '@empty@', value: '' }
+        ]
+      });
+
       const writer = new StaxXmlWriterSync({
         addEntities: [{ entity: '@copy@', value: '(c)' }]
       });
@@ -266,6 +375,9 @@ describe('core branch coverage guards', () => {
       expect(() => new StaxXmlWriterSync().writeCData('bad ]]> data')).toThrow('CDATA section');
       expect(() => new StaxXmlWriterSync().writeComment('bad -- data')).toThrow('comment');
       expect(() => new StaxXmlWriterSync().writeProcessingInstruction('pi', 'bad ?> data')).toThrow('Processing instruction');
+      const piWriter = new StaxXmlWriterSync({ prettyPrint: false });
+      piWriter.writeProcessingInstruction('pi');
+      expect(piWriter.getXmlString()).toBe('<?pi?>');
       expect(() => new StaxXmlWriterSync().writeStartElement('root', {
         attributes: { attr: { prefix: 'missing', value: 'value' } }
       })).toThrow("Namespace prefix 'missing' is not defined");
@@ -294,6 +406,13 @@ describe('core branch coverage guards', () => {
     });
 
     it('should cover async writer branches', async () => {
+      createAsyncWriter({
+        addEntities: [
+          { entity: '', value: 'ignored' },
+          { entity: '@empty@', value: '' }
+        ]
+      });
+
       const { writer, output } = createAsyncWriter({
         bufferSize: 6,
         flushThreshold: 3,
@@ -329,12 +448,38 @@ describe('core branch coverage guards', () => {
       await expect(new StaxXmlWriter(new WritableStream()).writeStartElement('root', {
         attributes: { attr: { prefix: 'missing', value: 'value' } }
       })).rejects.toThrow("Namespace prefix 'missing' is not defined");
+
+      const tiny = createAsyncWriter({
+        bufferSize: 4,
+        flushThreshold: 999,
+        enableAutoFlush: false
+      });
+      await tiny.writer.writeRaw('abcdef');
+      await tiny.writer.writeEndDocument();
+      expect(tiny.output()).toBe('abcdef');
+
+      const tinyUtf8 = createAsyncWriter({
+        bufferSize: 1,
+        flushThreshold: 999,
+        enableAutoFlush: false
+      });
+      await tinyUtf8.writer.writeRaw('é');
+      await tinyUtf8.writer.writeEndDocument();
+      expect(tinyUtf8.output()).toBe('é');
+
+      const plain = createAsyncWriter({ prettyPrint: false });
+      await plain.writer.writeStartElement('empty', { selfClosing: true });
+      await plain.writer.writeCData('top');
+      await plain.writer.writeEndDocument();
+      expect(plain.output()).toBe('<empty/><![CDATA[top]]>');
     });
   });
 
   describe('adapter branches', () => {
     it('should cover node close fallbacks', () => {
       const calls: string[] = [];
+
+      createNodeSyncTextSink({ write() {} }).flush?.();
 
       createNodeSyncTextSink({
         write() {},
@@ -344,19 +489,33 @@ describe('core branch coverage guards', () => {
       }, { closeMethod: 'end' }).close?.();
 
       createNodeSyncTextSink({
+        write() {}
+      }, { closeMethod: 'end' }).close?.();
+
+      createNodeSyncTextSink({
+        write() {},
+        close() {
+          calls.push('close-fallback');
+        }
+      }).close?.();
+
+      createNodeSyncTextSink({
         write() {},
         destroy() {
           calls.push('destroy-fallback');
         }
       }).close?.();
 
+      createNodeSyncTextSink({ write() {} }).close?.();
       createNodeFileSyncTextSink(0, { closeOnExit: false }).close?.();
 
-      expect(calls).toEqual(['explicit-end', 'destroy-fallback']);
+      expect(calls).toEqual(['explicit-end', 'close-fallback', 'destroy-fallback']);
     });
 
     it('should cover bun close fallbacks', () => {
       const calls: string[] = [];
+
+      createBunSyncTextSink({ write() {} }).flush?.();
 
       createBunSyncTextSink({
         write() {},
@@ -375,6 +534,15 @@ describe('core branch coverage guards', () => {
       createBunSyncTextSink({ write() {} }).close?.();
 
       expect(calls).toEqual(['explicit-end', 'close-fallback']);
+    });
+
+    it('should cover deno empty lifecycle fallbacks', () => {
+      const sink = createDenoSyncTextSink({
+        writeTextSync() {}
+      });
+
+      sink.flush?.();
+      sink.close?.();
     });
   });
 });

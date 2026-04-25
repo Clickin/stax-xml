@@ -40,3 +40,28 @@ jobs:
       - id: test
         name: Run test
         run: pnpm test
+
+  native-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v6
+      - id: setup-node
+        name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - id: setup-rust
+        name: Setup Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup toolchain install nightly --profile minimal --component llvm-tools-preview
+      - id: install-llvm-cov
+        name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov --version 0.8.5 --locked
+      - id: native-coverage
+        name: Run native coverage
+        run: node packages/native-aggregate/scripts/native-branch-coverage.mjs

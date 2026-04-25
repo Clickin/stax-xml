@@ -469,8 +469,7 @@ abstract class AbstractStaxXmlWriterSync {
 
       /* v8 ignore next -- regex only matches keys present in BASIC_ENTITY_MAP */
       return text.replace(AbstractStaxXmlWriterSync.BASIC_ENTITY_REGEX,
-        /* v8 ignore next -- regex only matches keys present in BASIC_ENTITY_MAP */
-        (match) => AbstractStaxXmlWriterSync.BASIC_ENTITY_MAP[match] || match);
+        (match) => AbstractStaxXmlWriterSync.BASIC_ENTITY_MAP[match]!);
     }
 
     const hasBasicEntities = text.includes('&') || text.includes('<') || text.includes('>') ||
@@ -486,7 +485,7 @@ abstract class AbstractStaxXmlWriterSync {
     }
 
     /* v8 ignore next -- regex only matches keys present in fullEntityMap */
-    return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match] || match);
+    return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match]!);
   }
 }
 

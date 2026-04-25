@@ -252,7 +252,8 @@ export class XmlParsingStateMachine {
       }
     } else if (isEndElement(event)) {
       // Deactivate schemas at current depth
-      for (const activation of [...this.activeSchemas]) {
+      const activeSchemaSnapshot = this.activeSchemas.slice();
+      for (const activation of activeSchemaSnapshot) {
         if (activation.depth === this.currentDepth) {
           this.onSchemaDeactivatedSync(activation);
           // Only set to -1 if not already permanently deactivated (-2)
@@ -856,8 +857,8 @@ export class XmlParsingStateMachine {
       if (isTransformSchema(current)) {
         transforms.unshift(current.transformFn); // Prepend for correct order
         current = current.schema;
-      } else if (isOptionalSchema(current)) {
-        current = current.schema;
+      } else {
+        current = (current as { schema: XmlSchemaBase<unknown, unknown> }).schema;
       }
     }
 

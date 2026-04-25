@@ -518,6 +518,9 @@ export class StaxXmlNodeIterableParser {
         index++;
       }
       const nameEnd = index;
+      if (nameEnd === nameStart) {
+        break;
+      }
 
       while (index < end && isWhitespace(buffer[index]!)) index++;
       if (index >= end || buffer[index] !== 61) {

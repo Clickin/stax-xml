@@ -22,7 +22,7 @@ head:
 
 ## StaxXmlParser - Asynchronous XML Parsing
 
-`StaxXmlParser` is a high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). All parsing operations are fully asynchronous, making it ideal for handling large XML files without blocking the main thread.
+`StaxXmlParser` is a high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). Its public API is asynchronous for stream and backpressure integration, while the tokenizer backend consumes received byte batches synchronously.
 
 ### 🔧 Quick Start
 
@@ -448,18 +448,57 @@ parseCatalog(stream).then(result => {
 #### Large File Processing
 
 ```typescript
-// Efficient processing of large XML files
-const parser = new StaxXmlParser(largeXmlStream, {
-  maxBufferSize: 128 * 1024, // 128KB buffer
-  enableBufferCompaction: true
-});
+import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { StaxXmlParser, XmlEventType } from 'stax-xml';
 
-// Process events as they come, without loading entire file into memory
+const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
+const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+const parser = new StaxXmlParser(webStream);
+
 for await (const event of parser) {
-  // Handle each event individually
-  processEvent(event);
+  if (event.type === XmlEventType.START_ELEMENT) {
+    processElement(event.name, event.attributes);
+  }
 }
 ```
+
+This path is end-to-end async at the API boundary. Internally, received byte batches are handed to the iterable tokenizer synchronously, so very large parse bursts can still occupy the current worker while each batch is processed.
+
+If you want async file I/O but a synchronous iterable parse after the chunks are available, hand the collected chunks to `StaxXmlIterableParser`:
+
+```typescript
+import { open } from 'node:fs/promises';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+
+async function readFileChunks(path: string): Promise<Uint8Array[]> {
+  const file = await open(path, 'r');
+  const chunks: Uint8Array[] = [];
+
+  try {
+    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
+      chunks.push(chunk);
+    }
+  } finally {
+    await file.close();
+  }
+
+  return chunks;
+}
+
+const chunks = await readFileChunks('./large.xml');
+const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      processElement(parser.copyName(index), parser.copyAttributesObject(index));
+    }
+  }
+}
+```
+
+This avoids materializing one full XML string, but the parse loop is synchronous once it starts. For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` for fixed-size synchronous file chunks.
 
 #### Namespace Handling
 

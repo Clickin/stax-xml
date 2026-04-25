@@ -15,12 +15,14 @@
     "build": "pnpm -r --filter=stax-xml build",
     "test": "pnpm --filter=stax-xml test",
     "test:watch": "pnpm --filter=stax-xml test:watch",
-    "coverage": "pnpm --filter=stax-xml coverage",
+    "coverage": "pnpm --dir packages/stax-xml coverage",
+    "coverage:native": "pnpm --dir packages/native-aggregate coverage:native",
+    "coverage:all": "pnpm coverage && pnpm coverage:native",
     "docs:dev": "pnpm --filter=stax-xml-docs dev",
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
-    "benchmark:release": "pnpm --filter=benchmark run release:update"
+    "benchmark:release": "pnpm --filter=benchmark run release:expanded"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
