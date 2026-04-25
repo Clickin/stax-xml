@@ -10,4 +10,6 @@ declare module '@stax-xml/native-wasm32-wasi' {
   }
 
   export function parseAggregateStringUtf8(input: string, tier: string): AggregateResult;
+
+  export function parseSpanTableStringUtf16(input: string): Uint8Array;
 }

@@ -1,5 +1,10 @@
 // @ts-nocheck
 import { x } from 'stax-xml/converter';
+import {
+  JS_CONVERTER_BACKEND,
+  WASM_CONVERTER_BACKEND,
+  parseTextWithSelectedConverterBackend
+} from './converter-wasm-backend.ts';
 import ConverterDemoWorker from './converter-demo-worker.ts?worker';
 
 function resetFileInputValue(fileInput) {
@@ -15,11 +20,8 @@ let parseWorker = null;
 let parseWorkerRequestId = 0;
 const LARGE_INPUT_THRESHOLD = 5 * 1024 * 1024;
 const LARGE_INPUT_MAX_EVENTS = 5_000_000;
-const CONVERTER_BACKEND = {
-  kind: 'js',
-  label: 'JS fallback',
-  detail: 'The docs demo currently bundles stax-xml/converter from TypeScript source. The wasm addon is not bundled or wired into converter execution yet.'
-};
+const CONVERTER_BACKEND = JS_CONVERTER_BACKEND;
+const PREFERRED_CONVERTER_BACKEND = WASM_CONVERTER_BACKEND;
 
 const examples = {
   basic: {
@@ -320,8 +322,8 @@ function clearOutput() {
   modeEl.textContent = '-';
   xmlSizeEl.textContent = '-';
   throughputEl.textContent = '-';
-  backendEl.textContent = CONVERTER_BACKEND.label;
-  backendEl.title = CONVERTER_BACKEND.detail;
+  backendEl.textContent = PREFERRED_CONVERTER_BACKEND.label;
+  backendEl.title = PREFERRED_CONVERTER_BACKEND.detail;
   resetFileInputValue(fileInputEl);
   loadedFile = null;
 }
@@ -333,7 +335,7 @@ function getParseWorker() {
   return parseWorker;
 }
 
-function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions, requestedMode }) {
+function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions, requestedMode, requestedBackend }) {
   const worker = getParseWorker();
   const requestId = ++parseWorkerRequestId;
 
@@ -371,7 +373,8 @@ function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions, requested
       xmlInput,
       file: file ?? null,
       parseOptions,
-      requestedMode
+      requestedMode,
+      requestedBackend
     });
   });
 }
@@ -380,7 +383,9 @@ async function parseXML() {
   const xmlInput = xmlInputEl.value;
   const schemaInput = schemaInputEl.value;
   const modeInput = document.querySelector('input[name="mode"]:checked');
+  const backendInput = document.querySelector('input[name="backendMode"]:checked');
   const mode = modeInput?.value ?? 'sync';
+  const backendMode = backendInput?.value ?? 'wasm';
 
   if (!schemaInput) {
     messageEl.innerHTML = '<div class="error">⚠️ Please provide schema definition</div>';
@@ -414,7 +419,10 @@ async function parseXML() {
       }
       const schemaFunction = new Function('x', `return ${schemaInput}`);
       const schema = schemaFunction(x);
-      result = schema.parseSync(xmlInput, parseOptions);
+      const backendResult = await parseTextWithSelectedConverterBackend(schema, xmlInput, parseOptions, 'sync', backendMode);
+      result = backendResult.result;
+      activeBackend = backendResult.backend;
+      workerTimings = backendResult.timings;
       xmlSize = inputSize;
     } else {
       const workerResponse = await parseXmlInWorker({
@@ -422,14 +430,15 @@ async function parseXML() {
         xmlInput,
         file: loadedFile,
         parseOptions,
-        requestedMode: mode
+        requestedMode: mode,
+        requestedBackend: backendMode
       });
       result = workerResponse.result;
       xmlSize = workerResponse.xmlSize;
       activeBackend = workerResponse.backend ?? CONVERTER_BACKEND;
       workerTimings = workerResponse.timings ?? null;
       if (workerTimings) {
-        console.info('converter-demo worker timings', workerTimings);
+        console.info('converter-demo timings', workerTimings);
       }
     }
 
