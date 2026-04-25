@@ -31,6 +31,49 @@ StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계�
 
 ## 파서 성능
 
+<details>
+<summary>Scenario contract: Node parser library 비교</summary>
+
+Sample XML shape, 축약:
+
+~~~xml
+<catalog>
+  <book id="..." category="...">
+    <title>...</title>
+    <author>...</author>
+    <price currency="USD">...</price>
+    <tags><tag>...</tag></tags>
+  </book>
+</catalog>
+~~~
+
+Consumer/output shape, 라이브러리 중립 pseudo code:
+
+~~~text
+consume-only:
+  for each parser event:
+    event를 count 또는 inspect
+    전체 output tree는 보관하지 않음
+
+object-output:
+  document = {
+    catalog: {
+      book: [
+        { attributes, title, author, price, tags }
+      ]
+    }
+  }
+~~~
+
+런타임별 파싱 방법:
+
+- `stax-xml consume`: `StaxXmlParserSync` event loop를 돌며 event를 소비하고 retained object tree를 만들지 않습니다.
+- `stax-xml to object`: `StaxXmlParserSync` 위에서 benchmark object shape으로 local projection을 수행합니다.
+- `txml`, `fast-xml-parser`, `xml2js`: 각 라이브러리의 native object/DOM-style parse API를 사용합니다.
+- 13 MiB `xml2js` 이상치는 제거하거나 보정하지 않고 측정값 그대로 보존합니다.
+
+</details>
+
 ### 소형 문서 (2KB)
 
 일반적인 웹 서비스 응답 및 설정 파일 (complex.xml):
@@ -67,6 +110,42 @@ large.xml (98MB) 성능 결과:
 
 sync vs async 성능 비교:
 
+<details>
+<summary>Scenario contract: large-file sync, async stream, iterable parsing</summary>
+
+Generated XML shape, 축약:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N">
+    <title>Sample Book Title Number N ...</title>
+    <author>Author Name N</author>
+    <description>...</description>
+    <chapters>
+      <chapter number="1">...</chapter>
+    </chapters>
+  </book>
+</root>
+~~~
+
+Consumer/output shape:
+
+~~~text
+parse-result = {
+  events: number,
+  checksum: fold(event type, element name, text, attributes)
+}
+~~~
+
+파싱 방법:
+
+- Public sync string parsing은 fixture 전체를 하나의 string으로 읽은 뒤 `StaxXmlParserSync`를 실행합니다.
+- Public async stream parsing은 파일을 비동기 chunk로 읽고, 전체 input string 보관 없이 parser에 공급합니다.
+- Synchronous iterable byte-batch parsing은 `Iterable<Uint8Array>` / byte batch를 받아 동기적으로 파싱하며, 호출자가 chunking을 제어하는 blocking batch 작업에 적합합니다.
+
+</details>
+
 <BenchmarkSection locale="ko" section="async-size" />
 
 **주요 인사이트:**
@@ -80,12 +159,76 @@ release artifact는 단일 root를 가진 16 MiB 생성 XML fixture로 동일한
 이 매트릭스는 호환성과 런타임별 코드 생성 차이를 확인하기 위한 것이며 native addon은 포함하지 않습니다.
 `iterable-*` 행은 async parser가 아니라 synchronous byte-batch parser 경로입니다.
 
+<details>
+<summary>Scenario contract: Node, Bun, Deno runtime matrix</summary>
+
+Sample XML shape, 축약:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N" lang="en" code="...">
+    <title>Runtime Benchmark N</title>
+    <author>Author ...</author>
+    <description>Full string checksum text payload ...</description>
+    <chapter number="1">Intro ...</chapter>
+    <chapter number="2">Body ...</chapter>
+  </book>
+</root>
+~~~
+
+Output shape:
+
+~~~text
+runtime-result = {
+  scenario: "public-sync-full-string" | "iterable-count-only" | "iterable-full-string",
+  eventCount: number,
+  checksum: fold(event type, names, text, attr names, attr values),
+  peakHeapUsedBytes: number
+}
+~~~
+
+런타임별 파싱 방법:
+
+- Node는 `fs.readFileSync`로 text를 읽고, built package를 `node --expose-gc`로 실행합니다.
+- Bun은 `Bun.file(path).text()`로 text를 읽고 같은 built JavaScript package를 실행합니다.
+- Deno는 `--allow-read --allow-env`에서 `Deno.readTextFile`로 text를 읽고 같은 built JavaScript package를 실행합니다.
+- `public-sync-full-string`은 하나의 string 위에서 `StaxXmlParserSync`를 사용합니다.
+- `iterable-count-only`와 `iterable-full-string`은 browser-compatible synchronous iterable byte-batch backend를 사용하며 async parser 행이 아닙니다.
+- 이 matrix는 의도적으로 native addon을 제외합니다.
+
+</details>
+
 <RuntimeBenchmarkSection locale="ko" section="runtime-matrix" />
 
 ## 타 런타임 비교
 
 아래 표는 동일한 event count와 checksum 계약에서 `stax-xml` on Node, Woodstox, `quick-xml`을 비교합니다.
 Woodstox는 Java 8이 minimum runtime이므로 공개 기준은 Java 8입니다. Java 25는 JVM 버전 차이가 결론을 바꾸는지 확인하기 위해 별도로 측정합니다.
+
+<details>
+<summary>Scenario contract: stax-xml, Woodstox, quick-xml 비교</summary>
+
+Sample XML shape은 runtime matrix와 같은 16 MiB 생성 `<root><book>...</book></root>` fixture입니다.
+
+Output shape:
+
+~~~text
+comparator-result = {
+  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  eventCount: number,
+  checksum: fold(selected event data for tier)
+}
+~~~
+
+파싱 방법:
+
+- `stax-xml on Node`: built JavaScript iterable backend를 Node에서 실행하고 tier별 checksum folding을 수행합니다.
+- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input입니다.
+- `quick-xml`: Rust `Reader` over buffered file input입니다. declaration, PI, doctype, comment는 skip하고, text는 checksum parity를 위해 trim합니다.
+- Java 8은 Woodstox의 minimum runtime target이므로 public Woodstox row로 사용하고, Java 25는 별도 verification row입니다.
+
+</details>
 
 <RuntimeBenchmarkSection locale="ko" section="cross-runtime" />
 

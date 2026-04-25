@@ -397,6 +397,49 @@ function escapePipe(value) {
   return String(value ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
 }
 
+function createScenarioDetails(report) {
+  return [
+    '<details>',
+    '<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>',
+    '',
+    `The comparator uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
+    '',
+    'Sample XML shape, shortened:',
+    '',
+    '~~~xml',
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<root>',
+    '  <book id="book-N" lang="en" code="...">',
+    '    <title>Runtime Benchmark N</title>',
+    '    <author>Author ...</author>',
+    '    <description>Full string checksum text payload ...</description>',
+    '    <chapter number="1">Intro ...</chapter>',
+    '    <chapter number="2">Body ...</chapter>',
+    '  </book>',
+    '</root>',
+    '~~~',
+    '',
+    'Output shape:',
+    '',
+    '~~~text',
+    'comparator-result = {',
+    '  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",',
+    '  eventCount: number,',
+    '  checksum: fold(selected event data for tier)',
+    '}',
+    '~~~',
+    '',
+    'Parsing methods:',
+    '',
+    '- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
+    '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
+    '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
+    '- Java 8 is the public Woodstox row because it is Woodstox\'s minimum runtime target; Java 25 is a separate verification row.',
+    '',
+    '</details>',
+  ].join('\n');
+}
+
 function createMarkdown(report) {
   const lines = [
     '# Cross-Runtime Parser Comparator',
@@ -416,6 +459,10 @@ function createMarkdown(report) {
     `- Java 8: ${escapePipe(report.tools.java8Version ?? 'unknown')}`,
     `- Java 25 check: ${escapePipe(report.java25Verification.java25Version ?? report.java25Verification.reason ?? 'not available')}`,
     `- quick-xml crate: ${report.tools.quickXmlVersion ?? 'unknown'}`,
+    '',
+    '## Scenario',
+    '',
+    createScenarioDetails(report),
     '',
     '## Public Comparator Table',
     '',
@@ -457,7 +504,6 @@ function createMarkdown(report) {
   }
   lines.push('');
   lines.push('Checksum and event counts are preserved by the compared rows for the current fixture. If a future fixture introduces namespaces or entity-heavy content, this contract must be reviewed before publishing the table.');
-  lines.push('');
 
   return `${lines.join('\n')}\n`;
 }

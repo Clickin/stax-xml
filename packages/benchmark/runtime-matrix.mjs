@@ -227,6 +227,52 @@ function formatBytes(bytes) {
   return `${(bytes / 1024).toFixed(1)} KiB`;
 }
 
+function createScenarioDetails(report) {
+  return [
+    '<details>',
+    '<summary>Scenario contract: Node, Bun, and Deno runtime matrix</summary>',
+    '',
+    `The matrix uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
+    '',
+    'Sample XML shape, shortened:',
+    '',
+    '~~~xml',
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<root>',
+    '  <book id="book-N" lang="en" code="...">',
+    '    <title>Runtime Benchmark N</title>',
+    '    <author>Author ...</author>',
+    '    <description>Full string checksum text payload ...</description>',
+    '    <chapter number="1">Intro ...</chapter>',
+    '    <chapter number="2">Body ...</chapter>',
+    '  </book>',
+    '</root>',
+    '~~~',
+    '',
+    'Output shape:',
+    '',
+    '~~~text',
+    'runtime-result = {',
+    '  scenario: "public-sync-full-string" | "iterable-count-only" | "iterable-full-string",',
+    '  eventCount: number,',
+    '  checksum: fold(event type, names, text, attr names, attr values),',
+    '  peakHeapUsedBytes: number',
+    '}',
+    '~~~',
+    '',
+    'Runtime methods:',
+    '',
+    '- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.',
+    '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
+    '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
+    '- `public-sync-full-string` uses `StaxXmlParserSync` over one string.',
+    '- `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.',
+    '- This matrix intentionally excludes native addons.',
+    '',
+    '</details>',
+  ].join('\n');
+}
+
 function createMarkdown(report) {
   const lines = [
     '# JavaScript Runtime Benchmark Matrix',
@@ -242,6 +288,10 @@ function createMarkdown(report) {
     `- Fixture: ${report.fixture.path}`,
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    '',
+    '## Scenario',
+    '',
+    createScenarioDetails(report),
     '',
     '## Results',
     '',
@@ -270,7 +320,6 @@ function createMarkdown(report) {
   lines.push('- `iterable-count-only` uses the browser-compatible iterable event-frame backend without string materialization.');
   lines.push('- `iterable-full-string` uses the same event-frame backend and materializes the same full string checksum workload.');
   lines.push('- All runtime rows must preserve event count and checksum for the same scenario.');
-  lines.push('');
 
   return `${lines.join('\n')}\n`;
 }

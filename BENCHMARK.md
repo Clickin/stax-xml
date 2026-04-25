@@ -1,6 +1,6 @@
 # Benchmarks
 
-Generated: 2026-04-25T13:41:40.904Z
+Generated: 2026-04-25T15:46:00.282Z
 
 Environment:
 - CPU: 13th Gen Intel(R) Core(TM) i5-13600K (~4.85 GHz)
@@ -17,6 +17,49 @@ The refreshed benchmark tables on this page were rerun with:
 - **Canonical Set**: parser 2KB / 4KB / 13MB / 98MB, async size-comparison, writer small / big / async, converter parity
 
 ## Parser Performance
+
+<details>
+<summary>Scenario contract: Node parser library comparisons</summary>
+
+Sample XML shape, shortened:
+
+~~~xml
+<catalog>
+  <book id="..." category="...">
+    <title>...</title>
+    <author>...</author>
+    <price currency="USD">...</price>
+    <tags><tag>...</tag></tags>
+  </book>
+</catalog>
+~~~
+
+Consumer/output shape, expressed without library-specific syntax:
+
+~~~text
+consume-only:
+  for each parser event:
+    count or inspect the event
+    do not retain a full output tree
+
+object-output:
+  document = {
+    catalog: {
+      book: [
+        { attributes, title, author, price, tags }
+      ]
+    }
+  }
+~~~
+
+Runtime methods:
+
+- `stax-xml consume`: `StaxXmlParserSync` event loop; events are consumed and no retained object tree is produced.
+- `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.
+- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.
+- The 13 MiB `xml2js` outlier is preserved as measured instead of normalized away.
+
+</details>
 
 ### Small Documents (2KB)
 
@@ -46,6 +89,42 @@ For larger API responses and data files (books.xml):
 
 For processing large XML files (RSS feeds, data exports, etc.):
 
+<details>
+<summary>Scenario contract: large-file sync, async stream, and iterable parsing</summary>
+
+Generated XML shape, shortened:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N">
+    <title>Sample Book Title Number N ...</title>
+    <author>Author Name N</author>
+    <description>...</description>
+    <chapters>
+      <chapter number="1">...</chapter>
+    </chapters>
+  </book>
+</root>
+~~~
+
+Consumer/output shape:
+
+~~~text
+parse-result = {
+  events: number,
+  checksum: fold(event type, element name, text, attributes)
+}
+~~~
+
+Parsing methods:
+
+- Public sync string parsing reads the fixture into one string and runs `StaxXmlParserSync`.
+- Public async stream parsing reads file chunks asynchronously, then feeds the parser without requiring one retained input string.
+- Synchronous iterable byte-batch parsing accepts `Iterable<Uint8Array>` / byte batches, parses synchronously, and is suitable for blocking batch jobs when the caller already controls chunking.
+
+</details>
+
 | File Size | Parser Type | Processing Time | Memory Usage | Performance Ratio |
 |-----------|-------------|-----------------|--------------|-------------------|
 | 1MB | **sync parser** | 17.89 ms | 18.93 mb | Baseline |
@@ -65,37 +144,103 @@ For processing large XML files (RSS feeds, data exports, etc.):
 
 The same built JavaScript implementation was measured on Node, Bun, and Deno with a generated single-root 16.00 MiB XML fixture. This is a runtime-codegen and compatibility check, not a native-addon benchmark.
 
+<details>
+<summary>Scenario contract: Node, Bun, and Deno runtime matrix</summary>
+
+The matrix uses one generated single-root 16.00 MiB XML fixture.
+
+Sample XML shape, shortened:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N" lang="en" code="...">
+    <title>Runtime Benchmark N</title>
+    <author>Author ...</author>
+    <description>Full string checksum text payload ...</description>
+    <chapter number="1">Intro ...</chapter>
+    <chapter number="2">Body ...</chapter>
+  </book>
+</root>
+~~~
+
+Output shape:
+
+~~~text
+runtime-result = {
+  scenario: "public-sync-full-string" | "iterable-count-only" | "iterable-full-string",
+  eventCount: number,
+  checksum: fold(event type, names, text, attr names, attr values),
+  peakHeapUsedBytes: number
+}
+~~~
+
+Runtime methods:
+
+- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.
+- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.
+- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.
+- `public-sync-full-string` uses `StaxXmlParserSync` over one string.
+- `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.
+- This matrix intentionally excludes native addons.
+
+</details>
+
 | Runtime | Version | Scenario | Throughput | Average | Checksum |
 | --- | --- | --- | ---: | ---: | ---: |
-| node | 24.15.0 | public-sync-full-string | 52.2 MiB/s | 306.54 ms | -746772258 |
-| node | 24.15.0 | iterable-count-only | 197.1 MiB/s | 81.18 ms | 2078515073 |
-| node | 24.15.0 | iterable-full-string | 112.6 MiB/s | 142.07 ms | 1007437756 |
-| bun | 1.3.13 | public-sync-full-string | 78.7 MiB/s | 203.39 ms | -746772258 |
-| bun | 1.3.13 | iterable-count-only | 265.8 MiB/s | 60.20 ms | 2078515073 |
-| bun | 1.3.13 | iterable-full-string | 158.9 MiB/s | 100.72 ms | 1007437756 |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | public-sync-full-string | 56.5 MiB/s | 283.10 ms | -746772258 |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | iterable-count-only | 204.0 MiB/s | 78.42 ms | 2078515073 |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | iterable-full-string | 123.0 MiB/s | 130.05 ms | 1007437756 |
+| node | 24.15.0 | public-sync-full-string | 55.0 MiB/s | 290.78 ms | -746772258 |
+| node | 24.15.0 | iterable-count-only | 213.0 MiB/s | 75.11 ms | 2078515073 |
+| node | 24.15.0 | iterable-full-string | 116.5 MiB/s | 137.36 ms | 1007437756 |
+| bun | 1.3.13 | public-sync-full-string | 84.9 MiB/s | 188.52 ms | -746772258 |
+| bun | 1.3.13 | iterable-count-only | 259.0 MiB/s | 61.77 ms | 2078515073 |
+| bun | 1.3.13 | iterable-full-string | 161.6 MiB/s | 99.01 ms | 1007437756 |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | public-sync-full-string | 57.3 MiB/s | 279.28 ms | -746772258 |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | iterable-count-only | 220.5 MiB/s | 72.55 ms | 2078515073 |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | iterable-full-string | 124.9 MiB/s | 128.10 ms | 1007437756 |
 
 The non-JS comparator uses the same event-count and checksum contract. Woodstox is reported on Java 8 for the public baseline because Java 8 is its minimum supported runtime target; Java 25 is measured only as a verification check.
 
+<details>
+<summary>Scenario contract: stax-xml, Woodstox, and quick-xml comparator</summary>
+
+The comparator uses the same generated 16.00 MiB XML fixture shape as the runtime matrix.
+
+Output shape:
+
+~~~text
+comparator-result = {
+  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  eventCount: number,
+  checksum: fold(selected event data for tier)
+}
+~~~
+
+Parsing methods:
+
+- `stax-xml on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
+- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.
+- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.
+- Java 8 is the public Woodstox row because it is Woodstox's minimum runtime target; Java 25 is a separate verification row.
+
+</details>
+
 | Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml | Node/Woodstox | Node/quick-xml |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| count-only | 182.7 MiB/s | 309.4 MiB/s | 303.4 MiB/s | 0.59x | 0.60x |
-| name-string-only | 138.2 MiB/s | 323.1 MiB/s | 256.5 MiB/s | 0.43x | 0.54x |
-| text-string-only | 104.8 MiB/s | 316.2 MiB/s | 271.0 MiB/s | 0.33x | 0.39x |
-| attr-value-string-only | 113.6 MiB/s | 294.1 MiB/s | 297.3 MiB/s | 0.39x | 0.38x |
-| full-string | 93.1 MiB/s | 246.0 MiB/s | 214.8 MiB/s | 0.38x | 0.43x |
+| count-only | 180.2 MiB/s | 346.3 MiB/s | 304.5 MiB/s | 0.52x | 0.59x |
+| name-string-only | 141.6 MiB/s | 314.9 MiB/s | 268.9 MiB/s | 0.45x | 0.53x |
+| text-string-only | 111.3 MiB/s | 315.8 MiB/s | 284.7 MiB/s | 0.35x | 0.39x |
+| attr-value-string-only | 130.8 MiB/s | 315.2 MiB/s | 285.4 MiB/s | 0.41x | 0.46x |
+| full-string | 100.9 MiB/s | 257.1 MiB/s | 228.9 MiB/s | 0.39x | 0.44x |
 
 ### Woodstox Java 25 Verification
 
 | Tier | Woodstox Java 8 | Woodstox Java 25 | Delta | Status |
 | --- | ---: | ---: | ---: | --- |
-| count-only | 309.4 MiB/s | 303.0 MiB/s | -2.1% | ok |
-| name-string-only | 323.1 MiB/s | 276.2 MiB/s | -14.5% | ok |
-| text-string-only | 316.2 MiB/s | 272.7 MiB/s | -13.8% | ok |
-| attr-value-string-only | 294.1 MiB/s | 239.3 MiB/s | -18.6% | ok |
-| full-string | 246.0 MiB/s | 226.2 MiB/s | -8.0% | ok |
+| count-only | 346.3 MiB/s | 301.4 MiB/s | -13.0% | ok |
+| name-string-only | 314.9 MiB/s | 271.7 MiB/s | -13.7% | ok |
+| text-string-only | 315.8 MiB/s | 292.8 MiB/s | -7.3% | ok |
+| attr-value-string-only | 315.2 MiB/s | 248.6 MiB/s | -21.1% | ok |
+| full-string | 257.1 MiB/s | 237.6 MiB/s | -7.6% | ok |
 
 ### Why Native Addons Are The Acceleration Path
 
