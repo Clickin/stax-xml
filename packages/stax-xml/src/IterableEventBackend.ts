@@ -30,10 +30,26 @@ export interface IterableEventBackendOptions {
   implicitAttributeValue?: 'true' | 'name';
 }
 
-export const STAX_XML_EVENT_BACKEND: unique symbol = Symbol('stax-xml.eventBackend');
+export const STAX_XML_EVENT_BACKEND: unique symbol = Symbol.for('stax-xml.eventBackend') as never;
+export const STAX_XML_EVENT_TABLE: unique symbol = Symbol.for('stax-xml.eventTable') as never;
+
+export interface IterableEventTable {
+  nextBatch(): boolean;
+  eventCount: number;
+  eventType(index: number): IterableEventType;
+  copyName(index: number): string | undefined;
+  copyText(index: number): string | undefined;
+  eventAttrCount(eventIndex: number): number;
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined;
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined;
+}
 
 export interface IterableEventBackendProvider {
   [STAX_XML_EVENT_BACKEND](): IterableEventBackendIterator;
+}
+
+export interface IterableEventTableProvider {
+  [STAX_XML_EVENT_TABLE](): IterableEventTable | undefined;
 }
 
 export function getIterableEventBackend(input: unknown): IterableEventBackendIterator | undefined {
@@ -47,6 +63,19 @@ export function getIterableEventBackend(input: unknown): IterableEventBackendIte
     return undefined;
   }
   return getBackend.call(input);
+}
+
+export function getIterableEventTable(input: unknown): IterableEventTable | undefined {
+  if (!input || typeof input !== 'object') {
+    return undefined;
+  }
+
+  const provider = input as Partial<IterableEventTableProvider>;
+  const getTable = provider[STAX_XML_EVENT_TABLE];
+  if (typeof getTable !== 'function') {
+    return undefined;
+  }
+  return getTable.call(input);
 }
 
 const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;

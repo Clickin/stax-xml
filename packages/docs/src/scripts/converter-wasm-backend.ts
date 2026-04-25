@@ -5,6 +5,7 @@ import type { ParseOptions } from 'stax-xml/converter';
 type ConverterSchema = {
   parse(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): Promise<unknown>;
   parseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): unknown;
+  compile?(): ConverterSchema;
 };
 
 type WasmModule = {
@@ -33,6 +34,7 @@ export type ConverterBackendResult = {
   timings: {
     wasmImportMs?: number;
     wasmSpanTableMs?: number;
+    wasmSchemaCompileMs?: number;
     wasmEventCount?: number;
     wasmAttrCount?: number;
     wasmTableBytes?: number;
@@ -49,7 +51,7 @@ export const JS_CONVERTER_BACKEND: ConverterBackendInfo = {
 export const WASM_CONVERTER_BACKEND: ConverterBackendInfo = {
   kind: 'wasm',
   label: 'Wasm span-table',
-  detail: 'The demo uses @stax-xml/native-wasm32-wasi to build an explicit iterable parser and passes it to the converter.'
+  detail: 'The demo uses @stax-xml/native-wasm32-wasi to build an explicit iterable parser and runs the converter through its compiled dispatch path.'
 };
 
 const LOG_PREFIX = '[stax-xml converter wasm]';
@@ -96,11 +98,15 @@ async function parseTextWithWasmConverterBackend(
     decodeEntities: parseOptions?.decodeEntities,
   });
   const wasmSpanTableMs = performance.now() - spanStart;
-  const result = await schema.parse(parser, parseOptions);
+  const compileStart = performance.now();
+  const acceleratedSchema = typeof schema.compile === 'function' ? schema.compile() : schema;
+  const wasmSchemaCompileMs = performance.now() - compileStart;
+  const result = await acceleratedSchema.parse(parser, parseOptions);
 
   const timings = {
     wasmImportMs,
     wasmSpanTableMs,
+    wasmSchemaCompileMs,
     wasmEventCount: parser.eventCount,
     wasmAttrCount: parser.attrCount,
     wasmTableBytes: parser.spanTableBytes

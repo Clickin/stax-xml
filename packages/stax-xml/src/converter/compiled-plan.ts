@@ -38,6 +38,7 @@ export type DispatchTextMode = 'subtree' | 'direct';
 export interface DispatchSelector {
   mode: DispatchSelectorMode;
   segments: string[];
+  positionFilters?: Array<number | undefined>;
   terminal: DispatchSelectorTerminal;
   attributeName?: string;
   textMode: DispatchTextMode;

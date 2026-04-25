@@ -440,9 +440,12 @@ function compileSelector(xpath: string, context: LoweringContext): DispatchSelec
   const lastSegment = compiled.segments[compiled.segments.length - 1];
   const terminal = lastSegment?.isAttribute ? 'attribute' : 'element';
   const textMode = lastSegment?.isTextNode ? 'direct' : 'subtree';
-  const segments = (lastSegment?.isAttribute || lastSegment?.isTextNode)
-    ? compiled.segments.slice(0, -1).map(segment => segment.name)
-    : compiled.segments.map(segment => segment.name);
+  const effectiveSegments = (lastSegment?.isAttribute || lastSegment?.isTextNode)
+    ? compiled.segments.slice(0, -1)
+    : compiled.segments;
+  const segments = effectiveSegments.map(segment => segment.name);
+  const positionFilters = effectiveSegments.map(positionFilterForSegment);
+  const hasPositionFilters = positionFilters.some(position => position !== undefined);
 
   if (terminal === 'attribute') {
     context.eventFilter.includeAttributes = true;
@@ -458,6 +461,7 @@ function compileSelector(xpath: string, context: LoweringContext): DispatchSelec
   return {
     mode: compiled.isDescendant ? 'descendant' : (compiled.isAbsolute ? 'absolute' : 'relative'),
     segments,
+    positionFilters: hasPositionFilters ? positionFilters : undefined,
     terminal,
     attributeName: terminal === 'attribute' ? lastSegment?.name : undefined,
     textMode,
@@ -470,10 +474,20 @@ function assertSupportedCompiledXPath(xpath: string, compiled: CompiledXPath): v
     if (segment.isWildcard) {
       throw new UnsupportedDispatchPlan(`Wildcard XPath is not supported by compiled dispatch: ${xpath}`);
     }
-    if (segment.predicates.length > 0) {
+    for (const predicate of segment.predicates) {
+      if (predicate.type === 'position' && predicate.position !== undefined && predicate.position > 0) {
+        continue;
+      }
       throw new UnsupportedDispatchPlan(`Predicate XPath is not supported by compiled dispatch: ${xpath}`);
     }
   }
+}
+
+function positionFilterForSegment(segment: CompiledXPath['segments'][number]): number | undefined {
+  const predicate = segment.predicates[0];
+  return predicate?.type === 'position' && predicate.position !== undefined && predicate.position > 0
+    ? predicate.position
+    : undefined;
 }
 
 function assertSelectorContext(selector: DispatchSelector, contextual: boolean): void {

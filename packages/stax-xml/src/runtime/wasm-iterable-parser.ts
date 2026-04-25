@@ -2,6 +2,11 @@ import {
   XmlEventType,
   type AnyXmlEvent,
 } from '../types.js';
+import { IterableEventType } from '../StaxXmlIterableParser.js';
+import {
+  STAX_XML_EVENT_TABLE,
+  type IterableEventTable,
+} from '../IterableEventBackend.js';
 
 export type StaxXmlWasmSpanTable = ArrayBuffer | ArrayBufferView;
 
@@ -38,6 +43,7 @@ export class StaxXmlWasmIterableParser implements IterableIterator<AnyXmlEvent> 
 
   private readonly decodeEntities: boolean;
   private index = 0;
+  private tableBatchConsumed = false;
 
   constructor(
     private readonly input: string,
@@ -66,6 +72,13 @@ export class StaxXmlWasmIterableParser implements IterableIterator<AnyXmlEvent> 
     return this;
   }
 
+  [STAX_XML_EVENT_TABLE](): IterableEventTable | undefined {
+    if (this.index !== 0 || this.tableBatchConsumed) {
+      return undefined;
+    }
+    return this;
+  }
+
   next(): IteratorResult<AnyXmlEvent> {
     if (this.index >= this.eventCount) {
       return { value: undefined, done: true };
@@ -81,8 +94,68 @@ export class StaxXmlWasmIterableParser implements IterableIterator<AnyXmlEvent> 
     return { value: undefined, done: true };
   }
 
+  nextBatch(): boolean {
+    if (this.index !== 0 || this.tableBatchConsumed || this.eventCount === 0) {
+      return false;
+    }
+    this.tableBatchConsumed = true;
+    this.index = this.eventCount;
+    return true;
+  }
+
+  eventType(index: number): IterableEventType {
+    const type = this.table.view.getUint32(this.eventOffset(index), true);
+    if (type === 0) return IterableEventType.START_DOCUMENT;
+    if (type === 1) return IterableEventType.END_DOCUMENT;
+    if (type === 2) return IterableEventType.START_ELEMENT;
+    if (type === 3) return IterableEventType.END_ELEMENT;
+    if (type === 4) return IterableEventType.CHARACTERS;
+    if (type === 5) return IterableEventType.CDATA;
+    throw new Error(`Unsupported wasm span table event type: ${type}`);
+  }
+
+  copyName(index: number): string | undefined {
+    const offset = this.eventOffset(index);
+    const start = this.table.view.getInt32(offset + 4, true);
+    if (start < 0) {
+      return undefined;
+    }
+    return this.input.slice(start, this.table.view.getInt32(offset + 8, true));
+  }
+
+  copyText(index: number): string | undefined {
+    const offset = this.eventOffset(index);
+    const start = this.table.view.getInt32(offset + 12, true);
+    if (start < 0) {
+      return undefined;
+    }
+    return this.input.slice(start, this.table.view.getInt32(offset + 16, true));
+  }
+
+  eventAttrCount(index: number): number {
+    return this.table.view.getUint32(this.eventOffset(index) + 24, true);
+  }
+
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
+    const offset = this.attrOffset(eventIndex, attrIndex);
+    const start = this.table.view.getInt32(offset, true);
+    if (start < 0) {
+      return undefined;
+    }
+    return this.input.slice(start, this.table.view.getInt32(offset + 4, true));
+  }
+
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
+    const offset = this.attrOffset(eventIndex, attrIndex);
+    const start = this.table.view.getInt32(offset + 8, true);
+    if (start < 0) {
+      return undefined;
+    }
+    return this.input.slice(start, this.table.view.getInt32(offset + 12, true));
+  }
+
   private readEvent(index: number): AnyXmlEvent {
-    const offset = this.table.eventBase + index * EVENT_STRIDE_BYTES;
+    const offset = this.eventOffset(index);
     const type = this.table.view.getUint32(offset, true);
     const nameStart = this.table.view.getInt32(offset + 4, true);
     const nameEnd = this.table.view.getInt32(offset + 8, true);
@@ -127,6 +200,16 @@ export class StaxXmlWasmIterableParser implements IterableIterator<AnyXmlEvent> 
       type: XmlEventType.ERROR,
       error: new Error(`Unsupported wasm span table event type: ${type}`),
     };
+  }
+
+  private eventOffset(index: number): number {
+    return this.table.eventBase + index * EVENT_STRIDE_BYTES;
+  }
+
+  private attrOffset(eventIndex: number, attrIndex: number): number {
+    const eventOffset = this.eventOffset(eventIndex);
+    const attrStart = this.table.view.getUint32(eventOffset + 20, true);
+    return this.table.attrBase + (attrStart + attrIndex) * ATTR_STRIDE_BYTES;
   }
 
   private readAttributes(attrStart: number, attrCount: number): Record<string, string> {
