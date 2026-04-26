@@ -2,19 +2,23 @@ import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
 import {
   IterableEventType,
   StaxXmlIterableParser,
-  toByteBatches,
 } from 'stax-xml/iterable';
 
 export const STAX_PARSER_SURFACE_SCENARIOS = [
   {
     label: 'stax-xml JS fallback event parser',
     display: 'stax-xml JS event parser',
-    notes: 'Public StaxXmlParserSync event API',
+    notes: 'String API-native path; XML string is prepared outside the timed region',
   },
   {
-    label: 'stax-xml JS fallback raw iterable',
-    display: 'stax-xml JS raw iterable',
-    notes: 'Iterable byte frames with string materialization checksum',
+    label: 'stax-xml JS fallback event parser decode+parse',
+    display: 'stax-xml JS event parser (decode+parse)',
+    notes: 'Byte-source path: Buffer.toString plus public string event parser',
+  },
+  {
+    label: 'stax-xml JS Uint8Array iterable',
+    display: 'stax-xml JS Uint8Array iterable',
+    notes: 'Byte-source API-native path; reusable Iterable<Uint8Array[]> batches',
   },
   {
     label: 'stax-xml native addon event aggregate',
@@ -42,14 +46,21 @@ export async function loadNativeAggregateProbe() {
 }
 
 export function createStaxParserSurfaceRunners({ xmlString, inputBuffer, native }) {
+  const inputBytes = asPlainUint8Array(inputBuffer);
+  const byteBatches = [[inputBytes]];
+
   return [
     {
       label: 'stax-xml JS fallback event parser',
       run: () => consumeStaxXmlEventParser(xmlString),
     },
     {
-      label: 'stax-xml JS fallback raw iterable',
-      run: () => consumeStaxXmlRawIterable(inputBuffer),
+      label: 'stax-xml JS fallback event parser decode+parse',
+      run: () => consumeStaxXmlEventParser(inputBuffer.toString('utf8')),
+    },
+    {
+      label: 'stax-xml JS Uint8Array iterable',
+      run: () => consumeStaxXmlRawIterable(byteBatches),
     },
     {
       label: 'stax-xml native addon event aggregate',
@@ -105,8 +116,8 @@ function consumeStaxXmlEventParser(xmlString) {
   return { eventCount, checksum, attrCountTotal };
 }
 
-function consumeStaxXmlRawIterable(inputBuffer) {
-  const parser = new StaxXmlIterableParser(toByteBatches([inputBuffer], { batchSize: 1 }));
+function consumeStaxXmlRawIterable(byteBatches) {
+  const parser = new StaxXmlIterableParser(byteBatches);
   let eventCount = 0;
   let checksum = 0;
   let attrCountTotal = 0;
@@ -134,6 +145,12 @@ function consumeStaxXmlRawIterable(inputBuffer) {
   }
 
   return { eventCount, checksum, attrCountTotal };
+}
+
+function asPlainUint8Array(value) {
+  return Object.getPrototypeOf(value) === Uint8Array.prototype
+    ? value
+    : new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
 }
 
 function normalizeNativeAggregateResult(result) {

@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-04-26T12:38:35.356Z",
+  "generatedAt": "2026-04-26T13:51:29.069Z",
   "environment": {
     "arch": "x64-win32",
     "runtime": "node",
     "version": "24.15.0",
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-    "cpuGHz": 4.84,
+    "cpuGHz": 4.82,
     "packageManager": "pnpm@10.18.0",
     "packages": [
       {
@@ -186,80 +186,89 @@
         "runtime": "node",
         "version": "24.15.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.84
+        "cpuGHz": 4.82
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 468188.1889763761,
-          "minNs": 246500,
-          "p75Ns": 533600,
-          "p99Ns": 953700,
-          "maxNs": 1065500,
-          "heapAvgBytes": 73949.152
+          "avgNs": 378892.54658385983,
+          "minNs": 215100,
+          "p75Ns": 459000,
+          "p99Ns": 938800,
+          "maxNs": 974700,
+          "heapAvgBytes": 73004.68789808918
         },
         {
           "label": "stax-xml JS fallback event parser",
-          "avgNs": 492463.96761133603,
-          "minNs": 267900,
-          "p75Ns": 571300,
-          "p99Ns": 783100,
-          "maxNs": 1263300,
-          "heapAvgBytes": 89867.04918032787
+          "avgNs": 362676.8361581921,
+          "minNs": 227500,
+          "p75Ns": 451700,
+          "p99Ns": 923000,
+          "maxNs": 1440900,
+          "heapAvgBytes": 87474.40226628895
         },
         {
-          "label": "stax-xml JS fallback raw iterable",
-          "avgNs": 294977.8846153785,
-          "minNs": 165900,
-          "p75Ns": 331000,
-          "p99Ns": 512000,
-          "maxNs": 606600,
-          "heapAvgBytes": 35849.57419354839
+          "label": "stax-xml JS fallback event parser decode+parse",
+          "avgNs": 317681.8407960199,
+          "minNs": 229900,
+          "p75Ns": 331800,
+          "p99Ns": 687300,
+          "maxNs": 868800,
+          "heapAvgBytes": 82250.45544554456
+        },
+        {
+          "label": "stax-xml JS Uint8Array iterable",
+          "avgNs": 312045.67474048113,
+          "minNs": 155500,
+          "p75Ns": 374500.00000190735,
+          "p99Ns": 716500,
+          "maxNs": 917400,
+          "heapAvgBytes": 33966.343859649125
         },
         {
           "label": "stax-xml native addon event aggregate",
-          "avgNs": 12446.959867931559,
-          "minNs": 10498.6572265625,
-          "p75Ns": 13121.337890625,
-          "p99Ns": 14572.1923828125,
-          "maxNs": 15530.859375,
-          "heapAvgBytes": 194.913046875
+          "avgNs": 10330.79364483173,
+          "minNs": 9221.826171875,
+          "p75Ns": 10119.5556640625,
+          "p99Ns": 13957.275390625,
+          "maxNs": 14264.5751953125,
+          "heapAvgBytes": 194.6265625
         },
         {
           "label": "stax-xml native addon raw aggregate",
-          "avgNs": 3692.6377593493853,
-          "minNs": 3032.2998046875,
-          "p75Ns": 4065.966796875,
-          "p99Ns": 5815.6982421875,
-          "maxNs": 5863.232421875,
-          "heapAvgBytes": 191.0831730769231
+          "avgNs": 3289.3107624797076,
+          "minNs": 3110.0341796875,
+          "p75Ns": 3260.791015625,
+          "p99Ns": 4223.6572265625,
+          "maxNs": 5099.31640625,
+          "heapAvgBytes": 192.76453993055554
         },
         {
           "label": "xml2js",
-          "avgNs": 671625.3918495298,
-          "minNs": 494400,
-          "p75Ns": 669300,
-          "p99Ns": 1480100,
-          "maxNs": 2613300,
-          "heapAvgBytes": 226002.06451612903
+          "avgNs": 724088.6731391585,
+          "minNs": 497400,
+          "p75Ns": 788000,
+          "p99Ns": 1718200,
+          "maxNs": 2204100,
+          "heapAvgBytes": 228312.73732718895
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 440889.77556109725,
-          "minNs": 369600,
-          "p75Ns": 433700,
-          "p99Ns": 978200,
-          "maxNs": 1092600,
-          "heapAvgBytes": 198797.28
+          "avgNs": 783844,
+          "minNs": 387700,
+          "p75Ns": 953100,
+          "p99Ns": 2067400,
+          "maxNs": 2476900,
+          "heapAvgBytes": 200723.49206349207
         },
         {
           "label": "txml",
-          "avgNs": 9582.431135506466,
-          "minNs": 9231.2255859375,
-          "p75Ns": 9762.2314453125,
-          "p99Ns": 10387.890625,
-          "maxNs": 10631.8359375,
-          "heapAvgBytes": 1929.4008049242425
+          "avgNs": 11170.290120442689,
+          "minNs": 9499.5849609375,
+          "p75Ns": 11972.0703125,
+          "p99Ns": 13142.333984374534,
+          "maxNs": 13787.2802734375,
+          "heapAvgBytes": 1927.2203543526787
         }
       ]
     },
@@ -271,80 +280,89 @@
         "runtime": "node",
         "version": "24.15.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.77
+        "cpuGHz": 4.64
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 434376.38036809815,
-          "minNs": 299100,
-          "p75Ns": 528900,
-          "p99Ns": 930800,
-          "maxNs": 1672000,
-          "heapAvgBytes": 107172.31515151515
+          "avgNs": 417216.9014084507,
+          "minNs": 299200,
+          "p75Ns": 428100,
+          "p99Ns": 1009500,
+          "maxNs": 1223200,
+          "heapAvgBytes": 107819.72144846797
         },
         {
           "label": "stax-xml JS fallback event parser",
-          "avgNs": 449501.4245014245,
-          "minNs": 334200,
-          "p75Ns": 461400,
-          "p99Ns": 1100200,
-          "maxNs": 1379700,
-          "heapAvgBytes": 137645.04545454544
+          "avgNs": 507127.68729641696,
+          "minNs": 338500,
+          "p75Ns": 618000,
+          "p99Ns": 955900,
+          "maxNs": 1156000,
+          "heapAvgBytes": 136182.91961414792
         },
         {
-          "label": "stax-xml JS fallback raw iterable",
-          "avgNs": 266740.6976744186,
-          "minNs": 228300,
-          "p75Ns": 270800,
-          "p99Ns": 498100,
-          "maxNs": 620400,
-          "heapAvgBytes": 39285.07226107226
+          "label": "stax-xml JS fallback event parser decode+parse",
+          "avgNs": 614334.2975206611,
+          "minNs": 354500,
+          "p75Ns": 727700,
+          "p99Ns": 1084900,
+          "maxNs": 1230100,
+          "heapAvgBytes": 140105.0448979592
+        },
+        {
+          "label": "stax-xml JS Uint8Array iterable",
+          "avgNs": 364081.3253012048,
+          "minNs": 227800,
+          "p75Ns": 434400,
+          "p99Ns": 976200,
+          "maxNs": 1913900,
+          "heapAvgBytes": 35527.85628742515
         },
         {
           "label": "stax-xml native addon event aggregate",
-          "avgNs": 20003.27336237981,
-          "minNs": 18686.4013671875,
-          "p75Ns": 20744.2138671875,
-          "p99Ns": 21335.546875,
-          "maxNs": 21355.5419921875,
-          "heapAvgBytes": 199.25643382352942
+          "avgNs": 18893.22684151786,
+          "minNs": 18530.2490234375,
+          "p75Ns": 18953.0517578125,
+          "p99Ns": 19556.1767578125,
+          "maxNs": 19635.595703125,
+          "heapAvgBytes": 198.580078125
         },
         {
           "label": "stax-xml native addon raw aggregate",
-          "avgNs": 6533.293968023256,
-          "minNs": 6345.1416015625,
-          "p75Ns": 6575.9033203125,
-          "p99Ns": 6917.138671875,
-          "maxNs": 7095.458984375,
-          "heapAvgBytes": 191.6771525930851
+          "avgNs": 6941.737060546875,
+          "minNs": 6534.9853515625,
+          "p75Ns": 7020.8251953125,
+          "p99Ns": 8102.6611328125,
+          "maxNs": 8893.9697265625,
+          "heapAvgBytes": 194.6337890625
         },
         {
           "label": "xml2js",
-          "avgNs": 893713.354037267,
-          "minNs": 351000,
-          "p75Ns": 929200,
-          "p99Ns": 1716800,
-          "maxNs": 1776700,
-          "heapAvgBytes": 640882.7042253522
+          "avgNs": 1353234.1968911916,
+          "minNs": 568800,
+          "p75Ns": 1676000,
+          "p99Ns": 2777000,
+          "maxNs": 2992800,
+          "heapAvgBytes": 608223.2814371258
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 722862.1993127147,
-          "minNs": 428600,
-          "p75Ns": 695400,
-          "p99Ns": 1894700,
-          "maxNs": 2880100,
-          "heapAvgBytes": 862735.1153846154
+          "avgNs": 1048381.5,
+          "minNs": 421900,
+          "p75Ns": 1282400,
+          "p99Ns": 2109300,
+          "maxNs": 2132100,
+          "heapAvgBytes": 937433.4304635761
         },
         {
           "label": "txml",
-          "avgNs": 18673.543875558036,
-          "minNs": 18395.5810546875,
-          "p75Ns": 18735.7666015625,
-          "p99Ns": 19041.8212890625,
-          "maxNs": 19185.05859375,
-          "heapAvgBytes": 5295.970703125
+          "avgNs": 21423.13343394912,
+          "minNs": 19669.5068359375,
+          "p75Ns": 21562.3046875,
+          "p99Ns": 23635.3515625,
+          "maxNs": 26042.79785156343,
+          "heapAvgBytes": 5334.819921875
         }
       ]
     },
@@ -356,80 +374,89 @@
         "runtime": "node",
         "version": "24.15.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.85
+        "cpuGHz": 4.63
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 249967616.66666666,
-          "minNs": 212733300,
-          "p75Ns": 263299400,
-          "p99Ns": 278639500,
-          "maxNs": 326077600,
-          "heapAvgBytes": 152604064
+          "avgNs": 281582983.3333333,
+          "minNs": 220333900,
+          "p75Ns": 313420100,
+          "p99Ns": 328296700,
+          "maxNs": 412249600,
+          "heapAvgBytes": 152500805.33333334
         },
         {
           "label": "stax-xml JS fallback event parser",
-          "avgNs": 261561733.33333334,
-          "minNs": 240819000,
-          "p75Ns": 264716200,
-          "p99Ns": 285201300,
-          "maxNs": 286970900,
-          "heapAvgBytes": 173662526.66666666
+          "avgNs": 307921658.3333333,
+          "minNs": 248127700,
+          "p75Ns": 340022000,
+          "p99Ns": 382920600,
+          "maxNs": 429823900,
+          "heapAvgBytes": 174781066
         },
         {
-          "label": "stax-xml JS fallback raw iterable",
-          "avgNs": 104144022.22222222,
-          "minNs": 102182700,
-          "p75Ns": 105911300,
-          "p99Ns": 106775000,
-          "maxNs": 107100600,
-          "heapAvgBytes": 27637077.53846154
+          "label": "stax-xml JS fallback event parser decode+parse",
+          "avgNs": 296190450,
+          "minNs": 261851000,
+          "p75Ns": 309762800,
+          "p99Ns": 360117400,
+          "maxNs": 375538100,
+          "heapAvgBytes": 174794995.33333334
+        },
+        {
+          "label": "stax-xml JS Uint8Array iterable",
+          "avgNs": 105355144.44444445,
+          "minNs": 103925400,
+          "p75Ns": 106039500,
+          "p99Ns": 106294000,
+          "maxNs": 108574000,
+          "heapAvgBytes": 27635990.153846152
         },
         {
           "label": "stax-xml native addon event aggregate",
-          "avgNs": 73306220,
-          "minNs": 72227900,
-          "p75Ns": 73631700,
-          "p99Ns": 73911500,
-          "maxNs": 74521300,
+          "avgNs": 102750410,
+          "minNs": 95509900,
+          "p75Ns": 105421700,
+          "p99Ns": 112020300,
+          "maxNs": 112147200,
           "heapAvgBytes": 3160
         },
         {
           "label": "stax-xml native addon raw aggregate",
-          "avgNs": 24069686.666666668,
-          "minNs": 20040500,
-          "p75Ns": 26092500,
-          "p99Ns": 32863800,
-          "maxNs": 33473500,
+          "avgNs": 21193650.943396226,
+          "minNs": 20430100,
+          "p75Ns": 21464100,
+          "p99Ns": 22820100,
+          "maxNs": 23031200,
           "heapAvgBytes": 3160
         },
         {
           "label": "xml2js",
-          "avgNs": 559248.4455958549,
-          "minNs": 269700,
-          "p75Ns": 575000,
-          "p99Ns": 1130700,
-          "maxNs": 1457200,
-          "heapAvgBytes": 441331.0238095238
+          "avgNs": 837355.421686747,
+          "minNs": 346000,
+          "p75Ns": 1027000,
+          "p99Ns": 1774600,
+          "maxNs": 2554400,
+          "heapAvgBytes": 463103.96396396396
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 673809366.6666666,
-          "minNs": 660515600,
-          "p75Ns": 684380200,
-          "p99Ns": 687561300,
-          "maxNs": 688457400,
-          "heapAvgBytes": 186472216.66666666
+          "avgNs": 774195275.0000013,
+          "minNs": 689805900,
+          "p75Ns": 781383800.0000076,
+          "p99Ns": 858764200,
+          "maxNs": 900841500,
+          "heapAvgBytes": 164089689.33333334
         },
         {
           "label": "txml",
-          "avgNs": 113143344.44444445,
-          "minNs": 109841000,
-          "p75Ns": 114567800,
-          "p99Ns": 115911200,
-          "maxNs": 117685100,
-          "heapAvgBytes": 123306222.15384616
+          "avgNs": 118315816.6666692,
+          "minNs": 112175000,
+          "p75Ns": 121673700,
+          "p99Ns": 128165800.00000763,
+          "maxNs": 128409300,
+          "heapAvgBytes": 123300627.33333333
         }
       ]
     },
@@ -441,80 +468,89 @@
         "runtime": "node",
         "version": "24.15.0",
         "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-        "cpuGHz": 4.83
+        "cpuGHz": 4.82
       },
       "cases": [
         {
           "label": "stax-xml to object",
-          "avgNs": 1915704591.666666,
-          "minNs": 1690832600,
-          "p75Ns": 1952678900,
-          "p99Ns": 2065802500,
-          "maxNs": 2488943500,
-          "heapAvgBytes": 1027510476
+          "avgNs": 2112273066.6666667,
+          "minNs": 1716174800,
+          "p75Ns": 2257381600,
+          "p99Ns": 2328514100,
+          "maxNs": 2342682300,
+          "heapAvgBytes": 1039618120
         },
         {
           "label": "stax-xml JS fallback event parser",
-          "avgNs": 1944371958.3333333,
-          "minNs": 1793075400,
-          "p75Ns": 1955810800,
-          "p99Ns": 2040543300,
-          "maxNs": 2371485300,
-          "heapAvgBytes": 1056538294
+          "avgNs": 2146873175,
+          "minNs": 1920318500,
+          "p75Ns": 2164641600,
+          "p99Ns": 2352245000,
+          "maxNs": 2455757400,
+          "heapAvgBytes": 1060654790
         },
         {
-          "label": "stax-xml JS fallback raw iterable",
-          "avgNs": 718656283.3333334,
-          "minNs": 680208300,
-          "p75Ns": 728429300,
-          "p99Ns": 773409000,
-          "maxNs": 785005600,
-          "heapAvgBytes": 19301972
+          "label": "stax-xml JS fallback event parser decode+parse",
+          "avgNs": 2193425791.6666665,
+          "minNs": 1992463500,
+          "p75Ns": 2326794900,
+          "p99Ns": 2367031000,
+          "maxNs": 2475948600,
+          "heapAvgBytes": 1048306792.6666666
+        },
+        {
+          "label": "stax-xml JS Uint8Array iterable",
+          "avgNs": 719297283.3333334,
+          "minNs": 666174400,
+          "p75Ns": 752476200,
+          "p99Ns": 792094000,
+          "maxNs": 794176400,
+          "heapAvgBytes": 19301292.666666668
         },
         {
           "label": "stax-xml native addon event aggregate",
-          "avgNs": 526490441.6666667,
-          "minNs": 482371000,
-          "p75Ns": 529439100,
-          "p99Ns": 569906900,
-          "maxNs": 606066400,
+          "avgNs": 826008500,
+          "minNs": 767264700,
+          "p75Ns": 841814300,
+          "p99Ns": 878277400,
+          "maxNs": 962797600,
           "heapAvgBytes": 3160
         },
         {
           "label": "stax-xml native addon raw aggregate",
-          "avgNs": 152082458.33333078,
-          "minNs": 149762000,
-          "p75Ns": 152824200,
-          "p99Ns": 153467000,
-          "maxNs": 154202900,
+          "avgNs": 157033141.66666666,
+          "minNs": 153929400,
+          "p75Ns": 157459100,
+          "p99Ns": 159862600,
+          "maxNs": 168862300,
           "heapAvgBytes": 3160
         },
         {
           "label": "xml2js",
-          "avgNs": 5755032525,
-          "minNs": 5595442600,
-          "p75Ns": 5837078400,
-          "p99Ns": 5965390000,
-          "maxNs": 5989218700,
-          "heapAvgBytes": 669979376
+          "avgNs": 6213973216.666667,
+          "minNs": 5774559200,
+          "p75Ns": 6496211100,
+          "p99Ns": 6640050500,
+          "maxNs": 6685575900,
+          "heapAvgBytes": 669598634
         },
         {
           "label": "fast-xml-parser",
-          "avgNs": 5537481858.333328,
-          "minNs": 5344351900,
-          "p75Ns": 5563105400,
-          "p99Ns": 5730153100,
-          "maxNs": 5979992900,
-          "heapAvgBytes": 1068943842
+          "avgNs": 5974588758.333331,
+          "minNs": 5616546200,
+          "p75Ns": 6125477200,
+          "p99Ns": 6301723500,
+          "maxNs": 6568034300,
+          "heapAvgBytes": 1071227836
         },
         {
           "label": "txml",
-          "avgNs": 980031433.3333334,
-          "minNs": 945508500,
-          "p75Ns": 998631100,
-          "p99Ns": 1008746100,
-          "maxNs": 1019225200,
-          "heapAvgBytes": 901528702
+          "avgNs": 1040091125,
+          "minNs": 978376100,
+          "p75Ns": 1075102100,
+          "p99Ns": 1095560500,
+          "maxNs": 1106535300,
+          "heapAvgBytes": 901587286
         }
       ]
     },
