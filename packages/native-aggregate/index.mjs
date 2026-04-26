@@ -22,6 +22,8 @@ export const parseItemProjectionViaTableUint8Array =
   binding.parseItemProjectionViaTableUint8Array;
 export const parseItemRowsViaTableUint8Array =
   binding.parseItemRowsViaTableUint8Array;
+export const parseObjectRowsUint8Array =
+  binding.parseObjectRowsUint8Array;
 export const parseObjectRowsViaTableUint8Array =
   binding.parseObjectRowsViaTableUint8Array;
 
@@ -37,6 +39,7 @@ if (
   typeof parseItemProjectionUint8Array !== 'function' ||
   typeof parseItemProjectionViaTableUint8Array !== 'function' ||
   typeof parseItemRowsViaTableUint8Array !== 'function' ||
+  typeof parseObjectRowsUint8Array !== 'function' ||
   typeof parseObjectRowsViaTableUint8Array !== 'function'
 ) {
   throw new TypeError(
@@ -86,6 +89,10 @@ export function parse_item_projection_via_table_uint8array(input) {
 
 export function parse_item_rows_via_table_uint8array(input) {
   return parseItemRowsViaTableUint8Array(input);
+}
+
+export function parse_object_rows_uint8array(input, spec) {
+  return parseObjectRowsUint8Array(input, spec);
 }
 
 export function parse_object_rows_via_table_uint8array(input, spec) {

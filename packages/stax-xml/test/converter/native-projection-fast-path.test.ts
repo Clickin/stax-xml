@@ -76,6 +76,49 @@ describe('compiled converter native projection fast path', () => {
     expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
   });
 
+  it('prefers direct generic native projection over table projection when available', async () => {
+    const xml = '<root><entry code="js"><label>fallback</label><score>1</score></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const parseObjectRowsUint8Array = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 8,
+      maxDepth: 3,
+      fieldCount: 3,
+      rowCount: 1,
+      columns: [
+        { present: [true], values: ['direct'] },
+        { present: [true], values: ['label'] },
+        { present: [true], numberValues: [7] },
+      ],
+    }));
+    const parseObjectRowsViaTableUint8Array = vi.fn(() => {
+      throw new Error('table projection should not be used when direct projection is available');
+    });
+    mocks.resolveBackend.mockResolvedValue({
+      kind: 'native',
+      packageName: '@stax-xml/native-test',
+      module: {
+        parseObjectRowsUint8Array,
+        parseObjectRowsViaTableUint8Array,
+      },
+      errors: [],
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./label'),
+        score: x.number().xpath('./score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'direct', label: 'label', score: 7 }]);
+    expect(parseObjectRowsUint8Array).toHaveBeenCalledOnce();
+    expect(parseObjectRowsViaTableUint8Array).not.toHaveBeenCalled();
+  });
+
   it('applies compiled number validation to native projection row values', async () => {
     const xml = '<root><entry code="js"><label>fallback</label><score>1</score></entry></root>';
     const input = new TextEncoder().encode(xml);
@@ -109,6 +152,80 @@ describe('compiled converter native projection fast path', () => {
 
     await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
       .rejects.toThrow('Expected integer');
+  });
+
+  it('accepts typed number columns from generic native projection rows', async () => {
+    const xml = '<root><entry code="js"><label>fallback</label><score>1</score></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const parseObjectRowsViaTableUint8Array = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 8,
+      maxDepth: 3,
+      fieldCount: 3,
+      rowCount: 1,
+      columns: [
+        { present: [true], values: ['native'] },
+        { present: [true], values: ['label'] },
+        { present: [true], numberValues: [42] },
+      ],
+    }));
+    mocks.resolveBackend.mockResolvedValue({
+      kind: 'native',
+      packageName: '@stax-xml/native-test',
+      module: { parseObjectRowsViaTableUint8Array },
+      errors: [],
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./label'),
+        score: x.number().xpath('./score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'native', label: 'label', score: 42 }]);
+  });
+
+  it('accepts string span columns from generic native projection rows', async () => {
+    const xml = '<root><entry code="native"><label>label</label><score>42</score></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const codeStart = xml.indexOf('native');
+    const codeEnd = codeStart + 'native'.length;
+    const labelStart = xml.indexOf('label');
+    const labelEnd = labelStart + 'label'.length;
+    const parseObjectRowsViaTableUint8Array = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 8,
+      maxDepth: 3,
+      fieldCount: 3,
+      rowCount: 1,
+      columns: [
+        { present: [true], spanStarts: [codeStart], spanEnds: [codeEnd] },
+        { present: [true], spanStarts: [labelStart], spanEnds: [labelEnd] },
+        { present: [true], numberValues: [42] },
+      ],
+    }));
+    mocks.resolveBackend.mockResolvedValue({
+      kind: 'native',
+      packageName: '@stax-xml/native-test',
+      module: { parseObjectRowsViaTableUint8Array },
+      errors: [],
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./label'),
+        score: x.number().xpath('./score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'native', label: 'label', score: 42 }]);
   });
 
   it('uses native table projection rows for the supported item-object byte schema', async () => {

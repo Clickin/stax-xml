@@ -23,7 +23,8 @@ import type {
   DispatchValuePlan
 } from './compiled-plan.js';
 import type { ParseInput } from './XmlSchema.js';
-import type { ParseOptions } from './types.js';
+import type { ParseOptions, XmlNumberOptions } from './types.js';
+import { XmlParseError } from './errors.js';
 import {
   IterableEventBackendIterator,
   createIterableParserFromChunks,
@@ -34,6 +35,7 @@ import {
 } from './IterableEventBackend.js';
 
 const textEncoder = new TextEncoder();
+const utf8Decoder = new TextDecoder();
 const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
 const DEFAULT_ENTITY_MAP: Record<string, string> = {
   lt: '<',
@@ -846,6 +848,10 @@ type StructuralIndexNativeModule = {
 };
 
 type NativeItemRowsModule = {
+  parseObjectRowsUint8Array?: (
+    input: Uint8Array,
+    spec: NativeObjectRowsProjectionSpec
+  ) => NativeObjectRowsResult;
   parseObjectRowsViaTableUint8Array?: (
     input: Uint8Array,
     spec: NativeObjectRowsProjectionSpec
@@ -882,13 +888,37 @@ type NativeObjectRowsResult = {
   field_count?: number;
   rowCount?: number;
   row_count?: number;
-  columns?: Array<{ present?: unknown[]; values?: unknown[] }>;
+  columns?: NativeObjectRowsColumn[];
+};
+
+type NativeObjectRowsColumn = {
+  present?: unknown[];
+  values?: unknown[];
+  numberValues?: unknown[];
+  number_values?: unknown[];
+  spanStarts?: unknown[];
+  span_starts?: unknown[];
+  spanEnds?: unknown[];
+  span_ends?: unknown[];
+};
+
+type NativeObjectRowsResolvedColumn = {
+  values?: unknown[];
+  spanStarts?: unknown[];
+  spanEnds?: unknown[];
+  source?: Utf8SpanSource;
+};
+
+type Utf8SpanSource = {
+  view: Uint8Array;
+  buffer?: { toString(encoding: string, start: number, end: number): string };
 };
 
 type NativeObjectRowsHydrator = {
   fieldName: string;
   missingValue: unknown;
-  parseValue: (rawValue: string) => unknown;
+  valueKind: 'string' | 'number';
+  parseValue: (rawValue: string | number) => unknown;
 };
 
 type NativeItemRowsResult = {
@@ -928,9 +958,10 @@ async function tryProjectItemRowsViaNativeTable(
 
   const nativeModule = backend.module as NativeItemRowsModule | undefined;
   const projectRows = nativeModule?.parseItemRowsViaTableUint8Array;
+  const nativeInput = toUint8Array(input);
   if (itemRowsSupported && typeof projectRows === 'function') {
     try {
-      return normalizeNativeItemRowsResult(projectRows(toUint8Array(input)), options);
+      return normalizeNativeItemRowsResult(projectRows(nativeInput), options);
     } catch (error) {
       if (acceleration?.fallbackOnParseError) {
         return undefined;
@@ -939,12 +970,14 @@ async function tryProjectItemRowsViaNativeTable(
     }
   }
 
-  const projectObjectRows = nativeModule?.parseObjectRowsViaTableUint8Array;
+  const projectObjectRows = nativeModule?.parseObjectRowsUint8Array
+    ?? nativeModule?.parseObjectRowsViaTableUint8Array;
   if (objectRowsProjection && typeof projectObjectRows === 'function') {
     try {
       return normalizeNativeObjectRowsResult(
-        projectObjectRows(toUint8Array(input), objectRowsProjection.spec),
+        projectObjectRows(nativeInput, objectRowsProjection.spec),
         objectRowsProjection,
+        nativeInput,
         options
       );
     } catch (error) {
@@ -961,6 +994,7 @@ async function tryProjectItemRowsViaNativeTable(
 function normalizeNativeObjectRowsResult(
   result: NativeObjectRowsResult,
   projection: NativeObjectRowsProjectionPlan,
+  input: Uint8Array,
   options?: ParseOptions
 ): unknown[] {
   const eventCount = readNativeNumber(result.eventCount ?? result.event_count, 'eventCount');
@@ -984,16 +1018,22 @@ function normalizeNativeObjectRowsResult(
   if (result.columns.length !== projection.fields.length) {
     throw new Error('Native object rows projection returned an invalid column count.');
   }
-  for (const column of result.columns) {
-    if (!Array.isArray(column.present) || !Array.isArray(column.values)) {
+  const hydrators = createNativeObjectRowsHydrators(projection, options);
+  const valueColumns = new Array<NativeObjectRowsResolvedColumn>(result.columns.length);
+  const spanSource = createUtf8SpanSource(input);
+  for (let index = 0; index < result.columns.length; index++) {
+    const column = result.columns[index]!;
+    const hydrator = hydrators[index]!;
+    if (!Array.isArray(column.present)) {
       throw new Error('Native object rows projection returned an invalid column.');
     }
-    if (column.present.length !== rowCount || column.values.length !== rowCount) {
+    const values = readNativeObjectRowsColumnValues(column, hydrator, spanSource);
+    if (column.present.length !== rowCount || !nativeObjectRowsColumnHasHeight(values, rowCount)) {
       throw new Error('Native object rows projection returned an invalid column height.');
     }
+    valueColumns[index] = values;
   }
 
-  const hydrators = createNativeObjectRowsHydrators(projection, options);
   const columns = result.columns;
   const rows = new Array<unknown>(rowCount);
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
@@ -1006,8 +1046,12 @@ function normalizeNativeObjectRowsResult(
         continue;
       }
 
-      const rawValue = column.values[rowIndex];
-      if (typeof rawValue !== 'string') {
+      const rawValue = readNativeObjectRowsColumnValue(valueColumns[index]!, rowIndex);
+      if (hydrator.valueKind === 'number') {
+        if (typeof rawValue !== 'number' && typeof rawValue !== 'string') {
+          throw new Error('Native object rows projection returned a non-number value.');
+        }
+      } else if (typeof rawValue !== 'string') {
         throw new Error('Native object rows projection returned a non-string value.');
       }
       output[hydrator.fieldName] = hydrator.parseValue(rawValue);
@@ -1026,27 +1070,174 @@ function createNativeObjectRowsHydrators(
     const plan = field.value as DispatchScalarPlan;
     const parseText = plan.schema._parseText?.bind(plan.schema);
     const missingValue = defaultValue(plan, true, 'field');
-    let parseValue: (rawValue: string) => unknown;
+    let parseValue: (rawValue: string | number) => unknown;
     if (plan.kind === 'string' && !plan.optional) {
       parseValue = shouldDecodeEntities
-        ? rawValue => decodeEntities(rawValue, options)
+        ? rawValue => decodeEntities(String(rawValue), options)
         : rawValue => rawValue;
+    } else if (plan.kind === 'number') {
+      parseValue = rawValue => typeof rawValue === 'number'
+        ? parseNativeNumberValue(plan, rawValue)
+        : (shouldDecodeEntities
+            ? parseScalar(plan, decodeEntities(rawValue, options), false)
+            : parseScalar(plan, rawValue, false));
     } else if (parseText) {
       parseValue = shouldDecodeEntities
-        ? rawValue => parseText(decodeEntities(rawValue, options))
-        : rawValue => parseText(rawValue);
+        ? rawValue => parseText(decodeEntities(String(rawValue), options))
+        : rawValue => parseText(String(rawValue));
     } else {
       parseValue = shouldDecodeEntities
-        ? rawValue => parseScalar(plan, decodeEntities(rawValue, options), false)
-        : rawValue => parseScalar(plan, rawValue, false);
+        ? rawValue => parseScalar(plan, decodeEntities(String(rawValue), options), false)
+        : rawValue => parseScalar(plan, String(rawValue), false);
     }
 
     return {
       fieldName: field.fieldName,
       missingValue,
+      valueKind: plan.kind,
       parseValue,
     };
   });
+}
+
+function readNativeObjectRowsColumnValues(
+  column: NativeObjectRowsColumn,
+  hydrator: NativeObjectRowsHydrator,
+  source: Utf8SpanSource
+): NativeObjectRowsResolvedColumn {
+  if (hydrator.valueKind === 'number') {
+    const numberValues = column.numberValues ?? column.number_values;
+    if (numberValues !== undefined) {
+      if (!Array.isArray(numberValues)) {
+        throw new Error('Native object rows projection returned an invalid number column.');
+      }
+      return { values: numberValues };
+    }
+  }
+
+  const spanStarts = column.spanStarts ?? column.span_starts;
+  const spanEnds = column.spanEnds ?? column.span_ends;
+  if (
+    hydrator.valueKind === 'string'
+    && Array.isArray(spanStarts)
+    && Array.isArray(spanEnds)
+    && spanStarts.length > 0
+  ) {
+    return {
+      values: Array.isArray(column.values) ? column.values : undefined,
+      spanStarts,
+      spanEnds,
+      source
+    };
+  }
+
+  if (Array.isArray(column.values)) {
+    return { values: column.values };
+  }
+
+  if (
+    hydrator.valueKind === 'string'
+    && ((spanStarts !== undefined && !Array.isArray(spanStarts))
+      || (spanEnds !== undefined && !Array.isArray(spanEnds)))
+  ) {
+    throw new Error('Native object rows projection returned an invalid span column.');
+  }
+
+  throw new Error('Native object rows projection returned an invalid column.');
+}
+
+function nativeObjectRowsColumnHasHeight(
+  column: NativeObjectRowsResolvedColumn,
+  rowCount: number
+): boolean {
+  if (column.values && column.values.length !== rowCount) {
+    return false;
+  }
+  if (column.spanStarts && column.spanStarts.length !== rowCount) {
+    return false;
+  }
+  if (column.spanEnds && column.spanEnds.length !== rowCount) {
+    return false;
+  }
+  return !!column.values || (!!column.spanStarts && !!column.spanEnds);
+}
+
+function readNativeObjectRowsColumnValue(
+  column: NativeObjectRowsResolvedColumn,
+  rowIndex: number
+): unknown {
+  if (column.spanStarts && column.spanEnds && column.source) {
+    const start = column.spanStarts[rowIndex];
+    const end = column.spanEnds[rowIndex];
+    if (typeof start === 'number' && typeof end === 'number' && start >= 0 && end >= start) {
+      return copyUtf8Span(column.source, start, end);
+    }
+  }
+  return column.values?.[rowIndex];
+}
+
+function copyUtf8Span(source: Utf8SpanSource, start: number, end: number): string {
+  if (source.buffer) {
+    return source.buffer.toString('utf8', start, end);
+  }
+  return utf8Decoder.decode(source.view.subarray(start, end));
+}
+
+function createUtf8SpanSource(input: Uint8Array): Utf8SpanSource {
+  const bufferCtor = (globalThis as {
+    Buffer?: {
+      isBuffer(value: unknown): boolean;
+      from(buffer: ArrayBufferLike, byteOffset: number, length: number): {
+        toString(encoding: string, start: number, end: number): string;
+      };
+    };
+  }).Buffer;
+  if (bufferCtor?.isBuffer(input) && typeof (input as { toString?: unknown }).toString === 'function') {
+    return {
+      view: input,
+      buffer: input as unknown as { toString(encoding: string, start: number, end: number): string },
+    };
+  }
+  if (bufferCtor?.from) {
+    return {
+      view: input,
+      buffer: bufferCtor.from(input.buffer, input.byteOffset, input.byteLength),
+    };
+  }
+  return { view: input };
+}
+
+function parseNativeNumberValue(plan: DispatchScalarPlan, value: number): number {
+  const options = ((plan.unwrappedSchema as { options?: XmlNumberOptions }).options ?? {}) as XmlNumberOptions;
+  if (Number.isNaN(value)) {
+    throw new XmlParseError([{
+      path: [],
+      message: 'Invalid number: NaN',
+      code: 'invalid_number'
+    }]);
+  }
+  if (options.min !== undefined && value < options.min) {
+    throw new XmlParseError([{
+      path: [],
+      message: `Number ${value} is less than minimum ${options.min}`,
+      code: 'too_small'
+    }]);
+  }
+  if (options.max !== undefined && value > options.max) {
+    throw new XmlParseError([{
+      path: [],
+      message: `Number ${value} is greater than maximum ${options.max}`,
+      code: 'too_big'
+    }]);
+  }
+  if (options.int && !Number.isInteger(value)) {
+    throw new XmlParseError([{
+      path: [],
+      message: `Expected integer, got ${value}`,
+      code: 'not_integer'
+    }]);
+  }
+  return value;
 }
 
 function normalizeNativeItemRowsResult(
