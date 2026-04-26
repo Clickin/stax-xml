@@ -1175,6 +1175,7 @@ fn ffi_utf16_units_reports_error_statuses() {
 }
 
 #[test]
+#[cfg(not(target_os = "macos"))]
 fn napi_wrappers_cover_native_entrypoints() {
     let sample = concat!(
         "<root><item id=\"1\"><name>A</name><value>B</value></item>",

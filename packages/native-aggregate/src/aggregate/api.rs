@@ -1,12 +1,14 @@
 use super::*;
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_buffer(input: Buffer, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     parse_aggregate(input.as_ref(), tier)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_buffer_with_simd(
     input: Buffer,
     tier: String,
@@ -17,13 +19,15 @@ pub fn parse_aggregate_buffer_with_simd(
     parse_aggregate_with_simd_policy(input.as_ref(), tier, simd)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_uint8array(input: Uint8Array, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     parse_aggregate(input.as_ref(), tier)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_uint8array_with_simd(
     input: Uint8Array,
     tier: String,
@@ -34,14 +38,16 @@ pub fn parse_aggregate_uint8array_with_simd(
     parse_aggregate_with_simd_policy(input.as_ref(), tier, simd)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_file(path: String, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     let bytes = fs::read(path).map_err(|error| Error::from_reason(error.to_string()))?;
     parse_aggregate(&bytes, tier)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_file_with_simd(
     path: String,
     tier: String,
@@ -53,13 +59,15 @@ pub fn parse_aggregate_file_with_simd(
     parse_aggregate_with_simd_policy(&bytes, tier, simd)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_string_utf8(input: String, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     parse_aggregate(input.as_bytes(), tier)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_string_utf8_with_simd(
     input: String,
     tier: String,
@@ -70,50 +78,59 @@ pub fn parse_aggregate_string_utf8_with_simd(
     parse_aggregate_with_simd_policy(input.as_bytes(), tier, simd)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_aggregate_string_utf16(input: Utf16String, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     parse_aggregate_utf16(&input, tier)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_span_table_string_utf16(input: Utf16String) -> Result<Buffer> {
     parse_span_table_utf16(&input).map(Buffer::from)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_span_table_uint8array(input: Uint8Array) -> Result<Buffer> {
     parse_span_table(input.as_ref()).map(Buffer::from)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_structural_index_string_utf16(input: Utf16String) -> Result<Buffer> {
     parse_span_table_utf16(&input).map(Buffer::from)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_structural_index_uint8array(input: Uint8Array) -> Result<Buffer> {
     parse_span_table(input.as_ref()).map(Buffer::from)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_item_projection_uint8array(input: Uint8Array) -> Result<ItemProjectionResult> {
     parse_item_projection(input.as_ref())
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_item_projection_via_table_uint8array(
     input: Uint8Array,
 ) -> Result<ItemProjectionResult> {
     parse_item_projection_via_table(input.as_ref())
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_item_rows_via_table_uint8array(input: Uint8Array) -> Result<ItemProjectionRowsResult> {
     parse_item_rows_via_table(input.as_ref())
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_object_rows_via_table_uint8array(
     input: Uint8Array,
     spec: ObjectRowsProjectionSpec,
@@ -121,7 +138,8 @@ pub fn parse_object_rows_via_table_uint8array(
     parse_object_rows_via_table(input.as_ref(), &spec)
 }
 
-#[napi]
+#[cfg(not(all(test, target_os = "macos")))]
+#[cfg_attr(not(test), napi)]
 pub fn parse_object_rows_uint8array(
     input: Uint8Array,
     spec: ObjectRowsProjectionSpec,

@@ -1,6 +1,7 @@
 use memchr::memchr;
 use napi::bindgen_prelude::*;
 use napi::Error;
+#[cfg(not(test))]
 use napi_derive::napi;
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;
