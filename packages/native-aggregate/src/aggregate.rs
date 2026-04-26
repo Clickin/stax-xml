@@ -1,14 +1,13 @@
 use memchr::memchr;
-use napi::bindgen_prelude::*;
-use napi::Error;
 #[cfg(not(test))]
 use napi_derive::napi;
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
-use std::fs;
 use std::mem::MaybeUninit;
+
+use crate::error::{Error, Result};
 
 mod model;
 pub(crate) use model::*;

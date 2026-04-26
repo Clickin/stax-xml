@@ -1,4 +1,6 @@
 use super::*;
+#[cfg(not(target_os = "macos"))]
+use napi::bindgen_prelude::{Buffer, Uint8Array, Utf16String};
 
 #[test]
 fn tag_end_ignores_gt_inside_double_and_single_quotes() {
@@ -1655,12 +1657,8 @@ fn aggregate_fast_count_and_two_stage_cover_branch_edges() {
         fast,
     )
     .unwrap();
-    parse_aggregate_fast_event_count(
-        b"<root><![CDATA[x]]></root>",
-        Tier::EventCountNoText,
-        fast,
-    )
-    .unwrap();
+    parse_aggregate_fast_event_count(b"<root><![CDATA[x]]></root>", Tier::EventCountNoText, fast)
+        .unwrap();
 
     for input in [
         &b"<"[..],
@@ -1683,13 +1681,9 @@ fn aggregate_fast_count_and_two_stage_cover_branch_edges() {
     let quote_heavy = br#"<root a0="0" a1="1" a2="2" a3="3" a4="4" a5="5"></root>"#;
     assert!(should_use_two_stage(quote_heavy));
     assert!(
-        parse_aggregate_with_simd_policy(
-            quote_heavy,
-            Tier::EventCountAutoStage,
-            SimdPolicy::Off
-        )
-        .unwrap()
-        .event_count
+        parse_aggregate_with_simd_policy(quote_heavy, Tier::EventCountAutoStage, SimdPolicy::Off)
+            .unwrap()
+            .event_count
             > 0
     );
     assert!(
@@ -1798,7 +1792,10 @@ fn simd_classifier_covers_quote_masks_and_range_edges() {
     );
     assert!(!in_dquote);
     in_dquote = true;
-    assert_eq!(quote_mask_slow(0, 1 << 1, &mut in_dquote, &mut in_squote), u64::MAX);
+    assert_eq!(
+        quote_mask_slow(0, 1 << 1, &mut in_dquote, &mut in_squote),
+        u64::MAX
+    );
     assert!(in_dquote);
     in_dquote = false;
     in_squote = true;
@@ -1808,7 +1805,10 @@ fn simd_classifier_covers_quote_masks_and_range_edges() {
     );
     assert!(!in_squote);
     in_squote = true;
-    assert_eq!(quote_mask_slow(1 << 1, 0, &mut in_dquote, &mut in_squote), u64::MAX);
+    assert_eq!(
+        quote_mask_slow(1 << 1, 0, &mut in_dquote, &mut in_squote),
+        u64::MAX
+    );
     assert!(in_squote);
 
     in_dquote = false;

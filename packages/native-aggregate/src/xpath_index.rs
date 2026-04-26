@@ -10,7 +10,8 @@
 // native index ownership boundary.
 
 use memchr::memchr;
-use napi::{Error, Result};
+
+use crate::error::{Error, Result};
 
 pub(crate) const NO_INDEX: u32 = u32::MAX;
 
