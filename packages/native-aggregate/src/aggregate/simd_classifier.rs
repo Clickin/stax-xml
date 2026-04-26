@@ -290,12 +290,10 @@ pub(crate) fn classify_structural_masks_neon(input: &[u8], include_eq: bool) -> 
             }
         }
 
-        if chunk < lt_bits.len() {
-            lt_bits[chunk] = lt;
-            gt_bits[chunk] = gt;
-            if include_eq {
-                eq_bits[chunk] = eq;
-            }
+        lt_bits[chunk] = lt;
+        gt_bits[chunk] = gt;
+        if include_eq {
+            eq_bits[chunk] = eq;
         }
     }
 
@@ -435,12 +433,10 @@ unsafe fn classify_structural_masks_sse42(input: &[u8], include_eq: bool) -> Str
             }
         }
 
-        if chunk < lt_bits.len() {
-            lt_bits[chunk] = lt;
-            gt_bits[chunk] = gt;
-            if include_eq {
-                eq_bits[chunk] = eq;
-            }
+        lt_bits[chunk] = lt;
+        gt_bits[chunk] = gt;
+        if include_eq {
+            eq_bits[chunk] = eq;
         }
     }
 
@@ -548,12 +544,10 @@ unsafe fn classify_structural_masks_avx2(input: &[u8], include_eq: bool) -> Stru
             }
         }
 
-        if chunk < lt_bits.len() {
-            lt_bits[chunk] = lt;
-            gt_bits[chunk] = gt;
-            if include_eq {
-                eq_bits[chunk] = eq;
-            }
+        lt_bits[chunk] = lt;
+        gt_bits[chunk] = gt;
+        if include_eq {
+            eq_bits[chunk] = eq;
         }
     }
 

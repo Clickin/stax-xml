@@ -810,4 +810,132 @@ mod tests {
 
         assert!(error.reason.contains("Mismatched end tag"));
     }
+
+    #[test]
+    fn covers_index_accessors_and_builder_edges() {
+        let mut empty = XmlIndex::new(b"");
+        empty.ensure_indices();
+        empty.build_name_index();
+        assert!(!empty.has_indices());
+        assert_eq!(empty.child_tag_slice(0), &[]);
+        assert_eq!(empty.child_text_slice(0), &[]);
+        assert_eq!(empty.tag_name(0), "");
+
+        let mut index = parse(b"<?pi ok?><!--c--><![CDATA[x]]><root><a/>tail</root>").unwrap();
+        assert!(index.has_indices());
+        index.ensure_indices();
+        index.build_name_index();
+        assert_eq!(index.child_tag_slice(999), &[]);
+        assert_eq!(index.child_text_slice(999), &[]);
+        assert!(!index.is_ancestor(1, 1));
+        assert!(!index.is_ancestor(999, 1));
+        assert!(!index.is_ancestor(999, 1000));
+        assert!(!index.is_ancestor(1, 999));
+        assert!(!index.is_ancestor(0, 3));
+        assert_eq!(index.parent(0), None);
+        assert!(index.tag_name_eq(3, "root"));
+        assert!(!index.tag_name_eq(999, "missing"));
+        assert_eq!(index.tag_name(999), "");
+
+        let (child_offsets, child_data) = build_csr_children(
+            &[
+                TagType::Open,
+                TagType::SelfClose,
+                TagType::Close,
+                TagType::CData,
+                TagType::Comment,
+            ],
+            &[NO_INDEX, 99, 0, 0, 0],
+            5,
+        );
+        assert_eq!(child_offsets.len(), 6);
+        assert_eq!(child_data, vec![4]);
+
+        let (text_offsets, text_data) = build_csr_text_children(
+            &[
+                TextRange {
+                    start: 0,
+                    end: 1,
+                    parent_tag: NO_INDEX,
+                },
+                TextRange {
+                    start: 1,
+                    end: 2,
+                    parent_tag: 99,
+                },
+            ],
+            1,
+        );
+        assert_eq!(text_offsets, vec![0, 0]);
+        assert!(text_data.is_empty());
+
+        let (close_map, post_order) = build_close_map_and_post_order(
+            &[
+                TagType::Close,
+                TagType::SelfClose,
+                TagType::Comment,
+                TagType::CData,
+                TagType::Pi,
+            ],
+            5,
+        );
+        assert_eq!(close_map[0], NO_INDEX);
+        assert_eq!(close_map[1], 1);
+        assert_eq!(post_order, vec![0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn covers_xpath_parser_and_attr_error_edges() {
+        for input in [
+            &b"<root ></ root >"[..],
+            &b"<root />"[..],
+            &b"<!--c-->"[..],
+            &b"<![CDATA[]]>"[..],
+            &b"<![CDATA[x]]>"[..],
+            &b"<??>"[..],
+            &b"<?pi?>"[..],
+            &b"<?pi>?>"[..],
+            &b"<?pi ok?>"[..],
+            &b"<!DOCTYPE root>"[..],
+            &b"<!ENTITY example \"value\">"[..],
+        ] {
+            parse(input).unwrap();
+        }
+
+        for input in [
+            &b"<"[..],
+            &b"<>"[..],
+            &b"<root>"[..],
+            &b"</root>"[..],
+            &b"<root></>"[..],
+            &b"</root"[..],
+            &b"< />"[..],
+            &b"<a/b></a>"[..],
+            &b"<root"[..],
+            &b"<!--open"[..],
+            &b"<![CDATA[open"[..],
+            &b"<?pi"[..],
+            &b"<!DOCTYPE root"[..],
+        ] {
+            assert!(
+                parse(input).is_err(),
+                "expected XPath index parser to reject {}",
+                String::from_utf8_lossy(input)
+            );
+        }
+
+        let mut attrs = Vec::new();
+        parse_attr_spans(b"   ", 0, 3, &mut attrs).unwrap();
+        parse_attr_spans(b"name = \"v\"", 0, 10, &mut attrs).unwrap();
+        parse_attr_spans(b"name=\"\"", 0, 7, &mut attrs).unwrap();
+        assert!(parse_attr_spans(b"name", 0, 4, &mut attrs).is_err());
+        assert!(parse_attr_spans(b"name value", 0, 10, &mut attrs).is_err());
+        assert!(parse_attr_spans(b"name=", 0, 5, &mut attrs).is_err());
+        assert!(parse_attr_spans(b"name=x", 0, 6, &mut attrs).is_err());
+        assert!(parse_attr_spans(b"/", 0, 1, &mut attrs).is_err());
+        assert!(parse_attr_spans(b"name=\"unterminated", 0, 18, &mut attrs).is_err());
+
+        assert_eq!(find_tag_end(b"", 0), None);
+        assert_eq!(skip_ws(b"x", 0, 1), 0);
+    }
 }

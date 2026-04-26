@@ -137,6 +137,27 @@ fn fold_span_variants_match_materialized_reference() {
         fold_trimmed_span(31, input, unicode_trim_start, input.len()).unwrap(),
         fold_string(31, unicode_trim.trim())
     );
+    assert_eq!(fold_trimmed_span(31, b"   ", 0, 3).unwrap(), 31);
+    assert_eq!(
+        fold_trimmed_span(31, " A안 ".as_bytes(), 0, " A안 ".len()).unwrap(),
+        fold_string(31, "A안")
+    );
+    assert!(fold_span(31, &[0xff], 0, 1).is_err());
+
+    assert_eq!(parse_float_prefix_end(b"+"), None);
+    assert_eq!(parse_float_prefix_end(b"Infinity ms"), Some(8));
+    assert_eq!(parse_float_prefix_end(b"."), None);
+    assert_eq!(parse_float_prefix_end(b".5"), Some(2));
+    assert_eq!(parse_float_prefix_end(b"1e+ms"), Some(1));
+    assert_eq!(parse_float_prefix_end(b"1e"), Some(1));
+    assert_eq!(parse_float_prefix_end(b"1e+"), Some(1));
+    assert_eq!(parse_float_prefix_end(b"1e-2ms"), Some(4));
+    assert_eq!(
+        parse_f64_js_prefix_bytes(b"  -Infinity ms").unwrap(),
+        f64::NEG_INFINITY
+    );
+    assert!(parse_f64_js_prefix_bytes(&[0xff]).is_err());
+    assert_eq!(trim_ascii_bytes(b"x", 0, 1), (0, 1));
 }
 
 #[test]
@@ -648,6 +669,27 @@ fn projection_table_helpers_cover_defensive_paths() {
     };
     capture_table_projection_text(input, no_text, &mut item_state).unwrap();
 
+    item_state.capture = Some(ItemProjectionCapture {
+        depth: 1,
+        field: ItemProjectionField::Name,
+    });
+    item_state.current_item = Some(CurrentItemProjection {
+        depth: 1,
+        id: 0,
+        name: None,
+        value: None,
+    });
+    capture_table_projection_text(
+        b" ",
+        TableEventRecord {
+            text_start: 0,
+            text_end: 1,
+            ..whitespace_text
+        },
+        &mut item_state,
+    )
+    .unwrap();
+
     let text_start = input.iter().position(|byte| *byte == b'A').unwrap();
     let nonmatching_text = TableEventRecord {
         text_start: text_start as i32,
@@ -666,6 +708,9 @@ fn projection_table_helpers_cover_defensive_paths() {
         depth: 1,
         field: ItemProjectionField::Name,
     });
+    capture_table_projection_text(input, nonmatching_text, &mut item_state).unwrap();
+
+    item_state.current_item = None;
     capture_table_projection_text(input, nonmatching_text, &mut item_state).unwrap();
 
     let mut id_table_bytes = minimal_utf8_table(input.len(), 0, 1);
@@ -965,6 +1010,83 @@ fn projection_table_helpers_cover_defensive_paths() {
     });
     direct_end_state.current_row = None;
     end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state);
+}
+
+#[test]
+fn projection_branch_coverage_covers_short_circuit_edges() {
+    for input in [
+        &b"<>"[..],
+        &b"< />"[..],
+        &b"</>"[..],
+        &b"<a/b></a>"[..],
+        &b"<item id=\"1\"><other>X</other></item>"[..],
+        &b"<item id=\"1\"><item id=\"2\"><name>A</name><value>B</value></item></item>"[..],
+        &b"<item id=\"1\"><name> </name><value>B</value></item>"[..],
+    ] {
+        let _ = parse_item_projection(input);
+    }
+
+    let object_spec = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![
+            ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "score".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "score".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+        ],
+    };
+    let object_input = concat!(
+        "<root>\n",
+        "  < />\n",
+        "  <a/b></a>\n",
+        "  <entry>\n",
+        "    <label>A</label><label>B</label>\n",
+        "    <score>1</score><score>2</score>\n",
+        "  </entry>\n",
+        "</root>"
+    );
+    let direct = parse_object_rows(object_input.as_bytes(), &object_spec).unwrap();
+    let table = parse_object_rows_via_table(object_input.as_bytes(), &object_spec).unwrap();
+    assert!(parse_object_rows(b"<>", &object_spec).is_err());
+    assert!(parse_object_rows(b"</>", &object_spec).is_err());
+
+    assert_eq!(direct.row_count, 1);
+    assert_eq!(table.row_count, 1);
+    assert_eq!(direct.columns[0].values, vec!["A"]);
+    assert_eq!(table.columns[0].values, vec!["A"]);
+
+    let table_bytes = parse_span_table(
+        b"<root><item id=\"1\"><other>X</other><value>B</value><other>Y</other></item></root>",
+    )
+    .unwrap();
+    assert_eq!(
+        project_items_from_span_table(
+            b"<root><item id=\"1\"><other>X</other><value>B</value><other>Y</other></item></root>",
+            &table_bytes,
+        )
+        .unwrap()
+        .item_count,
+        0
+    );
+
+    let nested_item = b"<root><item id=\"1\"><item id=\"2\"><name>A</name><value>B</value></item><name> </name><value>B</value></item></root>";
+    let table_bytes = parse_span_table(nested_item).unwrap();
+    assert_eq!(
+        project_items_from_span_table(nested_item, &table_bytes)
+            .unwrap()
+            .item_count,
+        0
+    );
 }
 
 #[test]
@@ -1359,6 +1481,9 @@ fn utf8_parser_covers_markup_boundaries_and_errors() {
         &b""[..],
         &b"text only"[..],
         &b"   "[..],
+        &b"<root>   </root>"[..],
+        &b"<root><![CDATA[]]></root>"[..],
+        &b"<root><![CDATA[   ]]></root>"[..],
         &b"< />"[..],
         &b"<root ></root>"[..],
         &b"<a/b></a>"[..],
@@ -1367,6 +1492,8 @@ fn utf8_parser_covers_markup_boundaries_and_errors() {
     ] {
         parse_aggregate(input, Tier::CountOnly).unwrap();
     }
+    parse_aggregate(b"<root><a></a></root>", Tier::EventCountUnsafeGt).unwrap();
+    parse_aggregate(b"<root>text</root>", Tier::EventCountNoText).unwrap();
 
     for input in [
         &b"<"[..],
@@ -1399,6 +1526,9 @@ fn utf16_parser_covers_markup_boundaries_and_errors() {
         "",
         "text only",
         "   ",
+        "<root>   </root>",
+        "<root><![CDATA[]]></root>",
+        "<root><![CDATA[   ]]></root>",
         "< />",
         "<root ></root>",
         "<a/b></a>",
@@ -1407,6 +1537,7 @@ fn utf16_parser_covers_markup_boundaries_and_errors() {
     ] {
         parse_aggregate_utf16(&utf16(input), Tier::CountOnly).unwrap();
     }
+    parse_aggregate_utf16(&utf16("<root>text</root>"), Tier::EventCountNoText).unwrap();
 
     for input in [
         "<",
@@ -1438,12 +1569,16 @@ fn span_table_parser_covers_markup_boundaries_and_errors() {
         "",
         "text only",
         "   ",
+        "<root>   </root>",
+        "<root><![CDATA[]]></root>",
+        "<root><![CDATA[   ]]></root>",
         "< />",
         "<root ></root>",
         "<a/b></a>",
         "<root></ root >",
         "<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>",
     ] {
+        parse_span_table(input.as_bytes()).unwrap();
         parse_span_table_utf16(&utf16(input)).unwrap();
     }
 
@@ -1465,9 +1600,247 @@ fn span_table_parser_covers_markup_boundaries_and_errors() {
         "<?pi",
     ] {
         assert!(
+            parse_span_table(input.as_bytes()).is_err(),
+            "expected utf8 span table parser to reject {input}"
+        );
+        assert!(
             parse_span_table_utf16(&utf16(input)).is_err(),
             "expected span table parser to reject {input}"
         );
+    }
+}
+
+#[test]
+fn span_table_reader_rejects_invalid_tables_and_ranges() {
+    assert!(parse_span_table_bytes(&[]).is_err());
+
+    let mut invalid_magic = minimal_utf8_table(0, 0, 0);
+    invalid_magic[0..4].copy_from_slice(&0u32.to_le_bytes());
+    assert!(parse_span_table_bytes(&invalid_magic).is_err());
+
+    let mut invalid_event_stride = minimal_utf8_table(0, 0, 0);
+    invalid_event_stride[16..20].copy_from_slice(&0u32.to_le_bytes());
+    assert!(parse_span_table_bytes(&invalid_event_stride).is_err());
+
+    let mut invalid_attr_stride = minimal_utf8_table(0, 0, 0);
+    invalid_attr_stride[20..24].copy_from_slice(&0u32.to_le_bytes());
+    assert!(parse_span_table_bytes(&invalid_attr_stride).is_err());
+
+    let mut length_mismatch = minimal_utf8_table(0, 1, 0);
+    length_mismatch.truncate(SPAN_TABLE_HEADER_BYTES);
+    assert!(parse_span_table_bytes(&length_mismatch).is_err());
+
+    let table_bytes = parse_span_table(b"<root a=\"1\" />").unwrap();
+    let table = parse_span_table_bytes(&table_bytes).unwrap();
+    assert!(read_table_event(&table, table.event_count as usize).is_err());
+    assert!(read_table_attr(&table, table.attr_count as usize).is_err());
+
+    assert_eq!(decode_table_range(-1, 0).unwrap(), None);
+    assert_eq!(decode_table_range(0, -1).unwrap(), None);
+    assert!(decode_table_range(2, 1).is_err());
+}
+
+#[test]
+fn aggregate_fast_count_and_two_stage_cover_branch_edges() {
+    let fast = Tier::EventCountOnly;
+    parse_aggregate_fast_event_count(b"text", fast, fast).unwrap();
+    parse_aggregate_fast_event_count(b"   ", fast, fast).unwrap();
+    parse_aggregate_fast_event_count(b"text", Tier::EventCountNoText, fast).unwrap();
+    parse_aggregate_fast_event_count(b"lead<root/>tail", fast, fast).unwrap();
+    parse_aggregate_fast_event_count(b"   <root/>", fast, fast).unwrap();
+    parse_aggregate_fast_event_count(
+        b"<root><![CDATA[]]><![CDATA[   ]]><![CDATA[x]]><!--c--><!DOCTYPE r><!ENTITY x y><?pi ok?></root>",
+        fast,
+        fast,
+    )
+    .unwrap();
+    parse_aggregate_fast_event_count(
+        b"<root><![CDATA[x]]></root>",
+        Tier::EventCountNoText,
+        fast,
+    )
+    .unwrap();
+
+    for input in [
+        &b"<"[..],
+        &b"</root"[..],
+        &b"<root"[..],
+        &b"<?xml version=\"1.0\""[..],
+        &b"<?pi"[..],
+        &b"<![CDATA[open"[..],
+        &b"<!--open"[..],
+        &b"<!DOCTYPE"[..],
+        &b"<!BROKEN"[..],
+    ] {
+        assert!(
+            parse_aggregate_fast_event_count(input, fast, fast).is_err(),
+            "expected fast count to reject {}",
+            String::from_utf8_lossy(input)
+        );
+    }
+
+    let quote_heavy = br#"<root a0="0" a1="1" a2="2" a3="3" a4="4" a5="5"></root>"#;
+    assert!(should_use_two_stage(quote_heavy));
+    assert!(
+        parse_aggregate_with_simd_policy(
+            quote_heavy,
+            Tier::EventCountAutoStage,
+            SimdPolicy::Off
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_with_simd_policy(quote_heavy, Tier::CountAutoStage, SimdPolicy::Off)
+            .unwrap()
+            .attr_count_total
+            > 0
+    );
+
+    let two_stage = Tier::EventCountTwoStage;
+    for input in [
+        &b"text"[..],
+        &b"   <root/>"[..],
+        &b"><root/>"[..],
+        &b"<root/>tail"[..],
+        &b"<root/>   "[..],
+        &b"<root><![CDATA[]]><![CDATA[   ]]><![CDATA[x]]><!--c--><!DOCTYPE r><!ENTITY x y><?pi ok?></root>"[..],
+    ] {
+        parse_aggregate_two_stage(input, two_stage, SimdPolicy::Off).unwrap();
+    }
+    parse_aggregate_two_stage(
+        br#"<root a="1" b="2" bare></root>"#,
+        Tier::CountEqTwoStage,
+        SimdPolicy::Off,
+    )
+    .unwrap();
+
+    for input in [
+        &b"<"[..],
+        &b"</root"[..],
+        &b"<root"[..],
+        &b"<?xml version=\"1.0\""[..],
+        &b"<?pi"[..],
+        &b"<![CDATA[open"[..],
+        &b"<!--open"[..],
+        &b"<!DOCTYPE"[..],
+        &b"<!BROKEN"[..],
+    ] {
+        assert!(
+            parse_aggregate_two_stage(input, two_stage, SimdPolicy::Off).is_err(),
+            "expected two-stage count to reject {}",
+            String::from_utf8_lossy(input)
+        );
+    }
+
+    assert_eq!(trim_start_tag_end(b"<>", 0, 1), (1, false));
+    assert_eq!(trim_start_tag_end(b"<x>", 0, 2), (2, false));
+    assert_eq!(trim_start_tag_end(b"<x/>", 0, 3), (2, true));
+    assert_eq!(trim_start_tag_end(b"< />", 0, 3), (1, true));
+    assert_eq!(trim_start_tag_end(b"<x />", 0, 4), (2, true));
+    assert_eq!(trim_start_tag_end(b"<x/   >", 0, 6), (2, true));
+    assert_eq!(scan_name_end(b"a/b", 0, 3), 1);
+}
+
+#[test]
+fn simd_classifier_covers_quote_masks_and_range_edges() {
+    assert_eq!(mask_up_to(63), u64::MAX);
+    assert_eq!(mask_from(64), 0);
+
+    assert_eq!(count_mask_bits_in_range(&[0b111], 1, 1), 0);
+    assert_eq!(count_mask_bits_in_range(&[], 0, 1), 0);
+    assert_eq!(count_mask_bits_in_range(&[0b111], 128, 130), 0);
+    assert_eq!(
+        count_mask_bits_in_range(&[u64::MAX, 1, u64::MAX], 1, 130),
+        63 + 1 + 2
+    );
+
+    let mut in_dquote = false;
+    let mut in_squote = false;
+    assert_eq!(quote_mask(0, 0, &mut in_dquote, &mut in_squote), 0);
+    in_dquote = true;
+    assert_eq!(quote_mask(0, 0, &mut in_dquote, &mut in_squote), u64::MAX);
+    in_dquote = false;
+    in_squote = true;
+    assert_eq!(quote_mask(0, 0, &mut in_dquote, &mut in_squote), u64::MAX);
+    quote_mask(1 << 1, 0, &mut in_dquote, &mut in_squote);
+    in_dquote = true;
+    in_squote = false;
+    quote_mask(0, 1 << 1, &mut in_dquote, &mut in_squote);
+
+    in_dquote = false;
+    in_squote = false;
+    let quoted = quote_mask((1 << 1) | (1 << 3), 0, &mut in_dquote, &mut in_squote);
+    assert_eq!(quoted & ((1 << 1) | (1 << 2) | (1 << 3)), 0b0110);
+    assert!(!in_dquote);
+    in_dquote = true;
+    let quoted = quote_mask(1 << 2, 0, &mut in_dquote, &mut in_squote);
+    assert_eq!(quoted & 0b111, 0b011);
+    assert!(!in_dquote);
+
+    in_dquote = false;
+    in_squote = false;
+    let quoted = quote_mask(0, (1 << 1) | (1 << 3), &mut in_dquote, &mut in_squote);
+    assert_eq!(quoted & 0b1110, 0b0110);
+    assert!(!in_squote);
+    in_squote = true;
+    let quoted = quote_mask(0, 1 << 2, &mut in_dquote, &mut in_squote);
+    assert_eq!(quoted & 0b111, 0b011);
+    assert!(!in_squote);
+
+    in_dquote = true;
+    in_squote = false;
+    assert_eq!(
+        quote_mask_slow(1 << 2, 1 << 1, &mut in_dquote, &mut in_squote) & 0b111,
+        0b111
+    );
+    assert!(!in_dquote);
+    in_dquote = true;
+    assert_eq!(quote_mask_slow(0, 1 << 1, &mut in_dquote, &mut in_squote), u64::MAX);
+    assert!(in_dquote);
+    in_dquote = false;
+    in_squote = true;
+    assert_eq!(
+        quote_mask_slow(1 << 1, 1 << 2, &mut in_dquote, &mut in_squote) & 0b111,
+        0b111
+    );
+    assert!(!in_squote);
+    in_squote = true;
+    assert_eq!(quote_mask_slow(1 << 1, 0, &mut in_dquote, &mut in_squote), u64::MAX);
+    assert!(in_squote);
+
+    in_dquote = false;
+    in_squote = false;
+    quote_mask_slow(1 << 63, 0, &mut in_dquote, &mut in_squote);
+    assert!(in_dquote);
+    in_dquote = false;
+    quote_mask_slow(0, 1 << 5, &mut in_dquote, &mut in_squote);
+    assert!(in_squote);
+
+    let exact = classifier_fixture(64, b'"');
+    assert_classifier_matches_scalar(&exact, true, SimdPolicy::Off);
+    let double_tail = classifier_fixture(70, b'"');
+    let single_tail = classifier_fixture(70, b'\'');
+    for include_eq in [false, true] {
+        assert_classifier_matches_scalar(&double_tail, include_eq, SimdPolicy::Off);
+        assert_classifier_matches_scalar(&single_tail, include_eq, SimdPolicy::Off);
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    {
+        if std::arch::is_x86_feature_detected!("sse4.2") {
+            assert_classifier_matches_scalar(&exact, true, SimdPolicy::Sse42);
+            assert_classifier_matches_scalar(&double_tail, false, SimdPolicy::Sse42);
+            assert_classifier_matches_scalar(&double_tail, true, SimdPolicy::Sse42);
+            assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Sse42);
+        }
+        if std::arch::is_x86_feature_detected!("avx2") {
+            assert_classifier_matches_scalar(&exact, true, SimdPolicy::Avx2);
+            assert_classifier_matches_scalar(&double_tail, false, SimdPolicy::Avx2);
+            assert_classifier_matches_scalar(&double_tail, true, SimdPolicy::Avx2);
+            assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Avx2);
+        }
     }
 }
 
@@ -1482,8 +1855,18 @@ fn attribute_scanners_cover_edge_cases_and_overflow() {
     assert_eq!(parse_attributes(b"name=   ", 0, 8).len(), 0);
     assert_eq!(parse_attributes(b"name=x", 0, 6).len(), 0);
     assert_eq!(parse_attributes(b"name=\"unterminated", 0, 18).len(), 0);
+    assert_eq!(count_attributes(b"   ", 0, 3), 0);
+    assert_eq!(count_attributes(b"name=", 0, 5), 0);
+    assert_eq!(count_attributes(b"name='v'", 0, 8), 1);
+    assert_eq!(count_attributes(b"name=x", 0, 6), 0);
     assert_eq!(count_attributes(b"name other", 0, 10), 2);
     assert_eq!(count_attributes(b"name=\"unterminated", 0, 18), 0);
+    assert_eq!(read_projection_id(b"kind=\"x\"", 0, 8), 0);
+    assert_eq!(parse_i32_ascii(b"", 0, 0), None);
+    assert_eq!(parse_i32_ascii(b"-", 0, 1), None);
+    assert_eq!(parse_i32_ascii(b"x", 0, 1), None);
+    assert_eq!(parse_i32_ascii(b"2147483648", 0, 10), None);
+    assert!(!span_eq(b"abc", 2, 1, b""));
 
     let many = b"a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
     let attrs = parse_attributes(many, 0, many.len());
@@ -1510,6 +1893,11 @@ fn utf16_attribute_scanner_covers_edge_cases_and_overflow() {
         parse_attributes_utf16(&utf16("name=\"unterminated"), 0, 18).len(),
         0
     );
+    assert_eq!(count_attributes_utf16(&utf16("   "), 0, 3), 0);
+    assert_eq!(count_attributes_utf16(&utf16("name="), 0, 5), 0);
+    assert_eq!(count_attributes_utf16(&utf16("name= 'v'"), 0, 9), 1);
+    assert_eq!(count_attributes_utf16(&utf16("name='v'"), 0, 8), 1);
+    assert_eq!(count_attributes_utf16(&utf16("name=x"), 0, 6), 0);
     assert_eq!(count_attributes_utf16(&utf16("name other"), 0, 10), 2);
     assert_eq!(
         count_attributes_utf16(&utf16("name=\"unterminated"), 0, 18),
@@ -1531,6 +1919,7 @@ fn utf16_attribute_scanner_covers_edge_cases_and_overflow() {
 #[test]
 fn low_level_helpers_cover_negative_and_boundary_paths() {
     assert_eq!(fold_string(9, ""), 9);
+    assert_eq!(js_to_int32(f64::NAN), 0);
 
     assert!(starts_with(b"abc", 0, b"ab"));
     assert!(!starts_with(b"abc", 2, b"abc"));
@@ -1556,6 +1945,7 @@ fn low_level_helpers_cover_negative_and_boundary_paths() {
     assert_eq!(find_unit(&[1, 2], 3, 0, 2), None);
     assert_eq!(find_unit(&[1], 1, 1, 1), None);
     assert_eq!(find_unit(&[1, 2], 2, 0, 9), Some(1));
+    assert_eq!(load_u64_ne(b"short", 0), 0);
 
     assert_eq!(skip_whitespace(b"        <x", 0), 8);
     assert_eq!(skip_whitespace(b"text", 0), 0);
@@ -1574,6 +1964,12 @@ fn low_level_helpers_cover_negative_and_boundary_paths() {
     assert_eq!(find_tag_end(double_quote, 1), Some(double_quote.len() - 1));
     let single_quote = br#"<item text='a " b'>"#;
     assert_eq!(find_tag_end(single_quote, 1), Some(single_quote.len() - 1));
+    let mixed_quotes = br#"<item text="' > '">"#;
+    assert_eq!(
+        find_tag_end_byte_loop(mixed_quotes, 1),
+        Some(mixed_quotes.len() - 1)
+    );
+    assert_eq!(find_tag_end_byte_loop(br#"<item text="open"#, 1), None);
 
     let double_quote_utf16 = utf16("<item text=\"it's fine\">");
     assert_eq!(
@@ -1589,6 +1985,47 @@ fn low_level_helpers_cover_negative_and_boundary_paths() {
 
 fn utf16(value: &str) -> Vec<u16> {
     value.encode_utf16().collect()
+}
+
+fn classifier_fixture(len: usize, quote: u8) -> Vec<u8> {
+    let mut input = vec![b'a'; len];
+    if len > 0 {
+        input[0] = b'<';
+    }
+    if len > 10 {
+        input[10] = b'>';
+    }
+    if len > 20 {
+        input[20] = b'=';
+    }
+    if len > 63 {
+        input[63] = quote;
+    }
+    if len > 64 {
+        input[64] = b'>';
+    }
+    if len > 65 {
+        input[65] = quote;
+    }
+    if len > 66 {
+        input[66] = b'<';
+    }
+    if len > 67 {
+        input[67] = b'=';
+    }
+    input
+}
+
+fn assert_classifier_matches_scalar(input: &[u8], include_eq: bool, simd: SimdPolicy) {
+    let expected = classify_structural_masks_scalar(input, include_eq);
+    let actual = classify_structural_masks(input, include_eq, simd).unwrap();
+    assert_eq!(actual.lt_bits, expected.lt_bits);
+    assert_eq!(actual.gt_bits, expected.gt_bits);
+    assert_eq!(actual.eq_bits, expected.eq_bits);
+    assert_eq!(
+        BitPositionIter::new(&actual.lt_bits).collect::<Vec<_>>(),
+        BitPositionIter::new(&expected.lt_bits).collect::<Vec<_>>()
+    );
 }
 
 fn read_u32(input: &[u8], offset: usize) -> u32 {
