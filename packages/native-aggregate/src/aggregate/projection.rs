@@ -120,7 +120,7 @@ impl<'a> ItemProjectionParser<'a> {
         }
 
         if starts_with(self.input, position, b"<!DOCTYPE") {
-            let Some(end) = find_gt(self.input, position + 2) else {
+            let Some(end) = find_doctype_end(self.input, position + 2) else {
                 return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
             };
             return Ok(end + 1);
@@ -343,7 +343,7 @@ impl<'a> ObjectRowsProjectionParser<'a> {
         }
 
         if starts_with(self.input, position, b"<!DOCTYPE") {
-            let Some(end) = find_gt(self.input, position + 2) else {
+            let Some(end) = find_doctype_end(self.input, position + 2) else {
                 return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
             };
             return Ok(end + 1);

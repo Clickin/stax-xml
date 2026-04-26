@@ -118,6 +118,48 @@ pub(crate) fn find_gt_utf16(input: &[u16], from: usize) -> Option<usize> {
     find_unit(input, b'>' as u16, from, input.len())
 }
 
+pub(crate) fn find_doctype_end(input: &[u8], from: usize) -> Option<usize> {
+    let mut quote = 0;
+    let mut in_subset = false;
+    for (offset, byte) in input[from..].iter().copied().enumerate() {
+        if quote != 0 {
+            if byte == quote {
+                quote = 0;
+            }
+            continue;
+        }
+        match byte {
+            b'"' | b'\'' => quote = byte,
+            b'[' => in_subset = true,
+            b']' => in_subset = false,
+            b'>' if !in_subset => return Some(from + offset),
+            _ => {}
+        }
+    }
+    None
+}
+
+pub(crate) fn find_doctype_end_utf16(input: &[u16], from: usize) -> Option<usize> {
+    let mut quote = 0;
+    let mut in_subset = false;
+    for (offset, unit) in input[from..].iter().copied().enumerate() {
+        if quote != 0 {
+            if unit == quote {
+                quote = 0;
+            }
+            continue;
+        }
+        match unit {
+            value if value == b'"' as u16 || value == b'\'' as u16 => quote = unit,
+            value if value == b'[' as u16 => in_subset = true,
+            value if value == b']' as u16 => in_subset = false,
+            value if value == b'>' as u16 && !in_subset => return Some(from + offset),
+            _ => {}
+        }
+    }
+    None
+}
+
 pub(crate) fn find_tag_end_byte_loop(input: &[u8], from: usize) -> Option<usize> {
     let mut quote = 0;
     for (offset, byte) in input[from..].iter().copied().enumerate() {

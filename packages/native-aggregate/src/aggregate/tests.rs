@@ -40,6 +40,93 @@ fn attributes_keep_quoted_gt_inside_values() {
 }
 
 #[test]
+fn event_object_full_keeps_every_materialized_object() {
+    let mut xml = String::from("<root>");
+    for index in 0..1100 {
+        xml.push_str(&format!("<item id=\"{index}\">value</item>"));
+    }
+    xml.push_str("</root>");
+
+    let mut parser = Parser {
+        input: xml.as_bytes(),
+        tier: Tier::EventObjectFull,
+        state: AggregateState::default(),
+        element_stack: Vec::new(),
+    };
+
+    parser.parse().unwrap();
+
+    assert!(parser.state.object_count > 1024);
+    assert_eq!(
+        parser.state.object_sink.len(),
+        parser.state.object_count as usize
+    );
+}
+
+#[test]
+fn doctype_ignores_gt_inside_entity_quotes_across_native_parsers() {
+    let doctype_xml =
+        br#"<!DOCTYPE root [<!ENTITY foo "bar>baz"><!ENTITY single 'x>y'>]><root><item/></root>"#;
+    let body_xml = br#"<root><item/></root>"#;
+
+    for tier in [
+        Tier::EventCountSkipQuotes,
+        Tier::EventCountUnchecked,
+        Tier::CountOnly,
+        Tier::FullStringDirect,
+        Tier::EventObjectFull,
+    ] {
+        let expected = parse_aggregate(body_xml, tier).unwrap();
+        let actual = parse_aggregate(doctype_xml, tier).unwrap();
+        assert_eq!(actual.event_count, expected.event_count, "{tier:?}");
+        assert_eq!(actual.checksum, expected.checksum, "{tier:?}");
+        assert_eq!(
+            actual.attr_count_total, expected.attr_count_total,
+            "{tier:?}"
+        );
+    }
+
+    let expected_fast =
+        parse_aggregate_fast_event_count(body_xml, Tier::EventCountOnly, Tier::EventCountOnly)
+            .unwrap();
+    let actual_fast =
+        parse_aggregate_fast_event_count(doctype_xml, Tier::EventCountOnly, Tier::EventCountOnly)
+            .unwrap();
+    assert_eq!(actual_fast.event_count, expected_fast.event_count);
+    assert_eq!(actual_fast.checksum, expected_fast.checksum);
+
+    let expected_two_stage =
+        parse_aggregate_two_stage(body_xml, Tier::EventCountTwoStage, SimdPolicy::Off).unwrap();
+    let actual_two_stage =
+        parse_aggregate_two_stage(doctype_xml, Tier::EventCountTwoStage, SimdPolicy::Off).unwrap();
+    assert_eq!(actual_two_stage.event_count, expected_two_stage.event_count);
+    assert_eq!(actual_two_stage.checksum, expected_two_stage.checksum);
+
+    let doctype_units = utf16(std::str::from_utf8(doctype_xml).unwrap());
+    let body_units = utf16(std::str::from_utf8(body_xml).unwrap());
+    let expected_utf16 = parse_aggregate_utf16(&body_units, Tier::CountOnly).unwrap();
+    let actual_utf16 = parse_aggregate_utf16(&doctype_units, Tier::CountOnly).unwrap();
+    assert_eq!(actual_utf16.event_count, expected_utf16.event_count);
+    assert_eq!(actual_utf16.checksum, expected_utf16.checksum);
+
+    let expected_table = parse_span_table(body_xml).unwrap();
+    let actual_table = parse_span_table(doctype_xml).unwrap();
+    assert_eq!(read_u32(&actual_table, 4), read_u32(&expected_table, 4));
+    assert_eq!(read_u32(&actual_table, 8), read_u32(&expected_table, 8));
+
+    let expected_table_utf16 = parse_span_table_utf16(&body_units).unwrap();
+    let actual_table_utf16 = parse_span_table_utf16(&doctype_units).unwrap();
+    assert_eq!(
+        read_u32(&actual_table_utf16, 4),
+        read_u32(&expected_table_utf16, 4)
+    );
+    assert_eq!(
+        read_u32(&actual_table_utf16, 8),
+        read_u32(&expected_table_utf16, 8)
+    );
+}
+
+#[test]
 fn two_stage_aggregate_ignores_quoted_structural_bytes() {
     let input =
         br#"<root><item expr="left > right" eq="a=b">text</item><![CDATA[<raw>ok</raw>]]></root>"#;
@@ -1748,6 +1835,25 @@ fn aggregate_fast_count_and_two_stage_cover_branch_edges() {
 }
 
 #[test]
+fn aggregate_u32_counters_wrap_modulo_2_32_by_contract() {
+    let mut fast_state = AggregateState {
+        event_count: u32::MAX,
+        ..AggregateState::default()
+    };
+    emit_fast_event_count_event(&mut fast_state, START_ELEMENT, true);
+    assert_eq!(fast_state.event_count, 0);
+
+    let mut staged_state = AggregateState {
+        event_count: u32::MAX,
+        attr_count_total: u32::MAX,
+        ..AggregateState::default()
+    };
+    emit_two_stage_event(&mut staged_state, START_ELEMENT, 1, true);
+    assert_eq!(staged_state.event_count, 0);
+    assert_eq!(staged_state.attr_count_total, 0);
+}
+
+#[test]
 fn simd_classifier_covers_quote_masks_and_range_edges() {
     assert_eq!(mask_up_to(63), u64::MAX);
     assert_eq!(mask_from(64), 0);
@@ -1836,6 +1942,11 @@ fn simd_classifier_covers_quote_masks_and_range_edges() {
         assert_classifier_matches_scalar(&double_tail, include_eq, SimdPolicy::Off);
         assert_classifier_matches_scalar(&single_tail, include_eq, SimdPolicy::Off);
     }
+    let mixed_quotes = br#"<root a="single ' > < = stays quoted" b='double " > < = stays quoted'><child attr="ok"/></root>"#;
+    for include_eq in [false, true] {
+        assert_classifier_matches_scalar(mixed_quotes, include_eq, SimdPolicy::Auto);
+        assert_classifier_matches_scalar(mixed_quotes, include_eq, SimdPolicy::Off);
+    }
 
     #[cfg(target_arch = "x86_64")]
     {
@@ -1844,12 +1955,14 @@ fn simd_classifier_covers_quote_masks_and_range_edges() {
             assert_classifier_matches_scalar(&double_tail, false, SimdPolicy::Sse42);
             assert_classifier_matches_scalar(&double_tail, true, SimdPolicy::Sse42);
             assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Sse42);
+            assert_classifier_matches_scalar(mixed_quotes, true, SimdPolicy::Sse42);
         }
         if std::arch::is_x86_feature_detected!("avx2") {
             assert_classifier_matches_scalar(&exact, true, SimdPolicy::Avx2);
             assert_classifier_matches_scalar(&double_tail, false, SimdPolicy::Avx2);
             assert_classifier_matches_scalar(&double_tail, true, SimdPolicy::Avx2);
             assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Avx2);
+            assert_classifier_matches_scalar(mixed_quotes, true, SimdPolicy::Avx2);
         }
     }
 
@@ -1860,6 +1973,7 @@ fn simd_classifier_covers_quote_masks_and_range_edges() {
         assert_classifier_matches_scalar(&double_tail, false, SimdPolicy::Neon);
         assert_classifier_matches_scalar(&double_tail, true, SimdPolicy::Neon);
         assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Neon);
+        assert_classifier_matches_scalar(mixed_quotes, true, SimdPolicy::Neon);
     }
 }
 

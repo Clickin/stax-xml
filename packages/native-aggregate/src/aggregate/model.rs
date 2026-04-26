@@ -139,6 +139,10 @@ pub(crate) enum TagEndStrategy {
     UnsafeGt,
 }
 
+/// Benchmark-oriented aggregate counters are intentionally exposed as u32.
+///
+/// The public N-API shape treats these counters as modulo 2^32 values. Callers
+/// that need exact counts beyond u32::MAX should partition input externally.
 #[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct AggregateResult {
     pub tier: String,
@@ -220,7 +224,7 @@ pub(crate) struct AggregateState {
     pub(crate) checksum: i32,
     pub(crate) attr_count_total: u32,
     pub(crate) object_count: u32,
-    pub(crate) object_sink: Vec<Option<NativeEventObject>>,
+    pub(crate) object_sink: Vec<NativeEventObject>,
 }
 
 pub(crate) struct NativeEventObject {

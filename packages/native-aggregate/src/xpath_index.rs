@@ -456,7 +456,7 @@ impl Parser<'_> {
     }
 
     fn parse_doctype_or_decl(&mut self, lt: usize) -> Result<usize> {
-        let end = find_tag_end(self.input, lt + 1)
+        let end = find_declaration_end(self.input, lt + 1)
             .ok_or_else(|| error("Unclosed declaration in XPath structural index"))?;
         self.last_tag_end = Some(end);
         Ok(end + 1)
@@ -701,6 +701,29 @@ fn find_tag_end(input: &[u8], mut cursor: usize) -> Option<usize> {
         } else if byte == b'\'' || byte == b'"' {
             quote = Some(byte);
         } else if byte == b'>' {
+            return Some(cursor);
+        }
+        cursor += 1;
+    }
+    None
+}
+
+fn find_declaration_end(input: &[u8], mut cursor: usize) -> Option<usize> {
+    let mut quote = None;
+    let mut in_subset = false;
+    while cursor < input.len() {
+        let byte = input[cursor];
+        if let Some(active) = quote {
+            if byte == active {
+                quote = None;
+            }
+        } else if byte == b'\'' || byte == b'"' {
+            quote = Some(byte);
+        } else if byte == b'[' {
+            in_subset = true;
+        } else if byte == b']' {
+            in_subset = false;
+        } else if byte == b'>' && !in_subset {
             return Some(cursor);
         }
         cursor += 1;

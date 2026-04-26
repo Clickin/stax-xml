@@ -58,6 +58,9 @@
     "dist"
   ],
   "homepage": "https://github.com/Clickin/stax-xml",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "xml",
     "stax",

@@ -31,14 +31,7 @@ pub(crate) fn parse_aggregate_with_parser(
     let mut parser = Parser {
         input,
         tier: execution_tier,
-        state: AggregateState {
-            object_sink: if execution_tier == Tier::EventObjectFull {
-                (0..1024).map(|_| None).collect()
-            } else {
-                Vec::new()
-            },
-            ..AggregateState::default()
-        },
+        state: AggregateState::default(),
         element_stack: Vec::new(),
     };
     parser.parse()?;
@@ -176,7 +169,7 @@ pub(crate) fn parse_fast_event_count_bang(
     }
 
     if starts_with(input, position, b"<!DOCTYPE") {
-        let Some(end) = find_gt(input, position + 2) else {
+        let Some(end) = find_doctype_end(input, position + 2) else {
             return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
         };
         return Ok(end + 1);
@@ -203,14 +196,7 @@ pub(crate) fn parse_aggregate_utf16(input: &[u16], tier: Tier) -> Result<Aggrega
     let mut parser = Utf16Parser {
         input,
         tier,
-        state: AggregateState {
-            object_sink: if tier == Tier::EventObjectFull {
-                (0..1024).map(|_| None).collect()
-            } else {
-                Vec::new()
-            },
-            ..AggregateState::default()
-        },
+        state: AggregateState::default(),
         element_stack: Vec::new(),
     };
     parser.parse()?;
@@ -279,11 +265,13 @@ pub(crate) fn parse_aggregate_two_stage(
                     };
                     text_start = end + 3;
                 } else if starts_with(input, lt, b"<!DOCTYPE") {
-                    let Some(gt) = gt_positions.get(gt_index).copied() else {
+                    let Some(gt) = find_doctype_end(input, lt + 2) else {
                         return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
                     };
                     text_start = gt + 1;
-                    gt_index += 1;
+                    while gt_index < gt_positions.len() && gt_positions[gt_index] <= gt {
+                        gt_index += 1;
+                    }
                 } else {
                     let Some(gt) = gt_positions.get(gt_index).copied() else {
                         return Err(Error::from_reason("Unclosed markup"));

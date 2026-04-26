@@ -28,7 +28,7 @@ jobs:
         name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '20.19.0'
       - id: setup-pnpm
         name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -52,7 +52,7 @@ jobs:
         name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '20.19.0'
       - id: setup-rust
         name: Setup Rust
         run: |

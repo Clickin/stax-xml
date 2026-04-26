@@ -1,7 +1,9 @@
 import {
   IterableEventType,
   StaxXmlIterableParser,
+  toAsyncByteBatches,
   toByteBatches,
+  type ByteBatch,
   type ByteBatchOptions
 } from './StaxXmlIterableParser.js';
 import {
@@ -187,15 +189,72 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
   }
 
   private async *readMaterializedBatches(): AsyncGenerator<AnyXmlEvent[]> {
-    const chunks = await readReadableStreamChunks(this.stream);
-    const parser = createIterableParserFromChunks(splitChunks(chunks, this.options.maxChunkBytes), this.options);
+    const parser = new StaxXmlIterableParser([], {
+      encoding: this.options.encoding,
+      incompleteFinalMarkupMessage: this.options.incompleteFinalMarkupMessage,
+      emitStartDocumentBatchImmediately: this.options.emitStartDocumentBatchImmediately
+    });
     const materializer = new IterableEventMaterializer(this.options);
-    while (parser.nextBatch()) {
+
+    if (this.options.emitStartDocumentBatchImmediately && parser.pushByteBatch([], false)) {
       const batch = materializer.materializeBatch(parser);
       if (batch.length > 0) {
         yield batch;
       }
     }
+
+    for await (const byteBatch of readReadableStreamByteBatches(this.stream, this.options)) {
+      if (!parser.pushByteBatch(byteBatch, false)) {
+        continue;
+      }
+      const batch = materializer.materializeBatch(parser);
+      if (batch.length > 0) {
+        yield batch;
+      }
+    }
+
+    if (!parser.pushByteBatch([], true)) {
+      return;
+    }
+
+    const finalBatch = materializer.materializeBatch(parser);
+    if (finalBatch.length > 0) {
+      yield finalBatch;
+    }
+  }
+}
+
+export async function* readReadableStreamByteBatches(
+  stream: ReadableStream<Uint8Array>,
+  options: ByteBatchOptions & { maxChunkBytes?: number } = {}
+): AsyncGenerator<ByteBatch> {
+  yield* toAsyncByteBatches(readReadableStreamChunksIncrementally(stream, options.maxChunkBytes), {
+    batchSize: options.batchSize
+  });
+}
+
+export async function* readReadableStreamChunksIncrementally(
+  stream: ReadableStream<Uint8Array>,
+  maxChunkBytes?: number
+): AsyncGenerator<Uint8Array> {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const result = await reader.read();
+      if (result.done) {
+        break;
+      }
+      const chunk = result.value;
+      if (!maxChunkBytes || maxChunkBytes <= 0 || chunk.byteLength <= maxChunkBytes) {
+        yield chunk;
+        continue;
+      }
+      for (let offset = 0; offset < chunk.byteLength; offset += maxChunkBytes) {
+        yield chunk.slice(offset, Math.min(offset + maxChunkBytes, chunk.byteLength));
+      }
+    }
+  } finally {
+    reader.releaseLock();
   }
 }
 
@@ -232,19 +291,6 @@ export function createIterableParserFromChunks(
       emitStartDocumentBatchImmediately: options.emitStartDocumentBatchImmediately
     }
   );
-}
-
-function* splitChunks(chunks: Iterable<Uint8Array>, maxChunkBytes: number | undefined): Iterable<Uint8Array> {
-  if (!maxChunkBytes || maxChunkBytes <= 0) {
-    yield* chunks;
-    return;
-  }
-
-  for (const chunk of chunks) {
-    for (let offset = 0; offset < chunk.byteLength; offset += maxChunkBytes) {
-      yield chunk.slice(offset, Math.min(offset + maxChunkBytes, chunk.byteLength));
-    }
-  }
 }
 
 export function materializeIterableEventBatch(

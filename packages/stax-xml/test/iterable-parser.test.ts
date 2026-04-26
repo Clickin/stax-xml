@@ -326,6 +326,20 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
       ]);
   });
 
+  it('skips quoted greater-than signs inside DOCTYPE entity declarations', () => {
+    const xml = '<!DOCTYPE root [<!ENTITY foo "bar>baz"><!ENTITY single \'x>y\'>]><root><item/></root>';
+
+    expect(collect(new StaxXmlIterableParser(byteBatches(xml, 5, 1))).map(event => event.name ?? event.text ?? event.type))
+      .toEqual([
+        IterableEventType.START_DOCUMENT,
+        'root',
+        'item',
+        'item',
+        'root',
+        IterableEventType.END_DOCUMENT,
+      ]);
+  });
+
   it('reports malformed XML errors', () => {
     const cases = [
       ['<root><item></root>', 'Mismatched closing tag: </root>. Expected </item>.'],

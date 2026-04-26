@@ -143,6 +143,34 @@ describe('IterableEventBackendIterator', () => {
       value: 'A &amp; B'
     });
   });
+
+  it('does not drain the entire stream before yielding the first event batch', async () => {
+    const chunks = [
+      encoder.encode('<root><item>one</item>'),
+      encoder.encode('<item>two</item>'),
+      encoder.encode('<item>three</item></root>')
+    ];
+    let pulls = 0;
+    let index = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls++;
+        if (index < chunks.length) {
+          controller.enqueue(chunks[index++]!);
+          return;
+        }
+        controller.close();
+      }
+    }, { highWaterMark: 0 });
+    const reader = new IterableEventBackendIterator(stream, { batchSize: 1 });
+
+    const batch = await reader.nextBatch();
+
+    expect(batch.length).toBeGreaterThan(0);
+    expect(batch[0]?.type).toBe(XmlEventType.START_DOCUMENT);
+    expect(pulls).toBeLessThan(chunks.length);
+    await reader.return();
+  });
 });
 
 function streamFrom(xml: string, chunkSize: number): ReadableStream<Uint8Array> {

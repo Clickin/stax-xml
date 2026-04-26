@@ -11,10 +11,14 @@
     "index.mjs",
     "stax_xml_native_aggregate.node"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build:native": "node ./build.mjs",
     "build:wasm": "napi build --release --target wasm32-wasip1-threads --package-json-path ../native-wasm32-wasi/package.json --output-dir ../native-wasm32-wasi && node ./scripts/stage-wasm-package.mjs",
     "coverage:native": "node ./scripts/native-branch-coverage.mjs",
+    "stage:platform": "node ./scripts/stage-platform-package.mjs",
     "smoke": "node ./smoke.mjs"
   },
   "dependencies": {

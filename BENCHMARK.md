@@ -1,9 +1,9 @@
 # Benchmarks
 
-Generated: 2026-04-25T17:26:43.191Z
+Generated: 2026-04-26T12:38:35.356Z
 
 Environment:
-- CPU: 13th Gen Intel(R) Core(TM) i5-13600K (~4.85 GHz)
+- CPU: 13th Gen Intel(R) Core(TM) i5-13600K (~4.84 GHz)
 - Runtime: node 24.15.0 (x64-win32)
 
 This report is generated from the canonical release benchmark set. The docs benchmark pages are derived from the same raw JSON results.
@@ -11,7 +11,7 @@ This report is generated from the canonical release benchmark set. The docs benc
 ## Benchmark Environment
 
 The refreshed benchmark tables on this page were rerun with:
-- **CPU**: 13th Gen Intel(R) Core(TM) i5-13600K (~4.85 GHz)
+- **CPU**: 13th Gen Intel(R) Core(TM) i5-13600K (~4.84 GHz)
 - **Runtime**: node 24.15.0 (x64-win32) with garbage collection exposed (`--expose-gc`)
 - **Tool**: [Mitata](https://github.com/evanw/mitata)
 - **Canonical Set**: parser 2KB / 4KB / 13MB / 98MB with stax-xml backend/surface rows, iterable sync/async size comparison from 1MiB to 4GiB, writer small / big / async, converter parity
@@ -116,14 +116,14 @@ Benchmark source: [parser-2kb.mjs](https://github.com/Clickin/stax-xml/blob/mast
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 67.46 µs | ~14,823 ops/sec | 24.88 kb | Lightweight object parser |
-| **stax-xml to object** | 281.47 µs | ~3,553 ops/sec | 72.70 kb | Object conversion |
-| stax-xml JS event parser | 317.33 µs | ~3,151 ops/sec | 81.98 kb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 247.63 µs | ~4,038 ops/sec | 33.60 kb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 9.54 µs | ~104,785 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 3.72 µs | ~268,721 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
-| fast-xml-parser | 458.36 µs | ~2,182 ops/sec | 193.73 kb | Object parser |
-| xml2js | 598.23 µs | ~1,672 ops/sec | 216.39 kb | Callback object parser |
+| **txml** | 9.58 µs | ~104,358 ops/sec | 1.88 kb | Lightweight object parser |
+| **stax-xml to object** | 468.19 µs | ~2,136 ops/sec | 72.22 kb | Object conversion |
+| stax-xml JS event parser | 492.46 µs | ~2,031 ops/sec | 87.76 kb | Public StaxXmlParserSync event API |
+| stax-xml JS raw iterable | 294.98 µs | ~3,390 ops/sec | 35.01 kb | Iterable byte frames with string materialization checksum |
+| **stax-xml native event aggregate** | 12.45 µs | ~80,341 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 3.69 µs | ~270,809 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
+| fast-xml-parser | 440.89 µs | ~2,268 ops/sec | 194.14 kb | Object parser |
+| xml2js | 671.63 µs | ~1,489 ops/sec | 220.71 kb | Callback object parser |
 
 ### Medium Documents (4KB)
 
@@ -133,14 +133,14 @@ Benchmark source: [parser-4kb.mjs](https://github.com/Clickin/stax-xml/blob/mast
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 94.61 µs | ~10,570 ops/sec | 47.61 kb | Lightweight object parser |
-| **stax-xml to object** | 351.69 µs | ~2,843 ops/sec | 105.39 kb | Object conversion |
-| stax-xml JS event parser | 393.44 µs | ~2,542 ops/sec | 133.08 kb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 266.22 µs | ~3,756 ops/sec | 36.37 kb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 19.12 µs | ~52,294 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 7.56 µs | ~132,213 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
-| fast-xml-parser | 672.39 µs | ~1,487 ops/sec | 869.92 kb | Object parser |
-| xml2js | 936.41 µs | ~1,068 ops/sec | 609.84 kb | Callback object parser |
+| **txml** | 18.67 µs | ~53,552 ops/sec | 5.17 kb | Lightweight object parser |
+| **stax-xml to object** | 434.38 µs | ~2,302 ops/sec | 104.66 kb | Object conversion |
+| stax-xml JS event parser | 449.50 µs | ~2,225 ops/sec | 134.42 kb | Public StaxXmlParserSync event API |
+| stax-xml JS raw iterable | 266.74 µs | ~3,749 ops/sec | 38.36 kb | Iterable byte frames with string materialization checksum |
+| **stax-xml native event aggregate** | 20.00 µs | ~49,992 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 6.53 µs | ~153,062 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
+| fast-xml-parser | 722.86 µs | ~1,383 ops/sec | 842.51 kb | Object parser |
+| xml2js | 893.71 µs | ~1,119 ops/sec | 625.86 kb | Callback object parser |
 
 ### Large Documents (1MiB to 4GiB)
 
@@ -188,16 +188,16 @@ Benchmark source: [sync/async release aggregation](https://github.com/Clickin/st
 
 | File Size | Parser Type | Processing Time | Memory Usage | Performance Ratio |
 |-----------|-------------|-----------------|--------------|-------------------|
-| 1MiB temp file | **sync Iterable parser** | 17.10 ms | 8.36 mb | Baseline, 58.47 MiB/s |
-| 1MiB temp file | async Iterable parser | 19.00 ms | 10.49 mb | 1.11x slower, 52.64 MiB/s |
-| 10MiB temp file | **sync Iterable parser** | 74.16 ms | 10.34 mb | Baseline, 134.85 MiB/s |
-| 10MiB temp file | async Iterable parser | 71.50 ms | 10.59 mb | 1.04x faster, 139.86 MiB/s |
-| 100MiB temp file | **sync Iterable parser** | 545.43 ms | 9.41 mb | Baseline, 183.34 MiB/s |
-| 100MiB temp file | async Iterable parser | 553.02 ms | 10.22 mb | 1.01x slower, 180.83 MiB/s |
-| 1GiB temp file | **sync Iterable parser** | 5.52 s | 11.34 mb | Baseline, 185.59 MiB/s |
-| 1GiB temp file | async Iterable parser | 5.68 s | 10.32 mb | 1.03x slower, 180.42 MiB/s |
-| 4GiB temp file | **sync Iterable parser** | 24.27 s | 11.42 mb | Baseline, 168.79 MiB/s |
-| 4GiB temp file | async Iterable parser | 23.21 s | 11.59 mb | 1.05x faster, 176.44 MiB/s |
+| 1MiB temp file | **sync Iterable parser** | 16.63 ms | 12.38 mb | Baseline, 60.12 MiB/s |
+| 1MiB temp file | async Iterable parser | 20.48 ms | 10.99 mb | 1.23x slower, 48.81 MiB/s |
+| 10MiB temp file | **sync Iterable parser** | 73.13 ms | 25.39 mb | Baseline, 136.75 MiB/s |
+| 10MiB temp file | async Iterable parser | 69.97 ms | 26.13 mb | 1.05x faster, 142.92 MiB/s |
+| 100MiB temp file | **sync Iterable parser** | 529.51 ms | 10.11 mb | Baseline, 188.85 MiB/s |
+| 100MiB temp file | async Iterable parser | 547.81 ms | 47.50 mb | 1.03x slower, 182.55 MiB/s |
+| 1GiB temp file | **sync Iterable parser** | 5.42 s | 43.21 mb | Baseline, 188.84 MiB/s |
+| 1GiB temp file | async Iterable parser | 5.62 s | 39.55 mb | 1.04x slower, 182.37 MiB/s |
+| 4GiB temp file | **sync Iterable parser** | 21.91 s | 48.66 mb | Baseline, 186.92 MiB/s |
+| 4GiB temp file | async Iterable parser | 22.83 s | 51.53 mb | 1.04x slower, 179.38 MiB/s |
 
 **Key Insights:**
 - This section is the iterable backend throughput view, not a public string parser vs stream parser API comparison.
@@ -299,56 +299,56 @@ Benchmark source: [cross-runtime-comparison.mjs](https://github.com/Clickin/stax
 
 | Implementation | Throughput | Average | Relative to stax-xml JS | Status |
 | --- | ---: | ---: | ---: | --- |
-| stax-xml JS on Node | 183.1 MiB/s | 87.37 ms | 1.00x | ok |
-| stax-xml native addon (JS wrapper) | 740.6 MiB/s | 21.60 ms | 4.04x | ok |
-| Woodstox on Java 8 | 346.4 MiB/s | 46.19 ms | 1.89x | ok |
-| quick-xml | 304.4 MiB/s | 52.55 ms | 1.66x | ok |
+| stax-xml JS on Node | 183.7 MiB/s | 87.12 ms | 1.00x | ok |
+| stax-xml native addon (JS wrapper) | 1063.7 MiB/s | 15.04 ms | 5.79x | ok |
+| Woodstox on Java 8 | 341.2 MiB/s | 46.89 ms | 1.86x | ok |
+| quick-xml | 303.6 MiB/s | 52.70 ms | 1.65x | ok |
 
 ### name-string-only
 
 | Implementation | Throughput | Average | Relative to stax-xml JS | Status |
 | --- | ---: | ---: | ---: | --- |
-| stax-xml JS on Node | 140.5 MiB/s | 113.85 ms | 1.00x | ok |
-| stax-xml native addon (JS wrapper) | 629.1 MiB/s | 25.43 ms | 4.48x | ok |
-| Woodstox on Java 8 | 322.0 MiB/s | 49.69 ms | 2.29x | ok |
-| quick-xml | 270.7 MiB/s | 59.11 ms | 1.93x | ok |
+| stax-xml JS on Node | 140.9 MiB/s | 113.52 ms | 1.00x | ok |
+| stax-xml native addon (JS wrapper) | 1131.8 MiB/s | 14.14 ms | 8.03x | ok |
+| Woodstox on Java 8 | 332.5 MiB/s | 48.12 ms | 2.36x | ok |
+| quick-xml | 265.7 MiB/s | 60.21 ms | 1.89x | ok |
 
 ### text-string-only
 
 | Implementation | Throughput | Average | Relative to stax-xml JS | Status |
 | --- | ---: | ---: | ---: | --- |
-| stax-xml JS on Node | 111.3 MiB/s | 143.74 ms | 1.00x | ok |
-| stax-xml native addon (JS wrapper) | 614.2 MiB/s | 26.05 ms | 5.52x | ok |
-| Woodstox on Java 8 | 326.2 MiB/s | 49.05 ms | 2.93x | ok |
-| quick-xml | 285.6 MiB/s | 56.03 ms | 2.57x | ok |
+| stax-xml JS on Node | 111.0 MiB/s | 144.18 ms | 1.00x | ok |
+| stax-xml native addon (JS wrapper) | 1062.9 MiB/s | 15.05 ms | 9.58x | ok |
+| Woodstox on Java 8 | 330.1 MiB/s | 48.47 ms | 2.97x | ok |
+| quick-xml | 280.4 MiB/s | 57.05 ms | 2.53x | ok |
 
 ### attr-value-string-only
 
 | Implementation | Throughput | Average | Relative to stax-xml JS | Status |
 | --- | ---: | ---: | ---: | --- |
-| stax-xml JS on Node | 129.6 MiB/s | 123.41 ms | 1.00x | ok |
-| stax-xml native addon (JS wrapper) | 706.2 MiB/s | 22.66 ms | 5.45x | ok |
-| Woodstox on Java 8 | 307.8 MiB/s | 51.98 ms | 2.37x | ok |
-| quick-xml | 283.9 MiB/s | 56.36 ms | 2.19x | ok |
+| stax-xml JS on Node | 128.6 MiB/s | 124.44 ms | 1.00x | ok |
+| stax-xml native addon (JS wrapper) | 1083.0 MiB/s | 14.77 ms | 8.42x | ok |
+| Woodstox on Java 8 | 304.2 MiB/s | 52.59 ms | 2.37x | ok |
+| quick-xml | 289.8 MiB/s | 55.21 ms | 2.25x | ok |
 
 ### full-string
 
 | Implementation | Throughput | Average | Relative to stax-xml JS | Status |
 | --- | ---: | ---: | ---: | --- |
-| stax-xml JS on Node | 90.8 MiB/s | 176.22 ms | 1.00x | ok |
-| stax-xml native addon (JS wrapper) | 434.5 MiB/s | 36.83 ms | 4.79x | ok |
-| Woodstox on Java 8 | 236.3 MiB/s | 67.71 ms | 2.60x | ok |
-| quick-xml | 229.3 MiB/s | 69.78 ms | 2.53x | ok |
+| stax-xml JS on Node | 103.1 MiB/s | 155.17 ms | 1.00x | ok |
+| stax-xml native addon (JS wrapper) | 651.2 MiB/s | 24.57 ms | 6.32x | ok |
+| Woodstox on Java 8 | 262.4 MiB/s | 60.98 ms | 2.54x | ok |
+| quick-xml | 227.9 MiB/s | 70.20 ms | 2.21x | ok |
 
 ### Woodstox Java 25 Verification
 
 | Tier | Woodstox Java 8 | Woodstox Java 25 | Delta | Status |
 | --- | ---: | ---: | ---: | --- |
-| count-only | 346.4 MiB/s | 300.4 MiB/s | -13.3% | ok |
-| name-string-only | 322.0 MiB/s | 282.1 MiB/s | -12.4% | ok |
-| text-string-only | 326.2 MiB/s | 291.4 MiB/s | -10.7% | ok |
-| attr-value-string-only | 307.8 MiB/s | 258.7 MiB/s | -16.0% | ok |
-| full-string | 236.3 MiB/s | 232.8 MiB/s | -1.5% | ok |
+| count-only | 341.2 MiB/s | 290.8 MiB/s | -14.8% | ok |
+| name-string-only | 332.5 MiB/s | 267.4 MiB/s | -19.6% | ok |
+| text-string-only | 330.1 MiB/s | 289.4 MiB/s | -12.3% | ok |
+| attr-value-string-only | 304.2 MiB/s | 259.8 MiB/s | -14.6% | ok |
+| full-string | 262.4 MiB/s | 228.9 MiB/s | -12.8% | ok |
 
 ### Why Native Addons Are The Acceleration Path
 
@@ -367,14 +367,14 @@ Benchmark source: [parser-13mb.mjs](https://github.com/Clickin/stax-xml/blob/mas
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| xml2js | 592.18 µs | ~1,689 ops/sec | 428.72 kb | Invalid comparator: first top-level element only* |
-| **stax-xml to object** | 219.49 ms | ~4.56 ops/sec | 145.51 mb | Object conversion |
-| stax-xml JS event parser | 244.17 ms | ~4.1 ops/sec | 166.73 mb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 102.35 ms | ~9.77 ops/sec | 26.36 mb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 72.00 ms | ~13.89 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 25.99 ms | ~38.47 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
-| **txml** | 114.61 ms | ~8.73 ops/sec | 117.60 mb | Lightweight object parser |
-| fast-xml-parser | 668.43 ms | ~1.5 ops/sec | 177.72 mb | Object parser |
+| xml2js | 559.25 µs | ~1,788 ops/sec | 430.99 kb | Invalid comparator: first top-level element only* |
+| **stax-xml to object** | 249.97 ms | ~4 ops/sec | 145.53 mb | Object conversion |
+| stax-xml JS event parser | 261.56 ms | ~3.82 ops/sec | 165.62 mb | Public StaxXmlParserSync event API |
+| stax-xml JS raw iterable | 104.14 ms | ~9.6 ops/sec | 26.36 mb | Iterable byte frames with string materialization checksum |
+| **stax-xml native event aggregate** | 73.31 ms | ~13.64 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 24.07 ms | ~41.55 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
+| **txml** | 113.14 ms | ~8.84 ops/sec | 117.59 mb | Lightweight object parser |
+| fast-xml-parser | 673.81 ms | ~1.48 ops/sec | 177.83 mb | Object parser |
 
 *xml2js is not a valid whole-document comparator for this fixture. `midsize.xml` contains repeated top-level `<any_name>` roots, and xml2js returns only the first top-level element shape.
 
@@ -386,14 +386,14 @@ Benchmark source: [parser-98mb.mjs](https://github.com/Clickin/stax-xml/blob/mas
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **stax-xml to object** | 1.79 s | ~0.56 ops/sec | 970.78 mb | Memory efficient |
-| stax-xml JS event parser | 1.83 s | ~0.55 ops/sec | 1005.67 mb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 685.25 ms | ~1.46 ops/sec | 18.40 mb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 501.24 ms | ~2 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 193.56 ms | ~5.17 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
-| **txml** | 1.06 s | ~0.95 ops/sec | 859.80 mb | Object parser |
-| fast-xml-parser | 5.62 s | ~0.18 ops/sec | 1019.00 mb | Object parser |
-| xml2js | 5.69 s | ~0.18 ops/sec | 634.27 mb | Callback object parser |
+| **stax-xml to object** | 1.92 s | ~0.52 ops/sec | 979.91 mb | Memory efficient |
+| stax-xml JS event parser | 1.94 s | ~0.51 ops/sec | 1007.59 mb | Public StaxXmlParserSync event API |
+| stax-xml JS raw iterable | 718.66 ms | ~1.39 ops/sec | 18.41 mb | Iterable byte frames with string materialization checksum |
+| **stax-xml native event aggregate** | 526.49 ms | ~1.9 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 152.08 ms | ~6.58 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
+| **txml** | 980.03 ms | ~1.02 ops/sec | 859.76 mb | Object parser |
+| fast-xml-parser | 5.54 s | ~0.18 ops/sec | 1019.42 mb | Object parser |
+| xml2js | 5.76 s | ~0.17 ops/sec | 638.94 mb | Callback object parser |
 
 ## Converter API vs Plain Parser
 
@@ -414,9 +414,9 @@ Benchmark source: [converter-plain-output-benchmark.mjs](https://github.com/Clic
 
 | Implementation | Average time | Notes |
 | --- | ---: | --- |
-| plain parser | **3.01 ms** | Lowest overhead, handwritten state machine |
-| converter api | **3.35 ms** | Declarative schema with automatic dispatch plan |
-| converter api compiled | **3.10 ms** | Explicit compile() with cached dispatch plan |
+| plain parser | **5.17 ms** | Lowest overhead, handwritten state machine |
+| converter api | **5.68 ms** | Declarative schema with automatic dispatch plan |
+| converter api compiled | **5.98 ms** | Explicit compile() with cached dispatch plan |
 
 Interpretation:
 
@@ -439,11 +439,11 @@ Benchmark source: [writer release aggregation](https://github.com/Clickin/stax-x
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **fast-xml-parser builder** | 237.31 µs | ~4,214 ops/sec | 80.47 kb | fast-xml-parser builder |
-| stax-xml writer | 247.84 µs | ~4,035 ops/sec | 266.29 kb | Writer API |
-| **stax-xml writer sync** | 5.44 µs | ~183,851 ops/sec | 13.37 kb | Fastest, Sync writer API |
-| **stax-xml writer sync sink** | 151.72 µs | ~6,591 ops/sec | 31.25 kb | Sync streaming sink API |
-| xml2js builder | 479.50 µs | ~2,086 ops/sec | 129.16 kb | xml2js builder |
+| **fast-xml-parser builder** | 217.23 µs | ~4,603 ops/sec | 80.29 kb | fast-xml-parser builder |
+| stax-xml writer | 286.03 µs | ~3,496 ops/sec | 265.82 kb | Writer API |
+| **stax-xml writer sync** | 5.53 µs | ~180,673 ops/sec | 13.39 kb | Fastest, Sync writer API |
+| **stax-xml writer sync sink** | 130.66 µs | ~7,654 ops/sec | 29.77 kb | Sync streaming sink API |
+| xml2js builder | 330.06 µs | ~3,030 ops/sec | 128.00 kb | xml2js builder |
 
 ### Large Document Building (1MB)
 
@@ -453,10 +453,10 @@ Benchmark source: [writer release aggregation](https://github.com/Clickin/stax-x
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **fast-xml-parser builder** | 54.61 ms | ~18.31 ops/sec | 28.01 mb | fast-xml-parser builder |
-| **stax-xml writer sync** | 10.90 ms | ~91.78 ops/sec | 9.46 mb | Fastest, Sync writer API |
-| **stax-xml writer sync sink** | 13.19 ms | ~75.83 ops/sec | 10.12 mb | Sync streaming sink API |
-| stax-xml writer | 66.79 ms | ~14.97 ops/sec | 43.98 mb | Writer API |
+| **fast-xml-parser builder** | 25.68 ms | ~38.94 ops/sec | 26.30 mb | fast-xml-parser builder |
+| **stax-xml writer sync** | 6.69 ms | ~149.42 ops/sec | 9.72 mb | Fastest, Sync writer API |
+| **stax-xml writer sync sink** | 8.74 ms | ~114.46 ops/sec | 10.36 mb | Sync streaming sink API |
+| stax-xml writer | 49.97 ms | ~20.01 ops/sec | 44.05 mb | Writer API |
 
 ### Async vs Sync Writer Comparison
 
@@ -467,9 +467,9 @@ Benchmark source: [writer release aggregation](https://github.com/Clickin/stax-x
 
 | Element Count | Async Writer | Sync Writer + File | Sync Writer + Sink | Performance Ratio |
 |---------------|--------------|--------------------|--------------------|-------------------|
-| 1K elements | 11.63 ms | 4.81 ms | 4.26 ms | 2.73x faster (sink) |
-| 5K elements | 42.61 ms | 11.79 ms | 10.46 ms | 4.08x faster (sink) |
-| 10K elements | 83.11 ms | 21.03 ms | 15.99 ms | 5.20x faster (sink) |
+| 1K elements | 13.14 ms | 5.30 ms | 4.39 ms | 3.00x faster (sink) |
+| 5K elements | 47.31 ms | 12.34 ms | 10.23 ms | 4.62x faster (sink) |
+| 10K elements | 85.63 ms | 22.53 ms | 16.99 ms | 5.04x faster (sink) |
 
 ### 1GiB Writer Comparison
 
