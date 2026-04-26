@@ -7,10 +7,14 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[features]
+default = ["napi-bindings"]
+napi-bindings = ["dep:napi", "dep:napi-derive"]
+
 [dependencies]
 memchr = "2.7.6"
-napi = { version = "3.8.5", default-features = false, features = ["napi4"] }
-napi-derive = "3.5.4"
+napi = { version = "3.8.5", default-features = false, features = ["napi4"], optional = true }
+napi-derive = { version = "3.5.4", optional = true }
 
 [build-dependencies]
 napi-build = "2.3.1"

@@ -139,7 +139,7 @@ pub(crate) enum TagEndStrategy {
     UnsafeGt,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct AggregateResult {
     pub tier: String,
     pub input_bytes: f64,
@@ -149,21 +149,21 @@ pub struct AggregateResult {
     pub object_count: u32,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ItemProjectionResult {
     pub input_bytes: f64,
     pub item_count: u32,
     pub checksum: i32,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ItemProjectionRecord {
     pub id: i32,
     pub name: String,
     pub value: String,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ItemProjectionRowsResult {
     pub input_bytes: f64,
     pub event_count: u32,
@@ -171,13 +171,13 @@ pub struct ItemProjectionRowsResult {
     pub rows: Vec<ItemProjectionRecord>,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ObjectRowsProjectionSpec {
     pub item_name: String,
     pub fields: Vec<ObjectRowsProjectionFieldSpec>,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ObjectRowsProjectionFieldSpec {
     pub output_name: String,
     pub value_kind: String,
@@ -186,7 +186,7 @@ pub struct ObjectRowsProjectionFieldSpec {
     pub text_mode: String,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ObjectRowsProjectionColumn {
     pub present: Vec<bool>,
     pub values: Vec<String>,
@@ -195,7 +195,7 @@ pub struct ObjectRowsProjectionColumn {
     pub span_ends: Vec<i32>,
 }
 
-#[cfg_attr(not(test), napi(object))]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ObjectRowsProjectionResult {
     pub input_bytes: f64,
     pub event_count: u32,
