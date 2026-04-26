@@ -1,24 +1,24 @@
 use super::*;
 
-#[cfg(not(all(test, target_os = "macos")))]
+#[cfg(feature = "napi-bindings")]
 use napi::bindgen_prelude::{Buffer, Uint8Array, Utf16String};
-#[cfg(not(all(test, target_os = "macos")))]
+#[cfg(feature = "napi-bindings")]
 use std::fs;
 
-#[cfg(not(all(test, target_os = "macos")))]
+#[cfg(feature = "napi-bindings")]
 fn to_napi_result<T>(result: Result<T>) -> napi::Result<T> {
     result.map_err(napi::Error::from)
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_buffer(input: Buffer, tier: String) -> napi::Result<AggregateResult> {
     let tier = parse_tier(&tier).map_err(napi::Error::from)?;
     to_napi_result(parse_aggregate(input.as_ref(), tier))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_buffer_with_simd(
     input: Buffer,
     tier: String,
@@ -29,8 +29,8 @@ pub fn parse_aggregate_buffer_with_simd(
     to_napi_result(parse_aggregate_with_simd_policy(input.as_ref(), tier, simd))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_uint8array(
     input: Uint8Array,
     tier: String,
@@ -39,8 +39,8 @@ pub fn parse_aggregate_uint8array(
     to_napi_result(parse_aggregate(input.as_ref(), tier))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_uint8array_with_simd(
     input: Uint8Array,
     tier: String,
@@ -51,16 +51,16 @@ pub fn parse_aggregate_uint8array_with_simd(
     to_napi_result(parse_aggregate_with_simd_policy(input.as_ref(), tier, simd))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_file(path: String, tier: String) -> napi::Result<AggregateResult> {
     let tier = parse_tier(&tier).map_err(napi::Error::from)?;
     let bytes = fs::read(path).map_err(|error| napi::Error::from_reason(error.to_string()))?;
     to_napi_result(parse_aggregate(&bytes, tier))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_file_with_simd(
     path: String,
     tier: String,
@@ -72,15 +72,15 @@ pub fn parse_aggregate_file_with_simd(
     to_napi_result(parse_aggregate_with_simd_policy(&bytes, tier, simd))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_string_utf8(input: String, tier: String) -> napi::Result<AggregateResult> {
     let tier = parse_tier(&tier).map_err(napi::Error::from)?;
     to_napi_result(parse_aggregate(input.as_bytes(), tier))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_string_utf8_with_simd(
     input: String,
     tier: String,
@@ -95,8 +95,8 @@ pub fn parse_aggregate_string_utf8_with_simd(
     ))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_string_utf16(
     input: Utf16String,
     tier: String,
@@ -105,54 +105,54 @@ pub fn parse_aggregate_string_utf16(
     to_napi_result(parse_aggregate_utf16(&input, tier))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_span_table_string_utf16(input: Utf16String) -> napi::Result<Buffer> {
     to_napi_result(parse_span_table_utf16(&input)).map(Buffer::from)
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_span_table_uint8array(input: Uint8Array) -> napi::Result<Buffer> {
     to_napi_result(parse_span_table(input.as_ref())).map(Buffer::from)
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_structural_index_string_utf16(input: Utf16String) -> napi::Result<Buffer> {
     to_napi_result(parse_span_table_utf16(&input)).map(Buffer::from)
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_structural_index_uint8array(input: Uint8Array) -> napi::Result<Buffer> {
     to_napi_result(parse_span_table(input.as_ref())).map(Buffer::from)
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_item_projection_uint8array(input: Uint8Array) -> napi::Result<ItemProjectionResult> {
     to_napi_result(parse_item_projection(input.as_ref()))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_item_projection_via_table_uint8array(
     input: Uint8Array,
 ) -> napi::Result<ItemProjectionResult> {
     to_napi_result(parse_item_projection_via_table(input.as_ref()))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_item_rows_via_table_uint8array(
     input: Uint8Array,
 ) -> napi::Result<ItemProjectionRowsResult> {
     to_napi_result(parse_item_rows_via_table(input.as_ref()))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_object_rows_via_table_uint8array(
     input: Uint8Array,
     spec: ObjectRowsProjectionSpec,
@@ -160,8 +160,8 @@ pub fn parse_object_rows_via_table_uint8array(
     to_napi_result(parse_object_rows_via_table(input.as_ref(), &spec))
 }
 
-#[cfg(not(all(test, target_os = "macos")))]
-#[cfg_attr(not(test), napi)]
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_object_rows_uint8array(
     input: Uint8Array,
     spec: ObjectRowsProjectionSpec,

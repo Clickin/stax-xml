@@ -16,6 +16,7 @@ const coverage = spawnSync(
     'llvm-cov',
     '--locked',
     '--lib',
+    '--no-default-features',
     '--branch',
     '--json',
     '--summary-only',

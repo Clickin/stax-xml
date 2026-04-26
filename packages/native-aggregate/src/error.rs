@@ -23,7 +23,7 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-#[cfg(not(all(test, target_os = "macos")))]
+#[cfg(feature = "napi-bindings")]
 impl From<Error> for napi::Error {
     fn from(error: Error) -> Self {
         napi::Error::from_reason(error.reason)

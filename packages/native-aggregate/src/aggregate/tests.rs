@@ -1,5 +1,5 @@
 use super::*;
-#[cfg(not(target_os = "macos"))]
+#[cfg(feature = "napi-bindings")]
 use napi::bindgen_prelude::{Buffer, Uint8Array, Utf16String};
 
 #[test]
@@ -83,6 +83,15 @@ fn two_stage_aggregate_ignores_quoted_structural_bytes() {
                 .unwrap();
         assert_eq!(sse42_two_stage.event_count, two_stage.event_count);
         assert_eq!(sse42_two_stage.checksum, two_stage.checksum);
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    {
+        let neon_two_stage =
+            parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Neon)
+                .unwrap();
+        assert_eq!(neon_two_stage.event_count, two_stage.event_count);
+        assert_eq!(neon_two_stage.checksum, two_stage.checksum);
     }
 }
 
@@ -1177,7 +1186,7 @@ fn ffi_utf16_units_reports_error_statuses() {
 }
 
 #[test]
-#[cfg(not(target_os = "macos"))]
+#[cfg(feature = "napi-bindings")]
 fn napi_wrappers_cover_native_entrypoints() {
     let sample = concat!(
         "<root><item id=\"1\"><name>A</name><value>B</value></item>",
@@ -1843,6 +1852,15 @@ fn simd_classifier_covers_quote_masks_and_range_edges() {
             assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Avx2);
         }
     }
+
+    #[cfg(target_arch = "aarch64")]
+    {
+        assert_classifier_matches_scalar(&exact, true, SimdPolicy::Auto);
+        assert_classifier_matches_scalar(&exact, true, SimdPolicy::Neon);
+        assert_classifier_matches_scalar(&double_tail, false, SimdPolicy::Neon);
+        assert_classifier_matches_scalar(&double_tail, true, SimdPolicy::Neon);
+        assert_classifier_matches_scalar(&single_tail, true, SimdPolicy::Neon);
+    }
 }
 
 #[test]
@@ -1921,6 +1939,11 @@ fn utf16_attribute_scanner_covers_edge_cases_and_overflow() {
 fn low_level_helpers_cover_negative_and_boundary_paths() {
     assert_eq!(fold_string(9, ""), 9);
     assert_eq!(js_to_int32(f64::NAN), 0);
+    assert_eq!(js_to_int32(0.0), 0);
+    assert_eq!(js_to_int32(1.9), 1);
+    assert_eq!(js_to_int32(-1.9), -1);
+    assert_eq!(js_to_int32(2_147_483_648.0), i32::MIN);
+    assert_eq!(js_to_int32(4_294_967_297.0), 1);
 
     assert!(starts_with(b"abc", 0, b"ab"));
     assert!(!starts_with(b"abc", 2, b"abc"));

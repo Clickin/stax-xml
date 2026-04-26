@@ -1,5 +1,5 @@
 use memchr::memchr;
-#[cfg(not(test))]
+#[cfg(all(feature = "napi-bindings", not(test)))]
 use napi_derive::napi;
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;
