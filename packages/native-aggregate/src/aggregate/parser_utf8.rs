@@ -188,18 +188,13 @@ impl<'a> Parser<'a> {
                 .then_some((name_start, name_end));
             self.emit_event(END_ELEMENT, end_name, None, None)?;
         } else {
-            if self.tier.validates_element_stack() {
-                self.element_stack.push((name_start, name_end));
-            }
+            self.element_stack.push((name_start, name_end));
         }
 
         Ok(tag_end + 1)
     }
 
     fn emit_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
-        if self.tier.skips_text_events() {
-            return Ok(());
-        }
         if start < end && !is_whitespace_only(self.input, start, end) {
             self.emit_event(event_type, None, Some((start, end)), None)?;
         }
@@ -207,12 +202,7 @@ impl<'a> Parser<'a> {
     }
 
     fn emit_non_whitespace_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
-        if self.tier.skips_text_events() {
-            return Ok(());
-        }
-        if start < end {
-            self.emit_event(event_type, None, Some((start, end)), None)?;
-        }
+        self.emit_event(event_type, None, Some((start, end)), None)?;
         Ok(())
     }
 

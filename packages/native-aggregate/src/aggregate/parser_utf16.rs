@@ -209,9 +209,7 @@ impl<'a> Utf16Parser<'a> {
         if self.tier.skips_text_events() {
             return Ok(());
         }
-        if start < end {
-            self.emit_event(event_type, None, Some((start, end)), None)?;
-        }
+        self.emit_event(event_type, None, Some((start, end)), None)?;
         Ok(())
     }
 
