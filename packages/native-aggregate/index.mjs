@@ -22,6 +22,8 @@ export const parseItemProjectionViaTableUint8Array =
   binding.parseItemProjectionViaTableUint8Array;
 export const parseItemRowsViaTableUint8Array =
   binding.parseItemRowsViaTableUint8Array;
+export const parseObjectRowsViaTableUint8Array =
+  binding.parseObjectRowsViaTableUint8Array;
 
 if (
   typeof parseAggregateBuffer !== 'function' ||
@@ -34,7 +36,8 @@ if (
   typeof parseStructuralIndexUint8Array !== 'function' ||
   typeof parseItemProjectionUint8Array !== 'function' ||
   typeof parseItemProjectionViaTableUint8Array !== 'function' ||
-  typeof parseItemRowsViaTableUint8Array !== 'function'
+  typeof parseItemRowsViaTableUint8Array !== 'function' ||
+  typeof parseObjectRowsViaTableUint8Array !== 'function'
 ) {
   throw new TypeError(
     'Native aggregate addon did not export the required aggregate and structural-index functions.',
@@ -83,4 +86,8 @@ export function parse_item_projection_via_table_uint8array(input) {
 
 export function parse_item_rows_via_table_uint8array(input) {
   return parseItemRowsViaTableUint8Array(input);
+}
+
+export function parse_object_rows_via_table_uint8array(input, spec) {
+  return parseObjectRowsViaTableUint8Array(input, spec);
 }

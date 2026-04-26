@@ -62,6 +62,37 @@ pub struct ItemProjectionRowsResult {
     pub rows: Vec<ItemProjectionRecord>,
 }
 
+#[napi(object)]
+pub struct ObjectRowsProjectionSpec {
+    pub item_name: String,
+    pub fields: Vec<ObjectRowsProjectionFieldSpec>,
+}
+
+#[napi(object)]
+pub struct ObjectRowsProjectionFieldSpec {
+    pub output_name: String,
+    pub value_kind: String,
+    pub source_kind: String,
+    pub source_name: String,
+    pub text_mode: String,
+}
+
+#[napi(object)]
+pub struct ObjectRowsProjectionColumn {
+    pub present: Vec<bool>,
+    pub values: Vec<String>,
+}
+
+#[napi(object)]
+pub struct ObjectRowsProjectionResult {
+    pub input_bytes: f64,
+    pub event_count: u32,
+    pub max_depth: u32,
+    pub field_count: u32,
+    pub row_count: u32,
+    pub columns: Vec<ObjectRowsProjectionColumn>,
+}
+
 #[repr(C)]
 pub struct FfiAggregateResult {
     pub event_count: u32,
@@ -236,6 +267,51 @@ struct TableProjectionOutcome {
     rows: Vec<ItemProjectionRow>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ObjectRowsSourceKind {
+    Attribute,
+    Element,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ObjectRowsTextMode {
+    Direct,
+    Subtree,
+}
+
+struct NormalizedObjectRowsField {
+    source_kind: ObjectRowsSourceKind,
+    source_name: Vec<u8>,
+    text_mode: ObjectRowsTextMode,
+}
+
+struct NormalizedObjectRowsSpec {
+    item_name: Vec<u8>,
+    fields: Vec<NormalizedObjectRowsField>,
+}
+
+struct ObjectRowsProjectionState {
+    depth: usize,
+    max_depth: usize,
+    current_row: Option<CurrentObjectRowsProjection>,
+    capture: Option<ObjectRowsProjectionCapture>,
+    row_count: usize,
+    columns: Vec<ObjectRowsProjectionColumn>,
+}
+
+struct CurrentObjectRowsProjection {
+    depth: usize,
+    completed: Vec<bool>,
+    present: Vec<bool>,
+    values: Vec<String>,
+}
+
+struct ObjectRowsProjectionCapture {
+    depth: usize,
+    field_indices: Vec<usize>,
+    text_mode: ObjectRowsTextMode,
+}
+
 #[napi]
 pub fn parse_aggregate_buffer(input: Buffer, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
@@ -302,6 +378,14 @@ pub fn parse_item_projection_via_table_uint8array(
 #[napi]
 pub fn parse_item_rows_via_table_uint8array(input: Uint8Array) -> Result<ItemProjectionRowsResult> {
     parse_item_rows_via_table(input.as_ref())
+}
+
+#[napi]
+pub fn parse_object_rows_via_table_uint8array(
+    input: Uint8Array,
+    spec: ObjectRowsProjectionSpec,
+) -> Result<ObjectRowsProjectionResult> {
+    parse_object_rows_via_table(input.as_ref(), &spec)
 }
 
 #[no_mangle]
@@ -466,6 +550,14 @@ fn parse_item_projection_via_table(input: &[u8]) -> Result<ItemProjectionResult>
 fn parse_item_rows_via_table(input: &[u8]) -> Result<ItemProjectionRowsResult> {
     let table = parse_span_table(input)?;
     project_item_rows_from_span_table(input, &table)
+}
+
+fn parse_object_rows_via_table(
+    input: &[u8],
+    spec: &ObjectRowsProjectionSpec,
+) -> Result<ObjectRowsProjectionResult> {
+    let table = parse_span_table(input)?;
+    project_object_rows_from_span_table(input, &table, spec)
 }
 
 fn tier_name(tier: Tier) -> &'static str {
@@ -2306,6 +2398,301 @@ fn read_table_projection_id(
     Ok(0)
 }
 
+fn project_object_rows_from_span_table(
+    input: &[u8],
+    table: &[u8],
+    spec: &ObjectRowsProjectionSpec,
+) -> Result<ObjectRowsProjectionResult> {
+    let table = parse_span_table_bytes(table)?;
+    if table.flags & 0xff != 1 {
+        return Err(Error::from_reason(
+            "Object rows projection requires a UTF-8 structural index table",
+        ));
+    }
+    if table.input_units as usize != input.len() {
+        return Err(Error::from_reason("Structural index input length mismatch"));
+    }
+
+    let spec = normalize_object_rows_spec(spec)?;
+    let mut state = ObjectRowsProjectionState {
+        depth: 0,
+        max_depth: 0,
+        current_row: None,
+        capture: None,
+        row_count: 0,
+        columns: (0..spec.fields.len())
+            .map(|_| ObjectRowsProjectionColumn {
+                present: Vec::new(),
+                values: Vec::new(),
+            })
+            .collect(),
+    };
+
+    for event_index in 0..table.event_count as usize {
+        let event = read_table_event(&table, event_index)?;
+        match event.event_type {
+            value if value == START_ELEMENT as u32 => {
+                state.depth += 1;
+                state.max_depth = state.max_depth.max(state.depth);
+                start_object_rows_projection_element(input, &table, event, &spec, &mut state)?;
+            }
+            value if value == END_ELEMENT as u32 => {
+                end_object_rows_projection_element(input, event, &spec, &mut state)?;
+                state.depth = state
+                    .depth
+                    .checked_sub(1)
+                    .ok_or_else(|| Error::from_reason("Structural index depth underflow"))?;
+            }
+            value if value == CHARACTERS as u32 || value == CDATA as u32 => {
+                capture_object_rows_projection_text(input, event, &mut state)?;
+            }
+            _ => {}
+        }
+    }
+
+    if state.depth != 0 {
+        return Err(Error::from_reason(
+            "Structural index ended with open elements",
+        ));
+    }
+
+    Ok(ObjectRowsProjectionResult {
+        input_bytes: input.len() as f64,
+        event_count: table.event_count,
+        max_depth: to_u32_count(state.max_depth, "object rows projection max depth")?,
+        field_count: to_u32_count(spec.fields.len(), "object rows projection field count")?,
+        row_count: to_u32_count(state.row_count, "object rows projection row count")?,
+        columns: state.columns,
+    })
+}
+
+fn normalize_object_rows_spec(spec: &ObjectRowsProjectionSpec) -> Result<NormalizedObjectRowsSpec> {
+    if spec.item_name.is_empty() {
+        return Err(Error::from_reason(
+            "Object rows projection requires an item element name",
+        ));
+    }
+    if spec.fields.is_empty() {
+        return Err(Error::from_reason(
+            "Object rows projection requires at least one field",
+        ));
+    }
+
+    let mut fields = Vec::with_capacity(spec.fields.len());
+    for field in &spec.fields {
+        if field.output_name.is_empty() {
+            return Err(Error::from_reason(
+                "Object rows projection field output name cannot be empty",
+            ));
+        }
+        if field.source_name.is_empty() {
+            return Err(Error::from_reason(
+                "Object rows projection field source name cannot be empty",
+            ));
+        }
+        match field.value_kind.as_str() {
+            "string" | "number" => {}
+            _ => {
+                return Err(Error::from_reason(
+                    "Object rows projection field value kind must be string or number",
+                ));
+            }
+        }
+
+        let source_kind = match field.source_kind.as_str() {
+            "attribute" => ObjectRowsSourceKind::Attribute,
+            "element" => ObjectRowsSourceKind::Element,
+            _ => {
+                return Err(Error::from_reason(
+                    "Object rows projection field source kind must be attribute or element",
+                ));
+            }
+        };
+        let text_mode = match field.text_mode.as_str() {
+            "direct" => ObjectRowsTextMode::Direct,
+            "subtree" => ObjectRowsTextMode::Subtree,
+            "" if source_kind == ObjectRowsSourceKind::Attribute => ObjectRowsTextMode::Direct,
+            _ => {
+                return Err(Error::from_reason(
+                    "Object rows projection field text mode must be direct or subtree",
+                ));
+            }
+        };
+
+        fields.push(NormalizedObjectRowsField {
+            source_kind,
+            source_name: field.source_name.as_bytes().to_vec(),
+            text_mode,
+        });
+    }
+
+    Ok(NormalizedObjectRowsSpec {
+        item_name: spec.item_name.as_bytes().to_vec(),
+        fields,
+    })
+}
+
+fn start_object_rows_projection_element(
+    input: &[u8],
+    table: &ParsedSpanTable<'_>,
+    event: TableEventRecord,
+    spec: &NormalizedObjectRowsSpec,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    let Some((name_start, name_end)) = event.name_range()? else {
+        return Err(Error::from_reason(
+            "Structural index start element did not include a name span",
+        ));
+    };
+    let name = &input[name_start..name_end];
+
+    if state.current_row.is_none() && name == spec.item_name.as_slice() {
+        let mut row = CurrentObjectRowsProjection {
+            depth: state.depth,
+            completed: vec![false; spec.fields.len()],
+            present: vec![false; spec.fields.len()],
+            values: vec![String::new(); spec.fields.len()],
+        };
+        read_object_rows_projection_attributes(input, table, event, spec, &mut row)?;
+        state.current_row = Some(row);
+        return Ok(());
+    }
+
+    let Some(row) = &mut state.current_row else {
+        return Ok(());
+    };
+    if state.depth != row.depth + 1 {
+        return Ok(());
+    }
+
+    let mut field_indices = Vec::new();
+    let mut text_mode = ObjectRowsTextMode::Subtree;
+    for (index, field) in spec.fields.iter().enumerate() {
+        if field.source_kind == ObjectRowsSourceKind::Element
+            && name == field.source_name.as_slice()
+            && !row.completed[index]
+        {
+            field_indices.push(index);
+            text_mode = field.text_mode;
+            row.present[index] = true;
+        }
+    }
+    if !field_indices.is_empty() {
+        state.capture = Some(ObjectRowsProjectionCapture {
+            depth: state.depth,
+            field_indices,
+            text_mode,
+        });
+    }
+    Ok(())
+}
+
+fn read_object_rows_projection_attributes(
+    input: &[u8],
+    table: &ParsedSpanTable<'_>,
+    event: TableEventRecord,
+    spec: &NormalizedObjectRowsSpec,
+    row: &mut CurrentObjectRowsProjection,
+) -> Result<()> {
+    for attr_offset in 0..event.attr_count as usize {
+        let attr = read_table_attr(table, event.attr_start as usize + attr_offset)?;
+        let Some((name_start, name_end)) = attr.name_range()? else {
+            continue;
+        };
+        let Some((value_start, value_end)) = attr.value_range()? else {
+            continue;
+        };
+        let attr_name = &input[name_start..name_end];
+        for (index, field) in spec.fields.iter().enumerate() {
+            if field.source_kind == ObjectRowsSourceKind::Attribute
+                && attr_name == field.source_name.as_slice()
+            {
+                row.values[index] = materialize_span(input, value_start, value_end)?;
+                row.present[index] = true;
+                row.completed[index] = true;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn end_object_rows_projection_element(
+    input: &[u8],
+    event: TableEventRecord,
+    spec: &NormalizedObjectRowsSpec,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    if state
+        .capture
+        .as_ref()
+        .is_some_and(|capture| capture.depth == state.depth)
+    {
+        if let Some(row) = &mut state.current_row {
+            if let Some(capture) = &state.capture {
+                for index in &capture.field_indices {
+                    if row.present[*index] {
+                        row.values[*index] = row.values[*index].trim().to_owned();
+                    }
+                    row.completed[*index] = true;
+                }
+            }
+        }
+        state.capture = None;
+    }
+
+    let Some(row) = &state.current_row else {
+        return Ok(());
+    };
+    if row.depth != state.depth {
+        return Ok(());
+    }
+
+    let Some((name_start, name_end)) = event.name_range()? else {
+        return Ok(());
+    };
+    if &input[name_start..name_end] != spec.item_name.as_slice() {
+        return Ok(());
+    }
+
+    let mut row = state.current_row.take().expect("checked row presence");
+    for index in 0..spec.fields.len() {
+        state.columns[index].present.push(row.present[index]);
+        state.columns[index]
+            .values
+            .push(std::mem::take(&mut row.values[index]));
+    }
+    state.row_count += 1;
+    Ok(())
+}
+
+fn capture_object_rows_projection_text(
+    input: &[u8],
+    event: TableEventRecord,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    let Some(capture) = &state.capture else {
+        return Ok(());
+    };
+    if capture.text_mode == ObjectRowsTextMode::Direct && state.depth != capture.depth {
+        return Ok(());
+    }
+    if capture.text_mode == ObjectRowsTextMode::Subtree && state.depth < capture.depth {
+        return Ok(());
+    }
+    let Some((start, end)) = event.text_range()? else {
+        return Ok(());
+    };
+    let Some(row) = &mut state.current_row else {
+        return Ok(());
+    };
+    let value = materialize_span(input, start, end)?;
+    for index in &capture.field_indices {
+        row.values[*index].push_str(&value);
+        row.present[*index] = true;
+    }
+    Ok(())
+}
+
 fn parse_span_table_bytes(table: &[u8]) -> Result<ParsedSpanTable<'_>> {
     if table.len() < SPAN_TABLE_HEADER_BYTES {
         return Err(Error::from_reason(
@@ -2903,6 +3290,52 @@ mod tests {
         assert_eq!(result.rows[1].id, 11);
         assert_eq!(result.rows[1].name, "Bob");
         assert_eq!(result.rows[1].value, "cafe");
+    }
+
+    #[test]
+    fn object_rows_projection_from_table_supports_generic_object_fields() {
+        let sample =
+            "<root><entry code=\"a\"><label>Alice</label><score>7</score></entry><entry code=\"b\"><label>Bob</label><score></score></entry><entry code=\"c\"><label>Cy</label></entry></root>";
+        let spec = ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![
+                ObjectRowsProjectionFieldSpec {
+                    output_name: "code".to_owned(),
+                    value_kind: "string".to_owned(),
+                    source_kind: "attribute".to_owned(),
+                    source_name: "code".to_owned(),
+                    text_mode: "direct".to_owned(),
+                },
+                ObjectRowsProjectionFieldSpec {
+                    output_name: "label".to_owned(),
+                    value_kind: "string".to_owned(),
+                    source_kind: "element".to_owned(),
+                    source_name: "label".to_owned(),
+                    text_mode: "subtree".to_owned(),
+                },
+                ObjectRowsProjectionFieldSpec {
+                    output_name: "score".to_owned(),
+                    value_kind: "number".to_owned(),
+                    source_kind: "element".to_owned(),
+                    source_name: "score".to_owned(),
+                    text_mode: "subtree".to_owned(),
+                },
+            ],
+        };
+
+        let result = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
+
+        assert_eq!(result.input_bytes, sample.len() as f64);
+        assert_eq!(result.event_count, 24);
+        assert_eq!(result.max_depth, 3);
+        assert_eq!(result.field_count, 3);
+        assert_eq!(result.row_count, 3);
+        assert_eq!(result.columns[0].present, vec![true, true, true]);
+        assert_eq!(result.columns[0].values, vec!["a", "b", "c"]);
+        assert_eq!(result.columns[1].present, vec![true, true, true]);
+        assert_eq!(result.columns[1].values, vec!["Alice", "Bob", "Cy"]);
+        assert_eq!(result.columns[2].present, vec![true, true, false]);
+        assert_eq!(result.columns[2].values, vec!["7", "", ""]);
     }
 
     #[test]

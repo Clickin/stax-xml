@@ -846,7 +846,43 @@ type StructuralIndexNativeModule = {
 };
 
 type NativeItemRowsModule = {
+  parseObjectRowsViaTableUint8Array?: (
+    input: Uint8Array,
+    spec: NativeObjectRowsProjectionSpec
+  ) => NativeObjectRowsResult;
   parseItemRowsViaTableUint8Array?: (input: Uint8Array) => NativeItemRowsResult;
+};
+
+type NativeObjectRowsProjectionSpec = {
+  itemName: string;
+  fields: NativeObjectRowsProjectionFieldSpec[];
+};
+
+type NativeObjectRowsProjectionFieldSpec = {
+  outputName: string;
+  valueKind: 'string' | 'number';
+  sourceKind: 'attribute' | 'element';
+  sourceName: string;
+  textMode: 'direct' | 'subtree';
+};
+
+type NativeObjectRowsProjectionPlan = {
+  spec: NativeObjectRowsProjectionSpec;
+  fields: DispatchFieldPlan[];
+};
+
+type NativeObjectRowsResult = {
+  inputBytes?: number;
+  input_bytes?: number;
+  eventCount?: number;
+  event_count?: number;
+  maxDepth?: number;
+  max_depth?: number;
+  fieldCount?: number;
+  field_count?: number;
+  rowCount?: number;
+  row_count?: number;
+  columns?: Array<{ present?: unknown[]; values?: unknown[] }>;
 };
 
 type NativeItemRowsResult = {
@@ -864,7 +900,9 @@ async function tryProjectItemRowsViaNativeTable(
   input: ArrayBufferView,
   options?: ParseOptions
 ): Promise<unknown[] | undefined> {
-  if (!isSupportedNativeItemRowsPlan(plan)) {
+  const objectRowsProjection = createNativeObjectRowsProjectionPlan(plan);
+  const itemRowsSupported = isSupportedNativeItemRowsPlan(plan);
+  if (!objectRowsProjection && !itemRowsSupported) {
     return undefined;
   }
 
@@ -884,18 +922,88 @@ async function tryProjectItemRowsViaNativeTable(
 
   const nativeModule = backend.module as NativeItemRowsModule | undefined;
   const projectRows = nativeModule?.parseItemRowsViaTableUint8Array;
-  if (typeof projectRows !== 'function') {
-    return undefined;
+  if (itemRowsSupported && typeof projectRows === 'function') {
+    try {
+      return normalizeNativeItemRowsResult(projectRows(toUint8Array(input)), options);
+    } catch (error) {
+      if (acceleration?.fallbackOnParseError) {
+        return undefined;
+      }
+      throw error;
+    }
   }
 
-  try {
-    return normalizeNativeItemRowsResult(projectRows(toUint8Array(input)), options);
-  } catch (error) {
-    if (acceleration?.fallbackOnParseError) {
-      return undefined;
+  const projectObjectRows = nativeModule?.parseObjectRowsViaTableUint8Array;
+  if (objectRowsProjection && typeof projectObjectRows === 'function') {
+    try {
+      return normalizeNativeObjectRowsResult(
+        projectObjectRows(toUint8Array(input), objectRowsProjection.spec),
+        objectRowsProjection,
+        options
+      );
+    } catch (error) {
+      if (acceleration?.fallbackOnParseError) {
+        return undefined;
+      }
+      throw error;
     }
-    throw error;
   }
+
+  return undefined;
+}
+
+function normalizeNativeObjectRowsResult(
+  result: NativeObjectRowsResult,
+  projection: NativeObjectRowsProjectionPlan,
+  options?: ParseOptions
+): unknown[] {
+  const eventCount = readNativeNumber(result.eventCount ?? result.event_count, 'eventCount');
+  const maxDepth = readNativeNumber(result.maxDepth ?? result.max_depth, 'maxDepth');
+  const fieldCount = readNativeNumber(result.fieldCount ?? result.field_count, 'fieldCount');
+  const rowCount = readNativeNumber(result.rowCount ?? result.row_count, 'rowCount');
+  const maxEvents = options?.maxEvents ?? 1000000;
+  const configuredMaxDepth = options?.maxDepth ?? 1000;
+  if (eventCount > maxEvents) {
+    throw new Error(`XML event limit exceeded: ${maxEvents}`);
+  }
+  if (maxDepth > configuredMaxDepth) {
+    throw new Error(`XML depth limit exceeded: ${configuredMaxDepth}`);
+  }
+  if (fieldCount !== projection.fields.length) {
+    throw new Error('Native object rows projection returned an unexpected field count.');
+  }
+  if (!Array.isArray(result.columns)) {
+    throw new Error('Native object rows projection did not return columns.');
+  }
+  if (result.columns.length !== projection.fields.length) {
+    throw new Error('Native object rows projection returned an invalid column count.');
+  }
+  for (const column of result.columns) {
+    if (!Array.isArray(column.present) || !Array.isArray(column.values)) {
+      throw new Error('Native object rows projection returned an invalid column.');
+    }
+    if (column.present.length !== rowCount || column.values.length !== rowCount) {
+      throw new Error('Native object rows projection returned an invalid column height.');
+    }
+  }
+
+  const rows: unknown[] = [];
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+    const output: Record<string, unknown> = {};
+    for (let index = 0; index < projection.fields.length; index++) {
+      const field = projection.fields[index]!;
+      const column = result.columns[index]!;
+      if (column.present[rowIndex] !== true) {
+        output[field.fieldName] = defaultValue(field.value, true, 'field');
+        continue;
+      }
+
+      const rawValue = decodeEntities(String(column.values[rowIndex]), options);
+      output[field.fieldName] = parseScalar(field.value as DispatchScalarPlan, rawValue, false);
+    }
+    rows.push(output);
+  }
+  return rows;
 }
 
 function normalizeNativeItemRowsResult(
@@ -928,6 +1036,76 @@ function readNativeNumber(value: unknown, label: string): number {
     throw new Error(`Native item projection did not return ${label}.`);
   }
   return value;
+}
+
+function createNativeObjectRowsProjectionPlan(
+  plan: DispatchCompiledPlan
+): NativeObjectRowsProjectionPlan | undefined {
+  const root = plan.root;
+  if (
+    root.kind !== 'array'
+    || root.transforms.length !== 0
+    || root.itemSelector.mode !== 'descendant'
+    || root.itemSelector.terminal !== 'element'
+    || root.itemSelector.segments.length !== 1
+    || root.itemSelector.positionFilters
+    || root.element.kind !== 'object'
+    || root.element.transforms.length !== 0
+  ) {
+    return undefined;
+  }
+
+  const fields: DispatchFieldPlan[] = [];
+  const nativeFields: NativeObjectRowsProjectionFieldSpec[] = [];
+  for (const field of root.element.fields) {
+    const value = field.value;
+    if (
+      (value.kind !== 'string' && value.kind !== 'number')
+      || value.transforms.length !== 0
+      || !value.selector
+      || value.selector.mode !== 'relative'
+      || value.selector.positionFilters
+    ) {
+      return undefined;
+    }
+
+    if (value.selector.terminal === 'attribute') {
+      if (value.selector.segments.length !== 0 || !value.selector.attributeName) {
+        return undefined;
+      }
+      nativeFields.push({
+        outputName: field.fieldName,
+        valueKind: value.kind,
+        sourceKind: 'attribute',
+        sourceName: value.selector.attributeName,
+        textMode: 'direct',
+      });
+    } else {
+      if (value.selector.segments.length !== 1) {
+        return undefined;
+      }
+      nativeFields.push({
+        outputName: field.fieldName,
+        valueKind: value.kind,
+        sourceKind: 'element',
+        sourceName: value.selector.segments[0]!,
+        textMode: value.selector.textMode,
+      });
+    }
+    fields.push(field);
+  }
+
+  if (nativeFields.length === 0) {
+    return undefined;
+  }
+
+  return {
+    spec: {
+      itemName: root.itemSelector.segments[0]!,
+      fields: nativeFields,
+    },
+    fields,
+  };
 }
 
 function isSupportedNativeItemRowsPlan(plan: DispatchCompiledPlan): boolean {

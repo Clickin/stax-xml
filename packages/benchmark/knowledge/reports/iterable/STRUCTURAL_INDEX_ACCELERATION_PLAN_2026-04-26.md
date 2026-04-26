@@ -40,7 +40,9 @@ Backend load and capability failures fall back to the JavaScript iterable parser
 
 `StaxXmlStructuralIndexParser` implements `IterableEventTable` and can be passed to compiled converters before iterator consumption. It exposes `copyAttrValueByName(eventIndex, name)` as an optional fast lookup hook while preserving the existing `copyAttrName` and `copyAttrValue` APIs.
 
-The MVP also includes a native rows projection over the generic structural table for one representative compiled plan shape: a root array selected by `//item` whose item object reads `./@id`, `./name`, and `./value`. `CompiledRootProcessor` may use this path for byte input when the selected backend exports `parseItemRowsViaTableUint8Array`; unsupported plans and missing backend capabilities fall back to the existing table or JavaScript paths. The direct projection parser remains only an upper-bound comparator.
+The MVP also includes native rows projections over the generic structural table. The fastest path remains the representative compiled plan shape: a root array selected by `//item` whose item object reads `./@id`, `./name`, and `./value`; `CompiledRootProcessor` uses this when the selected backend exports `parseItemRowsViaTableUint8Array`.
+
+The next bounded lowering path accepts a descriptor for root array/object plans whose item selector is a single descendant element and whose fields are scalar relative attributes or scalar one-segment relative child elements. Native returns columnar field arrays through `parseObjectRowsViaTableUint8Array`, and TypeScript reconstructs objects while applying compiled scalar parsing so number validation and entity decoding semantics remain owned by the converter. Unsupported plans and missing backend capabilities fall back to the existing table or JavaScript paths. The direct projection parser remains only an upper-bound comparator.
 
 Span materialization rules:
 
@@ -50,7 +52,7 @@ Span materialization rules:
 
 ## Deferred
 
-The MVP defers full XPath execution in native code, persistent `.sxi` files, bloom filters, parallel chunk parsing, mutable arena/tombstone editing, and AVX2 default enablement. Reopen those only if benchmark evidence shows index build cost, query selectivity, repeated-query workload, or multi-core throughput as the next blocker.
+The MVP defers full XPath execution in native code, nested object/array native lowering, persistent `.sxi` files, bloom filters, parallel chunk parsing, mutable arena/tombstone editing, and AVX2 default enablement. Reopen those only if benchmark evidence shows index build cost, query selectivity, repeated-query workload, or multi-core throughput as the next blocker.
 
 ## Evidence Policy
 
