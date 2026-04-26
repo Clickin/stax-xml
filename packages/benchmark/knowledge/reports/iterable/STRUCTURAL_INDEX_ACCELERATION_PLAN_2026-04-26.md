@@ -44,6 +44,8 @@ The MVP also includes native rows projections over the generic structural table.
 
 The next bounded lowering path accepts a descriptor for root array/object plans whose item selector is a single descendant element and whose fields are scalar relative attributes or scalar one-segment relative child elements. Native returns columnar field arrays through `parseObjectRowsViaTableUint8Array`, and TypeScript reconstructs objects while applying compiled scalar parsing so number validation and entity decoding semantics remain owned by the converter. Unsupported plans and missing backend capabilities fall back to the existing table or JavaScript paths. The direct projection parser remains only an upper-bound comparator.
 
+Platform package verification must stage the freshly built native addon into the target package and smoke the projection exports through that package entrypoint. Checking only `parseAggregateBuffer` is insufficient because converter acceleration depends on `parseItemRowsViaTableUint8Array` and `parseObjectRowsViaTableUint8Array`.
+
 Span materialization rules:
 
 - UTF-16 source: `input.slice(start, end)`.

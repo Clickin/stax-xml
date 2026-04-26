@@ -124,7 +124,7 @@ jobs:
           package_dir="packages/${{ matrix.package_dir }}"
           cp packages/native-aggregate/stax_xml_native_aggregate.node "$package_dir/stax_xml_native.node"
           if [ "${{ matrix.smoke }}" = "true" ]; then
-            node -e "import('./${package_dir}/index.mjs').then((m) => { if (typeof m.parseAggregateBuffer !== 'function') throw new Error('parseAggregateBuffer export missing'); })"
+            node packages/native-aggregate/scripts/smoke-platform-package.mjs "$package_dir"
           fi
           mkdir -p "artifacts/${{ matrix.package_dir }}"
           pnpm --dir "$package_dir" pack --json --pack-destination "$PWD/artifacts/${{ matrix.package_dir }}"
