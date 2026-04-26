@@ -25,6 +25,8 @@ packages/benchmark/native/
 packages/benchmark/external/*/target/
 coverage/
 directions
+RELEASE_NATIVE_AUDIT.md
+native-branch-summary*.json
 
 # IDE
 .vscode
