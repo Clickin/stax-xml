@@ -34,7 +34,7 @@ export type ConverterBackendResult = {
   timings: {
     wasmImportMs?: number;
     wasmSpanTableMs?: number;
-    wasmSchemaCompileMs?: number;
+    backendSchemaCompileMs?: number;
     wasmEventCount?: number;
     wasmAttrCount?: number;
     wasmTableBytes?: number;
@@ -99,14 +99,14 @@ async function parseTextWithWasmConverterBackend(
   });
   const wasmSpanTableMs = performance.now() - spanStart;
   const compileStart = performance.now();
-  const acceleratedSchema = typeof schema.compile === 'function' ? schema.compile() : schema;
-  const wasmSchemaCompileMs = performance.now() - compileStart;
+  const acceleratedSchema = compileSchema(schema);
+  const backendSchemaCompileMs = performance.now() - compileStart;
   const result = await acceleratedSchema.parse(parser, parseOptions);
 
   const timings = {
     wasmImportMs,
     wasmSpanTableMs,
-    wasmSchemaCompileMs,
+    backendSchemaCompileMs,
     wasmEventCount: parser.eventCount,
     wasmAttrCount: parser.attrCount,
     wasmTableBytes: parser.spanTableBytes
@@ -126,15 +126,22 @@ async function parseTextWithJsConverterBackend(
   parseOptions: ParseOptions | undefined,
   fallbackMode: 'sync' | 'async'
 ): Promise<ConverterBackendResult> {
+  const compileStart = performance.now();
+  const acceleratedSchema = compileSchema(schema);
+  const backendSchemaCompileMs = performance.now() - compileStart;
   const result = fallbackMode === 'sync'
-    ? schema.parseSync(xmlInput, parseOptions)
-    : await schema.parse(xmlInput, parseOptions);
+    ? acceleratedSchema.parseSync(xmlInput, parseOptions)
+    : await acceleratedSchema.parse(xmlInput, parseOptions);
 
   return {
     result,
     backend: JS_CONVERTER_BACKEND,
-    timings: {}
+    timings: { backendSchemaCompileMs }
   };
+}
+
+function compileSchema(schema: ConverterSchema): ConverterSchema {
+  return typeof schema.compile === 'function' ? schema.compile() : schema;
 }
 
 function loadWasmModule(): Promise<WasmModule> {
