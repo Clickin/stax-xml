@@ -1,3 +1,7 @@
+// simdxml notice:
+// This benchmark shim invokes simdxml::parse and mirrors the upstream parse
+// workload shape from https://github.com/simdxml/simdxml under the project's
+// MIT license option (simdxml is licensed MIT OR Apache-2.0).
 use simdxml::XmlIndex;
 use std::env;
 use std::path::Path;
@@ -40,6 +44,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let runs = positive_env("STAX_XML_BENCH_RUNS", 3)?;
     let warmups = non_negative_env("STAX_XML_BENCH_WARMUPS", 1)?;
     let max_mib = positive_float_env("STAX_XML_BENCH_MAX_MIB", DEFAULT_MAX_MIB)?;
+    let input_mode = env::var("STAX_XML_BENCH_INPUT_MODE").unwrap_or_else(|_| "file".to_owned());
+    let workload =
+        env::var("STAX_XML_BENCH_WORKLOAD").unwrap_or_else(|_| "parity-events".to_owned());
     let size_mib = std::fs::metadata(&file_path)?.len() as f64 / 1024.0 / 1024.0;
     if size_mib > max_mib {
         return Err(format!(
@@ -49,15 +56,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .into());
     }
 
+    let memory_input = match input_mode.as_str() {
+        "file" => None,
+        "memory" => Some(std::fs::read(&file_path)?),
+        other => return Err(format!("unknown simdxml input mode: {other}").into()),
+    };
+
     for _ in 0..warmups {
-        consume(Path::new(&file_path), &tier)?;
+        consume(
+            Path::new(&file_path),
+            memory_input.as_deref(),
+            &tier,
+            &workload,
+        )?;
     }
 
     let mut samples_ms = Vec::with_capacity(runs);
     let mut stable: Option<ParseResult> = None;
     for _ in 0..runs {
         let started_at = Instant::now();
-        let result = consume(Path::new(&file_path), &tier)?;
+        let result = consume(
+            Path::new(&file_path),
+            memory_input.as_deref(),
+            &tier,
+            &workload,
+        )?;
         let elapsed_ms = started_at.elapsed().as_secs_f64() * 1000.0;
 
         if let Some(previous) = stable {
@@ -86,6 +109,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "\"runtime\":\"rust\",",
             "\"simdxmlCrate\":\"simdxml\",",
             "\"simdxmlVersion\":\"{}\",",
+            "\"inputMode\":\"{}\",",
+            "\"workload\":\"{}\",",
             "\"avgMs\":{},",
             "\"minMs\":{},",
             "\"maxMs\":{},",
@@ -97,6 +122,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "}}"
         ),
         SIMDXML_VERSION,
+        input_mode,
+        workload,
         number_json(avg_ms),
         number_json(min_ms),
         number_json(max_ms),
@@ -109,9 +136,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn consume(path: &Path, tier: &str) -> Result<ParseResult, Box<dyn std::error::Error>> {
-    let input = std::fs::read(path)?;
-    let index = simdxml::parse(&input)?;
+fn consume(
+    path: &Path,
+    memory_input: Option<&[u8]>,
+    tier: &str,
+    workload: &str,
+) -> Result<ParseResult, Box<dyn std::error::Error>> {
+    let file_input;
+    let input = match memory_input {
+        Some(input) => input,
+        None => {
+            file_input = std::fs::read(path)?;
+            &file_input
+        }
+    };
+    match workload {
+        "parity-events" => consume_parity_events(input, tier),
+        "upstream-parse" => consume_upstream_parse(input),
+        other => Err(format!("unknown simdxml workload: {other}").into()),
+    }
+}
+
+fn consume_upstream_parse(input: &[u8]) -> Result<ParseResult, Box<dyn std::error::Error>> {
+    let index = simdxml::parse(input)?;
+    let tag_count = index.tag_count() as u64;
+    let text_count = index.text_count() as u64;
+    Ok(ParseResult {
+        event_count: tag_count + text_count,
+        checksum: mix_checksum(tag_count as i32, text_count as i32),
+    })
+}
+
+fn consume_parity_events(
+    input: &[u8],
+    tier: &str,
+) -> Result<ParseResult, Box<dyn std::error::Error>> {
+    let index = simdxml::parse(input)?;
     let mut result = ParseResult::new();
     result.add_event(0);
     process_attr_count_for_count_or_attr_value(&mut result, tier, 0);
@@ -120,11 +180,7 @@ fn consume(path: &Path, tier: &str) -> Result<ParseResult, Box<dyn std::error::E
     let mut tag_index = 0usize;
     let mut text_index = 0usize;
     while tag_index < index.tag_count() || text_index < index.text_count() {
-        let next_tag_start = index
-            .tag_starts
-            .get(tag_index)
-            .copied()
-            .unwrap_or(u64::MAX);
+        let next_tag_start = index.tag_starts.get(tag_index).copied().unwrap_or(u64::MAX);
         let next_text_start = index
             .text_ranges
             .get(text_index)
@@ -158,7 +214,9 @@ fn process_tag(
         return Ok(());
     }
     if raw.starts_with("<![CDATA[") {
-        let text = raw.strip_prefix("<![CDATA[").and_then(|value| value.strip_suffix("]]>"));
+        let text = raw
+            .strip_prefix("<![CDATA[")
+            .and_then(|value| value.strip_suffix("]]>"));
         if let Some(text) = text {
             process_text(text, 5, tier, result);
         }
@@ -234,7 +292,11 @@ fn process_text(text: &str, event_type: i32, tier: &str, result: &mut ParseResul
     process_attr_count_for_full_string(result, tier, 0);
 }
 
-fn process_attr_count_for_count_or_attr_value(result: &mut ParseResult, tier: &str, attr_count: i32) {
+fn process_attr_count_for_count_or_attr_value(
+    result: &mut ParseResult,
+    tier: &str,
+    attr_count: i32,
+) {
     if tier == "count-only" || tier == "attr-value-string-only" {
         result.checksum = mix_checksum(result.checksum, attr_count);
     }
@@ -263,7 +325,10 @@ fn mix_checksum(seed: i32, value: i32) -> i32 {
 fn fold_str(seed: i32, value: &str) -> i32 {
     let mut next = seed;
     for unit in value.encode_utf16() {
-        next = next.wrapping_shl(5).wrapping_sub(next).wrapping_add(unit as i32);
+        next = next
+            .wrapping_shl(5)
+            .wrapping_sub(next)
+            .wrapping_add(unit as i32);
     }
     next
 }

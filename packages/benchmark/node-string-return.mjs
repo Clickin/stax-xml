@@ -371,7 +371,7 @@ function measureScenario(id, createParser, fileSizeMiB, tier, options) {
   };
 }
 
-function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
+function measureExternal(id, command, filePath, fileSizeMiB, tier, options, extraEnv = {}) {
   if (!command) {
     return {
       id,
@@ -380,7 +380,7 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
       reason: `No --${externalCommandFlag(id)} was provided.`,
     };
   }
-  if (id === 'simdxml' && fileSizeMiB > options.simdxmlMaxMiB) {
+  if (id.startsWith('simdxml') && fileSizeMiB > options.simdxmlMaxMiB) {
     return {
       id,
       status: 'skipped',
@@ -400,6 +400,7 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
       STAX_XML_BENCH_WARMUPS: String(options.warmups),
       STAX_XML_BENCH_MAX_MIB: String(options.simdxmlMaxMiB),
       STAX_XML_BENCH_CONTRACT: 'namespace-off,skip-decl-comment-pi-doctype,cdata-event,skip-whitespace-text,trim-text-checksum,entity-decode-off',
+      ...extraEnv,
     },
   });
 
@@ -432,7 +433,7 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
 function externalCommandFlag(id) {
   if (id === 'woodstox') return 'woodstox-cmd';
   if (id === 'quick-xml') return 'quick-xml-cmd';
-  if (id === 'simdxml') return 'simdxml-cmd';
+  if (id.startsWith('simdxml')) return 'simdxml-cmd';
   return `${id}-cmd`;
 }
 
@@ -595,6 +596,9 @@ async function main(argv = process.argv.slice(2)) {
         measureExternal('woodstox', options.woodstoxCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('quick-xml', options.quickXmlCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('simdxml', options.simdxmlCmd, filePath, fileSizeMiB, tierId, options),
+        measureExternal('simdxml-memory', options.simdxmlCmd, filePath, fileSizeMiB, tierId, options, {
+          STAX_XML_BENCH_INPUT_MODE: 'memory',
+        }),
       ];
       fileReport.tiers.push({ id: tierId, scenarios });
     }

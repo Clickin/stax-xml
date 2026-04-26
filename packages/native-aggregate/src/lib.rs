@@ -1,6 +1,13 @@
+// simdxml notice:
+// The native aggregate structural-scanner diagnostics and quote-skipping
+// scanner shape are informed by and partially adapted from simdxml
+// (https://github.com/simdxml/simdxml), which is licensed MIT OR Apache-2.0.
+// stax-xml uses those ideas under simdxml's MIT license option.
 use memchr::memchr;
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
+#[cfg(target_arch = "x86_64")]
+use std::arch::x86_64::*;
 use std::fs;
 use std::mem::MaybeUninit;
 
@@ -22,12 +29,88 @@ const NO_SPAN: i32 = -1;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Tier {
+    EventCountUnsafeGt,
+    EventCountByteLoop,
+    EventCountSkipQuotes,
+    EventCountNoText,
+    EventCountTwoStage,
+    EventCountAutoStage,
+    EventCountUnchecked,
+    EventCountOnly,
     CountOnly,
+    CountEqTwoStage,
+    CountAutoStage,
     NameStringOnly,
     TextStringOnly,
     AttrValueStringOnly,
     FullStringDirect,
     EventObjectFull,
+}
+
+impl Tier {
+    fn needs_start_attributes(self) -> bool {
+        !matches!(
+            self,
+            Self::EventCountUnsafeGt
+                | Self::EventCountUnchecked
+                | Self::EventCountByteLoop
+                | Self::EventCountSkipQuotes
+                | Self::EventCountNoText
+                | Self::EventCountTwoStage
+                | Self::EventCountAutoStage
+                | Self::EventCountOnly
+                | Self::NameStringOnly
+                | Self::TextStringOnly
+        )
+    }
+
+    fn validates_element_stack(self) -> bool {
+        !matches!(
+            self,
+            Self::EventCountUnsafeGt
+                | Self::EventCountByteLoop
+                | Self::EventCountSkipQuotes
+                | Self::EventCountNoText
+                | Self::EventCountTwoStage
+                | Self::EventCountAutoStage
+                | Self::CountEqTwoStage
+                | Self::CountAutoStage
+                | Self::EventCountUnchecked
+        )
+    }
+
+    fn tag_end_strategy(self) -> TagEndStrategy {
+        match self {
+            Self::EventCountUnsafeGt => TagEndStrategy::UnsafeGt,
+            Self::EventCountByteLoop => TagEndStrategy::ByteLoop,
+            Self::EventCountSkipQuotes => TagEndStrategy::SkipQuotes,
+            _ => TagEndStrategy::Default,
+        }
+    }
+
+    fn skips_text_events(self) -> bool {
+        matches!(self, Self::EventCountNoText)
+    }
+
+    fn needs_start_name(self) -> bool {
+        self.validates_element_stack() || self.needs_start_attributes()
+    }
+
+    fn uses_two_stage_bytes(self) -> bool {
+        matches!(self, Self::EventCountTwoStage | Self::CountEqTwoStage)
+    }
+
+    fn uses_auto_stage_bytes(self) -> bool {
+        matches!(self, Self::EventCountAutoStage | Self::CountAutoStage)
+    }
+}
+
+#[derive(Clone, Copy)]
+enum TagEndStrategy {
+    Default,
+    ByteLoop,
+    SkipQuotes,
+    UnsafeGt,
 }
 
 #[napi(object)]
@@ -441,6 +524,16 @@ pub unsafe extern "C" fn stax_xml_parse_aggregate_utf16_units(
         3 => Tier::NameStringOnly,
         4 => Tier::TextStringOnly,
         5 => Tier::AttrValueStringOnly,
+        6 => Tier::EventCountOnly,
+        7 => Tier::EventCountUnchecked,
+        8 => Tier::EventCountUnsafeGt,
+        9 => Tier::EventCountByteLoop,
+        10 => Tier::EventCountSkipQuotes,
+        11 => Tier::EventCountNoText,
+        12 => Tier::EventCountTwoStage,
+        13 => Tier::CountEqTwoStage,
+        14 => Tier::EventCountAutoStage,
+        15 => Tier::CountAutoStage,
         _ => return -3,
     };
     let input = unsafe { std::slice::from_raw_parts(input, len) };
@@ -463,7 +556,17 @@ pub unsafe extern "C" fn stax_xml_parse_aggregate_utf16_units(
 
 fn parse_tier(value: &str) -> Result<Tier> {
     match value {
+        "event-count-unsafe-gt" => Ok(Tier::EventCountUnsafeGt),
+        "event-count-byte-loop" => Ok(Tier::EventCountByteLoop),
+        "event-count-skip-quotes" => Ok(Tier::EventCountSkipQuotes),
+        "event-count-no-text" => Ok(Tier::EventCountNoText),
+        "event-count-two-stage" => Ok(Tier::EventCountTwoStage),
+        "event-count-auto-stage" => Ok(Tier::EventCountAutoStage),
+        "event-count-unchecked" => Ok(Tier::EventCountUnchecked),
+        "event-count-only" => Ok(Tier::EventCountOnly),
         "count-only" => Ok(Tier::CountOnly),
+        "count-eq-two-stage" => Ok(Tier::CountEqTwoStage),
+        "count-auto-stage" => Ok(Tier::CountAutoStage),
         "name-string-only" => Ok(Tier::NameStringOnly),
         "text-string-only" => Ok(Tier::TextStringOnly),
         "attr-value-string-only" => Ok(Tier::AttrValueStringOnly),
@@ -476,11 +579,26 @@ fn parse_tier(value: &str) -> Result<Tier> {
 }
 
 fn parse_aggregate(input: &[u8], tier: Tier) -> Result<AggregateResult> {
+    if tier.uses_auto_stage_bytes() {
+        return parse_aggregate_auto_stage(input, tier);
+    }
+    if tier.uses_two_stage_bytes() {
+        return parse_aggregate_two_stage(input, tier);
+    }
+
+    parse_aggregate_with_parser(input, tier, tier)
+}
+
+fn parse_aggregate_with_parser(
+    input: &[u8],
+    execution_tier: Tier,
+    result_tier: Tier,
+) -> Result<AggregateResult> {
     let mut parser = Parser {
         input,
-        tier,
+        tier: execution_tier,
         state: AggregateState {
-            object_sink: if tier == Tier::EventObjectFull {
+            object_sink: if execution_tier == Tier::EventObjectFull {
                 (0..1024).map(|_| None).collect()
             } else {
                 Vec::new()
@@ -491,13 +609,37 @@ fn parse_aggregate(input: &[u8], tier: Tier) -> Result<AggregateResult> {
     };
     parser.parse()?;
     Ok(AggregateResult {
-        tier: tier_name(tier).to_string(),
+        tier: tier_name(result_tier).to_string(),
         input_bytes: input.len() as f64,
         event_count: parser.state.event_count,
         checksum: parser.state.checksum,
         attr_count_total: parser.state.attr_count_total,
         object_count: parser.state.object_count,
     })
+}
+
+fn parse_aggregate_auto_stage(input: &[u8], tier: Tier) -> Result<AggregateResult> {
+    let (two_stage_tier, parser_tier) = match tier {
+        Tier::EventCountAutoStage => (Tier::EventCountTwoStage, Tier::EventCountUnchecked),
+        Tier::CountAutoStage => (Tier::CountEqTwoStage, Tier::CountOnly),
+        _ => unreachable!("auto-stage dispatch called with non-auto tier"),
+    };
+
+    let mut result = if should_use_two_stage(input) {
+        parse_aggregate_two_stage(input, two_stage_tier)?
+    } else {
+        parse_aggregate_with_parser(input, parser_tier, tier)?
+    };
+    result.tier = tier_name(tier).to_string();
+    Ok(result)
+}
+
+fn should_use_two_stage(input: &[u8]) -> bool {
+    let sample = &input[..input.len().min(4096)];
+    let lt_count = memchr::memchr_iter(b'<', sample).count().max(1);
+    let quote_count =
+        memchr::memchr_iter(b'"', sample).count() + memchr::memchr_iter(b'\'', sample).count();
+    quote_count > lt_count * 5
 }
 
 fn parse_aggregate_utf16(input: &[u16], tier: Tier) -> Result<AggregateResult> {
@@ -523,6 +665,162 @@ fn parse_aggregate_utf16(input: &[u16], tier: Tier) -> Result<AggregateResult> {
         attr_count_total: parser.state.attr_count_total,
         object_count: parser.state.object_count,
     })
+}
+
+fn parse_aggregate_two_stage(input: &[u8], tier: Tier) -> Result<AggregateResult> {
+    let include_eq = tier == Tier::CountEqTwoStage;
+    let structural = classify_structural_masks(input, include_eq);
+    let gt_positions: Vec<usize> = BitPositionIter::new(&structural.gt_bits).collect();
+    let mut gt_index = 0usize;
+    let mut text_start = 0usize;
+
+    let mut state = AggregateState::default();
+    emit_two_stage_event(&mut state, START_DOCUMENT, 0, include_eq);
+
+    for lt in BitPositionIter::new(&structural.lt_bits) {
+        if lt < text_start {
+            continue;
+        }
+
+        if text_start < lt && has_non_whitespace(input, text_start, lt) {
+            emit_two_stage_event(&mut state, CHARACTERS, 0, include_eq);
+        }
+
+        if lt + 1 >= input.len() {
+            return Err(Error::from_reason("Unclosed start tag"));
+        }
+
+        while gt_index < gt_positions.len() && gt_positions[gt_index] <= lt {
+            gt_index += 1;
+        }
+
+        match input[lt + 1] {
+            b'/' => {
+                let Some(gt) = gt_positions.get(gt_index).copied() else {
+                    return Err(Error::from_reason("Unclosed end tag"));
+                };
+                emit_two_stage_event(&mut state, END_ELEMENT, 0, include_eq);
+                text_start = gt + 1;
+                gt_index += 1;
+            }
+            b'!' => {
+                if starts_with(input, lt, b"<![CDATA[") {
+                    let Some(end) = find_bytes(input, b"]]>", lt + 9) else {
+                        return Err(Error::from_reason("Unclosed CDATA section"));
+                    };
+                    if end > lt + 9 && has_non_whitespace(input, lt + 9, end) {
+                        emit_two_stage_event(&mut state, CDATA, 0, include_eq);
+                    }
+                    text_start = end + 3;
+                } else if starts_with(input, lt, b"<!--") {
+                    let Some(end) = find_bytes(input, b"-->", lt + 4) else {
+                        return Err(Error::from_reason("Unclosed comment"));
+                    };
+                    text_start = end + 3;
+                } else if starts_with(input, lt, b"<!DOCTYPE") {
+                    let Some(gt) = gt_positions.get(gt_index).copied() else {
+                        return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
+                    };
+                    text_start = gt + 1;
+                    gt_index += 1;
+                } else {
+                    let Some(gt) = gt_positions.get(gt_index).copied() else {
+                        return Err(Error::from_reason("Unclosed markup"));
+                    };
+                    text_start = gt + 1;
+                    gt_index += 1;
+                }
+            }
+            b'?' => {
+                let Some(end) = find_bytes(input, b"?>", lt + 2) else {
+                    return Err(Error::from_reason(if starts_with(input, lt, b"<?xml") {
+                        "Unclosed XML declaration"
+                    } else {
+                        "Unclosed processing instruction"
+                    }));
+                };
+                text_start = end + 2;
+            }
+            _ => {
+                let Some(gt) = gt_positions.get(gt_index).copied() else {
+                    return Err(Error::from_reason("Unclosed start tag"));
+                };
+
+                let (actual_end, self_closing) = trim_start_tag_end(input, lt, gt);
+                let name_end = scan_name_end(input, lt + 1, actual_end);
+                let attr_count = if include_eq && name_end < actual_end {
+                    count_mask_bits_in_range(&structural.eq_bits, name_end, actual_end)
+                } else {
+                    0
+                };
+
+                emit_two_stage_event(&mut state, START_ELEMENT, attr_count, include_eq);
+                if self_closing {
+                    emit_two_stage_event(&mut state, END_ELEMENT, 0, include_eq);
+                }
+
+                text_start = gt + 1;
+                gt_index += 1;
+            }
+        }
+    }
+
+    if text_start < input.len() && has_non_whitespace(input, text_start, input.len()) {
+        emit_two_stage_event(&mut state, CHARACTERS, 0, include_eq);
+    }
+
+    emit_two_stage_event(&mut state, END_DOCUMENT, 0, include_eq);
+
+    Ok(AggregateResult {
+        tier: tier_name(tier).to_string(),
+        input_bytes: input.len() as f64,
+        event_count: state.event_count,
+        checksum: state.checksum,
+        attr_count_total: state.attr_count_total,
+        object_count: state.object_count,
+    })
+}
+
+fn emit_two_stage_event(
+    state: &mut AggregateState,
+    event_type: u8,
+    attr_count: usize,
+    fold_attr_count: bool,
+) {
+    state.event_count = state.event_count.wrapping_add(1);
+    state.checksum = mix_checksum(state.checksum, event_type as i32);
+    if fold_attr_count {
+        state.checksum = mix_checksum(state.checksum, attr_count as i32);
+        state.attr_count_total = state.attr_count_total.wrapping_add(attr_count as u32);
+    }
+}
+
+fn trim_start_tag_end(input: &[u8], lt: usize, gt: usize) -> (usize, bool) {
+    let mut actual_end = gt;
+    while actual_end > lt + 1 && is_whitespace(input[actual_end - 1]) {
+        actual_end -= 1;
+    }
+
+    if actual_end > lt + 1 && input[actual_end - 1] == b'/' {
+        actual_end -= 1;
+        while actual_end > lt + 1 && is_whitespace(input[actual_end - 1]) {
+            actual_end -= 1;
+        }
+        (actual_end, true)
+    } else {
+        (actual_end, false)
+    }
+}
+
+fn scan_name_end(input: &[u8], mut index: usize, end: usize) -> usize {
+    while index < end {
+        let byte = input[index];
+        if is_whitespace(byte) || byte == b'/' {
+            break;
+        }
+        index += 1;
+    }
+    index
 }
 
 fn parse_span_table_utf16(input: &[u16]) -> Result<Vec<u8>> {
@@ -617,7 +915,17 @@ fn parse_object_rows_via_table(
 
 fn tier_name(tier: Tier) -> &'static str {
     match tier {
+        Tier::EventCountUnsafeGt => "event-count-unsafe-gt",
+        Tier::EventCountByteLoop => "event-count-byte-loop",
+        Tier::EventCountSkipQuotes => "event-count-skip-quotes",
+        Tier::EventCountNoText => "event-count-no-text",
+        Tier::EventCountTwoStage => "event-count-two-stage",
+        Tier::EventCountAutoStage => "event-count-auto-stage",
+        Tier::EventCountUnchecked => "event-count-unchecked",
+        Tier::EventCountOnly => "event-count-only",
         Tier::CountOnly => "count-only",
+        Tier::CountEqTwoStage => "count-eq-two-stage",
+        Tier::CountAutoStage => "count-auto-stage",
         Tier::NameStringOnly => "name-string-only",
         Tier::TextStringOnly => "text-string-only",
         Tier::AttrValueStringOnly => "attr-value-string-only",
@@ -632,12 +940,24 @@ impl<'a> Parser<'a> {
 
         let mut position = 0;
         while position < self.input.len() {
+            let text_start = position;
+            while position < self.input.len() && is_whitespace(self.input[position]) {
+                position += 1;
+            }
+            if position >= self.input.len() {
+                break;
+            }
+            if self.input[position] == b'<' {
+                position = self.parse_markup(position)?;
+                continue;
+            }
+
             let Some(lt_offset) = memchr(b'<', &self.input[position..]) else {
-                self.emit_text(position, self.input.len(), CHARACTERS)?;
+                self.emit_non_whitespace_text(text_start, self.input.len(), CHARACTERS)?;
                 break;
             };
             let lt = position + lt_offset;
-            self.emit_text(position, lt, CHARACTERS)?;
+            self.emit_non_whitespace_text(text_start, lt, CHARACTERS)?;
             position = self.parse_markup(lt)?;
         }
 
@@ -711,6 +1031,11 @@ impl<'a> Parser<'a> {
             return Err(Error::from_reason("Unclosed end tag"));
         };
 
+        if !self.tier.validates_element_stack() {
+            self.emit_event(END_ELEMENT, None, None, None)?;
+            return Ok(end + 1);
+        }
+
         let mut name_start = position + 2;
         let mut name_end = end;
         while name_start < name_end && is_whitespace(self.input[name_start]) {
@@ -732,7 +1057,13 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_start_tag(&mut self, position: usize) -> Result<usize> {
-        let Some(tag_end) = find_tag_end(self.input, position + 1) else {
+        let tag_end = match self.tier.tag_end_strategy() {
+            TagEndStrategy::UnsafeGt => find_gt(self.input, position + 1),
+            TagEndStrategy::ByteLoop => find_tag_end_byte_loop(self.input, position + 1),
+            TagEndStrategy::SkipQuotes => find_tag_end_skip_quotes(self.input, position + 1),
+            TagEndStrategy::Default => find_tag_end(self.input, position + 1),
+        };
+        let Some(tag_end) = tag_end else {
             return Err(Error::from_reason("Unclosed start tag"));
         };
 
@@ -750,6 +1081,14 @@ impl<'a> Parser<'a> {
             }
         }
 
+        if !self.tier.needs_start_name() {
+            self.emit_event(START_ELEMENT, None, None, None)?;
+            if self_closing {
+                self.emit_event(END_ELEMENT, None, None, None)?;
+            }
+            return Ok(tag_end + 1);
+        }
+
         let name_start = position + 1;
         let mut name_end = name_start;
         while name_end < actual_end {
@@ -760,29 +1099,64 @@ impl<'a> Parser<'a> {
             name_end += 1;
         }
 
-        let attrs =
-            (name_end < actual_end).then(|| parse_attributes(self.input, name_end, actual_end));
-        self.emit_event(
-            START_ELEMENT,
-            Some((name_start, name_end)),
-            None,
-            attrs.as_ref(),
-        )?;
+        if self.tier == Tier::CountOnly {
+            let attr_count = if name_end < actual_end {
+                count_attributes(self.input, name_end, actual_end)
+            } else {
+                0
+            };
+            self.emit_count_only_event(START_ELEMENT, attr_count);
+        } else {
+            let attrs = (self.tier.needs_start_attributes() && name_end < actual_end)
+                .then(|| parse_attributes(self.input, name_end, actual_end));
+            self.emit_event(
+                START_ELEMENT,
+                Some((name_start, name_end)),
+                None,
+                attrs.as_ref(),
+            )?;
+        }
 
         if self_closing {
-            self.emit_event(END_ELEMENT, Some((name_start, name_end)), None, None)?;
+            let end_name = self
+                .tier
+                .validates_element_stack()
+                .then_some((name_start, name_end));
+            self.emit_event(END_ELEMENT, end_name, None, None)?;
         } else {
-            self.element_stack.push((name_start, name_end));
+            if self.tier.validates_element_stack() {
+                self.element_stack.push((name_start, name_end));
+            }
         }
 
         Ok(tag_end + 1)
     }
 
     fn emit_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
+        if self.tier.skips_text_events() {
+            return Ok(());
+        }
         if start < end && !is_whitespace_only(self.input, start, end) {
             self.emit_event(event_type, None, Some((start, end)), None)?;
         }
         Ok(())
+    }
+
+    fn emit_non_whitespace_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
+        if self.tier.skips_text_events() {
+            return Ok(());
+        }
+        if start < end {
+            self.emit_event(event_type, None, Some((start, end)), None)?;
+        }
+        Ok(())
+    }
+
+    fn emit_count_only_event(&mut self, event_type: u8, attr_count: usize) {
+        self.state.event_count = self.state.event_count.wrapping_add(1);
+        self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
+        self.state.checksum = mix_checksum(self.state.checksum, attr_count as i32);
+        self.state.attr_count_total = self.state.attr_count_total.wrapping_add(attr_count as u32);
     }
 
     fn emit_event(
@@ -796,7 +1170,15 @@ impl<'a> Parser<'a> {
         self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
 
         match self.tier {
-            Tier::CountOnly => {
+            Tier::EventCountUnsafeGt
+            | Tier::EventCountByteLoop
+            | Tier::EventCountSkipQuotes
+            | Tier::EventCountNoText
+            | Tier::EventCountTwoStage
+            | Tier::EventCountAutoStage
+            | Tier::EventCountUnchecked
+            | Tier::EventCountOnly => {}
+            Tier::CountOnly | Tier::CountEqTwoStage | Tier::CountAutoStage => {
                 let attr_len = attrs.map_or(0, AttrSpans::len);
                 self.state.checksum = mix_checksum(self.state.checksum, attr_len as i32);
                 self.state.attr_count_total =
@@ -944,11 +1326,23 @@ impl<'a> Utf16Parser<'a> {
 
         let mut position = 0;
         while position < self.input.len() {
+            let text_start = position;
+            while position < self.input.len() && is_whitespace_u16(self.input[position]) {
+                position += 1;
+            }
+            if position >= self.input.len() {
+                break;
+            }
+            if self.input[position] == b'<' as u16 {
+                position = self.parse_markup(position)?;
+                continue;
+            }
+
             let Some(lt) = find_unit(self.input, b'<' as u16, position, self.input.len()) else {
-                self.emit_text(position, self.input.len(), CHARACTERS)?;
+                self.emit_non_whitespace_text(text_start, self.input.len(), CHARACTERS)?;
                 break;
             };
-            self.emit_text(position, lt, CHARACTERS)?;
+            self.emit_non_whitespace_text(text_start, lt, CHARACTERS)?;
             position = self.parse_markup(lt)?;
         }
 
@@ -1022,6 +1416,11 @@ impl<'a> Utf16Parser<'a> {
             return Err(Error::from_reason("Unclosed end tag"));
         };
 
+        if !self.tier.validates_element_stack() {
+            self.emit_event(END_ELEMENT, None, None, None)?;
+            return Ok(end + 1);
+        }
+
         let mut name_start = position + 2;
         let mut name_end = end;
         while name_start < name_end && is_whitespace_u16(self.input[name_start]) {
@@ -1043,7 +1442,11 @@ impl<'a> Utf16Parser<'a> {
     }
 
     fn parse_start_tag(&mut self, position: usize) -> Result<usize> {
-        let Some(tag_end) = find_tag_end_utf16(self.input, position + 1) else {
+        let tag_end = match self.tier.tag_end_strategy() {
+            TagEndStrategy::UnsafeGt => find_gt_utf16(self.input, position + 1),
+            _ => find_tag_end_utf16(self.input, position + 1),
+        };
+        let Some(tag_end) = tag_end else {
             return Err(Error::from_reason("Unclosed start tag"));
         };
 
@@ -1061,6 +1464,14 @@ impl<'a> Utf16Parser<'a> {
             }
         }
 
+        if !self.tier.needs_start_name() {
+            self.emit_event(START_ELEMENT, None, None, None)?;
+            if self_closing {
+                self.emit_event(END_ELEMENT, None, None, None)?;
+            }
+            return Ok(tag_end + 1);
+        }
+
         let name_start = position + 1;
         let mut name_end = name_start;
         while name_end < actual_end {
@@ -1071,29 +1482,64 @@ impl<'a> Utf16Parser<'a> {
             name_end += 1;
         }
 
-        let attrs = (name_end < actual_end)
-            .then(|| parse_attributes_utf16(self.input, name_end, actual_end));
-        self.emit_event(
-            START_ELEMENT,
-            Some((name_start, name_end)),
-            None,
-            attrs.as_ref(),
-        )?;
+        if self.tier == Tier::CountOnly {
+            let attr_count = if name_end < actual_end {
+                count_attributes_utf16(self.input, name_end, actual_end)
+            } else {
+                0
+            };
+            self.emit_count_only_event(START_ELEMENT, attr_count);
+        } else {
+            let attrs = (self.tier.needs_start_attributes() && name_end < actual_end)
+                .then(|| parse_attributes_utf16(self.input, name_end, actual_end));
+            self.emit_event(
+                START_ELEMENT,
+                Some((name_start, name_end)),
+                None,
+                attrs.as_ref(),
+            )?;
+        }
 
         if self_closing {
-            self.emit_event(END_ELEMENT, Some((name_start, name_end)), None, None)?;
+            let end_name = self
+                .tier
+                .validates_element_stack()
+                .then_some((name_start, name_end));
+            self.emit_event(END_ELEMENT, end_name, None, None)?;
         } else {
-            self.element_stack.push((name_start, name_end));
+            if self.tier.validates_element_stack() {
+                self.element_stack.push((name_start, name_end));
+            }
         }
 
         Ok(tag_end + 1)
     }
 
     fn emit_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
+        if self.tier.skips_text_events() {
+            return Ok(());
+        }
         if start < end && !is_whitespace_only_u16(self.input, start, end) {
             self.emit_event(event_type, None, Some((start, end)), None)?;
         }
         Ok(())
+    }
+
+    fn emit_non_whitespace_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
+        if self.tier.skips_text_events() {
+            return Ok(());
+        }
+        if start < end {
+            self.emit_event(event_type, None, Some((start, end)), None)?;
+        }
+        Ok(())
+    }
+
+    fn emit_count_only_event(&mut self, event_type: u8, attr_count: usize) {
+        self.state.event_count = self.state.event_count.wrapping_add(1);
+        self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
+        self.state.checksum = mix_checksum(self.state.checksum, attr_count as i32);
+        self.state.attr_count_total = self.state.attr_count_total.wrapping_add(attr_count as u32);
     }
 
     fn emit_event(
@@ -1107,7 +1553,15 @@ impl<'a> Utf16Parser<'a> {
         self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
 
         match self.tier {
-            Tier::CountOnly => {
+            Tier::EventCountUnsafeGt
+            | Tier::EventCountByteLoop
+            | Tier::EventCountSkipQuotes
+            | Tier::EventCountNoText
+            | Tier::EventCountTwoStage
+            | Tier::EventCountAutoStage
+            | Tier::EventCountUnchecked
+            | Tier::EventCountOnly => {}
+            Tier::CountOnly | Tier::CountEqTwoStage | Tier::CountAutoStage => {
                 let attr_len = attrs.map_or(0, AttrSpans::len);
                 self.state.checksum = mix_checksum(self.state.checksum, attr_len as i32);
                 self.state.attr_count_total =
@@ -2077,6 +2531,51 @@ fn parse_attributes(input: &[u8], start: usize, end: usize) -> AttrSpans {
     attrs
 }
 
+fn count_attributes(input: &[u8], start: usize, end: usize) -> usize {
+    let mut count = 0usize;
+    let mut index = start;
+    while index < end {
+        while index < end && is_whitespace(input[index]) {
+            index += 1;
+        }
+        if index >= end {
+            break;
+        }
+
+        while index < end && input[index] != b'=' && !is_whitespace(input[index]) {
+            index += 1;
+        }
+
+        while index < end && is_whitespace(input[index]) {
+            index += 1;
+        }
+        if index >= end || input[index] != b'=' {
+            count = count.wrapping_add(1);
+            continue;
+        }
+
+        index += 1;
+        while index < end && is_whitespace(input[index]) {
+            index += 1;
+        }
+        if index >= end {
+            break;
+        }
+
+        let quote = input[index];
+        if quote != b'"' && quote != b'\'' {
+            break;
+        }
+        index += 1;
+        let Some(value_offset) = memchr(quote, &input[index..end]) else {
+            break;
+        };
+        count = count.wrapping_add(1);
+        index += value_offset + 1;
+    }
+    count
+}
+
 fn scan_attribute_spans<F>(input: &[u8], start: usize, end: usize, mut visit: F) -> Result<()>
 where
     F: FnMut(AttrSpan) -> Result<()>,
@@ -2235,6 +2734,51 @@ fn parse_attributes_utf16(input: &[u16], start: usize, end: usize) -> AttrSpans 
     attrs
 }
 
+fn count_attributes_utf16(input: &[u16], start: usize, end: usize) -> usize {
+    let mut count = 0usize;
+    let mut index = start;
+    while index < end {
+        while index < end && is_whitespace_u16(input[index]) {
+            index += 1;
+        }
+        if index >= end {
+            break;
+        }
+
+        while index < end && input[index] != b'=' as u16 && !is_whitespace_u16(input[index]) {
+            index += 1;
+        }
+
+        while index < end && is_whitespace_u16(input[index]) {
+            index += 1;
+        }
+        if index >= end || input[index] != b'=' as u16 {
+            count = count.wrapping_add(1);
+            continue;
+        }
+
+        index += 1;
+        while index < end && is_whitespace_u16(input[index]) {
+            index += 1;
+        }
+        if index >= end {
+            break;
+        }
+
+        let quote = input[index];
+        if quote != b'"' as u16 && quote != b'\'' as u16 {
+            break;
+        }
+        index += 1;
+        let Some(value_end) = find_unit(input, quote, index, end) else {
+            break;
+        };
+        count = count.wrapping_add(1);
+        index = value_end + 1;
+    }
+    count
+}
+
 impl AttrSpans {
     fn new() -> Self {
         Self {
@@ -2375,9 +2919,7 @@ fn materialize_units(input: &[u16], start: usize, end: usize) -> Result<String> 
 }
 
 fn fold_span(seed: i32, input: &[u8], start: usize, end: usize) -> Result<i32> {
-    std::str::from_utf8(&input[start..end])
-        .map(|value| fold_string(seed, value))
-        .map_err(|error| Error::from_reason(error.to_string()))
+    fold_utf8_bytes(seed, &input[start..end])
 }
 
 fn fold_span_js_benchmark_checksum(
@@ -2400,9 +2942,50 @@ fn fold_string_js_benchmark_checksum(seed: i32, value: &str) -> i32 {
 }
 
 fn fold_trimmed_span(seed: i32, input: &[u8], start: usize, end: usize) -> Result<i32> {
+    let (trimmed_start, trimmed_end) = trim_ascii_bytes(input, start, end);
+    if trimmed_start == trimmed_end {
+        return Ok(seed);
+    }
+    if input[trimmed_start] < 0x80 && input[trimmed_end - 1] < 0x80 {
+        return fold_span(seed, input, trimmed_start, trimmed_end);
+    }
+
     std::str::from_utf8(&input[start..end])
         .map(|value| fold_string(seed, value.trim()))
         .map_err(|error| Error::from_reason(error.to_string()))
+}
+
+fn fold_utf8_bytes(seed: i32, bytes: &[u8]) -> Result<i32> {
+    let mut next = seed;
+    let mut index = 0;
+    while index < bytes.len() {
+        let byte = bytes[index];
+        if byte >= 0x80 {
+            let value = std::str::from_utf8(&bytes[index..])
+                .map_err(|error| Error::from_reason(error.to_string()))?;
+            for code_unit in value.encode_utf16() {
+                next = next.wrapping_mul(31).wrapping_add(code_unit as i32);
+            }
+            return Ok(next);
+        }
+        next = next.wrapping_mul(31).wrapping_add(byte as i32);
+        index += 1;
+    }
+    Ok(next)
+}
+
+fn trim_ascii_bytes(input: &[u8], mut start: usize, mut end: usize) -> (usize, usize) {
+    while start < end && is_js_trim_ascii_byte(input[start]) {
+        start += 1;
+    }
+    while end > start && is_js_trim_ascii_byte(input[end - 1]) {
+        end -= 1;
+    }
+    (start, end)
+}
+
+fn is_js_trim_ascii_byte(byte: u8) -> bool {
+    matches!(byte, b'\t' | b'\n' | 0x0b | 0x0c | b'\r' | b' ')
 }
 
 fn fold_units(seed: i32, input: &[u16], start: usize, end: usize) -> i32 {
@@ -3476,6 +4059,346 @@ fn starts_with_ascii_u16(input: &[u16], position: usize, value: &[u8]) -> bool {
     true
 }
 
+struct StructuralMasks {
+    lt_bits: Vec<u64>,
+    gt_bits: Vec<u64>,
+    eq_bits: Vec<u64>,
+}
+
+struct BitPositionIter<'a> {
+    bits: &'a [u64],
+    chunk: usize,
+    current: u64,
+}
+
+impl<'a> BitPositionIter<'a> {
+    fn new(bits: &'a [u64]) -> Self {
+        Self {
+            bits,
+            chunk: 0,
+            current: 0,
+        }
+    }
+}
+
+impl Iterator for BitPositionIter<'_> {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if self.current != 0 {
+                let bit = self.current.trailing_zeros() as usize;
+                self.current &= self.current - 1;
+                return Some((self.chunk - 1) * 64 + bit);
+            }
+            if self.chunk >= self.bits.len() {
+                return None;
+            }
+            self.current = self.bits[self.chunk];
+            self.chunk += 1;
+        }
+    }
+}
+
+fn classify_structural_masks(input: &[u8], include_eq: bool) -> StructuralMasks {
+    #[cfg(target_arch = "x86_64")]
+    {
+        if std::arch::is_x86_feature_detected!("avx2") {
+            return unsafe { classify_structural_masks_avx2(input, include_eq) };
+        }
+    }
+
+    classify_structural_masks_scalar(input, include_eq)
+}
+
+fn classify_structural_masks_scalar(input: &[u8], include_eq: bool) -> StructuralMasks {
+    let chunk_count = input.len().div_ceil(64);
+    let mut lt_bits = vec![0u64; chunk_count];
+    let mut gt_bits = vec![0u64; chunk_count];
+    let mut eq_bits = if include_eq {
+        vec![0u64; chunk_count]
+    } else {
+        Vec::new()
+    };
+    let mut quote = 0u8;
+
+    for (index, byte) in input.iter().copied().enumerate() {
+        let chunk = index / 64;
+        let bit = index % 64;
+        if quote != 0 {
+            if byte == quote {
+                quote = 0;
+            }
+            continue;
+        }
+        match byte {
+            b'<' => lt_bits[chunk] |= 1u64 << bit,
+            b'>' => gt_bits[chunk] |= 1u64 << bit,
+            b'=' if include_eq => eq_bits[chunk] |= 1u64 << bit,
+            b'"' | b'\'' => quote = byte,
+            _ => {}
+        }
+    }
+
+    StructuralMasks {
+        lt_bits,
+        gt_bits,
+        eq_bits,
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn classify_structural_masks_avx2(input: &[u8], include_eq: bool) -> StructuralMasks {
+    let len = input.len();
+    let chunk_count = len.div_ceil(64);
+    let mut lt_bits = vec![0u64; chunk_count];
+    let mut gt_bits = vec![0u64; chunk_count];
+    let mut eq_bits = if include_eq {
+        vec![0u64; chunk_count]
+    } else {
+        Vec::new()
+    };
+
+    let mut in_dquote = false;
+    let mut in_squote = false;
+    let full_chunks = len / 64;
+
+    let v_lt = _mm256_set1_epi8(b'<' as i8);
+    let v_gt = _mm256_set1_epi8(b'>' as i8);
+    let v_eq = _mm256_set1_epi8(b'=' as i8);
+    let v_dquote = _mm256_set1_epi8(b'"' as i8);
+    let v_squote = _mm256_set1_epi8(b'\'' as i8);
+
+    for chunk in 0..full_chunks {
+        let base = chunk * 64;
+        let ptr = input.as_ptr().add(base) as *const __m256i;
+
+        let v0 = _mm256_loadu_si256(ptr);
+        let v1 = _mm256_loadu_si256(ptr.add(1));
+
+        let lt_mask = movemask_64(_mm256_cmpeq_epi8(v0, v_lt), _mm256_cmpeq_epi8(v1, v_lt));
+        let gt_mask = movemask_64(_mm256_cmpeq_epi8(v0, v_gt), _mm256_cmpeq_epi8(v1, v_gt));
+        let eq_mask = if include_eq {
+            movemask_64(_mm256_cmpeq_epi8(v0, v_eq), _mm256_cmpeq_epi8(v1, v_eq))
+        } else {
+            0
+        };
+        let dq_mask = movemask_64(
+            _mm256_cmpeq_epi8(v0, v_dquote),
+            _mm256_cmpeq_epi8(v1, v_dquote),
+        );
+        let sq_mask = movemask_64(
+            _mm256_cmpeq_epi8(v0, v_squote),
+            _mm256_cmpeq_epi8(v1, v_squote),
+        );
+
+        let quoted_mask = quote_mask(dq_mask, sq_mask, &mut in_dquote, &mut in_squote);
+        lt_bits[chunk] = lt_mask & !quoted_mask;
+        gt_bits[chunk] = gt_mask & !quoted_mask;
+        if include_eq {
+            eq_bits[chunk] = eq_mask & !quoted_mask;
+        }
+    }
+
+    let remaining_start = full_chunks * 64;
+    if remaining_start < len {
+        let chunk = full_chunks;
+        let mut lt = 0u64;
+        let mut gt = 0u64;
+        let mut eq = 0u64;
+
+        for index in remaining_start..len {
+            let byte = input[index];
+            let bit = (index - remaining_start) as u32;
+
+            if in_dquote {
+                if byte == b'"' {
+                    in_dquote = false;
+                }
+                continue;
+            }
+            if in_squote {
+                if byte == b'\'' {
+                    in_squote = false;
+                }
+                continue;
+            }
+
+            match byte {
+                b'<' => lt |= 1u64 << bit,
+                b'>' => gt |= 1u64 << bit,
+                b'=' if include_eq => eq |= 1u64 << bit,
+                b'"' => in_dquote = true,
+                b'\'' => in_squote = true,
+                _ => {}
+            }
+        }
+
+        if chunk < lt_bits.len() {
+            lt_bits[chunk] = lt;
+            gt_bits[chunk] = gt;
+            if include_eq {
+                eq_bits[chunk] = eq;
+            }
+        }
+    }
+
+    StructuralMasks {
+        lt_bits,
+        gt_bits,
+        eq_bits,
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn movemask_64(v0: __m256i, v1: __m256i) -> u64 {
+    let m0 = _mm256_movemask_epi8(v0) as u32 as u64;
+    let m1 = _mm256_movemask_epi8(v1) as u32 as u64;
+    m0 | (m1 << 32)
+}
+
+fn prefix_xor(mask: u64) -> u64 {
+    let mut value = mask;
+    value ^= value << 1;
+    value ^= value << 2;
+    value ^= value << 4;
+    value ^= value << 8;
+    value ^= value << 16;
+    value ^= value << 32;
+    value
+}
+
+fn mask_up_to(pos: u32) -> u64 {
+    if pos >= 63 {
+        u64::MAX
+    } else {
+        (1u64 << (pos + 1)) - 1
+    }
+}
+
+fn mask_from(pos: u32) -> u64 {
+    if pos >= 64 {
+        0
+    } else {
+        !((1u64 << pos) - 1)
+    }
+}
+
+fn quote_mask(dq_mask: u64, sq_mask: u64, in_dquote: &mut bool, in_squote: &mut bool) -> u64 {
+    if dq_mask == 0 && sq_mask == 0 {
+        return if *in_dquote || *in_squote {
+            u64::MAX
+        } else {
+            0
+        };
+    }
+
+    if sq_mask == 0 && !*in_squote {
+        let quoted = prefix_xor(dq_mask);
+        let quoted = if *in_dquote { !quoted } else { quoted };
+        *in_dquote = (dq_mask.count_ones() & 1 == 1) ^ *in_dquote;
+        return quoted;
+    }
+
+    if dq_mask == 0 && !*in_dquote {
+        let quoted = prefix_xor(sq_mask);
+        let quoted = if *in_squote { !quoted } else { quoted };
+        *in_squote = (sq_mask.count_ones() & 1 == 1) ^ *in_squote;
+        return quoted;
+    }
+
+    quote_mask_slow(dq_mask, sq_mask, in_dquote, in_squote)
+}
+
+fn quote_mask_slow(dq_mask: u64, sq_mask: u64, in_dquote: &mut bool, in_squote: &mut bool) -> u64 {
+    let mut quoted_mask = 0u64;
+    let mut remaining = dq_mask | sq_mask;
+
+    if *in_dquote {
+        if dq_mask != 0 {
+            let close = dq_mask.trailing_zeros();
+            quoted_mask |= mask_up_to(close);
+            *in_dquote = false;
+            remaining &= !mask_up_to(close);
+        } else {
+            return u64::MAX;
+        }
+    } else if *in_squote {
+        if sq_mask != 0 {
+            let close = sq_mask.trailing_zeros();
+            quoted_mask |= mask_up_to(close);
+            *in_squote = false;
+            remaining &= !mask_up_to(close);
+        } else {
+            return u64::MAX;
+        }
+    }
+
+    while remaining != 0 {
+        let open = remaining.trailing_zeros();
+        remaining &= remaining - 1;
+        let is_dquote = (dq_mask >> open) & 1 == 1;
+        let after_open = if open < 63 {
+            !((1u64 << (open + 1)) - 1)
+        } else {
+            0
+        };
+        let close_mask = if is_dquote {
+            dq_mask & after_open
+        } else {
+            sq_mask & after_open
+        };
+
+        if close_mask != 0 {
+            let close = close_mask.trailing_zeros();
+            let range = mask_up_to(close) & mask_from(open);
+            quoted_mask |= range;
+            remaining &= !range;
+        } else {
+            quoted_mask |= mask_from(open);
+            if is_dquote {
+                *in_dquote = true;
+            } else {
+                *in_squote = true;
+            }
+            break;
+        }
+    }
+
+    quoted_mask
+}
+
+fn count_mask_bits_in_range(bits: &[u64], start: usize, end: usize) -> usize {
+    if start >= end || bits.is_empty() {
+        return 0;
+    }
+
+    let first_chunk = start / 64;
+    let last_chunk = (end - 1) / 64;
+    let mut count = 0usize;
+
+    for chunk in first_chunk..=last_chunk {
+        let Some(mut mask) = bits.get(chunk).copied() else {
+            break;
+        };
+        if chunk == first_chunk {
+            mask &= mask_from((start % 64) as u32);
+        }
+        if chunk == last_chunk {
+            mask &= mask_up_to(((end - 1) % 64) as u32);
+        }
+        count += mask.count_ones() as usize;
+    }
+
+    count
+}
+
+fn has_non_whitespace(input: &[u8], start: usize, end: usize) -> bool {
+    input[start..end].iter().any(|byte| !is_whitespace(*byte))
+}
+
 fn find_bytes(input: &[u8], needle: &[u8], from: usize) -> Option<usize> {
     if needle.is_empty() || from >= input.len() {
         return None;
@@ -3531,7 +4454,7 @@ fn find_gt_utf16(input: &[u16], from: usize) -> Option<usize> {
     find_unit(input, b'>' as u16, from, input.len())
 }
 
-fn find_tag_end(input: &[u8], from: usize) -> Option<usize> {
+fn find_tag_end_byte_loop(input: &[u8], from: usize) -> Option<usize> {
     let mut quote = 0;
     for (offset, byte) in input[from..].iter().copied().enumerate() {
         if byte == b'"' || byte == b'\'' {
@@ -3547,6 +4470,27 @@ fn find_tag_end(input: &[u8], from: usize) -> Option<usize> {
         }
     }
     None
+}
+
+fn find_tag_end_skip_quotes(input: &[u8], from: usize) -> Option<usize> {
+    let mut index = from;
+    while index < input.len() {
+        match input[index] {
+            b'>' => return Some(index),
+            b'"' | b'\'' => {
+                let quote = input[index];
+                index += 1;
+                let close = memchr(quote, &input[index..])?;
+                index += close + 1;
+            }
+            _ => index += 1,
+        }
+    }
+    None
+}
+
+fn find_tag_end(input: &[u8], from: usize) -> Option<usize> {
+    find_tag_end_skip_quotes(input, from)
 }
 
 fn find_tag_end_utf16(input: &[u16], from: usize) -> Option<usize> {
@@ -3635,6 +4579,23 @@ mod tests {
     }
 
     #[test]
+    fn two_stage_aggregate_ignores_quoted_structural_bytes() {
+        let input =
+            br#"<root><item expr="left > right" eq="a=b">text</item><![CDATA[<raw>ok</raw>]]></root>"#;
+
+        let two_stage = parse_aggregate(input, Tier::EventCountTwoStage).unwrap();
+        let unchecked = parse_aggregate(input, Tier::EventCountUnchecked).unwrap();
+        let eq_count = parse_aggregate(input, Tier::CountEqTwoStage).unwrap();
+        let count_only = parse_aggregate(input, Tier::CountOnly).unwrap();
+
+        assert_eq!(two_stage.event_count, unchecked.event_count);
+        assert_eq!(two_stage.checksum, unchecked.checksum);
+        assert_eq!(eq_count.event_count, count_only.event_count);
+        assert_eq!(eq_count.attr_count_total, count_only.attr_count_total);
+        assert_eq!(eq_count.checksum, count_only.checksum);
+    }
+
+    #[test]
     fn attr_heavy_fixture_shape_stays_inline() {
         let input = br#"<item a0="0" a1="1" a2="2" a3="3" a4="4" a5="5" a6="6" a7="7" a8="8" a9="9" a10="10" a11="11">"#;
         let tag_end = find_tag_end(input, 1).expect("start tag should close");
@@ -3661,15 +4622,31 @@ mod tests {
 
     #[test]
     fn fold_span_variants_match_materialized_reference() {
-        let input = "  ascii-value  <x>본문 café 🌊</x>".as_bytes();
+        let sample = "  ascii-value  <x>본문 café 🌊</x>\u{3000}trimmed\u{3000}";
+        let input = sample.as_bytes();
 
         let ascii = std::str::from_utf8(&input[2..13]).unwrap();
         assert_eq!(fold_span(31, input, 2, 13).unwrap(), fold_string(31, ascii));
+
+        let non_ascii_start = sample.find("본문").unwrap();
+        let non_ascii_end = sample.find("</x>").unwrap();
+        let non_ascii = std::str::from_utf8(&input[non_ascii_start..non_ascii_end]).unwrap();
+        assert_eq!(
+            fold_span(31, input, non_ascii_start, non_ascii_end).unwrap(),
+            fold_string(31, non_ascii)
+        );
 
         let text = std::str::from_utf8(&input[0..15]).unwrap();
         assert_eq!(
             fold_trimmed_span(31, input, 0, 15).unwrap(),
             fold_string(31, text.trim())
+        );
+
+        let unicode_trim_start = sample.find('\u{3000}').unwrap();
+        let unicode_trim = std::str::from_utf8(&input[unicode_trim_start..]).unwrap();
+        assert_eq!(
+            fold_trimmed_span(31, input, unicode_trim_start, input.len()).unwrap(),
+            fold_string(31, unicode_trim.trim())
         );
     }
 
@@ -3680,7 +4657,17 @@ mod tests {
         let units: Vec<u16> = sample.encode_utf16().collect();
 
         for tier in [
+            Tier::EventCountUnsafeGt,
+            Tier::EventCountByteLoop,
+            Tier::EventCountSkipQuotes,
+            Tier::EventCountNoText,
+            Tier::EventCountTwoStage,
+            Tier::EventCountAutoStage,
+            Tier::EventCountUnchecked,
+            Tier::EventCountOnly,
             Tier::CountOnly,
+            Tier::CountEqTwoStage,
+            Tier::CountAutoStage,
             Tier::NameStringOnly,
             Tier::TextStringOnly,
             Tier::AttrValueStringOnly,
@@ -3983,7 +4970,47 @@ mod tests {
 
     #[test]
     fn tier_parsing_accepts_known_names_and_rejects_unknown_names() {
+        assert_eq!(
+            parse_tier("event-count-unsafe-gt").unwrap(),
+            Tier::EventCountUnsafeGt
+        );
+        assert_eq!(
+            parse_tier("event-count-byte-loop").unwrap(),
+            Tier::EventCountByteLoop
+        );
+        assert_eq!(
+            parse_tier("event-count-skip-quotes").unwrap(),
+            Tier::EventCountSkipQuotes
+        );
+        assert_eq!(
+            parse_tier("event-count-no-text").unwrap(),
+            Tier::EventCountNoText
+        );
+        assert_eq!(
+            parse_tier("event-count-two-stage").unwrap(),
+            Tier::EventCountTwoStage
+        );
+        assert_eq!(
+            parse_tier("event-count-auto-stage").unwrap(),
+            Tier::EventCountAutoStage
+        );
+        assert_eq!(
+            parse_tier("event-count-unchecked").unwrap(),
+            Tier::EventCountUnchecked
+        );
+        assert_eq!(
+            parse_tier("event-count-only").unwrap(),
+            Tier::EventCountOnly
+        );
         assert_eq!(parse_tier("count-only").unwrap(), Tier::CountOnly);
+        assert_eq!(
+            parse_tier("count-eq-two-stage").unwrap(),
+            Tier::CountEqTwoStage
+        );
+        assert_eq!(
+            parse_tier("count-auto-stage").unwrap(),
+            Tier::CountAutoStage
+        );
         assert_eq!(
             parse_tier("name-string-only").unwrap(),
             Tier::NameStringOnly
@@ -4005,7 +5032,26 @@ mod tests {
             Tier::EventObjectFull
         );
         assert!(parse_tier("missing").is_err());
+        assert_eq!(tier_name(Tier::EventCountUnsafeGt), "event-count-unsafe-gt");
+        assert_eq!(tier_name(Tier::EventCountByteLoop), "event-count-byte-loop");
+        assert_eq!(
+            tier_name(Tier::EventCountSkipQuotes),
+            "event-count-skip-quotes"
+        );
+        assert_eq!(tier_name(Tier::EventCountNoText), "event-count-no-text");
+        assert_eq!(tier_name(Tier::EventCountTwoStage), "event-count-two-stage");
+        assert_eq!(
+            tier_name(Tier::EventCountAutoStage),
+            "event-count-auto-stage"
+        );
+        assert_eq!(
+            tier_name(Tier::EventCountUnchecked),
+            "event-count-unchecked"
+        );
+        assert_eq!(tier_name(Tier::EventCountOnly), "event-count-only");
         assert_eq!(tier_name(Tier::CountOnly), "count-only");
+        assert_eq!(tier_name(Tier::CountEqTwoStage), "count-eq-two-stage");
+        assert_eq!(tier_name(Tier::CountAutoStage), "count-auto-stage");
         assert_eq!(tier_name(Tier::NameStringOnly), "name-string-only");
         assert_eq!(tier_name(Tier::TextStringOnly), "text-string-only");
         assert_eq!(
@@ -4145,10 +5191,13 @@ mod tests {
         assert_eq!(parse_attributes(b"name=   ", 0, 8).len(), 0);
         assert_eq!(parse_attributes(b"name=x", 0, 6).len(), 0);
         assert_eq!(parse_attributes(b"name=\"unterminated", 0, 18).len(), 0);
+        assert_eq!(count_attributes(b"name other", 0, 10), 2);
+        assert_eq!(count_attributes(b"name=\"unterminated", 0, 18), 0);
 
         let many = b"a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
         let attrs = parse_attributes(many, 0, many.len());
         assert_eq!(attrs.len(), 17);
+        assert_eq!(count_attributes(many, 0, many.len()), 17);
         assert_eq!(attrs.overflow_len_for_test(), 1);
         assert_eq!(attrs.to_vec_for_test().len(), 17);
     }
@@ -4170,11 +5219,20 @@ mod tests {
             parse_attributes_utf16(&utf16("name=\"unterminated"), 0, 18).len(),
             0
         );
+        assert_eq!(count_attributes_utf16(&utf16("name other"), 0, 10), 2);
+        assert_eq!(
+            count_attributes_utf16(&utf16("name=\"unterminated"), 0, 18),
+            0
+        );
 
         let many =
             "a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
         let attrs = parse_attributes_utf16(&utf16(many), 0, many.encode_utf16().count());
         assert_eq!(attrs.len(), 17);
+        assert_eq!(
+            count_attributes_utf16(&utf16(many), 0, many.encode_utf16().count()),
+            17
+        );
         assert_eq!(attrs.overflow_len_for_test(), 1);
         assert_eq!(attrs.to_vec_for_test().len(), 17);
     }
