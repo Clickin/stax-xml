@@ -11,7 +11,12 @@ export type AutoParseResult<T> = T | typeof AUTO_PARSE_UNHANDLED;
  *
  * @public
  */
-export type ParseInput = string | ReadableStream<Uint8Array> | AsyncIterator<AnyXmlEvent> | Iterator<AnyXmlEvent>;
+export type ParseInput =
+  | string
+  | ArrayBufferView
+  | ReadableStream<Uint8Array>
+  | AsyncIterator<AnyXmlEvent>
+  | Iterator<AnyXmlEvent>;
 
 /**
  * Base abstract class for all XML schema types

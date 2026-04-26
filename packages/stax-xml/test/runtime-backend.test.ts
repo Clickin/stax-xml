@@ -106,6 +106,7 @@ describe('runtime backend package topology', () => {
   it('keeps platform package metadata constrained to the intended artifact', () => {
     for (const expected of platformPackages) {
       const manifest = readPackage(`../../${expected.dir}/package.json`);
+      const index = readText(`../../${expected.dir}/index.mjs`);
 
       expect(manifest.name).toBe(expected.name);
       expect(manifest.version).toBe(staxPackage.version);
@@ -124,6 +125,9 @@ describe('runtime backend package topology', () => {
       } else {
         expect(manifest.libc).toBeUndefined();
       }
+
+      expect(index).toContain('parseStructuralIndexStringUtf16');
+      expect(index).toContain('parseStructuralIndexUint8Array');
     }
   });
 });
@@ -249,4 +253,8 @@ describe('runtime backend resolver', () => {
 
 function readPackage(relativePath: string): Record<string, any> {
   return JSON.parse(readFileSync(resolve(__dirname, relativePath), 'utf8'));
+}
+
+function readText(relativePath: string): string {
+  return readFileSync(resolve(__dirname, relativePath), 'utf8');
 }
