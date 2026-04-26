@@ -12,6 +12,7 @@ import {
   parse_item_projection_uint8array,
   parse_item_projection_via_table_uint8array,
   parse_item_rows_via_table_uint8array,
+  parse_object_rows_via_table_uint8array,
   parse_aggregate_string_utf16,
   parse_aggregate_string_utf8,
 } from './index.mjs';
@@ -107,6 +108,14 @@ const projectionSample = Buffer.from(
 const projection = parse_item_projection_uint8array(projectionSample);
 const tableProjection = parse_item_projection_via_table_uint8array(projectionSample);
 const tableRows = parse_item_rows_via_table_uint8array(projectionSample);
+const objectRows = parse_object_rows_via_table_uint8array(projectionSample, {
+  itemName: 'item',
+  fields: [
+    { outputName: 'id', valueKind: 'number', sourceKind: 'attribute', sourceName: 'id', textMode: 'direct' },
+    { outputName: 'name', valueKind: 'string', sourceKind: 'element', sourceName: 'name', textMode: 'subtree' },
+    { outputName: 'value', valueKind: 'string', sourceKind: 'element', sourceName: 'value', textMode: 'subtree' },
+  ],
+});
 assertEqual(projection.itemCount, 2, 'item projection count');
 assertEqual(projection.checksum, projectionChecksum([
   { id: 7, name: 'Alice', value: '안녕' },
@@ -120,6 +129,13 @@ assertEqual(tableRows.rows.length, 2, 'table item rows length');
 assertEqual(tableRows.rows[0].id, 7, 'table item rows first id');
 assertEqual(tableRows.rows[0].name, 'Alice', 'table item rows first name');
 assertEqual(tableRows.rows[0].value, '안녕', 'table item rows first value');
+assertEqual(objectRows.eventCount, 20, 'object rows event count');
+assertEqual(objectRows.fieldCount, 3, 'object rows field count');
+assertEqual(objectRows.rowCount, 2, 'object rows length');
+assertEqual(objectRows.columns[0].present.join(','), 'true,true', 'object rows id present flags');
+assertEqual(objectRows.columns[0].values.join('|'), '7|11', 'object rows id values');
+assertEqual(objectRows.columns[1].values[0], 'Alice', 'object rows first name');
+assertEqual(objectRows.columns[2].values[0], '안녕', 'object rows first value');
 
 console.log('native aggregate smoke ok');
 

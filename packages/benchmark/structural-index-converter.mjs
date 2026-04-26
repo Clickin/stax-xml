@@ -17,6 +17,14 @@ const schema = x.array(
   }),
   '//item',
 ).compile();
+const objectRowsSpec = {
+  itemName: 'item',
+  fields: [
+    { outputName: 'id', valueKind: 'number', sourceKind: 'attribute', sourceName: 'id', textMode: 'direct' },
+    { outputName: 'name', valueKind: 'string', sourceKind: 'element', sourceName: 'name', textMode: 'subtree' },
+    { outputName: 'value', valueKind: 'string', sourceKind: 'element', sourceName: 'value', textMode: 'subtree' },
+  ],
+};
 
 for (const sizeMiB of sizesMiB) {
   for (const fixture of fixtures) {
@@ -46,6 +54,9 @@ for (const sizeMiB of sizesMiB) {
     const nativeTableRows = nativeAggregate?.parseItemRowsViaTableUint8Array
       ? await measureRows('native-table-rows', () => nativeAggregate.parseItemRowsViaTableUint8Array(bytes))
       : undefined;
+    const nativeObjectRows = nativeAggregate?.parseObjectRowsViaTableUint8Array
+      ? await measureObjectRows('native-object-rows', () => nativeAggregate.parseObjectRowsViaTableUint8Array(bytes, objectRowsSpec))
+      : undefined;
     const ratio = js.ms / byte.ms;
     console.log(JSON.stringify({
       fixture,
@@ -57,22 +68,26 @@ for (const sizeMiB of sizesMiB) {
       nativeProjectionMs: nativeProjection ? round(nativeProjection.ms) : undefined,
       nativeTableProjectionMs: nativeTableProjection ? round(nativeTableProjection.ms) : undefined,
       nativeTableRowsMs: nativeTableRows ? round(nativeTableRows.ms) : undefined,
+      nativeObjectRowsMs: nativeObjectRows ? round(nativeObjectRows.ms) : undefined,
       speedup: round(ratio),
       nativeBufferSpeedup: nativeBuffer ? round(js.ms / nativeBuffer.ms) : undefined,
       nativeProjectionSpeedup: nativeProjection ? round(js.ms / nativeProjection.ms) : undefined,
       nativeTableProjectionSpeedup: nativeTableProjection ? round(js.ms / nativeTableProjection.ms) : undefined,
       nativeTableRowsSpeedup: nativeTableRows ? round(js.ms / nativeTableRows.ms) : undefined,
+      nativeObjectRowsSpeedup: nativeObjectRows ? round(js.ms / nativeObjectRows.ms) : undefined,
       jsChecksum: js.checksum,
       byteChecksum: byte.checksum,
       nativeBufferChecksum: nativeBuffer?.checksum,
       nativeProjectionChecksum: nativeProjection?.checksum,
       nativeTableProjectionChecksum: nativeTableProjection?.checksum,
       nativeTableRowsChecksum: nativeTableRows?.checksum,
+      nativeObjectRowsChecksum: nativeObjectRows?.checksum,
       parity: js.checksum === byte.checksum,
       nativeBufferParity: nativeBuffer ? js.checksum === nativeBuffer.checksum : undefined,
       nativeProjectionParity: nativeProjection ? js.checksum === nativeProjection.checksum : undefined,
       nativeTableProjectionParity: nativeTableProjection ? js.checksum === nativeTableProjection.checksum : undefined,
       nativeTableRowsParity: nativeTableRows ? js.checksum === nativeTableRows.checksum : undefined,
+      nativeObjectRowsParity: nativeObjectRows ? js.checksum === nativeObjectRows.checksum : undefined,
     }));
   }
 }
@@ -108,6 +123,18 @@ async function measureRows(name, run) {
   };
 }
 
+async function measureObjectRows(name, run) {
+  const start = performance.now();
+  const result = await run();
+  const ms = performance.now() - start;
+  return {
+    name,
+    ms,
+    checksum: checksumObjectRows(result.columns, result.rowCount ?? result.row_count),
+    itemCount: result.rowCount ?? result.row_count,
+  };
+}
+
 function createFixtureXml(fixture, sizeMiB) {
   const targetBytes = sizeMiB * 1024 * 1024;
   const parts = ['<root>'];
@@ -133,6 +160,16 @@ function checksum(rows) {
     value = mix(value, row.id);
     value = fold(value, row.name);
     value = fold(value, row.value);
+  }
+  return value | 0;
+}
+
+function checksumObjectRows(columns, rowCount) {
+  let value = rowCount;
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+    value = mix(value, Number(columns[0].values[rowIndex]));
+    value = fold(value, columns[1].values[rowIndex]);
+    value = fold(value, columns[2].values[rowIndex]);
   }
   return value | 0;
 }

@@ -39,3 +39,32 @@ export interface ItemProjectionRowsResult {
 }
 
 export declare function parseItemRowsViaTableUint8Array(input: Uint8Array): ItemProjectionRowsResult
+
+export interface ObjectRowsProjectionFieldSpec {
+  outputName: string
+  valueKind: string
+  sourceKind: string
+  sourceName: string
+  textMode: string
+}
+
+export interface ObjectRowsProjectionSpec {
+  itemName: string
+  fields: ObjectRowsProjectionFieldSpec[]
+}
+
+export interface ObjectRowsProjectionColumn {
+  present: boolean[]
+  values: string[]
+}
+
+export interface ObjectRowsProjectionResult {
+  inputBytes: number
+  eventCount: number
+  maxDepth: number
+  fieldCount: number
+  rowCount: number
+  columns: ObjectRowsProjectionColumn[]
+}
+
+export declare function parseObjectRowsViaTableUint8Array(input: Uint8Array, spec: ObjectRowsProjectionSpec): ObjectRowsProjectionResult

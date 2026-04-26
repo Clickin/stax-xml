@@ -4,12 +4,12 @@
 
 Correctness parity passed for the structural-index MVP:
 
-- Rust native aggregate tests: 22 passed.
-- stax-xml focused/unit run: 57 files and 1011 tests passed.
+- Rust native aggregate tests: 23 passed.
+- stax-xml focused/unit run: 58 files and 1015 tests passed.
 - stax-xml build: passed.
 - native aggregate build: passed.
 - native aggregate smoke: passed.
-- structural-index converter final benchmark: checksum parity passed for JS, byte-auto, native-buffer-table, native table checksum projection, native table rows projection, and schema-aware native projection paths on 16 MiB and 128 MiB fixtures.
+- structural-index converter final benchmark: checksum parity passed for JS, byte-auto, native-buffer-table, native table checksum projection, hardcoded native table rows projection, generic columnar native object rows projection, and schema-aware native projection paths on 16 MiB and 128 MiB fixtures.
 - event parser regression gate: targeted parser/parity tests passed, and the existing 128 MiB iterable materialization harness completed on all four regression fixtures.
 
 ## Event Parser Regression Guard
@@ -26,10 +26,10 @@ node --expose-gc ./iterable-attr-materialization.mjs --sizes-mib 128 --fixtures 
 Results:
 
 - Parser/parity tests: 9 files and 109 tests passed.
-- `attribute-heavy` 128 MiB: count-only 989.47 ms / 129.4 MiB/s, full-string-direct 1802.81 ms / 71.0 MiB/s.
-- `mixed-utf8` 128 MiB: count-only 1244.48 ms / 102.9 MiB/s, full-string-direct 2310.96 ms / 55.4 MiB/s.
-- `high-cardinality` 128 MiB: count-only 1029.07 ms / 124.4 MiB/s, full-string-direct 1734.75 ms / 73.8 MiB/s.
-- `shuffled-attribute-order` 128 MiB: count-only 996.87 ms / 128.4 MiB/s, full-string-direct 1818.59 ms / 70.4 MiB/s.
+- `attribute-heavy` 128 MiB: count-only 1026.30 ms / 124.7 MiB/s, full-string-direct 1807.44 ms / 70.8 MiB/s.
+- `mixed-utf8` 128 MiB: count-only 1322.95 ms / 96.8 MiB/s, full-string-direct 2558.20 ms / 50.0 MiB/s.
+- `high-cardinality` 128 MiB: count-only 1066.30 ms / 120.0 MiB/s, full-string-direct 1886.69 ms / 67.8 MiB/s.
+- `shuffled-attribute-order` 128 MiB: count-only 1089.07 ms / 117.5 MiB/s, full-string-direct 1936.22 ms / 66.1 MiB/s.
 
 The full default `bench:iterable-attr-materialization` matrix is much larger than this guard because it includes 3 scenarios, 8 tiers, warmups, and repeated runs for every fixture; it exceeded the 10 minute interactive timeout before producing a final report. The regression guard intentionally uses the same harness with a bounded 128 MiB parser-focused slice so it remains practical to run before converter benchmark claims.
 
@@ -43,12 +43,12 @@ pnpm --filter benchmark run bench:structural-index-converter
 
 Results:
 
-| Fixture | Size | JS compiled | Byte auto | Native buffer table | Native table checksum projection | Native table rows projection | Native direct projection | Buffer-table speedup | Table-checksum speedup | Table-rows speedup | Direct-projection speedup |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| attribute-heavy | 16 MiB | 272.07 ms | 258.10 ms | 331.38 ms | 150.87 ms | 137.58 ms | 117.20 ms | 0.82x | 1.80x | 1.98x | 2.32x |
-| mixed-utf8 | 16 MiB | 328.96 ms | 298.31 ms | 343.83 ms | 150.76 ms | 167.88 ms | 113.59 ms | 0.96x | 2.18x | 1.96x | 2.90x |
-| attribute-heavy | 128 MiB | 2141.79 ms | 1999.88 ms | 2505.23 ms | 1241.88 ms | 1234.69 ms | 968.84 ms | 0.85x | 1.72x | 1.73x | 2.21x |
-| mixed-utf8 | 128 MiB | 2512.52 ms | 2319.35 ms | 2727.33 ms | 1183.48 ms | 1400.92 ms | 930.11 ms | 0.92x | 2.12x | 1.79x | 2.70x |
+| Fixture | Size | JS compiled | Byte auto | Native buffer table | Native table checksum projection | Hardcoded table rows | Generic object rows | Native direct projection | Buffer-table speedup | Table-checksum speedup | Hardcoded rows speedup | Generic rows speedup | Direct-projection speedup |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| attribute-heavy | 16 MiB | 289.16 ms | 275.17 ms | 315.14 ms | 159.68 ms | 145.00 ms | 219.81 ms | 116.81 ms | 0.92x | 1.81x | 1.99x | 1.32x | 2.48x |
+| mixed-utf8 | 16 MiB | 319.01 ms | 301.79 ms | 368.12 ms | 161.99 ms | 166.09 ms | 248.86 ms | 112.84 ms | 0.87x | 1.97x | 1.92x | 1.28x | 2.83x |
+| attribute-heavy | 128 MiB | 2439.23 ms | 2142.87 ms | 2761.03 ms | 1289.31 ms | 1362.48 ms | 1817.41 ms | 959.30 ms | 0.88x | 1.89x | 1.79x | 1.34x | 2.54x |
+| mixed-utf8 | 128 MiB | 2525.05 ms | 2374.57 ms | 2789.90 ms | 1246.76 ms | 1506.53 ms | 1941.91 ms | 931.01 ms | 0.91x | 2.03x | 1.68x | 1.30x | 2.71x |
 
 All checksums matched.
 
@@ -56,7 +56,9 @@ All checksums matched.
 
 The generic native-buffer-table path still does not satisfy the 1.5x performance gate when the table is consumed through the JavaScript `IterableEventTable` wrapper. At 128 MiB it is 0.85x to 0.92x of JS compiled converter throughput, despite checksum parity.
 
-The generic table projection path does satisfy the gate. It builds the same structural table in the native addon and then projects from that table without JS per-event dispatch; at 128 MiB it reaches 1.72x to 2.12x for checksum-only projection and 1.73x to 1.79x when returning actual converter rows. That means generic table tuning is still relevant, but the table must feed a native projection boundary rather than round-tripping every event through JS.
+The representative table projection path does satisfy the gate. It builds the same structural table in the native addon and then projects from that table without JS per-event dispatch; at 128 MiB it reaches 1.89x to 2.03x for checksum-only projection and 1.68x to 1.79x when returning actual converter rows for the hardcoded `id/name/value` schema. That means table tuning is still relevant, but the table must feed a native projection boundary rather than round-tripping every event through JS.
+
+The generic object rows projection now accepts a compiled-plan descriptor for root array/object shapes with relative attribute and single child element scalar fields. Returning columnar field arrays instead of per-row value arrays improved the generic path from the initial row-array shape, but it still reaches only 1.30x to 1.34x at 128 MiB and does not meet the 1.5x gate. The remaining cost is dominated by generic string materialization, N-API transfer of per-field string columns, and TS object reconstruction/number validation.
 
 The direct schema-aware native projection PoC remains the upper-bound comparison for this schema. At 128 MiB it reaches 2.21x to 2.70x of JS compiled converter throughput while preserving checksum parity.
 
@@ -66,6 +68,6 @@ The native-buffer-table row includes native table construction and compiled conv
 
 The generic table builder now writes event records directly into the final byte table and only appends the side attribute buffer at finish. `napi::Buffer::from(Vec<u8>)` transfers the final table Vec into a JavaScript Buffer without an additional Rust-to-JS byte copy, but the current ABI still requires attribute bytes to be gathered separately until the final event count is known.
 
-The native table rows path is now wired into `CompiledRootProcessor` for the representative compiled schema `//item` with `./@id`, `./name`, and `./value` on byte input when a native backend exports `parseItemRowsViaTableUint8Array`. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths.
+The native table rows path is now wired into `CompiledRootProcessor` for the representative compiled schema `//item` with `./@id`, `./name`, and `./value` on byte input when a native backend exports `parseItemRowsViaTableUint8Array`. This hardcoded path is tried before the generic descriptor because it is still faster for the representative benchmark.
 
-The native projection paths are still schema-specific. They prove the lowering boundary for one compiled plan shape; they are not yet a general compiled-plan-to-native projection engine.
+The generic descriptor path is also wired into `CompiledRootProcessor` for byte-input root arrays of inline objects when every field is a scalar selected by a relative attribute or one relative child element. It preserves schema-side number validation by returning strings to TypeScript and applying the compiled scalar parsers there. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths. This is a bounded lowering step, not full XPath execution in native code.
