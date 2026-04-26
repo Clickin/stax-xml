@@ -6,9 +6,9 @@ type Section =
   | 'environment'
   | 'parser-2kb'
   | 'parser-4kb'
-  | 'async-size'
   | 'parser-13mb'
   | 'parser-98mb'
+  | 'async-size'
   | 'converter'
   | 'writer-small'
   | 'writer-big'
@@ -28,9 +28,9 @@ const sourceLinks: Record<Section, Array<[string, string]>> = {
   environment: [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'parser-2kb': [['parser-2kb.mjs', 'packages/benchmark/parser-2kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'parser-4kb': [['parser-4kb.mjs', 'packages/benchmark/parser-4kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
-  'async-size': [['sync/async release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'parser-13mb': [['parser-13mb.mjs', 'packages/benchmark/parser-13mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'parser-98mb': [['parser-98mb.mjs', 'packages/benchmark/parser-98mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'async-size': [['sync/async release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   converter: [['converter-plain-output-benchmark.mjs', 'packages/benchmark/converter-plain-output-benchmark.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'writer-small': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'writer-big': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
@@ -130,7 +130,8 @@ function buildTable(section: Section): TableModel | null {
   });
   const staxSurfaceRows = (): Array<[string, string, string]> => [
     ['stax-xml JS event parser', 'stax-xml JS fallback event parser', locale === 'en' ? 'Public StaxXmlParserSync event API' : 'Public event parser'],
-    ['stax-xml JS raw iterable', 'stax-xml JS fallback raw iterable', locale === 'en' ? 'Iterable byte frames with checksum' : 'Iterable byte frames + checksum'],
+    ['stax-xml JS event parser (decode+parse)', 'stax-xml JS fallback event parser decode+parse', locale === 'en' ? 'Byte-source path: Buffer.toString plus public event parser' : 'Byte source: Buffer.toString + public event parser'],
+    ['stax-xml JS Uint8Array iterable', 'stax-xml JS Uint8Array iterable', locale === 'en' ? 'Reusable Iterable<Uint8Array[]> byte frames with checksum' : '재사용 Iterable<Uint8Array[]> byte frame + checksum'],
     ['**stax-xml native event aggregate**', 'stax-xml native addon event aggregate', locale === 'en' ? 'N-API aggregate probe' : 'N-API aggregate probe'],
     ['**stax-xml native raw aggregate**', 'stax-xml native addon raw aggregate', locale === 'en' ? 'Coarse Buffer call' : 'Coarse Buffer call'],
   ];

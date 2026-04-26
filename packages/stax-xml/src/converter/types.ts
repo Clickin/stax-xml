@@ -38,6 +38,16 @@ export interface ParseOptions {
   maxEvents?: number;
 
   /**
+   * Namespace bindings used by XPath 1.0 prefix resolution.
+   *
+   * @remarks
+   * XML default namespaces do not automatically apply to unprefixed XPath
+   * element names, matching XPath 1.0 semantics. Bind a prefix here and use it
+   * in XPath expressions when selecting namespaced elements.
+   */
+  xpathNamespaces?: Record<string, string>;
+
+  /**
    * Optional structural-index acceleration for compiled converter parsing.
    *
    * @remarks
