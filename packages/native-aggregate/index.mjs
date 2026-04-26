@@ -8,9 +8,13 @@ const require = createRequire(import.meta.url);
 const binding = require(join(__dirname, 'stax_xml_native_aggregate.node'));
 
 export const parseAggregateBuffer = binding.parseAggregateBuffer;
+export const parseAggregateBufferWithSimd = binding.parseAggregateBufferWithSimd;
 export const parseAggregateFile = binding.parseAggregateFile;
+export const parseAggregateFileWithSimd = binding.parseAggregateFileWithSimd;
 export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
+export const parseAggregateUint8ArrayWithSimd = binding.parseAggregateUint8ArrayWithSimd;
 export const parseAggregateStringUtf8 = binding.parseAggregateStringUtf8;
+export const parseAggregateStringUtf8WithSimd = binding.parseAggregateStringUtf8WithSimd;
 export const parseAggregateStringUtf16 = binding.parseAggregateStringUtf16;
 export const parseSpanTableStringUtf16 = binding.parseSpanTableStringUtf16;
 export const parseStructuralIndexStringUtf16 =
@@ -29,9 +33,13 @@ export const parseObjectRowsViaTableUint8Array =
 
 if (
   typeof parseAggregateBuffer !== 'function' ||
+  typeof parseAggregateBufferWithSimd !== 'function' ||
   typeof parseAggregateFile !== 'function' ||
+  typeof parseAggregateFileWithSimd !== 'function' ||
   typeof parseAggregateUint8Array !== 'function' ||
+  typeof parseAggregateUint8ArrayWithSimd !== 'function' ||
   typeof parseAggregateStringUtf8 !== 'function' ||
+  typeof parseAggregateStringUtf8WithSimd !== 'function' ||
   typeof parseAggregateStringUtf16 !== 'function' ||
   typeof parseSpanTableStringUtf16 !== 'function' ||
   typeof parseStructuralIndexStringUtf16 !== 'function' ||
@@ -51,16 +59,32 @@ export function parse_aggregate_buffer(input, tier) {
   return parseAggregateBuffer(input, tier);
 }
 
+export function parse_aggregate_buffer_with_simd(input, tier, simd) {
+  return parseAggregateBufferWithSimd(input, tier, simd);
+}
+
 export function parse_aggregate_file(path, tier) {
   return parseAggregateFile(path, tier);
+}
+
+export function parse_aggregate_file_with_simd(path, tier, simd) {
+  return parseAggregateFileWithSimd(path, tier, simd);
 }
 
 export function parse_aggregate_uint8array(input, tier) {
   return parseAggregateUint8Array(input, tier);
 }
 
+export function parse_aggregate_uint8array_with_simd(input, tier, simd) {
+  return parseAggregateUint8ArrayWithSimd(input, tier, simd);
+}
+
 export function parse_aggregate_string_utf8(input, tier) {
   return parseAggregateStringUtf8(input, tier);
+}
+
+export function parse_aggregate_string_utf8_with_simd(input, tier, simd) {
+  return parseAggregateStringUtf8WithSimd(input, tier, simd);
 }
 
 export function parse_aggregate_string_utf16(input, tier) {

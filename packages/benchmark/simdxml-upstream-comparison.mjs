@@ -62,6 +62,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     mdOut: defaultMdOut,
     skipFetch: false,
     skipBuild: false,
+    nativeSimd: 'auto',
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -122,6 +123,16 @@ function parseArgs(argv = process.argv.slice(2)) {
           'full-string-direct',
         ], name);
         break;
+      case '--native-simd':
+        options.nativeSimd = parseSingleChoice(
+          readValue(),
+          ['auto', 'auto-safe', 'off', 'scalar', 'avx2', 'sse42', 'sse4.2', 'neon'],
+          name,
+        );
+        if (options.nativeSimd === 'auto-safe') options.nativeSimd = 'auto';
+        if (options.nativeSimd === 'scalar') options.nativeSimd = 'off';
+        if (options.nativeSimd === 'sse4.2') options.nativeSimd = 'sse42';
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -158,6 +169,14 @@ function parseList(value, allowed, flag) {
     }
   }
   return entries;
+}
+
+function parseSingleChoice(value, allowed, flag) {
+  const entries = parseList(value, allowed, flag);
+  if (entries.length !== 1) {
+    throw new Error(`${flag} expects exactly one of ${allowed.join(', ')}.`);
+  }
+  return entries[0];
 }
 
 function run(command, args, options = {}) {
@@ -232,8 +251,9 @@ function quoteWindowsShellArg(value) {
 }
 
 function measureNative(input, tier, options, native) {
+  const invoke = () => invokeNativeAggregate(native, input, tier, options.nativeSimd);
   for (let index = 0; index < options.warmups; index++) {
-    native.parse_aggregate_buffer(input, tier);
+    invoke();
   }
 
   const samplesMs = [];
@@ -241,7 +261,7 @@ function measureNative(input, tier, options, native) {
   for (let index = 0; index < options.runs; index++) {
     if (globalThis.gc) globalThis.gc();
     const startedAt = performance.now();
-    const result = normalizeNativeResult(native.parse_aggregate_buffer(input, tier));
+    const result = normalizeNativeResult(invoke());
     const elapsedMs = performance.now() - startedAt;
     if (stable && (stable.eventCount !== result.eventCount || stable.checksum !== result.checksum)) {
       throw new Error(`native ${tier} produced unstable event count or checksum.`);
@@ -250,7 +270,20 @@ function measureNative(input, tier, options, native) {
     samplesMs.push(elapsedMs);
   }
 
-  return measurementResult(`stax-native-${tier}`, input.byteLength, samplesMs, stable);
+  return {
+    ...measurementResult(`stax-native-${tier}`, input.byteLength, samplesMs, stable),
+    nativeSimd: options.nativeSimd,
+  };
+}
+
+function invokeNativeAggregate(native, input, tier, nativeSimd) {
+  if (typeof native.parse_aggregate_buffer_with_simd === 'function') {
+    return native.parse_aggregate_buffer_with_simd(input, tier, nativeSimd);
+  }
+  if (nativeSimd !== 'auto') {
+    throw new Error('Native addon does not expose parse_aggregate_buffer_with_simd; rebuild packages/native-aggregate.');
+  }
+  return native.parse_aggregate_buffer(input, tier);
 }
 
 function normalizeNativeResult(result) {
@@ -360,6 +393,7 @@ function createMarkdown(report) {
     `- Platform: ${report.environment.platform}`,
     `- Node: ${report.environment.node}`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- Native SIMD policy: ${report.options.nativeSimd}`,
     `- Upstream: ${report.upstream.url}`,
     `- Upstream ref: ${report.upstream.ref}`,
     `- Upstream HEAD: ${report.upstream.head}`,
@@ -383,6 +417,7 @@ function createMarkdown(report) {
     '- `stax-native-count-eq-two-stage` counts quote-masked `=` positions as a well-formed XML attribute-count lower bound.',
     '- `stax-native-count-auto-stage` applies the same quote-ratio dispatch to choose between count-only and the two-stage `=` count lower bound.',
     '- `stax-native-full-string-direct` additionally folds element names, text, attribute names, and attribute values.',
+    '- `--native-simd=avx2|sse42|neon` explicitly selects the native aggregate two-stage structural classifier backend and fails instead of silently falling back when unavailable.',
     '',
   ];
 
@@ -481,6 +516,7 @@ async function main() {
       warmups: options.warmups,
       groups: options.groups,
       nativeTiers: options.nativeTiers,
+      nativeSimd: options.nativeSimd,
     },
     groups,
   };

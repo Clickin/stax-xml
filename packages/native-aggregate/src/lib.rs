@@ -6,6 +6,8 @@
 use memchr::memchr;
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
+#[cfg(target_arch = "aarch64")]
+use std::arch::aarch64::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 use std::fs;
@@ -47,6 +49,15 @@ enum Tier {
     AttrValueStringOnly,
     FullStringDirect,
     EventObjectFull,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum SimdPolicy {
+    Auto,
+    Off,
+    Avx2,
+    Sse42,
+    Neon,
 }
 
 impl Tier {
@@ -445,9 +456,31 @@ pub fn parse_aggregate_buffer(input: Buffer, tier: String) -> Result<AggregateRe
 }
 
 #[napi]
+pub fn parse_aggregate_buffer_with_simd(
+    input: Buffer,
+    tier: String,
+    simd: String,
+) -> Result<AggregateResult> {
+    let tier = parse_tier(&tier)?;
+    let simd = parse_simd_policy(&simd)?;
+    parse_aggregate_with_simd_policy(input.as_ref(), tier, simd)
+}
+
+#[napi]
 pub fn parse_aggregate_uint8array(input: Uint8Array, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     parse_aggregate(input.as_ref(), tier)
+}
+
+#[napi]
+pub fn parse_aggregate_uint8array_with_simd(
+    input: Uint8Array,
+    tier: String,
+    simd: String,
+) -> Result<AggregateResult> {
+    let tier = parse_tier(&tier)?;
+    let simd = parse_simd_policy(&simd)?;
+    parse_aggregate_with_simd_policy(input.as_ref(), tier, simd)
 }
 
 #[napi]
@@ -458,9 +491,32 @@ pub fn parse_aggregate_file(path: String, tier: String) -> Result<AggregateResul
 }
 
 #[napi]
+pub fn parse_aggregate_file_with_simd(
+    path: String,
+    tier: String,
+    simd: String,
+) -> Result<AggregateResult> {
+    let tier = parse_tier(&tier)?;
+    let simd = parse_simd_policy(&simd)?;
+    let bytes = fs::read(path).map_err(|error| Error::from_reason(error.to_string()))?;
+    parse_aggregate_with_simd_policy(&bytes, tier, simd)
+}
+
+#[napi]
 pub fn parse_aggregate_string_utf8(input: String, tier: String) -> Result<AggregateResult> {
     let tier = parse_tier(&tier)?;
     parse_aggregate(input.as_bytes(), tier)
+}
+
+#[napi]
+pub fn parse_aggregate_string_utf8_with_simd(
+    input: String,
+    tier: String,
+    simd: String,
+) -> Result<AggregateResult> {
+    let tier = parse_tier(&tier)?;
+    let simd = parse_simd_policy(&simd)?;
+    parse_aggregate_with_simd_policy(input.as_bytes(), tier, simd)
 }
 
 #[napi]
@@ -605,12 +661,33 @@ fn parse_tier(value: &str) -> Result<Tier> {
     }
 }
 
+fn parse_simd_policy(value: &str) -> Result<SimdPolicy> {
+    match value {
+        "" | "auto" | "auto-safe" => Ok(SimdPolicy::Auto),
+        "off" | "scalar" => Ok(SimdPolicy::Off),
+        "avx2" => Ok(SimdPolicy::Avx2),
+        "sse42" | "sse4.2" => Ok(SimdPolicy::Sse42),
+        "neon" => Ok(SimdPolicy::Neon),
+        _ => Err(Error::from_reason(format!(
+            "Unknown native SIMD policy: {value}. Expected auto, off, avx2, sse42, or neon.",
+        ))),
+    }
+}
+
 fn parse_aggregate(input: &[u8], tier: Tier) -> Result<AggregateResult> {
+    parse_aggregate_with_simd_policy(input, tier, SimdPolicy::Auto)
+}
+
+fn parse_aggregate_with_simd_policy(
+    input: &[u8],
+    tier: Tier,
+    simd: SimdPolicy,
+) -> Result<AggregateResult> {
     if tier.uses_auto_stage_bytes() {
-        return parse_aggregate_auto_stage(input, tier);
+        return parse_aggregate_auto_stage(input, tier, simd);
     }
     if tier.uses_two_stage_bytes() {
-        return parse_aggregate_two_stage(input, tier);
+        return parse_aggregate_two_stage(input, tier, simd);
     }
 
     parse_aggregate_with_parser(input, tier, tier)
@@ -649,7 +726,11 @@ fn parse_aggregate_with_parser(
     })
 }
 
-fn parse_aggregate_auto_stage(input: &[u8], tier: Tier) -> Result<AggregateResult> {
+fn parse_aggregate_auto_stage(
+    input: &[u8],
+    tier: Tier,
+    simd: SimdPolicy,
+) -> Result<AggregateResult> {
     let (two_stage_tier, parser_tier) = match tier {
         Tier::EventCountAutoStage => (Tier::EventCountTwoStage, Tier::EventCountUnchecked),
         Tier::CountAutoStage => (Tier::CountEqTwoStage, Tier::CountOnly),
@@ -657,7 +738,7 @@ fn parse_aggregate_auto_stage(input: &[u8], tier: Tier) -> Result<AggregateResul
     };
 
     let mut result = if should_use_two_stage(input) {
-        parse_aggregate_two_stage(input, two_stage_tier)?
+        parse_aggregate_two_stage(input, two_stage_tier, simd)?
     } else {
         parse_aggregate_with_parser(input, parser_tier, tier)?
     };
@@ -813,9 +894,13 @@ fn parse_aggregate_utf16(input: &[u16], tier: Tier) -> Result<AggregateResult> {
     })
 }
 
-fn parse_aggregate_two_stage(input: &[u8], tier: Tier) -> Result<AggregateResult> {
+fn parse_aggregate_two_stage(
+    input: &[u8],
+    tier: Tier,
+    simd: SimdPolicy,
+) -> Result<AggregateResult> {
     let include_eq = tier == Tier::CountEqTwoStage;
-    let structural = classify_structural_masks(input, include_eq);
+    let structural = classify_structural_masks(input, include_eq, simd)?;
     let gt_positions: Vec<usize> = BitPositionIter::new(&structural.gt_bits).collect();
     let mut gt_index = 0usize;
     let mut text_start = 0usize;
@@ -4242,15 +4327,108 @@ impl Iterator for BitPositionIter<'_> {
     }
 }
 
-fn classify_structural_masks(input: &[u8], include_eq: bool) -> StructuralMasks {
+fn classify_structural_masks(
+    input: &[u8],
+    include_eq: bool,
+    simd: SimdPolicy,
+) -> Result<StructuralMasks> {
+    match simd {
+        SimdPolicy::Off => Ok(classify_structural_masks_scalar(input, include_eq)),
+        SimdPolicy::Auto => Ok(classify_structural_masks_auto(input, include_eq)),
+        SimdPolicy::Avx2 => classify_structural_masks_avx2_explicit(input, include_eq),
+        SimdPolicy::Sse42 => classify_structural_masks_sse42_explicit(input, include_eq),
+        SimdPolicy::Neon => classify_structural_masks_neon_explicit(input, include_eq),
+    }
+}
+
+fn classify_structural_masks_auto(input: &[u8], include_eq: bool) -> StructuralMasks {
+    #[cfg(target_arch = "aarch64")]
+    {
+        classify_structural_masks_neon(input, include_eq)
+    }
+
     #[cfg(target_arch = "x86_64")]
     {
         if std::arch::is_x86_feature_detected!("avx2") {
             return unsafe { classify_structural_masks_avx2(input, include_eq) };
         }
+        if std::arch::is_x86_feature_detected!("sse4.2") {
+            return unsafe { classify_structural_masks_sse42(input, include_eq) };
+        }
+        classify_structural_masks_scalar(input, include_eq)
     }
 
-    classify_structural_masks_scalar(input, include_eq)
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+    {
+        classify_structural_masks_scalar(input, include_eq)
+    }
+}
+
+fn classify_structural_masks_avx2_explicit(
+    input: &[u8],
+    include_eq: bool,
+) -> Result<StructuralMasks> {
+    #[cfg(target_arch = "x86_64")]
+    {
+        if std::arch::is_x86_feature_detected!("avx2") {
+            return Ok(unsafe { classify_structural_masks_avx2(input, include_eq) });
+        }
+        return Err(Error::from_reason(
+            "Native SIMD policy avx2 was requested, but AVX2 is not available on this CPU.",
+        ));
+    }
+
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        let _ = input;
+        let _ = include_eq;
+        Err(Error::from_reason(
+            "Native SIMD policy avx2 was requested, but this build target is not x86_64.",
+        ))
+    }
+}
+
+fn classify_structural_masks_sse42_explicit(
+    input: &[u8],
+    include_eq: bool,
+) -> Result<StructuralMasks> {
+    #[cfg(target_arch = "x86_64")]
+    {
+        if std::arch::is_x86_feature_detected!("sse4.2") {
+            return Ok(unsafe { classify_structural_masks_sse42(input, include_eq) });
+        }
+        return Err(Error::from_reason(
+            "Native SIMD policy sse42 was requested, but SSE4.2 is not available on this CPU.",
+        ));
+    }
+
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        let _ = input;
+        let _ = include_eq;
+        Err(Error::from_reason(
+            "Native SIMD policy sse42 was requested, but this build target is not x86_64.",
+        ))
+    }
+}
+
+fn classify_structural_masks_neon_explicit(
+    input: &[u8],
+    include_eq: bool,
+) -> Result<StructuralMasks> {
+    #[cfg(target_arch = "aarch64")]
+    {
+        return Ok(classify_structural_masks_neon(input, include_eq));
+    }
+
+    #[cfg(not(target_arch = "aarch64"))]
+    {
+        let _ = input;
+        let _ = include_eq;
+        Err(Error::from_reason(
+            "Native SIMD policy neon was requested, but this build target is not aarch64.",
+        ))
+    }
 }
 
 fn classify_structural_masks_scalar(input: &[u8], include_eq: bool) -> StructuralMasks {
@@ -4287,6 +4465,288 @@ fn classify_structural_masks_scalar(input: &[u8], include_eq: bool) -> Structura
         gt_bits,
         eq_bits,
     }
+}
+
+#[cfg(target_arch = "aarch64")]
+fn classify_structural_masks_neon(input: &[u8], include_eq: bool) -> StructuralMasks {
+    let len = input.len();
+    let chunk_count = len.div_ceil(64);
+    let mut lt_bits = vec![0u64; chunk_count];
+    let mut gt_bits = vec![0u64; chunk_count];
+    let mut eq_bits = if include_eq {
+        vec![0u64; chunk_count]
+    } else {
+        Vec::new()
+    };
+
+    let mut in_dquote = false;
+    let mut in_squote = false;
+    let full_chunks = len / 64;
+
+    unsafe {
+        let v_lt = vdupq_n_u8(b'<');
+        let v_gt = vdupq_n_u8(b'>');
+        let v_eq = vdupq_n_u8(b'=');
+        let v_dquote = vdupq_n_u8(b'"');
+        let v_squote = vdupq_n_u8(b'\'');
+
+        for chunk in 0..full_chunks {
+            let base = chunk * 64;
+            let ptr = input.as_ptr().add(base);
+
+            let v0 = vld1q_u8(ptr);
+            let v1 = vld1q_u8(ptr.add(16));
+            let v2 = vld1q_u8(ptr.add(32));
+            let v3 = vld1q_u8(ptr.add(48));
+
+            let lt_mask = neon_movemask_64(
+                vceqq_u8(v0, v_lt),
+                vceqq_u8(v1, v_lt),
+                vceqq_u8(v2, v_lt),
+                vceqq_u8(v3, v_lt),
+            );
+            let gt_mask = neon_movemask_64(
+                vceqq_u8(v0, v_gt),
+                vceqq_u8(v1, v_gt),
+                vceqq_u8(v2, v_gt),
+                vceqq_u8(v3, v_gt),
+            );
+            let eq_mask = if include_eq {
+                neon_movemask_64(
+                    vceqq_u8(v0, v_eq),
+                    vceqq_u8(v1, v_eq),
+                    vceqq_u8(v2, v_eq),
+                    vceqq_u8(v3, v_eq),
+                )
+            } else {
+                0
+            };
+            let dq_mask = neon_movemask_64(
+                vceqq_u8(v0, v_dquote),
+                vceqq_u8(v1, v_dquote),
+                vceqq_u8(v2, v_dquote),
+                vceqq_u8(v3, v_dquote),
+            );
+            let sq_mask = neon_movemask_64(
+                vceqq_u8(v0, v_squote),
+                vceqq_u8(v1, v_squote),
+                vceqq_u8(v2, v_squote),
+                vceqq_u8(v3, v_squote),
+            );
+
+            let quoted_mask = quote_mask(dq_mask, sq_mask, &mut in_dquote, &mut in_squote);
+            lt_bits[chunk] = lt_mask & !quoted_mask;
+            gt_bits[chunk] = gt_mask & !quoted_mask;
+            if include_eq {
+                eq_bits[chunk] = eq_mask & !quoted_mask;
+            }
+        }
+    }
+
+    let remaining_start = full_chunks * 64;
+    if remaining_start < len {
+        let chunk = full_chunks;
+        let mut lt = 0u64;
+        let mut gt = 0u64;
+        let mut eq = 0u64;
+
+        for index in remaining_start..len {
+            let byte = input[index];
+            let bit = (index - remaining_start) as u32;
+
+            if in_dquote {
+                if byte == b'"' {
+                    in_dquote = false;
+                }
+                continue;
+            }
+            if in_squote {
+                if byte == b'\'' {
+                    in_squote = false;
+                }
+                continue;
+            }
+
+            match byte {
+                b'<' => lt |= 1u64 << bit,
+                b'>' => gt |= 1u64 << bit,
+                b'=' if include_eq => eq |= 1u64 << bit,
+                b'"' => in_dquote = true,
+                b'\'' => in_squote = true,
+                _ => {}
+            }
+        }
+
+        if chunk < lt_bits.len() {
+            lt_bits[chunk] = lt;
+            gt_bits[chunk] = gt;
+            if include_eq {
+                eq_bits[chunk] = eq;
+            }
+        }
+    }
+
+    StructuralMasks {
+        lt_bits,
+        gt_bits,
+        eq_bits,
+    }
+}
+
+#[cfg(target_arch = "aarch64")]
+#[inline(always)]
+unsafe fn neon_movemask_64(v0: uint8x16_t, v1: uint8x16_t, v2: uint8x16_t, v3: uint8x16_t) -> u64 {
+    let m0 = neon_movemask(v0) as u64;
+    let m1 = neon_movemask(v1) as u64;
+    let m2 = neon_movemask(v2) as u64;
+    let m3 = neon_movemask(v3) as u64;
+    m0 | (m1 << 16) | (m2 << 32) | (m3 << 48)
+}
+
+#[cfg(target_arch = "aarch64")]
+#[inline(always)]
+unsafe fn neon_movemask(v: uint8x16_t) -> u16 {
+    const MASK: [u8; 16] = [1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128];
+    let mask = vld1q_u8(MASK.as_ptr());
+    let masked = vandq_u8(v, mask);
+    let lo_sum = vaddv_u8(vget_low_u8(masked));
+    let hi_sum = vaddv_u8(vget_high_u8(masked));
+    (lo_sum as u16) | ((hi_sum as u16) << 8)
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "sse4.2")]
+unsafe fn classify_structural_masks_sse42(input: &[u8], include_eq: bool) -> StructuralMasks {
+    let len = input.len();
+    let chunk_count = len.div_ceil(64);
+    let mut lt_bits = vec![0u64; chunk_count];
+    let mut gt_bits = vec![0u64; chunk_count];
+    let mut eq_bits = if include_eq {
+        vec![0u64; chunk_count]
+    } else {
+        Vec::new()
+    };
+
+    let mut in_dquote = false;
+    let mut in_squote = false;
+    let full_chunks = len / 64;
+
+    let v_lt = _mm_set1_epi8(b'<' as i8);
+    let v_gt = _mm_set1_epi8(b'>' as i8);
+    let v_eq = _mm_set1_epi8(b'=' as i8);
+    let v_dquote = _mm_set1_epi8(b'"' as i8);
+    let v_squote = _mm_set1_epi8(b'\'' as i8);
+
+    for chunk in 0..full_chunks {
+        let base = chunk * 64;
+        let ptr = input.as_ptr().add(base) as *const __m128i;
+
+        let v0 = _mm_loadu_si128(ptr);
+        let v1 = _mm_loadu_si128(ptr.add(1));
+        let v2 = _mm_loadu_si128(ptr.add(2));
+        let v3 = _mm_loadu_si128(ptr.add(3));
+
+        let lt_mask = movemask_64_sse42(
+            _mm_cmpeq_epi8(v0, v_lt),
+            _mm_cmpeq_epi8(v1, v_lt),
+            _mm_cmpeq_epi8(v2, v_lt),
+            _mm_cmpeq_epi8(v3, v_lt),
+        );
+        let gt_mask = movemask_64_sse42(
+            _mm_cmpeq_epi8(v0, v_gt),
+            _mm_cmpeq_epi8(v1, v_gt),
+            _mm_cmpeq_epi8(v2, v_gt),
+            _mm_cmpeq_epi8(v3, v_gt),
+        );
+        let eq_mask = if include_eq {
+            movemask_64_sse42(
+                _mm_cmpeq_epi8(v0, v_eq),
+                _mm_cmpeq_epi8(v1, v_eq),
+                _mm_cmpeq_epi8(v2, v_eq),
+                _mm_cmpeq_epi8(v3, v_eq),
+            )
+        } else {
+            0
+        };
+        let dq_mask = movemask_64_sse42(
+            _mm_cmpeq_epi8(v0, v_dquote),
+            _mm_cmpeq_epi8(v1, v_dquote),
+            _mm_cmpeq_epi8(v2, v_dquote),
+            _mm_cmpeq_epi8(v3, v_dquote),
+        );
+        let sq_mask = movemask_64_sse42(
+            _mm_cmpeq_epi8(v0, v_squote),
+            _mm_cmpeq_epi8(v1, v_squote),
+            _mm_cmpeq_epi8(v2, v_squote),
+            _mm_cmpeq_epi8(v3, v_squote),
+        );
+
+        let quoted_mask = quote_mask(dq_mask, sq_mask, &mut in_dquote, &mut in_squote);
+        lt_bits[chunk] = lt_mask & !quoted_mask;
+        gt_bits[chunk] = gt_mask & !quoted_mask;
+        if include_eq {
+            eq_bits[chunk] = eq_mask & !quoted_mask;
+        }
+    }
+
+    let remaining_start = full_chunks * 64;
+    if remaining_start < len {
+        let chunk = full_chunks;
+        let mut lt = 0u64;
+        let mut gt = 0u64;
+        let mut eq = 0u64;
+
+        for index in remaining_start..len {
+            let byte = input[index];
+            let bit = (index - remaining_start) as u32;
+
+            if in_dquote {
+                if byte == b'"' {
+                    in_dquote = false;
+                }
+                continue;
+            }
+            if in_squote {
+                if byte == b'\'' {
+                    in_squote = false;
+                }
+                continue;
+            }
+
+            match byte {
+                b'<' => lt |= 1u64 << bit,
+                b'>' => gt |= 1u64 << bit,
+                b'=' if include_eq => eq |= 1u64 << bit,
+                b'"' => in_dquote = true,
+                b'\'' => in_squote = true,
+                _ => {}
+            }
+        }
+
+        if chunk < lt_bits.len() {
+            lt_bits[chunk] = lt;
+            gt_bits[chunk] = gt;
+            if include_eq {
+                eq_bits[chunk] = eq;
+            }
+        }
+    }
+
+    StructuralMasks {
+        lt_bits,
+        gt_bits,
+        eq_bits,
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "sse4.2")]
+unsafe fn movemask_64_sse42(v0: __m128i, v1: __m128i, v2: __m128i, v3: __m128i) -> u64 {
+    let m0 = _mm_movemask_epi8(v0) as u16 as u64;
+    let m1 = _mm_movemask_epi8(v1) as u16 as u64;
+    let m2 = _mm_movemask_epi8(v2) as u16 as u64;
+    let m3 = _mm_movemask_epi8(v3) as u16 as u64;
+    m0 | (m1 << 16) | (m2 << 32) | (m3 << 48)
 }
 
 #[cfg(target_arch = "x86_64")]
@@ -4780,15 +5240,52 @@ mod tests {
             br#"<root><item expr="left > right" eq="a=b">text</item><![CDATA[<raw>ok</raw>]]></root>"#;
 
         let two_stage = parse_aggregate(input, Tier::EventCountTwoStage).unwrap();
+        let scalar_two_stage =
+            parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Off)
+                .unwrap();
         let unchecked = parse_aggregate(input, Tier::EventCountUnchecked).unwrap();
         let eq_count = parse_aggregate(input, Tier::CountEqTwoStage).unwrap();
+        let scalar_eq_count =
+            parse_aggregate_with_simd_policy(input, Tier::CountEqTwoStage, SimdPolicy::Off)
+                .unwrap();
         let count_only = parse_aggregate(input, Tier::CountOnly).unwrap();
 
         assert_eq!(two_stage.event_count, unchecked.event_count);
         assert_eq!(two_stage.checksum, unchecked.checksum);
+        assert_eq!(scalar_two_stage.event_count, two_stage.event_count);
+        assert_eq!(scalar_two_stage.checksum, two_stage.checksum);
         assert_eq!(eq_count.event_count, count_only.event_count);
         assert_eq!(eq_count.attr_count_total, count_only.attr_count_total);
         assert_eq!(eq_count.checksum, count_only.checksum);
+        assert_eq!(scalar_eq_count.attr_count_total, eq_count.attr_count_total);
+
+        #[cfg(not(target_arch = "aarch64"))]
+        assert!(parse_aggregate_with_simd_policy(
+            input,
+            Tier::EventCountTwoStage,
+            SimdPolicy::Neon
+        )
+        .is_err());
+        #[cfg(target_arch = "x86_64")]
+        if std::arch::is_x86_feature_detected!("avx2") {
+            let avx2_two_stage =
+                parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Avx2)
+                    .unwrap();
+            assert_eq!(avx2_two_stage.event_count, two_stage.event_count);
+            assert_eq!(avx2_two_stage.checksum, two_stage.checksum);
+        }
+
+        #[cfg(target_arch = "x86_64")]
+        if std::arch::is_x86_feature_detected!("sse4.2") {
+            let sse42_two_stage = parse_aggregate_with_simd_policy(
+                input,
+                Tier::EventCountTwoStage,
+                SimdPolicy::Sse42,
+            )
+            .unwrap();
+            assert_eq!(sse42_two_stage.event_count, two_stage.event_count);
+            assert_eq!(sse42_two_stage.checksum, two_stage.checksum);
+        }
     }
 
     #[test]
@@ -5274,6 +5771,17 @@ mod tests {
         );
         assert_eq!(tier_name(Tier::FullStringDirect), "full-string-direct");
         assert_eq!(tier_name(Tier::EventObjectFull), "event-object-full");
+
+        assert_eq!(parse_simd_policy("").unwrap(), SimdPolicy::Auto);
+        assert_eq!(parse_simd_policy("auto").unwrap(), SimdPolicy::Auto);
+        assert_eq!(parse_simd_policy("auto-safe").unwrap(), SimdPolicy::Auto);
+        assert_eq!(parse_simd_policy("off").unwrap(), SimdPolicy::Off);
+        assert_eq!(parse_simd_policy("scalar").unwrap(), SimdPolicy::Off);
+        assert_eq!(parse_simd_policy("avx2").unwrap(), SimdPolicy::Avx2);
+        assert_eq!(parse_simd_policy("sse42").unwrap(), SimdPolicy::Sse42);
+        assert_eq!(parse_simd_policy("sse4.2").unwrap(), SimdPolicy::Sse42);
+        assert_eq!(parse_simd_policy("neon").unwrap(), SimdPolicy::Neon);
+        assert!(parse_simd_policy("missing").is_err());
     }
 
     #[test]

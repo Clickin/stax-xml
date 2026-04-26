@@ -4,8 +4,11 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   parse_aggregate_buffer,
+  parse_aggregate_buffer_with_simd,
   parse_aggregate_file,
+  parse_aggregate_file_with_simd,
   parse_aggregate_uint8array,
+  parse_aggregate_uint8array_with_simd,
   parse_span_table_string_utf16,
   parse_structural_index_string_utf16,
   parse_structural_index_uint8array,
@@ -16,6 +19,7 @@ import {
   parse_object_rows_via_table_uint8array,
   parse_aggregate_string_utf16,
   parse_aggregate_string_utf8,
+  parse_aggregate_string_utf8_with_simd,
 } from './index.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -86,6 +90,23 @@ for (const tier of [
   assertEqual(fileResult.eventCount, bufferResult.eventCount, `${tier} file event count`);
   assertEqual(fileResult.checksum, bufferResult.checksum, `${tier} file checksum`);
 }
+
+const twoStage = normalize(parse_aggregate_buffer(sample, 'event-count-two-stage'));
+for (const [label, result] of [
+  ['buffer simd off', parse_aggregate_buffer_with_simd(sample, 'event-count-two-stage', 'off')],
+  ['uint8array simd off', parse_aggregate_uint8array_with_simd(sampleUint8, 'event-count-two-stage', 'off')],
+  ['utf8 string simd off', parse_aggregate_string_utf8_with_simd(sampleText, 'event-count-two-stage', 'off')],
+]) {
+  const normalized = normalize(result);
+  assertEqual(normalized.eventCount, twoStage.eventCount, `${label} event count`);
+  assertEqual(normalized.checksum, twoStage.checksum, `${label} checksum`);
+}
+mkdirSync(join(__dirname, 'target'), { recursive: true });
+const simdFilePath = join(__dirname, 'target', 'smoke-simd.xml');
+writeFileSync(simdFilePath, sample);
+const fileSimd = normalize(parse_aggregate_file_with_simd(simdFilePath, 'event-count-two-stage', 'off'));
+assertEqual(fileSimd.eventCount, twoStage.eventCount, 'file simd off event count');
+assertEqual(fileSimd.checksum, twoStage.checksum, 'file simd off checksum');
 
 assertThrows(
   () => parse_aggregate_buffer(Buffer.from('<root><item a="1 > 2></item></root>'), 'full-string-direct'),
