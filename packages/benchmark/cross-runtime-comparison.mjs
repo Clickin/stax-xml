@@ -29,6 +29,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     skipJava25: false,
     fileExplicit: false,
     simdxmlMaxMiB: DEFAULT_SIMDXML_MAX_MIB,
+    nativeSimd: 'auto',
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -77,6 +78,16 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--simdxml-max-mib':
         options.simdxmlMaxMiB = parsePositiveNumber(readValue(), '--simdxml-max-mib');
+        break;
+      case '--native-simd':
+        options.nativeSimd = parseSingleChoice(
+          readValue(),
+          ['auto', 'auto-safe', 'off', 'scalar', 'avx2', 'sse42', 'sse4.2', 'neon'],
+          '--native-simd',
+        );
+        if (options.nativeSimd === 'auto-safe') options.nativeSimd = 'auto';
+        if (options.nativeSimd === 'scalar') options.nativeSimd = 'off';
+        if (options.nativeSimd === 'sse4.2') options.nativeSimd = 'sse42';
         break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
@@ -159,6 +170,14 @@ function parsePositiveNumber(value, flag) {
     throw new Error(`${flag} must be a positive number.`);
   }
   return parsed;
+}
+
+function parseSingleChoice(value, allowed, flag) {
+  const entries = value.split(',').map(entry => entry.trim()).filter(Boolean);
+  if (entries.length !== 1 || !allowed.includes(entries[0])) {
+    throw new Error(`${flag} expects exactly one of ${allowed.join(', ')}.`);
+  }
+  return entries[0];
 }
 
 function run(command, args, options = {}) {
@@ -404,7 +423,8 @@ async function measureNativeAddon(options) {
     tiers: options.tiers,
     warmups: options.warmups,
     runs: options.runs,
-    invoke: nativeTier => native.parse_aggregate_buffer(input, nativeTier),
+    nativeSimd: options.nativeSimd,
+    invoke: nativeTier => invokeNativeAggregateBuffer(native, input, nativeTier, options.nativeSimd),
   });
   const fileTiers = measureNativeAddonTiers({
     id: 'stax-xml-native-addon-file',
@@ -412,7 +432,8 @@ async function measureNativeAddon(options) {
     tiers: options.tiers,
     warmups: options.warmups,
     runs: options.runs,
-    invoke: nativeTier => native.parse_aggregate_file(options.file, nativeTier),
+    nativeSimd: options.nativeSimd,
+    invoke: nativeTier => invokeNativeAggregateFile(native, options.file, nativeTier, options.nativeSimd),
   });
 
   return {
@@ -424,7 +445,7 @@ async function measureNativeAddon(options) {
   };
 }
 
-function measureNativeAddonTiers({ id, fileSizeMiB, tiers, warmups, runs, invoke }) {
+function measureNativeAddonTiers({ id, fileSizeMiB, tiers, warmups, runs, nativeSimd, invoke }) {
   return tiers.map(tier => {
     const nativeTier = nativeTierForComparatorTier(tier);
     if (!nativeTier) {
@@ -475,9 +496,30 @@ function measureNativeAddonTiers({ id, fileSizeMiB, tiers, warmups, runs, invoke
       checksum,
       attrCountTotal,
       objectCount,
+      nativeSimd,
       samplesMs,
     };
   });
+}
+
+function invokeNativeAggregateBuffer(native, input, nativeTier, nativeSimd) {
+  if (typeof native.parse_aggregate_buffer_with_simd === 'function') {
+    return native.parse_aggregate_buffer_with_simd(input, nativeTier, nativeSimd);
+  }
+  if (nativeSimd !== 'auto') {
+    throw new Error('Native addon does not expose parse_aggregate_buffer_with_simd; rebuild packages/native-aggregate.');
+  }
+  return native.parse_aggregate_buffer(input, nativeTier);
+}
+
+function invokeNativeAggregateFile(native, file, nativeTier, nativeSimd) {
+  if (typeof native.parse_aggregate_file_with_simd === 'function') {
+    return native.parse_aggregate_file_with_simd(file, nativeTier, nativeSimd);
+  }
+  if (nativeSimd !== 'auto') {
+    throw new Error('Native addon does not expose parse_aggregate_file_with_simd; rebuild packages/native-aggregate.');
+  }
+  return native.parse_aggregate_file(file, nativeTier);
 }
 
 function javaVersion(command) {
@@ -639,6 +681,7 @@ function createMarkdown(report) {
     `- Fixture: ${report.fixture.path}`,
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- Native SIMD policy: ${report.options.nativeSimd}`,
     `- simdxml max fixture: ${report.options.simdxmlMaxMiB} MiB`,
     `- Java 8: ${escapePipe(report.tools.java8Version ?? 'unknown')}`,
     `- Java 25 check: ${escapePipe(report.java25Verification.java25Version ?? report.java25Verification.reason ?? 'not available')}`,
@@ -779,6 +822,7 @@ async function main() {
       warmups: options.warmups,
       tiers: options.tiers,
       simdxmlMaxMiB: options.simdxmlMaxMiB,
+      nativeSimd: options.nativeSimd,
     },
     tools: {
       java8Command: tools.java8,
