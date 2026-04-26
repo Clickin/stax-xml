@@ -67,14 +67,14 @@ Results:
 
 | Schema | Fixture | Size | JS compiled | Native platform converter | Speedup |
 | --- | --- | ---: | ---: | ---: | ---: |
-| hardcoded-item | attribute-heavy | 16 MiB | 278.33 ms | 148.60 ms | 1.87x |
-| generic-entry | attribute-heavy | 16 MiB | 253.33 ms | 194.35 ms | 1.30x |
-| hardcoded-item | mixed-utf8 | 16 MiB | 326.47 ms | 163.23 ms | 2.00x |
-| generic-entry | mixed-utf8 | 16 MiB | 298.30 ms | 216.91 ms | 1.38x |
-| hardcoded-item | attribute-heavy | 128 MiB | 2058.73 ms | 1369.19 ms | 1.50x |
-| generic-entry | attribute-heavy | 128 MiB | 1973.75 ms | 1656.66 ms | 1.19x |
-| hardcoded-item | mixed-utf8 | 128 MiB | 2475.93 ms | 1528.01 ms | 1.62x |
-| generic-entry | mixed-utf8 | 128 MiB | 2275.00 ms | 1756.38 ms | 1.30x |
+| hardcoded-item | attribute-heavy | 16 MiB | 272.74 ms | 156.86 ms | 1.74x |
+| generic-entry | attribute-heavy | 16 MiB | 262.18 ms | 192.87 ms | 1.36x |
+| hardcoded-item | mixed-utf8 | 16 MiB | 330.05 ms | 169.54 ms | 1.95x |
+| generic-entry | mixed-utf8 | 16 MiB | 301.79 ms | 215.88 ms | 1.40x |
+| hardcoded-item | attribute-heavy | 128 MiB | 2112.54 ms | 1358.68 ms | 1.55x |
+| generic-entry | attribute-heavy | 128 MiB | 2014.40 ms | 1686.39 ms | 1.19x |
+| hardcoded-item | mixed-utf8 | 128 MiB | 2480.68 ms | 1529.20 ms | 1.62x |
+| generic-entry | mixed-utf8 | 128 MiB | 2285.52 ms | 1759.92 ms | 1.30x |
 
 All staged platform converter checksums matched.
 
@@ -84,14 +84,14 @@ The staged platform converter harness now includes a benchmark-only breakdown fo
 
 | Fixture | Size | Direct native projection, 3 fields | Via-table projection, 3 fields | Code only | Code + label | Score only | Dynamic hydration | Stable-shape hydration | Hydration speedup |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| attribute-heavy | 16 MiB | 185.18 ms | 217.40 ms | 90.09 ms | 144.33 ms | 85.60 ms | 10.54 ms | 4.59 ms | 2.30x |
-| mixed-utf8 | 16 MiB | 191.65 ms | 232.82 ms | 90.57 ms | 151.53 ms | 91.48 ms | 11.49 ms | 4.81 ms | 2.39x |
-| attribute-heavy | 128 MiB | 1571.13 ms | 1830.91 ms | 715.83 ms | 1248.48 ms | 687.91 ms | 132.54 ms | 76.76 ms | 1.73x |
-| mixed-utf8 | 128 MiB | 1619.26 ms | 1881.88 ms | 721.31 ms | 1280.33 ms | 722.39 ms | 133.70 ms | 76.42 ms | 1.75x |
+| attribute-heavy | 16 MiB | 184.76 ms | 221.12 ms | 88.00 ms | 145.31 ms | 86.52 ms | 10.79 ms | 4.59 ms | 2.35x |
+| mixed-utf8 | 16 MiB | 194.20 ms | 247.97 ms | 89.87 ms | 152.18 ms | 91.68 ms | 11.55 ms | 4.76 ms | 2.43x |
+| attribute-heavy | 128 MiB | 1558.53 ms | 1859.41 ms | 707.05 ms | 1244.87 ms | 693.32 ms | 134.18 ms | 79.84 ms | 1.68x |
+| mixed-utf8 | 128 MiB | 1599.39 ms | 1915.79 ms | 703.56 ms | 1276.09 ms | 702.93 ms | 195.06 ms | 75.19 ms | 2.59x |
 
-Direct generic projection removes the table-build-then-replay cost from the descriptor path. At 128 MiB it cuts the three-field native projection slice by about 260 ms to 263 ms versus the via-table path. Typed native number columns also avoid string transfer for numeric fields while preserving TypeScript-side number validation.
+Direct generic projection removes the table-build-then-replay cost from the descriptor path. At 128 MiB it cuts the three-field native projection slice by about 301 ms to 316 ms versus the via-table path. Typed native number columns also avoid string transfer for numeric fields while preserving TypeScript-side number validation. Removing direct-parser attribute span collection avoids an unnecessary temporary vector in the direct parser, but it did not change the dominant cost class in the public converter benchmark.
 
-The remaining gap is now dominated by string column materialization/transfer and JavaScript row hydration. Stable-shape hydration remains faster in isolation, but it would only save about 56 ms to 57 ms at 128 MiB after the direct projection fix, while direct native projection still takes 1571 ms to 1619 ms for the three-field schema.
+The remaining gap is now dominated by string column materialization/transfer and JavaScript row hydration. Stable-shape hydration remains faster in isolation, but it would only save about 54 ms to 120 ms at 128 MiB after the direct projection fix, while direct native projection still takes 1559 ms to 1599 ms for the three-field schema.
 
 ## Gate Status
 
@@ -101,11 +101,21 @@ The representative table projection path does satisfy the gate. It builds the sa
 
 The generic object rows projection now accepts a compiled-plan descriptor for root array/object shapes with relative attribute and single child element scalar fields. Returning columnar field arrays instead of per-row value arrays improved the generic path from the initial row-array shape, and the direct parser removed the table replay pass, but it still reaches only 1.19x to 1.30x at 128 MiB and does not meet the 1.5x gate. The remaining cost is dominated by generic string materialization, N-API transfer of per-field string columns, and TS object reconstruction/number validation.
 
-The staged platform converter benchmark confirms that this cost is user-visible: after TypeScript object hydration and scalar validation, the generic descriptor path improved from the prior 1.01x to 1.11x range to 1.19x to 1.30x at 128 MiB. The hardcoded representative path stays at or above the gate through the public converter API at 1.50x to 1.62x.
+The staged platform converter benchmark confirms that this cost is user-visible: after TypeScript object hydration and scalar validation, the generic descriptor path improved from the prior 1.01x to 1.11x range to 1.19x to 1.30x at 128 MiB. The hardcoded representative path stays above the gate through the public converter API at 1.55x to 1.62x.
 
 The direct generic parser fixes the table replay bottleneck, but it does not yet satisfy the 1.5x generic gate. The next tuning candidates should reduce the remaining string column materialization and row hydration costs without reintroducing per-event JS/native boundaries.
 
 The direct schema-aware native projection PoC remains the upper-bound comparison for this schema. At 128 MiB it reaches 2.21x to 2.70x of JS compiled converter throughput while preserving checksum parity.
+
+## Comparator Matrix Smoke
+
+`cross-runtime-comparison` now includes an opt-in simdxml external runner with a default 64 MiB cap:
+
+```powershell
+pnpm --filter benchmark run bench:cross-runtime -- --tiers=count-only,full-string --runs=1 --warmups=0 --skip-java25 --simdxml-max-mib=64 --json-out=results/release/cross-runtime-comparison-smoke.json --md-out=results/release/cross-runtime-comparison-smoke.md
+```
+
+The smoke fixture was 16.00 MiB. All compared rows preserved event count and checksum for the sampled tiers. simdxml reached 341.7 MiB/s on count-only and 310.2 MiB/s on full-string, versus quick-xml at 292.3 MiB/s and 198.6 MiB/s on the same smoke. These smoke result files were removed after measurement because raw generated benchmark outputs belong on an evidence branch.
 
 ## Notes
 
@@ -118,3 +128,5 @@ The native table rows path is now wired into `CompiledRootProcessor` for the rep
 The generic descriptor path is also wired into `CompiledRootProcessor` for byte-input root arrays of inline objects when every field is a scalar selected by a relative attribute or one relative child element. It prefers the direct native parser, retains the via-table parser as fallback/comparator, and preserves schema-side number validation by returning typed numeric columns to TypeScript for compiled scalar validation. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths. This is a bounded lowering step, not full XPath execution in native code.
 
 The native binary smoke workflow now stages each runnable platform package and executes `packages/native-aggregate/scripts/smoke-platform-package.mjs`, which verifies `parseStructuralIndexUint8Array`, `parseItemRowsViaTableUint8Array`, `parseObjectRowsUint8Array`, and `parseObjectRowsViaTableUint8Array` through the platform package entrypoint.
+
+The simdxml comparator uses `simdxml::parse` and public structural-index accessors rather than a DOM API. It still reads the fixture into memory and builds simdxml's index, so the benchmark harness skips simdxml above `--simdxml-max-mib` to avoid accidental large-file memory pressure.

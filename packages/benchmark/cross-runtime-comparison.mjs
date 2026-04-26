@@ -12,8 +12,10 @@ const defaultJsonOut = join(__dirname, 'results', 'release', 'cross-runtime-comp
 const defaultMdOut = join(__dirname, 'results', 'release', 'cross-runtime-comparison.md');
 const woodstoxDir = join(__dirname, 'external', 'woodstox');
 const quickXmlDir = join(__dirname, 'external', 'quick-xml-bench');
+const simdXmlDir = join(__dirname, 'external', 'simdxml-bench');
 const nodeStringReturnPath = join(__dirname, 'node-string-return.mjs');
 const nativeAggregatePackageJsonPath = join(__dirname, '..', 'native-aggregate', 'package.json');
+const DEFAULT_SIMDXML_MAX_MIB = 64;
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -26,6 +28,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     skipBuild: false,
     skipJava25: false,
     fileExplicit: false,
+    simdxmlMaxMiB: DEFAULT_SIMDXML_MAX_MIB,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -71,6 +74,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--md-out':
         options.mdOut = resolve(process.cwd(), readValue());
+        break;
+      case '--simdxml-max-mib':
+        options.simdxmlMaxMiB = parsePositiveNumber(readValue(), '--simdxml-max-mib');
         break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
@@ -147,6 +153,14 @@ function parseNonNegativeInteger(value, flag) {
   return parsed;
 }
 
+function parsePositiveNumber(value, flag) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${flag} must be a positive number.`);
+  }
+  return parsed;
+}
+
 function run(command, args, options = {}) {
   const useCmd = process.platform === 'win32' && command === 'mvn';
   const resolvedCommand = useCmd ? 'cmd.exe' : command;
@@ -195,6 +209,13 @@ function buildExternalTools(options) {
       '--release',
       '--locked',
     ]);
+    run('cargo', [
+      'build',
+      '--manifest-path',
+      join(simdXmlDir, 'Cargo.toml'),
+      '--release',
+      '--locked',
+    ]);
   }
 
   const classpathFile = join(woodstoxDir, 'target', 'classpath.txt');
@@ -210,12 +231,19 @@ function buildExternalTools(options) {
     'release',
     process.platform === 'win32' ? 'quick-xml-bench.exe' : 'quick-xml-bench',
   );
+  const simdXmlExe = join(
+    simdXmlDir,
+    'target',
+    'release',
+    process.platform === 'win32' ? 'simdxml-bench.exe' : 'simdxml-bench',
+  );
 
   return {
     java8: findJava8(),
     java25: options.skipJava25 ? undefined : findJava25(),
     woodstoxClasspath,
     quickXmlExe,
+    simdXmlExe,
   };
 }
 
@@ -261,6 +289,10 @@ function quickXmlCommand(exe) {
   return quoteCommandPart(exe);
 }
 
+function simdXmlCommand(exe) {
+  return quoteCommandPart(exe);
+}
+
 function runNodeStringReturn(options, tools) {
   const rawOut = join(dirname(options.jsonOut), 'raw', 'cross-runtime-node-string-return.json');
   mkdirSync(dirname(rawOut), { recursive: true });
@@ -279,6 +311,10 @@ function runNodeStringReturn(options, tools) {
     woodstoxCommand(tools.java8, tools.woodstoxClasspath),
     '--quick-xml-cmd',
     quickXmlCommand(tools.quickXmlExe),
+    '--simdxml-cmd',
+    simdXmlCommand(tools.simdXmlExe),
+    '--simdxml-max-mib',
+    String(options.simdxmlMaxMiB),
     '--json-out',
     rawOut,
   ], { stdio: 'inherit' });
@@ -443,6 +479,21 @@ function quickXmlVersion(exe) {
   }
 }
 
+function simdXmlVersion(exe) {
+  const result = spawnSync(exe, ['--version'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.error || result.status !== 0) {
+    return null;
+  }
+  try {
+    return JSON.parse(result.stdout).simdxmlVersion;
+  } catch {
+    return null;
+  }
+}
+
 function verifyJava25(options, tools, baseReport) {
   if (!tools.java25) {
     return {
@@ -500,7 +551,7 @@ function escapePipe(value) {
 function createScenarioDetails(report) {
   return [
     '<details>',
-    '<summary>Scenario contract: stax-xml JS/native, Woodstox, and quick-xml comparator</summary>',
+    '<summary>Scenario contract: stax-xml JS/native, Woodstox, quick-xml, and simdxml comparator</summary>',
     '',
     `The comparator uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
     '',
@@ -524,7 +575,7 @@ function createScenarioDetails(report) {
     '~~~text',
     'comparator-result = {',
     '  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",',
-    '  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",',
+    '  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml" | "simdxml",',
     '  eventCount: number,',
     '  checksum: fold(selected event data for tier)',
     '}',
@@ -536,6 +587,7 @@ function createScenarioDetails(report) {
     '- `stax-xml native addon`: JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process.',
     '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
     '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
+    `- simdxml structural index: Rust \`simdxml::parse\` over a whole-file byte buffer plus the benchmark adapter projection; skipped above ${report.options.simdxmlMaxMiB} MiB by default to avoid excessive memory use.`,
     '- Java 8 is the public Woodstox row because it is Woodstox\'s minimum runtime target; Java 25 is a separate verification row.',
     '',
     '</details>',
@@ -558,9 +610,11 @@ function createMarkdown(report) {
     `- Fixture: ${report.fixture.path}`,
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- simdxml max fixture: ${report.options.simdxmlMaxMiB} MiB`,
     `- Java 8: ${escapePipe(report.tools.java8Version ?? 'unknown')}`,
     `- Java 25 check: ${escapePipe(report.java25Verification.java25Version ?? report.java25Verification.reason ?? 'not available')}`,
     `- quick-xml crate: ${report.tools.quickXmlVersion ?? 'unknown'}`,
+    `- simdxml crate: ${report.tools.simdxmlVersion ?? 'unknown'}`,
     `- stax-xml native addon: ${report.tools.nativeAggregateVersion ?? 'unknown'}`,
     '',
     '## Scenario',
@@ -630,6 +684,7 @@ function comparatorRows(report, tierId) {
     ['stax-xml native addon (JS wrapper)', nativeTierById(report, tierId)],
     ['Woodstox on Java 8', scenarioById(report, tierId, 'woodstox')],
     ['quick-xml', scenarioById(report, tierId, 'quick-xml')],
+    ['simdxml structural index', scenarioById(report, tierId, 'simdxml')],
   ];
 }
 
@@ -688,6 +743,7 @@ async function main() {
       runs: options.runs,
       warmups: options.warmups,
       tiers: options.tiers,
+      simdxmlMaxMiB: options.simdxmlMaxMiB,
     },
     tools: {
       java8Command: tools.java8,
@@ -695,6 +751,8 @@ async function main() {
       java25Command: tools.java25 ?? null,
       quickXmlCommand: tools.quickXmlExe,
       quickXmlVersion: quickXmlVersion(tools.quickXmlExe),
+      simdxmlCommand: tools.simdXmlExe,
+      simdxmlVersion: simdXmlVersion(tools.simdXmlExe),
       nativeAggregatePackage: '@stax-xml/native-aggregate-probe',
       nativeAggregateVersion: nativeAggregateVersion(),
     },

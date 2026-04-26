@@ -142,6 +142,18 @@ describe('runtime backend package topology', () => {
     expect(script).toContain('parseObjectRowsUint8Array');
     expect(script).toContain('parseObjectRowsViaTableUint8Array');
   });
+
+  it('keeps the simdxml comparator opt-in and size capped', () => {
+    const nodeStringReturn = readText('../../benchmark/node-string-return.mjs');
+    const crossRuntime = readText('../../benchmark/cross-runtime-comparison.mjs');
+
+    expect(nodeStringReturn).toContain('--simdxml-cmd');
+    expect(nodeStringReturn).toContain('--simdxml-max-mib');
+    expect(nodeStringReturn).toContain("measureExternal('simdxml'");
+    expect(crossRuntime).toContain('simdxml-bench');
+    expect(crossRuntime).toContain('simdxmlMaxMiB');
+    expect(crossRuntime).toContain('simdxml structural index');
+  });
 });
 
 describe('runtime backend resolver', () => {
