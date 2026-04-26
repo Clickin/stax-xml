@@ -1,3 +1,5 @@
+mod error;
+
 mod aggregate;
 mod xpath_index;
 
