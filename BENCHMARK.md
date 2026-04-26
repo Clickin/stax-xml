@@ -1,9 +1,9 @@
 # Benchmarks
 
-Generated: 2026-04-26T12:38:35.356Z
+Generated: 2026-04-26T13:51:29.069Z
 
 Environment:
-- CPU: 13th Gen Intel(R) Core(TM) i5-13600K (~4.84 GHz)
+- CPU: 13th Gen Intel(R) Core(TM) i5-13600K (~4.82 GHz)
 - Runtime: node 24.15.0 (x64-win32)
 
 This report is generated from the canonical release benchmark set. The docs benchmark pages are derived from the same raw JSON results.
@@ -11,7 +11,7 @@ This report is generated from the canonical release benchmark set. The docs benc
 ## Benchmark Environment
 
 The refreshed benchmark tables on this page were rerun with:
-- **CPU**: 13th Gen Intel(R) Core(TM) i5-13600K (~4.84 GHz)
+- **CPU**: 13th Gen Intel(R) Core(TM) i5-13600K (~4.82 GHz)
 - **Runtime**: node 24.15.0 (x64-win32) with garbage collection exposed (`--expose-gc`)
 - **Tool**: [Mitata](https://github.com/evanw/mitata)
 - **Canonical Set**: parser 2KB / 4KB / 13MB / 98MB with stax-xml backend/surface rows, iterable sync/async size comparison from 1MiB to 4GiB, writer small / big / async, converter parity
@@ -97,12 +97,13 @@ object-output:
 
 Runtime methods:
 
-- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes.
-- `stax-xml JS fallback raw iterable`: `StaxXmlIterableParser` byte-frame loop with the same checksum contract.
+- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes. The XML string is prepared outside the timed region, matching string-only library API-native rows.
+- `stax-xml JS fallback event parser (decode+parse)`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running `StaxXmlParserSync`.
+- `stax-xml JS Uint8Array iterable`: `StaxXmlIterableParser` byte-frame loop over a reusable `Iterable<Uint8Array[]>` with the same checksum contract.
 - `stax-xml native addon event aggregate`: native aggregate probe using the event-object tier inside Rust; it is not a public per-event JavaScript iterator.
 - `stax-xml native addon raw aggregate`: native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.
 - `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.
-- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.
+- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its string API-native object/DOM-style parse API.
 - The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.
 - The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.
 
@@ -116,14 +117,15 @@ Benchmark source: [parser-2kb.mjs](https://github.com/Clickin/stax-xml/blob/mast
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 9.58 µs | ~104,358 ops/sec | 1.88 kb | Lightweight object parser |
-| **stax-xml to object** | 468.19 µs | ~2,136 ops/sec | 72.22 kb | Object conversion |
-| stax-xml JS event parser | 492.46 µs | ~2,031 ops/sec | 87.76 kb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 294.98 µs | ~3,390 ops/sec | 35.01 kb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 12.45 µs | ~80,341 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 3.69 µs | ~270,809 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
-| fast-xml-parser | 440.89 µs | ~2,268 ops/sec | 194.14 kb | Object parser |
-| xml2js | 671.63 µs | ~1,489 ops/sec | 220.71 kb | Callback object parser |
+| **txml** | 11.17 µs | ~89,523 ops/sec | 1.88 kb | Lightweight object parser |
+| **stax-xml to object** | 378.89 µs | ~2,639 ops/sec | 71.29 kb | Object conversion |
+| stax-xml JS event parser | 362.68 µs | ~2,757 ops/sec | 85.42 kb | String API-native path; XML string is prepared outside the timed region |
+| stax-xml JS event parser (decode+parse) | 317.68 µs | ~3,148 ops/sec | 80.32 kb | Byte-source path: Buffer.toString plus public string event parser |
+| stax-xml JS Uint8Array iterable | 312.05 µs | ~3,205 ops/sec | 33.17 kb | Byte-source API-native path; reusable Iterable<Uint8Array[]> batches |
+| **stax-xml native event aggregate** | 10.33 µs | ~96,798 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 3.29 µs | ~304,015 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
+| fast-xml-parser | 783.84 µs | ~1,276 ops/sec | 196.02 kb | Object parser |
+| xml2js | 724.09 µs | ~1,381 ops/sec | 222.96 kb | Callback object parser |
 
 ### Medium Documents (4KB)
 
@@ -133,14 +135,15 @@ Benchmark source: [parser-4kb.mjs](https://github.com/Clickin/stax-xml/blob/mast
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **txml** | 18.67 µs | ~53,552 ops/sec | 5.17 kb | Lightweight object parser |
-| **stax-xml to object** | 434.38 µs | ~2,302 ops/sec | 104.66 kb | Object conversion |
-| stax-xml JS event parser | 449.50 µs | ~2,225 ops/sec | 134.42 kb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 266.74 µs | ~3,749 ops/sec | 38.36 kb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 20.00 µs | ~49,992 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 6.53 µs | ~153,062 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
-| fast-xml-parser | 722.86 µs | ~1,383 ops/sec | 842.51 kb | Object parser |
-| xml2js | 893.71 µs | ~1,119 ops/sec | 625.86 kb | Callback object parser |
+| **txml** | 21.42 µs | ~46,679 ops/sec | 5.21 kb | Lightweight object parser |
+| **stax-xml to object** | 417.22 µs | ~2,397 ops/sec | 105.29 kb | Object conversion |
+| stax-xml JS event parser | 507.13 µs | ~1,972 ops/sec | 132.99 kb | String API-native path; XML string is prepared outside the timed region |
+| stax-xml JS event parser (decode+parse) | 614.33 µs | ~1,628 ops/sec | 136.82 kb | Byte-source path: Buffer.toString plus public string event parser |
+| stax-xml JS Uint8Array iterable | 364.08 µs | ~2,747 ops/sec | 34.70 kb | Byte-source API-native path; reusable Iterable<Uint8Array[]> batches |
+| **stax-xml native event aggregate** | 18.89 µs | ~52,929 ops/sec | 0.19 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 6.94 µs | ~144,056 ops/sec | 0.19 kb | N-API aggregate probe; coarse Buffer call |
+| fast-xml-parser | 1.05 ms | ~953.85 ops/sec | 915.46 kb | Object parser |
+| xml2js | 1.35 ms | ~738.97 ops/sec | 593.97 kb | Callback object parser |
 
 ### Large Documents (1MiB to 4GiB)
 
@@ -367,14 +370,15 @@ Benchmark source: [parser-13mb.mjs](https://github.com/Clickin/stax-xml/blob/mas
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| xml2js | 559.25 µs | ~1,788 ops/sec | 430.99 kb | Invalid comparator: first top-level element only* |
-| **stax-xml to object** | 249.97 ms | ~4 ops/sec | 145.53 mb | Object conversion |
-| stax-xml JS event parser | 261.56 ms | ~3.82 ops/sec | 165.62 mb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 104.14 ms | ~9.6 ops/sec | 26.36 mb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 73.31 ms | ~13.64 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 24.07 ms | ~41.55 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
-| **txml** | 113.14 ms | ~8.84 ops/sec | 117.59 mb | Lightweight object parser |
-| fast-xml-parser | 673.81 ms | ~1.48 ops/sec | 177.83 mb | Object parser |
+| xml2js | 837.36 µs | ~1,194 ops/sec | 452.25 kb | Invalid comparator: first top-level element only* |
+| **stax-xml to object** | 281.58 ms | ~3.55 ops/sec | 145.44 mb | Object conversion |
+| stax-xml JS event parser | 307.92 ms | ~3.25 ops/sec | 166.68 mb | String API-native path; XML string is prepared outside the timed region |
+| stax-xml JS event parser (decode+parse) | 296.19 ms | ~3.38 ops/sec | 166.70 mb | Byte-source path: Buffer.toString plus public string event parser |
+| stax-xml JS Uint8Array iterable | 105.36 ms | ~9.49 ops/sec | 26.36 mb | Byte-source API-native path; reusable Iterable<Uint8Array[]> batches |
+| **stax-xml native event aggregate** | 102.75 ms | ~9.73 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 21.19 ms | ~47.18 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
+| **txml** | 118.32 ms | ~8.45 ops/sec | 117.59 mb | Lightweight object parser |
+| fast-xml-parser | 774.20 ms | ~1.29 ops/sec | 156.49 mb | Object parser |
 
 *xml2js is not a valid whole-document comparator for this fixture. `midsize.xml` contains repeated top-level `<any_name>` roots, and xml2js returns only the first top-level element shape.
 
@@ -386,14 +390,15 @@ Benchmark source: [parser-98mb.mjs](https://github.com/Clickin/stax-xml/blob/mas
 
 | Library | Average Time | Operations/sec | Memory Usage | Notes |
 |---------|--------------|----------------|--------------|-------|
-| **stax-xml to object** | 1.92 s | ~0.52 ops/sec | 979.91 mb | Memory efficient |
-| stax-xml JS event parser | 1.94 s | ~0.51 ops/sec | 1007.59 mb | Public StaxXmlParserSync event API |
-| stax-xml JS raw iterable | 718.66 ms | ~1.39 ops/sec | 18.41 mb | Iterable byte frames with string materialization checksum |
-| **stax-xml native event aggregate** | 526.49 ms | ~1.9 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
-| **stax-xml native raw aggregate** | 152.08 ms | ~6.58 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
-| **txml** | 980.03 ms | ~1.02 ops/sec | 859.76 mb | Object parser |
-| fast-xml-parser | 5.54 s | ~0.18 ops/sec | 1019.42 mb | Object parser |
-| xml2js | 5.76 s | ~0.17 ops/sec | 638.94 mb | Callback object parser |
+| **stax-xml to object** | 2.11 s | ~0.47 ops/sec | 991.46 mb | Memory efficient |
+| stax-xml JS event parser | 2.15 s | ~0.47 ops/sec | 1011.52 mb | String API-native path; XML string is prepared outside the timed region |
+| stax-xml JS event parser (decode+parse) | 2.19 s | ~0.46 ops/sec | 999.74 mb | Byte-source path: Buffer.toString plus public string event parser |
+| stax-xml JS Uint8Array iterable | 719.30 ms | ~1.39 ops/sec | 18.41 mb | Byte-source API-native path; reusable Iterable<Uint8Array[]> batches |
+| **stax-xml native event aggregate** | 826.01 ms | ~1.21 ops/sec | 3.09 kb | N-API aggregate probe; event-like objects stay inside Rust |
+| **stax-xml native raw aggregate** | 157.03 ms | ~6.37 ops/sec | 3.09 kb | N-API aggregate probe; coarse Buffer call |
+| **txml** | 1.04 s | ~0.96 ops/sec | 859.82 mb | Object parser |
+| fast-xml-parser | 5.97 s | ~0.17 ops/sec | 1021.60 mb | Object parser |
+| xml2js | 6.21 s | ~0.16 ops/sec | 638.58 mb | Callback object parser |
 
 ## Converter API vs Plain Parser
 
