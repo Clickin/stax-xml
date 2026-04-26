@@ -18,3 +18,12 @@ export type {
   StaxXmlWasmIterableParserOptions,
   StaxXmlWasmSpanTable,
 } from './wasm-iterable-parser.js';
+export {
+  StaxXmlStructuralIndexParser,
+} from './structural-index-parser.js';
+export type {
+  StaxXmlStructuralIndexParserOptions,
+  StructuralIndexSource,
+  StructuralIndexSourceKind,
+  StructuralIndexTable,
+} from './structural-index-parser.js';

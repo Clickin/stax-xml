@@ -1,5 +1,10 @@
 import { IterableEventType, StaxXmlIterableParser, toByteBatches } from '../StaxXmlIterableParser.js';
 import {
+  resolveStaxXmlRuntimeBackend,
+  StaxXmlStructuralIndexParser,
+  type StructuralIndexTable
+} from '../runtime/index.js';
+import {
   isCdata,
   isCharacters,
   isEndElement,
@@ -123,12 +128,33 @@ export class CompiledRootProcessor {
   }
 
   async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
-    if (typeof input === 'string') {
-      return this.parseSync<T>(input, options);
-    }
-
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     const runtime = this.createRuntime(this.plan, effectiveOptions);
+
+    if (typeof input === 'string') {
+      const acceleratedTable = await tryCreateStructuralIndexTable(input, effectiveOptions);
+      if (acceleratedTable) {
+        this.processEventTable(runtime, acceleratedTable);
+        return this.finish<T>(runtime);
+      }
+      return this.parseSync<T>(input, effectiveOptions);
+    }
+
+    if (isArrayBufferView(input)) {
+      const acceleratedTable = await tryCreateStructuralIndexTable(input, effectiveOptions);
+      if (acceleratedTable) {
+        this.processEventTable(runtime, acceleratedTable);
+        return this.finish<T>(runtime);
+      }
+
+      const parser = createIterableParserFromChunks([toUint8Array(input)], { batchSize: 1 });
+      while (parser.nextBatch()) {
+        for (let index = 0; index < parser.eventCount(); index++) {
+          this.processIterableEvent(runtime, parser, index);
+        }
+      }
+      return this.finish<T>(runtime);
+    }
 
     const eventTable = getIterableEventTable(input);
     if (eventTable) {
@@ -742,6 +768,10 @@ function copyAttributes(
     return {};
   }
 
+  if (!(parser instanceof StaxXmlIterableParser) && parser.copyAttrValueByName) {
+    return lazyAttributeRecord(parser, eventIndex, options);
+  }
+
   const attributes: Record<string, string> = {};
   for (let attrIndex = 0; attrIndex < count; attrIndex++) {
     attributes[parser.copyAttrName(eventIndex, attrIndex)!] = decodeEntities(
@@ -750,6 +780,110 @@ function copyAttributes(
     );
   }
   return attributes;
+}
+
+function lazyAttributeRecord(
+  parser: IterableEventTable & { copyAttrValueByName(eventIndex: number, name: string): string | undefined },
+  eventIndex: number,
+  options?: ParseOptions
+): Record<string, string> {
+  let materialized: Record<string, string> | undefined;
+  const ensureMaterialized = (): Record<string, string> => {
+    if (materialized) {
+      return materialized;
+    }
+    materialized = {};
+    const count = parser.eventAttrCount(eventIndex);
+    for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+      const name = parser.copyAttrName(eventIndex, attrIndex);
+      const value = parser.copyAttrValue(eventIndex, attrIndex);
+      if (name !== undefined && value !== undefined) {
+        materialized[name] = decodeEntities(value, options);
+      }
+    }
+    return materialized;
+  };
+
+  return new Proxy(Object.create(null) as Record<string, string>, {
+    get(_target, property) {
+      if (typeof property !== 'string') {
+        return undefined;
+      }
+      const direct = parser.copyAttrValueByName(eventIndex, property);
+      return direct === undefined ? undefined : decodeEntities(direct, options);
+    },
+    has(_target, property) {
+      return typeof property === 'string'
+        && parser.copyAttrValueByName(eventIndex, property) !== undefined;
+    },
+    ownKeys() {
+      return Reflect.ownKeys(ensureMaterialized());
+    },
+    getOwnPropertyDescriptor(_target, property) {
+      if (typeof property !== 'string') {
+        return undefined;
+      }
+      const value = ensureMaterialized()[property];
+      return value === undefined
+        ? undefined
+        : { enumerable: true, configurable: true, value };
+    },
+  });
+}
+
+type StructuralIndexNativeModule = {
+  parseStructuralIndexStringUtf16?: (input: string) => StructuralIndexTable;
+  parseSpanTableStringUtf16?: (input: string) => StructuralIndexTable;
+  parseStructuralIndexBuffer?: (input: Uint8Array) => StructuralIndexTable;
+  parseStructuralIndexUint8Array?: (input: Uint8Array) => StructuralIndexTable;
+  parseSpanTableUint8Array?: (input: Uint8Array) => StructuralIndexTable;
+};
+
+async function tryCreateStructuralIndexTable(
+  input: string | ArrayBufferView,
+  options?: ParseOptions
+): Promise<StaxXmlStructuralIndexParser | undefined> {
+  const acceleration = options?.acceleration;
+  const backendPreference = acceleration?.backend ?? 'auto';
+  if (backendPreference === 'js') {
+    return undefined;
+  }
+  if (acceleration?.simd === 'avx2') {
+    return undefined;
+  }
+
+  const backend = await resolveStaxXmlRuntimeBackend();
+  if (backend.kind === 'js') {
+    return undefined;
+  }
+  if (backendPreference !== 'auto' && backend.kind !== backendPreference) {
+    return undefined;
+  }
+
+  const nativeModule = backend.module as StructuralIndexNativeModule | undefined;
+  const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
+  const buildTable = typeof input === 'string'
+    ? nativeModule?.parseStructuralIndexStringUtf16 ?? nativeModule?.parseSpanTableStringUtf16
+    : nativeModule?.parseStructuralIndexBuffer
+      ?? nativeModule?.parseStructuralIndexUint8Array
+      ?? nativeModule?.parseSpanTableUint8Array;
+
+  if (typeof buildTable !== 'function') {
+    return undefined;
+  }
+
+  try {
+    const table = buildTable(typeof input === 'string' ? input : toUint8Array(input));
+    return new StaxXmlStructuralIndexParser(input, table, {
+      decodeEntities: options?.decodeEntities ?? false,
+      sourceKind,
+    });
+  } catch (error) {
+    if (acceleration?.fallbackOnParseError) {
+      return undefined;
+    }
+    throw error;
+  }
 }
 
 function attributeCount(parser: StaxXmlIterableParser | IterableEventTable, eventIndex: number): number {
@@ -783,7 +917,18 @@ function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undef
 function isSyncIterator(input: ParseInput): input is Iterator<AnyXmlEvent> & Iterable<AnyXmlEvent> {
   return typeof input === 'object'
     && input !== null
+    && !isArrayBufferView(input)
     && !(input instanceof ReadableStream)
     && Symbol.iterator in input
     && typeof (input as Iterable<AnyXmlEvent>)[Symbol.iterator] === 'function';
+}
+
+function isArrayBufferView(input: unknown): input is ArrayBufferView {
+  return ArrayBuffer.isView(input);
+}
+
+function toUint8Array(input: ArrayBufferView): Uint8Array {
+  return input instanceof Uint8Array
+    ? input
+    : new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
 }

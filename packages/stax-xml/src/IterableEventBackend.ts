@@ -42,6 +42,7 @@ export interface IterableEventTable {
   eventAttrCount(eventIndex: number): number;
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined;
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined;
+  copyAttrValueByName?(eventIndex: number, name: string): string | undefined;
 }
 
 export interface IterableEventBackendProvider {

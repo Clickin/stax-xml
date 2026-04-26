@@ -20,3 +20,7 @@ export declare function parseAggregateStringUtf8(input: string, tier: string): A
 export declare function parseAggregateUint8Array(input: Uint8Array, tier: string): AggregateResult
 
 export declare function parseSpanTableStringUtf16(input: string): Buffer
+
+export declare function parseStructuralIndexStringUtf16(input: string): Buffer
+
+export declare function parseStructuralIndexUint8Array(input: Uint8Array): Buffer

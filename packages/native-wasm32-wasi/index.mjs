@@ -10,3 +10,7 @@ export const parseAggregateStringUtf16 = binding.parseAggregateStringUtf16;
 export const parseAggregateStringUtf8 = binding.parseAggregateStringUtf8;
 export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
 export const parseSpanTableStringUtf16 = binding.parseSpanTableStringUtf16;
+export const parseStructuralIndexStringUtf16 =
+  binding.parseStructuralIndexStringUtf16 ?? binding.parseSpanTableStringUtf16;
+export const parseStructuralIndexUint8Array =
+  binding.parseStructuralIndexUint8Array ?? binding.parseSpanTableUint8Array;

@@ -36,6 +36,21 @@ export interface ParseOptions {
    * @defaultValue 1000000
    */
   maxEvents?: number;
+
+  /**
+   * Optional structural-index acceleration for compiled converter parsing.
+   *
+   * @remarks
+   * Backend load and capability failures fall back to the JavaScript iterable parser.
+   * XML parse errors and structural-index ABI validation errors throw by default;
+   * set `fallbackOnParseError` to true to retry the JavaScript parser for those
+   * errors as well.
+   */
+  acceleration?: {
+    backend?: 'auto' | 'js' | 'native' | 'wasm';
+    simd?: 'auto-safe' | 'off' | 'avx2';
+    fallbackOnParseError?: boolean;
+  };
 }
 
 /**

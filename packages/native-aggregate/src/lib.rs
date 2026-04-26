@@ -40,6 +40,13 @@ pub struct AggregateResult {
     pub object_count: u32,
 }
 
+#[napi(object)]
+pub struct ItemProjectionResult {
+    pub input_bytes: f64,
+    pub item_count: u32,
+    pub checksum: i32,
+}
+
 #[repr(C)]
 pub struct FfiAggregateResult {
     pub event_count: u32,
@@ -98,10 +105,60 @@ struct Utf16Parser<'a> {
     element_stack: Vec<(usize, usize)>,
 }
 
+struct SpanTableParser<'a> {
+    input: &'a [u8],
+    table: SpanTableBuilder,
+    element_stack: Vec<(usize, usize)>,
+}
+
+struct SpanTableBuilder {
+    input_units: u32,
+    flags: u32,
+    table: Vec<u8>,
+    attrs: Vec<u8>,
+    event_count: u32,
+    attr_count: u32,
+}
+
+struct ItemProjectionParser<'a> {
+    input: &'a [u8],
+    rows: Vec<ItemProjectionRow>,
+    element_stack: Vec<(usize, usize)>,
+    current_item: Option<CurrentItemProjection>,
+    capture: Option<ItemProjectionCapture>,
+}
+
+#[derive(Clone, Copy)]
+struct ItemProjectionRow {
+    id: i32,
+    name_start: usize,
+    name_end: usize,
+    value_start: usize,
+    value_end: usize,
+}
+
+struct CurrentItemProjection {
+    depth: usize,
+    id: i32,
+    name: Option<(usize, usize)>,
+    value: Option<(usize, usize)>,
+}
+
+#[derive(Clone, Copy)]
+enum ItemProjectionField {
+    Name,
+    Value,
+}
+
+#[derive(Clone, Copy)]
+struct ItemProjectionCapture {
+    depth: usize,
+    field: ItemProjectionField,
+}
+
 struct SpanTableUtf16Parser<'a> {
     input: &'a [u16],
-    events: Vec<SpanEventRecord>,
-    attrs: Vec<SpanAttrRecord>,
+    table: SpanTableBuilder,
     element_stack: Vec<(usize, usize)>,
 }
 
@@ -120,6 +177,41 @@ struct SpanAttrRecord {
     name_end: i32,
     value_start: i32,
     value_end: i32,
+}
+
+struct ParsedSpanTable<'a> {
+    events: &'a [u8],
+    attrs: &'a [u8],
+    event_count: u32,
+    attr_count: u32,
+    input_units: u32,
+    flags: u32,
+}
+
+#[derive(Clone, Copy)]
+struct TableEventRecord {
+    event_type: u32,
+    name_start: i32,
+    name_end: i32,
+    text_start: i32,
+    text_end: i32,
+    attr_start: u32,
+    attr_count: u32,
+}
+
+#[derive(Clone, Copy)]
+struct TableAttrRecord {
+    name_start: i32,
+    name_end: i32,
+    value_start: i32,
+    value_end: i32,
+}
+
+struct TableProjectionState {
+    depth: usize,
+    current_item: Option<CurrentItemProjection>,
+    capture: Option<ItemProjectionCapture>,
+    rows: Vec<ItemProjectionRow>,
 }
 
 #[napi]
@@ -156,6 +248,33 @@ pub fn parse_aggregate_string_utf16(input: Utf16String, tier: String) -> Result<
 #[napi]
 pub fn parse_span_table_string_utf16(input: Utf16String) -> Result<Buffer> {
     parse_span_table_utf16(&input).map(Buffer::from)
+}
+
+#[napi]
+pub fn parse_span_table_uint8array(input: Uint8Array) -> Result<Buffer> {
+    parse_span_table(input.as_ref()).map(Buffer::from)
+}
+
+#[napi]
+pub fn parse_structural_index_string_utf16(input: Utf16String) -> Result<Buffer> {
+    parse_span_table_utf16(&input).map(Buffer::from)
+}
+
+#[napi]
+pub fn parse_structural_index_uint8array(input: Uint8Array) -> Result<Buffer> {
+    parse_span_table(input.as_ref()).map(Buffer::from)
+}
+
+#[napi]
+pub fn parse_item_projection_uint8array(input: Uint8Array) -> Result<ItemProjectionResult> {
+    parse_item_projection(input.as_ref())
+}
+
+#[napi]
+pub fn parse_item_projection_via_table_uint8array(
+    input: Uint8Array,
+) -> Result<ItemProjectionResult> {
+    parse_item_projection_via_table(input.as_ref())
 }
 
 #[no_mangle]
@@ -270,12 +389,51 @@ fn parse_aggregate_utf16(input: &[u16], tier: Tier) -> Result<AggregateResult> {
 fn parse_span_table_utf16(input: &[u16]) -> Result<Vec<u8>> {
     let mut parser = SpanTableUtf16Parser {
         input,
-        events: Vec::new(),
-        attrs: Vec::new(),
+        table: SpanTableBuilder::new(input.len(), 0)?,
         element_stack: Vec::new(),
     };
     parser.parse()?;
-    encode_span_table(input.len(), &parser.events, &parser.attrs)
+    parser.table.finish()
+}
+
+fn parse_span_table(input: &[u8]) -> Result<Vec<u8>> {
+    let mut parser = SpanTableParser {
+        input,
+        table: SpanTableBuilder::new(input.len(), 1)?,
+        element_stack: Vec::new(),
+    };
+    parser.parse()?;
+    parser.table.finish()
+}
+
+fn parse_item_projection(input: &[u8]) -> Result<ItemProjectionResult> {
+    let mut parser = ItemProjectionParser {
+        input,
+        rows: Vec::new(),
+        element_stack: Vec::new(),
+        current_item: None,
+        capture: None,
+    };
+    parser.parse()?;
+
+    let mut checksum = parser.rows.len() as i32;
+    for row in &parser.rows {
+        checksum = mix_js_benchmark_checksum(checksum, row.id);
+        checksum = fold_span_js_benchmark_checksum(checksum, input, row.name_start, row.name_end)?;
+        checksum =
+            fold_span_js_benchmark_checksum(checksum, input, row.value_start, row.value_end)?;
+    }
+
+    Ok(ItemProjectionResult {
+        input_bytes: input.len() as f64,
+        item_count: to_u32_count(parser.rows.len(), "item projection row count")?,
+        checksum,
+    })
+}
+
+fn parse_item_projection_via_table(input: &[u8]) -> Result<ItemProjectionResult> {
+    let table = parse_span_table(input)?;
+    project_items_from_span_table(input, &table)
 }
 
 fn tier_name(tier: Tier) -> &'static str {
@@ -908,6 +1066,428 @@ impl<'a> Utf16Parser<'a> {
     }
 }
 
+impl<'a> SpanTableParser<'a> {
+    fn parse(&mut self) -> Result<()> {
+        self.emit_event(START_DOCUMENT, None, None, None)?;
+
+        let mut position = 0;
+        while position < self.input.len() {
+            let Some(lt_offset) = memchr(b'<', &self.input[position..]) else {
+                self.emit_text(position, self.input.len(), CHARACTERS)?;
+                break;
+            };
+            let lt = position + lt_offset;
+            self.emit_text(position, lt, CHARACTERS)?;
+            position = self.parse_markup(lt)?;
+        }
+
+        if !self.element_stack.is_empty() {
+            return Err(Error::from_reason(
+                "Unexpected end of document. Not all elements were closed.",
+            ));
+        }
+
+        self.emit_event(END_DOCUMENT, None, None, None)?;
+        Ok(())
+    }
+
+    fn parse_markup(&mut self, position: usize) -> Result<usize> {
+        if position + 1 >= self.input.len() {
+            return Err(Error::from_reason("Unclosed start tag"));
+        }
+
+        match self.input[position + 1] {
+            b'/' => self.parse_end_tag(position),
+            b'!' => self.parse_bang(position),
+            b'?' => self.parse_processing_instruction(position),
+            _ => self.parse_start_tag(position),
+        }
+    }
+
+    fn parse_bang(&mut self, position: usize) -> Result<usize> {
+        if starts_with(self.input, position, b"<![CDATA[") {
+            let Some(end) = find_bytes(self.input, b"]]>", position + 9) else {
+                return Err(Error::from_reason("Unclosed CDATA section"));
+            };
+            self.emit_text(position + 9, end, CDATA)?;
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!--") {
+            let Some(end) = find_bytes(self.input, b"-->", position + 4) else {
+                return Err(Error::from_reason("Unclosed comment"));
+            };
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!DOCTYPE") {
+            let Some(end) = find_gt(self.input, position + 2) else {
+                return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
+            };
+            return Ok(end + 1);
+        }
+
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed markup"));
+        };
+        Ok(end + 1)
+    }
+
+    fn parse_processing_instruction(&self, position: usize) -> Result<usize> {
+        let Some(end) = find_bytes(self.input, b"?>", position + 2) else {
+            return Err(Error::from_reason(
+                if starts_with(self.input, position, b"<?xml") {
+                    "Unclosed XML declaration"
+                } else {
+                    "Unclosed processing instruction"
+                },
+            ));
+        };
+        Ok(end + 2)
+    }
+
+    fn parse_end_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed end tag"));
+        };
+
+        let mut name_start = position + 2;
+        let mut name_end = end;
+        while name_start < name_end && is_whitespace(self.input[name_start]) {
+            name_start += 1;
+        }
+        while name_end > name_start && is_whitespace(self.input[name_end - 1]) {
+            name_end -= 1;
+        }
+
+        let Some((start, stop)) = self.element_stack.pop() else {
+            return Err(Error::from_reason("Unexpected closing tag"));
+        };
+        if self.input[start..stop] != self.input[name_start..name_end] {
+            return Err(Error::from_reason("Mismatched closing tag"));
+        }
+
+        self.emit_event(END_ELEMENT, Some((name_start, name_end)), None, None)?;
+        Ok(end + 1)
+    }
+
+    fn parse_start_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(tag_end) = find_tag_end(self.input, position + 1) else {
+            return Err(Error::from_reason("Unclosed start tag"));
+        };
+
+        let mut actual_end = tag_end;
+        while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+            actual_end -= 1;
+        }
+
+        let mut self_closing = false;
+        if actual_end > position + 1 && self.input[actual_end - 1] == b'/' {
+            self_closing = true;
+            actual_end -= 1;
+            while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+                actual_end -= 1;
+            }
+        }
+
+        let name_start = position + 1;
+        let mut name_end = name_start;
+        while name_end < actual_end {
+            let byte = self.input[name_end];
+            if is_whitespace(byte) || byte == b'/' {
+                break;
+            }
+            name_end += 1;
+        }
+
+        let attrs =
+            (name_end < actual_end).then(|| parse_attributes(self.input, name_end, actual_end));
+        self.emit_event(
+            START_ELEMENT,
+            Some((name_start, name_end)),
+            None,
+            attrs.as_ref(),
+        )?;
+
+        if self_closing {
+            self.emit_event(END_ELEMENT, Some((name_start, name_end)), None, None)?;
+        } else {
+            self.element_stack.push((name_start, name_end));
+        }
+
+        Ok(tag_end + 1)
+    }
+
+    fn emit_text(&mut self, start: usize, end: usize, event_type: u8) -> Result<()> {
+        if start < end && !is_whitespace_only(self.input, start, end) {
+            self.emit_event(event_type, None, Some((start, end)), None)?;
+        }
+        Ok(())
+    }
+
+    fn emit_event(
+        &mut self,
+        event_type: u8,
+        name: Option<(usize, usize)>,
+        text: Option<(usize, usize)>,
+        attrs: Option<&AttrSpans>,
+    ) -> Result<()> {
+        let attr_start = self.table.attr_count();
+        let attr_count = attrs.map_or(0, AttrSpans::len);
+        let attr_count = to_u32_count(attr_count, "span table attr count")?;
+        let (name_start, name_end) = encode_optional_span(name)?;
+        let (text_start, text_end) = encode_optional_span(text)?;
+
+        if let Some(attrs) = attrs {
+            for attr in attrs.iter() {
+                self.table.push_attr(SpanAttrRecord {
+                    name_start: to_i32_span(attr.name_start)?,
+                    name_end: to_i32_span(attr.name_end)?,
+                    value_start: to_i32_span(attr.value_start)?,
+                    value_end: to_i32_span(attr.value_end)?,
+                })?;
+            }
+        }
+
+        self.table.push_event(SpanEventRecord {
+            event_type: event_type as u32,
+            name_start,
+            name_end,
+            text_start,
+            text_end,
+            attr_start,
+            attr_count,
+        })
+    }
+}
+
+impl<'a> ItemProjectionParser<'a> {
+    fn parse(&mut self) -> Result<()> {
+        let mut position = 0;
+        while position < self.input.len() {
+            let Some(lt_offset) = memchr(b'<', &self.input[position..]) else {
+                self.capture_text(position, self.input.len());
+                break;
+            };
+            let lt = position + lt_offset;
+            self.capture_text(position, lt);
+            position = self.parse_markup(lt)?;
+        }
+
+        if !self.element_stack.is_empty() {
+            return Err(Error::from_reason(
+                "Unexpected end of document. Not all elements were closed.",
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn parse_markup(&mut self, position: usize) -> Result<usize> {
+        if position + 1 >= self.input.len() {
+            return Err(Error::from_reason("Unclosed start tag"));
+        }
+
+        match self.input[position + 1] {
+            b'/' => self.parse_end_tag(position),
+            b'!' => self.parse_bang(position),
+            b'?' => self.parse_processing_instruction(position),
+            _ => self.parse_start_tag(position),
+        }
+    }
+
+    fn parse_bang(&mut self, position: usize) -> Result<usize> {
+        if starts_with(self.input, position, b"<![CDATA[") {
+            let Some(end) = find_bytes(self.input, b"]]>", position + 9) else {
+                return Err(Error::from_reason("Unclosed CDATA section"));
+            };
+            self.capture_text(position + 9, end);
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!--") {
+            let Some(end) = find_bytes(self.input, b"-->", position + 4) else {
+                return Err(Error::from_reason("Unclosed comment"));
+            };
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!DOCTYPE") {
+            let Some(end) = find_gt(self.input, position + 2) else {
+                return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
+            };
+            return Ok(end + 1);
+        }
+
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed markup"));
+        };
+        Ok(end + 1)
+    }
+
+    fn parse_processing_instruction(&self, position: usize) -> Result<usize> {
+        let Some(end) = find_bytes(self.input, b"?>", position + 2) else {
+            return Err(Error::from_reason(
+                if starts_with(self.input, position, b"<?xml") {
+                    "Unclosed XML declaration"
+                } else {
+                    "Unclosed processing instruction"
+                },
+            ));
+        };
+        Ok(end + 2)
+    }
+
+    fn parse_start_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(tag_end) = find_tag_end(self.input, position + 1) else {
+            return Err(Error::from_reason("Unclosed start tag"));
+        };
+
+        let mut actual_end = tag_end;
+        while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+            actual_end -= 1;
+        }
+
+        let mut self_closing = false;
+        if actual_end > position + 1 && self.input[actual_end - 1] == b'/' {
+            self_closing = true;
+            actual_end -= 1;
+            while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+                actual_end -= 1;
+            }
+        }
+
+        let name_start = position + 1;
+        let mut name_end = name_start;
+        while name_end < actual_end {
+            let byte = self.input[name_end];
+            if is_whitespace(byte) || byte == b'/' {
+                break;
+            }
+            name_end += 1;
+        }
+
+        let depth = self.element_stack.len() + 1;
+        self.start_projection_element(name_start, name_end, name_end, actual_end, depth);
+
+        if self_closing {
+            self.end_projection_element(name_start, name_end, depth);
+        } else {
+            self.element_stack.push((name_start, name_end));
+        }
+
+        Ok(tag_end + 1)
+    }
+
+    fn parse_end_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed end tag"));
+        };
+
+        let mut name_start = position + 2;
+        let mut name_end = end;
+        while name_start < name_end && is_whitespace(self.input[name_start]) {
+            name_start += 1;
+        }
+        while name_end > name_start && is_whitespace(self.input[name_end - 1]) {
+            name_end -= 1;
+        }
+
+        let Some((start, stop)) = self.element_stack.pop() else {
+            return Err(Error::from_reason("Unexpected closing tag"));
+        };
+        if self.input[start..stop] != self.input[name_start..name_end] {
+            return Err(Error::from_reason("Mismatched closing tag"));
+        }
+
+        self.end_projection_element(name_start, name_end, self.element_stack.len() + 1);
+        Ok(end + 1)
+    }
+
+    fn start_projection_element(
+        &mut self,
+        name_start: usize,
+        name_end: usize,
+        attr_start: usize,
+        attr_end: usize,
+        depth: usize,
+    ) {
+        if span_eq(self.input, name_start, name_end, b"item") && self.current_item.is_none() {
+            self.current_item = Some(CurrentItemProjection {
+                depth,
+                id: read_projection_id(self.input, attr_start, attr_end),
+                name: None,
+                value: None,
+            });
+            return;
+        }
+
+        let Some(item) = &self.current_item else {
+            return;
+        };
+        if depth != item.depth + 1 {
+            return;
+        }
+
+        if span_eq(self.input, name_start, name_end, b"name") {
+            self.capture = Some(ItemProjectionCapture {
+                depth,
+                field: ItemProjectionField::Name,
+            });
+        } else if span_eq(self.input, name_start, name_end, b"value") {
+            self.capture = Some(ItemProjectionCapture {
+                depth,
+                field: ItemProjectionField::Value,
+            });
+        }
+    }
+
+    fn end_projection_element(&mut self, name_start: usize, name_end: usize, depth: usize) {
+        if matches!(self.capture, Some(capture) if capture.depth == depth) {
+            self.capture = None;
+        }
+
+        let should_finish_item = self.current_item.as_ref().is_some_and(|item| {
+            item.depth == depth && span_eq(self.input, name_start, name_end, b"item")
+        });
+        if !should_finish_item {
+            return;
+        }
+
+        let item = self.current_item.take().expect("checked item presence");
+        if let (Some((name_start, name_end)), Some((value_start, value_end))) =
+            (item.name, item.value)
+        {
+            self.rows.push(ItemProjectionRow {
+                id: item.id,
+                name_start,
+                name_end,
+                value_start,
+                value_end,
+            });
+        }
+    }
+
+    fn capture_text(&mut self, start: usize, end: usize) {
+        if start >= end || is_whitespace_only(self.input, start, end) {
+            return;
+        }
+        let Some(capture) = self.capture else {
+            return;
+        };
+        if self.element_stack.len() != capture.depth {
+            return;
+        }
+        let Some(item) = &mut self.current_item else {
+            return;
+        };
+        match capture.field {
+            ItemProjectionField::Name => item.name = Some((start, end)),
+            ItemProjectionField::Value => item.value = Some((start, end)),
+        }
+    }
+}
+
 impl<'a> SpanTableUtf16Parser<'a> {
     fn parse(&mut self) -> Result<()> {
         self.emit_event(START_DOCUMENT, None, None, None)?;
@@ -1073,7 +1653,7 @@ impl<'a> SpanTableUtf16Parser<'a> {
         text: Option<(usize, usize)>,
         attrs: Option<&AttrSpans>,
     ) -> Result<()> {
-        let attr_start = to_u32_count(self.attrs.len(), "span table attr start")?;
+        let attr_start = self.table.attr_count();
         let attr_count = attrs.map_or(0, AttrSpans::len);
         let attr_count = to_u32_count(attr_count, "span table attr count")?;
         let (name_start, name_end) = encode_optional_span(name)?;
@@ -1081,16 +1661,16 @@ impl<'a> SpanTableUtf16Parser<'a> {
 
         if let Some(attrs) = attrs {
             for attr in attrs.iter() {
-                self.attrs.push(SpanAttrRecord {
+                self.table.push_attr(SpanAttrRecord {
                     name_start: to_i32_span(attr.name_start)?,
                     name_end: to_i32_span(attr.name_end)?,
                     value_start: to_i32_span(attr.value_start)?,
                     value_end: to_i32_span(attr.value_end)?,
-                });
+                })?;
             }
         }
 
-        self.events.push(SpanEventRecord {
+        self.table.push_event(SpanEventRecord {
             event_type: event_type as u32,
             name_start,
             name_end,
@@ -1098,8 +1678,7 @@ impl<'a> SpanTableUtf16Parser<'a> {
             text_end,
             attr_start,
             attr_count,
-        });
-        Ok(())
+        })
     }
 }
 
@@ -1169,6 +1748,45 @@ fn parse_attributes(input: &[u8], start: usize, end: usize) -> AttrSpans {
         index = value_end + 1;
     }
     attrs
+}
+
+fn read_projection_id(input: &[u8], start: usize, end: usize) -> i32 {
+    let attrs = parse_attributes(input, start, end);
+    for attr in attrs.iter() {
+        if span_eq(input, attr.name_start, attr.name_end, b"id") {
+            return parse_i32_ascii(input, attr.value_start, attr.value_end).unwrap_or(0);
+        }
+    }
+    0
+}
+
+fn parse_i32_ascii(input: &[u8], start: usize, end: usize) -> Option<i32> {
+    if start >= end {
+        return None;
+    }
+    let mut index = start;
+    let mut sign = 1i32;
+    if input[index] == b'-' {
+        sign = -1;
+        index += 1;
+    }
+    if index >= end {
+        return None;
+    }
+    let mut value = 0i32;
+    while index < end {
+        let byte = input[index];
+        if !byte.is_ascii_digit() {
+            return None;
+        }
+        value = value.checked_mul(10)?.checked_add((byte - b'0') as i32)?;
+        index += 1;
+    }
+    Some(value.wrapping_mul(sign))
+}
+
+fn span_eq(input: &[u8], start: usize, end: usize, expected: &[u8]) -> bool {
+    end >= start && end - start == expected.len() && &input[start..end] == expected
 }
 
 fn parse_attributes_utf16(input: &[u16], start: usize, end: usize) -> AttrSpans {
@@ -1303,6 +1921,25 @@ fn fold_span(seed: i32, input: &[u8], start: usize, end: usize) -> Result<i32> {
         .map_err(|error| Error::from_reason(error.to_string()))
 }
 
+fn fold_span_js_benchmark_checksum(
+    seed: i32,
+    input: &[u8],
+    start: usize,
+    end: usize,
+) -> Result<i32> {
+    std::str::from_utf8(&input[start..end])
+        .map(|value| fold_string_js_benchmark_checksum(seed, value))
+        .map_err(|error| Error::from_reason(error.to_string()))
+}
+
+fn fold_string_js_benchmark_checksum(seed: i32, value: &str) -> i32 {
+    let mut next = seed;
+    for code_unit in value.encode_utf16() {
+        next = mix_js_benchmark_checksum(next, code_unit as i32);
+    }
+    next
+}
+
 fn fold_trimmed_span(seed: i32, input: &[u8], start: usize, end: usize) -> Result<i32> {
     std::str::from_utf8(&input[start..end])
         .map(|value| fold_string(seed, value.trim()))
@@ -1332,55 +1969,404 @@ fn trim_units(input: &[u16], mut start: usize, mut end: usize) -> (usize, usize)
     (start, end)
 }
 
-fn encode_span_table(
-    input_units: usize,
-    events: &[SpanEventRecord],
-    attrs: &[SpanAttrRecord],
-) -> Result<Vec<u8>> {
-    let event_count = to_u32_count(events.len(), "span table event count")?;
-    let attr_count = to_u32_count(attrs.len(), "span table attr count")?;
-    let input_units = to_u32_count(input_units, "span table input units")?;
-    let event_bytes = events
-        .len()
+impl SpanTableBuilder {
+    fn new(input_units: usize, flags: u32) -> Result<Self> {
+        let input_units = to_u32_count(input_units, "span table input units")?;
+        let mut table = Vec::with_capacity(SPAN_TABLE_HEADER_BYTES);
+        table.resize(SPAN_TABLE_HEADER_BYTES, 0);
+        Ok(Self {
+            input_units,
+            flags,
+            table,
+            attrs: Vec::new(),
+            event_count: 0,
+            attr_count: 0,
+        })
+    }
+
+    fn attr_count(&self) -> u32 {
+        self.attr_count
+    }
+
+    fn push_event(&mut self, event: SpanEventRecord) -> Result<()> {
+        self.event_count = self
+            .event_count
+            .checked_add(1)
+            .ok_or_else(|| Error::from_reason("Span table event count overflow"))?;
+        push_u32(&mut self.table, event.event_type);
+        push_i32(&mut self.table, event.name_start);
+        push_i32(&mut self.table, event.name_end);
+        push_i32(&mut self.table, event.text_start);
+        push_i32(&mut self.table, event.text_end);
+        push_u32(&mut self.table, event.attr_start);
+        push_u32(&mut self.table, event.attr_count);
+        Ok(())
+    }
+
+    fn push_attr(&mut self, attr: SpanAttrRecord) -> Result<()> {
+        self.attr_count = self
+            .attr_count
+            .checked_add(1)
+            .ok_or_else(|| Error::from_reason("Span table attr count overflow"))?;
+        push_i32(&mut self.attrs, attr.name_start);
+        push_i32(&mut self.attrs, attr.name_end);
+        push_i32(&mut self.attrs, attr.value_start);
+        push_i32(&mut self.attrs, attr.value_end);
+        Ok(())
+    }
+
+    fn finish(mut self) -> Result<Vec<u8>> {
+        let event_bytes = (self.event_count as usize)
+            .checked_mul(SPAN_TABLE_EVENT_BYTES)
+            .ok_or_else(|| Error::from_reason("Span table event byte size overflow"))?;
+        let attr_bytes = (self.attr_count as usize)
+            .checked_mul(SPAN_TABLE_ATTR_BYTES)
+            .ok_or_else(|| Error::from_reason("Span table attr byte size overflow"))?;
+        let total_bytes = SPAN_TABLE_HEADER_BYTES
+            .checked_add(event_bytes)
+            .and_then(|value| value.checked_add(attr_bytes))
+            .ok_or_else(|| Error::from_reason("Span table byte size overflow"))?;
+
+        debug_assert_eq!(self.table.len(), SPAN_TABLE_HEADER_BYTES + event_bytes);
+        debug_assert_eq!(self.attrs.len(), attr_bytes);
+
+        write_u32_at(&mut self.table, 0, SPAN_TABLE_MAGIC);
+        write_u32_at(&mut self.table, 4, self.event_count);
+        write_u32_at(&mut self.table, 8, self.attr_count);
+        write_u32_at(&mut self.table, 12, self.input_units);
+        write_u32_at(&mut self.table, 16, SPAN_TABLE_EVENT_BYTES as u32);
+        write_u32_at(&mut self.table, 20, SPAN_TABLE_ATTR_BYTES as u32);
+        write_u32_at(&mut self.table, 24, self.flags);
+
+        self.table
+            .try_reserve_exact(attr_bytes)
+            .map_err(|error| Error::from_reason(error.to_string()))?;
+        self.table.extend_from_slice(&self.attrs);
+        debug_assert_eq!(self.table.len(), total_bytes);
+        Ok(self.table)
+    }
+}
+
+fn project_items_from_span_table(input: &[u8], table: &[u8]) -> Result<ItemProjectionResult> {
+    let table = parse_span_table_bytes(table)?;
+    if table.flags & 0xff != 1 {
+        return Err(Error::from_reason(
+            "Item projection requires a UTF-8 structural index table",
+        ));
+    }
+    if table.input_units as usize != input.len() {
+        return Err(Error::from_reason("Structural index input length mismatch"));
+    }
+
+    let mut state = TableProjectionState {
+        depth: 0,
+        current_item: None,
+        capture: None,
+        rows: Vec::new(),
+    };
+
+    for event_index in 0..table.event_count as usize {
+        let event = read_table_event(&table, event_index)?;
+        match event.event_type {
+            value if value == START_ELEMENT as u32 => {
+                state.depth += 1;
+                start_table_projection_element(input, &table, event, state.depth, &mut state)?;
+            }
+            value if value == END_ELEMENT as u32 => {
+                end_table_projection_element(input, event, state.depth, &mut state)?;
+                state.depth = state
+                    .depth
+                    .checked_sub(1)
+                    .ok_or_else(|| Error::from_reason("Structural index depth underflow"))?;
+            }
+            value if value == CHARACTERS as u32 || value == CDATA as u32 => {
+                capture_table_projection_text(input, event, &mut state)?;
+            }
+            _ => {}
+        }
+    }
+
+    if state.depth != 0 {
+        return Err(Error::from_reason(
+            "Structural index ended with open elements",
+        ));
+    }
+
+    let mut checksum = state.rows.len() as i32;
+    for row in &state.rows {
+        checksum = mix_js_benchmark_checksum(checksum, row.id);
+        checksum = fold_span_js_benchmark_checksum(checksum, input, row.name_start, row.name_end)?;
+        checksum =
+            fold_span_js_benchmark_checksum(checksum, input, row.value_start, row.value_end)?;
+    }
+
+    Ok(ItemProjectionResult {
+        input_bytes: input.len() as f64,
+        item_count: to_u32_count(state.rows.len(), "item table projection row count")?,
+        checksum,
+    })
+}
+
+fn start_table_projection_element(
+    input: &[u8],
+    table: &ParsedSpanTable<'_>,
+    event: TableEventRecord,
+    depth: usize,
+    state: &mut TableProjectionState,
+) -> Result<()> {
+    let Some((name_start, name_end)) = event.name_range()? else {
+        return Err(Error::from_reason(
+            "Structural index start element did not include a name span",
+        ));
+    };
+
+    if span_eq(input, name_start, name_end, b"item") && state.current_item.is_none() {
+        state.current_item = Some(CurrentItemProjection {
+            depth,
+            id: read_table_projection_id(input, table, event)?,
+            name: None,
+            value: None,
+        });
+        return Ok(());
+    }
+
+    let Some(item) = &state.current_item else {
+        return Ok(());
+    };
+    if depth != item.depth + 1 {
+        return Ok(());
+    }
+
+    if span_eq(input, name_start, name_end, b"name") {
+        state.capture = Some(ItemProjectionCapture {
+            depth,
+            field: ItemProjectionField::Name,
+        });
+    } else if span_eq(input, name_start, name_end, b"value") {
+        state.capture = Some(ItemProjectionCapture {
+            depth,
+            field: ItemProjectionField::Value,
+        });
+    }
+    Ok(())
+}
+
+fn end_table_projection_element(
+    input: &[u8],
+    event: TableEventRecord,
+    depth: usize,
+    state: &mut TableProjectionState,
+) -> Result<()> {
+    if matches!(state.capture, Some(capture) if capture.depth == depth) {
+        state.capture = None;
+    }
+
+    let Some((name_start, name_end)) = event.name_range()? else {
+        return Ok(());
+    };
+    let should_finish_item = state
+        .current_item
+        .as_ref()
+        .is_some_and(|item| item.depth == depth && span_eq(input, name_start, name_end, b"item"));
+    if !should_finish_item {
+        return Ok(());
+    }
+
+    let item = state.current_item.take().expect("checked item presence");
+    if let (Some((name_start, name_end)), Some((value_start, value_end))) = (item.name, item.value)
+    {
+        state.rows.push(ItemProjectionRow {
+            id: item.id,
+            name_start,
+            name_end,
+            value_start,
+            value_end,
+        });
+    }
+    Ok(())
+}
+
+fn capture_table_projection_text(
+    input: &[u8],
+    event: TableEventRecord,
+    state: &mut TableProjectionState,
+) -> Result<()> {
+    let Some((start, end)) = event.text_range()? else {
+        return Ok(());
+    };
+    if start >= end || is_whitespace_only(input, start, end) {
+        return Ok(());
+    }
+    let Some(capture) = state.capture else {
+        return Ok(());
+    };
+    if state.depth != capture.depth {
+        return Ok(());
+    }
+    let Some(item) = &mut state.current_item else {
+        return Ok(());
+    };
+    match capture.field {
+        ItemProjectionField::Name => item.name = Some((start, end)),
+        ItemProjectionField::Value => item.value = Some((start, end)),
+    }
+    Ok(())
+}
+
+fn read_table_projection_id(
+    input: &[u8],
+    table: &ParsedSpanTable<'_>,
+    event: TableEventRecord,
+) -> Result<i32> {
+    for attr_offset in 0..event.attr_count as usize {
+        let attr = read_table_attr(table, event.attr_start as usize + attr_offset)?;
+        let Some((name_start, name_end)) = attr.name_range()? else {
+            continue;
+        };
+        if !span_eq(input, name_start, name_end, b"id") {
+            continue;
+        }
+        let Some((value_start, value_end)) = attr.value_range()? else {
+            return Ok(0);
+        };
+        return Ok(parse_i32_ascii(input, value_start, value_end).unwrap_or(0));
+    }
+    Ok(0)
+}
+
+fn parse_span_table_bytes(table: &[u8]) -> Result<ParsedSpanTable<'_>> {
+    if table.len() < SPAN_TABLE_HEADER_BYTES {
+        return Err(Error::from_reason(
+            "Structural index table is shorter than the header",
+        ));
+    }
+    let magic = read_u32_le(table, 0)?;
+    if magic != SPAN_TABLE_MAGIC {
+        return Err(Error::from_reason("Invalid structural index magic"));
+    }
+
+    let event_count = read_u32_le(table, 4)?;
+    let attr_count = read_u32_le(table, 8)?;
+    let input_units = read_u32_le(table, 12)?;
+    let event_stride = read_u32_le(table, 16)?;
+    let attr_stride = read_u32_le(table, 20)?;
+    let flags = read_u32_le(table, 24)?;
+    if event_stride != SPAN_TABLE_EVENT_BYTES as u32 || attr_stride != SPAN_TABLE_ATTR_BYTES as u32
+    {
+        return Err(Error::from_reason(
+            "Unsupported structural index table strides",
+        ));
+    }
+
+    let event_bytes = (event_count as usize)
         .checked_mul(SPAN_TABLE_EVENT_BYTES)
-        .ok_or_else(|| Error::from_reason("Span table event byte size overflow"))?;
-    let attr_bytes = attrs
-        .len()
+        .ok_or_else(|| Error::from_reason("Structural index event byte size overflow"))?;
+    let attr_bytes = (attr_count as usize)
         .checked_mul(SPAN_TABLE_ATTR_BYTES)
-        .ok_or_else(|| Error::from_reason("Span table attr byte size overflow"))?;
-    let total_bytes = SPAN_TABLE_HEADER_BYTES
+        .ok_or_else(|| Error::from_reason("Structural index attr byte size overflow"))?;
+    let attr_base = SPAN_TABLE_HEADER_BYTES
         .checked_add(event_bytes)
-        .and_then(|value| value.checked_add(attr_bytes))
-        .ok_or_else(|| Error::from_reason("Span table byte size overflow"))?;
-
-    let mut out = Vec::with_capacity(total_bytes);
-    push_u32(&mut out, SPAN_TABLE_MAGIC);
-    push_u32(&mut out, event_count);
-    push_u32(&mut out, attr_count);
-    push_u32(&mut out, input_units);
-    push_u32(&mut out, SPAN_TABLE_EVENT_BYTES as u32);
-    push_u32(&mut out, SPAN_TABLE_ATTR_BYTES as u32);
-    push_u32(&mut out, 0);
-
-    for event in events {
-        push_u32(&mut out, event.event_type);
-        push_i32(&mut out, event.name_start);
-        push_i32(&mut out, event.name_end);
-        push_i32(&mut out, event.text_start);
-        push_i32(&mut out, event.text_end);
-        push_u32(&mut out, event.attr_start);
-        push_u32(&mut out, event.attr_count);
+        .ok_or_else(|| Error::from_reason("Structural index event region overflow"))?;
+    let expected_bytes = attr_base
+        .checked_add(attr_bytes)
+        .ok_or_else(|| Error::from_reason("Structural index byte size overflow"))?;
+    if table.len() != expected_bytes {
+        return Err(Error::from_reason("Structural index table length mismatch"));
     }
 
-    for attr in attrs {
-        push_i32(&mut out, attr.name_start);
-        push_i32(&mut out, attr.name_end);
-        push_i32(&mut out, attr.value_start);
-        push_i32(&mut out, attr.value_end);
+    Ok(ParsedSpanTable {
+        events: &table[SPAN_TABLE_HEADER_BYTES..attr_base],
+        attrs: &table[attr_base..],
+        event_count,
+        attr_count,
+        input_units,
+        flags,
+    })
+}
+
+fn read_table_event(table: &ParsedSpanTable<'_>, index: usize) -> Result<TableEventRecord> {
+    if index >= table.event_count as usize {
+        return Err(Error::from_reason(
+            "Structural index event index out of range",
+        ));
+    }
+    let offset = index * SPAN_TABLE_EVENT_BYTES;
+    Ok(TableEventRecord {
+        event_type: read_u32_le(table.events, offset)?,
+        name_start: read_i32_le(table.events, offset + 4)?,
+        name_end: read_i32_le(table.events, offset + 8)?,
+        text_start: read_i32_le(table.events, offset + 12)?,
+        text_end: read_i32_le(table.events, offset + 16)?,
+        attr_start: read_u32_le(table.events, offset + 20)?,
+        attr_count: read_u32_le(table.events, offset + 24)?,
+    })
+}
+
+fn read_table_attr(table: &ParsedSpanTable<'_>, index: usize) -> Result<TableAttrRecord> {
+    if index >= table.attr_count as usize {
+        return Err(Error::from_reason(
+            "Structural index attr index out of range",
+        ));
+    }
+    let offset = index * SPAN_TABLE_ATTR_BYTES;
+    Ok(TableAttrRecord {
+        name_start: read_i32_le(table.attrs, offset)?,
+        name_end: read_i32_le(table.attrs, offset + 4)?,
+        value_start: read_i32_le(table.attrs, offset + 8)?,
+        value_end: read_i32_le(table.attrs, offset + 12)?,
+    })
+}
+
+impl TableEventRecord {
+    fn name_range(self) -> Result<Option<(usize, usize)>> {
+        decode_table_range(self.name_start, self.name_end)
     }
 
-    debug_assert_eq!(out.len(), total_bytes);
-    Ok(out)
+    fn text_range(self) -> Result<Option<(usize, usize)>> {
+        decode_table_range(self.text_start, self.text_end)
+    }
+}
+
+impl TableAttrRecord {
+    fn name_range(self) -> Result<Option<(usize, usize)>> {
+        decode_table_range(self.name_start, self.name_end)
+    }
+
+    fn value_range(self) -> Result<Option<(usize, usize)>> {
+        decode_table_range(self.value_start, self.value_end)
+    }
+}
+
+fn decode_table_range(start: i32, end: i32) -> Result<Option<(usize, usize)>> {
+    if start < 0 || end < 0 {
+        return Ok(None);
+    }
+    let start = usize::try_from(start).map_err(|_| Error::from_reason("Negative span start"))?;
+    let end = usize::try_from(end).map_err(|_| Error::from_reason("Negative span end"))?;
+    if end < start {
+        return Err(Error::from_reason(
+            "Structural index span end precedes start",
+        ));
+    }
+    Ok(Some((start, end)))
+}
+
+fn read_u32_le(input: &[u8], offset: usize) -> Result<u32> {
+    let bytes = input
+        .get(offset..offset + 4)
+        .ok_or_else(|| Error::from_reason("Unexpected end of structural index table"))?;
+    Ok(u32::from_le_bytes(
+        bytes.try_into().expect("slice length checked"),
+    ))
+}
+
+fn read_i32_le(input: &[u8], offset: usize) -> Result<i32> {
+    let bytes = input
+        .get(offset..offset + 4)
+        .ok_or_else(|| Error::from_reason("Unexpected end of structural index table"))?;
+    Ok(i32::from_le_bytes(
+        bytes.try_into().expect("slice length checked"),
+    ))
 }
 
 fn encode_optional_span(span: Option<(usize, usize)>) -> Result<(i32, i32)> {
@@ -1406,8 +2392,35 @@ fn push_i32(out: &mut Vec<u8>, value: i32) {
     out.extend_from_slice(&value.to_le_bytes());
 }
 
+fn write_u32_at(out: &mut [u8], offset: usize, value: u32) {
+    out[offset..offset + 4].copy_from_slice(&value.to_le_bytes());
+}
+
 fn mix_checksum(seed: i32, value: i32) -> i32 {
     (seed ^ value).wrapping_mul(16_777_619)
+}
+
+fn mix_js_benchmark_checksum(seed: i32, value: i32) -> i32 {
+    js_to_int32(((seed ^ value) as f64) * 16_777_619.0)
+}
+
+fn js_to_int32(value: f64) -> i32 {
+    if !value.is_finite() || value == 0.0 {
+        return 0;
+    }
+
+    let two32 = 4_294_967_296.0;
+    let two31 = 2_147_483_648.0;
+    let mut int = value.signum() * value.abs().floor();
+    int %= two32;
+    if int < 0.0 {
+        int += two32;
+    }
+    if int >= two31 {
+        (int - two32) as i32
+    } else {
+        int as i32
+    }
 }
 
 fn fold_string(seed: i32, value: &str) -> i32 {
@@ -1723,6 +2736,83 @@ mod tests {
             ),
             "1 > 0"
         );
+    }
+
+    #[test]
+    fn span_table_utf8_records_byte_offsets_and_source_kind() {
+        let sample =
+            "<root><item a=\"1 > 0\" b='x > y'>안녕</item><![CDATA[<raw>value</raw>]]><empty /></root>";
+        let aggregate = parse_aggregate(sample.as_bytes(), Tier::CountOnly).unwrap();
+
+        let table = parse_span_table(sample.as_bytes()).unwrap();
+
+        assert_eq!(read_u32(&table, 0), SPAN_TABLE_MAGIC);
+        assert_eq!(read_u32(&table, 4), aggregate.event_count);
+        assert_eq!(read_u32(&table, 8), aggregate.attr_count_total);
+        assert_eq!(read_u32(&table, 12), sample.len() as u32);
+        assert_eq!(read_u32(&table, 24), 1);
+
+        let event_stride = read_u32(&table, 16) as usize;
+        let item_event = SPAN_TABLE_HEADER_BYTES + event_stride * 2;
+        let name_start = read_i32(&table, item_event + 4) as usize;
+        let name_end = read_i32(&table, item_event + 8) as usize;
+        assert_eq!(&sample.as_bytes()[name_start..name_end], b"item");
+    }
+
+    #[test]
+    fn item_projection_matches_schema_checksum_without_full_table() {
+        let sample =
+            "<root><item id=\"7\" a=\"x\"><name>Alice</name><value>안녕</value></item><item id=\"11\"><name>Bob</name><value>cafe</value></item></root>";
+        let result = parse_item_projection(sample.as_bytes()).unwrap();
+        let table_result = parse_item_projection_via_table(sample.as_bytes()).unwrap();
+
+        let mut expected = 2i32;
+        expected = mix_js_benchmark_checksum(expected, 7);
+        expected = fold_span_js_benchmark_checksum(
+            expected,
+            sample.as_bytes(),
+            sample.find("Alice").unwrap(),
+            sample.find("Alice").unwrap() + 5,
+        )
+        .unwrap();
+        expected = fold_span_js_benchmark_checksum(
+            expected,
+            sample.as_bytes(),
+            sample.find("안녕").unwrap(),
+            sample.find("안녕").unwrap() + "안녕".len(),
+        )
+        .unwrap();
+        expected = mix_js_benchmark_checksum(expected, 11);
+        expected = fold_span_js_benchmark_checksum(
+            expected,
+            sample.as_bytes(),
+            sample.find("Bob").unwrap(),
+            sample.find("Bob").unwrap() + 3,
+        )
+        .unwrap();
+        expected = fold_span_js_benchmark_checksum(
+            expected,
+            sample.as_bytes(),
+            sample.find("cafe").unwrap(),
+            sample.find("cafe").unwrap() + 4,
+        )
+        .unwrap();
+
+        assert_eq!(result.item_count, 2);
+        assert_eq!(result.input_bytes, sample.len() as f64);
+        assert_eq!(result.checksum, expected);
+        assert_eq!(table_result.item_count, result.item_count);
+        assert_eq!(table_result.input_bytes, result.input_bytes);
+        assert_eq!(table_result.checksum, result.checksum);
+    }
+
+    #[test]
+    fn item_projection_from_table_rejects_mismatched_input_length() {
+        let sample = "<root><item id=\"1\"><name>A</name><value>B</value></item></root>";
+        let mut table = parse_span_table(sample.as_bytes()).unwrap();
+        table[12..16].copy_from_slice(&(sample.len() as u32 + 1).to_le_bytes());
+
+        assert!(project_items_from_span_table(sample.as_bytes(), &table).is_err());
     }
 
     #[test]

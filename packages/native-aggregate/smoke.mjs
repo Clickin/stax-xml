@@ -7,6 +7,10 @@ import {
   parse_aggregate_file,
   parse_aggregate_uint8array,
   parse_span_table_string_utf16,
+  parse_structural_index_string_utf16,
+  parse_structural_index_uint8array,
+  parse_item_projection_uint8array,
+  parse_item_projection_via_table_uint8array,
   parse_aggregate_string_utf16,
   parse_aggregate_string_utf8,
 } from './index.mjs';
@@ -57,6 +61,20 @@ for (const tier of [
   assertEqual(spanTable.readUInt32LE(0), 0x31545053, `${tier} span table magic`);
   assertEqual(spanTable.readUInt32LE(4), bufferResult.eventCount, `${tier} span table event count`);
   assertEqual(spanTable.readUInt32LE(8), 2, `${tier} span table attr count`);
+  assertEqual(spanTable.readUInt32LE(24), 0, `${tier} span table utf16 source kind`);
+
+  const structuralUtf16 = parse_structural_index_string_utf16(sampleText);
+  assertEqual(Buffer.isBuffer(structuralUtf16), true, `${tier} structural utf16 buffer`);
+  assertEqual(structuralUtf16.readUInt32LE(0), 0x31545053, `${tier} structural utf16 magic`);
+  assertEqual(structuralUtf16.readUInt32LE(4), bufferResult.eventCount, `${tier} structural utf16 event count`);
+  assertEqual(structuralUtf16.readUInt32LE(24), 0, `${tier} structural utf16 source kind`);
+
+  const structuralUtf8 = parse_structural_index_uint8array(sampleUint8);
+  assertEqual(Buffer.isBuffer(structuralUtf8), true, `${tier} structural utf8 buffer`);
+  assertEqual(structuralUtf8.readUInt32LE(0), 0x31545053, `${tier} structural utf8 magic`);
+  assertEqual(structuralUtf8.readUInt32LE(4), bufferResult.eventCount, `${tier} structural utf8 event count`);
+  assertEqual(structuralUtf8.readUInt32LE(12), sampleUint8.byteLength, `${tier} structural utf8 input bytes`);
+  assertEqual(structuralUtf8.readUInt32LE(24), 1, `${tier} structural utf8 source kind`);
 
   mkdirSync(join(__dirname, 'target'), { recursive: true });
   const filePath = join(__dirname, 'target', 'smoke.xml');
@@ -81,6 +99,19 @@ assertThrows(
   /Unclosed start tag/,
   'utf16 incomplete quoted tail',
 );
+
+const projectionSample = Buffer.from(
+  '<root><item id="7"><name>Alice</name><value>안녕</value></item><item id="11"><name>Bob</name><value>cafe</value></item></root>',
+);
+const projection = parse_item_projection_uint8array(projectionSample);
+const tableProjection = parse_item_projection_via_table_uint8array(projectionSample);
+assertEqual(projection.itemCount, 2, 'item projection count');
+assertEqual(projection.checksum, projectionChecksum([
+  { id: 7, name: 'Alice', value: '안녕' },
+  { id: 11, name: 'Bob', value: 'cafe' },
+]), 'item projection checksum');
+assertEqual(tableProjection.itemCount, projection.itemCount, 'table item projection count');
+assertEqual(tableProjection.checksum, projection.checksum, 'table item projection checksum');
 
 console.log('native aggregate smoke ok');
 
@@ -113,4 +144,26 @@ function assertThrows(fn, pattern, label) {
     return;
   }
   throw new Error(`${label}: expected throw`);
+}
+
+function projectionChecksum(rows) {
+  let value = rows.length;
+  for (const row of rows) {
+    value = mix(value, row.id);
+    value = fold(value, row.name);
+    value = fold(value, row.value);
+  }
+  return value | 0;
+}
+
+function fold(seed, text) {
+  let value = seed;
+  for (let index = 0; index < text.length; index++) {
+    value = mix(value, text.charCodeAt(index));
+  }
+  return value;
+}
+
+function mix(seed, value) {
+  return ((seed ^ value) * 16777619) | 0;
 }

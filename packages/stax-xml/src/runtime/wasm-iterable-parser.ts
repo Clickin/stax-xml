@@ -154,6 +154,26 @@ export class StaxXmlWasmIterableParser implements IterableIterator<AnyXmlEvent> 
     return this.input.slice(start, this.table.view.getInt32(offset + 12, true));
   }
 
+  copyAttrValueByName(eventIndex: number, name: string): string | undefined {
+    const attrCount = this.eventAttrCount(eventIndex);
+    for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+      const offset = this.attrOffset(eventIndex, attrIndex);
+      const nameStart = this.table.view.getInt32(offset, true);
+      if (nameStart < 0) {
+        continue;
+      }
+      const nameEnd = this.table.view.getInt32(offset + 4, true);
+      if (this.input.slice(nameStart, nameEnd) === name) {
+        const valueStart = this.table.view.getInt32(offset + 8, true);
+        if (valueStart < 0) {
+          return undefined;
+        }
+        return this.input.slice(valueStart, this.table.view.getInt32(offset + 12, true));
+      }
+    }
+    return undefined;
+  }
+
   private readEvent(index: number): AnyXmlEvent {
     const offset = this.eventOffset(index);
     const type = this.table.view.getUint32(offset, true);
