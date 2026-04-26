@@ -2070,6 +2070,17 @@ impl Drop for NativeEventObject {
 
 fn parse_attributes(input: &[u8], start: usize, end: usize) -> AttrSpans {
     let mut attrs = AttrSpans::new();
+    let _ = scan_attribute_spans(input, start, end, |attr| {
+        attrs.push(attr);
+        Ok(())
+    });
+    attrs
+}
+
+fn scan_attribute_spans<F>(input: &[u8], start: usize, end: usize, mut visit: F) -> Result<()>
+where
+    F: FnMut(AttrSpan) -> Result<()>,
+{
     let mut index = start;
     while index < end {
         while index < end && is_whitespace(input[index]) {
@@ -2089,12 +2100,12 @@ fn parse_attributes(input: &[u8], start: usize, end: usize) -> AttrSpans {
             index += 1;
         }
         if index >= end || input[index] != b'=' {
-            attrs.push(AttrSpan {
+            visit(AttrSpan {
                 name_start,
                 name_end,
                 value_start: name_start,
                 value_end: name_end,
-            });
+            })?;
             continue;
         }
 
@@ -2116,15 +2127,15 @@ fn parse_attributes(input: &[u8], start: usize, end: usize) -> AttrSpans {
             break;
         };
         let value_end = index + value_offset;
-        attrs.push(AttrSpan {
+        visit(AttrSpan {
             name_start,
             name_end,
             value_start,
             value_end,
-        });
+        })?;
         index = value_end + 1;
     }
-    attrs
+    Ok(())
 }
 
 fn read_projection_id(input: &[u8], start: usize, end: usize) -> i32 {
@@ -3020,8 +3031,7 @@ fn read_object_rows_projection_attributes_direct(
     spec: &NormalizedObjectRowsSpec,
     row: &mut CurrentObjectRowsProjection,
 ) -> Result<()> {
-    let attrs = parse_attributes(input, attr_start, attr_end);
-    for attr in attrs.iter() {
+    scan_attribute_spans(input, attr_start, attr_end, |attr| {
         let attr_name = &input[attr.name_start..attr.name_end];
         for (index, field) in spec.fields.iter().enumerate() {
             if field.source_kind == ObjectRowsSourceKind::Attribute
@@ -3042,8 +3052,8 @@ fn read_object_rows_projection_attributes_direct(
                 row.completed[index] = true;
             }
         }
-    }
-    Ok(())
+        Ok(())
+    })
 }
 
 fn end_object_rows_projection_element(

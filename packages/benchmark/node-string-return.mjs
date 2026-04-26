@@ -30,6 +30,7 @@ const GENERATED_DIR = join(__dirname, 'test-data');
 const COUNT_REGRESSION_LIMIT = 0.03;
 const FULL_STRING_MIN_IMPROVEMENT = 0.10;
 const FULL_STRING_MIN_MIB_PER_SEC = 190;
+const DEFAULT_SIMDXML_MAX_MIB = 64;
 
 function parseArgs(argv) {
   const options = {
@@ -46,6 +47,8 @@ function parseArgs(argv) {
     sampleEvery: 65_536,
     woodstoxCmd: undefined,
     quickXmlCmd: undefined,
+    simdxmlCmd: undefined,
+    simdxmlMaxMiB: DEFAULT_SIMDXML_MAX_MIB,
     tiers: TIER_IDS,
   };
 
@@ -122,6 +125,12 @@ function parseArgs(argv) {
         break;
       case '--quick-xml-cmd':
         options.quickXmlCmd = readValue();
+        break;
+      case '--simdxml-cmd':
+        options.simdxmlCmd = readValue();
+        break;
+      case '--simdxml-max-mib':
+        options.simdxmlMaxMiB = parsePositiveNumber(readValue(), '--simdxml-max-mib');
         break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
@@ -368,7 +377,15 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
       id,
       status: 'skipped',
       tier,
-      reason: `No --${id === 'woodstox' ? 'woodstox' : 'quick-xml'}-cmd was provided.`,
+      reason: `No --${externalCommandFlag(id)} was provided.`,
+    };
+  }
+  if (id === 'simdxml' && fileSizeMiB > options.simdxmlMaxMiB) {
+    return {
+      id,
+      status: 'skipped',
+      tier,
+      reason: `simdxml capped at ${options.simdxmlMaxMiB} MiB to avoid excessive structural-index memory use; fixture is ${fileSizeMiB.toFixed(2)} MiB.`,
     };
   }
 
@@ -381,6 +398,7 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
       STAX_XML_BENCH_TIER: tier,
       STAX_XML_BENCH_RUNS: String(options.runs),
       STAX_XML_BENCH_WARMUPS: String(options.warmups),
+      STAX_XML_BENCH_MAX_MIB: String(options.simdxmlMaxMiB),
       STAX_XML_BENCH_CONTRACT: 'namespace-off,skip-decl-comment-pi-doctype,cdata-event,skip-whitespace-text,trim-text-checksum,entity-decode-off',
     },
   });
@@ -409,6 +427,13 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options) {
     peakHeapUsedBytes: parsed.peakHeapUsedBytes,
     samplesMs: parsed.samplesMs ?? [parsed.avgMs],
   };
+}
+
+function externalCommandFlag(id) {
+  if (id === 'woodstox') return 'woodstox-cmd';
+  if (id === 'quick-xml') return 'quick-xml-cmd';
+  if (id === 'simdxml') return 'simdxml-cmd';
+  return `${id}-cmd`;
 }
 
 function average(values) {
@@ -546,6 +571,7 @@ async function main(argv = process.argv.slice(2)) {
       chunkSize: options.chunkSize,
       batchSize: options.batchSize,
       sampleEvery: options.sampleEvery,
+      simdxmlMaxMiB: options.simdxmlMaxMiB,
       tiers: options.tiers,
     },
     files: [],
@@ -568,6 +594,7 @@ async function main(argv = process.argv.slice(2)) {
         measureScenario('node', () => makeNodeParser(filePath, options), fileSizeMiB, tierId, options),
         measureExternal('woodstox', options.woodstoxCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('quick-xml', options.quickXmlCmd, filePath, fileSizeMiB, tierId, options),
+        measureExternal('simdxml', options.simdxmlCmd, filePath, fileSizeMiB, tierId, options),
       ];
       fileReport.tiers.push({ id: tierId, scenarios });
     }
