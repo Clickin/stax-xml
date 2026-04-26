@@ -12,6 +12,7 @@ The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its mini
 - Fixture: G:\programming\stax-xml\packages\benchmark\test-data\runtime-comparison-16mib.xml
 - Fixture size: 16.00 MiB
 - Runs: warmups=1, runs=3
+- Native SIMD policy: auto
 - simdxml max fixture: 64 MiB
 - Java 8: openjdk version "1.8.0_472"
 - Java 25 check: openjdk version "25.0.1" 2025-10-21 LTS
@@ -55,12 +56,13 @@ comparator-result = {
 Parsing methods:
 
 - `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
-- `stax-xml native addon (Buffer)`: JS package wrapper imports the N-API aggregate addon before sampling, reads the fixture into one Node Buffer, and each measured sample calls through the wrapper and N-API boundary in the same Node process.
-- `stax-xml native addon (file)`: the same wrapper calls the native file helper each sample, so this row includes Rust-side file read and allocation cost.
+- `stax-xml native addon (Buffer)`: JS package wrapper imports the napi-rs N-API aggregate addon before sampling, reads the fixture into one Node Buffer, and each measured sample calls through the wrapper and N-API boundary in the same Node process. This row does not execute a standalone Rust binary or direct Rust benchmark entry point.
+- `stax-xml native addon (file)`: the same Node wrapper calls the N-API native file helper each sample, so this row includes Rust-side file read and allocation cost but is still measured from Node through N-API.
 - Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.
 - `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.
 - simdxml structural index (file): Rust `simdxml::parse` after reading the fixture inside each measured sample; skipped above 64 MiB by default to avoid excessive memory use.
 - simdxml structural index (memory): the same adapter with the fixture read once before warmup, so it is the closest comparator to the native Buffer row.
+- `--native-simd` controls only stax-xml native addon structural classifier tiers when those tiers are selected by the native aggregate implementation; it does not affect the JavaScript, Woodstox, quick-xml, or simdxml rows.
 - Java 8 is the public Woodstox row because it is Woodstox's minimum runtime target; Java 25 is a separate verification row.
 
 </details>

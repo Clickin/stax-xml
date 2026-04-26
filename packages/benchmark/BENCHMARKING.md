@@ -25,6 +25,69 @@ This benchmarking infrastructure provides:
 - **Comparative analysis**: Side-by-side comparison of baseline vs inlined parsers
 - **Multiple output formats**: Console, JSON, CSV, Markdown, HTML
 
+## Native SIMD and simdxml comparator contract
+
+The simdxml comparator has a stricter contract than the older local parser
+microbenchmarks.
+
+- simdxml fixture input comes from `https://github.com/simdxml/simdxml`.
+  The `simdxml-upstream-comparison.mjs` harness clones or reads that repository
+  at the pinned upstream ref and reuses its benchmark fixture groups and XML
+  files. Treat those fixtures as upstream comparator input data, not as
+  stax-xml-authored fixtures.
+- stax-xml native rows must be measured through Node.js plus napi-rs N-API.
+  The benchmark imports `@stax-xml/native-aggregate-probe`, passes a Node
+  `Buffer` or file path through the JavaScript wrapper, and measures the result
+  returned to Node. Do not replace these rows with a standalone Rust binary or
+  direct Rust library call when comparing stax-xml native addon performance.
+- `--native-simd` affects only stax-xml native aggregate structural classifier
+  paths. It does not change simdxml, quick-xml, Woodstox, or JavaScript rows.
+  Explicit policies fail if unavailable instead of silently falling back.
+- On x86_64, `--native-simd=auto` selects AVX2 when available, then SSE4.2,
+  then scalar. On aarch64, `auto` selects NEON.
+- Use `event-count-two-stage` and `count-eq-two-stage` to isolate classifier
+  cost. Use `event-count-auto-stage` and `count-auto-stage` for representative
+  heuristic behavior, because they can avoid full-byte classification on
+  text-heavy input.
+
+Reproduce the simdxml fixture comparator:
+
+```bash
+pnpm --filter benchmark run build:native-aggregate
+pnpm --filter benchmark run bench:simdxml-upstream -- \
+  --skip-fetch --skip-build \
+  --groups shape \
+  --runs 7 --warmups 2 \
+  --native-tiers event-count-auto-stage,count-auto-stage,event-count-two-stage,count-eq-two-stage \
+  --native-simd avx2
+```
+
+To compare SIMD policies, rerun the same command while changing only
+`--native-simd` to `off`, `sse42`, `avx2`, and `auto`.
+
+Recent local snapshot on a 13th Gen Intel Core i5-13600K, Windows x64,
+Node v24.15.0, `shape` group, `runs=7`, `warmups=2`:
+
+| Fixture | simdxml parse | stax auto event AVX2 | Ratio | stax auto count AVX2 | Ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| patent | 2289.9 MiB/s | 4485.7 MiB/s | 1.96x | 3296.8 MiB/s | 1.44x |
+| attrheavy | 2737.4 MiB/s | 3572.1 MiB/s | 1.30x | 3019.0 MiB/s | 1.10x |
+| textheavy | 14136.4 MiB/s | 16706.3 MiB/s | 1.18x | 18326.3 MiB/s | 1.30x |
+| nested | 2373.3 MiB/s | 4203.4 MiB/s | 1.77x | 3285.4 MiB/s | 1.38x |
+
+Forced two-stage classifier snapshot on the same shape fixtures:
+
+| Policy | patent | attrheavy | textheavy | nested |
+| --- | ---: | ---: | ---: | ---: |
+| scalar/off | 1343.3 MiB/s | 1543.7 MiB/s | 1842.2 MiB/s | 1208.2 MiB/s |
+| SSE4.2 | 3035.3 MiB/s | 3841.3 MiB/s | 4393.0 MiB/s | 2118.3 MiB/s |
+| AVX2 | 3176.2 MiB/s | 3235.5 MiB/s | 6632.9 MiB/s | 2020.7 MiB/s |
+| auto | 2271.1 MiB/s | 3152.8 MiB/s | 4620.2 MiB/s | 1994.2 MiB/s |
+
+The forced two-stage table is diagnostic and may be noisier on 1 MiB fixtures.
+The representative comparator rows are the auto-stage tiers above, because they
+allow the heuristic to avoid classifying every byte on text-heavy input.
+
 ## Cursor regression contract
 
 Node async cursor regression measurement depends on the native async buffer path. The previous `AsyncIterable<Buffer> -> ReadableStream adapter -> StaxXmlParser` compare logic was invalid for Node hot path regression measurement, so it should not be used again.
