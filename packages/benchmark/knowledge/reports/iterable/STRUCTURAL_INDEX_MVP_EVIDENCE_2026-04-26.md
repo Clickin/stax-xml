@@ -10,6 +10,7 @@ Correctness parity passed for the structural-index MVP:
 - native aggregate build: passed.
 - native aggregate smoke: passed.
 - structural-index converter final benchmark: checksum parity passed for JS, byte-auto, native-buffer-table, native table checksum projection, hardcoded native table rows projection, generic columnar native object rows projection, and schema-aware native projection paths on 16 MiB and 128 MiB fixtures.
+- staged platform converter benchmark: checksum parity passed for actual `schema.parse(bytes, { acceleration: { backend: 'native' } })` through a staged platform package.
 - event parser regression gate: targeted parser/parity tests passed, and the existing 128 MiB iterable materialization harness completed on all four regression fixtures.
 
 ## Event Parser Regression Guard
@@ -52,6 +53,31 @@ Results:
 
 All checksums matched.
 
+## Staged Platform Converter Benchmark
+
+Command:
+
+```sh
+pnpm --filter benchmark run bench:structural-index-platform-converter
+```
+
+This benchmark stages the locally built native aggregate addon into the current platform package, runs the public compiled converter API with `backend: 'native'`, and removes the staged binary after the child benchmark process exits. It verifies the release-style platform package entrypoint rather than calling the native aggregate probe directly.
+
+Results:
+
+| Schema | Fixture | Size | JS compiled | Native platform converter | Speedup |
+| --- | --- | ---: | ---: | ---: | ---: |
+| hardcoded-item | attribute-heavy | 16 MiB | 279.12 ms | 164.83 ms | 1.69x |
+| generic-entry | attribute-heavy | 16 MiB | 251.56 ms | 228.12 ms | 1.10x |
+| hardcoded-item | mixed-utf8 | 16 MiB | 323.90 ms | 180.47 ms | 1.79x |
+| generic-entry | mixed-utf8 | 16 MiB | 287.65 ms | 253.76 ms | 1.13x |
+| hardcoded-item | attribute-heavy | 128 MiB | 2112.47 ms | 1373.62 ms | 1.54x |
+| generic-entry | attribute-heavy | 128 MiB | 2067.88 ms | 2004.92 ms | 1.03x |
+| hardcoded-item | mixed-utf8 | 128 MiB | 2530.38 ms | 1547.24 ms | 1.64x |
+| generic-entry | mixed-utf8 | 128 MiB | 2294.35 ms | 2105.30 ms | 1.09x |
+
+All staged platform converter checksums matched.
+
 ## Gate Status
 
 The generic native-buffer-table path still does not satisfy the 1.5x performance gate when the table is consumed through the JavaScript `IterableEventTable` wrapper. At 128 MiB it is 0.85x to 0.92x of JS compiled converter throughput, despite checksum parity.
@@ -59,6 +85,8 @@ The generic native-buffer-table path still does not satisfy the 1.5x performance
 The representative table projection path does satisfy the gate. It builds the same structural table in the native addon and then projects from that table without JS per-event dispatch; at 128 MiB it reaches 1.89x to 2.03x for checksum-only projection and 1.68x to 1.79x when returning actual converter rows for the hardcoded `id/name/value` schema. That means table tuning is still relevant, but the table must feed a native projection boundary rather than round-tripping every event through JS.
 
 The generic object rows projection now accepts a compiled-plan descriptor for root array/object shapes with relative attribute and single child element scalar fields. Returning columnar field arrays instead of per-row value arrays improved the generic path from the initial row-array shape, but it still reaches only 1.30x to 1.34x at 128 MiB and does not meet the 1.5x gate. The remaining cost is dominated by generic string materialization, N-API transfer of per-field string columns, and TS object reconstruction/number validation.
+
+The staged platform converter benchmark confirms that this cost is user-visible: after TypeScript object hydration and scalar validation, the generic descriptor path reaches only 1.03x to 1.09x at 128 MiB. The hardcoded representative path still clears the gate through the public converter API at 1.54x to 1.64x.
 
 The direct schema-aware native projection PoC remains the upper-bound comparison for this schema. At 128 MiB it reaches 2.21x to 2.70x of JS compiled converter throughput while preserving checksum parity.
 
@@ -71,3 +99,5 @@ The generic table builder now writes event records directly into the final byte 
 The native table rows path is now wired into `CompiledRootProcessor` for the representative compiled schema `//item` with `./@id`, `./name`, and `./value` on byte input when a native backend exports `parseItemRowsViaTableUint8Array`. This hardcoded path is tried before the generic descriptor because it is still faster for the representative benchmark.
 
 The generic descriptor path is also wired into `CompiledRootProcessor` for byte-input root arrays of inline objects when every field is a scalar selected by a relative attribute or one relative child element. It preserves schema-side number validation by returning strings to TypeScript and applying the compiled scalar parsers there. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths. This is a bounded lowering step, not full XPath execution in native code.
+
+The native binary smoke workflow now stages each runnable platform package and executes `packages/native-aggregate/scripts/smoke-platform-package.mjs`, which verifies `parseStructuralIndexUint8Array`, `parseItemRowsViaTableUint8Array`, and `parseObjectRowsViaTableUint8Array` through the platform package entrypoint.

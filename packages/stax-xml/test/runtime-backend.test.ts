@@ -132,6 +132,14 @@ describe('runtime backend package topology', () => {
       expect(index).toContain('parseObjectRowsViaTableUint8Array');
     }
   });
+
+  it('smokes staged platform packages through structural projection exports', () => {
+    const workflow = readText('../../../.github/workflows/native-binary-smoke.yml');
+    const script = readText('../../native-aggregate/scripts/smoke-platform-package.mjs');
+
+    expect(workflow).toContain('scripts/smoke-platform-package.mjs');
+    expect(script).toContain('parseObjectRowsViaTableUint8Array');
+  });
 });
 
 describe('runtime backend resolver', () => {

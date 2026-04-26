@@ -885,6 +885,12 @@ type NativeObjectRowsResult = {
   columns?: Array<{ present?: unknown[]; values?: unknown[] }>;
 };
 
+type NativeObjectRowsHydrator = {
+  fieldName: string;
+  missingValue: unknown;
+  parseValue: (rawValue: string) => unknown;
+};
+
 type NativeItemRowsResult = {
   inputBytes?: number;
   input_bytes?: number;
@@ -987,23 +993,60 @@ function normalizeNativeObjectRowsResult(
     }
   }
 
-  const rows: unknown[] = [];
+  const hydrators = createNativeObjectRowsHydrators(projection, options);
+  const columns = result.columns;
+  const rows = new Array<unknown>(rowCount);
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
     const output: Record<string, unknown> = {};
-    for (let index = 0; index < projection.fields.length; index++) {
-      const field = projection.fields[index]!;
-      const column = result.columns[index]!;
+    for (let index = 0; index < hydrators.length; index++) {
+      const hydrator = hydrators[index]!;
+      const column = columns[index]!;
       if (column.present[rowIndex] !== true) {
-        output[field.fieldName] = defaultValue(field.value, true, 'field');
+        output[hydrator.fieldName] = hydrator.missingValue;
         continue;
       }
 
-      const rawValue = decodeEntities(String(column.values[rowIndex]), options);
-      output[field.fieldName] = parseScalar(field.value as DispatchScalarPlan, rawValue, false);
+      const rawValue = column.values[rowIndex];
+      if (typeof rawValue !== 'string') {
+        throw new Error('Native object rows projection returned a non-string value.');
+      }
+      output[hydrator.fieldName] = hydrator.parseValue(rawValue);
     }
-    rows.push(output);
+    rows[rowIndex] = output;
   }
   return rows;
+}
+
+function createNativeObjectRowsHydrators(
+  projection: NativeObjectRowsProjectionPlan,
+  options?: ParseOptions
+): NativeObjectRowsHydrator[] {
+  const shouldDecodeEntities = options?.decodeEntities === true;
+  return projection.fields.map((field) => {
+    const plan = field.value as DispatchScalarPlan;
+    const parseText = plan.schema._parseText?.bind(plan.schema);
+    const missingValue = defaultValue(plan, true, 'field');
+    let parseValue: (rawValue: string) => unknown;
+    if (plan.kind === 'string' && !plan.optional) {
+      parseValue = shouldDecodeEntities
+        ? rawValue => decodeEntities(rawValue, options)
+        : rawValue => rawValue;
+    } else if (parseText) {
+      parseValue = shouldDecodeEntities
+        ? rawValue => parseText(decodeEntities(rawValue, options))
+        : rawValue => parseText(rawValue);
+    } else {
+      parseValue = shouldDecodeEntities
+        ? rawValue => parseScalar(plan, decodeEntities(rawValue, options), false)
+        : rawValue => parseScalar(plan, rawValue, false);
+    }
+
+    return {
+      fieldName: field.fieldName,
+      missingValue,
+      parseValue,
+    };
+  });
 }
 
 function normalizeNativeItemRowsResult(
