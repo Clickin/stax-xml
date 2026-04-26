@@ -128,6 +128,7 @@ describe('runtime backend package topology', () => {
 
       expect(index).toContain('parseStructuralIndexStringUtf16');
       expect(index).toContain('parseStructuralIndexUint8Array');
+      expect(index).toContain('parseItemRowsViaTableUint8Array');
     }
   });
 });

@@ -47,6 +47,21 @@ pub struct ItemProjectionResult {
     pub checksum: i32,
 }
 
+#[napi(object)]
+pub struct ItemProjectionRecord {
+    pub id: i32,
+    pub name: String,
+    pub value: String,
+}
+
+#[napi(object)]
+pub struct ItemProjectionRowsResult {
+    pub input_bytes: f64,
+    pub event_count: u32,
+    pub max_depth: u32,
+    pub rows: Vec<ItemProjectionRecord>,
+}
+
 #[repr(C)]
 pub struct FfiAggregateResult {
     pub event_count: u32,
@@ -209,8 +224,15 @@ struct TableAttrRecord {
 
 struct TableProjectionState {
     depth: usize,
+    max_depth: usize,
     current_item: Option<CurrentItemProjection>,
     capture: Option<ItemProjectionCapture>,
+    rows: Vec<ItemProjectionRow>,
+}
+
+struct TableProjectionOutcome {
+    event_count: u32,
+    max_depth: usize,
     rows: Vec<ItemProjectionRow>,
 }
 
@@ -275,6 +297,11 @@ pub fn parse_item_projection_via_table_uint8array(
     input: Uint8Array,
 ) -> Result<ItemProjectionResult> {
     parse_item_projection_via_table(input.as_ref())
+}
+
+#[napi]
+pub fn parse_item_rows_via_table_uint8array(input: Uint8Array) -> Result<ItemProjectionRowsResult> {
+    parse_item_rows_via_table(input.as_ref())
 }
 
 #[no_mangle]
@@ -434,6 +461,11 @@ fn parse_item_projection(input: &[u8]) -> Result<ItemProjectionResult> {
 fn parse_item_projection_via_table(input: &[u8]) -> Result<ItemProjectionResult> {
     let table = parse_span_table(input)?;
     project_items_from_span_table(input, &table)
+}
+
+fn parse_item_rows_via_table(input: &[u8]) -> Result<ItemProjectionRowsResult> {
+    let table = parse_span_table(input)?;
+    project_item_rows_from_span_table(input, &table)
 }
 
 fn tier_name(tier: Tier) -> &'static str {
@@ -2048,6 +2080,52 @@ impl SpanTableBuilder {
 }
 
 fn project_items_from_span_table(input: &[u8], table: &[u8]) -> Result<ItemProjectionResult> {
+    let outcome = project_item_rows_from_span_table_bytes(input, table)?;
+
+    let mut checksum = outcome.rows.len() as i32;
+    for row in &outcome.rows {
+        checksum = mix_js_benchmark_checksum(checksum, row.id);
+        checksum = fold_span_js_benchmark_checksum(checksum, input, row.name_start, row.name_end)?;
+        checksum =
+            fold_span_js_benchmark_checksum(checksum, input, row.value_start, row.value_end)?;
+    }
+
+    Ok(ItemProjectionResult {
+        input_bytes: input.len() as f64,
+        item_count: to_u32_count(outcome.rows.len(), "item table projection row count")?,
+        checksum,
+    })
+}
+
+fn project_item_rows_from_span_table(
+    input: &[u8],
+    table: &[u8],
+) -> Result<ItemProjectionRowsResult> {
+    let outcome = project_item_rows_from_span_table_bytes(input, table)?;
+    let rows = outcome
+        .rows
+        .iter()
+        .map(|row| {
+            Ok(ItemProjectionRecord {
+                id: row.id,
+                name: materialize_span(input, row.name_start, row.name_end)?,
+                value: materialize_span(input, row.value_start, row.value_end)?,
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(ItemProjectionRowsResult {
+        input_bytes: input.len() as f64,
+        event_count: outcome.event_count,
+        max_depth: to_u32_count(outcome.max_depth, "item table projection max depth")?,
+        rows,
+    })
+}
+
+fn project_item_rows_from_span_table_bytes(
+    input: &[u8],
+    table: &[u8],
+) -> Result<TableProjectionOutcome> {
     let table = parse_span_table_bytes(table)?;
     if table.flags & 0xff != 1 {
         return Err(Error::from_reason(
@@ -2060,6 +2138,7 @@ fn project_items_from_span_table(input: &[u8], table: &[u8]) -> Result<ItemProje
 
     let mut state = TableProjectionState {
         depth: 0,
+        max_depth: 0,
         current_item: None,
         capture: None,
         rows: Vec::new(),
@@ -2070,6 +2149,7 @@ fn project_items_from_span_table(input: &[u8], table: &[u8]) -> Result<ItemProje
         match event.event_type {
             value if value == START_ELEMENT as u32 => {
                 state.depth += 1;
+                state.max_depth = state.max_depth.max(state.depth);
                 start_table_projection_element(input, &table, event, state.depth, &mut state)?;
             }
             value if value == END_ELEMENT as u32 => {
@@ -2092,18 +2172,10 @@ fn project_items_from_span_table(input: &[u8], table: &[u8]) -> Result<ItemProje
         ));
     }
 
-    let mut checksum = state.rows.len() as i32;
-    for row in &state.rows {
-        checksum = mix_js_benchmark_checksum(checksum, row.id);
-        checksum = fold_span_js_benchmark_checksum(checksum, input, row.name_start, row.name_end)?;
-        checksum =
-            fold_span_js_benchmark_checksum(checksum, input, row.value_start, row.value_end)?;
-    }
-
-    Ok(ItemProjectionResult {
-        input_bytes: input.len() as f64,
-        item_count: to_u32_count(state.rows.len(), "item table projection row count")?,
-        checksum,
+    Ok(TableProjectionOutcome {
+        event_count: table.event_count,
+        max_depth: state.max_depth,
+        rows: state.rows,
     })
 }
 
@@ -2813,6 +2885,24 @@ mod tests {
         table[12..16].copy_from_slice(&(sample.len() as u32 + 1).to_le_bytes());
 
         assert!(project_items_from_span_table(sample.as_bytes(), &table).is_err());
+    }
+
+    #[test]
+    fn item_rows_projection_from_table_returns_converter_rows() {
+        let sample =
+            "<root><item id=\"7\"><name>Alice</name><value>안녕</value></item><item id=\"11\"><name>Bob</name><value>cafe</value></item></root>";
+        let result = parse_item_rows_via_table(sample.as_bytes()).unwrap();
+
+        assert_eq!(result.input_bytes, sample.len() as f64);
+        assert_eq!(result.event_count, 20);
+        assert_eq!(result.max_depth, 3);
+        assert_eq!(result.rows.len(), 2);
+        assert_eq!(result.rows[0].id, 7);
+        assert_eq!(result.rows[0].name, "Alice");
+        assert_eq!(result.rows[0].value, "안녕");
+        assert_eq!(result.rows[1].id, 11);
+        assert_eq!(result.rows[1].name, "Bob");
+        assert_eq!(result.rows[1].value, "cafe");
     }
 
     #[test]

@@ -11,6 +11,7 @@ import {
   parse_structural_index_uint8array,
   parse_item_projection_uint8array,
   parse_item_projection_via_table_uint8array,
+  parse_item_rows_via_table_uint8array,
   parse_aggregate_string_utf16,
   parse_aggregate_string_utf8,
 } from './index.mjs';
@@ -105,6 +106,7 @@ const projectionSample = Buffer.from(
 );
 const projection = parse_item_projection_uint8array(projectionSample);
 const tableProjection = parse_item_projection_via_table_uint8array(projectionSample);
+const tableRows = parse_item_rows_via_table_uint8array(projectionSample);
 assertEqual(projection.itemCount, 2, 'item projection count');
 assertEqual(projection.checksum, projectionChecksum([
   { id: 7, name: 'Alice', value: '안녕' },
@@ -112,6 +114,12 @@ assertEqual(projection.checksum, projectionChecksum([
 ]), 'item projection checksum');
 assertEqual(tableProjection.itemCount, projection.itemCount, 'table item projection count');
 assertEqual(tableProjection.checksum, projection.checksum, 'table item projection checksum');
+assertEqual(tableRows.eventCount, 20, 'table item rows event count');
+assertEqual(tableRows.maxDepth, 3, 'table item rows max depth');
+assertEqual(tableRows.rows.length, 2, 'table item rows length');
+assertEqual(tableRows.rows[0].id, 7, 'table item rows first id');
+assertEqual(tableRows.rows[0].name, 'Alice', 'table item rows first name');
+assertEqual(tableRows.rows[0].value, '안녕', 'table item rows first value');
 
 console.log('native aggregate smoke ok');
 

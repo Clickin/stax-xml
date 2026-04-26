@@ -24,3 +24,18 @@ export declare function parseSpanTableStringUtf16(input: string): Buffer
 export declare function parseStructuralIndexStringUtf16(input: string): Buffer
 
 export declare function parseStructuralIndexUint8Array(input: Uint8Array): Buffer
+
+export interface ItemProjectionRecord {
+  id: number
+  name: string
+  value: string
+}
+
+export interface ItemProjectionRowsResult {
+  inputBytes: number
+  eventCount: number
+  maxDepth: number
+  rows: ItemProjectionRecord[]
+}
+
+export declare function parseItemRowsViaTableUint8Array(input: Uint8Array): ItemProjectionRowsResult
