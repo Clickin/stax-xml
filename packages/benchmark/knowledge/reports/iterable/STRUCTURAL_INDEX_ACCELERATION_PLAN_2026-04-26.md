@@ -46,6 +46,8 @@ The next bounded lowering path accepts a descriptor for root array/object plans 
 
 Platform package verification must stage the freshly built native addon into the target package and smoke the projection exports through that package entrypoint. Checking only `parseAggregateBuffer` is insufficient because converter acceleration depends on `parseItemRowsViaTableUint8Array` and `parseObjectRowsViaTableUint8Array`.
 
+Benchmark-only staged platform breakdowns showed that stable-shape JavaScript hydration is faster in isolation, but too small to recover the generic converter path. The larger cost is native generic field materialization and N-API transfer of per-field string columns. Do not add production object-shape codegen before measuring typed/narrow native columns, fewer eagerly materialized string columns, or another coarse schema-specific native projection tier.
+
 Span materialization rules:
 
 - UTF-16 source: `input.slice(start, end)`.
