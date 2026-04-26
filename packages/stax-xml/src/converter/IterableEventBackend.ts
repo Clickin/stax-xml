@@ -6,7 +6,9 @@ export {
   getIterableEventBackend,
   getIterableEventTable,
   materializeIterableEventBatch,
+  readReadableStreamByteBatches,
   readReadableStreamChunks,
+  readReadableStreamChunksIncrementally,
   type IterableEventBackendOptions,
   type IterableEventTable
 } from '../IterableEventBackend.js';

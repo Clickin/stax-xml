@@ -98,6 +98,7 @@ export class StaxXmlIterableParser {
   private currentBuffer: Uint8Array = EMPTY_BUFFER;
   private pendingTail: Uint8Array = EMPTY_BUFFER;
   private started = false;
+  private pendingStartDocument = false;
   private sourceDone = false;
   private finished = false;
 
@@ -189,6 +190,49 @@ export class StaxXmlIterableParser {
 
   nextBatchFrame(): StaxXmlIterableBatchFrame | undefined {
     return this.nextBatch() ? this.batchFrame() : undefined;
+  }
+
+  /** @internal Feed one byte batch without marking the source as exhausted. */
+  pushByteBatch(batch: ByteBatch, isFinal = false): boolean {
+    if (this.finished) {
+      return false;
+    }
+
+    this.resetFrames();
+    if (!this.started) {
+      this.started = true;
+      this.pendingStartDocument = true;
+    }
+    if (this.pendingStartDocument) {
+      this.addEvent(IterableEventType.START_DOCUMENT);
+    }
+
+    if (batch.length > 0) {
+      const buffer = this.prepareBuffer(batch);
+      this.currentBuffer = buffer;
+      this.parseBuffer(buffer, false);
+    }
+
+    if (isFinal) {
+      this.sourceDone = true;
+      this.finish();
+    }
+
+    if (
+      this.pendingStartDocument
+      && !this.emitStartDocumentBatchImmediately
+      && !isFinal
+      && this.eventCursor === 1
+    ) {
+      this.resetFrames();
+      return false;
+    }
+
+    const hasEvents = this.eventCursor > 0;
+    if (hasEvents) {
+      this.pendingStartDocument = false;
+    }
+    return hasEvents;
   }
 
   eventCount(): number {
@@ -450,7 +494,7 @@ export class StaxXmlIterableParser {
       return end + 3;
     }
     if (startsWithAscii(buffer, position, '<!DOCTYPE')) {
-      const end = findGt(buffer, position + 2);
+      const end = findDoctypeEnd(buffer, position + 2);
       if (end === -1) {
         if (isFinal) {
           throw new Error('Unclosed DOCTYPE declaration');
@@ -933,6 +977,31 @@ function indexOfAscii(buffer: Uint8Array, value: string, from: number): number {
 
 function findGt(buffer: Uint8Array, from: number): number {
   return buffer.indexOf(62, from);
+}
+
+function findDoctypeEnd(buffer: Uint8Array, from: number): number {
+  const length = buffer.byteLength;
+  let quote = 0;
+  let inSubset = false;
+  for (let index = from; index < length; index++) {
+    const byte = buffer[index]!;
+    if (quote !== 0) {
+      if (byte === quote) {
+        quote = 0;
+      }
+      continue;
+    }
+    if (byte === 34 || byte === 39) {
+      quote = byte;
+    } else if (byte === 91) {
+      inSubset = true;
+    } else if (byte === 93) {
+      inSubset = false;
+    } else if (byte === 62 && !inSubset) {
+      return index;
+    }
+  }
+  return -1;
 }
 
 function findTagEnd(buffer: Uint8Array, from: number): number {

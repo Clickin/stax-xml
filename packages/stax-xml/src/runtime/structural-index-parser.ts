@@ -22,7 +22,6 @@ const HEADER_WORDS = 7;
 const HEADER_BYTES = HEADER_WORDS * 4;
 const EVENT_STRIDE_BYTES = 28;
 const ATTR_STRIDE_BYTES = 16;
-const SOURCE_KIND_UTF16 = 0;
 const SOURCE_KIND_UTF8 = 1;
 const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
 const DEFAULT_ENTITY_MAP: Record<string, string> = {

@@ -76,11 +76,11 @@ describe('release API parity matrix', () => {
   });
 
   it('routes public async parser streams through the iterable backend', async () => {
-    const originalNextBatch = StaxXmlIterableParser.prototype.nextBatch;
-    let nextBatchCalls = 0;
-    StaxXmlIterableParser.prototype.nextBatch = function countedNextBatch() {
-      nextBatchCalls++;
-      return originalNextBatch.call(this);
+    const originalPushByteBatch = StaxXmlIterableParser.prototype.pushByteBatch;
+    let pushByteBatchCalls = 0;
+    StaxXmlIterableParser.prototype.pushByteBatch = function countedPushByteBatch(batch, isFinal) {
+      pushByteBatchCalls++;
+      return originalPushByteBatch.call(this, batch, isFinal);
     };
 
     try {
@@ -93,9 +93,9 @@ describe('release API parity matrix', () => {
         { type: 'end', name: 'root' },
         { type: 'end-document' }
       ]);
-      expect(nextBatchCalls).toBeGreaterThan(0);
+      expect(pushByteBatchCalls).toBeGreaterThan(0);
     } finally {
-      StaxXmlIterableParser.prototype.nextBatch = originalNextBatch;
+      StaxXmlIterableParser.prototype.pushByteBatch = originalPushByteBatch;
     }
   });
 

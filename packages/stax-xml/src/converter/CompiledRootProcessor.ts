@@ -30,8 +30,8 @@ import {
   createIterableParserFromChunks,
   getIterableEventBackend,
   getIterableEventTable,
+  readReadableStreamByteBatches,
   type IterableEventTable,
-  readReadableStreamChunks
 } from './IterableEventBackend.js';
 
 const textEncoder = new TextEncoder();
@@ -603,8 +603,16 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     stream: ReadableStream<Uint8Array>
   ): Promise<void> {
-    const parser = createIterableParserFromChunks(await readReadableStreamChunks(stream), { batchSize: 1 });
-    while (parser.nextBatch()) {
+    const parser = new StaxXmlIterableParser([]);
+    for await (const batch of readReadableStreamByteBatches(stream, { batchSize: 1 })) {
+      if (!parser.pushByteBatch(batch, false)) {
+        continue;
+      }
+      for (let index = 0; index < parser.eventCount(); index++) {
+        this.processIterableEvent(runtime, parser, index);
+      }
+    }
+    if (parser.pushByteBatch([], true)) {
       for (let index = 0; index < parser.eventCount(); index++) {
         this.processIterableEvent(runtime, parser, index);
       }
@@ -776,7 +784,7 @@ function copyAttributes(
     return {};
   }
 
-  if (!(parser instanceof StaxXmlIterableParser) && parser.copyAttrValueByName) {
+  if (hasAttributeLookup(parser)) {
     return lazyAttributeRecord(parser, eventIndex, options);
   }
 
@@ -837,6 +845,15 @@ function lazyAttributeRecord(
         : { enumerable: true, configurable: true, value };
     },
   });
+}
+
+function hasAttributeLookup(
+  parser: StaxXmlIterableParser | IterableEventTable
+): parser is IterableEventTable & {
+  copyAttrValueByName(eventIndex: number, name: string): string | undefined;
+} {
+  return !(parser instanceof StaxXmlIterableParser)
+    && typeof parser.copyAttrValueByName === 'function';
 }
 
 type StructuralIndexNativeModule = {
@@ -1041,7 +1058,11 @@ function normalizeNativeObjectRowsResult(
     for (let index = 0; index < hydrators.length; index++) {
       const hydrator = hydrators[index]!;
       const column = columns[index]!;
-      if (column.present[rowIndex] !== true) {
+      const present = column.present;
+      if (!Array.isArray(present)) {
+        throw new Error('Native object rows projection returned an invalid column.');
+      }
+      if (present[rowIndex] !== true) {
         output[hydrator.fieldName] = hydrator.missingValue;
         continue;
       }
@@ -1424,20 +1445,26 @@ async function tryCreateStructuralIndexTable(
     return undefined;
   }
 
-  const nativeModule = backend.module as StructuralIndexNativeModule | undefined;
-  const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
-  const buildTable = typeof input === 'string'
-    ? nativeModule?.parseStructuralIndexStringUtf16 ?? nativeModule?.parseSpanTableStringUtf16
-    : nativeModule?.parseStructuralIndexBuffer
-      ?? nativeModule?.parseStructuralIndexUint8Array
-      ?? nativeModule?.parseSpanTableUint8Array;
-
-  if (typeof buildTable !== 'function') {
-    return undefined;
-  }
-
   try {
-    const table = buildTable(typeof input === 'string' ? input : toUint8Array(input));
+    const nativeModule = backend.module as StructuralIndexNativeModule | undefined;
+    let table: StructuralIndexTable;
+    const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
+    if (typeof input === 'string') {
+      const buildStringTable = nativeModule?.parseStructuralIndexStringUtf16
+        ?? nativeModule?.parseSpanTableStringUtf16;
+      if (typeof buildStringTable !== 'function') {
+        return undefined;
+      }
+      table = buildStringTable(input);
+    } else {
+      const buildByteTable = nativeModule?.parseStructuralIndexBuffer
+        ?? nativeModule?.parseStructuralIndexUint8Array
+        ?? nativeModule?.parseSpanTableUint8Array;
+      if (typeof buildByteTable !== 'function') {
+        return undefined;
+      }
+      table = buildByteTable(toUint8Array(input));
+    }
     return new StaxXmlStructuralIndexParser(input, table, {
       decodeEntities: options?.decodeEntities ?? false,
       sourceKind,

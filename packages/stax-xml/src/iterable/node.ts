@@ -350,7 +350,7 @@ export class StaxXmlNodeIterableParser {
       return end + 3;
     }
     if (startsWithAscii(buffer, position, '<!DOCTYPE')) {
-      const end = findGt(buffer, position + 2);
+      const end = findDoctypeEnd(buffer, position + 2);
       if (end === -1) {
         if (isFinal) {
           throw new Error('Unclosed DOCTYPE declaration');
@@ -701,6 +701,30 @@ function indexOfAscii(buffer: Buffer, value: string, from: number): number {
 
 function findGt(buffer: Buffer, from: number): number {
   return buffer.indexOf(62, from);
+}
+
+function findDoctypeEnd(buffer: Buffer, from: number): number {
+  let quote = 0;
+  let inSubset = false;
+  for (let index = from; index < buffer.byteLength; index++) {
+    const byte = buffer[index]!;
+    if (quote !== 0) {
+      if (byte === quote) {
+        quote = 0;
+      }
+      continue;
+    }
+    if (byte === 34 || byte === 39) {
+      quote = byte;
+    } else if (byte === 91) {
+      inSubset = true;
+    } else if (byte === 93) {
+      inSubset = false;
+    } else if (byte === 62 && !inSubset) {
+      return index;
+    }
+  }
+  return -1;
 }
 
 function findTagEnd(buffer: Buffer, from: number): number {

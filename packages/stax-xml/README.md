@@ -299,6 +299,46 @@ const backend = await resolveStaxXmlRuntimeBackend();
 
 Resolution order is native for the current Node-API platform, then `@stax-xml/native-wasm32-wasi`, then the JavaScript implementation in `stax-xml`. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
 
+Native packages are installed automatically through exact-version optional dependencies; users do not need to choose a platform package manually. Release builds stage `stax_xml_native.node` into the matching `@stax-xml/native-*` package before packing. Native OS/variant tarballs must be packed on their matching runner; the publish job only publishes those tarballs and must not repack them on Ubuntu. The wasm package is platform-neutral and may be packed on any runner. For local release checks, build and stage the current platform first, then use `npm pack --dry-run` because `pnpm pack` does not provide a dry-run mode:
+
+```bash
+pnpm --dir packages/native-aggregate run build:native
+pnpm --dir packages/native-aggregate run stage:platform
+npm pack --dry-run --json ./packages/native-linux-x64-gnu
+```
+
+Native aggregate counters such as `eventCount`, `attrCountTotal`, and `objectCount` are `u32` counters by contract and wrap modulo 2^32. This keeps the N-API shape compact and matches the benchmark-oriented aggregate API; callers that need exact counts beyond 4,294,967,295 events should partition the input and sum externally.
+
+Release publishing uses npm trusted publishing through GitHub Actions OIDC. Each published package, including every `@stax-xml/native-*` package, must have npm trusted publisher settings pointed at `.github/workflows/release.yml`. Do not add `NPM_TOKEN` or `NODE_AUTH_TOKEN` to the release workflow unless the package is intentionally moved away from OIDC publishing.
+
+The supported runtime floor for published packages is Node.js 18. Repository build/test tooling currently runs on Node.js 20.19+ because the TypeScript build and test tools require it, and the OIDC publish job runs on Node.js 24 to satisfy npm trusted publishing requirements. Linux glibc native packages are built inside a `node:18-bullseye` container so they target Debian 11's older glibc baseline instead of the newer GitHub runner glibc.
+
+For application container images, do not copy a full `node_modules` tree into the runtime layer. Bundle the JavaScript/TypeScript application in the builder layer, then copy only the bundle plus the native addon package that matches the runtime image:
+
+```dockerfile
+FROM node:18-bullseye AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:18-bullseye AS native
+WORKDIR /native
+RUN npm init -y >/dev/null \
+  && npm install --omit=dev stax-xml @stax-xml/native-linux-x64-gnu
+
+FROM node:18-bullseye-slim
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=native /native/node_modules/@stax-xml/native-linux-x64-gnu ./node_modules/@stax-xml/native-linux-x64-gnu
+COPY --from=native /native/node_modules/stax-xml/package.json ./node_modules/stax-xml/package.json
+COPY --from=native /native/node_modules/stax-xml/dist ./node_modules/stax-xml/dist
+CMD ["node", "server.js"]
+```
+
+Use an Alpine base only when you want the musl package path, for example `@stax-xml/native-linux-x64-musl`.
+
 ### 🧪 Testing
 
 ```bash
@@ -612,6 +652,48 @@ StAX-XML은 웹 표준 API 기반의 기본 호환성을 유지하여 다음 환
 - **Edge Runtime** (Vercel, Cloudflare Workers 등)
 
 브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 우선 권장합니다. 순수 JavaScript 파서는 Wasm을 로드할 수 없거나, 교차 출처 격리를 사용할 수 없거나, 바이너리 없는 정책이 필요한 환경을 위한 호환 fallback으로 유지합니다.
+
+#### Native 및 Wasm 해석
+
+`stax-xml`은 공개 facade package로 유지됩니다. 플랫폼별 바이너리는 `@stax-xml/native-*` optional dependency로 같은 버전에 맞춰 설치되므로 사용자가 직접 플랫폼 package를 고를 필요가 없습니다. 릴리스 빌드는 pack 전에 현재 platform package 안에 `stax_xml_native.node`를 stage합니다. native OS/variant tarball은 반드시 해당 OS/variant runner에서 pack하고, publish job은 그 tarball을 그대로 배포해야 하며 Ubuntu에서 다시 pack하지 않습니다. wasm package는 플랫폼 중립이므로 어떤 runner에서 pack해도 됩니다. 로컬 릴리스 검증은 먼저 현재 플랫폼 바이너리를 빌드/stage한 뒤, `pnpm pack`에는 dry-run 모드가 없으므로 `npm pack --dry-run`을 사용합니다:
+
+```bash
+pnpm --dir packages/native-aggregate run build:native
+pnpm --dir packages/native-aggregate run stage:platform
+npm pack --dry-run --json ./packages/native-linux-x64-gnu
+```
+
+native aggregate가 반환하는 `eventCount`, `attrCountTotal`, `objectCount` 같은 counter는 API 계약상 `u32`이며 2^32 기준으로 wrap됩니다. N-API shape를 작게 유지하기 위한 benchmark/API 계약이므로, 4,294,967,295개를 초과하는 정확한 event count가 필요하면 입력을 나누어 외부에서 합산하세요.
+
+npm 배포는 GitHub Actions OIDC 기반 trusted publishing을 사용합니다. 모든 publish 대상 package, 특히 각 `@stax-xml/native-*` package의 npm trusted publisher 설정은 `.github/workflows/release.yml`을 가리켜야 합니다. 의도적으로 OIDC 배포를 포기하는 경우가 아니라면 release workflow에 `NPM_TOKEN`이나 `NODE_AUTH_TOKEN`을 추가하지 마세요.
+
+배포 package의 지원 runtime 하한은 Node.js 18입니다. 저장소 build/test tooling은 현재 TypeScript build/test 도구의 요구사항 때문에 Node.js 20.19+에서 실행하고, OIDC publish job은 npm trusted publishing 요구사항 때문에 Node.js 24에서 실행합니다. Linux glibc native package는 `node:18-bullseye` container 안에서 빌드해서, 최신 GitHub runner glibc가 아니라 Debian 11의 더 낮은 glibc 기준에 맞춥니다.
+
+애플리케이션 컨테이너 이미지는 runtime layer에 전체 `node_modules`를 복사하지 않는 편이 좋습니다. builder layer에서 JavaScript/TypeScript 애플리케이션을 하나의 산출물로 번들링하고, runtime image에는 번들 결과와 실행 환경에 맞는 native addon package만 복사하세요:
+
+```dockerfile
+FROM node:18-bullseye AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:18-bullseye AS native
+WORKDIR /native
+RUN npm init -y >/dev/null \
+  && npm install --omit=dev stax-xml @stax-xml/native-linux-x64-gnu
+
+FROM node:18-bullseye-slim
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=native /native/node_modules/@stax-xml/native-linux-x64-gnu ./node_modules/@stax-xml/native-linux-x64-gnu
+COPY --from=native /native/node_modules/stax-xml/package.json ./node_modules/stax-xml/package.json
+COPY --from=native /native/node_modules/stax-xml/dist ./node_modules/stax-xml/dist
+CMD ["node", "server.js"]
+```
+
+Alpine base는 musl package 경로가 필요할 때만 사용하세요. 예를 들어 x64 Alpine에서는 `@stax-xml/native-linux-x64-musl`이 선택됩니다.
 
 ### 📁 테스트 파일 출처
 

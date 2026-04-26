@@ -5,9 +5,244 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
 jobs:
-  release:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.0'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '10.18.0'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build package
+        run: pnpm build
+
+  native:
+    # Native OS/variant packages must be built and packed on their matching runner.
+    # The publish job only publishes these tarballs; it must not repack native packages.
+    name: ${{ matrix.package_dir }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package_dir: native-linux-x64-gnu
+            runner: ubuntu-24.04
+            rust_target: ''
+            install_musl: false
+            smoke: true
+            glibc_container: true
+          - package_dir: native-linux-x64-musl
+            runner: ubuntu-24.04
+            rust_target: x86_64-unknown-linux-musl
+            install_musl: true
+            smoke: false
+            glibc_container: false
+          - package_dir: native-linux-arm64-gnu
+            runner: ubuntu-24.04-arm
+            rust_target: ''
+            install_musl: false
+            smoke: true
+            glibc_container: true
+          - package_dir: native-linux-arm64-musl
+            runner: ubuntu-24.04-arm
+            rust_target: aarch64-unknown-linux-musl
+            install_musl: true
+            smoke: false
+            glibc_container: false
+          - package_dir: native-darwin-x64
+            runner: macos-15-intel
+            rust_target: ''
+            install_musl: false
+            smoke: true
+            glibc_container: false
+          - package_dir: native-darwin-arm64
+            runner: macos-15
+            rust_target: ''
+            install_musl: false
+            smoke: true
+            glibc_container: false
+          - package_dir: native-win32-x64-msvc
+            runner: windows-2025
+            rust_target: ''
+            install_musl: false
+            smoke: true
+            glibc_container: false
+          - package_dir: native-win32-arm64-msvc
+            runner: windows-11-arm
+            rust_target: ''
+            install_musl: false
+            smoke: true
+            glibc_container: false
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '18'
+
+      - name: Enable pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.18.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install musl toolchain
+        if: matrix.install_musl
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Ensure Rust target
+        if: ${{ !matrix.glibc_container }}
+        shell: bash
+        run: |
+          if ! command -v rustup >/dev/null 2>&1; then
+            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+            export PATH="$HOME/.cargo/bin:$PATH"
+          fi
+          rustup default stable
+          if [ -n "${{ matrix.rust_target }}" ]; then
+            rustup target add "${{ matrix.rust_target }}"
+          fi
+          cargo --version
+
+      - name: Build native addon
+        shell: bash
+        run: |
+          if [ "${{ matrix.glibc_container }}" = "true" ]; then
+            container_name="stax-xml-glibc-${{ matrix.package_dir }}-${GITHUB_RUN_ID:-local}-$$"
+            cleanup() { docker rm -f "$container_name" >/dev/null 2>&1 || true; }
+            trap cleanup EXIT
+            docker run --name "$container_name" -v "$PWD:/work" -w /work node:18-bullseye bash -lc '
+              set -euo pipefail
+              apt-get update
+              apt-get install -y --no-install-recommends ca-certificates curl build-essential pkg-config python3 git
+              corepack enable
+              corepack prepare pnpm@10.18.0 --activate
+              curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+              . "$HOME/.cargo/env"
+              export CI=true
+              pnpm --dir packages/native-aggregate run build:native
+              ldd --version > /tmp/stax-xml-ldd-version.txt 2>&1
+              sed -n "1p" /tmp/stax-xml-ldd-version.txt
+            '
+            docker cp "$container_name:/work/packages/native-aggregate/stax_xml_native_aggregate.node" packages/native-aggregate/stax_xml_native_aggregate.node
+            cleanup
+            trap - EXIT
+            exit 0
+          fi
+          if [[ "${{ matrix.rust_target }}" == *musl ]]; then
+            export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=-crt-static"
+          fi
+          if [ -n "${{ matrix.rust_target }}" ]; then
+            pnpm --dir packages/native-aggregate run build:native -- --target "${{ matrix.rust_target }}"
+          else
+            pnpm --dir packages/native-aggregate run build:native
+          fi
+
+      - name: Stage platform package
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm --dir packages/native-aggregate run stage:platform -- "${{ matrix.package_dir }}"
+
+      - name: Smoke platform package
+        if: matrix.smoke
+        run: node packages/native-aggregate/scripts/smoke-platform-package.mjs "packages/${{ matrix.package_dir }}"
+
+      - name: Pack platform package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "artifacts/${{ matrix.package_dir }}"
+          node packages/native-aggregate/scripts/assert-pack-contents.mjs "packages/${{ matrix.package_dir }}"
+          npm pack --json "./packages/${{ matrix.package_dir }}" --pack-destination "$PWD/artifacts/${{ matrix.package_dir }}"
+
+      - name: Upload platform package
+        uses: actions/upload-artifact@v6
+        with:
+          name: native-package-${{ matrix.package_dir }}
+          path: artifacts/${{ matrix.package_dir }}/*.tgz
+          if-no-files-found: error
+
+  wasm:
+    # The wasm package is platform-neutral, so packaging on Ubuntu is sufficient.
+    name: native-wasm32-wasi
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '18'
+
+      - name: Enable pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.18.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Ensure Rust wasm target
+        shell: bash
+        run: |
+          rustup default stable
+          rustup target add wasm32-wasip1-threads
+          cargo --version
+
+      - name: Build wasm addon
+        run: pnpm --dir packages/native-aggregate run build:wasm
+
+      - name: Pack wasm package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/native-wasm32-wasi
+          node packages/native-aggregate/scripts/assert-pack-contents.mjs packages/native-wasm32-wasi
+          npm pack --json ./packages/native-wasm32-wasi --pack-destination "$PWD/artifacts/native-wasm32-wasi"
+
+      - name: Upload wasm package
+        uses: actions/upload-artifact@v6
+        with:
+          name: native-package-native-wasm32-wasi
+          path: artifacts/native-wasm32-wasi/*.tgz
+          if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-24.04
+    needs:
+      - test
+      - native
+      - wasm
     permissions:
       contents: write
       id-token: write
@@ -25,18 +260,38 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "10.18.0"
+          version: '10.18.0'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Run tests
-        run: pnpm test
-
-      - name: Build package
+      - name: Build facade package
         run: pnpm build
 
-      - name: Publish to NPM
+      - name: Download native package tarballs
+        uses: actions/download-artifact@v6
+        with:
+          pattern: native-package-*
+          path: artifacts/native-packages
+          merge-multiple: true
+
+      - name: Publish native package tarballs
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for tgz in artifacts/native-packages/*.tgz; do
+            package_json="$(tar -xOf "$tgz" package/package.json)"
+            name="$(node -e "const fs=require('node:fs'); console.log(JSON.parse(fs.readFileSync(0, 'utf8')).name)" <<< "$package_json")"
+            version="$(node -e "const fs=require('node:fs'); console.log(JSON.parse(fs.readFileSync(0, 'utf8')).version)" <<< "$package_json")"
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version is already published; skipping."
+            else
+              npm publish "$tgz" --access public
+            fi
+          done
+
+      - name: Publish facade package
         working-directory: packages/stax-xml
         run: |
           VERSION="$(node -p "require('./package.json').version")"

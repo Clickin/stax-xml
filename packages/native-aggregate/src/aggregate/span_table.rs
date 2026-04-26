@@ -75,7 +75,7 @@ impl<'a> SpanTableParser<'a> {
         }
 
         if starts_with(self.input, position, b"<!DOCTYPE") {
-            let Some(end) = find_gt(self.input, position + 2) else {
+            let Some(end) = find_doctype_end(self.input, position + 2) else {
                 return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
             };
             return Ok(end + 1);
@@ -269,7 +269,7 @@ impl<'a> SpanTableUtf16Parser<'a> {
         }
 
         if starts_with_ascii_u16(self.input, position, b"<!DOCTYPE") {
-            let Some(end) = find_gt_utf16(self.input, position + 2) else {
+            let Some(end) = find_doctype_end_utf16(self.input, position + 2) else {
                 return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
             };
             return Ok(end + 1);

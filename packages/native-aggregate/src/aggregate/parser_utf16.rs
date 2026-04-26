@@ -66,7 +66,7 @@ impl<'a> Utf16Parser<'a> {
         }
 
         if starts_with_ascii_u16(self.input, position, b"<!DOCTYPE") {
-            let Some(end) = find_gt_utf16(self.input, position + 2) else {
+            let Some(end) = find_doctype_end_utf16(self.input, position + 2) else {
                 return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
             };
             return Ok(end + 1);
@@ -375,8 +375,7 @@ impl<'a> Utf16Parser<'a> {
             attributes,
         };
         self.state.object_count = self.state.object_count.wrapping_add(1);
-        let slot = (self.state.object_count as usize - 1) & (self.state.object_sink.len() - 1);
-        self.state.object_sink[slot] = Some(object);
+        self.state.object_sink.push(object);
         Ok(())
     }
 }
