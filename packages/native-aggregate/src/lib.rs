@@ -33,6 +33,8 @@ enum Tier {
     EventCountByteLoop,
     EventCountSkipQuotes,
     EventCountNoText,
+    EventCountNoChecksum,
+    EventCountNoTextNoChecksum,
     EventCountTwoStage,
     EventCountAutoStage,
     EventCountUnchecked,
@@ -56,6 +58,8 @@ impl Tier {
                 | Self::EventCountByteLoop
                 | Self::EventCountSkipQuotes
                 | Self::EventCountNoText
+                | Self::EventCountNoChecksum
+                | Self::EventCountNoTextNoChecksum
                 | Self::EventCountTwoStage
                 | Self::EventCountAutoStage
                 | Self::EventCountOnly
@@ -71,6 +75,8 @@ impl Tier {
                 | Self::EventCountByteLoop
                 | Self::EventCountSkipQuotes
                 | Self::EventCountNoText
+                | Self::EventCountNoChecksum
+                | Self::EventCountNoTextNoChecksum
                 | Self::EventCountTwoStage
                 | Self::EventCountAutoStage
                 | Self::CountEqTwoStage
@@ -89,7 +95,17 @@ impl Tier {
     }
 
     fn skips_text_events(self) -> bool {
-        matches!(self, Self::EventCountNoText)
+        matches!(
+            self,
+            Self::EventCountNoText | Self::EventCountNoTextNoChecksum
+        )
+    }
+
+    fn folds_event_checksum(self) -> bool {
+        !matches!(
+            self,
+            Self::EventCountNoChecksum | Self::EventCountNoTextNoChecksum
+        )
     }
 
     fn needs_start_name(self) -> bool {
@@ -102,6 +118,13 @@ impl Tier {
 
     fn uses_auto_stage_bytes(self) -> bool {
         matches!(self, Self::EventCountAutoStage | Self::CountAutoStage)
+    }
+
+    fn uses_fast_event_count_bytes(self) -> bool {
+        matches!(
+            self,
+            Self::EventCountNoText | Self::EventCountNoTextNoChecksum
+        )
     }
 }
 
@@ -534,6 +557,8 @@ pub unsafe extern "C" fn stax_xml_parse_aggregate_utf16_units(
         13 => Tier::CountEqTwoStage,
         14 => Tier::EventCountAutoStage,
         15 => Tier::CountAutoStage,
+        16 => Tier::EventCountNoChecksum,
+        17 => Tier::EventCountNoTextNoChecksum,
         _ => return -3,
     };
     let input = unsafe { std::slice::from_raw_parts(input, len) };
@@ -560,6 +585,8 @@ fn parse_tier(value: &str) -> Result<Tier> {
         "event-count-byte-loop" => Ok(Tier::EventCountByteLoop),
         "event-count-skip-quotes" => Ok(Tier::EventCountSkipQuotes),
         "event-count-no-text" => Ok(Tier::EventCountNoText),
+        "event-count-no-checksum" => Ok(Tier::EventCountNoChecksum),
+        "event-count-no-text-no-checksum" => Ok(Tier::EventCountNoTextNoChecksum),
         "event-count-two-stage" => Ok(Tier::EventCountTwoStage),
         "event-count-auto-stage" => Ok(Tier::EventCountAutoStage),
         "event-count-unchecked" => Ok(Tier::EventCountUnchecked),
@@ -594,6 +621,10 @@ fn parse_aggregate_with_parser(
     execution_tier: Tier,
     result_tier: Tier,
 ) -> Result<AggregateResult> {
+    if execution_tier.uses_fast_event_count_bytes() {
+        return parse_aggregate_fast_event_count(input, execution_tier, result_tier);
+    }
+
     let mut parser = Parser {
         input,
         tier: execution_tier,
@@ -640,6 +671,121 @@ fn should_use_two_stage(input: &[u8]) -> bool {
     let quote_count =
         memchr::memchr_iter(b'"', sample).count() + memchr::memchr_iter(b'\'', sample).count();
     quote_count > lt_count * 5
+}
+
+fn parse_aggregate_fast_event_count(
+    input: &[u8],
+    execution_tier: Tier,
+    result_tier: Tier,
+) -> Result<AggregateResult> {
+    let skip_text = execution_tier.skips_text_events();
+    let fold_checksum = execution_tier.folds_event_checksum();
+    let mut state = AggregateState::default();
+    emit_fast_event_count_event(&mut state, START_DOCUMENT, fold_checksum);
+
+    let mut position = 0usize;
+    while position < input.len() {
+        let Some(lt_offset) = memchr(b'<', &input[position..]) else {
+            if !skip_text && has_non_whitespace(input, position, input.len()) {
+                emit_fast_event_count_event(&mut state, CHARACTERS, fold_checksum);
+            }
+            break;
+        };
+        let lt = position + lt_offset;
+        if !skip_text && lt > position && has_non_whitespace(input, position, lt) {
+            emit_fast_event_count_event(&mut state, CHARACTERS, fold_checksum);
+        }
+        if lt + 1 >= input.len() {
+            return Err(Error::from_reason("Unclosed start tag"));
+        }
+
+        position = match input[lt + 1] {
+            b'/' => {
+                let Some(end) = find_gt(input, lt + 2) else {
+                    return Err(Error::from_reason("Unclosed end tag"));
+                };
+                emit_fast_event_count_event(&mut state, END_ELEMENT, fold_checksum);
+                end + 1
+            }
+            b'!' => parse_fast_event_count_bang(input, lt, skip_text, fold_checksum, &mut state)?,
+            b'?' => {
+                let Some(end) = find_bytes(input, b"?>", lt + 2) else {
+                    return Err(Error::from_reason(if starts_with(input, lt, b"<?xml") {
+                        "Unclosed XML declaration"
+                    } else {
+                        "Unclosed processing instruction"
+                    }));
+                };
+                end + 2
+            }
+            _ => {
+                let Some(tag_end) = find_tag_end(input, lt + 1) else {
+                    return Err(Error::from_reason("Unclosed start tag"));
+                };
+                let (_, self_closing) = trim_start_tag_end(input, lt, tag_end);
+                emit_fast_event_count_event(&mut state, START_ELEMENT, fold_checksum);
+                if self_closing {
+                    emit_fast_event_count_event(&mut state, END_ELEMENT, fold_checksum);
+                }
+                tag_end + 1
+            }
+        };
+    }
+
+    emit_fast_event_count_event(&mut state, END_DOCUMENT, fold_checksum);
+
+    Ok(AggregateResult {
+        tier: tier_name(result_tier).to_string(),
+        input_bytes: input.len() as f64,
+        event_count: state.event_count,
+        checksum: state.checksum,
+        attr_count_total: state.attr_count_total,
+        object_count: state.object_count,
+    })
+}
+
+fn parse_fast_event_count_bang(
+    input: &[u8],
+    position: usize,
+    skip_text: bool,
+    fold_checksum: bool,
+    state: &mut AggregateState,
+) -> Result<usize> {
+    if starts_with(input, position, b"<![CDATA[") {
+        let Some(end) = find_bytes(input, b"]]>", position + 9) else {
+            return Err(Error::from_reason("Unclosed CDATA section"));
+        };
+        if !skip_text && end > position + 9 && has_non_whitespace(input, position + 9, end) {
+            emit_fast_event_count_event(state, CDATA, fold_checksum);
+        }
+        return Ok(end + 3);
+    }
+
+    if starts_with(input, position, b"<!--") {
+        let Some(end) = find_bytes(input, b"-->", position + 4) else {
+            return Err(Error::from_reason("Unclosed comment"));
+        };
+        return Ok(end + 3);
+    }
+
+    if starts_with(input, position, b"<!DOCTYPE") {
+        let Some(end) = find_gt(input, position + 2) else {
+            return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
+        };
+        return Ok(end + 1);
+    }
+
+    let Some(end) = find_gt(input, position + 2) else {
+        return Err(Error::from_reason("Unclosed markup"));
+    };
+    Ok(end + 1)
+}
+
+fn emit_fast_event_count_event(state: &mut AggregateState, event_type: u8, fold_checksum: bool) {
+    state.event_count = state.event_count.wrapping_add(1);
+    if fold_checksum {
+        state.checksum = mix_checksum(state.checksum, event_type as i32);
+    }
 }
 
 fn parse_aggregate_utf16(input: &[u16], tier: Tier) -> Result<AggregateResult> {
@@ -919,6 +1065,8 @@ fn tier_name(tier: Tier) -> &'static str {
         Tier::EventCountByteLoop => "event-count-byte-loop",
         Tier::EventCountSkipQuotes => "event-count-skip-quotes",
         Tier::EventCountNoText => "event-count-no-text",
+        Tier::EventCountNoChecksum => "event-count-no-checksum",
+        Tier::EventCountNoTextNoChecksum => "event-count-no-text-no-checksum",
         Tier::EventCountTwoStage => "event-count-two-stage",
         Tier::EventCountAutoStage => "event-count-auto-stage",
         Tier::EventCountUnchecked => "event-count-unchecked",
@@ -941,9 +1089,7 @@ impl<'a> Parser<'a> {
         let mut position = 0;
         while position < self.input.len() {
             let text_start = position;
-            while position < self.input.len() && is_whitespace(self.input[position]) {
-                position += 1;
-            }
+            position = skip_whitespace(self.input, position);
             if position >= self.input.len() {
                 break;
             }
@@ -1167,13 +1313,17 @@ impl<'a> Parser<'a> {
         attrs: Option<&AttrSpans>,
     ) -> Result<()> {
         self.state.event_count = self.state.event_count.wrapping_add(1);
-        self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
+        if self.tier.folds_event_checksum() {
+            self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
+        }
 
         match self.tier {
             Tier::EventCountUnsafeGt
             | Tier::EventCountByteLoop
             | Tier::EventCountSkipQuotes
             | Tier::EventCountNoText
+            | Tier::EventCountNoChecksum
+            | Tier::EventCountNoTextNoChecksum
             | Tier::EventCountTwoStage
             | Tier::EventCountAutoStage
             | Tier::EventCountUnchecked
@@ -1550,13 +1700,17 @@ impl<'a> Utf16Parser<'a> {
         attrs: Option<&AttrSpans>,
     ) -> Result<()> {
         self.state.event_count = self.state.event_count.wrapping_add(1);
-        self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
+        if self.tier.folds_event_checksum() {
+            self.state.checksum = mix_checksum(self.state.checksum, event_type as i32);
+        }
 
         match self.tier {
             Tier::EventCountUnsafeGt
             | Tier::EventCountByteLoop
             | Tier::EventCountSkipQuotes
             | Tier::EventCountNoText
+            | Tier::EventCountNoChecksum
+            | Tier::EventCountNoTextNoChecksum
             | Tier::EventCountTwoStage
             | Tier::EventCountAutoStage
             | Tier::EventCountUnchecked
@@ -2535,9 +2689,7 @@ fn count_attributes(input: &[u8], start: usize, end: usize) -> usize {
     let mut count = 0usize;
     let mut index = start;
     while index < end {
-        while index < end && is_whitespace(input[index]) {
-            index += 1;
-        }
+        index = skip_whitespace_until(input, index, end);
         if index >= end {
             break;
         }
@@ -2546,18 +2698,14 @@ fn count_attributes(input: &[u8], start: usize, end: usize) -> usize {
             index += 1;
         }
 
-        while index < end && is_whitespace(input[index]) {
-            index += 1;
-        }
+        index = skip_whitespace_until(input, index, end);
         if index >= end || input[index] != b'=' {
             count = count.wrapping_add(1);
             continue;
         }
 
         index += 1;
-        while index < end && is_whitespace(input[index]) {
-            index += 1;
-        }
+        index = skip_whitespace_until(input, index, end);
         if index >= end {
             break;
         }
@@ -2582,9 +2730,7 @@ where
 {
     let mut index = start;
     while index < end {
-        while index < end && is_whitespace(input[index]) {
-            index += 1;
-        }
+        index = skip_whitespace_until(input, index, end);
         if index >= end {
             break;
         }
@@ -2595,9 +2741,7 @@ where
         }
         let name_end = index;
 
-        while index < end && is_whitespace(input[index]) {
-            index += 1;
-        }
+        index = skip_whitespace_until(input, index, end);
         if index >= end || input[index] != b'=' {
             visit(AttrSpan {
                 name_start,
@@ -2609,9 +2753,7 @@ where
         }
 
         index += 1;
-        while index < end && is_whitespace(input[index]) {
-            index += 1;
-        }
+        index = skip_whitespace_until(input, index, end);
         if index >= end {
             break;
         }
@@ -4395,8 +4537,62 @@ fn count_mask_bits_in_range(bits: &[u64], start: usize, end: usize) -> usize {
     count
 }
 
+const U64_LOW_BITS: u64 = 0x0101_0101_0101_0101;
+const U64_HIGH_BITS: u64 = 0x8080_8080_8080_8080;
+
+fn repeated_byte(byte: u8) -> u64 {
+    U64_LOW_BITS * byte as u64
+}
+
+fn zero_byte_high_bits(value: u64) -> u64 {
+    value.wrapping_sub(U64_LOW_BITS) & !value & U64_HIGH_BITS
+}
+
+fn whitespace_byte_high_bits(word: u64) -> u64 {
+    zero_byte_high_bits(word ^ repeated_byte(b' '))
+        | zero_byte_high_bits(word ^ repeated_byte(b'\n'))
+        | zero_byte_high_bits(word ^ repeated_byte(b'\r'))
+        | zero_byte_high_bits(word ^ repeated_byte(b'\t'))
+}
+
+fn is_whitespace_word(word: u64) -> bool {
+    whitespace_byte_high_bits(word) == U64_HIGH_BITS
+}
+
+fn load_u64_ne(input: &[u8], index: usize) -> u64 {
+    u64::from_ne_bytes(input[index..index + 8].try_into().expect("u64 chunk"))
+}
+
+fn skip_whitespace(input: &[u8], index: usize) -> usize {
+    skip_whitespace_until(input, index, input.len())
+}
+
+fn skip_whitespace_until(input: &[u8], mut index: usize, end: usize) -> usize {
+    let end = end.min(input.len());
+    if index >= end || !is_whitespace(input[index]) {
+        return index;
+    }
+    while index + 8 <= end {
+        if !is_whitespace_word(load_u64_ne(input, index)) {
+            break;
+        }
+        index += 8;
+    }
+    while index < end && is_whitespace(input[index]) {
+        index += 1;
+    }
+    index
+}
+
 fn has_non_whitespace(input: &[u8], start: usize, end: usize) -> bool {
-    input[start..end].iter().any(|byte| !is_whitespace(*byte))
+    let mut index = start;
+    while index + 8 <= end {
+        if !is_whitespace_word(load_u64_ne(input, index)) {
+            return true;
+        }
+        index += 8;
+    }
+    input[index..end].iter().any(|byte| !is_whitespace(*byte))
 }
 
 fn find_bytes(input: &[u8], needle: &[u8], from: usize) -> Option<usize> {
@@ -4528,7 +4724,7 @@ fn is_js_trim_whitespace_u16(unit: u16) -> bool {
 }
 
 fn is_whitespace_only(input: &[u8], start: usize, end: usize) -> bool {
-    input[start..end].iter().all(|byte| is_whitespace(*byte))
+    !has_non_whitespace(input, start, end)
 }
 
 fn is_whitespace_only_u16(input: &[u16], start: usize, end: usize) -> bool {
@@ -4661,6 +4857,8 @@ mod tests {
             Tier::EventCountByteLoop,
             Tier::EventCountSkipQuotes,
             Tier::EventCountNoText,
+            Tier::EventCountNoChecksum,
+            Tier::EventCountNoTextNoChecksum,
             Tier::EventCountTwoStage,
             Tier::EventCountAutoStage,
             Tier::EventCountUnchecked,
@@ -4987,6 +5185,14 @@ mod tests {
             Tier::EventCountNoText
         );
         assert_eq!(
+            parse_tier("event-count-no-checksum").unwrap(),
+            Tier::EventCountNoChecksum
+        );
+        assert_eq!(
+            parse_tier("event-count-no-text-no-checksum").unwrap(),
+            Tier::EventCountNoTextNoChecksum
+        );
+        assert_eq!(
             parse_tier("event-count-two-stage").unwrap(),
             Tier::EventCountTwoStage
         );
@@ -5039,6 +5245,14 @@ mod tests {
             "event-count-skip-quotes"
         );
         assert_eq!(tier_name(Tier::EventCountNoText), "event-count-no-text");
+        assert_eq!(
+            tier_name(Tier::EventCountNoChecksum),
+            "event-count-no-checksum"
+        );
+        assert_eq!(
+            tier_name(Tier::EventCountNoTextNoChecksum),
+            "event-count-no-text-no-checksum"
+        );
         assert_eq!(tier_name(Tier::EventCountTwoStage), "event-count-two-stage");
         assert_eq!(
             tier_name(Tier::EventCountAutoStage),
@@ -5265,6 +5479,14 @@ mod tests {
         assert_eq!(find_unit(&[1, 2], 3, 0, 2), None);
         assert_eq!(find_unit(&[1], 1, 1, 1), None);
         assert_eq!(find_unit(&[1, 2], 2, 0, 9), Some(1));
+
+        assert_eq!(skip_whitespace(b"        <x", 0), 8);
+        assert_eq!(skip_whitespace(b"text", 0), 0);
+        assert_eq!(skip_whitespace_until(b"  \n\tname=\"v\"", 0, 12), 4);
+        assert!(!has_non_whitespace(b" \n\r\t        ", 0, 12));
+        assert!(has_non_whitespace(b" \n\r\tvalue", 0, 8));
+        assert!(is_whitespace_only(b"        ", 0, 8));
+        assert!(!is_whitespace_only(b"       x", 0, 8));
 
         assert_eq!(trim_units(&utf16(""), 0, 0), (0, 0));
         assert_eq!(trim_units(&utf16("x"), 0, 1), (0, 1));

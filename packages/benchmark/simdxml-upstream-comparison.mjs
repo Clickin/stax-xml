@@ -108,6 +108,8 @@ function parseArgs(argv = process.argv.slice(2)) {
           'event-count-byte-loop',
           'event-count-skip-quotes',
           'event-count-no-text',
+          'event-count-no-checksum',
+          'event-count-no-text-no-checksum',
           'event-count-two-stage',
           'event-count-auto-stage',
           'event-count-only',
@@ -371,6 +373,8 @@ function createMarkdown(report) {
     '- `stax-native-event-count-unsafe-gt` uses a raw `>` search for start-tag end detection; it is a quote-masking diagnostic lower bound and is unsafe for XML with `>` inside attribute values.',
     '- `stax-native-event-count-byte-loop` and `stax-native-event-count-skip-quotes` are safe tag-end scanner diagnostics for comparing quote masking loop shapes.',
     '- `stax-native-event-count-no-text` skips character/CDATA event handling and is a diagnostic upper bound for whitespace/text handling cost.',
+    '- `stax-native-event-count-no-checksum` keeps event detection but skips checksum folding to isolate benchmark-consumer overhead.',
+    '- `stax-native-event-count-no-text-no-checksum` combines those two diagnostic skips to expose the loop/markup lower bound.',
     '- `stax-native-event-count-two-stage` uses a simdxml-style quote-masked structural bitmask walk for event counting.',
     '- `stax-native-event-count-auto-stage` selects the two-stage event walk only when the first 4 KiB has a high quote-to-tag ratio.',
     '- `stax-native-event-count-unchecked` skips attribute scanning and closing-tag stack/name validation; it is a diagnostic lower bound, not a conforming XML parser mode.',
@@ -413,6 +417,8 @@ function formatNativeTierHeader(tier) {
   if (tier === 'event-count-byte-loop') return 'stax byte loop';
   if (tier === 'event-count-skip-quotes') return 'stax skip quotes';
   if (tier === 'event-count-no-text') return 'stax no text';
+  if (tier === 'event-count-no-checksum') return 'stax no checksum';
+  if (tier === 'event-count-no-text-no-checksum') return 'stax loop lower';
   if (tier === 'event-count-two-stage') return 'stax two-stage event';
   if (tier === 'event-count-auto-stage') return 'stax auto event';
   if (tier === 'event-count-only') return 'stax event checked';
