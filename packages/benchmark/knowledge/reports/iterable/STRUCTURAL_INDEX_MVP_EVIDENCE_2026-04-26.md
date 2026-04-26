@@ -4,12 +4,12 @@
 
 Correctness parity passed for the structural-index MVP:
 
-- Rust native aggregate tests: 20 passed.
+- Rust native aggregate tests: 22 passed.
 - stax-xml focused/unit run: 57 files and 1011 tests passed.
 - stax-xml build: passed.
 - native aggregate build: passed.
 - native aggregate smoke: passed.
-- structural-index converter final benchmark: checksum parity passed for JS, byte-auto, native-buffer-table, native table projection, and schema-aware native projection paths on 16 MiB and 128 MiB fixtures.
+- structural-index converter final benchmark: checksum parity passed for JS, byte-auto, native-buffer-table, native table checksum projection, native table rows projection, and schema-aware native projection paths on 16 MiB and 128 MiB fixtures.
 - event parser regression gate: targeted parser/parity tests passed, and the existing 128 MiB iterable materialization harness completed on all four regression fixtures.
 
 ## Event Parser Regression Guard
@@ -43,22 +43,22 @@ pnpm --filter benchmark run bench:structural-index-converter
 
 Results:
 
-| Fixture | Size | JS compiled | Byte auto | Native buffer table | Native table projection | Native direct projection | Buffer-table speedup | Table-projection speedup | Direct-projection speedup |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| attribute-heavy | 16 MiB | 274.78 ms | 253.68 ms | 323.04 ms | 159.69 ms | 118.68 ms | 0.85x | 1.72x | 2.32x |
-| mixed-utf8 | 16 MiB | 324.34 ms | 311.87 ms | 347.96 ms | 150.74 ms | 113.19 ms | 0.93x | 2.15x | 2.87x |
-| attribute-heavy | 128 MiB | 2125.66 ms | 1996.26 ms | 2568.23 ms | 1269.56 ms | 973.39 ms | 0.83x | 1.67x | 2.18x |
-| mixed-utf8 | 128 MiB | 2511.93 ms | 2362.84 ms | 2790.70 ms | 1224.14 ms | 987.58 ms | 0.90x | 2.05x | 2.54x |
+| Fixture | Size | JS compiled | Byte auto | Native buffer table | Native table checksum projection | Native table rows projection | Native direct projection | Buffer-table speedup | Table-checksum speedup | Table-rows speedup | Direct-projection speedup |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| attribute-heavy | 16 MiB | 272.07 ms | 258.10 ms | 331.38 ms | 150.87 ms | 137.58 ms | 117.20 ms | 0.82x | 1.80x | 1.98x | 2.32x |
+| mixed-utf8 | 16 MiB | 328.96 ms | 298.31 ms | 343.83 ms | 150.76 ms | 167.88 ms | 113.59 ms | 0.96x | 2.18x | 1.96x | 2.90x |
+| attribute-heavy | 128 MiB | 2141.79 ms | 1999.88 ms | 2505.23 ms | 1241.88 ms | 1234.69 ms | 968.84 ms | 0.85x | 1.72x | 1.73x | 2.21x |
+| mixed-utf8 | 128 MiB | 2512.52 ms | 2319.35 ms | 2727.33 ms | 1183.48 ms | 1400.92 ms | 930.11 ms | 0.92x | 2.12x | 1.79x | 2.70x |
 
 All checksums matched.
 
 ## Gate Status
 
-The generic native-buffer-table path still does not satisfy the 1.5x performance gate when the table is consumed through the JavaScript `IterableEventTable` wrapper. At 128 MiB it is 0.83x to 0.90x of JS compiled converter throughput, despite checksum parity.
+The generic native-buffer-table path still does not satisfy the 1.5x performance gate when the table is consumed through the JavaScript `IterableEventTable` wrapper. At 128 MiB it is 0.85x to 0.92x of JS compiled converter throughput, despite checksum parity.
 
-The generic table projection path does satisfy the gate. It builds the same structural table in the native addon and then projects from that table without JS per-event dispatch; at 128 MiB it reaches 1.67x to 2.05x of JS compiled converter throughput while preserving checksum parity. That means generic table tuning is still relevant, but the table must feed a native projection boundary rather than round-tripping every event through JS.
+The generic table projection path does satisfy the gate. It builds the same structural table in the native addon and then projects from that table without JS per-event dispatch; at 128 MiB it reaches 1.72x to 2.12x for checksum-only projection and 1.73x to 1.79x when returning actual converter rows. That means generic table tuning is still relevant, but the table must feed a native projection boundary rather than round-tripping every event through JS.
 
-The direct schema-aware native projection PoC remains the upper-bound comparison for this schema. At 128 MiB it reaches 2.18x to 2.54x of JS compiled converter throughput while preserving checksum parity.
+The direct schema-aware native projection PoC remains the upper-bound comparison for this schema. At 128 MiB it reaches 2.21x to 2.70x of JS compiled converter throughput while preserving checksum parity.
 
 ## Notes
 
@@ -66,4 +66,6 @@ The native-buffer-table row includes native table construction and compiled conv
 
 The generic table builder now writes event records directly into the final byte table and only appends the side attribute buffer at finish. `napi::Buffer::from(Vec<u8>)` transfers the final table Vec into a JavaScript Buffer without an additional Rust-to-JS byte copy, but the current ABI still requires attribute bytes to be gathered separately until the final event count is known.
 
-The native projection rows are benchmark-only and hard-coded to the representative compiled schema `//item` with `./@id`, `./name`, and `./value`. They return item count and checksum rather than public converter objects. They prove the boundary, not the final API.
+The native table rows path is now wired into `CompiledRootProcessor` for the representative compiled schema `//item` with `./@id`, `./name`, and `./value` on byte input when a native backend exports `parseItemRowsViaTableUint8Array`. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths.
+
+The native projection paths are still schema-specific. They prove the lowering boundary for one compiled plan shape; they are not yet a general compiled-plan-to-native projection engine.

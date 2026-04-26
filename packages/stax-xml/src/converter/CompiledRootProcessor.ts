@@ -129,6 +129,12 @@ export class CompiledRootProcessor {
 
   async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
+    if (isArrayBufferView(input)) {
+      const projectedRows = await tryProjectItemRowsViaNativeTable(this.plan, input, effectiveOptions);
+      if (projectedRows !== undefined) {
+        return projectedRows as T;
+      }
+    }
     const runtime = this.createRuntime(this.plan, effectiveOptions);
 
     if (typeof input === 'string') {
@@ -838,6 +844,152 @@ type StructuralIndexNativeModule = {
   parseStructuralIndexUint8Array?: (input: Uint8Array) => StructuralIndexTable;
   parseSpanTableUint8Array?: (input: Uint8Array) => StructuralIndexTable;
 };
+
+type NativeItemRowsModule = {
+  parseItemRowsViaTableUint8Array?: (input: Uint8Array) => NativeItemRowsResult;
+};
+
+type NativeItemRowsResult = {
+  inputBytes?: number;
+  input_bytes?: number;
+  eventCount?: number;
+  event_count?: number;
+  maxDepth?: number;
+  max_depth?: number;
+  rows?: Array<{ id: unknown; name: unknown; value: unknown }>;
+};
+
+async function tryProjectItemRowsViaNativeTable(
+  plan: DispatchCompiledPlan,
+  input: ArrayBufferView,
+  options?: ParseOptions
+): Promise<unknown[] | undefined> {
+  if (!isSupportedNativeItemRowsPlan(plan)) {
+    return undefined;
+  }
+
+  const acceleration = options?.acceleration;
+  const backendPreference = acceleration?.backend ?? 'auto';
+  if (backendPreference === 'js' || acceleration?.simd === 'avx2') {
+    return undefined;
+  }
+
+  const backend = await resolveStaxXmlRuntimeBackend();
+  if (backend.kind === 'js') {
+    return undefined;
+  }
+  if (backendPreference !== 'auto' && backend.kind !== backendPreference) {
+    return undefined;
+  }
+
+  const nativeModule = backend.module as NativeItemRowsModule | undefined;
+  const projectRows = nativeModule?.parseItemRowsViaTableUint8Array;
+  if (typeof projectRows !== 'function') {
+    return undefined;
+  }
+
+  try {
+    return normalizeNativeItemRowsResult(projectRows(toUint8Array(input)), options);
+  } catch (error) {
+    if (acceleration?.fallbackOnParseError) {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
+function normalizeNativeItemRowsResult(
+  result: NativeItemRowsResult,
+  options?: ParseOptions
+): unknown[] {
+  const eventCount = readNativeNumber(result.eventCount ?? result.event_count, 'eventCount');
+  const maxDepth = readNativeNumber(result.maxDepth ?? result.max_depth, 'maxDepth');
+  const maxEvents = options?.maxEvents ?? 1000000;
+  const configuredMaxDepth = options?.maxDepth ?? 1000;
+  if (eventCount > maxEvents) {
+    throw new Error(`XML event limit exceeded: ${maxEvents}`);
+  }
+  if (maxDepth > configuredMaxDepth) {
+    throw new Error(`XML depth limit exceeded: ${configuredMaxDepth}`);
+  }
+  if (!Array.isArray(result.rows)) {
+    throw new Error('Native item projection did not return rows.');
+  }
+
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    name: decodeEntities(String(row.name), options),
+    value: decodeEntities(String(row.value), options),
+  }));
+}
+
+function readNativeNumber(value: unknown, label: string): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw new Error(`Native item projection did not return ${label}.`);
+  }
+  return value;
+}
+
+function isSupportedNativeItemRowsPlan(plan: DispatchCompiledPlan): boolean {
+  const root = plan.root;
+  if (
+    root.kind !== 'array'
+    || root.optional
+    || root.transforms.length !== 0
+    || !selectorEquals(root.itemSelector, {
+      mode: 'descendant',
+      segments: ['item'],
+      terminal: 'element',
+    })
+    || root.element.kind !== 'object'
+    || root.element.optional
+    || root.element.transforms.length !== 0
+  ) {
+    return false;
+  }
+
+  const fields = new Map(root.element.fields.map(field => [field.fieldName, field.value]));
+  return fields.size === 3
+    && isScalarField(fields.get('id'), 'number', {
+      mode: 'relative',
+      segments: [],
+      terminal: 'attribute',
+      attributeName: 'id',
+    })
+    && isScalarField(fields.get('name'), 'string', {
+      mode: 'relative',
+      segments: ['name'],
+      terminal: 'element',
+    })
+    && isScalarField(fields.get('value'), 'string', {
+      mode: 'relative',
+      segments: ['value'],
+      terminal: 'element',
+    });
+}
+
+function isScalarField(
+  value: DispatchValuePlan | undefined,
+  kind: 'string' | 'number',
+  selector: Pick<DispatchSelector, 'mode' | 'segments' | 'terminal' | 'attributeName'>
+): value is DispatchScalarPlan {
+  return value?.kind === kind
+    && !value.optional
+    && value.transforms.length === 0
+    && selectorEquals(value.selector, selector);
+}
+
+function selectorEquals(
+  actual: DispatchSelector | undefined,
+  expected: Pick<DispatchSelector, 'mode' | 'segments' | 'terminal' | 'attributeName'>
+): boolean {
+  return actual?.mode === expected.mode
+    && actual.terminal === expected.terminal
+    && (actual.attributeName ?? undefined) === (expected.attributeName ?? undefined)
+    && !actual.positionFilters
+    && actual.segments.length === expected.segments.length
+    && actual.segments.every((segment, index) => segment === expected.segments[index]);
+}
 
 async function tryCreateStructuralIndexTable(
   input: string | ArrayBufferView,

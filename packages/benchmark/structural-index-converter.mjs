@@ -43,6 +43,9 @@ for (const sizeMiB of sizesMiB) {
     const nativeTableProjection = nativeAggregate?.parseItemProjectionViaTableUint8Array
       ? await measureProjection('native-table-projection', () => nativeAggregate.parseItemProjectionViaTableUint8Array(bytes))
       : undefined;
+    const nativeTableRows = nativeAggregate?.parseItemRowsViaTableUint8Array
+      ? await measureRows('native-table-rows', () => nativeAggregate.parseItemRowsViaTableUint8Array(bytes))
+      : undefined;
     const ratio = js.ms / byte.ms;
     console.log(JSON.stringify({
       fixture,
@@ -53,19 +56,23 @@ for (const sizeMiB of sizesMiB) {
       nativeBufferMs: nativeBuffer ? round(nativeBuffer.ms) : undefined,
       nativeProjectionMs: nativeProjection ? round(nativeProjection.ms) : undefined,
       nativeTableProjectionMs: nativeTableProjection ? round(nativeTableProjection.ms) : undefined,
+      nativeTableRowsMs: nativeTableRows ? round(nativeTableRows.ms) : undefined,
       speedup: round(ratio),
       nativeBufferSpeedup: nativeBuffer ? round(js.ms / nativeBuffer.ms) : undefined,
       nativeProjectionSpeedup: nativeProjection ? round(js.ms / nativeProjection.ms) : undefined,
       nativeTableProjectionSpeedup: nativeTableProjection ? round(js.ms / nativeTableProjection.ms) : undefined,
+      nativeTableRowsSpeedup: nativeTableRows ? round(js.ms / nativeTableRows.ms) : undefined,
       jsChecksum: js.checksum,
       byteChecksum: byte.checksum,
       nativeBufferChecksum: nativeBuffer?.checksum,
       nativeProjectionChecksum: nativeProjection?.checksum,
       nativeTableProjectionChecksum: nativeTableProjection?.checksum,
+      nativeTableRowsChecksum: nativeTableRows?.checksum,
       parity: js.checksum === byte.checksum,
       nativeBufferParity: nativeBuffer ? js.checksum === nativeBuffer.checksum : undefined,
       nativeProjectionParity: nativeProjection ? js.checksum === nativeProjection.checksum : undefined,
       nativeTableProjectionParity: nativeTableProjection ? js.checksum === nativeTableProjection.checksum : undefined,
+      nativeTableRowsParity: nativeTableRows ? js.checksum === nativeTableRows.checksum : undefined,
     }));
   }
 }
@@ -86,6 +93,18 @@ async function measureProjection(name, run) {
     ms,
     checksum: result.checksum,
     itemCount: result.itemCount ?? result.item_count,
+  };
+}
+
+async function measureRows(name, run) {
+  const start = performance.now();
+  const result = await run();
+  const ms = performance.now() - start;
+  return {
+    name,
+    ms,
+    checksum: checksum(result.rows),
+    itemCount: result.rows.length,
   };
 }
 

@@ -40,7 +40,7 @@ Backend load and capability failures fall back to the JavaScript iterable parser
 
 `StaxXmlStructuralIndexParser` implements `IterableEventTable` and can be passed to compiled converters before iterator consumption. It exposes `copyAttrValueByName(eventIndex, name)` as an optional fast lookup hook while preserving the existing `copyAttrName` and `copyAttrValue` APIs.
 
-The MVP also includes a benchmark-only native projection over the generic structural table. It proves that the generic table can feed compiled converter lowering without JS per-event dispatch, while the direct projection parser remains only an upper-bound comparator.
+The MVP also includes a native rows projection over the generic structural table for one representative compiled plan shape: a root array selected by `//item` whose item object reads `./@id`, `./name`, and `./value`. `CompiledRootProcessor` may use this path for byte input when the selected backend exports `parseItemRowsViaTableUint8Array`; unsupported plans and missing backend capabilities fall back to the existing table or JavaScript paths. The direct projection parser remains only an upper-bound comparator.
 
 Span materialization rules:
 
