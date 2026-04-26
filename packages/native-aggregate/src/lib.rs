@@ -81,6 +81,9 @@ pub struct ObjectRowsProjectionFieldSpec {
 pub struct ObjectRowsProjectionColumn {
     pub present: Vec<bool>,
     pub values: Vec<String>,
+    pub number_values: Vec<f64>,
+    pub span_starts: Vec<i32>,
+    pub span_ends: Vec<i32>,
 }
 
 #[napi(object)]
@@ -172,6 +175,14 @@ struct ItemProjectionParser<'a> {
     element_stack: Vec<(usize, usize)>,
     current_item: Option<CurrentItemProjection>,
     capture: Option<ItemProjectionCapture>,
+}
+
+struct ObjectRowsProjectionParser<'a> {
+    input: &'a [u8],
+    spec: NormalizedObjectRowsSpec,
+    state: ObjectRowsProjectionState,
+    event_count: u32,
+    element_stack: Vec<(usize, usize)>,
 }
 
 #[derive(Clone, Copy)]
@@ -279,7 +290,14 @@ enum ObjectRowsTextMode {
     Subtree,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ObjectRowsValueKind {
+    String,
+    Number,
+}
+
 struct NormalizedObjectRowsField {
+    value_kind: ObjectRowsValueKind,
     source_kind: ObjectRowsSourceKind,
     source_name: Vec<u8>,
     text_mode: ObjectRowsTextMode,
@@ -304,6 +322,8 @@ struct CurrentObjectRowsProjection {
     completed: Vec<bool>,
     present: Vec<bool>,
     values: Vec<String>,
+    number_values: Vec<f64>,
+    number_buffers: Vec<Vec<u8>>,
 }
 
 struct ObjectRowsProjectionCapture {
@@ -386,6 +406,14 @@ pub fn parse_object_rows_via_table_uint8array(
     spec: ObjectRowsProjectionSpec,
 ) -> Result<ObjectRowsProjectionResult> {
     parse_object_rows_via_table(input.as_ref(), &spec)
+}
+
+#[napi]
+pub fn parse_object_rows_uint8array(
+    input: Uint8Array,
+    spec: ObjectRowsProjectionSpec,
+) -> Result<ObjectRowsProjectionResult> {
+    parse_object_rows(input.as_ref(), &spec)
 }
 
 #[no_mangle]
@@ -550,6 +578,33 @@ fn parse_item_projection_via_table(input: &[u8]) -> Result<ItemProjectionResult>
 fn parse_item_rows_via_table(input: &[u8]) -> Result<ItemProjectionRowsResult> {
     let table = parse_span_table(input)?;
     project_item_rows_from_span_table(input, &table)
+}
+
+fn parse_object_rows(
+    input: &[u8],
+    spec: &ObjectRowsProjectionSpec,
+) -> Result<ObjectRowsProjectionResult> {
+    let spec = normalize_object_rows_spec(spec)?;
+    let mut parser = ObjectRowsProjectionParser {
+        input,
+        state: create_object_rows_projection_state(spec.fields.len()),
+        spec,
+        event_count: 0,
+        element_stack: Vec::new(),
+    };
+    parser.parse()?;
+
+    Ok(ObjectRowsProjectionResult {
+        input_bytes: input.len() as f64,
+        event_count: parser.event_count,
+        max_depth: to_u32_count(parser.state.max_depth, "object rows projection max depth")?,
+        field_count: to_u32_count(
+            parser.spec.fields.len(),
+            "object rows projection field count",
+        )?,
+        row_count: to_u32_count(parser.state.row_count, "object rows projection row count")?,
+        columns: parser.state.columns,
+    })
 }
 
 fn parse_object_rows_via_table(
@@ -1612,6 +1667,204 @@ impl<'a> ItemProjectionParser<'a> {
     }
 }
 
+impl<'a> ObjectRowsProjectionParser<'a> {
+    fn parse(&mut self) -> Result<()> {
+        self.event_count += 1; // START_DOCUMENT
+        let mut position = 0;
+        while position < self.input.len() {
+            let Some(lt_offset) = memchr(b'<', &self.input[position..]) else {
+                self.capture_text(position, self.input.len(), CHARACTERS)?;
+                break;
+            };
+            let lt = position + lt_offset;
+            self.capture_text(position, lt, CHARACTERS)?;
+            position = self.parse_markup(lt)?;
+        }
+
+        if !self.element_stack.is_empty() {
+            return Err(Error::from_reason(
+                "Unexpected end of document. Not all elements were closed.",
+            ));
+        }
+        if self.state.depth != 0 {
+            return Err(Error::from_reason(
+                "Object rows projection ended with open elements",
+            ));
+        }
+        self.event_count += 1; // END_DOCUMENT
+        Ok(())
+    }
+
+    fn parse_markup(&mut self, position: usize) -> Result<usize> {
+        if position + 1 >= self.input.len() {
+            return Err(Error::from_reason("Unclosed start tag"));
+        }
+
+        match self.input[position + 1] {
+            b'/' => self.parse_end_tag(position),
+            b'!' => self.parse_bang(position),
+            b'?' => self.parse_processing_instruction(position),
+            _ => self.parse_start_tag(position),
+        }
+    }
+
+    fn parse_bang(&mut self, position: usize) -> Result<usize> {
+        if starts_with(self.input, position, b"<![CDATA[") {
+            let Some(end) = find_bytes(self.input, b"]]>", position + 9) else {
+                return Err(Error::from_reason("Unclosed CDATA section"));
+            };
+            self.capture_text(position + 9, end, CDATA)?;
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!--") {
+            let Some(end) = find_bytes(self.input, b"-->", position + 4) else {
+                return Err(Error::from_reason("Unclosed comment"));
+            };
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!DOCTYPE") {
+            let Some(end) = find_gt(self.input, position + 2) else {
+                return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
+            };
+            return Ok(end + 1);
+        }
+
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed markup"));
+        };
+        Ok(end + 1)
+    }
+
+    fn parse_processing_instruction(&self, position: usize) -> Result<usize> {
+        let Some(end) = find_bytes(self.input, b"?>", position + 2) else {
+            return Err(Error::from_reason(
+                if starts_with(self.input, position, b"<?xml") {
+                    "Unclosed XML declaration"
+                } else {
+                    "Unclosed processing instruction"
+                },
+            ));
+        };
+        Ok(end + 2)
+    }
+
+    fn parse_start_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(tag_end) = find_tag_end(self.input, position + 1) else {
+            return Err(Error::from_reason("Unclosed start tag"));
+        };
+
+        let mut actual_end = tag_end;
+        while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+            actual_end -= 1;
+        }
+
+        let mut self_closing = false;
+        if actual_end > position + 1 && self.input[actual_end - 1] == b'/' {
+            self_closing = true;
+            actual_end -= 1;
+            while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+                actual_end -= 1;
+            }
+        }
+
+        let name_start = position + 1;
+        let mut name_end = name_start;
+        while name_end < actual_end {
+            let byte = self.input[name_end];
+            if is_whitespace(byte) || byte == b'/' {
+                break;
+            }
+            name_end += 1;
+        }
+
+        self.event_count += 1;
+        self.state.depth += 1;
+        self.state.max_depth = self.state.max_depth.max(self.state.depth);
+        start_object_rows_projection_element_direct(
+            self.input,
+            name_start,
+            name_end,
+            name_end,
+            actual_end,
+            &self.spec,
+            &mut self.state,
+        )?;
+
+        if self_closing {
+            self.event_count += 1;
+            end_object_rows_projection_element_direct(
+                self.input,
+                name_start,
+                name_end,
+                &self.spec,
+                &mut self.state,
+            )?;
+            self.state.depth = self
+                .state
+                .depth
+                .checked_sub(1)
+                .ok_or_else(|| Error::from_reason("Object rows projection depth underflow"))?;
+        } else {
+            self.element_stack.push((name_start, name_end));
+        }
+
+        Ok(tag_end + 1)
+    }
+
+    fn parse_end_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed end tag"));
+        };
+
+        let mut name_start = position + 2;
+        let mut name_end = end;
+        while name_start < name_end && is_whitespace(self.input[name_start]) {
+            name_start += 1;
+        }
+        while name_end > name_start && is_whitespace(self.input[name_end - 1]) {
+            name_end -= 1;
+        }
+
+        let Some((start, stop)) = self.element_stack.pop() else {
+            return Err(Error::from_reason("Unexpected closing tag"));
+        };
+        if self.input[start..stop] != self.input[name_start..name_end] {
+            return Err(Error::from_reason("Mismatched closing tag"));
+        }
+
+        self.event_count += 1;
+        end_object_rows_projection_element_direct(
+            self.input,
+            name_start,
+            name_end,
+            &self.spec,
+            &mut self.state,
+        )?;
+        self.state.depth = self
+            .state
+            .depth
+            .checked_sub(1)
+            .ok_or_else(|| Error::from_reason("Object rows projection depth underflow"))?;
+        Ok(end + 1)
+    }
+
+    fn capture_text(&mut self, start: usize, end: usize, _event_type: u8) -> Result<()> {
+        if start < end && !is_whitespace_only(self.input, start, end) {
+            self.event_count += 1;
+            capture_object_rows_projection_text_span(
+                self.input,
+                start,
+                end,
+                &self.spec,
+                &mut self.state,
+            )?;
+        }
+        Ok(())
+    }
+}
+
 impl<'a> SpanTableUtf16Parser<'a> {
     fn parse(&mut self) -> Result<()> {
         self.emit_event(START_DOCUMENT, None, None, None)?;
@@ -2035,6 +2288,77 @@ fn materialize_span(input: &[u8], start: usize, end: usize) -> Result<String> {
         .map_err(|error| Error::from_reason(error.to_string()))
 }
 
+fn parse_f64_js_prefix(input: &[u8], start: usize, end: usize) -> Result<f64> {
+    parse_f64_js_prefix_bytes(&input[start..end])
+}
+
+fn parse_f64_js_prefix_bytes(input: &[u8]) -> Result<f64> {
+    let value =
+        std::str::from_utf8(input).map_err(|error| Error::from_reason(error.to_string()))?;
+    let value = value.trim_start();
+    let token_end = parse_float_prefix_end(value.as_bytes())
+        .ok_or_else(|| Error::from_reason("Object rows projection number field was invalid"))?;
+    value[..token_end]
+        .parse::<f64>()
+        .map_err(|error| Error::from_reason(error.to_string()))
+}
+
+fn parse_float_prefix_end(input: &[u8]) -> Option<usize> {
+    if input.is_empty() {
+        return None;
+    }
+
+    let mut index = 0;
+    if matches!(input[index], b'+' | b'-') {
+        index += 1;
+    }
+    if index >= input.len() {
+        return None;
+    }
+
+    if input[index..].starts_with(b"Infinity") {
+        return Some(index + b"Infinity".len());
+    }
+
+    let integer_start = index;
+    while index < input.len() && input[index].is_ascii_digit() {
+        index += 1;
+    }
+    let integer_digits = index - integer_start;
+
+    let mut fraction_digits = 0;
+    if index < input.len() && input[index] == b'.' {
+        index += 1;
+        let fraction_start = index;
+        while index < input.len() && input[index].is_ascii_digit() {
+            index += 1;
+        }
+        fraction_digits = index - fraction_start;
+    }
+
+    if integer_digits == 0 && fraction_digits == 0 {
+        return None;
+    }
+
+    let mantissa_end = index;
+    if index < input.len() && matches!(input[index], b'e' | b'E') {
+        let exponent_marker = index;
+        index += 1;
+        if index < input.len() && matches!(input[index], b'+' | b'-') {
+            index += 1;
+        }
+        let exponent_start = index;
+        while index < input.len() && input[index].is_ascii_digit() {
+            index += 1;
+        }
+        if index == exponent_start {
+            return Some(exponent_marker);
+        }
+    }
+
+    Some(index.max(mantissa_end))
+}
+
 fn materialize_units(input: &[u16], start: usize, end: usize) -> Result<String> {
     String::from_utf16(&input[start..end]).map_err(|error| Error::from_reason(error.to_string()))
 }
@@ -2414,19 +2738,7 @@ fn project_object_rows_from_span_table(
     }
 
     let spec = normalize_object_rows_spec(spec)?;
-    let mut state = ObjectRowsProjectionState {
-        depth: 0,
-        max_depth: 0,
-        current_row: None,
-        capture: None,
-        row_count: 0,
-        columns: (0..spec.fields.len())
-            .map(|_| ObjectRowsProjectionColumn {
-                present: Vec::new(),
-                values: Vec::new(),
-            })
-            .collect(),
-    };
+    let mut state = create_object_rows_projection_state(spec.fields.len());
 
     for event_index in 0..table.event_count as usize {
         let event = read_table_event(&table, event_index)?;
@@ -2444,7 +2756,7 @@ fn project_object_rows_from_span_table(
                     .ok_or_else(|| Error::from_reason("Structural index depth underflow"))?;
             }
             value if value == CHARACTERS as u32 || value == CDATA as u32 => {
-                capture_object_rows_projection_text(input, event, &mut state)?;
+                capture_object_rows_projection_text(input, event, &spec, &mut state)?;
             }
             _ => {}
         }
@@ -2464,6 +2776,25 @@ fn project_object_rows_from_span_table(
         row_count: to_u32_count(state.row_count, "object rows projection row count")?,
         columns: state.columns,
     })
+}
+
+fn create_object_rows_projection_state(field_count: usize) -> ObjectRowsProjectionState {
+    ObjectRowsProjectionState {
+        depth: 0,
+        max_depth: 0,
+        current_row: None,
+        capture: None,
+        row_count: 0,
+        columns: (0..field_count)
+            .map(|_| ObjectRowsProjectionColumn {
+                present: Vec::new(),
+                values: Vec::new(),
+                number_values: Vec::new(),
+                span_starts: Vec::new(),
+                span_ends: Vec::new(),
+            })
+            .collect(),
+    }
 }
 
 fn normalize_object_rows_spec(spec: &ObjectRowsProjectionSpec) -> Result<NormalizedObjectRowsSpec> {
@@ -2490,14 +2821,15 @@ fn normalize_object_rows_spec(spec: &ObjectRowsProjectionSpec) -> Result<Normali
                 "Object rows projection field source name cannot be empty",
             ));
         }
-        match field.value_kind.as_str() {
-            "string" | "number" => {}
+        let value_kind = match field.value_kind.as_str() {
+            "string" => ObjectRowsValueKind::String,
+            "number" => ObjectRowsValueKind::Number,
             _ => {
                 return Err(Error::from_reason(
                     "Object rows projection field value kind must be string or number",
                 ));
             }
-        }
+        };
 
         let source_kind = match field.source_kind.as_str() {
             "attribute" => ObjectRowsSourceKind::Attribute,
@@ -2520,6 +2852,7 @@ fn normalize_object_rows_spec(spec: &ObjectRowsProjectionSpec) -> Result<Normali
         };
 
         fields.push(NormalizedObjectRowsField {
+            value_kind,
             source_kind,
             source_name: field.source_name.as_bytes().to_vec(),
             text_mode,
@@ -2552,6 +2885,8 @@ fn start_object_rows_projection_element(
             completed: vec![false; spec.fields.len()],
             present: vec![false; spec.fields.len()],
             values: vec![String::new(); spec.fields.len()],
+            number_values: vec![0.0; spec.fields.len()],
+            number_buffers: (0..spec.fields.len()).map(|_| Vec::new()).collect(),
         };
         read_object_rows_projection_attributes(input, table, event, spec, &mut row)?;
         state.current_row = Some(row);
@@ -2607,7 +2942,102 @@ fn read_object_rows_projection_attributes(
             if field.source_kind == ObjectRowsSourceKind::Attribute
                 && attr_name == field.source_name.as_slice()
             {
-                row.values[index] = materialize_span(input, value_start, value_end)?;
+                match field.value_kind {
+                    ObjectRowsValueKind::String => {
+                        row.values[index] = materialize_span(input, value_start, value_end)?;
+                    }
+                    ObjectRowsValueKind::Number => {
+                        row.number_values[index] =
+                            parse_f64_js_prefix(input, value_start, value_end).unwrap_or(f64::NAN);
+                    }
+                }
+                row.present[index] = true;
+                row.completed[index] = true;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn start_object_rows_projection_element_direct(
+    input: &[u8],
+    name_start: usize,
+    name_end: usize,
+    attr_start: usize,
+    attr_end: usize,
+    spec: &NormalizedObjectRowsSpec,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    let name = &input[name_start..name_end];
+
+    if state.current_row.is_none() && name == spec.item_name.as_slice() {
+        let mut row = CurrentObjectRowsProjection {
+            depth: state.depth,
+            completed: vec![false; spec.fields.len()],
+            present: vec![false; spec.fields.len()],
+            values: vec![String::new(); spec.fields.len()],
+            number_values: vec![0.0; spec.fields.len()],
+            number_buffers: (0..spec.fields.len()).map(|_| Vec::new()).collect(),
+        };
+        read_object_rows_projection_attributes_direct(input, attr_start, attr_end, spec, &mut row)?;
+        state.current_row = Some(row);
+        return Ok(());
+    }
+
+    let Some(row) = &mut state.current_row else {
+        return Ok(());
+    };
+    if state.depth != row.depth + 1 {
+        return Ok(());
+    }
+
+    let mut field_indices = Vec::new();
+    let mut text_mode = ObjectRowsTextMode::Subtree;
+    for (index, field) in spec.fields.iter().enumerate() {
+        if field.source_kind == ObjectRowsSourceKind::Element
+            && name == field.source_name.as_slice()
+            && !row.completed[index]
+        {
+            field_indices.push(index);
+            text_mode = field.text_mode;
+            row.present[index] = true;
+        }
+    }
+    if !field_indices.is_empty() {
+        state.capture = Some(ObjectRowsProjectionCapture {
+            depth: state.depth,
+            field_indices,
+            text_mode,
+        });
+    }
+    Ok(())
+}
+
+fn read_object_rows_projection_attributes_direct(
+    input: &[u8],
+    attr_start: usize,
+    attr_end: usize,
+    spec: &NormalizedObjectRowsSpec,
+    row: &mut CurrentObjectRowsProjection,
+) -> Result<()> {
+    let attrs = parse_attributes(input, attr_start, attr_end);
+    for attr in attrs.iter() {
+        let attr_name = &input[attr.name_start..attr.name_end];
+        for (index, field) in spec.fields.iter().enumerate() {
+            if field.source_kind == ObjectRowsSourceKind::Attribute
+                && attr_name == field.source_name.as_slice()
+            {
+                match field.value_kind {
+                    ObjectRowsValueKind::String => {
+                        row.values[index] =
+                            materialize_span(input, attr.value_start, attr.value_end)?;
+                    }
+                    ObjectRowsValueKind::Number => {
+                        row.number_values[index] =
+                            parse_f64_js_prefix(input, attr.value_start, attr.value_end)
+                                .unwrap_or(f64::NAN);
+                    }
+                }
                 row.present[index] = true;
                 row.completed[index] = true;
             }
@@ -2631,7 +3061,16 @@ fn end_object_rows_projection_element(
             if let Some(capture) = &state.capture {
                 for index in &capture.field_indices {
                     if row.present[*index] {
-                        row.values[*index] = row.values[*index].trim().to_owned();
+                        match spec.fields[*index].value_kind {
+                            ObjectRowsValueKind::String => {
+                                row.values[*index] = row.values[*index].trim().to_owned();
+                            }
+                            ObjectRowsValueKind::Number => {
+                                row.number_values[*index] =
+                                    parse_f64_js_prefix_bytes(&row.number_buffers[*index])
+                                        .unwrap_or(f64::NAN);
+                            }
+                        }
                     }
                     row.completed[*index] = true;
                 }
@@ -2657,9 +3096,83 @@ fn end_object_rows_projection_element(
     let mut row = state.current_row.take().expect("checked row presence");
     for index in 0..spec.fields.len() {
         state.columns[index].present.push(row.present[index]);
-        state.columns[index]
-            .values
-            .push(std::mem::take(&mut row.values[index]));
+        match spec.fields[index].value_kind {
+            ObjectRowsValueKind::String => {
+                state.columns[index]
+                    .values
+                    .push(std::mem::take(&mut row.values[index]));
+            }
+            ObjectRowsValueKind::Number => {
+                state.columns[index]
+                    .number_values
+                    .push(row.number_values[index]);
+            }
+        }
+    }
+    state.row_count += 1;
+    Ok(())
+}
+
+fn end_object_rows_projection_element_direct(
+    input: &[u8],
+    name_start: usize,
+    name_end: usize,
+    spec: &NormalizedObjectRowsSpec,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    if state
+        .capture
+        .as_ref()
+        .is_some_and(|capture| capture.depth == state.depth)
+    {
+        if let Some(row) = &mut state.current_row {
+            if let Some(capture) = &state.capture {
+                for index in &capture.field_indices {
+                    if row.present[*index] {
+                        match spec.fields[*index].value_kind {
+                            ObjectRowsValueKind::String => {
+                                row.values[*index] = row.values[*index].trim().to_owned();
+                            }
+                            ObjectRowsValueKind::Number => {
+                                row.number_values[*index] =
+                                    parse_f64_js_prefix_bytes(&row.number_buffers[*index])
+                                        .unwrap_or(f64::NAN);
+                            }
+                        }
+                    }
+                    row.completed[*index] = true;
+                }
+            }
+        }
+        state.capture = None;
+    }
+
+    let Some(row) = &state.current_row else {
+        return Ok(());
+    };
+    if row.depth != state.depth {
+        return Ok(());
+    }
+
+    if &input[name_start..name_end] != spec.item_name.as_slice() {
+        return Ok(());
+    }
+
+    let mut row = state.current_row.take().expect("checked row presence");
+    for index in 0..spec.fields.len() {
+        state.columns[index].present.push(row.present[index]);
+        match spec.fields[index].value_kind {
+            ObjectRowsValueKind::String => {
+                state.columns[index]
+                    .values
+                    .push(std::mem::take(&mut row.values[index]));
+            }
+            ObjectRowsValueKind::Number => {
+                state.columns[index]
+                    .number_values
+                    .push(row.number_values[index]);
+            }
+        }
     }
     state.row_count += 1;
     Ok(())
@@ -2668,6 +3181,20 @@ fn end_object_rows_projection_element(
 fn capture_object_rows_projection_text(
     input: &[u8],
     event: TableEventRecord,
+    spec: &NormalizedObjectRowsSpec,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    let Some((start, end)) = event.text_range()? else {
+        return Ok(());
+    };
+    capture_object_rows_projection_text_span(input, start, end, spec, state)
+}
+
+fn capture_object_rows_projection_text_span(
+    input: &[u8],
+    start: usize,
+    end: usize,
+    spec: &NormalizedObjectRowsSpec,
     state: &mut ObjectRowsProjectionState,
 ) -> Result<()> {
     let Some(capture) = &state.capture else {
@@ -2679,17 +3206,31 @@ fn capture_object_rows_projection_text(
     if capture.text_mode == ObjectRowsTextMode::Subtree && state.depth < capture.depth {
         return Ok(());
     }
-    let Some((start, end)) = event.text_range()? else {
-        return Ok(());
-    };
     let Some(row) = &mut state.current_row else {
         return Ok(());
     };
-    let value = materialize_span(input, start, end)?;
     for index in &capture.field_indices {
-        row.values[*index].push_str(&value);
+        match spec.fields[*index].value_kind {
+            ObjectRowsValueKind::String => {
+                append_object_rows_projection_string(input, start, end, row, *index)?;
+            }
+            ObjectRowsValueKind::Number => {
+                row.number_buffers[*index].extend_from_slice(&input[start..end]);
+            }
+        }
         row.present[*index] = true;
     }
+    Ok(())
+}
+
+fn append_object_rows_projection_string(
+    input: &[u8],
+    start: usize,
+    end: usize,
+    row: &mut CurrentObjectRowsProjection,
+    index: usize,
+) -> Result<()> {
+    row.values[index].push_str(&materialize_span(input, start, end)?);
     Ok(())
 }
 
@@ -3293,7 +3834,7 @@ mod tests {
     }
 
     #[test]
-    fn object_rows_projection_from_table_supports_generic_object_fields() {
+    fn object_rows_projection_supports_generic_object_fields() {
         let sample =
             "<root><entry code=\"a\"><label>Alice</label><score>7</score></entry><entry code=\"b\"><label>Bob</label><score></score></entry><entry code=\"c\"><label>Cy</label></entry></root>";
         let spec = ObjectRowsProjectionSpec {
@@ -3323,19 +3864,25 @@ mod tests {
             ],
         };
 
-        let result = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
+        let result = parse_object_rows(sample.as_bytes(), &spec).unwrap();
+        let table_result = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
 
         assert_eq!(result.input_bytes, sample.len() as f64);
         assert_eq!(result.event_count, 24);
         assert_eq!(result.max_depth, 3);
         assert_eq!(result.field_count, 3);
         assert_eq!(result.row_count, 3);
+        assert_eq!(table_result.row_count, result.row_count);
+        assert_eq!(table_result.field_count, result.field_count);
         assert_eq!(result.columns[0].present, vec![true, true, true]);
         assert_eq!(result.columns[0].values, vec!["a", "b", "c"]);
         assert_eq!(result.columns[1].present, vec![true, true, true]);
         assert_eq!(result.columns[1].values, vec!["Alice", "Bob", "Cy"]);
         assert_eq!(result.columns[2].present, vec![true, true, false]);
-        assert_eq!(result.columns[2].values, vec!["7", "", ""]);
+        assert!(result.columns[2].values.is_empty());
+        assert_eq!(result.columns[2].number_values[0], 7.0);
+        assert!(result.columns[2].number_values[1].is_nan());
+        assert_eq!(result.columns[2].number_values[2], 0.0);
     }
 
     #[test]

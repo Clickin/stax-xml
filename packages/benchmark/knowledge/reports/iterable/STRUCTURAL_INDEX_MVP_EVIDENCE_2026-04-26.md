@@ -67,29 +67,31 @@ Results:
 
 | Schema | Fixture | Size | JS compiled | Native platform converter | Speedup |
 | --- | --- | ---: | ---: | ---: | ---: |
-| hardcoded-item | attribute-heavy | 16 MiB | 272.53 ms | 146.95 ms | 1.85x |
-| generic-entry | attribute-heavy | 16 MiB | 251.94 ms | 228.29 ms | 1.10x |
-| hardcoded-item | mixed-utf8 | 16 MiB | 343.37 ms | 162.95 ms | 2.11x |
-| generic-entry | mixed-utf8 | 16 MiB | 292.56 ms | 248.12 ms | 1.18x |
-| hardcoded-item | attribute-heavy | 128 MiB | 2070.85 ms | 1306.89 ms | 1.58x |
-| generic-entry | attribute-heavy | 128 MiB | 1993.14 ms | 1966.37 ms | 1.01x |
-| hardcoded-item | mixed-utf8 | 128 MiB | 2395.59 ms | 1475.80 ms | 1.62x |
-| generic-entry | mixed-utf8 | 128 MiB | 2265.29 ms | 2033.22 ms | 1.11x |
+| hardcoded-item | attribute-heavy | 16 MiB | 278.33 ms | 148.60 ms | 1.87x |
+| generic-entry | attribute-heavy | 16 MiB | 253.33 ms | 194.35 ms | 1.30x |
+| hardcoded-item | mixed-utf8 | 16 MiB | 326.47 ms | 163.23 ms | 2.00x |
+| generic-entry | mixed-utf8 | 16 MiB | 298.30 ms | 216.91 ms | 1.38x |
+| hardcoded-item | attribute-heavy | 128 MiB | 2058.73 ms | 1369.19 ms | 1.50x |
+| generic-entry | attribute-heavy | 128 MiB | 1973.75 ms | 1656.66 ms | 1.19x |
+| hardcoded-item | mixed-utf8 | 128 MiB | 2475.93 ms | 1528.01 ms | 1.62x |
+| generic-entry | mixed-utf8 | 128 MiB | 2275.00 ms | 1756.38 ms | 1.30x |
 
 All staged platform converter checksums matched.
 
 ## Generic Projection Breakdown
 
-The staged platform converter harness now includes a benchmark-only breakdown for the generic `entry` descriptor. It separates native table projection from JavaScript object hydration, and it reruns native projection with one, two, and three projected fields to expose per-field materialization cost.
+The staged platform converter harness now includes a benchmark-only breakdown for the generic `entry` descriptor. It separates direct native projection, legacy via-table projection, one/two/three-field projection cost, and JavaScript object hydration.
 
-| Fixture | Size | Native projection, 3 fields | Code only | Code + label | Score only | Dynamic hydration | Stable-shape hydration | Hydration speedup |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| attribute-heavy | 16 MiB | 214.38 ms | 109.42 ms | 160.32 ms | 125.18 ms | 11.97 ms | 5.85 ms | 2.04x |
-| mixed-utf8 | 16 MiB | 223.40 ms | 113.08 ms | 168.06 ms | 131.08 ms | 13.23 ms | 6.17 ms | 2.14x |
-| attribute-heavy | 128 MiB | 1765.75 ms | 879.46 ms | 1347.92 ms | 989.43 ms | 180.61 ms | 89.50 ms | 2.02x |
-| mixed-utf8 | 128 MiB | 1965.17 ms | 928.87 ms | 1408.02 ms | 1010.53 ms | 153.51 ms | 86.26 ms | 1.78x |
+| Fixture | Size | Direct native projection, 3 fields | Via-table projection, 3 fields | Code only | Code + label | Score only | Dynamic hydration | Stable-shape hydration | Hydration speedup |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| attribute-heavy | 16 MiB | 185.18 ms | 217.40 ms | 90.09 ms | 144.33 ms | 85.60 ms | 10.54 ms | 4.59 ms | 2.30x |
+| mixed-utf8 | 16 MiB | 191.65 ms | 232.82 ms | 90.57 ms | 151.53 ms | 91.48 ms | 11.49 ms | 4.81 ms | 2.39x |
+| attribute-heavy | 128 MiB | 1571.13 ms | 1830.91 ms | 715.83 ms | 1248.48 ms | 687.91 ms | 132.54 ms | 76.76 ms | 1.73x |
+| mixed-utf8 | 128 MiB | 1619.26 ms | 1881.88 ms | 721.31 ms | 1280.33 ms | 722.39 ms | 133.70 ms | 76.42 ms | 1.75x |
 
-Stable-shape object construction is measurably faster than dynamic field assignment in isolation, but it only saves about 67 ms to 91 ms at 128 MiB. That is not enough to explain the user-facing gap: the three-field native projection itself takes 1766 ms to 1965 ms, and even a single projected field still costs about 879 ms to 1011 ms at 128 MiB. The dominant cost is therefore native generic field materialization and N-API transfer of string columns, not JavaScript object shape alone.
+Direct generic projection removes the table-build-then-replay cost from the descriptor path. At 128 MiB it cuts the three-field native projection slice by about 260 ms to 263 ms versus the via-table path. Typed native number columns also avoid string transfer for numeric fields while preserving TypeScript-side number validation.
+
+The remaining gap is now dominated by string column materialization/transfer and JavaScript row hydration. Stable-shape hydration remains faster in isolation, but it would only save about 56 ms to 57 ms at 128 MiB after the direct projection fix, while direct native projection still takes 1571 ms to 1619 ms for the three-field schema.
 
 ## Gate Status
 
@@ -97,11 +99,11 @@ The generic native-buffer-table path still does not satisfy the 1.5x performance
 
 The representative table projection path does satisfy the gate. It builds the same structural table in the native addon and then projects from that table without JS per-event dispatch; at 128 MiB it reaches 1.89x to 2.03x for checksum-only projection and 1.68x to 1.79x when returning actual converter rows for the hardcoded `id/name/value` schema. That means table tuning is still relevant, but the table must feed a native projection boundary rather than round-tripping every event through JS.
 
-The generic object rows projection now accepts a compiled-plan descriptor for root array/object shapes with relative attribute and single child element scalar fields. Returning columnar field arrays instead of per-row value arrays improved the generic path from the initial row-array shape, but it still reaches only 1.30x to 1.34x at 128 MiB and does not meet the 1.5x gate. The remaining cost is dominated by generic string materialization, N-API transfer of per-field string columns, and TS object reconstruction/number validation.
+The generic object rows projection now accepts a compiled-plan descriptor for root array/object shapes with relative attribute and single child element scalar fields. Returning columnar field arrays instead of per-row value arrays improved the generic path from the initial row-array shape, and the direct parser removed the table replay pass, but it still reaches only 1.19x to 1.30x at 128 MiB and does not meet the 1.5x gate. The remaining cost is dominated by generic string materialization, N-API transfer of per-field string columns, and TS object reconstruction/number validation.
 
-The staged platform converter benchmark confirms that this cost is user-visible: after TypeScript object hydration and scalar validation, the generic descriptor path reaches only 1.01x to 1.11x at 128 MiB. The hardcoded representative path still clears the gate through the public converter API at 1.58x to 1.62x.
+The staged platform converter benchmark confirms that this cost is user-visible: after TypeScript object hydration and scalar validation, the generic descriptor path improved from the prior 1.01x to 1.11x range to 1.19x to 1.30x at 128 MiB. The hardcoded representative path stays at or above the gate through the public converter API at 1.50x to 1.62x.
 
-The latest breakdown rejects production stable-shape hydration/codegen as the primary next optimization. It helps the hydration-only slice, but the larger blocker is the native generic projection boundary. The next tuning candidates should reduce per-field string materialization and transfer, for example typed numeric columns, fewer eagerly materialized string columns, or a schema-specific native projection tier that keeps validation/projection coarse-grained.
+The direct generic parser fixes the table replay bottleneck, but it does not yet satisfy the 1.5x generic gate. The next tuning candidates should reduce the remaining string column materialization and row hydration costs without reintroducing per-event JS/native boundaries.
 
 The direct schema-aware native projection PoC remains the upper-bound comparison for this schema. At 128 MiB it reaches 2.21x to 2.70x of JS compiled converter throughput while preserving checksum parity.
 
@@ -113,6 +115,6 @@ The generic table builder now writes event records directly into the final byte 
 
 The native table rows path is now wired into `CompiledRootProcessor` for the representative compiled schema `//item` with `./@id`, `./name`, and `./value` on byte input when a native backend exports `parseItemRowsViaTableUint8Array`. This hardcoded path is tried before the generic descriptor because it is still faster for the representative benchmark.
 
-The generic descriptor path is also wired into `CompiledRootProcessor` for byte-input root arrays of inline objects when every field is a scalar selected by a relative attribute or one relative child element. It preserves schema-side number validation by returning strings to TypeScript and applying the compiled scalar parsers there. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths. This is a bounded lowering step, not full XPath execution in native code.
+The generic descriptor path is also wired into `CompiledRootProcessor` for byte-input root arrays of inline objects when every field is a scalar selected by a relative attribute or one relative child element. It prefers the direct native parser, retains the via-table parser as fallback/comparator, and preserves schema-side number validation by returning typed numeric columns to TypeScript for compiled scalar validation. Unsupported plans and unavailable backend capabilities fall back to the existing structural table or JS paths. This is a bounded lowering step, not full XPath execution in native code.
 
-The native binary smoke workflow now stages each runnable platform package and executes `packages/native-aggregate/scripts/smoke-platform-package.mjs`, which verifies `parseStructuralIndexUint8Array`, `parseItemRowsViaTableUint8Array`, and `parseObjectRowsViaTableUint8Array` through the platform package entrypoint.
+The native binary smoke workflow now stages each runnable platform package and executes `packages/native-aggregate/scripts/smoke-platform-package.mjs`, which verifies `parseStructuralIndexUint8Array`, `parseItemRowsViaTableUint8Array`, `parseObjectRowsUint8Array`, and `parseObjectRowsViaTableUint8Array` through the platform package entrypoint.

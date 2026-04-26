@@ -11,6 +11,7 @@ const requiredExports = [
   'parseAggregateBuffer',
   'parseStructuralIndexUint8Array',
   'parseItemRowsViaTableUint8Array',
+  'parseObjectRowsUint8Array',
   'parseObjectRowsViaTableUint8Array',
 ];
 
@@ -42,25 +43,40 @@ assertEqual(itemRows.rows.length, 1, 'item rows length');
 assertEqual(itemRows.rows[0].name, 'Alice', 'item first name');
 assertEqual(itemRows.rows[0].value, '안녕', 'item first value');
 
-const objectRows = module.parseObjectRowsViaTableUint8Array(input, {
+const objectRowsSpec = {
   itemName: 'entry',
   fields: [
     { outputName: 'code', valueKind: 'string', sourceKind: 'attribute', sourceName: 'code', textMode: 'direct' },
     { outputName: 'label', valueKind: 'string', sourceKind: 'element', sourceName: 'label', textMode: 'subtree' },
     { outputName: 'score', valueKind: 'number', sourceKind: 'element', sourceName: 'score', textMode: 'subtree' },
   ],
-});
-assertEqual(objectRows.rowCount, 3, 'object row count');
-assertEqual(objectRows.fieldCount, 3, 'object field count');
-assertEqual(objectRows.columns[0].values.join('|'), 'a|b|c', 'object code values');
-assertEqual(objectRows.columns[1].values.join('|'), 'Alice|Bob|Cy', 'object label values');
-assertEqual(objectRows.columns[2].present.join('|'), 'true|true|false', 'object score present flags');
-assertEqual(objectRows.columns[2].values.join('|'), '7||', 'object score values');
+};
+const directObjectRows = module.parseObjectRowsUint8Array(input, objectRowsSpec);
+const objectRows = module.parseObjectRowsViaTableUint8Array(input, objectRowsSpec);
+assertObjectRows(directObjectRows, 'direct object');
+assertObjectRows(objectRows, 'object');
 
 console.log(`platform package smoke ok: ${packageDir}`);
+
+function assertObjectRows(objectRows, label) {
+  assertEqual(objectRows.rowCount, 3, 'object row count');
+  assertEqual(objectRows.fieldCount, 3, 'object field count');
+  assertEqual(objectRows.columns[0].values.join('|'), 'a|b|c', `${label} code values`);
+  assertEqual(objectRows.columns[1].values.join('|'), 'Alice|Bob|Cy', `${label} label values`);
+  assertEqual(objectRows.columns[2].present.join('|'), 'true|true|false', `${label} score present flags`);
+  assertEqual(objectRows.columns[2].values.length, 0, `${label} score string values`);
+  const scoreValues = numberValues(objectRows.columns[2]);
+  assertEqual(scoreValues[0], 7, `${label} first score value`);
+  assertEqual(Number.isNaN(scoreValues[1]), true, `${label} empty score value`);
+  assertEqual(scoreValues[2], 0, `${label} missing score placeholder`);
+}
 
 function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, got ${actual}`);
   }
+}
+
+function numberValues(column) {
+  return column.numberValues ?? column.number_values;
 }

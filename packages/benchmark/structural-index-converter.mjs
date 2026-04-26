@@ -3,6 +3,7 @@ import { x } from 'stax-xml/converter';
 import { StaxXmlStructuralIndexParser } from 'stax-xml/runtime';
 
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 const nativeAggregate = await loadNativeAggregateProbe();
 const args = new Set(process.argv.slice(2));
 const quick = args.has('--quick');
@@ -54,8 +55,11 @@ for (const sizeMiB of sizesMiB) {
     const nativeTableRows = nativeAggregate?.parseItemRowsViaTableUint8Array
       ? await measureRows('native-table-rows', () => nativeAggregate.parseItemRowsViaTableUint8Array(bytes))
       : undefined;
+    const nativeObjectRowsDirect = nativeAggregate?.parseObjectRowsUint8Array
+      ? await measureObjectRows('native-object-rows-direct', () => nativeAggregate.parseObjectRowsUint8Array(bytes, objectRowsSpec), createUtf8SpanSource(bytes))
+      : undefined;
     const nativeObjectRows = nativeAggregate?.parseObjectRowsViaTableUint8Array
-      ? await measureObjectRows('native-object-rows', () => nativeAggregate.parseObjectRowsViaTableUint8Array(bytes, objectRowsSpec))
+      ? await measureObjectRows('native-object-rows', () => nativeAggregate.parseObjectRowsViaTableUint8Array(bytes, objectRowsSpec), createUtf8SpanSource(bytes))
       : undefined;
     const ratio = js.ms / byte.ms;
     console.log(JSON.stringify({
@@ -68,12 +72,14 @@ for (const sizeMiB of sizesMiB) {
       nativeProjectionMs: nativeProjection ? round(nativeProjection.ms) : undefined,
       nativeTableProjectionMs: nativeTableProjection ? round(nativeTableProjection.ms) : undefined,
       nativeTableRowsMs: nativeTableRows ? round(nativeTableRows.ms) : undefined,
+      nativeObjectRowsDirectMs: nativeObjectRowsDirect ? round(nativeObjectRowsDirect.ms) : undefined,
       nativeObjectRowsMs: nativeObjectRows ? round(nativeObjectRows.ms) : undefined,
       speedup: round(ratio),
       nativeBufferSpeedup: nativeBuffer ? round(js.ms / nativeBuffer.ms) : undefined,
       nativeProjectionSpeedup: nativeProjection ? round(js.ms / nativeProjection.ms) : undefined,
       nativeTableProjectionSpeedup: nativeTableProjection ? round(js.ms / nativeTableProjection.ms) : undefined,
       nativeTableRowsSpeedup: nativeTableRows ? round(js.ms / nativeTableRows.ms) : undefined,
+      nativeObjectRowsDirectSpeedup: nativeObjectRowsDirect ? round(js.ms / nativeObjectRowsDirect.ms) : undefined,
       nativeObjectRowsSpeedup: nativeObjectRows ? round(js.ms / nativeObjectRows.ms) : undefined,
       jsChecksum: js.checksum,
       byteChecksum: byte.checksum,
@@ -81,12 +87,14 @@ for (const sizeMiB of sizesMiB) {
       nativeProjectionChecksum: nativeProjection?.checksum,
       nativeTableProjectionChecksum: nativeTableProjection?.checksum,
       nativeTableRowsChecksum: nativeTableRows?.checksum,
+      nativeObjectRowsDirectChecksum: nativeObjectRowsDirect?.checksum,
       nativeObjectRowsChecksum: nativeObjectRows?.checksum,
       parity: js.checksum === byte.checksum,
       nativeBufferParity: nativeBuffer ? js.checksum === nativeBuffer.checksum : undefined,
       nativeProjectionParity: nativeProjection ? js.checksum === nativeProjection.checksum : undefined,
       nativeTableProjectionParity: nativeTableProjection ? js.checksum === nativeTableProjection.checksum : undefined,
       nativeTableRowsParity: nativeTableRows ? js.checksum === nativeTableRows.checksum : undefined,
+      nativeObjectRowsDirectParity: nativeObjectRowsDirect ? js.checksum === nativeObjectRowsDirect.checksum : undefined,
       nativeObjectRowsParity: nativeObjectRows ? js.checksum === nativeObjectRows.checksum : undefined,
     }));
   }
@@ -123,14 +131,14 @@ async function measureRows(name, run) {
   };
 }
 
-async function measureObjectRows(name, run) {
+async function measureObjectRows(name, run, input) {
   const start = performance.now();
   const result = await run();
   const ms = performance.now() - start;
   return {
     name,
     ms,
-    checksum: checksumObjectRows(result.columns, result.rowCount ?? result.row_count),
+    checksum: checksumObjectRows(result.columns, result.rowCount ?? result.row_count, input),
     itemCount: result.rowCount ?? result.row_count,
   };
 }
@@ -164,12 +172,13 @@ function checksum(rows) {
   return value | 0;
 }
 
-function checksumObjectRows(columns, rowCount) {
+function checksumObjectRows(columns, rowCount, source) {
   let value = rowCount;
+  const idValues = numberValues(columns[0]);
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-    value = mix(value, Number(columns[0].values[rowIndex]));
-    value = fold(value, columns[1].values[rowIndex]);
-    value = fold(value, columns[2].values[rowIndex]);
+    value = mix(value, Number(idValues[rowIndex]));
+    value = fold(value, stringValue(source, columns[1], rowIndex));
+    value = fold(value, stringValue(source, columns[2], rowIndex));
   }
   return value | 0;
 }
@@ -194,6 +203,32 @@ function readListArg(name, fallback) {
 
 function round(value) {
   return Math.round(value * 100) / 100;
+}
+
+function numberValues(column) {
+  const values = column.numberValues ?? column.number_values;
+  return Array.isArray(values) && values.length > 0 ? values : column.values;
+}
+
+function stringValue(source, column, rowIndex) {
+  const starts = column.spanStarts ?? column.span_starts;
+  const ends = column.spanEnds ?? column.span_ends;
+  if (Array.isArray(starts) && Array.isArray(ends) && starts[rowIndex] >= 0) {
+    return source.buffer
+      ? source.buffer.toString('utf8', starts[rowIndex], ends[rowIndex])
+      : decoder.decode(source.view.subarray(starts[rowIndex], ends[rowIndex]));
+  }
+  return column.values[rowIndex];
+}
+
+function createUtf8SpanSource(input) {
+  if (globalThis.Buffer?.isBuffer(input)) {
+    return { view: input, buffer: input };
+  }
+  if (globalThis.Buffer?.from) {
+    return { view: input, buffer: globalThis.Buffer.from(input.buffer, input.byteOffset, input.byteLength) };
+  }
+  return { view: input };
 }
 
 async function loadNativeAggregateProbe() {

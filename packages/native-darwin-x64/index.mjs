@@ -15,4 +15,5 @@ export const parseStructuralIndexStringUtf16 =
 export const parseStructuralIndexUint8Array =
   binding.parseStructuralIndexUint8Array ?? binding.parseSpanTableUint8Array;
 export const parseItemRowsViaTableUint8Array = binding.parseItemRowsViaTableUint8Array;
+export const parseObjectRowsUint8Array = binding.parseObjectRowsUint8Array;
 export const parseObjectRowsViaTableUint8Array = binding.parseObjectRowsViaTableUint8Array;

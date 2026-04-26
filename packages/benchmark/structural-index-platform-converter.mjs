@@ -10,9 +10,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const repoRoot = resolve(__dirname, '..', '..');
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 const args = new Set(process.argv.slice(2));
 const quick = args.has('--quick');
 const breakdown = args.has('--breakdown');
+const inputKind = args.has('--buffer') ? 'buffer' : 'uint8array';
 const sizesMiB = readListArg('--sizes-mib', quick ? '16' : '16,128').map(Number);
 const fixtures = readListArg('--fixtures', 'attribute-heavy,mixed-utf8');
 
@@ -81,10 +83,12 @@ const entryScoreOnlyProjectionSpec = {
 const entryHydrators = [
   { fieldName: 'code', missingValue: '', parseValue: rawValue => rawValue },
   { fieldName: 'label', missingValue: '', parseValue: rawValue => rawValue },
-  { fieldName: 'score', missingValue: Number.NaN, parseValue: rawValue => parseIntStrict(rawValue) },
+  { fieldName: 'score', missingValue: Number.NaN, parseValue: rawValue => parseIntegerValue(rawValue) },
 ];
 const hydrateEntryStable = createStableEntryHydrator(entryHydrators);
 const platformModule = await importStagedPlatformModule();
+const projectObjectRows = platformModule.parseObjectRowsUint8Array
+  ?? platformModule.parseObjectRowsViaTableUint8Array;
 
 for (const sizeMiB of sizesMiB) {
   for (const fixture of fixtures) {
@@ -98,7 +102,7 @@ for (const sizeMiB of sizesMiB) {
 }
 
 async function runScenario(schemaName, fixture, sizeMiB, schema, xml, checksumRows) {
-  const bytes = encoder.encode(xml);
+  const bytes = encodeXml(xml);
   const parseOptions = { maxEvents: 20_000_000 };
   const js = await measure('js-string', () => schema.parse(xml, {
     ...parseOptions,
@@ -111,6 +115,7 @@ async function runScenario(schemaName, fixture, sizeMiB, schema, xml, checksumRo
 
   console.log(JSON.stringify({
     schema: schemaName,
+    inputKind,
     fixture,
     sizeMiB,
     bytes: bytes.byteLength,
@@ -160,43 +165,51 @@ function createEntryFixtureXml(fixture, sizeMiB) {
 }
 
 async function runGenericBreakdown(fixture, sizeMiB, xml) {
-  const bytes = encoder.encode(xml);
+  const bytes = encodeXml(xml);
+  const source = createUtf8SpanSource(bytes);
   const nativeProjection = await measureNativeProjection(() => (
-    platformModule.parseObjectRowsViaTableUint8Array(bytes, entryProjectionSpec)
+    projectObjectRows(bytes, entryProjectionSpec)
   ));
+  const tableProjection = platformModule.parseObjectRowsUint8Array
+    ? await measureNativeProjection(() => (
+      platformModule.parseObjectRowsViaTableUint8Array(bytes, entryProjectionSpec)
+    ))
+    : undefined;
   const codeOnlyProjection = await measureNativeProjection(() => (
-    platformModule.parseObjectRowsViaTableUint8Array(bytes, entryCodeOnlyProjectionSpec)
+    projectObjectRows(bytes, entryCodeOnlyProjectionSpec)
   ));
   const codeLabelProjection = await measureNativeProjection(() => (
-    platformModule.parseObjectRowsViaTableUint8Array(bytes, entryCodeLabelProjectionSpec)
+    projectObjectRows(bytes, entryCodeLabelProjectionSpec)
   ));
   const scoreOnlyProjection = await measureNativeProjection(() => (
-    platformModule.parseObjectRowsViaTableUint8Array(bytes, entryScoreOnlyProjectionSpec)
+    projectObjectRows(bytes, entryScoreOnlyProjectionSpec)
   ));
   const dynamicHydration = await measure('dynamic-hydration-only', () => (
-    hydrateEntryDynamic(nativeProjection.result)
+    hydrateEntryDynamic(nativeProjection.result, source)
   ), checksumEntryRows);
   const stableHydration = await measure('stable-hydration-only', () => (
-    hydrateEntryStable(nativeProjection.result)
+    hydrateEntryStable(nativeProjection.result, source)
   ), checksumEntryRows);
 
   console.log(JSON.stringify({
     schema: 'generic-entry-breakdown',
+    inputKind,
     fixture,
     sizeMiB,
     bytes: bytes.byteLength,
     nativeProjectionMs: round(nativeProjection.ms),
+    nativeProjectionViaTableMs: tableProjection ? round(tableProjection.ms) : undefined,
     nativeProjectionCodeOnlyMs: round(codeOnlyProjection.ms),
     nativeProjectionCodeLabelMs: round(codeLabelProjection.ms),
     nativeProjectionScoreOnlyMs: round(scoreOnlyProjection.ms),
     dynamicHydrationMs: round(dynamicHydration.ms),
     stableHydrationMs: round(stableHydration.ms),
     hydrationSpeedup: round(dynamicHydration.ms / stableHydration.ms),
-    nativeProjectionChecksum: checksumEntryColumns(nativeProjection.result.columns, nativeProjection.result.rowCount),
+    nativeProjectionChecksum: checksumEntryColumns(nativeProjection.result.columns, nativeProjection.result.rowCount, source),
     dynamicHydrationChecksum: dynamicHydration.checksum,
     stableHydrationChecksum: stableHydration.checksum,
     parity: dynamicHydration.checksum === stableHydration.checksum
-      && dynamicHydration.checksum === checksumEntryColumns(nativeProjection.result.columns, nativeProjection.result.rowCount),
+      && dynamicHydration.checksum === checksumEntryColumns(nativeProjection.result.columns, nativeProjection.result.rowCount, source),
   }));
 }
 
@@ -215,7 +228,7 @@ async function measureNativeProjection(run) {
   return { ms, result };
 }
 
-function hydrateEntryDynamic(result) {
+function hydrateEntryDynamic(result, source) {
   const columns = result.columns;
   const rowCount = result.rowCount ?? result.row_count;
   const rows = new Array(rowCount);
@@ -225,7 +238,7 @@ function hydrateEntryDynamic(result) {
       const hydrator = entryHydrators[fieldIndex];
       const column = columns[fieldIndex];
       output[hydrator.fieldName] = column.present[rowIndex]
-        ? hydrator.parseValue(column.values[rowIndex])
+        ? hydrator.parseValue(cellValue(source, column, rowIndex))
         : hydrator.missingValue;
     }
     rows[rowIndex] = output;
@@ -235,7 +248,7 @@ function hydrateEntryDynamic(result) {
 
 function createStableEntryHydrator(hydrators) {
   const [code, label, score] = hydrators;
-  return function hydrateEntryStableRows(result) {
+  return function hydrateEntryStableRows(result, source) {
     const columns = result.columns;
     const rowCount = result.rowCount ?? result.row_count;
     const codeColumn = columns[0];
@@ -244,13 +257,13 @@ function createStableEntryHydrator(hydrators) {
     const rows = new Array(rowCount);
     for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
       const codeValue = codeColumn.present[rowIndex]
-        ? code.parseValue(codeColumn.values[rowIndex])
+        ? code.parseValue(cellValue(source, codeColumn, rowIndex))
         : code.missingValue;
       const labelValue = labelColumn.present[rowIndex]
-        ? label.parseValue(labelColumn.values[rowIndex])
+        ? label.parseValue(cellValue(source, labelColumn, rowIndex))
         : label.missingValue;
       const scoreValue = scoreColumn.present[rowIndex]
-        ? score.parseValue(scoreColumn.values[rowIndex])
+        ? score.parseValue(cellValue(source, scoreColumn, rowIndex))
         : score.missingValue;
       rows[rowIndex] = { code: codeValue, label: labelValue, score: scoreValue };
     }
@@ -268,12 +281,12 @@ function checksumItemRows(rows) {
   return value | 0;
 }
 
-function checksumEntryColumns(columns, rowCount) {
+function checksumEntryColumns(columns, rowCount, source) {
   let value = rowCount;
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-    value = fold(value, columns[0].values[rowIndex]);
-    value = fold(value, columns[1].values[rowIndex]);
-    value = mix(value, Number(columns[2].values[rowIndex]));
+    value = fold(value, cellValue(source, columns[0], rowIndex));
+    value = fold(value, cellValue(source, columns[1], rowIndex));
+    value = mix(value, Number(cellValue(source, columns[2], rowIndex)));
   }
   return value | 0;
 }
@@ -300,12 +313,43 @@ function mix(seed, value) {
   return ((seed ^ value) * 16777619) | 0;
 }
 
-function parseIntStrict(rawValue) {
-  const parsed = Number.parseFloat(rawValue.trim());
+function parseIntegerValue(rawValue) {
+  const parsed = typeof rawValue === 'number'
+    ? rawValue
+    : Number.parseFloat(rawValue.trim());
   if (!Number.isInteger(parsed)) {
     throw new Error(`Expected integer, got ${parsed}`);
   }
   return parsed;
+}
+
+function cellValue(source, column, rowIndex) {
+  const values = column.numberValues ?? column.number_values;
+  if (Array.isArray(values) && values.length > 0) {
+    return values[rowIndex];
+  }
+  const starts = column.spanStarts ?? column.span_starts;
+  const ends = column.spanEnds ?? column.span_ends;
+  if (Array.isArray(starts) && Array.isArray(ends) && starts[rowIndex] >= 0) {
+    return source.buffer
+      ? source.buffer.toString('utf8', starts[rowIndex], ends[rowIndex])
+      : decoder.decode(source.view.subarray(starts[rowIndex], ends[rowIndex]));
+  }
+  return column.values[rowIndex];
+}
+
+function createUtf8SpanSource(input) {
+  if (globalThis.Buffer?.isBuffer(input)) {
+    return { view: input, buffer: input };
+  }
+  if (globalThis.Buffer?.from) {
+    return { view: input, buffer: globalThis.Buffer.from(input.buffer, input.byteOffset, input.byteLength) };
+  }
+  return { view: input };
+}
+
+function encodeXml(xml) {
+  return inputKind === 'buffer' ? Buffer.from(xml) : encoder.encode(xml);
 }
 
 function stageLocalNativePlatformPackage() {

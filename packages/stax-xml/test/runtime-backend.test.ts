@@ -129,6 +129,7 @@ describe('runtime backend package topology', () => {
       expect(index).toContain('parseStructuralIndexStringUtf16');
       expect(index).toContain('parseStructuralIndexUint8Array');
       expect(index).toContain('parseItemRowsViaTableUint8Array');
+      expect(index).toContain('parseObjectRowsUint8Array');
       expect(index).toContain('parseObjectRowsViaTableUint8Array');
     }
   });
@@ -138,6 +139,7 @@ describe('runtime backend package topology', () => {
     const script = readText('../../native-aggregate/scripts/smoke-platform-package.mjs');
 
     expect(workflow).toContain('scripts/smoke-platform-package.mjs');
+    expect(script).toContain('parseObjectRowsUint8Array');
     expect(script).toContain('parseObjectRowsViaTableUint8Array');
   });
 });
