@@ -1,0 +1,1699 @@
+use super::*;
+
+#[test]
+fn tag_end_ignores_gt_inside_double_and_single_quotes() {
+    let input = br#"<item expr="left > right" single='alpha > beta'><name>ok</name></item>"#;
+
+    let end = find_tag_end(input, 1).expect("start tag should close");
+
+    assert_eq!(input[end], b'>');
+    assert_eq!(&input[end - 5..=end], b"beta'>");
+}
+
+#[test]
+fn tag_end_rejects_incomplete_quoted_tail() {
+    let input = br#"<item expr="left > right"#;
+
+    assert_eq!(find_tag_end(input, 1), None);
+}
+
+#[test]
+fn attributes_keep_quoted_gt_inside_values() {
+    let input = br#"<item expr="left > right" single='alpha > beta'>"#;
+    let tag_end = find_tag_end(input, 1).expect("start tag should close");
+    let attrs = parse_attributes(input, 5, tag_end);
+
+    assert_eq!(attrs.len(), 2);
+    let attrs = attrs.to_vec_for_test();
+    assert_eq!(&input[attrs[0].name_start..attrs[0].name_end], b"expr");
+    assert_eq!(
+        &input[attrs[0].value_start..attrs[0].value_end],
+        b"left > right"
+    );
+    assert_eq!(&input[attrs[1].name_start..attrs[1].name_end], b"single");
+    assert_eq!(
+        &input[attrs[1].value_start..attrs[1].value_end],
+        b"alpha > beta"
+    );
+}
+
+#[test]
+fn two_stage_aggregate_ignores_quoted_structural_bytes() {
+    let input =
+        br#"<root><item expr="left > right" eq="a=b">text</item><![CDATA[<raw>ok</raw>]]></root>"#;
+
+    let two_stage = parse_aggregate(input, Tier::EventCountTwoStage).unwrap();
+    let scalar_two_stage =
+        parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Off).unwrap();
+    let unchecked = parse_aggregate(input, Tier::EventCountUnchecked).unwrap();
+    let eq_count = parse_aggregate(input, Tier::CountEqTwoStage).unwrap();
+    let scalar_eq_count =
+        parse_aggregate_with_simd_policy(input, Tier::CountEqTwoStage, SimdPolicy::Off).unwrap();
+    let count_only = parse_aggregate(input, Tier::CountOnly).unwrap();
+
+    assert_eq!(two_stage.event_count, unchecked.event_count);
+    assert_eq!(two_stage.checksum, unchecked.checksum);
+    assert_eq!(scalar_two_stage.event_count, two_stage.event_count);
+    assert_eq!(scalar_two_stage.checksum, two_stage.checksum);
+    assert_eq!(eq_count.event_count, count_only.event_count);
+    assert_eq!(eq_count.attr_count_total, count_only.attr_count_total);
+    assert_eq!(eq_count.checksum, count_only.checksum);
+    assert_eq!(scalar_eq_count.attr_count_total, eq_count.attr_count_total);
+
+    #[cfg(not(target_arch = "aarch64"))]
+    assert!(
+        parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Neon)
+            .is_err()
+    );
+    #[cfg(target_arch = "x86_64")]
+    if std::arch::is_x86_feature_detected!("avx2") {
+        let avx2_two_stage =
+            parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Avx2)
+                .unwrap();
+        assert_eq!(avx2_two_stage.event_count, two_stage.event_count);
+        assert_eq!(avx2_two_stage.checksum, two_stage.checksum);
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    if std::arch::is_x86_feature_detected!("sse4.2") {
+        let sse42_two_stage =
+            parse_aggregate_with_simd_policy(input, Tier::EventCountTwoStage, SimdPolicy::Sse42)
+                .unwrap();
+        assert_eq!(sse42_two_stage.event_count, two_stage.event_count);
+        assert_eq!(sse42_two_stage.checksum, two_stage.checksum);
+    }
+}
+
+#[test]
+fn attr_heavy_fixture_shape_stays_inline() {
+    let input = br#"<item a0="0" a1="1" a2="2" a3="3" a4="4" a5="5" a6="6" a7="7" a8="8" a9="9" a10="10" a11="11">"#;
+    let tag_end = find_tag_end(input, 1).expect("start tag should close");
+    let attrs = parse_attributes(input, 5, tag_end);
+
+    assert_eq!(attrs.len(), 12);
+    assert_eq!(attrs.overflow_len_for_test(), 0);
+    let attr_names: Vec<&[u8]> = attrs
+        .iter()
+        .map(|attr| &input[attr.name_start..attr.name_end])
+        .collect();
+    assert_eq!(attr_names.first().copied(), Some(&b"a0"[..]));
+    assert_eq!(attr_names.last().copied(), Some(&b"a11"[..]));
+}
+
+#[test]
+fn fold_string_fast_path_matches_utf16_reference() {
+    let samples = ["ascii-value-123", "본문 café 🌊", "emoji-🌊-suffix"];
+
+    for sample in samples {
+        assert_eq!(fold_string(17, sample), fold_string_reference(17, sample));
+    }
+}
+
+#[test]
+fn fold_span_variants_match_materialized_reference() {
+    let sample = "  ascii-value  <x>본문 café 🌊</x>\u{3000}trimmed\u{3000}";
+    let input = sample.as_bytes();
+
+    let ascii = std::str::from_utf8(&input[2..13]).unwrap();
+    assert_eq!(fold_span(31, input, 2, 13).unwrap(), fold_string(31, ascii));
+
+    let non_ascii_start = sample.find("본문").unwrap();
+    let non_ascii_end = sample.find("</x>").unwrap();
+    let non_ascii = std::str::from_utf8(&input[non_ascii_start..non_ascii_end]).unwrap();
+    assert_eq!(
+        fold_span(31, input, non_ascii_start, non_ascii_end).unwrap(),
+        fold_string(31, non_ascii)
+    );
+
+    let text = std::str::from_utf8(&input[0..15]).unwrap();
+    assert_eq!(
+        fold_trimmed_span(31, input, 0, 15).unwrap(),
+        fold_string(31, text.trim())
+    );
+
+    let unicode_trim_start = sample.find('\u{3000}').unwrap();
+    let unicode_trim = std::str::from_utf8(&input[unicode_trim_start..]).unwrap();
+    assert_eq!(
+        fold_trimmed_span(31, input, unicode_trim_start, input.len()).unwrap(),
+        fold_string(31, unicode_trim.trim())
+    );
+}
+
+#[test]
+fn utf16_aggregate_matches_utf8_parser() {
+    let sample =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE root><root><item a=\"1 > 0\" b='x > y'>안녕</item><![CDATA[<raw>value</raw>]]><empty /></root>";
+    let units: Vec<u16> = sample.encode_utf16().collect();
+
+    for tier in [
+        Tier::EventCountUnsafeGt,
+        Tier::EventCountByteLoop,
+        Tier::EventCountSkipQuotes,
+        Tier::EventCountNoText,
+        Tier::EventCountNoChecksum,
+        Tier::EventCountNoTextNoChecksum,
+        Tier::EventCountTwoStage,
+        Tier::EventCountAutoStage,
+        Tier::EventCountUnchecked,
+        Tier::EventCountOnly,
+        Tier::CountOnly,
+        Tier::CountEqTwoStage,
+        Tier::CountAutoStage,
+        Tier::NameStringOnly,
+        Tier::TextStringOnly,
+        Tier::AttrValueStringOnly,
+        Tier::FullStringDirect,
+        Tier::EventObjectFull,
+    ] {
+        let byte_result = parse_aggregate(sample.as_bytes(), tier).unwrap();
+        let utf16_result = parse_aggregate_utf16(&units, tier).unwrap();
+
+        assert_eq!(utf16_result.event_count, byte_result.event_count);
+        assert_eq!(utf16_result.checksum, byte_result.checksum);
+        assert_eq!(utf16_result.attr_count_total, byte_result.attr_count_total);
+    }
+}
+
+#[test]
+fn span_table_utf16_records_events_and_attrs() {
+    let sample =
+        "<root><item a=\"1 > 0\" b='x > y'>안녕</item><![CDATA[<raw>value</raw>]]><empty /></root>";
+    let units: Vec<u16> = sample.encode_utf16().collect();
+    let aggregate = parse_aggregate_utf16(&units, Tier::CountOnly).unwrap();
+
+    let table = parse_span_table_utf16(&units).unwrap();
+
+    assert_eq!(read_u32(&table, 0), SPAN_TABLE_MAGIC);
+    assert_eq!(read_u32(&table, 4), aggregate.event_count);
+    assert_eq!(read_u32(&table, 8), aggregate.attr_count_total);
+    assert_eq!(read_u32(&table, 12), units.len() as u32);
+    assert_eq!(read_u32(&table, 16), SPAN_TABLE_EVENT_BYTES as u32);
+    assert_eq!(read_u32(&table, 20), SPAN_TABLE_ATTR_BYTES as u32);
+
+    let event_stride = read_u32(&table, 16) as usize;
+    let attr_stride = read_u32(&table, 20) as usize;
+    let item_event = SPAN_TABLE_HEADER_BYTES + event_stride * 2;
+    assert_eq!(read_u32(&table, item_event), START_ELEMENT as u32);
+    assert_eq!(
+        span_to_string(
+            &units,
+            read_i32(&table, item_event + 4),
+            read_i32(&table, item_event + 8)
+        ),
+        "item"
+    );
+    assert_eq!(read_u32(&table, item_event + 24), 2);
+
+    let attr_start = read_u32(&table, item_event + 20) as usize;
+    let attr_base = SPAN_TABLE_HEADER_BYTES
+        + event_stride * aggregate.event_count as usize
+        + attr_stride * attr_start;
+    assert_eq!(
+        span_to_string(
+            &units,
+            read_i32(&table, attr_base),
+            read_i32(&table, attr_base + 4)
+        ),
+        "a"
+    );
+    assert_eq!(
+        span_to_string(
+            &units,
+            read_i32(&table, attr_base + 8),
+            read_i32(&table, attr_base + 12)
+        ),
+        "1 > 0"
+    );
+}
+
+#[test]
+fn span_table_utf8_records_byte_offsets_and_source_kind() {
+    let sample =
+        "<root><item a=\"1 > 0\" b='x > y'>안녕</item><![CDATA[<raw>value</raw>]]><empty /></root>";
+    let aggregate = parse_aggregate(sample.as_bytes(), Tier::CountOnly).unwrap();
+
+    let table = parse_span_table(sample.as_bytes()).unwrap();
+
+    assert_eq!(read_u32(&table, 0), SPAN_TABLE_MAGIC);
+    assert_eq!(read_u32(&table, 4), aggregate.event_count);
+    assert_eq!(read_u32(&table, 8), aggregate.attr_count_total);
+    assert_eq!(read_u32(&table, 12), sample.len() as u32);
+    assert_eq!(read_u32(&table, 24), 1);
+
+    let event_stride = read_u32(&table, 16) as usize;
+    let item_event = SPAN_TABLE_HEADER_BYTES + event_stride * 2;
+    let name_start = read_i32(&table, item_event + 4) as usize;
+    let name_end = read_i32(&table, item_event + 8) as usize;
+    assert_eq!(&sample.as_bytes()[name_start..name_end], b"item");
+}
+
+#[test]
+fn item_projection_matches_schema_checksum_without_full_table() {
+    let sample =
+        "<root><item id=\"7\" a=\"x\"><name>Alice</name><value>안녕</value></item><item id=\"11\"><name>Bob</name><value>cafe</value></item></root>";
+    let result = parse_item_projection(sample.as_bytes()).unwrap();
+    let table_result = parse_item_projection_via_table(sample.as_bytes()).unwrap();
+
+    let mut expected = 2i32;
+    expected = mix_js_benchmark_checksum(expected, 7);
+    expected = fold_span_js_benchmark_checksum(
+        expected,
+        sample.as_bytes(),
+        sample.find("Alice").unwrap(),
+        sample.find("Alice").unwrap() + 5,
+    )
+    .unwrap();
+    expected = fold_span_js_benchmark_checksum(
+        expected,
+        sample.as_bytes(),
+        sample.find("안녕").unwrap(),
+        sample.find("안녕").unwrap() + "안녕".len(),
+    )
+    .unwrap();
+    expected = mix_js_benchmark_checksum(expected, 11);
+    expected = fold_span_js_benchmark_checksum(
+        expected,
+        sample.as_bytes(),
+        sample.find("Bob").unwrap(),
+        sample.find("Bob").unwrap() + 3,
+    )
+    .unwrap();
+    expected = fold_span_js_benchmark_checksum(
+        expected,
+        sample.as_bytes(),
+        sample.find("cafe").unwrap(),
+        sample.find("cafe").unwrap() + 4,
+    )
+    .unwrap();
+
+    assert_eq!(result.item_count, 2);
+    assert_eq!(result.input_bytes, sample.len() as f64);
+    assert_eq!(result.checksum, expected);
+    assert_eq!(table_result.item_count, result.item_count);
+    assert_eq!(table_result.input_bytes, result.input_bytes);
+    assert_eq!(table_result.checksum, result.checksum);
+}
+
+#[test]
+fn item_projection_from_table_rejects_mismatched_input_length() {
+    let sample = "<root><item id=\"1\"><name>A</name><value>B</value></item></root>";
+    let mut table = parse_span_table(sample.as_bytes()).unwrap();
+    table[12..16].copy_from_slice(&(sample.len() as u32 + 1).to_le_bytes());
+
+    assert!(project_items_from_span_table(sample.as_bytes(), &table).is_err());
+}
+
+#[test]
+fn item_rows_projection_from_table_returns_converter_rows() {
+    let sample =
+        "<root><item id=\"7\"><name>Alice</name><value>안녕</value></item><item id=\"11\"><name>Bob</name><value>cafe</value></item></root>";
+    let result = parse_item_rows_via_table(sample.as_bytes()).unwrap();
+
+    assert_eq!(result.input_bytes, sample.len() as f64);
+    assert_eq!(result.event_count, 20);
+    assert_eq!(result.max_depth, 3);
+    assert_eq!(result.rows.len(), 2);
+    assert_eq!(result.rows[0].id, 7);
+    assert_eq!(result.rows[0].name, "Alice");
+    assert_eq!(result.rows[0].value, "안녕");
+    assert_eq!(result.rows[1].id, 11);
+    assert_eq!(result.rows[1].name, "Bob");
+    assert_eq!(result.rows[1].value, "cafe");
+}
+
+#[test]
+fn object_rows_projection_supports_generic_object_fields() {
+    let sample =
+        "<root><entry code=\"a\"><label>Alice</label><score>7</score></entry><entry code=\"b\"><label>Bob</label><score></score></entry><entry code=\"c\"><label>Cy</label></entry></root>";
+    let spec = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![
+            ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "code".to_owned(),
+                text_mode: "direct".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "score".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "score".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+        ],
+    };
+
+    let result = parse_object_rows(sample.as_bytes(), &spec).unwrap();
+    let table_result = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
+
+    assert_eq!(result.input_bytes, sample.len() as f64);
+    assert_eq!(result.event_count, 24);
+    assert_eq!(result.max_depth, 3);
+    assert_eq!(result.field_count, 3);
+    assert_eq!(result.row_count, 3);
+    assert_eq!(table_result.row_count, result.row_count);
+    assert_eq!(table_result.field_count, result.field_count);
+    assert_eq!(result.columns[0].present, vec![true, true, true]);
+    assert_eq!(result.columns[0].values, vec!["a", "b", "c"]);
+    assert_eq!(result.columns[1].present, vec![true, true, true]);
+    assert_eq!(result.columns[1].values, vec!["Alice", "Bob", "Cy"]);
+    assert_eq!(result.columns[2].present, vec![true, true, false]);
+    assert!(result.columns[2].values.is_empty());
+    assert_eq!(result.columns[2].number_values[0], 7.0);
+    assert!(result.columns[2].number_values[1].is_nan());
+    assert_eq!(result.columns[2].number_values[2], 0.0);
+}
+
+#[test]
+fn item_projection_direct_covers_markup_boundaries_and_errors() {
+    assert_eq!(parse_item_projection(b"text only").unwrap().item_count, 0);
+
+    let sample = concat!(
+        "<?xml version=\"1.0\"?><!DOCTYPE root><root>lead",
+        "<!--comment--><?pi ok?><!ENTITY example \"value\">",
+        "<item id=\"bad\" ><name>Alice</name><value><![CDATA[안녕]]></value></ item >",
+        "<item id=\"2\"><name><b>Nested</b></name><value>ignored</value></item>",
+        "<item id=\"3\"><name>Missing value</name></item>",
+        "<empty /></root>tail"
+    );
+    let direct = parse_item_projection(sample.as_bytes()).unwrap();
+    let table = parse_item_projection_via_table(sample.as_bytes()).unwrap();
+
+    assert_eq!(direct.item_count, 1);
+    assert_eq!(table.item_count, direct.item_count);
+    assert_eq!(table.checksum, direct.checksum);
+
+    for input in [
+        &b"<"[..],
+        &b"<root"[..],
+        &b"<root>"[..],
+        &b"</root"[..],
+        &b"</root>"[..],
+        &b"<a></b>"[..],
+        &b"<![CDATA[open"[..],
+        &b"<!--open"[..],
+        &b"<!DOCTYPE"[..],
+        &b"<!BROKEN"[..],
+        &b"<?xml version=\"1.0\""[..],
+        &b"<?pi"[..],
+    ] {
+        assert!(
+            parse_item_projection(input).is_err(),
+            "expected item projection to reject {}",
+            String::from_utf8_lossy(input)
+        );
+    }
+}
+
+#[test]
+fn object_rows_projection_covers_direct_table_modes_and_edge_values() {
+    let sample = concat!(
+        "<?xml version=\"1.0\"?><!DOCTYPE root><root><!--comment--><?pi ok?>",
+        "<!ENTITY example \"value\">",
+        "<entry code=\"a\" rank=\"10\"><label> Alice <b>ignored</b></label>",
+        "<desc>Hello <b>World</b><![CDATA[!]]></desc><score> 4.5ms </score></entry>",
+        "<entry code=\"b\" rank=\"bad\"><label/><desc></desc><score></score></entry>",
+        "<entry code=\"c\"><label>C</label><extra><score>9</score></extra></entry>",
+        "<entry code=\"d\" /></root>tail"
+    );
+    let spec = detailed_object_rows_spec();
+
+    let direct = parse_object_rows(sample.as_bytes(), &spec).unwrap();
+    let table = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
+
+    assert_eq!(direct.row_count, 4);
+    assert_eq!(table.row_count, direct.row_count);
+    assert_eq!(table.field_count, direct.field_count);
+    assert_eq!(table.max_depth, direct.max_depth);
+
+    for result in [&direct, &table] {
+        assert_eq!(result.columns[0].present, vec![true, true, true, true]);
+        assert_eq!(result.columns[0].values, vec!["a", "b", "c", "d"]);
+
+        assert_eq!(result.columns[1].present, vec![true, true, false, false]);
+        assert_eq!(result.columns[1].number_values[0], 10.0);
+        assert!(result.columns[1].number_values[1].is_nan());
+        assert_eq!(result.columns[1].number_values[2], 0.0);
+        assert_eq!(result.columns[1].number_values[3], 0.0);
+
+        assert_eq!(result.columns[2].present, vec![true, true, true, false]);
+        assert_eq!(result.columns[2].values, vec!["Alice", "", "C", ""]);
+
+        assert_eq!(result.columns[3].present, vec![true, true, false, false]);
+        assert_eq!(result.columns[3].values, vec!["Hello World!", "", "", ""]);
+
+        assert_eq!(result.columns[4].present, vec![true, true, false, false]);
+        assert_eq!(result.columns[4].number_values[0], 4.5);
+        assert!(result.columns[4].number_values[1].is_nan());
+        assert_eq!(result.columns[4].number_values[2], 0.0);
+        assert_eq!(result.columns[4].number_values[3], 0.0);
+    }
+}
+
+#[test]
+fn object_rows_projection_rejects_invalid_specs_and_tables() {
+    let sample = "<root><entry code=\"a\"><label>A</label><score>1</score></entry></root>";
+    let spec = detailed_object_rows_spec();
+
+    for invalid in [
+        ObjectRowsProjectionSpec {
+            item_name: String::new(),
+            fields: detailed_object_rows_spec().fields,
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: Vec::new(),
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: String::new(),
+                value_kind: "string".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "code".to_owned(),
+                text_mode: "direct".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: String::new(),
+                text_mode: "direct".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "boolean".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "code".to_owned(),
+                text_mode: "direct".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "text".to_owned(),
+                source_name: "code".to_owned(),
+                text_mode: "direct".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                text_mode: String::new(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                text_mode: "invalid".to_owned(),
+            }],
+        },
+    ] {
+        assert!(parse_object_rows(sample.as_bytes(), &invalid).is_err());
+    }
+
+    let attribute_empty_mode = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![ObjectRowsProjectionFieldSpec {
+            output_name: "code".to_owned(),
+            value_kind: "string".to_owned(),
+            source_kind: "attribute".to_owned(),
+            source_name: "code".to_owned(),
+            text_mode: String::new(),
+        }],
+    };
+    assert_eq!(
+        parse_object_rows(sample.as_bytes(), &attribute_empty_mode)
+            .unwrap()
+            .columns[0]
+            .values,
+        vec!["a"]
+    );
+
+    let mut table = parse_span_table(sample.as_bytes()).unwrap();
+    table[24..28].copy_from_slice(&0u32.to_le_bytes());
+    assert!(project_items_from_span_table(sample.as_bytes(), &table).is_err());
+    assert!(project_object_rows_from_span_table(sample.as_bytes(), &table, &spec).is_err());
+
+    let mut table = parse_span_table(sample.as_bytes()).unwrap();
+    table[12..16].copy_from_slice(&(sample.len() as u32 + 1).to_le_bytes());
+    assert!(project_object_rows_from_span_table(sample.as_bytes(), &table, &spec).is_err());
+}
+
+#[test]
+fn object_rows_projection_direct_rejects_malformed_xml() {
+    let spec = detailed_object_rows_spec();
+    for input in [
+        &b"<"[..],
+        &b"<root"[..],
+        &b"<root>"[..],
+        &b"</root"[..],
+        &b"</root>"[..],
+        &b"<a></b>"[..],
+        &b"<![CDATA[open"[..],
+        &b"<!--open"[..],
+        &b"<!DOCTYPE"[..],
+        &b"<!BROKEN"[..],
+        &b"<?xml version=\"1.0\""[..],
+        &b"<?pi"[..],
+        &b"<root><entry code=\"\xff\" /></root>"[..],
+        &b"<root><entry><label>\xff</label></entry></root>"[..],
+    ] {
+        assert!(
+            parse_object_rows(input, &spec).is_err(),
+            "expected object rows projection to reject {}",
+            String::from_utf8_lossy(input)
+        );
+    }
+
+    let whitespace = b"<root><entry code=\"x\" ><label> X </label></ entry ></root>";
+    assert_eq!(
+        parse_object_rows(whitespace, &spec).unwrap().columns[0].values,
+        vec!["x"]
+    );
+}
+
+#[test]
+fn projection_table_helpers_cover_defensive_paths() {
+    let input = b"<root><item id=\"7\"><name>A</name><value>B</value></item></root>";
+    let table_bytes = parse_span_table(input).unwrap();
+    let table = parse_span_table_bytes(&table_bytes).unwrap();
+    let mut item_state = TableProjectionState {
+        depth: 1,
+        max_depth: 1,
+        current_item: None,
+        capture: None,
+        rows: Vec::new(),
+    };
+
+    let nameless_start = TableEventRecord {
+        event_type: START_ELEMENT as u32,
+        name_start: NO_SPAN,
+        name_end: NO_SPAN,
+        text_start: NO_SPAN,
+        text_end: NO_SPAN,
+        attr_start: 0,
+        attr_count: 0,
+    };
+    assert!(
+        start_table_projection_element(input, &table, nameless_start, 1, &mut item_state).is_err()
+    );
+
+    let nameless_end = TableEventRecord {
+        event_type: END_ELEMENT as u32,
+        ..nameless_start
+    };
+    end_table_projection_element(input, nameless_end, 1, &mut item_state).unwrap();
+
+    let whitespace_text = TableEventRecord {
+        event_type: CHARACTERS as u32,
+        name_start: NO_SPAN,
+        name_end: NO_SPAN,
+        text_start: 0,
+        text_end: 0,
+        attr_start: 0,
+        attr_count: 0,
+    };
+    capture_table_projection_text(input, whitespace_text, &mut item_state).unwrap();
+
+    let no_text = TableEventRecord {
+        text_start: NO_SPAN,
+        text_end: NO_SPAN,
+        ..whitespace_text
+    };
+    capture_table_projection_text(input, no_text, &mut item_state).unwrap();
+
+    let text_start = input.iter().position(|byte| *byte == b'A').unwrap();
+    let nonmatching_text = TableEventRecord {
+        text_start: text_start as i32,
+        text_end: text_start as i32 + 1,
+        ..whitespace_text
+    };
+    capture_table_projection_text(input, nonmatching_text, &mut item_state).unwrap();
+
+    item_state.capture = Some(ItemProjectionCapture {
+        depth: 2,
+        field: ItemProjectionField::Name,
+    });
+    capture_table_projection_text(input, nonmatching_text, &mut item_state).unwrap();
+
+    item_state.capture = Some(ItemProjectionCapture {
+        depth: 1,
+        field: ItemProjectionField::Name,
+    });
+    capture_table_projection_text(input, nonmatching_text, &mut item_state).unwrap();
+
+    let mut id_table_bytes = minimal_utf8_table(input.len(), 0, 1);
+    push_attr_record(&mut id_table_bytes, None, Some((15, 16)));
+    let id_table = parse_span_table_bytes(&id_table_bytes).unwrap();
+    let id_event = TableEventRecord {
+        event_type: START_ELEMENT as u32,
+        name_start: 6,
+        name_end: 10,
+        text_start: NO_SPAN,
+        text_end: NO_SPAN,
+        attr_start: 0,
+        attr_count: 1,
+    };
+    assert_eq!(
+        read_table_projection_id(input, &id_table, id_event).unwrap(),
+        0
+    );
+
+    let mut id_table_bytes = minimal_utf8_table(input.len(), 0, 1);
+    push_attr_record(&mut id_table_bytes, Some((18, 22)), Some((15, 16)));
+    let id_table = parse_span_table_bytes(&id_table_bytes).unwrap();
+    assert_eq!(
+        read_table_projection_id(input, &id_table, id_event).unwrap(),
+        0
+    );
+
+    let id_name_start = input.windows(2).position(|value| value == b"id").unwrap();
+    let mut id_table_bytes = minimal_utf8_table(input.len(), 0, 1);
+    push_attr_record(
+        &mut id_table_bytes,
+        Some((id_name_start, id_name_start + 2)),
+        None,
+    );
+    let id_table = parse_span_table_bytes(&id_table_bytes).unwrap();
+    assert_eq!(
+        read_table_projection_id(input, &id_table, id_event).unwrap(),
+        0
+    );
+
+    let mut missing_end = minimal_utf8_table(input.len(), 2, 0);
+    push_event_record(&mut missing_end, START_DOCUMENT, None, None, 0, 0);
+    push_event_record(&mut missing_end, START_ELEMENT, Some((6, 10)), None, 0, 0);
+    assert!(project_item_rows_from_span_table_bytes(input, &missing_end).is_err());
+
+    let mut object_missing_end = minimal_utf8_table(input.len(), 2, 0);
+    push_event_record(&mut object_missing_end, START_DOCUMENT, None, None, 0, 0);
+    push_event_record(
+        &mut object_missing_end,
+        START_ELEMENT,
+        Some((6, 10)),
+        None,
+        0,
+        0,
+    );
+    assert!(project_object_rows_from_span_table(
+        input,
+        &object_missing_end,
+        &detailed_object_rows_spec()
+    )
+    .is_err());
+
+    let mut item_underflow = minimal_utf8_table(input.len(), 1, 0);
+    push_event_record(&mut item_underflow, END_ELEMENT, Some((1, 5)), None, 0, 0);
+    assert!(project_item_rows_from_span_table_bytes(input, &item_underflow).is_err());
+
+    let mut object_underflow = minimal_utf8_table(input.len(), 1, 0);
+    push_event_record(&mut object_underflow, END_ELEMENT, Some((1, 5)), None, 0, 0);
+    assert!(project_object_rows_from_span_table(
+        input,
+        &object_underflow,
+        &detailed_object_rows_spec()
+    )
+    .is_err());
+
+    let spec = detailed_object_rows_spec();
+    let normalized = normalize_object_rows_spec(&spec).unwrap();
+    let mut object_state = create_object_rows_projection_state(normalized.fields.len());
+    assert!(start_object_rows_projection_element(
+        input,
+        &table,
+        nameless_start,
+        &normalized,
+        &mut object_state,
+    )
+    .is_err());
+
+    let object_input = b"<root><entry code=\"7\"></entry></root>";
+    let entry_start = object_input
+        .windows(5)
+        .position(|value| value == b"entry")
+        .unwrap();
+    let code_start = object_input
+        .windows(4)
+        .position(|value| value == b"code")
+        .unwrap();
+    let mut malformed_attr_table = minimal_utf8_table(object_input.len(), 0, 2);
+    push_attr_record(&mut malformed_attr_table, None, Some((15, 16)));
+    push_attr_record(
+        &mut malformed_attr_table,
+        Some((code_start, code_start + 4)),
+        None,
+    );
+    let malformed_attr_table = parse_span_table_bytes(&malformed_attr_table).unwrap();
+    object_state.depth = 1;
+    start_object_rows_projection_element(
+        object_input,
+        &malformed_attr_table,
+        TableEventRecord {
+            event_type: START_ELEMENT as u32,
+            name_start: entry_start as i32,
+            name_end: entry_start as i32 + 5,
+            text_start: NO_SPAN,
+            text_end: NO_SPAN,
+            attr_start: 0,
+            attr_count: 2,
+        },
+        &normalized,
+        &mut object_state,
+    )
+    .unwrap();
+    assert!(object_state.current_row.is_some());
+
+    let mut object_state = create_object_rows_projection_state(normalized.fields.len());
+    capture_object_rows_projection_text(
+        input,
+        TableEventRecord {
+            event_type: CHARACTERS as u32,
+            name_start: NO_SPAN,
+            name_end: NO_SPAN,
+            text_start: NO_SPAN,
+            text_end: NO_SPAN,
+            attr_start: 0,
+            attr_count: 0,
+        },
+        &normalized,
+        &mut object_state,
+    )
+    .unwrap();
+    capture_object_rows_projection_text_span(
+        input,
+        text_start,
+        text_start + 1,
+        &normalized,
+        &mut object_state,
+    )
+    .unwrap();
+    object_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 2,
+        field_indices: vec![2],
+        text_mode: ObjectRowsTextMode::Direct,
+    });
+    object_state.depth = 1;
+    capture_object_rows_projection_text_span(
+        input,
+        text_start,
+        text_start + 1,
+        &normalized,
+        &mut object_state,
+    )
+    .unwrap();
+    object_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 2,
+        field_indices: vec![2],
+        text_mode: ObjectRowsTextMode::Subtree,
+    });
+    object_state.depth = 1;
+    capture_object_rows_projection_text_span(
+        input,
+        text_start,
+        text_start + 1,
+        &normalized,
+        &mut object_state,
+    )
+    .unwrap();
+    object_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 1,
+        field_indices: vec![2],
+        text_mode: ObjectRowsTextMode::Direct,
+    });
+    object_state.depth = 1;
+    capture_object_rows_projection_text_span(
+        input,
+        text_start,
+        text_start + 1,
+        &normalized,
+        &mut object_state,
+    )
+    .unwrap();
+
+    let mut table_end_state = create_object_rows_projection_state(normalized.fields.len());
+    table_end_state.depth = 1;
+    table_end_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 1,
+        field_indices: vec![2, 3, 4],
+        text_mode: ObjectRowsTextMode::Subtree,
+    });
+    table_end_state.current_row = Some(CurrentObjectRowsProjection {
+        depth: 1,
+        completed: vec![false; normalized.fields.len()],
+        present: vec![false, false, true, false, true],
+        values: vec![
+            String::new(),
+            String::new(),
+            "  Trimmed  ".to_owned(),
+            String::new(),
+            String::new(),
+        ],
+        number_values: vec![0.0; normalized.fields.len()],
+        number_buffers: vec![
+            Vec::new(),
+            Vec::new(),
+            Vec::new(),
+            Vec::new(),
+            b"42.5".to_vec(),
+        ],
+    });
+    end_object_rows_projection_element(
+        input,
+        TableEventRecord {
+            event_type: END_ELEMENT as u32,
+            name_start: NO_SPAN,
+            name_end: NO_SPAN,
+            text_start: NO_SPAN,
+            text_end: NO_SPAN,
+            attr_start: 0,
+            attr_count: 0,
+        },
+        &normalized,
+        &mut table_end_state,
+    )
+    .unwrap();
+    let row = table_end_state.current_row.as_ref().unwrap();
+    assert_eq!(row.values[2], "Trimmed");
+    assert_eq!(row.number_values[4], 42.5);
+
+    table_end_state.depth = 1;
+    table_end_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 1,
+        field_indices: vec![2],
+        text_mode: ObjectRowsTextMode::Direct,
+    });
+    table_end_state.current_row = None;
+    end_object_rows_projection_element(
+        input,
+        TableEventRecord {
+            event_type: END_ELEMENT as u32,
+            name_start: NO_SPAN,
+            name_end: NO_SPAN,
+            text_start: NO_SPAN,
+            text_end: NO_SPAN,
+            attr_start: 0,
+            attr_count: 0,
+        },
+        &normalized,
+        &mut table_end_state,
+    )
+    .unwrap();
+
+    let mut direct_end_state = create_object_rows_projection_state(normalized.fields.len());
+    direct_end_state.depth = 1;
+    direct_end_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 1,
+        field_indices: vec![2, 3, 4],
+        text_mode: ObjectRowsTextMode::Subtree,
+    });
+    direct_end_state.current_row = Some(CurrentObjectRowsProjection {
+        depth: 99,
+        completed: vec![false; normalized.fields.len()],
+        present: vec![false, false, true, false, true],
+        values: vec![
+            String::new(),
+            String::new(),
+            "  Direct  ".to_owned(),
+            String::new(),
+            String::new(),
+        ],
+        number_values: vec![0.0; normalized.fields.len()],
+        number_buffers: vec![
+            Vec::new(),
+            Vec::new(),
+            Vec::new(),
+            Vec::new(),
+            b"17.25".to_vec(),
+        ],
+    });
+    end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state);
+    let row = direct_end_state.current_row.as_ref().unwrap();
+    assert_eq!(row.values[2], "Direct");
+    assert_eq!(row.number_values[4], 17.25);
+
+    direct_end_state.depth = 1;
+    direct_end_state.capture = Some(ObjectRowsProjectionCapture {
+        depth: 1,
+        field_indices: vec![2],
+        text_mode: ObjectRowsTextMode::Direct,
+    });
+    direct_end_state.current_row = None;
+    end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state);
+}
+
+#[test]
+fn utf16_tag_end_rejects_incomplete_quoted_tail() {
+    let input: Vec<u16> = "<item expr=\"left > right".encode_utf16().collect();
+
+    assert_eq!(find_tag_end_utf16(&input, 1), None);
+}
+
+#[test]
+fn ffi_utf16_units_reports_aggregate() {
+    let sample = "<root><item a=\"1\">안녕</item></root>";
+    let units: Vec<u16> = sample.encode_utf16().collect();
+    let mut out = FfiAggregateResult {
+        event_count: 0,
+        checksum: 0,
+        attr_count_total: 0,
+        object_count: 0,
+        input_units: 0,
+    };
+
+    let status =
+        unsafe { stax_xml_parse_aggregate_utf16_units(units.as_ptr(), units.len(), 1, &mut out) };
+
+    assert_eq!(status, 0);
+    assert_eq!(out.input_units, units.len());
+    assert!(out.event_count > 0);
+    assert_eq!(out.attr_count_total, 1);
+}
+
+#[test]
+fn ffi_utf16_units_reports_error_statuses() {
+    let units: Vec<u16> = "<root>".encode_utf16().collect();
+    let mut out = FfiAggregateResult {
+        event_count: 0,
+        checksum: 0,
+        attr_count_total: 0,
+        object_count: 0,
+        input_units: 0,
+    };
+
+    assert_eq!(
+        unsafe {
+            stax_xml_parse_aggregate_utf16_units(
+                std::ptr::null(),
+                0,
+                0,
+                &mut out as *mut FfiAggregateResult,
+            )
+        },
+        -1
+    );
+    assert_eq!(
+        unsafe {
+            stax_xml_parse_aggregate_utf16_units(
+                units.as_ptr(),
+                units.len(),
+                0,
+                std::ptr::null_mut(),
+            )
+        },
+        -1
+    );
+    assert_eq!(
+        unsafe {
+            stax_xml_parse_aggregate_utf16_units(
+                units.as_ptr(),
+                units.len(),
+                99,
+                &mut out as *mut FfiAggregateResult,
+            )
+        },
+        -3
+    );
+    assert_eq!(
+        unsafe {
+            stax_xml_parse_aggregate_utf16_units(
+                units.as_ptr(),
+                units.len(),
+                0,
+                &mut out as *mut FfiAggregateResult,
+            )
+        },
+        -2
+    );
+}
+
+#[test]
+fn napi_wrappers_cover_native_entrypoints() {
+    let sample = concat!(
+        "<root><item id=\"1\"><name>A</name><value>B</value></item>",
+        "<entry code=\"x\"><label>X</label><score>1</score></entry></root>"
+    );
+    let bytes = sample.as_bytes().to_vec();
+
+    assert!(
+        parse_aggregate_buffer(Buffer::from(bytes.clone()), "count-only".to_owned())
+            .unwrap()
+            .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_buffer_with_simd(
+            Buffer::from(bytes.clone()),
+            "event-count-two-stage".to_owned(),
+            "off".to_owned(),
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_uint8array(Uint8Array::from(bytes.clone()), "count-only".to_owned())
+            .unwrap()
+            .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_uint8array_with_simd(
+            Uint8Array::from(bytes.clone()),
+            "event-count-two-stage".to_owned(),
+            "off".to_owned(),
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_string_utf8(sample.to_owned(), "count-only".to_owned())
+            .unwrap()
+            .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_string_utf8_with_simd(
+            sample.to_owned(),
+            "event-count-two-stage".to_owned(),
+            "off".to_owned(),
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_string_utf16(
+            Utf16String::from(sample.to_owned()),
+            "count-only".to_owned(),
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+
+    assert!(
+        !parse_span_table_string_utf16(Utf16String::from(sample.to_owned()))
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        !parse_span_table_uint8array(Uint8Array::from(bytes.clone()))
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        !parse_structural_index_string_utf16(Utf16String::from(sample.to_owned()))
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        !parse_structural_index_uint8array(Uint8Array::from(bytes.clone()))
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(
+        parse_item_projection_uint8array(Uint8Array::from(bytes.clone()))
+            .unwrap()
+            .item_count,
+        1
+    );
+    assert_eq!(
+        parse_item_projection_via_table_uint8array(Uint8Array::from(bytes.clone()))
+            .unwrap()
+            .item_count,
+        1
+    );
+    assert_eq!(
+        parse_item_rows_via_table_uint8array(Uint8Array::from(bytes.clone()))
+            .unwrap()
+            .rows
+            .len(),
+        1
+    );
+
+    let spec = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![ObjectRowsProjectionFieldSpec {
+            output_name: "code".to_owned(),
+            value_kind: "string".to_owned(),
+            source_kind: "attribute".to_owned(),
+            source_name: "code".to_owned(),
+            text_mode: "direct".to_owned(),
+        }],
+    };
+    assert_eq!(
+        parse_object_rows_uint8array(Uint8Array::from(bytes.clone()), spec)
+            .unwrap()
+            .row_count,
+        1
+    );
+    let spec = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![ObjectRowsProjectionFieldSpec {
+            output_name: "code".to_owned(),
+            value_kind: "string".to_owned(),
+            source_kind: "attribute".to_owned(),
+            source_name: "code".to_owned(),
+            text_mode: "direct".to_owned(),
+        }],
+    };
+    assert_eq!(
+        parse_object_rows_via_table_uint8array(Uint8Array::from(bytes.clone()), spec)
+            .unwrap()
+            .row_count,
+        1
+    );
+
+    let file_path = std::env::temp_dir().join(format!(
+        "stax-xml-native-api-{}-{}.xml",
+        std::process::id(),
+        "coverage"
+    ));
+    std::fs::write(&file_path, sample).unwrap();
+    assert!(
+        parse_aggregate_file(
+            file_path.to_string_lossy().to_string(),
+            "count-only".to_owned(),
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+    assert!(
+        parse_aggregate_file_with_simd(
+            file_path.to_string_lossy().to_string(),
+            "event-count-two-stage".to_owned(),
+            "off".to_owned(),
+        )
+        .unwrap()
+        .event_count
+            > 0
+    );
+    std::fs::remove_file(file_path).unwrap();
+
+    assert!(parse_aggregate_string_utf8("<root>".to_owned(), "missing".to_owned()).is_err());
+    assert!(parse_aggregate_string_utf8_with_simd(
+        sample.to_owned(),
+        "count-only".to_owned(),
+        "bad".to_owned(),
+    )
+    .is_err());
+    assert!(parse_aggregate_file(
+        "not-a-real-file-for-stax-xml.xml".to_owned(),
+        "count-only".to_owned(),
+    )
+    .is_err());
+}
+
+#[test]
+fn tier_parsing_accepts_known_names_and_rejects_unknown_names() {
+    assert_eq!(
+        parse_tier("event-count-unsafe-gt").unwrap(),
+        Tier::EventCountUnsafeGt
+    );
+    assert_eq!(
+        parse_tier("event-count-byte-loop").unwrap(),
+        Tier::EventCountByteLoop
+    );
+    assert_eq!(
+        parse_tier("event-count-skip-quotes").unwrap(),
+        Tier::EventCountSkipQuotes
+    );
+    assert_eq!(
+        parse_tier("event-count-no-text").unwrap(),
+        Tier::EventCountNoText
+    );
+    assert_eq!(
+        parse_tier("event-count-no-checksum").unwrap(),
+        Tier::EventCountNoChecksum
+    );
+    assert_eq!(
+        parse_tier("event-count-no-text-no-checksum").unwrap(),
+        Tier::EventCountNoTextNoChecksum
+    );
+    assert_eq!(
+        parse_tier("event-count-two-stage").unwrap(),
+        Tier::EventCountTwoStage
+    );
+    assert_eq!(
+        parse_tier("event-count-auto-stage").unwrap(),
+        Tier::EventCountAutoStage
+    );
+    assert_eq!(
+        parse_tier("event-count-unchecked").unwrap(),
+        Tier::EventCountUnchecked
+    );
+    assert_eq!(
+        parse_tier("event-count-only").unwrap(),
+        Tier::EventCountOnly
+    );
+    assert_eq!(parse_tier("count-only").unwrap(), Tier::CountOnly);
+    assert_eq!(
+        parse_tier("count-eq-two-stage").unwrap(),
+        Tier::CountEqTwoStage
+    );
+    assert_eq!(
+        parse_tier("count-auto-stage").unwrap(),
+        Tier::CountAutoStage
+    );
+    assert_eq!(
+        parse_tier("name-string-only").unwrap(),
+        Tier::NameStringOnly
+    );
+    assert_eq!(
+        parse_tier("text-string-only").unwrap(),
+        Tier::TextStringOnly
+    );
+    assert_eq!(
+        parse_tier("attr-value-string-only").unwrap(),
+        Tier::AttrValueStringOnly
+    );
+    assert_eq!(
+        parse_tier("full-string-direct").unwrap(),
+        Tier::FullStringDirect
+    );
+    assert_eq!(
+        parse_tier("event-object-full").unwrap(),
+        Tier::EventObjectFull
+    );
+    assert!(parse_tier("missing").is_err());
+    assert_eq!(tier_name(Tier::EventCountUnsafeGt), "event-count-unsafe-gt");
+    assert_eq!(tier_name(Tier::EventCountByteLoop), "event-count-byte-loop");
+    assert_eq!(
+        tier_name(Tier::EventCountSkipQuotes),
+        "event-count-skip-quotes"
+    );
+    assert_eq!(tier_name(Tier::EventCountNoText), "event-count-no-text");
+    assert_eq!(
+        tier_name(Tier::EventCountNoChecksum),
+        "event-count-no-checksum"
+    );
+    assert_eq!(
+        tier_name(Tier::EventCountNoTextNoChecksum),
+        "event-count-no-text-no-checksum"
+    );
+    assert_eq!(tier_name(Tier::EventCountTwoStage), "event-count-two-stage");
+    assert_eq!(
+        tier_name(Tier::EventCountAutoStage),
+        "event-count-auto-stage"
+    );
+    assert_eq!(
+        tier_name(Tier::EventCountUnchecked),
+        "event-count-unchecked"
+    );
+    assert_eq!(tier_name(Tier::EventCountOnly), "event-count-only");
+    assert_eq!(tier_name(Tier::CountOnly), "count-only");
+    assert_eq!(tier_name(Tier::CountEqTwoStage), "count-eq-two-stage");
+    assert_eq!(tier_name(Tier::CountAutoStage), "count-auto-stage");
+    assert_eq!(tier_name(Tier::NameStringOnly), "name-string-only");
+    assert_eq!(tier_name(Tier::TextStringOnly), "text-string-only");
+    assert_eq!(
+        tier_name(Tier::AttrValueStringOnly),
+        "attr-value-string-only"
+    );
+    assert_eq!(tier_name(Tier::FullStringDirect), "full-string-direct");
+    assert_eq!(tier_name(Tier::EventObjectFull), "event-object-full");
+
+    assert_eq!(parse_simd_policy("").unwrap(), SimdPolicy::Auto);
+    assert_eq!(parse_simd_policy("auto").unwrap(), SimdPolicy::Auto);
+    assert_eq!(parse_simd_policy("auto-safe").unwrap(), SimdPolicy::Auto);
+    assert_eq!(parse_simd_policy("off").unwrap(), SimdPolicy::Off);
+    assert_eq!(parse_simd_policy("scalar").unwrap(), SimdPolicy::Off);
+    assert_eq!(parse_simd_policy("avx2").unwrap(), SimdPolicy::Avx2);
+    assert_eq!(parse_simd_policy("sse42").unwrap(), SimdPolicy::Sse42);
+    assert_eq!(parse_simd_policy("sse4.2").unwrap(), SimdPolicy::Sse42);
+    assert_eq!(parse_simd_policy("neon").unwrap(), SimdPolicy::Neon);
+    assert!(parse_simd_policy("missing").is_err());
+}
+
+#[test]
+fn utf8_parser_covers_markup_boundaries_and_errors() {
+    for input in [
+        &b""[..],
+        &b"text only"[..],
+        &b"   "[..],
+        &b"< />"[..],
+        &b"<root ></root>"[..],
+        &b"<a/b></a>"[..],
+        &b"<root></ root >"[..],
+        &b"<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>"[..],
+    ] {
+        parse_aggregate(input, Tier::CountOnly).unwrap();
+    }
+
+    for input in [
+        &b"<"[..],
+        &b"<>"[..],
+        &b"<root"[..],
+        &b"<root>"[..],
+        &b"</"[..],
+        &b"</>"[..],
+        &b"</root>"[..],
+        &b"</ root >"[..],
+        &b"<a></b>"[..],
+        &b"<![CDATA[open"[..],
+        &b"<!--open"[..],
+        &b"<!DOCTYPE"[..],
+        &b"<!BROKEN"[..],
+        &b"<?xml version=\"1.0\""[..],
+        &b"<?pi"[..],
+    ] {
+        assert!(
+            parse_aggregate(input, Tier::CountOnly).is_err(),
+            "expected utf8 parser to reject {}",
+            String::from_utf8_lossy(input)
+        );
+    }
+}
+
+#[test]
+fn utf16_parser_covers_markup_boundaries_and_errors() {
+    for input in [
+        "",
+        "text only",
+        "   ",
+        "< />",
+        "<root ></root>",
+        "<a/b></a>",
+        "<root></ root >",
+        "<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>",
+    ] {
+        parse_aggregate_utf16(&utf16(input), Tier::CountOnly).unwrap();
+    }
+
+    for input in [
+        "<",
+        "<>",
+        "<root",
+        "<root>",
+        "</",
+        "</>",
+        "</root>",
+        "</ root >",
+        "<a></b>",
+        "<![CDATA[open",
+        "<!--open",
+        "<!DOCTYPE",
+        "<!BROKEN",
+        "<?xml version=\"1.0\"",
+        "<?pi",
+    ] {
+        assert!(
+            parse_aggregate_utf16(&utf16(input), Tier::CountOnly).is_err(),
+            "expected utf16 parser to reject {input}"
+        );
+    }
+}
+
+#[test]
+fn span_table_parser_covers_markup_boundaries_and_errors() {
+    for input in [
+        "",
+        "text only",
+        "   ",
+        "< />",
+        "<root ></root>",
+        "<a/b></a>",
+        "<root></ root >",
+        "<root><!--ok--><!DOCTYPE note><!ENTITY x y><?pi ok?><child><![CDATA[data]]></child><empty /></root>",
+    ] {
+        parse_span_table_utf16(&utf16(input)).unwrap();
+    }
+
+    for input in [
+        "<",
+        "<>",
+        "<root",
+        "<root>",
+        "</",
+        "</>",
+        "</root>",
+        "</ root >",
+        "<a></b>",
+        "<![CDATA[open",
+        "<!--open",
+        "<!DOCTYPE",
+        "<!BROKEN",
+        "<?xml version=\"1.0\"",
+        "<?pi",
+    ] {
+        assert!(
+            parse_span_table_utf16(&utf16(input)).is_err(),
+            "expected span table parser to reject {input}"
+        );
+    }
+}
+
+#[test]
+fn attribute_scanners_cover_edge_cases_and_overflow() {
+    assert_eq!(parse_attributes(b"", 0, 0).len(), 0);
+    assert_eq!(parse_attributes(b"   ", 0, 3).len(), 0);
+    assert_eq!(parse_attributes(b"name", 0, 4).len(), 1);
+    assert_eq!(parse_attributes(b"name other", 0, 10).len(), 2);
+    assert_eq!(parse_attributes(b"name = \"v\"", 0, 10).len(), 1);
+    assert_eq!(parse_attributes(b"name='v'", 0, 8).len(), 1);
+    assert_eq!(parse_attributes(b"name=   ", 0, 8).len(), 0);
+    assert_eq!(parse_attributes(b"name=x", 0, 6).len(), 0);
+    assert_eq!(parse_attributes(b"name=\"unterminated", 0, 18).len(), 0);
+    assert_eq!(count_attributes(b"name other", 0, 10), 2);
+    assert_eq!(count_attributes(b"name=\"unterminated", 0, 18), 0);
+
+    let many = b"a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
+    let attrs = parse_attributes(many, 0, many.len());
+    assert_eq!(attrs.len(), 17);
+    assert_eq!(count_attributes(many, 0, many.len()), 17);
+    assert_eq!(attrs.overflow_len_for_test(), 1);
+    assert_eq!(attrs.to_vec_for_test().len(), 17);
+}
+
+#[test]
+fn utf16_attribute_scanner_covers_edge_cases_and_overflow() {
+    assert_eq!(parse_attributes_utf16(&utf16(""), 0, 0).len(), 0);
+    assert_eq!(parse_attributes_utf16(&utf16("   "), 0, 3).len(), 0);
+    assert_eq!(parse_attributes_utf16(&utf16("name"), 0, 4).len(), 1);
+    assert_eq!(parse_attributes_utf16(&utf16("name other"), 0, 10).len(), 2);
+    assert_eq!(
+        parse_attributes_utf16(&utf16("name = \"v\""), 0, 10).len(),
+        1
+    );
+    assert_eq!(parse_attributes_utf16(&utf16("name='v'"), 0, 8).len(), 1);
+    assert_eq!(parse_attributes_utf16(&utf16("name=   "), 0, 8).len(), 0);
+    assert_eq!(parse_attributes_utf16(&utf16("name=x"), 0, 6).len(), 0);
+    assert_eq!(
+        parse_attributes_utf16(&utf16("name=\"unterminated"), 0, 18).len(),
+        0
+    );
+    assert_eq!(count_attributes_utf16(&utf16("name other"), 0, 10), 2);
+    assert_eq!(
+        count_attributes_utf16(&utf16("name=\"unterminated"), 0, 18),
+        0
+    );
+
+    let many =
+        "a0=\"0\" a1=\"1\" a2=\"2\" a3=\"3\" a4=\"4\" a5=\"5\" a6=\"6\" a7=\"7\" a8=\"8\" a9=\"9\" a10=\"10\" a11=\"11\" a12=\"12\" a13=\"13\" a14=\"14\" a15=\"15\" a16=\"16\"";
+    let attrs = parse_attributes_utf16(&utf16(many), 0, many.encode_utf16().count());
+    assert_eq!(attrs.len(), 17);
+    assert_eq!(
+        count_attributes_utf16(&utf16(many), 0, many.encode_utf16().count()),
+        17
+    );
+    assert_eq!(attrs.overflow_len_for_test(), 1);
+    assert_eq!(attrs.to_vec_for_test().len(), 17);
+}
+
+#[test]
+fn low_level_helpers_cover_negative_and_boundary_paths() {
+    assert_eq!(fold_string(9, ""), 9);
+
+    assert!(starts_with(b"abc", 0, b"ab"));
+    assert!(!starts_with(b"abc", 2, b"abc"));
+    assert!(!starts_with(b"abc", 0, b"ax"));
+
+    let abc = utf16("abc");
+    assert!(starts_with_ascii_u16(&abc, 0, b"ab"));
+    assert!(!starts_with_ascii_u16(&abc, 2, b"abc"));
+    assert!(!starts_with_ascii_u16(&abc, 0, b"ax"));
+
+    assert_eq!(find_bytes(b"abc", b"", 0), None);
+    assert_eq!(find_bytes(b"abc", b"a", 3), None);
+    assert_eq!(find_bytes(b"ab", b"abc", 1), None);
+    assert_eq!(find_bytes(b"bbb", b"a", 0), None);
+    assert_eq!(find_bytes(b"abac", b"ac", 0), Some(2));
+
+    assert_eq!(find_ascii_sequence_u16(&abc, b"", 0), None);
+    assert_eq!(find_ascii_sequence_u16(&abc, b"a", 3), None);
+    assert_eq!(find_ascii_sequence_u16(&utf16("ab"), b"abc", 1), None);
+    assert_eq!(find_ascii_sequence_u16(&utf16("bbb"), b"a", 0), None);
+    assert_eq!(find_ascii_sequence_u16(&utf16("abac"), b"ac", 0), Some(2));
+
+    assert_eq!(find_unit(&[1, 2], 3, 0, 2), None);
+    assert_eq!(find_unit(&[1], 1, 1, 1), None);
+    assert_eq!(find_unit(&[1, 2], 2, 0, 9), Some(1));
+
+    assert_eq!(skip_whitespace(b"        <x", 0), 8);
+    assert_eq!(skip_whitespace(b"text", 0), 0);
+    assert_eq!(skip_whitespace_until(b"  \n\tname=\"v\"", 0, 12), 4);
+    assert!(!has_non_whitespace(b" \n\r\t        ", 0, 12));
+    assert!(has_non_whitespace(b" \n\r\tvalue", 0, 8));
+    assert!(is_whitespace_only(b"        ", 0, 8));
+    assert!(!is_whitespace_only(b"       x", 0, 8));
+
+    assert_eq!(trim_units(&utf16(""), 0, 0), (0, 0));
+    assert_eq!(trim_units(&utf16("x"), 0, 1), (0, 1));
+    assert_eq!(trim_units(&utf16(" x "), 0, 3), (1, 2));
+    assert_eq!(trim_units(&utf16("   "), 0, 3), (3, 3));
+
+    let double_quote = br#"<item text="it's fine">"#;
+    assert_eq!(find_tag_end(double_quote, 1), Some(double_quote.len() - 1));
+    let single_quote = br#"<item text='a " b'>"#;
+    assert_eq!(find_tag_end(single_quote, 1), Some(single_quote.len() - 1));
+
+    let double_quote_utf16 = utf16("<item text=\"it's fine\">");
+    assert_eq!(
+        find_tag_end_utf16(&double_quote_utf16, 1),
+        Some(double_quote_utf16.len() - 1)
+    );
+    let single_quote_utf16 = utf16("<item text='a \" b'>");
+    assert_eq!(
+        find_tag_end_utf16(&single_quote_utf16, 1),
+        Some(single_quote_utf16.len() - 1)
+    );
+}
+
+fn utf16(value: &str) -> Vec<u16> {
+    value.encode_utf16().collect()
+}
+
+fn read_u32(input: &[u8], offset: usize) -> u32 {
+    u32::from_le_bytes(input[offset..offset + 4].try_into().unwrap())
+}
+
+fn read_i32(input: &[u8], offset: usize) -> i32 {
+    i32::from_le_bytes(input[offset..offset + 4].try_into().unwrap())
+}
+
+fn span_to_string(input: &[u16], start: i32, end: i32) -> String {
+    String::from_utf16(&input[start as usize..end as usize]).unwrap()
+}
+
+fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {
+    ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![
+            ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "code".to_owned(),
+                text_mode: "direct".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "rank".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "rank".to_owned(),
+                text_mode: "direct".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                text_mode: "direct".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "desc".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "desc".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "score".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "score".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+        ],
+    }
+}
+
+fn minimal_utf8_table(input_len: usize, event_count: u32, attr_count: u32) -> Vec<u8> {
+    let mut table = Vec::new();
+    push_u32(&mut table, SPAN_TABLE_MAGIC);
+    push_u32(&mut table, event_count);
+    push_u32(&mut table, attr_count);
+    push_u32(&mut table, input_len as u32);
+    push_u32(&mut table, SPAN_TABLE_EVENT_BYTES as u32);
+    push_u32(&mut table, SPAN_TABLE_ATTR_BYTES as u32);
+    push_u32(&mut table, 1);
+    table
+}
+
+fn push_event_record(
+    table: &mut Vec<u8>,
+    event_type: u8,
+    name: Option<(usize, usize)>,
+    text: Option<(usize, usize)>,
+    attr_start: u32,
+    attr_count: u32,
+) {
+    let (name_start, name_end) = name.map_or((NO_SPAN, NO_SPAN), |(start, end)| {
+        (start as i32, end as i32)
+    });
+    let (text_start, text_end) = text.map_or((NO_SPAN, NO_SPAN), |(start, end)| {
+        (start as i32, end as i32)
+    });
+    push_u32(table, event_type as u32);
+    push_i32(table, name_start);
+    push_i32(table, name_end);
+    push_i32(table, text_start);
+    push_i32(table, text_end);
+    push_u32(table, attr_start);
+    push_u32(table, attr_count);
+}
+
+fn push_attr_record(
+    table: &mut Vec<u8>,
+    name: Option<(usize, usize)>,
+    value: Option<(usize, usize)>,
+) {
+    let (name_start, name_end) = name.map_or((NO_SPAN, NO_SPAN), |(start, end)| {
+        (start as i32, end as i32)
+    });
+    let (value_start, value_end) = value.map_or((NO_SPAN, NO_SPAN), |(start, end)| {
+        (start as i32, end as i32)
+    });
+    push_i32(table, name_start);
+    push_i32(table, name_end);
+    push_i32(table, value_start);
+    push_i32(table, value_end);
+}
