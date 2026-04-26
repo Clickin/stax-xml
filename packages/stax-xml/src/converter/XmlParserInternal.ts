@@ -13,16 +13,25 @@ import { XPathMatcher } from './XPathEngine.js';
 import {
   IterableEventBackendIterator,
   getIterableEventBackend,
+  readReadableStreamChunks,
   type IterableEventBackendOptions
 } from './IterableEventBackend.js';
 import {
+  buildXPathDocumentFromAsyncEvents,
+  buildXPathDocumentFromEvents,
+  buildXPathDocumentFromString,
+  evaluateXPath,
+  xpathValueToNodes,
+  xpathValueToString,
+  type XPathDocument,
+  type XPathNode,
+  type XPathValue
+} from './XPath1Engine.js';
+import {
   XmlParsingStateMachine,
-  type ArrayCollector,
   type Collector,
-  type NumberCollector,
   type ObjectCollector,
   type SchemaActivation,
-  type StringCollector
 } from './XmlParsingStateMachine.js';
 import type { CompiledSchemaPlan } from './compiled-plan.js';
 import { CompiledRootProcessor } from './CompiledRootProcessor.js';
@@ -43,6 +52,9 @@ import {
 class EarlyReturn<T> {
   constructor(readonly value: T) {}
 }
+
+const xpathInputDecoder = new TextDecoder();
+const XPATH_MISSING: unique symbol = Symbol('stax-xml.xpath.missing');
 
 type BatchCapableParser = AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> & {
   batchedIterator(): AsyncGenerator<AnyXmlEvent[]>;
@@ -132,23 +144,8 @@ export class XmlParserInternal {
       return '';
     }
 
-    // Use State Machine for XPath matching
-    const parser = this.createParser(input);
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const collector: StringCollector = { type: 'string', buffer: '' };
-
-    // Create a dummy schema object for registration with schemaType
-    const dummySchema = {
-      schemaType: 'STRING' as const,
-      constructor: { name: 'XmlStringSchema' }
-    };
-    stateMachine.registerSchema(dummySchema as unknown as XmlSchemaBase<unknown, unknown>, xpath, collector);
-
-    await this.consumeAsyncEvents(parser, (event) => {
-      stateMachine.processEventSync(event);
-    });
-
-    return this.decodeText(collector.value ?? '');
+    const document = await this.createXPathDocumentAsync(input);
+    return this.normalizeXPathScalar(evaluateXPath(xpath, document.document, document, this.options));
   }
 
   /**
@@ -169,21 +166,8 @@ export class XmlParserInternal {
       return '';
     }
 
-    // Use State Machine for XPath matching
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const collector: StringCollector = { type: 'string', buffer: '' };
-
-    const dummySchema = {
-      schemaType: 'STRING' as const,
-      constructor: { name: 'XmlStringSchema' }
-    };
-    stateMachine.registerSchema(dummySchema as unknown as XmlSchemaBase<unknown, unknown>, xpath, collector);
-
-    for (const event of parser) {
-      stateMachine.processEventSync(event);
-    }
-
-    return this.decodeText(collector.value ?? '');
+    const document = this.createXPathDocumentSync(input);
+    return this.normalizeXPathScalar(evaluateXPath(xpath, document.document, document, this.options));
   }
 
   /**
@@ -197,99 +181,9 @@ export class XmlParserInternal {
     if (this.compiledPlan?.kind === 'dispatch') {
       return this.parseCompiledWithPlanAsync(input, this.compiledPlan) as Promise<T>;
     }
-    const parser = this.createParser(input);
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const collectors = new Map<string, Collector<unknown>>();
-    const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
-
-    if (schemaOptions.xpath) {
-      const rootCollector: ObjectCollector = { type: 'object', fields: new Map() };
-      const rootSchema = this.createRootObjectSchema(shape, schemaOptions);
-      stateMachine.registerSchema(rootSchema, schemaOptions.xpath, rootCollector);
-
-      await this.consumeAsyncEvents(parser, (event) => {
-        stateMachine.processEventSync(event);
-      });
-
-      return this.extractValueFromCollector(rootCollector, rootSchema) as T;
-    }
-
-    // Register all field schemas
-    for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-      const xpath = this.extractXPath(fieldSchema);
-      const unwrapped = this.unwrapSchema(fieldSchema) as XmlSchemaBase<unknown, unknown>;
-
-      // Special case: Object schema without its own XPath
-      // Register its child fields instead
-      if (!xpath && isObjectSchema(unwrapped)) {
-        const objectCollector: ObjectCollector = { type: 'object', fields: new Map() };
-        const objectShape = unwrapped.shape as Record<string, XmlSchemaBase<unknown, unknown>>;
-
-        // Register child field schemas with absolute XPaths
-        for (const [childFieldName, childFieldSchema] of Object.entries(objectShape)) {
-          const childXPath = this.extractXPath(childFieldSchema);
-          /* v8 ignore next -- child schemas without xpath are intentionally skipped */
-          if (!childXPath) continue;
-
-          const childCollector = this.createCollectorForSchema(childFieldSchema);
-          stateMachine.registerSchema(childFieldSchema, childXPath, childCollector, undefined, childFieldName);
-          objectCollector.fields.set(childFieldName, childCollector);
-        }
-
-        collectors.set(fieldName, objectCollector);
-        fieldSchemas.set(fieldName, fieldSchema);
-        continue;
-      }
-
-      // Special case: Array schema without its own XPath
-      // Check if element schema has XPath and use that instead
-      if (!xpath && isArraySchema(unwrapped)) {
-        const elementXPath = this.extractXPath(unwrapped.element);
-        if (elementXPath) {
-          const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
-          stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
-          collectors.set(fieldName, collector);
-          fieldSchemas.set(fieldName, fieldSchema);
-          continue;
-        }
-      }
-
-      /* v8 ignore next -- schemas without xpath are intentionally skipped */
-      if (!xpath) continue;
-
-      let collector: Collector<unknown>;
-
-      if (isArraySchema(unwrapped)) {
-        collector = { type: 'array', items: [] } as ArrayCollector<unknown>;
-      } else if (isStringSchema(unwrapped)) {
-        collector = { type: 'string', buffer: '' } as StringCollector;
-      } else if (isNumberSchema(unwrapped)) {
-        collector = { type: 'number', buffer: '' } as NumberCollector;
-      } else if (isObjectSchema(unwrapped)) {
-        collector = { type: 'object', fields: new Map() } as ObjectCollector;
-      } else {
-        // Fallback: treat as string
-        collector = { type: 'string', buffer: '' } as StringCollector;
-      }
-
-      stateMachine.registerSchema(fieldSchema, xpath, collector, undefined, fieldName);
-      collectors.set(fieldName, collector);
-      fieldSchemas.set(fieldName, fieldSchema);
-    }
-
-    // Process events
-    await this.consumeAsyncEvents(parser, (event) => {
-      stateMachine.processEventSync(event);
-    });
-
-    // Extract results from collectors
-    const result: Record<string, unknown> = {};
-    for (const [fieldName, collector] of collectors) {
-      const fieldSchema = fieldSchemas.get(fieldName)!;
-      result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
-    }
-
-    return result as T;
+    const document = await this.createXPathDocumentAsync(input);
+    const contextNode = this.selectObjectContext(document, schemaOptions.xpath);
+    return this.parseObjectShapeFromXPathNode(shape, contextNode, document) as T;
   }
 
   /**
@@ -303,103 +197,9 @@ export class XmlParserInternal {
     if (this.compiledPlan?.kind === 'dispatch') {
       return this.parseCompiledWithPlan(input, this.compiledPlan) as T;
     }
-    const parser = new StaxXmlParserSync(input, {
-      /* v8 ignore next -- decodeEntities option is covered by public parser tests */
-      autoDecodeEntities: this.options?.decodeEntities
-    });
-
-    const stateMachine = new XmlParsingStateMachine(this.options);
-    const collectors = new Map<string, Collector<unknown>>();
-    const fieldSchemas = new Map<string, XmlSchemaBase<unknown, unknown>>();
-
-    if (schemaOptions.xpath) {
-      const rootCollector: ObjectCollector = { type: 'object', fields: new Map() };
-      const rootSchema = this.createRootObjectSchema(shape, schemaOptions);
-      stateMachine.registerSchema(rootSchema, schemaOptions.xpath, rootCollector);
-
-      for (const event of parser) {
-        stateMachine.processEventSync(event);
-      }
-
-      return this.extractValueFromCollector(rootCollector, rootSchema) as T;
-    }
-
-    // Register all field schemas
-    for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-      const xpath = this.extractXPath(fieldSchema);
-      const unwrapped = this.unwrapSchema(fieldSchema) as XmlSchemaBase<unknown, unknown>;
-
-      // Special case: Object schema without its own XPath
-      // Register its child fields instead
-      if (!xpath && isObjectSchema(unwrapped)) {
-        const objectCollector: ObjectCollector = { type: 'object', fields: new Map() };
-        const objectShape = unwrapped.shape as Record<string, XmlSchemaBase<unknown, unknown>>;
-
-        // Register child field schemas with absolute XPaths
-        for (const [childFieldName, childFieldSchema] of Object.entries(objectShape)) {
-          const childXPath = this.extractXPath(childFieldSchema);
-          /* v8 ignore next -- child schemas without xpath are intentionally skipped */
-          if (!childXPath) continue;
-
-          const childCollector = this.createCollectorForSchema(childFieldSchema);
-          stateMachine.registerSchema(childFieldSchema, childXPath, childCollector, undefined, childFieldName);
-          objectCollector.fields.set(childFieldName, childCollector);
-        }
-
-        collectors.set(fieldName, objectCollector);
-        fieldSchemas.set(fieldName, fieldSchema);
-        continue;
-      }
-
-      // Special case: Array schema without its own XPath
-      // Check if element schema has XPath and use that instead
-      if (!xpath && isArraySchema(unwrapped)) {
-        const elementXPath = this.extractXPath(unwrapped.element);
-        if (elementXPath) {
-          const collector: ArrayCollector<unknown> = { type: 'array', items: [] };
-          stateMachine.registerSchema(fieldSchema, elementXPath, collector, undefined, fieldName);
-          collectors.set(fieldName, collector);
-          fieldSchemas.set(fieldName, fieldSchema);
-          continue;
-        }
-      }
-
-      /* v8 ignore next -- schemas without xpath are intentionally skipped */
-      if (!xpath) continue;
-
-      let collector: Collector<unknown>;
-
-      if (isArraySchema(unwrapped)) {
-        collector = { type: 'array', items: [] } as ArrayCollector<unknown>;
-      } else if (isStringSchema(unwrapped)) {
-        collector = { type: 'string', buffer: '' } as StringCollector;
-      } else if (isNumberSchema(unwrapped)) {
-        collector = { type: 'number', buffer: '' } as NumberCollector;
-      } else if (isObjectSchema(unwrapped)) {
-        collector = { type: 'object', fields: new Map() } as ObjectCollector;
-      } else {
-        // Fallback: treat as string
-        collector = { type: 'string', buffer: '' } as StringCollector;
-      }
-
-      stateMachine.registerSchema(fieldSchema, xpath, collector, undefined, fieldName);
-      collectors.set(fieldName, collector);
-      fieldSchemas.set(fieldName, fieldSchema);
-    }
-
-    // Process events
-    for (const event of parser) {
-      stateMachine.processEventSync(event);
-    }
-
-    // Extract results from collectors
-    const result: Record<string, unknown> = {};
-    for (const [fieldName, collector] of collectors) {
-      const fieldSchema = fieldSchemas.get(fieldName)!;
-      result[fieldName] = this.extractValueFromCollector(collector, fieldSchema);
-    }
-
-    return result as T;
+    const document = this.createXPathDocumentSync(input);
+    const contextNode = this.selectObjectContext(document, schemaOptions.xpath);
+    return this.parseObjectShapeFromXPathNode(shape, contextNode, document) as T;
   }
 
   /**
@@ -580,39 +380,9 @@ export class XmlParserInternal {
       throw new Error('Array schema requires xpath');
     }
 
-    const parser = this.createParser(input);
-    const stateMachine = new XmlParsingStateMachine(this.options);
-
-    // Create array collector
-    const arrayCollector: ArrayCollector<T> = { type: 'array', items: [] };
-
-    // Create a dummy array schema for registration
-    const dummyArraySchema = {
-      schemaType: 'ARRAY' as const,
-      constructor: { name: 'XmlArraySchema' },
-      element: elementSchema
-    };
-
-    // Register array schema with State Machine
-    stateMachine.registerSchema(
-      dummyArraySchema as unknown as XmlSchemaBase<unknown, unknown>,
-      xpath,
-      arrayCollector,
-      undefined,  // No parent context for top-level array
-      undefined   // No field name for top-level array
-    );
-
-    // Process all events through State Machine
-    await this.consumeAsyncEvents(parser, (event) => {
-      stateMachine.processEventSync(event);
-    });
-
-    // Extract results from collector
-    return this.extractValueFromCollector(arrayCollector, {
-      schemaType: 'ARRAY' as const,
-      constructor: { name: 'XmlArraySchema' },
-      element: elementSchema
-    } as unknown as XmlSchemaBase<unknown, unknown>) as T[];
+    const document = await this.createXPathDocumentAsync(input);
+    return this.selectXPathNodes(document, document.document, xpath)
+      .map(node => this.parseSchemaFromXPathNode(elementSchema, node, document, true)) as T[];
   }
 
   /**
@@ -852,42 +622,9 @@ export class XmlParserInternal {
       throw new Error('Array schema requires xpath');
     }
 
-    const parser = new StaxXmlParserSync(input, {
-      autoDecodeEntities: this.options?.decodeEntities
-    });
-
-    const stateMachine = new XmlParsingStateMachine(this.options);
-
-    // Create array collector
-    const arrayCollector: ArrayCollector<T> = { type: 'array', items: [] };
-
-    // Create a dummy array schema for registration
-    const dummyArraySchema = {
-      schemaType: 'ARRAY' as const,
-      constructor: { name: 'XmlArraySchema' },
-      element: elementSchema
-    };
-
-    // Register array schema with State Machine
-    stateMachine.registerSchema(
-      dummyArraySchema as unknown as XmlSchemaBase<unknown, unknown>,
-      xpath,
-      arrayCollector,
-      undefined,  // No parent context for top-level array
-      undefined   // No field name for top-level array
-    );
-
-    // Process all events through State Machine
-    for (const event of parser) {
-      stateMachine.processEventSync(event);
-    }
-
-    // Extract results from collector
-    return this.extractValueFromCollector(arrayCollector, {
-      schemaType: 'ARRAY' as const,
-      constructor: { name: 'XmlArraySchema' },
-      element: elementSchema
-    } as unknown as XmlSchemaBase<unknown, unknown>) as T[];
+    const document = this.createXPathDocumentSync(input);
+    return this.selectXPathNodes(document, document.document, xpath)
+      .map(node => this.parseSchemaFromXPathNode(elementSchema, node, document, true)) as T[];
   }
 
   /**
@@ -924,6 +661,190 @@ export class XmlParserInternal {
   }
 
   // Helper methods
+
+  private createXPathDocumentSync(input: string): XPathDocument {
+    return buildXPathDocumentFromString(input, this.options);
+  }
+
+  private async createXPathDocumentAsync(input: ParseInput): Promise<XPathDocument> {
+    if (typeof input === 'string') {
+      return buildXPathDocumentFromString(input, this.options);
+    }
+    if (isArrayBufferView(input)) {
+      return buildXPathDocumentFromString(xpathInputDecoder.decode(toUint8Array(input)), this.options);
+    }
+    if (input instanceof ReadableStream) {
+      const chunks = await readReadableStreamChunks(input);
+      return buildXPathDocumentFromString(decodeChunks(chunks), this.options);
+    }
+    if (isSyncIterable(input)) {
+      return buildXPathDocumentFromEvents(input);
+    }
+    return buildXPathDocumentFromAsyncEvents(this.createParser(input));
+  }
+
+  private selectObjectContext(document: XPathDocument, xpath: string | undefined): XPathNode {
+    if (!xpath) {
+      return document.documentElement ?? document.document;
+    }
+    return this.selectXPathNodes(document, document.document, xpath)[0] ?? document.document;
+  }
+
+  private parseObjectShapeFromXPathNode(
+    shape: Record<string, XmlSchemaBase<unknown, unknown>>,
+    contextNode: XPathNode,
+    document: XPathDocument
+  ): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+    for (const [fieldName, fieldSchema] of Object.entries(shape)) {
+      if (!this.shouldParseObjectField(fieldSchema)) {
+        continue;
+      }
+      result[fieldName] = this.parseSchemaFromXPathNode(fieldSchema, contextNode, document, false);
+    }
+    return result;
+  }
+
+  private shouldParseObjectField(schema: XmlSchemaBase<unknown, unknown>): boolean {
+    if (this.extractXPath(schema)) {
+      return true;
+    }
+    const unwrapped = this.unwrapSchema(schema);
+    if (!unwrapped || typeof unwrapped !== 'object' || !('schemaType' in unwrapped)) {
+      return false;
+    }
+    const core = unwrapped as XmlSchemaBase<unknown, unknown>;
+    if (isObjectSchema(core)) {
+      return true;
+    }
+    if (isArraySchema(core)) {
+      return !!this.extractXPath(core.element);
+    }
+    return false;
+  }
+
+  private parseSchemaFromXPathNode(
+    schema: XmlSchemaBase<unknown, unknown>,
+    contextNode: XPathNode,
+    document: XPathDocument,
+    ignoreOwnXPath: boolean
+  ): unknown {
+    const effects = this.unwrapSchemaEffects(schema);
+    try {
+      let value = this.parseCoreSchemaFromXPathNode(
+        effects.schema,
+        contextNode,
+        document,
+        ignoreOwnXPath
+      );
+      if (value === XPATH_MISSING) {
+        if (effects.optional) {
+          return undefined;
+        }
+        if (isObjectSchema(effects.schema)) {
+          return {};
+        }
+        if (isArraySchema(effects.schema)) {
+          return [];
+        }
+        return '';
+      }
+      for (const transformFn of effects.transforms) {
+        value = transformFn(value);
+      }
+      return value;
+    } catch (error) {
+      if (effects.optional) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
+  private parseCoreSchemaFromXPathNode(
+    schema: XmlSchemaBase<unknown, unknown>,
+    contextNode: XPathNode,
+    document: XPathDocument,
+    ignoreOwnXPath: boolean
+  ): unknown {
+    if (isObjectSchema(schema)) {
+      const xpath = ignoreOwnXPath ? undefined : this.extractXPath(schema);
+      if (xpath) {
+        const objectContext = this.selectXPathNodes(document, contextNode, xpath)[0];
+        if (!objectContext) {
+          return XPATH_MISSING;
+        }
+        return this.parseObjectShapeFromXPathNode(schema.shape, objectContext, document);
+      }
+      const objectContext = contextNode;
+      return this.parseObjectShapeFromXPathNode(schema.shape, objectContext, document);
+    }
+
+    if (isArraySchema(schema)) {
+      const itemXPath = schema.xpath ?? this.extractXPath(schema.element);
+      if (!itemXPath) {
+        return [];
+      }
+      const itemNodes = this.selectXPathNodes(document, contextNode, itemXPath);
+      return itemNodes.map(node => this.parseSchemaFromXPathNode(
+        schema.element,
+        node,
+        document,
+        schema.xpath === undefined
+      ));
+    }
+
+    if (!isStringSchema(schema) && !isNumberSchema(schema)) {
+      return '';
+    }
+
+    const xpath = ignoreOwnXPath ? undefined : this.extractXPath(schema);
+    const value = xpath
+      ? evaluateXPath(xpath, contextNode, document, this.options)
+      : [contextNode];
+    if (Array.isArray(value) && value.length === 0) {
+      return XPATH_MISSING;
+    }
+    const text = this.normalizeXPathScalar(value);
+    if (schema._parseText) {
+      return schema._parseText(text);
+    }
+    return text;
+  }
+
+  private selectXPathNodes(
+    document: XPathDocument,
+    contextNode: XPathNode,
+    xpath: string
+  ): XPathNode[] {
+    return xpathValueToNodes(evaluateXPath(xpath, contextNode, document, this.options));
+  }
+
+  private normalizeXPathScalar(value: XPathValue): string {
+    return this.decodeText(xpathValueToString(value).trim());
+  }
+
+  private unwrapSchemaEffects(schema: XmlSchemaBase<unknown, unknown>): {
+    schema: XmlSchemaBase<unknown, unknown>;
+    optional: boolean;
+    transforms: Array<(value: unknown) => unknown>;
+  } {
+    const transforms: Array<(value: unknown) => unknown> = [];
+    let current = schema;
+    let optional = false;
+
+    while (isOptionalSchema(current) || isTransformSchema(current)) {
+      if (isOptionalSchema(current)) {
+        optional = true;
+        current = current.schema;
+        continue;
+      }
+      transforms.unshift(current.transformFn as (value: unknown) => unknown);
+      current = current.schema;
+    }
+
+    return { schema: current, optional, transforms };
+  }
 
   private createParser(input: ParseInput, eventFilter?: ParserEventFilter): AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> {
     const backend = getIterableEventBackend(input);
@@ -1006,19 +927,6 @@ export class XmlParserInternal {
 
     return undefined;
   }
-
-  private createRootObjectSchema(
-    shape: Record<string, XmlSchemaBase<unknown, unknown>>,
-    schemaOptions: { xpath?: string }
-  ): XmlSchemaBase<unknown, unknown> {
-    return {
-      schemaType: 'OBJECT' as const,
-      shape,
-      options: schemaOptions,
-      constructor: { name: 'XmlObjectSchema' }
-    } as unknown as XmlSchemaBase<unknown, unknown>;
-  }
-
 
   /**
    * Check if a schema is wrapped in XmlOptionalSchema
@@ -1395,4 +1303,35 @@ function toIterableBackendOptions(
     autoDecodeEntities: options?.decodeEntities === true,
     eventFilter
   };
+}
+
+function isArrayBufferView(input: unknown): input is ArrayBufferView {
+  return ArrayBuffer.isView(input);
+}
+
+function toUint8Array(input: ArrayBufferView): Uint8Array {
+  return input instanceof Uint8Array
+    ? input
+    : new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+}
+
+function isSyncIterable(input: unknown): input is Iterable<AnyXmlEvent> {
+  return typeof input === 'object'
+    && input !== null
+    && Symbol.iterator in input
+    && typeof (input as Iterable<AnyXmlEvent>)[Symbol.iterator] === 'function';
+}
+
+function decodeChunks(chunks: Uint8Array[]): string {
+  let byteLength = 0;
+  for (const chunk of chunks) {
+    byteLength += chunk.byteLength;
+  }
+  const bytes = new Uint8Array(byteLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return xpathInputDecoder.decode(bytes);
 }

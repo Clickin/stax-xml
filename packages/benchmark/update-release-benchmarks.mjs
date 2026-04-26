@@ -1764,7 +1764,11 @@ ${renderEnvironmentVersionDetails(env)}
 
 ${createParserScenarioDetails()}
 
-### Small Documents (2KB)
+### Parser Fixture Series
+
+The \`parser-*\` series is the comparable parser-library fixture set. Read these tables together, in fixture-size order, before comparing the separate iterable file-traversal and runtime matrices.
+
+#### Small Documents (2KB)
 
 For typical web service responses and configuration files (complex.xml):
 
@@ -1778,7 +1782,7 @@ ${renderParserTable(summary, 'parser-2kb', [
   { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
-### Medium Documents (4KB)
+#### Medium Documents (4KB)
 
 For larger API responses and data files (books.xml):
 
@@ -1791,26 +1795,6 @@ ${renderParserTable(summary, 'parser-4kb', [
   { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
   { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
-
-### Large Documents (1MiB to 4GiB)
-
-For processing large XML files (RSS feeds, data exports, etc.):
-
-${createLargeFileScenarioDetails()}
-
-${renderBenchmarkSourceLinks('async-size')}
-
-${renderAsyncSizeTable(summary)}
-
-**Key Insights:**
-- This section is the iterable backend throughput view, not a public string parser vs stream parser API comparison.
-- The sync and async rows share the same tokenization/event-frame path; the difference is synchronous file reads versus awaited file batches.
-- Async iterable parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
-- For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking API ergonomics or the synchronous iterable byte-batch backend for blocking batch jobs.
-
-${createRuntimeAndNativeDirectionBlock()}
-
-### Sync Parser Library Comparison
 
 #### Medium-Large Documents (13MB)
 
@@ -1841,6 +1825,24 @@ ${renderParserTable(summary, 'parser-98mb', [
   { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
   { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
+
+### Iterable File Traversal (1MiB to 4GiB)
+
+For processing large XML files (RSS feeds, data exports, etc.):
+
+${createLargeFileScenarioDetails()}
+
+${renderBenchmarkSourceLinks('async-size')}
+
+${renderAsyncSizeTable(summary)}
+
+**Key Insights:**
+- This section is the iterable backend throughput view, not a public string parser vs stream parser API comparison.
+- The sync and async rows share the same tokenization/event-frame path; the difference is synchronous file reads versus awaited file batches.
+- Async iterable parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
+- For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking API ergonomics or the synchronous iterable byte-batch backend for blocking batch jobs.
+
+${createRuntimeAndNativeDirectionBlock()}
 
 ## Converter API vs Plain Parser
 

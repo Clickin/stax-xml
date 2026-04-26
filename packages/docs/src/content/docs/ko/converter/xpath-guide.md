@@ -47,20 +47,17 @@ x.array(x.string(), '//error')  // 모든 에러 메시지
 
 ⚠️ **성능 참고**: `//`는 전체 문서를 검색합니다. 가능하면 절대 경로를 사용하세요.
 
-⚠️ **중요 제한**: 하나의 경로에 여러 `//` 연산자는 **지원되지 않습니다**.
+XPath 1.0 런타임 평가기를 사용하는 경로에서는 여러 descendant step도 지원됩니다:
 
 ```typescript
-// ❌ 잘못됨 - 파서 오류 발생
 x.string().xpath('//root//books')
 x.array(x.string(), '//section//item')
 
-// ✅ 올바른 대안
-x.string().xpath('//books')       // 단일 하위 요소
-x.string().xpath('/root//name')   // 절대 + 하위
-x.array(x.string(), '//item')     // 단일 하위 요소
+// 구조를 알고 있다면 여전히 더 빠른 형태
+x.string().xpath('/root/catalog/books')
 ```
 
-**기술적 이유**: DOM 없는 이벤트 기반 스트리밍 파서입니다. 여러 `//`는 중첩된 전체 문서 스캔이 필요하여 무한 루프(`//node//node`)를 유발합니다.
+**성능 참고**: full XPath 1.0 표현식은 경량 문서 트리 위에서 평가됩니다. 단순 converter selector는 기존 compiled event-table fast path를 계속 사용할 수 있습니다.
 
 ### 상대 경로
 
@@ -157,7 +154,12 @@ x.object({...}).xpath('//book[2]')
 x.object({...}).xpath('//book[3]')
 ```
 
-⚠️ **위치 제한**: `[1]`, `[2]`와 같은 숫자 위치만 지원됩니다. `last()` 및 `position()` 함수는 스트리밍 파서 제약으로 인해 지원되지 않습니다 (전체 문서 버퍼링 필요).
+XPath 1.0 런타임 평가기에서는 위치 함수도 지원됩니다:
+
+```typescript
+x.object({...}).xpath('//book[last()]')
+x.object({...}).xpath('//book[position() = 2]')
+```
 
 ## 실전 XPath 예제
 
@@ -278,28 +280,28 @@ x.string().xpath('/root/section/deeply/nested/element')
 | `./child` | `./name` | 상대 자식 |
 | `./@attr` | `./@id` | 상대 속성 |
 
-## XPath 제한사항
+## XPath 1.0 지원 범위
 
-Converter는 **XPath 1.0의 하위 집합**을 지원합니다:
+Converter는 런타임 평가기를 통해 XPath 1.0 표현식을 지원합니다. 포함되는 범위는 다음과 같습니다:
 
-### ✅ 지원됨
-- 절대 경로: `/root/element`
-- 하위 요소 검색: `//element`
-- 속성: `/@attr`, `//@attr`
-- 조건절: `[@attr="value"]`
-- 숫자 위치: `[1]`, `[2]`, `[3]` (특정 위치만)
-- 텍스트 노드 함수: `text()` (직접 텍스트 콘텐츠용)
-- 상대 경로: `./child`
+- 13개 XPath axis 전체: `ancestor`, `ancestor-or-self`, `attribute`, `child`, `descendant`, `descendant-or-self`, `following`, `following-sibling`, `namespace`, `parent`, `preceding`, `preceding-sibling`, `self`
+- Node test: `node()`, `text()`, `comment()`, `processing-instruction()`, 이름 테스트, wildcard
+- `position()`과 `last()`를 포함한 predicate
+- boolean, equality, relational, arithmetic expression
+- `contains()`, `starts-with()`, `substring()`, `normalize-space()`, `translate()`, `count()`, `sum()`, `name()`, `local-name()`, `namespace-uri()` 같은 XPath 1.0 core function
+- `ParseOptions.xpathNamespaces`를 통한 namespaced element/attribute 이름
 
-### ❌ 지원 안 됨
-- 축: `following-sibling::`, `ancestor::`
-- 위치 함수: `last()`, `position()` (스트리밍 파서 제약)
-- 문자열 함수: `contains()`, `starts-with()`, `substring()`
-- 복잡한 표현식: 수학 연산
-- 네임스페이스: `//ns:element`
-- 다중 하위 연산자: `//parent//child` (무한 루프 발생)
+```typescript
+const title = x.string()
+  .xpath('string(//p:book[last()]/p:title)')
+  .parseSync(xml, {
+    xpathNamespaces: { p: 'urn:books' }
+  });
+```
 
-지원되지 않는 기능의 경우, 파싱 후 `.transform()`을 사용하여 데이터를 처리하세요.
+XPath 1.0은 namespace 규칙이 XML 기본 namespace와 다릅니다. prefix 없는 name test는 namespace가 없는 노드만 매칭합니다. 기본 namespace를 쓰는 XML은 `xpathNamespaces`에 prefix를 바인딩한 뒤 XPath 표현식에서도 그 prefix를 사용하세요.
+
+Full XPath 표현식은 이벤트를 직접 streaming 평가하지 않습니다. compiled fast path로 낮출 수 없는 표현식은 먼저 경량 in-memory document representation을 만들고 그 트리 위에서 XPath를 평가합니다.
 
 ## 다음 단계
 

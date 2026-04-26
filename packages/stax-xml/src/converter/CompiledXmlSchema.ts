@@ -434,8 +434,15 @@ function compileSelector(xpath: string, context: LoweringContext): DispatchSelec
     throw new UnsupportedDispatchPlan(`Unsupported ambiguous relative XPath: ${xpath}`);
   }
 
-  const compiled = XPathCompiler.compile(xpath);
-  assertSupportedCompiledXPath(xpath, compiled);
+  let compiled: CompiledXPath;
+  try {
+    compiled = XPathCompiler.compile(xpath);
+    assertSupportedCompiledXPath(xpath, compiled);
+  } catch {
+    throw new UnsupportedDispatchPlan(
+      `XPath requires the runtime XPath 1.0 evaluator: ${xpath}`
+    );
+  }
 
   const lastSegment = compiled.segments[compiled.segments.length - 1];
   const terminal = lastSegment?.isAttribute ? 'attribute' : 'element';

@@ -77,20 +77,17 @@ x.array(x.string(), '//error')  // All error messages
 
 ⚠️ **Performance Note**: `//` searches the entire document. Use absolute paths when possible for better performance.
 
-⚠️ **Critical Limitation**: Multiple `//` operators in one path are **not supported**.
+Multiple descendant steps are supported when the converter uses the XPath 1.0 runtime evaluator:
 
 ```typescript
-// ❌ Invalid - causes parser errors
 x.string().xpath('//root//books')
 x.array(x.string(), '//section//item')
 
-// ✅ Valid alternatives
-x.string().xpath('//books')       // Single descendant
-x.string().xpath('/root//name')   // Absolute + descendant
-x.array(x.string(), '//item')     // Single descendant
+// Still faster when the structure is known
+x.string().xpath('/root/catalog/books')
 ```
 
-**Technical Reason**: Event-based streaming parser without DOM. Multiple `//` would require nested full-document scans, causing infinite loops (`//node//node`).
+**Performance note**: full XPath 1.0 expressions are evaluated over a lightweight document tree. Simple converter selectors can still use the compiled event-table fast path.
 
 ### Relative Paths
 
@@ -220,7 +217,12 @@ x.object({...}).xpath('//book[2]')
 x.object({...}).xpath('//book[3]')
 ```
 
-⚠️ **Position Limitation**: Only numeric positions like `[1]`, `[2]` are supported. Functions like `last()` and `position()` are not supported due to streaming parser constraints (would require buffering entire document).
+Position functions are also supported by the XPath 1.0 runtime evaluator:
+
+```typescript
+x.object({...}).xpath('//book[last()]')
+x.object({...}).xpath('//book[position() = 2]')
+```
 
 ## XPath with Different Schemas
 
@@ -513,28 +515,28 @@ const book = x.object({
 | `./@attr` | `./@id` | Relative attribute |
 | `//element[@a="x"][@b="y"]` | `//product[@available="true"][@inStock="true"]` | Multiple conditions |
 
-## XPath Limitations
+## XPath 1.0 Coverage
 
-The converter supports a **subset of XPath 1.0**:
+The converter supports XPath 1.0 expressions through its runtime evaluator. This includes:
 
-### ✅ Supported
-- Absolute paths: `/root/element`
-- Descendant search: `//element`
-- Attributes: `/@attr`, `//@attr`
-- Predicates: `[@attr="value"]`
-- Numeric position: `[1]`, `[2]`, `[3]` (specific position only)
-- Text node function: `text()` (for direct text content)
-- Relative paths: `./child`
+- All 13 XPath axes: `ancestor`, `ancestor-or-self`, `attribute`, `child`, `descendant`, `descendant-or-self`, `following`, `following-sibling`, `namespace`, `parent`, `preceding`, `preceding-sibling`, and `self`
+- Node tests: `node()`, `text()`, `comment()`, `processing-instruction()`, name tests, and wildcards
+- Predicates with `position()` and `last()`
+- Boolean, equality, relational, and arithmetic expressions
+- XPath 1.0 core functions such as `contains()`, `starts-with()`, `substring()`, `normalize-space()`, `translate()`, `count()`, `sum()`, `name()`, `local-name()`, and `namespace-uri()`
+- Namespaced element and attribute names via `ParseOptions.xpathNamespaces`
 
-### ❌ Not Supported
-- Axes: `following-sibling::`, `ancestor::`
-- Position functions: `last()`, `position()` (streaming parser limitation)
-- String functions: `contains()`, `starts-with()`, `substring()`
-- Complex expressions: math operations
-- Namespaces: `//ns:element`
-- Multiple descendant operators: `//parent//child` (causes infinite loop)
+```typescript
+const schema = x.string()
+  .xpath('string(//p:book[last()]/p:title)')
+  .parseSync(xml, {
+    xpathNamespaces: { p: 'urn:books' }
+  });
+```
 
-For unsupported features, use `.transform()` to process data after parsing.
+XPath 1.0 follows its own namespace rule: an unprefixed name test matches only nodes with no namespace. For default-namespaced XML, bind the namespace to a prefix in `xpathNamespaces` and use that prefix in the XPath expression.
+
+Full XPath expressions are not streamed directly. When an expression cannot use the compiled fast path, the converter builds a lightweight in-memory document representation first and evaluates XPath against that tree.
 
 ## Troubleshooting XPath
 

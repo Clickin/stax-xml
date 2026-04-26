@@ -68,7 +68,8 @@ object-output:
 런타임별 파싱 방법:
 
 - `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop에서 event type, name, text, attribute checksum을 계산합니다.
-- `stax-xml JS fallback raw iterable`: `StaxXmlIterableParser` byte-frame loop에서 같은 checksum 계약을 사용합니다.
+- `stax-xml JS fallback event parser decode+parse`: byte-source application path로, timed region 안에서 `Buffer.toString("utf8")` 비용을 지불한 뒤 `StaxXmlParserSync`를 실행합니다.
+- `stax-xml JS Uint8Array iterable`: 재사용 가능한 `Iterable<Uint8Array[]>` 위에서 `StaxXmlIterableParser` byte-frame loop와 같은 checksum 계약을 사용합니다.
 - `stax-xml native addon event aggregate`: Rust 내부 event-object tier를 사용하는 native aggregate probe입니다. public per-event JavaScript iterator는 아닙니다.
 - `stax-xml native addon raw aggregate`: coarse Buffer call과 Rust 내부 direct string materialization을 사용하는 native aggregate probe입니다.
 - `stax-xml to object`: `StaxXmlParserSync` 위에서 benchmark object shape으로 local projection을 수행합니다.
@@ -78,19 +79,23 @@ object-output:
 
 </details>
 
-### 소형 문서 (2KB)
+### Parser Fixture 시리즈
+
+`parser-*` 섹션은 라이브러리 간 비교가 가능한 parser fixture 시리즈입니다. 별도 iterable file traversal 및 runtime matrix와 비교하기 전에, 이 네 표를 fixture 크기 순서대로 함께 읽어야 합니다.
+
+#### 소형 문서 (2KB)
 
 일반적인 웹 서비스 응답 및 설정 파일 (complex.xml):
 
 <BenchmarkSection locale="ko" section="parser-2kb" />
 
-### 중형 문서 (4KB)
+#### 중형 문서 (4KB)
 
 일반적인 API 응답 및 데이터 파일 (books.xml):
 
 <BenchmarkSection locale="ko" section="parser-4kb" />
 
-### 중대형 문서 (13MB)
+#### 중대형 문서 (13MB)
 
 midsize.xml (13MB) 성능 결과:
 
@@ -98,7 +103,7 @@ midsize.xml (13MB) 성능 결과:
 
 *xml2js는 이 fixture에서 whole-document comparator가 아닙니다. `midsize.xml`은 반복된 top-level `<any_name>` root를 포함하고, xml2js는 첫 top-level element shape만 반환합니다.*
 
-### 대형 문서 (98MB)
+#### 대형 문서 (98MB)
 
 large.xml (98MB) 성능 결과:
 
@@ -110,9 +115,9 @@ large.xml (98MB) 성능 결과:
 - **대형 파일 (98MB)**: parser와 fixture에 따라 처리량과 메모리 trade-off가 달라지므로 생성된 표를 직접 기준으로 봅니다
 - **초대형 파일 (1GB+)**: async stream과 synchronous iterable byte-batch 파싱은 전체 XML string 보관을 피할 수 있습니다. public sync string parser는 in-memory 경로입니다
 
-### stax-xml sync vs async (1MiB ~ 4GiB)
+### Iterable 파일 Traversal (1MiB ~ 4GiB)
 
-sync vs async 성능 비교:
+bounded file chunk 위에서 stax-xml sync/async traversal을 비교합니다:
 
 <details>
 <summary>Scenario contract: iterable parser sync/async file traversal</summary>

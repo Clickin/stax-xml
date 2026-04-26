@@ -68,7 +68,8 @@ object-output:
 Runtime methods:
 
 - `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes.
-- `stax-xml JS fallback raw iterable`: `StaxXmlIterableParser` byte-frame loop with the same checksum contract.
+- `stax-xml JS fallback event parser decode+parse`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running `StaxXmlParserSync`.
+- `stax-xml JS Uint8Array iterable`: `StaxXmlIterableParser` byte-frame loop over a reusable `Iterable<Uint8Array[]>` with the same checksum contract.
 - `stax-xml native addon event aggregate`: native aggregate probe using the event-object tier inside Rust; it is not a public per-event JavaScript iterator.
 - `stax-xml native addon raw aggregate`: native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.
 - `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.
@@ -78,19 +79,23 @@ Runtime methods:
 
 </details>
 
-### Small Documents (2KB)
+### Parser Fixture Series
+
+The `parser-*` sections are the comparable parser-library fixture series. Read them together, in fixture-size order, before comparing the separate iterable file-traversal and runtime matrices.
+
+#### Small Documents (2KB)
 
 For typical web service responses and configuration files (complex.xml):
 
 <BenchmarkSection locale="en" section="parser-2kb" />
 
-### Medium Documents (4KB)
+#### Medium Documents (4KB)
 
 For larger API responses and data files (books.xml):
 
 <BenchmarkSection locale="en" section="parser-4kb" />
 
-### Medium-Large Documents (13MB)
+#### Medium-Large Documents (13MB)
 
 Performance results on midsize.xml (13MB):
 
@@ -98,7 +103,7 @@ Performance results on midsize.xml (13MB):
 
 *xml2js is not a valid whole-document comparator for this fixture. `midsize.xml` contains repeated top-level `<any_name>` roots, and xml2js returns only the first top-level element shape.*
 
-### Large Documents (98MB)
+#### Large Documents (98MB)
 
 Performance results on large.xml (98MB):
 
@@ -111,9 +116,9 @@ Performance results on large.xml (98MB):
 - **Very large files (1GB+)**: async streams and synchronous iterable byte-batch parsing avoid retaining one full XML string; the public sync string parser remains the in-memory path
 
 
-### stax-xml sync vs async (1MiB to 4GiB)
+### Iterable File Traversal (1MiB to 4GiB)
 
-sync vs async performance:
+stax-xml sync vs async traversal over bounded file chunks:
 
 <details>
 <summary>Scenario contract: iterable parser sync and async file traversal</summary>
