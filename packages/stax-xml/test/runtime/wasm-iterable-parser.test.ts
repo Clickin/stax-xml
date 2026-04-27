@@ -119,6 +119,7 @@ describe('StaxXmlWasmIterableParser', () => {
     expect(parser.copyAttrValue(1, 0)).toBe('x');
     expect(parser.copyAttrName(1, 1)).toBeUndefined();
     expect(parser.copyAttrValue(1, 1)).toBeUndefined();
+    expect(parser.copyAttrValueByName(1, 'missing')).toBeUndefined();
     expect(parser.copyText(2)).toBe('text');
     expect(parser.nextBatch()).toBe(true);
     expect(parser.nextBatch()).toBe(false);
@@ -157,6 +158,21 @@ describe('StaxXmlWasmIterableParser', () => {
     }));
 
     await expect(schema.compile().parse(parser)).resolves.toEqual({ personCount: 1, firstName: 'Alice' });
+  });
+
+  it('handles malformed attribute spans in table lookup helpers', () => {
+    const input = '<r a="x" b="">text</r>';
+    const parser = new StaxXmlWasmIterableParser(input, encodeSpanTable(input, [
+      event(2, span(input, 'r'), none(), 0, 3),
+    ], [
+      attr(none(), span(input, 'x')),
+      attr(span(input, 'a'), none()),
+      attr(span(input, 'b'), span(input, '')),
+    ], 'view'));
+
+    expect(parser.copyAttrValueByName(0, 'missing')).toBeUndefined();
+    expect(parser.copyAttrValueByName(0, 'a')).toBeUndefined();
+    expect(parser.copyAttrValueByName(0, 'b')).toBe('');
   });
 });
 

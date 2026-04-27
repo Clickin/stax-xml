@@ -38,7 +38,7 @@
     "release:runtime-matrix": "node --expose-gc ./runtime-matrix.mjs",
     "release:cross-runtime": "node --expose-gc ./cross-runtime-comparison.mjs",
     "release:simdxml-upstream": "node --expose-gc ./simdxml-upstream-comparison.mjs",
-    "release:expanded": "pnpm run release:update && pnpm run release:runtime-matrix && pnpm run release:cross-runtime && pnpm run release:aggregate",
+    "release:expanded": "pnpm run release:update",
     "// Benchmark aliases": "",
     "bench:parser:2kb": "node --expose-gc ./parser-2kb.mjs",
     "bench:parser:4kb": "node --expose-gc ./parser-4kb.mjs",

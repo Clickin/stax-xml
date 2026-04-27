@@ -64,7 +64,7 @@ async function parseBooks() {
         console.log('Attributes:', event.attributes);
       }
     } else if (event.type === XmlEventType.CHARACTERS) {
-      const text = event.text.trim();
+      const text = event.value.trim();
       if (text) {
         console.log(`Text: ${text}`);
       }
@@ -92,58 +92,10 @@ for (const event of parser) {
 }
 ```
 
-## Parsing to Objects
-
-Here's a practical example of parsing XML into JavaScript objects:
+## Parsing Unknown XML
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  price: number;
-}
-
-function parseBooks(xmlString: string): Book[] {
-  const parser = new StaxXmlParserSync(xmlString);
-  const books: Book[] = [];
-  let currentBook: Partial<Book> = {};
-  let currentElement = '';
-
-  for (const event of parser) {
-    switch (event.type) {
-      case XmlEventType.START_ELEMENT:
-        if (event.name === 'book') {
-          currentBook = { id: event.attributes?.id || '' };
-        }
-        currentElement = event.name;
-        break;
-
-      case XmlEventType.CHARACTERS:
-        const text = event.text.trim();
-        if (text && currentBook && ['title', 'author', 'price'].includes(currentElement)) {
-          if (currentElement === 'price') {
-            currentBook.price = parseFloat(text);
-          } else {
-            (currentBook as any)[currentElement] = text;
-          }
-        }
-        break;
-
-      case XmlEventType.END_ELEMENT:
-        if (event.name === 'book' && currentBook.id) {
-          books.push(currentBook as Book);
-          currentBook = {};
-        }
-        currentElement = '';
-        break;
-    }
-  }
-
-  return books;
-}
+import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
 
 const xmlString = `
 <bookstore>
@@ -160,13 +112,20 @@ const xmlString = `
 </bookstore>
 `;
 
-const books = parseBooks(xmlString);
-console.log(books);
-// Output: [
-//   { id: '1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: 12.99 },
-//   { id: '2', title: 'To Kill a Mockingbird', author: 'Harper Lee', price: 14.99 }
-// ]
+const tree = parseXmlTreeSync(xmlString);
+console.log(tree.children[0]);
+
+const object = parseXmlObjectSync(xmlString);
+console.log(object.bookstore);
+// {
+//   book: [
+//     { '@id': '1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: '12.99' },
+//     { '@id': '2', title: 'To Kill a Mockingbird', author: 'Harper Lee', price: '14.99' }
+//   ]
+// }
 ```
+
+Use `parseXmlTreeSync()` when element order and mixed content matter. Use `parseXmlObjectSync()` when you want a compact object shape with attributes under `@id`-style keys. For typed domain objects, use the converter API or a custom event loop.
 
 ## Error Handling
 
@@ -180,8 +139,7 @@ const parser = new StaxXmlParserSync(malformedXml);
 
 for (const event of parser) {
   if (event.type === XmlEventType.ERROR) {
-    console.error('XML parsing error:', event.message);
-    console.error('Position:', event.position);
+    console.error('XML parsing error:', event.error.message);
   }
 }
 ```

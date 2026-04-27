@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    pool: 'threads',
+    fileParallelism: false,
+    maxWorkers: 1,
     exclude: [
       'test/performance.test.ts',
       'test/converter/performance-benchmark.test.ts',

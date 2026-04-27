@@ -26,6 +26,7 @@ head:
 
 - [StaxXmlParser](/stax-xml/ko/api-guides/staxxml-parser/) - 비동기 XML 파싱
 - [StaxXmlParserSync](/stax-xml/ko/api-guides/staxxml-parser-sync/) - 동기 XML 파싱
+- [Tree/Object helper](/stax-xml/ko/api-guides/staxxml-parser/#unknown-xml-tree-object-helper) - unknown XML을 ElementTree식 tree 또는 compact object로 projection
 - [StaxXmlCursorReader](/stax-xml/ko/api-guides/staxxmlcursorreader/) - `StaxXmlIterableParser` 위의 얇은 cursor wrapper
 - [StaxXmlWriter](/stax-xml/ko/api-guides/staxxml-writer/) - 비동기 XML 작성
 - [StaxXmlWriterSync](/stax-xml/ko/api-guides/staxxml-writer-sync/) - 동기 XML 작성
@@ -44,6 +45,9 @@ StAX-XML에서 내보내는 주요 타입들:
 - `ErrorEvent` - 파싱 오류 이벤트
 - `XmlAttribute` - XML 속성 인터페이스
 - `WriteElementOptions` - XML 작성 옵션
+- `XmlTreeDocument` / `XmlTreeElement` - 순서 보존 tree helper 결과 타입
+- `XmlObjectRecord` / `XmlObjectValue` - compact object helper 결과 타입
+- `ParseXmlTreeOptions` / `ParseXmlObjectOptions` - tree/object helper 옵션
 - `SyncTextSink` - `StaxXmlWriterSyncSink`용 사용자 정의 동기 sink target
 - `StaxXmlWriterSyncSinkOptions` - sink 기반 동기 writer 옵션
 - `StaxXmlCursorReaderOptions` - 동기 cursor reader 옵션

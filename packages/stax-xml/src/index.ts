@@ -1,6 +1,7 @@
 export * from "./StaxXmlParser.js";
 export * from "./StaxXmlParserSync.js";
 export * from "./StaxXmlIterableParser.js";
+export * from "./XmlObject.js";
 export * from "./StaxXmlWriter.js";
 export * from "./StaxXmlWriterSync.js";
 export { default } from "./StaxXmlWriterSync.js";

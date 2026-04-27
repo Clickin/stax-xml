@@ -32,8 +32,6 @@ jobs:
       - id: setup-pnpm
         name: Setup pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: "10.18.0"
       - id: install-deps
         name: Install dependencies
         run: pnpm install --frozen-lockfile

@@ -26,6 +26,7 @@ For now, please refer to our comprehensive API guides:
 
 - [StaxXmlParser](/stax-xml/api-guides/staxxml-parser/) - Asynchronous XML parsing
 - [StaxXmlParserSync](/stax-xml/api-guides/staxxml-parser-sync/) - Synchronous XML parsing
+- [Tree/Object helpers](/stax-xml/api-guides/staxxml-parser/#unknown-xml-tree-and-object-helpers) - Unknown XML projection to an ElementTree-like tree or compact object
 - [StaxXmlCursorReader](/stax-xml/api-guides/staxxmlcursorreader/) - Thin cursor wrapper over `StaxXmlIterableParser`
 - [StaxXmlWriter](/stax-xml/api-guides/staxxml-writer/) - XML writing functionality
 - [StaxXmlWriterSync](/stax-xml/api-guides/staxxml-writer-sync/) - Synchronous XML writing and sync sink adapters
@@ -43,6 +44,9 @@ The main types exported by StAX-XML are:
 - `ErrorEvent` - Parsing error events
 - `XmlAttribute` - XML attribute interface
 - `WriteElementOptions` - Options for XML writing
+- `XmlTreeDocument` / `XmlTreeElement` - Order-preserving tree helper result types
+- `XmlObjectRecord` / `XmlObjectValue` - Compact object helper result types
+- `ParseXmlTreeOptions` / `ParseXmlObjectOptions` - Tree/object helper options
 - `SyncTextSink` - Custom synchronous sink target for `StaxXmlWriterSyncSink`
 - `StaxXmlWriterSyncSinkOptions` - Sink-based sync writer options
 - `StaxXmlCursorReaderOptions` - Options for sync cursor readers

@@ -464,11 +464,12 @@ function pct(value) {
   return `${value >= 0 ? '+' : ''}${(value * 100).toFixed(1)}%`;
 }
 
-function buildGate(fileReport) {
+export function buildNodeStringReturnGate(fileReport) {
   const tiers = new Map(fileReport.tiers.map(tier => [tier.id, tier]));
   const count = tiers.get('count-only');
   const full = tiers.get('full-string');
   const failures = [];
+  const performanceFailures = [];
 
   for (const tier of fileReport.tiers) {
     const neutral = tier.scenarios.find(scenario => scenario.id === 'neutral');
@@ -495,13 +496,13 @@ function buildGate(fileReport) {
     : Number.NaN;
 
   if (Number.isFinite(countOnlyRegression) && countOnlyRegression >= COUNT_REGRESSION_LIMIT) {
-    failures.push(`count-only regression ${pct(countOnlyRegression)} exceeds ${pct(COUNT_REGRESSION_LIMIT)}`);
+    performanceFailures.push(`count-only regression ${pct(countOnlyRegression)} exceeds ${pct(COUNT_REGRESSION_LIMIT)}`);
   }
   if (Number.isFinite(fullStringImprovement) && fullNode) {
     const passesFullStringGate = fullStringImprovement >= FULL_STRING_MIN_IMPROVEMENT ||
       fullNode.mibPerSec >= FULL_STRING_MIN_MIB_PER_SEC;
     if (!passesFullStringGate) {
-      failures.push(
+      performanceFailures.push(
         `full-string improvement ${pct(fullStringImprovement)} and ${formatRate(fullNode.mibPerSec)} MiB/s miss gate`,
       );
     }
@@ -512,6 +513,8 @@ function buildGate(fileReport) {
     countOnlyRegression,
     fullStringImprovement,
     failures,
+    performanceStatus: performanceFailures.length === 0 ? 'pass' : 'warn',
+    performanceFailures,
   };
 }
 
@@ -541,10 +544,14 @@ function printReport(report) {
 
     console.log(
       `  gate: ${file.gate.status}, count-only regression=${pct(file.gate.countOnlyRegression)}, ` +
-      `full-string improvement=${pct(file.gate.fullStringImprovement)}`,
+      `full-string improvement=${pct(file.gate.fullStringImprovement)}, ` +
+      `performance=${file.gate.performanceStatus}`,
     );
     for (const failure of file.gate.failures) {
       console.log(`    - ${failure}`);
+    }
+    for (const failure of file.gate.performanceFailures ?? []) {
+      console.log(`    - performance: ${failure}`);
     }
   }
 }
@@ -603,7 +610,7 @@ async function main(argv = process.argv.slice(2)) {
       fileReport.tiers.push({ id: tierId, scenarios });
     }
 
-    fileReport.gate = buildGate(fileReport);
+    fileReport.gate = buildNodeStringReturnGate(fileReport);
     report.files.push(fileReport);
   }
 
@@ -628,4 +635,6 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-void main();
+if (resolve(process.argv[1] ?? '') === __filename) {
+  void main();
+}

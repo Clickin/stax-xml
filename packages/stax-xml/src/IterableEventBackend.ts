@@ -201,9 +201,7 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
 
     if (this.options.emitStartDocumentBatchImmediately && parser.pushByteBatch([], false)) {
       const batch = materializer.materializeBatch(parser);
-      if (batch.length > 0) {
-        yield batch;
-      }
+      yield batch;
     }
 
     for await (const byteBatch of readReadableStreamByteBatches(this.stream, this.options)) {
@@ -216,14 +214,10 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
       }
     }
 
-    if (!parser.pushByteBatch([], true)) {
-      return;
-    }
+    parser.pushByteBatch([], true);
 
     const finalBatch = materializer.materializeBatch(parser);
-    if (finalBatch.length > 0) {
-      yield finalBatch;
-    }
+    yield finalBatch;
   }
 }
 
@@ -463,15 +457,28 @@ export class IterableEventMaterializer {
       }
     }
 
-    const attributes: Record<string, string> = {};
-    const attributesWithPrefix: Record<string, AttributeInfo> = {};
+    const attributes: Record<string, string> = nullRecord();
+    const attributesWithPrefix: Record<string, AttributeInfo> = nullRecord();
     for (const attribute of rawAttributes) {
-      attributes[attribute.name] = attribute.value;
-      attributesWithPrefix[attribute.name] = attributeInfo(attribute.name, attribute.value, namespaces);
+      defineData(attributes, attribute.name, attribute.value);
+      defineData(attributesWithPrefix, attribute.name, attributeInfo(attribute.name, attribute.value, namespaces));
     }
 
     return { attributes, attributesWithPrefix, namespaces };
   }
+}
+
+function nullRecord<T>(): Record<string, T> {
+  return Object.create(null) as Record<string, T>;
+}
+
+function defineData<T>(target: Record<string, T>, key: string, value: T): void {
+  Object.defineProperty(target, key, {
+    value,
+    configurable: true,
+    enumerable: true,
+    writable: true,
+  });
 }
 
 function compileEntityDecoder(options: IterableEventBackendOptions): (value: string) => string {

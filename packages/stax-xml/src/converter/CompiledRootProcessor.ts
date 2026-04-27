@@ -620,10 +620,9 @@ export class CompiledRootProcessor {
         this.processIterableEvent(runtime, parser, index);
       }
     }
-    if (parser.pushByteBatch([], true)) {
-      for (let index = 0; index < parser.eventCount(); index++) {
-        this.processIterableEvent(runtime, parser, index);
-      }
+    parser.pushByteBatch([], true);
+    for (let index = 0; index < parser.eventCount(); index++) {
+      this.processIterableEvent(runtime, parser, index);
     }
   }
 
@@ -811,46 +810,10 @@ function lazyAttributeRecord(
   eventIndex: number,
   options?: ParseOptions
 ): Record<string, string> {
-  let materialized: Record<string, string> | undefined;
-  const ensureMaterialized = (): Record<string, string> => {
-    if (materialized) {
-      return materialized;
-    }
-    materialized = {};
-    const count = parser.eventAttrCount(eventIndex);
-    for (let attrIndex = 0; attrIndex < count; attrIndex++) {
-      const name = parser.copyAttrName(eventIndex, attrIndex);
-      const value = parser.copyAttrValue(eventIndex, attrIndex);
-      if (name !== undefined && value !== undefined) {
-        materialized[name] = decodeEntities(value, options);
-      }
-    }
-    return materialized;
-  };
-
   return new Proxy(Object.create(null) as Record<string, string>, {
     get(_target, property) {
-      if (typeof property !== 'string') {
-        return undefined;
-      }
-      const direct = parser.copyAttrValueByName(eventIndex, property);
+      const direct = parser.copyAttrValueByName(eventIndex, property as string);
       return direct === undefined ? undefined : decodeEntities(direct, options);
-    },
-    has(_target, property) {
-      return typeof property === 'string'
-        && parser.copyAttrValueByName(eventIndex, property) !== undefined;
-    },
-    ownKeys() {
-      return Reflect.ownKeys(ensureMaterialized());
-    },
-    getOwnPropertyDescriptor(_target, property) {
-      if (typeof property !== 'string') {
-        return undefined;
-      }
-      const value = ensureMaterialized()[property];
-      return value === undefined
-        ? undefined
-        : { enumerable: true, configurable: true, value };
     },
   });
 }
@@ -1069,10 +1032,7 @@ function normalizeNativeObjectRowsResult(
     for (let index = 0; index < hydrators.length; index++) {
       const hydrator = hydrators[index]!;
       const column = columns[index]!;
-      const present = column.present;
-      if (!Array.isArray(present)) {
-        throw new Error('Native object rows projection returned an invalid column.');
-      }
+      const present = column.present!;
       if (present[rowIndex] !== true) {
         output[hydrator.fieldName] = hydrator.missingValue;
         continue;
@@ -1113,14 +1073,10 @@ function createNativeObjectRowsHydrators(
         : (shouldDecodeEntities
             ? parseScalar(plan, decodeEntities(rawValue, options), false)
             : parseScalar(plan, rawValue, false));
-    } else if (parseText) {
-      parseValue = shouldDecodeEntities
-        ? rawValue => parseText(decodeEntities(String(rawValue), options))
-        : rawValue => parseText(String(rawValue));
     } else {
       parseValue = shouldDecodeEntities
-        ? rawValue => parseScalar(plan, decodeEntities(String(rawValue), options), false)
-        : rawValue => parseScalar(plan, String(rawValue), false);
+        ? rawValue => parseText!(decodeEntities(String(rawValue), options))
+        : rawValue => parseText!(String(rawValue));
     }
 
     return {

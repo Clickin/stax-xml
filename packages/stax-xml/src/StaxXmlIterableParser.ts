@@ -51,6 +51,8 @@ export interface StaxXmlIterableBatchFrame<BufferType extends Uint8Array = Uint8
 
 const DEFAULT_BATCH_SIZE = 16;
 const EMPTY_BUFFER = new Uint8Array(0);
+const XML_NAME_RE = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{EFFFF}][\-.0-9:A-Z_a-z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0300-\u036F\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{EFFFF}]*$/u;
+const XML_CHAR_RE = /^[\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]*$/u;
 
 export function* toByteBatches(
   source: Iterable<Uint8Array>,
@@ -674,6 +676,9 @@ export class StaxXmlIterableParser {
       }
       const nameEnd = index;
       if (nameEnd === nameStart) {
+        if (this.documentMode === 'document') {
+          throw new Error('Invalid XML attribute name: name is empty.');
+        }
         break;
       }
       this.assertValidName(buffer, nameStart, nameEnd, 'attribute name');
@@ -724,12 +729,6 @@ export class StaxXmlIterableParser {
         const byte = buffer[index]!;
         if (byte === quote) break;
         index++;
-      }
-      if (index >= limit) {
-        if (this.documentMode === 'document') {
-          throw new Error('Unclosed attribute value.');
-        }
-        break;
       }
       const valueEnd = index;
       if (this.documentMode === 'document') {
@@ -975,67 +974,20 @@ function hasUtf8Bom(buffer: Uint8Array, start: number): boolean {
 }
 
 function isXmlName(value: string): boolean {
-  let first = true;
-  for (let index = 0; index < value.length;) {
-    const codePoint = value.codePointAt(index);
-    if (codePoint === undefined) {
-      return false;
-    }
-    if (first ? !isXmlNameStartChar(codePoint) : !isXmlNameChar(codePoint)) {
-      return false;
-    }
-    first = false;
-    index += codePoint > 0xffff ? 2 : 1;
-  }
-  return !first;
-}
-
-function isXmlNameStartChar(codePoint: number): boolean {
-  return codePoint === 58
-    || codePoint === 95
-    || codePoint >= 65 && codePoint <= 90
-    || codePoint >= 97 && codePoint <= 122
-    || codePoint >= 0xc0 && codePoint <= 0xd6
-    || codePoint >= 0xd8 && codePoint <= 0xf6
-    || codePoint >= 0xf8 && codePoint <= 0x2ff
-    || codePoint >= 0x370 && codePoint <= 0x37d
-    || codePoint >= 0x37f && codePoint <= 0x1fff
-    || codePoint >= 0x200c && codePoint <= 0x200d
-    || codePoint >= 0x2070 && codePoint <= 0x218f
-    || codePoint >= 0x2c00 && codePoint <= 0x2fef
-    || codePoint >= 0x3001 && codePoint <= 0xd7ff
-    || codePoint >= 0xf900 && codePoint <= 0xfdcf
-    || codePoint >= 0xfdf0 && codePoint <= 0xfffd
-    || codePoint >= 0x10000 && codePoint <= 0xeffff;
-}
-
-function isXmlNameChar(codePoint: number): boolean {
-  return isXmlNameStartChar(codePoint)
-    || codePoint === 45
-    || codePoint === 46
-    || codePoint >= 48 && codePoint <= 57
-    || codePoint === 0xb7
-    || codePoint >= 0x300 && codePoint <= 0x36f
-    || codePoint >= 0x203f && codePoint <= 0x2040;
+  return XML_NAME_RE.test(value);
 }
 
 function assertValidXmlCharacters(value: string, label: string): void {
-  for (let index = 0; index < value.length;) {
-    const codePoint = value.codePointAt(index);
-    if (codePoint === undefined || !isXmlChar(codePoint)) {
-      throw new Error(`Invalid XML character in ${label}.`);
-    }
-    index += codePoint > 0xffff ? 2 : 1;
+  if (!XML_CHAR_RE.test(value)) {
+    throw new Error(`Invalid XML character in ${label}.`);
   }
 }
 
 function isXmlChar(codePoint: number): boolean {
-  return codePoint === 0x9
-    || codePoint === 0xa
-    || codePoint === 0xd
-    || codePoint >= 0x20 && codePoint <= 0xd7ff
-    || codePoint >= 0xe000 && codePoint <= 0xfffd
-    || codePoint >= 0x10000 && codePoint <= 0x10ffff;
+  return Number.isInteger(codePoint)
+    && codePoint >= 0
+    && codePoint <= 0x10ffff
+    && XML_CHAR_RE.test(String.fromCodePoint(codePoint));
 }
 
 function assertValidEntityReferences(
