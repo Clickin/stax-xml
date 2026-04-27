@@ -83,7 +83,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '20.19.0'
 
       - name: Enable pnpm
         shell: bash
@@ -123,7 +123,7 @@ jobs:
             container_name="stax-xml-glibc-${{ matrix.package_dir }}-${GITHUB_RUN_ID:-local}-$$"
             cleanup() { docker rm -f "$container_name" >/dev/null 2>&1 || true; }
             trap cleanup EXIT
-            docker run --name "$container_name" -v "$PWD:/work" -w /work node:18-bullseye bash -lc '
+            docker run --name "$container_name" -v "$PWD:/work" -w /work node:20-bullseye bash -lc '
               set -euo pipefail
               apt-get update
               apt-get install -y --no-install-recommends ca-certificates curl build-essential pkg-config python3 git
@@ -187,7 +187,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '20.19.0'
 
       - name: Enable pnpm
         shell: bash
