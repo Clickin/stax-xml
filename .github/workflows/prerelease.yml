@@ -60,7 +60,7 @@ jobs:
           version: '10.18.0'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --no-optional
+        run: pnpm install --frozen-lockfile
 
       - name: Validate package versions
         run: node scripts/validate-prerelease.mjs "${{ inputs.version }}"

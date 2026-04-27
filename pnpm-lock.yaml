@@ -159,31 +159,31 @@ importers:
     optionalDependencies:
       '@stax-xml/native-darwin-arm64':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-darwin-arm64
       '@stax-xml/native-darwin-x64':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-darwin-x64
       '@stax-xml/native-linux-arm64-gnu':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-linux-arm64-gnu
       '@stax-xml/native-linux-arm64-musl':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-linux-arm64-musl
       '@stax-xml/native-linux-x64-gnu':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-linux-x64-gnu
       '@stax-xml/native-linux-x64-musl':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-linux-x64-musl
       '@stax-xml/native-wasm32-wasi':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-wasm32-wasi
       '@stax-xml/native-win32-arm64-msvc':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-win32-arm64-msvc
       '@stax-xml/native-win32-x64-msvc':
         specifier: 1.0.0-rc1
-        version: 1.0.0-rc1
+        version: link:../native-win32-x64-msvc
 
 packages:
 
