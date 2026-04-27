@@ -36,7 +36,7 @@ jobs:
           version: "10.18.0"
       - id: install-deps
         name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --no-optional
       - id: test
         name: Run test
         run: pnpm test

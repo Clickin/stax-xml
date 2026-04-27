@@ -34,7 +34,7 @@ jobs:
           version: "10.18.0"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --no-optional
 
       - name: Build stax-xml package
         run: pnpm --filter=stax-xml build
