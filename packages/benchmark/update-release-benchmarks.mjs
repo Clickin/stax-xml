@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { closeSync, copyFileSync, existsSync, mkdirSync, openSync, readFileSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { open as openFile } from 'node:fs/promises';
 import { cpus, tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
@@ -34,7 +34,16 @@ export const rawDir = join(resultsDir, 'raw');
 export const summaryPath = join(resultsDir, 'latest-summary.json');
 export const benchmarkMarkdownPath = join(repoRoot, 'BENCHMARK.md');
 const runtimeMatrixPath = join(resultsDir, 'runtime-matrix.json');
+const runtimeMatrixMarkdownPath = join(resultsDir, 'runtime-matrix.md');
 const crossRuntimeComparisonPath = join(resultsDir, 'cross-runtime-comparison.json');
+const crossRuntimeComparisonMarkdownPath = join(resultsDir, 'cross-runtime-comparison.md');
+const simdxmlUpstreamComparisonPath = join(resultsDir, 'simdxml-upstream-comparison.json');
+const simdxmlUpstreamComparisonMarkdownPath = join(resultsDir, 'simdxml-upstream-comparison.md');
+const historyDir = join(resultsDir, 'history');
+const historyIndexJsonPath = join(historyDir, 'index.json');
+const historyIndexMarkdownPath = join(historyDir, 'README.md');
+const writer1gbRawPath = join(rawDir, 'writer-1gb.json');
+const nativeAggregateProbePath = join(repoRoot, 'packages', 'native-aggregate', 'stax_xml_native_aggregate.node');
 const benchmarkPackageJsonPath = join(benchmarkDir, 'package.json');
 const rootPackageJsonPath = join(repoRoot, 'package.json');
 const iterableFileChunkSize = 1024 * 1024;
@@ -50,7 +59,13 @@ const githubBlobBase = 'https://github.com/Clickin/stax-xml/blob/master/';
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
+    aggregateOnly: false,
     only: null,
+    runId: null,
+    skipAuxiliary: false,
+    skipFixtures: false,
+    skipHistory: false,
+    skipSimdxml: false,
     verbose: true,
   };
 
@@ -60,6 +75,40 @@ function parseArgs(argv = process.argv.slice(2)) {
 
     if (arg === '--quiet') {
       args.verbose = false;
+      continue;
+    }
+
+    if (arg === '--aggregate-only') {
+      args.aggregateOnly = true;
+      continue;
+    }
+
+    if (arg === '--skip-auxiliary') {
+      args.skipAuxiliary = true;
+      continue;
+    }
+
+    if (arg === '--skip-fixtures') {
+      args.skipFixtures = true;
+      continue;
+    }
+
+    if (arg === '--skip-history') {
+      args.skipHistory = true;
+      continue;
+    }
+
+    if (arg === '--skip-simdxml') {
+      args.skipSimdxml = true;
+      continue;
+    }
+
+    if (arg === '--run-id' && argv[index + 1]) {
+      args.runId = argv[++index];
+      continue;
+    }
+    if (arg.startsWith('--run-id=')) {
+      args.runId = arg.slice('--run-id='.length);
       continue;
     }
 
@@ -74,6 +123,91 @@ function parseArgs(argv = process.argv.slice(2)) {
   }
 
   return args;
+}
+
+export function createReleaseRunId(date = new Date()) {
+  return date.toISOString().replace(/[:.]/g, '-');
+}
+
+function assertReleaseRunId(runId) {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z$/.test(runId)) {
+    throw new Error(`Invalid release benchmark run id: ${runId}`);
+  }
+}
+
+function releaseRunIdToIso(runId) {
+  assertReleaseRunId(runId);
+  const match = /^(\d{4}-\d{2}-\d{2}T)(\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/.exec(runId);
+  return `${match[1]}${match[2]}:${match[3]}:${match[4]}.${match[5]}Z`;
+}
+
+function releaseSnapshotArtifactDefinitions(runDir) {
+  return [
+    { id: 'benchmark-markdown', source: benchmarkMarkdownPath, target: join(runDir, 'BENCHMARK.md') },
+    { id: 'latest-summary-json', source: summaryPath, target: join(runDir, 'latest-summary.json') },
+    { id: 'runtime-matrix-json', source: runtimeMatrixPath, target: join(runDir, 'runtime-matrix.json') },
+    { id: 'runtime-matrix-markdown', source: runtimeMatrixMarkdownPath, target: join(runDir, 'runtime-matrix.md') },
+    { id: 'cross-runtime-json', source: crossRuntimeComparisonPath, target: join(runDir, 'cross-runtime-comparison.json') },
+    { id: 'cross-runtime-markdown', source: crossRuntimeComparisonMarkdownPath, target: join(runDir, 'cross-runtime-comparison.md') },
+    { id: 'simdxml-upstream-json', source: simdxmlUpstreamComparisonPath, target: join(runDir, 'simdxml-upstream-comparison.json') },
+    { id: 'simdxml-upstream-markdown', source: simdxmlUpstreamComparisonMarkdownPath, target: join(runDir, 'simdxml-upstream-comparison.md') },
+    { id: 'writer-1gb-raw-json', source: writer1gbRawPath, target: join(runDir, 'raw', 'writer-1gb.json') },
+  ];
+}
+
+export function createReleaseSnapshotPlan(runId) {
+  assertReleaseRunId(runId);
+  const runDir = join(historyDir, runId);
+  return {
+    runId,
+    runDir,
+    artifacts: releaseSnapshotArtifactDefinitions(runDir),
+  };
+}
+
+function readReleaseHistoryEntries() {
+  if (!existsSync(historyIndexJsonPath)) return [];
+  const parsed = readJsonFile(historyIndexJsonPath);
+  return Array.isArray(parsed.runs) ? parsed.runs : [];
+}
+
+function sortReleaseHistoryEntries(entries) {
+  return [...entries].sort((left, right) => {
+    const byGeneratedAt = String(right.generatedAt ?? '').localeCompare(String(left.generatedAt ?? ''));
+    return byGeneratedAt || String(right.runId ?? '').localeCompare(String(left.runId ?? ''));
+  });
+}
+
+function historyRelativePath(filePath) {
+  return relative(historyDir, filePath).replace(/\\/g, '/');
+}
+
+export function renderReleaseHistoryMarkdown(entries) {
+  const ordered = sortReleaseHistoryEntries(entries);
+  const lines = [
+    '# Release Benchmark History',
+    '',
+    'Generated by `packages/benchmark/update-release-benchmarks.mjs`.',
+    '',
+    '| Run | Generated | Runtime | Main report | Summary | Related reports |',
+    '| --- | --- | --- | --- | --- | --- |',
+  ];
+
+  for (const entry of ordered) {
+    const runtime = entry.environment
+      ? `${entry.environment.runtime} ${entry.environment.version} (${entry.environment.arch})`
+      : 'unknown';
+    lines.push(
+      `| \`${entry.runId}\` | ${entry.generatedAt} | ${runtime} | ` +
+      `[BENCHMARK.md](./${entry.runId}/BENCHMARK.md) | ` +
+      `[summary JSON](./${entry.runId}/latest-summary.json) | ` +
+      `[runtime](./${entry.runId}/runtime-matrix.md), ` +
+      `[cross-runtime](./${entry.runId}/cross-runtime-comparison.md), ` +
+      `[simdxml](./${entry.runId}/simdxml-upstream-comparison.md) |`,
+    );
+  }
+
+  return `${lines.join('\n')}\n`;
 }
 
 function runCommand(command, commandArgs, options = {}) {
@@ -92,8 +226,153 @@ function runCommand(command, commandArgs, options = {}) {
   }
 }
 
+function runNodeBenchmarkScript(scriptName, scriptArgs = []) {
+  runCommand(process.execPath, ['--expose-gc', join('packages', 'benchmark', scriptName), ...scriptArgs]);
+}
+
+function createRuntimeComparisonElement(id) {
+  return `  <book id="book-${id}" lang="en" code="${id % 97}">` +
+    `<title>Runtime Benchmark ${id}</title>` +
+    `<author>Author ${id % 4096}</author>` +
+    `<description>Full string checksum text payload ${id} with stable words and numbers.</description>` +
+    `<chapter number="1">Intro ${id}</chapter>` +
+    `<chapter number="2">Body ${id}</chapter>` +
+    '</book>\n';
+}
+
+function generateRuntimeComparisonFixture(filePath, targetBytes, verbose = true) {
+  mkdirSync(dirname(filePath), { recursive: true });
+  const fd = openSync(filePath, 'w');
+  const header = Buffer.from('<?xml version="1.0" encoding="UTF-8"?>\n<root>\n');
+  const footer = Buffer.from('</root>\n');
+  let written = 0;
+  let id = 0;
+
+  try {
+    writeSync(fd, header);
+    written += header.byteLength;
+    while (true) {
+      const element = Buffer.from(createRuntimeComparisonElement(id++), 'utf8');
+      if (written + element.byteLength + footer.byteLength > targetBytes) {
+        break;
+      }
+      writeSync(fd, element);
+      written += element.byteLength;
+    }
+    writeSync(fd, footer);
+    written += footer.byteLength;
+  } finally {
+    closeSync(fd);
+  }
+
+  if (verbose) {
+    console.log(`Generated runtime comparison fixture at ${filePath} (${formatMemory(written)})`);
+  }
+}
+
+function ensureReleaseFixtureInventory(verbose = true) {
+  const runtimeFixturePath = join(benchmarkDir, 'test-data', 'runtime-comparison-16mib.xml');
+  if (!existsSync(runtimeFixturePath)) {
+    generateRuntimeComparisonFixture(runtimeFixturePath, 16 * 1024 * 1024, verbose);
+  }
+
+  const fixtures = [
+    ['parser complex.xml', ASSET_PATHS.complex],
+    ['parser books.xml', ASSET_PATHS.books],
+    ['parser midsize.xml', ASSET_PATHS.midsize],
+    ['parser large.xml', ASSET_PATHS.large],
+    ['runtime comparison 16MiB XML', runtimeFixturePath],
+  ];
+
+  for (const [label, filePath] of fixtures) {
+    if (!existsSync(filePath)) {
+      throw new Error(`Missing release benchmark fixture: ${label} (${filePath})`);
+    }
+  }
+
+  if (verbose) {
+    console.log('Release benchmark fixtures are present.');
+  }
+}
+
+function ensureNativeAggregateProbeAvailable(verbose = true) {
+  if (existsSync(nativeAggregateProbePath)) {
+    if (verbose) {
+      console.log('Native aggregate probe is present.');
+    }
+    return;
+  }
+
+  runCommand('pnpm', ['--filter', '@stax-xml/native-aggregate-probe', 'build:native']);
+}
+
+function runAuxiliaryReleaseOutputs(args) {
+  runNodeBenchmarkScript('runtime-matrix.mjs');
+  runNodeBenchmarkScript('cross-runtime-comparison.mjs');
+
+  if (args.skipSimdxml) {
+    if (args.verbose) {
+      console.log('Skipped simdxml upstream comparison.');
+    }
+    return;
+  }
+
+  const simdxmlUpstreamDir = join(repoRoot, '.omx', 'upstream', 'simdxml');
+  const simdxmlArgs = existsSync(simdxmlUpstreamDir) ? ['--skip-fetch', '--skip-build'] : ['--skip-build'];
+  runNodeBenchmarkScript('simdxml-upstream-comparison.mjs', simdxmlArgs);
+}
+
+function copyReleaseSnapshot(plan) {
+  for (const artifact of plan.artifacts) {
+    if (!existsSync(artifact.source)) {
+      throw new Error(`Cannot snapshot missing benchmark artifact: ${artifact.source}`);
+    }
+    mkdirSync(dirname(artifact.target), { recursive: true });
+    copyFileSync(artifact.source, artifact.target);
+  }
+}
+
+function writeReleaseHistory(summary, { runId, verbose = true } = {}) {
+  const plan = createReleaseSnapshotPlan(runId);
+  copyReleaseSnapshot(plan);
+
+  const entry = {
+    runId,
+    generatedAt: summary.generatedAt,
+    environment: {
+      runtime: summary.environment.runtime,
+      version: summary.environment.version,
+      arch: summary.environment.arch,
+    },
+    artifacts: plan.artifacts.map((artifact) => ({
+      id: artifact.id,
+      path: historyRelativePath(artifact.target),
+    })),
+  };
+
+  writeFileSync(join(plan.runDir, 'metadata.json'), `${JSON.stringify(entry, null, 2)}\n`, 'utf8');
+
+  const entries = readReleaseHistoryEntries().filter((candidate) => candidate.runId !== runId);
+  entries.push(entry);
+  const ordered = sortReleaseHistoryEntries(entries);
+  mkdirSync(historyDir, { recursive: true });
+  writeFileSync(historyIndexJsonPath, `${JSON.stringify({ generatedAt: new Date().toISOString(), runs: ordered }, null, 2)}\n`, 'utf8');
+  writeFileSync(historyIndexMarkdownPath, renderReleaseHistoryMarkdown(ordered), 'utf8');
+
+  if (verbose) {
+    console.log(`Snapshotted release benchmark outputs to ${plan.runDir}`);
+    console.log(`Updated release benchmark history index at ${historyIndexMarkdownPath}`);
+  }
+
+  return { plan, entry };
+}
+
 function readJsonFile(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
+}
+
+function singleTrailingNewline(text) {
+  return `${text.replace(/\n+$/g, '')}\n`;
 }
 
 function readJsonFileIfExists(filePath) {
@@ -1219,7 +1498,15 @@ export const manifest = [
   {
     id: 'writer-1gb',
     title: 'Writer 1GiB async vs sync sink',
-    run: () => Promise.resolve(normalizeWriter1gbSuiteResultFromRawFile(join(rawDir, 'writer-1gb.json'))),
+    run: () => {
+      runNodeBenchmarkScript('writer-1gb.mjs', [
+        '--size-gb',
+        '1',
+        '--json-out',
+        join('packages', 'benchmark', 'results', 'release', 'raw', 'writer-1gb.json'),
+      ]);
+      return Promise.resolve(normalizeWriter1gbSuiteResultFromRawFile(writer1gbRawPath));
+    },
   },
   {
     id: 'converter-parity',
@@ -1918,12 +2205,14 @@ function createBenchmarkMarkdown(summary) {
   return `# Benchmarks
 
 Generated: ${summary.generatedAt}
+Run ID: ${summary.runId}
 
 Environment:
 - CPU: ${summary.environment.cpuName} (~${summary.environment.cpuGHz.toFixed(2)} GHz)
 - Runtime: ${summary.environment.runtime} ${summary.environment.version} (${summary.environment.arch})
 
 This report is generated from the canonical release benchmark set. The docs benchmark pages are derived from the same raw JSON results.
+Historical runs are indexed at [packages/benchmark/results/release/history/README.md](packages/benchmark/results/release/history/README.md).
 
 ${createEnglishBenchmarkBlock(summary)}
 `;
@@ -1932,6 +2221,20 @@ ${createEnglishBenchmarkBlock(summary)}
 async function main() {
   const args = parseArgs();
   mkdirSync(rawDir, { recursive: true });
+
+  if (args.aggregateOnly) {
+    await aggregateReleaseBenchmarks({
+      history: !args.skipHistory,
+      runId: args.runId,
+      verbose: args.verbose,
+    });
+    return;
+  }
+
+  if (!args.skipFixtures) {
+    ensureReleaseFixtureInventory(args.verbose);
+  }
+  ensureNativeAggregateProbeAvailable(args.verbose);
 
   const suites = {};
   for (const entry of manifest) {
@@ -1948,7 +2251,14 @@ async function main() {
   const ranFullCanonicalSet = Object.keys(suites).length === manifest.length;
 
   if (ranFullCanonicalSet) {
-    await aggregateReleaseBenchmarks({ verbose: args.verbose });
+    if (!args.skipAuxiliary) {
+      runAuxiliaryReleaseOutputs(args);
+    }
+    await aggregateReleaseBenchmarks({
+      history: !args.skipHistory,
+      runId: args.runId,
+      verbose: args.verbose,
+    });
   }
 
   if (args.verbose) {
@@ -1960,7 +2270,7 @@ async function main() {
   }
 }
 
-export async function aggregateReleaseBenchmarks({ verbose = true } = {}) {
+export async function aggregateReleaseBenchmarks({ history = true, runId = null, verbose = true } = {}) {
   const suites = {};
   for (const entry of manifest) {
     const rawFile = join(rawDir, `${entry.id}.json`);
@@ -1975,14 +2285,20 @@ export async function aggregateReleaseBenchmarks({ verbose = true } = {}) {
     throw new Error('No canonical benchmark results found');
   }
 
+  const generatedAt = runId ? releaseRunIdToIso(runId) : new Date().toISOString();
   const summary = {
-    generatedAt: new Date().toISOString(),
+    generatedAt,
+    runId: runId ?? createReleaseRunId(new Date(generatedAt)),
     environment: collectBenchmarkEnvironment(firstSuite.context),
     suites,
   };
 
   writeFileSync(summaryPath, `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
-  writeFileSync(benchmarkMarkdownPath, `${createBenchmarkMarkdown(summary)}\n`, 'utf8');
+  writeFileSync(benchmarkMarkdownPath, singleTrailingNewline(createBenchmarkMarkdown(summary)), 'utf8');
+
+  if (history) {
+    writeReleaseHistory(summary, { runId: summary.runId, verbose });
+  }
 
   if (verbose) {
     console.log(`Wrote summary JSON to ${summaryPath}`);

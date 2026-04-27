@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release tag to publish, for example v1.0.0-rc2'
+        description: 'Release tag to publish, for example v1.0.0-rc3'
         required: true
-        default: 'v1.0.0-rc2'
+        default: 'v1.0.0-rc3'
   workflow_call:
     inputs:
       version:
-        description: 'Release tag to publish, for example v1.0.0-rc2'
+        description: 'Release tag to publish, for example v1.0.0-rc3'
         required: true
         type: string
 
@@ -36,8 +36,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: '10.18.0'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -280,8 +278,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: '10.18.0'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -335,6 +331,103 @@ jobs:
           else
             npm publish --access public --tag "${{ steps.npm-dist-tag.outputs.tag }}"
           fi
+
+      - name: Smoke published native resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp_dir="$(mktemp -d)"
+          cleanup() { rm -rf "$temp_dir"; }
+          trap cleanup EXIT
+          cd "$temp_dir"
+
+          npm init -y >/dev/null
+          npm pkg set type=module >/dev/null
+
+          for attempt in 1 2 3 4 5; do
+            if npm install --omit=dev --ignore-scripts --loglevel=error "stax-xml@${{ steps.npm-dist-tag.outputs.version }}"; then
+              break
+            fi
+            if [ "$attempt" = 5 ]; then
+              exit 1
+            fi
+            echo "npm install attempt $attempt/5 failed; retrying after registry propagation delay..."
+            sleep 15
+          done
+
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          import { join } from 'node:path';
+          import * as staxXml from 'stax-xml';
+          import {
+            detectRuntimePlatform,
+            getStaxXmlNativePackageName,
+            resolveStaxXmlRuntimeBackend,
+          } from 'stax-xml/runtime';
+
+          const cwd = process.cwd();
+          const facadePackageJsonPath = join(cwd, 'node_modules', 'stax-xml', 'package.json');
+          const facadePackageJson = JSON.parse(await readFile(facadePackageJsonPath, 'utf8'));
+          const platform = detectRuntimePlatform();
+          const expectedPackage = getStaxXmlNativePackageName(platform);
+
+          if (typeof staxXml.StaxXmlParserSync !== 'function') {
+            throw new Error('stax-xml root import did not expose StaxXmlParserSync.');
+          }
+
+          if (!expectedPackage) {
+            throw new Error('No native package is expected for ' + platform.platform + '/' + platform.arch + '.');
+          }
+
+          const expectedVersion = facadePackageJson.optionalDependencies?.[expectedPackage];
+          if (expectedVersion !== facadePackageJson.version) {
+            throw new Error(
+              'Expected ' + expectedPackage + '@' + facadePackageJson.version +
+                ' in stax-xml optionalDependencies, found ' + expectedVersion + '.',
+            );
+          }
+
+          const nativePackageJsonPath = join(cwd, 'node_modules', ...expectedPackage.split('/'), 'package.json');
+          const nativePackageJson = JSON.parse(await readFile(nativePackageJsonPath, 'utf8'));
+
+          if (nativePackageJson.version !== facadePackageJson.version) {
+            throw new Error(
+              'Installed native package version mismatch: ' + expectedPackage + '@' + nativePackageJson.version +
+                ', facade ' + facadePackageJson.version + '.',
+            );
+          }
+
+          const backend = await resolveStaxXmlRuntimeBackend();
+          if (backend.kind !== 'native' || backend.packageName !== expectedPackage) {
+            throw new Error(
+              'Expected native backend ' + expectedPackage + ', got ' + backend.kind + ' ' +
+                (backend.packageName ?? '(none)') + '.',
+            );
+          }
+
+          const nativeModule = backend.module;
+          if (typeof nativeModule?.parseAggregateStringUtf8 !== 'function') {
+            throw new Error(expectedPackage + ' did not expose parseAggregateStringUtf8.');
+          }
+
+          const aggregate = nativeModule.parseAggregateStringUtf8(
+            '<root><item id="1">ok</item></root>',
+            'count-only',
+          );
+          const eventCount = aggregate.eventCount ?? aggregate.event_count;
+          if (!Number.isInteger(eventCount) || eventCount <= 0) {
+            throw new Error('Unexpected native aggregate event count: ' + eventCount);
+          }
+
+          console.log(JSON.stringify({
+            facadeVersion: facadePackageJson.version,
+            platform,
+            expectedPackage,
+            nativeVersion: nativePackageJson.version,
+            backendKind: backend.kind,
+            eventCount,
+          }, null, 2));
+          NODE
 
       - name: Generate changelog
         if: ${{ !contains(steps.npm-dist-tag.outputs.version, '-') }}

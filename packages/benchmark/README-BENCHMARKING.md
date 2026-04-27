@@ -23,6 +23,18 @@ The published regression contract has only two approved rows:
 
 Do not adapt Node async cursor hot paths through `ReadableStream` when measuring this regression.
 
+## Release Benchmark Refresh
+
+Use one command for the public release benchmark set:
+
+```bash
+pnpm --filter benchmark run release:update
+```
+
+That command prepares required release fixtures, reruns the canonical parser, writer, converter, runtime, cross-runtime, and simdxml comparison outputs, rewrites `BENCHMARK.md`, updates `packages/benchmark/results/release/latest-summary.json`, and snapshots the public Markdown/JSON artifacts under `packages/benchmark/results/release/history/<run-id>/`.
+
+`packages/benchmark/results/release/history/README.md` is the time-series index for previous release benchmark refreshes.
+
 ## Tools
 
 ### 1. GC Pressure Benchmark (`benchmark-gc-pressure.mjs`)

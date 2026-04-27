@@ -1,0 +1,47 @@
+{
+  "runId": "2026-04-27T10-29-32-029Z",
+  "generatedAt": "2026-04-27T10:29:32.029Z",
+  "environment": {
+    "runtime": "node",
+    "version": "24.15.0",
+    "arch": "x64-win32"
+  },
+  "artifacts": [
+    {
+      "id": "benchmark-markdown",
+      "path": "2026-04-27T10-29-32-029Z/BENCHMARK.md"
+    },
+    {
+      "id": "latest-summary-json",
+      "path": "2026-04-27T10-29-32-029Z/latest-summary.json"
+    },
+    {
+      "id": "runtime-matrix-json",
+      "path": "2026-04-27T10-29-32-029Z/runtime-matrix.json"
+    },
+    {
+      "id": "runtime-matrix-markdown",
+      "path": "2026-04-27T10-29-32-029Z/runtime-matrix.md"
+    },
+    {
+      "id": "cross-runtime-json",
+      "path": "2026-04-27T10-29-32-029Z/cross-runtime-comparison.json"
+    },
+    {
+      "id": "cross-runtime-markdown",
+      "path": "2026-04-27T10-29-32-029Z/cross-runtime-comparison.md"
+    },
+    {
+      "id": "simdxml-upstream-json",
+      "path": "2026-04-27T10-29-32-029Z/simdxml-upstream-comparison.json"
+    },
+    {
+      "id": "simdxml-upstream-markdown",
+      "path": "2026-04-27T10-29-32-029Z/simdxml-upstream-comparison.md"
+    },
+    {
+      "id": "writer-1gb-raw-json",
+      "path": "2026-04-27T10-29-32-029Z/raw/writer-1gb.json"
+    }
+  ]
+}

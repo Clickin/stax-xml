@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Prerelease tag to create, for example v1.0.0-rc2'
+        description: 'Prerelease tag to create, for example v1.0.0-rc3'
         required: true
-        default: 'v1.0.0-rc2'
+        default: 'v1.0.0-rc3'
       npm_tag:
         description: 'Expected npm dist-tag used by release.yml for prereleases'
         required: true
@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z.-]+$ ]]; then
-            echo "version must be a prerelease tag like v1.0.0-rc2" >&2
+            echo "version must be a prerelease tag like v1.0.0-rc3" >&2
             exit 1
           fi
           if [[ "${{ inputs.npm_tag }}" != "next" ]]; then
@@ -66,8 +66,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: '10.18.0'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

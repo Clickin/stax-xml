@@ -2,12 +2,13 @@
 
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = new URL('..', import.meta.url);
+const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const versionArg = process.argv[2];
 
 if (!versionArg || !/^v\d+\.\d+\.\d+-[0-9A-Za-z.-]+$/.test(versionArg)) {
-  console.error('Usage: node scripts/validate-prerelease.mjs v1.0.0-rc2');
+  console.error('Usage: node scripts/validate-prerelease.mjs v1.0.0-rc3');
   process.exit(1);
 }
 
@@ -39,7 +40,7 @@ const optionalNativeDependencies = [
 ];
 
 async function readJson(relativePath) {
-  return JSON.parse(await readFile(join(repoRoot.pathname, relativePath), 'utf8'));
+  return JSON.parse(await readFile(join(repoRoot, relativePath), 'utf8'));
 }
 
 const errors = [];

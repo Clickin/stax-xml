@@ -1,0 +1,2307 @@
+{
+  "generatedAt": "2026-04-27T10:29:30.849Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "upstream": {
+    "url": "https://github.com/simdxml/simdxml",
+    "ref": "539577043c27e537c2cf9e5a38e5e10d844e83b0",
+    "head": "539577043c27e537c2cf9e5a38e5e10d844e83b0",
+    "dir": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml",
+    "parseBench": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\crates\\simdxml\\benches\\parse_bench.rs",
+    "benchRunScript": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\bench\\run.sh",
+    "benchRunX86Script": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\bench\\run-x86.sh"
+  },
+  "options": {
+    "runs": 5,
+    "warmups": 2,
+    "groups": [
+      "parse-throughput",
+      "shape",
+      "scaling"
+    ],
+    "nativeTiers": [
+      "event-count-unsafe-gt",
+      "event-count-unchecked",
+      "event-count-auto-stage",
+      "event-count-only",
+      "count-only",
+      "count-auto-stage",
+      "full-string-direct"
+    ],
+    "nativeSimd": "auto"
+  },
+  "groups": [
+    {
+      "id": "parse-throughput",
+      "cases": [
+        {
+          "label": "patent_medium",
+          "filename": "patent_medium.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_medium.xml",
+          "sizeBytes": 105907,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.050859999999999995,
+              "minMs": 0.043699999999999996,
+              "maxMs": 0.0591,
+              "mibPerSec": 1985.8589427376469,
+              "eventCount": 2225,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.059,
+                0.0591,
+                0.047,
+                0.043699999999999996,
+                0.0455
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 105907
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.05226000000000965,
+              "minMs": 0.037600000000011846,
+              "maxMs": 0.09530000000000882,
+              "mibPerSec": 1932.6595068430552,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.09530000000000882,
+                0.04270000000001062,
+                0.04810000000000514,
+                0.037600000000011846,
+                0.037600000000011846
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.03628000000000213,
+              "minMs": 0.032200000000003115,
+              "maxMs": 0.04100000000001103,
+              "mibPerSec": 2783.9246369247735,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.04100000000001103,
+                0.032200000000003115,
+                0.03529999999999234,
+                0.03619999999999379,
+                0.03670000000001039
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.0428799999999967,
+              "minMs": 0.03269999999999129,
+              "maxMs": 0.05570000000000164,
+              "mibPerSec": 2355.42877396559,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.05339999999999634,
+                0.05570000000000164,
+                0.03639999999998622,
+                0.036200000000008004,
+                0.03269999999999129
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.04685999999999524,
+              "minMs": 0.039699999999996294,
+              "maxMs": 0.059599999999988995,
+              "mibPerSec": 2155.3731503979297,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.05459999999999354,
+                0.04059999999999775,
+                0.059599999999988995,
+                0.039699999999996294,
+                0.03979999999999961
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.048660000000000994,
+              "minMs": 0.04279999999999973,
+              "maxMs": 0.061900000000008504,
+              "mibPerSec": 2075.6429475469513,
+              "eventCount": 1570,
+              "checksum": -2073111976,
+              "samplesMs": [
+                0.04279999999999973,
+                0.04579999999999984,
+                0.043099999999995475,
+                0.061900000000008504,
+                0.04970000000000141
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.04947999999999695,
+              "minMs": 0.04259999999999309,
+              "maxMs": 0.06519999999999015,
+              "mibPerSec": 2041.2446610275454,
+              "eventCount": 1570,
+              "checksum": -2073111976,
+              "samplesMs": [
+                0.048499999999989996,
+                0.047000000000011255,
+                0.04259999999999309,
+                0.04410000000000025,
+                0.06519999999999015
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.11796000000000503,
+              "minMs": 0.1056999999999988,
+              "maxMs": 0.143100000000004,
+              "mibPerSec": 856.2291101020041,
+              "eventCount": 1570,
+              "checksum": -1122418340,
+              "samplesMs": [
+                0.143100000000004,
+                0.10770000000000834,
+                0.1056999999999988,
+                0.10760000000001924,
+                0.12569999999999482
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "patent_large",
+          "filename": "patent_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_large.xml",
+          "sizeBytes": 1057369,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.41508,
+              "minMs": 0.3885,
+              "maxMs": 0.4594,
+              "mibPerSec": 2429.376646102342,
+              "eventCount": 22097,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.4101,
+                0.4594,
+                0.3885,
+                0.4073,
+                0.4101
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.17914000000000102,
+              "minMs": 0.1641999999999939,
+              "maxMs": 0.2120000000000175,
+              "mibPerSec": 5629.036833002983,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.2120000000000175,
+                0.16819999999998458,
+                0.16450000000000387,
+                0.1641999999999939,
+                0.18680000000000518
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.2244799999999941,
+              "minMs": 0.20069999999998345,
+              "maxMs": 0.26700000000002433,
+              "mibPerSec": 4492.095769174031,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.23989999999997735,
+                0.26700000000002433,
+                0.21000000000000796,
+                0.20069999999998345,
+                0.20479999999997744
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.2191000000000031,
+              "minMs": 0.19810000000001082,
+              "maxMs": 0.25,
+              "mibPerSec": 4602.399170534669,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.19810000000001082,
+                0.20279999999999632,
+                0.1991999999999905,
+                0.24540000000001783,
+                0.25
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.28879999999999767,
+              "minMs": 0.2539999999999907,
+              "maxMs": 0.3125999999999749,
+              "mibPerSec": 3491.6400909424106,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.3125999999999749,
+                0.3025000000000091,
+                0.2892999999999972,
+                0.2539999999999907,
+                0.2856000000000165
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.31370000000000003,
+              "minMs": 0.30570000000000164,
+              "maxMs": 0.3218999999999994,
+              "mibPerSec": 3214.4904630671344,
+              "eventCount": 15562,
+              "checksum": -484084296,
+              "samplesMs": [
+                0.3200999999999965,
+                0.31100000000000705,
+                0.30570000000000164,
+                0.30979999999999563,
+                0.3218999999999994
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.3161200000000008,
+              "minMs": 0.30299999999999727,
+              "maxMs": 0.36170000000001323,
+              "mibPerSec": 3189.8825074786714,
+              "eventCount": 15562,
+              "checksum": -484084296,
+              "samplesMs": [
+                0.30299999999999727,
+                0.3037999999999954,
+                0.30740000000000123,
+                0.30469999999999686,
+                0.36170000000001323
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.9394599999999969,
+              "minMs": 0.9336000000000126,
+              "maxMs": 0.9465999999999894,
+              "mibPerSec": 1073.3673155474032,
+              "eventCount": 15562,
+              "checksum": -780923665,
+              "samplesMs": [
+                0.9465999999999894,
+                0.9382999999999981,
+                0.9356999999999971,
+                0.9336000000000126,
+                0.943099999999987
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "patent_xlarge",
+          "filename": "patent_xlarge.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_xlarge.xml",
+          "sizeBytes": 10562023,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 3.9369199999999998,
+              "minMs": 3.8102,
+              "maxMs": 4.165699999999999,
+              "mibPerSec": 2558.5305427573053,
+              "eventCount": 220985,
+              "checksum": 16777619,
+              "samplesMs": [
+                3.8562000000000003,
+                3.9179000000000004,
+                3.8102,
+                4.165699999999999,
+                3.9346
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 10562023
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 1.610899999999998,
+              "minMs": 1.5430999999999813,
+              "maxMs": 1.6931000000000154,
+              "mibPerSec": 6252.8586904166,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                1.6931000000000154,
+                1.6208000000000027,
+                1.644900000000007,
+                1.552599999999984,
+                1.5430999999999813
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 2.044159999999988,
+              "minMs": 2.009900000000016,
+              "maxMs": 2.072599999999966,
+              "mibPerSec": 4927.564410022772,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                2.050199999999961,
+                2.072599999999966,
+                2.0265999999999735,
+                2.0615000000000236,
+                2.009900000000016
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 2.0798,
+              "minMs": 2.011099999999999,
+              "maxMs": 2.189899999999966,
+              "mibPerSec": 4843.12436983945,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                2.189899999999966,
+                2.116200000000049,
+                2.0581999999999994,
+                2.0235999999999876,
+                2.011099999999999
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 2.5835800000000178,
+              "minMs": 2.5405000000000086,
+              "maxMs": 2.6492000000000075,
+              "mibPerSec": 3898.749047597528,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                2.574100000000044,
+                2.578300000000013,
+                2.575800000000015,
+                2.6492000000000075,
+                2.5405000000000086
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 3.0666600000000015,
+              "minMs": 3.0359000000000265,
+              "maxMs": 3.0991000000000213,
+              "mibPerSec": 3284.593030982269,
+              "eventCount": 155716,
+              "checksum": 755898644,
+              "samplesMs": [
+                3.0359000000000265,
+                3.0991000000000213,
+                3.0892000000000053,
+                3.040899999999965,
+                3.0681999999999903
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 3.1683199999999943,
+              "minMs": 3.047200000000032,
+              "maxMs": 3.2638999999999783,
+              "mibPerSec": 3179.2022473715115,
+              "eventCount": 155716,
+              "checksum": 755898644,
+              "samplesMs": [
+                3.2106999999999744,
+                3.151999999999987,
+                3.2638999999999783,
+                3.1677999999999997,
+                3.047200000000032
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 9.60594000000001,
+              "minMs": 9.423699999999997,
+              "maxMs": 9.891500000000008,
+              "mibPerSec": 1048.5938975667223,
+              "eventCount": 155716,
+              "checksum": 2110408379,
+              "samplesMs": [
+                9.508500000000026,
+                9.891500000000008,
+                9.51740000000001,
+                9.423699999999997,
+                9.688600000000008
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "attrheavy_large",
+          "filename": "attrheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\attrheavy_large.xml",
+          "sizeBytes": 1062726,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.33130000000000004,
+              "minMs": 0.32180000000000003,
+              "maxMs": 0.3481,
+              "mibPerSec": 3059.1442546850235,
+              "eventCount": 14095,
+              "checksum": 251664285,
+              "samplesMs": [
+                0.3343,
+                0.3481,
+                0.32739999999999997,
+                0.32489999999999997,
+                0.32180000000000003
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1062726
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.13146000000000413,
+              "minMs": 0.11349999999998772,
+              "maxMs": 0.16620000000000346,
+              "mibPerSec": 7709.527548890283,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.16620000000000346,
+                0.1402999999999679,
+                0.11830000000003338,
+                0.1190000000000282,
+                0.11349999999998772
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.4387000000000171,
+              "minMs": 0.42730000000000246,
+              "maxMs": 0.46910000000002583,
+              "mibPerSec": 2310.222228349918,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.438699999999983,
+                0.46910000000002583,
+                0.42950000000001864,
+                0.42890000000005557,
+                0.42730000000000246
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.1802799999999934,
+              "minMs": 0.15800000000001546,
+              "maxMs": 0.2267999999999688,
+              "mibPerSec": 5621.779962154346,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.1612999999999829,
+                0.19180000000000064,
+                0.2267999999999688,
+                0.1634999999999991,
+                0.15800000000001546
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.4458599999999933,
+              "minMs": 0.4438999999999851,
+              "maxMs": 0.4508999999999901,
+              "mibPerSec": 2273.1227102165785,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.4446999999999548,
+                0.444500000000005,
+                0.44530000000003156,
+                0.4508999999999901,
+                0.4438999999999851
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.9155199999999922,
+              "minMs": 0.8571999999999775,
+              "maxMs": 0.9682999999999993,
+              "mibPerSec": 1107.01512973737,
+              "eventCount": 14094,
+              "checksum": -1176264086,
+              "samplesMs": [
+                0.9137999999999806,
+                0.8571999999999775,
+                0.9216000000000122,
+                0.9166999999999916,
+                0.9682999999999993
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.35911999999997307,
+              "minMs": 0.32970000000000255,
+              "maxMs": 0.4076999999999771,
+              "mibPerSec": 2822.161092607553,
+              "eventCount": 14094,
+              "checksum": -1176264086,
+              "samplesMs": [
+                0.3617999999999597,
+                0.4076999999999771,
+                0.3603999999999701,
+                0.3359999999999559,
+                0.32970000000000255
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 1.4961399999999911,
+              "minMs": 1.45900000000006,
+              "maxMs": 1.5733000000000175,
+              "mibPerSec": 677.4061863041925,
+              "eventCount": 14094,
+              "checksum": -1638345177,
+              "samplesMs": [
+                1.5733000000000175,
+                1.4809000000000196,
+                1.4898999999999205,
+                1.4775999999999385,
+                1.45900000000006
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "textheavy_large",
+          "filename": "textheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\textheavy_large.xml",
+          "sizeBytes": 1050319,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.07683999999999999,
+              "minMs": 0.0671,
+              "maxMs": 0.1009,
+              "mibPerSec": 13035.6878492126,
+              "eventCount": 4949,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.06760000000000001,
+                0.0671,
+                0.0694,
+                0.1009,
+                0.0792
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1050319
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.07245999999997821,
+              "minMs": 0.06430000000000291,
+              "maxMs": 0.08559999999999945,
+              "mibPerSec": 13823.657940019282,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.08559999999999945,
+                0.06919999999990978,
+                0.06769999999994525,
+                0.06430000000000291,
+                0.07550000000003365
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.061140000000000326,
+              "minMs": 0.05600000000004002,
+              "maxMs": 0.06889999999998508,
+              "mibPerSec": 16383.092154620392,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.06029999999998381,
+                0.06889999999998508,
+                0.06330000000002656,
+                0.05719999999996617,
+                0.05600000000004002
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.06649999999999637,
+              "minMs": 0.0523000000000593,
+              "maxMs": 0.08100000000001728,
+              "mibPerSec": 15062.590290730086,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.0523000000000593,
+                0.06970000000001164,
+                0.06139999999993506,
+                0.08100000000001728,
+                0.06809999999995853
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.07190000000002783,
+              "minMs": 0.060400000000072396,
+              "maxMs": 0.08360000000004675,
+              "mibPerSec": 13931.32481687216,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.06590000000005602,
+                0.060400000000072396,
+                0.08360000000004675,
+                0.07039999999994961,
+                0.07920000000001437
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.05906000000002223,
+              "minMs": 0.05529999999998836,
+              "maxMs": 0.06340000000000146,
+              "mibPerSec": 16960.078806859452,
+              "eventCount": 3609,
+              "checksum": -424875449,
+              "samplesMs": [
+                0.06069999999999709,
+                0.060100000000034015,
+                0.05580000000009022,
+                0.05529999999998836,
+                0.06340000000000146
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.057500000000050025,
+              "minMs": 0.05529999999998836,
+              "maxMs": 0.059000000000082764,
+              "mibPerSec": 17420.213118828255,
+              "eventCount": 3609,
+              "checksum": -424875449,
+              "samplesMs": [
+                0.059000000000082764,
+                0.05529999999998836,
+                0.058600000000069485,
+                0.05740000000002965,
+                0.057200000000079854
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.6856800000000021,
+              "minMs": 0.6820000000000164,
+              "maxMs": 0.6884999999999764,
+              "mibPerSec": 1460.8304957611322,
+              "eventCount": 3609,
+              "checksum": 1402663177,
+              "samplesMs": [
+                0.6884999999999764,
+                0.6847000000000207,
+                0.6871999999999616,
+                0.6820000000000164,
+                0.6860000000000355
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "nested_large",
+          "filename": "nested_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\nested_large.xml",
+          "sizeBytes": 1070855,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.4360200000000001,
+              "minMs": 0.41960000000000003,
+              "maxMs": 0.479,
+              "mibPerSec": 2342.2019863657965,
+              "eventCount": 20289,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.4319,
+                0.479,
+                0.4267,
+                0.4229,
+                0.41960000000000003
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1070855
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.22652000000002773,
+              "minMs": 0.2056999999999789,
+              "maxMs": 0.28750000000002274,
+              "mibPerSec": 4508.418285780902,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.28750000000002274,
+                0.21660000000008495,
+                0.21070000000008804,
+                0.21209999999996398,
+                0.2056999999999789
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.23973999999996068,
+              "minMs": 0.22489999999993415,
+              "maxMs": 0.2800999999999476,
+              "mibPerSec": 4259.810253171696,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.2319999999999709,
+                0.22489999999993415,
+                0.2800999999999476,
+                0.23339999999996053,
+                0.22829999999999018
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.2332800000000134,
+              "minMs": 0.22519999999997253,
+              "maxMs": 0.2577999999999747,
+              "mibPerSec": 4377.7731056891125,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.2577999999999747,
+                0.22680000000002565,
+                0.22519999999997253,
+                0.22850000000005366,
+                0.22810000000004038
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.25615999999999983,
+              "minMs": 0.2540000000000191,
+              "maxMs": 0.2577999999999747,
+              "mibPerSec": 3986.7540212961253,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.2563000000000102,
+                0.2558999999999969,
+                0.2540000000000191,
+                0.2577999999999747,
+                0.25679999999999836
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.33995999999997367,
+              "minMs": 0.29980000000000473,
+              "maxMs": 0.3529999999999518,
+              "mibPerSec": 3004.0207968446107,
+              "eventCount": 10146,
+              "checksum": -6429474,
+              "samplesMs": [
+                0.3465999999999667,
+                0.35029999999994743,
+                0.35009999999999764,
+                0.3529999999999518,
+                0.29980000000000473
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.3015600000000177,
+              "minMs": 0.3001000000000431,
+              "maxMs": 0.3029000000000224,
+              "mibPerSec": 3386.546326088191,
+              "eventCount": 10146,
+              "checksum": -6429474,
+              "samplesMs": [
+                0.3005000000000564,
+                0.3029000000000224,
+                0.3001000000000431,
+                0.30139999999994416,
+                0.3029000000000224
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.40876000000000656,
+              "minMs": 0.38790000000005875,
+              "maxMs": 0.46230000000002747,
+              "mibPerSec": 2498.4022656208986,
+              "eventCount": 10146,
+              "checksum": 621559765,
+              "samplesMs": [
+                0.40300000000002,
+                0.46230000000002747,
+                0.3991999999999507,
+                0.38790000000005875,
+                0.391399999999976
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shape",
+      "cases": [
+        {
+          "label": "patent",
+          "filename": "patent_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_large.xml",
+          "sizeBytes": 1057369,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.42784000000000005,
+              "minMs": 0.39609999999999995,
+              "maxMs": 0.4744,
+              "mibPerSec": 2356.922350093867,
+              "eventCount": 22097,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.44470000000000004,
+                0.4744,
+                0.39609999999999995,
+                0.4142,
+                0.4098
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.21459999999999582,
+              "minMs": 0.16840000000001965,
+              "maxMs": 0.26490000000001146,
+              "mibPerSec": 4698.908006822832,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.22890000000006694,
+                0.17609999999990578,
+                0.23469999999997526,
+                0.26490000000001146,
+                0.16840000000001965
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.20948000000003048,
+              "minMs": 0.20190000000002328,
+              "maxMs": 0.23050000000000637,
+              "mibPerSec": 4813.756245293171,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.20510000000001583,
+                0.20190000000002328,
+                0.20490000000006603,
+                0.23050000000000637,
+                0.20500000000004093
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.21868000000001758,
+              "minMs": 0.19839999999999236,
+              "maxMs": 0.2742000000000644,
+              "mibPerSec": 4611.238605560999,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.19839999999999236,
+                0.2039999999999509,
+                0.20260000000007494,
+                0.21420000000000528,
+                0.2742000000000644
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.2757600000000366,
+              "minMs": 0.254099999999994,
+              "maxMs": 0.34160000000008495,
+              "mibPerSec": 3656.7510090804553,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.34160000000008495,
+                0.266399999999976,
+                0.2603000000000293,
+                0.25640000000009877,
+                0.254099999999994
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.32019999999997706,
+              "minMs": 0.3039999999999736,
+              "maxMs": 0.36789999999996326,
+              "mibPerSec": 3149.2369090075968,
+              "eventCount": 15562,
+              "checksum": -484084296,
+              "samplesMs": [
+                0.36789999999996326,
+                0.3104999999999336,
+                0.3083000000000311,
+                0.3039999999999736,
+                0.3102999999999838
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.3138599999999542,
+              "minMs": 0.3101999999998952,
+              "maxMs": 0.31929999999999836,
+              "mibPerSec": 3212.851775518726,
+              "eventCount": 15562,
+              "checksum": -484084296,
+              "samplesMs": [
+                0.3128000000000384,
+                0.3101999999998952,
+                0.31369999999992615,
+                0.31929999999999836,
+                0.31329999999991287
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.9552599999999757,
+              "minMs": 0.9307999999999765,
+              "maxMs": 0.9970999999999322,
+              "mibPerSec": 1055.6138205977281,
+              "eventCount": 15562,
+              "checksum": -780923665,
+              "samplesMs": [
+                0.9393999999999778,
+                0.9379999999999882,
+                0.9307999999999765,
+                0.9970999999999322,
+                0.9710000000000036
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "attrheavy",
+          "filename": "attrheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\attrheavy_large.xml",
+          "sizeBytes": 1062726,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.34248,
+              "minMs": 0.33149999999999996,
+              "maxMs": 0.3588,
+              "mibPerSec": 2959.280809323606,
+              "eventCount": 14095,
+              "checksum": 251664285,
+              "samplesMs": [
+                0.33149999999999996,
+                0.3448,
+                0.3448,
+                0.3325,
+                0.3588
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1062726
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.12682000000004337,
+              "minMs": 0.11230000000000473,
+              "maxMs": 0.1512000000000171,
+              "mibPerSec": 7991.598261920847,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.1512000000000171,
+                0.11430000000007112,
+                0.11330000000009477,
+                0.11230000000000473,
+                0.1430000000000291
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.41663999999998397,
+              "minMs": 0.41069999999990614,
+              "maxMs": 0.422800000000052,
+              "mibPerSec": 2432.54246250285,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.4154999999999518,
+                0.42219999999997526,
+                0.422800000000052,
+                0.41200000000003456,
+                0.41069999999990614
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.2435599999999795,
+              "minMs": 0.24139999999999873,
+              "maxMs": 0.2477000000000089,
+              "mibPerSec": 4161.169697722261,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.2477000000000089,
+                0.24459999999999127,
+                0.24249999999994998,
+                0.24139999999999873,
+                0.24159999999994852
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.4795399999999745,
+              "minMs": 0.4437999999998965,
+              "maxMs": 0.5339000000000169,
+              "mibPerSec": 2113.4722683763657,
+              "eventCount": 14094,
+              "checksum": 1643201545,
+              "samplesMs": [
+                0.477800000000002,
+                0.4437999999998965,
+                0.4857999999999265,
+                0.5339000000000169,
+                0.45640000000003056
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.9078199999999924,
+              "minMs": 0.8913000000000011,
+              "maxMs": 0.9230000000000018,
+              "mibPerSec": 1116.4046744697814,
+              "eventCount": 14094,
+              "checksum": -1176264086,
+              "samplesMs": [
+                0.908399999999915,
+                0.9156000000000404,
+                0.9008000000000038,
+                0.9230000000000018,
+                0.8913000000000011
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.348279999999977,
+              "minMs": 0.32159999999998945,
+              "maxMs": 0.3815999999999349,
+              "mibPerSec": 2909.99911444015,
+              "eventCount": 14094,
+              "checksum": -1176264086,
+              "samplesMs": [
+                0.3815999999999349,
+                0.33330000000000837,
+                0.32159999999998945,
+                0.32769999999993615,
+                0.3772000000000162
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 1.5142599999999902,
+              "minMs": 1.4796999999999798,
+              "maxMs": 1.5514000000000578,
+              "mibPerSec": 669.3001806672269,
+              "eventCount": 14094,
+              "checksum": -1638345177,
+              "samplesMs": [
+                1.502299999999991,
+                1.5412999999999784,
+                1.5514000000000578,
+                1.496599999999944,
+                1.4796999999999798
+              ],
+              "sizeBytes": 1062726,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "textheavy",
+          "filename": "textheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\textheavy_large.xml",
+          "sizeBytes": 1050319,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.0668,
+              "minMs": 0.0632,
+              "maxMs": 0.074,
+              "mibPerSec": 14994.943927148146,
+              "eventCount": 4949,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.074,
+                0.0659,
+                0.0652,
+                0.0632,
+                0.0657
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1050319
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.0699200000000019,
+              "minMs": 0.05930000000000746,
+              "maxMs": 0.08429999999998472,
+              "mibPerSec": 14325.833156943207,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.08429999999998472,
+                0.06349999999997635,
+                0.05930000000000746,
+                0.062300000000050204,
+                0.08019999999999072
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.08394000000002962,
+              "minMs": 0.07070000000010168,
+              "maxMs": 0.09929999999997108,
+              "mibPerSec": 11933.07427130263,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.09929999999997108,
+                0.0845000000000482,
+                0.07500000000004547,
+                0.07070000000010168,
+                0.09019999999998163
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.08243999999997413,
+              "minMs": 0.07769999999993615,
+              "maxMs": 0.09100000000000819,
+              "mibPerSec": 12150.197165621184,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.07889999999997599,
+                0.08289999999999509,
+                0.08169999999995525,
+                0.09100000000000819,
+                0.07769999999993615
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.08884000000000469,
+              "minMs": 0.07959999999991396,
+              "maxMs": 0.09649999999999181,
+              "mibPerSec": 11274.901557107643,
+              "eventCount": 3609,
+              "checksum": 763008118,
+              "samplesMs": [
+                0.09649999999999181,
+                0.08120000000008076,
+                0.09519999999997708,
+                0.07959999999991396,
+                0.09170000000005984
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.08405999999995402,
+              "minMs": 0.07329999999990378,
+              "maxMs": 0.0927000000000362,
+              "mibPerSec": 11916.03919026938,
+              "eventCount": 3609,
+              "checksum": -424875449,
+              "samplesMs": [
+                0.08199999999999363,
+                0.09269999999992251,
+                0.07329999999990378,
+                0.07959999999991396,
+                0.0927000000000362
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.08432000000000243,
+              "minMs": 0.0787000000000262,
+              "maxMs": 0.08920000000000528,
+              "mibPerSec": 11879.296185169203,
+              "eventCount": 3609,
+              "checksum": -424875449,
+              "samplesMs": [
+                0.08920000000000528,
+                0.0787000000000262,
+                0.08549999999991087,
+                0.08080000000006748,
+                0.08740000000000236
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.7919600000000173,
+              "minMs": 0.7267000000000507,
+              "maxMs": 0.8717000000000326,
+              "mibPerSec": 1264.7889468325095,
+              "eventCount": 3609,
+              "checksum": 1402663177,
+              "samplesMs": [
+                0.7267000000000507,
+                0.7724000000000615,
+                0.8161999999999807,
+                0.8717000000000326,
+                0.7727999999999611
+              ],
+              "sizeBytes": 1050319,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "nested",
+          "filename": "nested_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\nested_large.xml",
+          "sizeBytes": 1070855,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.4545199999999999,
+              "minMs": 0.4292,
+              "maxMs": 0.5049,
+              "mibPerSec": 2246.869026874978,
+              "eventCount": 20289,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.4376,
+                0.4636,
+                0.4373,
+                0.5049,
+                0.4292
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1070855
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.27125999999998385,
+              "minMs": 0.2436999999999898,
+              "maxMs": 0.2843999999998914,
+              "mibPerSec": 3764.8267717145013,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.28369999999995343,
+                0.2436999999999898,
+                0.2843999999998914,
+                0.28310000000010405,
+                0.26139999999998054
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.2617200000000139,
+              "minMs": 0.2520000000000664,
+              "maxMs": 0.2947000000000344,
+              "mibPerSec": 3902.059109335017,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.2544000000000324,
+                0.25540000000000873,
+                0.2947000000000344,
+                0.2520000000000664,
+                0.2520999999999276
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.2505200000000286,
+              "minMs": 0.24059999999997217,
+              "maxMs": 0.2736000000001013,
+              "mibPerSec": 4076.5085026947872,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.24870000000009895,
+                0.24340000000006512,
+                0.2736000000001013,
+                0.2462999999999056,
+                0.24059999999997217
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.30661999999999806,
+              "minMs": 0.27349999999989905,
+              "maxMs": 0.3387000000000171,
+              "mibPerSec": 3330.6598072376923,
+              "eventCount": 10146,
+              "checksum": -1525451395,
+              "samplesMs": [
+                0.2742000000000644,
+                0.32310000000006767,
+                0.32359999999994216,
+                0.3387000000000171,
+                0.27349999999989905
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.348059999999964,
+              "minMs": 0.3120999999999867,
+              "maxMs": 0.44459999999992306,
+              "mibPerSec": 2934.1116764216526,
+              "eventCount": 10146,
+              "checksum": -6429474,
+              "samplesMs": [
+                0.3182999999999083,
+                0.3120999999999867,
+                0.44459999999992306,
+                0.3451000000000022,
+                0.3201999999999998
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.3321800000000167,
+              "minMs": 0.3125,
+              "maxMs": 0.36230000000000473,
+              "mibPerSec": 3074.378078436882,
+              "eventCount": 10146,
+              "checksum": -6429474,
+              "samplesMs": [
+                0.3423000000000229,
+                0.36230000000000473,
+                0.3260999999999967,
+                0.31770000000005894,
+                0.3125
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.41788000000001374,
+              "minMs": 0.39850000000001273,
+              "maxMs": 0.46040000000004966,
+              "mibPerSec": 2443.876017266156,
+              "eventCount": 10146,
+              "checksum": 621559765,
+              "samplesMs": [
+                0.4230000000000018,
+                0.46040000000004966,
+                0.4053000000000111,
+                0.40219999999999345,
+                0.39850000000001273
+              ],
+              "sizeBytes": 1070855,
+              "nativeSimd": "auto"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scaling",
+      "cases": [
+        {
+          "label": "1KB",
+          "filename": "patent_small.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_small.xml",
+          "sizeBytes": 2643,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.00266,
+              "minMs": 0.0015999999999999999,
+              "maxMs": 0.0061,
+              "mibPerSec": 947.5794053615484,
+              "eventCount": 57,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.0061,
+                0.0022,
+                0.0017000000000000001,
+                0.0017000000000000001,
+                0.0015999999999999999
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 2643
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.02186000000003787,
+              "minMs": 0.016200000000026193,
+              "maxMs": 0.027400000000056934,
+              "mibPerSec": 115.30472178670412,
+              "eventCount": 40,
+              "checksum": -1337171922,
+              "samplesMs": [
+                0.0261000000000422,
+                0.027400000000056934,
+                0.020800000000008367,
+                0.01880000000005566,
+                0.016200000000026193
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.027280000000018845,
+              "minMs": 0.019900000000006912,
+              "maxMs": 0.036200000000008004,
+              "mibPerSec": 92.3959390857763,
+              "eventCount": 40,
+              "checksum": -1337171922,
+              "samplesMs": [
+                0.019900000000006912,
+                0.03120000000001255,
+                0.036200000000008004,
+                0.024200000000064392,
+                0.024900000000002365
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.0313799999999901,
+              "minMs": 0.0221000000000231,
+              "maxMs": 0.043400000000019645,
+              "mibPerSec": 80.32381192678501,
+              "eventCount": 40,
+              "checksum": -1337171922,
+              "samplesMs": [
+                0.03459999999995489,
+                0.033699999999953434,
+                0.023099999999999454,
+                0.0221000000000231,
+                0.043400000000019645
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.014840000000049258,
+              "minMs": 0.012400000000070577,
+              "maxMs": 0.019400000000018736,
+              "mibPerSec": 169.84913869631754,
+              "eventCount": 40,
+              "checksum": -1337171922,
+              "samplesMs": [
+                0.019400000000018736,
+                0.012900000000058753,
+                0.012400000000070577,
+                0.013000000000033651,
+                0.016500000000064574
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.02474000000001979,
+              "minMs": 0.013499999999908141,
+              "maxMs": 0.030200000000036198,
+              "mibPerSec": 101.88202175665734,
+              "eventCount": 40,
+              "checksum": 1663592764,
+              "samplesMs": [
+                0.013499999999908141,
+                0.027300000000082036,
+                0.030200000000036198,
+                0.02940000000000964,
+                0.023300000000062937
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.014020000000004983,
+              "minMs": 0.012700000000108957,
+              "maxMs": 0.016600000000039472,
+              "mibPerSec": 179.78325379891746,
+              "eventCount": 40,
+              "checksum": 1663592764,
+              "samplesMs": [
+                0.013699999999971624,
+                0.0141999999999598,
+                0.016600000000039472,
+                0.012899999999945067,
+                0.012700000000108957
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.016359999999963293,
+              "minMs": 0.013599999999996726,
+              "maxMs": 0.025899999999978718,
+              "mibPerSec": 154.06853412392263,
+              "eventCount": 40,
+              "checksum": 204309839,
+              "samplesMs": [
+                0.013599999999996726,
+                0.014399999999909596,
+                0.013599999999996726,
+                0.014299999999934698,
+                0.025899999999978718
+              ],
+              "sizeBytes": 2643,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "100KB",
+          "filename": "patent_medium.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_medium.xml",
+          "sizeBytes": 105907,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.049780000000000005,
+              "minMs": 0.041,
+              "maxMs": 0.0605,
+              "mibPerSec": 2028.9430660433247,
+              "eventCount": 2225,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.0597,
+                0.0605,
+                0.0443,
+                0.0434,
+                0.041
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 105907
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.03182000000001608,
+              "minMs": 0.025500000000079126,
+              "maxMs": 0.038000000000010914,
+              "mibPerSec": 3174.12903292224,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.03780000000006112,
+                0.029299999999921056,
+                0.038000000000010914,
+                0.025500000000079126,
+                0.028500000000008185
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.03242000000000189,
+              "minMs": 0.029999999999972715,
+              "maxMs": 0.0364999999999327,
+              "mibPerSec": 3115.3851273174223,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.029999999999972715,
+                0.03170000000000073,
+                0.031300000000101136,
+                0.03260000000000218,
+                0.0364999999999327
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.036259999999992944,
+              "minMs": 0.032999999999901775,
+              "maxMs": 0.04490000000009786,
+              "mibPerSec": 2785.460171750038,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.03319999999985157,
+                0.03340000000002874,
+                0.036800000000084765,
+                0.04490000000009786,
+                0.032999999999901775
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.03821999999995569,
+              "minMs": 0.037799999999833744,
+              "maxMs": 0.039099999999962165,
+              "mibPerSec": 2642.6160603807903,
+              "eventCount": 1570,
+              "checksum": -619627720,
+              "samplesMs": [
+                0.039099999999962165,
+                0.03809999999998581,
+                0.03809999999998581,
+                0.037799999999833744,
+                0.038000000000010914
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.04426000000003114,
+              "minMs": 0.04060000000004038,
+              "maxMs": 0.04619999999999891,
+              "mibPerSec": 2281.9879310340184,
+              "eventCount": 1570,
+              "checksum": -2073111976,
+              "samplesMs": [
+                0.04060000000004038,
+                0.0442000000000462,
+                0.044499999999970896,
+                0.04619999999999891,
+                0.04580000000009932
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.043919999999980065,
+              "minMs": 0.042699999999967986,
+              "maxMs": 0.04539999999997235,
+              "mibPerSec": 2299.65359352647,
+              "eventCount": 1570,
+              "checksum": -2073111976,
+              "samplesMs": [
+                0.04320000000006985,
+                0.044499999999970896,
+                0.042699999999967986,
+                0.04539999999997235,
+                0.04379999999991924
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.1062199999999848,
+              "minMs": 0.10279999999988831,
+              "maxMs": 0.11020000000007713,
+              "mibPerSec": 950.8641105973561,
+              "eventCount": 1570,
+              "checksum": -1122418340,
+              "samplesMs": [
+                0.11020000000007713,
+                0.10819999999989705,
+                0.10370000000011714,
+                0.10619999999994434,
+                0.10279999999988831
+              ],
+              "sizeBytes": 105907,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "1MB",
+          "filename": "patent_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_large.xml",
+          "sizeBytes": 1057369,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.41224,
+              "minMs": 0.3857,
+              "maxMs": 0.4532,
+              "mibPerSec": 2446.1130852516985,
+              "eventCount": 22097,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.3857,
+                0.4532,
+                0.3893,
+                0.43389999999999995,
+                0.3991
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 0.17617999999997663,
+              "minMs": 0.16509999999993852,
+              "maxMs": 0.21010000000001128,
+              "mibPerSec": 5723.61027508397,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.21010000000001128,
+                0.1696999999999207,
+                0.16509999999993852,
+                0.1692000000000462,
+                0.16679999999996653
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 0.20160000000005313,
+              "minMs": 0.19839999999999236,
+              "maxMs": 0.20470000000000255,
+              "mibPerSec": 5001.912987420112,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.19970000000012078,
+                0.2014000000001488,
+                0.20470000000000255,
+                0.2038000000000011,
+                0.19839999999999236
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.19859999999998762,
+              "minMs": 0.19650000000001455,
+              "maxMs": 0.20119999999997162,
+              "mibPerSec": 5077.470585419049,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.20049999999991996,
+                0.1973000000000411,
+                0.1974999999999909,
+                0.20119999999997162,
+                0.19650000000001455
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 0.25073999999999613,
+              "minMs": 0.24830000000019936,
+              "maxMs": 0.2518000000000029,
+              "mibPerSec": 4021.638582851462,
+              "eventCount": 15562,
+              "checksum": -670339520,
+              "samplesMs": [
+                0.2518000000000029,
+                0.24830000000019936,
+                0.25129999999990105,
+                0.25149999999985084,
+                0.25080000000002656
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 0.3291000000000167,
+              "minMs": 0.30740000000014334,
+              "maxMs": 0.34999999999990905,
+              "mibPerSec": 3064.0706723309295,
+              "eventCount": 15562,
+              "checksum": -484084296,
+              "samplesMs": [
+                0.34999999999990905,
+                0.3389999999999418,
+                0.3341000000000349,
+                0.31500000000005457,
+                0.30740000000014334
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 0.31260000000002036,
+              "minMs": 0.30379999999991014,
+              "maxMs": 0.3364000000001397,
+              "mibPerSec": 3225.8018498531496,
+              "eventCount": 15562,
+              "checksum": -484084296,
+              "samplesMs": [
+                0.3364000000001397,
+                0.30780000000004293,
+                0.3080999999999676,
+                0.3069000000000415,
+                0.30379999999991014
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 0.9741999999999734,
+              "minMs": 0.9360999999998967,
+              "maxMs": 1.0811000000001059,
+              "mibPerSec": 1035.0910062247872,
+              "eventCount": 15562,
+              "checksum": -780923665,
+              "samplesMs": [
+                1.0811000000001059,
+                0.9497999999998683,
+                0.9360999999998967,
+                0.9659999999998945,
+                0.9380000000001019
+              ],
+              "sizeBytes": 1057369,
+              "nativeSimd": "auto"
+            }
+          ]
+        },
+        {
+          "label": "10MB",
+          "filename": "patent_xlarge.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_xlarge.xml",
+          "sizeBytes": 10562023,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 3.8377399999999993,
+              "minMs": 3.6653,
+              "maxMs": 4.1466,
+              "mibPerSec": 2624.65150437291,
+              "eventCount": 220985,
+              "checksum": 16777619,
+              "samplesMs": [
+                3.6653,
+                4.1466,
+                3.7439999999999998,
+                3.9127,
+                3.7201
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 10562023
+            },
+            {
+              "id": "stax-native-event-count-unsafe-gt",
+              "status": "ok",
+              "avgMs": 1.5882599999999911,
+              "minMs": 1.5399999999999636,
+              "maxMs": 1.626800000000003,
+              "mibPerSec": 6341.990646614627,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                1.6099999999999,
+                1.5979999999999563,
+                1.626800000000003,
+                1.5399999999999636,
+                1.5665000000001328
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-unchecked",
+              "status": "ok",
+              "avgMs": 2.0753400000000055,
+              "minMs": 1.9937999999999647,
+              "maxMs": 2.2605000000000928,
+              "mibPerSec": 4853.53246426709,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                1.9937999999999647,
+                2.035799999999881,
+                2.07120000000009,
+                2.2605000000000928,
+                2.0153999999999996
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-auto-stage",
+              "status": "ok",
+              "avgMs": 1.997400000000016,
+              "minMs": 1.9675999999999476,
+              "maxMs": 2.0406000000000404,
+              "mibPerSec": 5042.920829274061,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                1.995200000000068,
+                1.9675999999999476,
+                2.0406000000000404,
+                2.0029000000001815,
+                1.9806999999998425
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-event-count-only",
+              "status": "ok",
+              "avgMs": 2.652039999999988,
+              "minMs": 2.547800000000052,
+              "maxMs": 2.766700000000128,
+              "mibPerSec": 3798.106387683495,
+              "eventCount": 155716,
+              "checksum": -1931244206,
+              "samplesMs": [
+                2.547800000000052,
+                2.766700000000128,
+                2.641200000000026,
+                2.6717999999998483,
+                2.632699999999886
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-only",
+              "status": "ok",
+              "avgMs": 3.2242000000000646,
+              "minMs": 3.1540999999999713,
+              "maxMs": 3.273100000000113,
+              "mibPerSec": 3124.102122818649,
+              "eventCount": 155716,
+              "checksum": 755898644,
+              "samplesMs": [
+                3.256900000000087,
+                3.1540999999999713,
+                3.2712000000001353,
+                3.273100000000113,
+                3.1657000000000153
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-count-auto-stage",
+              "status": "ok",
+              "avgMs": 3.199919999999975,
+              "minMs": 3.133199999999988,
+              "maxMs": 3.3086000000000695,
+              "mibPerSec": 3147.8068402935605,
+              "eventCount": 155716,
+              "checksum": 755898644,
+              "samplesMs": [
+                3.133199999999988,
+                3.167500000000018,
+                3.246299999999792,
+                3.3086000000000695,
+                3.1440000000000055
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            },
+            {
+              "id": "stax-native-full-string-direct",
+              "status": "ok",
+              "avgMs": 9.539499999999999,
+              "minMs": 9.416299999999865,
+              "maxMs": 9.660599999999931,
+              "mibPerSec": 1055.8970663443672,
+              "eventCount": 155716,
+              "checksum": 2110408379,
+              "samplesMs": [
+                9.537800000000061,
+                9.416299999999865,
+                9.464600000000019,
+                9.618200000000115,
+                9.660599999999931
+              ],
+              "sizeBytes": 10562023,
+              "nativeSimd": "auto"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

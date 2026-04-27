@@ -1,6 +1,4 @@
 import {
-  isCdata,
-  isCharacters,
   isEndDocument,
   isEndElement,
   isError,
@@ -360,7 +358,7 @@ class XmlStringTreeBuilder {
     let content = this.xml.slice(start + 1, end);
     let selfClosing = false;
     const lastNonSpace = content.search(/\s*$/);
-    const slashIndex = lastNonSpace > 0 ? lastNonSpace - 1 : content.length - 1;
+    const slashIndex = lastNonSpace - 1;
     if (slashIndex >= 0 && content.charCodeAt(slashIndex) === 47) {
       selfClosing = true;
       content = content.slice(0, slashIndex);
@@ -614,14 +612,12 @@ class XmlEventTreeBuilder {
       }
       return;
     }
-    if (isCharacters(event) || isCdata(event)) {
-      this.appendChild({
-        kind: 'text',
-        order: this.nextOrder(),
-        document: this.document,
-        value: event.value
-      });
-    }
+    this.appendChild({
+      kind: 'text',
+      order: this.nextOrder(),
+      document: this.document,
+      value: event.value
+    });
   }
 
   finish(): XPathDocument {
@@ -1037,9 +1033,8 @@ function evaluateBinary(op: string, left: Expr, right: Expr, context: EvalContex
       return leftNumber / rightNumber;
     case 'mod':
       return leftNumber % rightNumber;
-    default:
-      throw new Error(`Unsupported XPath binary operator: ${op}`);
   }
+  throw new Error(`Unsupported XPath binary operator: ${op}`);
 }
 
 function evaluatePath(expr: Extract<Expr, { type: 'path' }>, context: EvalContext): XPathNode[] {
@@ -1274,7 +1269,7 @@ function tokenize(source: string): Token[] {
       while (
         index < source.length
         && isNameChar(source[index]!)
-        && !(source[index] === ':' && source[index + 1] === ':')
+        && !(source[index] === ':' && (source[index + 1] === ':' || source[index + 1] === '*'))
       ) {
         value += source[index++]!;
       }
@@ -1327,9 +1322,6 @@ function parseTagContent(content: string, decodeEntities: boolean): { name: stri
     index++;
     const valueStart = index;
     while (index < content.length && content[index] !== quote) index++;
-    if (index >= content.length) {
-      throw new Error(`Unclosed quoted attribute in XPath document: ${attrName}`);
-    }
     const value = content.slice(valueStart, index);
     index++;
     attributes.push({ name: attrName, value: decodeEntities ? decodeXmlEntities(value) : value });
@@ -1638,9 +1630,6 @@ function siblingNodes(node: XPathNode, preceding: boolean): XPathNode[] {
   }
   const siblings = node.parent.children;
   const index = siblings.indexOf(node as XPathChildNode);
-  if (index === -1) {
-    return [];
-  }
   const result = preceding ? siblings.slice(0, index).reverse() : siblings.slice(index + 1);
   return result;
 }

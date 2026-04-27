@@ -745,9 +745,6 @@ export class XmlParserInternal {
         if (isObjectSchema(effects.schema)) {
           return {};
         }
-        if (isArraySchema(effects.schema)) {
-          return [];
-        }
         return '';
       }
       for (const transformFn of effects.transforms) {

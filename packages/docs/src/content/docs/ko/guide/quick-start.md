@@ -64,7 +64,7 @@ async function parseBooks() {
         console.log('속성:', event.attributes);
       }
     } else if (event.type === XmlEventType.CHARACTERS) {
-      const text = event.text.trim();
+      const text = event.value.trim();
       if (text) {
         console.log(`텍스트: ${text}`);
       }
@@ -92,58 +92,10 @@ for (const event of parser) {
 }
 ```
 
-## 객체로 파싱
-
-XML을 JavaScript 객체로 파싱하는 실용적인 예제입니다:
+## Unknown XML 파싱
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  price: number;
-}
-
-function parseBooks(xmlString: string): Book[] {
-  const parser = new StaxXmlParserSync(xmlString);
-  const books: Book[] = [];
-  let currentBook: Partial<Book> = {};
-  let currentElement = '';
-
-  for (const event of parser) {
-    switch (event.type) {
-      case XmlEventType.START_ELEMENT:
-        if (event.name === 'book') {
-          currentBook = { id: event.attributes?.id || '' };
-        }
-        currentElement = event.name;
-        break;
-
-      case XmlEventType.CHARACTERS:
-        const text = event.text.trim();
-        if (text && currentBook && ['title', 'author', 'price'].includes(currentElement)) {
-          if (currentElement === 'price') {
-            currentBook.price = parseFloat(text);
-          } else {
-            (currentBook as any)[currentElement] = text;
-          }
-        }
-        break;
-
-      case XmlEventType.END_ELEMENT:
-        if (event.name === 'book' && currentBook.id) {
-          books.push(currentBook as Book);
-          currentBook = {};
-        }
-        currentElement = '';
-        break;
-    }
-  }
-
-  return books;
-}
+import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
 
 const xmlString = `
 <bookstore>
@@ -160,13 +112,20 @@ const xmlString = `
 </bookstore>
 `;
 
-const books = parseBooks(xmlString);
-console.log(books);
-// 출력: [
-//   { id: '1', title: '위대한 개츠비', author: 'F. 스콧 피츠제럴드', price: 12.99 },
-//   { id: '2', title: '앵무새 죽이기', author: '하퍼 리', price: 14.99 }
-// ]
+const tree = parseXmlTreeSync(xmlString);
+console.log(tree.children[0]);
+
+const object = parseXmlObjectSync(xmlString);
+console.log(object.bookstore);
+// {
+//   book: [
+//     { '@id': '1', title: '위대한 개츠비', author: 'F. 스콧 피츠제럴드', price: '12.99' },
+//     { '@id': '2', title: '앵무새 죽이기', author: '하퍼 리', price: '14.99' }
+//   ]
+// }
 ```
+
+element 순서와 mixed content가 중요하면 `parseXmlTreeSync()`를 사용하세요. attribute가 `@id` 같은 key로 들어가는 compact object가 필요하면 `parseXmlObjectSync()`를 사용하세요. typed domain object가 필요하다면 converter API 또는 custom event loop를 사용하세요.
 
 ## 오류 처리
 
@@ -180,8 +139,7 @@ const parser = new StaxXmlParserSync(malformedXml);
 
 for (const event of parser) {
   if (event.type === XmlEventType.ERROR) {
-    console.error('XML 파싱 오류:', event.message);
-    console.error('위치:', event.position);
+    console.error('XML 파싱 오류:', event.error.message);
   }
 }
 ```

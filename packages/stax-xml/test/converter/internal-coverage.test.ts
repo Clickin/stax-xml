@@ -273,6 +273,24 @@ describe('Converter internal coverage guard rails', () => {
       lastMatcher.onStartElement(item);
       expect(lastMatcher.matches(item)).toBe(false);
       expect((lastMatcher as any).matchesPredicate({ type: 'unknown' }, item, 0)).toBe(false);
+
+      const descendantMatcher = new XPathMatcher('//section/item');
+      const section = start('section');
+      descendantMatcher.onStartElement(root);
+      descendantMatcher.onStartElement(section);
+      descendantMatcher.onStartElement(item);
+      expect(descendantMatcher.matches(item)).toBe(true);
+
+      const attributeMatcher = new XPathMatcher("/root/item[@id='ok']");
+      const badItem = start('item', { id: 'bad' });
+      attributeMatcher.onStartElement(root);
+      attributeMatcher.onStartElement(badItem);
+      expect(attributeMatcher.matches(badItem)).toBe(false);
+
+      const firstMatcher = new XPathMatcher('/root/item[1]');
+      firstMatcher.onStartElement(root);
+      firstMatcher.onStartElement(item);
+      expect(firstMatcher.matches(item)).toBe(true);
     });
   });
 
@@ -747,6 +765,85 @@ describe('Converter internal coverage guard rails', () => {
         {}
       )).resolves.toEqual({ value: 'fallback' });
     });
+
+    it('covers full XPath parser async input and schema-effect fallbacks', async () => {
+      const parser = new XmlParserInternal();
+      const bytes = new TextEncoder().encode('<root><value>bytes</value><n>bad</n></root>');
+      const events = eventsFromXml('<root><value>events</value></root>');
+
+      await expect(x.string().xpath('/root/value').parse(bytes))
+        .resolves.toBe('bytes');
+      await expect(x.string().xpath('/root/value').parse(events[Symbol.iterator]()))
+        .resolves.toBe('events');
+      await expect(x.string().parse(streamFrom('<root>stream</root>')))
+        .resolves.toBe('stream');
+
+      const emptyDocument = (parser as any).createXPathDocumentSync('plain text');
+      expect((parser as any).selectObjectContext(emptyDocument, undefined).kind).toBe('document');
+      expect((parser as any).selectObjectContext(emptyDocument, '/missing').kind).toBe('document');
+      expect((parser as any).shouldParseObjectField({})).toBe(false);
+
+      const document = (parser as any).createXPathDocumentSync('<root><value>fallback</value></root>');
+      expect((parser as any).parseSchemaFromXPathNode(
+        x.array(x.string()),
+        document.document,
+        document,
+        false
+      )).toEqual([]);
+      expect((parser as any).parseSchemaFromXPathNode(
+        new NoTextSchema(),
+        document.document,
+        document,
+        false
+      )).toBe('fallback');
+      expect((parser as any).parseSchemaFromXPathNode(
+        x.string().xpath('/root/missing').optional(),
+        document.document,
+        document,
+        false
+      )).toBeUndefined();
+      expect((parser as any).parseSchemaFromXPathNode(
+        x.string().xpath('/root/value').transform(value => value.toUpperCase()),
+        document.document,
+        document,
+        false
+      )).toBe('FALLBACK');
+
+      const invalidNumberDocument = (parser as any).createXPathDocumentSync('<root><n>bad</n></root>');
+      expect((parser as any).parseSchemaFromXPathNode(
+        x.number().xpath('/root/n').int().optional(),
+        invalidNumberDocument.document,
+        invalidNumberDocument,
+        false
+      )).toBeUndefined();
+      expect((parser as any).isOptionalSchemaWrapper(x.string().optional())).toBe(true);
+      expect((parser as any).isOptionalSchemaWrapper(x.string().transform(value => value))).toBe(false);
+
+      const schema = x.object({
+        missingObject: x.object({}).xpath('/root/missing'),
+        missingText: x.string().xpath('/root/missing'),
+        optionalMissing: x.string().xpath('/root/missing').optional(),
+        optionalInvalid: x.number().xpath('/root/n').int().optional(),
+        upper: x.string().xpath('/root/value').transform(value => value.toUpperCase())
+      });
+
+      expect(schema.parseSync('<root><value>ok</value><n>bad</n></root>')).toEqual({
+        missingObject: {},
+        missingText: '',
+        optionalMissing: undefined,
+        optionalInvalid: undefined,
+        upper: 'OK'
+      });
+
+      const seen: string[] = [];
+      await expect((parser as any).consumeAsyncEvents(
+        asyncIteratorFrom(eventsFromXml('<root><value>normal</value></root>'), 0),
+        (event: AnyXmlEvent) => {
+          if (isStartElement(event)) seen.push(event.name);
+        }
+      )).resolves.toBeUndefined();
+      expect(seen).toContain('value');
+    });
   });
 
   describe('schema position and writer branches', () => {
@@ -972,6 +1069,7 @@ describe('Converter internal coverage guard rails', () => {
       const sm = new XmlParsingStateMachine();
       await sm.processEvent(start('root'));
       await sm.processEventAsync(end('root'));
+      await sm.processEvent(XmlEventFactory.startDocument());
       sm.reset();
 
       const limited = new XmlParsingStateMachine({ maxEvents: 0 });
@@ -979,11 +1077,22 @@ describe('Converter internal coverage guard rails', () => {
       expect(() => limited.processEventSync(end('root'))).toThrow('XML event limit exceeded');
 
       expect((sm as any).extractXPath(x.array(x.string(), '//item'))).toBe('//item');
+      expect((sm as any).extractXPath(x.string().xpath('/root/value'))).toBe('/root/value');
+      expect((sm as any).extractXPath(x.object({}).xpath('/root/object'))).toBe('/root/object');
       expect((sm as any).extractXPath({ schemaType: 'UNKNOWN' })).toBeUndefined();
+      expect((sm as any).getCollectorKind(x.number())).toBe('number');
+      expect((sm as any).getCollectorKind(x.array(x.string()))).toBe('array');
       expect((sm as any).getCollectorKind({ schemaType: 'UNKNOWN' })).toBe('string');
       expect((sm as any).createCollectorForKind('object')).toEqual({ type: 'object', fields: new Map() });
+      expect((sm as any).createCollectorForKind('number')).toEqual({ type: 'number', buffer: '' });
+      expect((sm as any).createCollectorForKind('array')).toEqual({ type: 'array', items: [] });
       expect((sm as any).createCollectorForKind('string')).toEqual({ type: 'string', buffer: '' });
+      expect((sm as any).extractSimpleValue({ type: 'string', buffer: ' text ' }, false)).toBe('text');
+      expect((sm as any).extractSimpleValue({ type: 'string', buffer: '', value: '' }, true)).toBeUndefined();
       expect((sm as any).extractSimpleValue({ type: 'number', buffer: ' 12 ' }, false)).toBe(12);
+      expect((sm as any).extractSimpleValue({ type: 'number', buffer: '', value: 7 }, false)).toBe(7);
+      expect((sm as any).extractSimpleValue({ type: 'number', buffer: '', value: undefined }, false)).toBeNaN();
+      expect((sm as any).extractSimpleValue({ type: 'array', items: ['a'] }, false)).toEqual(['a']);
       expect((sm as any).extractSimpleValue({
         type: 'object',
         fields: new Map([['child', { type: 'string', buffer: '', value: 'value' }]])
@@ -1014,19 +1123,62 @@ describe('Converter internal coverage guard rails', () => {
         matchProfile: { mode: 'relative-attribute' },
         matcher: { matches: () => false }
       })).toBe(false);
+      (sm as any).currentDepth = 2;
+      expect((sm as any).matchesInContext(start('child'), {
+        context: { contextDepth: 1 },
+        matchProfile: { mode: 'relative-element', expectedDepthOffset: 1, expectedElementName: 'child' },
+        matcher: { matches: () => true }
+      })).toBe(true);
+      (sm as any).currentDepth = 1;
+      expect((sm as any).matchesInContext(start('child'), {
+        context: { contextDepth: 0 },
+        matchProfile: { mode: 'relative-element', expectedDepthOffset: 2, expectedElementName: 'child' },
+        matcher: { matches: () => true }
+      })).toBe(false);
+      (sm as any).currentDepth = 2;
+      expect((sm as any).matchesInContext(start('other'), {
+        context: { contextDepth: 1 },
+        matchProfile: { mode: 'relative-element', expectedDepthOffset: 1, expectedElementName: 'child' },
+        matcher: { matches: () => true }
+      })).toBe(false);
       expect((sm as any).createMatchProfile('./')).toEqual({ mode: 'default' });
+      expect((sm as any).createMatchProfile('./child/@id')).toMatchObject({
+        mode: 'relative-element',
+        expectedDepthOffset: 1,
+        expectedElementName: 'child'
+      });
+      expect((sm as any).createMatchProfile('./child/text()')).toMatchObject({
+        mode: 'relative-element',
+        expectedDepthOffset: 1,
+        expectedElementName: 'child'
+      });
+      expect((sm as any).createMatchProfile('//item')).toEqual({ mode: 'descendant' });
 
       const compiledTemplateSchema = x.object({ value: x.string().xpath('./value') });
       const compiledTemplates = new WeakMap();
       compiledTemplates.set(compiledTemplateSchema, []);
       expect((new XmlParsingStateMachine({}, compiledTemplates) as any).getObjectFieldTemplates(compiledTemplateSchema))
         .toEqual([]);
+      const cachedTemplateSchema = x.object({ value: x.string().xpath('./value') });
+      expect((sm as any).getObjectFieldTemplates(cachedTemplateSchema)).toHaveLength(1);
+      expect((sm as any).getObjectFieldTemplates(cachedTemplateSchema)).toHaveLength(1);
       expect((sm as any).getObjectFieldTemplates(x.object({ skipped: x.string() }))).toEqual([]);
+      expect((sm as any).extractObjectFromCollector({
+        type: 'object',
+        fields: new Map([['value', { type: 'string', buffer: '', value: 'ok' }]])
+      }, x.object({ value: x.string().xpath('./value') }))).toEqual({ value: 'ok' });
       expect((sm as any).extractObjectFromCollector({
         type: 'object',
         fields: new Map([['missing', { type: 'string', buffer: '', value: 'nope' }]])
       }, x.object({}))).toEqual({});
+      expect((sm as any).getAllTransforms(x.string().transform(value => value))).toHaveLength(1);
       expect((sm as any).getAllTransforms(x.string().optional())).toEqual([]);
+      expect((sm as any).hasOptionalWrapper(x.string().optional())).toBe(true);
+      expect((sm as any).hasOptionalWrapper(x.string().transform(value => value))).toBe(false);
+
+      const depthLimited = new XmlParsingStateMachine({ maxDepth: 0 });
+      depthLimited.processEventSync(start('root'));
+      expect(() => depthLimited.processEventSync(start('child'))).toThrow('XML depth limit exceeded');
     });
 
     it('handles immediate relative object attributes and text node number deactivation', () => {
@@ -1048,12 +1200,42 @@ describe('Converter internal coverage guard rails', () => {
       sm.processEventSync(start('item', { id: 'a' }));
       expect(collector.items).toEqual(['a']);
 
+      const satisfied = new XmlParsingStateMachine();
+      const satisfiedCollector = { type: 'string', buffer: '' };
+      satisfied.registerSchema(x.string().xpath('/root/item'), '/root/item', satisfiedCollector);
+      satisfied.processEventSync(start('root'));
+      satisfied.processEventSync(start('item'));
+      satisfied.processEventSync(text('done'));
+      satisfied.processEventSync(cdata('!'));
+      satisfied.processEventSync(end('item'));
+      expect(satisfiedCollector.value).toBe('done!');
+
+      const arrayEndReset = new XmlParsingStateMachine();
+      const arrayEndResetCollector = { type: 'array', items: [] };
+      arrayEndReset.registerSchema(x.array(x.string(), '/root/item'), '/root/item', arrayEndResetCollector);
+      arrayEndReset.processEventSync(start('root'));
+      arrayEndReset.processEventSync(start('item'));
+      arrayEndReset.processEventSync(text('one'));
+      arrayEndReset.processEventSync(end('item'));
+      expect(arrayEndResetCollector.items).toEqual(['one']);
+
       const activeArray = new XmlParsingStateMachine() as any;
       const arrayCollector = { type: 'array', items: [] };
       const activation = activeArray.registerSchema(x.array(x.string(), './item') as any, './item', arrayCollector);
       activation.depth = 1;
       activeArray.processEventSync(start('item'));
       expect(arrayCollector.currentItem).toEqual({ depth: 1, buffer: '' });
+
+      const activatingArray = new XmlParsingStateMachine() as any;
+      const activatingCollector = { type: 'array', items: [] };
+      activatingArray.onSchemaActivatedSync({
+        isAttributeSelector: false,
+        isTextNodeSelector: false,
+        collector: activatingCollector,
+        unwrappedSchema: x.array(x.string()),
+        schema: x.array(x.string())
+      }, start('item'));
+      expect(activatingCollector.currentItem).toEqual({ depth: 0, buffer: '' });
 
       const directObjectActivation = new XmlParsingStateMachine() as any;
       const directObjectCollector = { type: 'object', fields: new Map() };
@@ -1073,6 +1255,39 @@ describe('Converter internal coverage guard rails', () => {
       expect(directObjectCollector.fields.get('code')).toMatchObject({ value: 'b' });
       expect(directObjectCollector.fields.get('count')).toMatchObject({ value: 3 });
       expect(directObjectCollector.fields.get('missing')).toMatchObject({ buffer: '' });
+
+      const dottedObjectActivation = new XmlParsingStateMachine() as any;
+      const dottedObjectCollector = { type: 'object', fields: new Map() };
+      dottedObjectActivation.currentDepth = 1;
+      dottedObjectActivation.onSchemaActivatedSync({
+        isAttributeSelector: false,
+        collector: dottedObjectCollector,
+        unwrappedSchema: x.object({
+          code: x.string().xpath('./@code'),
+          value: x.string().xpath('./value')
+        }),
+        context: undefined,
+        xpath: '/root/item'
+      }, start('item', { code: 'dot' }));
+      expect(dottedObjectCollector.fields.get('code')).toMatchObject({ value: 'dot' });
+      expect(dottedObjectCollector.fields.get('value')).toMatchObject({ buffer: '' });
+
+      const directTextSelector = { type: 'string', buffer: 'stale' };
+      dottedObjectActivation.onSchemaActivatedSync({
+        isAttributeSelector: false,
+        isTextNodeSelector: true,
+        collector: directTextSelector,
+        unwrappedSchema: x.string(),
+        schema: x.string()
+      }, start('value'));
+      expect(directTextSelector.buffer).toBe('');
+      dottedObjectActivation.onSchemaActivatedSync({
+        isAttributeSelector: false,
+        isTextNodeSelector: false,
+        collector: { type: 'string', buffer: '' },
+        unwrappedSchema: { schemaType: 'UNKNOWN' },
+        schema: { schemaType: 'UNKNOWN' }
+      }, start('value'));
 
       const shorthandAttrArray = new XmlParsingStateMachine() as any;
       const shorthandCollector = { type: 'array', items: [] };
@@ -1095,6 +1310,86 @@ describe('Converter internal coverage guard rails', () => {
       expect(shorthandCollector.currentItem.fields.get('qty')).toMatchObject({ value: 2 });
       expect(shorthandCollector.currentItem.fields.get('missing')).toMatchObject({ buffer: '' });
 
+      const dottedAttrArray = new XmlParsingStateMachine() as any;
+      const dottedAttrCollector = { type: 'array', items: [] };
+      const dottedAttrActivation = dottedAttrArray.registerSchema(
+        x.array(
+          x.object({
+            id: x.string().xpath('./@id'),
+            missing: x.string().xpath('./@missing'),
+            child: x.string().xpath('./child'),
+            text: x.string().xpath('./text()'),
+            textShorthand: x.string().xpath('text()')
+          }),
+          '/root/item'
+        ) as any,
+        '/root/item',
+        dottedAttrCollector
+      );
+      dottedAttrArray.currentDepth = 1;
+      dottedAttrArray.createArrayItemSync(dottedAttrActivation, start('item', { id: 'd' }));
+      expect(dottedAttrCollector.currentItem.fields.get('id')).toMatchObject({ value: 'd' });
+      expect(dottedAttrCollector.currentItem.fields.get('missing')).toMatchObject({ buffer: '' });
+      expect(dottedAttrCollector.currentItem.fields.get('child')).toMatchObject({ buffer: '' });
+      expect(dottedAttrCollector.currentItem.fields.get('text')).toMatchObject({ buffer: '' });
+      expect(dottedAttrCollector.currentItem.fields.get('textShorthand')).toMatchObject({ buffer: '' });
+
+      const numberAttrArray = new XmlParsingStateMachine() as any;
+      const numberAttrCollector = { type: 'array', items: [] };
+      numberAttrArray.onSchemaActivatedSync({
+        isAttributeSelector: true,
+        attributeName: 'n',
+        collector: numberAttrCollector,
+        isArraySchema: true,
+        schema: x.array(x.number()),
+        unwrappedSchema: x.array(x.number())
+      }, start('item', { n: '9' }));
+      expect(numberAttrCollector.items).toEqual([9]);
+
+      const stringAttrArrayCollector = { type: 'array', items: [] };
+      numberAttrArray.onSchemaActivatedSync({
+        isAttributeSelector: true,
+        attributeName: 'code',
+        collector: stringAttrArrayCollector,
+        isArraySchema: true,
+        schema: x.array(x.string()),
+        unwrappedSchema: x.array(x.string())
+      }, start('item', { code: 'raw' }));
+      expect(stringAttrArrayCollector.items).toEqual(['raw']);
+
+      const stringAttr = { type: 'string', buffer: '' };
+      numberAttrArray.onSchemaActivatedSync({
+        isAttributeSelector: true,
+        attributeName: 'code',
+        collector: stringAttr,
+        isArraySchema: false,
+        schema: x.string(),
+        unwrappedSchema: x.string()
+      }, start('item', { code: 's' }));
+      expect(stringAttr.value).toBe('s');
+
+      const missingAttr = { type: 'string', buffer: '' };
+      numberAttrArray.onSchemaActivatedSync({
+        isAttributeSelector: true,
+        attributeName: 'missing',
+        collector: missingAttr,
+        isArraySchema: false,
+        schema: x.string(),
+        unwrappedSchema: x.string()
+      }, start('item', { code: 's' }));
+      expect(missingAttr.value).toBeUndefined();
+
+      const numberAttr = { type: 'number', buffer: '' };
+      numberAttrArray.onSchemaActivatedSync({
+        isAttributeSelector: true,
+        attributeName: 'count',
+        collector: numberAttr,
+        isArraySchema: false,
+        schema: x.number(),
+        unwrappedSchema: x.number()
+      }, start('item', { count: '4' }));
+      expect(numberAttr.value).toBe(4);
+
       const nestedArrayWithoutXPath = new XmlParsingStateMachine() as any;
       const nestedArrayCollector = { type: 'array', items: [] };
       const nestedArrayActivation = nestedArrayWithoutXPath.registerSchema(
@@ -1106,6 +1401,17 @@ describe('Converter internal coverage guard rails', () => {
       nestedArrayWithoutXPath.createArrayItemSync(nestedArrayActivation, start('group'));
       expect(nestedArrayCollector.currentItem).toEqual({ type: 'array', items: [] });
 
+      const nestedArrayWithXPath = new XmlParsingStateMachine() as any;
+      const nestedArrayWithXPathCollector = { type: 'array', items: [] };
+      const nestedArrayWithXPathActivation = nestedArrayWithXPath.registerSchema(
+        x.array(x.array(x.string(), './item'), '/root/group') as any,
+        '/root/group',
+        nestedArrayWithXPathCollector
+      );
+      nestedArrayWithXPath.currentDepth = 1;
+      nestedArrayWithXPath.createArrayItemSync(nestedArrayWithXPathActivation, start('group'));
+      expect(nestedArrayWithXPathCollector.currentItem).toEqual({ type: 'array', items: [] });
+
       const direct = new XmlParsingStateMachine() as any;
       direct.onSchemaActivatedSync({
         isAttributeSelector: true,
@@ -1116,8 +1422,26 @@ describe('Converter internal coverage guard rails', () => {
       }, start('item', { n: '7' }));
       direct.onSchemaDeactivatedSync({
         isTextNodeSelector: true,
+        collector: { type: 'string', buffer: 'text' },
+        unwrappedSchema: x.string(),
+        depth: 1
+      });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: true,
         collector: { type: 'number', buffer: '7' },
         unwrappedSchema: { schemaType: SchemaType.NUMBER },
+        depth: 1
+      });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: true,
+        collector: { type: 'object', fields: new Map() },
+        unwrappedSchema: { schemaType: 'UNKNOWN' },
+        depth: 1
+      });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: true,
+        collector: { type: 'number', buffer: '7' },
+        unwrappedSchema: x.number(),
         depth: 1
       });
       direct.onSchemaDeactivatedSync({
@@ -1126,6 +1450,98 @@ describe('Converter internal coverage guard rails', () => {
         unwrappedSchema: { schemaType: SchemaType.NUMBER },
         depth: 1
       });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: { type: 'number', buffer: '8' },
+        unwrappedSchema: x.number(),
+        depth: 1
+      });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: { type: 'object', fields: new Map() },
+        unwrappedSchema: x.object({}),
+        depth: 1
+      });
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: { type: 'string', buffer: '' },
+        unwrappedSchema: { schemaType: 'UNKNOWN' },
+        depth: 1
+      });
+      const objectArrayCollector = {
+        type: 'array',
+        items: [],
+        currentItem: {
+          type: 'object',
+          fields: new Map([['name', { type: 'string', buffer: '', value: 'Alice' }]])
+        }
+      };
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: objectArrayCollector,
+        unwrappedSchema: x.array(x.object({ name: x.string().xpath('./name') })),
+        depth: 1
+      });
+      expect(objectArrayCollector.items).toEqual([{ name: 'Alice' }]);
+
+      const nestedArrayDeactivationCollector = {
+        type: 'array',
+        items: [],
+        currentItem: { type: 'array', items: ['nested'] }
+      };
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: nestedArrayDeactivationCollector,
+        unwrappedSchema: x.array(x.array(x.string(), './item')),
+        depth: 1
+      });
+      expect(nestedArrayDeactivationCollector.items).toEqual([['nested']]);
+
+      const numberArrayCollector = {
+        type: 'array',
+        items: [],
+        currentItem: { depth: 1, buffer: '5' }
+      };
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: numberArrayCollector,
+        unwrappedSchema: x.array(x.number()),
+        depth: 1
+      });
+      expect(numberArrayCollector.items).toEqual([5]);
+
+      const transformedArrayCollector = {
+        type: 'array',
+        items: [],
+        currentItem: { depth: 1, buffer: 'x' }
+      };
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: transformedArrayCollector,
+        unwrappedSchema: x.array(x.string().transform(value => value.toUpperCase())),
+        depth: 1
+      });
+      expect(transformedArrayCollector.items).toEqual(['X']);
+
+      const cleanupCurrentItem = { depth: 1, buffer: 'cleanup' };
+      direct.activeSchemas = [
+        { isTemporary: true, parentCollector: cleanupCurrentItem },
+        { isTemporary: true, parentCollector: {} },
+        { isTemporary: false, parentCollector: cleanupCurrentItem }
+      ];
+      const cleanupArrayCollector = {
+        type: 'array',
+        items: [],
+        currentItem: cleanupCurrentItem
+      };
+      direct.onSchemaDeactivatedSync({
+        isTextNodeSelector: false,
+        collector: cleanupArrayCollector,
+        unwrappedSchema: x.array(x.string()),
+        depth: 1
+      });
+      expect(direct.activeSchemas).toHaveLength(2);
+
       const mismatchedArrayCollector = {
         type: 'array',
         items: [],
@@ -1144,9 +1560,45 @@ describe('Converter internal coverage guard rails', () => {
         collector: { type: 'object', fields: new Map() },
         depth: 1
       }, 'ignored');
+      const textSelectorString = { type: 'string', buffer: '' };
+      direct.onSchemaCollectText({
+        isTextNodeSelector: true,
+        collector: textSelectorString,
+        depth: 1
+      }, 'direct');
+      expect(textSelectorString.buffer).toBe('direct');
+      const textArrayCollector = { type: 'array', items: [], currentItem: { depth: 1, buffer: '' } };
+      direct.onSchemaCollectText({
+        isTextNodeSelector: true,
+        collector: textArrayCollector,
+        depth: 1
+      }, 'collected');
+      expect(textArrayCollector.currentItem.buffer).toBe('collected');
+      direct.onSchemaCollectText({
+        isTextNodeSelector: true,
+        collector: { type: 'string', buffer: '' },
+        depth: 2
+      }, 'ignored');
       direct.onSchemaCollectText({
         isTextNodeSelector: true,
         collector: { type: 'array', items: [] },
+        depth: 1
+      }, 'ignored');
+      const regularArrayCollector = { type: 'array', items: [], currentItem: { depth: 1, buffer: '' } };
+      direct.onSchemaCollectText({
+        isTextNodeSelector: false,
+        collector: regularArrayCollector,
+        depth: 1
+      }, 'regular');
+      expect(regularArrayCollector.currentItem.buffer).toBe('regular');
+      direct.onSchemaCollectText({
+        isTextNodeSelector: false,
+        collector: { type: 'array', items: [] },
+        depth: 1
+      }, 'ignored');
+      direct.onSchemaCollectText({
+        isTextNodeSelector: false,
+        collector: { type: 'object', fields: new Map() },
         depth: 1
       }, 'ignored');
     });

@@ -1,6 +1,6 @@
 {
   "name": "@stax-xml/native-win32-arm64-msvc",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "description": "Windows arm64 MSVC native acceleration package for stax-xml.",
   "license": "MIT",
   "type": "module",

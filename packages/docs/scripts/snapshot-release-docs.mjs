@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, relative } from 'node:path';
+import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '../../..');
@@ -57,15 +57,55 @@ async function readJson(filePath) {
 }
 
 function currentGitCommit() {
+  if (process.env.GITHUB_SHA) {
+    return process.env.GITHUB_SHA;
+  }
+
   try {
-    return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: repoRoot,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+    const gitDir = resolveGitDir(join(repoRoot, '.git'));
+    const head = readFileSync(join(gitDir, 'HEAD'), 'utf8').trim();
+
+    if (!head.startsWith('ref: ')) {
+      return /^[0-9a-f]{40}$/i.test(head) ? head : null;
+    }
+
+    const ref = head.slice('ref: '.length);
+    const looseRefPath = join(gitDir, ref);
+    if (existsSync(looseRefPath)) {
+      return readFileSync(looseRefPath, 'utf8').trim();
+    }
+
+    const packedRefsPath = join(gitDir, 'packed-refs');
+    if (!existsSync(packedRefsPath)) return null;
+
+    for (const line of readFileSync(packedRefsPath, 'utf8').split(/\r?\n/)) {
+      if (line.startsWith('#') || line.startsWith('^') || line.trim() === '') continue;
+      const [commit, packedRef] = line.split(' ');
+      if (packedRef === ref && /^[0-9a-f]{40}$/i.test(commit)) {
+        return commit;
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }
+}
+
+function resolveGitDir(gitPath) {
+  if (statSync(gitPath).isDirectory()) return gitPath;
+
+  const gitFile = readFileSync(gitPath, 'utf8').trim();
+  const prefix = 'gitdir: ';
+  if (!gitFile.startsWith(prefix)) {
+    throw new Error(`Unsupported .git file format: ${gitPath}`);
+  }
+
+  return resolve(repoRoot, gitFile.slice(prefix.length));
+}
+
+function repoRelativePath(filePath) {
+  return relative(repoRoot, filePath).replaceAll('\\', '/');
 }
 
 function versionedContentTargets(version) {
@@ -112,16 +152,14 @@ async function copyDocsDirectory(sourceDir, destinationDir, version, dryRun, cop
 }
 
 async function copyDocsEntry(source, destination, version, dryRun, copiedFiles) {
-  const entries = await readdir(dirname(source), { withFileTypes: true });
-  const entry = entries.find((candidate) => candidate.name === source.split('/').at(-1));
-  if (!entry) return;
+  const sourceStat = await stat(source);
 
-  if (entry.isDirectory()) {
+  if (sourceStat.isDirectory()) {
     await copyDocsDirectory(source, destination, version, dryRun, copiedFiles);
     return;
   }
 
-  if (!entry.isFile()) return;
+  if (!sourceStat.isFile()) return;
 
   const content = await readFile(source, 'utf8');
   const archived = content.replaceAll(importPathRegex, (match, start, importPath, end) => {
@@ -135,17 +173,17 @@ async function copyDocsEntry(source, destination, version, dryRun, copiedFiles) 
   }
 
   copiedFiles.push({
-    source: relative(repoRoot, source),
-    destination: relative(repoRoot, destination),
+    source: repoRelativePath(source),
+    destination: repoRelativePath(destination),
   });
 }
 
 function addArchivedSlug(content, destination) {
   const slug = contentSlugForDestination(destination);
-  if (content.startsWith('---\n')) {
-    return content.replace(/^---\n([\s\S]*?)\n---\n/, (_match, frontmatter) => {
+  if (/^---\r?\n/.test(content)) {
+    return content.replace(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/, (_match, frontmatter) => {
       const withoutExistingSlug = frontmatter
-        .split('\n')
+        .split(/\r?\n/)
         .filter((line) => !line.match(/^slug:\s*/))
         .join('\n');
       return `---\n${withoutExistingSlug}\nslug: ${slug}\n---\n`;
@@ -196,8 +234,8 @@ async function main() {
     }
 
     files.push({
-      source: relative(repoRoot, source),
-      destination: relative(repoRoot, destination),
+      source: repoRelativePath(source),
+      destination: repoRelativePath(destination),
     });
   }
 
@@ -205,7 +243,7 @@ async function main() {
     version,
     createdAt: new Date().toISOString(),
     gitCommit: currentGitCommit(),
-    sourceDir: relative(repoRoot, benchmarkReleaseDir),
+    sourceDir: repoRelativePath(benchmarkReleaseDir),
     files,
   };
 
@@ -220,7 +258,7 @@ async function main() {
   }
 
   const action = dryRun ? 'Validated benchmark docs snapshot' : 'Created benchmark docs snapshot';
-  console.log(`${action}: ${relative(repoRoot, destinationDir)}`);
+  console.log(`${action}: ${repoRelativePath(destinationDir)}`);
   for (const file of files) {
     console.log(`- ${file.destination}`);
   }

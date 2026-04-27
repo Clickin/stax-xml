@@ -448,7 +448,7 @@ function createMarkdown(report) {
   lines.push('');
   lines.push('The comparison intentionally keeps the upstream simdxml parse workload separate from the stax event workload. This avoids claiming XPath or CLI parity while still using upstream data shape, file sizes, and parse-benchmark case selection.');
   lines.push('');
-  return `${lines.join('\n')}\n`;
+  return `${lines.join('\n').replace(/\n+$/g, '')}\n`;
 }
 
 function formatNativeTierHeader(tier) {

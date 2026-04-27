@@ -1,6 +1,6 @@
 {
   "name": "stax-xml-monorepo",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "private": true,
   "description": "Monorepo for stax-xml library, benchmarks, and documentation",
   "author": "Clickin <josh87786@gmail.com>",
@@ -23,6 +23,7 @@
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
     "docs:snapshot:release": "pnpm --filter=stax-xml-docs snapshot:release",
+    "smoke:npm-native": "node scripts/smoke-npm-native-resolution.mjs",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
     "benchmark:release": "pnpm --filter=benchmark run release:expanded"
   },
@@ -38,5 +39,5 @@
   "engines": {
     "node": ">=20.19.0"
   },
-  "packageManager": "pnpm@10.18.0"
+  "packageManager": "pnpm@10.33.2"
 }

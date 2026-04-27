@@ -41,6 +41,9 @@ describe('StaxXmlStructuralIndexParser', () => {
       attributes: { a: 'x&y' },
     });
     expect(parser.next().value).toEqual({ type: XmlEventType.CHARACTERS, value: '안녕' });
+    expect(parser.next().value).toEqual({ type: XmlEventType.END_ELEMENT, name: 'r' });
+    expect(parser.next().value).toEqual({ type: XmlEventType.END_DOCUMENT });
+    expect(parser.next()).toEqual({ value: undefined, done: true });
   });
 
   it('exposes a compiled event-table provider before iterator consumption', async () => {
@@ -95,12 +98,75 @@ describe('StaxXmlStructuralIndexParser', () => {
 
     expect(() => new StaxXmlStructuralIndexParser(input, mutate(valid, 0, 0)))
       .toThrow(/Invalid structural index magic/);
+    expect(() => new StaxXmlStructuralIndexParser(input, valid, { sourceKind: 'utf8' }))
+      .toThrow(/source kind mismatch/);
     expect(() => new StaxXmlStructuralIndexParser(`${input}x`, valid))
       .toThrow(/input length mismatch/);
     expect(() => new StaxXmlStructuralIndexParser(input, mutate(valid, 16, 24)))
       .toThrow(/Unsupported structural index strides/);
     expect(() => new StaxXmlStructuralIndexParser(input, valid.slice(0, valid.byteLength - 4)))
       .toThrow(/length mismatch/);
+  });
+
+  it('materializes UTF-16 ArrayBuffer tables and malformed spans deterministically', () => {
+    const input = '<r a="x" b="">text<![CDATA[raw]]></r>';
+    const table = encodeStructuralIndex(input.length, 0, [
+      event(0),
+      event(2, span(input, 'r'), none(), 0, 3),
+      event(4, none(), span(input, 'text')),
+      event(5, none(), span(input, 'raw')),
+      event(3, span(input, 'r')),
+      event(1),
+    ], [
+      attr(span(input, 'a'), span(input, 'x')),
+      attr(span(input, 'b'), none()),
+      attr(none(), span(input, 'x')),
+    ]);
+    const parser = new StaxXmlStructuralIndexParser(input, table.buffer);
+
+    expect(parser.eventType(3)).toBe(IterableEventType.CDATA);
+    expect(parser.copyAttrValueByName(1, 'missing')).toBeUndefined();
+    expect(parser.copyAttrValueByName(1, 'b')).toBeUndefined();
+    expect([...parser]).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'r', attributes: { a: 'x' } },
+      { type: XmlEventType.CHARACTERS, value: 'text' },
+      { type: XmlEventType.CDATA, value: 'raw' },
+      { type: XmlEventType.END_ELEMENT, name: 'r' },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
+  it('reports unsupported structural event types without throwing from iteration', () => {
+    const input = '<r />';
+    const parser = new StaxXmlStructuralIndexParser(input, encodeStructuralIndex(input.length, 0, [
+      event(99),
+    ], []));
+
+    expect(() => parser.eventType(0)).toThrow(/Unsupported structural index event type/);
+    const result = parser.next();
+    expect(result.done).toBe(false);
+    expect(result.value.type).toBe(XmlEventType.ERROR);
+    expect(result.value).toMatchObject({ error: expect.any(Error) });
+  });
+
+  it('decodes non-Buffer ArrayBufferView sources through TextDecoder', () => {
+    const bytes = new TextEncoder().encode('<r>ok</r>');
+    const source = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const table = encodeStructuralIndex(source.byteLength, 1, [
+      event(2, span(bytes, 'r')),
+      event(4, none(), span(bytes, 'ok')),
+    ], []);
+    const parser = new StaxXmlStructuralIndexParser(source, table);
+
+    expect(parser.sourceKind).toBe('utf8');
+    expect(parser.copyName(0)).toBe('r');
+    expect(parser.next().value).toEqual({
+      type: XmlEventType.START_ELEMENT,
+      name: 'r',
+      attributes: {},
+    });
+    expect(parser.next().value).toEqual({ type: XmlEventType.CHARACTERS, value: 'ok' });
   });
 });
 

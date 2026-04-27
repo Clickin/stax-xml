@@ -73,6 +73,12 @@ function collect(parser: StaxXmlIterableParser): Array<{
   return events;
 }
 
+function collectDocument(xml: string, chunkSize = 64) {
+  return collect(new StaxXmlIterableParser(byteBatches(xml, chunkSize, 1), {
+    documentMode: 'document'
+  }));
+}
+
 describe('StaxXmlIterableParser raw batch cursor', () => {
   it('exposes raw event frames without AnyXmlEvent objects', () => {
     const parser = new StaxXmlIterableParser(byteBatches('<root><item id="1">text</item><empty/></root>', 64, 1));
@@ -141,6 +147,14 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
       frame!.attrValueStarts[attrStart]!,
       frame!.attrValueEnds[attrStart]!,
     ))).toBe('value');
+  });
+
+  it('rejects direct byte pushes after a final batch has finished', () => {
+    const parser = new StaxXmlIterableParser([]);
+    const bytes = new TextEncoder().encode('<root/>');
+
+    expect(parser.pushByteBatch(bytes, true)).toBe(true);
+    expect(parser.pushByteBatch([], false)).toBe(false);
   });
 
   it('reuses the batch frame object and refreshes it after each nextBatch call', () => {
@@ -359,6 +373,56 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
 
     for (const [xml, message] of cases) {
       expect(() => collect(new StaxXmlIterableParser(byteBatches(xml, 4, 1)))).toThrow(message);
+    }
+  });
+
+  it('validates document-mode declarations, names, and references', () => {
+    const astralName = '\u{10000}root';
+    expect(collectDocument(`<?xml version="1.0"?><?pi data?><${astralName}>🌊&#x20;&#65;</${astralName}>`))
+      .toContainEqual({ type: IterableEventType.START_ELEMENT, name: astralName });
+
+    expect(collectDocument('<!DOCTYPE root [<!-- comment --><!ENTITY ent "ok">]><root>&ent;</root>', 8))
+      .toContainEqual({ type: IterableEventType.CHARACTERS, text: '&ent;' });
+
+    const bomRoot = new Uint8Array([
+      0xef, 0xbb, 0xbf,
+      ...new TextEncoder().encode('<root/>'),
+    ]);
+    expect(collect(new StaxXmlIterableParser(rawByteBatches(bomRoot, 64, 1), {
+      documentMode: 'document'
+    })).map(event => event.name ?? event.text ?? event.type))
+      .toEqual([
+        IterableEventType.START_DOCUMENT,
+        'root',
+        'root',
+        IterableEventType.END_DOCUMENT,
+      ]);
+
+    const cases = [
+      ['<![CDATA[text]]><root/>', 'outside the document element'],
+      ['<!BROKEN><root/>', 'Unsupported markup declaration'],
+      ['<? ?><root/>', 'Processing instruction target is required'],
+      ['<?Xml data?><root/>', 'target "xml" is reserved'],
+      ['<root attr/>', 'Attribute value is required'],
+      ['<root attr />', 'Attribute value is required'],
+      ['<root attr other="x"/>', 'Attribute value must be assigned with "="'],
+      ['<root attr=value/>', 'Attribute values must be quoted'],
+      ['<root attr=/>', 'Attribute values must be quoted'],
+      ['<root = "x"/>', 'attribute name'],
+      ['< />', 'start tag name'],
+      ['<1root/>', 'start tag name'],
+      [`<root>${String.fromCharCode(1)}</root>`, 'Invalid XML character'],
+      ['<root>&#xZZ;</root>', 'Invalid XML character reference'],
+      ['<root>&#x0;</root>', 'Invalid XML character reference'],
+      ['<root>&#X20;</root>', 'Invalid XML character reference'],
+      ['<root>&#0;</root>', 'Invalid XML character reference'],
+      ['<root>&#abc;</root>', 'Invalid XML character reference'],
+      ['<root>&bad name;</root>', 'Invalid XML entity reference'],
+      ['<root>&unknown;</root>', 'Undeclared XML entity reference'],
+    ] as const;
+
+    for (const [xml, message] of cases) {
+      expect(() => collectDocument(xml)).toThrow(message);
     }
   });
 

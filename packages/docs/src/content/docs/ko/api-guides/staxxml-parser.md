@@ -463,42 +463,32 @@ for await (const event of parser) {
 }
 ```
 
-이 경로는 API 경계에서는 end-to-end async입니다. 내부에서는 도착한 byte batch가 iterable tokenizer로 넘어가 동기적으로 처리되므로, 큰 batch를 처리하는 동안에는 현재 worker를 점유할 수 있습니다.
+이 경로는 API 경계에서 stream backpressure를 유지합니다. `StaxXmlParser`는 consumer가 다음 event 또는 batch를 요청할 때 다음 `ReadableStream` chunk를 읽습니다. 내부에서는 도착한 byte batch가 tokenizer로 넘어가 동기적으로 처리되므로, 큰 batch를 처리하는 동안에는 현재 worker를 점유할 수 있습니다.
 
-파일 I/O는 비동기로 처리하되 chunk가 준비된 뒤에는 동기 iterable parser로 처리하려면, 모은 chunk를 `StaxXmlIterableParser`에 전달하세요:
+latency-sensitive main thread 작업에서는 batch 크기를 제한하거나 Web Worker 또는 Node worker thread로 parsing을 offload하세요. batch job에서는 synchronous iterable parser가 byte chunk를 직접 소비할 수도 있으므로, parsing을 위해 전체 XML string을 강제할 필요가 없습니다.
+
+#### Unknown XML Tree Object Helper
+
+미리 정의한 converter schema 없이 XML 문서를 그대로 살펴보고 싶을 때는 main package의 tree/object helper를 사용할 수 있습니다:
 
 ```typescript
-import { open } from 'node:fs/promises';
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
 
-async function readFileChunks(path: string): Promise<Uint8Array[]> {
-  const file = await open(path, 'r');
-  const chunks: Uint8Array[] = [];
+const xml = '<book id="1"><title>StAX</title><tag>fast</tag><tag>xml</tag></book>';
 
-  try {
-    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
-      chunks.push(chunk);
-    }
-  } finally {
-    await file.close();
-  }
+const tree = parseXmlTreeSync(xml);
+console.log(tree.children[0]);
 
-  return chunks;
-}
-
-const chunks = await readFileChunks('./large.xml');
-const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
-
-while (parser.nextBatch()) {
-  for (let index = 0; index < parser.eventCount(); index++) {
-    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
-      processElement(parser.copyName(index), parser.copyAttributesObject(index));
-    }
-  }
-}
+const object = parseXmlObjectSync(xml);
+console.log(object.book);
+// {
+//   '@id': '1',
+//   title: 'StAX',
+//   tag: ['fast', 'xml']
+// }
 ```
 
-이 방식은 전체 XML 문자열을 만들지 않지만, parse loop가 시작된 뒤에는 동기적으로 실행됩니다. async file read를 사용해도 XML parsing 자체가 non-blocking이 되지는 않으므로, latency-sensitive main event loop thread에서는 Web Worker 또는 Node worker thread로 offload할지 결정하세요. Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 고정 크기 동기 파일 chunk를 사용할 수 있습니다.
+`parseXmlTree()` / `parseXmlTreeSync()`는 Python ElementTree와 비슷한 순서 보존 tree를 반환합니다. `parseXmlObject()` / `parseXmlObjectSync()`는 attribute를 `@` prefix 아래에, text를 `#text`, CDATA를 `#cdata` 아래에 두는 compact object shape을 반환합니다. object helper는 결과 전체를 materialize하므로, unbounded input을 streaming projection해야 한다면 event, cursor, converter API를 사용하세요.
 
 #### 네임스페이스 처리
 

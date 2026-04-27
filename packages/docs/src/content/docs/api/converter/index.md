@@ -6581,7 +6581,7 @@ List of validation issues
 
 ### ParseOptions
 
-Defined in: [types.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L9)
+Defined in: [types.ts:10](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L10)
 
 Parse options for XML converter
 
@@ -6591,7 +6591,7 @@ Parse options for XML converter
 
 > `optional` **trimText?**: `boolean`
 
-Defined in: [types.ts:14](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L14)
+Defined in: [types.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L15)
 
 Whether to trim whitespace from text content
 
@@ -6605,7 +6605,7 @@ false
 
 > `optional` **decodeEntities?**: `boolean`
 
-Defined in: [types.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L20)
+Defined in: [types.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L21)
 
 Whether to decode XML entities
 
@@ -6619,7 +6619,7 @@ true
 
 > `optional` **strict?**: `boolean`
 
-Defined in: [types.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L26)
+Defined in: [types.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L27)
 
 Strict mode for parsing
 
@@ -6629,11 +6629,25 @@ Strict mode for parsing
 false
 ```
 
+##### documentMode?
+
+> `optional` **documentMode?**: `DocumentMode`
+
+Defined in: [types.ts:34](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L34)
+
+XML document conformance mode.
+
+###### Default Value
+
+```ts
+'fragment'
+```
+
 ##### maxDepth?
 
 > `optional` **maxDepth?**: `number`
 
-Defined in: [types.ts:32](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L32)
+Defined in: [types.ts:40](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L40)
 
 Maximum XML depth
 
@@ -6647,7 +6661,7 @@ Maximum XML depth
 
 > `optional` **maxEvents?**: `number`
 
-Defined in: [types.ts:38](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L38)
+Defined in: [types.ts:46](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L46)
 
 Maximum number of events to process
 
@@ -6661,7 +6675,7 @@ Maximum number of events to process
 
 > `optional` **xpathNamespaces?**: `Record`\<`string`, `string`\>
 
-Defined in: [types.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L48)
+Defined in: [types.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L56)
 
 Namespace bindings used by XPath 1.0 prefix resolution.
 
@@ -6675,7 +6689,7 @@ in XPath expressions when selecting namespaced elements.
 
 > `optional` **acceleration?**: `object`
 
-Defined in: [types.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L59)
+Defined in: [types.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L67)
 
 Optional structural-index acceleration for compiled converter parsing.
 
@@ -6702,7 +6716,7 @@ errors as well.
 
 ### XmlStringOptions
 
-Defined in: [types.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L71)
+Defined in: [types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L79)
 
 Options for string schema
 
@@ -6712,7 +6726,7 @@ Options for string schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [types.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L75)
+Defined in: [types.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L83)
 
 XPath expression to locate the element
 
@@ -6720,7 +6734,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: [types.ts:80](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L80)
+Defined in: [types.ts:88](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L88)
 
 Minimum string length
 
@@ -6728,7 +6742,7 @@ Minimum string length
 
 > `optional` **max?**: `number`
 
-Defined in: [types.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L85)
+Defined in: [types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L93)
 
 Maximum string length
 
@@ -6736,7 +6750,7 @@ Maximum string length
 
 > `optional` **pattern?**: `RegExp`
 
-Defined in: [types.ts:90](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L90)
+Defined in: [types.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L98)
 
 Regular expression pattern to validate against
 
@@ -6744,7 +6758,7 @@ Regular expression pattern to validate against
 
 ### XmlNumberOptions
 
-Defined in: [types.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L98)
+Defined in: [types.ts:106](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L106)
 
 Options for number schema
 
@@ -6754,7 +6768,7 @@ Options for number schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [types.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L102)
+Defined in: [types.ts:110](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L110)
 
 XPath expression to locate the element
 
@@ -6762,7 +6776,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: [types.ts:107](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L107)
+Defined in: [types.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L115)
 
 Minimum value
 
@@ -6770,7 +6784,7 @@ Minimum value
 
 > `optional` **max?**: `number`
 
-Defined in: [types.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L112)
+Defined in: [types.ts:120](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L120)
 
 Maximum value
 
@@ -6778,7 +6792,7 @@ Maximum value
 
 > `optional` **int?**: `boolean`
 
-Defined in: [types.ts:118](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L118)
+Defined in: [types.ts:126](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L126)
 
 Whether the number must be an integer
 
@@ -6792,7 +6806,7 @@ false
 
 ### XmlObjectOptions
 
-Defined in: [types.ts:126](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L126)
+Defined in: [types.ts:134](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L134)
 
 Options for object schema
 
@@ -6802,7 +6816,7 @@ Options for object schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [types.ts:130](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L130)
+Defined in: [types.ts:138](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L138)
 
 XPath expression to locate the element
 
@@ -6810,7 +6824,7 @@ XPath expression to locate the element
 
 > `optional` **strict?**: `boolean`
 
-Defined in: [types.ts:136](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L136)
+Defined in: [types.ts:144](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L144)
 
 Strict mode - reject unknown properties
 

@@ -6,20 +6,21 @@
 
 ## English
 
-A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). It offers both **fully asynchronous, stream-based parsing** for large files and **synchronous parsing** for smaller, in-memory XML documents. Unlike traditional XML-to-JSON mappers, StAX-XML allows you to map XML data to any custom structure you desire while efficiently handling XML files through streaming or direct string processing.
+A performance-first, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). StAX-XML is built around fast synchronous parsing paths, optional native acceleration, and byte-batch APIs that can parse large files without forcing the whole document through one JavaScript string. Use async streams when I/O must stay non-blocking; use the sync iterable path when a batch job can block and you want to avoid Promise overhead.
+
+Current release benchmarks show StAX-XML as one of the fastest XML parser packages in the JavaScript ecosystem for large-file workloads. The JavaScript byte-batch parser stays portable across Node, Bun, Deno, browsers, and edge runtimes, while the published `@stax-xml/native-*` optional packages provide the fastest Node.js path when native addons are allowed.
 
 ### 🚀 Features
 
-- **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser`
-- **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing
-- **XPath Support**: Use XPath expressions for flexible element selection
+- **Fast sync byte-batch parsing**: Parse large `Uint8Array`/`Buffer` chunk streams synchronously without materializing one full XML string
+- **Native acceleration by default**: `stax-xml` installs matching `@stax-xml/native-*` optional packages automatically, with wasm and JavaScript fallbacks
+- **Low-overhead iterable API**: Batch-oriented event frames expose names, text, and attributes on demand so hot paths can avoid per-event object churn
+- **Async stream parser**: Keep file/network I/O non-blocking while the parser consumes arrived byte batches synchronously
+- **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser` for one-event-at-a-time traversal
+- **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing with XPath support
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
 - **Synchronous Sink Writing**: Recommended high-throughput path for large XML output
-- **Fully Asynchronous (Stream-based)**: For memory-efficient processing of large XML files
-- **Synchronous (String-based)**: For high-performance parsing of smaller, in-memory XML strings
-- **Pull-based Parsing**: Stream-based approach for memory-efficient processing of large XML files
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
-- **High Performance**: Optimized for speed and low memory usage
 - **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers, with WebAssembly recommended for browser performance paths and pure JavaScript kept as the compatibility fallback
 - **Namespace Support**: Basic XML namespace handling
 - **Entity Support**: Built-in entity decoding with custom entity support
@@ -45,11 +46,78 @@ deno add npm:stax-xml
 
 ### 🔧 Quick Start
 
-Here are basic examples to get started. StAX-XML provides three parsing approaches:
+StAX-XML provides several parsing surfaces. Pick the one that matches the execution boundary:
 
-1. **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser`
-2. **Event-based API**: Low-level streaming parser for fine-grained control
-3. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
+| Workload | Recommended API | Why |
+| --- | --- | --- |
+| Large local files or batch jobs that may block | `stax-xml/iterable` or `stax-xml/iterable/node` | Fast synchronous byte-batch parsing, no Promise overhead, no full-string requirement |
+| File/network I/O that must stay non-blocking | `StaxXmlParser` | Async iterator over `ReadableStream<Uint8Array>` |
+| Ergonomic event traversal | `StaxXmlCursorReader` | Cursor-style accessors over the iterable backend |
+| XML-to-object mapping | `stax-xml/converter` | Typed schema API with XPath and writer support |
+
+#### Fast synchronous large-file parsing
+
+For Node batch jobs, read and parse a file synchronously in fixed-size byte chunks. This path does not require `fs.readFileSync(path, 'utf8')`, does not keep one full XML string in memory, and avoids async iterator/Promise overhead.
+
+```typescript
+import {
+  IterableEventType,
+  StaxXmlNodeIterableParser,
+  nodeFileByteBatchesSync
+} from 'stax-xml/iterable/node';
+
+const parser = new StaxXmlNodeIterableParser(
+  nodeFileByteBatchesSync('./large.xml', {
+    chunkSize: 1024 * 1024,
+    batchSize: 16
+  })
+);
+
+let elementCount = 0;
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      elementCount++;
+      // Names/text/attributes are copied only when requested.
+      console.log(parser.copyName(index));
+    }
+  }
+}
+
+console.log(`Total elements processed: ${elementCount}`);
+```
+
+For portable byte sources, use `StaxXmlIterableParser` with `Iterable<Uint8Array[]>` batches from `stax-xml/iterable`. That is the same synchronous parsing model without Node's `Buffer`-specific file helpers.
+
+#### Unknown XML to Tree or Object
+
+Use the converter API when you know the target shape. When you just need to inspect unknown XML, StAX-XML also provides convenience helpers:
+
+- `parseXmlTree()` / `parseXmlTreeSync()` return an order-preserving tree similar in spirit to Python's ElementTree.
+- `parseXmlObject()` / `parseXmlObjectSync()` return a compact JavaScript object similar to txml or fast-xml-parser.
+
+```typescript
+import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
+
+const xml = '<catalog><book id="1"><title>One</title><tag>a</tag><tag>b</tag></book></catalog>';
+
+const tree = parseXmlTreeSync(xml);
+// tree.children[0] -> { type: 'element', name: 'catalog', attributes, children }
+
+const object = parseXmlObjectSync(xml);
+// {
+//   catalog: {
+//     book: {
+//       '@id': '1',
+//       title: 'One',
+//       tag: ['a', 'b']
+//     }
+//   }
+// }
+```
+
+Compact objects use `@` for attributes by default (`id` becomes `@id`) and `#text` / `#cdata` for mixed content. Containers are created with a null prototype, so XML names such as `__proto__`, `constructor`, and `prototype` remain data keys instead of mutating JavaScript prototypes. Use the tree helper when child order or mixed content order matters.
 
 #### Fragment and Document Modes
 
@@ -135,12 +203,7 @@ while (cursor.next()) {
 }
 ```
 
-For large files, choose the boundary that matches the workload:
-
-- Use `StaxXmlParser` when file/network I/O should stay async. The public API is end-to-end async, while the parser backend consumes byte batches synchronously after chunks arrive.
-- Use the iterable parser when a batch job can block the current worker/thread and you want to avoid creating one full XML string.
-
-End-to-end async file parsing:
+When file or network I/O must stay non-blocking, use `StaxXmlParser`. The public API is an async iterator over a `ReadableStream<Uint8Array>`, while the backend still parses each arrived byte batch synchronously:
 
 ```typescript
 import { createReadStream } from 'node:fs';
@@ -161,45 +224,6 @@ for await (const event of parser) {
 
 console.log(`Total elements processed: ${elementCount}`);
 ```
-
-Async file read, then synchronous iterable batch parsing:
-
-```typescript
-import { open } from 'node:fs/promises';
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
-
-async function readFileChunks(path: string): Promise<Uint8Array[]> {
-  const file = await open(path, 'r');
-  const chunks: Uint8Array[] = [];
-
-  try {
-    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
-      chunks.push(chunk);
-    }
-  } finally {
-    await file.close();
-  }
-
-  return chunks;
-}
-
-const chunks = await readFileChunks('./large.xml');
-const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
-let elementCount = 0;
-
-while (parser.nextBatch()) {
-  for (let index = 0; index < parser.eventCount(); index++) {
-    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
-      elementCount++;
-      console.log(parser.copyName(index));
-    }
-  }
-}
-
-console.log(`Total elements processed: ${elementCount}`);
-```
-
-For Node-only batch jobs where blocking file I/O is acceptable, `stax-xml/iterable/node` also exposes `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` so the file can be read and parsed synchronously in fixed-size byte chunks.
 
 #### Event-based Parsing (Low-level API)
 
@@ -284,7 +308,7 @@ Prereleases are prepared from the manual `Prerelease` workflow. It validates pac
 
 The supported runtime floor for published packages is Node.js 20.19. Repository build/test tooling runs on Node.js 20.19+ because the TypeScript build and test tools require it, and the OIDC publish job runs on Node.js 24 to satisfy npm trusted publishing requirements. Linux glibc native packages are built inside a `node:20-bullseye` container so they target Debian 11's older glibc baseline instead of the newer GitHub runner glibc.
 
-For application container images, do not copy a full `node_modules` tree into the runtime layer. Bundle the JavaScript/TypeScript application in the builder layer, then copy only the bundle plus the native addon package that matches the runtime image:
+For application container images, build the JavaScript/TypeScript application in the builder layer, then install production dependencies in the runtime layer from the package manager lockfile. This lets the runtime image resolve the native optional dependency for its own OS, CPU, and libc variant. Copying `node_modules` from the builder layer is not recommended, especially with pnpm, because the installed tree may contain store symlinks or hardlinks that are not valid after a direct copy.
 
 ```dockerfile
 FROM node:20-bullseye AS builder
@@ -294,21 +318,23 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:20-bullseye AS native
-WORKDIR /native
-RUN npm init -y >/dev/null \
-  && npm install --omit=dev stax-xml @stax-xml/native-linux-x64-gnu
-
-FROM node:20-bullseye-slim
+FROM node:20-bullseye-slim AS runtime
 WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
-COPY --from=native /native/node_modules/@stax-xml/native-linux-x64-gnu ./node_modules/@stax-xml/native-linux-x64-gnu
-COPY --from=native /native/node_modules/stax-xml/package.json ./node_modules/stax-xml/package.json
-COPY --from=native /native/node_modules/stax-xml/dist ./node_modules/stax-xml/dist
-CMD ["node", "server.js"]
+CMD ["node", "dist/server.js"]
 ```
 
-Use an Alpine base only when you want the musl package path, for example `@stax-xml/native-linux-x64-musl`.
+For pnpm projects, use a runtime production install or `pnpm deploy --prod` for workspace apps; do not copy the builder `node_modules` tree directly:
+
+```dockerfile
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --prod --frozen-lockfile
+```
+
+Use an Alpine runtime only when you want the musl package path, for example `@stax-xml/native-linux-x64-musl`. The production install must run inside that Alpine runtime layer so the musl optional dependency is selected.
 
 ### 🧪 Testing
 
@@ -325,33 +351,37 @@ pnpm test:w3c
 
 **Node ecosystem parser benchmark**
 
-| Fixture | stax-xml consume | stax-xml to object | txml | fast-xml-parser | xml2js |
+| Fixture | stax-xml JS byte-batch iterable | stax-xml native raw aggregate | txml | fast-xml-parser | xml2js |
 | :-- | --: | --: | --: | --: | --: |
-| midsize.xml (13MB) | 208.24 ms | 223.37 ms | 118.36 ms | 720.42 ms | 593.45 µs* |
-| large.xml (98MB) | 1.93 s | 1.82 s | 1.15 s | 6.22 s | 6.71 s |
+| midsize.xml (13MB) | 104.32 ms | 20.81 ms | 116.76 ms | 672.25 ms | 593.00 µs* |
+| large.xml (98MB) | 695.09 ms | 155.21 ms | 973.22 ms | 5.43 s | 5.65 s |
 
-*`xml2js` remains an outlier on `midsize.xml`; the full report keeps that result visible instead of hiding it.
+*`xml2js` remains an invalid whole-document comparator on `midsize.xml`; the fixture has repeated top-level elements and xml2js reports only the first top-level element shape. The native aggregate row is the benchmark-oriented native backend contract, not a claim that every public JS iterator call is automatically native.
 
 **JavaScript runtime matrix** (`runtime-matrix.json`, generated 16 MiB fixture)
 
 | Runtime | public sync full-string | iterable count-only | iterable full-string |
 | :-- | --: | --: | --: |
-| Node 24.15.0 | 52.2 MiB/s | 197.1 MiB/s | 112.6 MiB/s |
-| Bun 1.3.13 | 78.7 MiB/s | 265.8 MiB/s | 158.9 MiB/s |
-| Deno 2.7.13 | 56.5 MiB/s | 204.0 MiB/s | 123.0 MiB/s |
+| Node 24.15.0 | 56.2 MiB/s | 196.7 MiB/s | 117.3 MiB/s |
+| Bun 1.3.13 | 84.6 MiB/s | 254.8 MiB/s | 158.5 MiB/s |
+| Deno 2.7.13 | 56.5 MiB/s | 202.0 MiB/s | 128.7 MiB/s |
 
 The `iterable-*` rows are synchronous byte-batch parser paths. Use async streams for non-blocking work; use the iterable byte-batch backend for blocking batch jobs that should not retain one full XML string.
 
 **Cross-runtime parser comparator** (`cross-runtime-comparison.json`, generated 16 MiB fixture)
 
-| Tier | stax-xml on Node | Woodstox on Java 8 | quick-xml |
-| :-- | --: | --: | --: |
-| count-only | 182.7 MiB/s | 309.4 MiB/s | 303.4 MiB/s |
-| full-string | 93.1 MiB/s | 246.0 MiB/s | 214.8 MiB/s |
+| Tier | stax-xml JS on Node | stax-xml native addon | Woodstox on Java 8 | quick-xml |
+| :-- | --: | --: | --: | --: |
+| count-only | 173.5 MiB/s | 1080.8 MiB/s | 347.6 MiB/s | 311.3 MiB/s |
+| full-string | 109.2 MiB/s | 610.8 MiB/s | 255.5 MiB/s | 238.4 MiB/s |
 
 Woodstox was also checked on Java 25; Java 8 remains the public baseline because it is Woodstox's minimum supported runtime target.
 
 These results are why native addons are now the acceleration path. The pure JavaScript parser stays as the compatibility fallback, but V8-oriented loop-shape work did not close the full-string gap against native parsers. The Rust native path lets the hot tokenizer and string/span aggregation move toward native and SIMD-oriented scanning, closer in direction to `quick-xml` and simdjson-style designs.
+
+### 🙏 Special Thanks
+
+StAX-XML's native acceleration and structural-index work learned a lot from [`simdxml`](https://cigrainger.com/blog/simdxml), especially its flat-array indexing and SIMD-oriented XML parsing ideas. Special thanks to [Christopher Grainger](https://bsky.app/profile/cigrainger.bsky.social) for publishing that work and for explicitly permitting this acknowledgement in [this Bluesky thread](https://bsky.app/profile/cigrainger.bsky.social/post/3mkgqhprnn22k).
 
 ### 📁 Sample File Sources
 
@@ -373,19 +403,21 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Korean
 
-Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식의 JavaScript/TypeScript XML 파서입니다. **대용량 파일을 위한 완전 비동기 스트림 기반 파싱**과 **작은 인메모리 XML 문서를 위한 동기 파싱**을 모두 제공합니다. 기존의 XML-JSON 매퍼와 달리, StAX-XML을 사용하면 XML 데이터를 원하는 임의의 구조로 매핑할 수 있으며, 스트리밍 또는 직접 문자열 처리를 통해 XML 파일을 효율적으로 처리할 수 있습니다.
+Java의 StAX(Streaming API for XML)에서 영감을 받은 성능 중심 pull 방식 JavaScript/TypeScript XML 파서입니다. StAX-XML은 빠른 동기 파싱 경로, optional native acceleration, 그리고 전체 문서를 하나의 JavaScript 문자열로 만들지 않아도 되는 byte-batch API를 중심으로 설계되어 있습니다. 파일/네트워크 I/O를 non-blocking으로 유지해야 하면 async stream을 사용하고, batch job에서 현재 worker/thread를 막아도 된다면 Promise overhead가 없는 sync iterable 경로를 사용하세요.
+
+현재 릴리스 벤치마크 기준으로 StAX-XML은 대용량 XML workload에서 JavaScript 생태계의 XML parser package 중 최상위권 처리량을 보입니다. JavaScript byte-batch parser는 Node, Bun, Deno, browser, edge runtime에서 동작하고, native addon을 허용하는 Node.js 환경에서는 배포된 `@stax-xml/native-*` optional package가 가장 빠른 경로를 제공합니다.
 
 ### 🚀 주요 기능
 
-- **커서 Reader API**: `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
-- **선언적 Converter API**: 타입 안전한 XML 파싱과 쓰기를 위한 Zod 스타일 스키마 API
-- **XPath 지원**: 유연한 요소 선택을 위한 XPath 표현식 사용
+- **빠른 동기 byte-batch 파싱**: 대용량 `Uint8Array`/`Buffer` chunk stream을 하나의 전체 XML 문자열로 만들지 않고 동기적으로 파싱
+- **기본 native acceleration**: `stax-xml` 설치만으로 현재 platform에 맞는 `@stax-xml/native-*` optional package가 설치되며, wasm/JavaScript fallback을 유지
+- **저오버헤드 iterable API**: batch 단위 event frame에서 name, text, attribute를 필요할 때만 복사하여 hot path의 per-event object churn을 줄임
+- **Async stream parser**: 파일/네트워크 I/O는 non-blocking으로 유지하고, 도착한 byte batch는 parser가 동기적으로 소비
+- **커서 Reader API**: one-event-at-a-time 순회를 위한 `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
+- **선언적 Converter API**: XPath를 지원하는 타입 안전 XML 파싱/쓰기용 Zod 스타일 스키마 API
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
 - **동기 sink 쓰기**: 대용량 XML 출력에 권장되는 고처리량 경로
-- **완전 비동기 (스트림 기반)**: 대용량 XML 파일의 메모리 효율적 처리
-- **동기 (문자열 기반)**: 작은 인메모리 XML 문자열의 고성능 파싱
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
-- **고성능**: 속도와 낮은 메모리 사용량에 최적화
 - **범용 호환성**: Node.js, Bun, Deno, 웹 브라우저에서 동작하며, 브라우저 고성능 경로는 WebAssembly를 권장하고 순수 JavaScript 파서는 호환 fallback으로 유지
 - **네임스페이스 지원**: 기본 XML 네임스페이스 처리
 - **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
@@ -413,11 +445,78 @@ deno add npm:stax-xml
 
 ### 🔧 빠른 시작
 
-StAX-XML은 세 가지 파싱 방식을 제공합니다:
+StAX-XML은 여러 parsing surface를 제공합니다. 실행 경계에 맞는 API를 선택하세요:
 
-1. **커서 Reader API**: `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
-2. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
-3. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
+| Workload | 권장 API | 이유 |
+| --- | --- | --- |
+| 현재 worker/thread를 막아도 되는 대용량 로컬 파일 또는 batch job | `stax-xml/iterable` 또는 `stax-xml/iterable/node` | 빠른 동기 byte-batch 파싱, Promise overhead 없음, 전체 문자열 강제 없음 |
+| 파일/네트워크 I/O를 non-blocking으로 유지해야 하는 작업 | `StaxXmlParser` | `ReadableStream<Uint8Array>` 기반 async iterator |
+| ergonomic event 순회 | `StaxXmlCursorReader` | iterable backend 위의 cursor-style accessor |
+| XML-to-object 매핑 | `stax-xml/converter` | XPath와 writer를 지원하는 typed schema API |
+
+#### 빠른 동기 대용량 파일 파싱
+
+Node batch job에서는 파일을 고정 크기 byte chunk로 동기적으로 읽고 파싱할 수 있습니다. 이 경로는 `fs.readFileSync(path, 'utf8')`를 요구하지 않고, 전체 XML 문자열을 메모리에 유지하지 않으며, async iterator/Promise overhead도 피합니다.
+
+```typescript
+import {
+  IterableEventType,
+  StaxXmlNodeIterableParser,
+  nodeFileByteBatchesSync
+} from 'stax-xml/iterable/node';
+
+const parser = new StaxXmlNodeIterableParser(
+  nodeFileByteBatchesSync('./large.xml', {
+    chunkSize: 1024 * 1024,
+    batchSize: 16
+  })
+);
+
+let elementCount = 0;
+
+while (parser.nextBatch()) {
+  for (let index = 0; index < parser.eventCount(); index++) {
+    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
+      elementCount++;
+      // name/text/attribute는 요청할 때만 복사합니다.
+      console.log(parser.copyName(index));
+    }
+  }
+}
+
+console.log(`처리한 전체 요소 수: ${elementCount}`);
+```
+
+portable byte source에는 `stax-xml/iterable`의 `StaxXmlIterableParser`와 `Iterable<Uint8Array[]>` batch를 사용하세요. Node의 `Buffer` 전용 file helper 없이 같은 동기 파싱 모델을 사용할 수 있습니다.
+
+#### Unknown XML을 Tree 또는 Object로 파싱
+
+목표 shape를 알고 있다면 converter API를 사용하세요. 스키마가 없는 unknown XML을 빠르게 확인해야 한다면 convenience helper를 사용할 수 있습니다:
+
+- `parseXmlTree()` / `parseXmlTreeSync()`는 Python ElementTree와 비슷한 순서 보존 tree를 반환합니다.
+- `parseXmlObject()` / `parseXmlObjectSync()`는 txml 또는 fast-xml-parser처럼 compact JavaScript object를 반환합니다.
+
+```typescript
+import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
+
+const xml = '<catalog><book id="1"><title>One</title><tag>a</tag><tag>b</tag></book></catalog>';
+
+const tree = parseXmlTreeSync(xml);
+// tree.children[0] -> { type: 'element', name: 'catalog', attributes, children }
+
+const object = parseXmlObjectSync(xml);
+// {
+//   catalog: {
+//     book: {
+//       '@id': '1',
+//       title: 'One',
+//       tag: ['a', 'b']
+//     }
+//   }
+// }
+```
+
+Compact object는 기본적으로 attribute에 `@` prefix를 붙이고(`id`는 `@id`), mixed content에는 `#text` / `#cdata` key를 사용합니다. Container는 null-prototype object로 생성하므로 `__proto__`, `constructor`, `prototype` 같은 XML name도 JavaScript prototype을 변경하지 않고 데이터 key로 남습니다. Child order나 mixed content order가 중요하면 tree helper를 사용하세요.
 
 #### Fragment 모드와 Document 모드
 
@@ -503,12 +602,7 @@ while (cursor.next()) {
 }
 ```
 
-대용량 파일은 workload 경계에 맞춰 선택하세요:
-
-- 파일/네트워크 I/O까지 비동기로 유지해야 하면 `StaxXmlParser`를 사용합니다. 공개 API는 end-to-end async이고, 내부 parser backend는 도착한 byte batch를 동기적으로 소비합니다.
-- 현재 worker/thread를 막아도 되는 batch job에서는 iterable parser를 사용하면 전체 XML 문자열을 만들지 않고 byte chunk 단위로 파싱할 수 있습니다.
-
-End-to-end 비동기 파일 파싱:
+파일 또는 네트워크 I/O를 non-blocking으로 유지해야 한다면 `StaxXmlParser`를 사용하세요. 공개 API는 `ReadableStream<Uint8Array>` 위의 async iterator이고, backend는 도착한 byte batch를 동기적으로 파싱합니다:
 
 ```typescript
 import { createReadStream } from 'node:fs';
@@ -529,45 +623,6 @@ for await (const event of parser) {
 
 console.log(`처리한 전체 요소 수: ${elementCount}`);
 ```
-
-파일은 비동기로 chunk 단위로 읽고, chunk는 동기 iterable parser로 처리:
-
-```typescript
-import { open } from 'node:fs/promises';
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
-
-async function readFileChunks(path: string): Promise<Uint8Array[]> {
-  const file = await open(path, 'r');
-  const chunks: Uint8Array[] = [];
-
-  try {
-    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
-      chunks.push(chunk);
-    }
-  } finally {
-    await file.close();
-  }
-
-  return chunks;
-}
-
-const chunks = await readFileChunks('./large.xml');
-const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
-let elementCount = 0;
-
-while (parser.nextBatch()) {
-  for (let index = 0; index < parser.eventCount(); index++) {
-    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
-      elementCount++;
-      console.log(parser.copyName(index));
-    }
-  }
-}
-
-console.log(`처리한 전체 요소 수: ${elementCount}`);
-```
-
-Node 전용 batch job에서 blocking 파일 I/O가 허용된다면 `stax-xml/iterable/node`의 `nodeFileByteBatchesSync()`와 `StaxXmlNodeIterableParser()`로 파일 읽기와 파싱을 모두 고정 크기 byte chunk 단위의 동기 작업으로 처리할 수 있습니다.
 
 #### 이벤트 기반 파싱 (저수준 API)
 
@@ -641,7 +696,7 @@ prerelease는 수동 `Prerelease` workflow에서 준비합니다. 이 workflow�
 
 배포 package의 지원 runtime 하한은 Node.js 20.19입니다. 저장소 build/test tooling은 TypeScript build/test 도구의 요구사항 때문에 Node.js 20.19+에서 실행하고, OIDC publish job은 npm trusted publishing 요구사항 때문에 Node.js 24에서 실행합니다. Linux glibc native package는 `node:20-bullseye` container 안에서 빌드해서, 최신 GitHub runner glibc가 아니라 Debian 11의 더 낮은 glibc 기준에 맞춥니다.
 
-애플리케이션 컨테이너 이미지는 runtime layer에 전체 `node_modules`를 복사하지 않는 편이 좋습니다. builder layer에서 JavaScript/TypeScript 애플리케이션을 하나의 산출물로 번들링하고, runtime image에는 번들 결과와 실행 환경에 맞는 native addon package만 복사하세요:
+애플리케이션 컨테이너 이미지는 builder layer에서 JavaScript/TypeScript 애플리케이션을 빌드하고, runtime layer에서는 package manager lockfile로 production dependency를 다시 설치하는 방식을 권장합니다. 그래야 runtime image의 OS, CPU, libc variant에 맞는 native optional dependency가 선택됩니다. 특히 pnpm은 store symlink/hardlink 구조를 사용하므로 builder의 `node_modules`를 runtime에 직접 복사하는 방식은 권장하지 않습니다.
 
 ```dockerfile
 FROM node:20-bullseye AS builder
@@ -651,21 +706,27 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:20-bullseye AS native
-WORKDIR /native
-RUN npm init -y >/dev/null \
-  && npm install --omit=dev stax-xml @stax-xml/native-linux-x64-gnu
-
-FROM node:20-bullseye-slim
+FROM node:20-bullseye-slim AS runtime
 WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
-COPY --from=native /native/node_modules/@stax-xml/native-linux-x64-gnu ./node_modules/@stax-xml/native-linux-x64-gnu
-COPY --from=native /native/node_modules/stax-xml/package.json ./node_modules/stax-xml/package.json
-COPY --from=native /native/node_modules/stax-xml/dist ./node_modules/stax-xml/dist
-CMD ["node", "server.js"]
+CMD ["node", "dist/server.js"]
 ```
 
-Alpine base는 musl package 경로가 필요할 때만 사용하세요. 예를 들어 x64 Alpine에서는 `@stax-xml/native-linux-x64-musl`이 선택됩니다.
+pnpm project에서는 runtime production install이나 workspace app 대상 `pnpm deploy --prod`를 사용하세요. builder의 `node_modules` tree를 직접 복사하지 않습니다:
+
+```dockerfile
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --prod --frozen-lockfile
+```
+
+Alpine runtime은 musl package 경로가 필요할 때만 사용하세요. 예를 들어 x64 Alpine에서는 `@stax-xml/native-linux-x64-musl`이 선택됩니다. musl optional dependency가 선택되도록 production install도 해당 Alpine runtime layer 안에서 실행해야 합니다.
+
+### 🙏 특별 감사
+
+StAX-XML의 native acceleration과 structural-index 작업은 [`simdxml`](https://cigrainger.com/blog/simdxml)의 flat-array indexing 및 SIMD 기반 XML 파싱 아이디어에서 많은 힌트를 얻었습니다. 해당 작업을 공개하고 [Bluesky thread](https://bsky.app/profile/cigrainger.bsky.social/post/3mkgqhprnn22k)를 통해 이 acknowledgement를 명시적으로 허가해 준 [Christopher Grainger](https://bsky.app/profile/cigrainger.bsky.social)에게 특별히 감사드립니다.
 
 ### 📁 테스트 파일 출처
 
