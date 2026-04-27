@@ -318,8 +318,9 @@ jobs:
             package_json="$(tar -xOf "$tgz" package/package.json)"
             name="$(node -e "const fs=require('node:fs'); console.log(JSON.parse(fs.readFileSync(0, 'utf8')).name)" <<< "$package_json")"
             version="$(node -e "const fs=require('node:fs'); console.log(JSON.parse(fs.readFileSync(0, 'utf8')).version)" <<< "$package_json")"
-            if npm view "$name@$version" version >/dev/null 2>&1; then
-              echo "$name@$version is already published; skipping."
+            published_version="$(npm dist-tag ls "$name" 2>/dev/null | awk -v tag="${{ steps.npm-dist-tag.outputs.tag }}" '$1 == tag ":" { print $2 }')"
+            if [ "$published_version" = "$version" ]; then
+              echo "$name@$version is already published on dist-tag ${{ steps.npm-dist-tag.outputs.tag }}; skipping."
             else
               npm publish "$tgz" --access public --tag "${{ steps.npm-dist-tag.outputs.tag }}"
             fi
