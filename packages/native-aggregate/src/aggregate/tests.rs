@@ -1796,6 +1796,8 @@ fn aggregate_fast_count_and_two_stage_cover_branch_edges() {
         &b"><root/>"[..],
         &b"<root/>tail"[..],
         &b"<root/>   "[..],
+        &b"<!DOCTYPE root>"[..],
+        &b"<!DOCTYPE root [<!ELEMENT root ANY>]><root/>"[..],
         &b"<root><![CDATA[]]><![CDATA[   ]]><![CDATA[x]]><!--c--><!DOCTYPE r><!ENTITY x y><?pi ok?></root>"[..],
     ] {
         parse_aggregate_two_stage(input, two_stage, SimdPolicy::Off).unwrap();
