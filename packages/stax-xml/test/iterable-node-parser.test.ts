@@ -230,6 +230,36 @@ describe('StaxXmlNodeIterableParser raw batch cursor', () => {
     } as never)).toThrow('attributeScanner');
   });
 
+  it('can force the JavaScript backend while auto backend remains the default', () => {
+    const auto = new StaxXmlNodeIterableParser(bufferBatches('<root><item/></root>', 64, 1));
+    expect(auto.backendKind()).toBe('pending');
+    expect(collect(auto).map(event => event.name ?? event.type)).toEqual([
+      IterableEventType.START_DOCUMENT,
+      'root',
+      'item',
+      'item',
+      'root',
+      IterableEventType.END_DOCUMENT,
+    ]);
+    expect(['native', 'js']).toContain(auto.backendKind());
+
+    const js = new StaxXmlNodeIterableParser(bufferBatches('<root/>', 64, 1), { backend: 'js' });
+    expect(js.backendKind()).toBe('pending');
+    expect(collect(js).map(event => event.name ?? event.type)).toEqual([
+      IterableEventType.START_DOCUMENT,
+      'root',
+      'root',
+      IterableEventType.END_DOCUMENT,
+    ]);
+    expect(js.backendKind()).toBe('js');
+  });
+
+  it('rejects unknown iterable parser backends', () => {
+    expect(() => new StaxXmlNodeIterableParser(bufferBatches('<root/>', 64, 1), {
+      backend: 'unknown',
+    } as never)).toThrow('backend');
+  });
+
   it('skips XML declaration, comments, processing instructions, and doctype', () => {
     const xml = '<?xml version="1.0"?><!DOCTYPE root><root><!-- hidden --><?pi hidden?><item/></root>';
 

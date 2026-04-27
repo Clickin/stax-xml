@@ -1,5 +1,9 @@
 import { Buffer } from 'node:buffer';
+import { createRequire } from 'node:module';
 import { closeSync, openSync, readSync, type PathLike } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { getStaxXmlNativePackageName, detectRuntimePlatform } from '../runtime/native-backend.js';
+import { StaxXmlStructuralIndexParser } from '../runtime/structural-index-parser.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -15,6 +19,8 @@ export type IterableEventType = typeof IterableEventType[keyof typeof IterableEv
 export type NodeByteBatch = readonly Buffer[];
 
 export type NodeAttributeScanner = 'general' | 'simple';
+export type NodeIterableParserBackend = 'auto' | 'js';
+export type NodeIterableParserBackendKind = 'pending' | 'native' | 'js';
 
 export interface NodeByteBatchOptions {
   batchSize?: number;
@@ -26,11 +32,17 @@ export interface NodeFileByteBatchOptions extends NodeByteBatchOptions {
 
 export interface StaxXmlNodeIterableParserOptions {
   attributeScanner?: NodeAttributeScanner;
+  backend?: NodeIterableParserBackend;
 }
 
 const DEFAULT_BATCH_SIZE = 16;
 const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const EMPTY_BUFFER = Buffer.alloc(0);
+const require = createRequire(import.meta.url);
+
+interface NativeStructuralIndexModule {
+  parseStructuralIndexUint8Array?: (input: Uint8Array) => ArrayBuffer | ArrayBufferView;
+}
 
 export function* nodeFileByteBatchesSync(
   path: PathLike,
@@ -65,8 +77,12 @@ export function* nodeFileByteBatchesSync(
 }
 
 export class StaxXmlNodeIterableParser {
-  private readonly iterator: Iterator<NodeByteBatch>;
+  private iterator: Iterator<NodeByteBatch>;
   private readonly useSimpleAttributeScanner: boolean;
+  private readonly backend: NodeIterableParserBackend;
+  private backendInitialized = false;
+  private nativeParser: StaxXmlStructuralIndexParser | undefined;
+  private backendKindValue: NodeIterableParserBackendKind = 'pending';
 
   private currentBuffer: Buffer = EMPTY_BUFFER;
   private pendingTail: Buffer = EMPTY_BUFFER;
@@ -97,6 +113,10 @@ export class StaxXmlNodeIterableParser {
 
   constructor(source: Iterable<NodeByteBatch>, options: StaxXmlNodeIterableParserOptions = {}) {
     this.iterator = source[Symbol.iterator]();
+    this.backend = options.backend ?? 'auto';
+    if (this.backend !== 'auto' && this.backend !== 'js') {
+      throw new RangeError(`Unknown iterable parser backend: ${String(this.backend)}.`);
+    }
     const attributeScanner = options.attributeScanner ?? 'general';
     if (attributeScanner !== 'general' && attributeScanner !== 'simple') {
       throw new RangeError(`Unknown attributeScanner: ${String(attributeScanner)}.`);
@@ -105,6 +125,11 @@ export class StaxXmlNodeIterableParser {
   }
 
   nextBatch(): boolean {
+    this.initializeBackend();
+    if (this.nativeParser) {
+      return this.nativeParser.nextBatch();
+    }
+
     if (this.finished) {
       return false;
     }
@@ -137,58 +162,100 @@ export class StaxXmlNodeIterableParser {
   }
 
   eventCount(): number {
+    if (this.nativeParser) {
+      return this.nativeParser.eventCount;
+    }
     return this.eventCursor;
   }
 
   buffer(): Buffer {
+    if (this.nativeParser) {
+      return this.nativeParser.buffer() as Buffer;
+    }
     return this.currentBuffer;
   }
 
   eventType(index: number): IterableEventType {
+    if (this.nativeParser) {
+      return this.nativeParser.eventType(index);
+    }
     return this.eventTypes[index] as IterableEventType;
   }
 
   nameStart(index: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.nameStart(index);
+    }
     return this.nameStarts[index]!;
   }
 
   nameEnd(index: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.nameEnd(index);
+    }
     return this.nameEnds[index]!;
   }
 
   textStart(index: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.textStart(index);
+    }
     return this.textStarts[index]!;
   }
 
   textEnd(index: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.textEnd(index);
+    }
     return this.textEnds[index]!;
   }
 
   attrCount(index: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.eventAttrCount(index);
+    }
     return this.attrCounts[index]!;
   }
 
   attrNameStart(eventIndex: number, attrIndex: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.attrNameStart(eventIndex, attrIndex);
+    }
     return this.attrNameStarts[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrNameEnd(eventIndex: number, attrIndex: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.attrNameEnd(eventIndex, attrIndex);
+    }
     return this.attrNameEnds[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrValueStart(eventIndex: number, attrIndex: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.attrValueStart(eventIndex, attrIndex);
+    }
     return this.attrValueStarts[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrValueEnd(eventIndex: number, attrIndex: number): number {
+    if (this.nativeParser) {
+      return this.nativeParser.attrValueEnd(eventIndex, attrIndex);
+    }
     return this.attrValueEnds[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   decodeSpan(start: number, end: number): string {
+    if (this.nativeParser) {
+      return this.buffer().toString('utf8', start, end);
+    }
     return this.currentBuffer.toString('utf8', start, end);
   }
 
   copyName(index: number): string | undefined {
+    if (this.nativeParser) {
+      return this.nativeParser.copyName(index);
+    }
     const nameId = this.nameIdsForEvents[index]!;
     if (nameId < 0) {
       return undefined;
@@ -197,11 +264,20 @@ export class StaxXmlNodeIterableParser {
   }
 
   copyText(index: number): string | undefined {
+    if (this.nativeParser) {
+      return this.nativeParser.copyText(index);
+    }
     const start = this.textStarts[index]!;
     return start < 0 ? undefined : this.decodeSpan(start, this.textEnds[index]!);
   }
 
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
+    if (this.nativeParser) {
+      if (attrIndex < 0 || attrIndex >= this.nativeParser.eventAttrCount(eventIndex)) {
+        return undefined;
+      }
+      return this.nativeParser.copyAttrName(eventIndex, attrIndex);
+    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return undefined;
     }
@@ -211,6 +287,12 @@ export class StaxXmlNodeIterableParser {
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
+    if (this.nativeParser) {
+      if (attrIndex < 0 || attrIndex >= this.nativeParser.eventAttrCount(eventIndex)) {
+        return undefined;
+      }
+      return this.nativeParser.copyAttrValue(eventIndex, attrIndex);
+    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return undefined;
     }
@@ -218,6 +300,21 @@ export class StaxXmlNodeIterableParser {
   }
 
   copyAttributesObject(eventIndex: number): Record<string, string> {
+    if (this.nativeParser) {
+      const count = this.nativeParser.eventAttrCount(eventIndex);
+      if (count === 0) {
+        return {};
+      }
+      const attributes: Record<string, string> = {};
+      for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+        const name = this.nativeParser.copyAttrName(eventIndex, attrIndex);
+        const value = this.nativeParser.copyAttrValue(eventIndex, attrIndex);
+        if (name !== undefined && value !== undefined) {
+          attributes[name] = value;
+        }
+      }
+      return attributes;
+    }
     const count = this.attrCounts[eventIndex]!;
     if (count === 0) {
       return {};
@@ -233,6 +330,59 @@ export class StaxXmlNodeIterableParser {
       attrIndex++;
     }
     return attributes;
+  }
+
+  backendKind(): NodeIterableParserBackendKind {
+    return this.backendKindValue;
+  }
+
+  private initializeBackend(): void {
+    if (this.backendInitialized) {
+      return;
+    }
+    this.backendInitialized = true;
+
+    if (this.backend === 'js' || this.useSimpleAttributeScanner) {
+      this.backendKindValue = 'js';
+      return;
+    }
+
+    const native = loadNativeStructuralIndexModuleSync();
+    if (!native?.parseStructuralIndexUint8Array) {
+      this.backendKindValue = 'js';
+      return;
+    }
+
+    const batches: Buffer[][] = [];
+    const chunks: Buffer[] = [];
+    let total = 0;
+    while (true) {
+      const result = this.iterator.next();
+      if (result.done) {
+        break;
+      }
+      const batch = Array.from(result.value);
+      batches.push(batch);
+      for (const chunk of batch) {
+        chunks.push(chunk);
+        total += chunk.byteLength;
+      }
+    }
+
+    const input = chunks.length === 1 && chunks[0]!.byteLength === total
+      ? chunks[0]!
+      : Buffer.concat(chunks, total);
+    try {
+      const table = native.parseStructuralIndexUint8Array(input);
+      this.nativeParser = new StaxXmlStructuralIndexParser(input, table, { sourceKind: 'utf8' });
+      this.backendKindValue = 'native';
+      return;
+    } catch {
+      // Fall through to the JavaScript parser to preserve existing permissive behavior.
+    }
+
+    this.iterator = batches[Symbol.iterator]();
+    this.backendKindValue = 'js';
   }
 
   private resetFrames(): void {
@@ -630,6 +780,20 @@ function normalizeBatchSize(value: number | undefined): number {
     throw new RangeError('batchSize must be a positive integer.');
   }
   return batchSize;
+}
+
+function loadNativeStructuralIndexModuleSync(): NativeStructuralIndexModule | undefined {
+  const packageName = getStaxXmlNativePackageName(detectRuntimePlatform());
+  if (!packageName) {
+    return undefined;
+  }
+
+  try {
+    const entrypoint = require.resolve(packageName);
+    return require(join(dirname(entrypoint), 'stax_xml_native.node')) as NativeStructuralIndexModule;
+  } catch {
+    return undefined;
+  }
 }
 
 function normalizeChunkSize(value: number | undefined): number {

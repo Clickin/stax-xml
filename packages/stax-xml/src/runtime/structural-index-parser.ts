@@ -122,6 +122,42 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
     throw new Error(`Unsupported structural index event type: ${type}`);
   }
 
+  buffer(): Uint8Array {
+    return toUint8Array(this.source);
+  }
+
+  nameStart(index: number): number {
+    return this.table.view.getInt32(this.eventOffset(index) + 4, true);
+  }
+
+  nameEnd(index: number): number {
+    return this.table.view.getInt32(this.eventOffset(index) + 8, true);
+  }
+
+  textStart(index: number): number {
+    return this.table.view.getInt32(this.eventOffset(index) + 12, true);
+  }
+
+  textEnd(index: number): number {
+    return this.table.view.getInt32(this.eventOffset(index) + 16, true);
+  }
+
+  attrNameStart(eventIndex: number, attrIndex: number): number {
+    return this.table.view.getInt32(this.attrOffset(eventIndex, attrIndex), true);
+  }
+
+  attrNameEnd(eventIndex: number, attrIndex: number): number {
+    return this.table.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 4, true);
+  }
+
+  attrValueStart(eventIndex: number, attrIndex: number): number {
+    return this.table.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 8, true);
+  }
+
+  attrValueEnd(eventIndex: number, attrIndex: number): number {
+    return this.table.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 12, true);
+  }
+
   copyName(index: number): string | undefined {
     const offset = this.eventOffset(index);
     return this.copySpan(
