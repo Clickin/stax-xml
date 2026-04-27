@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release tag to publish, for example v1.0.0-rc1'
+        description: 'Release tag to publish, for example v1.0.0-rc2'
         required: true
-        default: 'v1.0.0-rc1'
+        default: 'v1.0.0-rc2'
   workflow_call:
     inputs:
       version:
-        description: 'Release tag to publish, for example v1.0.0-rc1'
+        description: 'Release tag to publish, for example v1.0.0-rc2'
         required: true
         type: string
 

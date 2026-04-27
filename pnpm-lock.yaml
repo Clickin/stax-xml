@@ -158,31 +158,31 @@ importers:
         version: 4.1.5(@types/node@24.12.2)(@vitest/coverage-v8@4.1.5)(@vitest/ui@4.1.5)(vite@7.3.2(@types/node@24.12.2)(tsx@4.21.0)(yaml@2.8.3))
     optionalDependencies:
       '@stax-xml/native-darwin-arm64':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-darwin-arm64
       '@stax-xml/native-darwin-x64':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-darwin-x64
       '@stax-xml/native-linux-arm64-gnu':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-linux-arm64-gnu
       '@stax-xml/native-linux-arm64-musl':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-linux-arm64-musl
       '@stax-xml/native-linux-x64-gnu':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-linux-x64-gnu
       '@stax-xml/native-linux-x64-musl':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-linux-x64-musl
       '@stax-xml/native-wasm32-wasi':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-wasm32-wasi
       '@stax-xml/native-win32-arm64-msvc':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-win32-arm64-msvc
       '@stax-xml/native-win32-x64-msvc':
-        specifier: 1.0.0-rc1
+        specifier: 1.0.0-rc2
         version: link:../native-win32-x64-msvc
 
 packages:
