@@ -45,9 +45,18 @@ jobs:
             echo "Only npm dist-tag 'next' is supported for prerelease publishing." >&2
             exit 1
           fi
+
+      - name: Resolve prerelease tag
+        id: prerelease-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
           if git rev-parse -q --verify "refs/tags/${{ inputs.version }}" >/dev/null; then
-            echo "Tag ${{ inputs.version }} already exists." >&2
-            exit 1
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ inputs.version }} already exists; reusing it for release dispatch."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Node.js
@@ -78,7 +87,7 @@ jobs:
           NODE_ENV: production
 
       - name: Create prerelease tag
-        if: ${{ !inputs.dry_run }}
+        if: ${{ !inputs.dry_run && steps.prerelease-tag.outputs.exists != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -92,6 +101,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if gh release view "${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "GitHub prerelease ${{ inputs.version }} already exists; skipping creation."
+            exit 0
+          fi
           gh release create "${{ inputs.version }}" \
             --title "${{ inputs.version }}" \
             --notes "Prerelease published through npm trusted publishing (OIDC). npm dist-tag: ${{ inputs.npm_tag }}." \
@@ -102,4 +115,4 @@ jobs:
         if: ${{ !inputs.dry_run }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run release.yml --ref "${{ inputs.version }}" -f version="${{ inputs.version }}"
+        run: gh workflow run release.yml --ref "${{ github.ref_name }}" -f version="${{ inputs.version }}"
