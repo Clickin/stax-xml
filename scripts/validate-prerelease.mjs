@@ -7,7 +7,7 @@ const repoRoot = new URL('..', import.meta.url);
 const versionArg = process.argv[2];
 
 if (!versionArg || !/^v\d+\.\d+\.\d+-[0-9A-Za-z.-]+$/.test(versionArg)) {
-  console.error('Usage: node scripts/validate-prerelease.mjs v1.0.0-rc1');
+  console.error('Usage: node scripts/validate-prerelease.mjs v1.0.0-rc2');
   process.exit(1);
 }
 

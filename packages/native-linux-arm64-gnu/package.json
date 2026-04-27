@@ -1,6 +1,6 @@
 {
   "name": "@stax-xml/native-linux-arm64-gnu",
-  "version": "1.0.0-rc1",
+  "version": "1.0.0-rc2",
   "description": "Linux arm64 glibc native acceleration package for stax-xml.",
   "license": "MIT",
   "type": "module",

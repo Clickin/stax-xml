@@ -1,6 +1,6 @@
 {
   "name": "@stax-xml/native-darwin-arm64",
-  "version": "1.0.0-rc1",
+  "version": "1.0.0-rc2",
   "description": "macOS arm64 native acceleration package for stax-xml.",
   "license": "MIT",
   "type": "module",
