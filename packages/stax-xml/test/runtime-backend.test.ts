@@ -264,9 +264,15 @@ describe('runtime backend resolver', () => {
     expect(jsBackend.errors).toHaveLength(1);
   });
 
-  it('uses dynamic import in the default resolver and reaches the locally staged wasm package', async () => {
+  it('can resolve the wasm fallback without linking the wasm package workspace', async () => {
     const backend = await resolveStaxXmlRuntimeBackend({
-      platform: { platform: 'freebsd', arch: 'x64' }
+      platform: { platform: 'freebsd', arch: 'x64' },
+      importPackage: async (packageName) => {
+        if (packageName === WASM_PACKAGE_NAME) {
+          return { wasm: true };
+        }
+        throw new Error(`missing ${packageName}`);
+      }
     });
 
     expect(backend.kind).toBe('wasm');
