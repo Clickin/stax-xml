@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Clickin/stax-xml.git"
+    "url": "https://github.com/Clickin/stax-xml"
   },
   "homepage": "https://github.com/Clickin/stax-xml",
   "bugs": "https://github.com/Clickin/stax-xml/issues",
@@ -23,7 +23,6 @@
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
     "docs:snapshot:release": "pnpm --filter=stax-xml-docs snapshot:release",
-    "smoke:npm-native": "node scripts/smoke-npm-native-resolution.mjs",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
     "benchmark:release": "pnpm --filter=benchmark run release:expanded"
   },

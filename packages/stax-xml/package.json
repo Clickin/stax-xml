@@ -4,7 +4,7 @@
   "author": "Clickin <josh87786@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Clickin/stax-xml.git"
+    "url": "https://github.com/Clickin/stax-xml"
   },
   "devDependencies": {
     "starlight-typedoc": "^0.21.5",

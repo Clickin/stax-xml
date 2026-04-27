@@ -3,6 +3,10 @@
   "version": "1.0.0-rc3",
   "description": "WASI WebAssembly acceleration package for stax-xml.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Clickin/stax-xml"
+  },
   "type": "module",
   "main": "./stax_xml_native.wasi.cjs",
   "types": "./index.d.ts",
