@@ -27,7 +27,7 @@ jobs:
           version: '10.18.0'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --no-optional
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test
@@ -108,7 +108,7 @@ jobs:
           corepack prepare pnpm@10.18.0 --activate
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts --no-optional
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install musl toolchain
         if: matrix.install_musl
@@ -210,7 +210,7 @@ jobs:
           corepack prepare pnpm@10.18.0 --activate
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts --no-optional
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Ensure Rust wasm target
         shell: bash
@@ -266,7 +266,7 @@ jobs:
           version: '10.18.0'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts --no-optional
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build facade package
         run: pnpm build
