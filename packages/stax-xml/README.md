@@ -22,6 +22,7 @@ A high-performance, pull-based XML parser for JavaScript/TypeScript inspired by 
 - **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers, with WebAssembly recommended for browser performance paths and pure JavaScript kept as the compatibility fallback
 - **Namespace Support**: Basic XML namespace handling
 - **Entity Support**: Built-in entity decoding with custom entity support
+- **Fragment-friendly by default**: `documentMode` defaults to `'fragment'`, with opt-in XML document shape checks via `'document'`
 - **TypeScript Ready**: Full TypeScript support with comprehensive type definitions
 
 ### 📦 Installation
@@ -48,6 +49,24 @@ Here are basic examples to get started. StAX-XML provides three parsing approach
 1. **Event-based API**: Low-level streaming parser for fine-grained control
 2. **Converter API**: Declarative, zod-style schema API for type-safe XML parsing
 3. **Cursor API**: Thin cursor-style wrapper over `StaxXmlIterableParser`
+
+#### Fragment and Document Modes
+
+`documentMode` defaults to `'fragment'` for real-world feeds and streams that may contain multiple top-level elements.
+
+Use `documentMode: 'document'` when the input must be a single XML 1.0 document. Document mode rejects empty input, multiple root elements, non-whitespace text outside the document element, invalid XML names/chars, malformed attributes, invalid comments/processing instructions, and malformed entity/character references.
+
+```typescript
+import { StaxXmlParserSync } from 'stax-xml';
+
+// Default: fragment mode accepts sibling roots.
+Array.from(new StaxXmlParserSync('<item/><item/>'));
+
+// Opt-in: document mode enforces one document element.
+Array.from(new StaxXmlParserSync('<root/>', { documentMode: 'document' }));
+```
+
+DTD validation, external entity fetching/expansion, XML 1.1, and UTF-16/encoding autodetection are intentionally outside the document-mode gate. External entity references are not resolved by default.
 
 #### Declarative Parsing with Converter API (Recommended)
 
@@ -342,8 +361,11 @@ Use an Alpine base only when you want the musl package path, for example `@stax-
 ### 🧪 Testing
 
 ```bash
-bun test
+pnpm test
+pnpm test:w3c
 ```
+
+`pnpm test:w3c` downloads the official W3C XML Test Suite 20130923 archive from `https://www.w3.org/XML/Test/`, verifies the pinned SHA256, caches it locally, and runs the XML 1.0 document-mode non-validating subset. The gate includes XML 1.0 valid/invalid/not-well-formed cases that do not require DTD validation, external entity resolution, XML 1.1, or unsupported encodings. Those intentionally unsupported areas are reported as skipped, not as conformance claims.
 
 #### Benchmark Results
 
@@ -388,6 +410,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 고성능 pull 방식
 - **범용 호환성**: Node.js, Bun, Deno, 웹 브라우저에서 동작하며, 브라우저 고성능 경로는 WebAssembly를 권장하고 순수 JavaScript 파서는 호환 fallback으로 유지
 - **네임스페이스 지원**: 기본 XML 네임스페이스 처리
 - **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
+- **Fragment 기본 모드**: `documentMode` 기본값은 `'fragment'`이며, XML document shape 검사는 `'document'`로 선택 적용
 - **TypeScript 지원**: 포괄적인 타입 정의로 완전한 TypeScript 지원
 
 ### 📦 설치
@@ -416,6 +439,24 @@ StAX-XML은 세 가지 파싱 방식을 제공합니다:
 1. **이벤트 기반 API**: 세밀한 제어를 위한 저수준 스트리밍 파서
 2. **Converter API**: 타입 안전한 XML 파싱을 위한 선언적 Zod 스타일 스키마 API
 3. **Cursor API**: `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
+
+#### Fragment 모드와 Document 모드
+
+`documentMode` 기본값은 `'fragment'`입니다. 여러 top-level element가 이어지는 현실 feed나 stream을 기본으로 허용합니다.
+
+입력이 하나의 XML 1.0 document여야 한다면 `documentMode: 'document'`를 선택하세요. Document 모드는 빈 입력, 여러 root element, document element 밖의 non-whitespace text, 잘못된 XML name/char, 잘못된 attribute, 잘못된 comment/processing instruction, 잘못된 entity/character reference를 reject합니다.
+
+```typescript
+import { StaxXmlParserSync } from 'stax-xml';
+
+// 기본값: fragment mode는 sibling root를 허용합니다.
+Array.from(new StaxXmlParserSync('<item/><item/>'));
+
+// 선택값: document mode는 하나의 document element를 강제합니다.
+Array.from(new StaxXmlParserSync('<root/>', { documentMode: 'document' }));
+```
+
+DTD validation, external entity fetch/expand, XML 1.1, UTF-16/encoding autodetect는 document-mode gate 범위에서 의도적으로 제외합니다. External entity reference는 기본적으로 resolve하지 않습니다.
 
 #### Converter API를 사용한 선언적 파싱 (권장)
 

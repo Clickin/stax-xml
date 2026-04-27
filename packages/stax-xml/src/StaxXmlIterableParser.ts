@@ -1,3 +1,5 @@
+import type { DocumentMode } from './types.js';
+
 export const IterableEventType = {
   START_DOCUMENT: 0,
   END_DOCUMENT: 1,
@@ -19,6 +21,7 @@ export interface StaxXmlIterableParserOptions {
   encoding?: string;
   incompleteFinalMarkupMessage?: string;
   emitStartDocumentBatchImmediately?: boolean;
+  documentMode?: DocumentMode;
 }
 
 /**
@@ -94,6 +97,7 @@ export class StaxXmlIterableParser {
   private readonly decoder: TextDecoder;
   private readonly incompleteFinalMarkupMessage?: string;
   private readonly emitStartDocumentBatchImmediately: boolean;
+  private readonly documentMode: DocumentMode;
 
   private currentBuffer: Uint8Array = EMPTY_BUFFER;
   private pendingTail: Uint8Array = EMPTY_BUFFER;
@@ -124,6 +128,9 @@ export class StaxXmlIterableParser {
   private elementNameStarts = new Int32Array(1024);
   private elementNameEnds = new Int32Array(1024);
   private elementDepth = 0;
+  private rootElementCount = 0;
+  private hasDoctype = false;
+  private readonly declaredEntities = new Set<string>();
   private readonly nameIds = new Map<number, number>();
   private readonly nameStrings: Array<string | undefined> = [];
 
@@ -148,7 +155,11 @@ export class StaxXmlIterableParser {
 
   constructor(source: Iterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
     this.iterator = source[Symbol.iterator]();
-    this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: false, ignoreBOM: true });
+    this.documentMode = options.documentMode ?? 'fragment';
+    this.decoder = new TextDecoder(options.encoding ?? 'utf-8', {
+      fatal: this.documentMode === 'document',
+      ignoreBOM: true
+    });
     this.incompleteFinalMarkupMessage = options.incompleteFinalMarkupMessage;
     this.emitStartDocumentBatchImmediately = options.emitStartDocumentBatchImmediately ?? false;
   }
@@ -419,6 +430,9 @@ export class StaxXmlIterableParser {
     if (this.elementDepth > 0) {
       throw new Error('Unexpected end of document. Not all elements were closed.');
     }
+    if (this.documentMode === 'document' && this.rootElementCount === 0) {
+      throw new Error('XML document must contain exactly one root element.');
+    }
 
     this.addEvent(IterableEventType.END_DOCUMENT);
     this.finished = true;
@@ -480,6 +494,10 @@ export class StaxXmlIterableParser {
         }
         return -1;
       }
+      if (this.documentMode === 'document' && this.elementDepth === 0) {
+        this.assertTextAllowedOutsideDocumentElement();
+      }
+      this.assertValidXmlCharactersOnly(buffer, position + 9, end, 'CDATA section');
       this.addTextEvent(IterableEventType.CDATA, position + 9, end);
       return end + 3;
     }
@@ -491,6 +509,10 @@ export class StaxXmlIterableParser {
         }
         return -1;
       }
+      if (this.documentMode === 'document' && indexOfAscii(buffer, '--', position + 4) < end) {
+        throw new Error('XML comments must not contain "--".');
+      }
+      this.assertValidXmlCharactersOnly(buffer, position + 4, end, 'comment');
       return end + 3;
     }
     if (startsWithAscii(buffer, position, '<!DOCTYPE')) {
@@ -500,6 +522,10 @@ export class StaxXmlIterableParser {
           throw new Error('Unclosed DOCTYPE declaration');
         }
         return -1;
+      }
+      if (this.documentMode === 'document') {
+        this.hasDoctype = true;
+        this.recordEntityDeclarations(buffer, position, end);
       }
       return end + 1;
     }
@@ -511,6 +537,9 @@ export class StaxXmlIterableParser {
       }
       return -1;
     }
+    if (this.documentMode === 'document') {
+      throw new Error('Unsupported markup declaration.');
+    }
     return end + 1;
   }
 
@@ -521,6 +550,21 @@ export class StaxXmlIterableParser {
         throw new Error(startsWithAscii(buffer, position, '<?xml') ? 'Unclosed XML declaration' : 'Unclosed processing instruction');
       }
       return -1;
+    }
+    if (this.documentMode === 'document') {
+      let targetStart = position + 2;
+      while (targetStart < end && isWhitespace(buffer[targetStart]!)) targetStart++;
+      let targetEnd = targetStart;
+      while (targetEnd < end && !isWhitespace(buffer[targetEnd]!)) targetEnd++;
+      if (targetEnd === targetStart) {
+        throw new Error('Processing instruction target is required.');
+      }
+      this.assertValidName(buffer, targetStart, targetEnd, 'processing instruction target');
+      const target = this.decoder.decode(buffer.subarray(targetStart, targetEnd));
+      if (target.toLowerCase() === 'xml' && !startsWithAscii(buffer, position, '<?xml')) {
+        throw new Error('Processing instruction target "xml" is reserved.');
+      }
+      this.assertValidXmlCharactersOnly(buffer, targetEnd, end, 'processing instruction');
     }
     return end + 2;
   }
@@ -538,6 +582,7 @@ export class StaxXmlIterableParser {
     let nameEnd = end;
     while (nameStart < nameEnd && isWhitespace(buffer[nameStart]!)) nameStart++;
     while (nameEnd > nameStart && isWhitespace(buffer[nameEnd - 1]!)) nameEnd--;
+    this.assertValidName(buffer, nameStart, nameEnd, 'end tag name');
 
     if (this.elementDepth === 0) {
       throw new Error(`Mismatched closing tag: </${this.decoder.decode(buffer.subarray(nameStart, nameEnd))}>. No open elements.`);
@@ -586,8 +631,10 @@ export class StaxXmlIterableParser {
       if (isWhitespace(byte) || byte === 47 || byte === 62) break;
       nameEnd++;
     }
+    this.assertValidName(buffer, nameStart, nameEnd, 'start tag name');
 
     const nameId = this.internName(buffer, nameStart, nameEnd);
+    this.registerStartElement();
     const eventIndex = this.addEvent(IterableEventType.START_ELEMENT, nameStart, nameEnd, -1, -1, nameId);
     const attrStart = this.attrCursor;
     this.parseAttributes(buffer, nameEnd, actualEnd);
@@ -610,6 +657,7 @@ export class StaxXmlIterableParser {
   private parseAttributes(buffer: Uint8Array, start: number, end: number): void {
     const limit = end;
     let index = start;
+    const seen = this.documentMode === 'document' ? new Set<string>() : undefined;
     while (index < limit) {
       while (index < limit) {
         const byte = buffer[index]!;
@@ -628,6 +676,7 @@ export class StaxXmlIterableParser {
       if (nameEnd === nameStart) {
         break;
       }
+      this.assertValidName(buffer, nameStart, nameEnd, 'attribute name');
 
       while (index < limit) {
         const byte = buffer[index]!;
@@ -635,10 +684,16 @@ export class StaxXmlIterableParser {
         index++;
       }
       if (index >= limit) {
+        if (this.documentMode === 'document') {
+          throw new Error('Attribute value is required.');
+        }
         this.addAttribute(buffer, nameStart, nameEnd, nameStart, nameEnd);
         continue;
       }
       if (buffer[index] !== 61) {
+        if (this.documentMode === 'document') {
+          throw new Error('Attribute value must be assigned with "=".');
+        }
         this.addAttribute(buffer, nameStart, nameEnd, nameStart, nameEnd);
         continue;
       }
@@ -649,10 +704,20 @@ export class StaxXmlIterableParser {
         if (!isWhitespace(byte)) break;
         index++;
       }
-      if (index >= limit) break;
+      if (index >= limit) {
+        if (this.documentMode === 'document') {
+          throw new Error('Attribute values must be quoted.');
+        }
+        break;
+      }
 
       const quote = buffer[index]!;
-      if (quote !== 34 && quote !== 39) break;
+      if (quote !== 34 && quote !== 39) {
+        if (this.documentMode === 'document') {
+          throw new Error('Attribute values must be quoted.');
+        }
+        break;
+      }
       index++;
       const valueStart = index;
       while (index < limit) {
@@ -660,16 +725,99 @@ export class StaxXmlIterableParser {
         if (byte === quote) break;
         index++;
       }
+      if (index >= limit) {
+        if (this.documentMode === 'document') {
+          throw new Error('Unclosed attribute value.');
+        }
+        break;
+      }
       const valueEnd = index;
+      if (this.documentMode === 'document') {
+        this.assertValidAttributeValue(buffer, valueStart, valueEnd);
+        const name = this.decoder.decode(buffer.subarray(nameStart, nameEnd));
+        if (seen!.has(name)) {
+          throw new Error(`Duplicate attribute: ${name}.`);
+        }
+        seen!.add(name);
+      }
       this.addAttribute(buffer, nameStart, nameEnd, valueStart, valueEnd);
       index++;
     }
   }
 
   private addText(start: number, end: number): void {
+    if (this.rootElementCount === 0 && this.elementDepth === 0 && hasUtf8Bom(this.currentBuffer, start)) {
+      start += 3;
+    }
     if (start < end && !isWhitespaceOnly(this.currentBuffer, start, end)) {
+      this.assertTextAllowedOutsideDocumentElement();
+      this.assertValidCharacterData(this.currentBuffer, start, end, 'character data');
       this.addTextEvent(IterableEventType.CHARACTERS, start, end);
     }
+  }
+
+  private assertValidName(buffer: Uint8Array, start: number, end: number, label: string): void {
+    if (this.documentMode !== 'document') {
+      return;
+    }
+    if (start >= end) {
+      throw new Error(`Invalid XML ${label}: name is empty.`);
+    }
+    const name = this.decoder.decode(buffer.subarray(start, end));
+    if (!isXmlName(name)) {
+      throw new Error(`Invalid XML ${label}: ${name}.`);
+    }
+  }
+
+  private assertValidAttributeValue(buffer: Uint8Array, start: number, end: number): void {
+    for (let index = start; index < end; index++) {
+      if (buffer[index] === 60) {
+        throw new Error('Attribute values must not contain "<".');
+      }
+    }
+    this.assertValidCharacterData(buffer, start, end, 'attribute value');
+  }
+
+  private assertValidCharacterData(buffer: Uint8Array, start: number, end: number, label: string): void {
+    if (this.documentMode !== 'document') {
+      return;
+    }
+    const value = this.decoder.decode(buffer.subarray(start, end));
+    assertValidXmlCharacters(value, label);
+    assertValidEntityReferences(value, this.declaredEntities, this.hasDoctype);
+  }
+
+  private assertValidXmlCharactersOnly(buffer: Uint8Array, start: number, end: number, label: string): void {
+    if (this.documentMode !== 'document') {
+      return;
+    }
+    assertValidXmlCharacters(this.decoder.decode(buffer.subarray(start, end)), label);
+  }
+
+  private recordEntityDeclarations(buffer: Uint8Array, start: number, end: number): void {
+    const declaration = this.decoder.decode(buffer.subarray(start, end));
+    const entityRegex = /<!ENTITY\s+([A-Za-z_:][A-Za-z0-9._:\-\u00B7\u0300-\u036F\u203F-\u2040]*)\b/g;
+    let match: RegExpExecArray | null;
+    while ((match = entityRegex.exec(declaration))) {
+      this.declaredEntities.add(match[1]!);
+    }
+  }
+
+  private registerStartElement(): void {
+    if (this.elementDepth !== 0) {
+      return;
+    }
+    this.rootElementCount++;
+    if (this.documentMode === 'document' && this.rootElementCount > 1) {
+      throw new Error('XML document must contain exactly one root element.');
+    }
+  }
+
+  private assertTextAllowedOutsideDocumentElement(): void {
+    if (this.documentMode !== 'document' || this.elementDepth > 0) {
+      return;
+    }
+    throw new Error('Non-whitespace text is not allowed outside the document element.');
   }
 
   private internName(buffer: Uint8Array, start: number, end: number): number {
@@ -816,6 +964,125 @@ function isWhitespaceOnly(buffer: Uint8Array, start: number, end: number): boole
     }
   }
   return true;
+}
+
+function hasUtf8Bom(buffer: Uint8Array, start: number): boolean {
+  return start === 0
+    && buffer.byteLength >= 3
+    && buffer[0] === 0xef
+    && buffer[1] === 0xbb
+    && buffer[2] === 0xbf;
+}
+
+function isXmlName(value: string): boolean {
+  let first = true;
+  for (let index = 0; index < value.length;) {
+    const codePoint = value.codePointAt(index);
+    if (codePoint === undefined) {
+      return false;
+    }
+    if (first ? !isXmlNameStartChar(codePoint) : !isXmlNameChar(codePoint)) {
+      return false;
+    }
+    first = false;
+    index += codePoint > 0xffff ? 2 : 1;
+  }
+  return !first;
+}
+
+function isXmlNameStartChar(codePoint: number): boolean {
+  return codePoint === 58
+    || codePoint === 95
+    || codePoint >= 65 && codePoint <= 90
+    || codePoint >= 97 && codePoint <= 122
+    || codePoint >= 0xc0 && codePoint <= 0xd6
+    || codePoint >= 0xd8 && codePoint <= 0xf6
+    || codePoint >= 0xf8 && codePoint <= 0x2ff
+    || codePoint >= 0x370 && codePoint <= 0x37d
+    || codePoint >= 0x37f && codePoint <= 0x1fff
+    || codePoint >= 0x200c && codePoint <= 0x200d
+    || codePoint >= 0x2070 && codePoint <= 0x218f
+    || codePoint >= 0x2c00 && codePoint <= 0x2fef
+    || codePoint >= 0x3001 && codePoint <= 0xd7ff
+    || codePoint >= 0xf900 && codePoint <= 0xfdcf
+    || codePoint >= 0xfdf0 && codePoint <= 0xfffd
+    || codePoint >= 0x10000 && codePoint <= 0xeffff;
+}
+
+function isXmlNameChar(codePoint: number): boolean {
+  return isXmlNameStartChar(codePoint)
+    || codePoint === 45
+    || codePoint === 46
+    || codePoint >= 48 && codePoint <= 57
+    || codePoint === 0xb7
+    || codePoint >= 0x300 && codePoint <= 0x36f
+    || codePoint >= 0x203f && codePoint <= 0x2040;
+}
+
+function assertValidXmlCharacters(value: string, label: string): void {
+  for (let index = 0; index < value.length;) {
+    const codePoint = value.codePointAt(index);
+    if (codePoint === undefined || !isXmlChar(codePoint)) {
+      throw new Error(`Invalid XML character in ${label}.`);
+    }
+    index += codePoint > 0xffff ? 2 : 1;
+  }
+}
+
+function isXmlChar(codePoint: number): boolean {
+  return codePoint === 0x9
+    || codePoint === 0xa
+    || codePoint === 0xd
+    || codePoint >= 0x20 && codePoint <= 0xd7ff
+    || codePoint >= 0xe000 && codePoint <= 0xfffd
+    || codePoint >= 0x10000 && codePoint <= 0x10ffff;
+}
+
+function assertValidEntityReferences(
+  value: string,
+  declaredEntities: ReadonlySet<string>,
+  hasDoctype: boolean
+): void {
+  let index = value.indexOf('&');
+  while (index !== -1) {
+    const semi = value.indexOf(';', index + 1);
+    if (semi === -1) {
+      throw new Error('Entity references must end with ";".');
+    }
+    const body = value.slice(index + 1, semi);
+    if (body.startsWith('#x')) {
+      if (!/^[\da-fA-F]+$/.test(body.slice(2))) {
+        throw new Error('Invalid XML character reference.');
+      }
+      const codePoint = Number.parseInt(body.slice(2), 16);
+      if (!Number.isInteger(codePoint) || !isXmlChar(codePoint)) {
+        throw new Error('Invalid XML character reference.');
+      }
+    } else if (body.startsWith('#X')) {
+      throw new Error('Invalid XML character reference.');
+    } else if (body.startsWith('#')) {
+      const codePoint = Number.parseInt(body.slice(1), 10);
+      if (!/^\d+$/.test(body.slice(1)) || !Number.isInteger(codePoint) || !isXmlChar(codePoint)) {
+        throw new Error('Invalid XML character reference.');
+      }
+    } else {
+      if (!isXmlName(body)) {
+        throw new Error('Invalid XML entity reference.');
+      }
+      if (!isPredefinedEntity(body) && !declaredEntities.has(body) && !hasDoctype) {
+        throw new Error(`Undeclared XML entity reference: ${body}.`);
+      }
+    }
+    index = value.indexOf('&', semi + 1);
+  }
+}
+
+function isPredefinedEntity(value: string): boolean {
+  return value === 'lt'
+    || value === 'gt'
+    || value === 'amp'
+    || value === 'apos'
+    || value === 'quot';
 }
 
 function decodeShortAsciiSpan(buffer: Uint8Array, start: number, end: number): string | undefined {
@@ -984,6 +1251,14 @@ function findDoctypeEnd(buffer: Uint8Array, from: number): number {
   let quote = 0;
   let inSubset = false;
   for (let index = from; index < length; index++) {
+    if (quote === 0 && startsWithAscii(buffer, index, '<!--')) {
+      const commentEnd = indexOfAscii(buffer, '-->', index + 4);
+      if (commentEnd === -1) {
+        return -1;
+      }
+      index = commentEnd + 2;
+      continue;
+    }
     const byte = buffer[index]!;
     if (quote !== 0) {
       if (byte === quote) {

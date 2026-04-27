@@ -1,5 +1,6 @@
 import type { StaxXmlWriter } from '../StaxXmlWriter.js';
 import type { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
+import type { DocumentMode } from '../types.js';
 
 /**
  * Parse options for XML converter
@@ -24,6 +25,13 @@ export interface ParseOptions {
    * @defaultValue false
    */
   strict?: boolean;
+
+  /**
+   * XML document conformance mode.
+   *
+   * @defaultValue 'fragment'
+   */
+  documentMode?: DocumentMode;
 
   /**
    * Maximum XML depth

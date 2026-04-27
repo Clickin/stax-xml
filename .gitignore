@@ -19,6 +19,7 @@ specs/
 packages/*/dist
 packages/*/dist_tmp_*
 packages/*/coverage
+packages/*/.cache
 packages/*/node_modules
 packages/benchmark/*.log
 packages/benchmark/native/

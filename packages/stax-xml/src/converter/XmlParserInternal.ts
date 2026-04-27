@@ -154,7 +154,8 @@ export class XmlParserInternal {
   parseString(input: string, schemaOptions: { xpath?: string }): string {
     const xpath = schemaOptions.xpath;
     const parser = new StaxXmlParserSync(input, {
-      autoDecodeEntities: this.options?.decodeEntities
+      autoDecodeEntities: this.options?.decodeEntities,
+      documentMode: this.options?.documentMode
     });
 
     if (!xpath) {
@@ -1301,7 +1302,8 @@ function toIterableBackendOptions(
 ): IterableEventBackendOptions {
   return {
     autoDecodeEntities: options?.decodeEntities === true,
-    eventFilter
+    eventFilter,
+    documentMode: options?.documentMode
   };
 }
 

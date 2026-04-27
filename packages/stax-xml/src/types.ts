@@ -364,3 +364,10 @@ export interface ParserEventFilter {
   includeCharacters: boolean;
   includeCdata: boolean;
 }
+
+/**
+ * XML document conformance mode.
+ *
+ * @public
+ */
+export type DocumentMode = 'fragment' | 'document';

@@ -10,6 +10,7 @@ import {
   XmlEventType,
   type AnyXmlEvent,
   type AttributeInfo,
+  type DocumentMode,
   type ParserEventFilter
 } from './types.js';
 
@@ -30,6 +31,7 @@ export interface IterableEventBackendOptions {
   eventFilter?: ParserEventFilter;
   trimText?: boolean;
   implicitAttributeValue?: 'true' | 'name';
+  documentMode?: DocumentMode;
 }
 
 export const STAX_XML_EVENT_BACKEND: unique symbol = Symbol.for('stax-xml.eventBackend') as never;
@@ -192,7 +194,8 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
     const parser = new StaxXmlIterableParser([], {
       encoding: this.options.encoding,
       incompleteFinalMarkupMessage: this.options.incompleteFinalMarkupMessage,
-      emitStartDocumentBatchImmediately: this.options.emitStartDocumentBatchImmediately
+      emitStartDocumentBatchImmediately: this.options.emitStartDocumentBatchImmediately,
+      documentMode: this.options.documentMode
     });
     const materializer = new IterableEventMaterializer(this.options);
 
@@ -281,6 +284,7 @@ export function createIterableParserFromChunks(
     encoding?: string;
     incompleteFinalMarkupMessage?: string;
     emitStartDocumentBatchImmediately?: boolean;
+    documentMode?: DocumentMode;
   } = { batchSize: 1 }
 ): StaxXmlIterableParser {
   return new StaxXmlIterableParser(
@@ -288,7 +292,8 @@ export function createIterableParserFromChunks(
     {
       encoding: options.encoding,
       incompleteFinalMarkupMessage: options.incompleteFinalMarkupMessage,
-      emitStartDocumentBatchImmediately: options.emitStartDocumentBatchImmediately
+      emitStartDocumentBatchImmediately: options.emitStartDocumentBatchImmediately,
+      documentMode: options.documentMode
     }
   );
 }
