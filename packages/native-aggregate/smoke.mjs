@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   parse_aggregate_buffer,
   parse_aggregate_buffer_with_simd,
@@ -21,9 +21,6 @@ import {
   parse_aggregate_string_utf8,
   parse_aggregate_string_utf8_with_simd,
 } from './index.mjs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const sampleText =
   '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -83,8 +80,9 @@ for (const tier of [
   assertEqual(structuralUtf8.readUInt32LE(12), sampleUint8.byteLength, `${tier} structural utf8 input bytes`);
   assertEqual(structuralUtf8.readUInt32LE(24), 1, `${tier} structural utf8 source kind`);
 
-  mkdirSync(join(__dirname, 'target'), { recursive: true });
-  const filePath = join(__dirname, 'target', 'smoke.xml');
+  const smokeDir = join(tmpdir(), `stax-xml-native-aggregate-smoke-${process.pid}`);
+  mkdirSync(smokeDir, { recursive: true });
+  const filePath = join(smokeDir, `smoke-${tier}.xml`);
   writeFileSync(filePath, sample);
   const fileResult = normalize(parse_aggregate_file(filePath, tier));
   assertEqual(fileResult.eventCount, bufferResult.eventCount, `${tier} file event count`);
@@ -101,8 +99,9 @@ for (const [label, result] of [
   assertEqual(normalized.eventCount, twoStage.eventCount, `${label} event count`);
   assertEqual(normalized.checksum, twoStage.checksum, `${label} checksum`);
 }
-mkdirSync(join(__dirname, 'target'), { recursive: true });
-const simdFilePath = join(__dirname, 'target', 'smoke-simd.xml');
+const simdSmokeDir = join(tmpdir(), `stax-xml-native-aggregate-smoke-${process.pid}`);
+mkdirSync(simdSmokeDir, { recursive: true });
+const simdFilePath = join(simdSmokeDir, 'smoke-simd.xml');
 writeFileSync(simdFilePath, sample);
 const fileSimd = normalize(parse_aggregate_file_with_simd(simdFilePath, 'event-count-two-stage', 'off'));
 assertEqual(fileSimd.eventCount, twoStage.eventCount, 'file simd off event count');
