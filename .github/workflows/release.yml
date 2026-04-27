@@ -4,6 +4,18 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag to publish, for example v1.0.0-rc1'
+        required: true
+        default: 'v1.0.0-rc1'
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release tag to publish, for example v1.0.0-rc1'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -15,6 +27,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'push' && github.ref || inputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -95,6 +108,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || inputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -197,6 +212,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || inputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -250,6 +267,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'push' && github.ref || inputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
