@@ -3,7 +3,6 @@ import { createRequire } from 'node:module';
 import { closeSync, openSync, readSync, type PathLike } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { getStaxXmlNativePackageName, detectRuntimePlatform } from '../runtime/native-backend.js';
-import { StaxXmlStructuralIndexParser } from '../runtime/structural-index-parser.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -38,6 +37,13 @@ export interface StaxXmlNodeIterableParserOptions {
 const DEFAULT_BATCH_SIZE = 16;
 const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const EMPTY_BUFFER = Buffer.alloc(0);
+const STRUCTURAL_INDEX_MAGIC = 0x31545053;
+const STRUCTURAL_INDEX_HEADER_WORDS = 7;
+const STRUCTURAL_INDEX_EVENT_WORDS = 7;
+const STRUCTURAL_INDEX_ATTR_WORDS = 4;
+const STRUCTURAL_INDEX_EVENT_BYTES = STRUCTURAL_INDEX_EVENT_WORDS * 4;
+const STRUCTURAL_INDEX_ATTR_BYTES = STRUCTURAL_INDEX_ATTR_WORDS * 4;
+const STRUCTURAL_INDEX_SOURCE_KIND_UTF8 = 1;
 const require = createRequire(import.meta.url);
 
 interface NativeStructuralIndexModule {
@@ -81,7 +87,7 @@ export class StaxXmlNodeIterableParser {
   private readonly useSimpleAttributeScanner: boolean;
   private readonly backend: NodeIterableParserBackend;
   private backendInitialized = false;
-  private nativeParser: StaxXmlStructuralIndexParser | undefined;
+  private nativeParser: NativeNodeIterableBackend | undefined;
   private backendKindValue: NodeIterableParserBackendKind = 'pending';
 
   private currentBuffer: Buffer = EMPTY_BUFFER;
@@ -163,7 +169,7 @@ export class StaxXmlNodeIterableParser {
 
   eventCount(): number {
     if (this.nativeParser) {
-      return this.nativeParser.eventCount;
+      return this.nativeParser.eventCountValue;
     }
     return this.eventCursor;
   }
@@ -212,7 +218,7 @@ export class StaxXmlNodeIterableParser {
 
   attrCount(index: number): number {
     if (this.nativeParser) {
-      return this.nativeParser.eventAttrCount(index);
+      return this.nativeParser.attrCount(index);
     }
     return this.attrCounts[index]!;
   }
@@ -273,7 +279,7 @@ export class StaxXmlNodeIterableParser {
 
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
     if (this.nativeParser) {
-      if (attrIndex < 0 || attrIndex >= this.nativeParser.eventAttrCount(eventIndex)) {
+      if (attrIndex < 0 || attrIndex >= this.nativeParser.attrCount(eventIndex)) {
         return undefined;
       }
       return this.nativeParser.copyAttrName(eventIndex, attrIndex);
@@ -288,7 +294,7 @@ export class StaxXmlNodeIterableParser {
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
     if (this.nativeParser) {
-      if (attrIndex < 0 || attrIndex >= this.nativeParser.eventAttrCount(eventIndex)) {
+      if (attrIndex < 0 || attrIndex >= this.nativeParser.attrCount(eventIndex)) {
         return undefined;
       }
       return this.nativeParser.copyAttrValue(eventIndex, attrIndex);
@@ -301,7 +307,7 @@ export class StaxXmlNodeIterableParser {
 
   copyAttributesObject(eventIndex: number): Record<string, string> {
     if (this.nativeParser) {
-      const count = this.nativeParser.eventAttrCount(eventIndex);
+      const count = this.nativeParser.attrCount(eventIndex);
       if (count === 0) {
         return {};
       }
@@ -374,7 +380,7 @@ export class StaxXmlNodeIterableParser {
       : Buffer.concat(chunks, total);
     try {
       const table = native.parseStructuralIndexUint8Array(input);
-      this.nativeParser = new StaxXmlStructuralIndexParser(input, table, { sourceKind: 'utf8' });
+      this.nativeParser = new NativeNodeIterableBackend(input, table);
       this.backendKindValue = 'native';
       return;
     } catch {
@@ -794,6 +800,144 @@ function loadNativeStructuralIndexModuleSync(): NativeStructuralIndexModule | un
   } catch {
     return undefined;
   }
+}
+
+class NativeNodeIterableBackend {
+  readonly eventCountValue: number;
+  readonly attrCountValue: number;
+
+  private readonly table: Int32Array;
+  private readonly eventBaseWords = STRUCTURAL_INDEX_HEADER_WORDS;
+  private readonly attrBaseWords: number;
+  private consumed = false;
+
+  constructor(
+    private readonly input: Buffer,
+    table: ArrayBuffer | ArrayBufferView,
+  ) {
+    const tableBytes = toBuffer(table);
+    const view = new DataView(tableBytes.buffer, tableBytes.byteOffset, tableBytes.byteLength);
+    const magic = view.getUint32(0, true);
+    if (magic !== STRUCTURAL_INDEX_MAGIC) {
+      throw new Error(`Invalid structural index magic: 0x${magic.toString(16)}`);
+    }
+
+    this.eventCountValue = view.getUint32(4, true);
+    this.attrCountValue = view.getUint32(8, true);
+    const sourceUnits = view.getUint32(12, true);
+    const eventStrideBytes = view.getUint32(16, true);
+    const attrStrideBytes = view.getUint32(20, true);
+    const flags = view.getUint32(24, true);
+    if (sourceUnits !== input.byteLength) {
+      throw new Error(`Structural index input length mismatch: ${sourceUnits}/${input.byteLength}`);
+    }
+    if (eventStrideBytes !== STRUCTURAL_INDEX_EVENT_BYTES || attrStrideBytes !== STRUCTURAL_INDEX_ATTR_BYTES) {
+      throw new Error(`Unsupported structural index strides: ${eventStrideBytes}/${attrStrideBytes}`);
+    }
+    if ((flags & 0xff) !== STRUCTURAL_INDEX_SOURCE_KIND_UTF8) {
+      throw new Error('Structural index source kind mismatch: utf16/utf8');
+    }
+    if ((tableBytes.byteOffset & 3) !== 0 || (tableBytes.byteLength & 3) !== 0) {
+      throw new Error('Structural index table is not 32-bit aligned.');
+    }
+
+    this.table = new Int32Array(tableBytes.buffer, tableBytes.byteOffset, tableBytes.byteLength / 4);
+    this.attrBaseWords = this.eventBaseWords + this.eventCountValue * STRUCTURAL_INDEX_EVENT_WORDS;
+  }
+
+  nextBatch(): boolean {
+    if (this.consumed || this.eventCountValue === 0) {
+      return false;
+    }
+    this.consumed = true;
+    return true;
+  }
+
+  buffer(): Buffer {
+    return this.input;
+  }
+
+  eventType(index: number): IterableEventType {
+    return this.table[this.eventOffset(index)] as IterableEventType;
+  }
+
+  nameStart(index: number): number {
+    return this.table[this.eventOffset(index) + 1]!;
+  }
+
+  nameEnd(index: number): number {
+    return this.table[this.eventOffset(index) + 2]!;
+  }
+
+  textStart(index: number): number {
+    return this.table[this.eventOffset(index) + 3]!;
+  }
+
+  textEnd(index: number): number {
+    return this.table[this.eventOffset(index) + 4]!;
+  }
+
+  attrCount(index: number): number {
+    return this.table[this.eventOffset(index) + 6]!;
+  }
+
+  attrNameStart(eventIndex: number, attrIndex: number): number {
+    return this.table[this.attrOffset(eventIndex, attrIndex)]!;
+  }
+
+  attrNameEnd(eventIndex: number, attrIndex: number): number {
+    return this.table[this.attrOffset(eventIndex, attrIndex) + 1]!;
+  }
+
+  attrValueStart(eventIndex: number, attrIndex: number): number {
+    return this.table[this.attrOffset(eventIndex, attrIndex) + 2]!;
+  }
+
+  attrValueEnd(eventIndex: number, attrIndex: number): number {
+    return this.table[this.attrOffset(eventIndex, attrIndex) + 3]!;
+  }
+
+  copyName(index: number): string | undefined {
+    return this.copySpan(this.nameStart(index), this.nameEnd(index));
+  }
+
+  copyText(index: number): string | undefined {
+    return this.copySpan(this.textStart(index), this.textEnd(index));
+  }
+
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
+    return this.copySpan(this.attrNameStart(eventIndex, attrIndex), this.attrNameEnd(eventIndex, attrIndex));
+  }
+
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
+    return this.copySpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
+  }
+
+  private eventOffset(index: number): number {
+    return this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS;
+  }
+
+  private attrOffset(eventIndex: number, attrIndex: number): number {
+    const attrStart = this.table[this.eventOffset(eventIndex) + 5]!;
+    return this.attrBaseWords + (attrStart + attrIndex) * STRUCTURAL_INDEX_ATTR_WORDS;
+  }
+
+  private copySpan(start: number, end: number): string | undefined {
+    if (start < 0) {
+      return undefined;
+    }
+    return this.input.toString('utf8', start, end);
+  }
+}
+
+function toBuffer(table: ArrayBuffer | ArrayBufferView): Buffer {
+  if (Buffer.isBuffer(table)) {
+    return table;
+  }
+  if (table instanceof ArrayBuffer) {
+    return Buffer.from(table);
+  }
+  return Buffer.from(table.buffer, table.byteOffset, table.byteLength);
 }
 
 function normalizeChunkSize(value: number | undefined): number {
