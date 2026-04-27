@@ -228,7 +228,7 @@ For detailed API documentation:
 
 StAX-XML keeps a Web Standard API baseline, making it compatible with:
 
-- **Node.js** (v18+)
+- **Node.js** (v20.19+)
 - **Bun** (any version)
 - **Deno** (any version)
 - **Web Browsers** (modern browsers)
@@ -263,24 +263,24 @@ Release publishing uses npm trusted publishing through GitHub Actions OIDC. Each
 
 Prereleases are prepared from the manual `Prerelease` workflow. It validates package versions, the pinned docs snapshot, tests, and docs build without rerunning benchmarks, then creates the prerelease tag and GitHub prerelease. The tag push triggers `.github/workflows/release.yml`, which publishes prerelease versions with npm dist-tag `next`; stable versions continue to use `latest`.
 
-The supported runtime floor for published packages is Node.js 18. Repository build/test tooling currently runs on Node.js 20.19+ because the TypeScript build and test tools require it, and the OIDC publish job runs on Node.js 24 to satisfy npm trusted publishing requirements. Linux glibc native packages are built inside a `node:18-bullseye` container so they target Debian 11's older glibc baseline instead of the newer GitHub runner glibc.
+The supported runtime floor for published packages is Node.js 20.19. Repository build/test tooling runs on Node.js 20.19+ because the TypeScript build and test tools require it, and the OIDC publish job runs on Node.js 24 to satisfy npm trusted publishing requirements. Linux glibc native packages are built inside a `node:20-bullseye` container so they target Debian 11's older glibc baseline instead of the newer GitHub runner glibc.
 
 For application container images, do not copy a full `node_modules` tree into the runtime layer. Bundle the JavaScript/TypeScript application in the builder layer, then copy only the bundle plus the native addon package that matches the runtime image:
 
 ```dockerfile
-FROM node:18-bullseye AS builder
+FROM node:20-bullseye AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:18-bullseye AS native
+FROM node:20-bullseye AS native
 WORKDIR /native
 RUN npm init -y >/dev/null \
   && npm install --omit=dev stax-xml @stax-xml/native-linux-x64-gnu
 
-FROM node:18-bullseye-slim
+FROM node:20-bullseye-slim
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=native /native/node_modules/@stax-xml/native-linux-x64-gnu ./node_modules/@stax-xml/native-linux-x64-gnu
@@ -574,7 +574,7 @@ for (const event of parser) {
 
 StAX-XML은 웹 표준 API 기반의 기본 호환성을 유지하여 다음 환경에서 동작합니다:
 
-- **Node.js** (v18+)
+- **Node.js** (v20.19+)
 - **Bun** (모든 버전)
 - **Deno** (모든 버전)
 - **웹 브라우저** (최신 브라우저)
@@ -598,24 +598,24 @@ npm 배포는 GitHub Actions OIDC 기반 trusted publishing을 사용합니다. 
 
 prerelease는 수동 `Prerelease` workflow에서 준비합니다. 이 workflow는 benchmark를 다시 실행하지 않고 package version, 고정 docs snapshot, test, docs build를 검증한 뒤 prerelease tag와 GitHub prerelease를 생성합니다. tag push는 `.github/workflows/release.yml`을 트리거하고, prerelease version은 npm dist-tag `next`로 배포됩니다. stable version은 계속 `latest`를 사용합니다.
 
-배포 package의 지원 runtime 하한은 Node.js 18입니다. 저장소 build/test tooling은 현재 TypeScript build/test 도구의 요구사항 때문에 Node.js 20.19+에서 실행하고, OIDC publish job은 npm trusted publishing 요구사항 때문에 Node.js 24에서 실행합니다. Linux glibc native package는 `node:18-bullseye` container 안에서 빌드해서, 최신 GitHub runner glibc가 아니라 Debian 11의 더 낮은 glibc 기준에 맞춥니다.
+배포 package의 지원 runtime 하한은 Node.js 20.19입니다. 저장소 build/test tooling은 TypeScript build/test 도구의 요구사항 때문에 Node.js 20.19+에서 실행하고, OIDC publish job은 npm trusted publishing 요구사항 때문에 Node.js 24에서 실행합니다. Linux glibc native package는 `node:20-bullseye` container 안에서 빌드해서, 최신 GitHub runner glibc가 아니라 Debian 11의 더 낮은 glibc 기준에 맞춥니다.
 
 애플리케이션 컨테이너 이미지는 runtime layer에 전체 `node_modules`를 복사하지 않는 편이 좋습니다. builder layer에서 JavaScript/TypeScript 애플리케이션을 하나의 산출물로 번들링하고, runtime image에는 번들 결과와 실행 환경에 맞는 native addon package만 복사하세요:
 
 ```dockerfile
-FROM node:18-bullseye AS builder
+FROM node:20-bullseye AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:18-bullseye AS native
+FROM node:20-bullseye AS native
 WORKDIR /native
 RUN npm init -y >/dev/null \
   && npm install --omit=dev stax-xml @stax-xml/native-linux-x64-gnu
 
-FROM node:18-bullseye-slim
+FROM node:20-bullseye-slim
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=native /native/node_modules/@stax-xml/native-linux-x64-gnu ./node_modules/@stax-xml/native-linux-x64-gnu
