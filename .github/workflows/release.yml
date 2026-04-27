@@ -257,6 +257,9 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@^11.5.1
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
@@ -267,6 +270,19 @@ jobs:
 
       - name: Build facade package
         run: pnpm build
+
+      - name: Resolve npm dist-tag
+        id: npm-dist-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./packages/stax-xml/package.json').version")"
+          if [[ "$VERSION" == *-* ]]; then
+            echo "tag=next" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Download native package tarballs
         uses: actions/download-artifact@v6
@@ -287,7 +303,7 @@ jobs:
             if npm view "$name@$version" version >/dev/null 2>&1; then
               echo "$name@$version is already published; skipping."
             else
-              npm publish "$tgz" --access public
+              npm publish "$tgz" --access public --tag "${{ steps.npm-dist-tag.outputs.tag }}"
             fi
           done
 
@@ -298,10 +314,11 @@ jobs:
           if npm view "stax-xml@$VERSION" version >/dev/null 2>&1; then
             echo "stax-xml@$VERSION is already published; skipping npm publish."
           else
-            npm publish --access public
+            npm publish --access public --tag "${{ steps.npm-dist-tag.outputs.tag }}"
           fi
 
       - name: Generate changelog
+        if: ${{ !contains(steps.npm-dist-tag.outputs.version, '-') }}
         run: pnpm dlx changelogithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -9,11 +9,13 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && pnpm typedoc:main && cd ../docs && tsx scripts/add-frontmatter.ts"
+    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && pnpm typedoc:main && cd ../docs && tsx scripts/add-frontmatter.ts",
+    "snapshot:release": "node scripts/snapshot-release-docs.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
     "@astrojs/compiler-rs": "^0.1.10",
+    "@astrojs/internal-helpers": "0.9.0",
     "@astrojs/mdx": "^5.0.3",
     "@astrojs/starlight": "^0.38.3",
     "@napi-rs/wasm-runtime": "1.1.4",
@@ -22,6 +24,7 @@
     "canvaskit-wasm": "^0.41.1",
     "sharp": "^0.34.5",
     "starlight-typedoc": "^0.21.5",
+    "starlight-versions": "^0.8.1",
     "stax-xml": "workspace:*",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",

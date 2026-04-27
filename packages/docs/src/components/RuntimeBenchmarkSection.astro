@@ -1,6 +1,6 @@
 ---
-import runtimeMatrix from '../../../benchmark/results/release/runtime-matrix.json';
-import crossRuntime from '../../../benchmark/results/release/cross-runtime-comparison.json';
+import latestRuntimeMatrix from '../../../benchmark/results/release/runtime-matrix.json';
+import latestCrossRuntime from '../../../benchmark/results/release/cross-runtime-comparison.json';
 
 type Locale = 'en' | 'ko';
 type Section = 'runtime-matrix' | 'cross-runtime' | 'java25';
@@ -8,10 +8,49 @@ type Section = 'runtime-matrix' | 'cross-runtime' | 'java25';
 interface Props {
   locale: Locale;
   section: Section;
+  version?: string;
 }
 
-const { locale, section } = Astro.props as Props;
-const githubBlobBase = 'https://github.com/Clickin/stax-xml/blob/master/';
+const { locale, section, version } = Astro.props as Props;
+const runtimeMatrixSnapshots = import.meta.glob('../data/benchmarks/*/runtime-matrix.json', {
+  eager: true,
+  import: 'default',
+}) as Record<string, typeof latestRuntimeMatrix>;
+const crossRuntimeSnapshots = import.meta.glob('../data/benchmarks/*/cross-runtime-comparison.json', {
+  eager: true,
+  import: 'default',
+}) as Record<string, typeof latestCrossRuntime>;
+
+function inferBenchmarkVersion(pathname: string) {
+  return pathname
+    .split('/')
+    .find((segment) => /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(segment));
+}
+
+function benchmarkJsonForVersion<T>(
+  snapshots: Record<string, T>,
+  fileName: string,
+  fallback: T,
+  requestedVersion: string | undefined,
+) {
+  if (!requestedVersion) return fallback;
+  return snapshots[`../data/benchmarks/${requestedVersion}/${fileName}`] ?? fallback;
+}
+
+const benchmarkVersion = version ?? inferBenchmarkVersion(Astro.url.pathname);
+const runtimeMatrix = benchmarkJsonForVersion(
+  runtimeMatrixSnapshots,
+  'runtime-matrix.json',
+  latestRuntimeMatrix,
+  benchmarkVersion,
+);
+const crossRuntime = benchmarkJsonForVersion(
+  crossRuntimeSnapshots,
+  'cross-runtime-comparison.json',
+  latestCrossRuntime,
+  benchmarkVersion,
+);
+const githubBlobBase = `https://github.com/Clickin/stax-xml/blob/${benchmarkVersion ?? 'master'}/`;
 const sourceLinks: Record<Section, Array<[string, string]>> = {
   'runtime-matrix': [['runtime-matrix.mjs', 'packages/benchmark/runtime-matrix.mjs']],
   'cross-runtime': [['cross-runtime-comparison.mjs', 'packages/benchmark/cross-runtime-comparison.mjs']],

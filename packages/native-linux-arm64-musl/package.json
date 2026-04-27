@@ -1,6 +1,6 @@
 {
   "name": "@stax-xml/native-linux-arm64-musl",
-  "version": "0.7.0",
+  "version": "1.0.0-rc1",
   "description": "Linux arm64 musl native acceleration package for stax-xml.",
   "license": "MIT",
   "type": "module",

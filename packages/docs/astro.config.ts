@@ -1,5 +1,6 @@
 import mdx from '@astrojs/mdx';
 import starlight from '@astrojs/starlight';
+import starlightVersions from 'starlight-versions';
 import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 // import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
@@ -68,6 +69,19 @@ export default defineConfig({
     starlight({
       title: 'StAX-XML',
       description: 'High-performance XML parser for JavaScript/TypeScript',
+      plugins: [
+        starlightVersions({
+          current: {
+            label: 'Latest',
+          },
+          versions: [
+            {
+              slug: 'v1.0.0-rc1',
+              label: 'v1.0.0-rc1',
+            },
+          ],
+        }),
+      ],
       defaultLocale: 'root',
       locales: {
         root: {

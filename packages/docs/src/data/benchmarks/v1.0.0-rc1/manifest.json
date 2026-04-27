@@ -1,0 +1,24 @@
+{
+  "version": "v1.0.0-rc1",
+  "createdAt": "2026-04-27T00:53:53.183Z",
+  "gitCommit": "575522eaac1ccef06c6d4896d03eb2b8d0477a07",
+  "sourceDir": "packages/benchmark/results/release",
+  "files": [
+    {
+      "source": "packages/benchmark/results/release/latest-summary.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0-rc1/latest-summary.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/runtime-matrix.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0-rc1/runtime-matrix.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/cross-runtime-comparison.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0-rc1/cross-runtime-comparison.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/simdxml-upstream-comparison.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0-rc1/simdxml-upstream-comparison.json"
+    }
+  ]
+}

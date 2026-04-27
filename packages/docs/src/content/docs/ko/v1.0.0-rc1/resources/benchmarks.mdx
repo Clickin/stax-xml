@@ -1,0 +1,441 @@
+---
+title: Benchmarks
+description: Performance comparisons and benchmark results for StAX-XML
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+slug: ko/v1.0.0-rc1/resources/benchmarks
+---
+
+import BenchmarkSection from '../../../../../components/BenchmarkSection.astro';
+import RuntimeBenchmarkSection from '../../../../../components/RuntimeBenchmarkSection.astro';
+
+StAX-XML은 다양한 XML 처리 시나리오에서 고성능을 위해 설계되었습니다. 이 페이지는 StAX-XML과 다른 인기 있는 XML 파싱 라이브러리들을 비교한 벤치마크 결과를 제시합니다.
+
+## 벤치마크 환경
+
+<BenchmarkSection locale="ko" section="environment" />
+
+## 파서 성능
+
+<details>
+<summary>Scenario contract: Node parser library 비교</summary>
+
+Sample XML shape, 축약:
+
+~~~xml
+<catalog>
+  <book id="..." category="...">
+    <title>...</title>
+    <author>...</author>
+    <price currency="USD">...</price>
+    <tags><tag>...</tag></tags>
+  </book>
+</catalog>
+~~~
+
+Consumer/output shape, 라이브러리 중립 pseudo code:
+
+~~~text
+consume-only:
+  for each parser event:
+    event를 count 또는 inspect
+    전체 output tree는 보관하지 않음
+
+object-output:
+  document = {
+    catalog: {
+      book: [
+        { attributes, title, author, price, tags }
+      ]
+    }
+  }
+~~~
+
+런타임별 파싱 방법:
+
+- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop에서 event type, name, text, attribute checksum을 계산합니다.
+- `stax-xml JS fallback event parser decode+parse`: byte-source application path로, timed region 안에서 `Buffer.toString("utf8")` 비용을 지불한 뒤 `StaxXmlParserSync`를 실행합니다.
+- `stax-xml JS Uint8Array iterable`: 재사용 가능한 `Iterable<Uint8Array[]>` 위에서 `StaxXmlIterableParser` byte-frame loop와 같은 checksum 계약을 사용합니다.
+- `stax-xml native addon event aggregate`: Rust 내부 event-object tier를 사용하는 native aggregate probe입니다. public per-event JavaScript iterator는 아닙니다.
+- `stax-xml native addon raw aggregate`: coarse Buffer call과 Rust 내부 direct string materialization을 사용하는 native aggregate probe입니다.
+- `stax-xml to object`: `StaxXmlParserSync` 위에서 benchmark object shape으로 local projection을 수행합니다.
+- `txml`, `fast-xml-parser`, `xml2js`: 각 라이브러리의 native object/DOM-style parse API를 사용합니다.
+- 13 MiB `xml2js` 행은 비교 무효로 표시합니다. `midsize.xml`은 top-level element가 반복되는 형태이며, xml2js는 전체 문서가 아니라 첫 top-level element shape만 반환합니다.
+- stax-xml backend/surface 행은 각 parser table에 직접 포함되어 fixture와 실행 환경이 타 라이브러리 행과 동일합니다.
+
+</details>
+
+### Parser Fixture 시리즈
+
+`parser-*` 섹션은 라이브러리 간 비교가 가능한 parser fixture 시리즈입니다. 별도 iterable file traversal 및 runtime matrix와 비교하기 전에, 이 네 표를 fixture 크기 순서대로 함께 읽어야 합니다.
+
+#### 소형 문서 (2KB)
+
+일반적인 웹 서비스 응답 및 설정 파일 (complex.xml):
+
+<BenchmarkSection locale="ko" section="parser-2kb" />
+
+#### 중형 문서 (4KB)
+
+일반적인 API 응답 및 데이터 파일 (books.xml):
+
+<BenchmarkSection locale="ko" section="parser-4kb" />
+
+#### 중대형 문서 (13MB)
+
+midsize.xml (13MB) 성능 결과:
+
+<BenchmarkSection locale="ko" section="parser-13mb" />
+
+*xml2js는 이 fixture에서 whole-document comparator가 아닙니다. `midsize.xml`은 반복된 top-level `<any_name>` root를 포함하고, xml2js는 첫 top-level element shape만 반환합니다.*
+
+#### 대형 문서 (98MB)
+
+large.xml (98MB) 성능 결과:
+
+<BenchmarkSection locale="ko" section="parser-98mb" />
+
+**성능 교차점 분석:**
+- **소형 파일 (2-4KB)**: 생성된 표를 직접 기준으로 봅니다. stax-xml 행은 이제 JS fallback과 native-addon surface를 타 라이브러리와 같은 표에 보여줍니다
+- **중형 파일 (13MB)**: xml2js는 첫 top-level element shape만 반환하므로 whole-document 결론에서는 제외합니다. 이 fixture는 stax-xml backend/surface 행과 나머지 parser 행을 기준으로 봅니다
+- **대형 파일 (98MB)**: parser와 fixture에 따라 처리량과 메모리 trade-off가 달라지므로 생성된 표를 직접 기준으로 봅니다
+- **초대형 파일 (1GB+)**: async stream과 synchronous iterable byte-batch 파싱은 전체 XML string 보관을 피할 수 있습니다. public sync string parser는 in-memory 경로입니다
+
+### Iterable 파일 Traversal (1MiB ~ 4GiB)
+
+bounded file chunk 위에서 stax-xml sync/async traversal을 비교합니다:
+
+<details>
+<summary>Scenario contract: iterable parser sync/async file traversal</summary>
+
+Generated XML shape, 축약:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N">
+    <title>Sample Book Title Number N ...</title>
+    <author>Author Name N</author>
+    <description>...</description>
+    <chapters>
+      <chapter number="1">...</chapter>
+    </chapters>
+  </book>
+</root>
+~~~
+
+Consumer/output shape:
+
+~~~text
+parse-result = {
+  events: number,
+  checksum: structural fold(event type, element/text/attribute span lengths and boundary bytes)
+}
+~~~
+
+파싱 방법:
+
+- 이 섹션의 모든 row는 bounded temp-file chunk 위에서 같은 Node iterable event-frame parser를 사용합니다.
+- `sync Iterable parser`는 synchronous file read와 `Iterable<Buffer[]>` batch를 사용합니다.
+- `async Iterable parser`는 asynchronous file read를 `AsyncIterable<Buffer[]>`로 수행한 뒤, await된 각 batch를 synchronous iterable parser frame loop에 넘기며 전체 XML string을 보관하지 않습니다.
+- XML tokenization은 CPU-intensive 작업입니다. async file read를 사용해도 parse loop 자체가 non-blocking이 되지는 않으므로, latency-sensitive main event loop thread에서 실행해야 한다면 Worker 또는 worker thread로 offload할지 결정하세요.
+- 이 row들은 full string materialization 대신 structural checksum을 사용하므로 iterable backend tokenization/event-frame traversal 비용을 측정합니다.
+
+</details>
+
+<BenchmarkSection locale="ko" section="async-size" />
+
+**주요 인사이트:**
+- 이 섹션은 public string parser vs stream parser API 비교가 아니라 iterable backend throughput view입니다.
+- sync/async row는 같은 tokenization/event-frame path를 공유하며, 차이는 synchronous file read와 awaited file batch handoff입니다.
+- async iterable parsing도 각 CPU parse batch가 실행되는 동안 main event loop를 block할 수 있습니다. visible latency가 중요하면 Worker 또는 worker thread를 사용하세요.
+- 100MiB를 넘는 파일에서 전체 XML string을 보관할 수 없다면 public full-string sync path를 피하세요. non-blocking API ergonomics에는 async stream을, blocking batch job에는 synchronous iterable byte-batch backend를 사용하세요.
+
+## 런타임 매트릭스
+
+release artifact는 단일 root를 가진 16 MiB 생성 XML fixture로 동일한 JavaScript 구현을 Node, Bun, Deno에서 측정합니다.
+이 매트릭스는 호환성과 런타임별 코드 생성 차이를 확인하기 위한 것이며 native addon은 포함하지 않습니다.
+`iterable-*` 행은 async parser가 아니라 synchronous byte-batch parser 경로입니다.
+
+<details>
+<summary>Scenario contract: Node, Bun, Deno runtime matrix</summary>
+
+Sample XML shape, 축약:
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <book id="book-N" lang="en" code="...">
+    <title>Runtime Benchmark N</title>
+    <author>Author ...</author>
+    <description>Full string checksum text payload ...</description>
+    <chapter number="1">Intro ...</chapter>
+    <chapter number="2">Body ...</chapter>
+  </book>
+</root>
+~~~
+
+Output shape:
+
+~~~text
+runtime-result = {
+  scenario: "public-sync-full-string" | "iterable-count-only" | "iterable-full-string",
+  eventCount: number,
+  checksum: fold(event type, names, text, attr names, attr values),
+  peakHeapUsedBytes: number
+}
+~~~
+
+런타임별 파싱 방법:
+
+- Node는 `fs.readFileSync`로 text를 읽고, built package를 `node --expose-gc`로 실행합니다.
+- Bun은 `Bun.file(path).text()`로 text를 읽고 같은 built JavaScript package를 실행합니다.
+- Deno는 `--allow-read --allow-env`에서 `Deno.readTextFile`로 text를 읽고 같은 built JavaScript package를 실행합니다.
+- `public-sync-full-string`은 하나의 string 위에서 `StaxXmlParserSync`를 사용합니다.
+- `iterable-count-only`와 `iterable-full-string`은 browser-compatible synchronous iterable byte-batch backend를 사용하며 async parser 행이 아닙니다.
+- 이 matrix는 의도적으로 native addon을 제외합니다.
+
+</details>
+
+<RuntimeBenchmarkSection locale="ko" section="runtime-matrix" />
+
+## 타 런타임 비교
+
+아래 표는 동일한 event count와 checksum 계약에서 `stax-xml` JS on Node, JavaScript package wrapper를 통해 호출한 `stax-xml` native addon, Woodstox, `quick-xml`을 비교합니다.
+Woodstox는 Java 8이 minimum runtime이므로 공개 기준은 Java 8입니다. Java 25는 JVM 버전 차이가 결론을 바꾸는지 확인하기 위해 별도로 측정합니다.
+
+<details>
+<summary>Scenario contract: stax-xml JS/native, Woodstox, quick-xml 비교</summary>
+
+Sample XML shape은 runtime matrix와 같은 16 MiB 생성 `<root><book>...</book></root>` fixture입니다.
+
+Output shape:
+
+~~~text
+comparator-result = {
+  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
+  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",
+  eventCount: number,
+  checksum: fold(selected event data for tier)
+}
+~~~
+
+파싱 방법:
+
+- `stax-xml JS on Node`: built JavaScript iterable backend를 Node에서 실행하고 tier별 checksum folding을 수행합니다.
+- `stax-xml native addon`: JS package wrapper가 sampling 전에 N-API aggregate addon을 import하고, 각 sample은 같은 Node process에서 wrapper와 N-API boundary를 거쳐 호출합니다.
+- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input입니다.
+- `quick-xml`: Rust `Reader` over buffered file input입니다. declaration, PI, doctype, comment는 skip하고, text는 checksum parity를 위해 trim합니다.
+- Java 8은 Woodstox의 minimum runtime target이므로 public Woodstox row로 사용하고, Java 25는 별도 verification row입니다.
+
+</details>
+
+<RuntimeBenchmarkSection locale="ko" section="cross-runtime" />
+
+### Woodstox Java 25 확인
+
+<RuntimeBenchmarkSection locale="ko" section="java25" />
+
+### 왜 native addon이 acceleration 경로인가
+
+pure JavaScript 경로는 계속 compatibility fallback으로 유지하지만, 더 이상 release 성능 상한으로 보지는 않습니다.
+이번 release 전까지의 parser 작업에서는 V8에 맞춘 JavaScript loop shape가 iterable backend를 개선할 수는 있었지만, full-string workload에서는 특히 `quick-xml` 같은 native parser baseline을 충분히 따라잡지 못했습니다.
+남은 주요 비용은 delimiter scanning, string materialization, attribute/text 주변의 안정적인 object/API shape입니다.
+
+Rust native addon은 native tokenizer와 SIMD-oriented scanning 전략을 사용할 수 있는 경로입니다. 방향성은 `quick-xml`이나 simdjson류 native/vectorized parser와 더 가깝습니다.
+따라서 package topology는 `stax-xml` facade를 유지하면서 optional native/Wasm acceleration package를 추가하고, binary를 로드할 수 없거나 원하지 않는 환경은 JavaScript fallback을 사용합니다.
+
+## Converter API vs Plain Parser
+
+아래 벤치마크는 **동일한 object output**을 만드는 세 가지 방식을 비교합니다.
+
+- `StaxXmlParserSync` 위에 직접 작성한 plain parser
+- automatic dispatch-plan routing이 적용되는 선언형 converter API
+- `.compile()`을 적용한 converter API
+
+현재 fixture:
+
+- `catalog` 문서
+- `800`개의 `<featured>` 요소
+- `800`개의 `<book>` 요소
+- 결과에는 root object field, root array, direct scalar, transform 파생 field가 포함됩니다
+
+<BenchmarkSection locale="ko" section="converter" />
+
+해석:
+
+- 순수 처리량 기준 최상한은 여전히 handwritten plain parser입니다.
+- 일반 converter API는 dispatch-friendly schema를 iterable backend로 자동 route하고 schema object에 plan을 cache합니다.
+- `.compile()`은 같은 output contract를 유지하면서 dispatch 선택을 명시적이고 재사용 가능하게 만듭니다.
+
+## 라이터 성능
+
+이 builder 벤치마크는 각 라이브러리에 맞는 builder-friendly intermediate representation을 사용합니다.
+`fast-xml-parser`는 ordered object tree를 그대로 소비하고, `stax-xml` writer 벤치마크는 입력 fixture를 timed region 밖에서 writer-friendly precompiled tree로 한 번 정규화합니다.
+즉 측정값은 반복적인 JSON shape 변환보다 XML emission throughput에 더 가깝습니다.
+
+### 소형 문서 생성
+
+작은 JSON 데이터에서 XML 문서 생성:
+
+<BenchmarkSection locale="ko" section="writer-small" />
+
+### 대용량 문서 생성 (1MB)
+
+큰 JSON 데이터에서 대용량 XML 문서 생성:
+
+<BenchmarkSection locale="ko" section="writer-big" />
+
+### Async vs Sync Writer 비교
+
+이 비교는 동일한 문서 shape에서 `stax-xml` writer API 자체를 측정합니다.
+의도는 async와 sync의 오버헤드를 보는 것이며, async writer가 synchronous DOM-style builder와 같은 속도를 내야 한다는 의미는 아닙니다.
+
+<BenchmarkSection locale="ko" section="writer-async" />
+
+### 1GiB Writer 비교
+
+이 one-shot 벤치마크는 1GiB XML 문서를 async writer와 sync sink writer 경로로 각각 생성합니다.
+writer 자체의 오버헤드와 파일 I/O 비용을 분리해 볼 수 있도록 메모리 target과 임시 파일 target을 모두 포함합니다.
+
+<BenchmarkSection locale="ko" section="writer-1gb" />
+
+이 결과 기준으로 대용량 XML 파일 출력에는 `StaxXmlWriterSyncSink`를 권장합니다. 가장 높은 쓰기 처리량을 보이며, peak RSS도 async 쓰기와 같은 범위에 머뭅니다.
+
+## 벤치마크 스크립트
+
+포함된 벤치마크 스위트를 사용하여 직접 이러한 벤치마크를 실행할 수 있습니다:
+
+```bash
+# 모든 벤치마크 실행
+npm run dev:bench:all
+
+# release benchmark artifact 재생성
+pnpm --filter=benchmark run release:update
+
+# 특정 벤치마크 카테고리 실행
+npm run dev:bench:sync       # 동기 파서 및 라이터 벤치마크
+npm run dev:bench:async      # 비동기 파서 및 라이터 벤치마크
+
+# 개별 벤치마크
+npm run dev:parser:2kb       # 소형 문서 파싱 (2KB)
+npm run dev:parser:4kb       # 중형 문서 파싱 (4KB)
+npm run dev:parser:13mb      # 중대형 문서 파싱 (13MB)
+npm run dev:parser:98mb      # 대형 문서 파싱 (98MB)
+npm run dev:builder:small    # 소형 문서 생성
+npm run dev:builder:big      # 대형 문서 생성 (1MB)
+npm run dev:converter:plain-output   # plain parser vs converter API parity benchmark
+npm run dev:async:parser     # 다양한 파일 크기의 비동기 파서
+npm run dev:async:writer     # 비동기 vs 동기 라이터 비교
+```
+
+### 사용자 정의 벤치마크
+
+자신만의 성능 테스트 생성:
+
+```typescript
+import { bench, run } from 'mitata';
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+
+const testXml = '<root><item>test</item></root>';
+
+bench('StAX-XML 파싱', () => {
+  const parser = new StaxXmlParserSync(testXml);
+  let count = 0;
+
+  for (const event of parser) {
+    if (event.type === XmlEventType.START_ELEMENT) {
+      count++;
+    }
+  }
+
+  return count;
+});
+
+await run();
+```
+
+## 성능 팁
+
+### 최적화 전략
+
+1. **올바른 파서 선택**
+   - 10MB 미만 문서에는 `StaxXmlParserSync` 사용
+   - 대용량 파일이나 스트리밍 시나리오에는 `StaxXmlParser` 사용
+
+2. **메모리 할당 최소화**
+   - 이벤트를 저장하지 말고 도착 즉시 처리
+   - 자주 생성되는 객체에 객체 풀링 사용
+   - 핫 패스에서 문자열 연결 피하기
+
+3. **효율적인 이벤트 처리**
+   - if-else 체인 대신 switch 문 사용
+   - 파싱 루프 밖에서 정규 표현식 미리 컴파일
+   - 배열 대신 Set을 사용하여 요소 이름 조회
+
+4. **스트리밍 모범 사례**
+   - 적절한 청크 크기 구성 (기본값 64KB)
+   - 라이터에 백프레셔 처리 구현
+   - 논블로킹 처리를 위해 비동기 반복 사용
+
+### 성능 모니터링
+
+```typescript
+import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+
+function benchmarkParsing(xml: string, iterations: number = 1000) {
+  const start = performance.now();
+
+  for (let i = 0; i < iterations; i++) {
+    const parser = new StaxXmlParserSync(xml);
+    let eventCount = 0;
+
+    for (const event of parser) {
+      eventCount++;
+    }
+  }
+
+  const end = performance.now();
+  const totalTime = end - start;
+  const avgTime = totalTime / iterations;
+  const opsPerSec = 1000 / avgTime;
+
+  console.log(`파싱당 평균 시간: ${avgTime.toFixed(2)}ms`);
+  console.log(`초당 작업 수: ${opsPerSec.toFixed(0)}`);
+}
+```
+
+## 지속적인 벤치마킹
+
+StAX-XML이 속도 우위를 유지할 수 있도록 성능을 지속적으로 모니터링합니다:
+
+- 모든 릴리스에서 **자동화된 벤치마크** 실행
+- 성능 저하를 방지하는 **회귀 테스트**
+- 효율적인 리소스 사용을 보장하는 **메모리 프로파일링**
+- Node.js, Bun, Deno에서 **크로스 플랫폼 테스트**
+
+## 벤치마크 기여
+
+벤치마크 개선에 도움을 주세요:
+
+1. 특정 사용 사례에 대한 **새로운 테스트 케이스 추가**
+2. 재현 가능한 예제로 **성능 문제 보고**
+3. 벤치마크 증거와 함께 **최적화 제출**
+4. **다양한 플랫폼에서 테스트**하고 결과 공유
+
+기여 가이드라인은 [GitHub 저장소](https://github.com/Clickin/stax-xml)를 참조하세요.

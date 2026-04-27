@@ -1,6 +1,6 @@
 {
   "name": "@stax-xml/native-wasm32-wasi",
-  "version": "0.7.0",
+  "version": "1.0.0-rc1",
   "description": "WASI WebAssembly acceleration package for stax-xml.",
   "license": "MIT",
   "type": "module",
