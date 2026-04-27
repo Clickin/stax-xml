@@ -1,5 +1,5 @@
 ---
-import summary from '../../../benchmark/results/release/latest-summary.json';
+import latestSummary from '../../../benchmark/results/release/latest-summary.json';
 
 type Locale = 'en' | 'ko';
 type Section =
@@ -18,12 +18,32 @@ type Section =
 interface Props {
   locale: Locale;
   section: Section;
+  version?: string;
 }
 
-const { locale, section } = Astro.props as Props;
+const { locale, section, version } = Astro.props as Props;
+
+const benchmarkSnapshots = import.meta.glob('../data/benchmarks/*/latest-summary.json', {
+  eager: true,
+  import: 'default',
+}) as Record<string, typeof latestSummary>;
+
+function inferBenchmarkVersion(pathname: string) {
+  return pathname
+    .split('/')
+    .find((segment) => /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(segment));
+}
+
+function benchmarkSummaryForVersion(requestedVersion: string | undefined) {
+  if (!requestedVersion) return latestSummary;
+  return benchmarkSnapshots[`../data/benchmarks/${requestedVersion}/latest-summary.json`] ?? latestSummary;
+}
+
+const benchmarkVersion = version ?? inferBenchmarkVersion(Astro.url.pathname);
+const summary = benchmarkSummaryForVersion(benchmarkVersion);
 
 const env = summary.environment as any;
-const githubBlobBase = 'https://github.com/Clickin/stax-xml/blob/master/';
+const githubBlobBase = `https://github.com/Clickin/stax-xml/blob/${benchmarkVersion ?? 'master'}/`;
 const sourceLinks: Record<Section, Array<[string, string]>> = {
   environment: [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'parser-2kb': [['parser-2kb.mjs', 'packages/benchmark/parser-2kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
@@ -412,4 +432,3 @@ const currentSourceLinks = sourceLinks[section] ?? [];
     </table>
   </>
 )}
-

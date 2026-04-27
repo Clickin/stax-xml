@@ -1,6 +1,6 @@
 {
   "name": "stax-xml-monorepo",
-  "version": "0.7.0",
+  "version": "1.0.0-rc1",
   "private": true,
   "description": "Monorepo for stax-xml library, benchmarks, and documentation",
   "author": "Clickin <josh87786@gmail.com>",
@@ -21,6 +21,7 @@
     "docs:dev": "pnpm --filter=stax-xml-docs dev",
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
+    "docs:snapshot:release": "pnpm --filter=stax-xml-docs snapshot:release",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
     "benchmark:release": "pnpm --filter=benchmark run release:expanded"
   },

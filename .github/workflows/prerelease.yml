@@ -1,0 +1,98 @@
+name: Prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Prerelease tag to create, for example v1.0.0-rc1'
+        required: true
+        default: 'v1.0.0-rc1'
+      npm_tag:
+        description: 'Expected npm dist-tag used by release.yml for prereleases'
+        required: true
+        default: 'next'
+      dry_run:
+        description: 'Validate only; do not create tag or GitHub prerelease'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prerelease-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate prerelease input
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z.-]+$ ]]; then
+            echo "version must be a prerelease tag like v1.0.0-rc1" >&2
+            exit 1
+          fi
+          if [[ "${{ inputs.npm_tag }}" != "next" ]]; then
+            echo "Only npm dist-tag 'next' is supported for prerelease publishing." >&2
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/${{ inputs.version }}" >/dev/null; then
+            echo "Tag ${{ inputs.version }} already exists." >&2
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.15.0'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '10.18.0'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate package versions
+        run: node scripts/validate-prerelease.mjs "${{ inputs.version }}"
+
+      - name: Validate docs snapshot
+        run: pnpm docs:snapshot:release "${{ inputs.version }}" --dry-run
+
+      - name: Build package
+        run: pnpm --filter=stax-xml build
+
+      - name: Build docs
+        run: pnpm docs:build
+        env:
+          NODE_ENV: production
+
+      - name: Create prerelease tag
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ inputs.version }}" -m "Prepare ${{ inputs.version }}"
+          git push origin "${{ inputs.version }}"
+
+      - name: Create GitHub prerelease
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ inputs.version }}" \
+            --title "${{ inputs.version }}" \
+            --notes "Prerelease published through npm trusted publishing (OIDC). npm dist-tag: ${{ inputs.npm_tag }}." \
+            --prerelease \
+            --verify-tag

@@ -1,6 +1,6 @@
 {
   "name": "stax-xml",
-  "version": "0.7.0",
+  "version": "1.0.0-rc1",
   "author": "Clickin <josh87786@gmail.com>",
   "repository": {
     "type": "git",
@@ -69,15 +69,15 @@
   ],
   "license": "MIT",
   "optionalDependencies": {
-    "@stax-xml/native-darwin-arm64": "0.7.0",
-    "@stax-xml/native-darwin-x64": "0.7.0",
-    "@stax-xml/native-linux-arm64-gnu": "0.7.0",
-    "@stax-xml/native-linux-arm64-musl": "0.7.0",
-    "@stax-xml/native-linux-x64-gnu": "0.7.0",
-    "@stax-xml/native-linux-x64-musl": "0.7.0",
-    "@stax-xml/native-wasm32-wasi": "0.7.0",
-    "@stax-xml/native-win32-arm64-msvc": "0.7.0",
-    "@stax-xml/native-win32-x64-msvc": "0.7.0"
+    "@stax-xml/native-darwin-arm64": "1.0.0-rc1",
+    "@stax-xml/native-darwin-x64": "1.0.0-rc1",
+    "@stax-xml/native-linux-arm64-gnu": "1.0.0-rc1",
+    "@stax-xml/native-linux-arm64-musl": "1.0.0-rc1",
+    "@stax-xml/native-linux-x64-gnu": "1.0.0-rc1",
+    "@stax-xml/native-linux-x64-musl": "1.0.0-rc1",
+    "@stax-xml/native-wasm32-wasi": "1.0.0-rc1",
+    "@stax-xml/native-win32-arm64-msvc": "1.0.0-rc1",
+    "@stax-xml/native-win32-x64-msvc": "1.0.0-rc1"
   },
   "scripts": {
     "build": "tsdown",
