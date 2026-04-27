@@ -49,7 +49,7 @@ deno add npm:stax-xml
 
 StAX-XML은 웹 표준 API만을 사용하여 다음과 호환됩니다:
 
-- **Node.js** (v18+)
+- **Node.js** (v20.19+)
 - **Bun** (모든 버전)
 - **Deno** (모든 버전)
 - **웹 브라우저** (최신 브라우저)

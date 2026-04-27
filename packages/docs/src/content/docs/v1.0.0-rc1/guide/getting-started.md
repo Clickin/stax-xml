@@ -50,7 +50,7 @@ deno add npm:stax-xml
 
 StAX-XML keeps a Web Standard API baseline, making it compatible with:
 
-- **Node.js** (v18+)
+- **Node.js** (v20.19+)
 - **Bun** (any version)
 - **Deno** (any version)
 - **Web Browsers** (modern browsers)

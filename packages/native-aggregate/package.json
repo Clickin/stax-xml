@@ -12,7 +12,7 @@
     "stax_xml_native_aggregate.node"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build:native": "node ./build.mjs",
