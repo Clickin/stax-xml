@@ -921,6 +921,8 @@ mod tests {
             &b"<?pi>?>"[..],
             &b"<?pi ok?>"[..],
             &b"<!DOCTYPE root>"[..],
+            &b"<!DOCTYPE root [<!ELEMENT root ANY>]>"[..],
+            &b"<!ENTITY example 'value'>"[..],
             &b"<!ENTITY example \"value\">"[..],
         ] {
             parse(input).unwrap();

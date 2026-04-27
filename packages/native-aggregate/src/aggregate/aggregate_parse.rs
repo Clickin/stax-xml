@@ -269,7 +269,13 @@ pub(crate) fn parse_aggregate_two_stage(
                         return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
                     };
                     text_start = gt + 1;
-                    while gt_index < gt_positions.len() && gt_positions[gt_index] <= gt {
+                    loop {
+                        if gt_index >= gt_positions.len() {
+                            break;
+                        }
+                        if gt_positions[gt_index] > gt {
+                            break;
+                        }
                         gt_index += 1;
                     }
                 } else {
