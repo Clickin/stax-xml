@@ -8,6 +8,7 @@ import {
 } from './StaxXmlIterableParser.js';
 import {
   type AnyXmlEvent,
+  type DocumentMode,
   type ParserEventFilter
 } from './types.js';
 
@@ -15,6 +16,7 @@ export interface StaxXmlParserSyncOptions {
   autoDecodeEntities?: boolean;
   addEntities?: EntityDefinition[];
   eventFilter?: ParserEventFilter;
+  documentMode?: DocumentMode;
 }
 
 const textEncoder = new TextEncoder();
@@ -41,7 +43,8 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     }
 
     this.parser = new StaxXmlIterableParser(
-      toByteBatches([textEncoder.encode(xml)], { batchSize: 1 })
+      toByteBatches([textEncoder.encode(xml)], { batchSize: 1 }),
+      { documentMode: options.documentMode }
     );
     this.materializer = new IterableEventMaterializer({
       autoDecodeEntities: options.autoDecodeEntities ?? true,

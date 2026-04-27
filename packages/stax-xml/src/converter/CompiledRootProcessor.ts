@@ -118,7 +118,10 @@ export class CompiledRootProcessor {
   parseSync<T>(input: string, options?: ParseOptions | unknown): T {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     const runtime = this.createRuntime(this.plan, effectiveOptions);
-    const parser = new StaxXmlIterableParser(toByteBatches([textEncoder.encode(input)], { batchSize: 1 }));
+    const parser = new StaxXmlIterableParser(
+      toByteBatches([textEncoder.encode(input)], { batchSize: 1 }),
+      { documentMode: effectiveOptions?.documentMode }
+    );
 
     while (parser.nextBatch()) {
       for (let index = 0; index < parser.eventCount(); index++) {
@@ -155,7 +158,10 @@ export class CompiledRootProcessor {
         return this.finish<T>(runtime);
       }
 
-      const parser = createIterableParserFromChunks([toUint8Array(input)], { batchSize: 1 });
+      const parser = createIterableParserFromChunks([toUint8Array(input)], {
+        batchSize: 1,
+        documentMode: effectiveOptions?.documentMode
+      });
       while (parser.nextBatch()) {
         for (let index = 0; index < parser.eventCount(); index++) {
           this.processIterableEvent(runtime, parser, index);
@@ -603,7 +609,9 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     stream: ReadableStream<Uint8Array>
   ): Promise<void> {
-    const parser = new StaxXmlIterableParser([]);
+    const parser = new StaxXmlIterableParser([], {
+      documentMode: runtime.options?.documentMode
+    });
     for await (const batch of readReadableStreamByteBatches(stream, { batchSize: 1 })) {
       if (!parser.pushByteBatch(batch, false)) {
         continue;
@@ -953,6 +961,9 @@ async function tryProjectItemRowsViaNativeTable(
   input: ArrayBufferView,
   options?: ParseOptions
 ): Promise<unknown[] | undefined> {
+  if (options?.documentMode === 'document') {
+    return undefined;
+  }
   const objectRowsProjection = createNativeObjectRowsProjectionPlan(plan);
   const itemRowsSupported = isSupportedNativeItemRowsPlan(plan);
   if (!objectRowsProjection && !itemRowsSupported) {
@@ -1428,6 +1439,9 @@ async function tryCreateStructuralIndexTable(
   input: string | ArrayBufferView,
   options?: ParseOptions
 ): Promise<StaxXmlStructuralIndexParser | undefined> {
+  if (options?.documentMode === 'document') {
+    return undefined;
+  }
   const acceleration = options?.acceleration;
   const backendPreference = acceleration?.backend ?? 'auto';
   if (backendPreference === 'js') {

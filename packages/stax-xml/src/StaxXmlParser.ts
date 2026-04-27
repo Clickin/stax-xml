@@ -7,6 +7,7 @@ import {
 import {
   XmlEventType,
   type AnyXmlEvent,
+  type DocumentMode,
   type ParserEventFilter
 } from './types.js';
 
@@ -62,6 +63,13 @@ export interface StaxXmlParserOptions {
   initialQueueCapacity?: number;
 
   eventFilter?: ParserEventFilter;
+
+  /**
+   * XML document conformance mode.
+   *
+   * @defaultValue 'fragment'
+   */
+  documentMode?: DocumentMode;
 }
 
 type IteratorResultLike<T> = IteratorResult<T> | Promise<IteratorResult<T>>;
@@ -142,7 +150,8 @@ function toBackendOptions(options: StaxXmlParserOptions): IterableEventBackendOp
     batchSize: 1,
     autoDecodeEntities: options.autoDecodeEntities ?? true,
     addEntities: options.addEntities,
-    eventFilter: options.eventFilter
+    eventFilter: options.eventFilter,
+    documentMode: options.documentMode
   };
 }
 

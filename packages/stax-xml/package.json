@@ -82,6 +82,7 @@
   "scripts": {
     "build": "tsdown",
     "test": "vitest run --config vitest.unit.config.ts",
+    "test:w3c": "tsx ./scripts/w3c-xmlts.ts",
     "test:watch": "vitest --config vitest.unit.config.ts",
     "test:perf": "vitest run --config vitest.perf.config.ts",
     "coverage": "vitest run --config vitest.unit.config.ts --coverage",
