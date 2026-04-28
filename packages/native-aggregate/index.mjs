@@ -30,6 +30,10 @@ export const parseObjectRowsUint8Array =
   binding.parseObjectRowsUint8Array;
 export const parseObjectRowsViaTableUint8Array =
   binding.parseObjectRowsViaTableUint8Array;
+export const StaxXmlStreamingEventBatchParser =
+  binding.StaxXmlStreamingEventBatchParser;
+export const createStreamingEventBatchParser =
+  binding.createStreamingEventBatchParser;
 
 if (
   typeof parseAggregateBuffer !== 'function' ||

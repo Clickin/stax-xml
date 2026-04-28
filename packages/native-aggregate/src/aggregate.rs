@@ -21,6 +21,8 @@ pub(crate) use aggregate_parse::*;
 mod span_table;
 pub(crate) use span_table::*;
 
+mod streaming;
+
 mod projection;
 pub(crate) use projection::*;
 

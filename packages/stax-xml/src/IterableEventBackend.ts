@@ -13,6 +13,10 @@ import {
   type DocumentMode,
   type ParserEventFilter
 } from './types.js';
+import {
+  getStaxXmlRuntimeForSyncApi,
+  type StaxXmlRuntimeBackendPreference,
+} from './runtime/native-backend.js';
 
 export interface EntityDefinition {
   entity: string;
@@ -32,6 +36,9 @@ export interface IterableEventBackendOptions {
   trimText?: boolean;
   implicitAttributeValue?: 'true' | 'name';
   documentMode?: DocumentMode;
+  backend?: StaxXmlRuntimeBackendPreference;
+  fallbackOnLoadError?: boolean;
+  fallbackOnParseError?: boolean;
 }
 
 export const STAX_XML_EVENT_BACKEND: unique symbol = Symbol.for('stax-xml.eventBackend') as never;
@@ -93,6 +100,11 @@ const DEFAULT_ENTITY_MAP: Record<string, string> = {
 };
 const ENTITY_REGEX_CACHE = new Map<string, RegExp>();
 const EMPTY_NAMESPACES = new Map<string, string>();
+const utf8Decoder = new TextDecoder();
+const STRUCTURAL_INDEX_MAGIC = 0x31545053;
+const STRUCTURAL_INDEX_HEADER_BYTES = 28;
+const STRUCTURAL_INDEX_EVENT_BYTES = 28;
+const STRUCTURAL_INDEX_ATTR_BYTES = 16;
 
 type ElementContext = {
   name: string;
@@ -112,7 +124,19 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
   constructor(
     private readonly stream: ReadableStream<Uint8Array>,
     private readonly options: IterableEventBackendOptions = {}
-  ) {}
+  ) {
+    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    if (
+      runtime
+      && runtime.backend.kind !== 'js'
+      && !runtime.capabilities.streamingEventBatches
+      && options.backend !== undefined
+      && options.backend !== 'auto'
+      && options.fallbackOnLoadError !== true
+    ) {
+      throw new Error(`Initialized ${options.backend} backend does not provide streamingEventBatches capability.`);
+    }
+  }
 
   [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
     return this;
@@ -191,6 +215,12 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
   }
 
   private async *readMaterializedBatches(): AsyncGenerator<AnyXmlEvent[]> {
+    const nativeBatches = this.readNativeStreamingBatches();
+    if (nativeBatches) {
+      yield* nativeBatches;
+      return;
+    }
+
     const parser = new StaxXmlIterableParser([], {
       encoding: this.options.encoding,
       incompleteFinalMarkupMessage: this.options.incompleteFinalMarkupMessage,
@@ -219,6 +249,165 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
     const finalBatch = materializer.materializeBatch(parser);
     yield finalBatch;
   }
+
+  private readNativeStreamingBatches(): AsyncGenerator<AnyXmlEvent[]> | undefined {
+    const runtime = getStaxXmlRuntimeForSyncApi(this.options.backend);
+    const createStreamingParser = runtime?.capabilities.streamingEventBatches;
+    if (!createStreamingParser) {
+      return undefined;
+    }
+    const streamingParser = createStreamingParser({
+      encoding: this.options.encoding,
+      documentMode: this.options.documentMode,
+    });
+    const stream = this.stream;
+    const options = this.options;
+
+    return (async function* (): AsyncGenerator<AnyXmlEvent[]> {
+      const materializer = new IterableEventMaterializer(options);
+      for await (const chunk of readReadableStreamChunksIncrementally(stream, options.maxChunkBytes)) {
+        const batch = streamingParser.pushChunk(chunk, false);
+        yield* materializeNativeStreamingBatch(batch.buffer, batch.table, materializer, options);
+      }
+      const finalBatch = streamingParser.pushChunk(new Uint8Array(0), true);
+      yield* materializeNativeStreamingBatch(finalBatch.buffer, finalBatch.table, materializer, options);
+    })();
+  }
+}
+
+function* materializeNativeStreamingBatch(
+  buffer: ArrayBuffer | ArrayBufferView,
+  table: ArrayBuffer | ArrayBufferView,
+  materializer: IterableEventMaterializer,
+  options: IterableEventBackendOptions,
+): Generator<AnyXmlEvent[]> {
+  const source = toUint8Array(buffer);
+  const parser = new StreamingSpanTableAdapter(source, table);
+  while (parser.nextBatch()) {
+    const batch = materializer.materializeBatch(parser as unknown as StaxXmlIterableParser);
+    if (batch.length > 0) {
+      yield batch;
+    }
+  }
+}
+
+class StreamingSpanTableAdapter {
+  readonly eventCountValue: number;
+  private readonly attrBase: number;
+  private readonly view: DataView;
+  private consumed = false;
+
+  constructor(
+    private readonly source: Uint8Array,
+    table: ArrayBuffer | ArrayBufferView,
+  ) {
+    this.view = table instanceof ArrayBuffer
+      ? new DataView(table)
+      : new DataView(table.buffer, table.byteOffset, table.byteLength);
+    const magic = this.view.getUint32(0, true);
+    if (magic !== STRUCTURAL_INDEX_MAGIC) {
+      throw new Error(`Invalid streaming structural index magic: 0x${magic.toString(16)}`);
+    }
+    this.eventCountValue = this.view.getUint32(4, true);
+    const attrCount = this.view.getUint32(8, true);
+    const sourceUnits = this.view.getUint32(12, true);
+    const eventStride = this.view.getUint32(16, true);
+    const attrStride = this.view.getUint32(20, true);
+    if (sourceUnits !== source.byteLength) {
+      throw new Error(`Streaming structural index input length mismatch: ${sourceUnits}/${source.byteLength}`);
+    }
+    if (eventStride !== STRUCTURAL_INDEX_EVENT_BYTES || attrStride !== STRUCTURAL_INDEX_ATTR_BYTES) {
+      throw new Error(`Unsupported streaming structural index strides: ${eventStride}/${attrStride}`);
+    }
+    this.attrBase = STRUCTURAL_INDEX_HEADER_BYTES + this.eventCountValue * STRUCTURAL_INDEX_EVENT_BYTES;
+    const expectedBytes = this.attrBase + attrCount * STRUCTURAL_INDEX_ATTR_BYTES;
+    if (this.view.byteLength !== expectedBytes) {
+      throw new Error('Streaming structural index table length mismatch');
+    }
+  }
+
+  eventCount(): number {
+    return this.eventCountValue;
+  }
+
+  nextBatch(): boolean {
+    if (this.consumed || this.eventCountValue === 0) {
+      return false;
+    }
+    this.consumed = true;
+    return true;
+  }
+
+  eventType(index: number): IterableEventType {
+    const type = this.view.getUint32(this.eventOffset(index), true);
+    if (type === 0) return IterableEventType.START_DOCUMENT;
+    if (type === 1) return IterableEventType.END_DOCUMENT;
+    if (type === 2) return IterableEventType.START_ELEMENT;
+    if (type === 3) return IterableEventType.END_ELEMENT;
+    if (type === 4) return IterableEventType.CHARACTERS;
+    if (type === 5) return IterableEventType.CDATA;
+    throw new Error(`Unsupported streaming structural index event type: ${type}`);
+  }
+
+  copyName(index: number): string | undefined {
+    return this.copySpan(
+      this.view.getInt32(this.eventOffset(index) + 4, true),
+      this.view.getInt32(this.eventOffset(index) + 8, true),
+    );
+  }
+
+  copyText(index: number): string | undefined {
+    return this.copySpan(
+      this.view.getInt32(this.eventOffset(index) + 12, true),
+      this.view.getInt32(this.eventOffset(index) + 16, true),
+    );
+  }
+
+  attrCount(index: number): number {
+    return this.view.getUint32(this.eventOffset(index) + 24, true);
+  }
+
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
+    return this.copySpan(
+      this.view.getInt32(this.attrOffset(eventIndex, attrIndex), true),
+      this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 4, true),
+    );
+  }
+
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
+    return this.copySpan(
+      this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 8, true),
+      this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 12, true),
+    );
+  }
+
+  isImplicitAttributeValue(): boolean {
+    return false;
+  }
+
+  private eventOffset(index: number): number {
+    return STRUCTURAL_INDEX_HEADER_BYTES + index * STRUCTURAL_INDEX_EVENT_BYTES;
+  }
+
+  private attrOffset(eventIndex: number, attrIndex: number): number {
+    const attrStart = this.view.getUint32(this.eventOffset(eventIndex) + 20, true);
+    return this.attrBase + (attrStart + attrIndex) * STRUCTURAL_INDEX_ATTR_BYTES;
+  }
+
+  private copySpan(start: number, end: number): string | undefined {
+    if (start < 0 || end < 0) {
+      return undefined;
+    }
+    return utf8Decoder.decode(this.source.subarray(start, end));
+  }
+}
+
+function toUint8Array(input: ArrayBuffer | ArrayBufferView): Uint8Array {
+  return input instanceof Uint8Array
+    ? input
+    : input instanceof ArrayBuffer
+      ? new Uint8Array(input)
+      : new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
 }
 
 export async function* readReadableStreamByteBatches(

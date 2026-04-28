@@ -1,4 +1,8 @@
 import type { DocumentMode } from './types.js';
+import {
+  getStaxXmlRuntimeForSyncApi,
+  type StaxXmlRuntimeBackendPreference,
+} from './runtime/native-backend.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -22,6 +26,9 @@ export interface StaxXmlIterableParserOptions {
   incompleteFinalMarkupMessage?: string;
   emitStartDocumentBatchImmediately?: boolean;
   documentMode?: DocumentMode;
+  backend?: StaxXmlRuntimeBackendPreference;
+  fallbackOnLoadError?: boolean;
+  fallbackOnParseError?: boolean;
 }
 
 /**
@@ -156,6 +163,17 @@ export class StaxXmlIterableParser {
   };
 
   constructor(source: Iterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
+    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    if (
+      runtime
+      && runtime.backend.kind !== 'js'
+      && !runtime.capabilities.streamingEventBatches
+      && options.backend !== undefined
+      && options.backend !== 'auto'
+      && options.fallbackOnLoadError !== true
+    ) {
+      throw new Error(`Initialized ${options.backend} backend does not provide streamingEventBatches capability.`);
+    }
     this.iterator = source[Symbol.iterator]();
     this.documentMode = options.documentMode ?? 'fragment';
     this.decoder = new TextDecoder(options.encoding ?? 'utf-8', {

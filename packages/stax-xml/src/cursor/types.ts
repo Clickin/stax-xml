@@ -1,3 +1,5 @@
+import type { StaxXmlRuntimeBackendPreference } from '../runtime/native-backend.js';
+
 /**
  * Cursor event type constants as numeric SMI values.
  *
@@ -34,6 +36,12 @@ export interface StaxXmlCursorReaderOptions {
   autoDecodeEntities?: boolean;
   /** Additional custom entities to decode */
   addEntities?: { entity: string; value: string }[];
+  /** Accelerated backend preference. Default: 'auto' */
+  backend?: StaxXmlRuntimeBackendPreference;
+  /** Whether unsupported or unavailable acceleration falls back to JavaScript. */
+  fallbackOnLoadError?: boolean;
+  /** Whether backend parse errors fall back to JavaScript. */
+  fallbackOnParseError?: boolean;
 }
 
 /**

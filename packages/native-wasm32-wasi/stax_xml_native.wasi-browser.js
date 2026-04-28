@@ -63,3 +63,12 @@ export const parseAggregateStringUtf16 = __napiModule.exports.parseAggregateStri
 export const parseAggregateStringUtf8 = __napiModule.exports.parseAggregateStringUtf8
 export const parseAggregateUint8Array = __napiModule.exports.parseAggregateUint8Array
 export const parseSpanTableStringUtf16 = __napiModule.exports.parseSpanTableStringUtf16
+export const parseStructuralIndexStringUtf16 =
+  __napiModule.exports.parseStructuralIndexStringUtf16 ?? __napiModule.exports.parseSpanTableStringUtf16
+export const parseStructuralIndexUint8Array =
+  __napiModule.exports.parseStructuralIndexUint8Array ?? __napiModule.exports.parseSpanTableUint8Array
+export const parseItemRowsViaTableUint8Array = __napiModule.exports.parseItemRowsViaTableUint8Array
+export const parseObjectRowsUint8Array = __napiModule.exports.parseObjectRowsUint8Array
+export const parseObjectRowsViaTableUint8Array = __napiModule.exports.parseObjectRowsViaTableUint8Array
+export const StaxXmlStreamingEventBatchParser = __napiModule.exports.StaxXmlStreamingEventBatchParser
+export const createStreamingEventBatchParser = __napiModule.exports.createStreamingEventBatchParser

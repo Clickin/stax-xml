@@ -410,7 +410,7 @@ impl<'a> SpanTableUtf16Parser<'a> {
 }
 
 impl SpanTableBuilder {
-    fn new(input_units: usize, flags: u32) -> Result<Self> {
+    pub(crate) fn new(input_units: usize, flags: u32) -> Result<Self> {
         let input_units = to_u32_count(input_units, "span table input units")?;
         let table = vec![0; SPAN_TABLE_HEADER_BYTES];
         Ok(Self {
@@ -423,11 +423,11 @@ impl SpanTableBuilder {
         })
     }
 
-    fn attr_count(&self) -> u32 {
+    pub(crate) fn attr_count(&self) -> u32 {
         self.attr_count
     }
 
-    fn push_event(&mut self, event: SpanEventRecord) -> Result<()> {
+    pub(crate) fn push_event(&mut self, event: SpanEventRecord) -> Result<()> {
         self.event_count = self
             .event_count
             .checked_add(1)
@@ -442,7 +442,7 @@ impl SpanTableBuilder {
         Ok(())
     }
 
-    fn push_attr(&mut self, attr: SpanAttrRecord) -> Result<()> {
+    pub(crate) fn push_attr(&mut self, attr: SpanAttrRecord) -> Result<()> {
         self.attr_count = self
             .attr_count
             .checked_add(1)
@@ -454,7 +454,7 @@ impl SpanTableBuilder {
         Ok(())
     }
 
-    fn finish(mut self) -> Result<Vec<u8>> {
+    pub(crate) fn finish(mut self) -> Result<Vec<u8>> {
         let event_bytes = (self.event_count as usize)
             .checked_mul(SPAN_TABLE_EVENT_BYTES)
             .ok_or_else(|| Error::from_reason("Span table event byte size overflow"))?;
