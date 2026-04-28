@@ -672,7 +672,7 @@ function createMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This artifact compares the Node stax-xml iterable backend, the native addon through its JavaScript package wrapper, and non-JS parser baselines under the same checksum contract.',
+    'This artifact compares the published Node stax-xml iterable backend, native-addon diagnostic rows through the JavaScript package wrapper, and non-JS parser baselines under the same checksum contract.',
     'The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its minimum runtime target; Java 25 is reported only as a verification check.',
     '',
     '## Environment',

@@ -17,6 +17,10 @@ import {
   getStaxXmlRuntimeForSyncApi,
   type StaxXmlRuntimeBackendPreference,
 } from './runtime/native-backend.js';
+import {
+  StreamingSpanTableAdapter,
+  toUint8Array,
+} from './runtime/event-table.js';
 
 export interface EntityDefinition {
   entity: string;
@@ -55,6 +59,24 @@ export interface IterableEventTable {
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined;
   copyAttrValueByName?(eventIndex: number, name: string): string | undefined;
 }
+
+export type MaterializableEventSource = {
+  eventType(index: number): IterableEventType;
+  copyName(index: number): string | undefined;
+  copyText(index: number): string | undefined;
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined;
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined;
+  isImplicitAttributeValue?(eventIndex: number, attrIndex: number): boolean;
+} & (
+  | {
+      eventCount(): number;
+      attrCount(eventIndex: number): number;
+    }
+  | {
+      eventCount: number;
+      eventAttrCount(eventIndex: number): number;
+    }
+);
 
 export interface IterableEventBackendProvider {
   [STAX_XML_EVENT_BACKEND](): IterableEventBackendIterator;
@@ -100,11 +122,6 @@ const DEFAULT_ENTITY_MAP: Record<string, string> = {
 };
 const ENTITY_REGEX_CACHE = new Map<string, RegExp>();
 const EMPTY_NAMESPACES = new Map<string, string>();
-const utf8Decoder = new TextDecoder();
-const STRUCTURAL_INDEX_MAGIC = 0x31545053;
-const STRUCTURAL_INDEX_HEADER_BYTES = 28;
-const STRUCTURAL_INDEX_EVENT_BYTES = 28;
-const STRUCTURAL_INDEX_ATTR_BYTES = 16;
 
 type ElementContext = {
   name: string;
@@ -267,10 +284,10 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
       const materializer = new IterableEventMaterializer(options);
       for await (const chunk of readReadableStreamChunksIncrementally(stream, options.maxChunkBytes)) {
         const batch = streamingParser.pushChunk(chunk, false);
-        yield* materializeNativeStreamingBatch(batch.buffer, batch.table, materializer, options);
+        yield* materializeNativeStreamingBatch(batch.buffer, batch.table, materializer);
       }
       const finalBatch = streamingParser.pushChunk(new Uint8Array(0), true);
-      yield* materializeNativeStreamingBatch(finalBatch.buffer, finalBatch.table, materializer, options);
+      yield* materializeNativeStreamingBatch(finalBatch.buffer, finalBatch.table, materializer);
     })();
   }
 }
@@ -279,135 +296,15 @@ function* materializeNativeStreamingBatch(
   buffer: ArrayBuffer | ArrayBufferView,
   table: ArrayBuffer | ArrayBufferView,
   materializer: IterableEventMaterializer,
-  options: IterableEventBackendOptions,
 ): Generator<AnyXmlEvent[]> {
   const source = toUint8Array(buffer);
   const parser = new StreamingSpanTableAdapter(source, table);
   while (parser.nextBatch()) {
-    const batch = materializer.materializeBatch(parser as unknown as StaxXmlIterableParser);
+    const batch = materializer.materializeBatch(parser);
     if (batch.length > 0) {
       yield batch;
     }
   }
-}
-
-class StreamingSpanTableAdapter {
-  readonly eventCountValue: number;
-  private readonly attrBase: number;
-  private readonly view: DataView;
-  private consumed = false;
-
-  constructor(
-    private readonly source: Uint8Array,
-    table: ArrayBuffer | ArrayBufferView,
-  ) {
-    this.view = table instanceof ArrayBuffer
-      ? new DataView(table)
-      : new DataView(table.buffer, table.byteOffset, table.byteLength);
-    const magic = this.view.getUint32(0, true);
-    if (magic !== STRUCTURAL_INDEX_MAGIC) {
-      throw new Error(`Invalid streaming structural index magic: 0x${magic.toString(16)}`);
-    }
-    this.eventCountValue = this.view.getUint32(4, true);
-    const attrCount = this.view.getUint32(8, true);
-    const sourceUnits = this.view.getUint32(12, true);
-    const eventStride = this.view.getUint32(16, true);
-    const attrStride = this.view.getUint32(20, true);
-    if (sourceUnits !== source.byteLength) {
-      throw new Error(`Streaming structural index input length mismatch: ${sourceUnits}/${source.byteLength}`);
-    }
-    if (eventStride !== STRUCTURAL_INDEX_EVENT_BYTES || attrStride !== STRUCTURAL_INDEX_ATTR_BYTES) {
-      throw new Error(`Unsupported streaming structural index strides: ${eventStride}/${attrStride}`);
-    }
-    this.attrBase = STRUCTURAL_INDEX_HEADER_BYTES + this.eventCountValue * STRUCTURAL_INDEX_EVENT_BYTES;
-    const expectedBytes = this.attrBase + attrCount * STRUCTURAL_INDEX_ATTR_BYTES;
-    if (this.view.byteLength !== expectedBytes) {
-      throw new Error('Streaming structural index table length mismatch');
-    }
-  }
-
-  eventCount(): number {
-    return this.eventCountValue;
-  }
-
-  nextBatch(): boolean {
-    if (this.consumed || this.eventCountValue === 0) {
-      return false;
-    }
-    this.consumed = true;
-    return true;
-  }
-
-  eventType(index: number): IterableEventType {
-    const type = this.view.getUint32(this.eventOffset(index), true);
-    if (type === 0) return IterableEventType.START_DOCUMENT;
-    if (type === 1) return IterableEventType.END_DOCUMENT;
-    if (type === 2) return IterableEventType.START_ELEMENT;
-    if (type === 3) return IterableEventType.END_ELEMENT;
-    if (type === 4) return IterableEventType.CHARACTERS;
-    if (type === 5) return IterableEventType.CDATA;
-    throw new Error(`Unsupported streaming structural index event type: ${type}`);
-  }
-
-  copyName(index: number): string | undefined {
-    return this.copySpan(
-      this.view.getInt32(this.eventOffset(index) + 4, true),
-      this.view.getInt32(this.eventOffset(index) + 8, true),
-    );
-  }
-
-  copyText(index: number): string | undefined {
-    return this.copySpan(
-      this.view.getInt32(this.eventOffset(index) + 12, true),
-      this.view.getInt32(this.eventOffset(index) + 16, true),
-    );
-  }
-
-  attrCount(index: number): number {
-    return this.view.getUint32(this.eventOffset(index) + 24, true);
-  }
-
-  copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
-    return this.copySpan(
-      this.view.getInt32(this.attrOffset(eventIndex, attrIndex), true),
-      this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 4, true),
-    );
-  }
-
-  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
-    return this.copySpan(
-      this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 8, true),
-      this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 12, true),
-    );
-  }
-
-  isImplicitAttributeValue(): boolean {
-    return false;
-  }
-
-  private eventOffset(index: number): number {
-    return STRUCTURAL_INDEX_HEADER_BYTES + index * STRUCTURAL_INDEX_EVENT_BYTES;
-  }
-
-  private attrOffset(eventIndex: number, attrIndex: number): number {
-    const attrStart = this.view.getUint32(this.eventOffset(eventIndex) + 20, true);
-    return this.attrBase + (attrStart + attrIndex) * STRUCTURAL_INDEX_ATTR_BYTES;
-  }
-
-  private copySpan(start: number, end: number): string | undefined {
-    if (start < 0 || end < 0) {
-      return undefined;
-    }
-    return utf8Decoder.decode(this.source.subarray(start, end));
-  }
-}
-
-function toUint8Array(input: ArrayBuffer | ArrayBufferView): Uint8Array {
-  return input instanceof Uint8Array
-    ? input
-    : input instanceof ArrayBuffer
-      ? new Uint8Array(input)
-      : new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
 }
 
 export async function* readReadableStreamByteBatches(
@@ -482,7 +379,7 @@ export function createIterableParserFromChunks(
 }
 
 export function materializeIterableEventBatch(
-  parser: StaxXmlIterableParser,
+  parser: MaterializableEventSource,
   options: IterableEventBackendOptions = {},
   eventFilter?: ParserEventFilter
 ): AnyXmlEvent[] {
@@ -500,9 +397,10 @@ export class IterableEventMaterializer {
     this.entityDecoder = compileEntityDecoder(options);
   }
 
-  materializeBatch(parser: StaxXmlIterableParser): AnyXmlEvent[] {
+  materializeBatch(parser: MaterializableEventSource): AnyXmlEvent[] {
     const events: AnyXmlEvent[] = [];
-    for (let index = 0; index < parser.eventCount(); index++) {
+    const eventCount = materializableEventCount(parser);
+    for (let index = 0; index < eventCount; index++) {
       const event = this.materializeEvent(parser, index);
       if (event) {
         events.push(event);
@@ -511,7 +409,7 @@ export class IterableEventMaterializer {
     return events;
   }
 
-  private materializeEvent(parser: StaxXmlIterableParser, index: number): AnyXmlEvent | undefined {
+  private materializeEvent(parser: MaterializableEventSource, index: number): AnyXmlEvent | undefined {
     const type = parser.eventType(index);
 
     if (type === IterableEventType.START_DOCUMENT) {
@@ -553,7 +451,7 @@ export class IterableEventMaterializer {
     return this.options.trimText ? decoded.trim() : decoded;
   }
 
-  private materializeStartElement(parser: StaxXmlIterableParser, index: number): AnyXmlEvent {
+  private materializeStartElement(parser: MaterializableEventSource, index: number): AnyXmlEvent {
     const name = parser.copyName(index)!;
     const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1]!;
     const parsedAttributes = this.copyAttributes(parser, index, parentNamespaces);
@@ -586,7 +484,7 @@ export class IterableEventMaterializer {
     };
   }
 
-  private materializeEndElement(parser: StaxXmlIterableParser, index: number): AnyXmlEvent {
+  private materializeEndElement(parser: MaterializableEventSource, index: number): AnyXmlEvent {
     const name = parser.copyName(index)!;
     const context = this.elementStack.pop();
     this.namespaceStack.pop();
@@ -612,7 +510,7 @@ export class IterableEventMaterializer {
   }
 
   private copyAttributes(
-    parser: StaxXmlIterableParser,
+    parser: MaterializableEventSource,
     eventIndex: number,
     parentNamespaces: Map<string, string>
   ): {
@@ -620,7 +518,7 @@ export class IterableEventMaterializer {
     attributesWithPrefix: Record<string, AttributeInfo>;
     namespaces: Map<string, string>;
   } {
-    const count = parser.attrCount(eventIndex);
+    const count = materializableAttrCount(parser, eventIndex);
     if (count === 0) {
       return { attributes: {}, attributesWithPrefix: {}, namespaces: parentNamespaces };
     }
@@ -632,7 +530,7 @@ export class IterableEventMaterializer {
     for (let attrIndex = 0; attrIndex < count; attrIndex++) {
       const name = parser.copyAttrName(eventIndex, attrIndex)!;
       const implicitValue = this.options.implicitAttributeValue ?? 'true';
-      const value = parser.isImplicitAttributeValue(eventIndex, attrIndex)
+      const value = materializableImplicitAttributeValue(parser, eventIndex, attrIndex)
         ? (implicitValue === 'name' ? name : 'true')
         : this.entityDecoder(parser.copyAttrValue(eventIndex, attrIndex)!);
       rawAttributes.push({ name, value });
@@ -657,6 +555,24 @@ export class IterableEventMaterializer {
   }
 }
 
+export function materializableEventCount(parser: MaterializableEventSource): number {
+  return typeof parser.eventCount === 'function' ? parser.eventCount() : parser.eventCount;
+}
+
+export function materializableAttrCount(parser: MaterializableEventSource, eventIndex: number): number {
+  return 'attrCount' in parser && typeof parser.attrCount === 'function'
+    ? parser.attrCount(eventIndex)
+    : parser.eventAttrCount(eventIndex);
+}
+
+export function materializableImplicitAttributeValue(
+  parser: MaterializableEventSource,
+  eventIndex: number,
+  attrIndex: number,
+): boolean {
+  return parser.isImplicitAttributeValue?.(eventIndex, attrIndex) ?? false;
+}
+
 function nullRecord<T>(): Record<string, T> {
   return Object.create(null) as Record<string, T>;
 }
@@ -670,7 +586,7 @@ function defineData<T>(target: Record<string, T>, key: string, value: T): void {
   });
 }
 
-function compileEntityDecoder(options: IterableEventBackendOptions): (value: string) => string {
+export function compileEntityDecoder(options: IterableEventBackendOptions): (value: string) => string {
   const shouldDecode = options.autoDecodeEntities ?? options.decodeEntities ?? true;
   if (!shouldDecode) {
     return (value) => value;

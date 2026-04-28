@@ -4,6 +4,7 @@ import {
   getStaxXmlRuntimeForSyncApi,
   type StaxXmlRuntimeBackendPreference,
 } from '../runtime/native-backend.js';
+import { StreamingEventBatchReader } from '../runtime/event-table.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -87,7 +88,7 @@ export class StaxXmlNodeIterableParser {
   private readonly fallbackOnLoadError: boolean | undefined;
   private readonly fallbackOnParseError: boolean | undefined;
   private backendInitialized = false;
-  private nativeParser: NativeNodeIterableBackend | undefined;
+  private nativeParser: NativeNodeIterableBackend | StreamingEventBatchReader | undefined;
   private backendKindValue: NodeIterableParserBackendKind = 'pending';
 
   private currentBuffer: Buffer = EMPTY_BUFFER;
@@ -171,14 +172,14 @@ export class StaxXmlNodeIterableParser {
 
   eventCount(): number {
     if (this.nativeParser) {
-      return this.nativeParser.eventCountValue;
+      return this.nativeParser.eventCount();
     }
     return this.eventCursor;
   }
 
   buffer(): Buffer {
     if (this.nativeParser) {
-      return this.nativeParser.buffer() as Buffer;
+      return asNodeBuffer(this.nativeParser.buffer());
     }
     return this.currentBuffer;
   }
@@ -255,7 +256,10 @@ export class StaxXmlNodeIterableParser {
 
   decodeSpan(start: number, end: number): string {
     if (this.nativeParser) {
-      return this.buffer().toString('utf8', start, end);
+      const buffer = this.nativeParser.buffer();
+      return Buffer.isBuffer(buffer)
+        ? buffer.toString('utf8', start, end)
+        : new TextDecoder().decode(buffer.subarray(start, end));
     }
     return this.currentBuffer.toString('utf8', start, end);
   }
@@ -356,34 +360,45 @@ export class StaxXmlNodeIterableParser {
     }
 
     const runtime = getStaxXmlRuntimeForSyncApi(this.backend);
-    const buildTable = runtime?.capabilities.structuralIndexUtf8;
-    if (!runtime || runtime.backend.kind === 'js' || !buildTable) {
+    if (!runtime || runtime.backend.kind === 'js') {
       if (this.backend !== 'auto' && this.backend !== 'js' && this.fallbackOnLoadError !== true) {
-        throw new Error(`Initialized ${this.backend} backend does not provide structuralIndexUtf8 capability.`);
+        throw new Error(`Initialized ${this.backend} backend does not provide streamingEventBatches or structuralIndexUtf8 capability.`);
       }
       this.backendKindValue = 'js';
       return;
     }
 
-    const batches: Buffer[][] = [];
-    const chunks: Buffer[] = [];
-    let total = 0;
-    while (true) {
-      const result = this.iterator.next();
-      if (result.done) {
-        break;
-      }
-      const batch = Array.from(result.value);
-      batches.push(batch);
-      for (const chunk of batch) {
-        chunks.push(chunk);
-        total += chunk.byteLength;
-      }
+    const createStreamingParser = runtime.capabilities.streamingEventBatches;
+    if (createStreamingParser) {
+      this.nativeParser = new StreamingEventBatchReader(createStreamingParser(), this.iterator);
+      this.backendKindValue = runtime.backend.kind;
+      return;
     }
 
-    const input = chunks.length === 1 && chunks[0]!.byteLength === total
-      ? chunks[0]!
-      : Buffer.concat(chunks, total);
+    const buildTable = runtime.capabilities.structuralIndexUtf8;
+    if (!buildTable) {
+      if (this.backend !== 'auto' && this.backend !== 'js' && this.fallbackOnLoadError !== true) {
+        throw new Error(`Initialized ${this.backend} backend does not provide streamingEventBatches or structuralIndexUtf8 capability.`);
+      }
+      this.backendKindValue = 'js';
+      return;
+    }
+
+    const first = this.iterator.next();
+    if (first.done) {
+      this.iterator = [][Symbol.iterator]();
+      this.backendKindValue = 'js';
+      return;
+    }
+    const firstBatch = Array.from(first.value);
+    const second = this.iterator.next();
+    if (!second.done || firstBatch.length !== 1) {
+      this.iterator = replayNodeBatches(firstBatch, second, this.iterator);
+      this.backendKindValue = 'js';
+      return;
+    }
+
+    const input = firstBatch[0]!;
     try {
       const table = buildTable(input);
       this.nativeParser = new NativeNodeIterableBackend(input, table);
@@ -396,7 +411,7 @@ export class StaxXmlNodeIterableParser {
       // Fall through to the JavaScript parser to preserve existing permissive behavior.
     }
 
-    this.iterator = batches[Symbol.iterator]();
+    this.iterator = [firstBatch][Symbol.iterator]();
     this.backendKindValue = 'js';
   }
 
@@ -848,6 +863,10 @@ class NativeNodeIterableBackend {
     return true;
   }
 
+  eventCount(): number {
+    return this.eventCountValue;
+  }
+
   buffer(): Buffer {
     return this.input;
   }
@@ -933,6 +952,30 @@ function toBuffer(table: ArrayBuffer | ArrayBufferView): Buffer {
     return Buffer.from(table);
   }
   return Buffer.from(table.buffer, table.byteOffset, table.byteLength);
+}
+
+function asNodeBuffer(buffer: Uint8Array): Buffer {
+  return Buffer.isBuffer(buffer)
+    ? buffer
+    : Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+}
+
+function* replayNodeBatches(
+  firstBatch: Buffer[],
+  second: IteratorResult<NodeByteBatch>,
+  rest: Iterator<NodeByteBatch>,
+): IterableIterator<NodeByteBatch> {
+  yield firstBatch;
+  if (!second.done) {
+    yield second.value;
+  }
+  while (true) {
+    const result = rest.next();
+    if (result.done) {
+      return;
+    }
+    yield result.value;
+  }
 }
 
 function normalizeChunkSize(value: number | undefined): number {

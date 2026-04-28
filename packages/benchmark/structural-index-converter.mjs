@@ -1,5 +1,6 @@
 import { performance } from 'node:perf_hooks';
 import { x } from 'stax-xml/converter';
+import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
 import { StaxXmlStructuralIndexParser } from 'stax-xml/runtime';
 
 const encoder = new TextEncoder();
@@ -40,6 +41,7 @@ for (const sizeMiB of sizesMiB) {
       ...parseOptions,
       acceleration: { backend: 'auto', simd: 'auto-safe' },
     }));
+    const publicIterable = await measureIterable('public-iterable-parser', bytes);
     const nativeBuffer = nativeAggregate?.parseStructuralIndexUint8Array
       ? await measure('native-buffer-table', () => {
         const table = nativeAggregate.parseStructuralIndexUint8Array(bytes);
@@ -68,6 +70,7 @@ for (const sizeMiB of sizesMiB) {
       bytes: bytes.byteLength,
       jsMs: round(js.ms),
       byteAutoMs: round(byte.ms),
+      publicIterableMs: round(publicIterable.ms),
       nativeBufferMs: nativeBuffer ? round(nativeBuffer.ms) : undefined,
       nativeProjectionMs: nativeProjection ? round(nativeProjection.ms) : undefined,
       nativeTableProjectionMs: nativeTableProjection ? round(nativeTableProjection.ms) : undefined,
@@ -75,14 +78,23 @@ for (const sizeMiB of sizesMiB) {
       nativeObjectRowsDirectMs: nativeObjectRowsDirect ? round(nativeObjectRowsDirect.ms) : undefined,
       nativeObjectRowsMs: nativeObjectRows ? round(nativeObjectRows.ms) : undefined,
       speedup: round(ratio),
+      byteAutoVsPublicIterable: round(publicIterable.ms / byte.ms),
       nativeBufferSpeedup: nativeBuffer ? round(js.ms / nativeBuffer.ms) : undefined,
+      nativeBufferVsPublicIterable: nativeBuffer ? round(publicIterable.ms / nativeBuffer.ms) : undefined,
       nativeProjectionSpeedup: nativeProjection ? round(js.ms / nativeProjection.ms) : undefined,
+      nativeProjectionVsPublicIterable: nativeProjection ? round(publicIterable.ms / nativeProjection.ms) : undefined,
       nativeTableProjectionSpeedup: nativeTableProjection ? round(js.ms / nativeTableProjection.ms) : undefined,
+      nativeTableProjectionVsPublicIterable: nativeTableProjection ? round(publicIterable.ms / nativeTableProjection.ms) : undefined,
       nativeTableRowsSpeedup: nativeTableRows ? round(js.ms / nativeTableRows.ms) : undefined,
+      nativeTableRowsVsPublicIterable: nativeTableRows ? round(publicIterable.ms / nativeTableRows.ms) : undefined,
       nativeObjectRowsDirectSpeedup: nativeObjectRowsDirect ? round(js.ms / nativeObjectRowsDirect.ms) : undefined,
+      nativeObjectRowsDirectVsPublicIterable: nativeObjectRowsDirect ? round(publicIterable.ms / nativeObjectRowsDirect.ms) : undefined,
       nativeObjectRowsSpeedup: nativeObjectRows ? round(js.ms / nativeObjectRows.ms) : undefined,
+      nativeObjectRowsVsPublicIterable: nativeObjectRows ? round(publicIterable.ms / nativeObjectRows.ms) : undefined,
       jsChecksum: js.checksum,
       byteChecksum: byte.checksum,
+      publicIterableEvents: publicIterable.eventCount,
+      publicIterableChecksum: publicIterable.checksum,
       nativeBufferChecksum: nativeBuffer?.checksum,
       nativeProjectionChecksum: nativeProjection?.checksum,
       nativeTableProjectionChecksum: nativeTableProjection?.checksum,
@@ -96,6 +108,7 @@ for (const sizeMiB of sizesMiB) {
       nativeTableRowsParity: nativeTableRows ? js.checksum === nativeTableRows.checksum : undefined,
       nativeObjectRowsDirectParity: nativeObjectRowsDirect ? js.checksum === nativeObjectRowsDirect.checksum : undefined,
       nativeObjectRowsParity: nativeObjectRows ? js.checksum === nativeObjectRows.checksum : undefined,
+      nativeDirectRowsAreDiagnostic: true,
     }));
   }
 }
@@ -131,6 +144,13 @@ async function measureRows(name, run) {
   };
 }
 
+async function measureIterable(name, bytes) {
+  const start = performance.now();
+  const result = consumePublicIterable(bytes);
+  const ms = performance.now() - start;
+  return { name, ms, ...result };
+}
+
 async function measureObjectRows(name, run, input) {
   const start = performance.now();
   const result = await run();
@@ -141,6 +161,34 @@ async function measureObjectRows(name, run, input) {
     checksum: checksumObjectRows(result.columns, result.rowCount ?? result.row_count, input),
     itemCount: result.rowCount ?? result.row_count,
   };
+}
+
+function consumePublicIterable(bytes) {
+  const parser = new StaxXmlIterableParser(toByteBatches([bytes], { batchSize: 1 }));
+  let eventCount = 0;
+  let checksumValue = 2166136261;
+
+  while (parser.nextBatch()) {
+    const buffer = parser.buffer();
+    for (let index = 0; index < parser.eventCount(); index++) {
+      const type = parser.eventType(index);
+      const attrCount = parser.attrCount(index);
+      eventCount++;
+      checksumValue = mix(checksumValue, type);
+      checksumValue = mixSpan(checksumValue, buffer, parser.nameStart(index), parser.nameEnd(index));
+      checksumValue = mixSpan(checksumValue, buffer, parser.textStart(index), parser.textEnd(index));
+      checksumValue = mix(checksumValue, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksumValue = mixSpan(checksumValue, buffer, parser.attrNameStart(index, attrIndex), parser.attrNameEnd(index, attrIndex));
+        checksumValue = mixSpan(checksumValue, buffer, parser.attrValueStart(index, attrIndex), parser.attrValueEnd(index, attrIndex));
+      }
+      if (type < IterableEventType.START_DOCUMENT || type > IterableEventType.CDATA) {
+        throw new Error(`Unexpected iterable event type: ${type}`);
+      }
+    }
+  }
+
+  return { eventCount, checksum: checksumValue | 0 };
 }
 
 function createFixtureXml(fixture, sizeMiB) {
@@ -193,6 +241,18 @@ function fold(seed, text) {
 
 function mix(seed, value) {
   return ((seed ^ value) * 16777619) | 0;
+}
+
+function mixSpan(seed, buffer, start, end) {
+  if (start < 0 || end <= start) {
+    return mix(seed, 0);
+  }
+  const length = end - start;
+  let value = mix(seed, length);
+  value = mix(value, buffer[start] ?? 0);
+  value = mix(value, buffer[start + (length >> 1)] ?? 0);
+  value = mix(value, buffer[end - 1] ?? 0);
+  return value;
 }
 
 function readListArg(name, fallback) {
