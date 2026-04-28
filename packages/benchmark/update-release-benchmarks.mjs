@@ -11,12 +11,12 @@ import { Builder } from 'xml2js';
 import xml2js from 'xml2js';
 import * as txml from 'txml';
 import {
-  StaxXmlParserSync,
-  StaxXmlWriter,
-  StaxXmlWriterSync,
-  StaxXmlWriterSyncSink,
+  EventReaderSync,
+  Writer,
+  WriterSync,
+  WriterSyncSink,
 } from 'stax-xml';
-import { StaxXmlNodeIterableParser, nodeFileByteBatchesSync } from 'stax-xml/iterable/node';
+import { NodeIterableReader, nodeFileByteBatchesSync } from 'stax-xml/iterable/node';
 import {
   createStaxParserSurfaceRunners,
   loadNativeAggregateProbe,
@@ -830,7 +830,7 @@ function consumeNodeIterableFrame(parser, state) {
 }
 
 function parseSyncIterableFile(filePath, onProgress) {
-  const parser = new StaxXmlNodeIterableParser(
+  const parser = new NodeIterableReader(
     nodeFileByteBatchesSync(filePath, {
       chunkSize: iterableFileChunkSize,
       batchSize: iterableFileBatchSize,
@@ -906,7 +906,7 @@ class SingleBatchIterableSource {
 
 async function parseAsyncIterableFile(filePath, onProgress) {
   const source = new SingleBatchIterableSource();
-  const parser = new StaxXmlNodeIterableParser(source);
+  const parser = new NodeIterableReader(source);
   const state = { events: 0, checksum: 2166136261, batches: 0 };
 
   for await (const batch of asyncNodeFileByteBatches(filePath)) {
@@ -1099,7 +1099,7 @@ async function runAsyncFile4gbSuite(verbose) {
 
 async function buildXmlAsyncFromJson(data) {
   const stream = new WritableStream();
-  const writer = new StaxXmlWriter(stream, { prettyPrint: true, indentString: '  ' });
+  const writer = new Writer(stream, { prettyPrint: true, indentString: '  ' });
 
   async function buildNode(node) {
     if (Array.isArray(node)) {
@@ -1144,7 +1144,7 @@ async function buildXmlAsyncFromJson(data) {
 }
 
 function buildXmlSyncFromJson(data) {
-  const writer = new StaxXmlWriterSync({ prettyPrint: true, indentString: '  ' });
+  const writer = new WriterSync({ prettyPrint: true, indentString: '  ' });
 
   function buildNode(node) {
     if (Array.isArray(node)) {
@@ -1202,7 +1202,7 @@ function registerWriterSmallSuite() {
 
       bench('stax-xml writer', async () => {
         const stream = new WritableStream();
-        const writer = new StaxXmlWriter(stream, {
+        const writer = new Writer(stream, {
           prettyPrint: true,
           indentString: '  ',
         });
@@ -1212,7 +1212,7 @@ function registerWriterSmallSuite() {
       }).gc('inner');
 
       bench('stax-xml writer sync', () => {
-        const writer = new StaxXmlWriterSync({
+        const writer = new WriterSync({
           prettyPrint: true,
           indentString: '  ',
         });
@@ -1224,7 +1224,7 @@ function registerWriterSmallSuite() {
 
       bench('stax-xml writer sync sink', () => {
         const { sink, getBytesWritten } = createInMemoryFileSink();
-        const writer = new StaxXmlWriterSyncSink(sink, {
+        const writer = new WriterSyncSink(sink, {
           prettyPrint: true,
           indentString: '  ',
         });
@@ -1255,14 +1255,14 @@ function registerWriterBigSuite() {
 
       bench('stax-xml writer (big.json)', async () => {
         const stream = new WritableStream();
-        const writer = new StaxXmlWriter(stream);
+        const writer = new Writer(stream);
         await writer.writeStartDocument();
         await writeWriterTreeAsync(writer, bigWriterTree);
         await writer.writeEndDocument();
       }).gc('inner');
 
       bench('stax-xml writer sync (big.json)', () => {
-        const writer = new StaxXmlWriterSync();
+        const writer = new WriterSync();
         writer.writeStartDocument();
         writeWriterTreeSync(writer, bigWriterTree);
         writer.writeEndDocument();
@@ -1271,7 +1271,7 @@ function registerWriterBigSuite() {
 
       bench('stax-xml writer sync sink (big.json)', () => {
         const { sink, getBytesWritten } = createInMemoryFileSink();
-        const writer = new StaxXmlWriterSyncSink(sink);
+        const writer = new WriterSyncSink(sink);
         writer.writeStartDocument();
         writeWriterTreeSync(writer, bigWriterTree);
         writer.writeEndDocument();
@@ -1302,7 +1302,7 @@ function nodeStreamToWritableStream(nodeStream) {
 async function writeBooksAsync(outputPath, count) {
   const { createWriteStream } = await import('node:fs');
   const fileStream = createWriteStream(outputPath);
-  const writer = new StaxXmlWriter(nodeStreamToWritableStream(fileStream), {
+  const writer = new Writer(nodeStreamToWritableStream(fileStream), {
     prettyPrint: true,
     indentString: '  ',
     bufferSize: 64 * 1024,
@@ -1334,7 +1334,7 @@ async function writeBooksAsync(outputPath, count) {
 }
 
 function writeBooksSync(count) {
-  const writer = new StaxXmlWriterSync({ prettyPrint: true, indentString: '  ' });
+  const writer = new WriterSync({ prettyPrint: true, indentString: '  ' });
   writer.writeStartDocument();
   writer.writeStartElement('books');
   for (let index = 0; index < count; index++) {
@@ -1370,7 +1370,7 @@ function createInMemoryFileSink() {
 
 function writeBooksSyncSink(count) {
   const { sink, getBytesWritten } = createInMemoryFileSink();
-  const writer = new StaxXmlWriterSyncSink(sink, {
+  const writer = new WriterSyncSink(sink, {
     prettyPrint: true,
     indentString: '  ',
     bufferSize: 64 * 1024,
@@ -1868,12 +1868,12 @@ function createParserScenarioDetails() {
     '',
     'Runtime methods:',
     '',
-    '- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes. The XML string is prepared outside the timed region, matching string-only library API-native rows.',
-    '- `stax-xml JS fallback event parser (decode+parse)`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running `StaxXmlParserSync`.',
-    '- `stax-xml JS Uint8Array iterable`: `StaxXmlIterableParser` byte-frame loop over a reusable `Iterable<Uint8Array[]>` with the same checksum contract.',
+    '- `stax-xml JS fallback event parser`: `EventReaderSync` event loop with a checksum over event type, names, text, and attributes. The XML string is prepared outside the timed region, matching string-only library API-native rows.',
+    '- `stax-xml JS fallback event parser (decode+parse)`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running `EventReaderSync`.',
+    '- `stax-xml JS Uint8Array iterable`: `IterableReader` byte-frame loop over a reusable `Iterable<Uint8Array[]>` with the same checksum contract.',
     '- `stax-xml native addon event aggregate`: diagnostic native aggregate probe using the event-object tier inside Rust; read it next to the public iterable parser rows, not as a user-facing API recommendation.',
     '- `stax-xml native addon raw aggregate`: diagnostic native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.',
-    '- `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.',
+    '- `stax-xml to object`: `EventReaderSync` plus a local projection into the benchmark object shape.',
     '- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its string API-native object/DOM-style parse API.',
     '- The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.',
     '- The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.',
@@ -1962,7 +1962,7 @@ function createRuntimeMatrixScenarioDetails(sizeMiB) {
     '- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.',
     '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
-    '- `public-sync-full-string` uses `StaxXmlParserSync` over one string.',
+    '- `public-sync-full-string` uses `EventReaderSync` over one string.',
     '- `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.',
     '- This matrix intentionally excludes native addons.',
     '',
@@ -2135,7 +2135,7 @@ ${createRuntimeAndNativeDirectionBlock()}
 
 The benchmark below compares three ways to build the **same object output**:
 
-- A handwritten plain parser built directly on \`StaxXmlParserSync\`
+- A handwritten plain parser built directly on \`EventReaderSync\`
 - The declarative converter API with automatic dispatch-plan routing
 - The converter API with \`.compile()\` enabled
 
@@ -2197,7 +2197,7 @@ ${renderBenchmarkSourceLinks('writer-1gb')}
 
 ${renderWriter1gbTable(summary)}
 
-Based on this run, \`StaxXmlWriterSyncSink\` is the recommended path for large XML file output. It provides the highest write throughput, and peak RSS stays in the same range as async writing.
+Based on this run, \`WriterSyncSink\` is the recommended path for large XML file output. It provides the highest write throughput, and peak RSS stays in the same range as async writing.
 `;
 }
 

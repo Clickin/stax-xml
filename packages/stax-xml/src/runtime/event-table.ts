@@ -1,7 +1,7 @@
 import type {
   IterableEventType,
-  StaxXmlIterableBatchFrame,
-} from '../StaxXmlIterableParser.js';
+  IterableReaderBatchFrame,
+} from '../IterableReader.js';
 import type { StaxXmlStreamingEventBatchParser } from './native-backend.js';
 
 const STRUCTURAL_INDEX_MAGIC = 0x31545053;
@@ -34,7 +34,7 @@ export interface TableBackedEventSource {
   copyAttrValueByName(eventIndex: number, name: string): string | undefined;
   isImplicitAttributeValue(eventIndex: number, attrIndex: number): boolean;
   copyAttributesObject(eventIndex: number): Record<string, string>;
-  batchFrame(): StaxXmlIterableBatchFrame;
+  batchFrame(): IterableReaderBatchFrame;
 }
 
 export class StreamingSpanTableAdapter implements TableBackedEventSource {
@@ -43,7 +43,7 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
 
   private readonly attrBase: number;
   private readonly view: DataView;
-  private frame: StaxXmlIterableBatchFrame | undefined;
+  private frame: IterableReaderBatchFrame | undefined;
   private consumed = false;
 
   constructor(
@@ -174,7 +174,7 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     return undefined;
   }
 
-  isImplicitAttributeValue(): boolean {
+  isImplicitAttributeValue(_eventIndex: number, _attrIndex: number): boolean {
     return false;
   }
 
@@ -194,7 +194,7 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     return attributes;
   }
 
-  batchFrame(): StaxXmlIterableBatchFrame {
+  batchFrame(): IterableReaderBatchFrame {
     if (this.frame) {
       return this.frame;
     }
@@ -419,7 +419,7 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
     return this.requireCurrentTable().copyAttributesObject(eventIndex);
   }
 
-  batchFrame(): StaxXmlIterableBatchFrame {
+  batchFrame(): IterableReaderBatchFrame {
     return this.requireCurrentTable().batchFrame();
   }
 

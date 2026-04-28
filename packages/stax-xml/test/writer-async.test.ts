@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { StaxXmlWriter } from '../src/StaxXmlWriter';
+import { Writer } from '../src/Writer';
 
 // WritableStream을 메모리에서 구현하는 헬퍼 함수
 function createMemoryWritableStream(): { stream: WritableStream<Uint8Array>; getOutput: () => string } {
@@ -33,7 +33,7 @@ function createMemoryWritableStream(): { stream: WritableStream<Uint8Array>; get
 async function objectToXmlAsync(obj: any, prettyPrint: boolean = true, indentString: string = '  '): Promise<string> {
   const { stream, getOutput } = createMemoryWritableStream();
 
-  const writer = new StaxXmlWriter(stream, {
+  const writer = new Writer(stream, {
     encoding: 'utf-8',
     prettyPrint: prettyPrint,
     indentString: indentString
@@ -47,7 +47,7 @@ async function objectToXmlAsync(obj: any, prettyPrint: boolean = true, indentStr
 }
 
 // 재귀적으로 요소를 작성하는 async 헬퍼 함수
-async function writeElementAsync(writer: StaxXmlWriter, element: any): Promise<void> {
+async function writeElementAsync(writer: Writer, element: any): Promise<void> {
   await writer.writeStartElement(element.name);
 
   // 속성 작성
@@ -76,10 +76,10 @@ async function writeElementAsync(writer: StaxXmlWriter, element: any): Promise<v
   await writer.writeEndElement();
 }
 
-describe('StaxXmlWriter Basic Functionality Tests', () => {
+describe('Writer Basic Functionality Tests', () => {
   it('should write simple XML with elements and text', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -121,7 +121,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should write XML with attributes', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -172,7 +172,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should write nested XML structure', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -250,7 +250,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should write XML with CDATA sections', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -301,7 +301,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should write XML with special characters (properly escaped)', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -344,7 +344,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should write self-closing elements', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -385,7 +385,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should write XML without pretty print (compact)', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: false
     });
@@ -414,7 +414,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
 
   it('should handle processing instructions and comments', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -443,7 +443,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
   // XML 기본 엔티티 5종 이스케이프 테스트
   it('should escape XML basic entities in text content', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -466,7 +466,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
   // 속성에서의 엔티티 이스케이프 테스트
   it('should escape XML entities in attributes', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -495,7 +495,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
   // 사용자 정의 엔티티 테스트
   it('should handle custom entities', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -524,7 +524,7 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
   // 엔티티 자동 인코딩 비활성화 테스트
   it('should not escape entities when autoEncodeEntities is disabled', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -546,10 +546,10 @@ describe('StaxXmlWriter Basic Functionality Tests', () => {
   });
 });
 
-describe('StaxXmlWriter Async-Specific Tests', () => {
+describe('Writer Async-Specific Tests', () => {
   it('should handle buffer management and auto flush', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 100,        // 작은 버퍼 크기
@@ -578,7 +578,7 @@ describe('StaxXmlWriter Async-Specific Tests', () => {
 
   it('should handle manual flush', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 1000,
@@ -604,7 +604,7 @@ describe('StaxXmlWriter Async-Specific Tests', () => {
 
   it('should handle large data chunks that exceed buffer size', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 50  // 매우 작은 버퍼
@@ -630,7 +630,7 @@ describe('StaxXmlWriter Async-Specific Tests', () => {
 
   it('should track metrics correctly', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       bufferSize: 100,
@@ -659,7 +659,7 @@ describe('StaxXmlWriter Async-Specific Tests', () => {
   it('should handle different buffer configurations', async () => {
     // 높은 flushThreshold 테스트
     const { stream: stream1, getOutput: getOutput1 } = createMemoryWritableStream();
-    const writer1 = new StaxXmlWriter(stream1, {
+    const writer1 = new Writer(stream1, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 200,
@@ -678,7 +678,7 @@ describe('StaxXmlWriter Async-Specific Tests', () => {
 
     // 낮은 flushThreshold 테스트
     const { stream: stream2, getOutput: getOutput2 } = createMemoryWritableStream();
-    const writer2 = new StaxXmlWriter(stream2, {
+    const writer2 = new Writer(stream2, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 200,
@@ -697,10 +697,10 @@ describe('StaxXmlWriter Async-Specific Tests', () => {
   });
 });
 
-describe('StaxXmlWriter Namespace and Advanced Tests', () => {
+describe('Writer Namespace and Advanced Tests', () => {
   it('should write elements with namespaces', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -750,7 +750,7 @@ describe('StaxXmlWriter Namespace and Advanced Tests', () => {
 
   it('should write self-closing element with namespace and attributes', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -783,7 +783,7 @@ describe('StaxXmlWriter Namespace and Advanced Tests', () => {
 
   it('should handle complex attributes with prefixes', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -817,10 +817,10 @@ describe('StaxXmlWriter Namespace and Advanced Tests', () => {
   });
 });
 
-describe('StaxXmlWriter Error Handling Tests', () => {
+describe('Writer Error Handling Tests', () => {
   it('should throw error when CDATA contains ]]>', async () => {
     const { stream } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -835,7 +835,7 @@ describe('StaxXmlWriter Error Handling Tests', () => {
 
   it('should throw error when comment contains --', async () => {
     const { stream } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -849,7 +849,7 @@ describe('StaxXmlWriter Error Handling Tests', () => {
 
   it('should throw error when writeStartDocument is called twice', async () => {
     const { stream } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -863,7 +863,7 @@ describe('StaxXmlWriter Error Handling Tests', () => {
 
   it('should throw error when no element to close', async () => {
     const { stream } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -877,7 +877,7 @@ describe('StaxXmlWriter Error Handling Tests', () => {
 
   it('should throw error when writing to closed writer', async () => {
     const { stream } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -894,7 +894,7 @@ describe('StaxXmlWriter Error Handling Tests', () => {
 
   it('should throw error when undefined namespace prefix is used in attributes', async () => {
     const { stream } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -912,10 +912,10 @@ describe('StaxXmlWriter Error Handling Tests', () => {
   });
 });
 
-describe('StaxXmlWriter Performance Tests', () => {
+describe('Writer Performance Tests', () => {
   it('should handle large XML documents efficiently', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 1024 * 16 // 16KB buffer
@@ -954,7 +954,7 @@ describe('StaxXmlWriter Performance Tests', () => {
 
   it('should handle very large text content', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       encoding: 'utf-8',
       prettyPrint: false,
       bufferSize: 1024 // 1KB buffer

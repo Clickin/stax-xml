@@ -9,11 +9,11 @@ import { benchmarkWithGC, compareBenchmarks } from './benchmark-gc-pressure.mjs'
 import { welchTTest, formatStatisticalReport } from './statistical-analysis.mjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Import parser/writer variants
-import { StaxXmlParserSync as BaselineParser } from '../stax-xml/src/StaxXmlParserSync.baseline.js';
-import { StaxXmlParserSync as InlinedParser } from '../stax-xml/src/StaxXmlParserSync.inlined.js';
-import { StaxXmlParserSync as CurrentParser } from '../stax-xml/src/StaxXmlParserSync.js';
-import { StaxXmlWriterSync as BaselineWriter } from '../stax-xml/src/StaxXmlWriterSync.js';
-import { StaxXmlWriterSync as StringArrayWriter } from '../stax-xml/src/StaxXmlWriterSync.stringarray.js';
+import { EventReaderSync as BaselineParser } from '../stax-xml/src/EventReaderSync.baseline.js';
+import { EventReaderSync as InlinedParser } from '../stax-xml/src/EventReaderSync.inlined.js';
+import { EventReaderSync as CurrentParser } from '../stax-xml/src/EventReaderSync.js';
+import { WriterSync as BaselineWriter } from '../stax-xml/src/WriterSync.js';
+import { WriterSync as StringArrayWriter } from '../stax-xml/src/WriterSync.stringarray.js';
 const parserVariants = [
     {
         name: 'baseline',

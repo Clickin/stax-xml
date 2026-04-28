@@ -1,11 +1,11 @@
 ---
-title: StaxXmlCursorReader - Iterable Parser Cursor Wrapper
+title: CursorReader - Iterable Parser Cursor Wrapper
 description: Thin cursor wrapper over the iterable parser backend
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/cursor-reader.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,21 +17,21 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/cursor-reader.png
 ---
 
-## StaxXmlCursorReader - Iterable Parser Cursor Wrapper
+## CursorReader - Iterable Parser Cursor Wrapper
 
-`StaxXmlCursorReader` is a thin wrapper over `StaxXmlIterableParser` for code that prefers one-event-at-a-time cursor accessors. It delegates tokenization to the iterable parser backend and presents methods such as `name()`, `text()`, and `getAttributeValue()` on the current event.
+`CursorReader` is a thin wrapper over `IterableReader` for code that prefers one-event-at-a-time cursor accessors. It delegates tokenization to the iterable parser backend and presents methods such as `name()`, `text()`, and `getAttributeValue()` on the current event.
 
-Use it for ergonomic cursor traversal. Use `StaxXmlIterableParser` directly when you need batch frames, byte spans, or the lowest-level backend surface.
+Use it for ergonomic cursor traversal. Use `IterableReader` directly when you need batch frames, byte spans, or the lowest-level backend surface.
 
 ### Quick Start
 
 ```typescript
-import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, CursorReader } from 'stax-xml/cursor';
 
-const cursor = new StaxXmlCursorReader('<root><item id="1">Hello</item></root>');
+const cursor = new CursorReader('<root><item id="1">Hello</item></root>');
 
 while (cursor.next()) {
   switch (cursor.eventType()) {
@@ -48,13 +48,13 @@ while (cursor.next()) {
 
 ### Async Streams
 
-`StaxXmlCursorReaderAsync` accepts a web standard `ReadableStream<Uint8Array>` and keeps the same accessor shape.
+`CursorReaderAsync` accepts a web standard `ReadableStream<Uint8Array>` and keeps the same accessor shape.
 
 ```typescript
-import { CursorEventType, StaxXmlCursorReaderAsync } from 'stax-xml/cursor';
+import { CursorEventType, CursorReaderAsync } from 'stax-xml/cursor';
 
 const response = await fetch('/large.xml');
-const cursor = new StaxXmlCursorReaderAsync(response.body!);
+const cursor = new CursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -87,12 +87,12 @@ await cursor.close();
 ### Options
 
 ```typescript
-const cursor = new StaxXmlCursorReader(xml, {
+const cursor = new CursorReader(xml, {
   autoDecodeEntities: true,
   addEntities: [{ entity: '&copy;', value: '©' }]
 });
 
-const asyncCursor = new StaxXmlCursorReaderAsync(stream, {
+const asyncCursor = new CursorReaderAsync(stream, {
   encoding: 'utf-8',
   autoDecodeEntities: true
 });

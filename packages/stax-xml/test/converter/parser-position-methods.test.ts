@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
+import { EventReaderSync } from '../../src/EventReaderSync.js';
 import { x } from '../../src/converter/index.js';
 import { XmlParserInternal } from '../../src/converter/XmlParserInternal.js';
 import {
@@ -10,7 +10,7 @@ import {
 } from '../../src/types.js';
 
 function eventsFromXml(xml: string): AnyXmlEvent[] {
-  return Array.from(new StaxXmlParserSync(xml));
+  return Array.from(new EventReaderSync(xml));
 }
 
 function findStartPosition(

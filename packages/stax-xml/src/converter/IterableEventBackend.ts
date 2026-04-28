@@ -2,7 +2,7 @@ export {
   IterableEventBackendIterator,
   STAX_XML_EVENT_BACKEND,
   STAX_XML_EVENT_TABLE,
-  createIterableParserFromChunks,
+  createIterableReaderFromChunks,
   getIterableEventBackend,
   getIterableEventTable,
   materializeIterableEventBatch,

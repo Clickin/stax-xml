@@ -1,4 +1,4 @@
-import { StaxXmlParserSync } from '../StaxXmlParserSync.js';
+import { EventReaderSync } from '../EventReaderSync.js';
 import {
   isCdata,
   isCharacters,
@@ -153,7 +153,7 @@ export class XmlParserInternal {
    */
   parseString(input: string, schemaOptions: { xpath?: string }): string {
     const xpath = schemaOptions.xpath;
-    const parser = new StaxXmlParserSync(input, {
+    const parser = new EventReaderSync(input, {
       autoDecodeEntities: this.options?.decodeEntities,
       documentMode: this.options?.documentMode
     });

@@ -22,13 +22,11 @@ export interface ByteBatchOptions {
   batchSize?: number;
 }
 
-export interface StaxXmlIterableParserOptions {
+export interface IterableReaderOptions {
   encoding?: string;
   incompleteFinalMarkupMessage?: string;
   emitStartDocumentBatchImmediately?: boolean;
   documentMode?: DocumentMode;
-  backend?: StaxXmlRuntimeBackendPreference;
-  fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
 
@@ -38,7 +36,7 @@ export interface StaxXmlIterableParserOptions {
  * The object and typed-array fields are owned by the parser and are only valid
  * until the next nextBatch()/nextBatchFrame() call.
  */
-export interface StaxXmlIterableBatchFrame<BufferType extends Uint8Array = Uint8Array> {
+export interface IterableReaderBatchFrame<BufferType extends Uint8Array = Uint8Array> {
   eventCount: number;
   attrCount: number;
   buffer: BufferType;
@@ -102,7 +100,7 @@ export async function* toAsyncByteBatches(
   }
 }
 
-export class StaxXmlIterableParser {
+export class IterableReader {
   private readonly iterator: Iterator<ByteBatch>;
   private readonly nativeStreamingReader?: StreamingEventBatchReader;
   private readonly decoder: TextDecoder;
@@ -145,7 +143,7 @@ export class StaxXmlIterableParser {
   private readonly nameIds = new Map<number, number>();
   private readonly nameStrings: Array<string | undefined> = [];
 
-  private readonly frame: StaxXmlIterableBatchFrame = {
+  private readonly frame: IterableReaderBatchFrame = {
     eventCount: 0,
     attrCount: 0,
     buffer: EMPTY_BUFFER,
@@ -164,17 +162,21 @@ export class StaxXmlIterableParser {
     attrValueEnds: this.attrValueEnds,
   };
 
-  constructor(source: Iterable<ByteBatch>, options: StaxXmlIterableParserOptions = {}) {
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+  constructor(source: Iterable<ByteBatch>, options?: IterableReaderOptions);
+  constructor(
+    source: Iterable<ByteBatch>,
+    options: IterableReaderOptions = {},
+    runtimeBackendPreference?: StaxXmlRuntimeBackendPreference,
+  ) {
+    const runtime = getStaxXmlRuntimeForSyncApi(runtimeBackendPreference);
     if (
       runtime
       && runtime.backend.kind !== 'js'
       && !runtime.capabilities.streamingEventBatches
-      && options.backend !== undefined
-      && options.backend !== 'auto'
-      && options.fallbackOnLoadError !== true
+      && runtimeBackendPreference !== undefined
+      && runtimeBackendPreference !== 'auto'
     ) {
-      throw new Error(`Initialized ${options.backend} backend does not provide streamingEventBatches capability.`);
+      throw new Error(`Initialized ${runtimeBackendPreference} backend does not provide streamingEventBatches capability.`);
     }
     this.iterator = source[Symbol.iterator]();
     if (runtime?.backend.kind !== 'js' && runtime?.capabilities.streamingEventBatches) {
@@ -234,7 +236,7 @@ export class StaxXmlIterableParser {
     return this.eventCursor > 0;
   }
 
-  nextBatchFrame(): StaxXmlIterableBatchFrame | undefined {
+  nextBatchFrame(): IterableReaderBatchFrame | undefined {
     return this.nextBatch() ? this.batchFrame() : undefined;
   }
 
@@ -292,7 +294,7 @@ export class StaxXmlIterableParser {
     return this.eventCursor;
   }
 
-  batchFrame(): StaxXmlIterableBatchFrame {
+  batchFrame(): IterableReaderBatchFrame {
     if (this.nativeStreamingReader) {
       return this.nativeStreamingReader.batchFrame();
     }
@@ -1019,6 +1021,21 @@ export class StaxXmlIterableParser {
     }
     this.elementNameBuffers = nextBuffers;
   }
+}
+
+/** @internal */
+export function createJavaScriptIterableReader(
+  source: Iterable<ByteBatch>,
+  options: IterableReaderOptions = {},
+): IterableReader {
+  const InternalIterableReader = IterableReader as unknown as {
+    new (
+      source: Iterable<ByteBatch>,
+      options: IterableReaderOptions,
+      runtimeBackendPreference: StaxXmlRuntimeBackendPreference,
+    ): IterableReader;
+  };
+  return new InternalIterableReader(source, options, 'js');
 }
 
 function normalizeBatchSize(value: number | undefined): number {

@@ -4,33 +4,28 @@ import {
   type MaterializableEventSource,
 } from './IterableEventBackend.js';
 import {
-  StaxXmlIterableParser,
+  createJavaScriptIterableReader,
   toByteBatches
-} from './StaxXmlIterableParser.js';
+} from './IterableReader.js';
 import {
   type AnyXmlEvent,
   type DocumentMode,
   type ParserEventFilter
 } from './types.js';
-import {
-  getStaxXmlRuntimeForSyncApi,
-  type StaxXmlRuntimeBackendPreference,
-} from './runtime/native-backend.js';
+import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
 import { StaxXmlStructuralIndexParser } from './runtime/structural-index-parser.js';
 
-export interface StaxXmlParserSyncOptions {
+export interface EventReaderSyncOptions {
   autoDecodeEntities?: boolean;
   addEntities?: EntityDefinition[];
   eventFilter?: ParserEventFilter;
   documentMode?: DocumentMode;
-  backend?: StaxXmlRuntimeBackendPreference;
-  fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
 
 const textEncoder = new TextEncoder();
 
-export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
+export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
   private readonly parser: (MaterializableEventSource & { nextBatch(): boolean });
   private readonly materializer: IterableEventMaterializer;
   private currentBatch: AnyXmlEvent[] = [];
@@ -46,27 +41,17 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
     done: true
   };
 
-  constructor(xml: string, options: StaxXmlParserSyncOptions = {}) {
+  constructor(xml: string, options: EventReaderSyncOptions = {}) {
     if (typeof xml !== 'string') {
       throw new Error('xml must be a string.');
     }
 
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
-    if (
-      runtime
-      && runtime.backend.kind !== 'js'
-      && !runtime.capabilities.structuralIndexUtf16
-      && options.backend !== undefined
-      && options.backend !== 'auto'
-      && options.fallbackOnLoadError !== true
-    ) {
-      throw new Error(`Initialized ${options.backend} backend does not provide structuralIndexUtf16 capability.`);
-    }
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
 
     const acceleratedParser = this.tryCreateStructuralIndexParser(xml, runtime, options);
-    this.parser = acceleratedParser ?? new StaxXmlIterableParser(
+    this.parser = acceleratedParser ?? createJavaScriptIterableReader(
       toByteBatches([textEncoder.encode(xml)], { batchSize: 1 }),
-      { documentMode: options.documentMode, backend: 'js' }
+      { documentMode: options.documentMode }
     );
     this.materializer = new IterableEventMaterializer({
       autoDecodeEntities: options.autoDecodeEntities ?? true,
@@ -79,7 +64,7 @@ export class StaxXmlParserSync implements Iterable<AnyXmlEvent>, Iterator<AnyXml
   private tryCreateStructuralIndexParser(
     xml: string,
     runtime: ReturnType<typeof getStaxXmlRuntimeForSyncApi>,
-    options: StaxXmlParserSyncOptions,
+    options: EventReaderSyncOptions,
   ): StaxXmlStructuralIndexParser | undefined {
     const buildTable = runtime?.capabilities.structuralIndexUtf16;
     if (!runtime || runtime.backend.kind === 'js' || !buildTable) {

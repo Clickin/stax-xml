@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   IterableEventType,
-  StaxXmlIterableParser,
-  StaxXmlParser,
-  StaxXmlParserSync,
+  IterableReader,
+  EventReader,
+  EventReaderSync,
   toByteBatches,
   XmlEventType,
   type AnyXmlEvent
 } from '../src/index';
-import { CursorEventType, StaxXmlCursorReader, StaxXmlCursorReaderAsync } from '../src/cursor';
+import { CursorEventType, CursorReader, CursorReaderAsync } from '../src/cursor';
 import { x } from '../src/converter';
 import { XmlParserInternal } from '../src/converter/XmlParserInternal';
 
@@ -76,9 +76,9 @@ describe('release API parity matrix', () => {
   });
 
   it('routes public async parser streams through the iterable backend', async () => {
-    const originalPushByteBatch = StaxXmlIterableParser.prototype.pushByteBatch;
+    const originalPushByteBatch = IterableReader.prototype.pushByteBatch;
     let pushByteBatchCalls = 0;
-    StaxXmlIterableParser.prototype.pushByteBatch = function countedPushByteBatch(batch, isFinal) {
+    IterableReader.prototype.pushByteBatch = function countedPushByteBatch(batch, isFinal) {
       pushByteBatchCalls++;
       return originalPushByteBatch.call(this, batch, isFinal);
     };
@@ -95,14 +95,14 @@ describe('release API parity matrix', () => {
       ]);
       expect(pushByteBatchCalls).toBeGreaterThan(0);
     } finally {
-      StaxXmlIterableParser.prototype.pushByteBatch = originalPushByteBatch;
+      IterableReader.prototype.pushByteBatch = originalPushByteBatch;
     }
   });
 
   it('routes public sync parser strings through the iterable backend', () => {
-    const originalNextBatch = StaxXmlIterableParser.prototype.nextBatch;
+    const originalNextBatch = IterableReader.prototype.nextBatch;
     let nextBatchCalls = 0;
-    StaxXmlIterableParser.prototype.nextBatch = function countedNextBatch() {
+    IterableReader.prototype.nextBatch = function countedNextBatch() {
       nextBatchCalls++;
       return originalNextBatch.call(this);
     };
@@ -119,14 +119,14 @@ describe('release API parity matrix', () => {
       ]);
       expect(nextBatchCalls).toBeGreaterThan(0);
     } finally {
-      StaxXmlIterableParser.prototype.nextBatch = originalNextBatch;
+      IterableReader.prototype.nextBatch = originalNextBatch;
     }
   });
 
   it('routes cursor readers through the iterable backend', async () => {
-    const originalNextBatch = StaxXmlIterableParser.prototype.nextBatch;
+    const originalNextBatch = IterableReader.prototype.nextBatch;
     let nextBatchCalls = 0;
-    StaxXmlIterableParser.prototype.nextBatch = function countedNextBatch() {
+    IterableReader.prototype.nextBatch = function countedNextBatch() {
       nextBatchCalls++;
       return originalNextBatch.call(this);
     };
@@ -152,7 +152,7 @@ describe('release API parity matrix', () => {
       ]);
       expect(nextBatchCalls).toBeGreaterThan(0);
     } finally {
-      StaxXmlIterableParser.prototype.nextBatch = originalNextBatch;
+      IterableReader.prototype.nextBatch = originalNextBatch;
     }
   });
 
@@ -168,14 +168,14 @@ describe('release API parity matrix', () => {
       )
     }).compile();
 
-    const originalNext = StaxXmlParser.prototype.next;
-    const originalBatchedIterator = StaxXmlParser.prototype.batchedIterator;
-    StaxXmlParser.prototype.next = function blockedNext() {
-      throw new Error('StaxXmlParser.next should not be used by compiled stream parsing');
+    const originalNext = EventReader.prototype.next;
+    const originalBatchedIterator = EventReader.prototype.batchedIterator;
+    EventReader.prototype.next = function blockedNext() {
+      throw new Error('EventReader.next should not be used by compiled stream parsing');
     };
-    StaxXmlParser.prototype.batchedIterator = async function* blockedBatchedIterator() {
+    EventReader.prototype.batchedIterator = async function* blockedBatchedIterator() {
       yield* [];
-      throw new Error('StaxXmlParser.batchedIterator should not be used by compiled stream parsing');
+      throw new Error('EventReader.batchedIterator should not be used by compiled stream parsing');
     };
 
     try {
@@ -183,8 +183,8 @@ describe('release API parity matrix', () => {
         books: [{ id: 'b1', title: 'Native XML' }]
       });
     } finally {
-      StaxXmlParser.prototype.next = originalNext;
-      StaxXmlParser.prototype.batchedIterator = originalBatchedIterator;
+      EventReader.prototype.next = originalNext;
+      EventReader.prototype.batchedIterator = originalBatchedIterator;
     }
   });
 
@@ -200,14 +200,14 @@ describe('release API parity matrix', () => {
       )
     });
 
-    const originalNext = StaxXmlParser.prototype.next;
-    const originalBatchedIterator = StaxXmlParser.prototype.batchedIterator;
-    StaxXmlParser.prototype.next = function blockedNext() {
-      throw new Error('StaxXmlParser.next should not be used by runtime stream parsing');
+    const originalNext = EventReader.prototype.next;
+    const originalBatchedIterator = EventReader.prototype.batchedIterator;
+    EventReader.prototype.next = function blockedNext() {
+      throw new Error('EventReader.next should not be used by runtime stream parsing');
     };
-    StaxXmlParser.prototype.batchedIterator = async function* blockedBatchedIterator() {
+    EventReader.prototype.batchedIterator = async function* blockedBatchedIterator() {
       yield* [];
-      throw new Error('StaxXmlParser.batchedIterator should not be used by runtime stream parsing');
+      throw new Error('EventReader.batchedIterator should not be used by runtime stream parsing');
     };
 
     try {
@@ -215,8 +215,8 @@ describe('release API parity matrix', () => {
         books: [{ id: 'b1', title: 'Native XML' }]
       });
     } finally {
-      StaxXmlParser.prototype.next = originalNext;
-      StaxXmlParser.prototype.batchedIterator = originalBatchedIterator;
+      EventReader.prototype.next = originalNext;
+      EventReader.prototype.batchedIterator = originalBatchedIterator;
     }
   });
 
@@ -353,9 +353,9 @@ describe('release API parity matrix', () => {
     }
   });
 
-  it('reads already-consumed StaxXmlParser inputs from the current position without the public event parser facade', async () => {
+  it('reads already-consumed EventReader inputs from the current position without the public event parser facade', async () => {
     const xml = '<root><item id="skip"><title>Skip</title></item><item id="keep"><title>Keep</title></item></root>';
-    const parser = new StaxXmlParser(streamFrom(xml, 4));
+    const parser = new EventReader(streamFrom(xml, 4));
     await consumeThroughFirstItem(parser);
 
     const schema = x.object({
@@ -368,14 +368,14 @@ describe('release API parity matrix', () => {
       )
     });
 
-    const originalNext = StaxXmlParser.prototype.next;
-    const originalBatchedIterator = StaxXmlParser.prototype.batchedIterator;
-    StaxXmlParser.prototype.next = function blockedNext() {
-      throw new Error('StaxXmlParser.next should not be used after handing a parser to converter');
+    const originalNext = EventReader.prototype.next;
+    const originalBatchedIterator = EventReader.prototype.batchedIterator;
+    EventReader.prototype.next = function blockedNext() {
+      throw new Error('EventReader.next should not be used after handing a parser to converter');
     };
-    StaxXmlParser.prototype.batchedIterator = async function* blockedBatchedIterator() {
+    EventReader.prototype.batchedIterator = async function* blockedBatchedIterator() {
       yield* [];
-      throw new Error('StaxXmlParser.batchedIterator should not be used after handing a parser to converter');
+      throw new Error('EventReader.batchedIterator should not be used after handing a parser to converter');
     };
 
     try {
@@ -383,26 +383,26 @@ describe('release API parity matrix', () => {
         items: [{ id: 'keep', title: 'Keep' }]
       });
     } finally {
-      StaxXmlParser.prototype.next = originalNext;
-      StaxXmlParser.prototype.batchedIterator = originalBatchedIterator;
+      EventReader.prototype.next = originalNext;
+      EventReader.prototype.batchedIterator = originalBatchedIterator;
     }
   });
 });
 
 function collectSyncParserEvents(xml: string): NormalizedEvent[] {
-  return Array.from(new StaxXmlParserSync(xml)).map(normalizeXmlEvent);
+  return Array.from(new EventReaderSync(xml)).map(normalizeXmlEvent);
 }
 
 async function collectAsyncParserEvents(xml: string, chunkSize: number): Promise<NormalizedEvent[]> {
   const events: NormalizedEvent[] = [];
-  for await (const event of new StaxXmlParser(streamFrom(xml, chunkSize))) {
+  for await (const event of new EventReader(streamFrom(xml, chunkSize))) {
     events.push(normalizeXmlEvent(event));
   }
   return events;
 }
 
 function collectIterableEvents(xml: string, chunkSize: number): NormalizedEvent[] {
-  const parser = new StaxXmlIterableParser(toByteBatches(byteChunks(xml, chunkSize), { batchSize: 2 }));
+  const parser = new IterableReader(toByteBatches(byteChunks(xml, chunkSize), { batchSize: 2 }));
   const events: NormalizedEvent[] = [];
 
   while (parser.nextBatch()) {
@@ -415,7 +415,7 @@ function collectIterableEvents(xml: string, chunkSize: number): NormalizedEvent[
 }
 
 function collectSyncCursorEvents(xml: string): NormalizedEvent[] {
-  const cursor = new StaxXmlCursorReader(xml);
+  const cursor = new CursorReader(xml);
   const events: NormalizedEvent[] = [];
   while (cursor.next()) {
     events.push(normalizeCursorEvent(cursor));
@@ -424,7 +424,7 @@ function collectSyncCursorEvents(xml: string): NormalizedEvent[] {
 }
 
 async function collectAsyncCursorEvents(xml: string, chunkSize: number): Promise<NormalizedEvent[]> {
-  const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml, chunkSize));
+  const cursor = new CursorReaderAsync(streamFrom(xml, chunkSize));
   const events: NormalizedEvent[] = [];
   while (await cursor.next()) {
     events.push(normalizeCursorEvent(cursor));
@@ -454,7 +454,7 @@ function normalizeXmlEvent(event: AnyXmlEvent): NormalizedEvent {
   throw event.error;
 }
 
-function normalizeIterableEvent(parser: StaxXmlIterableParser, index: number): NormalizedEvent {
+function normalizeIterableEvent(parser: IterableReader, index: number): NormalizedEvent {
   const type = parser.eventType(index);
   if (type === IterableEventType.START_DOCUMENT) {
     return { type: 'start-document' };
@@ -474,7 +474,7 @@ function normalizeIterableEvent(parser: StaxXmlIterableParser, index: number): N
   return { type: 'text', text: parser.copyText(index) };
 }
 
-function normalizeCursorEvent(cursor: StaxXmlCursorReader | StaxXmlCursorReaderAsync): NormalizedEvent {
+function normalizeCursorEvent(cursor: CursorReader | CursorReaderAsync): NormalizedEvent {
   const type = cursor.eventType();
   if (type === CursorEventType.START_DOCUMENT) {
     return { type: 'start-document' };
@@ -494,7 +494,7 @@ function normalizeCursorEvent(cursor: StaxXmlCursorReader | StaxXmlCursorReaderA
   return { type: 'text', text: cursor.text() };
 }
 
-function cursorAttributes(cursor: StaxXmlCursorReader | StaxXmlCursorReaderAsync): Record<string, string> {
+function cursorAttributes(cursor: CursorReader | CursorReaderAsync): Record<string, string> {
   const attributes: Record<string, string> = {};
   for (let index = 0; index < cursor.getAttributeCount(); index++) {
     attributes[cursor.getAttributeName(index)!] = cursor.getAttributeValue(index)!;
@@ -536,7 +536,7 @@ function end(name: string): AnyXmlEvent {
   };
 }
 
-async function consumeThroughFirstItem(parser: StaxXmlParser): Promise<void> {
+async function consumeThroughFirstItem(parser: EventReader): Promise<void> {
   while (true) {
     const next = await parser.next();
     if (next.done) {

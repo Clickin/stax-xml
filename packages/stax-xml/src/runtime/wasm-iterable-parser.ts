@@ -2,7 +2,7 @@ import {
   XmlEventType,
   type AnyXmlEvent,
 } from '../types.js';
-import { IterableEventType } from '../StaxXmlIterableParser.js';
+import { IterableEventType } from '../IterableReader.js';
 import {
   STAX_XML_EVENT_TABLE,
   type IterableEventTable,

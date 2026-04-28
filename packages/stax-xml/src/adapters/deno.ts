@@ -1,4 +1,4 @@
-import type { SyncTextSink } from '../StaxXmlWriterSync.js';
+import type { SyncTextSink } from '../WriterSync.js';
 
 export interface DenoSyncTextSinkTarget {
   writeTextSync?: (text: string) => unknown;
@@ -8,7 +8,7 @@ export interface DenoSyncTextSinkTarget {
   close?: () => unknown;
 }
 
-export class StaxXmlWriterDenoSink implements SyncTextSink {
+export class WriterDenoSink implements SyncTextSink {
   private readonly encoder = new TextEncoder();
 
   constructor(private readonly target: DenoSyncTextSinkTarget) {}
@@ -46,7 +46,7 @@ export class StaxXmlWriterDenoSink implements SyncTextSink {
 }
 
 export function createDenoSyncTextSink(target: DenoSyncTextSinkTarget): SyncTextSink {
-  return new StaxXmlWriterDenoSink(target);
+  return new WriterDenoSink(target);
 }
 
 export default createDenoSyncTextSink;

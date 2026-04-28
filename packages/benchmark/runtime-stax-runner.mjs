@@ -1,10 +1,10 @@
 import {
-  StaxXmlParserSync,
+  EventReaderSync,
   XmlEventType,
 } from '../stax-xml/dist/index.js';
 import {
   IterableEventType,
-  StaxXmlIterableParser,
+  IterableReader,
   toByteBatches,
 } from '../stax-xml/dist/iterable.js';
 
@@ -174,7 +174,7 @@ function consumePublicSync(xml) {
   let eventCount = 0;
   let checksum = 0;
 
-  for (const event of new StaxXmlParserSync(xml)) {
+  for (const event of new EventReaderSync(xml)) {
     const typeCode = publicEventTypeCode(event.type);
     eventCount++;
     checksum = mixChecksum(checksum, typeCode);
@@ -199,7 +199,7 @@ function consumePublicSync(xml) {
 }
 
 function consumeIterable(bytes, tier) {
-  const parser = new StaxXmlIterableParser(toByteBatches([bytes], { batchSize: 1 }));
+  const parser = new IterableReader(toByteBatches([bytes], { batchSize: 1 }));
   let eventCount = 0;
   let checksum = 0;
 

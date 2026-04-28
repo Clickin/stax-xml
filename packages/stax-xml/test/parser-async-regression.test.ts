@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import StaxXmlParser from '../src/StaxXmlParser';
+import EventReader from '../src/EventReader';
 import { XmlEventType, type AnyXmlEvent, type StartElementEvent } from '../src/types';
 
 function stringToReadableStream(xml: string, chunkSizes: number[] = [xml.length]): ReadableStream<Uint8Array> {
@@ -23,7 +23,7 @@ function stringToReadableStream(xml: string, chunkSizes: number[] = [xml.length]
 }
 
 async function collectEvents(xml: string, chunkSizes?: number[]): Promise<AnyXmlEvent[]> {
-  const parser = new StaxXmlParser(stringToReadableStream(xml, chunkSizes));
+  const parser = new EventReader(stringToReadableStream(xml, chunkSizes));
   const events: AnyXmlEvent[] = [];
 
   for await (const event of parser) {
@@ -33,7 +33,7 @@ async function collectEvents(xml: string, chunkSizes?: number[]): Promise<AnyXml
   return events;
 }
 
-describe('StaxXmlParser async regressions', () => {
+describe('EventReader async regressions', () => {
   it('parses attributes and namespace URIs on async start elements', async () => {
     const events = await collectEvents(
       '<root xmlns:h="http://www.w3.org/TR/html4/" h:id="bk101" category="Computer"><h:item/></root>',

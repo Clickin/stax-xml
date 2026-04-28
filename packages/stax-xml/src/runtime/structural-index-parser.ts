@@ -1,4 +1,4 @@
-import { IterableEventType } from '../StaxXmlIterableParser.js';
+import { IterableEventType } from '../IterableReader.js';
 import {
   STAX_XML_EVENT_TABLE,
   type IterableEventTable,
@@ -123,6 +123,9 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
   }
 
   buffer(): Uint8Array {
+    if (typeof this.source === 'string') {
+      return new TextEncoder().encode(this.source);
+    }
     return toUint8Array(this.source);
   }
 

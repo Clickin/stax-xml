@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
+import { EventReaderSync } from '../../src/EventReaderSync.js';
 import { XmlParserInternal } from '../../src/converter/XmlParserInternal.js';
 import { x } from '../../src/converter/index.js';
 import { isStartElement } from '../../src/types.js';
@@ -12,7 +12,7 @@ describe('XmlParserInternal - Internal Methods Coverage', () => {
   describe('collectTextUntilCloseSync', () => {
     it('should collect text content at same depth (sync)', () => {
       const xml = '<root><item>Hello World</item></root>';
-      const parser = new StaxXmlParserSync(xml);
+      const parser = new EventReaderSync(xml);
       const parserInternal = new XmlParserInternal();
 
       let depth = 0;

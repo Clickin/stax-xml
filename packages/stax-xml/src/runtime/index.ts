@@ -13,6 +13,7 @@ export {
 } from './native-backend.js';
 export type {
   InitStaxXmlOptions,
+  LinuxLibc,
   OptionalPackageImporter,
   StaxXmlRuntime,
   StaxXmlRuntimeBackend,

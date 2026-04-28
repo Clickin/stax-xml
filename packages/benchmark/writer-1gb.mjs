@@ -2,7 +2,7 @@ import { closeSync, createWriteStream, mkdirSync, mkdtempSync, openSync, rmSync,
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { StaxXmlWriter, StaxXmlWriterSyncSink } from 'stax-xml';
+import { Writer, WriterSyncSink } from 'stax-xml';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
@@ -338,7 +338,7 @@ function getProbeEvery(args) {
 }
 
 async function writeTargetBytesAsync({ targetBytes, prettyPrint, probeEvery, target, sampler }) {
-  const writer = new StaxXmlWriter(target.stream, {
+  const writer = new Writer(target.stream, {
     prettyPrint,
     indentString: '  ',
     bufferSize: 64 * 1024,
@@ -368,7 +368,7 @@ async function writeTargetBytesAsync({ targetBytes, prettyPrint, probeEvery, tar
 }
 
 function writeTargetBytesSyncSink({ targetBytes, prettyPrint, probeEvery, target, sampler }) {
-  const writer = new StaxXmlWriterSyncSink(target.sink, {
+  const writer = new WriterSyncSink(target.sink, {
     prettyPrint,
     indentString: '  ',
     bufferSize: 64 * 1024,

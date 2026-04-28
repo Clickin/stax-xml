@@ -274,12 +274,12 @@ export default defineConfig({
             ko: 'API 가이드',
           },
           items: [
-            { label: 'StaxXmlParser', slug: 'api-guides/staxxml-parser' },
-            { label: 'StaxXmlParserSync', slug: 'api-guides/staxxml-parser-sync' },
-            { label: 'StaxXmlIterableParser', slug: 'api-guides/staxxml-iterable-parser' },
-            { label: 'StaxXmlCursorReader', slug: 'api-guides/staxxmlcursorreader' },
-            { label: 'StaxXmlWriter', slug: 'api-guides/staxxml-writer' },
-            { label: 'StaxXmlWriterSync', slug: 'api-guides/staxxml-writer-sync' },
+            { label: 'EventReader', slug: 'api-guides/event-reader' },
+            { label: 'EventReaderSync', slug: 'api-guides/event-reader-sync' },
+            { label: 'IterableReader', slug: 'api-guides/iterable-reader' },
+            { label: 'CursorReader', slug: 'api-guides/cursor-reader' },
+            { label: 'Writer', slug: 'api-guides/writer' },
+            { label: 'WriterSync', slug: 'api-guides/writer-sync' },
           ],
         },
         {

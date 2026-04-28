@@ -1,5 +1,5 @@
 import { closeSync, writeSync } from 'node:fs';
-import type { SyncTextSink } from '../StaxXmlWriterSync.js';
+import type { SyncTextSink } from '../WriterSync.js';
 
 type NodeCloseMethod = 'end' | 'close' | 'destroy';
 
@@ -21,7 +21,7 @@ export interface NodeFileSyncTextSinkOptions {
   closeOnExit?: boolean;
 }
 
-export class StaxXmlWriterNodeSink implements SyncTextSink {
+export class WriterNodeSink implements SyncTextSink {
   public constructor(
     private readonly target: NodeSyncTextSinkTarget,
     private readonly options: NodeSyncTextSinkOptions = {}
@@ -74,7 +74,7 @@ export class StaxXmlWriterNodeSink implements SyncTextSink {
   }
 }
 
-export class StaxXmlWriterNodeFileSyncSink implements SyncTextSink {
+export class WriterNodeFileSyncSink implements SyncTextSink {
   public constructor(
     private readonly fd: number,
     private readonly options: NodeFileSyncTextSinkOptions = {}
@@ -95,14 +95,14 @@ export function createNodeSyncTextSink(
   target: NodeSyncTextSinkTarget,
   options?: NodeSyncTextSinkOptions
 ): SyncTextSink {
-  return new StaxXmlWriterNodeSink(target, options);
+  return new WriterNodeSink(target, options);
 }
 
 export function createNodeFileSyncTextSink(
   fd: number,
   options?: NodeFileSyncTextSinkOptions
 ): SyncTextSink {
-  return new StaxXmlWriterNodeFileSyncSink(fd, options);
+  return new WriterNodeFileSyncSink(fd, options);
 }
 
 export default createNodeSyncTextSink;

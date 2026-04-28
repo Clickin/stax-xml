@@ -46,7 +46,8 @@ XmlSchemaBase._tryParseAsyncWithCompiledPlan = tryParseAsyncWithCompiledPlan;
 
 
 // Core classes
-export { XmlSchema, type ParseInput } from './XmlSchema.js';
+export { XmlSchemaBase, type ParseInput } from './base.js';
+export { XmlSchema } from './XmlSchema.js';
 export { XmlStringSchema } from './XmlStringSchema.js';
 export { XmlNumberSchema } from './XmlNumberSchema.js';
 export { XmlObjectSchema, type XmlObjectShape, type InferObjectOutput } from './XmlObjectSchema.js';
@@ -58,11 +59,46 @@ export { XmlTransformSchema } from './XmlTransformSchema.js';
 export { XmlBuilder, x } from './XmlBuilder.js';
 
 // Types
+export { XmlEventType } from '../types.js';
 export type {
+  AnyXmlEvent,
+  AttributeInfo,
+  CdataEvent,
+  CharactersEvent,
+  DocumentMode,
+  EndDocumentEvent,
+  EndElementEvent,
+  ErrorEvent,
+  NamespaceDeclaration,
+  ProcessingInstruction,
+  StartDocumentEvent,
+  StartElementEvent,
+  WriteElementOptions,
+  XmlAttribute,
+} from '../types.js';
+export { Writer } from '../Writer.js';
+export type { WriterOptions } from '../Writer.js';
+export { WriterSync, WriterSyncSink } from '../WriterSync.js';
+export type { SyncTextSink, WriterSyncOptions, WriterSyncSinkOptions } from '../WriterSync.js';
+export type {
+  AnyXmlSchema,
+  XmlCoreSchema,
+  XmlElementWriteConfig,
+  XmlWrappedSchema,
+  XmlWriteOptions,
   ParseOptions,
   XmlStringOptions,
   XmlNumberOptions,
   XmlObjectOptions
+} from './types.js';
+export {
+  isArraySchema,
+  isNumberSchema,
+  isObjectSchema,
+  isOptionalSchema,
+  isStringSchema,
+  isTransformSchema,
+  SchemaType,
 } from './types.js';
 
 // Errors

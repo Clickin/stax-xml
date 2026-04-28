@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { performance, PerformanceObserver } from 'node:perf_hooks';
 import v8 from 'node:v8';
 // Import the baseline parser
-import { StaxXmlParserSync } from 'stax-xml';
+import { EventReaderSync } from 'stax-xml';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 class GCMonitor {
     gcEvents = [];
@@ -48,7 +48,7 @@ class GCMonitor {
     }
 }
 function parseXML(xml) {
-    const parser = new StaxXmlParserSync(xml);
+    const parser = new EventReaderSync(xml);
     let eventCount = 0;
     for (const event of parser) {
         eventCount++;

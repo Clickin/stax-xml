@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import { describe, expect, it } from 'vitest';
 import { x } from '../../src/converter';
 import { getIterableEventTable } from '../../src/IterableEventBackend';
-import { IterableEventType } from '../../src/StaxXmlIterableParser';
+import { IterableEventType } from '../../src/IterableReader';
 import {
   StaxXmlStructuralIndexParser,
   type StructuralIndexTable,

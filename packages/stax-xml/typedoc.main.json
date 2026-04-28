@@ -12,6 +12,7 @@
     "**/converter/**"
   ],
   "excludeExternals": true,
+  "excludeInternal": true,
   "skipErrorChecking": false,
   "cleanOutputDir": true,
   "gitRevision": "master",

@@ -1,4 +1,4 @@
-import type { SyncTextSink } from '../StaxXmlWriterSync.js';
+import type { SyncTextSink } from '../WriterSync.js';
 
 export interface BunSyncTextSinkTarget {
   write(data: string): unknown;
@@ -11,7 +11,7 @@ export interface BunSyncTextSinkOptions {
   closeMethod?: 'end' | 'close';
 }
 
-export class StaxXmlWriterBunSink implements SyncTextSink {
+export class WriterBunSink implements SyncTextSink {
   public constructor(
     private readonly target: BunSyncTextSinkTarget,
     private readonly options: BunSyncTextSinkOptions = {}
@@ -55,7 +55,7 @@ export function createBunSyncTextSink(
   target: BunSyncTextSinkTarget,
   options?: BunSyncTextSinkOptions
 ): SyncTextSink {
-  return new StaxXmlWriterBunSink(target, options);
+  return new WriterBunSink(target, options);
 }
 
 export default createBunSyncTextSink;

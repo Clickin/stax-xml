@@ -64,8 +64,8 @@ const checks = [
     },
     // Check 4: Parser source availability
     () => {
-        const parserPath = path.resolve(__dirname, '../../stax-xml/src/StaxXmlParserSync.ts');
-        const baselinePath = path.resolve(__dirname, '../../stax-xml/src/StaxXmlParserSync.baseline.ts');
+        const parserPath = path.resolve(__dirname, '../../stax-xml/src/EventReaderSync.ts');
+        const baselinePath = path.resolve(__dirname, '../../stax-xml/src/EventReaderSync.baseline.ts');
         if (!fs.existsSync(parserPath)) {
             return {
                 passed: false,

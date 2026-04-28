@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+import { IterableEventType, IterableReader, toByteBatches } from 'stax-xml/iterable';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -644,13 +644,13 @@ function runHarness(options) {
   if (natives) natives.prepare(consumeParser);
   let lastResult = { eventCount: 0, attrCount: 0, checksum: 0 };
   for (let index = 0; index < options.warmups; index++) {
-    lastResult = consumeParser(new StaxXmlIterableParser(batches()), options.tier);
+    lastResult = consumeParser(new IterableReader(batches()), options.tier);
   }
 
   console.log(WARMUP_COMPLETE_MARKER);
   if (natives) natives.optimizeNext(consumeParser);
   for (let index = 0; index < options.iterations; index++) {
-    lastResult = consumeParser(new StaxXmlIterableParser(batches()), options.tier);
+    lastResult = consumeParser(new IterableReader(batches()), options.tier);
   }
 
   const status = natives ? natives.status(consumeParser) : undefined;

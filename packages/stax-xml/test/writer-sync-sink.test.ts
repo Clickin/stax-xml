@@ -2,7 +2,7 @@ import { mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
-import { StaxXmlWriterSyncSink, type SyncTextSink } from '../src/StaxXmlWriterSync';
+import { WriterSyncSink, type SyncTextSink } from '../src/WriterSync';
 import { createBunSyncTextSink } from '../src/adapters/bun';
 import { createNodeFileSyncTextSink, createNodeSyncTextSink } from '../src/adapters/node';
 import { createDenoSyncTextSink } from '../src/adapters/deno';
@@ -31,10 +31,10 @@ function createMemorySink(): SyncTextSink & {
   };
 }
 
-describe('StaxXmlWriterSyncSink', () => {
+describe('WriterSyncSink', () => {
   it('should flush buffered output into the sink and call sink.flush()', () => {
     const sink = createMemorySink();
-    const writer = new StaxXmlWriterSyncSink(sink, {
+    const writer = new WriterSyncSink(sink, {
       enableAutoFlush: false
     });
 
@@ -52,7 +52,7 @@ describe('StaxXmlWriterSyncSink', () => {
 
   it('should auto flush internal buffers without calling sink.flush()', () => {
     const sink = createMemorySink();
-    const writer = new StaxXmlWriterSyncSink(sink, {
+    const writer = new WriterSyncSink(sink, {
       bufferSize: 12,
       flushThreshold: 6,
       enableAutoFlush: true
@@ -71,7 +71,7 @@ describe('StaxXmlWriterSyncSink', () => {
 
   it('should finalize open elements and mark the writer closed on close()', () => {
     const sink = createMemorySink();
-    const writer = new StaxXmlWriterSyncSink(sink, {
+    const writer = new WriterSyncSink(sink, {
       flushOnClose: true
     });
 
@@ -94,7 +94,7 @@ describe('StaxXmlWriterSyncSink', () => {
 
   it('should flush the sink from writeEndDocument() when flushOnClose is enabled', () => {
     const sink = createMemorySink();
-    const writer = new StaxXmlWriterSyncSink(sink, {
+    const writer = new WriterSyncSink(sink, {
       flushOnClose: true
     });
 
@@ -111,7 +111,7 @@ describe('StaxXmlWriterSyncSink', () => {
 
   it('should support writeSync() with an injected sink writer and return an empty string', () => {
     const sink = createMemorySink();
-    const writer = new StaxXmlWriterSyncSink(sink);
+    const writer = new WriterSyncSink(sink);
     const schema = x.object({
       title: x.string().xpath('/book/title').writer({ element: 'title' }),
       price: x.number().xpath('/book/price').writer({ element: 'price' })
@@ -208,7 +208,7 @@ describe('sync sink adapters', () => {
     const sink = createNodeFileSyncTextSink(fd);
 
     try {
-      const writer = new StaxXmlWriterSyncSink(sink);
+      const writer = new WriterSyncSink(sink);
       writer.writeStartDocument();
       writer.writeStartElement('catalog');
       writer.writeCharacters('sync');

@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import { x } from 'stax-xml/converter';
-import { StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+import { IterableReader, toByteBatches } from 'stax-xml/iterable';
 import { detectRuntimePlatform, getStaxXmlNativePackageName } from 'stax-xml/runtime';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -322,7 +322,7 @@ function checksumEntryRows(rows) {
 }
 
 function consumePublicIterable(bytes) {
-  const parser = new StaxXmlIterableParser(toByteBatches([bytes], { batchSize: 1 }));
+  const parser = new IterableReader(toByteBatches([bytes], { batchSize: 1 }));
   let eventCount = 0;
   let checksumValue = 2166136261;
 

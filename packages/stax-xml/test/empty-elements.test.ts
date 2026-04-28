@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import StaxXmlParser from "../src/StaxXmlParser";
+import EventReader from "../src/EventReader";
 import { CharactersEvent, EndElementEvent, StartElementEvent, XmlEventType } from "../src/types";
 
 describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Updated)", () => {
@@ -12,7 +12,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {
@@ -36,7 +36,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {
@@ -60,7 +60,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {
@@ -102,7 +102,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {
@@ -132,7 +132,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {
@@ -155,7 +155,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {
@@ -185,7 +185,7 @@ describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Up
       }
     });
 
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     const events = [];
 
     for await (const event of parser) {

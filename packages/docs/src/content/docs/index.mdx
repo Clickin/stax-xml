@@ -40,7 +40,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     Benchmarked XML parser optimized for speed and memory efficiency. Outperforms traditional DOM parsers for large XML files. [See Performance Benchmarks](/stax-xml/resources/benchmarks/)
   </Card>
   <Card title="🔄 Streaming XML Parser" icon="down-arrow">
-    Memory-efficient stream-based parsing approach. Process XML files of any size without loading entire document into memory. [Learn Streaming API](/stax-xml/api-guides/staxxml-parser/)
+    Memory-efficient stream-based parsing approach. Process XML files of any size without loading entire document into memory. [Learn Streaming API](/stax-xml/api-guides/event-reader/)
   </Card>
   <Card title="🌐 Browser and Runtime Compatibility" icon="puzzle">
     Works in Node.js, Bun, Deno, and modern browsers. Use the WebAssembly runtime for browser throughput when available; keep pure JavaScript as the compatibility fallback. [Installation Guide](/stax-xml/guide/getting-started/)
@@ -85,7 +85,7 @@ deno add npm:stax-xml
 Get started with StAX-XML in seconds. Here's how to parse XML with streaming support:
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 // XML content to parse
 const xmlContent = '<bookstore><book id="1"><title>JavaScript Guide</title></book></bookstore>';
@@ -100,7 +100,7 @@ const stream = new ReadableStream({
 
 // Parse XML asynchronously with event-driven approach
 async function parseXml() {
-  const parser = new StaxXmlParser(stream);
+  const parser = new EventReader(stream);
   for await (const event of parser) {
     if (event.type === XmlEventType.START_ELEMENT) {
       console.log(`Found element: ${event.name}`);

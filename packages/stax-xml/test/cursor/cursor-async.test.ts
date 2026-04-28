@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { StaxXmlCursorReaderAsync, CursorEventType } from '../../src/cursor/index';
+import { CursorReaderAsync, CursorEventType } from '../../src/cursor/index';
 
 /** Helper to create a ReadableStream from a string, optionally split into chunks. */
 function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array> {
@@ -27,15 +27,15 @@ function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array>
   });
 }
 
-async function drainCursor(cursor: StaxXmlCursorReaderAsync): Promise<void> {
+async function drainCursor(cursor: CursorReaderAsync): Promise<void> {
   while (await cursor.next()) { /* drain */ }
 }
 
-describe('StaxXmlCursorReaderAsync', () => {
+describe('CursorReaderAsync', () => {
   // ── Basic parsing ─────────────────────────────────────────────────
 
   it('should parse a simple XML document', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root><item>text</item></root>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root><item>text</item></root>'));
     const events: { type: number; name?: string; text?: string }[] = [];
 
     while (await cursor.next()) {
@@ -58,7 +58,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should produce START_DOCUMENT and END_DOCUMENT for self-closing root', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root/>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root/>'));
     const events: number[] = [];
     while (await cursor.next()) events.push(cursor.eventType());
     expect(events).toEqual([
@@ -70,7 +70,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should reject non-web streams', () => {
-    expect(() => new StaxXmlCursorReaderAsync({} as ReadableStream<Uint8Array>))
+    expect(() => new CursorReaderAsync({} as ReadableStream<Uint8Array>))
       .toThrow('stream must be a web standard ReadableStream');
   });
 
@@ -78,7 +78,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should handle tag split across chunks', async () => {
     // '<root>' split: '<ro' + 'ot>'
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root><item>hello</item></root>', 3));
+    const cursor = new CursorReaderAsync(streamFrom('<root><item>hello</item></root>', 3));
     const names: string[] = [];
 
     while (await cursor.next()) {
@@ -92,7 +92,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   it('should handle attributes split across chunks', async () => {
     const xml = '<root attr1="value1" attr2="value2"><child/></root>';
     // Small chunk size to force splits
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml, 5));
+    const cursor = new CursorReaderAsync(streamFrom(xml, 5));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT root
@@ -104,7 +104,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should handle CDATA split across chunks', async () => {
     const xml = '<root><![CDATA[content here]]></root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml, 7));
+    const cursor = new CursorReaderAsync(streamFrom(xml, 7));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT root
@@ -116,7 +116,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should handle comment split across chunks', async () => {
     const xml = '<root><!-- a long comment --><item/></root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml, 4));
+    const cursor = new CursorReaderAsync(streamFrom(xml, 4));
     const types: number[] = [];
 
     while (await cursor.next()) types.push(cursor.eventType());
@@ -132,7 +132,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should skip DOCTYPE and unknown bang markup', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<!DOCTYPE html><!BROKEN><root/>', 3));
+    const cursor = new CursorReaderAsync(streamFrom('<!DOCTYPE html><!BROKEN><root/>', 3));
     const types: number[] = [];
 
     while (await cursor.next()) types.push(cursor.eventType());
@@ -148,7 +148,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   // ── Self-closing tags ─────────────────────────────────────────────
 
   it('should handle self-closing tags', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root><empty/><item/></root>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root><empty/><item/></root>'));
     const types: number[] = [];
 
     while (await cursor.next()) types.push(cursor.eventType());
@@ -169,7 +169,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should parse namespaced elements', async () => {
     const xml = '<ns:root xmlns:ns="http://example.com"><ns:child/></ns:root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // ns:root
@@ -186,7 +186,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should handle default namespace', async () => {
     const xml = '<root xmlns="http://default.ns"><child/></root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // root
@@ -200,7 +200,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should decode XML entities', async () => {
     const xml = '<root>&lt;hello&gt; &amp; &quot;world&quot;</root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT
@@ -211,7 +211,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should decode entities in attributes', async () => {
     const xml = '<root attr="a&amp;b"/>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT
@@ -221,7 +221,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should expose attribute accessor variants', async () => {
     const xml = '<root plain="v" empty="" xmlns:ns="urn:ns" ns:attr="namespaced" other="a&gt;b"/>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT root
@@ -250,7 +250,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should tolerate valueless attributes', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root disabled bare/>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root disabled bare/>'));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT root
@@ -262,7 +262,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should parse attribute names with prefixes', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root ns:attr="value" ns:flag/>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root ns:attr="value" ns:flag/>'));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT root
@@ -279,17 +279,17 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should stop attribute parsing on malformed separators', async () => {
-    const emptyName = new StaxXmlCursorReaderAsync(streamFrom('<root = "value"/>'));
+    const emptyName = new CursorReaderAsync(streamFrom('<root = "value"/>'));
     await emptyName.next(); // START_DOCUMENT
     await emptyName.next(); // START_ELEMENT root
     expect(emptyName.getAttributeCount()).toBe(0);
 
-    const missingValue = new StaxXmlCursorReaderAsync(streamFrom('<root attr=/>'));
+    const missingValue = new CursorReaderAsync(streamFrom('<root attr=/>'));
     await missingValue.next(); // START_DOCUMENT
     await missingValue.next(); // START_ELEMENT root
     expect(missingValue.getAttributeCount()).toBe(0);
 
-    const unquoted = new StaxXmlCursorReaderAsync(streamFrom('<root attr=value/>'));
+    const unquoted = new CursorReaderAsync(streamFrom('<root attr=value/>'));
     await unquoted.next(); // START_DOCUMENT
     await unquoted.next(); // START_ELEMENT root
     expect(unquoted.getAttributeCount()).toBe(0);
@@ -298,7 +298,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   // ── Error handling ────────────────────────────────────────────────
 
   it('should throw on mismatched closing tag', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root><item></wrong></root>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root><item></wrong></root>'));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // root
@@ -308,7 +308,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should throw on unclosed elements at end of stream', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root><item>text</item>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root><item>text</item>'));
 
     // Drain until error
     await expect(async () => {
@@ -330,7 +330,7 @@ describe('StaxXmlCursorReaderAsync', () => {
     ];
 
     for (const [xml, message] of cases) {
-      await expect(drainCursor(new StaxXmlCursorReaderAsync(streamFrom(xml))))
+      await expect(drainCursor(new CursorReaderAsync(streamFrom(xml))))
         .rejects.toThrow(message);
     }
   });
@@ -338,7 +338,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   // ── Depth tracking ────────────────────────────────────────────────
 
   it('should track depth', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<a><b><c/></b></a>'));
+    const cursor = new CursorReaderAsync(streamFrom('<a><b><c/></b></a>'));
     const depths: number[] = [];
 
     while (await cursor.next()) depths.push(cursor.depth());
@@ -349,7 +349,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   // ── Close / cleanup ───────────────────────────────────────────────
 
   it('should support close()', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root><item>text</item></root>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root><item>text</item></root>'));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // root
@@ -372,7 +372,7 @@ describe('StaxXmlCursorReaderAsync', () => {
       </bk:book>
     </library>`;
 
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml, 10));
+    const cursor = new CursorReaderAsync(streamFrom(xml, 10));
     const books: { id: string; title: string }[] = [];
     let currentBook: { id: string; title: string } | null = null;
     let inTitle = false;
@@ -404,7 +404,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should reuse element and namespace stack slots for sibling elements', async () => {
     const xml = '<root><a></a><b></b><c attr="1"></c><d attr="2"></d></root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
     const starts: string[] = [];
 
     while (await cursor.next()) {
@@ -420,7 +420,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should skip XML declaration', async () => {
     const xml = '<?xml version="1.0" encoding="UTF-8"?><root/>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
     const types: number[] = [];
 
     while (await cursor.next()) types.push(cursor.eventType());
@@ -437,7 +437,7 @@ describe('StaxXmlCursorReaderAsync', () => {
 
   it('should skip whitespace-only text', async () => {
     const xml = '<root>  \n  <item>text</item>  \n  </root>';
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(xml));
+    const cursor = new CursorReaderAsync(streamFrom(xml));
     const types: number[] = [];
 
     while (await cursor.next()) types.push(cursor.eventType());
@@ -454,7 +454,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should trim leading document whitespace and padded end tags', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom(' \u00A0 <root></ root >', 2));
+    const cursor = new CursorReaderAsync(streamFrom(' \u00A0 <root></ root >', 2));
     const names: Array<string | undefined> = [];
 
     while (await cursor.next()) names.push(cursor.name());
@@ -463,7 +463,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should emit top-level trailing text when no tags are present', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('  trailing text  ', 2));
+    const cursor = new CursorReaderAsync(streamFrom('  trailing text  ', 2));
 
     expect(await cursor.next()).toBe(true);
     expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
@@ -476,7 +476,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should emit END_DOCUMENT for top-level whitespace-only input', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('  \n  ', 2));
+    const cursor = new CursorReaderAsync(streamFrom('  \n  ', 2));
 
     expect(await cursor.next()).toBe(true);
     expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
@@ -488,7 +488,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   // ── Accessor on wrong event type ──────────────────────────────────
 
   it('should return undefined for name on non-element events', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<r>text</r>'));
+    const cursor = new CursorReaderAsync(streamFrom('<r>text</r>'));
 
     await cursor.next(); // START_DOCUMENT
     expect(cursor.name()).toBeUndefined();
@@ -506,7 +506,7 @@ describe('StaxXmlCursorReaderAsync', () => {
   });
 
   it('should return undefined uri for text inside a namespaced element', async () => {
-    const cursor = new StaxXmlCursorReaderAsync(streamFrom('<root xmlns="urn:default">text</root>'));
+    const cursor = new CursorReaderAsync(streamFrom('<root xmlns="urn:default">text</root>'));
 
     await cursor.next(); // START_DOCUMENT
     await cursor.next(); // START_ELEMENT root

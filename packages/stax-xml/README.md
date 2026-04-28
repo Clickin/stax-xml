@@ -16,7 +16,7 @@ Current release benchmarks show StAX-XML as one of the fastest XML parser packag
 - **Native acceleration by default**: `stax-xml` installs matching `@stax-xml/native-*` optional packages automatically, with wasm and JavaScript fallbacks
 - **Low-overhead iterable API**: Batch-oriented event frames expose names, text, and attributes on demand so hot paths can avoid per-event object churn
 - **Async stream parser**: Keep file/network I/O non-blocking while the parser consumes arrived byte batches synchronously
-- **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser` for one-event-at-a-time traversal
+- **Cursor Reader API**: Thin cursor-style wrapper over `IterableReader` for one-event-at-a-time traversal
 - **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing with XPath support
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
 - **Synchronous Sink Writing**: Recommended high-throughput path for large XML output
@@ -51,8 +51,8 @@ StAX-XML provides several parsing surfaces. Pick the one that matches the execut
 | Workload | Recommended API | Why |
 | --- | --- | --- |
 | Large local files or batch jobs that may block | `stax-xml/iterable` or `stax-xml/iterable/node` | Fast synchronous byte-batch parsing, no Promise overhead, no full-string requirement |
-| File/network I/O that must stay non-blocking | `StaxXmlParser` | Async iterator over `ReadableStream<Uint8Array>` |
-| Ergonomic event traversal | `StaxXmlCursorReader` | Cursor-style accessors over the iterable backend |
+| File/network I/O that must stay non-blocking | `EventReader` | Async iterator over `ReadableStream<Uint8Array>` |
+| Ergonomic event traversal | `CursorReader` | Cursor-style accessors over the iterable backend |
 | XML-to-object mapping | `stax-xml/converter` | Typed schema API with XPath and writer support |
 
 #### Fast synchronous large-file parsing
@@ -62,11 +62,11 @@ For Node batch jobs, read and parse a file synchronously in fixed-size byte chun
 ```typescript
 import {
   IterableEventType,
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
   nodeFileByteBatchesSync
 } from 'stax-xml/iterable/node';
 
-const parser = new StaxXmlNodeIterableParser(
+const parser = new NodeIterableReader(
   nodeFileByteBatchesSync('./large.xml', {
     chunkSize: 1024 * 1024,
     batchSize: 16
@@ -88,7 +88,7 @@ while (parser.nextBatch()) {
 console.log(`Total elements processed: ${elementCount}`);
 ```
 
-For portable byte sources, use `StaxXmlIterableParser` with `Iterable<Uint8Array[]>` batches from `stax-xml/iterable`. That is the same synchronous parsing model without Node's `Buffer`-specific file helpers.
+For portable byte sources, use `IterableReader` with `Iterable<Uint8Array[]>` batches from `stax-xml/iterable`. That is the same synchronous parsing model without Node's `Buffer`-specific file helpers.
 
 #### Unknown XML to Tree or Object
 
@@ -126,13 +126,13 @@ Compact objects use `@` for attributes by default (`id` becomes `@id`) and `#tex
 Use `documentMode: 'document'` when the input must be a single XML 1.0 document. Document mode rejects empty input, multiple root elements, non-whitespace text outside the document element, invalid XML names/chars, malformed attributes, invalid comments/processing instructions, and malformed entity/character references.
 
 ```typescript
-import { StaxXmlParserSync } from 'stax-xml';
+import { EventReaderSync } from 'stax-xml';
 
 // Default: fragment mode accepts sibling roots.
-Array.from(new StaxXmlParserSync('<item/><item/>'));
+Array.from(new EventReaderSync('<item/><item/>'));
 
 // Opt-in: document mode enforces one document element.
-Array.from(new StaxXmlParserSync('<root/>', { documentMode: 'document' }));
+Array.from(new EventReaderSync('<root/>', { documentMode: 'document' }));
 ```
 
 DTD validation, external entity fetching/expansion, XML 1.1, and UTF-16/encoding autodetection are intentionally outside the document-mode gate. External entity references are not resolved by default.
@@ -177,9 +177,9 @@ const newXml = await bookSchema.write(result, { rootElement: 'book' });
 For code that prefers cursor traversal, use the cursor API from the `stax-xml/cursor` subpath. It is a thin wrapper over the iterable parser backend and exposes one-event-at-a-time accessors such as `name()`, `text()`, and `getAttributeValue()`.
 
 ```typescript
-import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, CursorReader } from 'stax-xml/cursor';
 
-const cursor = new StaxXmlCursorReader('<root><item id="1">Hello</item></root>');
+const cursor = new CursorReader('<root><item id="1">Hello</item></root>');
 
 while (cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -193,16 +193,16 @@ while (cursor.next()) {
 }
 ```
 
-When file or network I/O must stay non-blocking, use `StaxXmlParser`. The public API is an async iterator over a `ReadableStream<Uint8Array>`, while the backend still parses each arrived byte batch synchronously:
+When file or network I/O must stay non-blocking, use `EventReader`. The public API is an async iterator over a `ReadableStream<Uint8Array>`, while the backend still parses each arrived byte batch synchronously:
 
 ```typescript
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
 const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
-const parser = new StaxXmlParser(webStream);
+const parser = new EventReader(webStream);
 
 for await (const event of parser) {
   if (event.type === XmlEventType.START_ELEMENT) {
@@ -213,15 +213,15 @@ for await (const event of parser) {
 
 ### 💾 Memory-efficient sync writing
 
-`StaxXmlWriterSync` returns an XML string by default, and `writeSync()` is still useful for small to medium documents.
+`WriterSync` returns an XML string by default, and `writeSync()` is still useful for small to medium documents.
 
-For large documents, use `StaxXmlWriterSyncSink` with platform-specific sink adapters to write incrementally. The 1GiB writer benchmark shows the sync sink path has the best write throughput while keeping peak RSS in the same range as async writing.
+For large documents, use `WriterSyncSink` with platform-specific sink adapters to write incrementally. The 1GiB writer benchmark shows the sync sink path has the best write throughput while keeping peak RSS in the same range as async writing.
 
 ```typescript
 import { x } from 'stax-xml/converter';
 import { openSync, writeFileSync, createWriteStream } from 'fs';
 
-import StaxXmlWriterSync, { StaxXmlWriterSyncSink } from 'stax-xml';
+import WriterSync, { WriterSyncSink } from 'stax-xml';
 import {
   createNodeFileSyncTextSink,
   createNodeSyncTextSink
@@ -240,15 +240,15 @@ const books = [
   { title: 'StAX-XML Guide', author: 'The Team' }
 ];
 
-// Optional: default import (package default is StaxXmlWriterSync)
-new StaxXmlWriterSync();
+// Optional: default import (package default is WriterSync)
+new WriterSync();
 
 // Optional: write to file synchronously in one shot
 writeFileSync('./books-inline.xml', booksSchema.writeSync(books, { rootElement: 'catalog' }));
 
 // Node target: truly synchronous local-file sink
 const fd = openSync('./books-node-sync.xml', 'w');
-const fileSink = new StaxXmlWriterSyncSink(
+const fileSink = new WriterSyncSink(
   createNodeFileSyncTextSink(fd),
   {
     enableAutoFlush: true,
@@ -260,15 +260,15 @@ booksSchema.writeSync(books, { rootElement: 'catalog', writer: fileSink });
 fileSink.close();
 
 // Node writable streams are still supported through the stream adapter
-const streamSink = new StaxXmlWriterSyncSink(
+const streamSink = new WriterSyncSink(
   createNodeSyncTextSink(createWriteStream('./books-node-stream.xml'), { closeMethod: 'close' })
 );
 booksSchema.writeSync(books, { rootElement: 'catalog', writer: streamSink });
 streamSink.close();
 
 // Bun / Deno targets (subpath adapters)
-// Bun: new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
-// Deno: new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+// Bun: new WriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// Deno: new WriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
 When `writer` is provided to `writeSync()`, output is written directly to the sink and the return value is an empty string.
@@ -286,10 +286,10 @@ Key features of the Converter API:
 
 #### Event-based Parsing (Low-level API)
 
-##### Basic Asynchronous Parsing (StaxXmlParser)
+##### Basic Asynchronous Parsing (EventReader)
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const xmlContent = '<root><item>Hello</item></root>';
 const stream = new ReadableStream({
@@ -300,7 +300,7 @@ const stream = new ReadableStream({
 });
 
 async function parseXml() {
-  const parser = new StaxXmlParser(stream);
+  const parser = new EventReader(stream);
   for await (const event of parser) {
     console.log(event);
   }
@@ -308,13 +308,13 @@ async function parseXml() {
 parseXml();
 ```
 
-##### Basic Synchronous Parsing (StaxXmlParserSync)
+##### Basic Synchronous Parsing (EventReaderSync)
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlContent = '<data><value>123</value></data>';
-const parser = new StaxXmlParserSync(xmlContent);
+const parser = new EventReaderSync(xmlContent);
 
 for (const event of parser) {
   console.log(event);
@@ -323,8 +323,8 @@ for (const event of parser) {
 
 For detailed API documentation:
 - [**Converter API Guide**](https://clickin.github.io/stax-xml): Declarative parsing with schemas
-- [**StaxXmlParser (Asynchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from streams
-- [**StaxXmlParserSync (Synchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from strings
+- [**EventReader (Asynchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from streams
+- [**EventReaderSync (Synchronous)**](https://clickin.github.io/stax-xml): Event-based parsing from strings
 
 ### 🌐 Platform Compatibility
 
@@ -444,7 +444,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 성능 중심 pull �
 - **기본 native acceleration**: `stax-xml` 설치만으로 현재 platform에 맞는 `@stax-xml/native-*` optional package가 설치되며, wasm/JavaScript fallback을 유지
 - **저오버헤드 iterable API**: batch 단위 event frame에서 name, text, attribute를 필요할 때만 복사하여 hot path의 per-event object churn을 줄임
 - **Async stream parser**: 파일/네트워크 I/O는 non-blocking으로 유지하고, 도착한 byte batch는 parser가 동기적으로 소비
-- **커서 Reader API**: one-event-at-a-time 순회를 위한 `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
+- **커서 Reader API**: one-event-at-a-time 순회를 위한 `IterableReader` 위의 얇은 cursor-style wrapper
 - **선언적 Converter API**: XPath를 지원하는 타입 안전 XML 파싱/쓰기용 Zod 스타일 스키마 API
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
 - **동기 sink 쓰기**: 대용량 XML 출력에 권장되는 고처리량 경로
@@ -481,8 +481,8 @@ StAX-XML은 여러 parsing surface를 제공합니다. 실행 경계에 맞는 A
 | Workload | 권장 API | 이유 |
 | --- | --- | --- |
 | 현재 worker/thread를 막아도 되는 대용량 로컬 파일 또는 batch job | `stax-xml/iterable` 또는 `stax-xml/iterable/node` | 빠른 동기 byte-batch 파싱, Promise overhead 없음, 전체 문자열 강제 없음 |
-| 파일/네트워크 I/O를 non-blocking으로 유지해야 하는 작업 | `StaxXmlParser` | `ReadableStream<Uint8Array>` 기반 async iterator |
-| ergonomic event 순회 | `StaxXmlCursorReader` | iterable backend 위의 cursor-style accessor |
+| 파일/네트워크 I/O를 non-blocking으로 유지해야 하는 작업 | `EventReader` | `ReadableStream<Uint8Array>` 기반 async iterator |
+| ergonomic event 순회 | `CursorReader` | iterable backend 위의 cursor-style accessor |
 | XML-to-object 매핑 | `stax-xml/converter` | XPath와 writer를 지원하는 typed schema API |
 
 #### 빠른 동기 대용량 파일 파싱
@@ -492,11 +492,11 @@ Node batch job에서는 파일을 고정 크기 byte chunk로 동기적으로 �
 ```typescript
 import {
   IterableEventType,
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
   nodeFileByteBatchesSync
 } from 'stax-xml/iterable/node';
 
-const parser = new StaxXmlNodeIterableParser(
+const parser = new NodeIterableReader(
   nodeFileByteBatchesSync('./large.xml', {
     chunkSize: 1024 * 1024,
     batchSize: 16
@@ -518,7 +518,7 @@ while (parser.nextBatch()) {
 console.log(`처리한 전체 요소 수: ${elementCount}`);
 ```
 
-portable byte source에는 `stax-xml/iterable`의 `StaxXmlIterableParser`와 `Iterable<Uint8Array[]>` batch를 사용하세요. Node의 `Buffer` 전용 file helper 없이 같은 동기 파싱 모델을 사용할 수 있습니다.
+portable byte source에는 `stax-xml/iterable`의 `IterableReader`와 `Iterable<Uint8Array[]>` batch를 사용하세요. Node의 `Buffer` 전용 file helper 없이 같은 동기 파싱 모델을 사용할 수 있습니다.
 
 #### Unknown XML을 Tree 또는 Object로 파싱
 
@@ -556,13 +556,13 @@ Compact object는 기본적으로 attribute에 `@` prefix를 붙이고(`id`는 `
 입력이 하나의 XML 1.0 document여야 한다면 `documentMode: 'document'`를 선택하세요. Document 모드는 빈 입력, 여러 root element, document element 밖의 non-whitespace text, 잘못된 XML name/char, 잘못된 attribute, 잘못된 comment/processing instruction, 잘못된 entity/character reference를 reject합니다.
 
 ```typescript
-import { StaxXmlParserSync } from 'stax-xml';
+import { EventReaderSync } from 'stax-xml';
 
 // 기본값: fragment mode는 sibling root를 허용합니다.
-Array.from(new StaxXmlParserSync('<item/><item/>'));
+Array.from(new EventReaderSync('<item/><item/>'));
 
 // 선택값: document mode는 하나의 document element를 강제합니다.
-Array.from(new StaxXmlParserSync('<root/>', { documentMode: 'document' }));
+Array.from(new EventReaderSync('<root/>', { documentMode: 'document' }));
 ```
 
 DTD validation, external entity fetch/expand, XML 1.1, UTF-16/encoding autodetect는 document-mode gate 범위에서 의도적으로 제외합니다. External entity reference는 기본적으로 resolve하지 않습니다.
@@ -607,9 +607,9 @@ const newXml = await bookSchema.write(result, { rootElement: 'book' });
 cursor 순회를 선호하는 코드에서는 `stax-xml/cursor` subpath의 cursor API를 사용하세요. 이 API는 iterable parser backend 위의 얇은 wrapper이며 `name()`, `text()`, `getAttributeValue()` 같은 one-event-at-a-time accessor를 제공합니다.
 
 ```typescript
-import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, CursorReader } from 'stax-xml/cursor';
 
-const cursor = new StaxXmlCursorReader('<root><item id="1">안녕</item></root>');
+const cursor = new CursorReader('<root><item id="1">안녕</item></root>');
 
 while (cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -623,16 +623,16 @@ while (cursor.next()) {
 }
 ```
 
-파일 또는 네트워크 I/O를 non-blocking으로 유지해야 한다면 `StaxXmlParser`를 사용하세요. 공개 API는 `ReadableStream<Uint8Array>` 위의 async iterator이고, backend는 도착한 byte batch를 동기적으로 파싱합니다:
+파일 또는 네트워크 I/O를 non-blocking으로 유지해야 한다면 `EventReader`를 사용하세요. 공개 API는 `ReadableStream<Uint8Array>` 위의 async iterator이고, backend는 도착한 byte batch를 동기적으로 파싱합니다:
 
 ```typescript
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
 const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
-const parser = new StaxXmlParser(webStream);
+const parser = new EventReader(webStream);
 
 for await (const event of parser) {
   if (event.type === XmlEventType.START_ELEMENT) {
@@ -643,15 +643,15 @@ for await (const event of parser) {
 
 ### 💾 메모리 효율적인 동기 쓰기
 
-`StaxXmlWriterSync`는 기본적으로 최종 XML 문자열을 반환합니다. 대용량 문서에서는 `StaxXmlWriterSyncSink`를 사용해 증분 쓰기를 하세요. 1GiB writer 벤치마크 기준으로 sync sink 경로가 가장 높은 쓰기 처리량을 보이면서 peak RSS는 async 쓰기와 같은 범위에 머뭅니다.
+`WriterSync`는 기본적으로 최종 XML 문자열을 반환합니다. 대용량 문서에서는 `WriterSyncSink`를 사용해 증분 쓰기를 하세요. 1GiB writer 벤치마크 기준으로 sync sink 경로가 가장 높은 쓰기 처리량을 보이면서 peak RSS는 async 쓰기와 같은 범위에 머뭅니다.
 
 ```typescript
 import { x } from 'stax-xml/converter';
 import { openSync, writeFileSync, createWriteStream } from 'fs';
 
 import {
-  StaxXmlWriterSync,
-  StaxXmlWriterSyncSink
+  WriterSync,
+  WriterSyncSink
 } from 'stax-xml';
 import {
   createNodeFileSyncTextSink,
@@ -670,15 +670,15 @@ const books = [
   { title: 'StAX-XML 가이드', author: '팀' }
 ];
 
-// 기본 import 방식 (패키지 기본 export가 StaxXmlWriterSync)
-new StaxXmlWriterSync();
+// 기본 import 방식 (패키지 기본 export가 WriterSync)
+new WriterSync();
 
 // 동기/인메모리: 문자열로 한 번에 생성
 writeFileSync('./books-inline.xml', booksSchema.writeSync(books, { rootElement: 'catalog' }));
 
 // Node 대상: 진짜 동기 로컬 파일 sink
 const fd = openSync('./books-node-sync.xml', 'w');
-const fileSink = new StaxXmlWriterSyncSink(
+const fileSink = new WriterSyncSink(
   createNodeFileSyncTextSink(fd),
   {
     enableAutoFlush: true,
@@ -690,15 +690,15 @@ booksSchema.writeSync(books, { rootElement: 'catalog', writer: fileSink });
 fileSink.close();
 
 // Node writable stream도 별도 stream adapter로 계속 지원됩니다.
-const streamSink = new StaxXmlWriterSyncSink(
+const streamSink = new WriterSyncSink(
   createNodeSyncTextSink(createWriteStream('./books-node-stream.xml'), { closeMethod: 'close' })
 );
 booksSchema.writeSync(books, { rootElement: 'catalog', writer: streamSink });
 streamSink.close();
 
 // Bun / Deno 대상 (subpath adapter)
-// Bun: new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
-// Deno: new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+// Bun: new WriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// Deno: new WriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
 `writeSync()`에 `writer`를 전달하면 sink로 바로 쓰며 반환 문자열은 빈 문자열(`""`)입니다.
@@ -715,10 +715,10 @@ Converter API의 주요 기능:
 
 #### 이벤트 기반 파싱 (저수준 API)
 
-##### 기본 비동기 파싱 (StaxXmlParser)
+##### 기본 비동기 파싱 (EventReader)
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const xmlContent = '<root><item>안녕하세요</item></root>';
 const stream = new ReadableStream({
@@ -729,7 +729,7 @@ const stream = new ReadableStream({
 });
 
 async function parseXml() {
-  const parser = new StaxXmlParser(stream);
+  const parser = new EventReader(stream);
   for await (const event of parser) {
     console.log(event);
   }
@@ -737,13 +737,13 @@ async function parseXml() {
 parseXml();
 ```
 
-##### 기본 동기 파싱 (StaxXmlParserSync)
+##### 기본 동기 파싱 (EventReaderSync)
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlContent = '<data><value>123</value></data>';
-const parser = new StaxXmlParserSync(xmlContent);
+const parser = new EventReaderSync(xmlContent);
 
 for (const event of parser) {
   console.log(event);
@@ -752,8 +752,8 @@ for (const event of parser) {
 
 자세한 API 문서는 다음을 참조하세요:
 - [**Converter API 가이드**](https://clickin.github.io/stax-xml): 스키마를 사용한 선언적 파싱
-- [**StaxXmlParser (비동기)**](https://clickin.github.io/stax-xml): 스트림 기반 이벤트 파싱
-- [**StaxXmlParserSync (동기)**](https://clickin.github.io/stax-xml): 문자열 기반 이벤트 파싱
+- [**EventReader (비동기)**](https://clickin.github.io/stax-xml): 스트림 기반 이벤트 파싱
+- [**EventReaderSync (동기)**](https://clickin.github.io/stax-xml): 문자열 기반 이벤트 파싱
 
 ### 🌐 플랫폼 호환성
 

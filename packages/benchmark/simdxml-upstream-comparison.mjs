@@ -8,7 +8,7 @@ import { cpus } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+import { IterableReader, toByteBatches } from 'stax-xml/iterable';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
@@ -301,7 +301,7 @@ function measurePublicIterable(input, options) {
 }
 
 function consumePublicIterable(input) {
-  const parser = new StaxXmlIterableParser(toByteBatches([input], { batchSize: 1 }));
+  const parser = new IterableReader(toByteBatches([input], { batchSize: 1 }));
   let eventCount = 0;
   let checksum = 2166136261;
 

@@ -5,7 +5,7 @@ import {
   type EntityDefinition,
   type MaterializableEventSource,
 } from '../IterableEventBackend.js';
-import { IterableEventType } from '../StaxXmlIterableParser.js';
+import { IterableEventType } from '../IterableReader.js';
 import {
   XmlEventType,
   type AnyXmlEvent,

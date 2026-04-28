@@ -1,6 +1,6 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { barplot, bench, summary } from 'mitata';
-import { StaxXmlWriter, StaxXmlWriterSync, StaxXmlWriterSyncSink } from 'stax-xml';
+import { Writer, WriterSync, WriterSyncSink } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import { normalizeFxpWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.mjs';
@@ -19,14 +19,14 @@ function fastXmlParserBigJsonBuilder() {
 
 async function staxXmlWriterBigJsonBuilder() {
   const stream = new WritableStream();
-  const writer = new StaxXmlWriter(stream);
+  const writer = new Writer(stream);
   await writer.writeStartDocument();
   await writeWriterTreeAsync(writer, bigWriterTree);
   await writer.writeEndDocument();
 }
 
 function staxXmlWriterBigJsonBuilderSync() {
-  const writer = new StaxXmlWriterSync();
+  const writer = new WriterSync();
   writer.writeStartDocument();
   writeWriterTreeSync(writer, bigWriterTree);
   writer.writeEndDocument();
@@ -48,7 +48,7 @@ function createCountingSink() {
 
 function staxXmlWriterBigJsonBuilderSyncSink() {
   const { sink, getCharsWritten } = createCountingSink();
-  const writer = new StaxXmlWriterSyncSink(sink);
+  const writer = new WriterSyncSink(sink);
   writer.writeStartDocument();
   writeWriterTreeSync(writer, bigWriterTree);
   writer.writeEndDocument();

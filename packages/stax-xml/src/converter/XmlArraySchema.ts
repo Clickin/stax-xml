@@ -3,8 +3,8 @@ import { XmlParserInternal } from './XmlParserInternal.js';
 import { isAsyncEventIterator } from './AsyncEventBatchIterator.js';
 import type { ParseOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
-import { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
-import { StaxXmlWriter } from '../StaxXmlWriter.js';
+import { WriterSync, WriterSyncSink } from '../WriterSync.js';
+import { Writer } from '../Writer.js';
 import type { AnyXmlEvent, StartElementEvent } from '../types.js';
 import type { XmlParsingStateMachine } from './XmlParsingStateMachine.js';
 
@@ -81,21 +81,21 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
    */
   _writeSync(data: T['_output'][], options?: XmlWriteOptions): string {
     // Use injected writer or create new one
-    let writer: StaxXmlWriterSync | StaxXmlWriterSyncSink;
+    let writer: WriterSync | WriterSyncSink;
     let isInjected = false;
 
     if (options?.writer) {
       if (
-        options.writer instanceof StaxXmlWriterSync ||
-        options.writer instanceof StaxXmlWriterSyncSink
+        options.writer instanceof WriterSync ||
+        options.writer instanceof WriterSyncSink
       ) {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance');
+        throw new Error('writeSync requires WriterSync or WriterSyncSink instance');
       }
     } else {
-      writer = new StaxXmlWriterSync({
+      writer = new WriterSync({
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
         encoding: options?.encoding
@@ -139,7 +139,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
       writer.writeEndDocument();
     }
 
-    if (writer instanceof StaxXmlWriterSync) {
+    if (writer instanceof WriterSync) {
       return writer.getXmlString();
     }
     return '';
@@ -155,18 +155,18 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
     options?: XmlWriteOptions
   ): Promise<void> {
     // Use injected writer or create new one
-    let writer: StaxXmlWriter;
+    let writer: Writer;
     let isInjected = false;
 
     if (options?.writer) {
-      if (options.writer instanceof StaxXmlWriter) {
+      if (options.writer instanceof Writer) {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('write requires StaxXmlWriter instance');
+        throw new Error('write requires Writer instance');
       }
     } else {
-      writer = new StaxXmlWriter(stream, {
+      writer = new Writer(stream, {
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
         encoding: options?.encoding

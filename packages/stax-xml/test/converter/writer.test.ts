@@ -322,25 +322,25 @@ describe('Writer Tests', () => {
       const invalidWriter = {} as any;
 
       expect(() => x.string().writeSync('text', { writer: invalidWriter })).toThrow(
-        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+        'writeSync requires WriterSync or WriterSyncSink instance'
       );
       await expect(x.string().write('text', { writer: invalidWriter })).rejects.toThrow(
-        'write requires StaxXmlWriter instance'
+        'write requires Writer instance'
       );
 
       expect(() => x.number().writeSync(1, { writer: invalidWriter })).toThrow(
-        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+        'writeSync requires WriterSync or WriterSyncSink instance'
       );
       await expect(x.number().write(1, { writer: invalidWriter })).rejects.toThrow(
-        'write requires StaxXmlWriter instance'
+        'write requires Writer instance'
       );
 
       const arraySchema = x.array(x.string().writer({ element: 'item' }));
       expect(() => arraySchema.writeSync(['a'], { writer: invalidWriter })).toThrow(
-        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+        'writeSync requires WriterSync or WriterSyncSink instance'
       );
       await expect(arraySchema.write(['a'], { writer: invalidWriter })).rejects.toThrow(
-        'write requires StaxXmlWriter instance'
+        'write requires Writer instance'
       );
     });
   });

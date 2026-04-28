@@ -7,7 +7,7 @@ import * as childProcess from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import inspector from 'node:inspector';
-import { StaxXmlParserSync } from 'stax-xml';
+import { EventReaderSync } from 'stax-xml';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Helper to run parser with profiling
 function runParserWithProfiling(xml, parser, iterations) {
@@ -38,7 +38,7 @@ async function profileWithV8Prof(config, xml, parser) {
     // Create a temporary script that runs the parser
     const scriptPath = path.join(profileDir, `profile-${config.variant}-temp.js`);
     const scriptContent = `
-    import { StaxXmlParserSync } from 'stax-xml';
+    import { EventReaderSync } from 'stax-xml';
 
     const xml = ${JSON.stringify(xml)};
     const iterations = ${config.iterations || 100};
@@ -47,7 +47,7 @@ async function profileWithV8Prof(config, xml, parser) {
     const startTime = Date.now();
 
     for (let i = 0; i < iterations; i++) {
-      const parser = new StaxXmlParserSync();
+      const parser = new EventReaderSync();
       for (const event of parser.parse(xml)) {
         if (event.type === 'error') throw new Error('Parse error');
       }
@@ -163,7 +163,7 @@ async function profileWithClinic(config, xml, parser) {
     // Create a temporary script
     const scriptPath = path.join(profileDir, `profile-${config.variant}-temp.js`);
     const scriptContent = `
-    import { StaxXmlParserSync } from 'stax-xml';
+    import { EventReaderSync } from 'stax-xml';
 
     const xml = ${JSON.stringify(xml)};
     const iterations = ${config.iterations || 100};
@@ -171,7 +171,7 @@ async function profileWithClinic(config, xml, parser) {
     console.log('Starting clinic profiling for ${config.variant}...');
 
     for (let i = 0; i < iterations; i++) {
-      const parser = new StaxXmlParserSync();
+      const parser = new EventReaderSync();
       for (const event of parser.parse(xml)) {
         if (event.type === 'error') throw new Error('Parse error');
       }
@@ -265,15 +265,15 @@ function generateComparisonReport(results) {
 async function loadParser(variant) {
     if (variant === 'baseline') {
         try {
-            const baselineModule = await import('./../../stax-xml/src/StaxXmlParserSync.baseline.js');
-            return baselineModule.StaxXmlParserSync;
+            const baselineModule = await import('./../../stax-xml/src/EventReaderSync.baseline.js');
+            return baselineModule.EventReaderSync;
         }
         catch (error) {
             console.warn('Baseline parser not found, using default parser');
-            return StaxXmlParserSync;
+            return EventReaderSync;
         }
     }
-    return StaxXmlParserSync;
+    return EventReaderSync;
 }
 // Main profiling execution
 async function main() {

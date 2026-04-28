@@ -3,10 +3,10 @@ import { closeSync, existsSync, mkdirSync, openSync, statSync, writeSync } from 
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { IterableEventType, StaxXmlIterableParser } from 'stax-xml/iterable';
+import { IterableEventType, IterableReader } from 'stax-xml/iterable';
 import {
   nodeFileByteBatchesSync,
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
 } from '../stax-xml/dist/iterable/node.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -240,14 +240,14 @@ function generateXmlFile(filePath, targetBytes) {
 }
 
 function makeNeutralParser(filePath, options) {
-  return new StaxXmlIterableParser(nodeFileByteBatchesSync(filePath, {
+  return new IterableReader(nodeFileByteBatchesSync(filePath, {
     chunkSize: options.chunkSize,
     batchSize: options.batchSize,
   }));
 }
 
 function makeNodeParser(filePath, options) {
-  return new StaxXmlNodeIterableParser(nodeFileByteBatchesSync(filePath, {
+  return new NodeIterableReader(nodeFileByteBatchesSync(filePath, {
     chunkSize: options.chunkSize,
     batchSize: options.batchSize,
   }));

@@ -3,21 +3,22 @@ import {
   type EntityDefinition
 } from '../IterableEventBackend.js';
 import {
-  StaxXmlIterableParser,
+  createJavaScriptIterableReader,
+  IterableReader,
   toByteBatches
-} from '../StaxXmlIterableParser.js';
+} from '../IterableReader.js';
 import {
   getStaxXmlRuntimeForSyncApi,
 } from '../runtime/native-backend.js';
 import { StaxXmlStructuralIndexParser } from '../runtime/structural-index-parser.js';
 import type { AnyXmlEvent } from '../types.js';
 import { CursorEventView } from './CursorEventView.js';
-import { CursorEventType, type CursorEventType as CursorEventTypeValue, type StaxXmlCursorReaderOptions } from './types.js';
+import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderOptions } from './types.js';
 
 const textEncoder = new TextEncoder();
 
-export class StaxXmlCursorReader {
-  private readonly parser?: StaxXmlIterableParser;
+export class CursorReader {
+  private readonly parser?: IterableReader;
   private readonly materializer?: IterableEventMaterializer;
   private readonly tableParser?: StaxXmlStructuralIndexParser;
   private readonly view = new CursorEventView();
@@ -31,7 +32,7 @@ export class StaxXmlCursorReader {
     implicitAttributeValue: 'name';
   };
 
-  constructor(xml: string, options: StaxXmlCursorReaderOptions = {}) {
+  constructor(xml: string, options: CursorReaderOptions = {}) {
     if (typeof xml !== 'string') {
       throw new Error('xml must be a string.');
     }
@@ -42,8 +43,9 @@ export class StaxXmlCursorReader {
       implicitAttributeValue: 'name',
     };
 
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     const buildTable = runtime?.capabilities.structuralIndexUtf16;
+    let forceJavaScriptReader = false;
     if (runtime?.backend.kind !== 'js' && buildTable) {
       try {
         this.tableParser = new StaxXmlStructuralIndexParser(xml, buildTable(xml), {
@@ -55,28 +57,18 @@ export class StaxXmlCursorReader {
         if (options.fallbackOnParseError !== true) {
           throw error;
         }
+        forceJavaScriptReader = true;
       }
-    }
-    if (
-      runtime
-      && runtime.backend.kind !== 'js'
-      && !buildTable
-      && options.backend !== undefined
-      && options.backend !== 'auto'
-      && options.fallbackOnLoadError !== true
-    ) {
-      throw new Error(`Initialized ${options.backend} backend does not provide structuralIndexUtf16 capability.`);
     }
 
-    this.parser = new StaxXmlIterableParser(
-      toByteBatches(byteChunks(textEncoder.encode(xml), 8), { batchSize: 1 }),
-      {
-        emitStartDocumentBatchImmediately: true,
-        backend: options.backend,
-        fallbackOnLoadError: options.fallbackOnLoadError,
-        fallbackOnParseError: options.fallbackOnParseError
-      }
-    );
+    const byteBatches = toByteBatches(byteChunks(textEncoder.encode(xml), 8), { batchSize: 1 });
+    const readerOptions = {
+      emitStartDocumentBatchImmediately: true,
+      fallbackOnParseError: options.fallbackOnParseError,
+    };
+    this.parser = forceJavaScriptReader
+      ? createJavaScriptIterableReader(byteBatches, readerOptions)
+      : new IterableReader(byteBatches, readerOptions);
     this.materializer = new IterableEventMaterializer({
       autoDecodeEntities: options.autoDecodeEntities ?? true,
       addEntities: options.addEntities as EntityDefinition[] | undefined,

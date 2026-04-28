@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { StaxXmlParser } from '../../src/StaxXmlParser.js';
-import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
-import { StaxXmlWriter } from '../../src/StaxXmlWriter.js';
-import { StaxXmlWriterSyncSink } from '../../src/StaxXmlWriterSync.js';
+import { EventReader } from '../../src/EventReader.js';
+import { EventReaderSync } from '../../src/EventReaderSync.js';
+import { Writer } from '../../src/Writer.js';
+import { WriterSyncSink } from '../../src/WriterSync.js';
 import { AsyncEventBatchIterator } from '../../src/converter/AsyncEventBatchIterator.js';
 import { CompiledRootProcessor } from '../../src/converter/CompiledRootProcessor.js';
 import { CompiledXmlSchema, tryParseWithCompiledPlan } from '../../src/converter/CompiledXmlSchema.js';
@@ -163,7 +163,7 @@ class DoneAfterBufferedBatchIterator extends AsyncEventBatchIterator {
 }
 
 function eventsFromXml(xml: string): AnyXmlEvent[] {
-  return Array.from(new StaxXmlParserSync(xml));
+  return Array.from(new EventReaderSync(xml));
 }
 
 function streamFrom(xml: string): ReadableStream<Uint8Array> {
@@ -347,7 +347,7 @@ describe('Converter internal coverage guard rails', () => {
         XmlSchemaBase._tryParseAsyncWithCompiledPlan = originalAsync;
       }
 
-      const parser = new StaxXmlParser(streamFrom('<root><value>backend</value></root>'));
+      const parser = new EventReader(streamFrom('<root><value>backend</value></root>'));
       await expect(x.string().xpath('/root/value').parse(parser as unknown as AsyncIterator<AnyXmlEvent>))
         .resolves.toBe('backend');
 
@@ -937,7 +937,7 @@ describe('Converter internal coverage guard rails', () => {
 
     it('covers primitive and object injected writer branches', async () => {
       const sinkChunks: string[] = [];
-      const sinkWriter = new StaxXmlWriterSyncSink({ write: chunk => sinkChunks.push(chunk) }, { flushOnClose: true });
+      const sinkWriter = new WriterSyncSink({ write: chunk => sinkChunks.push(chunk) }, { flushOnClose: true });
       expect(x.string().writer({ element: 'value' }).writeSync('sink', { writer: sinkWriter })).toBe('');
       sinkWriter.writeEndDocument();
       expect(sinkChunks.join('')).toContain('sink');
@@ -949,13 +949,13 @@ describe('Converter internal coverage guard rails', () => {
       expect(numberXml).toContain('<count>7</count>');
 
       const numberSinkChunks: string[] = [];
-      const numberSink = new StaxXmlWriterSyncSink({ write: chunk => numberSinkChunks.push(chunk) }, { flushOnClose: true });
+      const numberSink = new WriterSyncSink({ write: chunk => numberSinkChunks.push(chunk) }, { flushOnClose: true });
       expect(x.number().writeSync(9, { writer: numberSink })).toBe('');
       numberSink.writeEndDocument();
       expect(numberSinkChunks.join('')).toContain('9');
 
       const { stream } = writableChunks();
-      const asyncWriter = new StaxXmlWriter(stream);
+      const asyncWriter = new Writer(stream);
       await (x.number() as any)._write(11, stream, { writer: asyncWriter });
       await asyncWriter.writeEndDocument();
 
@@ -963,13 +963,13 @@ describe('Converter internal coverage guard rails', () => {
       expect(numberWithDeclaration).toMatch(/^<\?xml/);
 
       const arraySinkChunks: string[] = [];
-      const arraySink = new StaxXmlWriterSyncSink({ write: chunk => arraySinkChunks.push(chunk) }, { flushOnClose: true });
+      const arraySink = new WriterSyncSink({ write: chunk => arraySinkChunks.push(chunk) }, { flushOnClose: true });
       expect(x.array(x.string().writer({ element: 'item' })).writeSync(['a'], { writer: arraySink })).toBe('');
       arraySink.writeEndDocument();
       expect(arraySinkChunks.join('')).toContain('<item>a</item>');
 
       const { stream: arrayStream } = writableChunks();
-      const arrayAsyncWriter = new StaxXmlWriter(arrayStream);
+      const arrayAsyncWriter = new Writer(arrayStream);
       await (x.array(x.string().writer({ element: 'item' })) as any)._write(['a'], arrayStream, { writer: arrayAsyncWriter });
       await arrayAsyncWriter.writeEndDocument();
 
@@ -991,10 +991,10 @@ describe('Converter internal coverage guard rails', () => {
         includeDeclaration: false
       })).rejects.toThrow('CDATA section cannot contain');
       expect(() => objectSchema.writeSync({ id: 'x', title: 'bad', values: [] }, { writer: {} as any })).toThrow(
-        'writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance'
+        'writeSync requires WriterSync or WriterSyncSink instance'
       );
       await expect(objectSchema.write({ id: 'x', title: 'bad', values: [] }, { writer: {} as any })).rejects.toThrow(
-        'write requires StaxXmlWriter instance'
+        'write requires Writer instance'
       );
 
       const contentSchema = x.object({

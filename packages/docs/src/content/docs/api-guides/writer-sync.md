@@ -1,11 +1,11 @@
 ---
-title: StaxXmlWriterSync - Synchronous XML Generation
+title: WriterSync - Synchronous XML Generation
 description: Synchronous XML writer for generating XML documents programmatically with in-memory string building
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer-sync.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/writer-sync.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,26 +17,26 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer-sync.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/writer-sync.png
 ---
 
-## StaxXmlWriterSync - Synchronous XML Generation
+## WriterSync - Synchronous XML Generation
 
-StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `StaxXmlWriterSync` builds the XML string in memory for small and medium documents, while `StaxXmlWriterSyncSink` writes incrementally to a sink for large documents.
+StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `WriterSync` builds the XML string in memory for small and medium documents, while `WriterSyncSink` writes incrementally to a sink for large documents.
 
-For large file output, prefer the sink path. The 1GiB writer benchmark shows `StaxXmlWriterSyncSink` has the best write throughput while peak RSS stays in the same range as async writing.
+For large file output, prefer the sink path. The 1GiB writer benchmark shows `WriterSyncSink` has the best write throughput while peak RSS stays in the same range as async writing.
 
 ### 🔧 Quick Start
 
 ##### Writing to Local File
 
 ```typescript
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 import { writeFileSync } from 'fs';
 
 // For Node.js - write to a local file synchronously
 function createLocalXmlFile() {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '  '
   });
@@ -73,7 +73,7 @@ createLocalXmlFile();
 
 ```typescript
 import express from 'express';
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 const app = express();
 
@@ -86,7 +86,7 @@ app.get('/api/users', (req, res) => {
       { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
     ];
 
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -133,7 +133,7 @@ app.listen(3000, () => {
 
 ```typescript
 import { Hono } from 'hono';
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 const app = new Hono();
 
@@ -145,7 +145,7 @@ app.get('/api/products', (c) => {
     { id: 'P003', name: 'Coffee Maker', price: 149.99, category: 'Appliances' }
   ];
 
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '    '
   });
@@ -198,18 +198,18 @@ export default app;
 
 ##### Sink-Based Incremental Writing
 
-`StaxXmlWriterSync` can write directly to any custom sync target through `StaxXmlWriterSyncSink`. Use this path for large XML output.
+`WriterSync` can write directly to any custom sync target through `WriterSyncSink`. Use this path for large XML output.
 Use runtime-specific adapters for Node.js, Bun, or Deno so the browser-compatible default import stays unchanged.
 
 ```typescript
 import { openSync } from 'fs';
-import { StaxXmlWriterSyncSink } from 'stax-xml';
+import { WriterSyncSink } from 'stax-xml';
 import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
 import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
 const fd = openSync('./catalog.xml', 'w');
-const writer = new StaxXmlWriterSyncSink(
+const writer = new WriterSyncSink(
   createNodeFileSyncTextSink(fd),
   {
     bufferSize: 4096,
@@ -231,9 +231,9 @@ writer.flush();     // manual flush (optional when auto-flush is enabled)
 writer.close();     // flush + close adapter target
 
 // Bun example:
-// const bunWriter = new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// const bunWriter = new WriterSyncSink(createBunSyncTextSink(Bun.stdout));
 // Deno example:
-// const denoWriter = new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+// const denoWriter = new WriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
 `writer.flush()` drains buffered chunks and calls `sink.flush()` when available.
@@ -242,11 +242,11 @@ writer.close();     // flush + close adapter target
 ##### Advanced Writer Features
 
 ```typescript
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 // Create in-memory XML with custom entities and namespaces
 function createAdvancedXml() {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '  ',
     addEntities: [
@@ -307,13 +307,13 @@ console.log('Generated XML:', createAdvancedXml());
 
 ##### Unified WriteElementOptions API
 
-StaxXmlWriterSync supports a unified API that simplifies element creation by consolidating all options into a single `WriteElementOptions` object:
+WriterSync supports a unified API that simplifies element creation by consolidating all options into a single `WriteElementOptions` object:
 
 ```typescript
-import { StaxXmlWriterSync, WriteElementOptions } from 'stax-xml';
+import { WriterSync, WriteElementOptions } from 'stax-xml';
 
 function createXmlWithNewAPI() {
-  const writer = new StaxXmlWriterSync({ prettyPrint: true });
+  const writer = new WriterSync({ prettyPrint: true });
 
   writer.writeStartDocument();
 
@@ -394,9 +394,9 @@ writer.writeStartElement('title', {
 ### 📚 API Reference
 
 ```typescript
-class StaxXmlWriterSync {
+class WriterSync {
   constructor(
-    options?: StaxXmlWriterSyncOptions
+    options?: WriterSyncOptions
   )
 
   // Document Level Methods
@@ -425,7 +425,7 @@ class StaxXmlWriterSync {
   getXmlString(): string
 }
 
-interface StaxXmlWriterSyncOptions {
+interface WriterSyncOptions {
   encoding?: string; // Default: 'utf-8'
   prettyPrint?: boolean; // Default: false
   indentString?: string; // Default: '  '
@@ -440,17 +440,17 @@ interface SyncTextSink {
   close?(): void;
 }
 
-interface StaxXmlWriterSyncSinkOptions extends StaxXmlWriterSyncOptions {
+interface WriterSyncSinkOptions extends WriterSyncOptions {
   bufferSize?: number;       // default: 16 * 1024
   enableAutoFlush?: boolean; // default: true
   flushThreshold?: number;   // default: 0.8 or absolute char count
   flushOnClose?: boolean;    // default: false
 }
 
-class StaxXmlWriterSyncSink {
+class WriterSyncSink {
   constructor(
     sink: SyncTextSink,
-    options?: StaxXmlWriterSyncSinkOptions
+    options?: WriterSyncSinkOptions
   )
 
   // Document Level Methods
@@ -482,9 +482,9 @@ interface NamespaceDeclaration {
 - **Type Safety**: Complete TypeScript support with detailed type definitions
 - **Memory Efficient**: Direct string building without streaming overhead
 
-### 💡 When to Use StaxXmlWriterSync
+### 💡 When to Use WriterSync
 
-Use `StaxXmlWriterSync` when:
+Use `WriterSync` when:
 - You need the complete XML document in memory immediately
 - Working with smaller to medium-sized XML documents
 - Building XML responses for web APIs
@@ -492,4 +492,4 @@ Use `StaxXmlWriterSync` when:
 - Working in synchronous workflows where blocking is acceptable
 - Memory usage is not a primary concern
 
-For large documents or streaming scenarios, consider using the async `StaxXmlWriter` instead.
+For large documents or streaming scenarios, consider using the async `Writer` instead.

@@ -1,11 +1,11 @@
 ---
-title: StaxXmlWriter - 비동기 XML 스트림 라이터
+title: Writer - 비동기 XML 스트림 라이터
 description: 대용량 문서와 실시간 생성을 위한 스트림 기반 비동기 XML 라이터
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/writer.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,14 +17,14 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/writer.png
 ---
 
-## StaxXmlWriter - 비동기 XML 스트림 라이터
+## Writer - 비동기 XML 스트림 라이터
 
-`StaxXmlWriter`는 논블로킹 `WritableStream` 워크플로우, 스트리밍 응답, 실시간 XML 생성을 위한 비동기 스트림 기반 XML 라이터입니다.
+`Writer`는 논블로킹 `WritableStream` 워크플로우, 스트리밍 응답, 실시간 XML 생성을 위한 비동기 스트림 기반 XML 라이터입니다.
 
-대용량 파일이나 대용량 문서를 최대 처리량으로 생성해야 한다면 [`StaxXmlWriterSyncSink`](/stax-xml/ko/api-guides/staxxml-writer-sync/#sink-기반-증분-쓰기)를 권장합니다. 1GiB writer 벤치마크에서 sync sink 경로가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
+대용량 파일이나 대용량 문서를 최대 처리량으로 생성해야 한다면 [`WriterSyncSink`](/stax-xml/ko/api-guides/writer-sync/#sink-기반-증분-쓰기)를 권장합니다. 1GiB writer 벤치마크에서 sync sink 경로가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
 ### 주요 기능
 
@@ -34,14 +34,14 @@ head:
 - **메모리 효율적**: 전체 XML을 메모리에 저장할 필요 없음
 - **실시간 생성**: 스트리밍 API와 라이브 데이터에 완벽
 
-> **참고**: 작은 동기식 출력에는 문자열 builder인 `StaxXmlWriterSync`를 사용하고, 대용량 파일 출력에는 `StaxXmlWriterSyncSink`를 사용하세요.
+> **참고**: 작은 동기식 출력에는 문자열 builder인 `WriterSync`를 사용하고, 대용량 파일 출력에는 `WriterSyncSink`를 사용하세요.
 
 ### 🔧 빠른 시작
 
 ```typescript
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
-import { StaxXmlWriter } from 'stax-xml';
+import { Writer } from 'stax-xml';
 
 const app = new Hono();
 
@@ -58,7 +58,7 @@ app.get('/api/products', (c) => {
   c.header('Cache-Control', 'no-cache');
 
   return stream(c, async (stream) => {
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       prettyPrint: true,
       indentString: '    '
     });
@@ -111,7 +111,7 @@ export default app;
 ```typescript
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
-import { StaxXmlWriter } from 'stax-xml';
+import { Writer } from 'stax-xml';
 
 const app = new Hono();
 
@@ -124,7 +124,7 @@ app.get('/api/catalog', (c) => {
   c.header('Content-Type', 'application/xml; charset=utf-8');
 
   return stream(c, async (stream) => {
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       prettyPrint: true,
       indentString: '  ',
       addEntities: [
@@ -197,7 +197,7 @@ export default app;
 
 ##### WriteElementOptions API
 
-`StaxXmlWriter`는 엘리먼트 생성을 단순화하는 통합 API를 지원합니다:
+`Writer`는 엘리먼트 생성을 단순화하는 통합 API를 지원합니다:
 
 ```typescript
 // 속성이 있는 자체 닫는 엘리먼트
@@ -219,12 +219,12 @@ await writer.writeStartElement('title', {
 
 ### 📚 API 참조
 
-#### StaxXmlWriter (비동기식, 스트림 기반)
+#### Writer (비동기식, 스트림 기반)
 
 ```typescript
-class StaxXmlWriter {
+class Writer {
   // 생성자 - WritableStream에 직접 XML 스트리밍용
-  constructor(stream: WritableStream<Uint8Array>, options?: StaxXmlWriterOptions)
+  constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
 
   // 문서 레벨 메서드
   writeStartDocument(version?: string, encoding?: string): Promise<this>
@@ -245,7 +245,7 @@ class StaxXmlWriter {
   getMetrics(): object    // 성능 메트릭
 }
 
-interface StaxXmlWriterOptions {
+interface WriterOptions {
   encoding?: string; // 기본값: 'utf-8'
   prettyPrint?: boolean; // 기본값: false
   indentString?: string; // 기본값: '  '
@@ -282,9 +282,9 @@ interface NamespaceDeclaration {
 }
 ```
 
-### 🚀 StaxXmlWriter를 언제 사용해야 할까요?
+### 🚀 Writer를 언제 사용해야 할까요?
 
-**StaxXmlWriter를 사용하는 경우:**
+**Writer를 사용하는 경우:**
 - 클라이언트에 실시간 XML 스트리밍
 - 메모리 효율성이 중요한 경우
 - 비동기/스트리밍 아키텍처 작업
@@ -292,4 +292,4 @@ interface NamespaceDeclaration {
 - 응답을 스트리밍해야 하는 API 구축
 - 라이브 데이터 소스에서 실시간 XML 생성
 
-**대용량 파일 생성**에는 [StaxXmlWriterSyncSink](/ko/api-guides/staxxml-writer-sync/#sink-기반-증분-쓰기)를 권장합니다. **소규모 문서나 동기식 작업**에는 XML을 메모리에서 문자열로 구성하는 [StaxXmlWriterSync](/ko/api-guides/staxxml-writer-sync/)를 사용하세요.
+**대용량 파일 생성**에는 [WriterSyncSink](/ko/api-guides/writer-sync/#sink-기반-증분-쓰기)를 권장합니다. **소규모 문서나 동기식 작업**에는 XML을 메모리에서 문자열로 구성하는 [WriterSync](/ko/api-guides/writer-sync/)를 사용하세요.

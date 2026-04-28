@@ -10,7 +10,7 @@ import * as txml from 'txml';
 import {
   IterableEventType,
   nodeFileByteBatchesSync,
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
 } from '../stax-xml/dist/iterable/node.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -394,7 +394,7 @@ function capturePeak(stats) {
 }
 
 function parseStaxNode(filePath, options) {
-  const parser = new StaxXmlNodeIterableParser(nodeFileByteBatchesSync(filePath, {
+  const parser = new NodeIterableReader(nodeFileByteBatchesSync(filePath, {
     chunkSize: options.chunkSize,
     batchSize: options.batchSize,
   }));

@@ -117,15 +117,15 @@ async function main(argv = process.argv.slice(2)) {
     const fixtureReports = [];
     for (const fixture of fixtures) {
         const scenarios = [];
-        const currentResult = await measure(() => new current.StaxXmlParser(createWebStream(fixture.path)), runCounts.warmups, runCounts.runs);
+        const currentResult = await measure(() => new current.EventReader(createWebStream(fixture.path)), runCounts.warmups, runCounts.runs);
         currentResult.id = 'current';
         scenarios.push(currentResult);
-        if (current.StaxXmlParserFastPathExperimental) {
-            const experimentalResult = await measure(() => new current.StaxXmlParserFastPathExperimental(createWebStream(fixture.path)), runCounts.warmups, runCounts.runs);
+        if (current.EventReaderFastPathExperimental) {
+            const experimentalResult = await measure(() => new current.EventReaderFastPathExperimental(createWebStream(fixture.path)), runCounts.warmups, runCounts.runs);
             experimentalResult.id = 'experimental';
             scenarios.push(experimentalResult);
         }
-        const publishedResult = await measure(() => new published.StaxXmlParser(createWebStream(fixture.path)), runCounts.warmups, runCounts.runs);
+        const publishedResult = await measure(() => new published.EventReader(createWebStream(fixture.path)), runCounts.warmups, runCounts.runs);
         publishedResult.id = 'published-v0.5.2';
         scenarios.push(publishedResult);
         fixtureReports.push({

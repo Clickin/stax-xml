@@ -61,8 +61,8 @@ async function quickBenchmark(options) {
     // Import modules dynamically
     const baselineModule = await import(baselinePath);
     const optimizedModule = await import(optimizedPath);
-    const BaselineParser = baselineModule.StaxXmlParserSync || baselineModule.default;
-    const OptimizedParser = optimizedModule.StaxXmlParserSync || optimizedModule.default;
+    const BaselineParser = baselineModule.EventReaderSync || baselineModule.default;
+    const OptimizedParser = optimizedModule.EventReaderSync || optimizedModule.default;
     if (!BaselineParser || !OptimizedParser) {
         console.error('ERROR: Could not load parser classes');
         process.exit(1);
@@ -181,8 +181,8 @@ if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
         console.log('');
         console.log('Example:');
         console.log('  node --expose-gc quick-benchmark.js \\');
-        console.log('    ../stax-xml/src/StaxXmlParserSync.baseline.js \\');
-        console.log('    ../stax-xml/src/StaxXmlParserSync.js \\');
+        console.log('    ../stax-xml/src/EventReaderSync.baseline.js \\');
+        console.log('    ../stax-xml/src/EventReaderSync.js \\');
         console.log('    --size medium --iterations 100');
         process.exit(1);
     }

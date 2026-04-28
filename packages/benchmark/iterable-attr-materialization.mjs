@@ -2,10 +2,10 @@ import { closeSync, existsSync, mkdirSync, openSync, statSync, writeSync } from 
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { IterableEventType, StaxXmlIterableParser } from 'stax-xml/iterable';
+import { IterableEventType, IterableReader } from 'stax-xml/iterable';
 import {
   nodeFileByteBatchesSync,
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
 } from '../stax-xml/dist/iterable/node.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -297,11 +297,11 @@ function makeParser(scenario, filePath, options) {
     chunkSize: options.chunkSize,
     batchSize: options.batchSize,
   });
-  if (scenario === 'neutral') return new StaxXmlIterableParser(source);
+  if (scenario === 'neutral') return new IterableReader(source);
   if (scenario === 'node-simple-attrs') {
-    return new StaxXmlNodeIterableParser(source, { attributeScanner: 'simple' });
+    return new NodeIterableReader(source, { attributeScanner: 'simple' });
   }
-  return new StaxXmlNodeIterableParser(source);
+  return new NodeIterableReader(source);
 }
 
 function mixChecksum(seed, value) {

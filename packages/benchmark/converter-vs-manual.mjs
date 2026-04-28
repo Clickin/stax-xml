@@ -5,7 +5,7 @@
  * for building the same JSON output structure.
  */
 import { bench, run } from 'mitata';
-import { StaxXmlParser, StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReader, EventReaderSync, XmlEventType } from 'stax-xml';
 import { x } from 'stax-xml/converter';
 import { createLargeXMLStream } from './common/large-file-generator.mjs';
 // Define converter schema (declarative approach)
@@ -29,7 +29,7 @@ async function parseManual(xmlStream) {
     let currentBook = null;
     let currentChapters = [];
     const elementStack = [];
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     for await (const event of parser) {
         switch (event.type) {
             case XmlEventType.START_ELEMENT: {
@@ -111,7 +111,7 @@ function parseManualSync(xmlString) {
     let currentBook = null;
     let currentChapters = [];
     const elementStack = [];
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new EventReaderSync(xmlString);
     for (const event of parser) {
         switch (event.type) {
             case XmlEventType.START_ELEMENT: {
@@ -245,7 +245,7 @@ console.log('   - XPath-based element selection');
 console.log('   - Type-safe and concise code');
 console.log('');
 console.log('2. Manual Parsing (Programmatic):');
-console.log('   - Direct event-based parsing with StaxXmlParser');
+console.log('   - Direct event-based parsing with EventReader');
 console.log('   - Manual state management and element tracking');
 console.log('   - Full control over parsing logic');
 console.log('');

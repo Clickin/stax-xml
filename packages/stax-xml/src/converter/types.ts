@@ -1,5 +1,5 @@
-import type { StaxXmlWriter } from '../StaxXmlWriter.js';
-import type { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
+import type { Writer } from '../Writer.js';
+import type { WriterSync, WriterSyncSink } from '../WriterSync.js';
 import type { DocumentMode } from '../types.js';
 
 /**
@@ -247,11 +247,11 @@ export interface XmlWriteOptions {
 
   /**
    * Custom writer instance
-   * - StaxXmlWriterSync: for writeSync() method
-   * - StaxXmlWriterSyncSink: for writeSync() with custom sink
-   * - StaxXmlWriter: for write() async method
+   * - WriterSync: for writeSync() method
+   * - WriterSyncSink: for writeSync() with custom sink
+   * - Writer: for write() async method
    */
-  writer?: StaxXmlWriterSync | StaxXmlWriterSyncSink | StaxXmlWriter;
+  writer?: WriterSync | WriterSyncSink | Writer;
 }
 
 /**

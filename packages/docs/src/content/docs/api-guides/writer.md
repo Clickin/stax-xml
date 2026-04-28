@@ -1,11 +1,11 @@
 ---
-title: StaxXmlWriter - Asynchronous XML Stream Writer
+title: Writer - Asynchronous XML Stream Writer
 description: Stream-based asynchronous XML writer for large documents and real-time generation
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/writer.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,14 +17,14 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-writer.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/writer.png
 ---
 
-## StaxXmlWriter - Asynchronous XML Stream Writer
+## Writer - Asynchronous XML Stream Writer
 
-`StaxXmlWriter` is an asynchronous, stream-based XML writer for non-blocking `WritableStream` workflows, streaming responses, and real-time XML generation.
+`Writer` is an asynchronous, stream-based XML writer for non-blocking `WritableStream` workflows, streaming responses, and real-time XML generation.
 
-For large file or large document output where maximum write throughput matters, prefer [`StaxXmlWriterSyncSink`](/stax-xml/api-guides/staxxml-writer-sync/#sink-based-incremental-writing). The 1GiB writer benchmark shows the sync sink path has the best write throughput while peak RSS stays in the same range as async writing.
+For large file or large document output where maximum write throughput matters, prefer [`WriterSyncSink`](/stax-xml/api-guides/writer-sync/#sink-based-incremental-writing). The 1GiB writer benchmark shows the sync sink path has the best write throughput while peak RSS stays in the same range as async writing.
 
 ### Key Features
 
@@ -34,14 +34,14 @@ For large file or large document output where maximum write throughput matters, 
 - **Memory Efficient**: No need to store entire XML in memory
 - **Real-time Generation**: Perfect for streaming APIs and live data
 
-> **Note**: For small synchronous output, use `StaxXmlWriterSync` as a string builder. For large file output, use `StaxXmlWriterSyncSink`.
+> **Note**: For small synchronous output, use `WriterSync` as a string builder. For large file output, use `WriterSyncSink`.
 
 ### 🔧 Quick Start
 
 ```typescript
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
-import { StaxXmlWriter } from 'stax-xml';
+import { Writer } from 'stax-xml';
 
 const app = new Hono();
 
@@ -58,7 +58,7 @@ app.get('/api/products', (c) => {
   c.header('Cache-Control', 'no-cache');
 
   return stream(c, async (stream) => {
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       prettyPrint: true,
       indentString: '    '
     });
@@ -111,7 +111,7 @@ export default app;
 ```typescript
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
-import { StaxXmlWriter } from 'stax-xml';
+import { Writer } from 'stax-xml';
 
 const app = new Hono();
 
@@ -124,7 +124,7 @@ app.get('/api/catalog', (c) => {
   c.header('Content-Type', 'application/xml; charset=utf-8');
 
   return stream(c, async (stream) => {
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       prettyPrint: true,
       indentString: '  ',
       addEntities: [
@@ -197,7 +197,7 @@ export default app;
 
 ##### WriteElementOptions API
 
-`StaxXmlWriter` supports a unified API that simplifies element creation:
+`Writer` supports a unified API that simplifies element creation:
 
 ```typescript
 // Self-closing element with attributes
@@ -219,12 +219,12 @@ await writer.writeStartElement('title', {
 
 ### 📚 API Reference
 
-#### StaxXmlWriter (Asynchronous, Stream-Based)
+#### Writer (Asynchronous, Stream-Based)
 
 ```typescript
-class StaxXmlWriter {
+class Writer {
   // Constructor - for streaming XML directly to WritableStream
-  constructor(stream: WritableStream<Uint8Array>, options?: StaxXmlWriterOptions)
+  constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
 
   // Document Level Methods
   writeStartDocument(version?: string, encoding?: string): Promise<this>
@@ -245,7 +245,7 @@ class StaxXmlWriter {
   getMetrics(): object    // Performance metrics
 }
 
-interface StaxXmlWriterOptions {
+interface WriterOptions {
   encoding?: string; // Default: 'utf-8'
   prettyPrint?: boolean; // Default: false
   indentString?: string; // Default: '  '
@@ -282,9 +282,9 @@ interface NamespaceDeclaration {
 }
 ```
 
-### 🚀 When to Use StaxXmlWriter
+### 🚀 When to Use Writer
 
-**Use StaxXmlWriter when:**
+**Use Writer when:**
 - Streaming XML to clients in real-time
 - Memory efficiency is critical
 - Working with asynchronous/streaming architectures
@@ -292,4 +292,4 @@ interface NamespaceDeclaration {
 - Building APIs that need to stream responses
 - Real-time XML generation from live data sources
 
-**For large file generation**, prefer [StaxXmlWriterSyncSink](/api-guides/staxxml-writer-sync/#sink-based-incremental-writing). **For small documents or synchronous operations**, use [StaxXmlWriterSync](/api-guides/staxxml-writer-sync/) as an in-memory string builder.
+**For large file generation**, prefer [WriterSyncSink](/api-guides/writer-sync/#sink-based-incremental-writing). **For small documents or synchronous operations**, use [WriterSync](/api-guides/writer-sync/) as an in-memory string builder.

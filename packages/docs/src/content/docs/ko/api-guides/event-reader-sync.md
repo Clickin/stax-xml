@@ -1,11 +1,11 @@
 ---
-title: StaxXmlParserSync - 동기식 XML 파싱
+title: EventReaderSync - 동기식 XML 파싱
 description: JavaScript/TypeScript용 고성능 동기식 XML 파서
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-parser-sync.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/event-reader-sync.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,19 +17,19 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-parser-sync.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/event-reader-sync.png
 ---
 
-## StaxXmlParserSync - 동기식 XML 파싱
+## EventReaderSync - 동기식 XML 파싱
 
-`StaxXmlParserSync`는 XML 문자열의 동기식 처리를 위해 설계된 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 전체 XML 문서가 이미 메모리에 있는 환경, 예를 들어 소규모에서 중간 규모의 XML 페이로드를 처리하는 웹 서버에서 이상적입니다. 비동기 스트림의 오버헤드를 피할 수 있습니다.
+`EventReaderSync`는 XML 문자열의 동기식 처리를 위해 설계된 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 전체 XML 문서가 이미 메모리에 있는 환경, 예를 들어 소규모에서 중간 규모의 XML 페이로드를 처리하는 웹 서버에서 이상적입니다. 비동기 스트림의 오버헤드를 피할 수 있습니다.
 
 ### 🔧 빠른 시작
 
 #### XML 문자열 파싱
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlContent = `
   <catalog>
@@ -44,7 +44,7 @@ const xmlContent = `
   </catalog>
 `;
 
-const parser = new StaxXmlParserSync(xmlContent);
+const parser = new EventReaderSync(xmlContent);
 const products = [];
 let currentProduct = null;
 let currentText = '';
@@ -87,12 +87,12 @@ console.log(products);
 
 ### 🛡️ 타입 가드 함수
 
-타입 가드 함수는 XML 이벤트에 대한 런타임 타입 확인과 TypeScript 타입 좁히기를 제공합니다. 이러한 함수들은 비동기와 동기 파서 모두에서 작동하며, `StaxXmlParserSync`에도 동일한 타입 안전성 혜택을 제공합니다.
+타입 가드 함수는 XML 이벤트에 대한 런타임 타입 확인과 TypeScript 타입 좁히기를 제공합니다. 이러한 함수들은 비동기와 동기 파서 모두에서 작동하며, `EventReaderSync`에도 동일한 타입 안전성 혜택을 제공합니다.
 
 #### 동기식 파서에서 타입 가드 사용하기
 
 ```typescript
-import { StaxXmlParserSync, isStartElement, isEndElement, isCharacters, isError } from 'stax-xml';
+import { EventReaderSync, isStartElement, isEndElement, isCharacters, isError } from 'stax-xml';
 
 const xmlContent = `
   <products>
@@ -108,7 +108,7 @@ const xmlContent = `
   </products>
 `;
 
-const parser = new StaxXmlParserSync(xmlContent);
+const parser = new EventReaderSync(xmlContent);
 const products = [];
 let currentProduct = null;
 let currentElement = '';
@@ -166,11 +166,11 @@ console.log(products);
 #### 타입 가드를 사용한 동기식 오류 처리
 
 ```typescript
-import { StaxXmlParserSync, isStartElement, isCharacters, isError } from 'stax-xml';
+import { EventReaderSync, isStartElement, isCharacters, isError } from 'stax-xml';
 
 function parseProductsSafely(xmlString: string) {
   try {
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new EventReaderSync(xmlString);
     const result = { products: [], errors: [] };
 
     for (const event of parser) {
@@ -207,7 +207,7 @@ if (result.errors.length > 0) {
 
 #### 동기식 파서를 위한 타입 가드 함수 참조
 
-모든 타입 가드 함수는 `StaxXmlParser`와 `StaxXmlParserSync` 모두에서 동일하게 작동합니다:
+모든 타입 가드 함수는 `EventReader`와 `EventReaderSync` 모두에서 동일하게 작동합니다:
 
 | 함수 | 목적 | 동기 파서에서의 사용법 |
 |------|------|----------------------|
@@ -251,14 +251,14 @@ for (const event of parser) {
 ### 📚 API 참조
 
 ```typescript
-class StaxXmlParserSync {
+class EventReaderSync {
   constructor(
     xmlString: string,
-    options?: StaxXmlParserSyncOptions
+    options?: EventReaderSyncOptions
   )
 }
 
-interface StaxXmlParserSyncOptions {
+interface EventReaderSyncOptions {
   autoDecodeEntities?: boolean; // 기본값: true
   addEntities?: { entity: string, value: string }[];
 }

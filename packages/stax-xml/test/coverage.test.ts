@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import StaxXmlParser from '../src/StaxXmlParser';
+import EventReader from '../src/EventReader';
 import { XmlEventFactory, XmlEventType, isStartElement, isEndElement, isCharacters, isCdata, isError, isStartDocument, isEndDocument } from '../src/types';
 
 // Helper function to convert string to ReadableStream
@@ -16,10 +16,10 @@ function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
 }
 
 describe('Coverage Tests for Missing Areas', () => {
-  describe('StaxXmlParser Batch Processing API', () => {
+  describe('EventReader Batch Processing API', () => {
     test('should drain the currently available chunk-derived batch', async () => {
       const xml = '<root><item>1</item><item>2</item><item>3</item><item>4</item><item>5</item></root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       const batch1 = await parser.nextBatch();
 
@@ -31,7 +31,7 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should handle batchedIterator and complete batches', async () => {
       const xml = '<root><a>1</a><b>2</b><c>3</c></root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       const batches: any[][] = [];
       for await (const batch of parser.batchedIterator()) {
@@ -45,7 +45,7 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should drain multiple queued events per batch after a single chunk read', async () => {
       const xml = '<root>' + '<item>value</item>'.repeat(20) + '</root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       const batch = await parser.nextBatch();
 
@@ -57,7 +57,7 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should return an empty batch after stream completion', async () => {
       const xml = '<root><item>test</item></root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       while ((await parser.nextBatch()).length > 0) {
         // drain all batches
@@ -68,13 +68,13 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should handle nextBatch on small and large XML inputs', async () => {
       const smallXml = '<a/>';
-      const parser1 = new StaxXmlParser(stringToReadableStream(smallXml));
+      const parser1 = new EventReader(stringToReadableStream(smallXml));
 
       const batch1 = await parser1.nextBatch();
       expect(batch1).toBeDefined();
 
       const largeXml = '<root>' + '<item>data</item>'.repeat(100) + '</root>';
-      const parser2 = new StaxXmlParser(stringToReadableStream(largeXml));
+      const parser2 = new EventReader(stringToReadableStream(largeXml));
 
       const batch2 = await parser2.nextBatch();
       expect(batch2).toBeDefined();
@@ -82,7 +82,7 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should continue draining batches until completion', async () => {
       const xml = '<root>' + '<item>'.repeat(50) + 'large content data'.repeat(10) + '</item>'.repeat(50) + '</root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       for (let i = 0; i < 5; i++) {
         const batch = await parser.nextBatch();
@@ -95,7 +95,7 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should include character-heavy content in chunk-derived batches', async () => {
       const xml = '<root>Some text content</root>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       // First batch should contain start elements
       const batch1 = await parser.nextBatch();
@@ -204,7 +204,7 @@ describe('Coverage Tests for Missing Areas', () => {
   describe('Edge Cases for Batch Processing', () => {
     test('should handle empty event queue in batchedIterator', async () => {
       const xml = '';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       const batches = [];
       for await (const batch of parser.batchedIterator()) {
@@ -217,7 +217,7 @@ describe('Coverage Tests for Missing Areas', () => {
 
     test('should handle parser finished state in batchedIterator', async () => {
       const xml = '<simple/>';
-      const parser = new StaxXmlParser(stringToReadableStream(xml));
+      const parser = new EventReader(stringToReadableStream(xml));
 
       // Consume all events first
       const allEvents = [];

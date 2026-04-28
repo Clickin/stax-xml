@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import inspector from 'node:inspector';
 // Import both parser variants
-import { StaxXmlParserSync as BaselineParser } from './parsers/baseline';
-import { StaxXmlParserSync as InlinedParser } from './parsers/inlined';
+import { EventReaderSync as BaselineParser } from './parsers/baseline';
+import { EventReaderSync as InlinedParser } from './parsers/inlined';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 function parseXML(ParserClass, xml) {
     const start = performance.now();

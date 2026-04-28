@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
-import { StaxXmlWriter } from '../src/StaxXmlWriter';
+import WriterSync from '../src/WriterSync';
+import { Writer } from '../src/Writer';
 
 function createCountingWritableStream(): { stream: WritableStream<Uint8Array>; getBytesWritten: () => number } {
   let bytesWritten = 0;
@@ -17,7 +17,7 @@ function createCountingWritableStream(): { stream: WritableStream<Uint8Array>; g
 
 describe('Writer hot-path regression coverage', () => {
   it('should preserve deep pretty-print indentation with repeated levels', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '    '
     });
@@ -48,7 +48,7 @@ describe('Writer hot-path regression coverage', () => {
 
   it('should not leak namespace declarations across sibling elements in async writer', async () => {
     const { stream } = createCountingWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       prettyPrint: false
     });
 
@@ -75,7 +75,7 @@ describe('Writer hot-path regression coverage', () => {
 
   it('should flush async output without dropping bytes on a tiny buffer boundary', async () => {
     const { stream, getBytesWritten } = createCountingWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
       prettyPrint: false,
       bufferSize: 32,
       flushThreshold: 16

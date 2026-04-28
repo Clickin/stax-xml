@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { x } from '../../src/converter';
 import { getIterableEventTable, STAX_XML_EVENT_TABLE } from '../../src/IterableEventBackend';
-import { IterableEventType } from '../../src/StaxXmlIterableParser';
+import { IterableEventType } from '../../src/IterableReader';
 import {
   StaxXmlWasmIterableParser,
   type StaxXmlWasmSpanTable,

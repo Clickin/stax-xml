@@ -1,11 +1,11 @@
 ---
-title: StaxXmlIterableParser - Batch XML Parsing
+title: IterableReader - Batch XML Parsing
 description: Low-level iterable byte-batch parser API for high-throughput XML scanning
 ---
 
-## StaxXmlIterableParser - Batch XML Parsing
+## IterableReader - Batch XML Parsing
 
-`StaxXmlIterableParser` is the low-level synchronous event-frame backend used by the public parser, cursor, and converter fast paths. Use it when you want maximum throughput over byte chunks and can consume batch-local spans or materialize only the strings you need.
+`IterableReader` is the low-level synchronous event-frame backend used by the public parser, cursor, and converter fast paths. Use it when you want maximum throughput over byte chunks and can consume batch-local spans or materialize only the strings you need.
 
 It is not a DOM parser and it does not retain old events. Every batch view is valid only until the next `nextBatch()` or `nextBatchFrame()` call.
 
@@ -16,15 +16,15 @@ Parsing is CPU-intensive. Even when chunks come from an `AsyncIterable`, the tok
 ```typescript
 import {
   IterableEventType,
-  StaxXmlIterableParser,
+  IterableReader,
   toAsyncByteBatches,
   toByteBatches,
   type ByteBatch,
-  type StaxXmlIterableBatchFrame,
+  type IterableReaderBatchFrame,
 } from 'stax-xml/iterable';
 
 import {
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
   nodeFileByteBatchesSync,
 } from 'stax-xml/iterable/node';
 ```
@@ -34,7 +34,7 @@ Use `stax-xml/iterable` for browser-compatible `Uint8Array` batches. Use `stax-x
 ### Basic Usage
 
 ```typescript
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+import { IterableEventType, IterableReader, toByteBatches } from 'stax-xml/iterable';
 
 const encoder = new TextEncoder();
 const chunks = [
@@ -42,7 +42,7 @@ const chunks = [
   encoder.encode('<title>Native XML</title></book></catalog>'),
 ];
 
-const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 2 }));
+const parser = new IterableReader(toByteBatches(chunks, { batchSize: 2 }));
 
 while (parser.nextBatch()) {
   for (let index = 0; index < parser.eventCount(); index++) {
@@ -56,7 +56,7 @@ while (parser.nextBatch()) {
 ### Constructor
 
 ```typescript
-new StaxXmlIterableParser(source, options?)
+new IterableReader(source, options?)
 ```
 
 `source` is an `Iterable<ByteBatch>`, where `ByteBatch` is `readonly Uint8Array[]`.
@@ -76,16 +76,16 @@ toByteBatches(source, { batchSize?: number })
 toAsyncByteBatches(source, { batchSize?: number })
 ```
 
-`toByteBatches()` groups an `Iterable<Uint8Array>` into `ByteBatch` arrays. `toAsyncByteBatches()` does the same for `AsyncIterable<Uint8Array>`, but `StaxXmlIterableParser` itself is synchronous, so awaited batches must be handed to a synchronous parser loop.
+`toByteBatches()` groups an `Iterable<Uint8Array>` into `ByteBatch` arrays. `toAsyncByteBatches()` does the same for `AsyncIterable<Uint8Array>`, but `IterableReader` itself is synchronous, so awaited batches must be handed to a synchronous parser loop.
 
 ### Batch Loop
 
 | Method | Returns | Meaning |
 | --- | --- | --- |
 | `nextBatch()` | `boolean` | Advances to the next event frame. |
-| `nextBatchFrame()` | `StaxXmlIterableBatchFrame \| undefined` | Advances and returns the current typed-array frame. |
+| `nextBatchFrame()` | `IterableReaderBatchFrame \| undefined` | Advances and returns the current typed-array frame. |
 | `eventCount()` | `number` | Number of events in the current frame. |
-| `batchFrame()` | `StaxXmlIterableBatchFrame` | Returns the current frame without advancing. |
+| `batchFrame()` | `IterableReaderBatchFrame` | Returns the current frame without advancing. |
 | `buffer()` | `Uint8Array` | Current batch buffer that span offsets point into. |
 
 Frame fields such as `eventTypes`, `nameStarts`, `nameEnds`, `textStarts`, `attrStarts`, and `attrCounts` are parser-owned typed arrays. Read them before advancing the parser.
@@ -119,9 +119,9 @@ Use spans when checksums, filtering, or byte-level routing are enough. Use copy 
 
 ```typescript
 import { IterableEventType } from 'stax-xml/iterable';
-import { StaxXmlNodeIterableParser, nodeFileByteBatchesSync } from 'stax-xml/iterable/node';
+import { NodeIterableReader, nodeFileByteBatchesSync } from 'stax-xml/iterable/node';
 
-const parser = new StaxXmlNodeIterableParser(
+const parser = new NodeIterableReader(
   nodeFileByteBatchesSync('./large.xml', {
     chunkSize: 1024 * 1024,
     batchSize: 1,
@@ -138,7 +138,7 @@ while (parser.nextBatch()) {
 }
 ```
 
-`StaxXmlNodeIterableParser` exposes the same span and copy methods as `StaxXmlIterableParser`, but `buffer()` returns a Node `Buffer`. Its options currently include `attributeScanner?: 'general' | 'simple'`.
+`NodeIterableReader` exposes the same span and copy methods as `IterableReader`, but `buffer()` returns a Node `Buffer`. Its options currently include `attributeScanner?: 'general' | 'simple'`.
 
 ### Async File I/O With Sync Batch Parsing
 
@@ -148,7 +148,7 @@ Async file I/O does not make XML parsing itself non-blocking. Each `parser.nextB
 
 ```typescript
 import { open } from 'node:fs/promises';
-import { StaxXmlNodeIterableParser } from 'stax-xml/iterable/node';
+import { NodeIterableReader } from 'stax-xml/iterable/node';
 
 class OneBatchSource implements Iterable<readonly Buffer[]> {
   private batch?: readonly Buffer[];
@@ -181,7 +181,7 @@ class OneBatchSource implements Iterable<readonly Buffer[]> {
 
 async function parseAsyncFile(path: string) {
   const source = new OneBatchSource();
-  const parser = new StaxXmlNodeIterableParser(source);
+  const parser = new NodeIterableReader(source);
   const file = await open(path, 'r');
 
   try {
@@ -201,4 +201,4 @@ async function parseAsyncFile(path: string) {
 }
 ```
 
-For fully async public API ergonomics, use `StaxXmlParser`. For backend throughput and bounded batch jobs, use the iterable parser directly.
+For fully async public API ergonomics, use `EventReader`. For backend throughput and bounded batch jobs, use the iterable parser directly.

@@ -6,9 +6,9 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
 // Import parsers
-import { StaxXmlParserSync as Baseline } from './parsers/baseline';
-import { StaxXmlParserSync as FastAttr } from './parsers/fastattr';
-import { StaxXmlParserSync as FastEntity } from './parsers/fastentity';
+import { EventReaderSync as Baseline } from './parsers/baseline';
+import { EventReaderSync as FastAttr } from './parsers/fastattr';
+import { EventReaderSync as FastEntity } from './parsers/fastentity';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 function parseXML(ParserClass, xml) {
     const parser = new ParserClass(xml);

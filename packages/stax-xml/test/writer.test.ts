@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
+import WriterSync from '../src/WriterSync';
 
 // 웹 표준 API용 헬퍼 함수
 
 
 // JavaScript 객체를 XML로 변환하는 함수
 function objectToXml(obj: any, prettyPrint: boolean = true, indentString: string = '  '): string {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     encoding: 'utf-8',
     prettyPrint: prettyPrint,
     indentString: indentString
@@ -21,7 +21,7 @@ function objectToXml(obj: any, prettyPrint: boolean = true, indentString: string
 }
 
 // 재귀적으로 요소를 작성하는 헬퍼 함수
-function writeElement(writer: StaxXmlWriterSync, element: any): void {
+function writeElement(writer: WriterSync, element: any): void {
   writer.writeStartElement(element.name);
 
   // 속성 작성
@@ -50,7 +50,7 @@ function writeElement(writer: StaxXmlWriterSync, element: any): void {
   writer.writeEndElement();
 }
 
-describe('StaxXmlWriter Tests', () => {
+describe('Writer Tests', () => {
   it('should write simple XML with elements and text', () => {
     const obj = {
       name: 'note',
@@ -350,7 +350,7 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   it('should write self-closing elements using writer methods', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -435,7 +435,7 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   it('should handle processing instructions and comments', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -464,7 +464,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // XML 기본 엔티티 5종 이스케이프 테스트
   it('should escape XML basic entities in text content', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -486,7 +486,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 속성에서의 엔티티 이스케이프 테스트
   it('should escape XML entities in attributes', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -514,7 +514,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 사용자 정의 엔티티 테스트
   it('should handle custom entities', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -542,7 +542,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 사용자 정의 엔티티를 속성에서 테스트
   it('should handle custom entities in attributes', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -571,7 +571,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 엔티티 자동 인코딩 비활성화 테스트
   it('should not escape entities when autoEncodeEntities is disabled', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -594,7 +594,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 복합 엔티티 테스트 (기본 + 사용자 정의)
   it('should handle mixed basic and custom entities', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  ',
@@ -620,7 +620,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 커버리지 개선: self-closing 요소 테스트 (네임스페이스 및 속성 포함)
   it('should write empty element with namespace and attributes', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -653,7 +653,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 커버리지 개선: Pretty print 설정 메서드들 테스트
   it('should support dynamic pretty print configuration', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: false,
       indentString: '  '
@@ -687,7 +687,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 커버리지 개선: Writer 상태가 CLOSED/ERROR일 때 self-closing 요소 작성 오류 테스트
   it('should throw error when writeEmptyElement is called on closed writer', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -704,7 +704,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 커버리지 개선: getIndentString 메서드 테스트
   it('should return current indent string configuration', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -724,7 +724,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 커버리지 개선: writeNamespace 메서드 테스트
   it('should write namespace declarations', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -750,7 +750,7 @@ describe('StaxXmlWriter Tests', () => {
 
   // 커버리지 개선: writeNamespace 에러 상태 테스트
   it('should throw error when writeNamespace is called without start element', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -763,7 +763,7 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   it('should properly close elements with namespaces', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -803,7 +803,7 @@ describe('StaxXmlWriter Tests', () => {
   });
 
   it('should not leak namespace declarations from one child to siblings', () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: false,
       indentString: '  '

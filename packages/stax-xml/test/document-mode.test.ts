@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { StaxXmlParser } from '../src/StaxXmlParser';
-import { StaxXmlParserSync } from '../src/StaxXmlParserSync';
+import { EventReader } from '../src/EventReader';
+import { EventReaderSync } from '../src/EventReaderSync';
 import { XmlEventType } from '../src/types';
 import { x } from '../src/converter';
 
@@ -16,7 +16,7 @@ function streamFrom(input: string): ReadableStream<Uint8Array> {
 
 async function collectAsync(input: string, documentMode: 'fragment' | 'document' = 'fragment') {
   const events = [];
-  for await (const event of new StaxXmlParser(streamFrom(input), { documentMode })) {
+  for await (const event of new EventReader(streamFrom(input), { documentMode })) {
     events.push(event);
   }
   return events;
@@ -24,24 +24,24 @@ async function collectAsync(input: string, documentMode: 'fragment' | 'document'
 
 describe('documentMode', () => {
   it('keeps fragment mode as the default and allows sibling root elements', () => {
-    const events = Array.from(new StaxXmlParserSync('<item/><item/>'));
+    const events = Array.from(new EventReaderSync('<item/><item/>'));
 
     expect(events.filter(event => event.type === XmlEventType.START_ELEMENT).map(event => event.name))
       .toEqual(['item', 'item']);
   });
 
   it('rejects sibling root elements in document mode', () => {
-    expect(() => Array.from(new StaxXmlParserSync('<item/><item/>', { documentMode: 'document' })))
+    expect(() => Array.from(new EventReaderSync('<item/><item/>', { documentMode: 'document' })))
       .toThrow(/exactly one root element/);
   });
 
   it('rejects an empty document in document mode', () => {
-    expect(() => Array.from(new StaxXmlParserSync('   ', { documentMode: 'document' })))
+    expect(() => Array.from(new EventReaderSync('   ', { documentMode: 'document' })))
       .toThrow(/exactly one root element/);
   });
 
   it('rejects non-whitespace text after the document element', () => {
-    expect(() => Array.from(new StaxXmlParserSync('<item/>tail', { documentMode: 'document' })))
+    expect(() => Array.from(new EventReaderSync('<item/>tail', { documentMode: 'document' })))
       .toThrow(/outside the document element/);
   });
 
@@ -61,7 +61,7 @@ describe('documentMode', () => {
 
   it('does not resolve external entities from a DOCTYPE declaration', () => {
     const xmlWithExternalEntity = '<!DOCTYPE root [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><root>&xxe;</root>';
-    const events = Array.from(new StaxXmlParserSync(xmlWithExternalEntity, { documentMode: 'document' }));
+    const events = Array.from(new EventReaderSync(xmlWithExternalEntity, { documentMode: 'document' }));
 
     expect(events.find(event => event.type === XmlEventType.CHARACTERS)?.value).toBe('&xxe;');
   });
@@ -79,12 +79,12 @@ describe('documentMode', () => {
     ['comment double hyphen', '<root><!-- bad -- comment --></root>', /comments/],
     ['missing PI target', '<root><? ?></root>', /target/]
   ])('rejects %s in document mode', (_name, input, message) => {
-    expect(() => Array.from(new StaxXmlParserSync(input, { documentMode: 'document' })))
+    expect(() => Array.from(new EventReaderSync(input, { documentMode: 'document' })))
       .toThrow(message);
   });
 
   it('keeps default fragment mode tolerant for legacy implicit attributes', () => {
-    const events = Array.from(new StaxXmlParserSync('<root disabled/>'));
+    const events = Array.from(new EventReaderSync('<root disabled/>'));
 
     expect(events.find(event => event.type === XmlEventType.START_ELEMENT)?.attributes.disabled).toBe('true');
   });

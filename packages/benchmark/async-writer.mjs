@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { barplot, bench, summary } from 'mitata';
-import { StaxXmlWriter, StaxXmlWriterSync, StaxXmlWriterSyncSink } from 'stax-xml';
+import { Writer, WriterSync, WriterSyncSink } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 
 const cli = parseMitataCliArgs();
@@ -35,7 +35,7 @@ function nodeStreamToWritableStream(nodeStream) {
 async function generateXmlWithAsyncWriter(outputPath, numElements) {
   const fileStream = createWriteStream(outputPath);
   const writableStream = nodeStreamToWritableStream(fileStream);
-  const writer = new StaxXmlWriter(writableStream, {
+  const writer = new Writer(writableStream, {
     prettyPrint: true,
     indentString: '  ',
     bufferSize: 64 * 1024,
@@ -95,7 +95,7 @@ async function generateXmlWithAsyncWriter(outputPath, numElements) {
 }
 
 function generateXmlWithSyncWriter(numElements) {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '  ',
   });
@@ -165,7 +165,7 @@ function createInMemoryFileSink() {
 
 function generateXmlWithSyncWriterSink(numElements) {
   const { sink, getBytesWritten } = createInMemoryFileSink();
-  const writer = new StaxXmlWriterSyncSink(sink, {
+  const writer = new WriterSyncSink(sink, {
     prettyPrint: true,
     indentString: '  ',
     bufferSize: 64 * 1024,

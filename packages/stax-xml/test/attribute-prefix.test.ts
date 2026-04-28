@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
+import EventReader from '../src/EventReader';
+import WriterSync from '../src/WriterSync';
 import { StartElementEvent, XmlEventType } from '../src/types';
 
 // 헬퍼 함수들
@@ -38,7 +38,7 @@ describe('Attribute Prefix Support Tests', () => {
 </doc>`;
 
     const inputStream = stringToReadableStream(xmlWithPrefixedAttrs);
-    const reader = new StaxXmlParser(inputStream);
+    const reader = new EventReader(inputStream);
 
     const events = [];
     for await (const event of reader) {
@@ -103,7 +103,7 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should write attributes with prefix correctly', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true,
       indentString: '  '
@@ -164,7 +164,7 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should throw error when using undefined namespace prefix in attributes', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: true
     });
@@ -181,7 +181,7 @@ describe('Attribute Prefix Support Tests', () => {
   });
 
   it('should handle mixed simple and prefixed attributes', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: false
     });
@@ -217,7 +217,7 @@ describe('Attribute Prefix Support Tests', () => {
 
     // Parse the XML
     const inputStream = stringToReadableStream(originalXml);
-    const parser = new StaxXmlParser(inputStream);
+    const parser = new EventReader(inputStream);
 
     const events = [];
     for await (const event of parser) {
@@ -230,7 +230,7 @@ describe('Attribute Prefix Support Tests', () => {
     ) as StartElementEvent;
 
     // Write it back using the parsed information
-    const writer = new StaxXmlWriterSync({ prettyPrint: false });
+    const writer = new WriterSync({ prettyPrint: false });
 
     writer.writeStartDocument();
     writer.writeStartElement('root');

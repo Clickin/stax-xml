@@ -12,11 +12,11 @@ import {
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
-import { IterableEventType, StaxXmlIterableParser } from 'stax-xml/iterable';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
+import { IterableEventType, IterableReader } from 'stax-xml/iterable';
 import {
   nodeFileByteBatchesSync,
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
 } from '../stax-xml/dist/iterable/node.js';
 import {
   parse_aggregate_buffer,
@@ -306,8 +306,8 @@ function makeJsParser(scenario, filePath, options) {
     chunkSize: options.chunkSize,
     batchSize: options.batchSize,
   });
-  if (scenario === 'js-neutral') return new StaxXmlIterableParser(source);
-  if (scenario === 'js-node') return new StaxXmlNodeIterableParser(source);
+  if (scenario === 'js-neutral') return new IterableReader(source);
+  if (scenario === 'js-node') return new NodeIterableReader(source);
   throw new Error(`Unknown JS parser scenario: ${scenario}`);
 }
 
@@ -370,7 +370,7 @@ function consumeSyncStringParser(input, tier, sampleEvery) {
   const peak = { rssBytes: 0, heapUsedBytes: 0 };
   capturePeak(peak);
 
-  for (const event of new StaxXmlParserSync(input)) {
+  for (const event of new EventReaderSync(input)) {
     const type = syncEventTypeId(event.type);
     const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes ?? {}) : [];
     eventCount++;
@@ -991,7 +991,7 @@ function renderMarkdown(report, jsonOut) {
   lines.push('- native-string-utf8 receives a JS string through napi-rs String, which copies/transcodes it to UTF-8 before Rust scans it.');
   lines.push('- native-string-utf16 receives a JS string through napi-rs Utf16String, which copies UTF-16 code units once and scans u16 without UTF-8 re-encoding.');
   lines.push('- native-span-table-string-utf16 receives a JS string through napi-rs Utf16String, scans UTF-16 in Rust, returns one packed span-table Buffer, and materializes through JS string.slice on the original input.');
-  lines.push('- js-sync-string uses the public StaxXmlParserSync string parser over the same preloaded JS string.');
+  lines.push('- js-sync-string uses the public EventReaderSync string parser over the same preloaded JS string.');
   lines.push('- Bun FFI can call the same Rust UTF-16 scanner through a C ABI symbol only after JS has provided a TypedArray pointer; normal JS string input still needs a string-to-Uint16Array copy on the Bun side.');
   lines.push('- JS baselines use the existing iterable full parser over file byte batches.');
   lines.push('- checksum parity is enforced for every fixture, tier, and scenario before report emission.');

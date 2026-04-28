@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { StaxXmlParserSync } from '../../src/StaxXmlParserSync.js';
+import { EventReaderSync } from '../../src/EventReaderSync.js';
 import { x } from '../../src/converter/index.js';
 import { CompiledRootProcessor } from '../../src/converter/CompiledRootProcessor.js';
 import { XmlEventFactory, type AnyXmlEvent } from '../../src/types.js';
 
 async function* asyncEventsFromXml(xml: string): AsyncGenerator<AnyXmlEvent> {
-  for (const event of new StaxXmlParserSync(xml)) {
+  for (const event of new EventReaderSync(xml)) {
     yield event;
   }
 }
@@ -420,7 +420,7 @@ describe('CompiledRootProcessor', () => {
     });
     const processor = compiledProcessor(schema);
 
-    expect(await processor.parse(Array.from(new StaxXmlParserSync(xml)))).toEqual({ value: 'ok' });
+    expect(await processor.parse(Array.from(new EventReaderSync(xml)))).toEqual({ value: 'ok' });
 
     async function* errorEvents(): AsyncGenerator<AnyXmlEvent> {
       yield XmlEventFactory.error(new Error('compiled event failure'));

@@ -1,5 +1,5 @@
 import { barplot, bench, summary } from 'mitata';
-import { StaxXmlWriter, StaxXmlWriterSync } from 'stax-xml';
+import { Writer, WriterSync } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 const cli = parseMitataCliArgs();
 function createCountingWritableStream() {
@@ -14,7 +14,7 @@ function createCountingWritableStream() {
     };
 }
 function writeSyncCatalog(bookCount, prettyPrint) {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
         prettyPrint,
         indentString: '  '
     });
@@ -45,7 +45,7 @@ function writeSyncCatalog(bookCount, prettyPrint) {
 }
 async function writeAsyncCatalog(bookCount, prettyPrint) {
     const { stream, getBytesWritten } = createCountingWritableStream();
-    const writer = new StaxXmlWriter(stream, {
+    const writer = new Writer(stream, {
         prettyPrint,
         indentString: '  ',
         bufferSize: 64 * 1024,

@@ -1,9 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { closeSync, openSync, readSync, type PathLike } from 'node:fs';
-import {
-  getStaxXmlRuntimeForSyncApi,
-  type StaxXmlRuntimeBackendPreference,
-} from '../runtime/native-backend.js';
+import { getStaxXmlRuntimeForSyncApi } from '../runtime/native-backend.js';
 import { StreamingEventBatchReader } from '../runtime/event-table.js';
 
 export const IterableEventType = {
@@ -20,8 +17,7 @@ export type IterableEventType = typeof IterableEventType[keyof typeof IterableEv
 export type NodeByteBatch = readonly Buffer[];
 
 export type NodeAttributeScanner = 'general' | 'simple';
-export type NodeIterableParserBackend = StaxXmlRuntimeBackendPreference;
-export type NodeIterableParserBackendKind = 'pending' | 'native' | 'wasm' | 'js';
+export type NodeIterableReaderBackendKind = 'pending' | 'native' | 'wasm' | 'js';
 
 export interface NodeByteBatchOptions {
   batchSize?: number;
@@ -31,10 +27,8 @@ export interface NodeFileByteBatchOptions extends NodeByteBatchOptions {
   chunkSize?: number;
 }
 
-export interface StaxXmlNodeIterableParserOptions {
+export interface NodeIterableReaderOptions {
   attributeScanner?: NodeAttributeScanner;
-  backend?: NodeIterableParserBackend;
-  fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
 
@@ -81,15 +75,13 @@ export function* nodeFileByteBatchesSync(
   }
 }
 
-export class StaxXmlNodeIterableParser {
+export class NodeIterableReader {
   private iterator: Iterator<NodeByteBatch>;
   private readonly useSimpleAttributeScanner: boolean;
-  private readonly backend: NodeIterableParserBackend;
-  private readonly fallbackOnLoadError: boolean | undefined;
   private readonly fallbackOnParseError: boolean | undefined;
   private backendInitialized = false;
   private nativeParser: NativeNodeIterableBackend | StreamingEventBatchReader | undefined;
-  private backendKindValue: NodeIterableParserBackendKind = 'pending';
+  private backendKindValue: NodeIterableReaderBackendKind = 'pending';
 
   private currentBuffer: Buffer = EMPTY_BUFFER;
   private pendingTail: Buffer = EMPTY_BUFFER;
@@ -118,14 +110,9 @@ export class StaxXmlNodeIterableParser {
   private readonly nameIds = new Map<number, number>();
   private readonly nameStrings: string[] = [];
 
-  constructor(source: Iterable<NodeByteBatch>, options: StaxXmlNodeIterableParserOptions = {}) {
+  constructor(source: Iterable<NodeByteBatch>, options: NodeIterableReaderOptions = {}) {
     this.iterator = source[Symbol.iterator]();
-    this.backend = options.backend ?? 'auto';
-    this.fallbackOnLoadError = options.fallbackOnLoadError;
     this.fallbackOnParseError = options.fallbackOnParseError;
-    if (this.backend !== 'auto' && this.backend !== 'js' && this.backend !== 'native' && this.backend !== 'wasm') {
-      throw new RangeError(`Unknown iterable parser backend: ${String(this.backend)}.`);
-    }
     const attributeScanner = options.attributeScanner ?? 'general';
     if (attributeScanner !== 'general' && attributeScanner !== 'simple') {
       throw new RangeError(`Unknown attributeScanner: ${String(attributeScanner)}.`);
@@ -344,7 +331,7 @@ export class StaxXmlNodeIterableParser {
     return attributes;
   }
 
-  backendKind(): NodeIterableParserBackendKind {
+  backendKind(): NodeIterableReaderBackendKind {
     return this.backendKindValue;
   }
 
@@ -354,16 +341,13 @@ export class StaxXmlNodeIterableParser {
     }
     this.backendInitialized = true;
 
-    if (this.backend === 'js' || this.useSimpleAttributeScanner) {
+    if (this.useSimpleAttributeScanner) {
       this.backendKindValue = 'js';
       return;
     }
 
-    const runtime = getStaxXmlRuntimeForSyncApi(this.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     if (!runtime || runtime.backend.kind === 'js') {
-      if (this.backend !== 'auto' && this.backend !== 'js' && this.fallbackOnLoadError !== true) {
-        throw new Error(`Initialized ${this.backend} backend does not provide streamingEventBatches or structuralIndexUtf8 capability.`);
-      }
       this.backendKindValue = 'js';
       return;
     }
@@ -377,9 +361,6 @@ export class StaxXmlNodeIterableParser {
 
     const buildTable = runtime.capabilities.structuralIndexUtf8;
     if (!buildTable) {
-      if (this.backend !== 'auto' && this.backend !== 'js' && this.fallbackOnLoadError !== true) {
-        throw new Error(`Initialized ${this.backend} backend does not provide streamingEventBatches or structuralIndexUtf8 capability.`);
-      }
       this.backendKindValue = 'js';
       return;
     }
@@ -405,8 +386,8 @@ export class StaxXmlNodeIterableParser {
       this.backendKindValue = runtime.backend.kind;
       return;
     } catch {
-      if (this.backend !== 'auto' && this.fallbackOnParseError !== true) {
-        throw new Error(`Unable to parse XML with initialized ${this.backend} backend.`);
+      if (this.fallbackOnParseError !== true) {
+        throw new Error(`Unable to parse XML with initialized ${runtime.backend.kind} backend.`);
       }
       // Fall through to the JavaScript parser to preserve existing permissive behavior.
     }

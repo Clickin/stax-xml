@@ -265,7 +265,7 @@ function createScenarioDetails(report) {
     '- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.',
     '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
-    '- `public-sync-full-string` uses `StaxXmlParserSync` over one string.',
+    '- `public-sync-full-string` uses `EventReaderSync` over one string.',
     '- `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.',
     '- This matrix intentionally excludes native addons.',
     '',
@@ -316,7 +316,7 @@ function createMarkdown(report) {
   lines.push('');
   lines.push('## Contract');
   lines.push('');
-  lines.push('- `public-sync-full-string` uses `StaxXmlParserSync` and folds element names, text, attribute names, and attribute values into a checksum.');
+  lines.push('- `public-sync-full-string` uses `EventReaderSync` and folds element names, text, attribute names, and attribute values into a checksum.');
   lines.push('- `iterable-count-only` uses the browser-compatible iterable event-frame backend without string materialization.');
   lines.push('- `iterable-full-string` uses the same event-frame backend and materializes the same full string checksum workload.');
   lines.push('- All runtime rows must preserve event count and checksum for the same scenario.');

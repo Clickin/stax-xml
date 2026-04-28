@@ -2,7 +2,7 @@ import { bench } from 'mitata';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 import { x } from 'stax-xml/converter';
 import { parseMitataCliArgs, runMitataWithCli } from './common/mitata-cli.mjs';
 
@@ -72,7 +72,7 @@ function buildCatalogXml(count) {
 }
 
 function parsePlainCatalogSync(xml) {
-  const parser = new StaxXmlParserSync(xml);
+  const parser = new EventReaderSync(xml);
   const elementStack = [];
   const featured = [];
   const books = [];

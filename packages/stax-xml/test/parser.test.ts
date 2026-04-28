@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import StaxXmlParser from '../src/StaxXmlParser';
+import EventReader from '../src/EventReader';
 import { CdataEvent, CharactersEvent, StartElementEvent, XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수
@@ -18,7 +18,7 @@ function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
 // XML을 JavaScript 객체로 변환하는 함수
 async function parseXmlToObject(xmlString: string): Promise<any> {
   const inputStream = stringToReadableStream(xmlString);
-  const parser = new StaxXmlParser(inputStream);
+  const parser = new EventReader(inputStream);
 
   const elementStack: any[] = [];
   let currentElement: any = null;
@@ -82,7 +82,7 @@ async function parseXmlToObject(xmlString: string): Promise<any> {
   return root;
 }
 
-describe('StaxXmlParser Tests', () => {
+describe('EventReader Tests', () => {
   it('should parse simple XML with elements and text', async () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <note>
@@ -420,7 +420,7 @@ describe('StaxXmlParser Tests', () => {
 <test>Content with special characters</test>`;
 
     const inputStream = stringToReadableStream(xmlData);
-    const reader = new StaxXmlParser(inputStream, {
+    const reader = new EventReader(inputStream, {
       addEntities: [
         { entity: '©', value: '&copy;' }, // 유효한 엔티티
         { entity: '', value: '&invalid;' }, // 빈 entity (무시됨)
@@ -444,7 +444,7 @@ describe('StaxXmlParser Tests', () => {
   it('should provide access to XmlEventType through parser instance', async () => {
     const xmlData = `<?xml version="1.0"?><root></root>`;
     const inputStream = stringToReadableStream(xmlData);
-    const reader = new StaxXmlParser(inputStream);
+    const reader = new EventReader(inputStream);
 
     // XmlEventType getter 테스트
     const eventType = reader.XmlEventType;

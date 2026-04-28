@@ -1,7 +1,7 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import { barplot, bench, summary } from 'mitata';
 import { Builder } from 'xml2js';
-import { StaxXmlWriter, StaxXmlWriterSync, StaxXmlWriterSyncSink } from 'stax-xml';
+import { Writer, WriterSync, WriterSyncSink } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import { normalizeOrderedWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
 import { ASSET_PATHS, loadJsonFile } from './common/utils.mjs';
@@ -21,7 +21,7 @@ function fastXmlParserBuilder() {
 
 async function staxXmlWriterBuilder() {
   const stream = new WritableStream();
-  const writer = new StaxXmlWriter(stream, {
+  const writer = new Writer(stream, {
     prettyPrint: true,
     indentString: '  ',
   });
@@ -32,7 +32,7 @@ async function staxXmlWriterBuilder() {
 }
 
 function staxXmlWriterBuilderSync() {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '  ',
   });
@@ -58,7 +58,7 @@ function createCountingSink() {
 
 function staxXmlWriterBuilderSyncSink() {
   const { sink, getCharsWritten } = createCountingSink();
-  const writer = new StaxXmlWriterSyncSink(sink, {
+  const writer = new WriterSyncSink(sink, {
     prettyPrint: true,
     indentString: '  ',
   });

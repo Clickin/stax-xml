@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   IterableEventType,
-  StaxXmlIterableParser,
+  IterableReader,
   toAsyncByteBatches,
   toByteBatches,
 } from '../src/index';
-import { StaxXmlIterableParser as SubpathIterableParser } from '../src/iterable/index';
+import { IterableReader as SubpathIterableParser } from '../src/iterable/index';
 
 function byteChunks(xml: string, chunkSize: number): Uint8Array[] {
   const bytes = new TextEncoder().encode(xml);
@@ -42,7 +42,7 @@ function rawInvalidAttributeXml(valueLength: number): Uint8Array {
   return bytes;
 }
 
-function collect(parser: StaxXmlIterableParser): Array<{
+function collect(parser: IterableReader): Array<{
   type: number;
   name?: string;
   text?: string;
@@ -74,14 +74,14 @@ function collect(parser: StaxXmlIterableParser): Array<{
 }
 
 function collectDocument(xml: string, chunkSize = 64) {
-  return collect(new StaxXmlIterableParser(byteBatches(xml, chunkSize, 1), {
+  return collect(new IterableReader(byteBatches(xml, chunkSize, 1), {
     documentMode: 'document'
   }));
 }
 
-describe('StaxXmlIterableParser raw batch cursor', () => {
+describe('IterableReader raw batch cursor', () => {
   it('exposes raw event frames without AnyXmlEvent objects', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root><item id="1">text</item><empty/></root>', 64, 1));
+    const parser = new IterableReader(byteBatches('<root><item id="1">text</item><empty/></root>', 64, 1));
 
     expect(collect(parser)).toEqual([
       { type: IterableEventType.START_DOCUMENT },
@@ -97,7 +97,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('keeps spans relative to one batch buffer and exposes offset accessors', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root attr="value">body</root>', 8, 2));
+    const parser = new IterableReader(byteBatches('<root attr="value">body</root>', 8, 2));
 
     expect(parser.nextBatch()).toBe(true);
     const buffer = parser.buffer();
@@ -118,7 +118,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('exposes a reusable direct batch frame with typed-array fields', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root attr="value">body</root>', 64, 1));
+    const parser = new IterableReader(byteBatches('<root attr="value">body</root>', 64, 1));
 
     const frame = parser.nextBatchFrame();
 
@@ -150,7 +150,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('rejects direct byte pushes after a final batch has finished', () => {
-    const parser = new StaxXmlIterableParser([]);
+    const parser = new IterableReader([]);
     const bytes = new TextEncoder().encode('<root/>');
 
     expect(parser.pushByteBatch(bytes, true)).toBe(true);
@@ -158,7 +158,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('reuses the batch frame object and refreshes it after each nextBatch call', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root><a>one</a><b>two</b></root>', 8, 1));
+    const parser = new IterableReader(byteBatches('<root><a>one</a><b>two</b></root>', 8, 1));
 
     const firstFrame = parser.nextBatchFrame();
     const firstBuffer = firstFrame?.buffer;
@@ -176,7 +176,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('materializes all attributes for an event in one object', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root a="1" b="two" c="한글"/>', 64, 1));
+    const parser = new IterableReader(byteBatches('<root a="1" b="two" c="한글"/>', 64, 1));
 
     expect(parser.nextBatch()).toBe(true);
     const rootIndex = Array.from({ length: parser.eventCount() })
@@ -196,7 +196,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
 
   it('covers permissive attribute edge cases and skipped unknown markup', () => {
     const xml = '<root    ><item trailing bare other spaced = "ok" numeric=1 /><solo bare></solo><!SKIP><empty a= /></root>';
-    const events = collect(new StaxXmlIterableParser(byteBatches(xml, 128, 1)));
+    const events = collect(new IterableReader(byteBatches(xml, 128, 1)));
 
     expect(events).toContainEqual({
       type: IterableEventType.START_ELEMENT,
@@ -221,11 +221,11 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
 
   it('grows event, attribute, and element buffers under large batches', () => {
     const manyElements = `<root>${'<item/>'.repeat(1100)}</root>`;
-    const elementEvents = collect(new StaxXmlIterableParser(byteBatches(manyElements, manyElements.length, 1)));
+    const elementEvents = collect(new IterableReader(byteBatches(manyElements, manyElements.length, 1)));
     expect(elementEvents.filter(event => event.name === 'item')).toHaveLength(2200);
 
     const attrs = Array.from({ length: 1100 }, (_, index) => `a${index}="${index}"`).join(' ');
-    const attrParser = new StaxXmlIterableParser(byteBatches(`<root ${attrs}/>`, attrs.length + 16, 1));
+    const attrParser = new IterableReader(byteBatches(`<root ${attrs}/>`, attrs.length + 16, 1));
     expect(attrParser.nextBatch()).toBe(true);
     const rootIndex = Array.from({ length: attrParser.eventCount() })
       .findIndex((_, index) => attrParser.copyName(index) === 'root');
@@ -233,19 +233,19 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
 
     const deepOpen = Array.from({ length: 1030 }, (_, index) => `<n${index}>`).join('');
     const deepClose = Array.from({ length: 1030 }, (_, index) => `</n${1029 - index}>`).join('');
-    expect(collect(new StaxXmlIterableParser(byteBatches(`${deepOpen}${deepClose}`, 64 * 1024, 1))))
+    expect(collect(new IterableReader(byteBatches(`${deepOpen}${deepClose}`, 64 * 1024, 1))))
       .toHaveLength(2062);
   });
 
   it('covers final text, whitespace-only text, unicode names, and invalid single-byte decode fallback', () => {
-    expect(collect(new StaxXmlIterableParser(byteBatches('text', 64, 1))))
+    expect(collect(new IterableReader(byteBatches('text', 64, 1))))
       .toEqual([
         { type: IterableEventType.START_DOCUMENT },
         { type: IterableEventType.CHARACTERS, text: 'text' },
         { type: IterableEventType.END_DOCUMENT },
       ]);
 
-    expect(collect(new StaxXmlIterableParser(byteBatches('<root>   </root>', 64, 1))).map(event => event.name ?? event.text ?? event.type))
+    expect(collect(new IterableReader(byteBatches('<root>   </root>', 64, 1))).map(event => event.name ?? event.text ?? event.type))
       .toEqual([
         IterableEventType.START_DOCUMENT,
         'root',
@@ -253,7 +253,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
         IterableEventType.END_DOCUMENT,
       ]);
 
-    expect(collect(new StaxXmlIterableParser(byteBatches('<루트 속성="값">본문</루트>', 128, 1))))
+    expect(collect(new IterableReader(byteBatches('<루트 속성="값">본문</루트>', 128, 1))))
       .toContainEqual({
         type: IterableEventType.START_ELEMENT,
         name: '루트',
@@ -261,7 +261,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
       });
 
     const invalidBytes = new Uint8Array([60, 114, 111, 111, 116, 32, 97, 61, 34, 255, 34, 47, 62]);
-    const invalidParser = new StaxXmlIterableParser(rawByteBatches(invalidBytes, 64, 1));
+    const invalidParser = new IterableReader(rawByteBatches(invalidBytes, 64, 1));
     expect(collect(invalidParser)).toContainEqual({
       type: IterableEventType.START_ELEMENT,
       name: 'root',
@@ -269,7 +269,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
     });
 
     for (const valueLength of [2, 7, 8, 9, 10, 11, 12]) {
-      const parser = new StaxXmlIterableParser(rawByteBatches(rawInvalidAttributeXml(valueLength), 64, 1));
+      const parser = new IterableReader(rawByteBatches(rawInvalidAttributeXml(valueLength), 64, 1));
       expect(collect(parser)).toContainEqual({
         type: IterableEventType.START_ELEMENT,
         name: 'root',
@@ -279,7 +279,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('defers interned name string materialization until string helpers are called', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root alpha="1"><child beta="2"/></root>', 128, 1));
+    const parser = new IterableReader(byteBatches('<root alpha="1"><child beta="2"/></root>', 128, 1));
     const internals = parser as unknown as { nameStrings: Array<string | undefined> };
 
     expect(parser.nextBatch()).toBe(true);
@@ -302,7 +302,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
     const xml = '<root><item id="1">text</item></root>';
     const bytes = new TextEncoder().encode(`!${xml}?`);
     const chunk = new SubclassedBytes(bytes.buffer, 1, xml.length);
-    const parser = new StaxXmlIterableParser([[chunk]]);
+    const parser = new IterableReader([[chunk]]);
 
     expect(parser.nextBatch()).toBe(true);
     expect(Object.getPrototypeOf(parser.buffer())).toBe(Uint8Array.prototype);
@@ -313,7 +313,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
 
   it('handles split tags, split attributes, split UTF-8, and CDATA', () => {
     const xml = '<root><item title="안녕">🌊</item><![CDATA[<raw>]]x value</raw>]]></root>';
-    const parser = new StaxXmlIterableParser(byteBatches(xml, 3, 2));
+    const parser = new IterableReader(byteBatches(xml, 3, 2));
 
     const events = collect(parser);
 
@@ -329,7 +329,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   it('skips XML declaration, comments, processing instructions, and doctype', () => {
     const xml = '<?xml version="1.0"?><!DOCTYPE root><root><!-- hidden --><?pi hidden?><item/></root>';
 
-    expect(collect(new StaxXmlIterableParser(byteBatches(xml, 7, 1))).map(event => event.name ?? event.text ?? event.type))
+    expect(collect(new IterableReader(byteBatches(xml, 7, 1))).map(event => event.name ?? event.text ?? event.type))
       .toEqual([
         IterableEventType.START_DOCUMENT,
         'root',
@@ -343,7 +343,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   it('skips quoted greater-than signs inside DOCTYPE entity declarations', () => {
     const xml = '<!DOCTYPE root [<!ENTITY foo "bar>baz"><!ENTITY single \'x>y\'>]><root><item/></root>';
 
-    expect(collect(new StaxXmlIterableParser(byteBatches(xml, 5, 1))).map(event => event.name ?? event.text ?? event.type))
+    expect(collect(new IterableReader(byteBatches(xml, 5, 1))).map(event => event.name ?? event.text ?? event.type))
       .toEqual([
         IterableEventType.START_DOCUMENT,
         'root',
@@ -372,7 +372,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
     ] as const;
 
     for (const [xml, message] of cases) {
-      expect(() => collect(new StaxXmlIterableParser(byteBatches(xml, 4, 1)))).toThrow(message);
+      expect(() => collect(new IterableReader(byteBatches(xml, 4, 1)))).toThrow(message);
     }
   });
 
@@ -388,7 +388,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
       0xef, 0xbb, 0xbf,
       ...new TextEncoder().encode('<root/>'),
     ]);
-    expect(collect(new StaxXmlIterableParser(rawByteBatches(bomRoot, 64, 1), {
+    expect(collect(new IterableReader(rawByteBatches(bomRoot, 64, 1), {
       documentMode: 'document'
     })).map(event => event.name ?? event.text ?? event.type))
       .toEqual([
@@ -427,7 +427,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('supports explicit decode helpers without automatic entity decoding', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root attr="a&amp;b">&lt;text&gt;</root>', 64, 1));
+    const parser = new IterableReader(byteBatches('<root attr="a&amp;b">&lt;text&gt;</root>', 64, 1));
 
     const events = collect(parser);
 
@@ -440,7 +440,7 @@ describe('StaxXmlIterableParser raw batch cursor', () => {
   });
 
   it('decodes empty, short ASCII, longer ASCII, and UTF-8 spans correctly', () => {
-    const parser = new StaxXmlIterableParser(byteBatches('<root a="" b="ascii8!!" c="ascii-nine" d="ascii-twelve" e="café" f="ascii-11!!!" g="123456789" h="double\'quote" i=\'single"quote\'>한글</root>', 192, 1));
+    const parser = new IterableReader(byteBatches('<root a="" b="ascii8!!" c="ascii-nine" d="ascii-twelve" e="café" f="ascii-11!!!" g="123456789" h="double\'quote" i=\'single"quote\'>한글</root>', 192, 1));
 
     expect(parser.nextBatch()).toBe(true);
     const rootIndex = Array.from({ length: parser.eventCount() })

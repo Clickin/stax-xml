@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   IterableEventBackendIterator,
-  createIterableParserFromChunks,
+  createIterableReaderFromChunks,
   materializeIterableEventBatch,
   readReadableStreamChunks
 } from '../../src/converter/IterableEventBackend.js';
@@ -53,7 +53,7 @@ describe('IterableEventBackendIterator', () => {
   });
 
   it('keeps invalid iterable attribute indices defensive', () => {
-    const parser = createIterableParserFromChunks([encoder.encode('<root attr="value"/>')]);
+    const parser = createIterableReaderFromChunks([encoder.encode('<root attr="value"/>')]);
     let startElementIndex = -1;
 
     while (parser.nextBatch()) {
@@ -104,7 +104,7 @@ describe('IterableEventBackendIterator', () => {
   });
 
   it('applies event filters without changing structural events', () => {
-    const parser = createIterableParserFromChunks([
+    const parser = createIterableReaderFromChunks([
       encoder.encode('<root attr="value">skip<![CDATA[cdata]]><child/></root>')
     ]);
     const events = [];
@@ -133,7 +133,7 @@ describe('IterableEventBackendIterator', () => {
     const chunks = await readReadableStreamChunks(streamFrom('<root>A &amp; B</root>', 4));
     expect(chunks.length).toBeGreaterThan(1);
 
-    const parser = createIterableParserFromChunks(chunks);
+    const parser = createIterableReaderFromChunks(chunks);
     const events = [];
     while (parser.nextBatch()) {
       events.push(...materializeIterableEventBatch(parser, { decodeEntities: false }));

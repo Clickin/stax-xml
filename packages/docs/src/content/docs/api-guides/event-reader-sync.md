@@ -1,11 +1,11 @@
 ---
-title: StaxXmlParserSync - Synchronous XML Parsing
+title: EventReaderSync - Synchronous XML Parsing
 description: High-performance synchronous XML parser for JavaScript/TypeScript
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-parser-sync.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/event-reader-sync.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,19 +17,19 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/api-guides/staxxml-parser-sync.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/event-reader-sync.png
 ---
 
-## StaxXmlParserSync - Synchronous XML Parsing
+## EventReaderSync - Synchronous XML Parsing
 
-`StaxXmlParserSync` is a high-performance, pull-based XML parser for JavaScript/TypeScript designed for synchronous processing of XML strings. It is ideal for environments where the entire XML document is already in memory, such as in web servers handling small to medium-sized XML payloads. It avoids the overhead of asynchronous streams.
+`EventReaderSync` is a high-performance, pull-based XML parser for JavaScript/TypeScript designed for synchronous processing of XML strings. It is ideal for environments where the entire XML document is already in memory, such as in web servers handling small to medium-sized XML payloads. It avoids the overhead of asynchronous streams.
 
 ### 🔧 Quick Start
 
 #### Parsing XML String
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlContent = `
   <catalog>
@@ -44,7 +44,7 @@ const xmlContent = `
   </catalog>
 `;
 
-const parser = new StaxXmlParserSync(xmlContent);
+const parser = new EventReaderSync(xmlContent);
 const products = [];
 let currentProduct = null;
 let currentText = '';
@@ -87,12 +87,12 @@ console.log(products);
 
 ### 🛡️ Type Guard Functions
 
-Type guard functions provide runtime type checking and TypeScript type narrowing for XML events. These functions work with both asynchronous and synchronous parsers, providing the same type safety benefits for `StaxXmlParserSync`.
+Type guard functions provide runtime type checking and TypeScript type narrowing for XML events. These functions work with both asynchronous and synchronous parsers, providing the same type safety benefits for `EventReaderSync`.
 
 #### Using Type Guards with Synchronous Parser
 
 ```typescript
-import { StaxXmlParserSync, isStartElement, isEndElement, isCharacters, isError } from 'stax-xml';
+import { EventReaderSync, isStartElement, isEndElement, isCharacters, isError } from 'stax-xml';
 
 const xmlContent = `
   <products>
@@ -108,7 +108,7 @@ const xmlContent = `
   </products>
 `;
 
-const parser = new StaxXmlParserSync(xmlContent);
+const parser = new EventReaderSync(xmlContent);
 const products = [];
 let currentProduct = null;
 let currentElement = '';
@@ -166,11 +166,11 @@ console.log(products);
 #### Synchronous Error Handling with Type Guards
 
 ```typescript
-import { StaxXmlParserSync, isStartElement, isCharacters, isError } from 'stax-xml';
+import { EventReaderSync, isStartElement, isCharacters, isError } from 'stax-xml';
 
 function parseProductsSafely(xmlString: string) {
   try {
-    const parser = new StaxXmlParserSync(xmlString);
+    const parser = new EventReaderSync(xmlString);
     const result = { products: [], errors: [] };
 
     for (const event of parser) {
@@ -207,7 +207,7 @@ if (result.errors.length > 0) {
 
 #### Type Guard Function Reference for Synchronous Parser
 
-All type guard functions work identically with both `StaxXmlParser` and `StaxXmlParserSync`:
+All type guard functions work identically with both `EventReader` and `EventReaderSync`:
 
 | Function | Purpose | Usage with Sync Parser |
 |----------|---------|------------------------|
@@ -251,14 +251,14 @@ for (const event of parser) {
 ### 📚 API Reference
 
 ```typescript
-class StaxXmlParserSync {
+class EventReaderSync {
   constructor(
     xmlString: string,
-    options?: StaxXmlParserSyncOptions
+    options?: EventReaderSyncOptions
   )
 }
 
-interface StaxXmlParserSyncOptions {
+interface EventReaderSyncOptions {
   autoDecodeEntities?: boolean; // Default: true
   addEntities?: { entity: string, value: string }[];
 }

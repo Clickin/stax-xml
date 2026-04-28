@@ -1,11 +1,11 @@
 import {
   IterableEventType,
-  StaxXmlIterableParser,
+  IterableReader,
   toAsyncByteBatches,
   toByteBatches,
   type ByteBatch,
   type ByteBatchOptions
-} from './StaxXmlIterableParser.js';
+} from './IterableReader.js';
 import {
   XmlEventType,
   type AnyXmlEvent,
@@ -238,7 +238,7 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
       return;
     }
 
-    const parser = new StaxXmlIterableParser([], {
+    const parser = new IterableReader([], {
       encoding: this.options.encoding,
       incompleteFinalMarkupMessage: this.options.incompleteFinalMarkupMessage,
       emitStartDocumentBatchImmediately: this.options.emitStartDocumentBatchImmediately,
@@ -358,7 +358,7 @@ export async function readReadableStreamChunks(stream: ReadableStream<Uint8Array
   return chunks;
 }
 
-export function createIterableParserFromChunks(
+export function createIterableReaderFromChunks(
   chunks: Iterable<Uint8Array>,
   options: ByteBatchOptions & {
     encoding?: string;
@@ -366,8 +366,8 @@ export function createIterableParserFromChunks(
     emitStartDocumentBatchImmediately?: boolean;
     documentMode?: DocumentMode;
   } = { batchSize: 1 }
-): StaxXmlIterableParser {
-  return new StaxXmlIterableParser(
+): IterableReader {
+  return new IterableReader(
     toByteBatches(chunks, { batchSize: options.batchSize }),
     {
       encoding: options.encoding,
@@ -560,9 +560,10 @@ export function materializableEventCount(parser: MaterializableEventSource): num
 }
 
 export function materializableAttrCount(parser: MaterializableEventSource, eventIndex: number): number {
-  return 'attrCount' in parser && typeof parser.attrCount === 'function'
-    ? parser.attrCount(eventIndex)
-    : parser.eventAttrCount(eventIndex);
+  if ('attrCount' in parser && typeof parser.attrCount === 'function') {
+    return parser.attrCount(eventIndex);
+  }
+  return (parser as { eventAttrCount(eventIndex: number): number }).eventAttrCount(eventIndex);
 }
 
 export function materializableImplicitAttributeValue(

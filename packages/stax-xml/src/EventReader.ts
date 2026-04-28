@@ -10,14 +10,13 @@ import {
   type DocumentMode,
   type ParserEventFilter
 } from './types.js';
-import type { StaxXmlRuntimeBackendPreference } from './runtime/native-backend.js';
 
 /**
- * Configuration options for the StaxXmlParser
+ * Configuration options for the EventReader
  *
  * @public
  */
-export interface StaxXmlParserOptions {
+export interface EventReaderOptions {
   /**
    * Text encoding for the input stream
    * @defaultValue 'utf-8'
@@ -72,18 +71,14 @@ export interface StaxXmlParserOptions {
    */
   documentMode?: DocumentMode;
 
-  backend?: StaxXmlRuntimeBackendPreference;
-  fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
 
-type IteratorResultLike<T> = IteratorResult<T> | Promise<IteratorResult<T>>;
-
-export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
+export class EventReader implements AsyncIterable<AnyXmlEvent> {
   private readonly backend: IterableEventBackendIterator;
   private error: Error | undefined;
 
-  constructor(xmlStream: ReadableStream<Uint8Array>, options: StaxXmlParserOptions = {}) {
+  constructor(xmlStream: ReadableStream<Uint8Array>, options: EventReaderOptions = {}) {
     if (!(xmlStream instanceof ReadableStream)) {
       throw new Error('xmlStream must be a web standard ReadableStream.');
     }
@@ -95,11 +90,12 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
     return this as unknown as AsyncIterator<AnyXmlEvent>;
   }
 
+  /** @internal */
   [STAX_XML_EVENT_BACKEND](): IterableEventBackendIterator {
     return this.backend;
   }
 
-  next(): IteratorResultLike<AnyXmlEvent> {
+  next(): IteratorResult<AnyXmlEvent> | Promise<IteratorResult<AnyXmlEvent>> {
     if (this.error) {
       throw this.error;
     }
@@ -142,14 +138,14 @@ export class StaxXmlParser implements AsyncIterable<AnyXmlEvent> {
   }
 }
 
-export function createStaxXmlParser(
+export function createEventReader(
   xmlStream: ReadableStream<Uint8Array>,
-  options: StaxXmlParserOptions = {},
-): StaxXmlParser {
-  return new StaxXmlParser(xmlStream, options);
+  options: EventReaderOptions = {},
+): EventReader {
+  return new EventReader(xmlStream, options);
 }
 
-function toBackendOptions(options: StaxXmlParserOptions): IterableEventBackendOptions {
+function toBackendOptions(options: EventReaderOptions): IterableEventBackendOptions {
   return {
     encoding: options.encoding ?? 'utf-8',
     batchSize: 1,
@@ -157,10 +153,8 @@ function toBackendOptions(options: StaxXmlParserOptions): IterableEventBackendOp
     addEntities: options.addEntities,
     eventFilter: options.eventFilter,
     documentMode: options.documentMode,
-    backend: options.backend,
-    fallbackOnLoadError: options.fallbackOnLoadError,
     fallbackOnParseError: options.fallbackOnParseError
   };
 }
 
-export default StaxXmlParser;
+export default EventReader;

@@ -7,7 +7,7 @@
 import { bench, run } from 'mitata';
 import sax from 'sax';
 import { Readable } from 'stream';
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 import { createLargeXMLStream } from './common/large-file-generator.mjs';
 // Convert Web ReadableStream to Node.js Readable stream for SAX
 function webStreamToNodeStream(webStream) {
@@ -115,7 +115,7 @@ async function parseStaxXML(xmlStream) {
     let currentBook = null;
     let currentChapters = [];
     const elementStack = []; // Track element hierarchy
-    const parser = new StaxXmlParser(xmlStream);
+    const parser = new EventReader(xmlStream);
     for await (const event of parser) {
         switch (event.type) {
             case XmlEventType.START_ELEMENT: {

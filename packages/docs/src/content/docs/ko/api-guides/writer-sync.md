@@ -1,11 +1,11 @@
 ---
-title: StaxXmlWriterSync - 동기식 XML 생성
+title: WriterSync - 동기식 XML 생성
 description: 메모리 내 문자열 빌딩을 통한 프로그래밍 방식의 동기식 XML 문서 생성
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer-sync.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/writer-sync.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,26 +17,26 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-writer-sync.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/writer-sync.png
 ---
 
-## StaxXmlWriterSync - 동기식 XML 생성
+## WriterSync - 동기식 XML 생성
 
-StAX-XML에는 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML 라이터가 포함되어 있습니다. `StaxXmlWriterSync`는 소형/중형 문서를 메모리에서 문자열로 만들고, `StaxXmlWriterSyncSink`는 대용량 문서를 sink로 증분 출력합니다.
+StAX-XML에는 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML 라이터가 포함되어 있습니다. `WriterSync`는 소형/중형 문서를 메모리에서 문자열로 만들고, `WriterSyncSink`는 대용량 문서를 sink로 증분 출력합니다.
 
-대용량 파일 출력에는 sink 경로를 권장합니다. 1GiB writer 벤치마크에서 `StaxXmlWriterSyncSink`가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
+대용량 파일 출력에는 sink 경로를 권장합니다. 1GiB writer 벤치마크에서 `WriterSyncSink`가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
 ### 🔧 빠른 시작
 
 ##### 로컬 파일에 쓰기
 
 ```typescript
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 import { writeFileSync } from 'fs';
 
 // Node.js용 - 로컬 파일에 동기식으로 쓰기
 function createLocalXmlFile() {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '  '
   });
@@ -73,7 +73,7 @@ createLocalXmlFile();
 
 ```typescript
 import express from 'express';
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 const app = express();
 
@@ -86,7 +86,7 @@ app.get('/api/users', (req, res) => {
       { id: 2, name: '김영희', email: 'kim@example.com' }
     ];
 
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -133,7 +133,7 @@ app.listen(3000, () => {
 
 ```typescript
 import { Hono } from 'hono';
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 const app = new Hono();
 
@@ -145,7 +145,7 @@ app.get('/api/products', (c) => {
     { id: 'P003', name: '커피메이커', price: 180000, category: '가전제품' }
   ];
 
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '    '
   });
@@ -198,18 +198,18 @@ export default app;
 
 ##### Sink 기반 증분 쓰기
 
-`StaxXmlWriterSync`는 `StaxXmlWriterSyncSink`를 통해 커스텀 동기 sink로 바로 쓸 수 있습니다. 대용량 XML 출력에는 이 경로를 사용하세요.
+`WriterSync`는 `WriterSyncSink`를 통해 커스텀 동기 sink로 바로 쓸 수 있습니다. 대용량 XML 출력에는 이 경로를 사용하세요.
 Node.js/Bun/Deno는 기본 import를 건드리지 않도록 런타임별 어댑터 경로를 사용하세요.
 
 ```typescript
 import { openSync } from 'fs';
-import { StaxXmlWriterSyncSink } from 'stax-xml';
+import { WriterSyncSink } from 'stax-xml';
 import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
 import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
 const fd = openSync('./catalog.xml', 'w');
-const writer = new StaxXmlWriterSyncSink(
+const writer = new WriterSyncSink(
   createNodeFileSyncTextSink(fd),
   {
     bufferSize: 4096,
@@ -231,9 +231,9 @@ writer.flush(); // 수동 flush (자동 flush 사용 시 선택)
 writer.close(); // 버퍼 flush + 출력 대상 종료
 
 // Bun 예시:
-// const bunWriter = new StaxXmlWriterSyncSink(createBunSyncTextSink(Bun.stdout));
+// const bunWriter = new WriterSyncSink(createBunSyncTextSink(Bun.stdout));
 // Deno 예시:
-// const denoWriter = new StaxXmlWriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+// const denoWriter = new WriterSyncSink(createDenoSyncTextSink(Deno.stdout));
 ```
 
 `writer.flush()`는 writer 버퍼를 비우고 가능하면 `sink.flush()`도 호출합니다.
@@ -242,11 +242,11 @@ writer.close(); // 버퍼 flush + 출력 대상 종료
 ##### 고급 라이터 기능
 
 ```typescript
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 // 사용자 정의 엔티티와 네임스페이스를 사용한 메모리 내 XML 생성
 function createAdvancedXml() {
-  const writer = new StaxXmlWriterSync({
+  const writer = new WriterSync({
     prettyPrint: true,
     indentString: '  ',
     addEntities: [
@@ -307,13 +307,13 @@ console.log('생성된 XML:', createAdvancedXml());
 
 ##### 통합 WriteElementOptions API
 
-StaxXmlWriterSync는 모든 옵션을 단일 `WriteElementOptions` 객체로 통합하여 요소 생성을 단순화하는 통합 API를 지원합니다:
+WriterSync는 모든 옵션을 단일 `WriteElementOptions` 객체로 통합하여 요소 생성을 단순화하는 통합 API를 지원합니다:
 
 ```typescript
-import { StaxXmlWriterSync, WriteElementOptions } from 'stax-xml';
+import { WriterSync, WriteElementOptions } from 'stax-xml';
 
 function createXmlWithNewAPI() {
-  const writer = new StaxXmlWriterSync({ prettyPrint: true });
+  const writer = new WriterSync({ prettyPrint: true });
 
   writer.writeStartDocument();
 
@@ -394,9 +394,9 @@ writer.writeStartElement('title', {
 ### 📚 API 참조
 
 ```typescript
-class StaxXmlWriterSync {
+class WriterSync {
   constructor(
-    options?: StaxXmlWriterSyncOptions
+    options?: WriterSyncOptions
   )
 
   // 문서 레벨 메서드
@@ -425,7 +425,7 @@ class StaxXmlWriterSync {
   getXmlString(): string
 }
 
-interface StaxXmlWriterSyncOptions {
+interface WriterSyncOptions {
   encoding?: string; // 기본값: 'utf-8'
   prettyPrint?: boolean; // 기본값: false
   indentString?: string; // 기본값: '  '
@@ -440,17 +440,17 @@ interface SyncTextSink {
   close?(): void;
 }
 
-interface StaxXmlWriterSyncSinkOptions extends StaxXmlWriterSyncOptions {
+interface WriterSyncSinkOptions extends WriterSyncOptions {
   bufferSize?: number;       // 기본값: 16 * 1024
   enableAutoFlush?: boolean; // 기본값: true
   flushThreshold?: number;   // 기본값: 0.8 또는 절대 문자 수
   flushOnClose?: boolean;    // 기본값: false
 }
 
-class StaxXmlWriterSyncSink {
+class WriterSyncSink {
   constructor(
     sink: SyncTextSink,
-    options?: StaxXmlWriterSyncSinkOptions
+    options?: WriterSyncSinkOptions
   )
 
   // 문서 레벨 메서드
@@ -482,9 +482,9 @@ interface NamespaceDeclaration {
 - **타입 안전성**: 세부적인 타입 정의를 통한 완전한 TypeScript 지원
 - **메모리 효율적**: 스트리밍 오버헤드 없는 직접 문자열 빌드
 
-### 💡 StaxXmlWriterSync 사용 시기
+### 💡 WriterSync 사용 시기
 
-다음과 같은 경우에 `StaxXmlWriterSync`를 사용하세요:
+다음과 같은 경우에 `WriterSync`를 사용하세요:
 - 완전한 XML 문서를 메모리에서 즉시 필요로 할 때
 - 작은~중간 크기의 XML 문서 작업 시
 - 웹 API용 XML 응답 빌드 시
@@ -492,4 +492,4 @@ interface NamespaceDeclaration {
 - 블로킹이 허용되는 동기식 워크플로우에서 작업 시
 - 메모리 사용량이 주요 관심사가 아닐 때
 
-대용량 문서나 스트리밍 시나리오의 경우 비동기 `StaxXmlWriter`를 대신 사용하는 것을 고려하세요.
+대용량 문서나 스트리밍 시나리오의 경우 비동기 `Writer`를 대신 사용하는 것을 고려하세요.

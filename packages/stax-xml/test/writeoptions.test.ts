@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
+import WriterSync from '../src/WriterSync';
 
 // 웹 표준 API용 헬퍼 함수들
 
 
-describe('StaxXmlWriter WriteElementOptions API Tests', () => {
+describe('Writer WriteElementOptions API Tests', () => {
   it('should write element with attributes using WriteElementOptions', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -30,7 +30,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should write self-closing element using WriteElementOptions', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -54,7 +54,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should write element with namespace and self-closing using WriteElementOptions', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -78,7 +78,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should maintain backward compatibility with legacy API', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -101,7 +101,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should handle mixed new and legacy API usage', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -149,7 +149,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should handle empty WriteElementOptions', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -167,7 +167,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should handle only selfClosing option', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });
@@ -183,7 +183,7 @@ describe('StaxXmlWriter WriteElementOptions API Tests', () => {
   });
 
   it('should handle complex nested structure with WriteElementOptions', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       prettyPrint: true,
       indentString: '  '
     });

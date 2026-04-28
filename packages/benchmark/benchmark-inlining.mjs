@@ -6,7 +6,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
-import { StaxXmlParserSync } from 'stax-xml';
+import { EventReaderSync } from 'stax-xml';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Helper class for memory and GC tracking
 class PerformanceMonitor {
@@ -43,10 +43,10 @@ async function loadParserVariants() {
     const variants = [];
     // Load the baseline (non-inlined) parser
     try {
-        const baselineModule = await import('../../stax-xml/src/StaxXmlParserSync.baseline.ts');
+        const baselineModule = await import('../../stax-xml/src/EventReaderSync.baseline.ts');
         variants.push({
             name: 'baseline',
-            parser: baselineModule.StaxXmlParserSync,
+            parser: baselineModule.EventReaderSync,
             description: 'Non-inlined baseline parser'
         });
     }
@@ -54,16 +54,16 @@ async function loadParserVariants() {
         console.warn('Baseline parser not found, using default parser as baseline');
         variants.push({
             name: 'baseline',
-            parser: StaxXmlParserSync,
+            parser: EventReaderSync,
             description: 'Default parser (baseline)'
         });
     }
     // Load the inlined (optimized) parser
     try {
-        const inlinedModule = await import('../../stax-xml/src/StaxXmlParserSync.inlined.ts');
+        const inlinedModule = await import('../../stax-xml/src/EventReaderSync.inlined.ts');
         variants.push({
             name: 'inlined',
-            parser: inlinedModule.StaxXmlParserSync,
+            parser: inlinedModule.EventReaderSync,
             description: 'Inlined optimized parser'
         });
     }
@@ -71,7 +71,7 @@ async function loadParserVariants() {
         console.warn('Inlined parser not found, using default parser');
         variants.push({
             name: 'inlined',
-            parser: StaxXmlParserSync,
+            parser: EventReaderSync,
             description: 'Default parser (inlined)'
         });
     }

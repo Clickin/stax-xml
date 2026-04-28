@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
+import EventReader from '../src/EventReader';
+import WriterSync from '../src/WriterSync';
 import { EndElementEvent, StartElementEvent, XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수
@@ -32,7 +32,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     it('should correctly parse namespace prefixes in simple-namespace.xml', async () => {
       const xmlContent = loadSampleFile('simple-namespace.xml');
       const inputStream = stringToReadableStream(xmlContent);
-      const parser = new StaxXmlParser(inputStream);
+      const parser = new EventReader(inputStream);
 
       const events = [];
       for await (const event of parser) {
@@ -107,7 +107,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     it('should distinguish between h:table and f:table elements', async () => {
       const xmlContent = loadSampleFile('simple-namespace.xml');
       const inputStream = stringToReadableStream(xmlContent);
-      const parser = new StaxXmlParser(inputStream);
+      const parser = new EventReader(inputStream);
 
       const events = [];
       for await (const event of parser) {
@@ -141,7 +141,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     it('should correctly parse text content within namespaced elements', async () => {
       const xmlContent = loadSampleFile('simple-namespace.xml');
       const inputStream = stringToReadableStream(xmlContent);
-      const parser = new StaxXmlParser(inputStream);
+      const parser = new EventReader(inputStream);
 
       const events = [];
       for await (const event of parser) {
@@ -163,7 +163,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     it('should correctly handle END_ELEMENT events with namespace information', async () => {
       const xmlContent = loadSampleFile('simple-namespace.xml');
       const inputStream = stringToReadableStream(xmlContent);
-      const parser = new StaxXmlParser(inputStream);
+      const parser = new EventReader(inputStream);
 
       const events = [];
       for await (const event of parser) {
@@ -188,9 +188,9 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
   });
 
-  describe('StaxXmlWriter Namespace Writing Tests', () => {
+  describe('Writer Namespace Writing Tests', () => {
     it('should write elements with namespace prefixes correctly', async () => {
-      const writer = new StaxXmlWriterSync();
+      const writer = new WriterSync();
 
       writer.writeStartDocument();
       writer.writeStartElement('root');
@@ -255,7 +255,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
 
     it('should write namespace declarations using writeNamespace method', async () => {
-      const writer = new StaxXmlWriterSync();
+      const writer = new WriterSync();
 
       writer.writeStartDocument();
       writer.writeStartElement('root');
@@ -286,7 +286,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
     });
 
     it('should create XML structure similar to simple-namespace.xml', async () => {
-      const writer = new StaxXmlWriterSync();
+      const writer = new WriterSync();
 
       // simple-namespace.xml과 유사한 구조 생성
       writer.writeStartDocument();
@@ -324,7 +324,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
 
       // 생성된 XML을 파싱하여 검증
       const inputStream = stringToReadableStream(result);
-      const parser = new StaxXmlParser(inputStream);
+      const parser = new EventReader(inputStream);
 
       const events = [];
       for await (const event of parser) {
@@ -348,10 +348,10 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       // 원본 XML을 파싱
       const originalXmlContent = loadSampleFile('simple-namespace.xml');
       const inputStream = stringToReadableStream(originalXmlContent);
-      const parser = new StaxXmlParser(inputStream);
+      const parser = new EventReader(inputStream);
 
       // 파싱된 이벤트로부터 새로운 XML 생성
-      const writer = new StaxXmlWriterSync();
+      const writer = new WriterSync();
 
       const elementStack: Array<{ name: string, prefix?: string }> = [];
 
@@ -390,7 +390,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
 
       // 재생성된 XML을 다시 파싱하여 구조가 유지되었는지 확인
       const inputStream2 = stringToReadableStream(regeneratedXml);
-      const parser2 = new StaxXmlParser(inputStream2);
+      const parser2 = new EventReader(inputStream2);
 
       const events = [];
       for await (const event of parser2) {

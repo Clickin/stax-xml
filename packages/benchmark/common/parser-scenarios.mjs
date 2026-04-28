@@ -1,7 +1,7 @@
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 import {
   IterableEventType,
-  StaxXmlIterableParser,
+  IterableReader,
 } from 'stax-xml/iterable';
 
 export const STAX_PARSER_SURFACE_SCENARIOS = [
@@ -74,7 +74,7 @@ export function createStaxParserSurfaceRunners({ xmlString, inputBuffer, native 
 }
 
 export function parseXmlToObjectBaseline(xmlString) {
-  const parser = new StaxXmlParserSync(xmlString);
+  const parser = new EventReaderSync(xmlString);
   const elementStack = [];
   let root = null;
 
@@ -93,7 +93,7 @@ function consumeStaxXmlEventParser(xmlString) {
   let checksum = 0;
   let attrCountTotal = 0;
 
-  for (const event of new StaxXmlParserSync(xmlString)) {
+  for (const event of new EventReaderSync(xmlString)) {
     const type = syncEventTypeId(event.type);
     const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes ?? {}) : [];
     eventCount++;
@@ -117,7 +117,7 @@ function consumeStaxXmlEventParser(xmlString) {
 }
 
 function consumeStaxXmlRawIterable(byteBatches) {
-  const parser = new StaxXmlIterableParser(byteBatches);
+  const parser = new IterableReader(byteBatches);
   let eventCount = 0;
   let checksum = 0;
   let attrCountTotal = 0;

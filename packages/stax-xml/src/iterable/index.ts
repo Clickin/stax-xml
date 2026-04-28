@@ -1,11 +1,12 @@
 export {
   IterableEventType,
-  StaxXmlIterableParser,
+  IterableReader,
   toAsyncByteBatches,
   toByteBatches,
-} from '../StaxXmlIterableParser.js';
+} from '../IterableReader.js';
 export type {
   ByteBatch,
   ByteBatchOptions,
-  StaxXmlIterableBatchFrame,
-} from '../StaxXmlIterableParser.js';
+  IterableReaderBatchFrame,
+  IterableReaderOptions,
+} from '../IterableReader.js';

@@ -1,5 +1,5 @@
 import { barplot, bench, summary } from 'mitata';
-import { StaxXmlParser, StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReader, EventReaderSync, XmlEventType } from 'stax-xml';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import { createLargeXMLStream } from './common/large-file-generator.mjs';
 
@@ -8,7 +8,7 @@ const verboseStreams = shouldPrintHumanReadableBanner(cli);
 
 async function consumeAsync(stream) {
   let eventsProcessed = 0;
-  const parser = new StaxXmlParser(stream);
+  const parser = new EventReader(stream);
 
   for await (const event of parser) {
     eventsProcessed++;
@@ -50,7 +50,7 @@ async function consumeSync(stream) {
 
   const content = new TextDecoder().decode(combined);
   let eventsProcessed = 0;
-  for (const event of new StaxXmlParserSync(content)) {
+  for (const event of new EventReaderSync(content)) {
     eventsProcessed++;
     if (event.type === XmlEventType.ERROR) {
       throw event.error;

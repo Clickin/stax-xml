@@ -1,4 +1,4 @@
-// StaxXmlWriterAsync.ts
+// WriterAsync.ts
 import { NamespaceDeclaration, WriteElementOptions } from './types';
 
 const WriterState = {
@@ -13,11 +13,11 @@ const WriterState = {
 type WriterState = typeof WriterState[keyof typeof WriterState];
 
 /**
- * Configuration options for the StaxXmlWriter
+ * Configuration options for the Writer
  *
  * @public
  */
-export interface StaxXmlWriterOptions {
+export interface WriterOptions {
   /**
    * Text encoding for the output stream
    * @defaultValue 'utf-8'
@@ -108,7 +108,7 @@ export interface StaxXmlWriterOptions {
  *   }
  * });
  *
- * const writer = new StaxXmlWriter(writableStream);
+ * const writer = new Writer(writableStream);
  * await writer.writeStartElement('root');
  * await writer.writeElement('item', { id: '1' }, 'Hello World');
  * await writer.writeEndElement();
@@ -123,12 +123,12 @@ export interface StaxXmlWriterOptions {
  *   indentString: '    ',
  *   autoEncodeEntities: true
  * };
- * const writer = new StaxXmlWriter(writableStream, options);
+ * const writer = new Writer(writableStream, options);
  * ```
  *
  * @public
  */
-export class StaxXmlWriter {
+export class Writer {
   // OPTIMIZATION 1: Static cached regex and entity map for basic entities
   private static readonly BASIC_ENTITY_MAP: Record<string, string> = {
     '&': '&amp;',
@@ -150,7 +150,7 @@ export class StaxXmlWriter {
   private namespaceStack: Map<string, string>[] = [];
   private namespaceOwnedStack: boolean[] = [];
 
-  private readonly options: Required<StaxXmlWriterOptions>;
+  private readonly options: Required<WriterOptions>;
   private currentIndentLevel: number = 0;
   private needsIndent: boolean = false;
   private indentCache: string[] = [''];
@@ -169,7 +169,7 @@ export class StaxXmlWriter {
 
   constructor(
     stream: WritableStream<Uint8Array>,
-    options: StaxXmlWriterOptions = {}
+    options: WriterOptions = {}
   ) {
     this.options = {
       encoding: options.encoding || 'utf-8',
@@ -202,7 +202,7 @@ export class StaxXmlWriter {
     // OPTIMIZATION 1: Build custom entity map and regex at construction time
     if (this.options.addEntities && this.options.addEntities.length > 0) {
       this.fullEntityMap = {
-        ...StaxXmlWriter.BASIC_ENTITY_MAP,
+        ...Writer.BASIC_ENTITY_MAP,
         ...this.options.addEntities.reduce((map, entity) => {
           if (entity.entity && entity.value) {
             map[entity.entity] = entity.value;
@@ -219,7 +219,7 @@ export class StaxXmlWriter {
 
       // Store custom entity keys (excluding basic ones) for early check
       this.customEntityKeys = Object.keys(this.fullEntityMap).filter(
-        k => !(k in StaxXmlWriter.BASIC_ENTITY_MAP)
+        k => !(k in Writer.BASIC_ENTITY_MAP)
       );
     }
   }
@@ -604,8 +604,8 @@ export class StaxXmlWriter {
 
       // Use cached basic entity regex
       /* v8 ignore next -- regex only matches keys present in BASIC_ENTITY_MAP */
-      return text.replace(StaxXmlWriter.BASIC_ENTITY_REGEX,
-        (match) => StaxXmlWriter.BASIC_ENTITY_MAP[match]!);
+      return text.replace(Writer.BASIC_ENTITY_REGEX,
+        (match) => Writer.BASIC_ENTITY_MAP[match]!);
     }
 
     // Slow path: Custom entities exist

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import StaxXmlParser from '../src/StaxXmlParser';
-import StaxXmlWriterSync from '../src/StaxXmlWriterSync';
+import EventReader from '../src/EventReader';
+import WriterSync from '../src/WriterSync';
 import { XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수들
@@ -46,7 +46,7 @@ function createChunkedStream(str: string, chunkSize: number = 100): ReadableStre
 
 
 
-describe('StaxXmlParser Streaming and Performance Tests', () => {
+describe('EventReader Streaming and Performance Tests', () => {
   it('should handle chunked streaming data', async () => {
     const xmlData = `<?xml version="1.0"?>
 <books>
@@ -62,7 +62,7 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
 
     // 작은 청크로 스트리밍
     const inputStream = createChunkedStream(xmlData, 20);
-    const reader = new StaxXmlParser(inputStream);
+    const reader = new EventReader(inputStream);
 
     const events = [];
     for await (const event of reader) {
@@ -95,7 +95,7 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
 
     const startTime = Date.now();
     const inputStream = stringToReadableStream(largeXml);
-    const reader = new StaxXmlParser(inputStream);
+    const reader = new EventReader(inputStream);
 
     let eventCount = 0;
     let bookCount = 0;
@@ -128,7 +128,7 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
     for (let i = 1; i <= 10; i++) {
       const xml = createTestXml(i);
       const inputStream = stringToReadableStream(xml);
-      const reader = new StaxXmlParser(inputStream);
+      const reader = new EventReader(inputStream);
 
       const promise = (async () => {
         const events = [];
@@ -169,7 +169,7 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
 </document>`;
 
     const inputStream = stringToReadableStream(xmlWithMixedContent);
-    const reader = new StaxXmlParser(inputStream);
+    const reader = new EventReader(inputStream);
 
     const events = [];
     for await (const event of reader) {
@@ -197,7 +197,7 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
 
     // 매우 작은 청크로 파싱하여 증분 파싱 테스트
     const inputStream = createChunkedStream(xml, 5);
-    const reader = new StaxXmlParser(inputStream);
+    const reader = new EventReader(inputStream);
 
     const items = [];
     let currentItem: any = null;
@@ -230,9 +230,9 @@ describe('StaxXmlParser Streaming and Performance Tests', () => {
   });
 });
 
-describe('StaxXmlWriter Performance and Edge Cases', () => {
+describe('Writer Performance and Edge Cases', () => {
   it('should handle writing large documents efficiently', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: false, // 성능을 위해 pretty print 비활성화
     });
@@ -284,7 +284,7 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
 
     for (let i = 1; i <= 5; i++) {
       const promise = (async () => {
-        const writer = new StaxXmlWriterSync({
+        const writer = new WriterSync({
           encoding: 'utf-8',
           prettyPrint: true,
         });
@@ -323,7 +323,7 @@ describe('StaxXmlWriter Performance and Edge Cases', () => {
   });
 
   it('should handle memory efficiently with large content', async () => {
-    const writer = new StaxXmlWriterSync({
+    const writer = new WriterSync({
       encoding: 'utf-8',
       prettyPrint: false, // 성능을 위해 pretty print 비활성화
     });

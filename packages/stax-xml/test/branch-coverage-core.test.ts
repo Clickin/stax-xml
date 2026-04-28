@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-  StaxXmlParser,
-  StaxXmlParserSync,
-  StaxXmlCursorReader,
-  StaxXmlWriter,
-  StaxXmlWriterSync,
-  StaxXmlWriterSyncSink,
-  createStaxXmlParser,
+  EventReader,
+  EventReaderSync,
+  CursorReader,
+  Writer,
+  WriterSync,
+  WriterSyncSink,
+  createEventReader,
   CursorEventType,
   XmlEventType,
   type AnyXmlEvent
@@ -34,9 +34,9 @@ function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array>
   });
 }
 
-function createAsyncWriter(options?: ConstructorParameters<typeof StaxXmlWriter>[1]) {
+function createAsyncWriter(options?: ConstructorParameters<typeof Writer>[1]) {
   const chunks: Uint8Array[] = [];
-  const writer = new StaxXmlWriter(
+  const writer = new Writer(
     new WritableStream<Uint8Array>({
       write(chunk) {
         chunks.push(chunk.slice());
@@ -53,19 +53,19 @@ function createAsyncWriter(options?: ConstructorParameters<typeof StaxXmlWriter>
   };
 }
 
-async function drainBatches(parser: StaxXmlParser): Promise<void> {
+async function drainBatches(parser: EventReader): Promise<void> {
   while ((await parser.nextBatch()).length > 0) { /* drain */ }
 }
 
 describe('core branch coverage guards', () => {
   describe('async parser branches', () => {
     it('should reject non-web streams', () => {
-      expect(() => new StaxXmlParser({} as ReadableStream<Uint8Array>))
+      expect(() => new EventReader({} as ReadableStream<Uint8Array>))
         .toThrow('xmlStream must be a web standard ReadableStream');
     });
 
     it('should support batched iteration until the empty finished batch', async () => {
-      const parser = new StaxXmlParser(streamFrom('<root><a/><b/></root>'), {
+      const parser = new EventReader(streamFrom('<root><a/><b/></root>'), {
         initialQueueCapacity: 1
       });
       const batches: number[][] = [];
@@ -88,7 +88,7 @@ describe('core branch coverage guards', () => {
     });
 
     it('should filter characters, attributes, and cdata events', async () => {
-      const parser = new StaxXmlParser(
+      const parser = new EventReader(
         streamFrom('<root attr="value"><![CDATA[cdata]]><child>text</child></root>'),
         {
           eventFilter: {
@@ -116,7 +116,7 @@ describe('core branch coverage guards', () => {
     });
 
     it('should surface malformed final chunks through nextBatch', async () => {
-      const parser = new StaxXmlParser(streamFrom('<root', 2));
+      const parser = new EventReader(streamFrom('<root', 2));
 
       await expect(drainBatches(parser)).rejects.toThrow('Unclosed start tag');
       await expect(parser.nextBatch()).rejects.toThrow('Unclosed start tag');
@@ -137,13 +137,13 @@ describe('core branch coverage guards', () => {
       ];
 
       for (const [xml, message] of cases) {
-        const parser = new StaxXmlParser(streamFrom(xml));
+        const parser = new EventReader(streamFrom(xml));
         await expect(drainBatches(parser)).rejects.toThrow(message);
       }
     });
 
     it('should decode custom entities and leave unmatched entities unchanged', async () => {
-      const parser = new StaxXmlParser(
+      const parser = new EventReader(
         streamFrom('<root attr="&copy; &unknown;">&copy; &unknown;</root>'),
         { addEntities: [{ entity: '&copy;', value: 'C' }] }
       );
@@ -160,7 +160,7 @@ describe('core branch coverage guards', () => {
     });
 
     it('should keep parser factory defaults and buffered batch leftovers stable', async () => {
-      const parser = createStaxXmlParser(streamFrom('<root><a/></root>'));
+      const parser = createEventReader(streamFrom('<root><a/></root>'));
 
       await expect(parser.next()).resolves.toMatchObject({
         value: { type: XmlEventType.START_DOCUMENT },
@@ -182,7 +182,7 @@ describe('core branch coverage guards', () => {
 
   describe('sync parser branches', () => {
     it('should cover filters and top-level trailing text', () => {
-      const filtered = Array.from(new StaxXmlParserSync('<root attr="value"><![CDATA[cdata]]>text</root>', {
+      const filtered = Array.from(new EventReaderSync('<root attr="value"><![CDATA[cdata]]>text</root>', {
         eventFilter: {
           includeAttributes: false,
           includeCharacters: false,
@@ -198,7 +198,7 @@ describe('core branch coverage guards', () => {
       ]);
       expect(filtered[1]?.attributes).toEqual({});
 
-      const trailing = Array.from(new StaxXmlParserSync(' text '));
+      const trailing = Array.from(new EventReaderSync(' text '));
       expect(trailing.map(event => event.type)).toEqual([
         XmlEventType.START_DOCUMENT,
         XmlEventType.CHARACTERS,
@@ -220,12 +220,12 @@ describe('core branch coverage guards', () => {
       ];
 
       for (const [xml, message] of cases) {
-        expect(() => Array.from(new StaxXmlParserSync(xml))).toThrow(message);
+        expect(() => Array.from(new EventReaderSync(xml))).toThrow(message);
       }
     });
 
     it('should decode custom entities and preserve unmatched replacements', () => {
-      const parser = new StaxXmlParserSync(
+      const parser = new EventReaderSync(
         '<root attr="&copy; &unknown;">&copy; &unknown;</root>',
         { addEntities: [{ entity: '&copy;', value: 'C' }] }
       );
@@ -238,11 +238,11 @@ describe('core branch coverage guards', () => {
     });
 
     it('should expose iterator return and filtered-empty batch control flow', () => {
-      const returned = new StaxXmlParserSync('<root/>');
+      const returned = new EventReaderSync('<root/>');
       expect(returned.return()).toEqual({ value: undefined, done: true });
       expect(returned.next()).toEqual({ value: undefined, done: true });
 
-      const filtered = Array.from(new StaxXmlParserSync('text', {
+      const filtered = Array.from(new EventReaderSync('text', {
         eventFilter: {
           includeAttributes: true,
           includeCharacters: false,
@@ -254,7 +254,7 @@ describe('core branch coverage guards', () => {
         XmlEventType.END_DOCUMENT
       ]);
 
-      const internal = new StaxXmlParserSync('<root/>') as unknown as {
+      const internal = new EventReaderSync('<root/>') as unknown as {
         parser: { nextBatch(): boolean };
         materializer: { materializeBatch(): AnyXmlEvent[] };
       };
@@ -275,7 +275,7 @@ describe('core branch coverage guards', () => {
         }
       };
 
-      expect((internal as unknown as StaxXmlParserSync).next()).toEqual({
+      expect((internal as unknown as EventReaderSync).next()).toEqual({
         value: { type: XmlEventType.START_DOCUMENT },
         done: false
       });
@@ -284,7 +284,7 @@ describe('core branch coverage guards', () => {
 
   describe('cursor event view branches', () => {
     it('should reject non-string sync cursor input', () => {
-      expect(() => new StaxXmlCursorReader(null as unknown as string))
+      expect(() => new CursorReader(null as unknown as string))
         .toThrow('xml must be a string');
     });
 
@@ -316,7 +316,7 @@ describe('core branch coverage guards', () => {
 
   describe('writer branches', () => {
     it('should cover sync writer closed/error guards and option branches', () => {
-      const writer = new StaxXmlWriterSync({
+      const writer = new WriterSync({
         prettyPrint: true,
         autoEncodeEntities: false
       });
@@ -342,14 +342,14 @@ describe('core branch coverage guards', () => {
     });
 
     it('should cover sync writer namespace attributes, invalid content, and custom entities', () => {
-      new StaxXmlWriterSync({
+      new WriterSync({
         addEntities: [
           { entity: '', value: 'ignored' },
           { entity: '@empty@', value: '' }
         ]
       });
 
-      const writer = new StaxXmlWriterSync({
+      const writer = new WriterSync({
         addEntities: [{ entity: '@copy@', value: '(c)' }]
       });
 
@@ -372,20 +372,20 @@ describe('core branch coverage guards', () => {
       expect(writer.getXmlString()).toContain('plain="A&amp;B"');
       expect(writer.getXmlString()).toContain('r:attr="(c)"');
 
-      expect(() => new StaxXmlWriterSync().writeCData('bad ]]> data')).toThrow('CDATA section');
-      expect(() => new StaxXmlWriterSync().writeComment('bad -- data')).toThrow('comment');
-      expect(() => new StaxXmlWriterSync().writeProcessingInstruction('pi', 'bad ?> data')).toThrow('Processing instruction');
-      const piWriter = new StaxXmlWriterSync({ prettyPrint: false });
+      expect(() => new WriterSync().writeCData('bad ]]> data')).toThrow('CDATA section');
+      expect(() => new WriterSync().writeComment('bad -- data')).toThrow('comment');
+      expect(() => new WriterSync().writeProcessingInstruction('pi', 'bad ?> data')).toThrow('Processing instruction');
+      const piWriter = new WriterSync({ prettyPrint: false });
       piWriter.writeProcessingInstruction('pi');
       expect(piWriter.getXmlString()).toBe('<?pi?>');
-      expect(() => new StaxXmlWriterSync().writeStartElement('root', {
+      expect(() => new WriterSync().writeStartElement('root', {
         attributes: { attr: { prefix: 'missing', value: 'value' } }
       })).toThrow("Namespace prefix 'missing' is not defined");
     });
 
     it('should cover sync sink buffer edge cases', () => {
       const chunks: string[] = [];
-      const writer = new StaxXmlWriterSyncSink({
+      const writer = new WriterSyncSink({
         write(chunk) {
           chunks.push(chunk);
         }
@@ -444,8 +444,8 @@ describe('core branch coverage guards', () => {
       expect(writer.getMetrics().flushCount).toBeGreaterThan(0);
       await expect(writer.writeCharacters('after')).rejects.toThrow('closed or in error');
 
-      await expect(new StaxXmlWriter(new WritableStream()).writeCData('bad ]]> data')).rejects.toThrow('CDATA section');
-      await expect(new StaxXmlWriter(new WritableStream()).writeStartElement('root', {
+      await expect(new Writer(new WritableStream()).writeCData('bad ]]> data')).rejects.toThrow('CDATA section');
+      await expect(new Writer(new WritableStream()).writeStartElement('root', {
         attributes: { attr: { prefix: 'missing', value: 'value' } }
       })).rejects.toThrow("Namespace prefix 'missing' is not defined");
 

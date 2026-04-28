@@ -4,10 +4,11 @@ import {
   type EntityDefinition,
 } from './IterableEventBackend.js';
 import {
-  StaxXmlIterableParser,
+  createJavaScriptIterableReader,
+  IterableReader,
   toAsyncByteBatches,
   toByteBatches,
-} from './StaxXmlIterableParser.js';
+} from './IterableReader.js';
 import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
 import { StaxXmlStructuralIndexParser } from './runtime/structural-index-parser.js';
 import {
@@ -16,7 +17,6 @@ import {
   type DocumentMode,
   type ErrorEvent,
 } from './types.js';
-import type { StaxXmlRuntimeBackendPreference } from './runtime/native-backend.js';
 
 /** XML inputs that can be parsed without crossing an async boundary. */
 export type XmlSyncInput = string | Uint8Array | Iterable<Uint8Array>;
@@ -32,8 +32,6 @@ export interface ParseXmlTreeOptions {
   addEntities?: EntityDefinition[];
   trimText?: boolean;
   batchSize?: number;
-  backend?: StaxXmlRuntimeBackendPreference;
-  fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
 
@@ -130,9 +128,8 @@ function treeOptions(options: ParseXmlTreeOptions): RequiredTreeOptions {
     addEntities: options.addEntities,
     trimText: options.trimText ?? false,
     batchSize: normalizeBatchSize(options.batchSize),
-    backend: options.backend,
-    fallbackOnLoadError: options.fallbackOnLoadError,
     fallbackOnParseError: options.fallbackOnParseError,
+    forceJavaScriptReader: false,
   };
 }
 
@@ -159,9 +156,8 @@ interface RequiredTreeOptions {
   addEntities: EntityDefinition[] | undefined;
   trimText: boolean;
   batchSize: number;
-  backend: StaxXmlRuntimeBackendPreference | undefined;
-  fallbackOnLoadError: boolean | undefined;
   fallbackOnParseError: boolean | undefined;
+  forceJavaScriptReader: boolean;
 }
 
 interface RequiredObjectOptions {
@@ -185,16 +181,15 @@ function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): 
     return;
   }
 
-  const parser = new StaxXmlIterableParser(
-    toByteBatches(syncInputChunks(input), { batchSize: options.batchSize }),
-    {
-      encoding: options.encoding,
-      documentMode: options.documentMode,
-      backend: options.backend,
-      fallbackOnLoadError: options.fallbackOnLoadError,
-      fallbackOnParseError: options.fallbackOnParseError,
-    },
-  );
+  const byteBatches = toByteBatches(syncInputChunks(input), { batchSize: options.batchSize });
+  const readerOptions = {
+    encoding: options.encoding,
+    documentMode: options.documentMode,
+    fallbackOnParseError: options.fallbackOnParseError,
+  };
+  const parser = options.forceJavaScriptReader
+    ? createJavaScriptIterableReader(byteBatches, readerOptions)
+    : new IterableReader(byteBatches, readerOptions);
 
   while (parser.nextBatch()) {
     yield* materializer.materializeBatch(parser) as TreeXmlEvent[];
@@ -205,30 +200,23 @@ function tryCreateStructuralSyncParser(
   input: XmlSyncInput,
   options: RequiredTreeOptions,
 ): StaxXmlStructuralIndexParser | undefined {
-  if (options.documentMode === 'document' || options.backend === 'js') {
+  if (options.documentMode === 'document') {
     return undefined;
   }
   if (typeof input !== 'string' && !(input instanceof Uint8Array)) {
     return undefined;
   }
 
-  const backendPreference = options.backend ?? 'auto';
-  const runtime = getStaxXmlRuntimeForSyncApi(backendPreference);
+  const runtime = getStaxXmlRuntimeForSyncApi(undefined);
   if (!runtime || runtime.backend.kind === 'js') {
     return undefined;
   }
   const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
-  const missingCapability = (): undefined => {
-    if (backendPreference !== 'auto' && options.fallbackOnLoadError !== true) {
-      throw new Error(`Initialized ${backendPreference} backend does not provide structuralIndex${sourceKind === 'utf16' ? 'Utf16' : 'Utf8'} capability.`);
-    }
-    return undefined;
-  };
 
   if (typeof input === 'string') {
     const buildTable = runtime.capabilities.structuralIndexUtf16;
     if (!buildTable) {
-      return missingCapability();
+      return undefined;
     }
     try {
       return new StaxXmlStructuralIndexParser(input, buildTable(input), {
@@ -237,6 +225,7 @@ function tryCreateStructuralSyncParser(
       });
     } catch (error) {
       if (options.fallbackOnParseError === true) {
+        options.forceJavaScriptReader = true;
         return undefined;
       }
       throw error;
@@ -245,7 +234,7 @@ function tryCreateStructuralSyncParser(
 
   const buildTable = runtime.capabilities.structuralIndexUtf8;
   if (!buildTable) {
-    return missingCapability();
+    return undefined;
   }
   try {
     return new StaxXmlStructuralIndexParser(input, buildTable(input), {
@@ -254,6 +243,7 @@ function tryCreateStructuralSyncParser(
     });
   } catch (error) {
     if (options.fallbackOnParseError === true) {
+      options.forceJavaScriptReader = true;
       return undefined;
     }
     throw error;
@@ -269,8 +259,6 @@ async function* iterateAsyncEvents(input: Exclude<XmlAsyncInput, XmlSyncInput>, 
       addEntities: options.addEntities,
       trimText: options.trimText,
       batchSize: options.batchSize,
-      backend: options.backend,
-      fallbackOnLoadError: options.fallbackOnLoadError,
       fallbackOnParseError: options.fallbackOnParseError,
     });
     for await (const event of backend) {
@@ -279,11 +267,9 @@ async function* iterateAsyncEvents(input: Exclude<XmlAsyncInput, XmlSyncInput>, 
     return;
   }
 
-  const parser = new StaxXmlIterableParser([], {
+  const parser = new IterableReader([], {
     encoding: options.encoding,
     documentMode: options.documentMode,
-    backend: options.backend,
-    fallbackOnLoadError: options.fallbackOnLoadError,
     fallbackOnParseError: options.fallbackOnParseError,
   });
   const materializer = new IterableEventMaterializer({

@@ -6,9 +6,9 @@ import {
 import { getStaxXmlRuntimeForSyncApi } from '../runtime/native-backend.js';
 import { StreamingEventBatchReader } from '../runtime/event-table.js';
 import { CursorEventView } from './CursorEventView.js';
-import { CursorEventType, type CursorEventType as CursorEventTypeValue, type StaxXmlCursorReaderAsyncOptions } from './types.js';
+import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderAsyncOptions } from './types.js';
 
-export class StaxXmlCursorReaderAsync {
+export class CursorReaderAsync {
   private readonly backend?: IterableEventBackendIterator;
   private readonly nativeReader?: StreamingEventBatchReader;
   private readonly nativeChunks?: AsyncGenerator<Uint8Array>;
@@ -21,7 +21,7 @@ export class StaxXmlCursorReaderAsync {
     implicitAttributeValue: 'name';
   };
 
-  constructor(stream: ReadableStream<Uint8Array>, options: StaxXmlCursorReaderAsyncOptions = {}) {
+  constructor(stream: ReadableStream<Uint8Array>, options: CursorReaderAsyncOptions = {}) {
     if (!(stream instanceof ReadableStream)) {
       throw new Error('stream must be a web standard ReadableStream.');
     }
@@ -32,7 +32,7 @@ export class StaxXmlCursorReaderAsync {
       implicitAttributeValue: 'name',
     };
 
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     const createStreamingParser = runtime?.capabilities.streamingEventBatches;
     if (runtime?.backend.kind !== 'js' && createStreamingParser) {
       this.nativeReader = new StreamingEventBatchReader(createStreamingParser({
@@ -52,8 +52,6 @@ export class StaxXmlCursorReaderAsync {
       incompleteFinalMarkupMessage: 'Unexpected end of document. Incomplete markup at end of stream.',
       emitStartDocumentBatchImmediately: true,
       maxChunkBytes: 8,
-      backend: options.backend,
-      fallbackOnLoadError: options.fallbackOnLoadError,
       fallbackOnParseError: options.fallbackOnParseError
     });
   }

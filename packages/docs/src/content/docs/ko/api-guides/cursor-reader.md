@@ -1,11 +1,11 @@
 ---
-title: StaxXmlCursorReader - Iterable Parser Cursor Wrapper
+title: CursorReader - Iterable Parser Cursor Wrapper
 description: iterable parser backend 위의 얇은 cursor wrapper
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/cursor-reader.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,21 +17,21 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxmlcursorreader.png
+      content: https://clickin.github.io/stax-xml/og/ko/api-guides/cursor-reader.png
 ---
 
-## StaxXmlCursorReader - Iterable Parser Cursor Wrapper
+## CursorReader - Iterable Parser Cursor Wrapper
 
-`StaxXmlCursorReader`는 one-event-at-a-time cursor accessor를 선호하는 코드를 위한 `StaxXmlIterableParser`의 얇은 wrapper입니다. tokenization은 iterable parser backend에 위임하고, 현재 이벤트를 `name()`, `text()`, `getAttributeValue()` 같은 메서드로 노출합니다.
+`CursorReader`는 one-event-at-a-time cursor accessor를 선호하는 코드를 위한 `IterableReader`의 얇은 wrapper입니다. tokenization은 iterable parser backend에 위임하고, 현재 이벤트를 `name()`, `text()`, `getAttributeValue()` 같은 메서드로 노출합니다.
 
-ergonomic cursor 순회가 필요할 때 사용하세요. batch frame, byte span, 가장 낮은 수준의 backend surface가 필요하면 `StaxXmlIterableParser`를 직접 사용하는 편이 적합합니다.
+ergonomic cursor 순회가 필요할 때 사용하세요. batch frame, byte span, 가장 낮은 수준의 backend surface가 필요하면 `IterableReader`를 직접 사용하는 편이 적합합니다.
 
 ### 빠른 시작
 
 ```typescript
-import { CursorEventType, StaxXmlCursorReader } from 'stax-xml/cursor';
+import { CursorEventType, CursorReader } from 'stax-xml/cursor';
 
-const cursor = new StaxXmlCursorReader('<root><item id="1">안녕</item></root>');
+const cursor = new CursorReader('<root><item id="1">안녕</item></root>');
 
 while (cursor.next()) {
   switch (cursor.eventType()) {
@@ -48,13 +48,13 @@ while (cursor.next()) {
 
 ### Async Streams
 
-`StaxXmlCursorReaderAsync`는 web standard `ReadableStream<Uint8Array>`를 받고 같은 accessor 형태를 유지합니다.
+`CursorReaderAsync`는 web standard `ReadableStream<Uint8Array>`를 받고 같은 accessor 형태를 유지합니다.
 
 ```typescript
-import { CursorEventType, StaxXmlCursorReaderAsync } from 'stax-xml/cursor';
+import { CursorEventType, CursorReaderAsync } from 'stax-xml/cursor';
 
 const response = await fetch('/large.xml');
-const cursor = new StaxXmlCursorReaderAsync(response.body!);
+const cursor = new CursorReaderAsync(response.body!);
 
 while (await cursor.next()) {
   if (cursor.eventType() === CursorEventType.START_ELEMENT) {
@@ -87,12 +87,12 @@ await cursor.close();
 ### Options
 
 ```typescript
-const cursor = new StaxXmlCursorReader(xml, {
+const cursor = new CursorReader(xml, {
   autoDecodeEntities: true,
   addEntities: [{ entity: '&copy;', value: '©' }]
 });
 
-const asyncCursor = new StaxXmlCursorReaderAsync(stream, {
+const asyncCursor = new CursorReaderAsync(stream, {
   encoding: 'utf-8',
   autoDecodeEntities: true
 });

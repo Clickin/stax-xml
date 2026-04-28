@@ -1,4 +1,4 @@
-// StaxXmlWriter.ts - Optimized version with real performance improvements
+// Writer.ts - Optimized version with real performance improvements
 import { NamespaceDeclaration, WriteElementOptions } from './types';
 
 /**
@@ -13,7 +13,7 @@ export interface SyncTextSink {
 /**
  * Writer output options shared by string and sink variants.
  */
-export interface StaxXmlWriterSyncOptions {
+export interface WriterSyncOptions {
   encoding?: string; // Output encoding (default: 'utf-8')
   prettyPrint?: boolean; // Enable pretty print (default: false)
   indentString?: string; // Pretty print indentation string (default: '  ')
@@ -25,7 +25,7 @@ export interface StaxXmlWriterSyncOptions {
 /**
  * Writer options for sink-based sync mode.
  */
-export interface StaxXmlWriterSyncSinkOptions extends StaxXmlWriterSyncOptions {
+export interface WriterSyncSinkOptions extends WriterSyncOptions {
   /**
    * Internal character buffer size.
    * @defaultValue 16384
@@ -64,9 +64,7 @@ const WriterState = {
   ERROR: 5
 } as const;
 
-type WriterState = typeof WriterState[keyof typeof WriterState];
-
-abstract class AbstractStaxXmlWriterSync {
+abstract class AbstractWriterSync {
   // OPTIMIZATION 1: Static cached regex and entity map for basic entities
   private static readonly BASIC_ENTITY_MAP: Record<string, string> = {
     '&': '&amp;',
@@ -77,12 +75,12 @@ abstract class AbstractStaxXmlWriterSync {
   };
   private static readonly BASIC_ENTITY_REGEX = /[&<>"']/g;
 
-  protected state: WriterState = WriterState.INITIAL;
+  protected state: number = WriterState.INITIAL;
   protected elementStack: string[] = [];
   protected hasTextContentStack: boolean[] = [];
   protected namespaceStack: Map<string, string>[] = [];
   protected namespaceOwnedStack: boolean[] = [];
-  protected readonly options: Required<StaxXmlWriterSyncOptions>;
+  protected readonly options: Required<WriterSyncOptions>;
   protected currentIndentLevel: number = 0;
   protected needsIndent: boolean = false;
   protected indentCache: string[] = [''];
@@ -91,7 +89,7 @@ abstract class AbstractStaxXmlWriterSync {
   private fullEntityMap?: Record<string, string>;
   private customEntityKeys?: string[];
 
-  protected constructor(options: StaxXmlWriterSyncOptions = {}) {
+  protected constructor(options: WriterSyncOptions = {}) {
     this.options = {
       encoding: 'utf-8',
       prettyPrint: false,
@@ -109,7 +107,7 @@ abstract class AbstractStaxXmlWriterSync {
     // OPTIMIZATION 1: Build custom entity map and regex at construction time
     if (this.options.addEntities && this.options.addEntities.length > 0) {
       this.fullEntityMap = {
-        ...AbstractStaxXmlWriterSync.BASIC_ENTITY_MAP,
+        ...AbstractWriterSync.BASIC_ENTITY_MAP,
         ...this.options.addEntities.reduce((map, entity) => {
           if (entity.entity && entity.value) {
             map[entity.entity] = entity.value;
@@ -124,7 +122,7 @@ abstract class AbstractStaxXmlWriterSync {
       this.customEntityRegex = new RegExp(escapedKeys.join('|'), 'g');
 
       this.customEntityKeys = Object.keys(this.fullEntityMap).filter(
-        k => !(k in AbstractStaxXmlWriterSync.BASIC_ENTITY_MAP)
+        k => !(k in AbstractWriterSync.BASIC_ENTITY_MAP)
       );
     }
   }
@@ -468,8 +466,8 @@ abstract class AbstractStaxXmlWriterSync {
       }
 
       /* v8 ignore next -- regex only matches keys present in BASIC_ENTITY_MAP */
-      return text.replace(AbstractStaxXmlWriterSync.BASIC_ENTITY_REGEX,
-        (match) => AbstractStaxXmlWriterSync.BASIC_ENTITY_MAP[match]!);
+      return text.replace(AbstractWriterSync.BASIC_ENTITY_REGEX,
+        (match) => AbstractWriterSync.BASIC_ENTITY_MAP[match]!);
     }
 
     const hasBasicEntities = text.includes('&') || text.includes('<') || text.includes('>') ||
@@ -492,10 +490,10 @@ abstract class AbstractStaxXmlWriterSync {
 /**
  * String-based sync writer.
  */
-export class StaxXmlWriterSync extends AbstractStaxXmlWriterSync {
+export class WriterSync extends AbstractWriterSync {
   private xmlString = '';
 
-  public constructor(options: StaxXmlWriterSyncOptions = {}) {
+  public constructor(options: WriterSyncOptions = {}) {
     super(options);
   }
 
@@ -511,7 +509,7 @@ export class StaxXmlWriterSync extends AbstractStaxXmlWriterSync {
 /**
  * Sink-based sync writer. Use this for file/buffer incremental writes.
  */
-export class StaxXmlWriterSyncSink extends AbstractStaxXmlWriterSync {
+export class WriterSyncSink extends AbstractWriterSync {
   private readonly sink: SyncTextSink;
   private readonly bufferSize: number;
   private readonly enableAutoFlush: boolean;
@@ -519,7 +517,7 @@ export class StaxXmlWriterSyncSink extends AbstractStaxXmlWriterSync {
   private readonly flushOnClose: boolean;
   private buffer = '';
 
-  constructor(sink: SyncTextSink, options: StaxXmlWriterSyncSinkOptions = {}) {
+  constructor(sink: SyncTextSink, options: WriterSyncSinkOptions = {}) {
     super(options);
 
     this.sink = sink;
@@ -615,4 +613,4 @@ export class StaxXmlWriterSyncSink extends AbstractStaxXmlWriterSync {
   }
 }
 
-export default StaxXmlWriterSync;
+export default WriterSync;

@@ -1,12 +1,12 @@
 import { describe, expect, afterEach, it, vi } from 'vitest';
 import {
-  StaxXmlParser,
-  StaxXmlParserSync,
-  StaxXmlCursorReader,
+  EventReader,
+  EventReaderSync,
+  CursorReader,
   initStaxXml,
   getStaxXmlRuntime,
 } from '../src/index';
-import { StaxXmlIterableParser, toByteBatches } from '../src/StaxXmlIterableParser';
+import { IterableReader, toByteBatches } from '../src/IterableReader';
 import { IterableEventMaterializer } from '../src/IterableEventBackend';
 import { x } from '../src/converter';
 import { WASM_PACKAGE_NAME, resetStaxXmlRuntimeForTests, resolveStaxXmlRuntimeBackend } from '../src/runtime';
@@ -29,7 +29,7 @@ describe('stax-xml runtime init cache', () => {
       capabilities: {},
     });
 
-    const parser = new StaxXmlParser(streamFrom('<r>ok</r>'));
+    const parser = new EventReader(streamFrom('<r>ok</r>'));
     await expect(collectNames(parser)).resolves.toEqual(['r', 'r']);
   });
 
@@ -88,15 +88,11 @@ describe('stax-xml runtime init cache', () => {
     })).rejects.toThrow(/Unable to initialize stax-xml native backend/);
   });
 
-  it('lets backend js disable acceleration even after cache initialization', () => {
-    expect(() => new StaxXmlIterableParser(
-      toByteBatches([encoder.encode('<r/>')], { batchSize: 1 }),
-      { backend: 'native' },
-    )).toThrow(/Call initStaxXml/);
+  it('lets runtime backend js disable acceleration', async () => {
+    await initStaxXml({ backend: 'js' });
 
-    const parser = new StaxXmlIterableParser(
+    const parser = new IterableReader(
       toByteBatches([encoder.encode('<r/>')], { batchSize: 1 }),
-      { backend: 'js' },
     );
     expect(parser.nextBatch()).toBe(true);
   });
@@ -141,7 +137,7 @@ describe('stax-xml runtime init cache', () => {
     });
 
     const events = [];
-    for await (const event of new StaxXmlParser(streamFromChunks(['<r', '>ok', '</r>']))) {
+    for await (const event of new EventReader(streamFromChunks(['<r', '>ok', '</r>']))) {
       events.push(event);
     }
 
@@ -170,12 +166,12 @@ describe('stax-xml runtime init cache', () => {
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
       importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
     });
-    vi.spyOn(StaxXmlIterableParser.prototype, 'nextBatch')
+    vi.spyOn(IterableReader.prototype, 'nextBatch')
       .mockImplementation(() => {
         throw new Error('sync parser should not use the JavaScript iterable parser after initStaxXml');
       });
 
-    const events = [...new StaxXmlParserSync('<r><name>Alice</name></r>')];
+    const events = [...new EventReaderSync('<r><name>Alice</name></r>')];
 
     expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
     expect(events.map(event => 'name' in event ? event.name : 'value' in event ? event.value : event.type))
@@ -218,7 +214,7 @@ describe('stax-xml runtime init cache', () => {
         }),
       }),
     });
-    const parser = new StaxXmlIterableParser([
+    const parser = new IterableReader([
       [encoder.encode('<r'), encoder.encode('>ok'), encoder.encode('</r>')],
     ]);
 
@@ -258,7 +254,7 @@ describe('stax-xml runtime init cache', () => {
         throw new Error('cursor should not materialize AnyXmlEvent arrays on native table path');
       });
 
-    const cursor = new StaxXmlCursorReader('<r a="x">ok</r>');
+    const cursor = new CursorReader('<r a="x">ok</r>');
     const values: Array<string | number | undefined> = [];
     while (cursor.next()) {
       values.push(cursor.name() ?? cursor.text() ?? cursor.eventType());
@@ -286,7 +282,7 @@ describe('stax-xml runtime init cache', () => {
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
       importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
     });
-    vi.spyOn(StaxXmlIterableParser.prototype, 'nextBatch')
+    vi.spyOn(IterableReader.prototype, 'nextBatch')
       .mockImplementation(() => {
         throw new Error('compiled parseSync should not use the JavaScript iterable parser after initStaxXml');
       });
@@ -298,7 +294,7 @@ describe('stax-xml runtime init cache', () => {
   });
 });
 
-async function collectNames(parser: StaxXmlParser): Promise<string[]> {
+async function collectNames(parser: EventReader): Promise<string[]> {
   const names: string[] = [];
   for await (const event of parser) {
     if ('name' in event && event.name) {

@@ -1,4 +1,9 @@
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from '../StaxXmlIterableParser.js';
+import {
+  createJavaScriptIterableReader,
+  IterableEventType,
+  IterableReader,
+  toByteBatches,
+} from '../IterableReader.js';
 import {
   createStaxXmlRuntimeFromBackend,
   getInitializedStaxXmlRuntime,
@@ -34,7 +39,7 @@ import type { ParseOptions, XmlNumberOptions } from './types.js';
 import { XmlParseError } from './errors.js';
 import {
   IterableEventBackendIterator,
-  createIterableParserFromChunks,
+  createIterableReaderFromChunks,
   getIterableEventBackend,
   getIterableEventTable,
   type IterableEventTable,
@@ -130,9 +135,9 @@ export class CompiledRootProcessor {
       return this.finish<T>(runtime);
     }
 
-    const parser = new StaxXmlIterableParser(
+    const parser = createJavaScriptIterableReader(
       toByteBatches([textEncoder.encode(input)], { batchSize: 1 }),
-      { documentMode: effectiveOptions?.documentMode, backend: 'js' }
+      { documentMode: effectiveOptions?.documentMode }
     );
 
     while (parser.nextBatch()) {
@@ -170,7 +175,7 @@ export class CompiledRootProcessor {
         return this.finish<T>(runtime);
       }
 
-      const parser = createIterableParserFromChunks([toUint8Array(input)], {
+      const parser = createIterableReaderFromChunks([toUint8Array(input)], {
         batchSize: 1,
         documentMode: effectiveOptions?.documentMode
       });
@@ -280,7 +285,7 @@ export class CompiledRootProcessor {
 
   private processIterableEvent(
     runtime: RuntimeState,
-    parser: StaxXmlIterableParser | IterableEventTable,
+    parser: IterableReader | IterableEventTable,
     index: number
   ): void {
     const type = parser.eventType(index);
@@ -788,7 +793,7 @@ function markCompleted(parent: ParentBinding, plan: DispatchScalarPlan): void {
 }
 
 function copyAttributes(
-  parser: StaxXmlIterableParser | IterableEventTable,
+  parser: IterableReader | IterableEventTable,
   eventIndex: number,
   options?: ParseOptions
 ): Record<string, string> {
@@ -825,11 +830,11 @@ function lazyAttributeRecord(
 }
 
 function hasAttributeLookup(
-  parser: StaxXmlIterableParser | IterableEventTable
+  parser: IterableReader | IterableEventTable
 ): parser is IterableEventTable & {
   copyAttrValueByName(eventIndex: number, name: string): string | undefined;
 } {
-  return !(parser instanceof StaxXmlIterableParser)
+  return !(parser instanceof IterableReader)
     && typeof parser.copyAttrValueByName === 'function';
 }
 
@@ -1497,8 +1502,8 @@ function tryCreateStructuralIndexTableSync(
   }
 }
 
-function attributeCount(parser: StaxXmlIterableParser | IterableEventTable, eventIndex: number): number {
-  return parser instanceof StaxXmlIterableParser
+function attributeCount(parser: IterableReader | IterableEventTable, eventIndex: number): number {
+  return parser instanceof IterableReader
     ? parser.attrCount(eventIndex)
     : parser.eventAttrCount(eventIndex);
 }

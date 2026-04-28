@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import {
-  StaxXmlNodeIterableParser,
+  NodeIterableReader,
   nodeFileByteBatchesSync,
 } from 'stax-xml/iterable/node';
 
@@ -39,7 +39,7 @@ for (const sizeMiB of options.sizesMiB) {
 }
 
 console.log('\nNative Iterable File Traversal');
-console.log('Public API path: nodeFileByteBatchesSync(file) -> StaxXmlNodeIterableParser -> nextBatch/event accessors');
+console.log('Public API path: nodeFileByteBatchesSync(file) -> NodeIterableReader -> nextBatch/event accessors');
 console.log(`Chunk size: ${formatMiB(chunkSize)}; batch size: ${batchSize}; warmups: ${options.warmups}; runs: ${options.runs}`);
 console.log('');
 console.log('| Size | Backend | Throughput | Avg | Events | Checksum | Batches |');
@@ -80,7 +80,7 @@ function measureScenario({ label, filePath, sizeMiB, backend, warmups, runs }) {
 }
 
 function consumeFile(filePath, backend) {
-  const parser = new StaxXmlNodeIterableParser(
+  const parser = new NodeIterableReader(
     nodeFileByteBatchesSync(filePath, { chunkSize, batchSize }),
     { backend },
   );

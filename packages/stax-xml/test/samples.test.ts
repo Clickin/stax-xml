@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import StaxXmlParser from '../src/StaxXmlParser';
+import EventReader from '../src/EventReader';
 import { XmlEventType } from '../src/types';
 
 // 웹 표준 API용 헬퍼 함수
@@ -27,7 +27,7 @@ function loadSampleFile(filename: string): string {
 async function safeParseXml(xmlContent: string): Promise<{ events: any[], success: boolean, error?: string }> {
   try {
     const inputStream = stringToReadableStream(xmlContent);
-    const parser = new StaxXmlParser(inputStream);
+    const parser = new EventReader(inputStream);
 
     const events = [];
     for await (const event of parser) {

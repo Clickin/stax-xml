@@ -1,6 +1,6 @@
 import { performance } from 'node:perf_hooks';
 import { x } from 'stax-xml/converter';
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
+import { IterableEventType, IterableReader, toByteBatches } from 'stax-xml/iterable';
 import { StaxXmlStructuralIndexParser } from 'stax-xml/runtime';
 
 const encoder = new TextEncoder();
@@ -164,7 +164,7 @@ async function measureObjectRows(name, run, input) {
 }
 
 function consumePublicIterable(bytes) {
-  const parser = new StaxXmlIterableParser(toByteBatches([bytes], { batchSize: 1 }));
+  const parser = new IterableReader(toByteBatches([bytes], { batchSize: 1 }));
   let eventCount = 0;
   let checksumValue = 2166136261;
 

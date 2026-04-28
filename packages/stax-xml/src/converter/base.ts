@@ -297,16 +297,21 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     return this;
   }
 
-  // Static factory methods (will be set by initialization module)
+  /** @internal */
   static _createTransform: <Output, Input, NewOutput>(schema: XmlSchemaBase<Output, Input>, fn: (value: Output) => NewOutput) => XmlSchemaBase<NewOutput, Input>;
+  /** @internal */
   static _createOptional: <T extends XmlSchemaBase<unknown, unknown>>(schema: T) => XmlSchemaBase<T['_output'] | undefined, T['_input'] | undefined>;
+  /** @internal */
   static _createArray: <T extends XmlSchemaBase<unknown, unknown>>(schema: T, xpath?: string) => XmlSchemaBase<T['_output'][], T['_input'][]>;
+  /** @internal */
   static _createCompiled: <Output, Input>(schema: XmlSchemaBase<Output, Input>) => XmlSchemaBase<Output, Input>;
+  /** @internal */
   static _tryParseWithCompiledPlan?: <Output, Input>(
     schema: XmlSchemaBase<Output, Input>,
     input: string | Iterator<AnyXmlEvent>,
     options?: ParseOptions
   ) => AutoParseResult<Output>;
+  /** @internal */
   static _tryParseAsyncWithCompiledPlan?: <Output, Input>(
     schema: XmlSchemaBase<Output, Input>,
     input: ParseInput,

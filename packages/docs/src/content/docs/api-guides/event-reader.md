@@ -1,11 +1,11 @@
 ---
-title: StaxXmlParser - 비동기 XML 파싱
-description: JavaScript/TypeScript용 고성능 비동기 XML 파서
+title: EventReader - Asynchronous XML Parsing
+description: High-performance asynchronous XML parser for JavaScript/TypeScript
 head:
   - tag: meta
     attrs:
       property: og:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-parser.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/event-reader.png
   - tag: meta
     attrs:
       property: og:image:width
@@ -17,21 +17,21 @@ head:
   - tag: meta
     attrs:
       name: twitter:image
-      content: https://clickin.github.io/stax-xml/og/ko/api-guides/staxxml-parser.png
+      content: https://clickin.github.io/stax-xml/og/api-guides/event-reader.png
 ---
 
-## StaxXmlParser - 비동기 XML 파싱
+## EventReader - Asynchronous XML Parsing
 
-`StaxXmlParser`는 Java의 StAX(Streaming API for XML)에서 영감을 받은 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 공개 API는 stream/backpressure 연동을 위해 비동기이며, tokenizer backend는 도착한 byte batch를 동기적으로 소비합니다.
+`EventReader` is a high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). Its public API is asynchronous for stream and backpressure integration, while the tokenizer backend consumes received byte batches synchronously.
 
-### 🔧 빠른 시작
+### 🔧 Quick Start
 
-#### XML 문자열 파싱
+#### Parsing XML String
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
-// XML 문자열로부터 ReadableStream 생성
+// Create a ReadableStream from XML string
 const xmlContent = `
   <books>
     <book id="1">
@@ -52,8 +52,8 @@ const stream = new ReadableStream({
   }
 });
 
-// 풀 기반 방식으로 XML 파싱
-const parser = new StaxXmlParser(stream);
+// Parse XML with pull-based approach
+const parser = new EventReader(stream);
 const books = [];
 let currentBook = null;
 let currentText = '';
@@ -87,18 +87,19 @@ for await (const event of parser) {
 }
 
 console.log(books);
-// 출력: [
+// Output: [
 //   { id: "1", title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
 //   { id: "2", title: "To Kill a Mockingbird", author: "Harper Lee" }
 // ]
 ```
 
-#### 더 구조화된 방식으로 XML 문자열 파싱
+
+#### Parsing XML String with more structured syntax
 ```typescript
-import { StaxXmlParser, isCharacters, isEndDocument, isEndElement, isStartElement } from 'stax-xml';
+import { EventReader, isCharacters, isEndDocument, isEndElement, isStartElement } from 'stax-xml';
 
 
-// XML 문자열에서 ReadableStream 을 만드는 섹션
+// Create a ReadableStream from XML string
 const xmlContent = `
   <books>
     <book id="1">
@@ -124,8 +125,8 @@ const stream = new ReadableStream({
   }
 });
 
-// pull 방식으로 xml 파싱 시작
-const parser = new StaxXmlParser(stream);
+// Parse XML with pull-based approach
+const parser = new EventReader(stream);
 const books: Book[] = [];
 
 for await (const event of parser) {
@@ -138,9 +139,9 @@ for await (const event of parser) {
 }
 
 /**
- * 개별 book 파싱 
+ * parse Each book
  */
-async function parseBook(id: string, parser: StaxXmlParser): Promise<Book> {
+async function parseBook(id: string, parser: EventReader): Promise<Book> {
   const currentBook = {
     id: id,
     title: '',
@@ -169,30 +170,29 @@ console.log(books);
 // ]
 ``` 
 
-
-#### Fetch를 사용한 원격 XML 파싱
+#### Parsing Remote XML with Fetch
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 async function parseRemoteXml(url: string) {
   try {
-    // 원격 URL에서 XML 가져오기
+    // Fetch XML from remote URL
     const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    // 응답 본문을 ReadableStream으로 가져오기
+    // Get the response body as a ReadableStream
     const xmlStream = response.body;
     
     if (!xmlStream) {
       throw new Error('No response body');
     }
     
-    // XML 스트림을 직접 파싱
-    const parser = new StaxXmlParser(xmlStream);
+    // Parse the XML stream directly
+    const parser = new EventReader(xmlStream);
     const results = [];
     let currentItem = {};
     let currentText = '';
@@ -222,38 +222,38 @@ async function parseRemoteXml(url: string) {
     
     return results;
   } catch (error) {
-    console.error('원격 XML 파싱 오류:', error);
+    console.error('Error parsing remote XML:', error);
     throw error;
   }
 }
 
-// 사용 예제
+// Usage examples
 const rssUrl = 'https://example.com/feed.xml';
 const xmlApiUrl = 'https://api.example.com/data.xml';
 
-// RSS 피드 파싱
+// Parse RSS feed
 parseRemoteXml(rssUrl)
   .then(items => {
-    console.log('RSS 항목:', items);
+    console.log('RSS items:', items);
   })
   .catch(error => {
-    console.error('RSS 파싱 실패:', error);
+    console.error('Failed to parse RSS:', error);
   });
 
-// API 응답 파싱
+// Parse API response
 parseRemoteXml(xmlApiUrl)
   .then(data => {
-    console.log('API 데이터:', data);
+    console.log('API data:', data);
   })
   .catch(error => {
-    console.error('API 응답 파싱 실패:', error);
+    console.error('Failed to parse API response:', error);
   });
 ```
 
-#### 사용자 정의 엔티티 지원
+#### Custom Entity Support
 
 ```typescript
-const parser = new StaxXmlParser(stream, {
+const parser = new EventReader(stream, {
   addEntities: [
     { entity: 'custom', value: 'Custom Value' },
     { entity: 'special', value: '★' }
@@ -261,12 +261,12 @@ const parser = new StaxXmlParser(stream, {
 });
 ```
 
-#### While 기반 반복자 패턴 (StAX와 유사)
+#### While-Based Iterator Pattern (StAX-like)
 
 ```typescript
-import { StaxXmlParser, XmlEventType, isStartElement, isEndElement } from 'stax-xml';
+import { EventReader, XmlEventType, isStartElement, isEndElement } from 'stax-xml';
 
-// 중첩 구조를 가진 XML 데이터
+// XML data with nested structure
 const xmlContent = `
   <catalog>
     <products>
@@ -295,9 +295,9 @@ const stream = new ReadableStream({
   }
 });
 
-// while 기반 반복을 사용한 메인 파싱 함수
+// Main parsing function using while-based iteration
 async function parseCatalog(xmlStream: ReadableStream<Uint8Array>) {
-  const parser = new StaxXmlParser(xmlStream);
+  const parser = new EventReader(xmlStream);
   const catalog = { products: [] };
 
   const iterator = parser[Symbol.asyncIterator]();
@@ -316,7 +316,7 @@ async function parseCatalog(xmlStream: ReadableStream<Uint8Array>) {
   return catalog;
 }
 
-// 제품들을 위한 별도 파싱 함수
+// Separate parsing function for products
 async function parseProducts(iterator: AsyncIterator<any>, catalog: any) {
   let result = await iterator.next();
 
@@ -334,7 +334,7 @@ async function parseProducts(iterator: AsyncIterator<any>, catalog: any) {
   }
 }
 
-// 개별 제품을 위한 별도 파싱 함수
+// Separate parsing function for individual product
 async function parseProduct(iterator: AsyncIterator<any>, startEvent: any) {
   const product = {
     id: startEvent.attributes?.id || '',
@@ -384,7 +384,7 @@ async function parseProduct(iterator: AsyncIterator<any>, startEvent: any) {
   return product;
 }
 
-// 사양을 위한 별도 파싱 함수
+// Separate parsing function for specifications
 async function parseSpecifications(iterator: AsyncIterator<any>, product: any) {
   let result = await iterator.next();
   let currentText = '';
@@ -414,10 +414,10 @@ async function parseSpecifications(iterator: AsyncIterator<any>, product: any) {
   }
 }
 
-// 사용법
+// Usage
 parseCatalog(stream).then(result => {
   console.log(JSON.stringify(result, null, 2));
-  // 출력:
+  // Output:
   // {
   //   "products": [
   //     {
@@ -445,16 +445,16 @@ parseCatalog(stream).then(result => {
 });
 ```
 
-#### 대용량 파일 처리
+#### Large File Processing
 
 ```typescript
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const nodeStream = createReadStream('./large.xml', { highWaterMark: 1024 * 1024 });
 const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
-const parser = new StaxXmlParser(webStream);
+const parser = new EventReader(webStream);
 
 for await (const event of parser) {
   if (event.type === XmlEventType.START_ELEMENT) {
@@ -463,13 +463,13 @@ for await (const event of parser) {
 }
 ```
 
-이 경로는 API 경계에서 stream backpressure를 유지합니다. `StaxXmlParser`는 consumer가 다음 event 또는 batch를 요청할 때 다음 `ReadableStream` chunk를 읽습니다. 내부에서는 도착한 byte batch가 tokenizer로 넘어가 동기적으로 처리되므로, 큰 batch를 처리하는 동안에는 현재 worker를 점유할 수 있습니다.
+This path keeps stream backpressure at the API boundary. `EventReader` reads the next `ReadableStream` chunk only when the consumer asks for more events or batches. Internally, each received byte batch is handed to the tokenizer synchronously, so very large parse bursts can still occupy the current worker while that batch is processed.
 
-latency-sensitive main thread 작업에서는 batch 크기를 제한하거나 Web Worker 또는 Node worker thread로 parsing을 offload하세요. batch job에서는 synchronous iterable parser가 byte chunk를 직접 소비할 수도 있으므로, parsing을 위해 전체 XML string을 강제할 필요가 없습니다.
+For latency-sensitive main-thread work, keep batches bounded or offload parsing to a Web Worker or Node worker thread. For batch jobs, the synchronous iterable parser can also consume byte chunks directly, which avoids forcing a full XML string before parsing.
 
-#### Unknown XML Tree Object Helper
+#### Unknown XML Tree and Object Helpers
 
-미리 정의한 converter schema 없이 XML 문서를 그대로 살펴보고 싶을 때는 main package의 tree/object helper를 사용할 수 있습니다:
+When you do not have a predefined converter schema and just want to inspect an XML document, use the tree/object helpers from the main package:
 
 ```typescript
 import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
@@ -488,12 +488,12 @@ console.log(object.book);
 // }
 ```
 
-`parseXmlTree()` / `parseXmlTreeSync()`는 Python ElementTree와 비슷한 순서 보존 tree를 반환합니다. `parseXmlObject()` / `parseXmlObjectSync()`는 attribute를 `@` prefix 아래에, text를 `#text`, CDATA를 `#cdata` 아래에 두는 compact object shape을 반환합니다. object helper는 결과 전체를 materialize하므로, unbounded input을 streaming projection해야 한다면 event, cursor, converter API를 사용하세요.
+`parseXmlTree()` / `parseXmlTreeSync()` return an order-preserving tree similar in spirit to Python's ElementTree. `parseXmlObject()` / `parseXmlObjectSync()` return a compact object shape with attributes under the `@` prefix, text under `#text`, and CDATA under `#cdata`. The object helpers materialize the full result, so use the event, cursor, or converter APIs when you need streaming projection over unbounded input.
 
-#### 네임스페이스 처리
+#### Namespace Handling
 
 ```typescript
-// 네임스페이스가 있는 XML
+// XML with namespaces
 const xmlWithNamespaces = `
   <root xmlns:ns="http://example.com/namespace">
     <ns:element>Content</ns:element>
@@ -502,33 +502,33 @@ const xmlWithNamespaces = `
 
 for await (const event of parser) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    console.log('엘리먼트:', event.name);
-    console.log('로컬 이름:', event.localName);
-    console.log('네임스페이스 URI:', event.uri);
-    console.log('접두사:', event.prefix);
+    console.log('Element:', event.name);
+    console.log('Local name:', event.localName);
+    console.log('Namespace URI:', event.uri);
+    console.log('Prefix:', event.prefix);
   }
 }
 ```
 
-### 🎯 이벤트 타입
+### 🎯 Event Types
 
-- `START_DOCUMENT`: XML 문서의 시작
-- `END_DOCUMENT`: XML 문서의 끝
-- `START_ELEMENT`: XML 여는 태그
-- `END_ELEMENT`: XML 닫는 태그
-- `CHARACTERS`: 태그 사이의 텍스트 내용
-- `CDATA`: CDATA 섹션 내용
-- `ERROR`: 파싱 오류 발생
+- `START_DOCUMENT`: Beginning of XML document
+- `END_DOCUMENT`: End of XML document
+- `START_ELEMENT`: Opening XML tag
+- `END_ELEMENT`: Closing XML tag
+- `CHARACTERS`: Text content between tags
+- `CDATA`: CDATA section content
+- `ERROR`: Parse error occurred
 
-### 🛡️ 타입 가드 함수
+### 🛡️ Type Guard Functions
 
-타입 가드 함수는 XML 이벤트에 대한 런타임 타입 확인과 TypeScript 타입 좁히기를 제공합니다. 이러한 함수들은 XML 이벤트와 함께 작업할 때 타입 안전한 코드를 작성하는 데 필수적이며, TypeScript가 특정 이벤트 타입을 적절히 추론하고 타입별 속성에 접근할 수 있게 해줍니다.
+Type guard functions provide runtime type checking and TypeScript type narrowing for XML events. These functions are essential for writing type-safe code when working with XML events, as they allow TypeScript to properly infer the specific event type and provide access to type-specific properties.
 
-#### 타입 가드란 무엇인가요?
+#### What are Type Guards?
 
-타입 가드는 값의 타입을 결정하기 위해 런타임 확인을 수행하는 함수이며, 동시에 TypeScript에 타입 정보를 제공합니다. stax-xml의 맥락에서, 타입 가드는 타입 오류 없이 이벤트별 속성에 안전하게 접근할 수 있도록 도와줍니다.
+Type guards are functions that perform runtime checks to determine the type of a value, while also providing TypeScript with type information. In the context of stax-xml, type guards help you safely access event-specific properties without type errors.
 
-#### 사용 가능한 타입 가드 함수
+#### Available Type Guard Functions
 
 ```typescript
 import {
@@ -542,17 +542,17 @@ import {
 } from 'stax-xml';
 ```
 
-#### 타입 가드 사용의 이점
+#### Benefits of Using Type Guards
 
-1. **타입 안전성**: 특정 이벤트 타입에 존재하는 속성만 접근하도록 보장하여 런타임 오류를 방지
-2. **IntelliSense 지원**: 더 나은 IDE 자동완성 및 제안
-3. **깔끔한 코드**: `event.type === XmlEventType.START_ELEMENT`와 같은 수동 타입 확인보다 더 읽기 쉬움
-4. **타입 좁히기**: TypeScript가 자동으로 타입을 좁혀주어 타입별 속성에 접근 가능
+1. **Type Safety**: Prevents runtime errors by ensuring you only access properties that exist on specific event types
+2. **IntelliSense Support**: Better IDE autocomplete and suggestions
+3. **Cleaner Code**: More readable than manual type checking with `event.type === XmlEventType.START_ELEMENT`
+4. **Type Narrowing**: TypeScript automatically narrows the type, giving you access to type-specific properties
 
-#### 기본 사용 예제
+#### Basic Usage Example
 
 ```typescript
-import { StaxXmlParser, isStartElement, isEndElement, isCharacters } from 'stax-xml';
+import { EventReader, isStartElement, isEndElement, isCharacters } from 'stax-xml';
 
 const xmlContent = `
   <book id="123">
@@ -568,42 +568,42 @@ const stream = new ReadableStream({
   }
 });
 
-const parser = new StaxXmlParser(stream);
+const parser = new EventReader(stream);
 
 for await (const event of parser) {
-  // 타입 가드가 타입 안전성과 좁히기를 제공
+  // Type guard provides type safety and narrowing
   if (isStartElement(event)) {
-    // TypeScript가 이것이 StartElementEvent임을 인식
-    console.log('엘리먼트:', event.name);
-    console.log('속성:', event.attributes);
-    // event.attributes를 여기서 안전하게 접근 가능
+    // TypeScript knows this is a StartElementEvent
+    console.log('Element:', event.name);
+    console.log('Attributes:', event.attributes);
+    // event.attributes is safely accessible here
   } else if (isCharacters(event)) {
-    // TypeScript가 이것이 CharactersEvent임을 인식
-    console.log('텍스트 내용:', event.value);
-    // event.value를 여기서 안전하게 접근 가능
+    // TypeScript knows this is a CharactersEvent
+    console.log('Text content:', event.value);
+    // event.value is safely accessible here
   } else if (isEndElement(event)) {
-    // TypeScript가 이것이 EndElementEvent임을 인식
-    console.log('닫는 엘리먼트:', event.name);
-    // event.name을 여기서 안전하게 접근 가능
+    // TypeScript knows this is an EndElementEvent
+    console.log('Closing element:', event.name);
+    // event.name is safely accessible here
   }
 }
 ```
 
-#### 오류 처리와 함께하는 고급 사용법
+#### Advanced Usage with Error Handling
 
 ```typescript
-import { StaxXmlParser, isStartElement, isCharacters, isError } from 'stax-xml';
+import { EventReader, isStartElement, isCharacters, isError } from 'stax-xml';
 
 async function parseWithErrorHandling(xmlStream: ReadableStream<Uint8Array>) {
-  const parser = new StaxXmlParser(xmlStream);
+  const parser = new EventReader(xmlStream);
   const result = { elements: [], errors: [] };
 
   for await (const event of parser) {
     if (isError(event)) {
-      // 파싱 오류를 안전하게 처리
-      console.error('파싱 오류:', event.error.message);
+      // Handle parsing errors safely
+      console.error('Parse error:', event.error.message);
       result.errors.push(event.error);
-      break; // 오류 시 파싱 중단
+      break; // Stop parsing on error
     } else if (isStartElement(event)) {
       result.elements.push({
         name: event.name,
@@ -616,23 +616,23 @@ async function parseWithErrorHandling(xmlStream: ReadableStream<Uint8Array>) {
 }
 ```
 
-#### 타입 가드 함수 참조
+#### Type Guard Function Reference
 
-| 함수 | 목적 | 참을 반환하는 경우 | 사용 가능한 속성 |
-|------|------|------------------|------------------|
-| `isStartDocument(event)` | 문서 시작 | `START_DOCUMENT` 이벤트 | `type` |
-| `isEndDocument(event)` | 문서 끝 | `END_DOCUMENT` 이벤트 | `type` |
-| `isStartElement(event)` | 여는 태그 | `START_ELEMENT` 이벤트 | `type`, `name`, `localName`, `prefix`, `uri`, `attributes`, `attributesWithPrefix` |
-| `isEndElement(event)` | 닫는 태그 | `END_ELEMENT` 이벤트 | `type`, `name`, `localName`, `prefix`, `uri` |
-| `isCharacters(event)` | 텍스트 내용 | `CHARACTERS` 이벤트 | `type`, `value` |
-| `isCdata(event)` | CDATA 섹션 | `CDATA` 이벤트 | `type`, `value` |
-| `isError(event)` | 파싱 오류 | `ERROR` 이벤트 | `type`, `error` |
+| Function | Purpose | Returns True For | Available Properties |
+|----------|---------|------------------|---------------------|
+| `isStartDocument(event)` | Document start | `START_DOCUMENT` events | `type` |
+| `isEndDocument(event)` | Document end | `END_DOCUMENT` events | `type` |
+| `isStartElement(event)` | Opening tags | `START_ELEMENT` events | `type`, `name`, `localName`, `prefix`, `uri`, `attributes`, `attributesWithPrefix` |
+| `isEndElement(event)` | Closing tags | `END_ELEMENT` events | `type`, `name`, `localName`, `prefix`, `uri` |
+| `isCharacters(event)` | Text content | `CHARACTERS` events | `type`, `value` |
+| `isCdata(event)` | CDATA sections | `CDATA` events | `type`, `value` |
+| `isError(event)` | Parse errors | `ERROR` events | `type`, `error` |
 
-#### 여러 타입 가드를 사용한 복잡한 파싱 예제
+#### Complex Parsing Example with Multiple Type Guards
 
 ```typescript
 import {
-  StaxXmlParser,
+  EventReader,
   isStartDocument,
   isEndDocument,
   isStartElement,
@@ -650,7 +650,7 @@ interface Article {
 }
 
 async function parseArticles(xmlStream: ReadableStream<Uint8Array>): Promise<Article[]> {
-  const parser = new StaxXmlParser(xmlStream);
+  const parser = new EventReader(xmlStream);
   const articles: Article[] = [];
   let currentArticle: Partial<Article> | null = null;
   let currentElement = '';
@@ -658,12 +658,12 @@ async function parseArticles(xmlStream: ReadableStream<Uint8Array>): Promise<Art
 
   for await (const event of parser) {
     if (isStartDocument(event)) {
-      console.log('문서 파싱 시작...');
+      console.log('Starting document parsing...');
     } else if (isEndDocument(event)) {
-      console.log('문서 파싱 완료');
+      console.log('Finished parsing document');
       break;
     } else if (isError(event)) {
-      throw new Error(`파싱 실패: ${event.error.message}`);
+      throw new Error(`Parsing failed: ${event.error.message}`);
     } else if (isStartElement(event)) {
       currentElement = event.name;
       textBuffer = '';
@@ -677,7 +677,7 @@ async function parseArticles(xmlStream: ReadableStream<Uint8Array>): Promise<Art
         };
       }
     } else if (isCharacters(event) || isCdata(event)) {
-      // CHARACTERS와 CDATA 이벤트 모두 'value' 속성을 가짐
+      // Both CHARACTERS and CDATA events have a 'value' property
       textBuffer += event.value;
     } else if (isEndElement(event)) {
       const trimmedText = textBuffer.trim();
@@ -695,7 +695,7 @@ async function parseArticles(xmlStream: ReadableStream<Uint8Array>): Promise<Art
             break;
         }
       } else if (event.name === 'article' && currentArticle) {
-        // 모든 필수 필드가 존재하는지 확인
+        // Ensure all required fields are present
         if (currentArticle.title && currentArticle.content && currentArticle.author) {
           articles.push(currentArticle as Article);
         }
@@ -710,18 +710,18 @@ async function parseArticles(xmlStream: ReadableStream<Uint8Array>): Promise<Art
   return articles;
 }
 
-// 사용 예제
+// Usage example
 const articleXml = `
   <articles>
     <article publishDate="2024-01-15">
-      <title>타입 가드 이해하기</title>
-      <author>김철수</author>
-      <content><![CDATA[타입 가드는 타입 안전한 TypeScript 개발에 필수적입니다...]]></content>
+      <title>Understanding Type Guards</title>
+      <author>Jane Smith</author>
+      <content><![CDATA[Type guards are essential for type-safe TypeScript development...]]></content>
     </article>
     <article publishDate="2024-01-20">
-      <title>XML 파싱 모범 사례</title>
-      <author>이영희</author>
-      <content>XML을 파싱할 때는 항상 오류를 우아하게 처리해야 합니다...</content>
+      <title>XML Parsing Best Practices</title>
+      <author>Bob Johnson</author>
+      <content>When parsing XML, always handle errors gracefully...</content>
     </article>
   </articles>
 `;
@@ -734,51 +734,51 @@ const stream = new ReadableStream({
 });
 
 parseArticles(stream).then(articles => {
-  console.log('파싱된 기사:', articles);
+  console.log('Parsed articles:', articles);
 }).catch(error => {
-  console.error('파싱 실패:', error);
+  console.error('Parsing failed:', error);
 });
 ```
 
-#### 비교: 타입 가드 사용 vs 미사용
+#### Comparison: With and Without Type Guards
 
-**타입 가드 미사용 (오류 가능성):**
+**Without Type Guards (Error-Prone):**
 ```typescript
 for await (const event of parser) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    // TypeScript가 event에 'attributes' 속성이 있는지 모름
-    // 런타임 오류를 발생시킬 수 있음
-    console.log(event.attributes?.id); // TypeScript 경고
+    // TypeScript doesn't know event has 'attributes' property
+    // This could cause runtime errors
+    console.log(event.attributes?.id); // TypeScript warning
   }
 }
 ```
 
-**타입 가드 사용 (타입 안전):**
+**With Type Guards (Type-Safe):**
 ```typescript
 for await (const event of parser) {
   if (isStartElement(event)) {
-    // TypeScript가 event가 StartElementEvent임을 인식
-    // 완전한 IntelliSense 지원과 타입 안전성
-    console.log(event.attributes.id); // TypeScript 경고 없음
+    // TypeScript knows event is StartElementEvent
+    // Full IntelliSense support and type safety
+    console.log(event.attributes.id); // No TypeScript warnings
   }
 }
 ```
 
-### 📚 API 참조
+### 📚 API Reference
 
 ```typescript
-class StaxXmlParser {
+class EventReader {
   constructor(
     xmlStream: ReadableStream<Uint8Array>,
-    options?: StaxXmlParserOptions
+    options?: EventReaderOptions
   )
 }
 
-interface StaxXmlParserOptions {
-  encoding?: string; // 기본값: 'utf-8'
+interface EventReaderOptions {
+  encoding?: string; // Default: 'utf-8'
   addEntities?: { entity: string, value: string }[];
-  autoDecodeEntities?: boolean; // 기본값: true
-  maxBufferSize?: number; // 기본값: 64KB
-  enableBufferCompaction?: boolean; // 기본값: true
+  autoDecodeEntities?: boolean; // Default: true
+  maxBufferSize?: number; // Default: 64KB
+  enableBufferCompaction?: boolean; // Default: true
 }
 ```

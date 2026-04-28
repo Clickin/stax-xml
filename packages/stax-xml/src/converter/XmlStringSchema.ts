@@ -4,8 +4,8 @@ import { asAsyncEventBatchIterator, isAsyncEventIterator } from './AsyncEventBat
 import type { ParseOptions, XmlStringOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { isCharacters, isCdata, isEndElement, isStartElement, type AnyXmlEvent, type StartElementEvent } from '../types.js';
-import { StaxXmlWriterSync, StaxXmlWriterSyncSink } from '../StaxXmlWriterSync.js';
-import { StaxXmlWriter } from '../StaxXmlWriter.js';
+import { WriterSync, WriterSyncSink } from '../WriterSync.js';
+import { Writer } from '../Writer.js';
 
 /**
  * Helper to escape XML special characters
@@ -142,21 +142,21 @@ export class XmlStringSchema extends XmlSchema<string, string> {
    */
   _writeSync(data: string, options?: XmlWriteOptions): string {
     // Use injected writer or create new one
-    let writer: StaxXmlWriterSync | StaxXmlWriterSyncSink;
+    let writer: WriterSync | WriterSyncSink;
     let isInjected = false;
 
     if (options?.writer) {
       if (
-        options.writer instanceof StaxXmlWriterSync ||
-        options.writer instanceof StaxXmlWriterSyncSink
+        options.writer instanceof WriterSync ||
+        options.writer instanceof WriterSyncSink
       ) {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires StaxXmlWriterSync or StaxXmlWriterSyncSink instance');
+        throw new Error('writeSync requires WriterSync or WriterSyncSink instance');
       }
     } else {
-      writer = new StaxXmlWriterSync({
+      writer = new WriterSync({
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
         encoding: options?.encoding
@@ -204,7 +204,7 @@ export class XmlStringSchema extends XmlSchema<string, string> {
       writer.writeEndDocument();
     }
 
-    if (writer instanceof StaxXmlWriterSync) {
+    if (writer instanceof WriterSync) {
       return writer.getXmlString();
     }
     return '';
@@ -220,18 +220,18 @@ export class XmlStringSchema extends XmlSchema<string, string> {
     options?: XmlWriteOptions
   ): Promise<void> {
     // Use injected writer or create new one
-    let writer: StaxXmlWriter;
+    let writer: Writer;
     let isInjected = false;
 
     if (options?.writer) {
-      if (options.writer instanceof StaxXmlWriter) {
+      if (options.writer instanceof Writer) {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('write requires StaxXmlWriter instance');
+        throw new Error('write requires Writer instance');
       }
     } else {
-      writer = new StaxXmlWriter(stream, {
+      writer = new Writer(stream, {
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
         encoding: options?.encoding
