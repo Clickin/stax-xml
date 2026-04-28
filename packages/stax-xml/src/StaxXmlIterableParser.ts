@@ -3,6 +3,7 @@ import {
   getStaxXmlRuntimeForSyncApi,
   type StaxXmlRuntimeBackendPreference,
 } from './runtime/native-backend.js';
+import { StreamingEventBatchReader } from './runtime/event-table.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -103,6 +104,7 @@ export async function* toAsyncByteBatches(
 
 export class StaxXmlIterableParser {
   private readonly iterator: Iterator<ByteBatch>;
+  private readonly nativeStreamingReader?: StreamingEventBatchReader;
   private readonly decoder: TextDecoder;
   private readonly incompleteFinalMarkupMessage?: string;
   private readonly emitStartDocumentBatchImmediately: boolean;
@@ -175,6 +177,15 @@ export class StaxXmlIterableParser {
       throw new Error(`Initialized ${options.backend} backend does not provide streamingEventBatches capability.`);
     }
     this.iterator = source[Symbol.iterator]();
+    if (runtime?.backend.kind !== 'js' && runtime?.capabilities.streamingEventBatches) {
+      this.nativeStreamingReader = new StreamingEventBatchReader(
+        runtime.capabilities.streamingEventBatches({
+          encoding: options.encoding,
+          documentMode: options.documentMode,
+        }),
+        this.iterator,
+      );
+    }
     this.documentMode = options.documentMode ?? 'fragment';
     this.decoder = new TextDecoder(options.encoding ?? 'utf-8', {
       fatal: this.documentMode === 'document',
@@ -185,6 +196,10 @@ export class StaxXmlIterableParser {
   }
 
   nextBatch(): boolean {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.nextBatch();
+    }
+
     if (this.finished) {
       return false;
     }
@@ -225,6 +240,10 @@ export class StaxXmlIterableParser {
 
   /** @internal Feed one byte batch without marking the source as exhausted. */
   pushByteBatch(batch: ByteBatch, isFinal = false): boolean {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.pushByteBatch(batch, isFinal);
+    }
+
     if (this.finished) {
       return false;
     }
@@ -267,59 +286,106 @@ export class StaxXmlIterableParser {
   }
 
   eventCount(): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.eventCount();
+    }
     return this.eventCursor;
   }
 
   batchFrame(): StaxXmlIterableBatchFrame {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.batchFrame();
+    }
     this.refreshFrame();
     return this.frame;
   }
 
   buffer(): Uint8Array {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.buffer();
+    }
     return this.currentBuffer;
   }
 
   eventType(index: number): IterableEventType {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.eventType(index);
+    }
     return this.eventTypes[index] as IterableEventType;
   }
 
   nameStart(index: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.nameStart(index);
+    }
     return this.nameStarts[index]!;
   }
 
   nameEnd(index: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.nameEnd(index);
+    }
     return this.nameEnds[index]!;
   }
 
   textStart(index: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.textStart(index);
+    }
     return this.textStarts[index]!;
   }
 
   textEnd(index: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.textEnd(index);
+    }
     return this.textEnds[index]!;
   }
 
   attrCount(index: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.attrCount(index);
+    }
     return this.attrCounts[index]!;
   }
 
   attrNameStart(eventIndex: number, attrIndex: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.attrNameStart(eventIndex, attrIndex);
+    }
     return this.attrNameStarts[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrNameEnd(eventIndex: number, attrIndex: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.attrNameEnd(eventIndex, attrIndex);
+    }
     return this.attrNameEnds[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrValueStart(eventIndex: number, attrIndex: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.attrValueStart(eventIndex, attrIndex);
+    }
     return this.attrValueStarts[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrValueEnd(eventIndex: number, attrIndex: number): number {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.attrValueEnd(eventIndex, attrIndex);
+    }
     return this.attrValueEnds[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   decodeSpan(start: number, end: number): string {
+    if (this.nativeStreamingReader) {
+      const source = this.nativeStreamingReader.buffer();
+      const ascii = decodeShortAsciiSpan(source, start, end);
+      if (ascii !== undefined) {
+        return ascii;
+      }
+      return this.decoder.decode(source.subarray(start, end));
+    }
     const ascii = decodeShortAsciiSpan(this.currentBuffer, start, end);
     if (ascii !== undefined) {
       return ascii;
@@ -328,6 +394,9 @@ export class StaxXmlIterableParser {
   }
 
   copyName(index: number): string | undefined {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.copyName(index);
+    }
     const nameId = this.nameIdsForEvents[index]!;
     if (nameId < 0) {
       return undefined;
@@ -336,11 +405,17 @@ export class StaxXmlIterableParser {
   }
 
   copyText(index: number): string | undefined {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.copyText(index);
+    }
     const start = this.textStarts[index]!;
     return start < 0 ? undefined : this.decodeSpan(start, this.textEnds[index]!);
   }
 
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.copyAttrName(eventIndex, attrIndex);
+    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return undefined;
     }
@@ -350,6 +425,9 @@ export class StaxXmlIterableParser {
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.copyAttrValue(eventIndex, attrIndex);
+    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return undefined;
     }
@@ -357,6 +435,9 @@ export class StaxXmlIterableParser {
   }
 
   isImplicitAttributeValue(eventIndex: number, attrIndex: number): boolean {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.isImplicitAttributeValue(eventIndex, attrIndex);
+    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return false;
     }
@@ -366,6 +447,9 @@ export class StaxXmlIterableParser {
   }
 
   copyAttributesObject(eventIndex: number): Record<string, string> {
+    if (this.nativeStreamingReader) {
+      return this.nativeStreamingReader.copyAttributesObject(eventIndex);
+    }
     const count = this.attrCounts[eventIndex]!;
     if (count === 0) {
       return {};

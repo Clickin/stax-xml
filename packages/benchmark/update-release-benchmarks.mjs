@@ -1871,8 +1871,8 @@ function createParserScenarioDetails() {
     '- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes. The XML string is prepared outside the timed region, matching string-only library API-native rows.',
     '- `stax-xml JS fallback event parser (decode+parse)`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running `StaxXmlParserSync`.',
     '- `stax-xml JS Uint8Array iterable`: `StaxXmlIterableParser` byte-frame loop over a reusable `Iterable<Uint8Array[]>` with the same checksum contract.',
-    '- `stax-xml native addon event aggregate`: native aggregate probe using the event-object tier inside Rust; it is not a public per-event JavaScript iterator.',
-    '- `stax-xml native addon raw aggregate`: native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.',
+    '- `stax-xml native addon event aggregate`: diagnostic native aggregate probe using the event-object tier inside Rust; read it next to the public iterable parser rows, not as a user-facing API recommendation.',
+    '- `stax-xml native addon raw aggregate`: diagnostic native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.',
     '- `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.',
     '- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its string API-native object/DOM-style parse API.',
     '- The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.',
@@ -1991,7 +1991,7 @@ function createCrossRuntimeScenarioDetails(sizeMiB) {
     'Parsing methods:',
     '',
     '- `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
-    '- `stax-xml native addon`: JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process.',
+    '- `stax-xml native addon`: diagnostic JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process. Public API conclusions should be drawn from the stax-xml JS/iterable rows.',
     '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
     '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
     '- Java 8 is the public Woodstox row because it is Woodstox\'s minimum runtime target; Java 25 is a separate verification row.',
@@ -2017,7 +2017,7 @@ function createRuntimeAndNativeDirectionBlock() {
   }
 
   if (crossRuntime) {
-    sections.push('The non-JS comparator uses the same event-count and checksum contract. It reports stax-xml JS on Node, the stax-xml native addon through its JavaScript package wrapper, Woodstox on Java 8, and quick-xml. Woodstox is reported on Java 8 for the public baseline because Java 8 is its minimum supported runtime target; Java 25 is measured only as a verification check.');
+    sections.push('The non-JS comparator uses the same event-count and checksum contract. It reports stax-xml JS on Node, diagnostic stax-xml native-addon rows through the JavaScript package wrapper, Woodstox on Java 8, and quick-xml. Woodstox is reported on Java 8 for the public baseline because Java 8 is its minimum supported runtime target; Java 25 is measured only as a verification check.');
     sections.push(createCrossRuntimeScenarioDetails(crossRuntime.fixture.sizeMiB.toFixed(2)));
     sections.push(renderBenchmarkSourceLinks('cross-runtime'));
     sections.push(renderCrossRuntimeTable(crossRuntime));

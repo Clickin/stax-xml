@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import { x } from 'stax-xml/converter';
+import { StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
 import { detectRuntimePlatform, getStaxXmlNativePackageName } from 'stax-xml/runtime';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -112,6 +113,7 @@ async function runScenario(schemaName, fixture, sizeMiB, schema, xml, checksumRo
     ...parseOptions,
     acceleration: { backend: 'native', simd: 'auto-safe' },
   }), checksumRows);
+  const publicIterable = await measureIterable('public-iterable-parser', bytes);
 
   console.log(JSON.stringify({
     schema: schemaName,
@@ -121,10 +123,15 @@ async function runScenario(schemaName, fixture, sizeMiB, schema, xml, checksumRo
     bytes: bytes.byteLength,
     jsMs: round(js.ms),
     nativePlatformConverterMs: round(native.ms),
+    publicIterableMs: round(publicIterable.ms),
     nativePlatformConverterSpeedup: round(js.ms / native.ms),
+    nativePlatformConverterVsPublicIterable: round(publicIterable.ms / native.ms),
     jsChecksum: js.checksum,
     nativePlatformChecksum: native.checksum,
+    publicIterableEvents: publicIterable.eventCount,
+    publicIterableChecksum: publicIterable.checksum,
     parity: js.checksum === native.checksum,
+    nativeDirectRowsAreDiagnostic: false,
   }));
 }
 
@@ -167,6 +174,7 @@ function createEntryFixtureXml(fixture, sizeMiB) {
 async function runGenericBreakdown(fixture, sizeMiB, xml) {
   const bytes = encodeXml(xml);
   const source = createUtf8SpanSource(bytes);
+  const publicIterable = await measureIterable('public-iterable-parser', bytes);
   const nativeProjection = await measureNativeProjection(() => (
     projectObjectRows(bytes, entryProjectionSpec)
   ));
@@ -197,6 +205,7 @@ async function runGenericBreakdown(fixture, sizeMiB, xml) {
     fixture,
     sizeMiB,
     bytes: bytes.byteLength,
+    publicIterableMs: round(publicIterable.ms),
     nativeProjectionMs: round(nativeProjection.ms),
     nativeProjectionViaTableMs: tableProjection ? round(tableProjection.ms) : undefined,
     nativeProjectionCodeOnlyMs: round(codeOnlyProjection.ms),
@@ -205,11 +214,15 @@ async function runGenericBreakdown(fixture, sizeMiB, xml) {
     dynamicHydrationMs: round(dynamicHydration.ms),
     stableHydrationMs: round(stableHydration.ms),
     hydrationSpeedup: round(dynamicHydration.ms / stableHydration.ms),
+    nativeProjectionVsPublicIterable: round(publicIterable.ms / nativeProjection.ms),
     nativeProjectionChecksum: checksumEntryColumns(nativeProjection.result.columns, nativeProjection.result.rowCount, source),
+    publicIterableEvents: publicIterable.eventCount,
+    publicIterableChecksum: publicIterable.checksum,
     dynamicHydrationChecksum: dynamicHydration.checksum,
     stableHydrationChecksum: stableHydration.checksum,
     parity: dynamicHydration.checksum === stableHydration.checksum
       && dynamicHydration.checksum === checksumEntryColumns(nativeProjection.result.columns, nativeProjection.result.rowCount, source),
+    nativeDirectBreakdownIsDiagnostic: true,
   }));
 }
 
@@ -218,6 +231,13 @@ async function measure(name, run, checksumRows) {
   const result = await run();
   const ms = performance.now() - start;
   return { name, ms, checksum: checksumRows(result) };
+}
+
+async function measureIterable(name, bytes) {
+  const start = performance.now();
+  const result = consumePublicIterable(bytes);
+  const ms = performance.now() - start;
+  return { name, ms, ...result };
 }
 
 async function measureNativeProjection(run) {
@@ -301,6 +321,30 @@ function checksumEntryRows(rows) {
   return value | 0;
 }
 
+function consumePublicIterable(bytes) {
+  const parser = new StaxXmlIterableParser(toByteBatches([bytes], { batchSize: 1 }));
+  let eventCount = 0;
+  let checksumValue = 2166136261;
+
+  while (parser.nextBatch()) {
+    const buffer = parser.buffer();
+    for (let index = 0; index < parser.eventCount(); index++) {
+      const attrCount = parser.attrCount(index);
+      eventCount++;
+      checksumValue = mix(checksumValue, parser.eventType(index));
+      checksumValue = mixSpan(checksumValue, buffer, parser.nameStart(index), parser.nameEnd(index));
+      checksumValue = mixSpan(checksumValue, buffer, parser.textStart(index), parser.textEnd(index));
+      checksumValue = mix(checksumValue, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksumValue = mixSpan(checksumValue, buffer, parser.attrNameStart(index, attrIndex), parser.attrNameEnd(index, attrIndex));
+        checksumValue = mixSpan(checksumValue, buffer, parser.attrValueStart(index, attrIndex), parser.attrValueEnd(index, attrIndex));
+      }
+    }
+  }
+
+  return { eventCount, checksum: checksumValue | 0 };
+}
+
 function fold(seed, text) {
   let value = seed;
   for (let index = 0; index < text.length; index++) {
@@ -311,6 +355,18 @@ function fold(seed, text) {
 
 function mix(seed, value) {
   return ((seed ^ value) * 16777619) | 0;
+}
+
+function mixSpan(seed, buffer, start, end) {
+  if (start < 0 || end <= start) {
+    return mix(seed, 0);
+  }
+  const length = end - start;
+  let value = mix(seed, length);
+  value = mix(value, buffer[start] ?? 0);
+  value = mix(value, buffer[start + (length >> 1)] ?? 0);
+  value = mix(value, buffer[end - 1] ?? 0);
+  return value;
 }
 
 function parseIntegerValue(rawValue) {

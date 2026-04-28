@@ -1,10 +1,13 @@
-import { describe, expect, afterEach, it } from 'vitest';
+import { describe, expect, afterEach, it, vi } from 'vitest';
 import {
   StaxXmlParser,
+  StaxXmlParserSync,
+  StaxXmlCursorReader,
   initStaxXml,
   getStaxXmlRuntime,
 } from '../src/index';
 import { StaxXmlIterableParser, toByteBatches } from '../src/StaxXmlIterableParser';
+import { IterableEventMaterializer } from '../src/IterableEventBackend';
 import { x } from '../src/converter';
 import { WASM_PACKAGE_NAME, resetStaxXmlRuntimeForTests, resolveStaxXmlRuntimeBackend } from '../src/runtime';
 
@@ -14,6 +17,7 @@ const ATTR_BYTES = 16;
 const HEADER_BYTES = 28;
 
 afterEach(() => {
+  vi.restoreAllMocks();
   resetStaxXmlRuntimeForTests();
 });
 
@@ -150,6 +154,148 @@ describe('stax-xml runtime init cache', () => {
     expect(events.map(event => 'name' in event ? event.name : 'value' in event ? event.value : event.type))
       .toEqual(['START_DOCUMENT', 'r', 'ok', 'r', 'END_DOCUMENT']);
   });
+
+  it('routes sync string parser through initialized structural index tables', async () => {
+    const parseStructuralIndexStringUtf16 = vi.fn((input: string) => encodeStructuralIndex(input, [
+      event(0),
+      event(2, span(input, 'r')),
+      event(2, span(input, 'name')),
+      event(4, none(), span(input, 'Alice')),
+      event(3, span(input, 'name')),
+      event(3, span(input, 'r')),
+      event(1),
+    ], []));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
+    });
+    vi.spyOn(StaxXmlIterableParser.prototype, 'nextBatch')
+      .mockImplementation(() => {
+        throw new Error('sync parser should not use the JavaScript iterable parser after initStaxXml');
+      });
+
+    const events = [...new StaxXmlParserSync('<r><name>Alice</name></r>')];
+
+    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
+    expect(events.map(event => 'name' in event ? event.name : 'value' in event ? event.value : event.type))
+      .toEqual(['START_DOCUMENT', 'r', 'name', 'Alice', 'name', 'r', 'END_DOCUMENT']);
+  });
+
+  it('routes low-level iterable parser source chunks through initialized streaming event batches', async () => {
+    const pushed: Array<{ chunk: string; isFinal: boolean }> = [];
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushChunk(chunk: Uint8Array, isFinal: boolean) {
+            pushed.push({ chunk: new TextDecoder().decode(chunk), isFinal });
+            if (isFinal) {
+              return { buffer: new Uint8Array(0), table: encodeStructuralIndex(new Uint8Array(0), [event(1)], []) };
+            }
+            if (pushed.length === 1) {
+              return { buffer: chunk, table: encodeStructuralIndex(chunk, [event(0)], []) };
+            }
+            if (pushed.length === 2) {
+              const buffer = encoder.encode('<r>ok');
+              return {
+                buffer,
+                table: encodeStructuralIndex(buffer, [
+                  event(2, span(buffer, 'r')),
+                  event(4, none(), span(buffer, 'ok')),
+                ], []),
+              };
+            }
+            const buffer = encoder.encode('</r>');
+            return {
+              buffer,
+              table: encodeStructuralIndex(buffer, [
+                event(3, span(buffer, 'r')),
+              ], []),
+            };
+          },
+        }),
+      }),
+    });
+    const parser = new StaxXmlIterableParser([
+      [encoder.encode('<r'), encoder.encode('>ok'), encoder.encode('</r>')],
+    ]);
+
+    const values: Array<string | number | undefined> = [];
+    while (parser.nextBatch()) {
+      for (let index = 0; index < parser.eventCount(); index++) {
+        values.push(parser.copyName(index) ?? parser.copyText(index) ?? parser.eventType(index));
+      }
+    }
+
+    expect(pushed).toEqual([
+      { chunk: '<r', isFinal: false },
+      { chunk: '>ok', isFinal: false },
+      { chunk: '</r>', isFinal: false },
+      { chunk: '', isFinal: true },
+    ]);
+    expect(values).toEqual([0, 'r', 'ok', 'r', 1]);
+  });
+
+  it('routes sync cursor through structural tables without materializing event objects', async () => {
+    const parseStructuralIndexStringUtf16 = vi.fn((input: string) => encodeStructuralIndex(input, [
+      event(0),
+      event(2, span(input, 'r'), none(), 0, 1),
+      event(4, none(), span(input, 'ok')),
+      event(3, span(input, 'r')),
+      event(1),
+    ], [
+      attr(span(input, 'a'), span(input, 'x')),
+    ]));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
+    });
+    vi.spyOn(IterableEventMaterializer.prototype, 'materializeBatch')
+      .mockImplementation(() => {
+        throw new Error('cursor should not materialize AnyXmlEvent arrays on native table path');
+      });
+
+    const cursor = new StaxXmlCursorReader('<r a="x">ok</r>');
+    const values: Array<string | number | undefined> = [];
+    while (cursor.next()) {
+      values.push(cursor.name() ?? cursor.text() ?? cursor.eventType());
+      if (cursor.name() === 'r' && cursor.getAttributeCount() > 0) {
+        values.push(cursor.getAttributeValue('a'));
+      }
+    }
+
+    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
+    expect(values).toEqual([0, 'r', 'x', 'ok', 'r', 1]);
+  });
+
+  it('routes compiled converter parseSync through initialized structural tables', async () => {
+    const parseStructuralIndexStringUtf16 = vi.fn((input: string) => encodeStructuralIndex(input, [
+      event(0),
+      event(2, span(input, 'r')),
+      event(2, span(input, 'name')),
+      event(4, none(), span(input, 'Alice')),
+      event(3, span(input, 'name')),
+      event(3, span(input, 'r')),
+      event(1),
+    ], []));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
+    });
+    vi.spyOn(StaxXmlIterableParser.prototype, 'nextBatch')
+      .mockImplementation(() => {
+        throw new Error('compiled parseSync should not use the JavaScript iterable parser after initStaxXml');
+      });
+
+    const schema = x.object({ name: x.string().xpath('/r/name') }).compile();
+
+    expect(schema.parseSync('<r><name>Alice</name></r>')).toEqual({ name: 'Alice' });
+    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
+  });
 });
 
 async function collectNames(parser: StaxXmlParser): Promise<string[]> {
@@ -219,6 +365,10 @@ function event(
   attrCount = 0,
 ): EventRecord {
   return { type, name, text, attrStart, attrCount };
+}
+
+function attr(name: Span, value: Span): AttrRecord {
+  return { name, value };
 }
 
 function encodeStructuralIndex(

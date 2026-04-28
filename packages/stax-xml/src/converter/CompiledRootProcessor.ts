@@ -2,6 +2,7 @@ import { IterableEventType, StaxXmlIterableParser, toByteBatches } from '../Stax
 import {
   createStaxXmlRuntimeFromBackend,
   getInitializedStaxXmlRuntime,
+  getStaxXmlRuntimeForSyncApi,
   resolveStaxXmlRuntimeBackend,
   type StaxXmlRuntime,
   type StaxXmlRuntimeBackendPreference,
@@ -36,7 +37,6 @@ import {
   createIterableParserFromChunks,
   getIterableEventBackend,
   getIterableEventTable,
-  readReadableStreamByteBatches,
   type IterableEventTable,
 } from './IterableEventBackend.js';
 
@@ -124,9 +124,15 @@ export class CompiledRootProcessor {
   parseSync<T>(input: string, options?: ParseOptions | unknown): T {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     const runtime = this.createRuntime(this.plan, effectiveOptions);
+    const acceleratedTable = tryCreateStructuralIndexTableSync(input, effectiveOptions);
+    if (acceleratedTable) {
+      this.processEventTable(runtime, acceleratedTable);
+      return this.finish<T>(runtime);
+    }
+
     const parser = new StaxXmlIterableParser(
       toByteBatches([textEncoder.encode(input)], { batchSize: 1 }),
-      { documentMode: effectiveOptions?.documentMode }
+      { documentMode: effectiveOptions?.documentMode, backend: 'js' }
     );
 
     while (parser.nextBatch()) {
@@ -154,7 +160,7 @@ export class CompiledRootProcessor {
         this.processEventTable(runtime, acceleratedTable);
         return this.finish<T>(runtime);
       }
-      return this.parseSync<T>(input, effectiveOptions);
+      return this.parseSync<T>(input, disableAcceleration(effectiveOptions));
     }
 
     if (isArrayBufferView(input)) {
@@ -615,24 +621,15 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     stream: ReadableStream<Uint8Array>
   ): Promise<void> {
-    const parser = new StaxXmlIterableParser([], {
+    const backend = new IterableEventBackendIterator(stream, {
+      autoDecodeEntities: runtime.options?.decodeEntities === true,
+      trimText: false,
       documentMode: runtime.options?.documentMode,
       backend: runtime.options?.acceleration?.backend,
       fallbackOnLoadError: runtime.options?.acceleration?.fallbackOnLoadError,
       fallbackOnParseError: runtime.options?.acceleration?.fallbackOnParseError
     });
-    for await (const batch of readReadableStreamByteBatches(stream, { batchSize: 1 })) {
-      if (!parser.pushByteBatch(batch, false)) {
-        continue;
-      }
-      for (let index = 0; index < parser.eventCount(); index++) {
-        this.processIterableEvent(runtime, parser, index);
-      }
-    }
-    parser.pushByteBatch([], true);
-    for (let index = 0; index < parser.eventCount(); index++) {
-      this.processIterableEvent(runtime, parser, index);
-    }
+    await this.processEventBackend(runtime, backend);
   }
 
   private async processEventBackend(
@@ -1462,6 +1459,44 @@ async function tryCreateStructuralIndexTable(
   }
 }
 
+function tryCreateStructuralIndexTableSync(
+  input: string,
+  options?: ParseOptions
+): StaxXmlStructuralIndexParser | undefined {
+  if (options?.documentMode === 'document') {
+    return undefined;
+  }
+  const acceleration = options?.acceleration;
+  const backendPreference = acceleration?.backend ?? 'auto';
+  if (backendPreference === 'js' || acceleration?.simd === 'avx2') {
+    return undefined;
+  }
+
+  const runtime = getStaxXmlRuntimeForSyncApi(backendPreference);
+  if (!runtime || runtime.backend.kind === 'js') {
+    return undefined;
+  }
+  const buildStringTable = runtime.capabilities.structuralIndexUtf16 as StructuralIndexNativeModule['parseStructuralIndexStringUtf16'];
+  if (typeof buildStringTable !== 'function') {
+    if (backendPreference !== 'auto' && acceleration?.fallbackOnLoadError !== true) {
+      throw new Error(`Initialized ${backendPreference} backend does not provide structuralIndexUtf16 capability.`);
+    }
+    return undefined;
+  }
+
+  try {
+    return new StaxXmlStructuralIndexParser(input, buildStringTable(input), {
+      decodeEntities: options?.decodeEntities ?? false,
+      sourceKind: 'utf16',
+    });
+  } catch (error) {
+    if (acceleration?.fallbackOnParseError) {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
 function attributeCount(parser: StaxXmlIterableParser | IterableEventTable, eventIndex: number): number {
   return parser instanceof StaxXmlIterableParser
     ? parser.attrCount(eventIndex)
@@ -1488,6 +1523,19 @@ function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undef
     return undefined;
   }
   return options as ParseOptions;
+}
+
+function disableAcceleration(options: ParseOptions | undefined): ParseOptions | undefined {
+  if (!options?.acceleration) {
+    return options;
+  }
+  return {
+    ...options,
+    acceleration: {
+      ...options.acceleration,
+      backend: 'js',
+    },
+  };
 }
 
 function isSyncIterator(input: ParseInput): input is Iterator<AnyXmlEvent> & Iterable<AnyXmlEvent> {

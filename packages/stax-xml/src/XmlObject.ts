@@ -8,6 +8,8 @@ import {
   toAsyncByteBatches,
   toByteBatches,
 } from './StaxXmlIterableParser.js';
+import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
+import { StaxXmlStructuralIndexParser } from './runtime/structural-index-parser.js';
 import {
   XmlEventType,
   type AnyXmlEvent,
@@ -170,6 +172,19 @@ interface RequiredObjectOptions {
 }
 
 function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): Iterable<TreeXmlEvent> {
+  const structuralParser = tryCreateStructuralSyncParser(input, options);
+  const materializer = new IterableEventMaterializer({
+    autoDecodeEntities: options.autoDecodeEntities,
+    addEntities: options.addEntities,
+    trimText: options.trimText,
+  });
+  if (structuralParser) {
+    while (structuralParser.nextBatch()) {
+      yield* materializer.materializeBatch(structuralParser) as TreeXmlEvent[];
+    }
+    return;
+  }
+
   const parser = new StaxXmlIterableParser(
     toByteBatches(syncInputChunks(input), { batchSize: options.batchSize }),
     {
@@ -180,14 +195,68 @@ function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): 
       fallbackOnParseError: options.fallbackOnParseError,
     },
   );
-  const materializer = new IterableEventMaterializer({
-    autoDecodeEntities: options.autoDecodeEntities,
-    addEntities: options.addEntities,
-    trimText: options.trimText,
-  });
 
   while (parser.nextBatch()) {
     yield* materializer.materializeBatch(parser) as TreeXmlEvent[];
+  }
+}
+
+function tryCreateStructuralSyncParser(
+  input: XmlSyncInput,
+  options: RequiredTreeOptions,
+): StaxXmlStructuralIndexParser | undefined {
+  if (options.documentMode === 'document' || options.backend === 'js') {
+    return undefined;
+  }
+  if (typeof input !== 'string' && !(input instanceof Uint8Array)) {
+    return undefined;
+  }
+
+  const backendPreference = options.backend ?? 'auto';
+  const runtime = getStaxXmlRuntimeForSyncApi(backendPreference);
+  if (!runtime || runtime.backend.kind === 'js') {
+    return undefined;
+  }
+  const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
+  const missingCapability = (): undefined => {
+    if (backendPreference !== 'auto' && options.fallbackOnLoadError !== true) {
+      throw new Error(`Initialized ${backendPreference} backend does not provide structuralIndex${sourceKind === 'utf16' ? 'Utf16' : 'Utf8'} capability.`);
+    }
+    return undefined;
+  };
+
+  if (typeof input === 'string') {
+    const buildTable = runtime.capabilities.structuralIndexUtf16;
+    if (!buildTable) {
+      return missingCapability();
+    }
+    try {
+      return new StaxXmlStructuralIndexParser(input, buildTable(input), {
+        decodeEntities: false,
+        sourceKind,
+      });
+    } catch (error) {
+      if (options.fallbackOnParseError === true) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
+  const buildTable = runtime.capabilities.structuralIndexUtf8;
+  if (!buildTable) {
+    return missingCapability();
+  }
+  try {
+    return new StaxXmlStructuralIndexParser(input, buildTable(input), {
+      decodeEntities: false,
+      sourceKind,
+    });
+  } catch (error) {
+    if (options.fallbackOnParseError === true) {
+      return undefined;
+    }
+    throw error;
   }
 }
 

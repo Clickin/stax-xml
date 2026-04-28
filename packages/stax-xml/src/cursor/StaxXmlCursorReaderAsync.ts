@@ -1,18 +1,45 @@
 import {
   IterableEventBackendIterator,
+  readReadableStreamChunksIncrementally,
   type EntityDefinition
 } from '../IterableEventBackend.js';
+import { getStaxXmlRuntimeForSyncApi } from '../runtime/native-backend.js';
+import { StreamingEventBatchReader } from '../runtime/event-table.js';
 import { CursorEventView } from './CursorEventView.js';
 import { CursorEventType, type CursorEventType as CursorEventTypeValue, type StaxXmlCursorReaderAsyncOptions } from './types.js';
 
 export class StaxXmlCursorReaderAsync {
-  private readonly backend: IterableEventBackendIterator;
+  private readonly backend?: IterableEventBackendIterator;
+  private readonly nativeReader?: StreamingEventBatchReader;
+  private readonly nativeChunks?: AsyncGenerator<Uint8Array>;
   private readonly view = new CursorEventView();
+  private nativeIndex = 0;
   private closed = false;
+  private readonly viewOptions: {
+    autoDecodeEntities: boolean;
+    addEntities?: EntityDefinition[];
+    implicitAttributeValue: 'name';
+  };
 
   constructor(stream: ReadableStream<Uint8Array>, options: StaxXmlCursorReaderAsyncOptions = {}) {
     if (!(stream instanceof ReadableStream)) {
       throw new Error('stream must be a web standard ReadableStream.');
+    }
+
+    this.viewOptions = {
+      autoDecodeEntities: options.autoDecodeEntities ?? true,
+      addEntities: options.addEntities as EntityDefinition[] | undefined,
+      implicitAttributeValue: 'name',
+    };
+
+    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    const createStreamingParser = runtime?.capabilities.streamingEventBatches;
+    if (runtime?.backend.kind !== 'js' && createStreamingParser) {
+      this.nativeReader = new StreamingEventBatchReader(createStreamingParser({
+        encoding: options.encoding ?? 'utf-8',
+      }));
+      this.nativeChunks = readReadableStreamChunksIncrementally(stream, 8);
+      return;
     }
 
     this.backend = new IterableEventBackendIterator(stream, {
@@ -36,7 +63,11 @@ export class StaxXmlCursorReaderAsync {
       return false;
     }
 
-    const result = await this.backend.next();
+    if (this.nativeReader) {
+      return this.nextNativeEvent();
+    }
+
+    const result = await this.backend!.next();
     if (result.done) {
       this.closed = true;
       this.view.reset();
@@ -50,7 +81,12 @@ export class StaxXmlCursorReaderAsync {
   async close(): Promise<void> {
     this.closed = true;
     this.view.reset();
-    await this.backend.return();
+    if (this.backend) {
+      await this.backend.return();
+    }
+    if (this.nativeChunks) {
+      await this.nativeChunks.return(undefined);
+    }
   }
 
   eventType(): CursorEventTypeValue {
@@ -103,6 +139,36 @@ export class StaxXmlCursorReaderAsync {
 
   depth(): number {
     return this.view.depth();
+  }
+
+  private async nextNativeEvent(): Promise<boolean> {
+    while (true) {
+      while (this.nativeIndex < this.nativeReader!.eventCount()) {
+        if (this.view.moveToTable(this.nativeReader!, this.nativeIndex++, this.viewOptions)) {
+          return true;
+        }
+      }
+
+      if (this.nativeReader!.pushByteBatch([], false)) {
+        this.nativeIndex = 0;
+        continue;
+      }
+
+      const result = await this.nativeChunks!.next();
+      if (result.done) {
+        if (this.nativeReader!.pushByteBatch([], true)) {
+          this.nativeIndex = 0;
+          continue;
+        }
+        this.closed = true;
+        this.view.reset();
+        return false;
+      }
+
+      if (this.nativeReader!.pushByteBatch([result.value], false)) {
+        this.nativeIndex = 0;
+      }
+    }
   }
 }
 

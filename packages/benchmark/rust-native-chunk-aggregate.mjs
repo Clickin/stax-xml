@@ -153,7 +153,22 @@ function parseArgs(argv) {
     options.sizesMiB.push(...DEFAULT_SIZES_MIB);
   }
   options.sizesMiB = [...new Set(options.sizesMiB)];
+  options.scenarios = ensurePublicParserComparators(options.scenarios);
   return options;
+}
+
+function ensurePublicParserComparators(scenarios) {
+  if (!scenarios.some(scenario => scenario.startsWith('native-'))) {
+    return scenarios;
+  }
+  const withComparators = [...scenarios];
+  if (!withComparators.includes('js-neutral')) {
+    withComparators.unshift('js-neutral');
+  }
+  if (!withComparators.includes('js-node')) {
+    withComparators.splice(1, 0, 'js-node');
+  }
+  return withComparators;
 }
 
 function parseList(value, allowed, flag) {

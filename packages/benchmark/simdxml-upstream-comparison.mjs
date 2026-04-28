@@ -8,6 +8,7 @@ import { cpus } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
@@ -276,6 +277,53 @@ function measureNative(input, tier, options, native) {
   };
 }
 
+function measurePublicIterable(input, options) {
+  const invoke = () => consumePublicIterable(input);
+  for (let index = 0; index < options.warmups; index++) {
+    invoke();
+  }
+
+  const samplesMs = [];
+  let stable;
+  for (let index = 0; index < options.runs; index++) {
+    if (globalThis.gc) globalThis.gc();
+    const startedAt = performance.now();
+    const result = invoke();
+    const elapsedMs = performance.now() - startedAt;
+    if (stable && (stable.eventCount !== result.eventCount || stable.checksum !== result.checksum)) {
+      throw new Error('public iterable parser produced unstable event count or checksum.');
+    }
+    stable = result;
+    samplesMs.push(elapsedMs);
+  }
+
+  return measurementResult('stax-xml-public-iterable', input.byteLength, samplesMs, stable);
+}
+
+function consumePublicIterable(input) {
+  const parser = new StaxXmlIterableParser(toByteBatches([input], { batchSize: 1 }));
+  let eventCount = 0;
+  let checksum = 2166136261;
+
+  while (parser.nextBatch()) {
+    const buffer = parser.buffer();
+    for (let index = 0; index < parser.eventCount(); index++) {
+      const attrCount = parser.attrCount(index);
+      eventCount++;
+      checksum = mix(checksum, parser.eventType(index));
+      checksum = mixSpan(checksum, buffer, parser.nameStart(index), parser.nameEnd(index));
+      checksum = mixSpan(checksum, buffer, parser.textStart(index), parser.textEnd(index));
+      checksum = mix(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = mixSpan(checksum, buffer, parser.attrNameStart(index, attrIndex), parser.attrNameEnd(index, attrIndex));
+        checksum = mixSpan(checksum, buffer, parser.attrValueStart(index, attrIndex), parser.attrValueEnd(index, attrIndex));
+      }
+    }
+  }
+
+  return { eventCount, checksum: checksum | 0 };
+}
+
 function invokeNativeAggregate(native, input, tier, nativeSimd) {
   if (typeof native.parse_aggregate_buffer_with_simd === 'function') {
     return native.parse_aggregate_buffer_with_simd(input, tier, nativeSimd);
@@ -342,6 +390,22 @@ function measurementResult(id, sizeBytes, samplesMs, stable) {
     samplesMs,
     sizeBytes,
   };
+}
+
+function mix(seed, value) {
+  return ((seed ^ value) * 16777619) | 0;
+}
+
+function mixSpan(seed, buffer, start, end) {
+  if (start < 0 || end <= start) {
+    return mix(seed, 0);
+  }
+  const length = end - start;
+  let value = mix(seed, length);
+  value = mix(value, buffer[start] ?? 0);
+  value = mix(value, buffer[start + (length >> 1)] ?? 0);
+  value = mix(value, buffer[end - 1] ?? 0);
+  return value;
 }
 
 function average(values) {
@@ -429,16 +493,17 @@ function createMarkdown(report) {
   for (const group of report.groups) {
     lines.push(`## ${group.id}`);
     lines.push('');
-    lines.push(`| Case | Size | simdxml parse | ${report.options.nativeTiers.map(formatNativeTierHeader).join(' | ')} |`);
-    lines.push(`| --- | ---: | ---: | ${report.options.nativeTiers.map(() => '---:').join(' | ')} |`);
+    lines.push(`| Case | Size | simdxml parse | stax public iterable | ${report.options.nativeTiers.map(formatNativeTierHeader).join(' | ')} |`);
+    lines.push(`| --- | ---: | ---: | ---: | ${report.options.nativeTiers.map(() => '---:').join(' | ')} |`);
     for (const entry of group.cases) {
       const simd = entry.results.find(result => result.id === 'simdxml-upstream-parse');
+      const publicIterable = entry.results.find(result => result.id === 'stax-xml-public-iterable');
       const nativeCells = report.options.nativeTiers.map((tier) => {
         const result = entry.results.find(candidate => candidate.id === `stax-native-${tier}`);
         return `${formatRate(result?.mibPerSec)} (${ratio(result, simd)})`;
       });
       lines.push(
-        `| ${entry.label} | ${bytesToMiB(entry.sizeBytes).toFixed(2)} MiB | ${formatRate(simd?.mibPerSec)} (${formatMs(simd?.avgMs)}) | ${nativeCells.join(' | ')} |`,
+        `| ${entry.label} | ${bytesToMiB(entry.sizeBytes).toFixed(2)} MiB | ${formatRate(simd?.mibPerSec)} (${formatMs(simd?.avgMs)}) | ${formatRate(publicIterable?.mibPerSec)} (${formatMs(publicIterable?.avgMs)}) | ${nativeCells.join(' | ')} |`,
       );
     }
     lines.push('');
@@ -447,6 +512,7 @@ function createMarkdown(report) {
   lines.push('## Contract Notes');
   lines.push('');
   lines.push('The comparison intentionally keeps the upstream simdxml parse workload separate from the stax event workload. This avoids claiming XPath or CLI parity while still using upstream data shape, file sizes, and parse-benchmark case selection.');
+  lines.push('Every native-addon diagnostic row is reported next to `stax public iterable`, the published TypeScript iterable-parser surface. Treat native rows as internal lower-bound diagnostics, not as recommended user entry points.');
   lines.push('');
   return `${lines.join('\n').replace(/\n+$/g, '')}\n`;
 }
@@ -487,7 +553,10 @@ async function main() {
     }
     const input = readFileSync(filePath);
     const sizeBytes = statSync(filePath).size;
-    const results = [measureSimdXmlUpstreamParse(filePath, sizeBytes, options)];
+    const results = [
+      measureSimdXmlUpstreamParse(filePath, sizeBytes, options),
+      measurePublicIterable(input, options),
+    ];
     for (const tier of options.nativeTiers) {
       results.push(measureNative(input, tier, options, native));
     }
