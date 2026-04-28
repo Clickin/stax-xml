@@ -27,7 +27,12 @@ export class StaxXmlCursorReader {
 
     this.parser = new StaxXmlIterableParser(
       toByteBatches(byteChunks(textEncoder.encode(xml), 8), { batchSize: 1 }),
-      { emitStartDocumentBatchImmediately: true }
+      {
+        emitStartDocumentBatchImmediately: true,
+        backend: options.backend,
+        fallbackOnLoadError: options.fallbackOnLoadError,
+        fallbackOnParseError: options.fallbackOnParseError
+      }
     );
     this.materializer = new IterableEventMaterializer({
       autoDecodeEntities: options.autoDecodeEntities ?? true,

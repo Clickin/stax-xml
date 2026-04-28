@@ -1,8 +1,9 @@
 import { Buffer } from 'node:buffer';
-import { createRequire } from 'node:module';
 import { closeSync, openSync, readSync, type PathLike } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { getStaxXmlNativePackageName, detectRuntimePlatform } from '../runtime/native-backend.js';
+import {
+  getStaxXmlRuntimeForSyncApi,
+  type StaxXmlRuntimeBackendPreference,
+} from '../runtime/native-backend.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -18,8 +19,8 @@ export type IterableEventType = typeof IterableEventType[keyof typeof IterableEv
 export type NodeByteBatch = readonly Buffer[];
 
 export type NodeAttributeScanner = 'general' | 'simple';
-export type NodeIterableParserBackend = 'auto' | 'js';
-export type NodeIterableParserBackendKind = 'pending' | 'native' | 'js';
+export type NodeIterableParserBackend = StaxXmlRuntimeBackendPreference;
+export type NodeIterableParserBackendKind = 'pending' | 'native' | 'wasm' | 'js';
 
 export interface NodeByteBatchOptions {
   batchSize?: number;
@@ -32,6 +33,8 @@ export interface NodeFileByteBatchOptions extends NodeByteBatchOptions {
 export interface StaxXmlNodeIterableParserOptions {
   attributeScanner?: NodeAttributeScanner;
   backend?: NodeIterableParserBackend;
+  fallbackOnLoadError?: boolean;
+  fallbackOnParseError?: boolean;
 }
 
 const DEFAULT_BATCH_SIZE = 16;
@@ -44,11 +47,6 @@ const STRUCTURAL_INDEX_ATTR_WORDS = 4;
 const STRUCTURAL_INDEX_EVENT_BYTES = STRUCTURAL_INDEX_EVENT_WORDS * 4;
 const STRUCTURAL_INDEX_ATTR_BYTES = STRUCTURAL_INDEX_ATTR_WORDS * 4;
 const STRUCTURAL_INDEX_SOURCE_KIND_UTF8 = 1;
-const require = createRequire(import.meta.url);
-
-interface NativeStructuralIndexModule {
-  parseStructuralIndexUint8Array?: (input: Uint8Array) => ArrayBuffer | ArrayBufferView;
-}
 
 export function* nodeFileByteBatchesSync(
   path: PathLike,
@@ -86,6 +84,8 @@ export class StaxXmlNodeIterableParser {
   private iterator: Iterator<NodeByteBatch>;
   private readonly useSimpleAttributeScanner: boolean;
   private readonly backend: NodeIterableParserBackend;
+  private readonly fallbackOnLoadError: boolean | undefined;
+  private readonly fallbackOnParseError: boolean | undefined;
   private backendInitialized = false;
   private nativeParser: NativeNodeIterableBackend | undefined;
   private backendKindValue: NodeIterableParserBackendKind = 'pending';
@@ -120,7 +120,9 @@ export class StaxXmlNodeIterableParser {
   constructor(source: Iterable<NodeByteBatch>, options: StaxXmlNodeIterableParserOptions = {}) {
     this.iterator = source[Symbol.iterator]();
     this.backend = options.backend ?? 'auto';
-    if (this.backend !== 'auto' && this.backend !== 'js') {
+    this.fallbackOnLoadError = options.fallbackOnLoadError;
+    this.fallbackOnParseError = options.fallbackOnParseError;
+    if (this.backend !== 'auto' && this.backend !== 'js' && this.backend !== 'native' && this.backend !== 'wasm') {
       throw new RangeError(`Unknown iterable parser backend: ${String(this.backend)}.`);
     }
     const attributeScanner = options.attributeScanner ?? 'general';
@@ -353,8 +355,12 @@ export class StaxXmlNodeIterableParser {
       return;
     }
 
-    const native = loadNativeStructuralIndexModuleSync();
-    if (!native?.parseStructuralIndexUint8Array) {
+    const runtime = getStaxXmlRuntimeForSyncApi(this.backend);
+    const buildTable = runtime?.capabilities.structuralIndexUtf8;
+    if (!runtime || runtime.backend.kind === 'js' || !buildTable) {
+      if (this.backend !== 'auto' && this.backend !== 'js' && this.fallbackOnLoadError !== true) {
+        throw new Error(`Initialized ${this.backend} backend does not provide structuralIndexUtf8 capability.`);
+      }
       this.backendKindValue = 'js';
       return;
     }
@@ -379,11 +385,14 @@ export class StaxXmlNodeIterableParser {
       ? chunks[0]!
       : Buffer.concat(chunks, total);
     try {
-      const table = native.parseStructuralIndexUint8Array(input);
+      const table = buildTable(input);
       this.nativeParser = new NativeNodeIterableBackend(input, table);
-      this.backendKindValue = 'native';
+      this.backendKindValue = runtime.backend.kind;
       return;
     } catch {
+      if (this.backend !== 'auto' && this.fallbackOnParseError !== true) {
+        throw new Error(`Unable to parse XML with initialized ${this.backend} backend.`);
+      }
       // Fall through to the JavaScript parser to preserve existing permissive behavior.
     }
 
@@ -786,20 +795,6 @@ function normalizeBatchSize(value: number | undefined): number {
     throw new RangeError('batchSize must be a positive integer.');
   }
   return batchSize;
-}
-
-function loadNativeStructuralIndexModuleSync(): NativeStructuralIndexModule | undefined {
-  const packageName = getStaxXmlNativePackageName(detectRuntimePlatform());
-  if (!packageName) {
-    return undefined;
-  }
-
-  try {
-    const entrypoint = require.resolve(packageName);
-    return require(join(dirname(entrypoint), 'stax_xml_native.node')) as NativeStructuralIndexModule;
-  } catch {
-    return undefined;
-  }
 }
 
 class NativeNodeIterableBackend {

@@ -67,6 +67,7 @@ export interface ParseOptions {
   acceleration?: {
     backend?: 'auto' | 'js' | 'native' | 'wasm';
     simd?: 'auto-safe' | 'off' | 'avx2';
+    fallbackOnLoadError?: boolean;
     fallbackOnParseError?: boolean;
   };
 }

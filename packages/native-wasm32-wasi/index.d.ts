@@ -67,4 +67,17 @@ export interface ObjectRowsProjectionResult {
   columns: ObjectRowsProjectionColumn[]
 }
 
+export declare function parseObjectRowsUint8Array(input: Uint8Array, spec: ObjectRowsProjectionSpec): ObjectRowsProjectionResult
+
 export declare function parseObjectRowsViaTableUint8Array(input: Uint8Array, spec: ObjectRowsProjectionSpec): ObjectRowsProjectionResult
+
+export interface StreamingEventBatch {
+  buffer: Uint8Array
+  table: Uint8Array
+}
+
+export interface StaxXmlStreamingEventBatchParser {
+  pushChunk(chunk: Uint8Array, isFinal: boolean): StreamingEventBatch
+}
+
+export declare function createStreamingEventBatchParser(): StaxXmlStreamingEventBatchParser

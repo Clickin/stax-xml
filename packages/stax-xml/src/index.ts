@@ -5,6 +5,8 @@ export * from "./XmlObject.js";
 export * from "./StaxXmlWriter.js";
 export * from "./StaxXmlWriterSync.js";
 export { default } from "./StaxXmlWriterSync.js";
+export { getStaxXmlRuntime, initStaxXml } from "./runtime/index.js";
+export type { InitStaxXmlOptions, StaxXmlRuntime, StaxXmlRuntimeBackendPreference, StaxXmlRuntimeCapabilities } from "./runtime/index.js";
 
 export { isCdata, isCharacters, isEndDocument, isEndElement, isError, isStartDocument, isStartElement, XmlEventType } from "./types.js";
 export type {

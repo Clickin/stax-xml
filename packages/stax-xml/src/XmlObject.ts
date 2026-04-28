@@ -14,6 +14,7 @@ import {
   type DocumentMode,
   type ErrorEvent,
 } from './types.js';
+import type { StaxXmlRuntimeBackendPreference } from './runtime/native-backend.js';
 
 /** XML inputs that can be parsed without crossing an async boundary. */
 export type XmlSyncInput = string | Uint8Array | Iterable<Uint8Array>;
@@ -29,6 +30,9 @@ export interface ParseXmlTreeOptions {
   addEntities?: EntityDefinition[];
   trimText?: boolean;
   batchSize?: number;
+  backend?: StaxXmlRuntimeBackendPreference;
+  fallbackOnLoadError?: boolean;
+  fallbackOnParseError?: boolean;
 }
 
 /** Options for compact object projection. */
@@ -124,6 +128,9 @@ function treeOptions(options: ParseXmlTreeOptions): RequiredTreeOptions {
     addEntities: options.addEntities,
     trimText: options.trimText ?? false,
     batchSize: normalizeBatchSize(options.batchSize),
+    backend: options.backend,
+    fallbackOnLoadError: options.fallbackOnLoadError,
+    fallbackOnParseError: options.fallbackOnParseError,
   };
 }
 
@@ -150,6 +157,9 @@ interface RequiredTreeOptions {
   addEntities: EntityDefinition[] | undefined;
   trimText: boolean;
   batchSize: number;
+  backend: StaxXmlRuntimeBackendPreference | undefined;
+  fallbackOnLoadError: boolean | undefined;
+  fallbackOnParseError: boolean | undefined;
 }
 
 interface RequiredObjectOptions {
@@ -162,7 +172,13 @@ interface RequiredObjectOptions {
 function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): Iterable<TreeXmlEvent> {
   const parser = new StaxXmlIterableParser(
     toByteBatches(syncInputChunks(input), { batchSize: options.batchSize }),
-    { encoding: options.encoding, documentMode: options.documentMode },
+    {
+      encoding: options.encoding,
+      documentMode: options.documentMode,
+      backend: options.backend,
+      fallbackOnLoadError: options.fallbackOnLoadError,
+      fallbackOnParseError: options.fallbackOnParseError,
+    },
   );
   const materializer = new IterableEventMaterializer({
     autoDecodeEntities: options.autoDecodeEntities,
@@ -184,6 +200,9 @@ async function* iterateAsyncEvents(input: Exclude<XmlAsyncInput, XmlSyncInput>, 
       addEntities: options.addEntities,
       trimText: options.trimText,
       batchSize: options.batchSize,
+      backend: options.backend,
+      fallbackOnLoadError: options.fallbackOnLoadError,
+      fallbackOnParseError: options.fallbackOnParseError,
     });
     for await (const event of backend) {
       yield event as TreeXmlEvent;
@@ -194,6 +213,9 @@ async function* iterateAsyncEvents(input: Exclude<XmlAsyncInput, XmlSyncInput>, 
   const parser = new StaxXmlIterableParser([], {
     encoding: options.encoding,
     documentMode: options.documentMode,
+    backend: options.backend,
+    fallbackOnLoadError: options.fallbackOnLoadError,
+    fallbackOnParseError: options.fallbackOnParseError,
   });
   const materializer = new IterableEventMaterializer({
     autoDecodeEntities: options.autoDecodeEntities,

@@ -1,9 +1,15 @@
 import { IterableEventType, StaxXmlIterableParser, toByteBatches } from '../StaxXmlIterableParser.js';
 import {
+  createStaxXmlRuntimeFromBackend,
+  getInitializedStaxXmlRuntime,
   resolveStaxXmlRuntimeBackend,
+  type StaxXmlRuntime,
+  type StaxXmlRuntimeBackendPreference,
+} from '../runtime/index.js';
+import {
   StaxXmlStructuralIndexParser,
   type StructuralIndexTable
-} from '../runtime/index.js';
+} from '../runtime/structural-index-parser.js';
 import {
   isCdata,
   isCharacters,
@@ -610,7 +616,10 @@ export class CompiledRootProcessor {
     stream: ReadableStream<Uint8Array>
   ): Promise<void> {
     const parser = new StaxXmlIterableParser([], {
-      documentMode: runtime.options?.documentMode
+      documentMode: runtime.options?.documentMode,
+      backend: runtime.options?.acceleration?.backend,
+      fallbackOnLoadError: runtime.options?.acceleration?.fallbackOnLoadError,
+      fallbackOnParseError: runtime.options?.acceleration?.fallbackOnParseError
     });
     for await (const batch of readReadableStreamByteBatches(stream, { batchSize: 1 })) {
       if (!parser.pushByteBatch(batch, false)) {
@@ -919,6 +928,26 @@ type NativeItemRowsResult = {
   rows?: Array<{ id: unknown; name: unknown; value: unknown }>;
 };
 
+async function resolveConverterRuntime(
+  backendPreference: StaxXmlRuntimeBackendPreference,
+): Promise<StaxXmlRuntime | undefined> {
+  const initialized = getInitializedStaxXmlRuntime();
+  if (initialized) {
+    if (backendPreference !== 'auto' && initialized.backend.kind !== backendPreference) {
+      throw new Error(`Initialized stax-xml backend is ${initialized.backend.kind}, not ${backendPreference}. Call initStaxXml({ backend: '${backendPreference}' }) first.`);
+    }
+    return initialized.backend.kind === 'js' ? undefined : initialized;
+  }
+  if (backendPreference === 'auto') {
+    return undefined;
+  }
+  const backend = await resolveStaxXmlRuntimeBackend({
+    backend: backendPreference,
+    fallbackOnLoadError: false,
+  });
+  return backend.kind === 'js' ? undefined : createStaxXmlRuntimeFromBackend(backend);
+}
+
 async function tryProjectItemRowsViaNativeTable(
   plan: DispatchCompiledPlan,
   input: ArrayBufferView,
@@ -939,16 +968,11 @@ async function tryProjectItemRowsViaNativeTable(
     return undefined;
   }
 
-  const backend = await resolveStaxXmlRuntimeBackend();
-  if (backend.kind === 'js') {
+  const runtime = await resolveConverterRuntime(backendPreference);
+  if (!runtime || runtime.backend.kind === 'js') {
     return undefined;
   }
-  if (backendPreference !== 'auto' && backend.kind !== backendPreference) {
-    return undefined;
-  }
-
-  const nativeModule = backend.module as NativeItemRowsModule | undefined;
-  const projectRows = nativeModule?.parseItemRowsViaTableUint8Array;
+  const projectRows = runtime.capabilities.itemRowsProjection as NativeItemRowsModule['parseItemRowsViaTableUint8Array'];
   const nativeInput = toUint8Array(input);
   if (itemRowsSupported && typeof projectRows === 'function') {
     try {
@@ -961,8 +985,7 @@ async function tryProjectItemRowsViaNativeTable(
     }
   }
 
-  const projectObjectRows = nativeModule?.parseObjectRowsUint8Array
-    ?? nativeModule?.parseObjectRowsViaTableUint8Array;
+  const projectObjectRows = runtime.capabilities.objectRowsProjection as NativeItemRowsModule['parseObjectRowsUint8Array'];
   if (objectRowsProjection && typeof projectObjectRows === 'function') {
     try {
       return normalizeNativeObjectRowsResult(
@@ -978,7 +1001,6 @@ async function tryProjectItemRowsViaNativeTable(
       throw error;
     }
   }
-
   return undefined;
 }
 
@@ -1407,29 +1429,22 @@ async function tryCreateStructuralIndexTable(
     return undefined;
   }
 
-  const backend = await resolveStaxXmlRuntimeBackend();
-  if (backend.kind === 'js') {
-    return undefined;
-  }
-  if (backendPreference !== 'auto' && backend.kind !== backendPreference) {
+  const runtime = await resolveConverterRuntime(backendPreference);
+  if (!runtime || runtime.backend.kind === 'js') {
     return undefined;
   }
 
   try {
-    const nativeModule = backend.module as StructuralIndexNativeModule | undefined;
     let table: StructuralIndexTable;
     const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
     if (typeof input === 'string') {
-      const buildStringTable = nativeModule?.parseStructuralIndexStringUtf16
-        ?? nativeModule?.parseSpanTableStringUtf16;
+      const buildStringTable = runtime.capabilities.structuralIndexUtf16 as StructuralIndexNativeModule['parseStructuralIndexStringUtf16'];
       if (typeof buildStringTable !== 'function') {
         return undefined;
       }
       table = buildStringTable(input);
     } else {
-      const buildByteTable = nativeModule?.parseStructuralIndexBuffer
-        ?? nativeModule?.parseStructuralIndexUint8Array
-        ?? nativeModule?.parseSpanTableUint8Array;
+      const buildByteTable = runtime.capabilities.structuralIndexUtf8 as StructuralIndexNativeModule['parseStructuralIndexUint8Array'];
       if (typeof buildByteTable !== 'function') {
         return undefined;
       }

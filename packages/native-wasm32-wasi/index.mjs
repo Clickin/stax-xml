@@ -17,3 +17,5 @@ export const parseStructuralIndexUint8Array =
 export const parseItemRowsViaTableUint8Array = binding.parseItemRowsViaTableUint8Array;
 export const parseObjectRowsUint8Array = binding.parseObjectRowsUint8Array;
 export const parseObjectRowsViaTableUint8Array = binding.parseObjectRowsViaTableUint8Array;
+export const StaxXmlStreamingEventBatchParser = binding.StaxXmlStreamingEventBatchParser;
+export const createStreamingEventBatchParser = binding.createStreamingEventBatchParser;

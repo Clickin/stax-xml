@@ -1,15 +1,29 @@
 export {
   WASM_PACKAGE_NAME,
+  createStaxXmlRuntimeFromBackend,
   detectRuntimePlatform,
+  getInitializedStaxXmlRuntime,
   getStaxXmlNativePackageName,
+  getStaxXmlRuntime,
+  getStaxXmlRuntimeForAsyncApi,
+  getStaxXmlRuntimeForSyncApi,
+  initStaxXml,
+  resetStaxXmlRuntimeForTests,
   resolveStaxXmlRuntimeBackend,
 } from './native-backend.js';
 export type {
+  InitStaxXmlOptions,
   OptionalPackageImporter,
+  StaxXmlRuntime,
   StaxXmlRuntimeBackend,
   StaxXmlRuntimeBackendKind,
+  StaxXmlRuntimeBackendPreference,
+  StaxXmlRuntimeCapabilities,
   StaxXmlRuntimePlatform,
   StaxXmlRuntimeResolverOptions,
+  StaxXmlStreamingEventBatch,
+  StaxXmlStreamingEventBatchFactory,
+  StaxXmlStreamingEventBatchParser,
 } from './native-backend.js';
 export {
   StaxXmlWasmIterableParser,

@@ -24,7 +24,10 @@ export class StaxXmlCursorReaderAsync {
       implicitAttributeValue: 'name',
       incompleteFinalMarkupMessage: 'Unexpected end of document. Incomplete markup at end of stream.',
       emitStartDocumentBatchImmediately: true,
-      maxChunkBytes: 8
+      maxChunkBytes: 8,
+      backend: options.backend,
+      fallbackOnLoadError: options.fallbackOnLoadError,
+      fallbackOnParseError: options.fallbackOnParseError
     });
   }
 
