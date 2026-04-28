@@ -32,7 +32,7 @@ export class StaxXmlCursorReaderAsync {
       implicitAttributeValue: 'name',
     };
 
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     const createStreamingParser = runtime?.capabilities.streamingEventBatches;
     if (runtime?.backend.kind !== 'js' && createStreamingParser) {
       this.nativeReader = new StreamingEventBatchReader(createStreamingParser({
@@ -52,7 +52,6 @@ export class StaxXmlCursorReaderAsync {
       incompleteFinalMarkupMessage: 'Unexpected end of document. Incomplete markup at end of stream.',
       emitStartDocumentBatchImmediately: true,
       maxChunkBytes: 8,
-      backend: options.backend,
       fallbackOnLoadError: options.fallbackOnLoadError,
       fallbackOnParseError: options.fallbackOnParseError
     });

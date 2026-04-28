@@ -42,7 +42,7 @@ export class StaxXmlCursorReader {
       implicitAttributeValue: 'name',
     };
 
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     const buildTable = runtime?.capabilities.structuralIndexUtf16;
     if (runtime?.backend.kind !== 'js' && buildTable) {
       try {
@@ -61,18 +61,15 @@ export class StaxXmlCursorReader {
       runtime
       && runtime.backend.kind !== 'js'
       && !buildTable
-      && options.backend !== undefined
-      && options.backend !== 'auto'
       && options.fallbackOnLoadError !== true
     ) {
-      throw new Error(`Initialized ${options.backend} backend does not provide structuralIndexUtf16 capability.`);
+      throw new Error('Initialized backend does not provide structuralIndexUtf16 capability.');
     }
 
     this.parser = new StaxXmlIterableParser(
       toByteBatches(byteChunks(textEncoder.encode(xml), 8), { batchSize: 1 }),
       {
         emitStartDocumentBatchImmediately: true,
-        backend: options.backend,
         fallbackOnLoadError: options.fallbackOnLoadError,
         fallbackOnParseError: options.fallbackOnParseError
       }

@@ -10,7 +10,6 @@ import {
   type DocumentMode,
   type ParserEventFilter
 } from './types.js';
-import type { StaxXmlRuntimeBackendPreference } from './runtime/native-backend.js';
 
 /**
  * Configuration options for the StaxXmlParser
@@ -72,7 +71,6 @@ export interface StaxXmlParserOptions {
    */
   documentMode?: DocumentMode;
 
-  backend?: StaxXmlRuntimeBackendPreference;
   fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
@@ -157,7 +155,6 @@ function toBackendOptions(options: StaxXmlParserOptions): IterableEventBackendOp
     addEntities: options.addEntities,
     eventFilter: options.eventFilter,
     documentMode: options.documentMode,
-    backend: options.backend,
     fallbackOnLoadError: options.fallbackOnLoadError,
     fallbackOnParseError: options.fallbackOnParseError
   };

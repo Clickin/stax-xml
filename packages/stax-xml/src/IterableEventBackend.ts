@@ -15,7 +15,6 @@ import {
 } from './types.js';
 import {
   getStaxXmlRuntimeForSyncApi,
-  type StaxXmlRuntimeBackendPreference,
 } from './runtime/native-backend.js';
 import {
   StreamingSpanTableAdapter,
@@ -40,7 +39,6 @@ export interface IterableEventBackendOptions {
   trimText?: boolean;
   implicitAttributeValue?: 'true' | 'name';
   documentMode?: DocumentMode;
-  backend?: StaxXmlRuntimeBackendPreference;
   fallbackOnLoadError?: boolean;
   fallbackOnParseError?: boolean;
 }
@@ -142,16 +140,14 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
     private readonly stream: ReadableStream<Uint8Array>,
     private readonly options: IterableEventBackendOptions = {}
   ) {
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     if (
       runtime
       && runtime.backend.kind !== 'js'
       && !runtime.capabilities.streamingEventBatches
-      && options.backend !== undefined
-      && options.backend !== 'auto'
       && options.fallbackOnLoadError !== true
     ) {
-      throw new Error(`Initialized ${options.backend} backend does not provide streamingEventBatches capability.`);
+      throw new Error('Initialized backend does not provide streamingEventBatches capability.');
     }
   }
 
@@ -268,7 +264,7 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
   }
 
   private readNativeStreamingBatches(): AsyncGenerator<AnyXmlEvent[]> | undefined {
-    const runtime = getStaxXmlRuntimeForSyncApi(this.options.backend);
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     const createStreamingParser = runtime?.capabilities.streamingEventBatches;
     if (!createStreamingParser) {
       return undefined;
