@@ -115,10 +115,10 @@ const autoDispatchPlanCache = new WeakMap<XmlSchemaBase<unknown, unknown>, Dispa
 
 export function tryParseWithCompiledPlan<Output, Input>(
   schema: XmlSchemaBase<Output, Input>,
-  input: string | Iterator<unknown>,
+  input: string | ArrayBufferView | Iterator<unknown>,
   options?: ParseOptions
 ): AutoParseResult<Output> {
-  if (typeof input !== 'string') {
+  if (typeof input !== 'string' && !isArrayBufferView(input)) {
     return AUTO_PARSE_UNHANDLED;
   }
 
@@ -164,6 +164,10 @@ function tryBuildDispatchPlan(schema: XmlSchemaBase<unknown, unknown>): Dispatch
     autoDispatchPlanCache.set(schema, false);
     return undefined;
   }
+}
+
+function isArrayBufferView(input: unknown): input is ArrayBufferView {
+  return ArrayBuffer.isView(input);
 }
 
 function isAutoDispatchEligible(schema: XmlSchemaBase<unknown, unknown>): boolean {

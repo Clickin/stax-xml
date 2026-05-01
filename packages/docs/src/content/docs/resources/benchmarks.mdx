@@ -67,12 +67,18 @@ object-output:
 
 Runtime methods:
 
-- `stax-xml JS fallback event parser`: `StaxXmlParserSync` event loop with a checksum over event type, names, text, and attributes.
-- `stax-xml JS fallback event parser decode+parse`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running `StaxXmlParserSync`.
-- `stax-xml JS Uint8Array iterable`: `StaxXmlIterableParser` byte-frame loop over a reusable `Iterable<Uint8Array[]>` with the same checksum contract.
-- `stax-xml native addon event aggregate`: native aggregate probe using the event-object tier inside Rust; it is not a public per-event JavaScript iterator.
-- `stax-xml native addon raw aggregate`: native aggregate probe using a coarse Buffer call and direct string materialization inside Rust.
-- `stax-xml to object`: `StaxXmlParserSync` plus a local projection into the benchmark object shape.
+API selection guidance:
+
+- Prefer the converter API when the target XML-to-object shape is known.
+- For whole-XML traversal with light per-event work, start with `EventReader` or `EventReaderSync`.
+- For heavier unknown-schema projection or object materialization, use `ProjectionReader` and the `stax-xml/projection` helpers.
+
+- `stax-xml JS reference event parser`: internal lean `EventReaderSync` reference loop with a checksum over event type, names, text, and attributes.
+- `stax-xml JS reference event parser decode+parse`: byte-source reference path that pays `Buffer.toString("utf8")` inside the timed region before running lean `EventReaderSync`.
+- `stax-xml StreamReaderSync (native)`: public lean byte-batch pull reader backed by `initStaxXml({ backend: "native" })` and the native streaming runtime. Headline native wrapper claims require this row to stay at least `0.90x` the direct native addon full-spec file-input control row. Falling below that floor remains tracked optimization evidence for raising the public surface, not a reason to remove the row or lower the final spec.
+- `stax-xml EventReaderSync (native reference)`: ergonomic string event iterator backed by the native runtime. It remains measured as a reference row for object/iterator overhead, but it is not the 0.9x gate target.
+- `stax-xml ProjectionReader parseXmlNodes (native)`: public unknown-schema object projection returning txml-style nodes through `stax-xml/projection`.
+- `stax-xml to object`: object-shape reference row. Native `ProjectionReader` rows are the public performance evidence for object materialization.
 - `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.
 - The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.
 - The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.
@@ -109,19 +115,45 @@ Performance results on large.xml (98MB):
 
 <BenchmarkSection locale="en" section="parser-98mb" />
 
-**Performance Crossover Analysis:**
-- **Small files (2-4KB)**: compare the generated table directly; the stax-xml rows now show JS fallback and native-addon surfaces beside third-party parsers
-- **Medium files (13MB)**: xml2js is excluded from whole-document conclusions because it only reports the first top-level element shape; use the stax-xml backend/surface rows and the remaining parser rows for this fixture
-- **Large files (98MB)**: compare the generated table directly; throughput and memory trade-offs move by parser and fixture
-- **Very large files (1GB+)**: async streams and synchronous iterable byte-batch parsing avoid retaining one full XML string; the public sync string parser remains the in-memory path
+### Node npm XML Parsers
 
-
-### Iterable File Traversal (1MiB to 4GiB)
-
-stax-xml sync vs async traversal over bounded file chunks:
+This separate section compares maintained public npm XML parser packages on one representative Node fixture. It is intentionally placed after the parser fixture series because event parsers, object parsers, and the stax public reader surfaces have different output shapes.
 
 <details>
-<summary>Scenario contract: iterable parser sync and async file traversal</summary>
+<summary>Scenario contract: maintained Node npm XML parser comparison</summary>
+
+This section uses one representative XML fixture, `books.xml`, so npm parser packages can be compared in one place without mixing the result into the broader parser fixture series.
+
+Candidate policy:
+
+- Included packages must be public npm packages with a current Node XML parsing surface already present in the benchmark workspace.
+- Excluded packages include internal probes, old package names superseded by a scoped package, packages with very old last publish dates, and packages whose own documentation presents the parser as non-compliant or intentionally minimal.
+- The section therefore includes `fast-xml-parser`, `txml`, `xml2js`, `sax`, `saxes`, and `htmlparser2` with `xmlMode` enabled.
+- `@xmldom/xmldom` was evaluated as a DOM candidate, but its current npm install path reports a deprecation warning, so it is not included in the maintained-comparator set.
+
+Measurement policy:
+
+- Object/DOM-style libraries use their natural string-to-object parse API.
+- SAX/event-style libraries consume events and fold names, text, and attributes into a checksum so the parser work is retained.
+- stax-xml rows are included only as local reference rows and use package-supported reader surfaces. Legacy internal byte-reader labels in older result data are benchmark labels, not public import recommendations.
+
+</details>
+
+<BenchmarkSection locale="en" section="npm-xml-parsers" />
+
+**Performance Crossover Analysis:**
+- **Small files (2-4KB)**: compare the generated table directly; the stax-xml rows show native reader paths with JS reference rows beside third-party parsers
+- **Medium files (13MB)**: xml2js is excluded from whole-document conclusions because it only reports the first top-level element shape; use the stax-xml backend/surface rows and the remaining parser rows for this fixture
+- **Large files (98MB)**: compare the generated table directly; throughput and memory trade-offs move by parser and fixture
+- **Very large files (1GB+)**: `EventReader` streams avoid retaining one full XML string; the public sync string parser remains the in-memory path
+
+
+### EventReader Stream Traversal (1MiB to 1GiB default)
+
+stax-xml JS reference vs native traversal over bounded file chunks:
+
+<details>
+<summary>Scenario contract: EventReader stream JS and native file traversal</summary>
 
 Generated XML shape, shortened:
 
@@ -150,26 +182,28 @@ parse-result = {
 
 Parsing methods:
 
-- Every row in this section uses the same Node iterable event-frame parser over bounded temp-file chunks.
-- `sync Iterable parser` uses synchronous file reads and `Iterable<Buffer[]>` batches.
-- `async Iterable parser` uses asynchronous file reads as an `AsyncIterable<Buffer[]>`, then hands each awaited batch to the synchronous iterable parser frame loop without retaining one full XML string.
+- Every row in this section uses the public `EventReader` stream API over bounded temp-file chunks.
+- `EventReader stream JS reference` measures the internal JavaScript reference reader. It is not the advertised Node performance path.
+- `EventReader stream native` initializes the package with the native backend before measuring the same stream reader API.
 - XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.
-- These rows use a structural checksum rather than full string materialization so the table measures iterable backend tokenization/event-frame traversal.
+- These rows intentionally use a structural checksum rather than building a full object tree so the table measures stream tokenization and event materialization.
 
 </details>
+
+The default release set stops at 1GiB; the 4GiB traversal is available with `release:update -- --include-stress`.
 
 <BenchmarkSection locale="en" section="async-size" />
 
 **Key Insights:**
-- This section is the iterable backend throughput view, not a public string parser vs stream parser API comparison.
-- The sync and async rows share the same tokenization/event-frame path; the difference is synchronous file reads versus awaited file batches.
-- Async iterable parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
-- For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for non-blocking API ergonomics or the synchronous iterable byte-batch backend for blocking batch jobs.
+- This section is the public stream reader throughput view, not a full-object materialization benchmark.
+- The JS and native rows share the same `EventReader` stream API; the difference is the initialized runtime backend.
+- Async stream parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
+- For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for bounded input buffering.
 
 ## Runtime Matrix
 
 The release artifact also measures the same built JavaScript implementation on Node, Bun, and Deno using a generated, single-root 16 MiB XML fixture.
-This matrix is a compatibility and runtime-codegen check; it does not include native addons.
+This matrix is a compatibility and runtime-codegen check; native runtime comparison is reported separately through package-supported reader rows.
 The `iterable-*` rows are synchronous byte-batch parser paths, not async parser rows.
 
 <details>
@@ -208,7 +242,7 @@ Runtime methods:
 - Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.
 - `public-sync-full-string` uses `StaxXmlParserSync` over one string.
 - `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.
-- This matrix intentionally excludes native addons.
+- This matrix intentionally excludes native runtime rows.
 
 </details>
 
@@ -216,11 +250,11 @@ Runtime methods:
 
 ## Cross-Runtime Comparator
 
-The table below compares `stax-xml` JS on Node, the `stax-xml` native addon through its JavaScript package wrapper, Woodstox, and `quick-xml` under the same event-count and checksum contract.
+The table below compares `stax-xml` JS on Node, `stax-xml` native runtime through the package reader surface, Woodstox, and `quick-xml` under the same event-count and checksum contract.
 Woodstox is shown with Java 8 for the public baseline because Java 8 is its minimum supported runtime target. Java 25 is measured separately to confirm whether the JVM version changes the conclusion.
 
 <details>
-<summary>Scenario contract: stax-xml JS/native, Woodstox, and quick-xml comparator</summary>
+<summary>Scenario contract: stax-xml JS/native reader, Woodstox, and quick-xml comparator</summary>
 
 Sample XML shape is the same generated 16 MiB `<root><book>...</book></root>` fixture used by the runtime matrix.
 
@@ -229,7 +263,7 @@ Output shape:
 ~~~text
 comparator-result = {
   tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",
-  implementation: "stax-xml-js-node" | "stax-xml-native-addon" | "woodstox-java8" | "quick-xml",
+  implementation: "stax-xml-js-node" | "stax-xml-native-reader" | "woodstox-java8" | "quick-xml",
   eventCount: number,
   checksum: fold(selected event data for tier)
 }
@@ -238,7 +272,7 @@ comparator-result = {
 Parsing methods:
 
 - `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.
-- `stax-xml native addon`: JS package wrapper imports the N-API aggregate addon before sampling; each measured sample calls through the wrapper and N-API boundary in the same Node process.
+- `stax-xml native reader`: initializes `stax-xml` with `initStaxXml({ backend: "native" })`, then measures the supported package reader path over in-memory bytes.
 - Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.
 - `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.
 - Java 8 is the public Woodstox row because it is Woodstox's minimum runtime target; Java 25 is a separate verification row.
@@ -251,22 +285,29 @@ Parsing methods:
 
 <RuntimeBenchmarkSection locale="en" section="java25" />
 
-### Why Native Addons Are Now the Acceleration Path
+### Why Native Runtime Acceleration Is The Performance Path
 
-The pure JavaScript path remains the compatibility fallback, but it is not the release performance ceiling anymore.
+The pure JavaScript path remains an internal/reference implementation, but it is not the release performance ceiling anymore.
 The parser work leading up to this release repeatedly found that V8-friendly JavaScript loop shapes could improve the iterable backend, yet the full-string workload still stayed behind native parser baselines, especially `quick-xml`.
 The main remaining costs are delimiter scanning, string materialization, and stable object/API shapes around attributes and text.
 
-Rust native addons give the project a path to use a native tokenizer and SIMD-oriented scanning strategy, closer in direction to native parsers such as `quick-xml` and simdjson-style designs.
-The package therefore keeps `stax-xml` as the public facade while adding optional native/Wasm acceleration packages; environments that cannot or should not load binaries still use the JavaScript fallback.
+Rust native runtime packages give the project a path to use a native tokenizer and SIMD-oriented scanning strategy, closer in direction to native parsers such as `quick-xml` and simdjson-style designs.
+Published benchmark rows now measure that path through public reader surfaces rather than direct native diagnostic entry points. The package therefore keeps `stax-xml` as the public facade while adding optional native/Wasm acceleration packages; environments that cannot or should not load binaries should opt into the Wasm compatibility backend rather than relying on silent JavaScript fallback.
 
 ## Converter API vs Plain Parser
 
-The benchmark below compares three ways to build the **same object output**:
+The benchmark below compares the normal converter object-output path and a
+projection-lowerable byte-input fast path:
 
-- A handwritten plain parser built directly on `StaxXmlParserSync`
+- A handwritten plain parser built directly on `EventReaderSync`
 - The declarative converter API with automatic dispatch-plan routing
 - The converter API with `.compile()` enabled
+- The compiled converter API over `Buffer` input when the schema can be lowered
+  to the public native `stax-xml/projection` surface
+- `ProjectionReader` itself, which returns the native columnar row projection
+  without converter object hydration
+
+Recommendation: when this kind of target object shape is known, prefer the converter API over ad-hoc event parsing. Keep `EventReaderSync` for light whole-XML traversal and use `ProjectionReader` for heavier unknown-schema materialization.
 
 Fixture used in the current workspace run:
 
@@ -278,14 +319,24 @@ Fixture used in the current workspace run:
   - root array of objects
   - direct scalar field
   - transformed derived field
+- native projection rows use a byte-input `<entry>` fixture with direct
+  attribute/child-element fields and identical JS/native JSON output checks
+- the `ProjectionReader` row checks the same row count and column shape, but
+  intentionally measures the lower-level columnar surface rather than JSON
+  object materialization
 
 <BenchmarkSection locale="en" section="converter" />
 
 What this means:
 
 - The handwritten parser remains the raw-throughput ceiling.
-- The normal converter API now auto-routes dispatch-friendly schemas onto the iterable backend and caches the plan on the schema object.
+- The normal converter API now auto-routes dispatch-friendly schemas onto the projection backend and caches the plan on the schema object.
 - `.compile()` keeps the same output contract while making that dispatch choice explicit and reusable.
+- On byte input with a projection-lowerable compiled schema, the converter can
+  skip per-event JavaScript dispatch and delegate the row projection through the
+  public native projection surface.
+- `ProjectionReader` shows the native wrapper cost before converter hydration;
+  use it when columnar row data is an acceptable public output shape.
 
 ## Writer Performance
 

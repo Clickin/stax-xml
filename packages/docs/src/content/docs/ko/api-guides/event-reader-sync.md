@@ -261,5 +261,9 @@ class EventReaderSync {
 interface EventReaderSyncOptions {
   autoDecodeEntities?: boolean; // 기본값: true
   addEntities?: { entity: string, value: string }[];
+  namespaceAware?: boolean; // 기본값: false; localName/prefix/uri metadata가 필요할 때 opt in
+  eventFilter?: ParserEventFilter;
+  documentMode?: 'fragment' | 'document';
+  fallbackOnParseError?: boolean;
 }
 ```

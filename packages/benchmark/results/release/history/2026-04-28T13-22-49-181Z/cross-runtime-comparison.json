@@ -1,0 +1,844 @@
+{
+  "generatedAt": "2026-04-28T13:22:45.591Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "name": "runtime-comparison-16mib.xml",
+    "sizeBytes": 16777038,
+    "sizeMiB": 15.99983024597168
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1,
+    "tiers": [
+      "count-only",
+      "name-string-only",
+      "text-string-only",
+      "attr-value-string-only",
+      "full-string"
+    ],
+    "simdxmlMaxMiB": 64,
+    "nativeSimd": "auto"
+  },
+  "tools": {
+    "java8Command": "java",
+    "java8Version": "openjdk version \"1.8.0_472\"",
+    "java25Command": "C:\\sdkman\\candidates\\java\\25.0.1-tem\\bin\\java.exe",
+    "quickXmlCommand": "G:\\programming\\stax-xml\\packages\\benchmark\\external\\quick-xml-bench\\target\\release\\quick-xml-bench.exe",
+    "quickXmlVersion": "0.39.2",
+    "simdxmlCommand": "G:\\programming\\stax-xml\\packages\\benchmark\\external\\simdxml-bench\\target\\release\\simdxml-bench.exe",
+    "simdxmlVersion": "0.2.1",
+    "nativeIterablePackage": "@stax-xml/native-win32-x64-msvc",
+    "nativeIterableVersion": "1.0.0-rc3"
+  },
+  "rawNodeStringReturnPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\raw\\cross-runtime-node-string-return.json",
+  "nodeStringReturn": {
+    "generatedAt": "2026-04-28T13:22:30.575Z",
+    "contract": [
+      "namespace off",
+      "XML declaration/comment/PI/DOCTYPE skipped",
+      "CDATA remains a separate event",
+      "whitespace-only text skipped",
+      "text trimmed before checksum",
+      "entity decode off"
+    ],
+    "options": {
+      "runs": 3,
+      "warmups": 1,
+      "chunkSize": 1048576,
+      "batchSize": 1,
+      "sampleEvery": 65536,
+      "simdxmlMaxMiB": 64,
+      "tiers": [
+        "count-only",
+        "name-string-only",
+        "text-string-only",
+        "attr-value-string-only",
+        "full-string"
+      ]
+    },
+    "files": [
+      {
+        "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "sizeBytes": 16777038,
+        "sizeMiB": 15.99983024597168,
+        "tiers": [
+          {
+            "id": "count-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 82.87593333333335,
+                "minMs": 81.56300000000002,
+                "maxMs": 85.4201,
+                "mibPerSec": 193.05761760316037,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakRssBytes": 72187904,
+                "peakHeapUsedBytes": 7556608,
+                "samplesMs": [
+                  85.4201,
+                  81.56300000000002,
+                  81.6447
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 87.38430000000004,
+                "minMs": 84.86710000000005,
+                "maxMs": 88.76020000000005,
+                "mibPerSec": 183.09730976813537,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakRssBytes": 70705152,
+                "peakHeapUsedBytes": 7591976,
+                "samplesMs": [
+                  88.5256,
+                  88.76020000000005,
+                  84.86710000000005
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 46.44046666666666,
+                "minMs": 42.9037,
+                "maxMs": 51.5216,
+                "mibPerSec": 344.5234596976132,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakHeapUsedBytes": 43546056,
+                "samplesMs": [
+                  51.5216,
+                  42.9037,
+                  44.8961
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 51.191633333333336,
+                "minMs": 50.928000000000004,
+                "maxMs": 51.3436,
+                "mibPerSec": 312.54775837662953,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  51.3033,
+                  51.3436,
+                  50.928000000000004
+                ]
+              },
+              {
+                "id": "simdxml",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 39.067766666666664,
+                "minMs": 38.254999999999995,
+                "maxMs": 40.054399999999994,
+                "mibPerSec": 409.5404373248453,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  38.8939,
+                  38.254999999999995,
+                  40.054399999999994
+                ]
+              },
+              {
+                "id": "simdxml-memory",
+                "status": "ok",
+                "tier": "count-only",
+                "avgMs": 32.750499999999995,
+                "minMs": 32.3993,
+                "maxMs": 33.1213,
+                "mibPerSec": 488.5369764117092,
+                "eventCount": 967967,
+                "checksum": 2078515073,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  33.1213,
+                  32.7309,
+                  32.3993
+                ]
+              }
+            ]
+          },
+          {
+            "id": "name-string-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 112.15506666666647,
+                "minMs": 109.36109999999985,
+                "maxMs": 114.6627999999996,
+                "mibPerSec": 142.65811364121794,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakRssBytes": 72421376,
+                "peakHeapUsedBytes": 7674104,
+                "samplesMs": [
+                  112.44129999999996,
+                  109.36109999999985,
+                  114.6627999999996
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 107.10053333333342,
+                "minMs": 106.2188000000001,
+                "maxMs": 107.63650000000007,
+                "mibPerSec": 149.390761633042,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakRssBytes": 72347648,
+                "peakHeapUsedBytes": 7778800,
+                "samplesMs": [
+                  107.63650000000007,
+                  106.2188000000001,
+                  107.44630000000006
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 46.2457,
+                "minMs": 42.337,
+                "maxMs": 53.8185,
+                "mibPerSec": 345.9744418610093,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakHeapUsedBytes": 43546208,
+                "samplesMs": [
+                  53.8185,
+                  42.5816,
+                  42.337
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 58.28916666666667,
+                "minMs": 57.9484,
+                "maxMs": 58.8906,
+                "mibPerSec": 274.49063283866377,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  57.9484,
+                  58.028499999999994,
+                  58.8906
+                ]
+              },
+              {
+                "id": "simdxml",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 40.569266666666664,
+                "minMs": 39.668299999999995,
+                "maxMs": 41.2147,
+                "mibPerSec": 394.3830283508127,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  39.668299999999995,
+                  40.8248,
+                  41.2147
+                ]
+              },
+              {
+                "id": "simdxml-memory",
+                "status": "ok",
+                "tier": "name-string-only",
+                "avgMs": 35.41256666666667,
+                "minMs": 34.996,
+                "maxMs": 35.7332,
+                "mibPerSec": 451.8122167358201,
+                "eventCount": 967967,
+                "checksum": 974533206,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  35.5085,
+                  34.996,
+                  35.7332
+                ]
+              }
+            ]
+          },
+          {
+            "id": "text-string-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 146.81916666666652,
+                "minMs": 145.08959999999934,
+                "maxMs": 149.14699999999993,
+                "mibPerSec": 108.97644094586897,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakRssBytes": 79376384,
+                "peakHeapUsedBytes": 7649336,
+                "samplesMs": [
+                  146.22090000000026,
+                  145.08959999999934,
+                  149.14699999999993
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 145.807533333333,
+                "minMs": 144.96299999999974,
+                "maxMs": 147.09289999999964,
+                "mibPerSec": 109.73253493970168,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakRssBytes": 78749696,
+                "peakHeapUsedBytes": 7845520,
+                "samplesMs": [
+                  147.09289999999964,
+                  145.36669999999958,
+                  144.96299999999974
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 47.768033333333335,
+                "minMs": 43.5884,
+                "maxMs": 55.5906,
+                "mibPerSec": 334.9484818502404,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakHeapUsedBytes": 43546208,
+                "samplesMs": [
+                  55.5906,
+                  44.1251,
+                  43.5884
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 55.05893333333333,
+                "minMs": 54.5437,
+                "maxMs": 55.9946,
+                "mibPerSec": 290.59462792544133,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  54.5437,
+                  54.6385,
+                  55.9946
+                ]
+              },
+              {
+                "id": "simdxml",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 41.00366666666667,
+                "minMs": 40.223299999999995,
+                "maxMs": 41.7378,
+                "mibPerSec": 390.2048657267646,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  41.0499,
+                  40.223299999999995,
+                  41.7378
+                ]
+              },
+              {
+                "id": "simdxml-memory",
+                "status": "ok",
+                "tier": "text-string-only",
+                "avgMs": 36.367866666666664,
+                "minMs": 35.3823,
+                "maxMs": 37.7577,
+                "mibPerSec": 439.9441515945857,
+                "eventCount": 967967,
+                "checksum": -1012768158,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  35.3823,
+                  35.9636,
+                  37.7577
+                ]
+              }
+            ]
+          },
+          {
+            "id": "attr-value-string-only",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 109.73019999999997,
+                "minMs": 107.10189999999966,
+                "maxMs": 112.57909999999993,
+                "mibPerSec": 145.81063595957798,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakRssBytes": 73060352,
+                "peakHeapUsedBytes": 7975584,
+                "samplesMs": [
+                  107.10189999999966,
+                  109.50960000000032,
+                  112.57909999999993
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 125.8056666666668,
+                "minMs": 118.48149999999987,
+                "maxMs": 137.02100000000064,
+                "mibPerSec": 127.17893136216702,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakRssBytes": 75923456,
+                "peakHeapUsedBytes": 7930184,
+                "samplesMs": [
+                  137.02100000000064,
+                  118.48149999999987,
+                  121.91449999999986
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 49.4083,
+                "minMs": 45.888,
+                "maxMs": 56.1872,
+                "mibPerSec": 323.8287948780201,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakHeapUsedBytes": 59589376,
+                "samplesMs": [
+                  56.1872,
+                  46.1497,
+                  45.888
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 53.53053333333333,
+                "minMs": 53.245,
+                "maxMs": 53.8859,
+                "mibPerSec": 298.8916651799661,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  53.8859,
+                  53.4607,
+                  53.245
+                ]
+              },
+              {
+                "id": "simdxml",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 39.27106666666666,
+                "minMs": 38.9624,
+                "maxMs": 39.832,
+                "mibPerSec": 407.4203123072376,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  39.0188,
+                  38.9624,
+                  39.832
+                ]
+              },
+              {
+                "id": "simdxml-memory",
+                "status": "ok",
+                "tier": "attr-value-string-only",
+                "avgMs": 33.8861,
+                "minMs": 33.378,
+                "maxMs": 34.5524,
+                "mibPerSec": 472.1649952627088,
+                "eventCount": 967967,
+                "checksum": 1105386208,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  34.5524,
+                  33.7279,
+                  33.378
+                ]
+              }
+            ]
+          },
+          {
+            "id": "full-string",
+            "scenarios": [
+              {
+                "id": "neutral",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 150.78356666666696,
+                "minMs": 144.75,
+                "maxMs": 154.19440000000031,
+                "mibPerSec": 106.11123346977234,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakRssBytes": 81817600,
+                "peakHeapUsedBytes": 7969112,
+                "samplesMs": [
+                  154.19440000000031,
+                  153.40630000000056,
+                  144.75
+                ]
+              },
+              {
+                "id": "node",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 160.6885333333333,
+                "minMs": 158.3045000000002,
+                "maxMs": 165.29219999999987,
+                "mibPerSec": 99.57045418282294,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakRssBytes": 80076800,
+                "peakHeapUsedBytes": 7540560,
+                "samplesMs": [
+                  158.3045000000002,
+                  158.46889999999985,
+                  165.29219999999987
+                ]
+              },
+              {
+                "id": "woodstox",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 64.36093333333334,
+                "minMs": 58.0156,
+                "maxMs": 72.6176,
+                "mibPerSec": 248.59537326947316,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakHeapUsedBytes": 59589352,
+                "samplesMs": [
+                  72.6176,
+                  62.4496,
+                  58.0156
+                ]
+              },
+              {
+                "id": "quick-xml",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 66.58766666666666,
+                "minMs": 66.3746,
+                "maxMs": 66.9903,
+                "mibPerSec": 240.28218808245288,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  66.9903,
+                  66.3746,
+                  66.3981
+                ]
+              },
+              {
+                "id": "simdxml",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 45.216633333333334,
+                "minMs": 45.062,
+                "maxMs": 45.4334,
+                "mibPerSec": 353.84833116659166,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  45.1545,
+                  45.4334,
+                  45.062
+                ]
+              },
+              {
+                "id": "simdxml-memory",
+                "status": "ok",
+                "tier": "full-string",
+                "avgMs": 40.33043333333333,
+                "minMs": 39.3938,
+                "maxMs": 42.1256,
+                "mibPerSec": 396.7185304886801,
+                "eventCount": 967967,
+                "checksum": 1007437756,
+                "peakHeapUsedBytes": null,
+                "samplesMs": [
+                  42.1256,
+                  39.4719,
+                  39.3938
+                ]
+              }
+            ]
+          }
+        ],
+        "gate": {
+          "status": "pass",
+          "countOnlyRegression": 0.05439898514968987,
+          "fullStringImprovement": -0.0656899613507816,
+          "failures": [],
+          "performanceStatus": "warn",
+          "performanceFailures": [
+            "count-only regression +5.4% exceeds +3.0%",
+            "full-string improvement -6.6% and 99.6 MiB/s miss gate"
+          ]
+        }
+      }
+    ]
+  },
+  "nativeIterable": {
+    "status": "ok",
+    "packageName": "@stax-xml/native-win32-x64-msvc",
+    "packageVersion": "1.0.0-rc3",
+    "entrypoint": "stax-xml/iterable/node NodeIterableReader",
+    "tiers": [
+      {
+        "tier": "count-only",
+        "id": "stax-xml-native-node-iterable-reader",
+        "status": "ok",
+        "avgMs": 58.50396666666651,
+        "minMs": 55.80169999999998,
+        "maxMs": 60.92669999999998,
+        "mibPerSec": 273.482827876145,
+        "eventCount": 967967,
+        "checksum": 2078515073,
+        "samplesMs": [
+          58.78349999999955,
+          55.80169999999998,
+          60.92669999999998
+        ]
+      },
+      {
+        "tier": "name-string-only",
+        "id": "stax-xml-native-node-iterable-reader",
+        "status": "ok",
+        "avgMs": 66.73406666666658,
+        "minMs": 65.4460999999992,
+        "maxMs": 67.47199999999975,
+        "mibPerSec": 239.7550613225784,
+        "eventCount": 967967,
+        "checksum": 974533206,
+        "samplesMs": [
+          65.4460999999992,
+          67.28410000000076,
+          67.47199999999975
+        ]
+      },
+      {
+        "tier": "text-string-only",
+        "id": "stax-xml-native-node-iterable-reader",
+        "status": "ok",
+        "avgMs": 79.4291333333337,
+        "minMs": 78.15359999999964,
+        "maxMs": 80.10419999999976,
+        "mibPerSec": 201.4352867080459,
+        "eventCount": 967967,
+        "checksum": -1012768158,
+        "samplesMs": [
+          80.02960000000166,
+          78.15359999999964,
+          80.10419999999976
+        ]
+      },
+      {
+        "tier": "attr-value-string-only",
+        "id": "stax-xml-native-node-iterable-reader",
+        "status": "ok",
+        "avgMs": 75.48736666666628,
+        "minMs": 74.8082000000013,
+        "maxMs": 76.08329999999842,
+        "mibPerSec": 211.95374739488545,
+        "eventCount": 967967,
+        "checksum": 1105386208,
+        "samplesMs": [
+          76.08329999999842,
+          75.5705999999991,
+          74.8082000000013
+        ]
+      },
+      {
+        "tier": "full-string",
+        "id": "stax-xml-native-node-iterable-reader",
+        "status": "ok",
+        "avgMs": 143.14683333333292,
+        "minMs": 130.48140000000058,
+        "maxMs": 151.9425999999985,
+        "mibPerSec": 111.77215641728057,
+        "eventCount": 967967,
+        "checksum": 1007437756,
+        "samplesMs": [
+          151.9425999999985,
+          147.01649999999972,
+          130.48140000000058
+        ]
+      }
+    ]
+  },
+  "java25Verification": {
+    "status": "ok",
+    "java25Version": "openjdk version \"25.0.1\" 2025-10-21 LTS",
+    "tiers": [
+      {
+        "tier": "count-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 52.04273333333333,
+          "minMs": 49.5146,
+          "maxMs": 56.4742,
+          "mibPerSec": 307.4363935401487,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakHeapUsedBytes": 28647616,
+          "samplesMs": [
+            56.4742,
+            50.1394,
+            49.5146
+          ]
+        },
+        "java8MibPerSec": 344.5234596976132,
+        "deltaVsJava8": -0.10764743332722733
+      },
+      {
+        "tier": "name-string-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 55.35096666666667,
+          "minMs": 50.8853,
+          "maxMs": 62.0319,
+          "mibPerSec": 289.0614420941461,
+          "eventCount": 967967,
+          "checksum": 974533206,
+          "peakHeapUsedBytes": 28647616,
+          "samplesMs": [
+            62.0319,
+            50.8853,
+            53.1357
+          ]
+        },
+        "java8MibPerSec": 345.9744418610093,
+        "deltaVsJava8": -0.16450058987226363
+      },
+      {
+        "tier": "text-string-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 59.82256666666667,
+          "minMs": 54.0542,
+          "maxMs": 67.3226,
+          "mibPerSec": 267.45476059433,
+          "eventCount": 967967,
+          "checksum": -1012768158,
+          "peakHeapUsedBytes": 28647616,
+          "samplesMs": [
+            67.3226,
+            58.0909,
+            54.0542
+          ]
+        },
+        "java8MibPerSec": 334.9484818502404,
+        "deltaVsJava8": -0.20150478331198304
+      },
+      {
+        "tier": "attr-value-string-only",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 60.3747,
+          "minMs": 56.5804,
+          "maxMs": 65.3066,
+          "mibPerSec": 265.00885712014605,
+          "eventCount": 967967,
+          "checksum": 1105386208,
+          "peakHeapUsedBytes": 31476432,
+          "samplesMs": [
+            65.3066,
+            59.2371,
+            56.5804
+          ]
+        },
+        "java8MibPerSec": 323.8287948780201,
+        "deltaVsJava8": -0.18163899779212153
+      },
+      {
+        "tier": "full-string",
+        "java25": {
+          "status": "ok",
+          "runtime": "java",
+          "javaVersion": "25.0.1",
+          "javaVmName": "OpenJDK 64-Bit Server VM",
+          "woodstoxFactory": "com.ctc.wstx.stax.WstxInputFactory",
+          "avgMs": 71.39726666666668,
+          "minMs": 66.2211,
+          "maxMs": 75.4119,
+          "mibPerSec": 224.09583717917786,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakHeapUsedBytes": 31476424,
+          "samplesMs": [
+            75.4119,
+            72.5588,
+            66.2211
+          ]
+        },
+        "java8MibPerSec": 248.59537326947316,
+        "deltaVsJava8": -0.09855185866125599
+      }
+    ]
+  }
+}

@@ -1,6 +1,241 @@
 {
-  "generatedAt": "2026-04-27T11:05:08.731Z",
+  "generatedAt": "2026-04-29T13:24:14.131Z",
   "runs": [
+    {
+      "runId": "2026-04-29T13-24-14-087Z",
+      "generatedAt": "2026-04-29T13:24:14.087Z",
+      "environment": {
+        "runtime": "node",
+        "version": "24.15.0",
+        "arch": "x64-win32"
+      },
+      "artifacts": [
+        {
+          "id": "benchmark-markdown",
+          "path": "2026-04-29T13-24-14-087Z/BENCHMARK.md"
+        },
+        {
+          "id": "latest-summary-json",
+          "path": "2026-04-29T13-24-14-087Z/latest-summary.json"
+        },
+        {
+          "id": "runtime-matrix-json",
+          "path": "2026-04-29T13-24-14-087Z/runtime-matrix.json"
+        },
+        {
+          "id": "runtime-matrix-markdown",
+          "path": "2026-04-29T13-24-14-087Z/runtime-matrix.md"
+        },
+        {
+          "id": "cross-runtime-json",
+          "path": "2026-04-29T13-24-14-087Z/cross-runtime-comparison.json"
+        },
+        {
+          "id": "cross-runtime-markdown",
+          "path": "2026-04-29T13-24-14-087Z/cross-runtime-comparison.md"
+        },
+        {
+          "id": "simdxml-upstream-json",
+          "path": "2026-04-29T13-24-14-087Z/simdxml-upstream-comparison.json"
+        },
+        {
+          "id": "simdxml-upstream-markdown",
+          "path": "2026-04-29T13-24-14-087Z/simdxml-upstream-comparison.md"
+        },
+        {
+          "id": "writer-1gb-raw-json",
+          "path": "2026-04-29T13-24-14-087Z/raw/writer-1gb.json"
+        }
+      ]
+    },
+    {
+      "runId": "2026-04-28T14-27-45-923Z",
+      "generatedAt": "2026-04-28T14:27:45.923Z",
+      "environment": {
+        "runtime": "node",
+        "version": "24.15.0",
+        "arch": "x64-win32"
+      },
+      "artifacts": [
+        {
+          "id": "benchmark-markdown",
+          "path": "2026-04-28T14-27-45-923Z/BENCHMARK.md"
+        },
+        {
+          "id": "latest-summary-json",
+          "path": "2026-04-28T14-27-45-923Z/latest-summary.json"
+        },
+        {
+          "id": "runtime-matrix-json",
+          "path": "2026-04-28T14-27-45-923Z/runtime-matrix.json"
+        },
+        {
+          "id": "runtime-matrix-markdown",
+          "path": "2026-04-28T14-27-45-923Z/runtime-matrix.md"
+        },
+        {
+          "id": "cross-runtime-json",
+          "path": "2026-04-28T14-27-45-923Z/cross-runtime-comparison.json"
+        },
+        {
+          "id": "cross-runtime-markdown",
+          "path": "2026-04-28T14-27-45-923Z/cross-runtime-comparison.md"
+        },
+        {
+          "id": "simdxml-upstream-json",
+          "path": "2026-04-28T14-27-45-923Z/simdxml-upstream-comparison.json"
+        },
+        {
+          "id": "simdxml-upstream-markdown",
+          "path": "2026-04-28T14-27-45-923Z/simdxml-upstream-comparison.md"
+        },
+        {
+          "id": "writer-1gb-raw-json",
+          "path": "2026-04-28T14-27-45-923Z/raw/writer-1gb.json"
+        }
+      ]
+    },
+    {
+      "runId": "2026-04-28T13-39-42-533Z",
+      "generatedAt": "2026-04-28T13:39:42.533Z",
+      "environment": {
+        "runtime": "node",
+        "version": "24.15.0",
+        "arch": "x64-win32"
+      },
+      "artifacts": [
+        {
+          "id": "benchmark-markdown",
+          "path": "2026-04-28T13-39-42-533Z/BENCHMARK.md"
+        },
+        {
+          "id": "latest-summary-json",
+          "path": "2026-04-28T13-39-42-533Z/latest-summary.json"
+        },
+        {
+          "id": "runtime-matrix-json",
+          "path": "2026-04-28T13-39-42-533Z/runtime-matrix.json"
+        },
+        {
+          "id": "runtime-matrix-markdown",
+          "path": "2026-04-28T13-39-42-533Z/runtime-matrix.md"
+        },
+        {
+          "id": "cross-runtime-json",
+          "path": "2026-04-28T13-39-42-533Z/cross-runtime-comparison.json"
+        },
+        {
+          "id": "cross-runtime-markdown",
+          "path": "2026-04-28T13-39-42-533Z/cross-runtime-comparison.md"
+        },
+        {
+          "id": "simdxml-upstream-json",
+          "path": "2026-04-28T13-39-42-533Z/simdxml-upstream-comparison.json"
+        },
+        {
+          "id": "simdxml-upstream-markdown",
+          "path": "2026-04-28T13-39-42-533Z/simdxml-upstream-comparison.md"
+        },
+        {
+          "id": "writer-1gb-raw-json",
+          "path": "2026-04-28T13-39-42-533Z/raw/writer-1gb.json"
+        }
+      ]
+    },
+    {
+      "runId": "2026-04-28T13-22-49-181Z",
+      "generatedAt": "2026-04-28T13:22:49.181Z",
+      "environment": {
+        "runtime": "node",
+        "version": "24.15.0",
+        "arch": "x64-win32"
+      },
+      "artifacts": [
+        {
+          "id": "benchmark-markdown",
+          "path": "2026-04-28T13-22-49-181Z/BENCHMARK.md"
+        },
+        {
+          "id": "latest-summary-json",
+          "path": "2026-04-28T13-22-49-181Z/latest-summary.json"
+        },
+        {
+          "id": "runtime-matrix-json",
+          "path": "2026-04-28T13-22-49-181Z/runtime-matrix.json"
+        },
+        {
+          "id": "runtime-matrix-markdown",
+          "path": "2026-04-28T13-22-49-181Z/runtime-matrix.md"
+        },
+        {
+          "id": "cross-runtime-json",
+          "path": "2026-04-28T13-22-49-181Z/cross-runtime-comparison.json"
+        },
+        {
+          "id": "cross-runtime-markdown",
+          "path": "2026-04-28T13-22-49-181Z/cross-runtime-comparison.md"
+        },
+        {
+          "id": "simdxml-upstream-json",
+          "path": "2026-04-28T13-22-49-181Z/simdxml-upstream-comparison.json"
+        },
+        {
+          "id": "simdxml-upstream-markdown",
+          "path": "2026-04-28T13-22-49-181Z/simdxml-upstream-comparison.md"
+        },
+        {
+          "id": "writer-1gb-raw-json",
+          "path": "2026-04-28T13-22-49-181Z/raw/writer-1gb.json"
+        }
+      ]
+    },
+    {
+      "runId": "2026-04-28T11-23-07-922Z",
+      "generatedAt": "2026-04-28T11:23:07.922Z",
+      "environment": {
+        "runtime": "node",
+        "version": "24.15.0",
+        "arch": "x64-win32"
+      },
+      "artifacts": [
+        {
+          "id": "benchmark-markdown",
+          "path": "2026-04-28T11-23-07-922Z/BENCHMARK.md"
+        },
+        {
+          "id": "latest-summary-json",
+          "path": "2026-04-28T11-23-07-922Z/latest-summary.json"
+        },
+        {
+          "id": "runtime-matrix-json",
+          "path": "2026-04-28T11-23-07-922Z/runtime-matrix.json"
+        },
+        {
+          "id": "runtime-matrix-markdown",
+          "path": "2026-04-28T11-23-07-922Z/runtime-matrix.md"
+        },
+        {
+          "id": "cross-runtime-json",
+          "path": "2026-04-28T11-23-07-922Z/cross-runtime-comparison.json"
+        },
+        {
+          "id": "cross-runtime-markdown",
+          "path": "2026-04-28T11-23-07-922Z/cross-runtime-comparison.md"
+        },
+        {
+          "id": "simdxml-upstream-json",
+          "path": "2026-04-28T11-23-07-922Z/simdxml-upstream-comparison.json"
+        },
+        {
+          "id": "simdxml-upstream-markdown",
+          "path": "2026-04-28T11-23-07-922Z/simdxml-upstream-comparison.md"
+        },
+        {
+          "id": "writer-1gb-raw-json",
+          "path": "2026-04-28T11-23-07-922Z/raw/writer-1gb.json"
+        }
+      ]
+    },
     {
       "runId": "2026-04-27T11-05-08-106Z",
       "generatedAt": "2026-04-27T11:05:08.106Z",

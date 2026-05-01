@@ -276,8 +276,6 @@ export default defineConfig({
           items: [
             { label: 'EventReader', slug: 'api-guides/event-reader' },
             { label: 'EventReaderSync', slug: 'api-guides/event-reader-sync' },
-            { label: 'IterableReader', slug: 'api-guides/iterable-reader' },
-            { label: 'CursorReader', slug: 'api-guides/cursor-reader' },
             { label: 'Writer', slug: 'api-guides/writer' },
             { label: 'WriterSync', slug: 'api-guides/writer-sync' },
           ],
@@ -304,6 +302,7 @@ export default defineConfig({
             { label: 'Overview', slug: 'api/overview', translations: { ko: '개요' } },
             { label: 'Core API', slug: 'api/main' },
             { label: 'Converter API', slug: 'api/converter' },
+            { label: 'Projection API', slug: 'api/projection' },
           ],
         },
         {

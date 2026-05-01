@@ -2,18 +2,8 @@ export { EventReader, createEventReader } from "./EventReader.js";
 export type { EventReaderOptions } from "./EventReader.js";
 export { EventReaderSync } from "./EventReaderSync.js";
 export type { EventReaderSyncOptions } from "./EventReaderSync.js";
-export {
-  IterableEventType,
-  IterableReader,
-  toAsyncByteBatches,
-  toByteBatches,
-} from "./IterableReader.js";
-export type {
-  ByteBatch,
-  ByteBatchOptions,
-  IterableReaderBatchFrame,
-  IterableReaderOptions,
-} from "./IterableReader.js";
+export { StreamEventType, StreamReaderSync } from "./StreamReaderSync.js";
+export type { StreamReaderSyncByteBatch, StreamReaderSyncOptions } from "./StreamReaderSync.js";
 export * from "./XmlObject.js";
 export { Writer } from "./Writer.js";
 export type { WriterOptions } from "./Writer.js";
@@ -57,6 +47,3 @@ export type {
   XmlAttribute,
 } from "./types.js";
 
-// Cursor API
-export { CursorEventType, CursorReader, CursorReaderAsync } from "./cursor/index.js";
-export type { CursorReaderOptions, CursorReaderAsyncOptions } from "./cursor/index.js";

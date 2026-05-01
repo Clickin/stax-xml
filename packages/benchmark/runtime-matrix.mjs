@@ -192,7 +192,7 @@ function runRuntime(runtime, options) {
     return {
       runtime: { id: runtime, version: null },
       status: 'failed',
-      reason: result.stderr.trim() || result.stdout.trim() || `exit ${result.status}`,
+      reason: trimSpawnOutput(result) || `exit ${result.status}`,
     };
   }
 
@@ -201,7 +201,7 @@ function runRuntime(runtime, options) {
     return {
       ...parsed,
       status: 'ok',
-      stderr: result.stderr.trim() || undefined,
+      stderr: String(result.stderr ?? '').trim() || undefined,
     };
   } catch (error) {
     return {
@@ -210,6 +210,10 @@ function runRuntime(runtime, options) {
       reason: `Invalid JSON from runtime runner: ${error.message}\n${result.stdout}`,
     };
   }
+}
+
+function trimSpawnOutput(result) {
+  return String(result.stderr ?? '').trim() || String(result.stdout ?? '').trim();
 }
 
 function formatMs(value) {
@@ -253,7 +257,7 @@ function createScenarioDetails(report) {
     '',
     '~~~text',
     'runtime-result = {',
-    '  scenario: "public-sync-full-string" | "iterable-count-only" | "iterable-full-string",',
+    '  scenario: "public-sync-full-string" | "event-count-only" | "event-full-string",',
     '  eventCount: number,',
     '  checksum: fold(event type, names, text, attr names, attr values),',
     '  peakHeapUsedBytes: number',
@@ -266,7 +270,7 @@ function createScenarioDetails(report) {
     '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
     '- `public-sync-full-string` uses `EventReaderSync` over one string.',
-    '- `iterable-count-only` and `iterable-full-string` use the browser-compatible synchronous iterable byte-batch backend; they are not async parser rows.',
+    '- `event-count-only` and `event-full-string` use public event reader checksum tiers; they are not async parser rows.',
     '- This matrix intentionally excludes native addons.',
     '',
     '</details>',
@@ -317,8 +321,8 @@ function createMarkdown(report) {
   lines.push('## Contract');
   lines.push('');
   lines.push('- `public-sync-full-string` uses `EventReaderSync` and folds element names, text, attribute names, and attribute values into a checksum.');
-  lines.push('- `iterable-count-only` uses the browser-compatible iterable event-frame backend without string materialization.');
-  lines.push('- `iterable-full-string` uses the same event-frame backend and materializes the same full string checksum workload.');
+  lines.push('- `event-count-only` uses the public event reader without string field folding beyond event counts and attribute counts.');
+  lines.push('- `event-full-string` uses the same public event reader and materializes the full string checksum workload.');
   lines.push('- All runtime rows must preserve event count and checksum for the same scenario.');
 
   return `${lines.join('\n')}\n`;

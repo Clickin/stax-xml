@@ -39,6 +39,7 @@ export interface IterableEventBackendOptions {
   eventFilter?: ParserEventFilter;
   trimText?: boolean;
   implicitAttributeValue?: 'true' | 'name';
+  namespaceAware?: boolean;
   documentMode?: DocumentMode;
   backend?: StaxXmlRuntimeBackendPreference;
   fallbackOnLoadError?: boolean;
@@ -333,7 +334,7 @@ export async function* readReadableStreamChunksIncrementally(
         continue;
       }
       for (let offset = 0; offset < chunk.byteLength; offset += maxChunkBytes) {
-        yield chunk.slice(offset, Math.min(offset + maxChunkBytes, chunk.byteLength));
+        yield chunk.subarray(offset, Math.min(offset + maxChunkBytes, chunk.byteLength));
       }
     }
   } finally {
@@ -392,9 +393,11 @@ export class IterableEventMaterializer {
   private readonly namespaceStack: Map<string, string>[] = [EMPTY_NAMESPACES];
   private readonly elementStack: ElementContext[] = [];
   private readonly entityDecoder: (value: string) => string;
+  private readonly namespaceAware: boolean;
 
   constructor(private readonly options: IterableEventBackendOptions = {}) {
     this.entityDecoder = compileEntityDecoder(options);
+    this.namespaceAware = options.namespaceAware ?? true;
   }
 
   materializeBatch(parser: MaterializableEventSource): AnyXmlEvent[] {
@@ -409,7 +412,7 @@ export class IterableEventMaterializer {
     return events;
   }
 
-  private materializeEvent(parser: MaterializableEventSource, index: number): AnyXmlEvent | undefined {
+  materializeEvent(parser: MaterializableEventSource, index: number): AnyXmlEvent | undefined {
     const type = parser.eventType(index);
 
     if (type === IterableEventType.START_DOCUMENT) {
@@ -419,10 +422,17 @@ export class IterableEventMaterializer {
       return { type: XmlEventType.END_DOCUMENT };
     }
     if (type === IterableEventType.START_ELEMENT) {
-      return this.materializeStartElement(parser, index);
+      return this.namespaceAware
+        ? this.materializeStartElement(parser, index)
+        : this.materializeLeanStartElement(parser, index);
     }
     if (type === IterableEventType.END_ELEMENT) {
-      return this.materializeEndElement(parser, index);
+      return this.namespaceAware
+        ? this.materializeEndElement(parser, index)
+        : {
+            type: XmlEventType.END_ELEMENT,
+            name: parser.copyName(index)!
+          };
     }
     if (type === IterableEventType.CHARACTERS) {
       if (this.options.eventFilter?.includeCharacters === false) {
@@ -449,6 +459,17 @@ export class IterableEventMaterializer {
   private materializeText(value: string): string {
     const decoded = this.entityDecoder(value);
     return this.options.trimText ? decoded.trim() : decoded;
+  }
+
+  private materializeLeanStartElement(parser: MaterializableEventSource, index: number): AnyXmlEvent {
+    const attributes = this.options.eventFilter?.includeAttributes === false
+      ? {}
+      : this.copyPlainAttributes(parser, index);
+    return {
+      type: XmlEventType.START_ELEMENT,
+      name: parser.copyName(index)!,
+      attributes
+    };
   }
 
   private materializeStartElement(parser: MaterializableEventSource, index: number): AnyXmlEvent {
@@ -507,6 +528,27 @@ export class IterableEventMaterializer {
       prefix: qname.prefix,
       uri: qname.uri
     };
+  }
+
+  private copyPlainAttributes(
+    parser: MaterializableEventSource,
+    eventIndex: number,
+  ): Record<string, string> {
+    const count = materializableAttrCount(parser, eventIndex);
+    if (count === 0) {
+      return {};
+    }
+
+    const attributes: Record<string, string> = nullRecord();
+    for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+      const name = parser.copyAttrName(eventIndex, attrIndex)!;
+      const implicitValue = this.options.implicitAttributeValue ?? 'true';
+      const value = materializableImplicitAttributeValue(parser, eventIndex, attrIndex)
+        ? (implicitValue === 'name' ? name : 'true')
+        : this.entityDecoder(parser.copyAttrValue(eventIndex, attrIndex)!);
+      attributes[name] = value;
+    }
+    return attributes;
   }
 
   private copyAttributes(

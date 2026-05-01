@@ -8,7 +8,7 @@ import { cpus } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { IterableReader, toByteBatches } from 'stax-xml/iterable';
+import { EventReaderSync, initStaxXml, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
@@ -18,7 +18,6 @@ const defaultUpstreamDir = resolve(repoRoot, '.omx', 'upstream', 'simdxml');
 const defaultJsonOut = join(__dirname, 'results', 'release', 'simdxml-upstream-comparison.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'simdxml-upstream-comparison.md');
 const simdXmlBenchDir = join(__dirname, 'external', 'simdxml-bench');
-const nativeAggregateDir = resolve(__dirname, '..', 'native-aggregate');
 
 const upstreamCaseGroups = {
   'parse-throughput': [
@@ -50,20 +49,10 @@ function parseArgs(argv = process.argv.slice(2)) {
     runs: 5,
     warmups: 2,
     groups: ['parse-throughput', 'shape', 'scaling'],
-    nativeTiers: [
-      'event-count-unsafe-gt',
-      'event-count-unchecked',
-      'event-count-auto-stage',
-      'event-count-only',
-      'count-only',
-      'count-auto-stage',
-      'full-string-direct',
-    ],
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
     skipFetch: false,
     skipBuild: false,
-    nativeSimd: 'auto',
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -104,35 +93,8 @@ function parseArgs(argv = process.argv.slice(2)) {
         options.groups = parseList(readValue(), Object.keys(upstreamCaseGroups), name);
         break;
       case '--native-tiers':
-        options.nativeTiers = parseList(readValue(), [
-          'event-count-unchecked',
-          'event-count-unsafe-gt',
-          'event-count-byte-loop',
-          'event-count-skip-quotes',
-          'event-count-no-text',
-          'event-count-no-checksum',
-          'event-count-no-text-no-checksum',
-          'event-count-two-stage',
-          'event-count-auto-stage',
-          'event-count-only',
-          'count-only',
-          'count-eq-two-stage',
-          'count-auto-stage',
-          'name-string-only',
-          'text-string-only',
-          'attr-value-string-only',
-          'full-string-direct',
-        ], name);
-        break;
       case '--native-simd':
-        options.nativeSimd = parseSingleChoice(
-          readValue(),
-          ['auto', 'auto-safe', 'off', 'scalar', 'avx2', 'sse42', 'sse4.2', 'neon'],
-          name,
-        );
-        if (options.nativeSimd === 'auto-safe') options.nativeSimd = 'auto';
-        if (options.nativeSimd === 'scalar') options.nativeSimd = 'off';
-        if (options.nativeSimd === 'sse4.2') options.nativeSimd = 'sse42';
+        readValue();
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -172,14 +134,6 @@ function parseList(value, allowed, flag) {
   return entries;
 }
 
-function parseSingleChoice(value, allowed, flag) {
-  const entries = parseList(value, allowed, flag);
-  if (entries.length !== 1) {
-    throw new Error(`${flag} expects exactly one of ${allowed.join(', ')}.`);
-  }
-  return entries[0];
-}
-
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: repoRoot,
@@ -190,7 +144,7 @@ function run(command, args, options = {}) {
   if (result.error) throw result.error;
   if (result.status !== 0) {
     throw new Error(
-      `Command failed: ${command} ${args.join(' ')}\n${result.stderr.trim() || result.stdout.trim()}`,
+      `Command failed: ${command} ${args.join(' ')}\n${trimSpawnOutput(result)}`,
     );
   }
   return result;
@@ -226,7 +180,17 @@ function buildTools(options) {
     '--release',
     '--locked',
   ]);
-  runPnpm(['--filter', '@stax-xml/native-aggregate-probe', 'build:native']);
+}
+
+async function ensureNativeReaderRuntime() {
+  const runtime = await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
+  if (
+    runtime.backend.kind !== 'native'
+    || !runtime.capabilities.streamingEventBatches
+  ) {
+    throw new Error('Native stax-xml runtime must expose streamingEventBatches for native reader benchmarks.');
+  }
+  return runtime;
 }
 
 function simdXmlBenchExe() {
@@ -238,47 +202,17 @@ function simdXmlBenchExe() {
   );
 }
 
-function runPnpm(args) {
-  if (process.platform !== 'win32') {
-    run('pnpm', args);
-    return;
-  }
-  run('cmd.exe', ['/d', '/s', '/c', ['pnpm', ...args].map(quoteWindowsShellArg).join(' ')]);
+function measurePublicEventReader(input, options) {
+  return measureEventReader(input, options, 'stax-xml-js-event-reader', 'js');
 }
 
-function quoteWindowsShellArg(value) {
-  if (!/[ \t"&|<>^]/.test(value)) return value;
-  return `"${value.replace(/"/g, '\\"')}"`;
+function measureNativeEventReader(input, options) {
+  return measureStreamReader(input, options, 'stax-xml-native-stream-reader');
 }
 
-function measureNative(input, tier, options, native) {
-  const invoke = () => invokeNativeAggregate(native, input, tier, options.nativeSimd);
-  for (let index = 0; index < options.warmups; index++) {
-    invoke();
-  }
-
-  const samplesMs = [];
-  let stable;
-  for (let index = 0; index < options.runs; index++) {
-    if (globalThis.gc) globalThis.gc();
-    const startedAt = performance.now();
-    const result = normalizeNativeResult(invoke());
-    const elapsedMs = performance.now() - startedAt;
-    if (stable && (stable.eventCount !== result.eventCount || stable.checksum !== result.checksum)) {
-      throw new Error(`native ${tier} produced unstable event count or checksum.`);
-    }
-    stable = result;
-    samplesMs.push(elapsedMs);
-  }
-
-  return {
-    ...measurementResult(`stax-native-${tier}`, input.byteLength, samplesMs, stable),
-    nativeSimd: options.nativeSimd,
-  };
-}
-
-function measurePublicIterable(input, options) {
-  const invoke = () => consumePublicIterable(input);
+function measureEventReader(input, options, id, runtimeBackendPreference) {
+  const xmlString = input.toString('utf8');
+  const invoke = () => consumeEventReader(xmlString, runtimeBackendPreference);
   for (let index = 0; index < options.warmups; index++) {
     invoke();
   }
@@ -291,54 +225,131 @@ function measurePublicIterable(input, options) {
     const result = invoke();
     const elapsedMs = performance.now() - startedAt;
     if (stable && (stable.eventCount !== result.eventCount || stable.checksum !== result.checksum)) {
-      throw new Error('public iterable parser produced unstable event count or checksum.');
+      throw new Error(`${id} produced unstable event count or checksum.`);
     }
     stable = result;
     samplesMs.push(elapsedMs);
   }
 
-  return measurementResult('stax-xml-public-iterable', input.byteLength, samplesMs, stable);
+  return measurementResult(id, input.byteLength, samplesMs, stable);
 }
 
-function consumePublicIterable(input) {
-  const parser = new IterableReader(toByteBatches([input], { batchSize: 1 }));
+function measureStreamReader(input, options, id) {
+  const invoke = () => consumeStreamReader(input);
+  for (let index = 0; index < options.warmups; index++) {
+    invoke();
+  }
+
+  const samplesMs = [];
+  let stable;
+  for (let index = 0; index < options.runs; index++) {
+    if (globalThis.gc) globalThis.gc();
+    const startedAt = performance.now();
+    const result = invoke();
+    const elapsedMs = performance.now() - startedAt;
+    if (stable && (stable.eventCount !== result.eventCount || stable.checksum !== result.checksum)) {
+      throw new Error(`${id} produced unstable event count or checksum.`);
+    }
+    stable = result;
+    samplesMs.push(elapsedMs);
+  }
+
+  return measurementResult(id, input.byteLength, samplesMs, stable);
+}
+
+function consumeEventReader(xmlString, runtimeBackendPreference) {
   let eventCount = 0;
   let checksum = 2166136261;
 
-  while (parser.nextBatch()) {
-    const buffer = parser.buffer();
-    for (let index = 0; index < parser.eventCount(); index++) {
-      const attrCount = parser.attrCount(index);
-      eventCount++;
-      checksum = mix(checksum, parser.eventType(index));
-      checksum = mixSpan(checksum, buffer, parser.nameStart(index), parser.nameEnd(index));
-      checksum = mixSpan(checksum, buffer, parser.textStart(index), parser.textEnd(index));
-      checksum = mix(checksum, attrCount);
-      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-        checksum = mixSpan(checksum, buffer, parser.attrNameStart(index, attrIndex), parser.attrNameEnd(index, attrIndex));
-        checksum = mixSpan(checksum, buffer, parser.attrValueStart(index, attrIndex), parser.attrValueEnd(index, attrIndex));
-      }
+  for (const event of new EventReaderSync(
+    xmlString,
+    { autoDecodeEntities: false },
+    runtimeBackendPreference,
+  )) {
+    const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes ?? {}) : [];
+    eventCount++;
+    checksum = mix(checksum, eventTypeId(event.type));
+    if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+      checksum = mixString(checksum, event.name);
+    }
+    if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+      checksum = mixString(checksum, event.value?.trim());
+    }
+    checksum = mix(checksum, attrs.length);
+    for (const [name, value] of attrs) {
+      checksum = mixString(checksum, name);
+      checksum = mixString(checksum, value);
     }
   }
 
   return { eventCount, checksum: checksum | 0 };
 }
 
-function invokeNativeAggregate(native, input, tier, nativeSimd) {
-  if (typeof native.parse_aggregate_buffer_with_simd === 'function') {
-    return native.parse_aggregate_buffer_with_simd(input, tier, nativeSimd);
+function consumeStreamReader(input) {
+  let eventCount = 0;
+  let checksum = 2166136261;
+  const parser = new StreamReaderSync(input, { backend: 'native' });
+
+  for (;;) {
+    const type = parser.next();
+    if (type === null) {
+      break;
+    }
+    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
+    eventCount++;
+    checksum = mix(checksum, streamEventTypeId(type));
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      checksum = mixString(checksum, parser.name());
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      checksum = mixString(checksum, parser.text()?.trim());
+    }
+    checksum = mix(checksum, attrCount);
+    for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+      checksum = mixString(checksum, parser.getAttributeName(attrIndex));
+      checksum = mixString(checksum, parser.getAttributeValue(attrIndex));
+    }
   }
-  if (nativeSimd !== 'auto') {
-    throw new Error('Native addon does not expose parse_aggregate_buffer_with_simd; rebuild packages/native-aggregate.');
-  }
-  return native.parse_aggregate_buffer(input, tier);
+
+  return { eventCount, checksum: checksum | 0 };
 }
 
-function normalizeNativeResult(result) {
-  return {
-    eventCount: result.eventCount ?? result.event_count,
-    checksum: result.checksum,
-  };
+function eventTypeId(type) {
+  switch (type) {
+    case XmlEventType.START_DOCUMENT:
+      return 1;
+    case XmlEventType.END_DOCUMENT:
+      return 2;
+    case XmlEventType.START_ELEMENT:
+      return 3;
+    case XmlEventType.END_ELEMENT:
+      return 4;
+    case XmlEventType.CHARACTERS:
+      return 5;
+    case XmlEventType.CDATA:
+      return 6;
+    default:
+      return 31;
+  }
+}
+
+function streamEventTypeId(type) {
+  switch (type) {
+    case StreamEventType.START_DOCUMENT:
+      return 1;
+    case StreamEventType.END_DOCUMENT:
+      return 2;
+    case StreamEventType.START_ELEMENT:
+      return 3;
+    case StreamEventType.END_ELEMENT:
+      return 4;
+    case StreamEventType.CHARACTERS:
+      return 5;
+    case StreamEventType.CDATA:
+      return 6;
+    default:
+      return 31;
+  }
 }
 
 function measureSimdXmlUpstreamParse(filePath, sizeBytes, options) {
@@ -357,7 +368,7 @@ function measureSimdXmlUpstreamParse(filePath, sizeBytes, options) {
   });
   if (result.error) throw result.error;
   if (result.status !== 0) {
-    throw new Error(result.stderr.trim() || result.stdout.trim() || `simdxml-bench exited ${result.status}`);
+    throw new Error(trimSpawnOutput(result) || `simdxml-bench exited ${result.status}`);
   }
   const parsed = JSON.parse(result.stdout);
   return {
@@ -396,16 +407,13 @@ function mix(seed, value) {
   return ((seed ^ value) * 16777619) | 0;
 }
 
-function mixSpan(seed, buffer, start, end) {
-  if (start < 0 || end <= start) {
-    return mix(seed, 0);
-  }
-  const length = end - start;
-  let value = mix(seed, length);
-  value = mix(value, buffer[start] ?? 0);
-  value = mix(value, buffer[start + (length >> 1)] ?? 0);
-  value = mix(value, buffer[end - 1] ?? 0);
-  return value;
+function mixString(seed, value) {
+  if (!value) return mix(seed, 0);
+  let next = mix(seed, value.length);
+  next = mix(next, value.charCodeAt(0));
+  next = mix(next, value.charCodeAt(value.length >> 1));
+  next = mix(next, value.charCodeAt(value.length - 1));
+  return next;
 }
 
 function average(values) {
@@ -449,8 +457,8 @@ function createMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This benchmark reuses the upstream simdxml benchmark fixture lists and XML fixture files from `https://github.com/simdxml/simdxml`, then compares `simdxml::parse(&data)` with the stax-xml native aggregate addon over the same read-once in-memory bytes.',
-    'The stax-xml native rows are measured only through Node.js importing the napi-rs N-API addon (`@stax-xml/native-aggregate-probe`); this report does not call a standalone Rust binary or direct Rust library entry point for stax-xml.',
+    'This benchmark reuses the upstream simdxml benchmark fixture lists and XML fixture files from `https://github.com/simdxml/simdxml`, then compares `simdxml::parse(&data)` with public stax-xml event-reader rows over the same read-once in-memory bytes.',
+    'The stax-xml native row initializes the package with `initStaxXml({ backend: "native" })` and measures only the public `StreamReaderSync` surface. It does not import or call private native diagnostic entry points directly.',
     '',
     '## Environment',
     '',
@@ -458,7 +466,6 @@ function createMarkdown(report) {
     `- Platform: ${report.environment.platform}`,
     `- Node: ${report.environment.node}`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
-    `- Native SIMD policy: ${report.options.nativeSimd}`,
     `- Upstream: ${report.upstream.url}`,
     `- Upstream ref: ${report.upstream.ref}`,
     `- Upstream HEAD: ${report.upstream.head}`,
@@ -470,40 +477,23 @@ function createMarkdown(report) {
     `- Fixture disclaimer: XML fixture names, grouping, and file contents are pulled from the simdxml repository at \`${report.upstream.ref}\`; they are used as benchmark input data, not as stax-xml-authored fixtures.`,
     '- Excluded: libxml2, Woodstox, roxmltree, xml-rs, CLI XPath scripts, persistent index, lazy parse, bloom, batch, and parallel parser sections.',
     '- `simdxml-upstream-parse` is the upstream parse workload shape: parse the in-memory XML bytes and retain tag/text counts to prevent dead-code elimination.',
-    '- `stax-native-*` rows are Node+N-API measurements: the benchmark imports the JS wrapper, passes a Node Buffer across the N-API boundary once per measured sample, and reports the native aggregate result returned to Node.',
-    '- `stax-native-event-count-unsafe-gt` uses a raw `>` search for start-tag end detection; it is a quote-masking diagnostic lower bound and is unsafe for XML with `>` inside attribute values.',
-    '- `stax-native-event-count-byte-loop` and `stax-native-event-count-skip-quotes` are safe tag-end scanner diagnostics for comparing quote masking loop shapes.',
-    '- `stax-native-event-count-no-text` skips character/CDATA event handling and is a diagnostic upper bound for whitespace/text handling cost.',
-    '- `stax-native-event-count-no-checksum` keeps event detection but skips checksum folding to isolate benchmark-consumer overhead.',
-    '- `stax-native-event-count-no-text-no-checksum` combines those two diagnostic skips to expose the loop/markup lower bound.',
-    '- `stax-native-event-count-two-stage` uses a simdxml-style quote-masked structural bitmask walk for event counting.',
-    '- `stax-native-event-count-auto-stage` selects the two-stage event walk only when the first 4 KiB has a high quote-to-tag ratio.',
-    '- `stax-native-event-count-unchecked` skips attribute scanning and closing-tag stack/name validation; it is a diagnostic lower bound, not a conforming XML parser mode.',
-    '- `stax-native-event-count-only` skips attribute scanning but keeps closing-tag stack/name validation.',
-    '- `stax-native-count-only` is not a raw structural classifier; it emits the native aggregate event stream and folds event type plus attribute counts.',
-    '- `stax-native-count-eq-two-stage` counts quote-masked `=` positions as a well-formed XML attribute-count lower bound.',
-    '- `stax-native-count-auto-stage` applies the same quote-ratio dispatch to choose between count-only and the two-stage `=` count lower bound.',
-    '- `stax-native-full-string-direct` additionally folds element names, text, attribute names, and attribute values.',
-    '- `--native-simd=off|sse42|avx2|neon|auto` controls only the stax-xml native structural classifier behind two-stage and auto-stage tiers. It does not change the simdxml comparator row.',
-    '- Explicit SIMD policies fail instead of silently falling back when unavailable. On x86_64, `auto` tries AVX2 first, then SSE4.2, then scalar; on aarch64, `auto` uses NEON.',
-    '- Compare SIMD policies by rerunning this script with identical fixtures, tiers, warmups, and runs while changing only `--native-simd`. Keep `event-count-two-stage` / `count-eq-two-stage` as classifier diagnostics and `event-count-auto-stage` / `count-auto-stage` as representative heuristic tiers.',
+    '- `stax-xml-js-event-reader` uses `EventReaderSync` with the JavaScript backend explicitly, even when a native runtime has been initialized for the native row.',
+    '- `stax-xml-native-stream-reader` uses `StreamReaderSync` with a native streaming runtime backend. This is the only stax native row published by this comparator.',
+    '- Historical `--native-tiers` and `--native-simd` arguments are accepted and ignored so old command lines keep running, but this published report no longer exposes direct native diagnostic tiers.',
     '',
   ];
 
   for (const group of report.groups) {
     lines.push(`## ${group.id}`);
     lines.push('');
-    lines.push(`| Case | Size | simdxml parse | stax public iterable | ${report.options.nativeTiers.map(formatNativeTierHeader).join(' | ')} |`);
-    lines.push(`| --- | ---: | ---: | ---: | ${report.options.nativeTiers.map(() => '---:').join(' | ')} |`);
+    lines.push('| Case | Size | simdxml parse | stax EventReaderSync JS | stax StreamReaderSync native |');
+    lines.push('| --- | ---: | ---: | ---: | ---: |');
     for (const entry of group.cases) {
       const simd = entry.results.find(result => result.id === 'simdxml-upstream-parse');
-      const publicIterable = entry.results.find(result => result.id === 'stax-xml-public-iterable');
-      const nativeCells = report.options.nativeTiers.map((tier) => {
-        const result = entry.results.find(candidate => candidate.id === `stax-native-${tier}`);
-        return `${formatRate(result?.mibPerSec)} (${ratio(result, simd)})`;
-      });
+      const publicReader = entry.results.find(result => result.id === 'stax-xml-js-event-reader');
+      const nativeReader = entry.results.find(result => result.id === 'stax-xml-native-stream-reader');
       lines.push(
-        `| ${entry.label} | ${bytesToMiB(entry.sizeBytes).toFixed(2)} MiB | ${formatRate(simd?.mibPerSec)} (${formatMs(simd?.avgMs)}) | ${formatRate(publicIterable?.mibPerSec)} (${formatMs(publicIterable?.avgMs)}) | ${nativeCells.join(' | ')} |`,
+        `| ${entry.label} | ${bytesToMiB(entry.sizeBytes).toFixed(2)} MiB | ${formatRate(simd?.mibPerSec)} (${formatMs(simd?.avgMs)}) | ${formatRate(publicReader?.mibPerSec)} (${formatMs(publicReader?.avgMs)}) | ${formatRate(nativeReader?.mibPerSec)} (${ratio(nativeReader, simd)}) |`,
       );
     }
     lines.push('');
@@ -512,34 +502,16 @@ function createMarkdown(report) {
   lines.push('## Contract Notes');
   lines.push('');
   lines.push('The comparison intentionally keeps the upstream simdxml parse workload separate from the stax event workload. This avoids claiming XPath or CLI parity while still using upstream data shape, file sizes, and parse-benchmark case selection.');
-  lines.push('Every native-addon diagnostic row is reported next to `stax public iterable`, the published TypeScript iterable-parser surface. Treat native rows as internal lower-bound diagnostics, not as recommended user entry points.');
+  lines.push('The stax native row is reported only through `StreamReaderSync`, the public parser surface used by the native-wrapper gate.');
   lines.push('');
   return `${lines.join('\n').replace(/\n+$/g, '')}\n`;
-}
-
-function formatNativeTierHeader(tier) {
-  if (tier === 'event-count-unchecked') return 'stax event unchecked';
-  if (tier === 'event-count-unsafe-gt') return 'stax raw >';
-  if (tier === 'event-count-byte-loop') return 'stax byte loop';
-  if (tier === 'event-count-skip-quotes') return 'stax skip quotes';
-  if (tier === 'event-count-no-text') return 'stax no text';
-  if (tier === 'event-count-no-checksum') return 'stax no checksum';
-  if (tier === 'event-count-no-text-no-checksum') return 'stax loop lower';
-  if (tier === 'event-count-two-stage') return 'stax two-stage event';
-  if (tier === 'event-count-auto-stage') return 'stax auto event';
-  if (tier === 'event-count-only') return 'stax event checked';
-  if (tier === 'count-only') return 'stax attr count';
-  if (tier === 'count-eq-two-stage') return 'stax two-stage eq count';
-  if (tier === 'count-auto-stage') return 'stax auto count';
-  if (tier === 'full-string-direct') return 'stax full string';
-  return `stax ${tier}`;
 }
 
 async function main() {
   const options = parseArgs();
   ensureUpstream(options);
   buildTools(options);
-  const native = await import('@stax-xml/native-aggregate-probe');
+  await ensureNativeReaderRuntime();
   const benchDir = join(options.upstreamDir, 'testdata', 'bench');
   const cases = uniqueCases(options.groups);
   const head = upstreamHead(options.upstreamDir);
@@ -555,11 +527,9 @@ async function main() {
     const sizeBytes = statSync(filePath).size;
     const results = [
       measureSimdXmlUpstreamParse(filePath, sizeBytes, options),
-      measurePublicIterable(input, options),
+      measurePublicEventReader(input, options),
+      measureNativeEventReader(input, options),
     ];
-    for (const tier of options.nativeTiers) {
-      results.push(measureNative(input, tier, options, native));
-    }
     groupsById.get(testCase.group).cases.push({
       label: testCase.label,
       filename: testCase.filename,
@@ -589,8 +559,6 @@ async function main() {
       runs: options.runs,
       warmups: options.warmups,
       groups: options.groups,
-      nativeTiers: options.nativeTiers,
-      nativeSimd: options.nativeSimd,
     },
     groups,
   };
@@ -606,13 +574,18 @@ async function main() {
     console.log(group.id);
     for (const entry of group.cases) {
       const simd = entry.results.find(result => result.id === 'simdxml-upstream-parse');
-      const nativeSummary = options.nativeTiers.map((tier) => {
-        const result = entry.results.find(candidate => candidate.id === `stax-native-${tier}`);
-        return `${tier}=${formatRate(result?.mibPerSec)} (${ratio(result, simd)})`;
-      });
-      console.log(`  ${entry.label}: simdxml=${formatRate(simd.mibPerSec)}, ${nativeSummary.join(', ')}`);
+      const publicReader = entry.results.find(result => result.id === 'stax-xml-js-event-reader');
+      const nativeReader = entry.results.find(result => result.id === 'stax-xml-native-stream-reader');
+      console.log(
+        `  ${entry.label}: simdxml=${formatRate(simd.mibPerSec)}, ` +
+          `public=${formatRate(publicReader?.mibPerSec)}, native-reader=${formatRate(nativeReader?.mibPerSec)}`,
+      );
     }
   }
+}
+
+function trimSpawnOutput(result) {
+  return String(result.stderr ?? '').trim() || String(result.stdout ?? '').trim();
 }
 
 void main();

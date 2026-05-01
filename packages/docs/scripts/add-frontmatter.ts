@@ -12,6 +12,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const API_DIRS = [
   join(__dirname, '../src/content/docs/api/converter'),
   join(__dirname, '../src/content/docs/api/main'),
+  join(__dirname, '../src/content/docs/api/projection'),
 ];
 
 async function addFrontmatter(filePath: string): Promise<void> {

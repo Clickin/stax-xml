@@ -13,7 +13,7 @@ Current release benchmarks show StAX-XML as one of the fastest XML parser packag
 ### 🚀 Features
 
 - **Fast sync byte-batch parsing**: Parse large `Uint8Array`/`Buffer` chunk streams synchronously without materializing one full XML string
-- **Native acceleration by default**: `stax-xml` installs matching `@stax-xml/native-*` optional packages automatically, with wasm and JavaScript fallbacks
+- **Native acceleration by default**: `stax-xml` installs matching `@stax-xml/native-*` optional packages automatically; Node performance paths require native, with wasm available only by explicit opt-in
 - **Low-overhead iterable API**: Batch-oriented event frames expose names, text, and attributes on demand so hot paths can avoid per-event object churn
 - **Async stream parser**: Keep file/network I/O non-blocking while the parser consumes arrived byte batches synchronously
 - **Cursor Reader API**: Thin cursor-style wrapper over `StaxXmlIterableParser` for one-event-at-a-time traversal
@@ -21,7 +21,7 @@ Current release benchmarks show StAX-XML as one of the fastest XML parser packag
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
 - **Synchronous Sink Writing**: Recommended high-throughput path for large XML output
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
-- **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers, with WebAssembly recommended for browser performance paths and pure JavaScript kept as the compatibility fallback
+- **Runtime compatibility**: Native packages define the Node performance contract, and WebAssembly is available as an explicit compatibility backend for non-native environments
 - **Namespace Support**: Basic XML namespace handling
 - **Entity Support**: Built-in entity decoding with custom entity support
 - **Fragment-friendly by default**: `documentMode` defaults to `'fragment'`, with opt-in XML document shape checks via `'document'`
@@ -277,7 +277,7 @@ StAX-XML keeps a Web Standard API baseline, making it compatible with:
 - **Web Browsers** (modern browsers)
 - **Edge Runtime** (Vercel, Cloudflare Workers, etc.)
 
-For performance-sensitive browser workloads, prefer the WebAssembly runtime when it is available. The pure JavaScript parser remains the compatibility fallback for environments that cannot load Wasm, cannot enable cross-origin isolation, or need a no-binary policy.
+For performance-sensitive browser workloads, opt into the WebAssembly runtime when native packages are not available. JavaScript parser code remains as an internal/reference implementation, but Node performance claims do not rely on silent JavaScript fallback.
 
 #### Native and Wasm Resolution
 
@@ -287,10 +287,10 @@ For performance-sensitive browser workloads, prefer the WebAssembly runtime when
 import { resolveStaxXmlRuntimeBackend } from 'stax-xml/runtime';
 
 const backend = await resolveStaxXmlRuntimeBackend();
-// backend.kind is "native", "wasm", or "js"
+// backend.kind is "native" by default on supported Node platforms
 ```
 
-Resolution order is native for the current Node-API platform, then `@stax-xml/native-wasm32-wasi`, then the JavaScript implementation in `stax-xml`. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
+`backend: "auto"` resolves the native package for the current Node-API platform and throws if that package cannot be loaded. It does not silently fall through to JavaScript. Use `backend: "wasm"` or `fallbackBackend: "wasm"` only when the `@stax-xml/native-wasm32-wasi` compatibility backend is intended. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
 
 Native packages are installed automatically through exact-version optional dependencies; users do not need to choose a platform package manually. Release builds stage `stax_xml_native.node` into the matching `@stax-xml/native-*` package before packing. Native OS/variant tarballs must be packed on their matching runner; the publish job only publishes those tarballs and must not repack them on Ubuntu. The wasm package is platform-neutral and may be packed on any runner. For local release checks, build and stage the current platform first, then use `npm pack --dry-run` because `pnpm pack` does not provide a dry-run mode:
 
@@ -377,7 +377,7 @@ The `iterable-*` rows are synchronous byte-batch parser paths. Use async streams
 
 Woodstox was also checked on Java 25; Java 8 remains the public baseline because it is Woodstox's minimum supported runtime target.
 
-These results are why native addons are now the acceleration path. The pure JavaScript parser stays as the compatibility fallback, but V8-oriented loop-shape work did not close the full-string gap against native parsers. The Rust native path lets the hot tokenizer and string/span aggregation move toward native and SIMD-oriented scanning, closer in direction to `quick-xml` and simdjson-style designs.
+These results are why native addons are now the acceleration path. The JavaScript parser stays as an internal/reference implementation, but V8-oriented loop-shape work did not close the full-string gap against native parsers. The Rust native path lets the hot tokenizer and string/span aggregation move toward native and SIMD-oriented scanning, closer in direction to `quick-xml` and simdjson-style designs.
 
 ### 🙏 Special Thanks
 
@@ -410,7 +410,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 성능 중심 pull �
 ### 🚀 주요 기능
 
 - **빠른 동기 byte-batch 파싱**: 대용량 `Uint8Array`/`Buffer` chunk stream을 하나의 전체 XML 문자열로 만들지 않고 동기적으로 파싱
-- **기본 native acceleration**: `stax-xml` 설치만으로 현재 platform에 맞는 `@stax-xml/native-*` optional package가 설치되며, wasm/JavaScript fallback을 유지
+- **기본 native acceleration**: `stax-xml` 설치만으로 현재 platform에 맞는 `@stax-xml/native-*` optional package가 설치되며, Node 성능 경로는 native를 요구하고 wasm은 명시 opt-in 호환 backend로만 사용
 - **저오버헤드 iterable API**: batch 단위 event frame에서 name, text, attribute를 필요할 때만 복사하여 hot path의 per-event object churn을 줄임
 - **Async stream parser**: 파일/네트워크 I/O는 non-blocking으로 유지하고, 도착한 byte batch는 parser가 동기적으로 소비
 - **커서 Reader API**: one-event-at-a-time 순회를 위한 `StaxXmlIterableParser` 위의 얇은 cursor-style wrapper
@@ -418,7 +418,7 @@ Java의 StAX(Streaming API for XML)에서 영감을 받은 성능 중심 pull �
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
 - **동기 sink 쓰기**: 대용량 XML 출력에 권장되는 고처리량 경로
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
-- **범용 호환성**: Node.js, Bun, Deno, 웹 브라우저에서 동작하며, 브라우저 고성능 경로는 WebAssembly를 권장하고 순수 JavaScript 파서는 호환 fallback으로 유지
+- **런타임 호환성**: Node 성능 계약은 native package가 담당하고, WebAssembly는 non-native 환경을 위한 명시적 호환 backend로 제공
 - **네임스페이스 지원**: 기본 XML 네임스페이스 처리
 - **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
 - **Fragment 기본 모드**: `documentMode` 기본값은 `'fragment'`이며, XML document shape 검사는 `'document'`로 선택 적용
@@ -676,7 +676,7 @@ StAX-XML은 웹 표준 API 기반의 기본 호환성을 유지하여 다음 환
 - **웹 브라우저** (최신 브라우저)
 - **Edge Runtime** (Vercel, Cloudflare Workers 등)
 
-브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 우선 권장합니다. 순수 JavaScript 파서는 Wasm을 로드할 수 없거나, 교차 출처 격리를 사용할 수 없거나, 바이너리 없는 정책이 필요한 환경을 위한 호환 fallback으로 유지합니다.
+브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 명시적으로 선택하세요. Node에서 광고하는 성능 경로는 native package를 필요로 하며, JavaScript parser로 조용히 fallback하지 않습니다.
 
 #### Native 및 Wasm 해석
 

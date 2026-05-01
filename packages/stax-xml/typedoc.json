@@ -1,7 +1,8 @@
 {
   "entryPoints": [
     "./src/index.ts",
-    "./src/converter/index.ts"
+    "./src/converter/index.ts",
+    "./src/projection/index.ts"
   ],
   "out": "./docs/api",
   "plugin": [

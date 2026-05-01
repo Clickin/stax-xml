@@ -37,7 +37,7 @@ const result = await schema.parse(xml);
 
 ### Writer
 
-Defined in: Writer.ts:131
+Defined in: [Writer.ts:131](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L131)
 
 High-performance asynchronous XML writer implementing the StAX (Streaming API for XML) pattern.
 
@@ -92,7 +92,7 @@ const writer = new Writer(writableStream, options);
 
 > **new Writer**(`stream`, `options?`): [`Writer`](#writer)
 
-Defined in: Writer.ts:170
+Defined in: [Writer.ts:170](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L170)
 
 ###### Parameters
 
@@ -114,7 +114,7 @@ Defined in: Writer.ts:170
 
 > **writeStartDocument**(`version?`, `encoding?`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:292
+Defined in: [Writer.ts:292](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L292)
 
 Write XML declaration
 
@@ -136,7 +136,7 @@ Write XML declaration
 
 > **writeEndDocument**(): `Promise`\<`void`\>
 
-Defined in: Writer.ts:317
+Defined in: [Writer.ts:317](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L317)
 
 End document (automatically close all elements)
 
@@ -148,7 +148,7 @@ End document (automatically close all elements)
 
 > **writeStartElement**(`localName`, `options?`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:338
+Defined in: [Writer.ts:338](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L338)
 
 Write start element
 
@@ -170,7 +170,7 @@ Write start element
 
 > **writeEndElement**(): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:430
+Defined in: [Writer.ts:430](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L430)
 
 Write end element
 
@@ -182,7 +182,7 @@ Write end element
 
 > **writeCharacters**(`text`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:463
+Defined in: [Writer.ts:463](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L463)
 
 Write text
 
@@ -200,7 +200,7 @@ Write text
 
 > **writeCData**(`cdata`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:485
+Defined in: [Writer.ts:485](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L485)
 
 Write CDATA section
 
@@ -218,7 +218,7 @@ Write CDATA section
 
 > **writeComment**(`comment`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:505
+Defined in: [Writer.ts:505](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L505)
 
 Write comment
 
@@ -236,7 +236,7 @@ Write comment
 
 > **writeRaw**(`xml`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: Writer.ts:528
+Defined in: [Writer.ts:528](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L528)
 
 Write raw XML content without escaping
 
@@ -258,7 +258,7 @@ this (chainable)
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: Writer.ts:537
+Defined in: [Writer.ts:537](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L537)
 
 Manual flush
 
@@ -270,7 +270,7 @@ Manual flush
 
 > **getMetrics**(): `object`
 
-Defined in: Writer.ts:544
+Defined in: [Writer.ts:544](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L544)
 
 Return metrics
 
@@ -302,7 +302,7 @@ Return metrics
 
 ### WriterSync
 
-Defined in: WriterSync.ts:493
+Defined in: [WriterSync.ts:493](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L493)
 
 String-based sync writer.
 
@@ -316,7 +316,7 @@ String-based sync writer.
 
 > **new WriterSync**(`options?`): [`WriterSync`](#writersync)
 
-Defined in: WriterSync.ts:496
+Defined in: [WriterSync.ts:496](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L496)
 
 ###### Parameters
 
@@ -338,7 +338,7 @@ Defined in: WriterSync.ts:496
 
 > `protected` **state**: `number` = `WriterState.INITIAL`
 
-Defined in: WriterSync.ts:78
+Defined in: [WriterSync.ts:78](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L78)
 
 ###### Inherited from
 
@@ -348,7 +348,7 @@ Defined in: WriterSync.ts:78
 
 > `protected` **elementStack**: `string`[] = `[]`
 
-Defined in: WriterSync.ts:79
+Defined in: [WriterSync.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L79)
 
 ###### Inherited from
 
@@ -358,7 +358,7 @@ Defined in: WriterSync.ts:79
 
 > `protected` **hasTextContentStack**: `boolean`[] = `[]`
 
-Defined in: WriterSync.ts:80
+Defined in: [WriterSync.ts:80](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L80)
 
 ###### Inherited from
 
@@ -368,7 +368,7 @@ Defined in: WriterSync.ts:80
 
 > `protected` **namespaceStack**: `Map`\<`string`, `string`\>[] = `[]`
 
-Defined in: WriterSync.ts:81
+Defined in: [WriterSync.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L81)
 
 ###### Inherited from
 
@@ -378,7 +378,7 @@ Defined in: WriterSync.ts:81
 
 > `protected` **namespaceOwnedStack**: `boolean`[] = `[]`
 
-Defined in: WriterSync.ts:82
+Defined in: [WriterSync.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L82)
 
 ###### Inherited from
 
@@ -388,7 +388,7 @@ Defined in: WriterSync.ts:82
 
 > `protected` `readonly` **options**: `Required`\<[`WriterSyncOptions`](#writersyncoptions)\>
 
-Defined in: WriterSync.ts:83
+Defined in: [WriterSync.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L83)
 
 ###### Inherited from
 
@@ -398,7 +398,7 @@ Defined in: WriterSync.ts:83
 
 > `protected` **currentIndentLevel**: `number` = `0`
 
-Defined in: WriterSync.ts:84
+Defined in: [WriterSync.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L84)
 
 ###### Inherited from
 
@@ -408,7 +408,7 @@ Defined in: WriterSync.ts:84
 
 > `protected` **needsIndent**: `boolean` = `false`
 
-Defined in: WriterSync.ts:85
+Defined in: [WriterSync.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L85)
 
 ###### Inherited from
 
@@ -418,7 +418,7 @@ Defined in: WriterSync.ts:85
 
 > `protected` **indentCache**: `string`[]
 
-Defined in: WriterSync.ts:86
+Defined in: [WriterSync.ts:86](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L86)
 
 ###### Inherited from
 
@@ -430,7 +430,7 @@ Defined in: WriterSync.ts:86
 
 > **writeStartDocument**(`version?`, `encoding?`): `this`
 
-Defined in: WriterSync.ts:133
+Defined in: [WriterSync.ts:133](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L133)
 
 Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
@@ -456,7 +456,7 @@ Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
 > **writeEndDocument**(): `void`
 
-Defined in: WriterSync.ts:158
+Defined in: [WriterSync.ts:158](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L158)
 
 Indicates the end of the document and automatically closes all open elements.
 
@@ -472,7 +472,7 @@ Indicates the end of the document and automatically closes all open elements.
 
 > **writeStartElement**(`localName`, `options?`): `this`
 
-Defined in: WriterSync.ts:170
+Defined in: [WriterSync.ts:170](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L170)
 
 ###### Parameters
 
@@ -496,7 +496,7 @@ Defined in: WriterSync.ts:170
 
 > **writeAttribute**(`localName`, `value`, `prefix?`): `this`
 
-Defined in: WriterSync.ts:249
+Defined in: [WriterSync.ts:249](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L249)
 
 ###### Parameters
 
@@ -524,7 +524,7 @@ Defined in: WriterSync.ts:249
 
 > **writeNamespace**(`prefix`, `uri`): `this`
 
-Defined in: WriterSync.ts:259
+Defined in: [WriterSync.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L259)
 
 ###### Parameters
 
@@ -548,7 +548,7 @@ Defined in: WriterSync.ts:259
 
 > **writeCharacters**(`text`): `this`
 
-Defined in: WriterSync.ts:276
+Defined in: [WriterSync.ts:276](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L276)
 
 ###### Parameters
 
@@ -568,7 +568,7 @@ Defined in: WriterSync.ts:276
 
 > **writeCData**(`cdata`): `this`
 
-Defined in: WriterSync.ts:290
+Defined in: [WriterSync.ts:290](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L290)
 
 ###### Parameters
 
@@ -588,7 +588,7 @@ Defined in: WriterSync.ts:290
 
 > **writeComment**(`comment`): `this`
 
-Defined in: WriterSync.ts:307
+Defined in: [WriterSync.ts:307](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L307)
 
 ###### Parameters
 
@@ -608,7 +608,7 @@ Defined in: WriterSync.ts:307
 
 > **writeProcessingInstruction**(`target`, `data?`): `this`
 
-Defined in: WriterSync.ts:322
+Defined in: [WriterSync.ts:322](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L322)
 
 ###### Parameters
 
@@ -632,7 +632,7 @@ Defined in: WriterSync.ts:322
 
 > **writeRaw**(`xml`): `this`
 
-Defined in: WriterSync.ts:344
+Defined in: [WriterSync.ts:344](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L344)
 
 ###### Parameters
 
@@ -652,7 +652,7 @@ Defined in: WriterSync.ts:344
 
 > **writeEndElement**(): `this`
 
-Defined in: WriterSync.ts:350
+Defined in: [WriterSync.ts:350](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L350)
 
 ###### Returns
 
@@ -666,7 +666,7 @@ Defined in: WriterSync.ts:350
 
 > **setPrettyPrint**(`enabled`): `this`
 
-Defined in: WriterSync.ts:382
+Defined in: [WriterSync.ts:382](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L382)
 
 ###### Parameters
 
@@ -686,7 +686,7 @@ Defined in: WriterSync.ts:382
 
 > **setIndentString**(`indentString`): `this`
 
-Defined in: WriterSync.ts:387
+Defined in: [WriterSync.ts:387](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L387)
 
 ###### Parameters
 
@@ -706,7 +706,7 @@ Defined in: WriterSync.ts:387
 
 > **isPrettyPrintEnabled**(): `boolean`
 
-Defined in: WriterSync.ts:393
+Defined in: [WriterSync.ts:393](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L393)
 
 ###### Returns
 
@@ -720,7 +720,7 @@ Defined in: WriterSync.ts:393
 
 > **getIndentString**(): `string`
 
-Defined in: WriterSync.ts:397
+Defined in: [WriterSync.ts:397](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L397)
 
 ###### Returns
 
@@ -734,7 +734,7 @@ Defined in: WriterSync.ts:397
 
 > `protected` **\_closeStartElementTag**(): `void`
 
-Defined in: WriterSync.ts:419
+Defined in: [WriterSync.ts:419](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L419)
 
 ###### Returns
 
@@ -748,7 +748,7 @@ Defined in: WriterSync.ts:419
 
 > `protected` **\_writeNewline**(): `void`
 
-Defined in: WriterSync.ts:437
+Defined in: [WriterSync.ts:437](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L437)
 
 ###### Returns
 
@@ -762,7 +762,7 @@ Defined in: WriterSync.ts:437
 
 > **getXmlString**(): `string`
 
-Defined in: WriterSync.ts:500
+Defined in: [WriterSync.ts:500](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L500)
 
 ###### Returns
 
@@ -772,7 +772,7 @@ Defined in: WriterSync.ts:500
 
 > `protected` **\_emit**(`chunk`): `void`
 
-Defined in: WriterSync.ts:504
+Defined in: [WriterSync.ts:504](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L504)
 
 ###### Parameters
 
@@ -792,7 +792,7 @@ Defined in: WriterSync.ts:504
 
 ### WriterSyncSink
 
-Defined in: WriterSync.ts:512
+Defined in: [WriterSync.ts:512](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L512)
 
 Sink-based sync writer. Use this for file/buffer incremental writes.
 
@@ -806,7 +806,7 @@ Sink-based sync writer. Use this for file/buffer incremental writes.
 
 > **new WriterSyncSink**(`sink`, `options?`): [`WriterSyncSink`](#writersyncsink)
 
-Defined in: WriterSync.ts:520
+Defined in: [WriterSync.ts:520](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L520)
 
 ###### Parameters
 
@@ -832,7 +832,7 @@ Defined in: WriterSync.ts:520
 
 > `protected` **state**: `number` = `WriterState.INITIAL`
 
-Defined in: WriterSync.ts:78
+Defined in: [WriterSync.ts:78](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L78)
 
 ###### Inherited from
 
@@ -842,7 +842,7 @@ Defined in: WriterSync.ts:78
 
 > `protected` **elementStack**: `string`[] = `[]`
 
-Defined in: WriterSync.ts:79
+Defined in: [WriterSync.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L79)
 
 ###### Inherited from
 
@@ -852,7 +852,7 @@ Defined in: WriterSync.ts:79
 
 > `protected` **hasTextContentStack**: `boolean`[] = `[]`
 
-Defined in: WriterSync.ts:80
+Defined in: [WriterSync.ts:80](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L80)
 
 ###### Inherited from
 
@@ -862,7 +862,7 @@ Defined in: WriterSync.ts:80
 
 > `protected` **namespaceStack**: `Map`\<`string`, `string`\>[] = `[]`
 
-Defined in: WriterSync.ts:81
+Defined in: [WriterSync.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L81)
 
 ###### Inherited from
 
@@ -872,7 +872,7 @@ Defined in: WriterSync.ts:81
 
 > `protected` **namespaceOwnedStack**: `boolean`[] = `[]`
 
-Defined in: WriterSync.ts:82
+Defined in: [WriterSync.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L82)
 
 ###### Inherited from
 
@@ -882,7 +882,7 @@ Defined in: WriterSync.ts:82
 
 > `protected` `readonly` **options**: `Required`\<[`WriterSyncOptions`](#writersyncoptions)\>
 
-Defined in: WriterSync.ts:83
+Defined in: [WriterSync.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L83)
 
 ###### Inherited from
 
@@ -892,7 +892,7 @@ Defined in: WriterSync.ts:83
 
 > `protected` **currentIndentLevel**: `number` = `0`
 
-Defined in: WriterSync.ts:84
+Defined in: [WriterSync.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L84)
 
 ###### Inherited from
 
@@ -902,7 +902,7 @@ Defined in: WriterSync.ts:84
 
 > `protected` **needsIndent**: `boolean` = `false`
 
-Defined in: WriterSync.ts:85
+Defined in: [WriterSync.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L85)
 
 ###### Inherited from
 
@@ -912,7 +912,7 @@ Defined in: WriterSync.ts:85
 
 > `protected` **indentCache**: `string`[]
 
-Defined in: WriterSync.ts:86
+Defined in: [WriterSync.ts:86](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L86)
 
 ###### Inherited from
 
@@ -924,7 +924,7 @@ Defined in: WriterSync.ts:86
 
 > **writeStartDocument**(`version?`, `encoding?`): `this`
 
-Defined in: WriterSync.ts:133
+Defined in: [WriterSync.ts:133](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L133)
 
 Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
@@ -950,7 +950,7 @@ Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
 > **writeStartElement**(`localName`, `options?`): `this`
 
-Defined in: WriterSync.ts:170
+Defined in: [WriterSync.ts:170](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L170)
 
 ###### Parameters
 
@@ -974,7 +974,7 @@ Defined in: WriterSync.ts:170
 
 > **writeAttribute**(`localName`, `value`, `prefix?`): `this`
 
-Defined in: WriterSync.ts:249
+Defined in: [WriterSync.ts:249](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L249)
 
 ###### Parameters
 
@@ -1002,7 +1002,7 @@ Defined in: WriterSync.ts:249
 
 > **writeNamespace**(`prefix`, `uri`): `this`
 
-Defined in: WriterSync.ts:259
+Defined in: [WriterSync.ts:259](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L259)
 
 ###### Parameters
 
@@ -1026,7 +1026,7 @@ Defined in: WriterSync.ts:259
 
 > **writeCharacters**(`text`): `this`
 
-Defined in: WriterSync.ts:276
+Defined in: [WriterSync.ts:276](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L276)
 
 ###### Parameters
 
@@ -1046,7 +1046,7 @@ Defined in: WriterSync.ts:276
 
 > **writeCData**(`cdata`): `this`
 
-Defined in: WriterSync.ts:290
+Defined in: [WriterSync.ts:290](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L290)
 
 ###### Parameters
 
@@ -1066,7 +1066,7 @@ Defined in: WriterSync.ts:290
 
 > **writeComment**(`comment`): `this`
 
-Defined in: WriterSync.ts:307
+Defined in: [WriterSync.ts:307](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L307)
 
 ###### Parameters
 
@@ -1086,7 +1086,7 @@ Defined in: WriterSync.ts:307
 
 > **writeProcessingInstruction**(`target`, `data?`): `this`
 
-Defined in: WriterSync.ts:322
+Defined in: [WriterSync.ts:322](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L322)
 
 ###### Parameters
 
@@ -1110,7 +1110,7 @@ Defined in: WriterSync.ts:322
 
 > **writeRaw**(`xml`): `this`
 
-Defined in: WriterSync.ts:344
+Defined in: [WriterSync.ts:344](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L344)
 
 ###### Parameters
 
@@ -1130,7 +1130,7 @@ Defined in: WriterSync.ts:344
 
 > **writeEndElement**(): `this`
 
-Defined in: WriterSync.ts:350
+Defined in: [WriterSync.ts:350](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L350)
 
 ###### Returns
 
@@ -1144,7 +1144,7 @@ Defined in: WriterSync.ts:350
 
 > **setPrettyPrint**(`enabled`): `this`
 
-Defined in: WriterSync.ts:382
+Defined in: [WriterSync.ts:382](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L382)
 
 ###### Parameters
 
@@ -1164,7 +1164,7 @@ Defined in: WriterSync.ts:382
 
 > **setIndentString**(`indentString`): `this`
 
-Defined in: WriterSync.ts:387
+Defined in: [WriterSync.ts:387](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L387)
 
 ###### Parameters
 
@@ -1184,7 +1184,7 @@ Defined in: WriterSync.ts:387
 
 > **isPrettyPrintEnabled**(): `boolean`
 
-Defined in: WriterSync.ts:393
+Defined in: [WriterSync.ts:393](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L393)
 
 ###### Returns
 
@@ -1198,7 +1198,7 @@ Defined in: WriterSync.ts:393
 
 > **getIndentString**(): `string`
 
-Defined in: WriterSync.ts:397
+Defined in: [WriterSync.ts:397](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L397)
 
 ###### Returns
 
@@ -1212,7 +1212,7 @@ Defined in: WriterSync.ts:397
 
 > `protected` **\_closeStartElementTag**(): `void`
 
-Defined in: WriterSync.ts:419
+Defined in: [WriterSync.ts:419](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L419)
 
 ###### Returns
 
@@ -1226,7 +1226,7 @@ Defined in: WriterSync.ts:419
 
 > `protected` **\_writeNewline**(): `void`
 
-Defined in: WriterSync.ts:437
+Defined in: [WriterSync.ts:437](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L437)
 
 ###### Returns
 
@@ -1240,7 +1240,7 @@ Defined in: WriterSync.ts:437
 
 > `protected` **\_emit**(`chunk`): `void`
 
-Defined in: WriterSync.ts:536
+Defined in: [WriterSync.ts:536](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L536)
 
 ###### Parameters
 
@@ -1260,7 +1260,7 @@ Defined in: WriterSync.ts:536
 
 > **writeEndDocument**(): `void`
 
-Defined in: WriterSync.ts:577
+Defined in: [WriterSync.ts:577](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L577)
 
 Indicates the end of the document and automatically closes all open elements.
 
@@ -1276,7 +1276,7 @@ Indicates the end of the document and automatically closes all open elements.
 
 > **flush**(): `void`
 
-Defined in: WriterSync.ts:585
+Defined in: [WriterSync.ts:585](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L585)
 
 ###### Returns
 
@@ -1286,7 +1286,7 @@ Defined in: WriterSync.ts:585
 
 > **close**(): `void`
 
-Defined in: WriterSync.ts:592
+Defined in: [WriterSync.ts:592](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L592)
 
 ###### Returns
 
@@ -1386,7 +1386,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### parseOptions?
 
@@ -1488,7 +1488,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -1556,9 +1556,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -2026,7 +2026,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### parseOptions?
 
@@ -2208,7 +2208,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -2276,9 +2276,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -2630,7 +2630,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### parseOptions?
 
@@ -2754,7 +2754,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -2822,9 +2822,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -3166,7 +3166,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -3272,7 +3272,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -3340,9 +3340,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -3680,7 +3680,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -3786,7 +3786,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -3854,9 +3854,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -4192,7 +4192,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### parseOptions?
 
@@ -4316,7 +4316,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -4384,9 +4384,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -4734,7 +4734,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -4840,7 +4840,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -4908,9 +4908,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -5238,7 +5238,7 @@ Parse XML input synchronously
 
 [`ParseInput`](#parseinput)
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -5332,7 +5332,7 @@ Parse XML synchronously (public API)
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
 XML string or sync iterator
 
@@ -5392,9 +5392,9 @@ Parse XML synchronously with error handling
 
 ###### input
 
-`string` \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
+`string` \| `ArrayBufferView`\<`ArrayBufferLike`\> \| `Iterator`\<[`AnyXmlEvent`](#anyxmlevent), `any`, `any`\>
 
-XML string or sync iterator
+XML string, byte view, or sync iterator
 
 ###### options?
 
@@ -5676,7 +5676,7 @@ List of validation issues
 
 ### WriterOptions
 
-Defined in: Writer.ts:20
+Defined in: [Writer.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L20)
 
 Configuration options for the Writer
 
@@ -5686,7 +5686,7 @@ Configuration options for the Writer
 
 > `optional` **encoding?**: `string`
 
-Defined in: Writer.ts:25
+Defined in: [Writer.ts:25](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L25)
 
 Text encoding for the output stream
 
@@ -5700,7 +5700,7 @@ Text encoding for the output stream
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: Writer.ts:31
+Defined in: [Writer.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L31)
 
 Whether to format output with indentation
 
@@ -5714,7 +5714,7 @@ false
 
 > `optional` **indentString?**: `string`
 
-Defined in: Writer.ts:37
+Defined in: [Writer.ts:37](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L37)
 
 String used for indentation when prettyPrint is true
 
@@ -5728,7 +5728,7 @@ String used for indentation when prettyPrint is true
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: Writer.ts:43
+Defined in: [Writer.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L43)
 
 Additional custom entities to encode
 
@@ -5750,7 +5750,7 @@ Additional custom entities to encode
 
 > `optional` **autoEncodeEntities?**: `boolean`
 
-Defined in: Writer.ts:49
+Defined in: [Writer.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L49)
 
 Whether to automatically encode XML entities
 
@@ -5764,7 +5764,7 @@ true
 
 > `optional` **namespaces?**: [`NamespaceDeclaration`](#namespacedeclaration)[]
 
-Defined in: Writer.ts:55
+Defined in: [Writer.ts:55](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L55)
 
 Namespace declarations to include
 
@@ -5778,7 +5778,7 @@ Namespace declarations to include
 
 > `optional` **bufferSize?**: `number`
 
-Defined in: Writer.ts:61
+Defined in: [Writer.ts:61](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L61)
 
 Internal buffer size in bytes
 
@@ -5792,7 +5792,7 @@ Internal buffer size in bytes
 
 > `optional` **highWaterMark?**: `number`
 
-Defined in: Writer.ts:67
+Defined in: [Writer.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L67)
 
 WritableStream backpressure threshold
 
@@ -5806,7 +5806,7 @@ WritableStream backpressure threshold
 
 > `optional` **flushThreshold?**: `number`
 
-Defined in: Writer.ts:73
+Defined in: [Writer.ts:73](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L73)
 
 Automatic flush threshold (percentage of bufferSize)
 
@@ -5820,7 +5820,7 @@ Automatic flush threshold (percentage of bufferSize)
 
 > `optional` **enableAutoFlush?**: `boolean`
 
-Defined in: Writer.ts:79
+Defined in: [Writer.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/Writer.ts#L79)
 
 Whether to enable automatic flushing
 
@@ -5834,7 +5834,7 @@ true
 
 ### SyncTextSink
 
-Defined in: WriterSync.ts:7
+Defined in: [WriterSync.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L7)
 
 Sink interface for custom sync targets.
 
@@ -5844,7 +5844,7 @@ Sink interface for custom sync targets.
 
 > **write**(`chunk`): `void`
 
-Defined in: WriterSync.ts:8
+Defined in: [WriterSync.ts:8](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L8)
 
 ###### Parameters
 
@@ -5860,7 +5860,7 @@ Defined in: WriterSync.ts:8
 
 > `optional` **flush**(): `void`
 
-Defined in: WriterSync.ts:9
+Defined in: [WriterSync.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L9)
 
 ###### Returns
 
@@ -5870,7 +5870,7 @@ Defined in: WriterSync.ts:9
 
 > `optional` **close**(): `void`
 
-Defined in: WriterSync.ts:10
+Defined in: [WriterSync.ts:10](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L10)
 
 ###### Returns
 
@@ -5880,7 +5880,7 @@ Defined in: WriterSync.ts:10
 
 ### WriterSyncOptions
 
-Defined in: WriterSync.ts:16
+Defined in: [WriterSync.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L16)
 
 Writer output options shared by string and sink variants.
 
@@ -5894,25 +5894,25 @@ Writer output options shared by string and sink variants.
 
 > `optional` **encoding?**: `string`
 
-Defined in: WriterSync.ts:17
+Defined in: [WriterSync.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L17)
 
 ##### prettyPrint?
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: WriterSync.ts:18
+Defined in: [WriterSync.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L18)
 
 ##### indentString?
 
 > `optional` **indentString?**: `string`
 
-Defined in: WriterSync.ts:19
+Defined in: [WriterSync.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L19)
 
 ##### addEntities?
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: WriterSync.ts:20
+Defined in: [WriterSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L20)
 
 ###### entity
 
@@ -5926,19 +5926,19 @@ Defined in: WriterSync.ts:20
 
 > `optional` **autoEncodeEntities?**: `boolean`
 
-Defined in: WriterSync.ts:21
+Defined in: [WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L21)
 
 ##### namespaces?
 
 > `optional` **namespaces?**: [`NamespaceDeclaration`](#namespacedeclaration)[]
 
-Defined in: WriterSync.ts:22
+Defined in: [WriterSync.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L22)
 
 ***
 
 ### WriterSyncSinkOptions
 
-Defined in: WriterSync.ts:28
+Defined in: [WriterSync.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L28)
 
 Writer options for sink-based sync mode.
 
@@ -5952,7 +5952,7 @@ Writer options for sink-based sync mode.
 
 > `optional` **encoding?**: `string`
 
-Defined in: WriterSync.ts:17
+Defined in: [WriterSync.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L17)
 
 ###### Inherited from
 
@@ -5962,7 +5962,7 @@ Defined in: WriterSync.ts:17
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: WriterSync.ts:18
+Defined in: [WriterSync.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L18)
 
 ###### Inherited from
 
@@ -5972,7 +5972,7 @@ Defined in: WriterSync.ts:18
 
 > `optional` **indentString?**: `string`
 
-Defined in: WriterSync.ts:19
+Defined in: [WriterSync.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L19)
 
 ###### Inherited from
 
@@ -5982,7 +5982,7 @@ Defined in: WriterSync.ts:19
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: WriterSync.ts:20
+Defined in: [WriterSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L20)
 
 ###### entity
 
@@ -6000,7 +6000,7 @@ Defined in: WriterSync.ts:20
 
 > `optional` **autoEncodeEntities?**: `boolean`
 
-Defined in: WriterSync.ts:21
+Defined in: [WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L21)
 
 ###### Inherited from
 
@@ -6010,7 +6010,7 @@ Defined in: WriterSync.ts:21
 
 > `optional` **namespaces?**: [`NamespaceDeclaration`](#namespacedeclaration)[]
 
-Defined in: WriterSync.ts:22
+Defined in: [WriterSync.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L22)
 
 ###### Inherited from
 
@@ -6020,7 +6020,7 @@ Defined in: WriterSync.ts:22
 
 > `optional` **bufferSize?**: `number`
 
-Defined in: WriterSync.ts:33
+Defined in: [WriterSync.ts:33](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L33)
 
 Internal character buffer size.
 
@@ -6034,7 +6034,7 @@ Internal character buffer size.
 
 > `optional` **enableAutoFlush?**: `boolean`
 
-Defined in: WriterSync.ts:39
+Defined in: [WriterSync.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L39)
 
 Emit buffered chunks automatically when threshold is reached.
 
@@ -6048,7 +6048,7 @@ true
 
 > `optional` **flushOnClose?**: `boolean`
 
-Defined in: WriterSync.ts:45
+Defined in: [WriterSync.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L45)
 
 Whether to call sink.flush() when the writer is finalized.
 
@@ -6062,7 +6062,7 @@ false
 
 > `optional` **flushThreshold?**: `number`
 
-Defined in: WriterSync.ts:52
+Defined in: [WriterSync.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/WriterSync.ts#L52)
 
 Flush threshold (percentage or absolute char count).
 If <= 1, treated as percentage of bufferSize. Otherwise absolute char count.
@@ -6185,38 +6185,51 @@ in XPath expressions when selecting namespaced elements.
 
 > `optional` **acceleration?**: `object`
 
-Defined in: [converter/types.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L67)
+Defined in: [converter/types.ts:66](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L66)
 
 Optional structural-index acceleration for compiled converter parsing.
 
 ###### backend?
 
-> `optional` **backend?**: `"auto"` \| `"native"` \| `"wasm"` \| `"js"`
+> `optional` **backend?**: `"auto"` \| `"native"` \| `"wasm"`
 
 ###### simd?
 
 > `optional` **simd?**: `"auto-safe"` \| `"off"` \| `"avx2"`
 
-###### fallbackOnLoadError?
+###### fallbackBackend?
+
+> `optional` **fallbackBackend?**: `"wasm"`
+
+###### ~~fallbackOnLoadError?~~
 
 > `optional` **fallbackOnLoadError?**: `boolean`
 
-###### fallbackOnParseError?
+###### Deprecated
+
+JavaScript load fallback is no longer supported. Use
+`fallbackBackend: "wasm"` when compatibility fallback is intended.
+
+###### ~~fallbackOnParseError?~~
 
 > `optional` **fallbackOnParseError?**: `boolean`
 
+###### Deprecated
+
+Native parse errors are not retried through the JavaScript
+parser on the public acceleration path.
+
 ###### Remarks
 
-Backend load and capability failures fall back to the JavaScript iterable parser.
-XML parse errors and structural-index ABI validation errors throw by default;
-set `fallbackOnParseError` to true to retry the JavaScript parser for those
-errors as well.
+Node acceleration is native-first. `backend: "auto"` resolves the matching
+native package; `backend: "wasm"` is an explicit compatibility path.
+JavaScript is no longer a public acceleration backend or load fallback.
 
 ***
 
 ### XmlStringOptions
 
-Defined in: [converter/types.ts:80](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L80)
+Defined in: [converter/types.ts:88](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L88)
 
 Options for string schema
 
@@ -6226,7 +6239,7 @@ Options for string schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [converter/types.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L84)
+Defined in: [converter/types.ts:92](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L92)
 
 XPath expression to locate the element
 
@@ -6234,7 +6247,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: [converter/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L89)
+Defined in: [converter/types.ts:97](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L97)
 
 Minimum string length
 
@@ -6242,7 +6255,7 @@ Minimum string length
 
 > `optional` **max?**: `number`
 
-Defined in: [converter/types.ts:94](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L94)
+Defined in: [converter/types.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L102)
 
 Maximum string length
 
@@ -6250,7 +6263,7 @@ Maximum string length
 
 > `optional` **pattern?**: `RegExp`
 
-Defined in: [converter/types.ts:99](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L99)
+Defined in: [converter/types.ts:107](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L107)
 
 Regular expression pattern to validate against
 
@@ -6258,7 +6271,7 @@ Regular expression pattern to validate against
 
 ### XmlNumberOptions
 
-Defined in: [converter/types.ts:107](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L107)
+Defined in: [converter/types.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L115)
 
 Options for number schema
 
@@ -6268,7 +6281,7 @@ Options for number schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [converter/types.ts:111](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L111)
+Defined in: [converter/types.ts:119](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L119)
 
 XPath expression to locate the element
 
@@ -6276,7 +6289,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: [converter/types.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L116)
+Defined in: [converter/types.ts:124](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L124)
 
 Minimum value
 
@@ -6284,7 +6297,7 @@ Minimum value
 
 > `optional` **max?**: `number`
 
-Defined in: [converter/types.ts:121](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L121)
+Defined in: [converter/types.ts:129](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L129)
 
 Maximum value
 
@@ -6292,7 +6305,7 @@ Maximum value
 
 > `optional` **int?**: `boolean`
 
-Defined in: [converter/types.ts:127](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L127)
+Defined in: [converter/types.ts:135](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L135)
 
 Whether the number must be an integer
 
@@ -6306,7 +6319,7 @@ false
 
 ### XmlObjectOptions
 
-Defined in: [converter/types.ts:135](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L135)
+Defined in: [converter/types.ts:143](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L143)
 
 Options for object schema
 
@@ -6316,7 +6329,7 @@ Options for object schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [converter/types.ts:139](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L139)
+Defined in: [converter/types.ts:147](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L147)
 
 XPath expression to locate the element
 
@@ -6324,7 +6337,7 @@ XPath expression to locate the element
 
 > `optional` **strict?**: `boolean`
 
-Defined in: [converter/types.ts:145](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L145)
+Defined in: [converter/types.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L153)
 
 Strict mode - reject unknown properties
 
@@ -6338,7 +6351,7 @@ false
 
 ### XmlElementWriteConfig
 
-Defined in: [converter/types.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L153)
+Defined in: [converter/types.ts:161](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L161)
 
 Writer configuration for XML element
 
@@ -6348,7 +6361,7 @@ Writer configuration for XML element
 
 > **element**: `string`
 
-Defined in: [converter/types.ts:157](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L157)
+Defined in: [converter/types.ts:165](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L165)
 
 Element name (required)
 
@@ -6356,7 +6369,7 @@ Element name (required)
 
 > `optional` **asAttribute?**: `string`
 
-Defined in: [converter/types.ts:163](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L163)
+Defined in: [converter/types.ts:171](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L171)
 
 Write as attribute instead of element
 Value is the attribute name
@@ -6365,7 +6378,7 @@ Value is the attribute name
 
 > `optional` **namespace?**: `object`
 
-Defined in: [converter/types.ts:168](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L168)
+Defined in: [converter/types.ts:176](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L176)
 
 Namespace configuration
 
@@ -6385,7 +6398,7 @@ Namespace URI (e.g., 'http://purl.org/dc/elements/1.1/')
 
 > `optional` **cdata?**: `boolean`
 
-Defined in: [converter/types.ts:184](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L184)
+Defined in: [converter/types.ts:192](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L192)
 
 Wrap content in CDATA section
 
@@ -6399,7 +6412,7 @@ false
 
 > `optional` **selfClosing?**: `boolean`
 
-Defined in: [converter/types.ts:190](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L190)
+Defined in: [converter/types.ts:198](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L198)
 
 Use self-closing tag for empty elements
 
@@ -6413,7 +6426,7 @@ false
 
 > `optional` **comment?**: `string`
 
-Defined in: [converter/types.ts:195](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L195)
+Defined in: [converter/types.ts:203](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L203)
 
 Add XML comment before element
 
@@ -6421,7 +6434,7 @@ Add XML comment before element
 
 ### XmlWriteOptions
 
-Defined in: [converter/types.ts:203](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L203)
+Defined in: [converter/types.ts:211](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L211)
 
 Options for XML writer
 
@@ -6431,7 +6444,7 @@ Options for XML writer
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: [converter/types.ts:208](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L208)
+Defined in: [converter/types.ts:216](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L216)
 
 Format output with indentation
 
@@ -6445,7 +6458,7 @@ false
 
 > `optional` **indentString?**: `string`
 
-Defined in: [converter/types.ts:214](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L214)
+Defined in: [converter/types.ts:222](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L222)
 
 Indentation string
 
@@ -6459,7 +6472,7 @@ Indentation string
 
 > `optional` **encoding?**: `string`
 
-Defined in: [converter/types.ts:220](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L220)
+Defined in: [converter/types.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L228)
 
 Text encoding for output
 
@@ -6473,7 +6486,7 @@ Text encoding for output
 
 > `optional` **rootElement?**: `string`
 
-Defined in: [converter/types.ts:226](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L226)
+Defined in: [converter/types.ts:234](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L234)
 
 Root element name
 If not provided, no root element wrapper is added
@@ -6482,7 +6495,7 @@ If not provided, no root element wrapper is added
 
 > `optional` **namespaces?**: `object`[]
 
-Defined in: [converter/types.ts:231](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L231)
+Defined in: [converter/types.ts:239](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L239)
 
 Global namespace declarations
 
@@ -6498,7 +6511,7 @@ Global namespace declarations
 
 > `optional` **includeDeclaration?**: `boolean`
 
-Defined in: [converter/types.ts:240](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L240)
+Defined in: [converter/types.ts:248](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L248)
 
 Include XML declaration
 
@@ -6512,7 +6525,7 @@ true
 
 > `optional` **xmlVersion?**: `string`
 
-Defined in: [converter/types.ts:246](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L246)
+Defined in: [converter/types.ts:254](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L254)
 
 XML version for declaration
 
@@ -6526,7 +6539,7 @@ XML version for declaration
 
 > `optional` **writer?**: [`Writer`](#writer) \| [`WriterSync`](#writersync) \| [`WriterSyncSink`](#writersyncsink)
 
-Defined in: [converter/types.ts:254](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L254)
+Defined in: [converter/types.ts:262](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L262)
 
 Custom writer instance
 - WriterSync: for writeSync() method
@@ -6941,7 +6954,7 @@ Defined in: [converter/index.ts:108](https://github.com/Clickin/stax-xml/blob/ma
 
 > **SchemaType** = *typeof* [`SchemaType`](#schematype)\[keyof *typeof* [`SchemaType`](#schematype)\]
 
-Defined in: [converter/types.ts:262](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L262)
+Defined in: [converter/types.ts:270](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L270)
 
 Schema type union
 
@@ -6951,7 +6964,7 @@ Schema type union
 
 > **XmlCoreSchema** = [`XmlStringSchema`](#xmlstringschema) \| [`XmlNumberSchema`](#xmlnumberschema) \| [`XmlArraySchema`](#xmlarrayschema)\<[`XmlSchemaBase`](#abstract-xmlschemabase)\<`unknown`, `unknown`\>\> \| [`XmlObjectSchema`](#xmlobjectschema)\<[`XmlObjectShape`](#xmlobjectshape)\>
 
-Defined in: [converter/types.ts:292](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L292)
+Defined in: [converter/types.ts:300](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L300)
 
 Core schema types (non-wrapper schemas)
 
@@ -6961,7 +6974,7 @@ Core schema types (non-wrapper schemas)
 
 > **XmlWrappedSchema** = [`XmlTransformSchema`](#xmltransformschema)\<`unknown`, `unknown`\> \| [`XmlOptionalSchema`](#xmloptionalschema)\<[`XmlSchemaBase`](#abstract-xmlschemabase)\<`unknown`, `unknown`\>\>
 
-Defined in: [converter/types.ts:303](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L303)
+Defined in: [converter/types.ts:311](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L311)
 
 Wrapper schema types (transform and optional)
 
@@ -6971,7 +6984,7 @@ Wrapper schema types (transform and optional)
 
 > **AnyXmlSchema** = [`XmlCoreSchema`](#xmlcoreschema) \| [`XmlWrappedSchema`](#xmlwrappedschema)
 
-Defined in: [converter/types.ts:312](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L312)
+Defined in: [converter/types.ts:320](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L320)
 
 Any XML schema type
 
@@ -7021,7 +7034,7 @@ Singleton builder instance
 
 > `const` **SchemaType**: `object`
 
-Defined in: [converter/types.ts:262](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L262)
+Defined in: [converter/types.ts:270](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L270)
 
 Schema type constants for XML schema classification
 
@@ -7097,7 +7110,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **isStringSchema**(`schema`): `schema is XmlStringSchema`
 
-Defined in: [converter/types.ts:319](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L319)
+Defined in: [converter/types.ts:327](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L327)
 
 Type guard for string schema
 
@@ -7117,7 +7130,7 @@ Type guard for string schema
 
 > **isNumberSchema**(`schema`): `schema is XmlNumberSchema`
 
-Defined in: [converter/types.ts:328](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L328)
+Defined in: [converter/types.ts:336](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L336)
 
 Type guard for number schema
 
@@ -7137,7 +7150,7 @@ Type guard for number schema
 
 > **isArraySchema**(`schema`): `schema is XmlArraySchema<XmlSchemaBase<unknown, unknown>>`
 
-Defined in: [converter/types.ts:337](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L337)
+Defined in: [converter/types.ts:345](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L345)
 
 Type guard for array schema
 
@@ -7157,7 +7170,7 @@ Type guard for array schema
 
 > **isObjectSchema**(`schema`): `schema is XmlObjectSchema<XmlObjectShape>`
 
-Defined in: [converter/types.ts:346](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L346)
+Defined in: [converter/types.ts:354](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L354)
 
 Type guard for object schema
 
@@ -7177,7 +7190,7 @@ Type guard for object schema
 
 > **isTransformSchema**(`schema`): `schema is XmlTransformSchema<unknown, unknown, unknown>`
 
-Defined in: [converter/types.ts:355](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L355)
+Defined in: [converter/types.ts:363](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L363)
 
 Type guard for transform schema
 
@@ -7197,7 +7210,7 @@ Type guard for transform schema
 
 > **isOptionalSchema**(`schema`): `schema is XmlOptionalSchema<XmlSchemaBase<unknown, unknown>>`
 
-Defined in: [converter/types.ts:364](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L364)
+Defined in: [converter/types.ts:372](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L372)
 
 Type guard for optional schema
 

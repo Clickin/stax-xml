@@ -1,0 +1,939 @@
+{
+  "generatedAt": "2026-04-28T11:23:06.649Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "upstream": {
+    "url": "https://github.com/simdxml/simdxml",
+    "ref": "539577043c27e537c2cf9e5a38e5e10d844e83b0",
+    "head": "539577043c27e537c2cf9e5a38e5e10d844e83b0",
+    "dir": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml",
+    "parseBench": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\crates\\simdxml\\benches\\parse_bench.rs",
+    "benchRunScript": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\bench\\run.sh",
+    "benchRunX86Script": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\bench\\run-x86.sh"
+  },
+  "options": {
+    "runs": 5,
+    "warmups": 2,
+    "groups": [
+      "parse-throughput",
+      "shape",
+      "scaling"
+    ]
+  },
+  "groups": [
+    {
+      "id": "parse-throughput",
+      "cases": [
+        {
+          "label": "patent_medium",
+          "filename": "patent_medium.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_medium.xml",
+          "sizeBytes": 105907,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.048459999999999996,
+              "minMs": 0.038,
+              "maxMs": 0.0596,
+              "mibPerSec": 2084.2093649945673,
+              "eventCount": 2225,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.0596,
+                0.0574,
+                0.0484,
+                0.038,
+                0.0389
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 105907
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 0.7957000000000022,
+              "minMs": 0.7031000000000063,
+              "maxMs": 0.8726000000000056,
+              "mibPerSec": 126.9332484952073,
+              "eventCount": 1570,
+              "checksum": 1254131208,
+              "samplesMs": [
+                0.8726000000000056,
+                0.7736000000000018,
+                0.8385999999999996,
+                0.7905999999999977,
+                0.7031000000000063
+              ],
+              "sizeBytes": 105907
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 0.6697199999999981,
+              "minMs": 0.49160000000000537,
+              "maxMs": 0.7839999999999918,
+              "mibPerSec": 150.8104668034955,
+              "eventCount": 1570,
+              "checksum": 1254131208,
+              "samplesMs": [
+                0.7839999999999918,
+                0.7202999999999946,
+                0.6017999999999972,
+                0.7509000000000015,
+                0.49160000000000537
+              ],
+              "sizeBytes": 105907
+            }
+          ]
+        },
+        {
+          "label": "patent_large",
+          "filename": "patent_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_large.xml",
+          "sizeBytes": 1057369,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.42219999999999996,
+              "minMs": 0.39239999999999997,
+              "maxMs": 0.4749,
+              "mibPerSec": 2388.407527863951,
+              "eventCount": 22097,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.3955,
+                0.4749,
+                0.39239999999999997,
+                0.4263,
+                0.4219
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 5.284739999999999,
+              "minMs": 3.6151999999999873,
+              "maxMs": 10.625900000000001,
+              "mibPerSec": 190.8108361554514,
+              "eventCount": 15562,
+              "checksum": -623639220,
+              "samplesMs": [
+                3.8145999999999844,
+                3.6322000000000116,
+                3.6151999999999873,
+                10.625900000000001,
+                4.735800000000012
+              ],
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 5.097320000000002,
+              "minMs": 3.110299999999995,
+              "maxMs": 10.51169999999999,
+              "mibPerSec": 197.826634047727,
+              "eventCount": 15562,
+              "checksum": -623639220,
+              "samplesMs": [
+                3.8463000000000136,
+                3.110299999999995,
+                3.580600000000004,
+                10.51169999999999,
+                4.437700000000007
+              ],
+              "sizeBytes": 1057369
+            }
+          ]
+        },
+        {
+          "label": "patent_xlarge",
+          "filename": "patent_xlarge.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_xlarge.xml",
+          "sizeBytes": 10562023,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 3.7334400000000003,
+              "minMs": 3.539,
+              "maxMs": 4.1673,
+              "mibPerSec": 2697.9756108018582,
+              "eventCount": 220985,
+              "checksum": 16777619,
+              "samplesMs": [
+                3.5528999999999997,
+                3.6422999999999996,
+                3.539,
+                3.7657,
+                4.1673
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 10562023
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 33.20802,
+              "minMs": 32.27010000000001,
+              "maxMs": 34.191100000000006,
+              "mibPerSec": 303.322211453501,
+              "eventCount": 155716,
+              "checksum": -2100667308,
+              "samplesMs": [
+                34.191100000000006,
+                33.25290000000001,
+                32.94139999999999,
+                33.38459999999998,
+                32.27010000000001
+              ],
+              "sizeBytes": 10562023
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 32.82069999999999,
+              "minMs": 30.956199999999967,
+              "maxMs": 34.136799999999994,
+              "mibPerSec": 306.9017438504387,
+              "eventCount": 155716,
+              "checksum": -2100667308,
+              "samplesMs": [
+                33.20659999999998,
+                34.136799999999994,
+                33.665899999999965,
+                32.138000000000034,
+                30.956199999999967
+              ],
+              "sizeBytes": 10562023
+            }
+          ]
+        },
+        {
+          "label": "attrheavy_large",
+          "filename": "attrheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\attrheavy_large.xml",
+          "sizeBytes": 1062726,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.33984000000000003,
+              "minMs": 0.3306,
+              "maxMs": 0.34650000000000003,
+              "mibPerSec": 2982.2695726728703,
+              "eventCount": 14095,
+              "checksum": 251664285,
+              "samplesMs": [
+                0.3331,
+                0.3443,
+                0.34650000000000003,
+                0.3306,
+                0.34469999999999995
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1062726
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 11.959120000000008,
+              "minMs": 7.933300000000031,
+              "maxMs": 15.352300000000014,
+              "mibPerSec": 84.74657763925337,
+              "eventCount": 14094,
+              "checksum": 117452924,
+              "samplesMs": [
+                14.22339999999997,
+                7.933300000000031,
+                15.352300000000014,
+                7.99980000000005,
+                14.286799999999971
+              ],
+              "sizeBytes": 1062726
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 10.927840000000014,
+              "minMs": 6.954099999999926,
+              "maxMs": 16.620400000000018,
+              "mibPerSec": 92.7442652506943,
+              "eventCount": 14094,
+              "checksum": 117452924,
+              "samplesMs": [
+                7.3144000000000915,
+                16.620400000000018,
+                9.34960000000001,
+                6.954099999999926,
+                14.400700000000029
+              ],
+              "sizeBytes": 1062726
+            }
+          ]
+        },
+        {
+          "label": "textheavy_large",
+          "filename": "textheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\textheavy_large.xml",
+          "sizeBytes": 1050319,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.07034,
+              "minMs": 0.0673,
+              "maxMs": 0.07239999999999999,
+              "mibPerSec": 14240.293635676659,
+              "eventCount": 4949,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.07239999999999999,
+                0.0717,
+                0.0709,
+                0.0694,
+                0.0673
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1050319
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 1.9894199999999955,
+              "minMs": 1.4353999999999587,
+              "maxMs": 2.4046999999999343,
+              "mibPerSec": 503.49461367307975,
+              "eventCount": 3609,
+              "checksum": -1800201300,
+              "samplesMs": [
+                1.4353999999999587,
+                2.3578999999999724,
+                1.9055000000000746,
+                2.4046999999999343,
+                1.8436000000000377
+              ],
+              "sizeBytes": 1050319
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 1.6435000000000854,
+              "minMs": 1.1480000000001382,
+              "maxMs": 2.032600000000002,
+              "mibPerSec": 609.4689713011525,
+              "eventCount": 3609,
+              "checksum": -1800201300,
+              "samplesMs": [
+                1.1480000000001382,
+                2.0024000000000797,
+                1.630600000000186,
+                2.032600000000002,
+                1.4039000000000215
+              ],
+              "sizeBytes": 1050319
+            }
+          ]
+        },
+        {
+          "label": "nested_large",
+          "filename": "nested_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\nested_large.xml",
+          "sizeBytes": 1070855,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.42336,
+              "minMs": 0.4067,
+              "maxMs": 0.4724,
+              "mibPerSec": 2412.242323543119,
+              "eventCount": 20289,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.41300000000000003,
+                0.4724,
+                0.4153,
+                0.4067,
+                0.4094
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1070855
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 5.778420000000051,
+              "minMs": 3.3514000000000124,
+              "maxMs": 9.314600000000155,
+              "mibPerSec": 176.73462816742392,
+              "eventCount": 10146,
+              "checksum": -158477948,
+              "samplesMs": [
+                3.370200000000068,
+                9.314600000000155,
+                5.026900000000069,
+                3.3514000000000124,
+                7.828999999999951
+              ],
+              "sizeBytes": 1070855
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 6.054199999999992,
+              "minMs": 4.212099999999964,
+              "maxMs": 8.538999999999987,
+              "mibPerSec": 168.68403919513992,
+              "eventCount": 10146,
+              "checksum": -158477948,
+              "samplesMs": [
+                4.806800000000067,
+                8.538999999999987,
+                4.212099999999964,
+                4.72219999999993,
+                7.9909000000000106
+              ],
+              "sizeBytes": 1070855
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shape",
+      "cases": [
+        {
+          "label": "patent",
+          "filename": "patent_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_large.xml",
+          "sizeBytes": 1057369,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.44262000000000007,
+              "minMs": 0.41869999999999996,
+              "maxMs": 0.4979,
+              "mibPerSec": 2278.219823469703,
+              "eventCount": 22097,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.443,
+                0.4979,
+                0.4288,
+                0.41869999999999996,
+                0.4247
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 4.46293999999998,
+              "minMs": 2.6498999999998887,
+              "maxMs": 9.248299999999972,
+              "mibPerSec": 225.94649676315714,
+              "eventCount": 15562,
+              "checksum": -623639220,
+              "samplesMs": [
+                4.5779999999999745,
+                3.004699999999957,
+                2.6498999999998887,
+                2.8338000000001102,
+                9.248299999999972
+              ],
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 4.572239999999875,
+              "minMs": 2.65729999999985,
+              "maxMs": 8.905399999999872,
+              "mibPerSec": 220.54521596945654,
+              "eventCount": 15562,
+              "checksum": -623639220,
+              "samplesMs": [
+                4.301999999999907,
+                3.925299999999879,
+                2.65729999999985,
+                3.0711999999998625,
+                8.905399999999872
+              ],
+              "sizeBytes": 1057369
+            }
+          ]
+        },
+        {
+          "label": "attrheavy",
+          "filename": "attrheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\attrheavy_large.xml",
+          "sizeBytes": 1062726,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.36706,
+              "minMs": 0.3427,
+              "maxMs": 0.3792,
+              "mibPerSec": 2761.113963867347,
+              "eventCount": 14095,
+              "checksum": 251664285,
+              "samplesMs": [
+                0.3651,
+                0.3786,
+                0.3697,
+                0.3427,
+                0.3792
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1062726
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 10.429259999999976,
+              "minMs": 6.845199999999977,
+              "maxMs": 15.089400000000069,
+              "mibPerSec": 97.17798689237307,
+              "eventCount": 14094,
+              "checksum": 117452924,
+              "samplesMs": [
+                7.900100000000066,
+                15.089400000000069,
+                8.455999999999904,
+                13.855599999999868,
+                6.845199999999977
+              ],
+              "sizeBytes": 1062726
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 10.339559999999938,
+              "minMs": 6.623199999999997,
+              "maxMs": 14.356499999999869,
+              "mibPerSec": 98.02104650267076,
+              "eventCount": 14094,
+              "checksum": 117452924,
+              "samplesMs": [
+                14.356499999999869,
+                8.818299999999908,
+                6.623199999999997,
+                13.392200000000003,
+                8.507599999999911
+              ],
+              "sizeBytes": 1062726
+            }
+          ]
+        },
+        {
+          "label": "textheavy",
+          "filename": "textheavy_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\textheavy_large.xml",
+          "sizeBytes": 1050319,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.08306,
+              "minMs": 0.0747,
+              "maxMs": 0.0988,
+              "mibPerSec": 12059.502219281196,
+              "eventCount": 4949,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.0766,
+                0.0747,
+                0.0988,
+                0.0875,
+                0.0777
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1050319
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 2.0309799999999543,
+              "minMs": 1.6440999999999804,
+              "maxMs": 2.340900000000147,
+              "mibPerSec": 493.19158944623706,
+              "eventCount": 3609,
+              "checksum": -1800201300,
+              "samplesMs": [
+                1.8584999999998217,
+                2.340900000000147,
+                1.9742999999998574,
+                1.6440999999999804,
+                2.337099999999964
+              ],
+              "sizeBytes": 1050319
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 1.4230199999999513,
+              "minMs": 1.0001999999999498,
+              "maxMs": 1.8905999999999494,
+              "mibPerSec": 703.8989292726246,
+              "eventCount": 3609,
+              "checksum": -1800201300,
+              "samplesMs": [
+                1.4691000000000258,
+                1.1979999999998654,
+                1.8905999999999494,
+                1.5571999999999662,
+                1.0001999999999498
+              ],
+              "sizeBytes": 1050319
+            }
+          ]
+        },
+        {
+          "label": "nested",
+          "filename": "nested_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\nested_large.xml",
+          "sizeBytes": 1070855,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.48900000000000005,
+              "minMs": 0.4564,
+              "maxMs": 0.5684,
+              "mibPerSec": 2088.439488947269,
+              "eventCount": 20289,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.4564,
+                0.5684,
+                0.5019,
+                0.4605,
+                0.45780000000000004
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1070855
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 5.161619999999994,
+              "minMs": 3.47849999999994,
+              "maxMs": 8.992300000000114,
+              "mibPerSec": 197.85395090983377,
+              "eventCount": 10146,
+              "checksum": -158477948,
+              "samplesMs": [
+                4.163099999999986,
+                3.711599999999862,
+                3.47849999999994,
+                8.992300000000114,
+                5.462600000000066
+              ],
+              "sizeBytes": 1070855
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 5.295340000000033,
+              "minMs": 3.504599999999982,
+              "maxMs": 8.041999999999916,
+              "mibPerSec": 192.85766543700848,
+              "eventCount": 10146,
+              "checksum": -158477948,
+              "samplesMs": [
+                5.13330000000019,
+                4.64409999999998,
+                3.504599999999982,
+                8.041999999999916,
+                5.152700000000095
+              ],
+              "sizeBytes": 1070855
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scaling",
+      "cases": [
+        {
+          "label": "1KB",
+          "filename": "patent_small.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_small.xml",
+          "sizeBytes": 2643,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.00268,
+              "minMs": 0.0014,
+              "maxMs": 0.0066,
+              "mibPerSec": 940.5079172618352,
+              "eventCount": 57,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.0066,
+                0.0022,
+                0.0017000000000000001,
+                0.0015,
+                0.0014
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 2643
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 0.1270600000000286,
+              "minMs": 0.07359999999994216,
+              "maxMs": 0.19650000000001455,
+              "mibPerSec": 19.837566647734548,
+              "eventCount": 40,
+              "checksum": -1898221952,
+              "samplesMs": [
+                0.12950000000000728,
+                0.09370000000012624,
+                0.14200000000005275,
+                0.19650000000001455,
+                0.07359999999994216
+              ],
+              "sizeBytes": 2643
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 0.09957999999992354,
+              "minMs": 0.0568999999998141,
+              "maxMs": 0.18780000000015207,
+              "mibPerSec": 25.311922256112215,
+              "eventCount": 40,
+              "checksum": -1898221952,
+              "samplesMs": [
+                0.12089999999989232,
+                0.0568999999998141,
+                0.07119999999986248,
+                0.18780000000015207,
+                0.06109999999989668
+              ],
+              "sizeBytes": 2643
+            }
+          ]
+        },
+        {
+          "label": "100KB",
+          "filename": "patent_medium.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_medium.xml",
+          "sizeBytes": 105907,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.050519999999999995,
+              "minMs": 0.0337,
+              "maxMs": 0.07959999999999999,
+              "mibPerSec": 1999.22378914562,
+              "eventCount": 2225,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.0523,
+                0.0514,
+                0.07959999999999999,
+                0.0356,
+                0.0337
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 105907
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 1.259059999999954,
+              "minMs": 0.9574000000000069,
+              "maxMs": 1.5010999999999513,
+              "mibPerSec": 80.21919990122822,
+              "eventCount": 1570,
+              "checksum": 1254131208,
+              "samplesMs": [
+                1.4303999999999633,
+                1.2412999999999101,
+                1.5010999999999513,
+                1.1650999999999385,
+                0.9574000000000069
+              ],
+              "sizeBytes": 105907
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 1.1873199999999997,
+              "minMs": 0.9337000000000444,
+              "maxMs": 1.338700000000017,
+              "mibPerSec": 85.06618757170497,
+              "eventCount": 1570,
+              "checksum": 1254131208,
+              "samplesMs": [
+                1.3301000000001295,
+                1.022799999999961,
+                1.3112999999998465,
+                0.9337000000000444,
+                1.338700000000017
+              ],
+              "sizeBytes": 105907
+            }
+          ]
+        },
+        {
+          "label": "1MB",
+          "filename": "patent_large.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_large.xml",
+          "sizeBytes": 1057369,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 0.45264,
+              "minMs": 0.4143,
+              "maxMs": 0.4818,
+              "mibPerSec": 2227.7873326797458,
+              "eventCount": 22097,
+              "checksum": 16777619,
+              "samplesMs": [
+                0.4419,
+                0.47209999999999996,
+                0.4818,
+                0.4531,
+                0.4143
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 4.189600000000018,
+              "minMs": 2.0026000000000295,
+              "maxMs": 9.35590000000002,
+              "mibPerSec": 240.68781226469252,
+              "eventCount": 15562,
+              "checksum": -623639220,
+              "samplesMs": [
+                3.5931000000000495,
+                2.9524999999998727,
+                3.0439000000001215,
+                2.0026000000000295,
+                9.35590000000002
+              ],
+              "sizeBytes": 1057369
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 4.169079999999985,
+              "minMs": 2.6411000000000513,
+              "maxMs": 7.487899999999854,
+              "mibPerSec": 241.87246545140988,
+              "eventCount": 15562,
+              "checksum": -623639220,
+              "samplesMs": [
+                3.31230000000005,
+                2.6411000000000513,
+                7.487899999999854,
+                4.282900000000154,
+                3.121199999999817
+              ],
+              "sizeBytes": 1057369
+            }
+          ]
+        },
+        {
+          "label": "10MB",
+          "filename": "patent_xlarge.xml",
+          "path": "G:\\programming\\stax-xml\\.omx\\upstream\\simdxml\\testdata\\bench\\patent_xlarge.xml",
+          "sizeBytes": 10562023,
+          "results": [
+            {
+              "id": "simdxml-upstream-parse",
+              "status": "ok",
+              "avgMs": 4.044739999999999,
+              "minMs": 3.6363,
+              "maxMs": 4.430899999999999,
+              "mibPerSec": 2490.3281952343273,
+              "eventCount": 220985,
+              "checksum": 16777619,
+              "samplesMs": [
+                3.9048,
+                3.6363,
+                4.149500000000001,
+                4.430899999999999,
+                4.1022
+              ],
+              "inputMode": "memory",
+              "workload": "upstream-parse",
+              "sizeBytes": 10562023
+            },
+            {
+              "id": "stax-xml-public-iterable",
+              "status": "ok",
+              "avgMs": 32.751140000000035,
+              "minMs": 31.011400000000094,
+              "maxMs": 33.76319999999987,
+              "mibPerSec": 307.553571093772,
+              "eventCount": 155716,
+              "checksum": -2100667308,
+              "samplesMs": [
+                33.424800000000005,
+                31.011400000000094,
+                33.76319999999987,
+                32.11799999999994,
+                33.438300000000254
+              ],
+              "sizeBytes": 10562023
+            },
+            {
+              "id": "stax-xml-native-node-iterable-reader",
+              "status": "ok",
+              "avgMs": 30.7041400000001,
+              "minMs": 29.5612000000001,
+              "maxMs": 31.865900000000238,
+              "mibPerSec": 328.0577167897247,
+              "eventCount": 155716,
+              "checksum": -2100667308,
+              "samplesMs": [
+                31.415300000000116,
+                29.5612000000001,
+                31.865900000000238,
+                30.3116,
+                30.366700000000037
+              ],
+              "sizeBytes": 10562023
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

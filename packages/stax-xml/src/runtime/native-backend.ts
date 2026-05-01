@@ -1,7 +1,8 @@
 export const WASM_PACKAGE_NAME = '@stax-xml/native-wasm32-wasi';
 
-export type StaxXmlRuntimeBackendPreference = 'auto' | 'native' | 'wasm' | 'js';
+export type StaxXmlRuntimeBackendPreference = 'auto' | 'native' | 'wasm';
 export type StaxXmlRuntimeBackendKind = 'native' | 'wasm' | 'js';
+export type StaxXmlRuntimeFallbackBackend = 'wasm';
 export type LinuxLibc = 'gnu' | 'musl';
 
 export interface StaxXmlRuntimePlatform {
@@ -22,7 +23,15 @@ export interface StaxXmlRuntimeCapabilities {
   structuralIndexUtf16?: (input: string) => ArrayBuffer | ArrayBufferView;
   streamingEventBatches?: StaxXmlStreamingEventBatchFactory;
   objectRowsProjection?: (input: Uint8Array, spec: unknown) => unknown;
+  objectRecordsProjection?: (input: Uint8Array, spec: unknown) => unknown;
+  createObjectProjectionPlan?: (spec: unknown) => StaxXmlObjectProjectionPlan;
   itemRowsProjection?: (input: Uint8Array) => unknown;
+  documentNodesProjection?: (input: Uint8Array, options?: unknown) => unknown;
+}
+
+export interface StaxXmlObjectProjectionPlan {
+  projectRows?: (input: Uint8Array) => unknown;
+  projectRecords?: (input: Uint8Array) => unknown;
 }
 
 export type StaxXmlStreamingEventBatchFactory = (options?: unknown) => StaxXmlStreamingEventBatchParser;
@@ -34,6 +43,7 @@ export interface StaxXmlStreamingEventBatch {
 
 export interface StaxXmlStreamingEventBatchParser {
   pushChunk(chunk: Uint8Array, isFinal: boolean): StaxXmlStreamingEventBatch;
+  pushBatch?(chunks: readonly Uint8Array[], isFinal: boolean): StaxXmlStreamingEventBatch;
 }
 
 export interface StaxXmlRuntime {
@@ -46,6 +56,11 @@ export type OptionalPackageImporter = (packageName: string) => Promise<unknown>;
 
 export interface StaxXmlRuntimeResolverOptions {
   backend?: StaxXmlRuntimeBackendPreference;
+  fallbackBackend?: StaxXmlRuntimeFallbackBackend;
+  /**
+   * @deprecated JavaScript is no longer a public runtime fallback. Use
+   * `fallbackBackend: "wasm"` when wasm compatibility is intended.
+   */
   fallbackOnLoadError?: boolean;
   platform?: StaxXmlRuntimePlatform;
   importPackage?: OptionalPackageImporter;
@@ -86,7 +101,16 @@ const UNINITIALIZED_RUNTIME: StaxXmlRuntime = {
   backend: JS_BACKEND,
   capabilities: {},
 };
-let initializedRuntime: StaxXmlRuntime | undefined;
+const RUNTIME_STATE_KEY = Symbol.for('stax-xml.runtime.state');
+
+interface RuntimeState {
+  initializedRuntime?: StaxXmlRuntime;
+}
+
+function runtimeState(): RuntimeState {
+  const stateHost = globalThis as unknown as { [key: symbol]: RuntimeState | undefined };
+  return stateHost[RUNTIME_STATE_KEY] ??= {};
+}
 
 export function detectRuntimePlatform(
   processLike: RuntimeProcessLike | undefined = (globalThis as { process?: RuntimeProcessLike }).process,
@@ -108,11 +132,15 @@ export async function resolveStaxXmlRuntimeBackend(
   const platform = options.platform ?? detectRuntimePlatform();
   const importPackage = options.importPackage ?? importOptionalPackage;
   const backendPreference = options.backend ?? 'auto';
-  if (backendPreference === 'js') {
-    return { ...JS_BACKEND };
+  if ((backendPreference as string) === 'js') {
+    throw new Error('backend: "js" is no longer a public stax-xml runtime backend. Use backend: "wasm" for compatibility or keep JavaScript parser helpers internal to tests.');
   }
 
-  const candidates = backendCandidates(backendPreference, platform);
+  const candidates = withFallbackBackend(
+    backendCandidates(backendPreference, platform),
+    backendPreference,
+    options.fallbackBackend,
+  );
   const errors: Array<{ packageName: string; error: unknown }> = [];
 
   for (const packageName of candidates) {
@@ -128,16 +156,7 @@ export async function resolveStaxXmlRuntimeBackend(
     }
   }
 
-  const fallback = options.fallbackOnLoadError ?? backendPreference === 'auto';
-  if (!fallback) {
-    throw createBackendLoadError(backendPreference, errors);
-  }
-
-  return {
-    kind: 'js',
-    packageName: 'stax-xml',
-    errors,
-  };
+  throw createBackendLoadError(backendPreference, platform, errors);
 }
 
 export async function initStaxXml(options: InitStaxXmlOptions = {}): Promise<StaxXmlRuntime> {
@@ -145,11 +164,12 @@ export async function initStaxXml(options: InitStaxXmlOptions = {}): Promise<Sta
     ...options,
     backend: options.backend ?? 'auto',
   });
-  initializedRuntime = {
+  const runtime = {
     ...createStaxXmlRuntimeFromBackend(backend),
     initialized: true,
   };
-  return initializedRuntime;
+  runtimeState().initializedRuntime = runtime;
+  return runtime;
 }
 
 export function createStaxXmlRuntimeFromBackend(backend: StaxXmlRuntimeBackend): StaxXmlRuntime {
@@ -161,19 +181,19 @@ export function createStaxXmlRuntimeFromBackend(backend: StaxXmlRuntimeBackend):
 }
 
 export function getStaxXmlRuntime(): StaxXmlRuntime {
-  return initializedRuntime ?? UNINITIALIZED_RUNTIME;
+  return runtimeState().initializedRuntime ?? UNINITIALIZED_RUNTIME;
 }
 
 export function getInitializedStaxXmlRuntime(): StaxXmlRuntime | undefined {
-  return initializedRuntime;
+  return runtimeState().initializedRuntime;
 }
 
 export function resetStaxXmlRuntimeForTests(): void {
-  initializedRuntime = undefined;
+  runtimeState().initializedRuntime = undefined;
 }
 
 export function getStaxXmlRuntimeForSyncApi(
-  backendPreference: StaxXmlRuntimeBackendPreference | undefined,
+  backendPreference: StaxXmlRuntimeBackendPreference | 'js' | undefined,
 ): StaxXmlRuntime | undefined {
   const preference = backendPreference ?? 'auto';
   if (preference === 'js') {
@@ -199,7 +219,7 @@ export function getStaxXmlRuntimeForSyncApi(
 }
 
 export async function getStaxXmlRuntimeForAsyncApi(
-  backendPreference: StaxXmlRuntimeBackendPreference | undefined,
+  backendPreference: StaxXmlRuntimeBackendPreference | 'js' | undefined,
 ): Promise<StaxXmlRuntime | undefined> {
   return getStaxXmlRuntimeForSyncApi(backendPreference);
 }
@@ -212,12 +232,18 @@ function backendCandidates(
     return [WASM_PACKAGE_NAME];
   }
   const nativePackage = getStaxXmlNativePackageName(platform);
-  if (backendPreference === 'native') {
-    return nativePackage ? [nativePackage] : [];
+  return nativePackage ? [nativePackage] : [];
+}
+
+function withFallbackBackend(
+  candidates: string[],
+  backendPreference: StaxXmlRuntimeBackendPreference,
+  fallbackBackend: StaxXmlRuntimeFallbackBackend | undefined,
+): string[] {
+  if (fallbackBackend !== 'wasm' || backendPreference === 'wasm' || candidates.includes(WASM_PACKAGE_NAME)) {
+    return candidates;
   }
-  return nativePackage === undefined
-    ? [WASM_PACKAGE_NAME]
-    : [nativePackage, WASM_PACKAGE_NAME];
+  return [...candidates, WASM_PACKAGE_NAME];
 }
 
 function createRuntimeCapabilities(backend: StaxXmlRuntimeBackend): StaxXmlRuntimeCapabilities {
@@ -238,8 +264,18 @@ function createRuntimeCapabilities(backend: StaxXmlRuntimeBackend): StaxXmlRunti
     'parseObjectRowsUint8Array',
     'parseObjectRowsViaTableUint8Array',
   ]);
+  const objectRecordsProjection = firstFunction(nativeModule, [
+    'parseObjectRecordsUint8Array',
+  ]);
+  const createObjectProjectionPlan = firstFunction(nativeModule, [
+    'createObjectProjectionPlan',
+  ]);
   const itemRowsProjection = firstFunction(nativeModule, [
     'parseItemRowsViaTableUint8Array',
+  ]);
+  const documentNodesProjection = firstFunction(nativeModule, [
+    'parseDocumentNodesUint8Array',
+    'parseXmlNodesUint8Array',
   ]);
   const streamingEventBatches = firstFunction(nativeModule, [
     'createStreamingEventBatchParser',
@@ -250,7 +286,10 @@ function createRuntimeCapabilities(backend: StaxXmlRuntimeBackend): StaxXmlRunti
     structuralIndexUtf8: structuralIndexUtf8 as StaxXmlRuntimeCapabilities['structuralIndexUtf8'],
     structuralIndexUtf16: structuralIndexUtf16 as StaxXmlRuntimeCapabilities['structuralIndexUtf16'],
     objectRowsProjection: objectRowsProjection as StaxXmlRuntimeCapabilities['objectRowsProjection'],
+    objectRecordsProjection: objectRecordsProjection as StaxXmlRuntimeCapabilities['objectRecordsProjection'],
+    createObjectProjectionPlan: createObjectProjectionPlan as StaxXmlRuntimeCapabilities['createObjectProjectionPlan'],
     itemRowsProjection: itemRowsProjection as StaxXmlRuntimeCapabilities['itemRowsProjection'],
+    documentNodesProjection: documentNodesProjection as StaxXmlRuntimeCapabilities['documentNodesProjection'],
     streamingEventBatches: streamingEventBatches as StaxXmlRuntimeCapabilities['streamingEventBatches'],
   };
 }
@@ -267,10 +306,26 @@ function firstFunction(module: Record<string, unknown> | undefined, names: strin
 
 function createBackendLoadError(
   backendPreference: StaxXmlRuntimeBackendPreference,
+  platform: StaxXmlRuntimePlatform,
   errors: Array<{ packageName: string; error: unknown }>,
 ): Error {
-  const packageNames = errors.map(({ packageName }) => packageName).join(', ') || backendPreference;
-  const error = new Error(`Unable to initialize stax-xml ${backendPreference} backend from ${packageNames}.`);
+  const expectedPackage = backendPreference === 'wasm'
+    ? WASM_PACKAGE_NAME
+    : getStaxXmlNativePackageName(platform)
+      ?? `no native package for ${platform.platform}/${platform.arch}${platform.libc ? `/${platform.libc}` : ''}`;
+  const attemptedPackages = errors.map(({ packageName }) => packageName).join(', ') || 'none';
+  const loadErrors = errors
+    .map(({ packageName, error }) => `${packageName}: ${error instanceof Error ? error.message : String(error)}`)
+    .join('; ');
+  const message = [
+    `Unable to initialize stax-xml ${backendPreference} backend.`,
+    `Expected package: ${expectedPackage}.`,
+    `Attempted packages: ${attemptedPackages}.`,
+    'Install stax-xml with optional dependencies enabled and verify the matching @stax-xml/native-* package is present.',
+    `Use backend: "wasm" or fallbackBackend: "wasm" only when the ${WASM_PACKAGE_NAME} compatibility backend is intended.`,
+    loadErrors ? `Load errors: ${loadErrors}` : undefined,
+  ].filter(Boolean).join(' ');
+  const error = new Error(message);
   (error as Error & { cause?: unknown }).cause = errors;
   return error;
 }

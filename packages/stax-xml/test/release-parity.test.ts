@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
-  IterableEventType,
-  IterableReader,
   EventReader,
   EventReaderSync,
-  toByteBatches,
   XmlEventType,
   type AnyXmlEvent
 } from '../src/index';
+import { IterableEventType, IterableReader, toByteBatches } from '../src/IterableReader';
 import { CursorEventType, CursorReader, CursorReaderAsync } from '../src/cursor';
 import { x } from '../src/converter';
 import { XmlParserInternal } from '../src/converter/XmlParserInternal';

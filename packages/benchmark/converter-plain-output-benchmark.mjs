@@ -2,8 +2,9 @@ import { bench } from 'mitata';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EventReaderSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType, initStaxXml } from 'stax-xml';
 import { x } from 'stax-xml/converter';
+import { ProjectionReader } from 'stax-xml/projection';
 import { parseMitataCliArgs, runMitataWithCli } from './common/mitata-cli.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -71,6 +72,14 @@ function buildCatalogXml(count) {
   </catalog>`;
 }
 
+function buildProjectionXml(count) {
+  const entries = Array.from({ length: count }, (_, i) =>
+    `<entry code="entry-${i}"><title>Entry ${i}</title><score>${i % 100}</score></entry>`
+  ).join('');
+
+  return `<root>${entries}</root>`;
+}
+
 function parsePlainCatalogSync(xml) {
   const parser = new EventReaderSync(xml);
   const elementStack = [];
@@ -120,15 +129,16 @@ function parsePlainCatalogSync(xml) {
   for (const event of parser) {
     switch (event.type) {
       case XmlEventType.START_ELEMENT: {
+        const name = event.name ?? event.localName;
         flushText();
-        elementStack.push(event.localName);
+        elementStack.push(name);
 
-        if (event.localName === 'featured') {
+        if (name === 'featured') {
           currentFeatured = {
             id: event.attributes?.id ?? '',
             title: ''
           };
-        } else if (event.localName === 'book') {
+        } else if (name === 'book') {
           currentBook = {
             id: event.attributes?.id ?? '',
             title: '',
@@ -147,14 +157,15 @@ function parsePlainCatalogSync(xml) {
         break;
 
       case XmlEventType.END_ELEMENT: {
+        const name = event.name ?? event.localName;
         flushText();
-        if (event.localName === 'featured' && currentFeatured) {
+        if (name === 'featured' && currentFeatured) {
           featured.push({
             ...currentFeatured,
             slug: currentFeatured.title.toLowerCase().replace(/\s+/g, '-')
           });
           currentFeatured = null;
-        } else if (event.localName === 'book' && currentBook) {
+        } else if (name === 'book' && currentBook) {
           ratings.push(currentBook.meta.rating);
           books.push({
             ...currentBook,
@@ -182,20 +193,139 @@ function parsePlainCatalogSync(xml) {
 
 function assertSameOutput(actual, expected) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-    throw new Error('Plain parser and converter API produced different outputs');
+    throw new Error(`Plain parser and converter API produced different outputs: ${describeOutputDifference(actual, expected)}`);
+  }
+}
+
+function describeOutputDifference(actual, expected, path = '$') {
+  if (Object.is(actual, expected)) {
+    return 'unknown mismatch';
+  }
+  if (typeof actual !== typeof expected || actual === null || expected === null) {
+    return `${path}: ${JSON.stringify(actual)} !== ${JSON.stringify(expected)}`;
+  }
+  if (Array.isArray(actual) || Array.isArray(expected)) {
+    if (!Array.isArray(actual) || !Array.isArray(expected)) {
+      return `${path}: ${JSON.stringify(actual)} !== ${JSON.stringify(expected)}`;
+    }
+    if (actual.length !== expected.length) {
+      return `${path}.length: ${actual.length} !== ${expected.length}`;
+    }
+    for (let index = 0; index < actual.length; index++) {
+      const diff = describeOutputDifference(actual[index], expected[index], `${path}[${index}]`);
+      if (diff !== 'unknown mismatch') {
+        return diff;
+      }
+    }
+    return 'unknown mismatch';
+  }
+  if (typeof actual === 'object') {
+    const actualKeys = Object.keys(actual);
+    const expectedKeys = Object.keys(expected);
+    if (actualKeys.length !== expectedKeys.length) {
+      return `${path} keys: ${actualKeys.join(',')} !== ${expectedKeys.join(',')}`;
+    }
+    for (const key of expectedKeys) {
+      if (!Object.prototype.hasOwnProperty.call(actual, key)) {
+        return `${path}.${key}: missing actual key`;
+      }
+      const diff = describeOutputDifference(actual[key], expected[key], `${path}.${key}`);
+      if (diff !== 'unknown mismatch') {
+        return diff;
+      }
+    }
+    return 'unknown mismatch';
+  }
+  return `${path}: ${JSON.stringify(actual)} !== ${JSON.stringify(expected)}`;
+}
+
+function assertProjectionRows(result, expectedRowCount) {
+  const rowCount = result.rowCount ?? result.row_count;
+  if (rowCount !== expectedRowCount) {
+    throw new Error(`ProjectionReader returned ${rowCount} rows; expected ${expectedRowCount}`);
+  }
+  if (!Array.isArray(result.columns) || result.columns.length !== 3) {
+    throw new Error('ProjectionReader returned an invalid column shape');
+  }
+}
+
+function assertProjectionRecords(result, expectedRowCount) {
+  const rowCount = result.rowCount ?? result.row_count;
+  if (rowCount !== expectedRowCount) {
+    throw new Error(`ProjectionReader returned ${rowCount} records; expected ${expectedRowCount}`);
+  }
+  if (!Array.isArray(result.rows) || result.rows.length !== expectedRowCount) {
+    throw new Error('ProjectionReader returned an invalid record shape');
+  }
+}
+
+async function initializeNativeProjection() {
+  try {
+    const runtime = await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
+    return runtime.backend.kind === 'native'
+      && typeof runtime.capabilities.objectRowsProjection === 'function'
+      && typeof runtime.capabilities.objectRecordsProjection === 'function';
+  } catch (error) {
+    console.warn(`Native projection benchmark unavailable: ${error instanceof Error ? error.message : String(error)}`);
+    await initStaxXml({ backend: 'js' });
+    return false;
   }
 }
 
 const fixtureSize = 800;
 const xml = buildCatalogXml(fixtureSize);
 const compiledSchema = catalogSchema.compile();
+const projectionFixtureSize = 10000;
+const projectionXml = buildProjectionXml(projectionFixtureSize);
+const projectionBytes = Buffer.from(projectionXml);
+const projectionSpec = {
+  itemName: 'entry',
+  fields: [
+    { outputName: 'code', valueKind: 'string', sourceKind: 'attribute', sourceName: 'code', textMode: 'direct' },
+    { outputName: 'title', valueKind: 'string', sourceKind: 'element', sourceName: 'title', textMode: 'subtree' },
+    { outputName: 'score', valueKind: 'number', sourceKind: 'element', sourceName: 'score', textMode: 'subtree' }
+  ]
+};
+const projectionSchema = x.array(
+  x.object({
+    code: x.string().xpath('./@code'),
+    title: x.string().xpath('./title'),
+    score: x.number().xpath('./score').int()
+  }),
+  '//entry'
+).compile();
+const projectionReader = new ProjectionReader();
+const nativeProjectionAvailable = await initializeNativeProjection();
 
 const plainOutput = parsePlainCatalogSync(xml);
 const converterOutput = catalogSchema.parseSync(xml);
 const compiledOutput = compiledSchema.parseSync(xml);
+const projectionJsOutput = projectionSchema.parseSync(projectionBytes, {
+  acceleration: { backend: 'js' }
+});
 
 assertSameOutput(plainOutput, converterOutput);
 assertSameOutput(plainOutput, compiledOutput);
+assertSameOutput(projectionJsOutput, Array.from({ length: projectionFixtureSize }, (_, i) => ({
+  code: `entry-${i}`,
+  title: `Entry ${i}`,
+  score: i % 100
+})));
+
+if (nativeProjectionAvailable) {
+  const projectionNativeOutput = projectionSchema.parseSync(projectionBytes, {
+    acceleration: { backend: 'native' }
+  });
+  assertSameOutput(projectionNativeOutput, projectionJsOutput);
+  assertProjectionRows(
+    projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' }),
+    projectionFixtureSize
+  );
+  assertProjectionRecords(
+    projectionReader.projectObjectRecordsSync(projectionBytes, projectionSpec, { backend: 'native' }),
+    projectionFixtureSize
+  );
+}
 
 const samples = [];
 
@@ -209,18 +339,47 @@ function measure(label, fn) {
 measure('plain-parser', () => parsePlainCatalogSync(xml));
 measure('converter-api', () => catalogSchema.parseSync(xml));
 measure('converter-api-compiled', () => compiledSchema.parseSync(xml));
+measure('converter-api-compiled-js-byte-projection', () =>
+  projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'js' } })
+);
+if (nativeProjectionAvailable) {
+  measure('converter-api-compiled-native-byte-projection', () =>
+    projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'native' } })
+  );
+  measure('projection-reader-native-object-rows', () =>
+    projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' })
+  );
+  measure('projection-reader-native-object-records', () =>
+    projectionReader.projectObjectRecordsSync(projectionBytes, projectionSpec, { backend: 'native' })
+  );
+}
 
 bench('plain parser', () => parsePlainCatalogSync(xml));
 bench('converter api', () => catalogSchema.parseSync(xml));
 bench('converter api compiled', () => compiledSchema.parseSync(xml));
+bench('converter api compiled js byte projection', () =>
+  projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'js' } })
+);
+if (nativeProjectionAvailable) {
+  bench('converter api compiled native byte projection', () =>
+    projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'native' } })
+  );
+  bench('ProjectionReader native object rows', () =>
+    projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' })
+  );
+  bench('ProjectionReader native object records', () =>
+    projectionReader.projectObjectRecordsSync(projectionBytes, projectionSpec, { backend: 'native' })
+  );
+}
 
 await runMitataWithCli(cli);
 
 const markdown = `# Converter API vs Plain Parser Benchmark
 
 - Fixture: catalog document with ${fixtureSize} featured items and ${fixtureSize} books
-- Guarantee: all implementations are verified to produce identical JSON output before benchmarking
-- Focus: compare a handwritten plain-parser implementation, declarative converter API, and compiled converter API
+- Projection fixture: byte input document with ${projectionFixtureSize} entry rows
+- Guarantee: converter implementations are verified to produce identical JSON output before benchmarking; ProjectionReader is verified against the same row count and column shape
+- Focus: compare a handwritten plain-parser implementation, declarative converter API, compiled converter API, and the public native projection fast path
 
 ## One-shot local timings
 

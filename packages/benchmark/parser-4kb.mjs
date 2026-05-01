@@ -5,7 +5,7 @@ import xml2js from 'xml2js';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import {
   createStaxParserSurfaceRunners,
-  loadNativeAggregateProbe,
+  ensureNativeReaderRuntime,
   parseXmlToObjectBaseline,
 } from './common/parser-scenarios.mjs';
 import { ASSET_PATHS, loadXmlBuffer } from './common/utils.mjs';
@@ -13,8 +13,8 @@ import { ASSET_PATHS, loadXmlBuffer } from './common/utils.mjs';
 const cli = parseMitataCliArgs();
 const inputBuffer = loadXmlBuffer(ASSET_PATHS.books);
 const xmlString = inputBuffer.toString('utf8');
-const nativeAggregate = await loadNativeAggregateProbe();
-const staxSurfaceRunners = createStaxParserSurfaceRunners({ xmlString, inputBuffer, native: nativeAggregate });
+await ensureNativeReaderRuntime();
+const staxSurfaceRunners = createStaxParserSurfaceRunners({ xmlString, inputBuffer });
 
 if (shouldPrintHumanReadableBanner(cli)) {
   console.log('📊 XML Parser Benchmark - 4KB file (books.xml)');

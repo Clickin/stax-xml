@@ -11,11 +11,23 @@ import {
   resolveStaxXmlRuntimeBackend,
   type StaxXmlRuntime,
   type StaxXmlRuntimeBackendPreference,
+  type StaxXmlObjectProjectionPlan,
 } from '../runtime/index.js';
 import {
   StaxXmlStructuralIndexParser,
   type StructuralIndexTable
 } from '../runtime/structural-index-parser.js';
+import {
+  projectXmlItemRows,
+  projectXmlItemRowsSync,
+  projectXmlObjectRows,
+  projectXmlObjectRowsSync,
+  type ItemRowsProjectionResult,
+  type ObjectRecordsProjectionResult,
+  type ObjectRowsProjectionFieldSpec,
+  type ObjectRowsProjectionResult,
+  type ObjectRowsProjectionSpec,
+} from '../projection/index.js';
 import {
   isCdata,
   isCharacters,
@@ -126,8 +138,27 @@ export class CompiledRootProcessor {
     return plan.kind === 'dispatch';
   }
 
-  parseSync<T>(input: string, options?: ParseOptions | unknown): T {
+  parseSync<T>(input: string | ArrayBufferView, options?: ParseOptions | unknown): T {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
+    if (isArrayBufferView(input)) {
+      const projectedRows = tryProjectItemRowsViaNativeTableSync(this.plan, input, effectiveOptions);
+      if (projectedRows !== undefined) {
+        return projectedRows as T;
+      }
+
+      const runtime = this.createRuntime(this.plan, effectiveOptions);
+      const parser = createIterableReaderFromChunks([toUint8Array(input)], {
+        batchSize: 1,
+        documentMode: effectiveOptions?.documentMode
+      });
+      while (parser.nextBatch()) {
+        for (let index = 0; index < parser.eventCount(); index++) {
+          this.processIterableEvent(runtime, parser, index);
+        }
+      }
+      return this.finish<T>(runtime);
+    }
+
     const runtime = this.createRuntime(this.plan, effectiveOptions);
     const acceleratedTable = tryCreateStructuralIndexTableSync(input, effectiveOptions);
     if (acceleratedTable) {
@@ -846,49 +877,20 @@ type StructuralIndexNativeModule = {
   parseSpanTableUint8Array?: (input: Uint8Array) => StructuralIndexTable;
 };
 
-type NativeItemRowsModule = {
-  parseObjectRowsUint8Array?: (
-    input: Uint8Array,
-    spec: NativeObjectRowsProjectionSpec
-  ) => NativeObjectRowsResult;
-  parseObjectRowsViaTableUint8Array?: (
-    input: Uint8Array,
-    spec: NativeObjectRowsProjectionSpec
-  ) => NativeObjectRowsResult;
-  parseItemRowsViaTableUint8Array?: (input: Uint8Array) => NativeItemRowsResult;
-};
-
-type NativeObjectRowsProjectionSpec = {
-  itemName: string;
-  fields: NativeObjectRowsProjectionFieldSpec[];
-};
-
-type NativeObjectRowsProjectionFieldSpec = {
-  outputName: string;
-  valueKind: 'string' | 'number';
-  sourceKind: 'attribute' | 'element';
-  sourceName: string;
-  textMode: 'direct' | 'subtree';
-};
+type NativeObjectRowsProjectionSpec = ObjectRowsProjectionSpec;
+type NativeObjectRowsProjectionFieldSpec = ObjectRowsProjectionFieldSpec;
 
 type NativeObjectRowsProjectionPlan = {
   spec: NativeObjectRowsProjectionSpec;
   fields: DispatchFieldPlan[];
+  compiledNative?: {
+    factory: NonNullable<StaxXmlRuntime['capabilities']['createObjectProjectionPlan']>;
+    plan: StaxXmlObjectProjectionPlan;
+  };
 };
 
-type NativeObjectRowsResult = {
-  inputBytes?: number;
-  input_bytes?: number;
-  eventCount?: number;
-  event_count?: number;
-  maxDepth?: number;
-  max_depth?: number;
-  fieldCount?: number;
-  field_count?: number;
-  rowCount?: number;
-  row_count?: number;
-  columns?: NativeObjectRowsColumn[];
-};
+type NativeObjectRowsResult = ObjectRowsProjectionResult;
+type NativeObjectRecordsResult = ObjectRecordsProjectionResult;
 
 type NativeObjectRowsColumn = {
   present?: unknown[];
@@ -920,18 +922,17 @@ type NativeObjectRowsHydrator = {
   parseValue: (rawValue: string | number) => unknown;
 };
 
-type NativeItemRowsResult = {
-  inputBytes?: number;
-  input_bytes?: number;
-  eventCount?: number;
-  event_count?: number;
-  maxDepth?: number;
-  max_depth?: number;
-  rows?: Array<{ id: unknown; name: unknown; value: unknown }>;
-};
+const nativeObjectRowsProjectionPlanCache = new WeakMap<
+  DispatchCompiledPlan,
+  NativeObjectRowsProjectionPlan
+>();
+
+type NativeItemRowsResult = ItemRowsProjectionResult;
 
 async function resolveConverterRuntime(
   backendPreference: StaxXmlRuntimeBackendPreference,
+  fallbackBackend: 'wasm' | undefined,
+  allowAutoLoad: boolean,
 ): Promise<StaxXmlRuntime | undefined> {
   const initialized = getInitializedStaxXmlRuntime();
   if (initialized) {
@@ -940,11 +941,12 @@ async function resolveConverterRuntime(
     }
     return initialized.backend.kind === 'js' ? undefined : initialized;
   }
-  if (backendPreference === 'auto') {
+  if (backendPreference === 'auto' && !allowAutoLoad) {
     return undefined;
   }
   const backend = await resolveStaxXmlRuntimeBackend({
     backend: backendPreference,
+    fallbackBackend,
     fallbackOnLoadError: false,
   });
   return backend.kind === 'js' ? undefined : createStaxXmlRuntimeFromBackend(backend);
@@ -966,44 +968,220 @@ async function tryProjectItemRowsViaNativeTable(
 
   const acceleration = options?.acceleration;
   const backendPreference = acceleration?.backend ?? 'auto';
-  if (backendPreference === 'js' || acceleration?.simd === 'avx2') {
+  const accelerationRequested = acceleration !== undefined;
+  if (acceleration?.simd === 'avx2') {
     return undefined;
   }
 
-  const runtime = await resolveConverterRuntime(backendPreference);
-  if (!runtime || runtime.backend.kind === 'js') {
+  const initializedRuntime = getInitializedStaxXmlRuntime();
+  if (backendPreference === 'auto' && !initializedRuntime && !accelerationRequested) {
     return undefined;
   }
-  const projectRows = runtime.capabilities.itemRowsProjection as NativeItemRowsModule['parseItemRowsViaTableUint8Array'];
+
   const nativeInput = toUint8Array(input);
-  if (itemRowsSupported && typeof projectRows === 'function') {
+  const projectionOptions = {
+    backend: backendPreference,
+    fallbackBackend: acceleration?.fallbackBackend,
+  };
+  if (itemRowsSupported) {
     try {
-      return normalizeNativeItemRowsResult(projectRows(nativeInput), options);
+      return normalizeNativeItemRowsResult(
+        await projectXmlItemRows(nativeInput, projectionOptions),
+        options
+      );
     } catch (error) {
-      if (acceleration?.fallbackOnParseError) {
+      if (isProjectionCapabilityError(error)) {
         return undefined;
       }
       throw error;
     }
   }
 
-  const projectObjectRows = runtime.capabilities.objectRowsProjection as NativeItemRowsModule['parseObjectRowsUint8Array'];
-  if (objectRowsProjection && typeof projectObjectRows === 'function') {
+  if (objectRowsProjection) {
+    const compiledPlan = initializedRuntime
+      ? getNativeCompiledObjectProjectionPlan(initializedRuntime, objectRowsProjection)
+      : undefined;
+    if (
+      typeof compiledPlan?.projectRecords === 'function'
+      && canUseNativeObjectRecordsPlan(objectRowsProjection)
+    ) {
+      try {
+        return normalizeNativeObjectRecordsResult(
+          compiledPlan.projectRecords(nativeInput) as NativeObjectRecordsResult,
+          objectRowsProjection,
+          options
+        );
+      } catch (error) {
+        if (!isProjectionCapabilityError(error)) {
+          throw error;
+        }
+      }
+    }
     try {
       return normalizeNativeObjectRowsResult(
-        projectObjectRows(nativeInput, objectRowsProjection.spec),
+        typeof compiledPlan?.projectRows === 'function'
+          ? compiledPlan.projectRows(nativeInput) as NativeObjectRowsResult
+          : await projectXmlObjectRows(nativeInput, objectRowsProjection.spec, projectionOptions),
         objectRowsProjection,
         nativeInput,
         options
       );
     } catch (error) {
-      if (acceleration?.fallbackOnParseError) {
+      if (isProjectionCapabilityError(error)) {
         return undefined;
       }
       throw error;
     }
   }
   return undefined;
+}
+
+function tryProjectItemRowsViaNativeTableSync(
+  plan: DispatchCompiledPlan,
+  input: ArrayBufferView,
+  options?: ParseOptions
+): unknown[] | undefined {
+  if (options?.documentMode === 'document') {
+    return undefined;
+  }
+  const objectRowsProjection = createNativeObjectRowsProjectionPlan(plan);
+  const itemRowsSupported = isSupportedNativeItemRowsPlan(plan);
+  if (!objectRowsProjection && !itemRowsSupported) {
+    return undefined;
+  }
+
+  const acceleration = options?.acceleration;
+  const backendPreference = acceleration?.backend ?? 'auto';
+  const accelerationRequested = acceleration !== undefined;
+  if (acceleration?.simd === 'avx2') {
+    return undefined;
+  }
+
+  const initializedRuntime = getInitializedStaxXmlRuntime();
+  if (backendPreference === 'auto' && !initializedRuntime) {
+    if (accelerationRequested) {
+      throw new Error('Compiled converter sync acceleration requires an initialized native or wasm backend. Call initStaxXml() before parseSync or use the async parse method.');
+    }
+    return undefined;
+  }
+
+  const nativeInput = toUint8Array(input);
+  if (itemRowsSupported) {
+    try {
+      return normalizeNativeItemRowsResult(
+        projectXmlItemRowsSync(nativeInput, { backend: backendPreference }),
+        options
+      );
+    } catch (error) {
+      if (isProjectionCapabilityError(error)) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
+  if (objectRowsProjection) {
+    const compiledPlan = initializedRuntime
+      ? getNativeCompiledObjectProjectionPlan(initializedRuntime, objectRowsProjection)
+      : undefined;
+    if (
+      typeof compiledPlan?.projectRecords === 'function'
+      && canUseNativeObjectRecordsPlan(objectRowsProjection)
+    ) {
+      try {
+        return normalizeNativeObjectRecordsResult(
+          compiledPlan.projectRecords(nativeInput) as NativeObjectRecordsResult,
+          objectRowsProjection,
+          options
+        );
+      } catch (error) {
+        if (!isProjectionCapabilityError(error)) {
+          throw error;
+        }
+      }
+    }
+    try {
+      return normalizeNativeObjectRowsResult(
+        typeof compiledPlan?.projectRows === 'function'
+          ? compiledPlan.projectRows(nativeInput) as NativeObjectRowsResult
+          : projectXmlObjectRowsSync(nativeInput, objectRowsProjection.spec, { backend: backendPreference }),
+        objectRowsProjection,
+        nativeInput,
+        options
+      );
+    } catch (error) {
+      if (isProjectionCapabilityError(error)) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+  return undefined;
+}
+
+function isProjectionCapabilityError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('projection capabilities')
+    || message.includes('does not provide object row projection capability')
+    || message.includes('does not provide object record projection capability')
+    || message.includes('does not provide item row projection capability')
+    || message.includes('backend is not initialized')
+    || message.includes('sync methods require an initialized');
+}
+
+function normalizeNativeObjectRecordsResult(
+  result: NativeObjectRecordsResult,
+  projection: NativeObjectRowsProjectionPlan,
+  options?: ParseOptions
+): unknown[] {
+  const eventCount = readNativeNumber(result.eventCount ?? result.event_count, 'eventCount');
+  const maxDepth = readNativeNumber(result.maxDepth ?? result.max_depth, 'maxDepth');
+  const fieldCount = readNativeNumber(result.fieldCount ?? result.field_count, 'fieldCount');
+  const rowCount = readNativeNumber(result.rowCount ?? result.row_count, 'rowCount');
+  const maxEvents = options?.maxEvents ?? 1000000;
+  const configuredMaxDepth = options?.maxDepth ?? 1000;
+  if (eventCount > maxEvents) {
+    throw new Error(`XML event limit exceeded: ${maxEvents}`);
+  }
+  if (maxDepth > configuredMaxDepth) {
+    throw new Error(`XML depth limit exceeded: ${configuredMaxDepth}`);
+  }
+  if (fieldCount !== projection.fields.length) {
+    throw new Error('Native object records projection returned an unexpected field count.');
+  }
+  const rows = Array.isArray(result.rows)
+    ? result.rows
+    : typeof result.json === 'string'
+      ? JSON.parse(result.json) as unknown[]
+      : undefined;
+  if (!Array.isArray(rows) || rows.length !== rowCount) {
+    throw new Error('Native object records projection returned invalid rows.');
+  }
+
+  const hydrators = createNativeObjectRowsHydrators(projection, options);
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') {
+      throw new Error('Native object records projection returned a non-object row.');
+    }
+    const record = row as Record<string, unknown>;
+    for (const hydrator of hydrators) {
+      const rawValue = hydrator.valueKind === 'number' && record[hydrator.fieldName] === null
+        ? NaN
+        : record[hydrator.fieldName];
+      if (hydrator.valueKind === 'number') {
+        if (typeof rawValue !== 'number' && typeof rawValue !== 'string') {
+          throw new Error('Native object records projection returned a non-number value.');
+        }
+      } else if (typeof rawValue !== 'string') {
+        throw new Error('Native object records projection returned a non-string value.');
+      }
+      const value = hydrator.parseValue(rawValue);
+      if (value !== rawValue) {
+        record[hydrator.fieldName] = value;
+      }
+    }
+  }
+  return rows;
 }
 
 function normalizeNativeObjectRowsResult(
@@ -1136,7 +1314,7 @@ function readNativeObjectRowsColumnValues(
     && spanStarts.length > 0
   ) {
     return {
-      values: Array.isArray(column.values) ? column.values : undefined,
+      values: Array.isArray(column.values) && column.values.length > 0 ? column.values : undefined,
       spanStarts,
       spanEnds,
       source
@@ -1270,11 +1448,14 @@ function normalizeNativeItemRowsResult(
     throw new Error('Native item projection did not return rows.');
   }
 
-  return result.rows.map((row) => ({
-    id: Number(row.id),
-    name: decodeEntities(String(row.name), options),
-    value: decodeEntities(String(row.value), options),
-  }));
+  return result.rows.map((row) => {
+    const record = row as { id: unknown; name: unknown; value: unknown };
+    return {
+      id: Number(record.id),
+      name: decodeEntities(String(record.name), options),
+      value: decodeEntities(String(record.value), options),
+    };
+  });
 }
 
 function readNativeNumber(value: unknown, label: string): number {
@@ -1287,6 +1468,11 @@ function readNativeNumber(value: unknown, label: string): number {
 function createNativeObjectRowsProjectionPlan(
   plan: DispatchCompiledPlan
 ): NativeObjectRowsProjectionPlan | undefined {
+  const cached = nativeObjectRowsProjectionPlanCache.get(plan);
+  if (cached) {
+    return cached;
+  }
+
   const root = plan.root;
   if (
     root.kind !== 'array'
@@ -1345,13 +1531,53 @@ function createNativeObjectRowsProjectionPlan(
     return undefined;
   }
 
-  return {
+  const projection = {
     spec: {
       itemName: root.itemSelector.segments[0]!,
       fields: nativeFields,
     },
     fields,
   };
+  nativeObjectRowsProjectionPlanCache.set(plan, projection);
+  return projection;
+}
+
+function isSupportedNativeObjectRecordsPlan(
+  projection: NativeObjectRowsProjectionPlan
+): boolean {
+  return projection.fields.every(field => {
+    const value = field?.value;
+    return !!value
+      && (value.kind === 'string' || value.kind === 'number')
+      && !value.optional
+      && value.transforms.length === 0;
+  });
+}
+
+function canUseNativeObjectRecordsPlan(
+  projection: NativeObjectRowsProjectionPlan
+): boolean {
+  try {
+    return isSupportedNativeObjectRecordsPlan(projection);
+  } catch {
+    return false;
+  }
+}
+
+function getNativeCompiledObjectProjectionPlan(
+  runtime: StaxXmlRuntime,
+  projection: NativeObjectRowsProjectionPlan
+): StaxXmlObjectProjectionPlan | undefined {
+  const factory = runtime.capabilities.createObjectProjectionPlan;
+  if (typeof factory !== 'function') {
+    return undefined;
+  }
+  if (projection.compiledNative?.factory === factory) {
+    return projection.compiledNative.plan;
+  }
+  const plan = factory(projection.spec);
+  projection.compiledNative = { factory, plan };
+  return plan;
 }
 
 function isSupportedNativeItemRowsPlan(plan: DispatchCompiledPlan): boolean {
@@ -1424,15 +1650,20 @@ async function tryCreateStructuralIndexTable(
   }
   const acceleration = options?.acceleration;
   const backendPreference = acceleration?.backend ?? 'auto';
-  if (backendPreference === 'js') {
-    return undefined;
-  }
+  const accelerationRequested = acceleration !== undefined;
   if (acceleration?.simd === 'avx2') {
     return undefined;
   }
 
-  const runtime = await resolveConverterRuntime(backendPreference);
+  const runtime = await resolveConverterRuntime(
+    backendPreference,
+    acceleration?.fallbackBackend,
+    accelerationRequested,
+  );
   if (!runtime || runtime.backend.kind === 'js') {
+    if (accelerationRequested) {
+      throw new Error('Compiled converter acceleration requires a native or wasm backend. Use initStaxXml() or backend: "wasm" explicitly; JavaScript is not a public acceleration fallback.');
+    }
     return undefined;
   }
 
@@ -1442,12 +1673,18 @@ async function tryCreateStructuralIndexTable(
     if (typeof input === 'string') {
       const buildStringTable = runtime.capabilities.structuralIndexUtf16 as StructuralIndexNativeModule['parseStructuralIndexStringUtf16'];
       if (typeof buildStringTable !== 'function') {
+        if (accelerationRequested) {
+          throw new Error(`Initialized ${runtime.backend.kind} backend does not provide structuralIndexUtf16 capability.`);
+        }
         return undefined;
       }
       table = buildStringTable(input);
     } else {
       const buildByteTable = runtime.capabilities.structuralIndexUtf8 as StructuralIndexNativeModule['parseStructuralIndexUint8Array'];
       if (typeof buildByteTable !== 'function') {
+        if (accelerationRequested) {
+          throw new Error(`Initialized ${runtime.backend.kind} backend does not provide structuralIndexUtf8 capability.`);
+        }
         return undefined;
       }
       table = buildByteTable(toUint8Array(input));
@@ -1457,7 +1694,7 @@ async function tryCreateStructuralIndexTable(
       sourceKind,
     });
   } catch (error) {
-    if (acceleration?.fallbackOnParseError) {
+    if (!accelerationRequested && isProjectionCapabilityError(error)) {
       return undefined;
     }
     throw error;
@@ -1473,18 +1710,22 @@ function tryCreateStructuralIndexTableSync(
   }
   const acceleration = options?.acceleration;
   const backendPreference = acceleration?.backend ?? 'auto';
-  if (backendPreference === 'js' || acceleration?.simd === 'avx2') {
+  const accelerationRequested = acceleration !== undefined;
+  if (acceleration?.simd === 'avx2') {
     return undefined;
   }
 
   const runtime = getStaxXmlRuntimeForSyncApi(backendPreference);
   if (!runtime || runtime.backend.kind === 'js') {
+    if (accelerationRequested) {
+      throw new Error('Compiled converter sync acceleration requires an initialized native or wasm backend. Call initStaxXml() before parseSync or use the async parse method.');
+    }
     return undefined;
   }
   const buildStringTable = runtime.capabilities.structuralIndexUtf16 as StructuralIndexNativeModule['parseStructuralIndexStringUtf16'];
   if (typeof buildStringTable !== 'function') {
-    if (backendPreference !== 'auto' && acceleration?.fallbackOnLoadError !== true) {
-      throw new Error(`Initialized ${backendPreference} backend does not provide structuralIndexUtf16 capability.`);
+    if (accelerationRequested || backendPreference !== 'auto') {
+      throw new Error(`Initialized ${runtime.backend.kind} backend does not provide structuralIndexUtf16 capability.`);
     }
     return undefined;
   }
@@ -1495,7 +1736,7 @@ function tryCreateStructuralIndexTableSync(
       sourceKind: 'utf16',
     });
   } catch (error) {
-    if (acceleration?.fallbackOnParseError) {
+    if (!accelerationRequested && isProjectionCapabilityError(error)) {
       return undefined;
     }
     throw error;
@@ -1534,13 +1775,9 @@ function disableAcceleration(options: ParseOptions | undefined): ParseOptions | 
   if (!options?.acceleration) {
     return options;
   }
-  return {
-    ...options,
-    acceleration: {
-      ...options.acceleration,
-      backend: 'js',
-    },
-  };
+  const clone: ParseOptions = { ...options };
+  delete clone.acceleration;
+  return clone;
 }
 
 function isSyncIterator(input: ParseInput): input is Iterator<AnyXmlEvent> & Iterable<AnyXmlEvent> {

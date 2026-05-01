@@ -2,10 +2,28 @@ import { describe, it, expect } from 'vitest';
 import { EventReaderSync } from '../src/EventReaderSync';
 import { XmlEventType } from '../src/types';
 
+function newNamespaceAwareReader(
+  xml: string,
+  options: ConstructorParameters<typeof EventReaderSync>[1] = {},
+): EventReaderSync {
+  return new EventReaderSync(xml, { ...options, namespaceAware: true });
+}
+
 describe('EventReaderSync', () => {
+  it('uses lean event objects by default', () => {
+    const events = Array.from(new EventReaderSync('<root attr="value"/>'));
+
+    expect(events).toEqual([
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr: 'value' } },
+      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      { type: XmlEventType.END_DOCUMENT },
+    ]);
+  });
+
   it('should parse a simple XML document', () => {
     const xml = '<root><item>text</item></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -21,7 +39,7 @@ describe('EventReaderSync', () => {
 
   it('should parse XML with attributes', () => {
     const xml = '<root attr1="value1" attr2="value2"><child/></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -36,7 +54,7 @@ describe('EventReaderSync', () => {
 
   it('should parse XML with self-closing tags', () => {
     const xml = '<root><empty/><item/></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -53,7 +71,7 @@ describe('EventReaderSync', () => {
 
   it('should handle CDATA sections', () => {
     const xml = '<root><![CDATA[<data>text</data>]]></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -67,7 +85,7 @@ describe('EventReaderSync', () => {
 
   it('should ignore comments and processing instructions', () => {
     const xml = '<root><!-- comment --><?pi target data?><item/></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -82,7 +100,7 @@ describe('EventReaderSync', () => {
 
   it('should handle mixed content (text and elements)', () => {
     const xml = '<root>Hello <bold>World</bold>!</root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -100,7 +118,7 @@ describe('EventReaderSync', () => {
 
   it('should handle XML with leading/trailing whitespace', () => {
     const xml = '  <root>  <item/>  </root>  ';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -115,7 +133,7 @@ describe('EventReaderSync', () => {
 
   it('should handle empty XML', () => {
     const xml = '';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -126,7 +144,7 @@ describe('EventReaderSync', () => {
 
   it('should handle XML declaration', () => {
     const xml = '<?xml version="1.0" encoding="UTF-8"?><root/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -139,7 +157,7 @@ describe('EventReaderSync', () => {
 
   it('should handle nested elements', () => {
     const xml = '<A><B><C>text</C></B></A>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -157,7 +175,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with single quotes', () => {
     const xml = '<root attr="value"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -170,7 +188,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with double quotes', () => {
     const xml = '<root attr="value"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -183,7 +201,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with mixed quotes', () => {
     const xml = '<root attr1="value1" attr2="value2"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -196,7 +214,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with no value (boolean attributes)', () => {
     const xml = '<root checked disabled/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -209,7 +227,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with whitespace around equals sign', () => {
     const xml = '<root attr = "value"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -222,7 +240,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with special characters in value (XML entities)', () => {
     const xml = '<root attr="value &amp; &lt; &gt; &apos; &quot;"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -235,7 +253,7 @@ describe('EventReaderSync', () => {
 
   it('should handle multiple root elements (invalid XML, but parser should process sequentially)', () => {
     const xml = '<root1/><root2/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -250,7 +268,7 @@ describe('EventReaderSync', () => {
 
   it('should handle text nodes with leading/trailing whitespace within elements', () => {
     const xml = '<root>  Hello   World  </root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -264,7 +282,7 @@ describe('EventReaderSync', () => {
 
   it('should handle complex nested structure with mixed content and attributes', () => {
     const xml = '<library name="My Library"><book id="123">Title <author>Author Name</author> More Text</book><book id="456"/></library>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -287,7 +305,7 @@ describe('EventReaderSync', () => {
   // New tests for entity decoding
   it('should decode standard XML entities in text content', () => {
     const xml = '<root>This is &lt; and &gt; and &amp; and &apos; and &quot;.</root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -301,7 +319,7 @@ describe('EventReaderSync', () => {
 
   it('should decode standard XML entities in attribute values', () => {
     const xml = '<root attr="&lt;&gt;&amp;&apos;&quot;"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -314,7 +332,7 @@ describe('EventReaderSync', () => {
 
   it('should decode custom entities in text content', () => {
     const xml = '<root>Hello &world;!</root>';
-    const parser = new EventReaderSync(xml, { addEntities: [{ entity: '&world;', value: 'World' }] });
+    const parser = newNamespaceAwareReader(xml, { addEntities: [{ entity: '&world;', value: 'World' }] });
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -328,7 +346,7 @@ describe('EventReaderSync', () => {
 
   it('should decode custom entities in attribute values', () => {
     const xml = '<root custom="Value &customEnt;"/>';
-    const parser = new EventReaderSync(xml, { addEntities: [{ entity: '&customEnt;', value: 'Custom' }] });
+    const parser = newNamespaceAwareReader(xml, { addEntities: [{ entity: '&customEnt;', value: 'Custom' }] });
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -341,7 +359,7 @@ describe('EventReaderSync', () => {
 
   it('should not decode entities when autoDecodeEntities is false', () => {
     const xml = '<root>This is &lt; and &customEnt;.</root>';
-    const parser = new EventReaderSync(xml, { autoDecodeEntities: false, addEntities: [{ entity: '&customEnt;', value: 'Custom' }] });
+    const parser = newNamespaceAwareReader(xml, { autoDecodeEntities: false, addEntities: [{ entity: '&customEnt;', value: 'Custom' }] });
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -356,7 +374,7 @@ describe('EventReaderSync', () => {
   // New tests for namespace support
   it('should handle default namespace declaration', () => {
     const xml = '<root xmlns="http://example.com/ns1"><item/></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -371,7 +389,7 @@ describe('EventReaderSync', () => {
 
   it('should handle prefixed namespace declaration', () => {
     const xml = '<root xmlns:prefix="http://example.com/ns2"><prefix:item/></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -386,7 +404,7 @@ describe('EventReaderSync', () => {
 
   it('should handle namespace inheritance', () => {
     const xml = '<root xmlns="http://example.com/ns1"><child xmlns:sub="http://example.com/ns2"><sub:item/></child></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -403,7 +421,7 @@ describe('EventReaderSync', () => {
 
   it('should handle namespace override', () => {
     const xml = '<root xmlns="http://example.com/ns1"><child xmlns="http://example.com/ns2"><item/></child></root>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([
@@ -420,7 +438,7 @@ describe('EventReaderSync', () => {
 
   it('should handle attributes with namespaces', () => {
     const xml = '<root xmlns:a="http://example.com/a" a:attr="value"/>';
-    const parser = new EventReaderSync(xml);
+    const parser = newNamespaceAwareReader(xml);
     const events = Array.from(parser);
 
     expect(events).toEqual([

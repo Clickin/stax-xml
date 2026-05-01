@@ -74,6 +74,8 @@ function scenarioLabel(id: string) {
   if (locale === 'en') return id;
   return id
     .replace('public-sync-full-string', 'public sync full-string')
+    .replace('event-count-only', 'event count-only')
+    .replace('event-full-string', 'event full-string')
     .replace('iterable-count-only', 'iterable count-only')
     .replace('iterable-full-string', 'iterable full-string');
 }
@@ -83,7 +85,19 @@ function crossScenario(tier: any, id: string) {
 }
 
 function crossNativeTier(tierId: string) {
-  return crossRuntime.nativeAddon?.tiers?.find((tier: any) => tier.tier === tierId);
+  const report = crossRuntime as any;
+  return report.nativeReader?.tiers?.find((tier: any) => tier.tier === tierId)
+    ?? report.nativeIterable?.tiers?.find((tier: any) => tier.tier === tierId)
+    ?? report.nativeAddon?.tiers?.find((tier: any) => tier.tier === tierId);
+}
+
+function crossNativeLabel() {
+  const report = crossRuntime as any;
+  return report.nativeReader
+    ? 'stax-xml native EventReaderSync'
+    : report.nativeIterable
+    ? 'stax-xml native EventReaderSync'
+    : 'stax-xml native addon (JS wrapper)';
 }
 
 function crossComparatorStatus(result: any) {
@@ -115,7 +129,7 @@ const crossTierTables = crossRuntime.nodeStringReturn.files[0].tiers.map((tier: 
   const jsNode = crossScenario(tier, 'node');
   const rows = [
     ['stax-xml JS on Node', jsNode],
-    ['stax-xml native addon (JS wrapper)', crossNativeTier(tier.id)],
+    [crossNativeLabel(), crossNativeTier(tier.id)],
     ['Woodstox on Java 8', crossScenario(tier, 'woodstox')],
     ['quick-xml', crossScenario(tier, 'quick-xml')],
   ].map(([label, result]: any[]) => [

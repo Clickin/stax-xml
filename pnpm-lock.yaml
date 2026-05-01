@@ -32,9 +32,6 @@ importers:
 
   packages/benchmark:
     dependencies:
-      '@stax-xml/native-aggregate-probe':
-        specifier: workspace:*
-        version: link:../native-aggregate
       fast-xml-parser:
         specifier: ^5.2.5
         version: 5.7.2
@@ -65,6 +62,10 @@ importers:
       xml2js:
         specifier: ^0.6.2
         version: 0.6.2
+    devDependencies:
+      '@stax-xml/native-aggregate-probe':
+        specifier: workspace:*
+        version: link:../native-aggregate
 
   packages/docs:
     dependencies:

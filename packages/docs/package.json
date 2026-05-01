@@ -9,7 +9,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && pnpm typedoc:main && cd ../docs && tsx scripts/add-frontmatter.ts",
+    "typedoc": "cd ../stax-xml && pnpm typedoc:converter && pnpm typedoc:projection && pnpm typedoc:main && cd ../docs && tsx scripts/add-frontmatter.ts",
     "snapshot:release": "node scripts/snapshot-release-docs.mjs"
   },
   "dependencies": {

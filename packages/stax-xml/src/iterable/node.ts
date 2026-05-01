@@ -76,6 +76,7 @@ export function* nodeFileByteBatchesSync(
 }
 
 export class NodeIterableReader {
+  private readonly source: Iterable<NodeByteBatch>;
   private iterator: Iterator<NodeByteBatch>;
   private readonly useSimpleAttributeScanner: boolean;
   private readonly fallbackOnParseError: boolean | undefined;
@@ -111,6 +112,7 @@ export class NodeIterableReader {
   private readonly nameStrings: string[] = [];
 
   constructor(source: Iterable<NodeByteBatch>, options: NodeIterableReaderOptions = {}) {
+    this.source = source;
     this.iterator = source[Symbol.iterator]();
     this.fallbackOnParseError = options.fallbackOnParseError;
     const attributeScanner = options.attributeScanner ?? 'general';
@@ -353,46 +355,32 @@ export class NodeIterableReader {
     }
 
     const createStreamingParser = runtime.capabilities.streamingEventBatches;
+    const buildTable = runtime.capabilities.structuralIndexUtf8;
+    if (buildTable) {
+      const input = singleCompleteBufferSource(this.source);
+      if (input) {
+        try {
+          const table = buildTable(input);
+          this.nativeParser = new NativeNodeIterableBackend(input, table);
+          this.backendKindValue = runtime.backend.kind;
+          return;
+        } catch {
+          if (this.fallbackOnParseError !== true) {
+            throw new Error(`Unable to parse XML with initialized ${runtime.backend.kind} backend.`);
+          }
+        }
+
+        this.backendKindValue = 'js';
+        return;
+      }
+    }
+
     if (createStreamingParser) {
       this.nativeParser = new StreamingEventBatchReader(createStreamingParser(), this.iterator);
       this.backendKindValue = runtime.backend.kind;
       return;
     }
 
-    const buildTable = runtime.capabilities.structuralIndexUtf8;
-    if (!buildTable) {
-      this.backendKindValue = 'js';
-      return;
-    }
-
-    const first = this.iterator.next();
-    if (first.done) {
-      this.iterator = [][Symbol.iterator]();
-      this.backendKindValue = 'js';
-      return;
-    }
-    const firstBatch = Array.from(first.value);
-    const second = this.iterator.next();
-    if (!second.done || firstBatch.length !== 1) {
-      this.iterator = replayNodeBatches(firstBatch, second, this.iterator);
-      this.backendKindValue = 'js';
-      return;
-    }
-
-    const input = firstBatch[0]!;
-    try {
-      const table = buildTable(input);
-      this.nativeParser = new NativeNodeIterableBackend(input, table);
-      this.backendKindValue = runtime.backend.kind;
-      return;
-    } catch {
-      if (this.fallbackOnParseError !== true) {
-        throw new Error(`Unable to parse XML with initialized ${runtime.backend.kind} backend.`);
-      }
-      // Fall through to the JavaScript parser to preserve existing permissive behavior.
-    }
-
-    this.iterator = [firstBatch][Symbol.iterator]();
     this.backendKindValue = 'js';
   }
 
@@ -800,6 +788,11 @@ class NativeNodeIterableBackend {
   private readonly table: Int32Array;
   private readonly eventBaseWords = STRUCTURAL_INDEX_HEADER_WORDS;
   private readonly attrBaseWords: number;
+  private readonly eventNameIds: Int32Array;
+  private readonly attrNameIds: Int32Array;
+  private readonly nameIds = new Map<number, number>();
+  private readonly nameStrings: string[] = [];
+  private readonly shortValueStrings = new Map<number, string>();
   private consumed = false;
 
   constructor(
@@ -834,6 +827,11 @@ class NativeNodeIterableBackend {
 
     this.table = new Int32Array(tableBytes.buffer, tableBytes.byteOffset, tableBytes.byteLength / 4);
     this.attrBaseWords = this.eventBaseWords + this.eventCountValue * STRUCTURAL_INDEX_EVENT_WORDS;
+    this.eventNameIds = new Int32Array(this.eventCountValue);
+    this.eventNameIds.fill(-1);
+    this.attrNameIds = new Int32Array(this.attrCountValue);
+    this.attrNameIds.fill(-1);
+    this.buildNameTables();
   }
 
   nextBatch(): boolean {
@@ -853,76 +851,134 @@ class NativeNodeIterableBackend {
   }
 
   eventType(index: number): IterableEventType {
-    return this.table[this.eventOffset(index)] as IterableEventType;
+    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS] as IterableEventType;
   }
 
   nameStart(index: number): number {
-    return this.table[this.eventOffset(index) + 1]!;
+    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 1]!;
   }
 
   nameEnd(index: number): number {
-    return this.table[this.eventOffset(index) + 2]!;
+    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 2]!;
   }
 
   textStart(index: number): number {
-    return this.table[this.eventOffset(index) + 3]!;
+    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 3]!;
   }
 
   textEnd(index: number): number {
-    return this.table[this.eventOffset(index) + 4]!;
+    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 4]!;
   }
 
   attrCount(index: number): number {
-    return this.table[this.eventOffset(index) + 6]!;
+    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 6]!;
   }
 
   attrNameStart(eventIndex: number, attrIndex: number): number {
-    return this.table[this.attrOffset(eventIndex, attrIndex)]!;
+    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
+    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS]!;
   }
 
   attrNameEnd(eventIndex: number, attrIndex: number): number {
-    return this.table[this.attrOffset(eventIndex, attrIndex) + 1]!;
+    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
+    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS + 1]!;
   }
 
   attrValueStart(eventIndex: number, attrIndex: number): number {
-    return this.table[this.attrOffset(eventIndex, attrIndex) + 2]!;
+    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
+    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS + 2]!;
   }
 
   attrValueEnd(eventIndex: number, attrIndex: number): number {
-    return this.table[this.attrOffset(eventIndex, attrIndex) + 3]!;
+    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
+    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS + 3]!;
   }
 
   copyName(index: number): string | undefined {
-    return this.copySpan(this.nameStart(index), this.nameEnd(index));
+    const nameId = this.eventNameIds[index]!;
+    return nameId < 0 ? undefined : this.nameStrings[nameId];
   }
 
   copyText(index: number): string | undefined {
-    return this.copySpan(this.textStart(index), this.textEnd(index));
+    const eventOffset = this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS;
+    return this.copySpan(this.table[eventOffset + 3]!, this.table[eventOffset + 4]!);
   }
 
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
-    return this.copySpan(this.attrNameStart(eventIndex, attrIndex), this.attrNameEnd(eventIndex, attrIndex));
+    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
+    const nameId = this.attrNameIds[attrRecordIndex]!;
+    return nameId < 0 ? undefined : this.nameStrings[nameId];
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
-    return this.copySpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
-  }
-
-  private eventOffset(index: number): number {
-    return this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS;
-  }
-
-  private attrOffset(eventIndex: number, attrIndex: number): number {
-    const attrStart = this.table[this.eventOffset(eventIndex) + 5]!;
-    return this.attrBaseWords + (attrStart + attrIndex) * STRUCTURAL_INDEX_ATTR_WORDS;
+    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
+    const attrOffset = this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS;
+    return this.copyShortValueSpan(this.table[attrOffset + 2]!, this.table[attrOffset + 3]!);
   }
 
   private copySpan(start: number, end: number): string | undefined {
-    if (start < 0) {
+    if (start < 0 || end < 0) {
       return undefined;
     }
-    return this.input.toString('utf8', start, end);
+    return decodeShortAsciiSpan(this.input, start, end) ?? this.input.toString('utf8', start, end);
   }
+
+  private copyShortValueSpan(start: number, end: number): string | undefined {
+    if (start < 0 || end < 0) {
+      return undefined;
+    }
+    if (end - start > 32) {
+      return this.copySpan(start, end);
+    }
+    const key = nameKey(this.input, start, end);
+    const cached = this.shortValueStrings.get(key);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const value = this.copySpan(start, end)!;
+    this.shortValueStrings.set(key, value);
+    return value;
+  }
+
+  private buildNameTables(): void {
+    for (let eventIndex = 0; eventIndex < this.eventCountValue; eventIndex++) {
+      const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
+      const start = this.table[eventOffset + 1]!;
+      if (start >= 0) {
+        this.eventNameIds[eventIndex] = this.internNameSpan(start, this.table[eventOffset + 2]!);
+      }
+    }
+    for (let attrIndex = 0; attrIndex < this.attrCountValue; attrIndex++) {
+      const offset = this.attrBaseWords + attrIndex * STRUCTURAL_INDEX_ATTR_WORDS;
+      const start = this.table[offset]!;
+      if (start >= 0) {
+        this.attrNameIds[attrIndex] = this.internNameSpan(start, this.table[offset + 1]!);
+      }
+    }
+  }
+
+  private internNameSpan(start: number, end: number): number {
+    if (start < 0) {
+      return -1;
+    }
+    const key = nameKey(this.input, start, end);
+    const cached = this.nameIds.get(key);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const value = this.copySpan(start, end)!;
+    const nameId = this.nameStrings.length;
+    this.nameIds.set(key, nameId);
+    this.nameStrings.push(value);
+    return nameId;
+  }
+
 }
 
 function toBuffer(table: ArrayBuffer | ArrayBufferView): Buffer {
@@ -941,21 +997,138 @@ function asNodeBuffer(buffer: Uint8Array): Buffer {
     : Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 }
 
-function* replayNodeBatches(
-  firstBatch: Buffer[],
-  second: IteratorResult<NodeByteBatch>,
-  rest: Iterator<NodeByteBatch>,
-): IterableIterator<NodeByteBatch> {
-  yield firstBatch;
-  if (!second.done) {
-    yield second.value;
+function singleCompleteBufferSource(source: Iterable<NodeByteBatch>): Buffer | undefined {
+  if (!Array.isArray(source) || source.length !== 1) {
+    return undefined;
   }
-  while (true) {
-    const result = rest.next();
-    if (result.done) {
-      return;
+  const batch = source[0];
+  if (!Array.isArray(batch) || batch.length !== 1) {
+    return undefined;
+  }
+  const input = batch[0];
+  return Buffer.isBuffer(input) ? input : undefined;
+}
+
+function decodeShortAsciiSpan(buffer: Uint8Array, start: number, end: number): string | undefined {
+  switch (end - start) {
+    case 0:
+      return '';
+    case 1: {
+      const b0 = buffer[start]!;
+      return b0 <= 0x7f ? String.fromCharCode(b0) : undefined;
     }
-    yield result.value;
+    case 2: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      return (b0 | b1) <= 0x7f ? String.fromCharCode(b0, b1) : undefined;
+    }
+    case 3: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      return (b0 | b1 | b2) <= 0x7f ? String.fromCharCode(b0, b1, b2) : undefined;
+    }
+    case 4: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      return (b0 | b1 | b2 | b3) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3) : undefined;
+    }
+    case 5: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      return (b0 | b1 | b2 | b3 | b4) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4) : undefined;
+    }
+    case 6: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5) : undefined;
+    }
+    case 7: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6) : undefined;
+    }
+    case 8: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7) : undefined;
+    }
+    case 9: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8) : undefined;
+    }
+    case 10: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      const b9 = buffer[start + 9]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9) : undefined;
+    }
+    case 11: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      const b9 = buffer[start + 9]!;
+      const b10 = buffer[start + 10]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10) : undefined;
+    }
+    case 12: {
+      const b0 = buffer[start]!;
+      const b1 = buffer[start + 1]!;
+      const b2 = buffer[start + 2]!;
+      const b3 = buffer[start + 3]!;
+      const b4 = buffer[start + 4]!;
+      const b5 = buffer[start + 5]!;
+      const b6 = buffer[start + 6]!;
+      const b7 = buffer[start + 7]!;
+      const b8 = buffer[start + 8]!;
+      const b9 = buffer[start + 9]!;
+      const b10 = buffer[start + 10]!;
+      const b11 = buffer[start + 11]!;
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11) : undefined;
+    }
+    default:
+      return undefined;
   }
 }
 

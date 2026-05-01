@@ -4,8 +4,7 @@ import {
   IterableReader,
   toAsyncByteBatches,
   toByteBatches,
-} from '../src/index';
-import { IterableReader as SubpathIterableParser } from '../src/iterable/index';
+} from '../src/IterableReader';
 
 function byteChunks(xml: string, chunkSize: number): Uint8Array[] {
   const bytes = new TextEncoder().encode(xml);
@@ -462,16 +461,6 @@ describe('IterableReader raw batch cursor', () => {
     expect(parser.copyText(textIndex)).toBe('한글');
   });
 
-  it('is exported from the iterable subpath source entry', () => {
-    const parser = new SubpathIterableParser(byteBatches('<root/>', 64, 1));
-
-    expect(collect(parser).map(event => event.type)).toEqual([
-      IterableEventType.START_DOCUMENT,
-      IterableEventType.START_ELEMENT,
-      IterableEventType.END_ELEMENT,
-      IterableEventType.END_DOCUMENT,
-    ]);
-  });
 });
 
 describe('byte batch helpers', () => {

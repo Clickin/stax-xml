@@ -19,6 +19,9 @@ pub(crate) const SPAN_TABLE_EVENT_FIELDS: usize = 7;
 pub(crate) const SPAN_TABLE_EVENT_BYTES: usize = SPAN_TABLE_EVENT_FIELDS * 4;
 pub(crate) const SPAN_TABLE_ATTR_FIELDS: usize = 4;
 pub(crate) const SPAN_TABLE_ATTR_BYTES: usize = SPAN_TABLE_ATTR_FIELDS * 4;
+pub(crate) const SPAN_TABLE_FLAG_NAME_IDS: u32 = 1 << 8;
+pub(crate) const SPAN_TABLE_FLAG_VALUE_IDS: u32 = 1 << 9;
+pub(crate) const SPAN_TABLE_SHORT_VALUE_MAX_BYTES: usize = 32;
 pub(crate) const NO_SPAN: i32 = -1;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -209,6 +212,36 @@ pub struct ObjectRowsProjectionResult {
     pub columns: Vec<ObjectRowsProjectionColumn>,
 }
 
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
+pub struct ObjectRecordsProjectionResult {
+    pub input_bytes: f64,
+    pub event_count: u32,
+    pub max_depth: u32,
+    pub field_count: u32,
+    pub row_count: u32,
+    pub json: String,
+}
+
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
+pub struct DocumentNodesProjectionResult {
+    pub input_bytes: f64,
+    pub node_count: u32,
+    pub json: String,
+}
+
+#[derive(Default)]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
+pub struct DocumentNodesProjectionOptions {
+    pub auto_decode_entities: Option<bool>,
+    pub add_entities: Option<Vec<DocumentEntityDefinition>>,
+}
+
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
+pub struct DocumentEntityDefinition {
+    pub entity: String,
+    pub value: String,
+}
+
 #[repr(C)]
 pub struct FfiAggregateResult {
     pub event_count: u32,
@@ -270,6 +303,8 @@ pub(crate) struct Utf16Parser<'a> {
 pub(crate) struct SpanTableParser<'a> {
     pub(crate) input: &'a [u8],
     pub(crate) table: SpanTableBuilder,
+    pub(crate) name_interner: NameIdInterner,
+    pub(crate) value_interner: Utf8ValueIdInterner,
     pub(crate) element_stack: Vec<(usize, usize)>,
 }
 
@@ -278,6 +313,10 @@ pub(crate) struct SpanTableBuilder {
     pub(crate) flags: u32,
     pub(crate) table: Vec<u8>,
     pub(crate) attrs: Vec<u8>,
+    pub(crate) event_name_ids: Vec<u32>,
+    pub(crate) attr_name_ids: Vec<u32>,
+    pub(crate) event_text_value_ids: Vec<u32>,
+    pub(crate) attr_value_ids: Vec<u32>,
     pub(crate) event_count: u32,
     pub(crate) attr_count: u32,
 }
@@ -329,6 +368,7 @@ pub(crate) struct ItemProjectionCapture {
 pub(crate) struct SpanTableUtf16Parser<'a> {
     pub(crate) input: &'a [u16],
     pub(crate) table: SpanTableBuilder,
+    pub(crate) name_interner: NameIdInterner,
     pub(crate) element_stack: Vec<(usize, usize)>,
 }
 
@@ -340,6 +380,8 @@ pub(crate) struct SpanEventRecord {
     pub(crate) text_end: i32,
     pub(crate) attr_start: u32,
     pub(crate) attr_count: u32,
+    pub(crate) name_id: u32,
+    pub(crate) text_value_id: u32,
 }
 
 pub(crate) struct SpanAttrRecord {
@@ -347,11 +389,17 @@ pub(crate) struct SpanAttrRecord {
     pub(crate) name_end: i32,
     pub(crate) value_start: i32,
     pub(crate) value_end: i32,
+    pub(crate) name_id: u32,
+    pub(crate) value_id: u32,
 }
 
 pub(crate) struct ParsedSpanTable<'a> {
     pub(crate) events: &'a [u8],
     pub(crate) attrs: &'a [u8],
+    pub(crate) event_name_ids: Option<&'a [u8]>,
+    pub(crate) attr_name_ids: Option<&'a [u8]>,
+    pub(crate) event_text_value_ids: Option<&'a [u8]>,
+    pub(crate) attr_value_ids: Option<&'a [u8]>,
     pub(crate) event_count: u32,
     pub(crate) attr_count: u32,
     pub(crate) input_units: u32,
@@ -359,6 +407,7 @@ pub(crate) struct ParsedSpanTable<'a> {
 }
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub(crate) struct TableEventRecord {
     pub(crate) event_type: u32,
     pub(crate) name_start: i32,
@@ -367,14 +416,120 @@ pub(crate) struct TableEventRecord {
     pub(crate) text_end: i32,
     pub(crate) attr_start: u32,
     pub(crate) attr_count: u32,
+    pub(crate) name_id: u32,
+    pub(crate) text_value_id: u32,
 }
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub(crate) struct TableAttrRecord {
     pub(crate) name_start: i32,
     pub(crate) name_end: i32,
     pub(crate) value_start: i32,
     pub(crate) value_end: i32,
+    pub(crate) name_id: u32,
+    pub(crate) value_id: u32,
+}
+
+pub(crate) enum NameIdInterner {
+    Utf8 {
+        next_id: u32,
+        map: std::collections::HashMap<Vec<u8>, u32>,
+    },
+    Utf16 {
+        next_id: u32,
+        map: std::collections::HashMap<Vec<u16>, u32>,
+    },
+}
+
+pub(crate) struct Utf8ValueIdInterner {
+    pub(crate) next_id: u32,
+    pub(crate) map: std::collections::HashMap<Vec<u8>, u32>,
+}
+
+impl NameIdInterner {
+    pub(crate) fn utf8() -> Self {
+        Self::Utf8 {
+            next_id: 1,
+            map: std::collections::HashMap::new(),
+        }
+    }
+
+    pub(crate) fn utf16() -> Self {
+        Self::Utf16 {
+            next_id: 1,
+            map: std::collections::HashMap::new(),
+        }
+    }
+
+    pub(crate) fn intern_utf8(&mut self, input: &[u8], span: Option<(usize, usize)>) -> Result<u32> {
+        let Some((start, end)) = span else {
+            return Ok(0);
+        };
+        match self {
+            Self::Utf8 { next_id, map } => {
+                if let Some(existing) = map.get(&input[start..end]) {
+                    return Ok(*existing);
+                }
+                let id = *next_id;
+                *next_id = next_id
+                    .checked_add(1)
+                    .ok_or_else(|| Error::from_reason("Name id overflow"))?;
+                map.insert(input[start..end].to_vec(), id);
+                Ok(id)
+            }
+            Self::Utf16 { .. } => Err(Error::from_reason("UTF-8 name interner used for UTF-16 input")),
+        }
+    }
+
+    pub(crate) fn intern_utf16(&mut self, input: &[u16], span: Option<(usize, usize)>) -> Result<u32> {
+        let Some((start, end)) = span else {
+            return Ok(0);
+        };
+        match self {
+            Self::Utf16 { next_id, map } => {
+                if let Some(existing) = map.get(&input[start..end]) {
+                    return Ok(*existing);
+                }
+                let id = *next_id;
+                *next_id = next_id
+                    .checked_add(1)
+                    .ok_or_else(|| Error::from_reason("Name id overflow"))?;
+                map.insert(input[start..end].to_vec(), id);
+                Ok(id)
+            }
+            Self::Utf8 { .. } => Err(Error::from_reason("UTF-16 name interner used for UTF-8 input")),
+        }
+    }
+}
+
+impl Utf8ValueIdInterner {
+    pub(crate) fn new() -> Self {
+        Self {
+            next_id: 1,
+            map: std::collections::HashMap::new(),
+        }
+    }
+
+    pub(crate) fn intern(&mut self, input: &[u8], span: Option<(usize, usize)>) -> Result<u32> {
+        let Some((start, end)) = span else {
+            return Ok(0);
+        };
+        let len = end.saturating_sub(start);
+        if len == 0 || len > SPAN_TABLE_SHORT_VALUE_MAX_BYTES {
+            return Ok(0);
+        }
+        if let Some(existing) = self.map.get(&input[start..end]) {
+            return Ok(*existing);
+        }
+        let id = self.next_id;
+        self.next_id = self
+            .next_id
+            .checked_add(1)
+            .ok_or_else(|| Error::from_reason("Value id overflow"))?;
+        self.map.insert(input[start..end].to_vec(), id);
+        Ok(id)
+    }
 }
 
 pub(crate) struct TableProjectionState {
@@ -409,6 +564,7 @@ pub(crate) enum ObjectRowsValueKind {
     Number,
 }
 
+#[derive(Clone)]
 pub(crate) struct NormalizedObjectRowsField {
     pub(crate) value_kind: ObjectRowsValueKind,
     pub(crate) source_kind: ObjectRowsSourceKind,
@@ -416,6 +572,7 @@ pub(crate) struct NormalizedObjectRowsField {
     pub(crate) text_mode: ObjectRowsTextMode,
 }
 
+#[derive(Clone)]
 pub(crate) struct NormalizedObjectRowsSpec {
     pub(crate) item_name: Vec<u8>,
     pub(crate) fields: Vec<NormalizedObjectRowsField>,
@@ -435,6 +592,9 @@ pub(crate) struct CurrentObjectRowsProjection {
     pub(crate) completed: Vec<bool>,
     pub(crate) present: Vec<bool>,
     pub(crate) values: Vec<String>,
+    pub(crate) string_materialized: Vec<bool>,
+    pub(crate) span_starts: Vec<i32>,
+    pub(crate) span_ends: Vec<i32>,
     pub(crate) number_values: Vec<f64>,
     pub(crate) number_buffers: Vec<Vec<u8>>,
 }

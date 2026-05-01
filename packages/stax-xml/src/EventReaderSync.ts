@@ -1,5 +1,6 @@
 import {
   IterableEventMaterializer,
+  materializableEventCount,
   type EntityDefinition,
   type MaterializableEventSource,
 } from './IterableEventBackend.js';
@@ -12,7 +13,10 @@ import {
   type DocumentMode,
   type ParserEventFilter
 } from './types.js';
-import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
+import {
+  getStaxXmlRuntimeForSyncApi,
+  type StaxXmlRuntimeBackendPreference,
+} from './runtime/native-backend.js';
 import { StaxXmlStructuralIndexParser } from './runtime/structural-index-parser.js';
 
 export interface EventReaderSyncOptions {
@@ -21,6 +25,16 @@ export interface EventReaderSyncOptions {
   eventFilter?: ParserEventFilter;
   documentMode?: DocumentMode;
   fallbackOnParseError?: boolean;
+  /**
+   * Include namespace-expanded event fields (`localName`, `prefix`, `uri`, and
+   * `attributesWithPrefix`).
+   *
+   * @remarks
+   * Disabled by default so the native sync reader can stay on the lean
+   * structural-table materialization path. Enable this when namespace metadata
+   * is part of the consumer contract.
+   */
+  namespaceAware?: boolean;
 }
 
 const textEncoder = new TextEncoder();
@@ -28,8 +42,9 @@ const textEncoder = new TextEncoder();
 export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
   private readonly parser: (MaterializableEventSource & { nextBatch(): boolean });
   private readonly materializer: IterableEventMaterializer;
-  private currentBatch: AnyXmlEvent[] = [];
-  private batchIndex = 0;
+  private readonly directIterator?: IterableIterator<AnyXmlEvent>;
+  private sourceEventCount = 0;
+  private sourceEventIndex = 0;
   private done = false;
 
   private readonly iteratorResult: IteratorResult<AnyXmlEvent> = {
@@ -41,14 +56,24 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
     done: true
   };
 
-  constructor(xml: string, options: EventReaderSyncOptions = {}) {
+  constructor(xml: string, options?: EventReaderSyncOptions);
+  constructor(
+    xml: string,
+    options: EventReaderSyncOptions = {},
+    runtimeBackendPreference?: StaxXmlRuntimeBackendPreference,
+  ) {
     if (typeof xml !== 'string') {
       throw new Error('xml must be a string.');
     }
 
-    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
+    const runtime = getStaxXmlRuntimeForSyncApi(runtimeBackendPreference);
 
-    const acceleratedParser = this.tryCreateStructuralIndexParser(xml, runtime, options);
+    const directStructuralEvents = canUseDirectStructuralEvents(options);
+    const acceleratedParser = this.tryCreateStructuralIndexParser(xml, runtime, options, {
+      decodeEntities: directStructuralEvents ? options.autoDecodeEntities ?? true : false,
+      trimText: directStructuralEvents,
+    });
+    this.directIterator = directStructuralEvents ? acceleratedParser : undefined;
     this.parser = acceleratedParser ?? createJavaScriptIterableReader(
       toByteBatches([textEncoder.encode(xml)], { batchSize: 1 }),
       { documentMode: options.documentMode }
@@ -57,6 +82,7 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
       autoDecodeEntities: options.autoDecodeEntities ?? true,
       addEntities: options.addEntities,
       eventFilter: options.eventFilter,
+      namespaceAware: options.namespaceAware ?? false,
       trimText: true
     });
   }
@@ -65,6 +91,7 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
     xml: string,
     runtime: ReturnType<typeof getStaxXmlRuntimeForSyncApi>,
     options: EventReaderSyncOptions,
+    parserOptions: { decodeEntities: boolean; trimText: boolean },
   ): StaxXmlStructuralIndexParser | undefined {
     const buildTable = runtime?.capabilities.structuralIndexUtf16;
     if (!runtime || runtime.backend.kind === 'js' || !buildTable) {
@@ -73,8 +100,9 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
 
     try {
       return new StaxXmlStructuralIndexParser(xml, buildTable(xml), {
-        decodeEntities: false,
+        decodeEntities: parserOptions.decodeEntities,
         sourceKind: 'utf16',
+        trimText: parserOptions.trimText,
       });
     } catch (error) {
       if (options.fallbackOnParseError === true) {
@@ -89,20 +117,51 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
   }
 
   next(): IteratorResult<AnyXmlEvent> {
-    if (this.batchIndex >= this.currentBatch.length && !this.readNextNonEmptyBatch()) {
+    if (this.done) {
       return this.doneResult;
     }
 
-    this.iteratorResult.value = this.currentBatch[this.batchIndex++]!;
-    this.iteratorResult.done = false;
-    return this.iteratorResult;
+    if (this.directIterator) {
+      return this.nextDirect();
+    }
+
+    for (;;) {
+      if (this.sourceEventIndex >= this.sourceEventCount && !this.readNextNonEmptyBatch()) {
+        return this.doneResult;
+      }
+
+      const event = this.materializer.materializeEvent(this.parser, this.sourceEventIndex++);
+      if (event) {
+        this.iteratorResult.value = event;
+        this.iteratorResult.done = false;
+        return this.iteratorResult;
+      }
+    }
   }
 
   return(): IteratorResult<AnyXmlEvent> {
     this.done = true;
-    this.currentBatch = [];
-    this.batchIndex = 0;
+    this.directIterator?.return?.();
+    this.sourceEventCount = 0;
+    this.sourceEventIndex = 0;
     return this.doneResult;
+  }
+
+  private nextDirect(): IteratorResult<AnyXmlEvent> {
+    for (;;) {
+      const result = this.directIterator!.next();
+      if (result.done) {
+        this.done = true;
+        return this.doneResult;
+      }
+      const event = result.value;
+      if (event.type === 'CHARACTERS' && !event.value) {
+        continue;
+      }
+      this.iteratorResult.value = event;
+      this.iteratorResult.done = false;
+      return this.iteratorResult;
+    }
   }
 
   private readNextNonEmptyBatch(): boolean {
@@ -111,17 +170,23 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
     }
 
     while (this.parser.nextBatch()) {
-      const batch = this.materializer.materializeBatch(this.parser);
-      if (batch.length > 0) {
-        this.currentBatch = batch;
-        this.batchIndex = 0;
+      const count = materializableEventCount(this.parser);
+      if (count > 0) {
+        this.sourceEventCount = count;
+        this.sourceEventIndex = 0;
         return true;
       }
     }
 
     this.done = true;
-    this.currentBatch = [];
-    this.batchIndex = 0;
+    this.sourceEventCount = 0;
+    this.sourceEventIndex = 0;
     return false;
   }
+}
+
+function canUseDirectStructuralEvents(options: EventReaderSyncOptions): boolean {
+  return options.namespaceAware !== true
+    && options.eventFilter === undefined
+    && (!options.addEntities || options.addEntities.length === 0);
 }

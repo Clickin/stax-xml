@@ -40,10 +40,17 @@ pub(crate) fn parse_object_rows(
     spec: &ObjectRowsProjectionSpec,
 ) -> Result<ObjectRowsProjectionResult> {
     let spec = normalize_object_rows_spec(spec)?;
+    parse_object_rows_normalized(input, &spec)
+}
+
+pub(crate) fn parse_object_rows_normalized(
+    input: &[u8],
+    spec: &NormalizedObjectRowsSpec,
+) -> Result<ObjectRowsProjectionResult> {
     let mut parser = ObjectRowsProjectionParser {
         input,
         state: create_object_rows_projection_state(spec.fields.len()),
-        spec,
+        spec: spec.clone(),
         event_count: 0,
         element_stack: Vec::new(),
     };
@@ -66,6 +73,349 @@ pub(crate) fn parse_object_rows_via_table(
 ) -> Result<ObjectRowsProjectionResult> {
     let table = parse_span_table(input)?;
     project_object_rows_from_span_table(input, &table, spec)
+}
+
+pub(crate) fn parse_document_nodes(
+    input: &[u8],
+    options: &DocumentNodesProjectionOptions,
+) -> Result<DocumentNodesProjectionResult> {
+    let mut parser = DocumentNodesParser {
+        input,
+        entity_decoder: DocumentEntityDecoder::new(options),
+        roots: Vec::new(),
+        stack: Vec::new(),
+        node_count: 0,
+    };
+    parser.parse()?;
+
+    let mut json = String::with_capacity(input.len().min(1024 * 1024));
+    push_document_nodes_json(&mut json, &parser.roots);
+
+    Ok(DocumentNodesProjectionResult {
+        input_bytes: input.len() as f64,
+        node_count: to_u32_count(parser.node_count, "document node projection node count")?,
+        json,
+    })
+}
+
+enum DocumentNode {
+    Text(String),
+    Element(DocumentElementNode),
+}
+
+struct DocumentElementNode {
+    tag_name: String,
+    attributes: Vec<(String, String)>,
+    children: Vec<DocumentNode>,
+}
+
+struct DocumentNodesParser<'a> {
+    input: &'a [u8],
+    entity_decoder: DocumentEntityDecoder,
+    roots: Vec<DocumentNode>,
+    stack: Vec<DocumentElementNode>,
+    node_count: usize,
+}
+
+struct DocumentEntityDecoder {
+    decode: bool,
+    entities: Vec<(String, String)>,
+}
+
+impl DocumentEntityDecoder {
+    fn new(options: &DocumentNodesProjectionOptions) -> Self {
+        let mut entities = Vec::from([
+            ("&quot;".to_owned(), "\"".to_owned()),
+            ("&apos;".to_owned(), "'".to_owned()),
+            ("&lt;".to_owned(), "<".to_owned()),
+            ("&gt;".to_owned(), ">".to_owned()),
+        ]);
+        if let Some(custom_entities) = &options.add_entities {
+            for entity in custom_entities {
+                if !entity.entity.is_empty() {
+                    entities.push((normalize_document_entity_name(&entity.entity), entity.value.clone()));
+                }
+            }
+        }
+        entities.push(("&amp;".to_owned(), "&".to_owned()));
+        entities.sort_by(|left, right| right.0.len().cmp(&left.0.len()));
+
+        Self {
+            decode: options.auto_decode_entities.unwrap_or(true),
+            entities,
+        }
+    }
+
+    fn decode(&self, value: String) -> String {
+        if !self.decode || !value.contains('&') {
+            return value;
+        }
+
+        let mut out = String::with_capacity(value.len());
+        let mut rest = value.as_str();
+        while let Some(offset) = rest.find('&') {
+            out.push_str(&rest[..offset]);
+            let entity = &rest[offset..];
+            if let Some((pattern, replacement)) = self
+                .entities
+                .iter()
+                .find(|(pattern, _replacement)| entity.starts_with(pattern))
+            {
+                out.push_str(replacement);
+                rest = &entity[pattern.len()..];
+            } else {
+                out.push('&');
+                rest = &entity[1..];
+            }
+        }
+        out.push_str(rest);
+        out
+    }
+}
+
+fn normalize_document_entity_name(entity: &str) -> String {
+    if entity.starts_with('&') && entity.ends_with(';') {
+        entity.to_owned()
+    } else {
+        format!("&{entity};")
+    }
+}
+
+impl<'a> DocumentNodesParser<'a> {
+    fn parse(&mut self) -> Result<()> {
+        let mut position = 0;
+        while position < self.input.len() {
+            let Some(lt_offset) = memchr(b'<', &self.input[position..]) else {
+                self.capture_text(position, self.input.len())?;
+                break;
+            };
+            let lt = position + lt_offset;
+            self.capture_text(position, lt)?;
+            position = self.parse_markup(lt)?;
+        }
+
+        if !self.stack.is_empty() {
+            return Err(Error::from_reason(
+                "Unexpected end of document. Not all elements were closed.",
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn parse_markup(&mut self, position: usize) -> Result<usize> {
+        if position + 1 >= self.input.len() {
+            return Err(Error::from_reason("Unclosed start tag"));
+        }
+
+        match self.input[position + 1] {
+            b'/' => self.parse_end_tag(position),
+            b'!' => self.parse_bang(position),
+            b'?' => self.parse_processing_instruction(position),
+            _ => self.parse_start_tag(position),
+        }
+    }
+
+    fn parse_bang(&mut self, position: usize) -> Result<usize> {
+        if starts_with(self.input, position, b"<![CDATA[") {
+            let Some(end) = find_bytes(self.input, b"]]>", position + 9) else {
+                return Err(Error::from_reason("Unclosed CDATA section"));
+            };
+            self.capture_text(position + 9, end)?;
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!--") {
+            let Some(end) = find_bytes(self.input, b"-->", position + 4) else {
+                return Err(Error::from_reason("Unclosed comment"));
+            };
+            return Ok(end + 3);
+        }
+
+        if starts_with(self.input, position, b"<!DOCTYPE") {
+            let Some(end) = find_doctype_end(self.input, position + 2) else {
+                return Err(Error::from_reason("Unclosed DOCTYPE declaration"));
+            };
+            return Ok(end + 1);
+        }
+
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed markup"));
+        };
+        Ok(end + 1)
+    }
+
+    fn parse_processing_instruction(&self, position: usize) -> Result<usize> {
+        let Some(end) = find_bytes(self.input, b"?>", position + 2) else {
+            return Err(Error::from_reason(
+                if starts_with(self.input, position, b"<?xml") {
+                    "Unclosed XML declaration"
+                } else {
+                    "Unclosed processing instruction"
+                },
+            ));
+        };
+        Ok(end + 2)
+    }
+
+    fn parse_start_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(tag_end) = find_tag_end(self.input, position + 1) else {
+            return Err(Error::from_reason("Unclosed start tag"));
+        };
+
+        let mut actual_end = tag_end;
+        while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+            actual_end -= 1;
+        }
+
+        let mut self_closing = false;
+        if actual_end > position + 1 && self.input[actual_end - 1] == b'/' {
+            self_closing = true;
+            actual_end -= 1;
+            while actual_end > position + 1 && is_whitespace(self.input[actual_end - 1]) {
+                actual_end -= 1;
+            }
+        }
+
+        let name_start = position + 1;
+        let mut name_end = name_start;
+        while name_end < actual_end {
+            let byte = self.input[name_end];
+            if is_whitespace(byte) || byte == b'/' {
+                break;
+            }
+            name_end += 1;
+        }
+        if name_end == name_start {
+            return Err(Error::from_reason("Start tag name is empty"));
+        }
+
+        let tag_name = materialize_span(self.input, name_start, name_end)?;
+        let mut attributes = Vec::new();
+        for attr in parse_attributes(self.input, name_end, actual_end).iter() {
+            attributes.push((
+                materialize_span(self.input, attr.name_start, attr.name_end)?,
+                self.materialize_decoded_span(attr.value_start, attr.value_end)?,
+            ));
+        }
+
+        let element = DocumentElementNode {
+            tag_name,
+            attributes,
+            children: Vec::new(),
+        };
+
+        if self_closing {
+            self.append_node(DocumentNode::Element(element));
+        } else {
+            self.stack.push(element);
+        }
+
+        Ok(tag_end + 1)
+    }
+
+    fn parse_end_tag(&mut self, position: usize) -> Result<usize> {
+        let Some(end) = find_gt(self.input, position + 2) else {
+            return Err(Error::from_reason("Unclosed end tag"));
+        };
+
+        let mut name_start = position + 2;
+        let mut name_end = end;
+        while name_start < name_end && is_whitespace(self.input[name_start]) {
+            name_start += 1;
+        }
+        while name_end > name_start && is_whitespace(self.input[name_end - 1]) {
+            name_end -= 1;
+        }
+
+        let tag_name = materialize_span(self.input, name_start, name_end)?;
+        let Some(element) = self.stack.pop() else {
+            return Err(Error::from_reason("Unexpected closing tag"));
+        };
+        if element.tag_name != tag_name {
+            return Err(Error::from_reason("Mismatched closing tag"));
+        }
+        self.append_node(DocumentNode::Element(element));
+        Ok(end + 1)
+    }
+
+    fn capture_text(&mut self, start: usize, end: usize) -> Result<()> {
+        if start >= end {
+            return Ok(());
+        }
+        let value = self.materialize_decoded_span(start, end)?;
+        if !value.is_empty() {
+            self.append_node(DocumentNode::Text(value));
+        }
+        Ok(())
+    }
+
+    fn materialize_decoded_span(&self, start: usize, end: usize) -> Result<String> {
+        Ok(self.entity_decoder.decode(materialize_span(self.input, start, end)?))
+    }
+
+    fn append_node(&mut self, node: DocumentNode) {
+        self.node_count += 1;
+        if let Some(parent) = self.stack.last_mut() {
+            parent.children.push(node);
+        } else {
+            self.roots.push(node);
+        }
+    }
+}
+
+fn push_document_nodes_json(out: &mut String, nodes: &[DocumentNode]) {
+    out.push('[');
+    for (index, node) in nodes.iter().enumerate() {
+        if index > 0 {
+            out.push(',');
+        }
+        push_document_node_json(out, node);
+    }
+    out.push(']');
+}
+
+fn push_document_node_json(out: &mut String, node: &DocumentNode) {
+    match node {
+        DocumentNode::Text(value) => push_json_string(out, value),
+        DocumentNode::Element(element) => {
+            out.push_str("{\"tagName\":");
+            push_json_string(out, &element.tag_name);
+            out.push_str(",\"attributes\":{");
+            for (index, (name, value)) in element.attributes.iter().enumerate() {
+                if index > 0 {
+                    out.push(',');
+                }
+                push_json_string(out, name);
+                out.push(':');
+                push_json_string(out, value);
+            }
+            out.push_str("},\"children\":");
+            push_document_nodes_json(out, &element.children);
+            out.push('}');
+        }
+    }
+}
+
+fn push_json_string(out: &mut String, value: &str) {
+    out.push('"');
+    for ch in value.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{08}' => out.push_str("\\b"),
+            '\u{0c}' => out.push_str("\\f"),
+            ch if ch <= '\u{1f}' => {
+                use std::fmt::Write;
+                let _ = write!(out, "\\u{:04x}", ch as u32);
+            }
+            ch => out.push(ch),
+        }
+    }
+    out.push('"');
 }
 
 impl<'a> ItemProjectionParser<'a> {
@@ -418,7 +768,7 @@ impl<'a> ObjectRowsProjectionParser<'a> {
                 name_end,
                 &self.spec,
                 &mut self.state,
-            );
+            )?;
             self.state.depth -= 1;
         } else {
             self.element_stack.push((name_start, name_end));
@@ -455,7 +805,7 @@ impl<'a> ObjectRowsProjectionParser<'a> {
             name_end,
             &self.spec,
             &mut self.state,
-        );
+        )?;
         self.state.depth -= 1;
         Ok(end + 1)
     }
@@ -867,6 +1217,9 @@ pub(crate) fn start_object_rows_projection_element(
             completed: vec![false; spec.fields.len()],
             present: vec![false; spec.fields.len()],
             values: vec![String::new(); spec.fields.len()],
+            string_materialized: vec![false; spec.fields.len()],
+            span_starts: vec![-1; spec.fields.len()],
+            span_ends: vec![-1; spec.fields.len()],
             number_values: vec![0.0; spec.fields.len()],
             number_buffers: (0..spec.fields.len()).map(|_| Vec::new()).collect(),
         };
@@ -926,7 +1279,13 @@ pub(crate) fn read_object_rows_projection_attributes(
             {
                 match field.value_kind {
                     ObjectRowsValueKind::String => {
-                        row.values[index] = materialize_span(input, value_start, value_end)?;
+                        set_object_rows_projection_string_span(
+                            input,
+                            row,
+                            index,
+                            value_start,
+                            value_end,
+                        )?;
                     }
                     ObjectRowsValueKind::Number => {
                         row.number_values[index] =
@@ -958,6 +1317,9 @@ pub(crate) fn start_object_rows_projection_element_direct(
             completed: vec![false; spec.fields.len()],
             present: vec![false; spec.fields.len()],
             values: vec![String::new(); spec.fields.len()],
+            string_materialized: vec![false; spec.fields.len()],
+            span_starts: vec![-1; spec.fields.len()],
+            span_ends: vec![-1; spec.fields.len()],
             number_values: vec![0.0; spec.fields.len()],
             number_buffers: (0..spec.fields.len()).map(|_| Vec::new()).collect(),
         };
@@ -1010,8 +1372,13 @@ pub(crate) fn read_object_rows_projection_attributes_direct(
             {
                 match field.value_kind {
                     ObjectRowsValueKind::String => {
-                        row.values[index] =
-                            materialize_span(input, attr.value_start, attr.value_end)?;
+                        set_object_rows_projection_string_span(
+                            input,
+                            row,
+                            index,
+                            attr.value_start,
+                            attr.value_end,
+                        )?;
                     }
                     ObjectRowsValueKind::Number => {
                         row.number_values[index] =
@@ -1042,7 +1409,7 @@ pub(crate) fn end_object_rows_projection_element(
                 if row.present[*index] {
                     match spec.fields[*index].value_kind {
                         ObjectRowsValueKind::String => {
-                            row.values[*index] = row.values[*index].trim().to_owned();
+                            trim_object_rows_projection_string(input, row, *index)?;
                         }
                         ObjectRowsValueKind::Number => {
                             row.number_values[*index] =
@@ -1066,9 +1433,12 @@ pub(crate) fn end_object_rows_projection_element(
             state.columns[index].present.push(row.present[index]);
             match spec.fields[index].value_kind {
                 ObjectRowsValueKind::String => {
-                    state.columns[index]
-                        .values
-                        .push(std::mem::take(&mut row.values[index]));
+                    push_object_rows_projection_string_column(
+                        &mut state.columns[index],
+                        state.row_count,
+                        &mut row,
+                        index,
+                    );
                 }
                 ObjectRowsValueKind::Number => {
                     state.columns[index]
@@ -1088,7 +1458,7 @@ pub(crate) fn end_object_rows_projection_element_direct(
     name_end: usize,
     spec: &NormalizedObjectRowsSpec,
     state: &mut ObjectRowsProjectionState,
-) {
+) -> Result<()> {
     if let Some(capture) = state
         .capture
         .take_if(|capture| capture.depth == state.depth)
@@ -1098,7 +1468,7 @@ pub(crate) fn end_object_rows_projection_element_direct(
                 if row.present[*index] {
                     match spec.fields[*index].value_kind {
                         ObjectRowsValueKind::String => {
-                            row.values[*index] = row.values[*index].trim().to_owned();
+                            trim_object_rows_projection_string(input, row, *index)?;
                         }
                         ObjectRowsValueKind::Number => {
                             row.number_values[*index] =
@@ -1119,9 +1489,12 @@ pub(crate) fn end_object_rows_projection_element_direct(
             state.columns[index].present.push(row.present[index]);
             match spec.fields[index].value_kind {
                 ObjectRowsValueKind::String => {
-                    state.columns[index]
-                        .values
-                        .push(std::mem::take(&mut row.values[index]));
+                    push_object_rows_projection_string_column(
+                        &mut state.columns[index],
+                        state.row_count,
+                        &mut row,
+                        index,
+                    );
                 }
                 ObjectRowsValueKind::Number => {
                     state.columns[index]
@@ -1132,6 +1505,7 @@ pub(crate) fn end_object_rows_projection_element_direct(
         }
         state.row_count += 1;
     }
+    Ok(())
 }
 
 pub(crate) fn capture_object_rows_projection_text(
@@ -1186,6 +1560,91 @@ pub(crate) fn append_object_rows_projection_string(
     row: &mut CurrentObjectRowsProjection,
     index: usize,
 ) -> Result<()> {
+    if row.span_starts[index] < 0 && !row.string_materialized[index] {
+        set_object_rows_projection_string_span(input, row, index, start, end)?;
+        return Ok(());
+    }
+
+    materialize_object_rows_projection_string_span(input, row, index)?;
     row.values[index].push_str(&materialize_span(input, start, end)?);
+    row.string_materialized[index] = true;
     Ok(())
+}
+
+fn set_object_rows_projection_string_span(
+    input: &[u8],
+    row: &mut CurrentObjectRowsProjection,
+    index: usize,
+    start: usize,
+    end: usize,
+) -> Result<()> {
+    std::str::from_utf8(&input[start..end])
+        .map_err(|error| Error::from_reason(error.to_string()))?;
+    let start = to_i32_span(start)?;
+    let end = to_i32_span(end)?;
+    row.span_starts[index] = start;
+    row.span_ends[index] = end;
+    row.string_materialized[index] = false;
+    row.values[index].clear();
+    Ok(())
+}
+
+fn materialize_object_rows_projection_string_span(
+    input: &[u8],
+    row: &mut CurrentObjectRowsProjection,
+    index: usize,
+) -> Result<()> {
+    if row.span_starts[index] < 0 {
+        return Ok(());
+    }
+    let start = row.span_starts[index] as usize;
+    let end = row.span_ends[index] as usize;
+    row.values[index] = materialize_span(input, start, end)?;
+    row.string_materialized[index] = true;
+    row.span_starts[index] = -1;
+    row.span_ends[index] = -1;
+    Ok(())
+}
+
+fn trim_object_rows_projection_string(
+    input: &[u8],
+    row: &mut CurrentObjectRowsProjection,
+    index: usize,
+) -> Result<()> {
+    if row.span_starts[index] >= 0 && !row.string_materialized[index] {
+        let start = row.span_starts[index] as usize;
+        let end = row.span_ends[index] as usize;
+        let text = std::str::from_utf8(&input[start..end])
+            .map_err(|error| Error::from_reason(error.to_string()))?;
+        let trimmed = text.trim();
+        let trim_start = trimmed.as_ptr() as usize - text.as_ptr() as usize;
+        row.span_starts[index] = to_i32_span(start + trim_start)?;
+        row.span_ends[index] = to_i32_span(start + trim_start + trimmed.len())?;
+        return Ok(());
+    }
+
+    if row.string_materialized[index] {
+        row.values[index] = row.values[index].trim().to_owned();
+    }
+    Ok(())
+}
+
+fn push_object_rows_projection_string_column(
+    column: &mut ObjectRowsProjectionColumn,
+    row_count: usize,
+    row: &mut CurrentObjectRowsProjection,
+    index: usize,
+) {
+    column.span_starts.push(row.span_starts[index]);
+    column.span_ends.push(row.span_ends[index]);
+
+    if !column.values.is_empty()
+        || row.string_materialized[index]
+        || (row.present[index] && row.span_starts[index] < 0)
+    {
+        while column.values.len() < row_count {
+            column.values.push(String::new());
+        }
+        column.values.push(std::mem::take(&mut row.values[index]));
+    }
 }

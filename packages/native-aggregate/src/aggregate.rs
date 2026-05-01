@@ -22,6 +22,7 @@ mod span_table;
 pub(crate) use span_table::*;
 
 mod streaming;
+pub use streaming::*;
 
 mod projection;
 pub(crate) use projection::*;

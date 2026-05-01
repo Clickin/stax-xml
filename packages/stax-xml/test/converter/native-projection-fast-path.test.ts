@@ -15,11 +15,22 @@ vi.mock('../../src/runtime/index.js', async () => {
   };
 });
 
+vi.mock('../../src/runtime/native-backend.js', async () => {
+  const actual = await vi.importActual<typeof import('../../src/runtime/native-backend.js')>('../../src/runtime/native-backend.js');
+  return {
+    ...actual,
+    resolveStaxXmlRuntimeBackend: mocks.resolveBackend,
+  };
+});
+
 import { x } from '../../src/converter/index.js';
+import { initStaxXml } from '../../src/index.js';
+import { resetStaxXmlRuntimeForTests } from '../../src/runtime/index.js';
 
 describe('compiled converter native projection fast path', () => {
   beforeEach(() => {
     mocks.resolveBackend.mockReset();
+    resetStaxXmlRuntimeForTests();
   });
 
   it('uses generic native table projection rows for supported object-array byte schemas', async () => {
@@ -120,6 +131,49 @@ describe('compiled converter native projection fast path', () => {
       .resolves.toEqual([{ code: 'direct', label: 'label', score: 7 }]);
     expect(parseObjectRowsUint8Array).toHaveBeenCalledOnce();
     expect(parseObjectRowsViaTableUint8Array).not.toHaveBeenCalled();
+  });
+
+  it('prefers native object records projection for required generic object-array byte schemas', async () => {
+    const xml = '<root><entry code="js"><label>fallback</label><score>1</score></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const parseObjectRecordsUint8Array = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 8,
+      maxDepth: 3,
+      fieldCount: 3,
+      rowCount: 1,
+      json: '[{"code":"record","label":"native","score":42}]',
+    }));
+    const parseObjectRowsUint8Array = vi.fn(() => {
+      throw new Error('column projection should not be used when record projection is available');
+    });
+    const createObjectProjectionPlan = vi.fn(() => ({
+      projectRecords: parseObjectRecordsUint8Array,
+      projectRows: parseObjectRowsUint8Array,
+    }));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createObjectProjectionPlan,
+        parseObjectRowsUint8Array,
+      }),
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./label'),
+        score: x.number().xpath('./score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'record', label: 'native', score: 42 }]);
+    expect(createObjectProjectionPlan).toHaveBeenCalledOnce();
+    expect(parseObjectRecordsUint8Array).toHaveBeenCalledOnce();
+    expect(parseObjectRowsUint8Array).not.toHaveBeenCalled();
   });
 
   it('applies compiled number validation to native projection row values', async () => {
@@ -275,6 +329,57 @@ describe('compiled converter native projection fast path', () => {
       .resolves.toEqual([{ code: 'native', label: 'label', score: 42 }]);
   });
 
+  it('decodes multibyte UTF-8 span columns from non-Buffer native projection inputs', async () => {
+    const xml = '<root><entry code="한글"><label>안녕🙂</label><score>42</score></entry></root>';
+    const bytes = new TextEncoder().encode(xml);
+    const prefixBytes = 5;
+    const prefixed = new Uint8Array(bytes.byteLength + prefixBytes);
+    prefixed.set(bytes, prefixBytes);
+    const input = new DataView(prefixed.buffer, prefixBytes, bytes.byteLength);
+    const code = span(bytes, '한글');
+    const label = span(bytes, '안녕🙂');
+    const originalBuffer = (globalThis as { Buffer?: typeof Buffer }).Buffer;
+    const parseObjectRowsViaTableUint8Array = vi.fn((actual: Uint8Array) => {
+      expect(actual.byteOffset).toBe(prefixBytes);
+      expect(actual.byteLength).toBe(bytes.byteLength);
+      return {
+        inputBytes: actual.byteLength,
+        eventCount: 8,
+        maxDepth: 3,
+        fieldCount: 3,
+        rowCount: 1,
+      columns: [
+        { present: [true], values: [], spanStarts: [code.start], spanEnds: [code.end] },
+        { present: [true], values: [], spanStarts: [label.start], spanEnds: [label.end] },
+        { present: [true], numberValues: [42] },
+      ],
+      };
+    });
+    mocks.resolveBackend.mockResolvedValue({
+      kind: 'native',
+      packageName: '@stax-xml/native-test',
+      module: { parseObjectRowsViaTableUint8Array },
+      errors: [],
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./label'),
+        score: x.number().xpath('./score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    try {
+      (globalThis as { Buffer?: typeof Buffer }).Buffer = undefined;
+      await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+        .resolves.toEqual([{ code: '한글', label: '안녕🙂', score: 42 }]);
+    } finally {
+      (globalThis as { Buffer?: typeof Buffer }).Buffer = originalBuffer;
+    }
+  });
+
   it('uses native table projection rows for the supported item-object byte schema', async () => {
     const xml = '<root><item id="1"><name>JS</name><value>fallback</value></item></root>';
     const input = new TextEncoder().encode(xml);
@@ -313,7 +418,7 @@ describe('compiled converter native projection fast path', () => {
     expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
   });
 
-  it('falls back from supported native item projection when fallback is enabled', async () => {
+  it('does not retry the JavaScript parser when native item projection fails', async () => {
     const xml = '<root><item id="1"><name>JS</name><value>fallback</value></item></root>';
     const input = new TextEncoder().encode(xml);
     const parseItemRowsViaTableUint8Array = vi.fn(() => {
@@ -335,12 +440,11 @@ describe('compiled converter native projection fast path', () => {
       '//item',
     ).compile();
 
-    await expect(schema.parse(input, {
-      acceleration: { backend: 'native', fallbackOnParseError: true },
-    })).resolves.toEqual([{ id: 1, name: 'JS', value: 'fallback' }]);
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .rejects.toThrow('native item projection failed');
   });
 
-  it('falls back to the normal parser for unsupported native projection plans', async () => {
+  it('fails clearly when explicit native acceleration cannot satisfy a projection plan', async () => {
     const xml = '<root><entry id="1"><name>JS</name><value>fallback</value></entry></root>';
     const input = new TextEncoder().encode(xml);
     const parseItemRowsViaTableUint8Array = vi.fn(() => ({
@@ -366,11 +470,11 @@ describe('compiled converter native projection fast path', () => {
     ).compile();
 
     await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
-      .resolves.toEqual([{ id: 1, name: 'JS', value: 'fallback' }]);
+      .rejects.toThrow(/does not provide structuralIndexUtf8 capability/);
     expect(parseItemRowsViaTableUint8Array).not.toHaveBeenCalled();
   });
 
-  it('skips generic native projection for unsupported object-row shapes', async () => {
+  it('keeps unsupported object-row shapes on the internal JavaScript path when acceleration is not requested', async () => {
     const xml = '<root><entry code="js"><label>label</label><child id="c"><value>nested</value></child></entry></root>';
     const input = new TextEncoder().encode(xml);
     const cases = [
@@ -401,12 +505,12 @@ describe('compiled converter native projection fast path', () => {
     ] as const;
 
     for (const [schema, expected] of cases) {
-      await expect(schema.parse(input, { acceleration: { backend: 'js' } })).resolves.toEqual(expected);
+      await expect(schema.parse(input)).resolves.toEqual(expected);
     }
     expect(mocks.resolveBackend).not.toHaveBeenCalled();
   });
 
-  it('skips native projection and structural acceleration when options request the JS path', async () => {
+  it('skips acceleration for non-fast-path modes and fails when requested native capabilities are absent', async () => {
     const xml = '<root><entry code="js"><label>label</label><score>1</score></entry></root>';
     const input = new TextEncoder().encode(xml);
     const schema = genericEntrySchema();
@@ -417,20 +521,18 @@ describe('compiled converter native projection fast path', () => {
     })).resolves.toEqual([{ code: 'js', label: 'label', score: 1 }]);
     expect(mocks.resolveBackend).not.toHaveBeenCalled();
 
-    await expect(schema.parse(input, { acceleration: { backend: 'js' } }))
-      .resolves.toEqual([{ code: 'js', label: 'label', score: 1 }]);
     await expect(schema.parse(input, { acceleration: { simd: 'avx2' } }))
       .resolves.toEqual([{ code: 'js', label: 'label', score: 1 }]);
     expect(mocks.resolveBackend).not.toHaveBeenCalled();
 
-    mocks.resolveBackend.mockResolvedValue({ kind: 'js', module: undefined, errors: [] });
+    mocks.resolveBackend.mockResolvedValue({ kind: 'native', module: {}, errors: [] });
     await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
-      .resolves.toEqual([{ code: 'js', label: 'label', score: 1 }]);
+      .rejects.toThrow(/does not provide structuralIndexUtf8 capability/);
 
     mocks.resolveBackend.mockReset();
-    mocks.resolveBackend.mockResolvedValue({ kind: 'native', module: {}, errors: [] });
+    mocks.resolveBackend.mockResolvedValue({ kind: 'wasm', module: {}, errors: [] });
     await expect(schema.parse(input, { acceleration: { backend: 'wasm' } }))
-      .resolves.toEqual([{ code: 'js', label: 'label', score: 1 }]);
+      .rejects.toThrow(/does not provide structuralIndexUtf8 capability/);
   });
 
   it('uses structural native tables for unsupported string and byte compiled plans', async () => {
@@ -509,7 +611,7 @@ describe('compiled converter native projection fast path', () => {
     });
     await expect(schema.parse('<root><value>fallback</value></root>', {
       acceleration: { backend: 'native' },
-    })).resolves.toEqual({ value: 'fallback' });
+    })).rejects.toThrow(/does not provide structuralIndexUtf16 capability/);
   });
 
   it('reads missing lazy attributes from structural native tables as absent', async () => {
@@ -547,7 +649,7 @@ describe('compiled converter native projection fast path', () => {
       .resolves.toEqual([{ code: '', label: 'label' }]);
   });
 
-  it('falls back when native projection or structural table construction throws with fallback enabled', async () => {
+  it('does not retry JavaScript when native projection or structural table construction throws', async () => {
     const xml = '<root><entry code="js"><label>label</label><score>1</score></entry></root>';
     const input = new TextEncoder().encode(xml);
     const schema = genericEntrySchema();
@@ -562,9 +664,8 @@ describe('compiled converter native projection fast path', () => {
       },
       errors: [],
     });
-    await expect(schema.parse(input, {
-      acceleration: { backend: 'native', fallbackOnParseError: true },
-    })).resolves.toEqual([{ code: 'js', label: 'label', score: 1 }]);
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .rejects.toThrow('native projection failed');
 
     mocks.resolveBackend.mockResolvedValueOnce({
       kind: 'native',
@@ -578,8 +679,8 @@ describe('compiled converter native projection fast path', () => {
     });
     await expect(x.string().xpath('/root/value').compile().parse(
       new TextEncoder().encode('<root><value>fallback</value></root>'),
-      { acceleration: { backend: 'native', fallbackOnParseError: true } },
-    )).resolves.toBe('fallback');
+      { acceleration: { backend: 'native' } },
+    )).rejects.toThrow('table failed');
 
     mocks.resolveBackend.mockResolvedValueOnce({
       kind: 'native',

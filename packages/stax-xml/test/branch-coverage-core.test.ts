@@ -2,18 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   EventReader,
   EventReaderSync,
-  CursorReader,
   Writer,
   WriterSync,
   WriterSyncSink,
   createEventReader,
-  CursorEventType,
   XmlEventType,
   type AnyXmlEvent
 } from '../src/index';
 import { createBunSyncTextSink } from '../src/adapters/bun';
 import { createDenoSyncTextSink } from '../src/adapters/deno';
 import { createNodeFileSyncTextSink, createNodeSyncTextSink } from '../src/adapters/node';
+import { CursorEventType, CursorReader } from '../src/cursor';
 import { CursorEventView } from '../src/cursor/CursorEventView';
 
 function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array> {
@@ -255,8 +254,8 @@ describe('core branch coverage guards', () => {
       ]);
 
       const internal = new EventReaderSync('<root/>') as unknown as {
-        parser: { nextBatch(): boolean };
-        materializer: { materializeBatch(): AnyXmlEvent[] };
+        parser: { nextBatch(): boolean; eventCount(): number };
+        materializer: { materializeEvent(): AnyXmlEvent | undefined };
       };
       let parserCalls = 0;
       let materializerCalls = 0;
@@ -264,14 +263,17 @@ describe('core branch coverage guards', () => {
         nextBatch() {
           parserCalls++;
           return parserCalls <= 2;
+        },
+        eventCount() {
+          return 1;
         }
       };
       internal.materializer = {
-        materializeBatch() {
+        materializeEvent() {
           materializerCalls++;
           return materializerCalls === 1
-            ? []
-            : [{ type: XmlEventType.START_DOCUMENT }];
+            ? undefined
+            : { type: XmlEventType.START_DOCUMENT };
         }
       };
 

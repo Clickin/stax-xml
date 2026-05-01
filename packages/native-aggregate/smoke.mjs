@@ -17,9 +17,12 @@ import {
   parse_item_rows_via_table_uint8array,
   parse_object_rows_uint8array,
   parse_object_rows_via_table_uint8array,
+  parse_object_records_uint8array,
+  create_object_projection_plan,
   parse_aggregate_string_utf16,
   parse_aggregate_string_utf8,
   parse_aggregate_string_utf8_with_simd,
+  createStreamingEventBatchParser,
 } from './index.mjs';
 
 const sampleText =
@@ -34,6 +37,33 @@ const sampleText =
     '</root>';
 const sample = Buffer.from(sampleText);
 const sampleUint8 = new Uint8Array(sample.buffer, sample.byteOffset, sample.byteLength);
+
+assertEqual(typeof createStreamingEventBatchParser, 'function', 'streaming event batch parser export');
+const streamingParser = createStreamingEventBatchParser();
+assertEqual(typeof streamingParser.pushBatch, 'function', 'streaming pushBatch export');
+const streamingFirstChunk = Buffer.from('<root><item a="1">');
+const streamingFirst = streamingParser.pushChunk(streamingFirstChunk, false);
+assertEqual(streamingFirst.buffer, streamingFirstChunk, 'streaming first batch zero-copy buffer');
+assertEqual(Buffer.isBuffer(streamingFirst.buffer), true, 'streaming first batch buffer');
+assertEqual(Buffer.isBuffer(streamingFirst.table), true, 'streaming first batch table');
+const streamingFinal = streamingParser.pushChunk(Buffer.from('text</item></root>'), true);
+assertEqual(Buffer.isBuffer(streamingFinal.buffer), true, 'streaming final batch buffer');
+assertEqual(Buffer.isBuffer(streamingFinal.table), true, 'streaming final batch table');
+
+const splitTextParser = createStreamingEventBatchParser();
+const splitTextFirst = splitTextParser.pushChunk(Buffer.from('<root>ab'), false);
+const splitTextFinal = splitTextParser.pushChunk(Buffer.from('cd</root>'), true);
+assertEqual(splitTextFirst.table.readUInt32LE(4), 2, 'streaming split text first batch defers trailing text');
+assertEqual(splitTextFinal.table.readUInt32LE(4), 3, 'streaming split text final batch coalesces text');
+
+const batchedParser = createStreamingEventBatchParser();
+const batched = batchedParser.pushBatch([
+  Buffer.from('<root><item a="1">'),
+  Buffer.from('text</item></root>'),
+], true);
+assertEqual(batched.buffer instanceof Uint8Array, true, 'streaming batched buffer');
+assertEqual(Buffer.isBuffer(batched.table), true, 'streaming batched table');
+assertEqual(batched.table.readUInt32LE(4), 7, 'streaming batched event count');
 
 for (const tier of [
   'count-only',
@@ -65,20 +95,20 @@ for (const tier of [
   assertEqual(spanTable.readUInt32LE(0), 0x31545053, `${tier} span table magic`);
   assertEqual(spanTable.readUInt32LE(4), bufferResult.eventCount, `${tier} span table event count`);
   assertEqual(spanTable.readUInt32LE(8), 2, `${tier} span table attr count`);
-  assertEqual(spanTable.readUInt32LE(24), 0, `${tier} span table utf16 source kind`);
+  assertEqual(spanTable.readUInt32LE(24) & 0xff, 0, `${tier} span table utf16 source kind`);
 
   const structuralUtf16 = parse_structural_index_string_utf16(sampleText);
   assertEqual(Buffer.isBuffer(structuralUtf16), true, `${tier} structural utf16 buffer`);
   assertEqual(structuralUtf16.readUInt32LE(0), 0x31545053, `${tier} structural utf16 magic`);
   assertEqual(structuralUtf16.readUInt32LE(4), bufferResult.eventCount, `${tier} structural utf16 event count`);
-  assertEqual(structuralUtf16.readUInt32LE(24), 0, `${tier} structural utf16 source kind`);
+  assertEqual(structuralUtf16.readUInt32LE(24) & 0xff, 0, `${tier} structural utf16 source kind`);
 
   const structuralUtf8 = parse_structural_index_uint8array(sampleUint8);
   assertEqual(Buffer.isBuffer(structuralUtf8), true, `${tier} structural utf8 buffer`);
   assertEqual(structuralUtf8.readUInt32LE(0), 0x31545053, `${tier} structural utf8 magic`);
   assertEqual(structuralUtf8.readUInt32LE(4), bufferResult.eventCount, `${tier} structural utf8 event count`);
   assertEqual(structuralUtf8.readUInt32LE(12), sampleUint8.byteLength, `${tier} structural utf8 input bytes`);
-  assertEqual(structuralUtf8.readUInt32LE(24), 1, `${tier} structural utf8 source kind`);
+  assertEqual(structuralUtf8.readUInt32LE(24) & 0xff, 1, `${tier} structural utf8 source kind`);
 
   const smokeDir = join(tmpdir(), `stax-xml-native-aggregate-smoke-${process.pid}`);
   mkdirSync(smokeDir, { recursive: true });
@@ -139,6 +169,11 @@ const objectRowsSpec = {
 };
 const directObjectRows = parse_object_rows_uint8array(projectionSample, objectRowsSpec);
 const objectRows = parse_object_rows_via_table_uint8array(projectionSample, objectRowsSpec);
+const objectRecords = parse_object_records_uint8array(projectionSample, objectRowsSpec);
+const objectProjectionPlan = create_object_projection_plan(objectRowsSpec);
+const compiledObjectRecords = objectProjectionPlan.projectRecords(projectionSample);
+const objectRecordRows = JSON.parse(objectRecords.json);
+const compiledObjectRecordRows = JSON.parse(compiledObjectRecords.json);
 assertEqual(projection.itemCount, 2, 'item projection count');
 assertEqual(projection.checksum, projectionChecksum([
   { id: 7, name: 'Alice', value: '안녕' },
@@ -158,10 +193,16 @@ assertEqual(objectRows.rowCount, 2, 'object rows length');
 assertEqual(objectRows.columns[0].present.join(','), 'true,true', 'object rows id present flags');
 assertEqual(numberValues(objectRows.columns[0]).join('|'), '7|11', 'object rows id values');
 assertEqual(objectRows.columns[0].values.length, 0, 'object rows id string values');
-assertEqual(objectRows.columns[1].values[0], 'Alice', 'object rows first name');
-assertEqual(objectRows.columns[2].values[0], '안녕', 'object rows first value');
+assertEqual(stringValue(projectionSample, objectRows.columns[1], 0), 'Alice', 'object rows first name');
+assertEqual(stringValue(projectionSample, objectRows.columns[2], 0), '안녕', 'object rows first value');
 assertEqual(directObjectRows.rowCount, objectRows.rowCount, 'direct object rows length');
-assertEqual(directObjectRows.columns[1].values[0], 'Alice', 'direct object rows first name');
+assertEqual(stringValue(projectionSample, directObjectRows.columns[1], 0), 'Alice', 'direct object rows first name');
+assertEqual(stringValue(projectionSample, directObjectRows.columns[2], 0), '안녕', 'direct object rows first value');
+assertEqual(objectRecords.rowCount, objectRows.rowCount, 'object records length');
+assertEqual(objectRecordRows[0].name, 'Alice', 'object records first name');
+assertEqual(objectRecordRows[0].value, '안녕', 'object records first value');
+assertEqual(compiledObjectRecords.rowCount, objectRows.rowCount, 'compiled object records length');
+assertEqual(compiledObjectRecordRows[0].name, 'Alice', 'compiled object records first name');
 
 console.log('native aggregate smoke ok');
 
@@ -188,6 +229,16 @@ function numberValues(column) {
   return column.numberValues ?? column.number_values;
 }
 
+function stringValue(input, column, index) {
+  const spanStarts = column.spanStarts ?? column.span_starts;
+  const spanEnds = column.spanEnds ?? column.span_ends;
+  const start = spanStarts?.[index] ?? -1;
+  const end = spanEnds?.[index] ?? -1;
+  if (start >= 0 && end >= start) {
+    return Buffer.from(input.buffer, input.byteOffset + start, end - start).toString('utf8');
+  }
+  return column.values?.[index] ?? '';
+}
 
 function assertThrows(fn, pattern, label) {
   try {

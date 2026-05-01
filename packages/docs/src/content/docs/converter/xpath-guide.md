@@ -22,6 +22,8 @@ head:
 
 XPath (XML Path Language) is the primary method for selecting elements in the StAX-XML converter. This guide covers all supported XPath patterns and best practices.
 
+For a spec-oriented support summary, see the [XPath 1.0 conformance matrix](./xpath-1-conformance/).
+
 ## What is XPath?
 
 XPath is a query language for selecting nodes in XML documents. Think of it like CSS selectors for XML:

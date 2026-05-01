@@ -11,13 +11,11 @@ export default defineConfig([
     logLevel: 'error',
     minify: true
   },
-  // Build cursor entry separately for direct cursor-only imports
+  // Build secondary public entries separately for direct subpath imports
   {
     entry: {
-      cursor: 'src/cursor/index.ts',
-      iterable: 'src/iterable/index.ts',
+      projection: 'src/projection/index.ts',
       runtime: 'src/runtime/index.ts',
-      'iterable/node': 'src/iterable/node.ts',
     },
     format: ['esm'],
     dts: true,

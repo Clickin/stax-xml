@@ -1,100 +1,79 @@
-import { EventReaderSync, XmlEventType } from 'stax-xml';
-import {
-  IterableEventType,
-  IterableReader,
-} from 'stax-xml/iterable';
+import { EventReaderSync, initStaxXml, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
+import { parseXmlNodesSync } from 'stax-xml/projection';
 
 export const STAX_PARSER_SURFACE_SCENARIOS = [
   {
-    label: 'stax-xml JS fallback event parser',
-    display: 'stax-xml JS event parser',
-    notes: 'String API-native path; XML string is prepared outside the timed region',
+    label: 'stax-xml EventReaderSync (JS reference)',
+    display: 'stax-xml EventReaderSync (JS reference)',
+    notes: 'Internal JavaScript reference reader; not a public Node performance fallback',
   },
   {
-    label: 'stax-xml JS fallback event parser decode+parse',
-    display: 'stax-xml JS event parser (decode+parse)',
-    notes: 'Byte-source path: Buffer.toString plus public string event parser',
+    label: 'stax-xml EventReaderSync (JS reference decode+parse)',
+    display: 'stax-xml EventReaderSync (JS reference decode+parse)',
+    notes: 'Reference byte-source path: Buffer.toString plus lean string event reader',
   },
   {
-    label: 'stax-xml JS Uint8Array iterable',
-    display: 'stax-xml JS Uint8Array iterable',
-    notes: 'Byte-source API-native path; reusable Iterable<Uint8Array[]> batches',
+    label: 'stax-xml StreamReaderSync (native)',
+    display: '**stax-xml StreamReaderSync (native)**',
+    notes: 'Public lean byte-stream reader backed by the initialized native streaming runtime',
   },
   {
-    label: 'stax-xml native addon event aggregate',
-    display: '**stax-xml native event aggregate**',
-    notes: 'N-API aggregate probe; event-like objects stay inside Rust',
-  },
-  {
-    label: 'stax-xml native addon raw aggregate',
-    display: '**stax-xml native raw aggregate**',
-    notes: 'N-API aggregate probe; coarse Buffer call',
+    label: 'stax-xml EventReaderSync (native reference)',
+    display: 'stax-xml EventReaderSync (native reference)',
+    notes: 'Ergonomic string event iterator retained as a reference row, not the native-wrapper gate',
   },
 ];
 
-export async function loadNativeAggregateProbe() {
-  try {
-    return await import('@stax-xml/native-aggregate-probe');
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
+export async function ensureNativeReaderRuntime() {
+  const runtime = await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
+  if (
+    runtime.backend.kind !== 'native'
+    || !runtime.capabilities.streamingEventBatches
+    || !runtime.capabilities.documentNodesProjection
+  ) {
     throw new Error(
-      `Unable to load @stax-xml/native-aggregate-probe. Run ` +
-        '`pnpm --filter @stax-xml/native-aggregate-probe build:native` before parser benchmarks. ' +
-        `Original error: ${reason}`,
+      'The native stax-xml runtime must expose streamingEventBatches and documentNodesProjection before public reader benchmarks can run.',
     );
   }
+  return runtime;
 }
 
-export function createStaxParserSurfaceRunners({ xmlString, inputBuffer, native }) {
-  const inputBytes = asPlainUint8Array(inputBuffer);
-  const byteBatches = [[inputBytes]];
-
+export function createStaxParserSurfaceRunners({ xmlString, inputBuffer }) {
   return [
     {
-      label: 'stax-xml JS fallback event parser',
-      run: () => consumeStaxXmlEventParser(xmlString),
+      label: 'stax-xml EventReaderSync (JS)',
+      run: () => consumeStaxXmlEventReader(xmlString, 'js'),
     },
     {
-      label: 'stax-xml JS fallback event parser decode+parse',
-      run: () => consumeStaxXmlEventParser(inputBuffer.toString('utf8')),
+      label: 'stax-xml EventReaderSync (JS decode+parse)',
+      run: () => consumeStaxXmlEventReader(inputBuffer.toString('utf8'), 'js'),
     },
     {
-      label: 'stax-xml JS Uint8Array iterable',
-      run: () => consumeStaxXmlRawIterable(byteBatches),
+      label: 'stax-xml StreamReaderSync (native)',
+      run: () => consumeStaxXmlStreamReader(inputBuffer),
     },
     {
-      label: 'stax-xml native addon event aggregate',
-      run: () => normalizeNativeAggregateResult(native.parse_aggregate_buffer(inputBuffer, 'event-object-full')),
-    },
-    {
-      label: 'stax-xml native addon raw aggregate',
-      run: () => normalizeNativeAggregateResult(native.parse_aggregate_buffer(inputBuffer, 'full-string-direct')),
+      label: 'stax-xml EventReaderSync (native reference)',
+      run: () => consumeStaxXmlEventReader(xmlString, 'native'),
     },
   ];
 }
 
-export function parseXmlToObjectBaseline(xmlString) {
-  const parser = new EventReaderSync(xmlString);
-  const elementStack = [];
-  let root = null;
-
-  for (const event of parser) {
-    elementStack.push(event);
-    if (elementStack.length > 100) {
-      elementStack.splice(0, elementStack.length);
-    }
-  }
-
-  return root;
+export function parseXmlToObjectBaseline(xmlString, backend = 'js') {
+  return parseXmlNodesSync(xmlString, { backend });
 }
 
-function consumeStaxXmlEventParser(xmlString) {
+function consumeStaxXmlEventReader(xmlString, runtimeBackendPreference) {
   let eventCount = 0;
   let checksum = 0;
   let attrCountTotal = 0;
 
-  for (const event of new EventReaderSync(xmlString)) {
-    const type = syncEventTypeId(event.type);
+  for (const event of new EventReaderSync(
+    xmlString,
+    { autoDecodeEntities: false },
+    runtimeBackendPreference,
+  )) {
+    const type = eventTypeId(event.type);
     const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes ?? {}) : [];
     eventCount++;
     checksum = mixChecksum(checksum, type);
@@ -116,68 +95,72 @@ function consumeStaxXmlEventParser(xmlString) {
   return { eventCount, checksum, attrCountTotal };
 }
 
-function consumeStaxXmlRawIterable(byteBatches) {
-  const parser = new IterableReader(byteBatches);
+function consumeStaxXmlStreamReader(inputBuffer) {
   let eventCount = 0;
   let checksum = 0;
   let attrCountTotal = 0;
+  const parser = new StreamReaderSync(inputBuffer, { backend: 'native' });
 
-  while (parser.nextBatch()) {
-    for (let index = 0; index < parser.eventCount(); index++) {
-      const type = parser.eventType(index);
-      const attrCount = parser.attrCount(index);
-      eventCount++;
-      checksum = mixChecksum(checksum, type);
-
-      if (type === IterableEventType.START_ELEMENT || type === IterableEventType.END_ELEMENT) {
-        checksum = foldString(checksum, parser.copyName(index));
-      }
-      if (type === IterableEventType.CHARACTERS || type === IterableEventType.CDATA) {
-        checksum = foldString(checksum, parser.copyText(index)?.trim());
-      }
-      checksum = mixChecksum(checksum, attrCount);
-      attrCountTotal += attrCount;
-      for (let attr = 0; attr < attrCount; attr++) {
-        checksum = foldString(checksum, parser.copyAttrName(index, attr));
-        checksum = foldString(checksum, parser.copyAttrValue(index, attr));
-      }
+  for (;;) {
+    const type = parser.next();
+    if (type === null) {
+      break;
+    }
+    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
+    eventCount++;
+    checksum = mixChecksum(checksum, streamEventTypeId(type));
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      checksum = foldString(checksum, parser.name());
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      checksum = foldString(checksum, parser.text()?.trim());
+    }
+    checksum = mixChecksum(checksum, attrCount);
+    attrCountTotal += attrCount;
+    for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+      checksum = foldString(checksum, parser.getAttributeName(attrIndex));
+      checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
     }
   }
 
   return { eventCount, checksum, attrCountTotal };
 }
 
-function asPlainUint8Array(value) {
-  return Object.getPrototypeOf(value) === Uint8Array.prototype
-    ? value
-    : new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
-}
-
-function normalizeNativeAggregateResult(result) {
-  return {
-    eventCount: result.eventCount ?? result.event_count,
-    checksum: result.checksum,
-    attrCountTotal: result.attrCountTotal ?? result.attr_count_total,
-    objectCount: result.objectCount ?? result.object_count ?? 0,
-  };
-}
-
-function syncEventTypeId(type) {
+function eventTypeId(type) {
   switch (type) {
     case XmlEventType.START_DOCUMENT:
-      return IterableEventType.START_DOCUMENT;
+      return 1;
     case XmlEventType.END_DOCUMENT:
-      return IterableEventType.END_DOCUMENT;
+      return 2;
     case XmlEventType.START_ELEMENT:
-      return IterableEventType.START_ELEMENT;
+      return 3;
     case XmlEventType.END_ELEMENT:
-      return IterableEventType.END_ELEMENT;
+      return 4;
     case XmlEventType.CHARACTERS:
-      return IterableEventType.CHARACTERS;
+      return 5;
     case XmlEventType.CDATA:
-      return IterableEventType.CDATA;
+      return 6;
     default:
       throw new Error(`Unsupported parser event type: ${type}`);
+  }
+}
+
+function streamEventTypeId(type) {
+  switch (type) {
+    case StreamEventType.START_DOCUMENT:
+      return 1;
+    case StreamEventType.END_DOCUMENT:
+      return 2;
+    case StreamEventType.START_ELEMENT:
+      return 3;
+    case StreamEventType.END_ELEMENT:
+      return 4;
+    case StreamEventType.CHARACTERS:
+      return 5;
+    case StreamEventType.CDATA:
+      return 6;
+    default:
+      throw new Error(`Unsupported stream event type: ${type}`);
   }
 }
 

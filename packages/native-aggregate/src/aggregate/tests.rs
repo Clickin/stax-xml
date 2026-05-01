@@ -357,13 +357,96 @@ fn span_table_utf8_records_byte_offsets_and_source_kind() {
     assert_eq!(read_u32(&table, 4), aggregate.event_count);
     assert_eq!(read_u32(&table, 8), aggregate.attr_count_total);
     assert_eq!(read_u32(&table, 12), sample.len() as u32);
-    assert_eq!(read_u32(&table, 24), 1);
+    assert_eq!(read_u32(&table, 24) & 0xff, 1);
 
     let event_stride = read_u32(&table, 16) as usize;
     let item_event = SPAN_TABLE_HEADER_BYTES + event_stride * 2;
     let name_start = read_i32(&table, item_event + 4) as usize;
     let name_end = read_i32(&table, item_event + 8) as usize;
     assert_eq!(&sample.as_bytes()[name_start..name_end], b"item");
+}
+
+#[test]
+fn span_table_utf8_value_sidecars_intern_short_values_and_skip_long_or_empty_values() {
+    let long_value = "123456789012345678901234567890123";
+    let sample = format!(
+        "<root><item a=\"short\" b=\"\">short</item><item a=\"short\">short</item><item c=\"{long_value}\">{long_value}</item></root>"
+    );
+
+    let table_bytes = parse_span_table(sample.as_bytes()).unwrap();
+    let table = parse_span_table_bytes(&table_bytes).unwrap();
+
+    assert_ne!(table.flags & SPAN_TABLE_FLAG_VALUE_IDS, 0);
+    assert_eq!(
+        table.event_text_value_ids.unwrap().len(),
+        table.event_count as usize * 4
+    );
+    assert_eq!(table.attr_value_ids.unwrap().len(), table.attr_count as usize * 4);
+
+    let first_text = read_table_event(&table, 3).unwrap();
+    let second_text = read_table_event(&table, 6).unwrap();
+    let long_text = read_table_event(&table, 9).unwrap();
+    assert!(first_text.text_value_id > 0);
+    assert_eq!(first_text.text_value_id, second_text.text_value_id);
+    assert_eq!(long_text.text_value_id, 0);
+
+    let first_short_attr = read_table_attr(&table, 0).unwrap();
+    let empty_attr = read_table_attr(&table, 1).unwrap();
+    let repeated_short_attr = read_table_attr(&table, 2).unwrap();
+    let long_attr = read_table_attr(&table, 3).unwrap();
+    assert!(first_short_attr.value_id > 0);
+    assert_eq!(first_short_attr.value_id, repeated_short_attr.value_id);
+    assert_eq!(empty_attr.value_id, 0);
+    assert_eq!(long_attr.value_id, 0);
+}
+
+#[test]
+fn span_table_utf8_legacy_name_sidecars_remain_readable_without_value_sidecars() {
+    let sample = "<root><item a=\"short\">short</item></root>";
+    let mut table_bytes = parse_span_table(sample.as_bytes()).unwrap();
+    let event_count = read_u32(&table_bytes, 4) as usize;
+    let attr_count = read_u32(&table_bytes, 8) as usize;
+    let legacy_tail_bytes = (event_count + attr_count) * 4;
+    let flags = read_u32(&table_bytes, 24) & !SPAN_TABLE_FLAG_VALUE_IDS;
+    table_bytes[24..28].copy_from_slice(&flags.to_le_bytes());
+    table_bytes.truncate(table_bytes.len() - legacy_tail_bytes);
+
+    let table = parse_span_table_bytes(&table_bytes).unwrap();
+    assert!(table.event_text_value_ids.is_none());
+    assert!(table.attr_value_ids.is_none());
+    assert_eq!(read_table_event(&table, 3).unwrap().text_value_id, 0);
+    assert_eq!(read_table_attr(&table, 0).unwrap().value_id, 0);
+}
+
+#[test]
+fn streaming_span_table_reuses_short_value_ids_across_batches() {
+    let mut parser = StaxXmlStreamingEventBatchParser::new();
+
+    let first_batch = parser
+        .push_chunk(
+            Uint8Array::from(b"<root><item a=\"short\">short</item>".to_vec()),
+            false,
+        )
+        .unwrap();
+    let second_batch = parser
+        .push_chunk(
+            Uint8Array::from(b"<item a=\"short\">short</item></root>".to_vec()),
+            true,
+        )
+        .unwrap();
+
+    let first_table = parse_span_table_bytes(first_batch.table.as_ref()).unwrap();
+    let second_table = parse_span_table_bytes(second_batch.table.as_ref()).unwrap();
+
+    let first_attr = read_table_attr(&first_table, 0).unwrap();
+    let second_attr = read_table_attr(&second_table, 0).unwrap();
+    assert!(first_attr.value_id > 0);
+    assert_eq!(first_attr.value_id, second_attr.value_id);
+
+    let first_text = read_table_event(&first_table, 3).unwrap();
+    let second_text = read_table_event(&second_table, 1).unwrap();
+    assert!(first_text.text_value_id > 0);
+    assert_eq!(first_text.text_value_id, second_text.text_value_id);
 }
 
 #[test]
@@ -482,14 +565,106 @@ fn object_rows_projection_supports_generic_object_fields() {
     assert_eq!(table_result.row_count, result.row_count);
     assert_eq!(table_result.field_count, result.field_count);
     assert_eq!(result.columns[0].present, vec![true, true, true]);
-    assert_eq!(result.columns[0].values, vec!["a", "b", "c"]);
+    assert!(result.columns[0].values.is_empty());
+    assert_eq!(
+        utf8_spans(sample.as_bytes(), &result.columns[0]),
+        vec!["a", "b", "c"]
+    );
     assert_eq!(result.columns[1].present, vec![true, true, true]);
-    assert_eq!(result.columns[1].values, vec!["Alice", "Bob", "Cy"]);
+    assert!(result.columns[1].values.is_empty());
+    assert_eq!(
+        utf8_spans(sample.as_bytes(), &result.columns[1]),
+        vec!["Alice", "Bob", "Cy"]
+    );
+    assert!(table_result.columns[0].values.is_empty());
+    assert_eq!(
+        utf8_spans(sample.as_bytes(), &table_result.columns[0]),
+        vec!["a", "b", "c"]
+    );
+    assert!(table_result.columns[1].values.is_empty());
+    assert_eq!(
+        utf8_spans(sample.as_bytes(), &table_result.columns[1]),
+        vec!["Alice", "Bob", "Cy"]
+    );
     assert_eq!(result.columns[2].present, vec![true, true, false]);
     assert!(result.columns[2].values.is_empty());
     assert_eq!(result.columns[2].number_values[0], 7.0);
     assert!(result.columns[2].number_values[1].is_nan());
     assert_eq!(result.columns[2].number_values[2], 0.0);
+}
+
+#[test]
+fn document_nodes_projection_returns_txml_style_json_with_custom_entities() {
+    let sample = r#"<root mark="&copy;">&copy;<item a="&amp;">ok</item></root>"#;
+    let options = DocumentNodesProjectionOptions {
+        auto_decode_entities: Some(true),
+        add_entities: Some(vec![DocumentEntityDefinition {
+            entity: "&copy;".to_owned(),
+            value: "©".to_owned(),
+        }]),
+    };
+
+    let result = parse_document_nodes(sample.as_bytes(), &options).unwrap();
+
+    assert_eq!(result.node_count, 4);
+    assert_eq!(
+        result.json,
+        r#"[{"tagName":"root","attributes":{"mark":"©"},"children":["©",{"tagName":"item","attributes":{"a":"&"},"children":["ok"]}]}]"#,
+    );
+}
+
+#[test]
+fn object_rows_projection_preserves_multibyte_span_strings() {
+    let sample = concat!(
+        "<root>",
+        "<entry code=\"한글\"><label>안녕🙂</label><score>1</score></entry>",
+        "<entry code=\"emoji🙂\"><label>카페</label><score>2</score></entry>",
+        "</root>"
+    );
+    let spec = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        fields: vec![
+            ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "code".to_owned(),
+                text_mode: "direct".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "score".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "score".to_owned(),
+                text_mode: "subtree".to_owned(),
+            },
+        ],
+    };
+
+    let direct = parse_object_rows(sample.as_bytes(), &spec).unwrap();
+    let table = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
+
+    for result in [&direct, &table] {
+        assert_eq!(result.row_count, 2);
+        assert!(result.columns[0].values.is_empty());
+        assert_eq!(
+            utf8_spans(sample.as_bytes(), &result.columns[0]),
+            vec!["한글", "emoji🙂"]
+        );
+        assert!(result.columns[1].values.is_empty());
+        assert_eq!(
+            utf8_spans(sample.as_bytes(), &result.columns[1]),
+            vec!["안녕🙂", "카페"]
+        );
+        assert_eq!(result.columns[2].number_values, vec![1.0, 2.0]);
+    }
 }
 
 #[test]
@@ -556,7 +731,11 @@ fn object_rows_projection_covers_direct_table_modes_and_edge_values() {
 
     for result in [&direct, &table] {
         assert_eq!(result.columns[0].present, vec![true, true, true, true]);
-        assert_eq!(result.columns[0].values, vec!["a", "b", "c", "d"]);
+        assert!(result.columns[0].values.is_empty());
+        assert_eq!(
+            utf8_spans(sample.as_bytes(), &result.columns[0]),
+            vec!["a", "b", "c", "d"]
+        );
 
         assert_eq!(result.columns[1].present, vec![true, true, false, false]);
         assert_eq!(result.columns[1].number_values[0], 10.0);
@@ -565,10 +744,16 @@ fn object_rows_projection_covers_direct_table_modes_and_edge_values() {
         assert_eq!(result.columns[1].number_values[3], 0.0);
 
         assert_eq!(result.columns[2].present, vec![true, true, true, false]);
-        assert_eq!(result.columns[2].values, vec!["Alice", "", "C", ""]);
+        assert_eq!(
+            object_rows_string_values(sample.as_bytes(), &result.columns[2]),
+            vec!["Alice", "", "C", ""]
+        );
 
         assert_eq!(result.columns[3].present, vec![true, true, false, false]);
-        assert_eq!(result.columns[3].values, vec!["Hello World!", "", "", ""]);
+        assert_eq!(
+            object_rows_string_values(sample.as_bytes(), &result.columns[3]),
+            vec!["Hello World!", "", "", ""]
+        );
 
         assert_eq!(result.columns[4].present, vec![true, true, false, false]);
         assert_eq!(result.columns[4].number_values[0], 4.5);
@@ -667,10 +852,12 @@ fn object_rows_projection_rejects_invalid_specs_and_tables() {
         }],
     };
     assert_eq!(
-        parse_object_rows(sample.as_bytes(), &attribute_empty_mode)
-            .unwrap()
-            .columns[0]
-            .values,
+        object_rows_string_values(
+            sample.as_bytes(),
+            &parse_object_rows(sample.as_bytes(), &attribute_empty_mode)
+                .unwrap()
+                .columns[0],
+        ),
         vec!["a"]
     );
 
@@ -712,7 +899,10 @@ fn object_rows_projection_direct_rejects_malformed_xml() {
 
     let whitespace = b"<root><entry code=\"x\" ><label> X </label></ entry ></root>";
     assert_eq!(
-        parse_object_rows(whitespace, &spec).unwrap().columns[0].values,
+        object_rows_string_values(
+            whitespace,
+            &parse_object_rows(whitespace, &spec).unwrap().columns[0]
+        ),
         vec!["x"]
     );
 }
@@ -738,6 +928,8 @@ fn projection_table_helpers_cover_defensive_paths() {
         text_end: NO_SPAN,
         attr_start: 0,
         attr_count: 0,
+        name_id: 0,
+        text_value_id: 0,
     };
     assert!(
         start_table_projection_element(input, &table, nameless_start, 1, &mut item_state).is_err()
@@ -757,6 +949,8 @@ fn projection_table_helpers_cover_defensive_paths() {
         text_end: 0,
         attr_start: 0,
         attr_count: 0,
+        name_id: 0,
+        text_value_id: 0,
     };
     capture_table_projection_text(input, whitespace_text, &mut item_state).unwrap();
 
@@ -822,6 +1016,8 @@ fn projection_table_helpers_cover_defensive_paths() {
         text_end: NO_SPAN,
         attr_start: 0,
         attr_count: 1,
+        name_id: 0,
+        text_value_id: 0,
     };
     assert_eq!(
         read_table_projection_id(input, &id_table, id_event).unwrap(),
@@ -925,6 +1121,8 @@ fn projection_table_helpers_cover_defensive_paths() {
             text_end: NO_SPAN,
             attr_start: 0,
             attr_count: 2,
+            name_id: 0,
+            text_value_id: 0,
         },
         &normalized,
         &mut object_state,
@@ -943,6 +1141,8 @@ fn projection_table_helpers_cover_defensive_paths() {
             text_end: NO_SPAN,
             attr_start: 0,
             attr_count: 0,
+            name_id: 0,
+            text_value_id: 0,
         },
         &normalized,
         &mut object_state,
@@ -1017,6 +1217,9 @@ fn projection_table_helpers_cover_defensive_paths() {
             String::new(),
             String::new(),
         ],
+        string_materialized: vec![false, false, true, false, false],
+        span_starts: vec![-1; normalized.fields.len()],
+        span_ends: vec![-1; normalized.fields.len()],
         number_values: vec![0.0; normalized.fields.len()],
         number_buffers: vec![
             Vec::new(),
@@ -1036,6 +1239,8 @@ fn projection_table_helpers_cover_defensive_paths() {
             text_end: NO_SPAN,
             attr_start: 0,
             attr_count: 0,
+            name_id: 0,
+            text_value_id: 0,
         },
         &normalized,
         &mut table_end_state,
@@ -1062,6 +1267,8 @@ fn projection_table_helpers_cover_defensive_paths() {
             text_end: NO_SPAN,
             attr_start: 0,
             attr_count: 0,
+            name_id: 0,
+            text_value_id: 0,
         },
         &normalized,
         &mut table_end_state,
@@ -1086,6 +1293,9 @@ fn projection_table_helpers_cover_defensive_paths() {
             String::new(),
             String::new(),
         ],
+        string_materialized: vec![false, false, true, false, false],
+        span_starts: vec![-1; normalized.fields.len()],
+        span_ends: vec![-1; normalized.fields.len()],
         number_values: vec![0.0; normalized.fields.len()],
         number_buffers: vec![
             Vec::new(),
@@ -1095,7 +1305,8 @@ fn projection_table_helpers_cover_defensive_paths() {
             b"17.25".to_vec(),
         ],
     });
-    end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state);
+    end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state)
+        .unwrap();
     let row = direct_end_state.current_row.as_ref().unwrap();
     assert_eq!(row.values[2], "Direct");
     assert_eq!(row.number_values[4], 17.25);
@@ -1107,7 +1318,8 @@ fn projection_table_helpers_cover_defensive_paths() {
         text_mode: ObjectRowsTextMode::Direct,
     });
     direct_end_state.current_row = None;
-    end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state);
+    end_object_rows_projection_element_direct(input, 1, 5, &normalized, &mut direct_end_state)
+        .unwrap();
 }
 
 #[test]
@@ -1160,8 +1372,14 @@ fn projection_branch_coverage_covers_short_circuit_edges() {
 
     assert_eq!(direct.row_count, 1);
     assert_eq!(table.row_count, 1);
-    assert_eq!(direct.columns[0].values, vec!["A"]);
-    assert_eq!(table.columns[0].values, vec!["A"]);
+    assert_eq!(
+        object_rows_string_values(object_input.as_bytes(), &direct.columns[0]),
+        vec!["A"]
+    );
+    assert_eq!(
+        object_rows_string_values(object_input.as_bytes(), &table.columns[0]),
+        vec!["A"]
+    );
 
     let table_bytes = parse_span_table(
         b"<root><item id=\"1\"><other>X</other><value>B</value><other>Y</other></item></root>",
@@ -2178,6 +2396,37 @@ fn read_i32(input: &[u8], offset: usize) -> i32 {
 
 fn span_to_string(input: &[u16], start: i32, end: i32) -> String {
     String::from_utf16(&input[start as usize..end as usize]).unwrap()
+}
+
+fn utf8_spans(input: &[u8], column: &ObjectRowsProjectionColumn) -> Vec<String> {
+    column
+        .span_starts
+        .iter()
+        .zip(column.span_ends.iter())
+        .map(|(start, end)| {
+            std::str::from_utf8(&input[*start as usize..*end as usize])
+                .unwrap()
+                .to_owned()
+        })
+        .collect()
+}
+
+fn object_rows_string_values(input: &[u8], column: &ObjectRowsProjectionColumn) -> Vec<String> {
+    column
+        .present
+        .iter()
+        .enumerate()
+        .map(|(index, _)| {
+            let start = column.span_starts.get(index).copied().unwrap_or(-1);
+            let end = column.span_ends.get(index).copied().unwrap_or(-1);
+            if start >= 0 && end >= start {
+                return std::str::from_utf8(&input[start as usize..end as usize])
+                    .unwrap()
+                    .to_owned();
+            }
+            column.values.get(index).cloned().unwrap_or_default()
+        })
+        .collect()
 }
 
 fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {

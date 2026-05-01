@@ -1,13 +1,10 @@
 import { spawnSync } from 'node:child_process';
-import { closeSync, existsSync, mkdirSync, openSync, statSync, writeSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, writeSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { IterableEventType, IterableReader } from 'stax-xml/iterable';
-import {
-  nodeFileByteBatchesSync,
-  NodeIterableReader,
-} from '../stax-xml/dist/iterable/node.js';
+import { EventReaderSync, initStaxXml, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
+import { nodeFileByteBatchesSync } from 'stax-xml/adapters/node';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,6 +28,18 @@ const COUNT_REGRESSION_LIMIT = 0.03;
 const FULL_STRING_MIN_IMPROVEMENT = 0.10;
 const FULL_STRING_MIN_MIB_PER_SEC = 190;
 const DEFAULT_SIMDXML_MAX_MIB = 64;
+const NATIVE_ADDON_FULL_SPEC_MIN_RATIO = 0.9;
+const NATIVE_ADDON_FULL_SPEC_ID = 'native-addon-full-spec';
+const NATIVE_ADDON_FULL_SPEC_UTF16_ID = 'native-addon-full-spec-utf16';
+const PUBLIC_NATIVE_WRAPPER_ID = 'stream-reader-native';
+const EVENT_READER_NATIVE_REFERENCE_ID = 'event-reader-native';
+const NATIVE_ADDON_FULL_SPEC_TIER_BY_PUBLIC_TIER = new Map([
+  ['count-only', 'count-only'],
+  ['name-string-only', 'name-string-only'],
+  ['text-string-only', 'text-string-only'],
+  ['attr-value-string-only', 'attr-value-string-only'],
+  ['full-string', 'full-string-direct'],
+]);
 
 function parseArgs(argv) {
   const options = {
@@ -240,17 +249,43 @@ function generateXmlFile(filePath, targetBytes) {
 }
 
 function makeNeutralParser(filePath, options) {
-  return new IterableReader(nodeFileByteBatchesSync(filePath, {
-    chunkSize: options.chunkSize,
-    batchSize: options.batchSize,
-  }));
+  return new EventReaderSync(readFileSync(filePath, 'utf8'), {
+    autoDecodeEntities: false,
+  }, 'js');
 }
 
-function makeNodeParser(filePath, options) {
-  return new NodeIterableReader(nodeFileByteBatchesSync(filePath, {
-    chunkSize: options.chunkSize,
-    batchSize: options.batchSize,
-  }));
+function makeEventReaderNativeParser(filePath, options) {
+  return new EventReaderSync(readFileSync(filePath, 'utf8'), {
+    autoDecodeEntities: false,
+  }, 'native');
+}
+
+function makeStreamReaderNativeParser(filePath, options) {
+  return new StreamReaderSync(
+    nodeFileByteBatchesSync(filePath, {
+      chunkSize: options.chunkSize,
+      batchSize: options.batchSize,
+    }),
+    { backend: 'native' },
+  );
+}
+
+async function loadNativeAddonFullSpec() {
+  try {
+    const nativeAddon = await import('@stax-xml/native-aggregate-probe');
+    if (typeof nativeAddon.parseAggregateFile !== 'function') {
+      return {
+        status: 'skipped',
+        reason: 'native addon full spec parseAggregateFile export is unavailable',
+      };
+    }
+    return { status: 'ok', nativeAddon };
+  } catch (error) {
+    return {
+      status: 'skipped',
+      reason: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 function mixChecksum(seed, value) {
@@ -268,6 +303,44 @@ function foldString(seed, value) {
   return next;
 }
 
+function eventTypeId(type) {
+  switch (type) {
+    case XmlEventType.START_DOCUMENT:
+      return 1;
+    case XmlEventType.END_DOCUMENT:
+      return 2;
+    case XmlEventType.START_ELEMENT:
+      return 3;
+    case XmlEventType.END_ELEMENT:
+      return 4;
+    case XmlEventType.CHARACTERS:
+      return 5;
+    case XmlEventType.CDATA:
+      return 6;
+    default:
+      throw new Error(`Unsupported parser event type: ${type}`);
+  }
+}
+
+function streamEventTypeId(type) {
+  switch (type) {
+    case StreamEventType.START_DOCUMENT:
+      return 1;
+    case StreamEventType.END_DOCUMENT:
+      return 2;
+    case StreamEventType.START_ELEMENT:
+      return 3;
+    case StreamEventType.END_ELEMENT:
+      return 4;
+    case StreamEventType.CHARACTERS:
+      return 5;
+    case StreamEventType.CDATA:
+      return 6;
+    default:
+      throw new Error(`Unsupported stream event type: ${type}`);
+  }
+}
+
 function captureMemoryPeak(peak) {
   const current = process.memoryUsage();
   peak.rssBytes = Math.max(peak.rssBytes, current.rss);
@@ -280,54 +353,104 @@ function consumeParser(parser, tier, sampleEvery) {
   const peak = { rssBytes: 0, heapUsedBytes: 0 };
 
   captureMemoryPeak(peak);
-  while (parser.nextBatch()) {
-    for (let index = 0; index < parser.eventCount(); index++) {
-      const type = parser.eventType(index);
-      const attrCount = parser.attrCount(index);
-      eventCount++;
-      checksum = mixChecksum(checksum, type);
+  for (const event of parser) {
+    const type = eventTypeId(event.type);
+    const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes ?? {}) : [];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
 
-      if (tier === 'count-only') {
-        checksum = mixChecksum(checksum, attrCount);
-      } else if (tier === 'name-string-only') {
-        if (type === IterableEventType.START_ELEMENT || type === IterableEventType.END_ELEMENT) {
-          checksum = foldString(checksum, parser.copyName(index));
-        }
-      } else if (tier === 'text-string-only') {
-        if (type === IterableEventType.CHARACTERS || type === IterableEventType.CDATA) {
-          checksum = foldString(checksum, parser.copyText(index)?.trim());
-        }
-      } else if (tier === 'attr-value-string-only') {
-        checksum = mixChecksum(checksum, attrCount);
-        for (let attr = 0; attr < attrCount; attr++) {
-          checksum = foldString(checksum, parser.copyAttrValue(index, attr));
-        }
-      } else {
-        if (type === IterableEventType.START_ELEMENT || type === IterableEventType.END_ELEMENT) {
-          checksum = foldString(checksum, parser.copyName(index));
-        }
-        if (type === IterableEventType.CHARACTERS || type === IterableEventType.CDATA) {
-          checksum = foldString(checksum, parser.copyText(index)?.trim());
-        }
-        checksum = mixChecksum(checksum, attrCount);
-        for (let attr = 0; attr < attrCount; attr++) {
-          checksum = foldString(checksum, parser.copyAttrName(index, attr));
-          checksum = foldString(checksum, parser.copyAttrValue(index, attr));
-        }
+    if (tier === 'count-only') {
+      checksum = mixChecksum(checksum, attrs.length);
+    } else if (tier === 'name-string-only') {
+      if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+        checksum = foldString(checksum, event.name);
       }
+    } else if (tier === 'text-string-only') {
+      if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+        checksum = foldString(checksum, event.value?.trim());
+      }
+    } else if (tier === 'attr-value-string-only') {
+      checksum = mixChecksum(checksum, attrs.length);
+      for (const [, value] of attrs) {
+        checksum = foldString(checksum, value);
+      }
+    } else {
+      if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+        checksum = foldString(checksum, event.name);
+      }
+      if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+        checksum = foldString(checksum, event.value?.trim());
+      }
+      checksum = mixChecksum(checksum, attrs.length);
+      for (const [name, value] of attrs) {
+        checksum = foldString(checksum, name);
+        checksum = foldString(checksum, value);
+      }
+    }
 
-      if (eventCount % sampleEvery === 0) {
-        captureMemoryPeak(peak);
-      }
+    if (eventCount % sampleEvery === 0) {
+      captureMemoryPeak(peak);
     }
   }
   captureMemoryPeak(peak);
   return { eventCount, checksum, peak };
 }
 
-function measureScenario(id, createParser, fileSizeMiB, tier, options) {
+function consumeStreamReader(parser, tier, sampleEvery) {
+  let eventCount = 0;
+  let checksum = 0;
+  const peak = { rssBytes: 0, heapUsedBytes: 0 };
+
+  captureMemoryPeak(peak);
+  for (;;) {
+    const type = parser.next();
+    if (type === null) {
+      break;
+    }
+    eventCount++;
+    checksum = mixChecksum(checksum, streamEventTypeId(type));
+    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
+
+    if (tier === 'count-only') {
+      checksum = mixChecksum(checksum, attrCount);
+    } else if (tier === 'name-string-only') {
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(checksum, parser.name());
+      }
+    } else if (tier === 'text-string-only') {
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldString(checksum, parser.text()?.trim());
+      }
+    } else if (tier === 'attr-value-string-only') {
+      checksum = mixChecksum(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+      }
+    } else {
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(checksum, parser.name());
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldString(checksum, parser.text()?.trim());
+      }
+      checksum = mixChecksum(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = foldString(checksum, parser.getAttributeName(attrIndex));
+        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+      }
+    }
+
+    if (eventCount % sampleEvery === 0) {
+      captureMemoryPeak(peak);
+    }
+  }
+  captureMemoryPeak(peak);
+  return { eventCount, checksum, peak };
+}
+
+function measureScenario(id, createParser, fileSizeMiB, tier, options, consume = consumeParser) {
   for (let index = 0; index < options.warmups; index++) {
-    consumeParser(createParser(), tier, options.sampleEvery);
+    consume(createParser(), tier, options.sampleEvery);
   }
 
   const samplesMs = [];
@@ -340,7 +463,7 @@ function measureScenario(id, createParser, fileSizeMiB, tier, options) {
       globalThis.gc();
     }
     const startedAt = performance.now();
-    const result = consumeParser(createParser(), tier, options.sampleEvery);
+    const result = consume(createParser(), tier, options.sampleEvery);
     const elapsedMs = performance.now() - startedAt;
 
     if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
@@ -409,7 +532,7 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options, extr
       id,
       status: 'failed',
       tier,
-      reason: child.stderr.trim() || child.stdout.trim() || `external command exited ${child.status}`,
+      reason: trimSpawnOutput(child) || `external command exited ${child.status}`,
     };
   }
 
@@ -428,6 +551,161 @@ function measureExternal(id, command, filePath, fileSizeMiB, tier, options, extr
     peakHeapUsedBytes: parsed.peakHeapUsedBytes,
     samplesMs: parsed.samplesMs ?? [parsed.avgMs],
   };
+}
+
+function measureNativeAddonFullSpecScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tier, options) {
+  if (nativeAddonFullSpec.status !== 'ok') {
+    return {
+      id: NATIVE_ADDON_FULL_SPEC_ID,
+      status: 'skipped',
+      tier,
+      reason: nativeAddonFullSpec.reason,
+    };
+  }
+
+  for (let index = 0; index < options.warmups; index++) {
+    consumeNativeAddonFullSpec(nativeAddonFullSpec.nativeAddon, filePath, tier);
+  }
+
+  const samplesMs = [];
+  let eventCount = 0;
+  let checksum = 0;
+  const peak = { rssBytes: 0, heapUsedBytes: 0 };
+
+  for (let index = 0; index < options.runs; index++) {
+    if (globalThis.gc) {
+      globalThis.gc();
+    }
+    const startedAt = performance.now();
+    const result = consumeNativeAddonFullSpec(nativeAddonFullSpec.nativeAddon, filePath, tier);
+    const elapsedMs = performance.now() - startedAt;
+
+    if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
+      throw new Error(`${NATIVE_ADDON_FULL_SPEC_ID} ${tier} produced unstable event count or checksum between runs.`);
+    }
+
+    eventCount = result.eventCount;
+    checksum = result.checksum;
+    peak.rssBytes = Math.max(peak.rssBytes, result.peak.rssBytes);
+    peak.heapUsedBytes = Math.max(peak.heapUsedBytes, result.peak.heapUsedBytes);
+    samplesMs.push(elapsedMs);
+  }
+
+  const avgMs = average(samplesMs);
+  return {
+    id: NATIVE_ADDON_FULL_SPEC_ID,
+    status: 'ok',
+    tier,
+    nativeTier: nativeAddonFullSpecTier(tier),
+    avgMs,
+    minMs: Math.min(...samplesMs),
+    maxMs: Math.max(...samplesMs),
+    mibPerSec: fileSizeMiB / (avgMs / 1000),
+    eventCount,
+    checksum,
+    peakRssBytes: peak.rssBytes,
+    peakHeapUsedBytes: peak.heapUsedBytes,
+    samplesMs,
+  };
+}
+
+function measureNativeAddonUtf16DiagnosticScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tier, options) {
+  if (
+    nativeAddonFullSpec.status !== 'ok'
+    || typeof nativeAddonFullSpec.nativeAddon.parseAggregateStringUtf16 !== 'function'
+  ) {
+    return {
+      id: NATIVE_ADDON_FULL_SPEC_UTF16_ID,
+      status: 'skipped',
+      tier,
+      nativeTier: nativeAddonFullSpecTier(tier),
+      reason: nativeAddonFullSpec.status === 'ok'
+        ? 'native addon UTF-16 diagnostic parseAggregateStringUtf16 export is unavailable'
+        : nativeAddonFullSpec.reason,
+    };
+  }
+
+  const xmlString = readFileSync(filePath, 'utf8');
+  for (let index = 0; index < options.warmups; index++) {
+    consumeNativeAddonUtf16Diagnostic(nativeAddonFullSpec.nativeAddon, xmlString, tier);
+  }
+
+  const samplesMs = [];
+  let eventCount = 0;
+  let checksum = 0;
+  const peak = { rssBytes: 0, heapUsedBytes: 0 };
+
+  for (let index = 0; index < options.runs; index++) {
+    if (globalThis.gc) {
+      globalThis.gc();
+    }
+    const startedAt = performance.now();
+    const result = consumeNativeAddonUtf16Diagnostic(nativeAddonFullSpec.nativeAddon, xmlString, tier);
+    const elapsedMs = performance.now() - startedAt;
+
+    if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
+      throw new Error(`${NATIVE_ADDON_FULL_SPEC_UTF16_ID} ${tier} produced unstable event count or checksum between runs.`);
+    }
+
+    eventCount = result.eventCount;
+    checksum = result.checksum;
+    peak.rssBytes = Math.max(peak.rssBytes, result.peak.rssBytes);
+    peak.heapUsedBytes = Math.max(peak.heapUsedBytes, result.peak.heapUsedBytes);
+    samplesMs.push(elapsedMs);
+  }
+
+  const avgMs = average(samplesMs);
+  return {
+    id: NATIVE_ADDON_FULL_SPEC_UTF16_ID,
+    status: 'ok',
+    tier,
+    nativeTier: nativeAddonFullSpecTier(tier),
+    avgMs,
+    minMs: Math.min(...samplesMs),
+    maxMs: Math.max(...samplesMs),
+    mibPerSec: fileSizeMiB / (avgMs / 1000),
+    eventCount,
+    checksum,
+    peakRssBytes: peak.rssBytes,
+    peakHeapUsedBytes: peak.heapUsedBytes,
+    samplesMs,
+  };
+}
+
+function consumeNativeAddonFullSpec(nativeAddon, filePath, tier) {
+  const peak = { rssBytes: 0, heapUsedBytes: 0 };
+  captureMemoryPeak(peak);
+  const result = nativeAddon.parseAggregateFile(filePath, nativeAddonFullSpecTier(tier));
+  captureMemoryPeak(peak);
+  return {
+    eventCount: result.eventCount,
+    checksum: result.checksum,
+    peak,
+  };
+}
+
+function consumeNativeAddonUtf16Diagnostic(nativeAddon, xmlString, tier) {
+  const peak = { rssBytes: 0, heapUsedBytes: 0 };
+  captureMemoryPeak(peak);
+  const result = nativeAddon.parseAggregateStringUtf16(xmlString, nativeAddonFullSpecTier(tier));
+  captureMemoryPeak(peak);
+  return {
+    eventCount: result.eventCount,
+    checksum: result.checksum,
+    peak,
+  };
+}
+
+function nativeAddonFullSpecTier(tier) {
+  const nativeTier = NATIVE_ADDON_FULL_SPEC_TIER_BY_PUBLIC_TIER.get(tier);
+  if (!nativeTier) {
+    throw new Error(`No native addon full-spec tier mapping for ${tier}.`);
+  }
+  return nativeTier;
+}
+
+function trimSpawnOutput(result) {
+  return String(result.stderr ?? '').trim() || String(result.stdout ?? '').trim();
 }
 
 function externalCommandFlag(id) {
@@ -453,6 +731,10 @@ function formatRate(value) {
   return value.toFixed(1);
 }
 
+function formatRatio(value) {
+  return Number.isFinite(value) ? `${value.toFixed(2)}x` : 'n/a';
+}
+
 function formatMiB(bytes) {
   if (!Number.isFinite(bytes)) {
     return 'n/a';
@@ -470,40 +752,62 @@ export function buildNodeStringReturnGate(fileReport) {
   const full = tiers.get('full-string');
   const failures = [];
   const performanceFailures = [];
+  const nativeAddonFullSpecRatios = [];
 
   for (const tier of fileReport.tiers) {
     const neutral = tier.scenarios.find(scenario => scenario.id === 'neutral');
-    const node = tier.scenarios.find(scenario => scenario.id === 'node');
-    if (!neutral || !node || neutral.status !== 'ok' || node.status !== 'ok') {
-      failures.push(`${tier.id}: missing neutral/node result`);
+    const publicNativeWrapper = tier.scenarios.find(scenario => scenario.id === PUBLIC_NATIVE_WRAPPER_ID);
+    const nativeAddonFullSpec = tier.scenarios.find(scenario => scenario.id === NATIVE_ADDON_FULL_SPEC_ID);
+    if (!neutral || !publicNativeWrapper || neutral.status !== 'ok' || publicNativeWrapper.status !== 'ok') {
+      failures.push(`${tier.id}: missing JS/StreamReaderSync native result`);
       continue;
     }
-    if (neutral.eventCount !== node.eventCount || neutral.checksum !== node.checksum) {
-      failures.push(`${tier.id}: neutral/node event count or checksum mismatch`);
+    if (neutral.eventCount !== publicNativeWrapper.eventCount || neutral.checksum !== publicNativeWrapper.checksum) {
+      failures.push(`${tier.id}: JS/StreamReaderSync native event count or checksum mismatch`);
+    }
+    if (!nativeAddonFullSpec || nativeAddonFullSpec.status !== 'ok') {
+      failures.push(`${tier.id}: missing native addon full-spec result`);
+      continue;
+    }
+    if (nativeAddonFullSpec.eventCount !== publicNativeWrapper.eventCount) {
+      failures.push(`${tier.id}: native addon full-spec event count mismatch`);
+      continue;
+    }
+
+    const ratioToFullSpec = publicNativeWrapper.mibPerSec / nativeAddonFullSpec.mibPerSec;
+    nativeAddonFullSpecRatios.push({ tier: tier.id, ratio: ratioToFullSpec });
+    if (
+      Number.isFinite(ratioToFullSpec) &&
+      ratioToFullSpec < NATIVE_ADDON_FULL_SPEC_MIN_RATIO
+    ) {
+      failures.push(
+        `${tier.id}: public StreamReaderSync native wrapper ${formatRatio(ratioToFullSpec)} is below ` +
+          `${formatRatio(NATIVE_ADDON_FULL_SPEC_MIN_RATIO)} native addon full spec`,
+      );
     }
   }
 
   const countNeutral = count?.scenarios.find(scenario => scenario.id === 'neutral');
-  const countNode = count?.scenarios.find(scenario => scenario.id === 'node');
+  const countNativeWrapper = count?.scenarios.find(scenario => scenario.id === PUBLIC_NATIVE_WRAPPER_ID);
   const fullNeutral = full?.scenarios.find(scenario => scenario.id === 'neutral');
-  const fullNode = full?.scenarios.find(scenario => scenario.id === 'node');
+  const fullNativeWrapper = full?.scenarios.find(scenario => scenario.id === PUBLIC_NATIVE_WRAPPER_ID);
 
-  const countOnlyRegression = countNeutral && countNode
-    ? (countNode.avgMs - countNeutral.avgMs) / countNeutral.avgMs
+  const countOnlyRegression = countNeutral && countNativeWrapper
+    ? (countNativeWrapper.avgMs - countNeutral.avgMs) / countNeutral.avgMs
     : Number.NaN;
-  const fullStringImprovement = fullNeutral && fullNode
-    ? (fullNeutral.avgMs - fullNode.avgMs) / fullNeutral.avgMs
+  const fullStringImprovement = fullNeutral && fullNativeWrapper
+    ? (fullNeutral.avgMs - fullNativeWrapper.avgMs) / fullNeutral.avgMs
     : Number.NaN;
 
   if (Number.isFinite(countOnlyRegression) && countOnlyRegression >= COUNT_REGRESSION_LIMIT) {
     performanceFailures.push(`count-only regression ${pct(countOnlyRegression)} exceeds ${pct(COUNT_REGRESSION_LIMIT)}`);
   }
-  if (Number.isFinite(fullStringImprovement) && fullNode) {
+  if (Number.isFinite(fullStringImprovement) && fullNativeWrapper) {
     const passesFullStringGate = fullStringImprovement >= FULL_STRING_MIN_IMPROVEMENT ||
-      fullNode.mibPerSec >= FULL_STRING_MIN_MIB_PER_SEC;
+      fullNativeWrapper.mibPerSec >= FULL_STRING_MIN_MIB_PER_SEC;
     if (!passesFullStringGate) {
       performanceFailures.push(
-        `full-string improvement ${pct(fullStringImprovement)} and ${formatRate(fullNode.mibPerSec)} MiB/s miss gate`,
+        `full-string improvement ${pct(fullStringImprovement)} and ${formatRate(fullNativeWrapper.mibPerSec)} MiB/s miss gate`,
       );
     }
   }
@@ -512,6 +816,10 @@ export function buildNodeStringReturnGate(fileReport) {
     status: failures.length === 0 ? 'pass' : 'fail',
     countOnlyRegression,
     fullStringImprovement,
+    nativeAddonFullSpecMinRatio: nativeAddonFullSpecRatios.length > 0
+      ? Math.min(...nativeAddonFullSpecRatios.map(entry => entry.ratio))
+      : Number.NaN,
+    nativeAddonFullSpecRatios,
     failures,
     performanceStatus: performanceFailures.length === 0 ? 'pass' : 'warn',
     performanceFailures,
@@ -519,7 +827,7 @@ export function buildNodeStringReturnGate(fileReport) {
 }
 
 function printReport(report) {
-  console.log('Node string-return iterable benchmark');
+  console.log('Node string-return StreamReaderSync benchmark');
   console.log(`Generated: ${report.generatedAt}`);
   console.log(`Contract: ${report.contract.join(', ')}`);
   console.log(`Runs: warmups=${report.options.warmups}, runs=${report.options.runs}, chunkSize=${report.options.chunkSize}, batchSize=${report.options.batchSize}`);
@@ -545,6 +853,7 @@ function printReport(report) {
     console.log(
       `  gate: ${file.gate.status}, count-only regression=${pct(file.gate.countOnlyRegression)}, ` +
       `full-string improvement=${pct(file.gate.fullStringImprovement)}, ` +
+      `wrapper/full-spec min=${formatRatio(file.gate.nativeAddonFullSpecMinRatio)}, ` +
       `performance=${file.gate.performanceStatus}`,
     );
     for (const failure of file.gate.failures) {
@@ -558,6 +867,8 @@ function printReport(report) {
 
 async function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
+  await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
+  const nativeAddonFullSpec = await loadNativeAddonFullSpec();
   const files = [
     ...options.files,
     ...options.sizesMiB.map(sizeMiB => ensureGeneratedFile(sizeMiB, options.generatedDir)),
@@ -572,6 +883,7 @@ async function main(argv = process.argv.slice(2)) {
       'whitespace-only text skipped',
       'text trimmed before checksum',
       'entity decode off',
+      'public StreamReaderSync native wrapper must stay >= 0.90x the native addon full-spec file-input control row; EventReaderSync native remains a reference row',
     ],
     options: {
       runs: options.runs,
@@ -599,7 +911,23 @@ async function main(argv = process.argv.slice(2)) {
     for (const tierId of options.tiers) {
       const scenarios = [
         measureScenario('neutral', () => makeNeutralParser(filePath, options), fileSizeMiB, tierId, options),
-        measureScenario('node', () => makeNodeParser(filePath, options), fileSizeMiB, tierId, options),
+        measureScenario(
+          PUBLIC_NATIVE_WRAPPER_ID,
+          () => makeStreamReaderNativeParser(filePath, options),
+          fileSizeMiB,
+          tierId,
+          options,
+          consumeStreamReader,
+        ),
+        measureScenario(
+          EVENT_READER_NATIVE_REFERENCE_ID,
+          () => makeEventReaderNativeParser(filePath, options),
+          fileSizeMiB,
+          tierId,
+          options,
+        ),
+        measureNativeAddonFullSpecScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tierId, options),
+        measureNativeAddonUtf16DiagnosticScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tierId, options),
         measureExternal('woodstox', options.woodstoxCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('quick-xml', options.quickXmlCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('simdxml', options.simdxmlCmd, filePath, fileSizeMiB, tierId, options),

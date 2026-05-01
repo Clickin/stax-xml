@@ -1,5 +1,7 @@
 import { closeSync, writeSync } from 'node:fs';
 import type { SyncTextSink } from '../WriterSync.js';
+export { nodeFileByteBatchesSync } from '../iterable/node.js';
+export type { NodeByteBatch, NodeByteBatchOptions, NodeFileByteBatchOptions } from '../iterable/node.js';
 
 type NodeCloseMethod = 'end' | 'close' | 'destroy';
 

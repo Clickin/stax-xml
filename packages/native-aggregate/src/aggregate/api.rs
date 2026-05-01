@@ -169,6 +169,195 @@ pub fn parse_object_rows_uint8array(
     to_napi_result(parse_object_rows(input.as_ref(), &spec))
 }
 
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+pub fn parse_object_records_uint8array(
+    input: Uint8Array,
+    spec: ObjectRowsProjectionSpec,
+) -> napi::Result<ObjectRecordsProjectionResult> {
+    let output_names = object_rows_projection_output_names(&spec);
+    let spec = to_napi_result(normalize_object_rows_spec(&spec))?;
+    let result = to_napi_result(parse_object_rows_normalized(input.as_ref(), &spec))?;
+    to_napi_result(object_rows_projection_to_records_json(
+        input.as_ref(),
+        &output_names,
+        &spec.fields,
+        result,
+    ))
+}
+
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+pub fn parse_document_nodes_uint8array(
+    input: Uint8Array,
+    options: Option<DocumentNodesProjectionOptions>,
+) -> napi::Result<DocumentNodesProjectionResult> {
+    to_napi_result(parse_document_nodes(
+        input.as_ref(),
+        options.as_ref().unwrap_or(&DocumentNodesProjectionOptions::default()),
+    ))
+}
+
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+pub struct StaxXmlObjectProjectionPlan {
+    spec: NormalizedObjectRowsSpec,
+    output_names: Vec<String>,
+}
+
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+pub fn create_object_projection_plan(
+    spec: ObjectRowsProjectionSpec,
+) -> napi::Result<StaxXmlObjectProjectionPlan> {
+    Ok(StaxXmlObjectProjectionPlan {
+        output_names: object_rows_projection_output_names(&spec),
+        spec: to_napi_result(normalize_object_rows_spec(&spec))?,
+    })
+}
+
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+impl StaxXmlObjectProjectionPlan {
+    #[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+    pub fn project_rows(&self, input: Uint8Array) -> napi::Result<ObjectRowsProjectionResult> {
+        to_napi_result(parse_object_rows_normalized(input.as_ref(), &self.spec))
+    }
+
+    #[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+    pub fn project_records(
+        &self,
+        input: Uint8Array,
+    ) -> napi::Result<ObjectRecordsProjectionResult> {
+        let result = to_napi_result(parse_object_rows_normalized(input.as_ref(), &self.spec))?;
+        to_napi_result(object_rows_projection_to_records_json(
+            input.as_ref(),
+            &self.output_names,
+            &self.spec.fields,
+            result,
+        ))
+    }
+}
+
+fn object_rows_projection_to_records_json(
+    input: &[u8],
+    output_names: &[String],
+    fields: &[NormalizedObjectRowsField],
+    result: ObjectRowsProjectionResult,
+) -> Result<ObjectRecordsProjectionResult> {
+    let row_count = result.row_count as usize;
+    if result.columns.len() != fields.len() || fields.len() != output_names.len() {
+        return Err(Error::from_reason(
+            "Object records projection column count mismatch",
+        ));
+    }
+
+    let mut json = String::with_capacity(row_count.saturating_mul(fields.len()).saturating_mul(16));
+    json.push('[');
+    for row_index in 0..row_count {
+        if row_index > 0 {
+            json.push(',');
+        }
+        json.push('{');
+        for (field_index, field) in fields.iter().enumerate() {
+            if field_index > 0 {
+                json.push(',');
+            }
+            push_json_string(&mut json, &output_names[field_index]);
+            json.push(':');
+            let Some(column) = result.columns.get(field_index) else {
+                return Err(Error::from_reason(
+                    "Object records projection column missing",
+                ));
+            };
+            let is_present = column.present.get(row_index).copied().unwrap_or(false);
+            if field.value_kind == ObjectRowsValueKind::Number {
+                let value = if is_present {
+                    column
+                        .number_values
+                        .get(row_index)
+                        .copied()
+                        .unwrap_or(f64::NAN)
+                } else {
+                    f64::NAN
+                };
+                if value.is_finite() {
+                    use std::fmt::Write;
+                    write!(&mut json, "{value}")
+                        .map_err(|error| Error::from_reason(error.to_string()))?;
+                } else {
+                    json.push_str("null");
+                }
+            } else {
+                let value = if is_present {
+                    object_rows_projection_string_value(input, column, row_index)?
+                } else {
+                    ""
+                };
+                push_json_string(&mut json, value);
+            }
+        }
+        json.push('}');
+    }
+    json.push(']');
+
+    Ok(ObjectRecordsProjectionResult {
+        input_bytes: result.input_bytes,
+        event_count: result.event_count,
+        max_depth: result.max_depth,
+        field_count: result.field_count,
+        row_count: result.row_count,
+        json,
+    })
+}
+
+fn object_rows_projection_string_value<'a>(
+    input: &'a [u8],
+    column: &'a ObjectRowsProjectionColumn,
+    row_index: usize,
+) -> Result<&'a str> {
+    let start = column.span_starts.get(row_index).copied().unwrap_or(-1);
+    let end = column.span_ends.get(row_index).copied().unwrap_or(-1);
+    if start >= 0 && end >= start {
+        let start = start as usize;
+        let end = end as usize;
+        let Some(bytes) = input.get(start..end) else {
+            return Err(Error::from_reason(
+                "Object records projection string span out of range",
+            ));
+        };
+        return std::str::from_utf8(bytes).map_err(|error| Error::from_reason(error.to_string()));
+    }
+    Ok(column.values.get(row_index).map_or("", String::as_str))
+}
+
+fn push_json_string(out: &mut String, value: &str) {
+    out.push('"');
+    for ch in value.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{08}' => out.push_str("\\b"),
+            '\u{0c}' => out.push_str("\\f"),
+            ch if ch <= '\u{1f}' => {
+                use std::fmt::Write;
+                let _ = write!(out, "\\u{:04x}", ch as u32);
+            }
+            ch => out.push(ch),
+        }
+    }
+    out.push('"');
+}
+
+fn object_rows_projection_output_names(spec: &ObjectRowsProjectionSpec) -> Vec<String> {
+    spec.fields
+        .iter()
+        .map(|field| field.output_name.clone())
+        .collect()
+}
+
 #[no_mangle]
 /// Parses UTF-16 XML code units through the aggregate scanner C ABI.
 ///

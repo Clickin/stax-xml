@@ -261,5 +261,9 @@ class EventReaderSync {
 interface EventReaderSyncOptions {
   autoDecodeEntities?: boolean; // Default: true
   addEntities?: { entity: string, value: string }[];
+  namespaceAware?: boolean; // Default: false; opt in to localName/prefix/uri metadata
+  eventFilter?: ParserEventFilter;
+  documentMode?: 'fragment' | 'document';
+  fallbackOnParseError?: boolean;
 }
 ```

@@ -4,6 +4,8 @@ import { cpus } from 'node:os';
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { initStaxXml, StreamEventType, StreamReaderSync } from 'stax-xml';
+import { nodeFileByteBatchesSync } from 'stax-xml/adapters/node';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
@@ -14,7 +16,6 @@ const woodstoxDir = join(__dirname, 'external', 'woodstox');
 const quickXmlDir = join(__dirname, 'external', 'quick-xml-bench');
 const simdXmlDir = join(__dirname, 'external', 'simdxml-bench');
 const nodeStringReturnPath = join(__dirname, 'node-string-return.mjs');
-const nativeAggregatePackageJsonPath = join(__dirname, '..', 'native-aggregate', 'package.json');
 const DEFAULT_SIMDXML_MAX_MIB = 64;
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -197,7 +198,7 @@ function run(command, args, options = {}) {
   }
   if (result.status !== 0) {
     throw new Error(
-      `Command failed: ${resolvedCommand} ${resolvedArgs.join(' ')}\n${result.stderr.trim() || result.stdout.trim()}`,
+      `Command failed: ${resolvedCommand} ${resolvedArgs.join(' ')}\n${trimSpawnOutput(result)}`,
     );
   }
   return result;
@@ -365,7 +366,7 @@ function runExternalCommand(command, file, tier, runs, warmups) {
   if (result.status !== 0) {
     return {
       status: 'failed',
-      reason: result.stderr.trim() || result.stdout.trim() || `exit ${result.status}`,
+      reason: trimSpawnOutput(result) || `exit ${result.status}`,
     };
   }
   return {
@@ -374,118 +375,84 @@ function runExternalCommand(command, file, tier, runs, warmups) {
   };
 }
 
-function nativeTierForComparatorTier(tier) {
-  if (tier === 'count-only') return 'count-only';
-  if (tier === 'name-string-only') return 'name-string-only';
-  if (tier === 'text-string-only') return 'text-string-only';
-  if (tier === 'attr-value-string-only') return 'attr-value-string-only';
-  if (tier === 'full-string') return 'full-string-direct';
-  return null;
-}
-
-function normalizeNativeAggregateResult(result) {
-  return {
-    eventCount: result.eventCount ?? result.event_count,
-    checksum: result.checksum,
-    attrCountTotal: result.attrCountTotal ?? result.attr_count_total,
-    objectCount: result.objectCount ?? result.object_count ?? 0,
-  };
-}
-
-async function measureNativeAddon(options) {
-  let native;
+async function measureNativeReader(options) {
+  let runtime;
   try {
-    native = await import('@stax-xml/native-aggregate-probe');
+    runtime = await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
   } catch (error) {
     return {
       status: 'skipped',
-      reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? error.message : String(error),
+        tiers: options.tiers.map(tier => ({
+          tier,
+          id: 'stax-xml-native-stream-reader',
+          status: 'skipped',
+          reason: 'Native stax-xml runtime could not be initialized.',
+        })),
+    };
+  }
+  if (
+    runtime.backend.kind !== 'native'
+    || !runtime.capabilities.streamingEventBatches
+  ) {
+    return {
+      status: 'skipped',
+      reason: 'Native stax-xml runtime does not expose streamingEventBatches.',
+      packageName: runtime.backend.packageName ?? null,
+      entrypoint: 'stax-xml StreamReaderSync',
       tiers: options.tiers.map(tier => ({
         tier,
-        id: 'stax-xml-native-addon-js-wrapper',
+        id: 'stax-xml-native-stream-reader',
         status: 'skipped',
-        reason: '@stax-xml/native-aggregate-probe could not be loaded.',
-      })),
-      fileTiers: options.tiers.map(tier => ({
-        tier,
-        id: 'stax-xml-native-addon-file',
-        status: 'skipped',
-        reason: '@stax-xml/native-aggregate-probe could not be loaded.',
+        reason: 'Native stax-xml runtime does not expose streamingEventBatches.',
       })),
     };
   }
 
   const fileSizeMiB = statSync(options.file).size / 1024 / 1024;
-  const input = readFileSync(options.file);
-  const tiers = measureNativeAddonTiers({
-    id: 'stax-xml-native-addon-buffer',
+  const tiers = measureNativeReaderTiers({
+    id: 'stax-xml-native-stream-reader',
+    filePath: options.file,
     fileSizeMiB,
     tiers: options.tiers,
     warmups: options.warmups,
     runs: options.runs,
-    nativeSimd: options.nativeSimd,
-    invoke: nativeTier => invokeNativeAggregateBuffer(native, input, nativeTier, options.nativeSimd),
-  });
-  const fileTiers = measureNativeAddonTiers({
-    id: 'stax-xml-native-addon-file',
-    fileSizeMiB,
-    tiers: options.tiers,
-    warmups: options.warmups,
-    runs: options.runs,
-    nativeSimd: options.nativeSimd,
-    invoke: nativeTier => invokeNativeAggregateFile(native, options.file, nativeTier, options.nativeSimd),
   });
 
   return {
-    status: tiers.every(entry => entry.status === 'ok') && fileTiers.every(entry => entry.status === 'ok') ? 'ok' : 'partial',
-    packageName: '@stax-xml/native-aggregate-probe',
-    entrypoint: '@stax-xml/native-aggregate-probe JS module',
+    status: tiers.every(entry => entry.status === 'ok') ? 'ok' : 'partial',
+    packageName: runtime.backend.packageName ?? null,
+    packageVersion: packageVersionForRuntimePackage(runtime.backend.packageName),
+    entrypoint: 'stax-xml StreamReaderSync',
     tiers,
-    fileTiers,
   };
 }
 
-function measureNativeAddonTiers({ id, fileSizeMiB, tiers, warmups, runs, nativeSimd, invoke }) {
+function measureNativeReaderTiers({ id, filePath, fileSizeMiB, tiers, warmups, runs }) {
   return tiers.map(tier => {
-    const nativeTier = nativeTierForComparatorTier(tier);
-    if (!nativeTier) {
-      return {
-        tier,
-        nativeTier: null,
-        id,
-        status: 'not-supported',
-        reason: `Current native aggregate probe does not define a tier for ${tier}.`,
-      };
-    }
-
     for (let index = 0; index < warmups; index++) {
-      invoke(nativeTier);
+      consumeStreamReader(filePath, tier);
     }
 
     const samplesMs = [];
     let eventCount = 0;
     let checksum = 0;
-    let attrCountTotal = 0;
-    let objectCount = 0;
     for (let index = 0; index < runs; index++) {
       if (globalThis.gc) globalThis.gc();
       const startedAt = performance.now();
-      const result = normalizeNativeAggregateResult(invoke(nativeTier));
+      const result = consumeStreamReader(filePath, tier);
       const elapsedMs = performance.now() - startedAt;
       if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
         throw new Error(`${id} ${tier} produced unstable event count or checksum between runs.`);
       }
       eventCount = result.eventCount;
       checksum = result.checksum;
-      attrCountTotal = result.attrCountTotal;
-      objectCount = result.objectCount;
       samplesMs.push(elapsedMs);
     }
 
     const avgMs = samplesMs.reduce((sum, value) => sum + value, 0) / samplesMs.length;
     return {
       tier,
-      nativeTier,
       id,
       status: 'ok',
       avgMs,
@@ -494,32 +461,102 @@ function measureNativeAddonTiers({ id, fileSizeMiB, tiers, warmups, runs, native
       mibPerSec: fileSizeMiB / (avgMs / 1000),
       eventCount,
       checksum,
-      attrCountTotal,
-      objectCount,
-      nativeSimd,
       samplesMs,
     };
   });
 }
 
-function invokeNativeAggregateBuffer(native, input, nativeTier, nativeSimd) {
-  if (typeof native.parse_aggregate_buffer_with_simd === 'function') {
-    return native.parse_aggregate_buffer_with_simd(input, nativeTier, nativeSimd);
+function consumeStreamReader(filePath, tier) {
+  let eventCount = 0;
+  let checksum = 0;
+  const parser = new StreamReaderSync(nodeFileByteBatchesSync(filePath), { backend: 'native' });
+
+  for (;;) {
+    const type = parser.next();
+    if (type === null) {
+      break;
+    }
+    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
+    eventCount++;
+    checksum = mixChecksum(checksum, streamEventTypeId(type));
+
+    if (tier === 'count-only') {
+      checksum = mixChecksum(checksum, attrCount);
+    } else if (tier === 'name-string-only') {
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(checksum, parser.name());
+      }
+    } else if (tier === 'text-string-only') {
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldString(checksum, parser.text()?.trim());
+      }
+    } else if (tier === 'attr-value-string-only') {
+      checksum = mixChecksum(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+      }
+    } else {
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(checksum, parser.name());
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldString(checksum, parser.text()?.trim());
+      }
+      checksum = mixChecksum(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = foldString(checksum, parser.getAttributeName(attrIndex));
+        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+      }
+    }
   }
-  if (nativeSimd !== 'auto') {
-    throw new Error('Native addon does not expose parse_aggregate_buffer_with_simd; rebuild packages/native-aggregate.');
-  }
-  return native.parse_aggregate_buffer(input, nativeTier);
+
+  return { eventCount, checksum };
 }
 
-function invokeNativeAggregateFile(native, file, nativeTier, nativeSimd) {
-  if (typeof native.parse_aggregate_file_with_simd === 'function') {
-    return native.parse_aggregate_file_with_simd(file, nativeTier, nativeSimd);
+function streamEventTypeId(type) {
+  switch (type) {
+    case StreamEventType.START_DOCUMENT:
+      return 1;
+    case StreamEventType.END_DOCUMENT:
+      return 2;
+    case StreamEventType.START_ELEMENT:
+      return 3;
+    case StreamEventType.END_ELEMENT:
+      return 4;
+    case StreamEventType.CHARACTERS:
+      return 5;
+    case StreamEventType.CDATA:
+      return 6;
+    default:
+      return 31;
   }
-  if (nativeSimd !== 'auto') {
-    throw new Error('Native addon does not expose parse_aggregate_file_with_simd; rebuild packages/native-aggregate.');
+}
+
+function mixChecksum(seed, value) {
+  return Math.imul((seed ^ value) | 0, 16777619) | 0;
+}
+
+function foldString(seed, value) {
+  if (!value) return seed;
+  let next = seed;
+  for (let index = 0; index < value.length; index++) {
+    next = ((next << 5) - next + value.charCodeAt(index)) | 0;
   }
-  return native.parse_aggregate_file(file, nativeTier);
+  return next;
+}
+
+function packageVersionForRuntimePackage(packageName) {
+  if (!packageName?.startsWith('@stax-xml/')) return null;
+  try {
+    const packageDirName = packageName.split('/')[1];
+    return JSON.parse(readFileSync(join(repoRoot, 'packages', packageDirName, 'package.json'), 'utf8')).version;
+  } catch {
+    return null;
+  }
+}
+
+function trimSpawnOutput(result) {
+  return String(result.stderr ?? '').trim() || String(result.stdout ?? '').trim();
 }
 
 function javaVersion(command) {
@@ -620,7 +657,7 @@ function escapePipe(value) {
 function createScenarioDetails(report) {
   return [
     '<details>',
-    '<summary>Scenario contract: stax-xml JS/native, Woodstox, quick-xml, and simdxml comparator</summary>',
+    '<summary>Scenario contract: stax-xml native StreamReaderSync plus native addon full-spec control, JS reference, Woodstox, quick-xml, and simdxml comparator</summary>',
     '',
     `The comparator uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
     '',
@@ -644,7 +681,7 @@ function createScenarioDetails(report) {
     '~~~text',
     'comparator-result = {',
     '  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",',
-    '  implementation: "stax-xml-js-node" | "stax-xml-native-addon-buffer" | "stax-xml-native-addon-file" | "woodstox-java8" | "quick-xml" | "simdxml-file" | "simdxml-memory",',
+    '  implementation: "stax-xml-js-event-reader" | "stax-xml-native-stream-reader" | "native-addon-full-spec" | "woodstox-java8" | "quick-xml" | "simdxml-file" | "simdxml-memory",',
     '  eventCount: number,',
     '  checksum: fold(selected event data for tier)',
     '}',
@@ -652,14 +689,14 @@ function createScenarioDetails(report) {
     '',
     'Parsing methods:',
     '',
-    '- `stax-xml JS on Node`: built JavaScript iterable backend, run on Node, with tier-specific checksum folding.',
-    '- `stax-xml native addon (Buffer)`: JS package wrapper imports the napi-rs N-API aggregate addon before sampling, reads the fixture into one Node Buffer, and each measured sample calls through the wrapper and N-API boundary in the same Node process. This row does not execute a standalone Rust binary or direct Rust benchmark entry point.',
-    '- `stax-xml native addon (file)`: the same Node wrapper calls the N-API native file helper each sample, so this row includes Rust-side file read and allocation cost but is still measured from Node through N-API.',
+    '- `stax-xml JS on Node`: internal JavaScript reference reader, run on Node, with tier-specific checksum folding.',
+    '- `stax-xml native StreamReaderSync`: initializes `stax-xml` with `initStaxXml({ backend: "native" })`, then measures the public byte-stream reader surface.',
+    '- `native-addon-full-spec`: control row from `node-string-return.mjs` that calls the native aggregate addon full-spec file-input tier directly. Public native StreamReaderSync must remain at least 0.90x this row before it can be treated as wrapper-thin enough for headline claims; misses stay as optimization evidence for raising the public surface, not as a reason to remove the row or lower the final spec.',
     '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
     '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
     `- simdxml structural index (file): Rust \`simdxml::parse\` after reading the fixture inside each measured sample; skipped above ${report.options.simdxmlMaxMiB} MiB by default to avoid excessive memory use.`,
-    `- simdxml structural index (memory): the same adapter with the fixture read once before warmup, so it is the closest comparator to the native Buffer row.`,
-    '- `--native-simd` controls only stax-xml native addon structural classifier tiers when those tiers are selected by the native aggregate implementation; it does not affect the JavaScript, Woodstox, quick-xml, or simdxml rows.',
+    `- simdxml structural index (memory): the same adapter with the fixture read once before warmup.`,
+    '- `--native-simd` is retained for historical CLI compatibility but does not change the public `StreamReaderSync` measurement path.',
     '- Java 8 is the public Woodstox row because it is Woodstox\'s minimum runtime target; Java 25 is a separate verification row.',
     '',
     '</details>',
@@ -672,7 +709,7 @@ function createMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This artifact compares the published Node stax-xml iterable backend, native-addon diagnostic rows through the JavaScript package wrapper, and non-JS parser baselines under the same checksum contract.',
+    'This artifact compares public stax-xml StreamReaderSync native rows, EventReaderSync reference rows, a native addon full-spec control row, and non-JS parser baselines under the same checksum contract.',
     'The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its minimum runtime target; Java 25 is reported only as a verification check.',
     '',
     '## Environment',
@@ -688,7 +725,7 @@ function createMarkdown(report) {
     `- Java 25 check: ${escapePipe(report.java25Verification.java25Version ?? report.java25Verification.reason ?? 'not available')}`,
     `- quick-xml crate: ${report.tools.quickXmlVersion ?? 'unknown'}`,
     `- simdxml crate: ${report.tools.simdxmlVersion ?? 'unknown'}`,
-    `- stax-xml native addon: ${report.tools.nativeAggregateVersion ?? 'unknown'}`,
+    `- stax-xml native runtime: ${report.nativeReader?.packageName ?? 'not available'} ${report.nativeReader?.packageVersion ?? ''}`.trim(),
     '',
     '## Scenario',
     '',
@@ -742,12 +779,8 @@ function tierById(report, tierId) {
   return report.nodeStringReturn.files[0].tiers.find(tier => tier.id === tierId);
 }
 
-function nativeTierById(report, tierId) {
-  return report.nativeAddon?.tiers?.find(tier => tier.tier === tierId);
-}
-
-function nativeFileTierById(report, tierId) {
-  return report.nativeAddon?.fileTiers?.find(tier => tier.tier === tierId);
+function nativeReaderTierById(report, tierId) {
+  return report.nativeReader?.tiers?.find(tier => tier.tier === tierId);
 }
 
 function scenarioById(report, tierId, scenarioId) {
@@ -755,11 +788,11 @@ function scenarioById(report, tierId, scenarioId) {
 }
 
 function comparatorRows(report, tierId) {
-  const jsNode = scenarioById(report, tierId, 'node');
+  const jsNode = scenarioById(report, tierId, 'neutral') ?? scenarioById(report, tierId, 'node');
   return [
     ['stax-xml JS on Node', jsNode],
-    ['stax-xml native addon (Buffer)', nativeTierById(report, tierId)],
-    ['stax-xml native addon (file)', nativeFileTierById(report, tierId)],
+    ['stax-xml native StreamReaderSync', nativeReaderTierById(report, tierId)],
+    ['native addon full spec control', scenarioById(report, tierId, 'native-addon-full-spec')],
     ['Woodstox on Java 8', scenarioById(report, tierId, 'woodstox')],
     ['quick-xml', scenarioById(report, tierId, 'quick-xml')],
     ['simdxml structural index (file)', scenarioById(report, tierId, 'simdxml')],
@@ -778,30 +811,28 @@ function relativeToJs(result, jsNode) {
   return `${(result.mibPerSec / jsNode.mibPerSec).toFixed(2)}x`;
 }
 
-function renderTierComparatorTable(report, tierId) {
-  const jsNode = scenarioById(report, tierId, 'node');
-  return [
-    '| Implementation | Throughput | Average | Relative to stax-xml JS | Status |',
-    '| --- | ---: | ---: | ---: | --- |',
-    ...comparatorRows(report, tierId).map(([label, result]) =>
-      `| ${label} | ${formatRate(result?.mibPerSec)} | ${formatMs(result?.avgMs)} | ${relativeToJs(result, jsNode)} | ${escapePipe(comparatorStatus(result))} |`
-    ),
-  ].join('\n');
+function relativeToNativeFullSpec(result, nativeFullSpec) {
+  if (!result?.mibPerSec || !nativeFullSpec?.mibPerSec) return 'n/a';
+  return `${(result.mibPerSec / nativeFullSpec.mibPerSec).toFixed(2)}x`;
 }
 
-function nativeAggregateVersion() {
-  try {
-    return JSON.parse(readFileSync(nativeAggregatePackageJsonPath, 'utf8')).version;
-  } catch {
-    return null;
-  }
+function renderTierComparatorTable(report, tierId) {
+  const jsNode = scenarioById(report, tierId, 'neutral');
+  const nativeFullSpec = scenarioById(report, tierId, 'native-addon-full-spec');
+  return [
+    '| Implementation | Throughput | Average | Relative to stax-xml JS | Relative to native full spec | Status |',
+    '| --- | ---: | ---: | ---: | ---: | --- |',
+    ...comparatorRows(report, tierId).map(([label, result]) =>
+      `| ${label} | ${formatRate(result?.mibPerSec)} | ${formatMs(result?.avgMs)} | ${relativeToJs(result, jsNode)} | ${relativeToNativeFullSpec(result, nativeFullSpec)} | ${escapePipe(comparatorStatus(result))} |`
+    ),
+  ].join('\n');
 }
 
 async function main() {
   const options = parseArgs();
   const tools = buildExternalTools(options);
   const nodeStringReturn = runNodeStringReturn(options, tools);
-  const nativeAddon = await measureNativeAddon(options);
+  const nativeReader = await measureNativeReader(options);
   const java25Verification = verifyJava25(options, tools, nodeStringReturn.report);
   const fileStat = statSync(options.file);
 
@@ -833,12 +864,12 @@ async function main() {
       quickXmlVersion: quickXmlVersion(tools.quickXmlExe),
       simdxmlCommand: tools.simdXmlExe,
       simdxmlVersion: simdXmlVersion(tools.simdXmlExe),
-      nativeAggregatePackage: '@stax-xml/native-aggregate-probe',
-      nativeAggregateVersion: nativeAggregateVersion(),
+      nativeReaderPackage: nativeReader.packageName ?? null,
+      nativeReaderVersion: nativeReader.packageVersion ?? null,
     },
     rawNodeStringReturnPath: nodeStringReturn.rawOut,
     nodeStringReturn: nodeStringReturn.report,
-    nativeAddon,
+    nativeReader,
     java25Verification,
   };
 

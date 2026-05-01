@@ -13,6 +13,8 @@ const requiredExports = [
   'parseItemRowsViaTableUint8Array',
   'parseObjectRowsUint8Array',
   'parseObjectRowsViaTableUint8Array',
+  'parseObjectRecordsUint8Array',
+  'createObjectProjectionPlan',
 ];
 
 for (const name of requiredExports) {
@@ -53,16 +55,27 @@ const objectRowsSpec = {
 };
 const directObjectRows = module.parseObjectRowsUint8Array(input, objectRowsSpec);
 const objectRows = module.parseObjectRowsViaTableUint8Array(input, objectRowsSpec);
+const objectRecords = module.parseObjectRecordsUint8Array(input, objectRowsSpec);
+const objectProjectionPlan = module.createObjectProjectionPlan(objectRowsSpec);
+const compiledObjectRecords = objectProjectionPlan.projectRecords(input);
+const objectRecordRows = JSON.parse(objectRecords.json);
+const compiledObjectRecordRows = JSON.parse(compiledObjectRecords.json);
 assertObjectRows(directObjectRows, 'direct object');
 assertObjectRows(objectRows, 'object');
+assertEqual(objectRecords.rowCount, 3, 'object records row count');
+assertEqual(objectRecordRows[0].code, 'a', 'object records first code');
+assertEqual(objectRecordRows[0].label, 'Alice', 'object records first label');
+assertEqual(objectRecordRows[1].score, null, 'object records empty score value');
+assertEqual(compiledObjectRecords.rowCount, 3, 'compiled object records row count');
+assertEqual(compiledObjectRecordRows[0].code, 'a', 'compiled object records first code');
 
 console.log(`platform package smoke ok: ${packageDir}`);
 
 function assertObjectRows(objectRows, label) {
   assertEqual(objectRows.rowCount, 3, 'object row count');
   assertEqual(objectRows.fieldCount, 3, 'object field count');
-  assertEqual(objectRows.columns[0].values.join('|'), 'a|b|c', `${label} code values`);
-  assertEqual(objectRows.columns[1].values.join('|'), 'Alice|Bob|Cy', `${label} label values`);
+  assertEqual(stringValues(input, objectRows.columns[0]).join('|'), 'a|b|c', `${label} code values`);
+  assertEqual(stringValues(input, objectRows.columns[1]).join('|'), 'Alice|Bob|Cy', `${label} label values`);
   assertEqual(objectRows.columns[2].present.join('|'), 'true|true|false', `${label} score present flags`);
   assertEqual(objectRows.columns[2].values.length, 0, `${label} score string values`);
   const scoreValues = numberValues(objectRows.columns[2]);
@@ -79,4 +92,17 @@ function assertEqual(actual, expected, label) {
 
 function numberValues(column) {
   return column.numberValues ?? column.number_values;
+}
+
+function stringValues(source, column) {
+  const spanStarts = column.spanStarts ?? column.span_starts;
+  const spanEnds = column.spanEnds ?? column.span_ends;
+  return column.present.map((_, index) => {
+    const start = spanStarts?.[index] ?? -1;
+    const end = spanEnds?.[index] ?? -1;
+    if (start >= 0 && end >= start) {
+      return Buffer.from(source.buffer, source.byteOffset + start, end - start).toString('utf8');
+    }
+    return column.values?.[index] ?? '';
+  });
 }

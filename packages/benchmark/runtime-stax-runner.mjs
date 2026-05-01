@@ -2,11 +2,6 @@ import {
   EventReaderSync,
   XmlEventType,
 } from '../stax-xml/dist/index.js';
-import {
-  IterableEventType,
-  IterableReader,
-  toByteBatches,
-} from '../stax-xml/dist/iterable.js';
 
 function argv() {
   if (globalThis.Deno?.args) {
@@ -198,34 +193,31 @@ function consumePublicSync(xml) {
   return { eventCount, checksum };
 }
 
-function consumeIterable(bytes, tier) {
-  const parser = new IterableReader(toByteBatches([bytes], { batchSize: 1 }));
+function consumeEventTier(xml, tier) {
   let eventCount = 0;
   let checksum = 0;
 
-  while (parser.nextBatch()) {
-    for (let index = 0; index < parser.eventCount(); index++) {
-      const type = parser.eventType(index);
-      const attrCount = parser.attrCount(index);
-      eventCount++;
-      checksum = mixChecksum(checksum, type);
+  for (const event of new EventReaderSync(xml)) {
+    const type = publicEventTypeCode(event.type);
+    const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes) : [];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
 
-      if (tier === 'count-only') {
-        checksum = mixChecksum(checksum, attrCount);
-        continue;
-      }
+    if (tier === 'count-only') {
+      checksum = mixChecksum(checksum, attrs.length);
+      continue;
+    }
 
-      if (type === IterableEventType.START_ELEMENT || type === IterableEventType.END_ELEMENT) {
-        checksum = foldString(checksum, parser.copyName(index));
-      }
-      if (type === IterableEventType.CHARACTERS || type === IterableEventType.CDATA) {
-        checksum = foldString(checksum, parser.copyText(index)?.trim());
-      }
-      checksum = mixChecksum(checksum, attrCount);
-      for (let attr = 0; attr < attrCount; attr++) {
-        checksum = foldString(checksum, parser.copyAttrName(index, attr));
-        checksum = foldString(checksum, parser.copyAttrValue(index, attr));
-      }
+    if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+      checksum = foldString(checksum, event.name);
+    }
+    if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+      checksum = foldString(checksum, event.value?.trim());
+    }
+    checksum = mixChecksum(checksum, attrs.length);
+    for (const [name, value] of attrs) {
+      checksum = foldString(checksum, name);
+      checksum = foldString(checksum, value);
     }
   }
 
@@ -299,8 +291,8 @@ async function main() {
     },
     scenarios: [
       measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
-      measure('iterable-count-only', () => consumeIterable(bytes, 'count-only'), fileSizeMiB, options),
-      measure('iterable-full-string', () => consumeIterable(bytes, 'full-string'), fileSizeMiB, options),
+      measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
+      measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
     ],
   };
 

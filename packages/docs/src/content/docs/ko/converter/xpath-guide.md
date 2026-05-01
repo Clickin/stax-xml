@@ -10,6 +10,8 @@ head:
 
 XPath (XML Path Language)는 StAX-XML Converter에서 요소를 선택하는 주요 방법입니다. 이 가이드는 지원되는 모든 XPath 패턴과 모범 사례를 다룹니다.
 
+Spec 기준 지원 범위는 [XPath 1.0 준수 매트릭스](./xpath-1-conformance/)를 참고하세요.
+
 ## XPath란?
 
 XPath는 XML 문서에서 노드를 선택하는 쿼리 언어입니다. XML용 CSS 선택자와 같습니다:

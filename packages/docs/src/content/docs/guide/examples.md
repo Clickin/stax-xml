@@ -81,41 +81,7 @@ async function processLargeXml(filePath: string) {
 }
 ```
 
-When file I/O should be async but the parse itself can run synchronously after chunks are available, pass the byte chunks to the iterable parser:
-
-```typescript
-import { open } from 'node:fs/promises';
-import { IterableEventType, StaxXmlIterableParser, toByteBatches } from 'stax-xml/iterable';
-
-async function processLargeXmlWithSyncIterable(filePath: string) {
-  const file = await open(filePath, 'r');
-  const chunks: Uint8Array[] = [];
-
-  try {
-    for await (const chunk of file.createReadStream({ highWaterMark: 1024 * 1024 })) {
-      chunks.push(chunk);
-    }
-  } finally {
-    await file.close();
-  }
-
-  const parser = new StaxXmlIterableParser(toByteBatches(chunks, { batchSize: 8 }));
-  let elementCount = 0;
-
-  while (parser.nextBatch()) {
-    for (let index = 0; index < parser.eventCount(); index++) {
-      if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
-        elementCount++;
-        console.log(parser.copyName(index));
-      }
-    }
-  }
-
-  console.log(`Total elements processed: ${elementCount}`);
-}
-```
-
-The iterable path avoids one full XML string, but it blocks the current worker/thread during the parse loop. For Node-only batch jobs that can also block file I/O, use `nodeFileByteBatchesSync()` and `StaxXmlNodeIterableParser()` from `stax-xml/iterable/node`.
+For schema-known byte input, use the `ProjectionReader` subpath when you need the native row-projection fast path rather than a general event stream.
 
 ## XML Generation with Writer
 

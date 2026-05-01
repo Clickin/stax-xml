@@ -4,6 +4,7 @@ pub(crate) fn parse_span_table_utf16(input: &[u16]) -> Result<Vec<u8>> {
     let mut parser = SpanTableUtf16Parser {
         input,
         table: SpanTableBuilder::new(input.len(), 0)?,
+        name_interner: NameIdInterner::utf16(),
         element_stack: Vec::new(),
     };
     parser.parse()?;
@@ -13,7 +14,9 @@ pub(crate) fn parse_span_table_utf16(input: &[u16]) -> Result<Vec<u8>> {
 pub(crate) fn parse_span_table(input: &[u8]) -> Result<Vec<u8>> {
     let mut parser = SpanTableParser {
         input,
-        table: SpanTableBuilder::new(input.len(), 1)?,
+        table: SpanTableBuilder::new(input.len(), 1 | SPAN_TABLE_FLAG_VALUE_IDS)?,
+        name_interner: NameIdInterner::utf8(),
+        value_interner: Utf8ValueIdInterner::new(),
         element_stack: Vec::new(),
     };
     parser.parse()?;
@@ -191,6 +194,8 @@ impl<'a> SpanTableParser<'a> {
         let attr_count = to_u32_count(attr_count, "span table attr count")?;
         let (name_start, name_end) = encode_optional_span(name)?;
         let (text_start, text_end) = encode_optional_span(text)?;
+        let name_id = self.name_interner.intern_utf8(self.input, name)?;
+        let text_value_id = self.value_interner.intern(self.input, text)?;
 
         if let Some(attrs) = attrs {
             for attr in attrs.iter() {
@@ -199,6 +204,13 @@ impl<'a> SpanTableParser<'a> {
                     name_end: to_i32_span(attr.name_end)?,
                     value_start: to_i32_span(attr.value_start)?,
                     value_end: to_i32_span(attr.value_end)?,
+                    name_id: self.name_interner.intern_utf8(
+                        self.input,
+                        Some((attr.name_start, attr.name_end)),
+                    )?,
+                    value_id: self
+                        .value_interner
+                        .intern(self.input, Some((attr.value_start, attr.value_end)))?,
                 })?;
             }
         }
@@ -211,6 +223,8 @@ impl<'a> SpanTableParser<'a> {
             text_end,
             attr_start,
             attr_count,
+            name_id,
+            text_value_id,
         })
     }
 }
@@ -385,6 +399,7 @@ impl<'a> SpanTableUtf16Parser<'a> {
         let attr_count = to_u32_count(attr_count, "span table attr count")?;
         let (name_start, name_end) = encode_optional_span(name)?;
         let (text_start, text_end) = encode_optional_span(text)?;
+        let name_id = self.name_interner.intern_utf16(self.input, name)?;
 
         if let Some(attrs) = attrs {
             for attr in attrs.iter() {
@@ -393,6 +408,11 @@ impl<'a> SpanTableUtf16Parser<'a> {
                     name_end: to_i32_span(attr.name_end)?,
                     value_start: to_i32_span(attr.value_start)?,
                     value_end: to_i32_span(attr.value_end)?,
+                    name_id: self.name_interner.intern_utf16(
+                        self.input,
+                        Some((attr.name_start, attr.name_end)),
+                    )?,
+                    value_id: 0,
                 })?;
             }
         }
@@ -405,6 +425,8 @@ impl<'a> SpanTableUtf16Parser<'a> {
             text_end,
             attr_start,
             attr_count,
+            name_id,
+            text_value_id: 0,
         })
     }
 }
@@ -418,6 +440,10 @@ impl SpanTableBuilder {
             flags,
             table,
             attrs: Vec::new(),
+            event_name_ids: Vec::new(),
+            attr_name_ids: Vec::new(),
+            event_text_value_ids: Vec::new(),
+            attr_value_ids: Vec::new(),
             event_count: 0,
             attr_count: 0,
         })
@@ -439,6 +465,8 @@ impl SpanTableBuilder {
         push_i32(&mut self.table, event.text_end);
         push_u32(&mut self.table, event.attr_start);
         push_u32(&mut self.table, event.attr_count);
+        self.event_name_ids.push(event.name_id);
+        self.event_text_value_ids.push(event.text_value_id);
         Ok(())
     }
 
@@ -451,6 +479,8 @@ impl SpanTableBuilder {
         push_i32(&mut self.attrs, attr.name_end);
         push_i32(&mut self.attrs, attr.value_start);
         push_i32(&mut self.attrs, attr.value_end);
+        self.attr_name_ids.push(attr.name_id);
+        self.attr_value_ids.push(attr.value_id);
         Ok(())
     }
 
@@ -461,13 +491,41 @@ impl SpanTableBuilder {
         let attr_bytes = (self.attr_count as usize)
             .checked_mul(SPAN_TABLE_ATTR_BYTES)
             .ok_or_else(|| Error::from_reason("Span table attr byte size overflow"))?;
+        let event_name_bytes = (self.event_count as usize)
+            .checked_mul(4)
+            .ok_or_else(|| Error::from_reason("Span table event name-id byte size overflow"))?;
+        let attr_name_bytes = (self.attr_count as usize)
+            .checked_mul(4)
+            .ok_or_else(|| Error::from_reason("Span table attr name-id byte size overflow"))?;
+        let event_value_bytes = if (self.flags & SPAN_TABLE_FLAG_VALUE_IDS) != 0 {
+            (self.event_count as usize)
+                .checked_mul(4)
+                .ok_or_else(|| Error::from_reason("Span table event value-id byte size overflow"))?
+        } else {
+            0
+        };
+        let attr_value_bytes = if (self.flags & SPAN_TABLE_FLAG_VALUE_IDS) != 0 {
+            (self.attr_count as usize)
+                .checked_mul(4)
+                .ok_or_else(|| Error::from_reason("Span table attr value-id byte size overflow"))?
+        } else {
+            0
+        };
         let total_bytes = SPAN_TABLE_HEADER_BYTES
             .checked_add(event_bytes)
             .and_then(|value| value.checked_add(attr_bytes))
+            .and_then(|value| value.checked_add(event_name_bytes))
+            .and_then(|value| value.checked_add(attr_name_bytes))
+            .and_then(|value| value.checked_add(event_value_bytes))
+            .and_then(|value| value.checked_add(attr_value_bytes))
             .ok_or_else(|| Error::from_reason("Span table byte size overflow"))?;
 
         debug_assert_eq!(self.table.len(), SPAN_TABLE_HEADER_BYTES + event_bytes);
         debug_assert_eq!(self.attrs.len(), attr_bytes);
+        debug_assert_eq!(self.event_name_ids.len(), self.event_count as usize);
+        debug_assert_eq!(self.attr_name_ids.len(), self.attr_count as usize);
+        debug_assert_eq!(self.event_text_value_ids.len(), self.event_count as usize);
+        debug_assert_eq!(self.attr_value_ids.len(), self.attr_count as usize);
 
         write_u32_at(&mut self.table, 0, SPAN_TABLE_MAGIC);
         write_u32_at(&mut self.table, 4, self.event_count);
@@ -475,12 +533,32 @@ impl SpanTableBuilder {
         write_u32_at(&mut self.table, 12, self.input_units);
         write_u32_at(&mut self.table, 16, SPAN_TABLE_EVENT_BYTES as u32);
         write_u32_at(&mut self.table, 20, SPAN_TABLE_ATTR_BYTES as u32);
-        write_u32_at(&mut self.table, 24, self.flags);
+        write_u32_at(&mut self.table, 24, self.flags | SPAN_TABLE_FLAG_NAME_IDS);
 
         self.table
-            .try_reserve_exact(attr_bytes)
+            .try_reserve_exact(
+                attr_bytes
+                    + event_name_bytes
+                    + attr_name_bytes
+                    + event_value_bytes
+                    + attr_value_bytes,
+            )
             .map_err(|error| Error::from_reason(error.to_string()))?;
         self.table.extend_from_slice(&self.attrs);
+        for name_id in &self.event_name_ids {
+            push_u32(&mut self.table, *name_id);
+        }
+        for name_id in &self.attr_name_ids {
+            push_u32(&mut self.table, *name_id);
+        }
+        if (self.flags & SPAN_TABLE_FLAG_VALUE_IDS) != 0 {
+            for value_id in &self.event_text_value_ids {
+                push_u32(&mut self.table, *value_id);
+            }
+            for value_id in &self.attr_value_ids {
+                push_u32(&mut self.table, *value_id);
+            }
+        }
         debug_assert_eq!(self.table.len(), total_bytes);
         Ok(self.table)
     }
@@ -519,16 +597,66 @@ pub(crate) fn parse_span_table_bytes(table: &[u8]) -> Result<ParsedSpanTable<'_>
     let attr_base = SPAN_TABLE_HEADER_BYTES
         .checked_add(event_bytes)
         .ok_or_else(|| Error::from_reason("Structural index event region overflow"))?;
-    let expected_bytes = attr_base
+    let after_attrs = attr_base
         .checked_add(attr_bytes)
-        .ok_or_else(|| Error::from_reason("Structural index byte size overflow"))?;
+        .ok_or_else(|| Error::from_reason("Structural index attr region overflow"))?;
+    let mut cursor = after_attrs;
+    let (event_name_ids, attr_name_ids) = if (flags & SPAN_TABLE_FLAG_NAME_IDS) != 0 {
+        let event_name_bytes = (event_count as usize)
+            .checked_mul(4)
+            .ok_or_else(|| Error::from_reason("Structural index event name-id byte size overflow"))?;
+        let attr_name_bytes = (attr_count as usize)
+            .checked_mul(4)
+            .ok_or_else(|| Error::from_reason("Structural index attr name-id byte size overflow"))?;
+        let event_names_base = cursor;
+        cursor = cursor
+            .checked_add(event_name_bytes)
+            .ok_or_else(|| Error::from_reason("Structural index event name-id region overflow"))?;
+        let attr_names_base = cursor;
+        cursor = cursor
+            .checked_add(attr_name_bytes)
+            .ok_or_else(|| Error::from_reason("Structural index attr name-id region overflow"))?;
+        (
+            Some((event_names_base, attr_names_base)),
+            Some((attr_names_base, cursor)),
+        )
+    } else {
+        (None, None)
+    };
+    let (event_text_value_ids, attr_value_ids) = if (flags & SPAN_TABLE_FLAG_VALUE_IDS) != 0 {
+        let event_value_bytes = (event_count as usize)
+            .checked_mul(4)
+            .ok_or_else(|| Error::from_reason("Structural index event value-id byte size overflow"))?;
+        let attr_value_bytes = (attr_count as usize)
+            .checked_mul(4)
+            .ok_or_else(|| Error::from_reason("Structural index attr value-id byte size overflow"))?;
+        let event_values_base = cursor;
+        cursor = cursor
+            .checked_add(event_value_bytes)
+            .ok_or_else(|| Error::from_reason("Structural index event value-id region overflow"))?;
+        let attr_values_base = cursor;
+        cursor = cursor
+            .checked_add(attr_value_bytes)
+            .ok_or_else(|| Error::from_reason("Structural index attr value-id region overflow"))?;
+        (
+            Some((event_values_base, attr_values_base)),
+            Some((attr_values_base, cursor)),
+        )
+    } else {
+        (None, None)
+    };
+    let expected_bytes = cursor;
     if table.len() != expected_bytes {
         return Err(Error::from_reason("Structural index table length mismatch"));
     }
 
     Ok(ParsedSpanTable {
         events: &table[SPAN_TABLE_HEADER_BYTES..attr_base],
-        attrs: &table[attr_base..],
+        attrs: &table[attr_base..after_attrs],
+        event_name_ids: event_name_ids.map(|(start, end)| &table[start..end]),
+        attr_name_ids: attr_name_ids.map(|(start, end)| &table[start..end]),
+        event_text_value_ids: event_text_value_ids.map(|(start, end)| &table[start..end]),
+        attr_value_ids: attr_value_ids.map(|(start, end)| &table[start..end]),
         event_count,
         attr_count,
         input_units,
@@ -554,6 +682,16 @@ pub(crate) fn read_table_event(
         text_end: read_i32_le(table.events, offset + 16)?,
         attr_start: read_u32_le(table.events, offset + 20)?,
         attr_count: read_u32_le(table.events, offset + 24)?,
+        name_id: table
+            .event_name_ids
+            .map(|sidecar| read_u32_le(sidecar, index * 4))
+            .transpose()?
+            .unwrap_or(0),
+        text_value_id: table
+            .event_text_value_ids
+            .map(|sidecar| read_u32_le(sidecar, index * 4))
+            .transpose()?
+            .unwrap_or(0),
     })
 }
 
@@ -572,6 +710,16 @@ pub(crate) fn read_table_attr(
         name_end: read_i32_le(table.attrs, offset + 4)?,
         value_start: read_i32_le(table.attrs, offset + 8)?,
         value_end: read_i32_le(table.attrs, offset + 12)?,
+        name_id: table
+            .attr_name_ids
+            .map(|sidecar| read_u32_le(sidecar, index * 4))
+            .transpose()?
+            .unwrap_or(0),
+        value_id: table
+            .attr_value_ids
+            .map(|sidecar| read_u32_le(sidecar, index * 4))
+            .transpose()?
+            .unwrap_or(0),
     })
 }
 

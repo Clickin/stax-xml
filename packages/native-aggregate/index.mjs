@@ -30,6 +30,12 @@ export const parseObjectRowsUint8Array =
   binding.parseObjectRowsUint8Array;
 export const parseObjectRowsViaTableUint8Array =
   binding.parseObjectRowsViaTableUint8Array;
+export const parseObjectRecordsUint8Array =
+  binding.parseObjectRecordsUint8Array;
+export const parseDocumentNodesUint8Array =
+  binding.parseDocumentNodesUint8Array;
+export const createObjectProjectionPlan =
+  binding.createObjectProjectionPlan;
 export const StaxXmlStreamingEventBatchParser =
   binding.StaxXmlStreamingEventBatchParser;
 export const createStreamingEventBatchParser =
@@ -52,10 +58,14 @@ if (
   typeof parseItemProjectionViaTableUint8Array !== 'function' ||
   typeof parseItemRowsViaTableUint8Array !== 'function' ||
   typeof parseObjectRowsUint8Array !== 'function' ||
-  typeof parseObjectRowsViaTableUint8Array !== 'function'
+  typeof parseObjectRowsViaTableUint8Array !== 'function' ||
+  typeof parseObjectRecordsUint8Array !== 'function' ||
+  typeof parseDocumentNodesUint8Array !== 'function' ||
+  typeof createObjectProjectionPlan !== 'function' ||
+  typeof createStreamingEventBatchParser !== 'function'
 ) {
   throw new TypeError(
-    'Native aggregate addon did not export the required aggregate and structural-index functions.',
+    'Native aggregate addon did not export the required aggregate, structural-index, projection, and streaming functions.',
   );
 }
 
@@ -125,4 +135,16 @@ export function parse_object_rows_uint8array(input, spec) {
 
 export function parse_object_rows_via_table_uint8array(input, spec) {
   return parseObjectRowsViaTableUint8Array(input, spec);
+}
+
+export function parse_object_records_uint8array(input, spec) {
+  return parseObjectRecordsUint8Array(input, spec);
+}
+
+export function parse_document_nodes_uint8array(input, options) {
+  return parseDocumentNodesUint8Array(input, options);
+}
+
+export function create_object_projection_plan(spec) {
+  return createObjectProjectionPlan(spec);
 }

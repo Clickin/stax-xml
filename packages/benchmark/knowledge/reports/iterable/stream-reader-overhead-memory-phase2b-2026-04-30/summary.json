@@ -1,0 +1,2359 @@
+{
+  "generatedAt": "2026-04-30T14:36:10.384Z",
+  "node": "v24.15.0",
+  "v8": "13.6.233.17-node.48",
+  "options": {
+    "file": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+    "warmups": 4,
+    "iterations": 8,
+    "sampleIntervalUs": 250,
+    "inputMode": "memory",
+    "cases": [
+      "stream-native-count",
+      "stream-native-full",
+      "event-native-count",
+      "event-native-full",
+      "event-native-full-namespace",
+      "neutral-full"
+    ]
+  },
+  "results": [
+    {
+      "caseId": "stream-native-count",
+      "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\knowledge\\reports\\iterable\\stream-reader-overhead-memory-phase2b-2026-04-30\\stream-native-count.cpuprofile",
+      "reference": {
+        "eventCount": 1013762,
+        "checksum": 1363006435
+      },
+      "durationMs": 392.3121,
+      "averageMs": 49.0390125,
+      "summary": {
+        "totalHits": 689,
+        "topFunctions": [
+          {
+            "functionName": "custom_gc",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 541,
+            "share": 0.7851959361393324,
+            "file": ""
+          },
+          {
+            "functionName": "consumeStreamReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 371,
+            "columnNumber": 29,
+            "hits": 118,
+            "share": 0.17126269956458637,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 12,
+            "share": 0.01741654571843251,
+            "file": ""
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 58783,
+            "hits": 4,
+            "share": 0.005805515239477504,
+            "file": "index.js"
+          },
+          {
+            "functionName": "drainPendingChunks",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15253,
+            "hits": 2,
+            "share": 0.002902757619738752,
+            "file": "index.js"
+          },
+          {
+            "functionName": "enqueueNativeBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 16100,
+            "hits": 2,
+            "share": 0.002902757619738752,
+            "file": "index.js"
+          },
+          {
+            "functionName": "dispatch",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": ""
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "nextBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 13396,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "C",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 16497,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "from",
+            "url": "node:buffer",
+            "lineNumber": 335,
+            "columnNumber": 28,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "node:buffer"
+          },
+          {
+            "functionName": "x",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 7795,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "pushFinalChunk",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15449,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "mixChecksum",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 221,
+            "columnNumber": 21,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "attrCount",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 9499,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "createParser",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 304,
+            "columnNumber": 22,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "profile-stream-reader-overhead.mjs"
+          }
+        ],
+        "focusGroups": [
+          {
+            "id": "consumer_checksum",
+            "label": "consumer checksum and accessor loop",
+            "hits": 123,
+            "share": 0.17851959361393324
+          },
+          {
+            "id": "table_navigation",
+            "label": "table navigation",
+            "hits": 1,
+            "share": 0.001451378809869376
+          },
+          {
+            "id": "native_boundary",
+            "label": "native boundary and batch handoff",
+            "hits": 1,
+            "share": 0.001451378809869376
+          },
+          {
+            "id": "stream_accessor_copy",
+            "label": "stream accessor copy and decode",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "event_materialization",
+            "label": "event materialization",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "namespace_materialization",
+            "label": "namespace and qname materialization",
+            "hits": 0,
+            "share": 0
+          }
+        ],
+        "projectFunctions": [
+          {
+            "functionName": "consumeStreamReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 371,
+            "columnNumber": 29,
+            "hits": 118,
+            "share": 0.17126269956458637,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 58783,
+            "hits": 4,
+            "share": 0.005805515239477504,
+            "file": "index.js"
+          },
+          {
+            "functionName": "drainPendingChunks",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15253,
+            "hits": 2,
+            "share": 0.002902757619738752,
+            "file": "index.js"
+          },
+          {
+            "functionName": "enqueueNativeBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 16100,
+            "hits": 2,
+            "share": 0.002902757619738752,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "nextBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 13396,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "C",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 16497,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "x",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 7795,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "pushFinalChunk",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15449,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "mixChecksum",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 221,
+            "columnNumber": 21,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "attrCount",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 9499,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "index.js"
+          },
+          {
+            "functionName": "createParser",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 304,
+            "columnNumber": 22,
+            "hits": 1,
+            "share": 0.001451378809869376,
+            "file": "profile-stream-reader-overhead.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "caseId": "stream-native-full",
+      "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\knowledge\\reports\\iterable\\stream-reader-overhead-memory-phase2b-2026-04-30\\stream-native-full.cpuprofile",
+      "reference": {
+        "eventCount": 1013762,
+        "checksum": -713280541
+      },
+      "durationMs": 878.8142,
+      "averageMs": 109.851775,
+      "summary": {
+        "totalHits": 1570,
+        "topFunctions": [
+          {
+            "functionName": "custom_gc",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 561,
+            "share": 0.3573248407643312,
+            "file": ""
+          },
+          {
+            "functionName": "consumeStreamReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 371,
+            "columnNumber": 29,
+            "hits": 247,
+            "share": 0.1573248407643312,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "rememberBytes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 4120,
+            "hits": 190,
+            "share": 0.12101910828025478,
+            "file": "index.js"
+          },
+          {
+            "functionName": "text",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 59444,
+            "hits": 127,
+            "share": 0.08089171974522293,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 9850,
+            "hits": 120,
+            "share": 0.07643312101910828,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 12559,
+            "hits": 119,
+            "share": 0.07579617834394904,
+            "file": "index.js"
+          },
+          {
+            "functionName": "foldString",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 225,
+            "columnNumber": 20,
+            "hits": 81,
+            "share": 0.05159235668789809,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "copySpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 12229,
+            "hits": 31,
+            "share": 0.019745222929936305,
+            "file": "index.js"
+          },
+          {
+            "functionName": "getAttributeCount",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 59605,
+            "hits": 16,
+            "share": 0.01019108280254777,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(program)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 15,
+            "share": 0.009554140127388535,
+            "file": ""
+          },
+          {
+            "functionName": "getAttributeName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 59745,
+            "hits": 14,
+            "share": 0.008917197452229299,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 14,
+            "share": 0.008917197452229299,
+            "file": ""
+          },
+          {
+            "functionName": "getAttributeValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 60012,
+            "hits": 9,
+            "share": 0.005732484076433121,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 14782,
+            "hits": 3,
+            "share": 0.001910828025477707,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "drainPendingChunks",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15253,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 14711,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 9942,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "index.js"
+          },
+          {
+            "functionName": "dispatch",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": ""
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 58783,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": "index.js"
+          },
+          {
+            "functionName": "nextBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 13396,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": "index.js"
+          },
+          {
+            "functionName": "pushStreamingByteBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15708,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": "index.js"
+          },
+          {
+            "functionName": "enqueueNativeBatch",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 16100,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": "index.js"
+          },
+          {
+            "functionName": "pushFinalChunk",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15449,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": "index.js"
+          },
+          {
+            "functionName": "streamEventTypeId",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 255,
+            "columnNumber": 27,
+            "hits": 1,
+            "share": 0.0006369426751592356,
+            "file": "profile-stream-reader-overhead.mjs"
+          }
+        ],
+        "focusGroups": [
+          {
+            "id": "consumer_checksum",
+            "label": "consumer checksum and accessor loop",
+            "hits": 496,
+            "share": 0.3159235668789809
+          },
+          {
+            "id": "stream_accessor_copy",
+            "label": "stream accessor copy and decode",
+            "hits": 277,
+            "share": 0.17643312101910827
+          },
+          {
+            "id": "table_navigation",
+            "label": "table navigation",
+            "hits": 4,
+            "share": 0.0025477707006369425
+          },
+          {
+            "id": "native_boundary",
+            "label": "native boundary and batch handoff",
+            "hits": 1,
+            "share": 0.0006369426751592356
+          },
+          {
+            "id": "event_materialization",
+            "label": "event materialization",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "namespace_materialization",
+            "label": "namespace and qname materialization",
+            "hits": 0,
+            "share": 0
+          }
+        ],
+        "projectFunctions": [
+          {
+            "functionName": "consumeStreamReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 371,
+            "columnNumber": 29,
+            "hits": 247,
+            "share": 0.1573248407643312,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "rememberBytes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 4120,
+            "hits": 190,
+            "share": 0.12101910828025478,
+            "file": "index.js"
+          },
+          {
+            "functionName": "text",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 59444,
+            "hits": 127,
+            "share": 0.08089171974522293,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 9850,
+            "hits": 120,
+            "share": 0.07643312101910828,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 12559,
+            "hits": 119,
+            "share": 0.07579617834394904,
+            "file": "index.js"
+          },
+          {
+            "functionName": "foldString",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 225,
+            "columnNumber": 20,
+            "hits": 81,
+            "share": 0.05159235668789809,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "copySpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 12229,
+            "hits": 31,
+            "share": 0.019745222929936305,
+            "file": "index.js"
+          },
+          {
+            "functionName": "getAttributeCount",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 59605,
+            "hits": 16,
+            "share": 0.01019108280254777,
+            "file": "index.js"
+          },
+          {
+            "functionName": "getAttributeName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 59745,
+            "hits": 14,
+            "share": 0.008917197452229299,
+            "file": "index.js"
+          },
+          {
+            "functionName": "getAttributeValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 60012,
+            "hits": 9,
+            "share": 0.005732484076433121,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 14782,
+            "hits": 3,
+            "share": 0.001910828025477707,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "drainPendingChunks",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 15253,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 14711,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 9942,
+            "hits": 2,
+            "share": 0.0012738853503184713,
+            "file": "index.js"
+          }
+        ]
+      }
+    },
+    {
+      "caseId": "event-native-count",
+      "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\knowledge\\reports\\iterable\\stream-reader-overhead-memory-phase2b-2026-04-30\\event-native-count.cpuprofile",
+      "reference": {
+        "eventCount": 1013762,
+        "checksum": 1363006435
+      },
+      "durationMs": 691.7811999999999,
+      "averageMs": 86.47264999999999,
+      "summary": {
+        "totalHits": 1222,
+        "topFunctions": [
+          {
+            "functionName": "custom_gc",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 442,
+            "share": 0.3617021276595745,
+            "file": ""
+          },
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 269,
+            "share": 0.22013093289689034,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "readEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52971,
+            "hits": 227,
+            "share": 0.18576104746317512,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53876,
+            "hits": 124,
+            "share": 0.10147299509001637,
+            "file": "index.js"
+          },
+          {
+            "functionName": "tryCreateStructuralIndexParser",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 56959,
+            "hits": 61,
+            "share": 0.04991816693944354,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 19,
+            "share": 0.015548281505728314,
+            "file": ""
+          },
+          {
+            "functionName": "readAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53695,
+            "hits": 17,
+            "share": 0.013911620294599018,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(program)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 15,
+            "share": 0.012274959083469721,
+            "file": ""
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 55121,
+            "hits": 11,
+            "share": 0.00900163666121113,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52273,
+            "hits": 7,
+            "share": 0.0057283142389525366,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 50833,
+            "hits": 6,
+            "share": 0.004909983633387889,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52595,
+            "hits": 5,
+            "share": 0.004091653027823241,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52483,
+            "hits": 5,
+            "share": 0.004091653027823241,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventType",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 51184,
+            "hits": 2,
+            "share": 0.0016366612111292963,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copySpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 54221,
+            "hits": 2,
+            "share": 0.0016366612111292963,
+            "file": "index.js"
+          },
+          {
+            "functionName": "attrNameEnd",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 51951,
+            "hits": 2,
+            "share": 0.0016366612111292963,
+            "file": "index.js"
+          },
+          {
+            "functionName": "dispatch",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": ""
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52181,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventOffset",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53529,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventAttrCount",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52407,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "attrOffset",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53576,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "attrNameId",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 54775,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "decodeSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 54384,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventTypeId",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 236,
+            "columnNumber": 21,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "profile-stream-reader-overhead.mjs"
+          }
+        ],
+        "focusGroups": [
+          {
+            "id": "stream_accessor_copy",
+            "label": "stream accessor copy and decode",
+            "hits": 145,
+            "share": 0.11865793780687398
+          },
+          {
+            "id": "event_materialization",
+            "label": "event materialization",
+            "hits": 11,
+            "share": 0.00900163666121113
+          },
+          {
+            "id": "table_navigation",
+            "label": "table navigation",
+            "hits": 6,
+            "share": 0.004909983633387889
+          },
+          {
+            "id": "consumer_checksum",
+            "label": "consumer checksum and accessor loop",
+            "hits": 6,
+            "share": 0.004909983633387889
+          },
+          {
+            "id": "namespace_materialization",
+            "label": "namespace and qname materialization",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "native_boundary",
+            "label": "native boundary and batch handoff",
+            "hits": 0,
+            "share": 0
+          }
+        ],
+        "projectFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 269,
+            "share": 0.22013093289689034,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "readEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52971,
+            "hits": 227,
+            "share": 0.18576104746317512,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53876,
+            "hits": 124,
+            "share": 0.10147299509001637,
+            "file": "index.js"
+          },
+          {
+            "functionName": "tryCreateStructuralIndexParser",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 56959,
+            "hits": 61,
+            "share": 0.04991816693944354,
+            "file": "index.js"
+          },
+          {
+            "functionName": "readAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53695,
+            "hits": 17,
+            "share": 0.013911620294599018,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 55121,
+            "hits": 11,
+            "share": 0.00900163666121113,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52273,
+            "hits": 7,
+            "share": 0.0057283142389525366,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 50833,
+            "hits": 6,
+            "share": 0.004909983633387889,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52595,
+            "hits": 5,
+            "share": 0.004091653027823241,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52483,
+            "hits": 5,
+            "share": 0.004091653027823241,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventType",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 51184,
+            "hits": 2,
+            "share": 0.0016366612111292963,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copySpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 54221,
+            "hits": 2,
+            "share": 0.0016366612111292963,
+            "file": "index.js"
+          },
+          {
+            "functionName": "attrNameEnd",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 51951,
+            "hits": 2,
+            "share": 0.0016366612111292963,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52181,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventOffset",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53529,
+            "hits": 1,
+            "share": 0.0008183306055646482,
+            "file": "index.js"
+          }
+        ]
+      }
+    },
+    {
+      "caseId": "event-native-full",
+      "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\knowledge\\reports\\iterable\\stream-reader-overhead-memory-phase2b-2026-04-30\\event-native-full.cpuprofile",
+      "reference": {
+        "eventCount": 1013762,
+        "checksum": -713280541
+      },
+      "durationMs": 888.5454,
+      "averageMs": 111.068175,
+      "summary": {
+        "totalHits": 1558,
+        "topFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 446,
+            "share": 0.2862644415917843,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "custom_gc",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 440,
+            "share": 0.28241335044929394,
+            "file": ""
+          },
+          {
+            "functionName": "readEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52971,
+            "hits": 248,
+            "share": 0.15917843388960207,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53876,
+            "hits": 128,
+            "share": 0.0821566110397946,
+            "file": "index.js"
+          },
+          {
+            "functionName": "nextDirect",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57737,
+            "hits": 85,
+            "share": 0.05455712451861361,
+            "file": "index.js"
+          },
+          {
+            "functionName": "tryCreateStructuralIndexParser",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 56959,
+            "hits": 63,
+            "share": 0.04043645699614891,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 29,
+            "share": 0.018613607188703467,
+            "file": ""
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 55121,
+            "hits": 28,
+            "share": 0.01797175866495507,
+            "file": "index.js"
+          },
+          {
+            "functionName": "readAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53695,
+            "hits": 24,
+            "share": 0.01540436456996149,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(program)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 23,
+            "share": 0.014762516046213094,
+            "file": ""
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52483,
+            "hits": 13,
+            "share": 0.00834403080872914,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52273,
+            "hits": 12,
+            "share": 0.007702182284980745,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57238,
+            "hits": 6,
+            "share": 0.0038510911424903724,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52181,
+            "hits": 3,
+            "share": 0.0019255455712451862,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52595,
+            "hits": 3,
+            "share": 0.0019255455712451862,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 2,
+            "share": 0.0012836970474967907,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "dispatch",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": ""
+          },
+          {
+            "functionName": "decodeSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 54384,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": "index.js"
+          },
+          {
+            "functionName": "decode",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 55008,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventType",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 51184,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": "index.js"
+          },
+          {
+            "functionName": "foldString",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 225,
+            "columnNumber": 20,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": "profile-stream-reader-overhead.mjs"
+          }
+        ],
+        "focusGroups": [
+          {
+            "id": "stream_accessor_copy",
+            "label": "stream accessor copy and decode",
+            "hits": 160,
+            "share": 0.10269576379974327
+          },
+          {
+            "id": "event_materialization",
+            "label": "event materialization",
+            "hits": 28,
+            "share": 0.01797175866495507
+          },
+          {
+            "id": "consumer_checksum",
+            "label": "consumer checksum and accessor loop",
+            "hits": 7,
+            "share": 0.004492939666238768
+          },
+          {
+            "id": "table_navigation",
+            "label": "table navigation",
+            "hits": 1,
+            "share": 0.0006418485237483953
+          },
+          {
+            "id": "namespace_materialization",
+            "label": "namespace and qname materialization",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "native_boundary",
+            "label": "native boundary and batch handoff",
+            "hits": 0,
+            "share": 0
+          }
+        ],
+        "projectFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 446,
+            "share": 0.2862644415917843,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "readEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52971,
+            "hits": 248,
+            "share": 0.15917843388960207,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53876,
+            "hits": 128,
+            "share": 0.0821566110397946,
+            "file": "index.js"
+          },
+          {
+            "functionName": "nextDirect",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57737,
+            "hits": 85,
+            "share": 0.05455712451861361,
+            "file": "index.js"
+          },
+          {
+            "functionName": "tryCreateStructuralIndexParser",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 56959,
+            "hits": 63,
+            "share": 0.04043645699614891,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 55121,
+            "hits": 28,
+            "share": 0.01797175866495507,
+            "file": "index.js"
+          },
+          {
+            "functionName": "readAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53695,
+            "hits": 24,
+            "share": 0.01540436456996149,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52483,
+            "hits": 13,
+            "share": 0.00834403080872914,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52273,
+            "hits": 12,
+            "share": 0.007702182284980745,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57238,
+            "hits": 6,
+            "share": 0.0038510911424903724,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52181,
+            "hits": 3,
+            "share": 0.0019255455712451862,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52595,
+            "hits": 3,
+            "share": 0.0019255455712451862,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 2,
+            "share": 0.0012836970474967907,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "decodeSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 54384,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": "index.js"
+          },
+          {
+            "functionName": "decode",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 55008,
+            "hits": 1,
+            "share": 0.0006418485237483953,
+            "file": "index.js"
+          }
+        ]
+      }
+    },
+    {
+      "caseId": "event-native-full-namespace",
+      "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\knowledge\\reports\\iterable\\stream-reader-overhead-memory-phase2b-2026-04-30\\event-native-full-namespace.cpuprofile",
+      "reference": {
+        "eventCount": 1013762,
+        "checksum": -713280541
+      },
+      "durationMs": 1397.2178000000004,
+      "averageMs": 174.65222500000004,
+      "summary": {
+        "totalHits": 2452,
+        "topFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 773,
+            "share": 0.31525285481239806,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "custom_gc",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 439,
+            "share": 0.17903752039151713,
+            "file": ""
+          },
+          {
+            "functionName": "Ve",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 45347,
+            "hits": 265,
+            "share": 0.10807504078303426,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeStartElement",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43334,
+            "hits": 182,
+            "share": 0.07422512234910278,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 138,
+            "share": 0.05628058727569331,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "materializeEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 42395,
+            "hits": 116,
+            "share": 0.04730831973898858,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53876,
+            "hits": 108,
+            "share": 0.04404567699836868,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52181,
+            "hits": 94,
+            "share": 0.03833605220228385,
+            "file": "index.js"
+          },
+          {
+            "functionName": "tryCreateStructuralIndexParser",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 56959,
+            "hits": 63,
+            "share": 0.02569331158238173,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 44467,
+            "hits": 54,
+            "share": 0.02202283849918434,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventTypeId",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 236,
+            "columnNumber": 21,
+            "hits": 45,
+            "share": 0.01835236541598695,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "H",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 46413,
+            "hits": 44,
+            "share": 0.01794453507340946,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(program)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 35,
+            "share": 0.014274061990212071,
+            "file": ""
+          },
+          {
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 33,
+            "share": 0.013458401305057096,
+            "file": ""
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57238,
+            "hits": 19,
+            "share": 0.007748776508972268,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52483,
+            "hits": 19,
+            "share": 0.007748776508972268,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43057,
+            "hits": 12,
+            "share": 0.004893964110929853,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52595,
+            "hits": 5,
+            "share": 0.0020391517128874386,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52273,
+            "hits": 2,
+            "share": 0.0008156606851549756,
+            "file": "index.js"
+          },
+          {
+            "functionName": "post",
+            "url": "node:inspector",
+            "lineNumber": 115,
+            "columnNumber": 7,
+            "hits": 1,
+            "share": 0.0004078303425774878,
+            "file": "node:inspector"
+          },
+          {
+            "functionName": "dispatch",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 1,
+            "share": 0.0004078303425774878,
+            "file": ""
+          },
+          {
+            "functionName": "ze",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 45137,
+            "hits": 1,
+            "share": 0.0004078303425774878,
+            "file": "index.js"
+          },
+          {
+            "functionName": "V",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 45306,
+            "hits": 1,
+            "share": 0.0004078303425774878,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeEndElement",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43873,
+            "hits": 1,
+            "share": 0.0004078303425774878,
+            "file": "index.js"
+          },
+          {
+            "functionName": "foldString",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 225,
+            "columnNumber": 20,
+            "hits": 1,
+            "share": 0.0004078303425774878,
+            "file": "profile-stream-reader-overhead.mjs"
+          }
+        ],
+        "focusGroups": [
+          {
+            "id": "namespace_materialization",
+            "label": "namespace and qname materialization",
+            "hits": 237,
+            "share": 0.0966557911908646
+          },
+          {
+            "id": "stream_accessor_copy",
+            "label": "stream accessor copy and decode",
+            "hits": 228,
+            "share": 0.0929853181076672
+          },
+          {
+            "id": "event_materialization",
+            "label": "event materialization",
+            "hits": 128,
+            "share": 0.052202283849918436
+          },
+          {
+            "id": "consumer_checksum",
+            "label": "consumer checksum and accessor loop",
+            "hits": 20,
+            "share": 0.008156606851549755
+          },
+          {
+            "id": "table_navigation",
+            "label": "table navigation",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "native_boundary",
+            "label": "native boundary and batch handoff",
+            "hits": 0,
+            "share": 0
+          }
+        ],
+        "projectFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 773,
+            "share": 0.31525285481239806,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "Ve",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 45347,
+            "hits": 265,
+            "share": 0.10807504078303426,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeStartElement",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43334,
+            "hits": 182,
+            "share": 0.07422512234910278,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 138,
+            "share": 0.05628058727569331,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "materializeEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 42395,
+            "hits": 116,
+            "share": 0.04730831973898858,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyNameSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 53876,
+            "hits": 108,
+            "share": 0.04404567699836868,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52181,
+            "hits": 94,
+            "share": 0.03833605220228385,
+            "file": "index.js"
+          },
+          {
+            "functionName": "tryCreateStructuralIndexParser",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 56959,
+            "hits": 63,
+            "share": 0.02569331158238173,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 44467,
+            "hits": 54,
+            "share": 0.02202283849918434,
+            "file": "index.js"
+          },
+          {
+            "functionName": "eventTypeId",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 236,
+            "columnNumber": 21,
+            "hits": 45,
+            "share": 0.01835236541598695,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "H",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 46413,
+            "hits": 44,
+            "share": 0.01794453507340946,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57238,
+            "hits": 19,
+            "share": 0.007748776508972268,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52483,
+            "hits": 19,
+            "share": 0.007748776508972268,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43057,
+            "hits": 12,
+            "share": 0.004893964110929853,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyAttrValue",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 52595,
+            "hits": 5,
+            "share": 0.0020391517128874386,
+            "file": "index.js"
+          }
+        ]
+      }
+    },
+    {
+      "caseId": "neutral-full",
+      "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\knowledge\\reports\\iterable\\stream-reader-overhead-memory-phase2b-2026-04-30\\neutral-full.cpuprofile",
+      "reference": {
+        "eventCount": 1013762,
+        "checksum": -713280541
+      },
+      "durationMs": 1436.4067000000005,
+      "averageMs": 179.55083750000006,
+      "summary": {
+        "totalHits": 2541,
+        "topFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 686,
+            "share": 0.2699724517906336,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "parseBuffer",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 25718,
+            "hits": 251,
+            "share": 0.09878000787091697,
+            "file": "index.js"
+          },
+          {
+            "functionName": "parseStartTag",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 28542,
+            "hits": 222,
+            "share": 0.08736717827626919,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 160,
+            "share": 0.06296733569460843,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "encode",
+            "url": "node:internal/encoding",
+            "lineNumber": 355,
+            "columnNumber": 9,
+            "hits": 122,
+            "share": 0.048012593467138924,
+            "file": "encoding"
+          },
+          {
+            "functionName": "parseEndTag",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 27825,
+            "hits": 117,
+            "share": 0.04604486422668241,
+            "file": "index.js"
+          },
+          {
+            "functionName": "k",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 34220,
+            "hits": 100,
+            "share": 0.03935458480913026,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 42395,
+            "hits": 96,
+            "share": 0.03778040141676505,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57238,
+            "hits": 80,
+            "share": 0.03148366784730421,
+            "file": "index.js"
+          },
+          {
+            "functionName": "L",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 37921,
+            "hits": 63,
+            "share": 0.024793388429752067,
+            "file": "index.js"
+          },
+          {
+            "functionName": "N",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 35778,
+            "hits": 59,
+            "share": 0.023219205037386857,
+            "file": "index.js"
+          },
+          {
+            "functionName": "encodeUtf8String",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 56,
+            "share": 0.02203856749311295,
+            "file": ""
+          },
+          {
+            "functionName": "addEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 32453,
+            "hits": 53,
+            "share": 0.02085792994883904,
+            "file": "index.js"
+          },
+          {
+            "functionName": "lookupNameId",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 32352,
+            "hits": 51,
+            "share": 0.020070838252656435,
+            "file": "index.js"
+          },
+          {
+            "functionName": "internName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 32023,
+            "hits": 46,
+            "share": 0.01810310901219992,
+            "file": "index.js"
+          },
+          {
+            "functionName": "decodeSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 22415,
+            "hits": 46,
+            "share": 0.01810310901219992,
+            "file": "index.js"
+          },
+          {
+            "functionName": "decodeUTF8",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 44,
+            "share": 0.017316017316017316,
+            "file": ""
+          },
+          {
+            "functionName": "decode",
+            "url": "node:internal/encoding",
+            "lineNumber": 482,
+            "columnNumber": 9,
+            "hits": 41,
+            "share": 0.016135379771743407,
+            "file": "encoding"
+          },
+          {
+            "functionName": "parseAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 29310,
+            "hits": 38,
+            "share": 0.0149547422274695,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeLeanStartElement",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43156,
+            "hits": 38,
+            "share": 0.0149547422274695,
+            "file": "index.js"
+          },
+          {
+            "functionName": "(program)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 35,
+            "share": 0.013774104683195593,
+            "file": ""
+          },
+          {
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hits": 24,
+            "share": 0.009445100354191263,
+            "file": ""
+          },
+          {
+            "functionName": "copyText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 22891,
+            "hits": 18,
+            "share": 0.0070838252656434475,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeText",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 43057,
+            "hits": 18,
+            "share": 0.0070838252656434475,
+            "file": "index.js"
+          },
+          {
+            "functionName": "copyPlainAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 44227,
+            "hits": 13,
+            "share": 0.005116096025186935,
+            "file": "index.js"
+          }
+        ],
+        "focusGroups": [
+          {
+            "id": "event_materialization",
+            "label": "event materialization",
+            "hits": 165,
+            "share": 0.06493506493506493
+          },
+          {
+            "id": "stream_accessor_copy",
+            "label": "stream accessor copy and decode",
+            "hits": 89,
+            "share": 0.03502558048012593
+          },
+          {
+            "id": "consumer_checksum",
+            "label": "consumer checksum and accessor loop",
+            "hits": 85,
+            "share": 0.03345139708776072
+          },
+          {
+            "id": "table_navigation",
+            "label": "table navigation",
+            "hits": 2,
+            "share": 0.0007870916961826052
+          },
+          {
+            "id": "namespace_materialization",
+            "label": "namespace and qname materialization",
+            "hits": 0,
+            "share": 0
+          },
+          {
+            "id": "native_boundary",
+            "label": "native boundary and batch handoff",
+            "hits": 0,
+            "share": 0
+          }
+        ],
+        "projectFunctions": [
+          {
+            "functionName": "consumeEventReader",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 328,
+            "columnNumber": 28,
+            "hits": 686,
+            "share": 0.2699724517906336,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "parseBuffer",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 25718,
+            "hits": 251,
+            "share": 0.09878000787091697,
+            "file": "index.js"
+          },
+          {
+            "functionName": "parseStartTag",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 28542,
+            "hits": 222,
+            "share": 0.08736717827626919,
+            "file": "index.js"
+          },
+          {
+            "functionName": "runCaseOnce",
+            "url": "file:///G:/programming/stax-xml/packages/benchmark/profile-stream-reader-overhead.mjs",
+            "lineNumber": 417,
+            "columnNumber": 21,
+            "hits": 160,
+            "share": 0.06296733569460843,
+            "file": "profile-stream-reader-overhead.mjs"
+          },
+          {
+            "functionName": "parseEndTag",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 27825,
+            "hits": 117,
+            "share": 0.04604486422668241,
+            "file": "index.js"
+          },
+          {
+            "functionName": "k",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 34220,
+            "hits": 100,
+            "share": 0.03935458480913026,
+            "file": "index.js"
+          },
+          {
+            "functionName": "materializeEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 42395,
+            "hits": 96,
+            "share": 0.03778040141676505,
+            "file": "index.js"
+          },
+          {
+            "functionName": "next",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 57238,
+            "hits": 80,
+            "share": 0.03148366784730421,
+            "file": "index.js"
+          },
+          {
+            "functionName": "L",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 37921,
+            "hits": 63,
+            "share": 0.024793388429752067,
+            "file": "index.js"
+          },
+          {
+            "functionName": "N",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 35778,
+            "hits": 59,
+            "share": 0.023219205037386857,
+            "file": "index.js"
+          },
+          {
+            "functionName": "addEvent",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 32453,
+            "hits": 53,
+            "share": 0.02085792994883904,
+            "file": "index.js"
+          },
+          {
+            "functionName": "lookupNameId",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 32352,
+            "hits": 51,
+            "share": 0.020070838252656435,
+            "file": "index.js"
+          },
+          {
+            "functionName": "internName",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 32023,
+            "hits": 46,
+            "share": 0.01810310901219992,
+            "file": "index.js"
+          },
+          {
+            "functionName": "decodeSpan",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 22415,
+            "hits": 46,
+            "share": 0.01810310901219992,
+            "file": "index.js"
+          },
+          {
+            "functionName": "parseAttributes",
+            "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+            "lineNumber": 1,
+            "columnNumber": 29310,
+            "hits": 38,
+            "share": 0.0149547422274695,
+            "file": "index.js"
+          }
+        ]
+      }
+    }
+  ]
+}

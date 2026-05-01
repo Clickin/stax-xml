@@ -19,21 +19,13 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./cursor": {
-      "types": "./dist/cursor.d.ts",
-      "import": "./dist/cursor.js"
-    },
     "./converter": {
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js"
     },
-    "./iterable": {
-      "types": "./dist/iterable.d.ts",
-      "import": "./dist/iterable.js"
-    },
-    "./iterable/node": {
-      "types": "./dist/iterable/node.d.ts",
-      "import": "./dist/iterable/node.js"
+    "./projection": {
+      "types": "./dist/projection.d.ts",
+      "import": "./dist/projection.js"
     },
     "./runtime": {
       "types": "./dist/runtime.d.ts",
@@ -92,7 +84,8 @@
     "prepublishOnly": "pnpm build",
     "typedoc": "typedoc",
     "typedoc:main": "typedoc --options typedoc.main.json",
-    "typedoc:converter": "typedoc --options typedoc.converter.json"
+    "typedoc:converter": "typedoc --options typedoc.converter.json",
+    "typedoc:projection": "typedoc --options typedoc.projection.json"
   },
   "type": "module",
   "types": "./dist/index.d.ts"

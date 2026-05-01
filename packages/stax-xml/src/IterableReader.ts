@@ -166,9 +166,11 @@ export class IterableReader {
   constructor(
     source: Iterable<ByteBatch>,
     options: IterableReaderOptions = {},
-    runtimeBackendPreference?: StaxXmlRuntimeBackendPreference,
+    runtimeBackendPreference?: StaxXmlRuntimeBackendPreference | 'js',
   ) {
-    const runtime = getStaxXmlRuntimeForSyncApi(runtimeBackendPreference);
+    const runtime = runtimeBackendPreference === 'js'
+      ? undefined
+      : getStaxXmlRuntimeForSyncApi(runtimeBackendPreference);
     if (
       runtime
       && runtime.backend.kind !== 'js'
@@ -552,7 +554,7 @@ export class IterableReader {
         if (isFinal) {
           this.addText(position, buffer.byteLength);
         } else {
-          this.pendingTail = buffer.slice(position);
+          this.pendingTail = buffer.subarray(position);
         }
         return;
       }
@@ -563,7 +565,7 @@ export class IterableReader {
 
       const next = this.parseTag(buffer, ltPos, isFinal);
       if (next < 0) {
-        this.pendingTail = buffer.slice(ltPos);
+        this.pendingTail = buffer.subarray(ltPos);
         return;
       }
       position = next;
@@ -1035,7 +1037,7 @@ export function createJavaScriptIterableReader(
       runtimeBackendPreference: StaxXmlRuntimeBackendPreference,
     ): IterableReader;
   };
-  return new InternalIterableReader(source, options, 'js');
+  return new InternalIterableReader(source, options, 'js' as StaxXmlRuntimeBackendPreference);
 }
 
 function normalizeBatchSize(value: number | undefined): number {

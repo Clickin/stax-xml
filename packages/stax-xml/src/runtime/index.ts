@@ -20,6 +20,7 @@ export type {
   StaxXmlRuntimeBackendKind,
   StaxXmlRuntimeBackendPreference,
   StaxXmlRuntimeCapabilities,
+  StaxXmlObjectProjectionPlan,
   StaxXmlRuntimePlatform,
   StaxXmlRuntimeResolverOptions,
   StaxXmlStreamingEventBatch,

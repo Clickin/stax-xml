@@ -2,12 +2,12 @@ import { describe, expect, afterEach, it, vi } from 'vitest';
 import {
   EventReader,
   EventReaderSync,
-  CursorReader,
   initStaxXml,
   getStaxXmlRuntime,
 } from '../src/index';
+import { CursorReader } from '../src/cursor';
 import { IterableReader, toByteBatches } from '../src/IterableReader';
-import { IterableEventMaterializer } from '../src/IterableEventBackend';
+import { IterableEventMaterializer, readReadableStreamChunksIncrementally } from '../src/IterableEventBackend';
 import { x } from '../src/converter';
 import { WASM_PACKAGE_NAME, resetStaxXmlRuntimeForTests, resolveStaxXmlRuntimeBackend } from '../src/runtime';
 
@@ -63,10 +63,18 @@ describe('stax-xml runtime init cache', () => {
     await expect(schema.parse('<r><name>Alice</name></r>')).resolves.toEqual({ name: 'Alice' });
   });
 
-  it('uses the configured fallback order for auto and throws on explicit load failure', async () => {
+  it('uses explicit wasm fallback for auto and throws on explicit load failure', async () => {
+    await expect(resolveStaxXmlRuntimeBackend({
+      platform: { platform: 'darwin', arch: 'arm64' },
+      importPackage: async (packageName) => {
+        throw new Error(`missing ${packageName}`);
+      },
+    })).rejects.toThrow(/fallbackBackend: "wasm"/);
+
     const calls: string[] = [];
     const backend = await resolveStaxXmlRuntimeBackend({
       platform: { platform: 'darwin', arch: 'arm64' },
+      fallbackBackend: 'wasm',
       importPackage: async (packageName) => {
         calls.push(packageName);
         if (packageName === WASM_PACKAGE_NAME) {
@@ -88,8 +96,9 @@ describe('stax-xml runtime init cache', () => {
     })).rejects.toThrow(/Unable to initialize stax-xml native backend/);
   });
 
-  it('lets runtime backend js disable acceleration', async () => {
-    await initStaxXml({ backend: 'js' });
+  it('rejects public JavaScript runtime initialization while keeping the internal parser available', async () => {
+    await expect(initStaxXml({ backend: 'js' as never }))
+      .rejects.toThrow(/backend: "js" is no longer a public stax-xml runtime backend/);
 
     const parser = new IterableReader(
       toByteBatches([encoder.encode('<r/>')], { batchSize: 1 }),
@@ -149,6 +158,99 @@ describe('stax-xml runtime init cache', () => {
     ]);
     expect(events.map(event => 'name' in event ? event.name : 'value' in event ? event.value : event.type))
       .toEqual(['START_DOCUMENT', 'r', 'ok', 'r', 'END_DOCUMENT']);
+  });
+
+  it('splits oversized ReadableStream chunks as zero-copy Uint8Array views', async () => {
+    const source = encoder.encode('<root>ok</root>');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(source);
+        controller.close();
+      },
+    });
+
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of readReadableStreamChunksIncrementally(stream, 5)) {
+      chunks.push(chunk);
+    }
+
+    expect(chunks.map(chunk => Array.from(chunk))).toEqual([
+      Array.from(source.subarray(0, 5)),
+      Array.from(source.subarray(5, 10)),
+      Array.from(source.subarray(10)),
+    ]);
+    expect(chunks.every(chunk => chunk.buffer === source.buffer)).toBe(true);
+    expect(chunks.map(chunk => chunk.byteOffset)).toEqual([
+      source.byteOffset,
+      source.byteOffset + 5,
+      source.byteOffset + 10,
+    ]);
+  });
+
+  it('passes EventReader native split chunks without copying the source buffer', async () => {
+    const source = encoder.encode('<root>ok</root>');
+    const pushed: Array<{ chunk: Uint8Array; isFinal: boolean }> = [];
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushChunk(chunk: Uint8Array, isFinal: boolean) {
+            pushed.push({ chunk, isFinal });
+            return {
+              buffer: chunk,
+              table: isFinal
+                ? encodeStructuralIndex(chunk, [event(1)], [])
+                : encodeStructuralIndex(chunk, [], []),
+            };
+          },
+        }),
+      }),
+    });
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(source);
+        controller.close();
+      },
+    });
+
+    const events = [];
+    for await (const event of new EventReader(stream, { maxChunkBytes: 5 })) {
+      events.push(event);
+    }
+
+    const dataChunks = pushed.filter(entry => !entry.isFinal).map(entry => entry.chunk);
+    expect(dataChunks).toHaveLength(3);
+    expect(dataChunks.every(chunk => chunk.buffer === source.buffer)).toBe(true);
+    expect(dataChunks.map(chunk => chunk.byteOffset)).toEqual([
+      source.byteOffset,
+      source.byteOffset + 5,
+      source.byteOffset + 10,
+    ]);
+    expect(pushed.at(-1)?.isFinal).toBe(true);
+    expect(events).toEqual([{ type: 'END_DOCUMENT' }]);
+  });
+
+  it('selects the native EventReader backend during construction when streaming batches are available', async () => {
+    const createStreamingEventBatchParser = vi.fn(() => ({
+      pushChunk(chunk: Uint8Array, isFinal: boolean) {
+        if (isFinal) {
+          return { buffer: new Uint8Array(0), table: encodeStructuralIndex(new Uint8Array(0), [event(1)], []) };
+        }
+        return { buffer: chunk, table: encodeStructuralIndex(chunk, [event(0)], []) };
+      },
+    }));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ createStreamingEventBatchParser }),
+    });
+
+    const reader = new EventReader(streamFrom('<r/>'));
+
+    expect(createStreamingEventBatchParser).toHaveBeenCalledOnce();
+
+    await reader.return();
   });
 
   it('routes sync string parser through initialized structural index tables', async () => {

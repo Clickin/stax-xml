@@ -103,6 +103,12 @@ describe('runtime backend package topology', () => {
     }
   });
 
+  it('keeps retired low-level reader entries out of public package exports', () => {
+    expect(staxPackage.exports).not.toHaveProperty('./cursor');
+    expect(staxPackage.exports).not.toHaveProperty('./iterable');
+    expect(staxPackage.exports).not.toHaveProperty('./iterable/node');
+  });
+
   it('keeps platform package metadata constrained to the intended artifact', () => {
     for (const expected of platformPackages) {
       const manifest = readPackage(`../../${expected.dir}/package.json`);
@@ -215,9 +221,15 @@ describe('runtime backend resolver', () => {
     });
   });
 
-  it('uses detected platform when no platform override is provided', async () => {
+  it('uses detected native platform when no platform override is provided', async () => {
     const detected = detectRuntimePlatform();
-    const expectedPackage = getStaxXmlNativePackageName(detected) ?? WASM_PACKAGE_NAME;
+    const expectedPackage = getStaxXmlNativePackageName(detected);
+    if (!expectedPackage) {
+      await expect(resolveStaxXmlRuntimeBackend({
+        importPackage: async (packageName) => ({ packageName }),
+      })).rejects.toThrow(/Expected package: no native package/);
+      return;
+    }
     const calls: string[] = [];
     const backend = await resolveStaxXmlRuntimeBackend({
       importPackage: async (packageName) => {
@@ -230,10 +242,18 @@ describe('runtime backend resolver', () => {
     expect(backend.packageName).toBe(expectedPackage);
   });
 
-  it('falls back from native to wasm and then JavaScript', async () => {
+  it('uses only explicit wasm fallback and never falls through to JavaScript', async () => {
+    await expect(resolveStaxXmlRuntimeBackend({
+      platform: { platform: 'darwin', arch: 'arm64' },
+      importPackage: async (packageName) => {
+        throw new Error(`missing ${packageName}`);
+      }
+    })).rejects.toThrow(/fallbackBackend: "wasm"/);
+
     const wasmCalls: string[] = [];
     const wasmBackend = await resolveStaxXmlRuntimeBackend({
       platform: { platform: 'darwin', arch: 'arm64' },
+      fallbackBackend: 'wasm',
       importPackage: async (packageName) => {
         wasmCalls.push(packageName);
         if (packageName === WASM_PACKAGE_NAME) {
@@ -247,25 +267,17 @@ describe('runtime backend resolver', () => {
     expect(wasmBackend.kind).toBe('wasm');
     expect(wasmBackend.errors).toHaveLength(1);
 
-    const jsCalls: string[] = [];
-    const jsBackend = await resolveStaxXmlRuntimeBackend({
+    await expect(resolveStaxXmlRuntimeBackend({
       platform: { platform: 'freebsd', arch: 'x64' },
       importPackage: async (packageName) => {
-        jsCalls.push(packageName);
         throw new Error(`missing ${packageName}`);
       }
-    });
-
-    expect(jsCalls).toEqual([WASM_PACKAGE_NAME]);
-    expect(jsBackend).toMatchObject({
-      kind: 'js',
-      packageName: 'stax-xml'
-    });
-    expect(jsBackend.errors).toHaveLength(1);
+    })).rejects.toThrow(/no native package for freebsd\/x64/);
   });
 
-  it('can resolve the wasm fallback without linking the wasm package workspace', async () => {
+  it('can resolve the explicit wasm backend without linking the wasm package workspace', async () => {
     const backend = await resolveStaxXmlRuntimeBackend({
+      backend: 'wasm',
       platform: { platform: 'freebsd', arch: 'x64' },
       importPackage: async (packageName) => {
         if (packageName === WASM_PACKAGE_NAME) {

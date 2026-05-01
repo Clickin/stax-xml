@@ -7,6 +7,14 @@ import {
   XmlEventType,
   type AnyXmlEvent,
 } from '../types.js';
+import {
+  byteSpanKey,
+  decodeShortAsciiSpan,
+  rememberNumericIdString,
+  ShortValueStringCache,
+  stringSpanKey,
+  VALUE_ID_CACHE_MAX_ENTRIES,
+} from './string-materialization.js';
 
 export type StructuralIndexSource = string | ArrayBufferView;
 export type StructuralIndexTable = ArrayBuffer | ArrayBufferView;
@@ -15,6 +23,7 @@ export type StructuralIndexSourceKind = 'utf16' | 'utf8';
 export interface StaxXmlStructuralIndexParserOptions {
   decodeEntities?: boolean;
   sourceKind?: StructuralIndexSourceKind;
+  trimText?: boolean;
 }
 
 const STRUCTURAL_INDEX_MAGIC = 0x31545053;
@@ -23,6 +32,8 @@ const HEADER_BYTES = HEADER_WORDS * 4;
 const EVENT_STRIDE_BYTES = 28;
 const ATTR_STRIDE_BYTES = 16;
 const SOURCE_KIND_UTF8 = 1;
+const STRUCTURAL_INDEX_FLAG_NAME_IDS = 1 << 8;
+const STRUCTURAL_INDEX_FLAG_VALUE_IDS = 1 << 9;
 const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
 const DEFAULT_ENTITY_MAP: Record<string, string> = {
   lt: '<',
@@ -41,6 +52,10 @@ type ParsedStructuralTable = {
   sourceKind: StructuralIndexSourceKind;
   eventBase: number;
   attrBase: number;
+  eventNamesBase?: number;
+  attrNamesBase?: number;
+  eventTextValuesBase?: number;
+  attrValuesBase?: number;
   byteLength: number;
 };
 
@@ -51,7 +66,12 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
   readonly sourceKind: StructuralIndexSourceKind;
 
   private readonly decodeEntities: boolean;
+  private readonly trimText: boolean;
   private readonly table: ParsedStructuralTable;
+  private readonly nameIdCache = new Map<number, string>();
+  private readonly valueIdCache = new Map<number, string>();
+  private readonly nameHashCache = new Map<number, string>();
+  private readonly shortValueCache = new ShortValueStringCache();
   private index = 0;
   private tableBatchConsumed = false;
 
@@ -66,6 +86,7 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
     this.indexBytes = this.table.byteLength;
     this.sourceKind = this.table.sourceKind;
     this.decodeEntities = options.decodeEntities ?? true;
+    this.trimText = options.trimText ?? false;
   }
 
   static fromTable(
@@ -162,18 +183,15 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
   }
 
   copyName(index: number): string | undefined {
-    const offset = this.eventOffset(index);
-    return this.copySpan(
-      this.table.view.getInt32(offset + 4, true),
-      this.table.view.getInt32(offset + 8, true),
-    );
+    return this.copyNameSpan(this.nameStart(index), this.nameEnd(index), this.eventNameId(index));
   }
 
   copyText(index: number): string | undefined {
     const offset = this.eventOffset(index);
-    return this.copySpan(
+    return this.copyValueSpan(
       this.table.view.getInt32(offset + 12, true),
       this.table.view.getInt32(offset + 16, true),
+      this.eventTextValueId(index),
     );
   }
 
@@ -182,18 +200,19 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
   }
 
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
-    const offset = this.attrOffset(eventIndex, attrIndex);
-    return this.copySpan(
-      this.table.view.getInt32(offset, true),
-      this.table.view.getInt32(offset + 4, true),
+    return this.copyNameSpan(
+      this.attrNameStart(eventIndex, attrIndex),
+      this.attrNameEnd(eventIndex, attrIndex),
+      this.attrNameId(eventIndex, attrIndex),
     );
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
     const offset = this.attrOffset(eventIndex, attrIndex);
-    return this.copySpan(
+    return this.copyValueSpan(
       this.table.view.getInt32(offset + 8, true),
       this.table.view.getInt32(offset + 12, true),
+      this.attrValueId(eventIndex, attrIndex),
     );
   }
 
@@ -201,55 +220,51 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
     const attrCount = this.eventAttrCount(eventIndex);
     for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
       const offset = this.attrOffset(eventIndex, attrIndex);
-      if (this.copySpan(
+      if (this.copyNameSpan(
         this.table.view.getInt32(offset, true),
         this.table.view.getInt32(offset + 4, true),
+        this.attrNameId(eventIndex, attrIndex),
       ) === name) {
-        return this.copySpan(
-          this.table.view.getInt32(offset + 8, true),
-          this.table.view.getInt32(offset + 12, true),
-        );
+        return this.copyAttrValue(eventIndex, attrIndex);
       }
     }
     return undefined;
   }
 
   private readEvent(index: number): AnyXmlEvent {
-    const offset = this.eventOffset(index);
-    const type = this.table.view.getUint32(offset, true);
-    const name = this.copySpan(
-      this.table.view.getInt32(offset + 4, true),
-      this.table.view.getInt32(offset + 8, true),
-    );
-    const text = this.copySpan(
-      this.table.view.getInt32(offset + 12, true),
-      this.table.view.getInt32(offset + 16, true),
-    );
-    const attrStart = this.table.view.getUint32(offset + 20, true);
-    const attrCount = this.table.view.getUint32(offset + 24, true);
+    let type: IterableEventType;
+    try {
+      type = this.eventType(index);
+    } catch (error) {
+      return {
+        type: XmlEventType.ERROR,
+        error: error as Error,
+      };
+    }
+    const name = this.copyName(index);
 
-    if (type === 0) return { type: XmlEventType.START_DOCUMENT };
-    if (type === 1) return { type: XmlEventType.END_DOCUMENT };
-    if (type === 2) {
+    if (type === IterableEventType.START_DOCUMENT) return { type: XmlEventType.START_DOCUMENT };
+    if (type === IterableEventType.END_DOCUMENT) return { type: XmlEventType.END_DOCUMENT };
+    if (type === IterableEventType.START_ELEMENT) {
       return {
         type: XmlEventType.START_ELEMENT,
         name: name!,
-        attributes: this.readAttributes(attrStart, attrCount),
+        attributes: this.readAttributes(index),
       };
     }
-    if (type === 3) {
+    if (type === IterableEventType.END_ELEMENT) {
       return { type: XmlEventType.END_ELEMENT, name: name! };
     }
-    if (type === 4) {
-      return { type: XmlEventType.CHARACTERS, value: this.decode(text!) };
+    if (type === IterableEventType.CHARACTERS) {
+      return { type: XmlEventType.CHARACTERS, value: this.materializeText(this.copyText(index)!) };
     }
-    if (type === 5) {
-      return { type: XmlEventType.CDATA, value: text! };
+    if (type === IterableEventType.CDATA) {
+      return { type: XmlEventType.CDATA, value: this.decode(this.copyText(index)!) };
     }
 
     return {
       type: XmlEventType.ERROR,
-      error: new Error(`Unsupported structural index event type: ${type}`),
+      error: new Error(`Unsupported structural index event type: ${String(type)}`),
     };
   }
 
@@ -263,18 +278,12 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
     return this.table.attrBase + (attrStart + attrIndex) * ATTR_STRIDE_BYTES;
   }
 
-  private readAttributes(attrStart: number, attrCount: number): Record<string, string> {
+  private readAttributes(eventIndex: number): Record<string, string> {
     const attributes: Record<string, string> = {};
+    const attrCount = this.eventAttrCount(eventIndex);
     for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-      const offset = this.table.attrBase + (attrStart + attrIndex) * ATTR_STRIDE_BYTES;
-      const name = this.copySpan(
-        this.table.view.getInt32(offset, true),
-        this.table.view.getInt32(offset + 4, true),
-      );
-      const value = this.copySpan(
-        this.table.view.getInt32(offset + 8, true),
-        this.table.view.getInt32(offset + 12, true),
-      );
+      const name = this.copyAttrName(eventIndex, attrIndex);
+      const value = this.copyAttrValue(eventIndex, attrIndex);
       if (name !== undefined && value !== undefined) {
         attributes[name] = this.decode(value);
       }
@@ -282,15 +291,65 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
     return attributes;
   }
 
-  private copySpan(start: number, end: number): string | undefined {
+  private copyNameSpan(start: number, end: number, nameId: number): string | undefined {
     if (start < 0) {
       return undefined;
     }
+    if (nameId > 0) {
+      const cachedById = this.nameIdCache.get(nameId);
+      if (cachedById !== undefined) {
+        return cachedById;
+      }
+      const value = this.decodeSpan(start, end);
+      this.nameIdCache.set(nameId, value);
+      return value;
+    }
+
+    const key = typeof this.source === 'string'
+      ? stringSpanKey(this.source, start, end)
+      : byteSpanKey(toUint8Array(this.source), start, end);
+    const cached = this.nameHashCache.get(key);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const value = this.decodeSpan(start, end);
+    this.nameHashCache.set(key, value);
+    return value;
+  }
+
+  private copyValueSpan(start: number, end: number, valueId: number): string | undefined {
+    if (start < 0) {
+      return undefined;
+    }
+    if (typeof this.source === 'string' || this.sourceKind !== 'utf8') {
+      return this.decodeSpan(start, end);
+    }
+    if (valueId > 0) {
+      return rememberNumericIdString(
+        this.valueIdCache,
+        valueId,
+        () => this.decodeSpan(start, end),
+        VALUE_ID_CACHE_MAX_ENTRIES,
+      );
+    }
+    return this.shortValueCache.rememberBytes(
+      toUint8Array(this.source),
+      start,
+      end,
+      () => this.decodeSpan(start, end),
+    );
+  }
+
+  private decodeSpan(start: number, end: number): string {
     if (typeof this.source === 'string') {
       return this.source.slice(start, end);
     }
 
     const view = toUint8Array(this.source);
+    const ascii = decodeShortAsciiSpan(view, start, end);
+    if (ascii !== undefined) {
+      return ascii;
+    }
     const bufferCtor = (globalThis as { Buffer?: { isBuffer(value: unknown): boolean } }).Buffer;
     if (bufferCtor?.isBuffer(this.source) && typeof (this.source as { toString?: unknown }).toString === 'function') {
       return (this.source as { toString(encoding: string, start: number, end: number): string })
@@ -299,12 +358,51 @@ export class StaxXmlStructuralIndexParser implements IterableIterator<AnyXmlEven
     return utf8Decoder.decode(view.subarray(start, end));
   }
 
+  private eventNameId(index: number): number {
+    return this.table.eventNamesBase === undefined
+      ? 0
+      : this.table.view.getUint32(this.table.eventNamesBase + index * 4, true);
+  }
+
+  private attrNameId(eventIndex: number, attrIndex: number): number {
+    const attrStart = this.table.view.getUint32(this.eventOffset(eventIndex) + 20, true);
+    return this.attrNameIdFromTable(attrStart + attrIndex);
+  }
+
+  private attrNameIdFromTable(attrIndex: number): number {
+    return this.table.attrNamesBase === undefined
+      ? 0
+      : this.table.view.getUint32(this.table.attrNamesBase + attrIndex * 4, true);
+  }
+
+  private eventTextValueId(index: number): number {
+    return this.table.eventTextValuesBase === undefined
+      ? 0
+      : this.table.view.getUint32(this.table.eventTextValuesBase + index * 4, true);
+  }
+
+  private attrValueId(eventIndex: number, attrIndex: number): number {
+    const attrStart = this.table.view.getUint32(this.eventOffset(eventIndex) + 20, true);
+    return this.attrValueIdFromTable(attrStart + attrIndex);
+  }
+
+  private attrValueIdFromTable(attrIndex: number): number {
+    return this.table.attrValuesBase === undefined
+      ? 0
+      : this.table.view.getUint32(this.table.attrValuesBase + attrIndex * 4, true);
+  }
+
   private decode(value: string): string {
     if (!this.decodeEntities || value.indexOf('&') === -1) {
       return value;
     }
     DEFAULT_ENTITY_REGEX.lastIndex = 0;
     return value.replace(DEFAULT_ENTITY_REGEX, (_match, entity: string) => DEFAULT_ENTITY_MAP[entity]!);
+  }
+
+  private materializeText(value: string): string {
+    const decoded = this.decode(value);
+    return this.trimText ? decoded.trim() : decoded;
   }
 }
 
@@ -343,7 +441,24 @@ function readStructuralTable(
 
   const eventBase = HEADER_BYTES;
   const attrBase = eventBase + eventCount * EVENT_STRIDE_BYTES;
-  const expectedBytes = attrBase + attrCount * ATTR_STRIDE_BYTES;
+  let cursor = attrBase + attrCount * ATTR_STRIDE_BYTES;
+  const eventNamesBase = (flags & STRUCTURAL_INDEX_FLAG_NAME_IDS) !== 0 ? cursor : undefined;
+  if (eventNamesBase !== undefined) {
+    cursor += eventCount * 4;
+  }
+  const attrNamesBase = eventNamesBase === undefined ? undefined : cursor;
+  if (attrNamesBase !== undefined) {
+    cursor += attrCount * 4;
+  }
+  const eventTextValuesBase = (flags & STRUCTURAL_INDEX_FLAG_VALUE_IDS) !== 0 ? cursor : undefined;
+  if (eventTextValuesBase !== undefined) {
+    cursor += eventCount * 4;
+  }
+  const attrValuesBase = eventTextValuesBase === undefined ? undefined : cursor;
+  if (attrValuesBase !== undefined) {
+    cursor += attrCount * 4;
+  }
+  const expectedBytes = cursor;
   if (expectedBytes !== view.byteLength) {
     throw new Error(`Structural index length mismatch: ${expectedBytes}/${view.byteLength}`);
   }
@@ -356,6 +471,10 @@ function readStructuralTable(
     sourceKind,
     eventBase,
     attrBase,
+    eventNamesBase,
+    attrNamesBase,
+    eventTextValuesBase,
+    attrValuesBase,
     byteLength: view.byteLength,
   };
 }

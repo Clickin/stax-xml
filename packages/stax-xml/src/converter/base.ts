@@ -45,7 +45,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
 
   /**
    * Parse XML input synchronously
-   * @param input - XML string or sync iterator
+   * @param input - XML string, byte view, or sync iterator
    * @param options - Parse options
    * @returns Parsed output
    * @throws {XmlParseError} If parsing fails
@@ -132,7 +132,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns Parsed output
    * @throws {XmlParseError} If parsing fails
    */
-  parseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): Output {
+  parseSync(input: string | ArrayBufferView | Iterator<AnyXmlEvent>, options?: ParseOptions): Output {
     const autoParse = XmlSchemaBase._tryParseWithCompiledPlan;
     if (autoParse) {
       const result = autoParse(this, input, options);
@@ -166,11 +166,11 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
 
   /**
    * Parse XML synchronously with error handling
-   * @param input - XML string or sync iterator
+   * @param input - XML string, byte view, or sync iterator
    * @param options - Parse options
    * @returns Parse result with success flag
    */
-  safeParseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): ParseResult<Output> {
+  safeParseSync(input: string | ArrayBufferView | Iterator<AnyXmlEvent>, options?: ParseOptions): ParseResult<Output> {
     try {
       return { success: true, data: this.parseSync(input, options) };
     } catch (error) {
@@ -308,7 +308,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
   /** @internal */
   static _tryParseWithCompiledPlan?: <Output, Input>(
     schema: XmlSchemaBase<Output, Input>,
-    input: string | Iterator<AnyXmlEvent>,
+    input: string | ArrayBufferView | Iterator<AnyXmlEvent>,
     options?: ParseOptions
   ) => AutoParseResult<Output>;
   /** @internal */

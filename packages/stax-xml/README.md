@@ -6,22 +6,21 @@
 
 ## English
 
-A performance-first, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). StAX-XML is built around fast synchronous parsing paths, optional native acceleration, and byte-batch APIs that can parse large files without forcing the whole document through one JavaScript string. Use async streams when I/O must stay non-blocking; use the sync iterable path when a batch job can block and you want to avoid Promise overhead.
+A performance-first, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). StAX-XML is built around the converter API, event readers, projection helpers, optional native acceleration, and stream APIs that can parse large files without forcing file I/O into one JavaScript string. Use the converter API for known output shapes. When you must traverse the whole XML, start with `EventReader`/`EventReaderSync` for light per-event work and move to `ProjectionReader` for heavier unknown-schema projection or object materialization.
 
 Current release benchmarks show StAX-XML as one of the fastest XML parser packages in the JavaScript ecosystem for large-file workloads. The JavaScript byte-batch parser stays portable across Node, Bun, Deno, browsers, and edge runtimes, while the published `@stax-xml/native-*` optional packages provide the fastest Node.js path when native addons are allowed.
 
 ### 🚀 Features
 
-- **Fast sync byte-batch parsing**: Parse large `Uint8Array`/`Buffer` chunk streams synchronously without materializing one full XML string
-- **Native acceleration by default**: `stax-xml` installs matching `@stax-xml/native-*` optional packages automatically, with wasm and JavaScript fallbacks
-- **Low-overhead iterable API**: Batch-oriented event frames expose names, text, and attributes on demand so hot paths can avoid per-event object churn
+- **Fast event-reader parsing**: Parse XML through `EventReaderSync` or `EventReader` with native/Wasm acceleration when available
+- **Native acceleration by default**: `stax-xml` installs matching `@stax-xml/native-*` optional packages automatically; Node performance paths require native, with wasm available only by explicit opt-in
 - **Async stream parser**: Keep file/network I/O non-blocking while the parser consumes arrived byte batches synchronously
-- **Cursor Reader API**: Thin cursor-style wrapper over `IterableReader` for one-event-at-a-time traversal
+- **ProjectionReader API**: Native/Wasm-backed unknown-schema projection for txml-style document nodes and lower-level row projections
 - **Declarative Converter API**: Zod-style schema API for type-safe XML parsing and writing with XPath support
 - **Bidirectional Transformation**: Parse XML to objects and write objects back to XML
 - **Synchronous Sink Writing**: Recommended high-throughput path for large XML output
 - **Custom Mapping**: Map XML data to any structure you want, not just plain JSON objects
-- **Universal Compatibility**: Works in Node.js, Bun, Deno, and web browsers, with WebAssembly recommended for browser performance paths and pure JavaScript kept as the compatibility fallback
+- **Runtime compatibility**: Native packages define the Node performance contract, and WebAssembly is available as an explicit compatibility backend for non-native environments
 - **Namespace Support**: Basic XML namespace handling
 - **Entity Support**: Built-in entity decoding with custom entity support
 - **Fragment-friendly by default**: `documentMode` defaults to `'fragment'`, with opt-in XML document shape checks via `'document'`
@@ -46,56 +45,43 @@ deno add npm:stax-xml
 
 ### 🔧 Quick Start
 
-StAX-XML provides several parsing surfaces. Pick the one that matches the execution boundary:
+StAX-XML provides several parsing surfaces. Prefer the converter API when you know the target shape, then choose the lowest-level reader that matches the remaining work:
 
 | Workload | Recommended API | Why |
 | --- | --- | --- |
-| Large local files or batch jobs that may block | `stax-xml/iterable` or `stax-xml/iterable/node` | Fast synchronous byte-batch parsing, no Promise overhead, no full-string requirement |
+| Known XML-to-object mapping | `stax-xml/converter` | Recommended first: typed schema API with XPath, projection routing, and writer support |
+| Whole XML traversal with light per-event work | `EventReader` / `EventReaderSync` | Lean event iteration with optional native acceleration and minimal object retention |
+| Whole XML traversal with heavy unknown-schema materialization | `stax-xml/projection` | `ProjectionReader` and `parseXmlNodes*()` for txml-style document nodes and native projection paths |
 | File/network I/O that must stay non-blocking | `EventReader` | Async iterator over `ReadableStream<Uint8Array>` |
-| Ergonomic event traversal | `CursorReader` | Cursor-style accessors over the iterable backend |
-| XML-to-object mapping | `stax-xml/converter` | Typed schema API with XPath and writer support |
 
-#### Fast synchronous large-file parsing
+#### Fast synchronous event parsing
 
-For Node batch jobs, read and parse a file synchronously in fixed-size byte chunks. This path does not require `fs.readFileSync(path, 'utf8')`, does not keep one full XML string in memory, and avoids async iterator/Promise overhead.
+Use `EventReaderSync` when the XML string is already in memory and the consumer only needs light per-event work such as counting, filtering, or checksumming. Initialize the runtime once when you want the native or Wasm backend to be selected for supported platforms.
 
 ```typescript
-import {
-  IterableEventType,
-  NodeIterableReader,
-  nodeFileByteBatchesSync
-} from 'stax-xml/iterable/node';
+import { EventReaderSync, initStaxXml, XmlEventType } from 'stax-xml';
 
-const parser = new NodeIterableReader(
-  nodeFileByteBatchesSync('./large.xml', {
-    chunkSize: 1024 * 1024,
-    batchSize: 16
-  })
-);
+await initStaxXml({ backend: 'auto' });
 
 let elementCount = 0;
 
-while (parser.nextBatch()) {
-  for (let index = 0; index < parser.eventCount(); index++) {
-    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
-      elementCount++;
-      // Names/text/attributes are copied only when requested.
-      console.log(parser.copyName(index));
-    }
+for (const event of new EventReaderSync('<root><item id="1">Hello</item></root>')) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    elementCount++;
+    console.log(event.name);
   }
 }
 
 console.log(`Total elements processed: ${elementCount}`);
 ```
 
-For portable byte sources, use `IterableReader` with `Iterable<Uint8Array[]>` batches from `stax-xml/iterable`. That is the same synchronous parsing model without Node's `Buffer`-specific file helpers.
-
 #### Unknown XML to Tree or Object
 
-Use the converter API when you know the target shape. When you just need to inspect unknown XML, StAX-XML also provides convenience helpers:
+Use the converter API when you know the target shape. When you need to inspect or materialize unknown XML and the work is heavier than light event traversal, StAX-XML also provides projection helpers:
 
 - `parseXmlTree()` / `parseXmlTreeSync()` return an order-preserving tree similar in spirit to Python's ElementTree.
 - `parseXmlObject()` / `parseXmlObjectSync()` return a compact JavaScript object similar to txml or fast-xml-parser.
+- `parseXmlNodes()` / `parseXmlNodesSync()` from `stax-xml/projection` return a txml-style node array and can use the native projection backend.
 
 ```typescript
 import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
@@ -170,27 +156,6 @@ const result = await bookSchema.parse(xml);
 
 // Write XML back
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
-```
-
-#### Cursor Reader API (IterableParser Wrapper)
-
-For code that prefers cursor traversal, use the cursor API from the `stax-xml/cursor` subpath. It is a thin wrapper over the iterable parser backend and exposes one-event-at-a-time accessors such as `name()`, `text()`, and `getAttributeValue()`.
-
-```typescript
-import { CursorEventType, CursorReader } from 'stax-xml/cursor';
-
-const cursor = new CursorReader('<root><item id="1">Hello</item></root>');
-
-while (cursor.next()) {
-  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
-    console.log(cursor.name());
-    console.log(cursor.getAttributeValue('id'));
-  }
-
-  if (cursor.eventType() === CursorEventType.CHARACTERS) {
-    console.log(cursor.text());
-  }
-}
 ```
 
 When file or network I/O must stay non-blocking, use `EventReader`. The public API is an async iterator over a `ReadableStream<Uint8Array>`, while the backend still parses each arrived byte batch synchronously:
@@ -336,7 +301,7 @@ StAX-XML keeps a Web Standard API baseline, making it compatible with:
 - **Web Browsers** (modern browsers)
 - **Edge Runtime** (Vercel, Cloudflare Workers, etc.)
 
-For performance-sensitive browser workloads, prefer the WebAssembly runtime when it is available. The pure JavaScript parser remains the compatibility fallback for environments that cannot load Wasm, cannot enable cross-origin isolation, or need a no-binary policy.
+For performance-sensitive browser workloads, opt into the WebAssembly runtime when native packages are not available. JavaScript parser code remains as an internal/reference implementation, but Node performance claims do not rely on silent JavaScript fallback.
 
 #### Native and Wasm Resolution
 
@@ -346,10 +311,10 @@ For performance-sensitive browser workloads, prefer the WebAssembly runtime when
 import { resolveStaxXmlRuntimeBackend } from 'stax-xml/runtime';
 
 const backend = await resolveStaxXmlRuntimeBackend();
-// backend.kind is "native", "wasm", or "js"
+// backend.kind is "native" by default on supported Node platforms
 ```
 
-Resolution order is native for the current Node-API platform, then `@stax-xml/native-wasm32-wasi`, then the JavaScript implementation in `stax-xml`. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
+`backend: "auto"` resolves the native package for the current Node-API platform and throws if that package cannot be loaded. It does not silently fall through to JavaScript. Use `backend: "wasm"` or `fallbackBackend: "wasm"` only when the `@stax-xml/native-wasm32-wasi` compatibility backend is intended. Browser applications should run wasm parsing in a Worker when parsing creates long tasks or visible UI delay; threaded wasm requires cross-origin isolation.
 
 Native packages are installed automatically through exact-version optional dependencies; users do not need to choose a platform package manually. Release builds stage `stax_xml_native.node` into the matching `@stax-xml/native-*` package before packing. Native OS/variant tarballs must be packed on their matching runner; the publish job only publishes those tarballs and must not repack them on Ubuntu. The wasm package is platform-neutral and may be packed on any runner. For local release checks, build and stage the current platform first, then use `npm pack --dry-run` because `pnpm pack` does not provide a dry-run mode:
 
@@ -434,22 +399,21 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Korean
 
-Java의 StAX(Streaming API for XML)에서 영감을 받은 성능 중심 pull 방식 JavaScript/TypeScript XML 파서입니다. StAX-XML은 빠른 동기 파싱 경로, optional native acceleration, 그리고 전체 문서를 하나의 JavaScript 문자열로 만들지 않아도 되는 byte-batch API를 중심으로 설계되어 있습니다. 파일/네트워크 I/O를 non-blocking으로 유지해야 하면 async stream을 사용하고, batch job에서 현재 worker/thread를 막아도 된다면 Promise overhead가 없는 sync iterable 경로를 사용하세요.
+Java의 StAX(Streaming API for XML)에서 영감을 받은 성능 중심 pull 방식 JavaScript/TypeScript XML 파서입니다. StAX-XML은 converter API, event reader, projection helper, optional native acceleration, 그리고 파일 I/O를 하나의 JavaScript 문자열로 강제하지 않는 stream API를 중심으로 설계되어 있습니다. 목표 output shape를 알고 있다면 converter API를 먼저 사용하세요. 전체 XML 순회가 필요할 때 가벼운 per-event 작업이면 `EventReader`/`EventReaderSync`를 먼저 시도하고, unknown-schema projection 또는 object materialization이 무거우면 `ProjectionReader`를 사용하세요.
 
 현재 릴리스 벤치마크 기준으로 StAX-XML은 대용량 XML workload에서 JavaScript 생태계의 XML parser package 중 최상위권 처리량을 보입니다. JavaScript byte-batch parser는 Node, Bun, Deno, browser, edge runtime에서 동작하고, native addon을 허용하는 Node.js 환경에서는 배포된 `@stax-xml/native-*` optional package가 가장 빠른 경로를 제공합니다.
 
 ### 🚀 주요 기능
 
-- **빠른 동기 byte-batch 파싱**: 대용량 `Uint8Array`/`Buffer` chunk stream을 하나의 전체 XML 문자열로 만들지 않고 동기적으로 파싱
-- **기본 native acceleration**: `stax-xml` 설치만으로 현재 platform에 맞는 `@stax-xml/native-*` optional package가 설치되며, wasm/JavaScript fallback을 유지
-- **저오버헤드 iterable API**: batch 단위 event frame에서 name, text, attribute를 필요할 때만 복사하여 hot path의 per-event object churn을 줄임
+- **빠른 event-reader 파싱**: 사용 가능한 경우 native/Wasm acceleration을 적용해 `EventReaderSync` 또는 `EventReader`로 XML 파싱
+- **기본 native acceleration**: `stax-xml` 설치만으로 현재 platform에 맞는 `@stax-xml/native-*` optional package가 설치되며, Node 성능 경로는 native를 요구하고 wasm은 명시 opt-in 호환 backend로만 사용
 - **Async stream parser**: 파일/네트워크 I/O는 non-blocking으로 유지하고, 도착한 byte batch는 parser가 동기적으로 소비
-- **커서 Reader API**: one-event-at-a-time 순회를 위한 `IterableReader` 위의 얇은 cursor-style wrapper
+- **ProjectionReader API**: txml-style document node와 lower-level row projection을 위한 native/Wasm-backed unknown-schema projection
 - **선언적 Converter API**: XPath를 지원하는 타입 안전 XML 파싱/쓰기용 Zod 스타일 스키마 API
 - **양방향 변환**: XML을 객체로 파싱하고 객체를 다시 XML로 작성
 - **동기 sink 쓰기**: 대용량 XML 출력에 권장되는 고처리량 경로
 - **사용자 정의 매핑**: 단순한 JSON 객체가 아닌 원하는 구조로 XML 데이터 매핑 가능
-- **범용 호환성**: Node.js, Bun, Deno, 웹 브라우저에서 동작하며, 브라우저 고성능 경로는 WebAssembly를 권장하고 순수 JavaScript 파서는 호환 fallback으로 유지
+- **런타임 호환성**: Node 성능 계약은 native package가 담당하고, WebAssembly는 non-native 환경을 위한 명시적 호환 backend로 제공
 - **네임스페이스 지원**: 기본 XML 네임스페이스 처리
 - **엔티티 지원**: 사용자 정의 엔티티 지원을 포함한 내장 엔티티 디코딩
 - **Fragment 기본 모드**: `documentMode` 기본값은 `'fragment'`이며, XML document shape 검사는 `'document'`로 선택 적용
@@ -476,56 +440,43 @@ deno add npm:stax-xml
 
 ### 🔧 빠른 시작
 
-StAX-XML은 여러 parsing surface를 제공합니다. 실행 경계에 맞는 API를 선택하세요:
+StAX-XML은 여러 parsing surface를 제공합니다. 목표 shape를 알고 있다면 converter API를 우선 사용하고, 남은 작업에는 가장 낮은 수준의 reader를 선택하세요:
 
 | Workload | 권장 API | 이유 |
 | --- | --- | --- |
-| 현재 worker/thread를 막아도 되는 대용량 로컬 파일 또는 batch job | `stax-xml/iterable` 또는 `stax-xml/iterable/node` | 빠른 동기 byte-batch 파싱, Promise overhead 없음, 전체 문자열 강제 없음 |
+| known XML-to-object 매핑 | `stax-xml/converter` | 우선 권장: XPath, projection routing, writer를 지원하는 typed schema API |
+| 가벼운 per-event 작업을 위한 전체 XML 순회 | `EventReader` / `EventReaderSync` | object retention을 최소화하는 lean event iteration과 optional native acceleration |
+| 무거운 unknown-schema materialization을 위한 전체 XML 순회 | `stax-xml/projection` | txml-style document node와 native projection path를 제공하는 `ProjectionReader`와 `parseXmlNodes*()` |
 | 파일/네트워크 I/O를 non-blocking으로 유지해야 하는 작업 | `EventReader` | `ReadableStream<Uint8Array>` 기반 async iterator |
-| ergonomic event 순회 | `CursorReader` | iterable backend 위의 cursor-style accessor |
-| XML-to-object 매핑 | `stax-xml/converter` | XPath와 writer를 지원하는 typed schema API |
 
-#### 빠른 동기 대용량 파일 파싱
+#### 빠른 동기 event 파싱
 
-Node batch job에서는 파일을 고정 크기 byte chunk로 동기적으로 읽고 파싱할 수 있습니다. 이 경로는 `fs.readFileSync(path, 'utf8')`를 요구하지 않고, 전체 XML 문자열을 메모리에 유지하지 않으며, async iterator/Promise overhead도 피합니다.
+XML string이 이미 메모리에 있고 counting, filtering, checksum처럼 가벼운 per-event 작업만 필요하다면 `EventReaderSync`를 사용하세요. 지원 platform에서 native 또는 Wasm backend를 선택하려면 runtime을 한 번 초기화합니다.
 
 ```typescript
-import {
-  IterableEventType,
-  NodeIterableReader,
-  nodeFileByteBatchesSync
-} from 'stax-xml/iterable/node';
+import { EventReaderSync, initStaxXml, XmlEventType } from 'stax-xml';
 
-const parser = new NodeIterableReader(
-  nodeFileByteBatchesSync('./large.xml', {
-    chunkSize: 1024 * 1024,
-    batchSize: 16
-  })
-);
+await initStaxXml({ backend: 'auto' });
 
 let elementCount = 0;
 
-while (parser.nextBatch()) {
-  for (let index = 0; index < parser.eventCount(); index++) {
-    if (parser.eventType(index) === IterableEventType.START_ELEMENT) {
-      elementCount++;
-      // name/text/attribute는 요청할 때만 복사합니다.
-      console.log(parser.copyName(index));
-    }
+for (const event of new EventReaderSync('<root><item id="1">안녕</item></root>')) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    elementCount++;
+    console.log(event.name);
   }
 }
 
 console.log(`처리한 전체 요소 수: ${elementCount}`);
 ```
 
-portable byte source에는 `stax-xml/iterable`의 `IterableReader`와 `Iterable<Uint8Array[]>` batch를 사용하세요. Node의 `Buffer` 전용 file helper 없이 같은 동기 파싱 모델을 사용할 수 있습니다.
-
 #### Unknown XML을 Tree 또는 Object로 파싱
 
-목표 shape를 알고 있다면 converter API를 사용하세요. 스키마가 없는 unknown XML을 빠르게 확인해야 한다면 convenience helper를 사용할 수 있습니다:
+목표 shape를 알고 있다면 converter API를 사용하세요. 스키마가 없는 unknown XML을 확인하거나 materialize해야 하고 작업이 가벼운 event 순회보다 무겁다면 projection helper를 사용할 수 있습니다:
 
 - `parseXmlTree()` / `parseXmlTreeSync()`는 Python ElementTree와 비슷한 순서 보존 tree를 반환합니다.
 - `parseXmlObject()` / `parseXmlObjectSync()`는 txml 또는 fast-xml-parser처럼 compact JavaScript object를 반환합니다.
+- `stax-xml/projection`의 `parseXmlNodes()` / `parseXmlNodesSync()`는 txml-style node array를 반환하며 native projection backend를 사용할 수 있습니다.
 
 ```typescript
 import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
@@ -600,27 +551,6 @@ const result = await bookSchema.parse(xml);
 
 // XML로 다시 쓰기
 const newXml = await bookSchema.write(result, { rootElement: 'book' });
-```
-
-#### Cursor Reader API (IterableParser Wrapper)
-
-cursor 순회를 선호하는 코드에서는 `stax-xml/cursor` subpath의 cursor API를 사용하세요. 이 API는 iterable parser backend 위의 얇은 wrapper이며 `name()`, `text()`, `getAttributeValue()` 같은 one-event-at-a-time accessor를 제공합니다.
-
-```typescript
-import { CursorEventType, CursorReader } from 'stax-xml/cursor';
-
-const cursor = new CursorReader('<root><item id="1">안녕</item></root>');
-
-while (cursor.next()) {
-  if (cursor.eventType() === CursorEventType.START_ELEMENT) {
-    console.log(cursor.name());
-    console.log(cursor.getAttributeValue('id'));
-  }
-
-  if (cursor.eventType() === CursorEventType.CHARACTERS) {
-    console.log(cursor.text());
-  }
-}
 ```
 
 파일 또는 네트워크 I/O를 non-blocking으로 유지해야 한다면 `EventReader`를 사용하세요. 공개 API는 `ReadableStream<Uint8Array>` 위의 async iterator이고, backend는 도착한 byte batch를 동기적으로 파싱합니다:
@@ -765,7 +695,7 @@ StAX-XML은 웹 표준 API 기반의 기본 호환성을 유지하여 다음 환
 - **웹 브라우저** (최신 브라우저)
 - **Edge Runtime** (Vercel, Cloudflare Workers 등)
 
-브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 우선 권장합니다. 순수 JavaScript 파서는 Wasm을 로드할 수 없거나, 교차 출처 격리를 사용할 수 없거나, 바이너리 없는 정책이 필요한 환경을 위한 호환 fallback으로 유지합니다.
+브라우저에서 처리량이 중요한 워크로드에는 WebAssembly 런타임을 명시적으로 선택하세요. Node에서 광고하는 성능 경로는 native package를 필요로 하며, JavaScript parser로 조용히 fallback하지 않습니다.
 
 #### Native 및 Wasm 해석
 
