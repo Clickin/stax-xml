@@ -73,8 +73,6 @@ API selection guidance:
 - For whole-XML traversal with light per-event work, start with `EventReader` or `EventReaderSync`.
 - For heavier unknown-schema projection or object materialization, use `ProjectionReader` and the `stax-xml/projection` helpers.
 
-- `stax-xml JS reference event parser`: internal lean `EventReaderSync` reference loop with a checksum over event type, names, text, and attributes.
-- `stax-xml JS reference event parser decode+parse`: byte-source reference path that pays `Buffer.toString("utf8")` inside the timed region before running lean `EventReaderSync`.
 - `stax-xml StreamReaderSync (native)`: public lean byte-batch pull reader backed by `initStaxXml({ backend: "native" })` and the native streaming runtime. Headline native wrapper claims require this row to stay at least `0.90x` the direct native addon full-spec file-input control row. Falling below that floor remains tracked optimization evidence for raising the public surface, not a reason to remove the row or lower the final spec.
 - `stax-xml EventReaderSync (native reference)`: ergonomic string event iterator backed by the native runtime. It remains measured as a reference row for object/iterator overhead, but it is not the 0.9x gate target.
 - `stax-xml ProjectionReader parseXmlNodes (native)`: public unknown-schema object projection returning txml-style nodes through `stax-xml/projection`.
@@ -142,7 +140,7 @@ Measurement policy:
 <BenchmarkSection locale="en" section="npm-xml-parsers" />
 
 **Performance Crossover Analysis:**
-- **Small files (2-4KB)**: compare the generated table directly; the stax-xml rows show native reader paths with JS reference rows beside third-party parsers
+- **Small files (2-4KB)**: compare the generated table directly; the stax-xml rows focus on the surviving native/public surfaces beside third-party parsers
 - **Medium files (13MB)**: xml2js is excluded from whole-document conclusions because it only reports the first top-level element shape; use the stax-xml backend/surface rows and the remaining parser rows for this fixture
 - **Large files (98MB)**: compare the generated table directly; throughput and memory trade-offs move by parser and fixture
 - **Very large files (1GB+)**: `EventReader` streams avoid retaining one full XML string; the public sync string parser remains the in-memory path
@@ -150,7 +148,7 @@ Measurement policy:
 
 ### EventReader Stream Traversal (1MiB to 1GiB default)
 
-stax-xml JS reference vs native traversal over bounded file chunks:
+stax-xml native traversal over bounded file chunks:
 
 <details>
 <summary>Scenario contract: EventReader stream JS and native file traversal</summary>
@@ -183,7 +181,6 @@ parse-result = {
 Parsing methods:
 
 - Every row in this section uses the public `EventReader` stream API over bounded temp-file chunks.
-- `EventReader stream JS reference` measures the internal JavaScript reference reader. It is not the advertised Node performance path.
 - `EventReader stream native` initializes the package with the native backend before measuring the same stream reader API.
 - XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.
 - These rows intentionally use a structural checksum rather than building a full object tree so the table measures stream tokenization and event materialization.

@@ -3,16 +3,6 @@ import { parseXmlNodesSync } from 'stax-xml/projection';
 
 export const STAX_PARSER_SURFACE_SCENARIOS = [
   {
-    label: 'stax-xml EventReaderSync (JS reference)',
-    display: 'stax-xml EventReaderSync (JS reference)',
-    notes: 'Internal JavaScript reference reader; not a public Node performance fallback',
-  },
-  {
-    label: 'stax-xml EventReaderSync (JS reference decode+parse)',
-    display: 'stax-xml EventReaderSync (JS reference decode+parse)',
-    notes: 'Reference byte-source path: Buffer.toString plus lean string event reader',
-  },
-  {
     label: 'stax-xml StreamReaderSync (native)',
     display: '**stax-xml StreamReaderSync (native)**',
     notes: 'Public lean byte-stream reader backed by the initialized native streaming runtime',
@@ -40,14 +30,6 @@ export async function ensureNativeReaderRuntime() {
 
 export function createStaxParserSurfaceRunners({ xmlString, inputBuffer }) {
   return [
-    {
-      label: 'stax-xml EventReaderSync (JS reference)',
-      run: () => consumeStaxXmlEventReader(xmlString, 'js'),
-    },
-    {
-      label: 'stax-xml EventReaderSync (JS reference decode+parse)',
-      run: () => consumeStaxXmlEventReader(inputBuffer.toString('utf8'), 'js'),
-    },
     {
       label: 'stax-xml StreamReaderSync (native)',
       run: () => consumeStaxXmlStreamReader(inputBuffer),

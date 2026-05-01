@@ -173,10 +173,7 @@ function buildTable(section: Section): TableModel | null {
     }),
   });
   const staxSurfaceRows = (suiteId: string): Array<[string, string | string[], string]> => {
-    const rows: Array<[string, string | string[], string]> = [
-      ['stax-xml EventReaderSync (JS)', ['stax-xml EventReaderSync (JS)', 'stax-xml JS fallback event parser'], locale === 'en' ? 'Public lean string event reader, JS backend' : 'Public lean string event reader, JS backend'],
-      ['stax-xml EventReaderSync (JS decode+parse)', ['stax-xml EventReaderSync (JS decode+parse)', 'stax-xml JS fallback event parser decode+parse'], locale === 'en' ? 'Byte-source path: Buffer.toString plus lean event reader' : 'Byte source: Buffer.toString + lean event reader'],
-    ];
+    const rows: Array<[string, string | string[], string]> = [];
     if (findSuiteCase(suiteId, 'stax-xml EventReaderSync (native)')) {
       rows.push(['**stax-xml EventReaderSync (native)**', 'stax-xml EventReaderSync (native)', locale === 'en' ? 'Public lean string event reader, native runtime backend' : 'Public lean string event reader, native runtime backend']);
     } else if (findSuiteCase(suiteId, 'stax-xml native NodeIterableReader')) {
@@ -217,7 +214,6 @@ function buildTable(section: Section): TableModel | null {
           ? [['**stax-xml NodeIterableReader (native)**', 'stax-xml NodeIterableReader (native)', locale === 'en' ? 'Legacy public NodeIterableReader row from an older benchmark snapshot' : '이전 benchmark snapshot의 legacy public NodeIterableReader row']]
           : [];
         return parserRows('npm-xml-parsers', [
-        ['stax-xml EventReaderSync (JS)', 'stax-xml EventReaderSync (JS)', locale === 'en' ? 'Public string event reader, JS backend' : 'Public string event reader, JS backend'],
         ...nativeRows,
         ...(findSuiteCaseAny('npm-xml-parsers', 'stax-xml ProjectionReader parseXmlNodes (native)')
           ? [['**stax-xml ProjectionReader parseXmlNodes (native)**', 'stax-xml ProjectionReader parseXmlNodes (native)', locale === 'en' ? 'Public unknown-schema object projection through stax-xml/projection' : 'Public unknown-schema object projection through stax-xml/projection']] as Array<[string, string, string]>
@@ -256,20 +252,13 @@ function buildTable(section: Section): TableModel | null {
       ];
       const sizeRows = candidateSizeRows.filter(([suiteId]) => hasSuite(suiteId));
       return {
-        headers: ['File Size', 'Parser Type', 'Processing Time', 'Memory Usage', 'Performance Ratio'],
-        rows: sizeRows.flatMap(([suiteId, size]) => {
-          const syncEventStats = suiteCaseAny(suiteId, [
-            `EventReader stream JS fallback (${size} temp file)`,
-            `sync Iterable parser (${size} temp file)`,
-          ]);
+        headers: ['File Size', 'Parser Type', 'Processing Time', 'Memory Usage', 'Throughput'],
+        rows: sizeRows.map(([suiteId, size]) => {
           const nativeEventStats = suiteCaseAny(suiteId, [
             `EventReader stream native (${size} temp file)`,
             `async Iterable parser (${size} temp file)`,
           ]);
-          return [
-            [`${size} temp file`, '**EventReader stream JS fallback**', formatDurationNsCompact(syncEventStats.avgNs), formatMemory(syncEventStats.heapAvgBytes), `${locale === 'en' ? 'Baseline' : '기준선'}, ${formatThroughput(syncEventStats)}`],
-            [`${size} temp file`, 'EventReader stream native', formatDurationNsCompact(nativeEventStats.avgNs), formatMemory(nativeEventStats.heapAvgBytes), `${formatRelative(nativeEventStats, syncEventStats)}, ${formatThroughput(nativeEventStats)}`],
-          ];
+          return [`${size} temp file`, '**EventReader stream native**', formatDurationNsCompact(nativeEventStats.avgNs), formatMemory(nativeEventStats.heapAvgBytes), `${formatThroughput(nativeEventStats)}`];
         }),
       };
     }

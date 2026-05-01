@@ -704,7 +704,6 @@ async function registerNpmXmlParserSuite() {
 
   barplot(() => {
     summary(() => {
-      bench('stax-xml EventReaderSync (JS)', () => consumeStaxEventReader(xmlString, 'js')).gc('inner');
       bench('stax-xml EventReaderSync (native)', () => consumeStaxEventReader(xmlString, 'native')).gc('inner');
       bench('stax-xml ProjectionReader parseXmlNodes (native)', () => {
         parseXmlNodesSync(inputBuffer, { backend: 'native' });
@@ -1211,16 +1210,6 @@ async function runIterableParserSizeSuite(verbose) {
 
     raw.cases.push({
       ...await measureLargeFileCase(
-        `EventReader stream JS fallback (${fixture.label} temp file)`,
-        fixture.bytes,
-        (onProgress) => parseEventReaderFile(fixture.filePath, 'js', onProgress),
-      ),
-      fixtureLabel: fixture.label,
-      bytes: fixture.bytes,
-      targetBytes: fixture.targetBytes,
-    });
-    raw.cases.push({
-      ...await measureLargeFileCase(
         `EventReader stream native (${fixture.label} temp file)`,
         fixture.bytes,
         (onProgress) => parseEventReaderFile(fixture.filePath, 'native', onProgress),
@@ -1280,11 +1269,6 @@ async function runAsyncFile4gbSuite(verbose) {
     cases: [],
   };
 
-  raw.cases.push(await measureLargeFileCase(
-    'EventReader stream JS fallback (4GiB temp file)',
-    fixture.bytes,
-    (onProgress) => parseEventReaderFile(fixture.filePath, 'js', onProgress),
-  ));
   raw.cases.push(await measureLargeFileCase(
     'EventReader stream native (4GiB temp file)',
     fixture.bytes,
@@ -1790,18 +1774,11 @@ function renderAsyncSizeTable(summary) {
   ].filter(([suiteId]) => hasSuite(summary, suiteId));
 
   return [
-    '| File Size | Parser Type | Processing Time | Memory Usage | Performance Ratio |',
-    '|-----------|-------------|-----------------|--------------|-------------------|',
-    ...sizeRows.flatMap(([suiteId, size]) => {
-      const syncStats = suiteCase(summary, suiteId, `EventReader stream JS fallback (${size} temp file)`);
+    '| File Size | Parser Type | Processing Time | Memory Usage | Throughput |',
+    '|-----------|-------------|-----------------|--------------|------------|',
+    ...sizeRows.map(([suiteId, size]) => {
       const asyncStats = suiteCase(summary, suiteId, `EventReader stream native (${size} temp file)`);
-      const asyncRatio = asyncStats.avgNs >= syncStats.avgNs
-        ? `${(asyncStats.avgNs / syncStats.avgNs).toFixed(2)}x slower`
-        : `${(syncStats.avgNs / asyncStats.avgNs).toFixed(2)}x faster`;
-      return [
-        `| ${size} temp file | **EventReader stream JS fallback** | ${formatDurationNsCompact(syncStats.avgNs)} | ${formatMemory(syncStats.heapAvgBytes)} | Baseline, ${syncStats.throughputMiBs.toFixed(2)} MiB/s |`,
-        `| ${size} temp file | EventReader stream native | ${formatDurationNsCompact(asyncStats.avgNs)} | ${formatMemory(asyncStats.heapAvgBytes)} | ${asyncRatio}, ${asyncStats.throughputMiBs.toFixed(2)} MiB/s |`,
-      ];
+      return `| ${size} temp file | **EventReader stream native** | ${formatDurationNsCompact(asyncStats.avgNs)} | ${formatMemory(asyncStats.heapAvgBytes)} | ${asyncStats.throughputMiBs.toFixed(2)} MiB/s |`;
     }),
   ].join('\n');
 }
@@ -1847,7 +1824,6 @@ function asyncSizeMaxLabel(summary) {
 
 function renderNpmXmlParserTable(summary) {
   const rows = [
-    ['stax-xml EventReaderSync (JS)', 'stax-xml EventReaderSync (JS)', 'Public lean string event reader, JS backend'],
     ['stax-xml EventReaderSync (native)', '**stax-xml EventReaderSync (native)**', 'Public lean string event reader, native runtime backend'],
     ['stax-xml ProjectionReader parseXmlNodes (native)', '**stax-xml ProjectionReader parseXmlNodes (native)**', 'Public unknown-schema object projection through stax-xml/projection'],
     ['fast-xml-parser XMLParser', 'fast-xml-parser XMLParser', 'Object parser'],
@@ -2144,8 +2120,6 @@ function createParserScenarioDetails() {
     '- For whole-XML traversal with light per-event work, start with `EventReader` or `EventReaderSync`.',
     '- For heavier unknown-schema projection or object materialization, use `ProjectionReader` and the `stax-xml/projection` helpers.',
     '',
-    '- `stax-xml JS fallback event parser`: lean `EventReaderSync` event loop with a checksum over event type, names, text, and attributes. The XML string is prepared outside the timed region, matching string-only library API-native rows.',
-    '- `stax-xml JS fallback event parser (decode+parse)`: byte-source application path that pays `Buffer.toString("utf8")` inside the timed region before running lean `EventReaderSync`.',
     '- `stax-xml EventReaderSync (native)`: public lean string event reader backed by `initStaxXml({ backend: "native" })`; no private native diagnostic entry point is imported or called directly.',
     '- `stax-xml ProjectionReader parseXmlNodes (native)`: public unknown-schema object projection returning txml-style nodes through `stax-xml/projection`.',
     '- `stax-xml to object`: `parseXmlNodesSync` through the JavaScript fallback, kept as the stax object-shape reference row.',
@@ -2215,7 +2189,6 @@ function createLargeFileScenarioDetails(summary) {
     'Parsing methods:',
     '',
     '- Every row in this section uses the public `EventReader` stream API over bounded temp-file chunks.',
-    '- `EventReader stream JS fallback` initializes the package with the JavaScript backend before measuring the stream reader.',
     '- `EventReader stream native` initializes the package with the native backend before measuring the same stream reader API.',
     '- XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.',
     '- These rows intentionally use a structural checksum rather than building a full object tree so the table measures stream tokenization and event materialization.',

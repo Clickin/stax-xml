@@ -73,8 +73,6 @@ API 선택 기준:
 - 전체 XML 순회가 필요하고 per-event 작업이 가볍다면 `EventReader` 또는 `EventReaderSync`를 먼저 시도합니다.
 - unknown-schema projection이나 object materialization이 무겁다면 `ProjectionReader`와 `stax-xml/projection` helper를 사용합니다.
 
-- `stax-xml JS reference event parser`: 내부/reference lean `EventReaderSync` loop에서 event type, name, text, attribute checksum을 계산합니다.
-- `stax-xml JS reference event parser decode+parse`: byte-source reference path로, timed region 안에서 `Buffer.toString("utf8")` 비용을 지불한 뒤 lean `EventReaderSync`를 실행합니다.
 - `stax-xml StreamReaderSync (native)`: `initStaxXml({ backend: "native" })`와 native streaming runtime으로 구동되는 public lean byte-batch pull reader입니다. headline native wrapper claim은 이 row가 direct native addon full-spec file-input control row의 `0.90x` 이상일 때만 허용합니다. 이 floor에 못 미치는 결과는 row 삭제나 final spec 하향의 이유가 아니라 public surface를 끌어올리기 위한 최적화 evidence로 남깁니다.
 - `stax-xml EventReaderSync (native reference)`: native runtime으로 구동되는 ergonomic string event iterator입니다. object/iterator overhead를 추적하는 reference row로 계속 측정하지만, 0.9x gate 대상은 아닙니다.
 - `stax-xml ProjectionReader parseXmlNodes (native)`: `stax-xml/projection`을 통해 txml-style node를 반환하는 public unknown-schema object projection입니다.
@@ -142,14 +140,14 @@ large.xml (98MB) 성능 결과:
 <BenchmarkSection locale="ko" section="npm-xml-parsers" />
 
 **성능 교차점 분석:**
-- **소형 파일 (2-4KB)**: 생성된 표를 직접 기준으로 봅니다. stax-xml 행은 native reader path와 JS reference row를 타 라이브러리와 같은 표에 보여줍니다
+- **소형 파일 (2-4KB)**: 생성된 표를 직접 기준으로 봅니다. stax-xml 행은 살아남은 native/public surface만 타 라이브러리와 같은 표에 보여줍니다
 - **중형 파일 (13MB)**: xml2js는 첫 top-level element shape만 반환하므로 whole-document 결론에서는 제외합니다. 이 fixture는 stax-xml backend/surface 행과 나머지 parser 행을 기준으로 봅니다
 - **대형 파일 (98MB)**: parser와 fixture에 따라 처리량과 메모리 trade-off가 달라지므로 생성된 표를 직접 기준으로 봅니다
 - **초대형 파일 (1GB+)**: `EventReader` stream은 전체 XML string 보관을 피할 수 있습니다. public sync string parser는 in-memory 경로입니다
 
 ### EventReader Stream Traversal (기본 1MiB ~ 1GiB)
 
-bounded file chunk 위에서 stax-xml JS reference/native traversal을 비교합니다:
+bounded file chunk 위에서 stax-xml native traversal을 비교합니다:
 
 <details>
 <summary>Scenario contract: EventReader stream JS/native file traversal</summary>
@@ -182,7 +180,6 @@ parse-result = {
 파싱 방법:
 
 - 이 섹션의 모든 row는 bounded temp-file chunk 위에서 public `EventReader` stream API를 사용합니다.
-- `EventReader stream JS reference`는 내부 JavaScript reference reader를 측정합니다. 광고되는 Node 성능 경로가 아닙니다.
 - `EventReader stream native`는 native backend로 package를 초기화한 뒤 같은 stream reader API를 측정합니다.
 - XML tokenization은 CPU-intensive 작업입니다. async file read를 사용해도 parse loop 자체가 non-blocking이 되지는 않으므로, latency-sensitive main event loop thread에서 실행해야 한다면 Worker 또는 worker thread로 offload할지 결정하세요.
 - 이 row들은 full object tree를 만들지 않고 structural checksum을 사용하므로 stream tokenization과 event materialization 비용을 측정합니다.
