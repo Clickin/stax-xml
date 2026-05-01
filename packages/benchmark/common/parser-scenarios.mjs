@@ -41,11 +41,11 @@ export async function ensureNativeReaderRuntime() {
 export function createStaxParserSurfaceRunners({ xmlString, inputBuffer }) {
   return [
     {
-      label: 'stax-xml EventReaderSync (JS)',
+      label: 'stax-xml EventReaderSync (JS reference)',
       run: () => consumeStaxXmlEventReader(xmlString, 'js'),
     },
     {
-      label: 'stax-xml EventReaderSync (JS decode+parse)',
+      label: 'stax-xml EventReaderSync (JS reference decode+parse)',
       run: () => consumeStaxXmlEventReader(inputBuffer.toString('utf8'), 'js'),
     },
     {

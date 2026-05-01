@@ -22,6 +22,7 @@ import {
   WriterSync,
   WriterSyncSink,
 } from 'stax-xml';
+import { resetStaxXmlRuntimeForTests } from 'stax-xml/runtime';
 import { parseXmlNodesSync } from 'stax-xml/projection';
 import {
   createStaxParserSurfaceRunners,
@@ -1069,7 +1070,11 @@ function consumeMaterializedEvent(event, state) {
 }
 
 async function parseEventReaderFile(filePath, backend, onProgress) {
-  await initStaxXml({ backend, fallbackOnLoadError: false });
+  if (backend === 'js') {
+    resetStaxXmlRuntimeForTests();
+  } else {
+    await initStaxXml({ backend, fallbackOnLoadError: false });
+  }
   const reader = new EventReader(fileReadableStream(filePath), {
     autoDecodeEntities: false,
     documentMode: 'document',

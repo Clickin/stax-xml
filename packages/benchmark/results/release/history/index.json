@@ -1,6 +1,53 @@
 {
-  "generatedAt": "2026-04-29T13:24:14.131Z",
+  "generatedAt": "2026-05-01T14:59:33.380Z",
   "runs": [
+    {
+      "runId": "2026-05-01T14-59-32-687Z",
+      "generatedAt": "2026-05-01T14:59:32.687Z",
+      "environment": {
+        "runtime": "node",
+        "version": "24.15.0",
+        "arch": "x64-win32"
+      },
+      "artifacts": [
+        {
+          "id": "benchmark-markdown",
+          "path": "2026-05-01T14-59-32-687Z/BENCHMARK.md"
+        },
+        {
+          "id": "latest-summary-json",
+          "path": "2026-05-01T14-59-32-687Z/latest-summary.json"
+        },
+        {
+          "id": "runtime-matrix-json",
+          "path": "2026-05-01T14-59-32-687Z/runtime-matrix.json"
+        },
+        {
+          "id": "runtime-matrix-markdown",
+          "path": "2026-05-01T14-59-32-687Z/runtime-matrix.md"
+        },
+        {
+          "id": "cross-runtime-json",
+          "path": "2026-05-01T14-59-32-687Z/cross-runtime-comparison.json"
+        },
+        {
+          "id": "cross-runtime-markdown",
+          "path": "2026-05-01T14-59-32-687Z/cross-runtime-comparison.md"
+        },
+        {
+          "id": "simdxml-upstream-json",
+          "path": "2026-05-01T14-59-32-687Z/simdxml-upstream-comparison.json"
+        },
+        {
+          "id": "simdxml-upstream-markdown",
+          "path": "2026-05-01T14-59-32-687Z/simdxml-upstream-comparison.md"
+        },
+        {
+          "id": "writer-1gb-raw-json",
+          "path": "2026-05-01T14-59-32-687Z/raw/writer-1gb.json"
+        }
+      ]
+    },
     {
       "runId": "2026-04-29T13-24-14-087Z",
       "generatedAt": "2026-04-29T13:24:14.087Z",

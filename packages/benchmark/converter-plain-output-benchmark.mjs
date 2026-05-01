@@ -9,6 +9,7 @@ import { parseMitataCliArgs, runMitataWithCli } from './common/mitata-cli.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const cli = parseMitataCliArgs();
+const RUNTIME_STATE_KEY = Symbol.for('stax-xml.runtime.state');
 
 const catalogSchema = x.object({
   summary: x.object({
@@ -270,12 +271,38 @@ function assertProjectionRecords(result, expectedRowCount) {
 async function initializeNativeProjection() {
   try {
     const runtime = await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
+    nativeProjectionRuntime = runtime;
     return runtime.backend.kind === 'native'
       && typeof runtime.capabilities.objectRowsProjection === 'function'
       && typeof runtime.capabilities.objectRecordsProjection === 'function';
   } catch (error) {
     console.warn(`Native projection benchmark unavailable: ${error instanceof Error ? error.message : String(error)}`);
     return false;
+  }
+}
+
+function parseProjectionCompiledJs(bytes, schema) {
+  return withInitializedRuntime(undefined, () => schema.parseSync(bytes));
+}
+
+function parseProjectionCompiledNative(bytes, schema) {
+  if (!nativeProjectionRuntime) {
+    throw new Error('Native projection runtime is not initialized.');
+  }
+  return withInitializedRuntime(nativeProjectionRuntime, () =>
+    schema.parseSync(bytes, { acceleration: { backend: 'native' } })
+  );
+}
+
+function withInitializedRuntime(runtime, fn) {
+  const stateHost = globalThis;
+  const state = stateHost[RUNTIME_STATE_KEY] ??= {};
+  const previous = state.initializedRuntime;
+  state.initializedRuntime = runtime;
+  try {
+    return fn();
+  } finally {
+    state.initializedRuntime = previous;
   }
 }
 
@@ -345,17 +372,14 @@ const nestedProjectionSchema = x.array(
   '//entry'
 ).compile();
 const projectionReader = new ProjectionReader();
+let nativeProjectionRuntime;
 const nativeProjectionAvailable = await initializeNativeProjection();
 
 const plainOutput = parsePlainCatalogSync(xml);
 const converterOutput = catalogSchema.parseSync(xml);
 const compiledOutput = compiledSchema.parseSync(xml);
-const projectionJsOutput = projectionSchema.parseSync(projectionBytes, {
-  acceleration: { backend: 'js' }
-});
-const nestedProjectionJsOutput = nestedProjectionSchema.parseSync(nestedProjectionBytes, {
-  acceleration: { backend: 'js' }
-});
+const projectionJsOutput = parseProjectionCompiledJs(projectionBytes, projectionSchema);
+const nestedProjectionJsOutput = parseProjectionCompiledJs(nestedProjectionBytes, nestedProjectionSchema);
 
 assertSameOutput(plainOutput, converterOutput);
 assertSameOutput(plainOutput, compiledOutput);
@@ -372,12 +396,8 @@ assertSameOutput(nestedProjectionJsOutput, Array.from({ length: nestedProjection
 })));
 
 if (nativeProjectionAvailable) {
-  const projectionNativeOutput = projectionSchema.parseSync(projectionBytes, {
-    acceleration: { backend: 'native' }
-  });
-  const nestedProjectionNativeOutput = nestedProjectionSchema.parseSync(nestedProjectionBytes, {
-    acceleration: { backend: 'native' }
-  });
+  const projectionNativeOutput = parseProjectionCompiledNative(projectionBytes, projectionSchema);
+  const nestedProjectionNativeOutput = parseProjectionCompiledNative(nestedProjectionBytes, nestedProjectionSchema);
   assertSameOutput(projectionNativeOutput, projectionJsOutput);
   assertSameOutput(nestedProjectionNativeOutput, nestedProjectionJsOutput);
   assertProjectionRows(
@@ -412,18 +432,14 @@ function measure(label, fn) {
 measure('plain-parser', () => parsePlainCatalogSync(xml));
 measure('converter-api', () => catalogSchema.parseSync(xml));
 measure('converter-api-compiled', () => compiledSchema.parseSync(xml));
-measure('converter-api-compiled-js-byte-projection', () =>
-  projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'js' } })
-);
-measure('converter-api-compiled-js-byte-projection-nested-path', () =>
-  nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'js' } })
-);
+measure('converter-api-compiled-js-byte-projection', () => parseProjectionCompiledJs(projectionBytes, projectionSchema));
+measure('converter-api-compiled-js-byte-projection-nested-path', () => parseProjectionCompiledJs(nestedProjectionBytes, nestedProjectionSchema));
 if (nativeProjectionAvailable) {
   measure('converter-api-compiled-native-byte-projection', () =>
-    projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'native' } })
+    parseProjectionCompiledNative(projectionBytes, projectionSchema)
   );
   measure('converter-api-compiled-native-byte-projection-nested-path', () =>
-    nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'native' } })
+    parseProjectionCompiledNative(nestedProjectionBytes, nestedProjectionSchema)
   );
   measure('projection-reader-native-object-rows', () =>
     projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' })
@@ -442,18 +458,14 @@ if (nativeProjectionAvailable) {
 bench('plain parser', () => parsePlainCatalogSync(xml));
 bench('converter api', () => catalogSchema.parseSync(xml));
 bench('converter api compiled', () => compiledSchema.parseSync(xml));
-bench('converter api compiled js byte projection', () =>
-  projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'js' } })
-);
-bench('converter api compiled js byte projection nested path', () =>
-  nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'js' } })
-);
+bench('converter api compiled js byte projection', () => parseProjectionCompiledJs(projectionBytes, projectionSchema));
+bench('converter api compiled js byte projection nested path', () => parseProjectionCompiledJs(nestedProjectionBytes, nestedProjectionSchema));
 if (nativeProjectionAvailable) {
   bench('converter api compiled native byte projection', () =>
-    projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'native' } })
+    parseProjectionCompiledNative(projectionBytes, projectionSchema)
   );
   bench('converter api compiled native byte projection nested path', () =>
-    nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'native' } })
+    parseProjectionCompiledNative(nestedProjectionBytes, nestedProjectionSchema)
   );
   bench('ProjectionReader native object rows', () =>
     projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' })
