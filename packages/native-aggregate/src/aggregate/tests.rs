@@ -1,6 +1,6 @@
 use super::*;
 #[cfg(feature = "napi-bindings")]
-use napi::bindgen_prelude::{Buffer, Uint8Array, Utf16String};
+use napi::bindgen_prelude::{Buffer, Uint8Array};
 
 #[test]
 fn tag_end_ignores_gt_inside_double_and_single_quotes() {
@@ -1698,27 +1698,7 @@ fn napi_wrappers_cover_native_entrypoints() {
             > 0
     );
     assert!(
-        parse_aggregate_string_utf16(
-            Utf16String::from(sample.to_owned()),
-            "count-only".to_owned(),
-        )
-        .unwrap()
-        .event_count
-            > 0
-    );
-
-    assert!(
-        !parse_span_table_string_utf16(Utf16String::from(sample.to_owned()))
-            .unwrap()
-            .is_empty()
-    );
-    assert!(
         !parse_span_table_uint8array(Uint8Array::from(bytes.clone()))
-            .unwrap()
-            .is_empty()
-    );
-    assert!(
-        !parse_structural_index_string_utf16(Utf16String::from(sample.to_owned()))
             .unwrap()
             .is_empty()
     );

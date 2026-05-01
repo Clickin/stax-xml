@@ -2702,22 +2702,6 @@ Defined in: [packages/stax-xml/src/runtime/native-backend.ts:22](https://github.
 
 `ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
 
-##### structuralIndexUtf16?
-
-> `optional` **structuralIndexUtf16?**: (`input`) => `ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L23)
-
-###### Parameters
-
-###### input
-
-`string`
-
-###### Returns
-
-`ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
-
 ##### streamingEventBatches?
 
 > `optional` **streamingEventBatches?**: [`StaxXmlStreamingEventBatchFactory`](#staxxmlstreamingeventbatchfactory)

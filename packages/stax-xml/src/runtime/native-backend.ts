@@ -20,7 +20,10 @@ export interface StaxXmlRuntimeBackend {
 
 export interface StaxXmlRuntimeCapabilities {
   structuralIndexUtf8?: (input: Uint8Array) => ArrayBuffer | ArrayBufferView;
-  structuralIndexUtf16?: (input: string) => ArrayBuffer | ArrayBufferView;
+  // The public stax-xml runtime intentionally canonicalizes text inputs to
+  // UTF-8 bytes before acceleration. Do not add string-native structural index
+  // capabilities back to this facade without re-evaluating the bytes-mainline
+  // policy and the large-input probes.
   streamingEventBatches?: StaxXmlStreamingEventBatchFactory;
   objectRowsProjection?: (input: Uint8Array, spec: unknown) => unknown;
   objectRecordsProjection?: (input: Uint8Array, spec: unknown) => unknown;
@@ -257,10 +260,6 @@ function createRuntimeCapabilities(backend: StaxXmlRuntimeBackend): StaxXmlRunti
     'parseStructuralIndexBuffer',
     'parseSpanTableUint8Array',
   ]);
-  const structuralIndexUtf16 = firstFunction(nativeModule, [
-    'parseStructuralIndexStringUtf16',
-    'parseSpanTableStringUtf16',
-  ]);
   const objectRowsProjection = firstFunction(nativeModule, [
     'parseObjectRowsUint8Array',
     'parseObjectRowsViaTableUint8Array',
@@ -285,7 +284,6 @@ function createRuntimeCapabilities(backend: StaxXmlRuntimeBackend): StaxXmlRunti
 
   return {
     structuralIndexUtf8: structuralIndexUtf8 as StaxXmlRuntimeCapabilities['structuralIndexUtf8'],
-    structuralIndexUtf16: structuralIndexUtf16 as StaxXmlRuntimeCapabilities['structuralIndexUtf16'],
     objectRowsProjection: objectRowsProjection as StaxXmlRuntimeCapabilities['objectRowsProjection'],
     objectRecordsProjection: objectRecordsProjection as StaxXmlRuntimeCapabilities['objectRecordsProjection'],
     createObjectProjectionPlan: createObjectProjectionPlan as StaxXmlRuntimeCapabilities['createObjectProjectionPlan'],

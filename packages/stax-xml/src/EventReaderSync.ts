@@ -67,15 +67,16 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
     }
 
     const runtime = getStaxXmlRuntimeForSyncApi(runtimeBackendPreference);
+    const xmlBytes = textEncoder.encode(xml);
 
     const directStructuralEvents = canUseDirectStructuralEvents(options);
-    const acceleratedParser = this.tryCreateStructuralIndexParser(xml, runtime, options, {
+    const acceleratedParser = this.tryCreateStructuralIndexParser(xmlBytes, runtime, options, {
       decodeEntities: directStructuralEvents ? options.autoDecodeEntities ?? true : false,
       trimText: directStructuralEvents,
     });
     this.directIterator = directStructuralEvents ? acceleratedParser : undefined;
     this.parser = acceleratedParser ?? createJavaScriptIterableReader(
-      toByteBatches([textEncoder.encode(xml)], { batchSize: 1 }),
+      toByteBatches([xmlBytes], { batchSize: 1 }),
       { documentMode: options.documentMode }
     );
     this.materializer = new IterableEventMaterializer({
@@ -88,20 +89,20 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
   }
 
   private tryCreateStructuralIndexParser(
-    xml: string,
+    xmlBytes: Uint8Array,
     runtime: ReturnType<typeof getStaxXmlRuntimeForSyncApi>,
     options: EventReaderSyncOptions,
     parserOptions: { decodeEntities: boolean; trimText: boolean },
   ): StaxXmlStructuralIndexParser | undefined {
-    const buildTable = runtime?.capabilities.structuralIndexUtf16;
+    const buildTable = runtime?.capabilities.structuralIndexUtf8;
     if (!runtime || runtime.backend.kind === 'js' || !buildTable) {
       return undefined;
     }
 
     try {
-      return new StaxXmlStructuralIndexParser(xml, buildTable(xml), {
+      return new StaxXmlStructuralIndexParser(xmlBytes, buildTable(xmlBytes), {
         decodeEntities: parserOptions.decodeEntities,
-        sourceKind: 'utf16',
+        sourceKind: 'utf8',
         trimText: parserOptions.trimText,
       });
     } catch (error) {

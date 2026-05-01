@@ -432,7 +432,7 @@ describe('StreamReaderSync', () => {
       backend: 'native',
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
       importPackage: async () => ({
-        parseStructuralIndexStringUtf16: () => new Uint8Array(),
+        parseStructuralIndexUint8Array: () => new Uint8Array(),
       }),
     });
 

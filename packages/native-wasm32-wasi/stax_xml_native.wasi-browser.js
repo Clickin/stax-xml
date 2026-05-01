@@ -57,18 +57,24 @@ const {
   },
 })
 export default __napiModule.exports
+export const StaxXmlObjectProjectionPlan = __napiModule.exports.StaxXmlObjectProjectionPlan
+export const StaxXmlStreamingEventBatchParser = __napiModule.exports.StaxXmlStreamingEventBatchParser
+export const createObjectProjectionPlan = __napiModule.exports.createObjectProjectionPlan
+export const createStreamingEventBatchParser = __napiModule.exports.createStreamingEventBatchParser
 export const parseAggregateBuffer = __napiModule.exports.parseAggregateBuffer
+export const parseAggregateBufferWithSimd = __napiModule.exports.parseAggregateBufferWithSimd
 export const parseAggregateFile = __napiModule.exports.parseAggregateFile
-export const parseAggregateStringUtf16 = __napiModule.exports.parseAggregateStringUtf16
+export const parseAggregateFileWithSimd = __napiModule.exports.parseAggregateFileWithSimd
 export const parseAggregateStringUtf8 = __napiModule.exports.parseAggregateStringUtf8
+export const parseAggregateStringUtf8WithSimd = __napiModule.exports.parseAggregateStringUtf8WithSimd
 export const parseAggregateUint8Array = __napiModule.exports.parseAggregateUint8Array
-export const parseSpanTableStringUtf16 = __napiModule.exports.parseSpanTableStringUtf16
-export const parseStructuralIndexStringUtf16 =
-  __napiModule.exports.parseStructuralIndexStringUtf16 ?? __napiModule.exports.parseSpanTableStringUtf16
-export const parseStructuralIndexUint8Array =
-  __napiModule.exports.parseStructuralIndexUint8Array ?? __napiModule.exports.parseSpanTableUint8Array
+export const parseAggregateUint8ArrayWithSimd = __napiModule.exports.parseAggregateUint8ArrayWithSimd
+export const parseDocumentNodesUint8Array = __napiModule.exports.parseDocumentNodesUint8Array
+export const parseItemProjectionUint8Array = __napiModule.exports.parseItemProjectionUint8Array
+export const parseItemProjectionViaTableUint8Array = __napiModule.exports.parseItemProjectionViaTableUint8Array
 export const parseItemRowsViaTableUint8Array = __napiModule.exports.parseItemRowsViaTableUint8Array
+export const parseObjectRecordsUint8Array = __napiModule.exports.parseObjectRecordsUint8Array
 export const parseObjectRowsUint8Array = __napiModule.exports.parseObjectRowsUint8Array
 export const parseObjectRowsViaTableUint8Array = __napiModule.exports.parseObjectRowsViaTableUint8Array
-export const StaxXmlStreamingEventBatchParser = __napiModule.exports.StaxXmlStreamingEventBatchParser
-export const createStreamingEventBatchParser = __napiModule.exports.createStreamingEventBatchParser
+export const parseSpanTableUint8Array = __napiModule.exports.parseSpanTableUint8Array
+export const parseStructuralIndexUint8Array = __napiModule.exports.parseStructuralIndexUint8Array

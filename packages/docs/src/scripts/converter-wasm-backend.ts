@@ -1,15 +1,10 @@
-import type { AnyXmlEvent } from 'stax-xml';
-import { StaxXmlWasmIterableParser } from 'stax-xml/runtime';
+import { initStaxXml, resetStaxXmlRuntimeForTests } from 'stax-xml/runtime';
 import type { ParseOptions } from 'stax-xml/converter';
 
 type ConverterSchema = {
-  parse(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): Promise<unknown>;
-  parseSync(input: string | Iterator<AnyXmlEvent>, options?: ParseOptions): unknown;
+  parse(input: string | Uint8Array, options?: ParseOptions): Promise<unknown>;
+  parseSync(input: string | Uint8Array, options?: ParseOptions): unknown;
   compile?(): ConverterSchema;
-};
-
-type WasmModule = {
-  parseSpanTableStringUtf16(input: string): ArrayBufferView | ArrayBuffer;
 };
 
 type BrowserBufferConstructor = {
@@ -50,13 +45,13 @@ export const JS_CONVERTER_BACKEND: ConverterBackendInfo = {
 
 export const WASM_CONVERTER_BACKEND: ConverterBackendInfo = {
   kind: 'wasm',
-  label: 'Wasm span-table',
-  detail: 'The demo uses @stax-xml/native-wasm32-wasi to build an explicit iterable parser and runs the converter through its compiled dispatch path.'
+  label: 'Wasm bytes',
+  detail: 'The demo initializes the wasm backend and runs the converter through the same byte-mainline dispatch path used by the public facade.'
 };
 
 const LOG_PREFIX = '[stax-xml converter wasm]';
 
-let wasmModulePromise: Promise<WasmModule> | undefined;
+let wasmModulePromise: Promise<unknown> | undefined;
 
 export async function parseTextWithSelectedConverterBackend(
   schema: ConverterSchema,
@@ -89,27 +84,24 @@ async function parseTextWithWasmConverterBackend(
   parseOptions: ParseOptions | undefined
 ): Promise<ConverterBackendResult> {
   const importStart = performance.now();
-  const wasm = await loadWasmModule();
+  await loadWasmModule();
   const wasmImportMs = performance.now() - importStart;
 
-  const spanStart = performance.now();
-  const table = wasm.parseSpanTableStringUtf16(xmlInput);
-  const parser = StaxXmlWasmIterableParser.fromSpanTable(xmlInput, table, {
-    decodeEntities: parseOptions?.decodeEntities,
-  });
-  const wasmSpanTableMs = performance.now() - spanStart;
+  const bytes = new TextEncoder().encode(xmlInput);
+  const parseStart = performance.now();
   const compileStart = performance.now();
   const acceleratedSchema = compileSchema(schema);
   const backendSchemaCompileMs = performance.now() - compileStart;
-  const result = await acceleratedSchema.parse(parser, parseOptions);
+  const result = acceleratedSchema.parseSync(bytes, {
+    ...parseOptions,
+    acceleration: { backend: 'wasm' },
+  });
+  const wasmSpanTableMs = performance.now() - parseStart;
 
   const timings = {
     wasmImportMs,
     wasmSpanTableMs,
     backendSchemaCompileMs,
-    wasmEventCount: parser.eventCount,
-    wasmAttrCount: parser.attrCount,
-    wasmTableBytes: parser.spanTableBytes
   };
 
   console.info(`${LOG_PREFIX} ok`, timings);
@@ -144,9 +136,22 @@ function compileSchema(schema: ConverterSchema): ConverterSchema {
   return typeof schema.compile === 'function' ? schema.compile() : schema;
 }
 
-function loadWasmModule(): Promise<WasmModule> {
+function loadWasmModule(): Promise<unknown> {
   installBrowserBufferViewPolyfill();
-  wasmModulePromise ??= import('@stax-xml/native-wasm32-wasi') as Promise<WasmModule>;
+  wasmModulePromise ??= import('@stax-xml/native-wasm32-wasi').then(async (module) => {
+    resetStaxXmlRuntimeForTests();
+    await initStaxXml({
+      backend: 'wasm',
+      fallbackOnLoadError: false,
+      importPackage: async (packageName) => {
+        if (packageName !== '@stax-xml/native-wasm32-wasi') {
+          throw new Error(`Unsupported wasm package request: ${packageName}`);
+        }
+        return module;
+      },
+    });
+    return module;
+  });
   return wasmModulePromise;
 }
 

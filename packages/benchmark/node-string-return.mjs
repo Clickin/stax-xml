@@ -30,7 +30,6 @@ const FULL_STRING_MIN_MIB_PER_SEC = 190;
 const DEFAULT_SIMDXML_MAX_MIB = 64;
 const NATIVE_ADDON_FULL_SPEC_MIN_RATIO = 0.9;
 const NATIVE_ADDON_FULL_SPEC_ID = 'native-addon-full-spec';
-const NATIVE_ADDON_FULL_SPEC_UTF16_ID = 'native-addon-full-spec-utf16';
 const PUBLIC_NATIVE_WRAPPER_ID = 'stream-reader-native';
 const EVENT_READER_NATIVE_REFERENCE_ID = 'event-reader-native';
 const NATIVE_ADDON_FULL_SPEC_TIER_BY_PUBLIC_TIER = new Map([
@@ -609,68 +608,6 @@ function measureNativeAddonFullSpecScenario(nativeAddonFullSpec, filePath, fileS
   };
 }
 
-function measureNativeAddonUtf16DiagnosticScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tier, options) {
-  if (
-    nativeAddonFullSpec.status !== 'ok'
-    || typeof nativeAddonFullSpec.nativeAddon.parseAggregateStringUtf16 !== 'function'
-  ) {
-    return {
-      id: NATIVE_ADDON_FULL_SPEC_UTF16_ID,
-      status: 'skipped',
-      tier,
-      nativeTier: nativeAddonFullSpecTier(tier),
-      reason: nativeAddonFullSpec.status === 'ok'
-        ? 'native addon UTF-16 diagnostic parseAggregateStringUtf16 export is unavailable'
-        : nativeAddonFullSpec.reason,
-    };
-  }
-
-  const xmlString = readFileSync(filePath, 'utf8');
-  for (let index = 0; index < options.warmups; index++) {
-    consumeNativeAddonUtf16Diagnostic(nativeAddonFullSpec.nativeAddon, xmlString, tier);
-  }
-
-  const samplesMs = [];
-  let eventCount = 0;
-  let checksum = 0;
-  const peak = { rssBytes: 0, heapUsedBytes: 0 };
-
-  for (let index = 0; index < options.runs; index++) {
-    if (globalThis.gc) {
-      globalThis.gc();
-    }
-    const startedAt = performance.now();
-    const result = consumeNativeAddonUtf16Diagnostic(nativeAddonFullSpec.nativeAddon, xmlString, tier);
-    const elapsedMs = performance.now() - startedAt;
-
-    if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
-      throw new Error(`${NATIVE_ADDON_FULL_SPEC_UTF16_ID} ${tier} produced unstable event count or checksum between runs.`);
-    }
-
-    eventCount = result.eventCount;
-    checksum = result.checksum;
-    peak.rssBytes = Math.max(peak.rssBytes, result.peak.rssBytes);
-    peak.heapUsedBytes = Math.max(peak.heapUsedBytes, result.peak.heapUsedBytes);
-    samplesMs.push(elapsedMs);
-  }
-
-  const avgMs = average(samplesMs);
-  return {
-    id: NATIVE_ADDON_FULL_SPEC_UTF16_ID,
-    status: 'ok',
-    tier,
-    nativeTier: nativeAddonFullSpecTier(tier),
-    avgMs,
-    minMs: Math.min(...samplesMs),
-    maxMs: Math.max(...samplesMs),
-    mibPerSec: fileSizeMiB / (avgMs / 1000),
-    eventCount,
-    checksum,
-    peakRssBytes: peak.rssBytes,
-    peakHeapUsedBytes: peak.heapUsedBytes,
-    samplesMs,
-  };
-}
 
 function consumeNativeAddonFullSpec(nativeAddon, filePath, tier) {
   const peak = { rssBytes: 0, heapUsedBytes: 0 };
@@ -684,17 +621,6 @@ function consumeNativeAddonFullSpec(nativeAddon, filePath, tier) {
   };
 }
 
-function consumeNativeAddonUtf16Diagnostic(nativeAddon, xmlString, tier) {
-  const peak = { rssBytes: 0, heapUsedBytes: 0 };
-  captureMemoryPeak(peak);
-  const result = nativeAddon.parseAggregateStringUtf16(xmlString, nativeAddonFullSpecTier(tier));
-  captureMemoryPeak(peak);
-  return {
-    eventCount: result.eventCount,
-    checksum: result.checksum,
-    peak,
-  };
-}
 
 function nativeAddonFullSpecTier(tier) {
   const nativeTier = NATIVE_ADDON_FULL_SPEC_TIER_BY_PUBLIC_TIER.get(tier);
@@ -927,7 +853,6 @@ async function main(argv = process.argv.slice(2)) {
           options,
         ),
         measureNativeAddonFullSpecScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tierId, options),
-        measureNativeAddonUtf16DiagnosticScenario(nativeAddonFullSpec, filePath, fileSizeMiB, tierId, options),
         measureExternal('woodstox', options.woodstoxCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('quick-xml', options.quickXmlCmd, filePath, fileSizeMiB, tierId, options),
         measureExternal('simdxml', options.simdxmlCmd, filePath, fileSizeMiB, tierId, options),

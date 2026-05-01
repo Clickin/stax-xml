@@ -1,7 +1,7 @@
 use super::*;
 
 #[cfg(feature = "napi-bindings")]
-use napi::bindgen_prelude::{Buffer, Uint8Array, Utf16String};
+use napi::bindgen_prelude::{Buffer, Uint8Array};
 #[cfg(feature = "napi-bindings")]
 use std::fs;
 
@@ -97,30 +97,8 @@ pub fn parse_aggregate_string_utf8_with_simd(
 
 #[cfg(feature = "napi-bindings")]
 #[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
-pub fn parse_aggregate_string_utf16(
-    input: Utf16String,
-    tier: String,
-) -> napi::Result<AggregateResult> {
-    let tier = parse_tier(&tier).map_err(napi::Error::from)?;
-    to_napi_result(parse_aggregate_utf16(&input, tier))
-}
-
-#[cfg(feature = "napi-bindings")]
-#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
-pub fn parse_span_table_string_utf16(input: Utf16String) -> napi::Result<Buffer> {
-    to_napi_result(parse_span_table_utf16(&input)).map(Buffer::from)
-}
-
-#[cfg(feature = "napi-bindings")]
-#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_span_table_uint8array(input: Uint8Array) -> napi::Result<Buffer> {
     to_napi_result(parse_span_table(input.as_ref())).map(Buffer::from)
-}
-
-#[cfg(feature = "napi-bindings")]
-#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
-pub fn parse_structural_index_string_utf16(input: Utf16String) -> napi::Result<Buffer> {
-    to_napi_result(parse_span_table_utf16(&input)).map(Buffer::from)
 }
 
 #[cfg(feature = "napi-bindings")]
@@ -197,6 +175,7 @@ pub fn parse_document_nodes_uint8array(
         options.as_ref().unwrap_or(&DocumentNodesProjectionOptions::default()),
     ))
 }
+
 
 #[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub struct StaxXmlObjectProjectionPlan {

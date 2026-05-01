@@ -108,9 +108,24 @@ const { instance: __napiInstance, module: __wasiModule, napiModule: __napiModule
   },
 })
 module.exports = __napiModule.exports
+module.exports.StaxXmlObjectProjectionPlan = __napiModule.exports.StaxXmlObjectProjectionPlan
+module.exports.StaxXmlStreamingEventBatchParser = __napiModule.exports.StaxXmlStreamingEventBatchParser
+module.exports.createObjectProjectionPlan = __napiModule.exports.createObjectProjectionPlan
+module.exports.createStreamingEventBatchParser = __napiModule.exports.createStreamingEventBatchParser
 module.exports.parseAggregateBuffer = __napiModule.exports.parseAggregateBuffer
+module.exports.parseAggregateBufferWithSimd = __napiModule.exports.parseAggregateBufferWithSimd
 module.exports.parseAggregateFile = __napiModule.exports.parseAggregateFile
-module.exports.parseAggregateStringUtf16 = __napiModule.exports.parseAggregateStringUtf16
+module.exports.parseAggregateFileWithSimd = __napiModule.exports.parseAggregateFileWithSimd
 module.exports.parseAggregateStringUtf8 = __napiModule.exports.parseAggregateStringUtf8
+module.exports.parseAggregateStringUtf8WithSimd = __napiModule.exports.parseAggregateStringUtf8WithSimd
 module.exports.parseAggregateUint8Array = __napiModule.exports.parseAggregateUint8Array
-module.exports.parseSpanTableStringUtf16 = __napiModule.exports.parseSpanTableStringUtf16
+module.exports.parseAggregateUint8ArrayWithSimd = __napiModule.exports.parseAggregateUint8ArrayWithSimd
+module.exports.parseDocumentNodesUint8Array = __napiModule.exports.parseDocumentNodesUint8Array
+module.exports.parseItemProjectionUint8Array = __napiModule.exports.parseItemProjectionUint8Array
+module.exports.parseItemProjectionViaTableUint8Array = __napiModule.exports.parseItemProjectionViaTableUint8Array
+module.exports.parseItemRowsViaTableUint8Array = __napiModule.exports.parseItemRowsViaTableUint8Array
+module.exports.parseObjectRecordsUint8Array = __napiModule.exports.parseObjectRecordsUint8Array
+module.exports.parseObjectRowsUint8Array = __napiModule.exports.parseObjectRowsUint8Array
+module.exports.parseObjectRowsViaTableUint8Array = __napiModule.exports.parseObjectRowsViaTableUint8Array
+module.exports.parseSpanTableUint8Array = __napiModule.exports.parseSpanTableUint8Array
+module.exports.parseStructuralIndexUint8Array = __napiModule.exports.parseStructuralIndexUint8Array

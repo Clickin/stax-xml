@@ -136,6 +136,45 @@ describe('ProjectionReader public fast surface', () => {
     expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
   });
 
+  it('keeps string and byte node parsing aligned on the public native projection path', async () => {
+    const input = '<root id="1">\n  <item>ok</item>\n</root>\n';
+    const bytes = new TextEncoder().encode(input);
+    const json = '[{"tagName":"root","attributes":{"id":"1"},"children":["\\n  ",{"tagName":"item","attributes":{},"children":["ok"]},"\\n"]},"\\n"]';
+    const parseDocumentNodesUint8Array = vi.fn((actual: Uint8Array) => {
+      expect(new TextDecoder().decode(actual)).toBe(input);
+      return {
+        inputBytes: actual.byteLength,
+        nodeCount: 4,
+        json,
+      };
+    });
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        parseDocumentNodesUint8Array,
+      }),
+    });
+
+    const stringResult = parseXmlNodesSync(input, { backend: 'native' });
+    const byteResult = parseXmlNodesSync(bytes, { backend: 'native' });
+
+    expect(stringResult).toEqual([
+      {
+        tagName: 'root',
+        attributes: { id: '1' },
+        children: [
+          '\n  ',
+          { tagName: 'item', attributes: {}, children: ['ok'] },
+          '\n',
+        ],
+      },
+      '\n',
+    ]);
+    expect(byteResult).toEqual(stringResult);
+    expect(parseDocumentNodesUint8Array).toHaveBeenCalledTimes(2);
+  });
+
   it('projects object rows through the initialized native runtime without event-reader hydration', async () => {
     const input = new TextEncoder().encode('<root><entry code="a"><score>7</score></entry></root>');
     const parseObjectRowsUint8Array = vi.fn((actual: Uint8Array, actualSpec: typeof spec) => {

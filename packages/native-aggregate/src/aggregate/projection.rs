@@ -123,6 +123,7 @@ pub(crate) fn parse_document_nodes(
     })
 }
 
+
 enum DocumentNode {
     Text(String),
     Element(DocumentElementNode),
@@ -141,6 +142,7 @@ struct DocumentNodesParser<'a> {
     stack: Vec<DocumentElementNode>,
     node_count: usize,
 }
+
 
 struct DocumentEntityDecoder {
     decode: bool,
@@ -388,6 +390,7 @@ impl<'a> DocumentNodesParser<'a> {
         }
     }
 }
+
 
 fn push_document_nodes_json(out: &mut String, nodes: &[DocumentNode]) {
     out.push('[');

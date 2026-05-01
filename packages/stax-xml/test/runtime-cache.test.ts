@@ -35,7 +35,7 @@ describe('stax-xml runtime init cache', () => {
 
   it('initializes native capabilities once and exposes the shared cache', async () => {
     const module = {
-      parseStructuralIndexStringUtf16: (input: string) => encodeStructuralIndex(input, [
+      parseStructuralIndexUint8Array: (input: Uint8Array) => encodeStructuralIndex(input, [
         event(0),
         event(2, span(input, 'r')),
         event(2, span(input, 'name')),
@@ -44,7 +44,6 @@ describe('stax-xml runtime init cache', () => {
         event(3, span(input, 'r')),
         event(1),
       ], []),
-      parseStructuralIndexUint8Array: (input: Uint8Array) => encodeStructuralIndex(input, [], []),
       parseObjectRowsUint8Array: () => ({ rowCount: 0, columns: [] }),
     };
     const runtime = await initStaxXml({
@@ -55,7 +54,6 @@ describe('stax-xml runtime init cache', () => {
 
     expect(runtime).toBe(getStaxXmlRuntime());
     expect(runtime.backend.kind).toBe('native');
-    expect(runtime.capabilities.structuralIndexUtf16).toBe(module.parseStructuralIndexStringUtf16);
     expect(runtime.capabilities.structuralIndexUtf8).toBe(module.parseStructuralIndexUint8Array);
     expect(runtime.capabilities.objectRowsProjection).toBe(module.parseObjectRowsUint8Array);
 
@@ -254,7 +252,7 @@ describe('stax-xml runtime init cache', () => {
   });
 
   it('routes sync string parser through initialized structural index tables', async () => {
-    const parseStructuralIndexStringUtf16 = vi.fn((input: string) => encodeStructuralIndex(input, [
+    const parseStructuralIndexUint8Array = vi.fn((input: Uint8Array) => encodeStructuralIndex(input, [
       event(0),
       event(2, span(input, 'r')),
       event(2, span(input, 'name')),
@@ -266,7 +264,7 @@ describe('stax-xml runtime init cache', () => {
     await initStaxXml({
       backend: 'native',
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
-      importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
+      importPackage: async () => ({ parseStructuralIndexUint8Array }),
     });
     vi.spyOn(IterableReader.prototype, 'nextBatch')
       .mockImplementation(() => {
@@ -275,7 +273,7 @@ describe('stax-xml runtime init cache', () => {
 
     const events = [...new EventReaderSync('<r><name>Alice</name></r>')];
 
-    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
+    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
     expect(events.map(event => 'name' in event ? event.name : 'value' in event ? event.value : event.type))
       .toEqual(['START_DOCUMENT', 'r', 'name', 'Alice', 'name', 'r', 'END_DOCUMENT']);
   });
@@ -337,7 +335,7 @@ describe('stax-xml runtime init cache', () => {
   });
 
   it('routes sync cursor through structural tables without materializing event objects', async () => {
-    const parseStructuralIndexStringUtf16 = vi.fn((input: string) => encodeStructuralIndex(input, [
+    const parseStructuralIndexUint8Array = vi.fn((input: Uint8Array) => encodeStructuralIndex(input, [
       event(0),
       event(2, span(input, 'r'), none(), 0, 1),
       event(4, none(), span(input, 'ok')),
@@ -349,7 +347,7 @@ describe('stax-xml runtime init cache', () => {
     await initStaxXml({
       backend: 'native',
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
-      importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
+      importPackage: async () => ({ parseStructuralIndexUint8Array }),
     });
     vi.spyOn(IterableEventMaterializer.prototype, 'materializeBatch')
       .mockImplementation(() => {
@@ -365,12 +363,12 @@ describe('stax-xml runtime init cache', () => {
       }
     }
 
-    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
+    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
     expect(values).toEqual([0, 'r', 'x', 'ok', 'r', 1]);
   });
 
   it('routes compiled converter parseSync through initialized structural tables', async () => {
-    const parseStructuralIndexStringUtf16 = vi.fn((input: string) => encodeStructuralIndex(input, [
+    const parseStructuralIndexUint8Array = vi.fn((input: Uint8Array) => encodeStructuralIndex(input, [
       event(0),
       event(2, span(input, 'r')),
       event(2, span(input, 'name')),
@@ -382,7 +380,7 @@ describe('stax-xml runtime init cache', () => {
     await initStaxXml({
       backend: 'native',
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
-      importPackage: async () => ({ parseStructuralIndexStringUtf16 }),
+      importPackage: async () => ({ parseStructuralIndexUint8Array }),
     });
     vi.spyOn(IterableReader.prototype, 'nextBatch')
       .mockImplementation(() => {
@@ -392,7 +390,7 @@ describe('stax-xml runtime init cache', () => {
     const schema = x.object({ name: x.string().xpath('/r/name') }).compile();
 
     expect(schema.parseSync('<r><name>Alice</name></r>')).toEqual({ name: 'Alice' });
-    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
+    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
   });
 });
 

@@ -745,15 +745,16 @@ describe('compiled converter native projection fast path', () => {
 
   it('uses structural native tables for unsupported string and byte compiled plans', async () => {
     const stringXml = '<root><value>string-table</value></root>';
+    const stringInput = new TextEncoder().encode(stringXml);
     const byteXml = '<root><value>byte-table</value></root>';
     const byteInput = new TextEncoder().encode(byteXml);
-    const stringTable = encodeStructuralIndex(stringXml.length, 0, [
+    const stringTable = encodeStructuralIndex(stringInput.byteLength, 1, [
       event(0),
-      event(2, span(stringXml, 'root')),
-      event(2, span(stringXml, 'value')),
-      event(4, none(), span(stringXml, 'string-table')),
-      event(3, span(stringXml, 'value')),
-      event(3, span(stringXml, 'root')),
+      event(2, span(stringInput, 'root')),
+      event(2, span(stringInput, 'value')),
+      event(4, none(), span(stringInput, 'string-table')),
+      event(3, span(stringInput, 'value')),
+      event(3, span(stringInput, 'root')),
       event(1),
     ], []);
     const byteTable = encodeStructuralIndex(byteInput.byteLength, 1, [
@@ -765,13 +766,16 @@ describe('compiled converter native projection fast path', () => {
       event(3, span(byteInput, 'root')),
       event(1),
     ], []);
-    const parseStructuralIndexStringUtf16 = vi.fn(() => stringTable);
-    const parseStructuralIndexUint8Array = vi.fn(() => byteTable);
+    const parseStructuralIndexUint8Array = vi.fn((actual: Uint8Array) => {
+      if (actual.byteLength === byteInput.byteLength) {
+        return byteTable;
+      }
+      return stringTable;
+    });
     mocks.resolveBackend.mockResolvedValue({
       kind: 'native',
       packageName: '@stax-xml/native-test',
       module: {
-        parseStructuralIndexStringUtf16,
         parseStructuralIndexUint8Array,
       },
       errors: [],
@@ -783,33 +787,33 @@ describe('compiled converter native projection fast path', () => {
       .resolves.toEqual({ value: 'string-table' });
     await expect(schema.parse(byteInput, { acceleration: { backend: 'native' } }))
       .resolves.toEqual({ value: 'byte-table' });
-    expect(parseStructuralIndexStringUtf16).toHaveBeenCalledOnce();
-    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
+    expect(parseStructuralIndexUint8Array).toHaveBeenCalledTimes(2);
   });
 
   it('uses fallback structural string builders and skips acceleration when absent', async () => {
     const stringXml = '<root><value>span-table</value></root>';
-    const stringTable = encodeStructuralIndex(stringXml.length, 0, [
+    const stringInput = new TextEncoder().encode(stringXml);
+    const stringTable = encodeStructuralIndex(stringInput.byteLength, 1, [
       event(0),
-      event(2, span(stringXml, 'root')),
-      event(2, span(stringXml, 'value')),
-      event(4, none(), span(stringXml, 'span-table')),
-      event(3, span(stringXml, 'value')),
-      event(3, span(stringXml, 'root')),
+      event(2, span(stringInput, 'root')),
+      event(2, span(stringInput, 'value')),
+      event(4, none(), span(stringInput, 'span-table')),
+      event(3, span(stringInput, 'value')),
+      event(3, span(stringInput, 'root')),
       event(1),
     ], []);
-    const parseSpanTableStringUtf16 = vi.fn(() => stringTable);
+    const parseStructuralIndexUint8Array = vi.fn(() => stringTable);
     const schema = x.object({ value: x.string().xpath('/root/value') }).compile();
 
     mocks.resolveBackend.mockResolvedValueOnce({
       kind: 'native',
       packageName: '@stax-xml/native-test',
-      module: { parseSpanTableStringUtf16 },
+      module: { parseStructuralIndexUint8Array },
       errors: [],
     });
     await expect(schema.parse(stringXml, { acceleration: { backend: 'native' } }))
       .resolves.toEqual({ value: 'span-table' });
-    expect(parseSpanTableStringUtf16).toHaveBeenCalledOnce();
+    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
 
     mocks.resolveBackend.mockResolvedValueOnce({
       kind: 'native',
@@ -819,7 +823,7 @@ describe('compiled converter native projection fast path', () => {
     });
     await expect(schema.parse('<root><value>fallback</value></root>', {
       acceleration: { backend: 'native' },
-    })).rejects.toThrow(/does not provide structuralIndexUtf16 capability/);
+    })).rejects.toThrow(/does not provide structuralIndexUtf8 capability/);
   });
 
   it('reads missing lazy attributes from structural native tables as absent', async () => {

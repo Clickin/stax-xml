@@ -37,6 +37,7 @@ export class CursorReader {
       throw new Error('xml must be a string.');
     }
 
+    const xmlBytes = textEncoder.encode(xml);
     this.viewOptions = {
       autoDecodeEntities: options.autoDecodeEntities ?? true,
       addEntities: options.addEntities as EntityDefinition[] | undefined,
@@ -44,13 +45,13 @@ export class CursorReader {
     };
 
     const runtime = getStaxXmlRuntimeForSyncApi(undefined);
-    const buildTable = runtime?.capabilities.structuralIndexUtf16;
+    const buildTable = runtime?.capabilities.structuralIndexUtf8;
     let forceJavaScriptReader = false;
     if (runtime?.backend.kind !== 'js' && buildTable) {
       try {
-        this.tableParser = new StaxXmlStructuralIndexParser(xml, buildTable(xml), {
+        this.tableParser = new StaxXmlStructuralIndexParser(xmlBytes, buildTable(xmlBytes), {
           decodeEntities: false,
-          sourceKind: 'utf16',
+          sourceKind: 'utf8',
         });
         return;
       } catch (error) {
@@ -61,7 +62,7 @@ export class CursorReader {
       }
     }
 
-    const byteBatches = toByteBatches(byteChunks(textEncoder.encode(xml), 8), { batchSize: 1 });
+    const byteBatches = toByteBatches(byteChunks(xmlBytes, 8), { batchSize: 1 });
     const readerOptions = {
       emitStartDocumentBatchImmediately: true,
       fallbackOnParseError: options.fallbackOnParseError,

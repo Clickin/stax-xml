@@ -168,7 +168,8 @@ interface RequiredObjectOptions {
 }
 
 function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): Iterable<TreeXmlEvent> {
-  const structuralParser = tryCreateStructuralSyncParser(input, options);
+  const normalizedInput = typeof input === 'string' ? textEncoder.encode(input) : input;
+  const structuralParser = tryCreateStructuralSyncParser(normalizedInput, options);
   const materializer = new IterableEventMaterializer({
     autoDecodeEntities: options.autoDecodeEntities,
     addEntities: options.addEntities,
@@ -181,7 +182,7 @@ function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): 
     return;
   }
 
-  const byteBatches = toByteBatches(syncInputChunks(input), { batchSize: options.batchSize });
+  const byteBatches = toByteBatches(syncInputChunks(normalizedInput), { batchSize: options.batchSize });
   const readerOptions = {
     encoding: options.encoding,
     documentMode: options.documentMode,
@@ -203,7 +204,7 @@ function tryCreateStructuralSyncParser(
   if (options.documentMode === 'document') {
     return undefined;
   }
-  if (typeof input !== 'string' && !(input instanceof Uint8Array)) {
+  if (!(input instanceof Uint8Array)) {
     return undefined;
   }
 
@@ -211,27 +212,6 @@ function tryCreateStructuralSyncParser(
   if (!runtime || runtime.backend.kind === 'js') {
     return undefined;
   }
-  const sourceKind = typeof input === 'string' ? 'utf16' : 'utf8';
-
-  if (typeof input === 'string') {
-    const buildTable = runtime.capabilities.structuralIndexUtf16;
-    if (!buildTable) {
-      return undefined;
-    }
-    try {
-      return new StaxXmlStructuralIndexParser(input, buildTable(input), {
-        decodeEntities: false,
-        sourceKind,
-      });
-    } catch (error) {
-      if (options.fallbackOnParseError === true) {
-        options.forceJavaScriptReader = true;
-        return undefined;
-      }
-      throw error;
-    }
-  }
-
   const buildTable = runtime.capabilities.structuralIndexUtf8;
   if (!buildTable) {
     return undefined;
@@ -239,7 +219,7 @@ function tryCreateStructuralSyncParser(
   try {
     return new StaxXmlStructuralIndexParser(input, buildTable(input), {
       decodeEntities: false,
-      sourceKind,
+      sourceKind: 'utf8',
     });
   } catch (error) {
     if (options.fallbackOnParseError === true) {

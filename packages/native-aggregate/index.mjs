@@ -7,6 +7,11 @@ const __dirname = dirname(__filename);
 const require = createRequire(import.meta.url);
 const binding = require(join(__dirname, 'stax_xml_native_aggregate.node'));
 
+// Legacy direct UTF-16 helpers remain exported from the low-level probe package
+// for diagnostics and compatibility experiments. The public `stax-xml` facade
+// intentionally canonicalizes string input to UTF-8 bytes before acceleration;
+// do not treat these UTF-16 entry points as the mainline policy.
+
 export const parseAggregateBuffer = binding.parseAggregateBuffer;
 export const parseAggregateBufferWithSimd = binding.parseAggregateBufferWithSimd;
 export const parseAggregateFile = binding.parseAggregateFile;
@@ -15,10 +20,6 @@ export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
 export const parseAggregateUint8ArrayWithSimd = binding.parseAggregateUint8ArrayWithSimd;
 export const parseAggregateStringUtf8 = binding.parseAggregateStringUtf8;
 export const parseAggregateStringUtf8WithSimd = binding.parseAggregateStringUtf8WithSimd;
-export const parseAggregateStringUtf16 = binding.parseAggregateStringUtf16;
-export const parseSpanTableStringUtf16 = binding.parseSpanTableStringUtf16;
-export const parseStructuralIndexStringUtf16 =
-  binding.parseStructuralIndexStringUtf16 ?? binding.parseSpanTableStringUtf16;
 export const parseStructuralIndexUint8Array =
   binding.parseStructuralIndexUint8Array ?? binding.parseSpanTableUint8Array;
 export const parseItemProjectionUint8Array = binding.parseItemProjectionUint8Array;
@@ -50,9 +51,6 @@ if (
   typeof parseAggregateUint8ArrayWithSimd !== 'function' ||
   typeof parseAggregateStringUtf8 !== 'function' ||
   typeof parseAggregateStringUtf8WithSimd !== 'function' ||
-  typeof parseAggregateStringUtf16 !== 'function' ||
-  typeof parseSpanTableStringUtf16 !== 'function' ||
-  typeof parseStructuralIndexStringUtf16 !== 'function' ||
   typeof parseStructuralIndexUint8Array !== 'function' ||
   typeof parseItemProjectionUint8Array !== 'function' ||
   typeof parseItemProjectionViaTableUint8Array !== 'function' ||
@@ -99,18 +97,6 @@ export function parse_aggregate_string_utf8(input, tier) {
 
 export function parse_aggregate_string_utf8_with_simd(input, tier, simd) {
   return parseAggregateStringUtf8WithSimd(input, tier, simd);
-}
-
-export function parse_aggregate_string_utf16(input, tier) {
-  return parseAggregateStringUtf16(input, tier);
-}
-
-export function parse_span_table_string_utf16(input) {
-  return parseSpanTableStringUtf16(input);
-}
-
-export function parse_structural_index_string_utf16(input) {
-  return parseStructuralIndexStringUtf16(input);
 }
 
 export function parse_structural_index_uint8array(input) {

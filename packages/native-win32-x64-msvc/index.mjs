@@ -3,15 +3,15 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const binding = require('./stax_xml_native.node');
 
+// Legacy direct UTF-16 helpers remain exported in this low-level package for
+// diagnostics and compatibility experiments. The public `stax-xml` facade
+// canonicalizes string input to UTF-8 bytes before acceleration.
+
 export default binding;
 export const parseAggregateBuffer = binding.parseAggregateBuffer;
 export const parseAggregateFile = binding.parseAggregateFile;
 export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
 export const parseAggregateStringUtf8 = binding.parseAggregateStringUtf8;
-export const parseAggregateStringUtf16 = binding.parseAggregateStringUtf16;
-export const parseSpanTableStringUtf16 = binding.parseSpanTableStringUtf16;
-export const parseStructuralIndexStringUtf16 =
-  binding.parseStructuralIndexStringUtf16 ?? binding.parseSpanTableStringUtf16;
 export const parseStructuralIndexUint8Array =
   binding.parseStructuralIndexUint8Array ?? binding.parseSpanTableUint8Array;
 export const parseItemRowsViaTableUint8Array = binding.parseItemRowsViaTableUint8Array;
