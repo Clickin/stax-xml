@@ -67,6 +67,9 @@ const DEFAULT_ENTITY_MAP: Record<string, string> = {
   apos: "'",
   amp: '&'
 };
+const NATIVE_OBJECT_WIRE_EXPERIMENT_KEY = Symbol.for('stax-xml.experiment.native-object-wire');
+const STABLE_NATIVE_RECORD_SHAPE_EXPERIMENT_KEY = Symbol.for('stax-xml.experiment.stable-record-shape');
+const DISABLE_SCHEMA_AWARE_RECORDS_EXPERIMENT_KEY = Symbol.for('stax-xml.experiment.disable-schema-aware-records');
 
 type ParentBinding =
   | { kind: 'root' }
@@ -922,6 +925,14 @@ type NativeObjectRowsHydrator = {
   parseValue: (rawValue: string | number) => unknown;
 };
 
+type NativeObjectRecordsRequiredScalarFastPath = {
+  stringFieldNames: string[];
+  stringFieldIndexes: number[];
+  numberFieldNames: string[];
+  numberFieldIndexes: number[];
+  numberFieldPlans: DispatchScalarPlan[];
+};
+
 const nativeObjectRowsProjectionPlanCache = new WeakMap<
   DispatchCompiledPlan,
   NativeObjectRowsProjectionPlan
@@ -1001,6 +1012,39 @@ async function tryProjectItemRowsViaNativeTable(
     const compiledPlan = initializedRuntime
       ? getNativeCompiledObjectProjectionPlan(initializedRuntime, objectRowsProjection)
       : undefined;
+    const requiredScalarFastPath = createNativeObjectRecordsRequiredScalarFastPath(objectRowsProjection, options);
+    const preferRowsWire = shouldPreferNativeObjectRowsWireExperiment()
+      && requiredScalarFastPath !== undefined;
+    if (preferRowsWire) {
+      try {
+        return normalizeNativeObjectRowsResult(
+          typeof compiledPlan?.projectRows === 'function'
+            ? compiledPlan.projectRows(nativeInput) as NativeObjectRowsResult
+            : await projectXmlObjectRows(nativeInput, objectRowsProjection.spec, projectionOptions),
+          objectRowsProjection,
+          nativeInput,
+          options
+        );
+      } catch (error) {
+        if (isProjectionCapabilityError(error)) {
+          return undefined;
+        }
+        throw error;
+      }
+    }
+    if (canUseNativeSchemaAwareRecordsPlan(compiledPlan, requiredScalarFastPath)) {
+      try {
+        return normalizeNativeObjectRecordsResult(
+          compiledPlan.projectSchemaAwareRecords(nativeInput) as NativeObjectRecordsResult,
+          objectRowsProjection,
+          options
+        );
+      } catch (error) {
+        if (!isProjectionCapabilityError(error)) {
+          throw error;
+        }
+      }
+    }
     if (
       typeof compiledPlan?.projectRecords === 'function'
       && canUseNativeObjectRecordsPlan(objectRowsProjection)
@@ -1084,6 +1128,39 @@ function tryProjectItemRowsViaNativeTableSync(
     const compiledPlan = initializedRuntime
       ? getNativeCompiledObjectProjectionPlan(initializedRuntime, objectRowsProjection)
       : undefined;
+    const requiredScalarFastPath = createNativeObjectRecordsRequiredScalarFastPath(objectRowsProjection, options);
+    const preferRowsWire = shouldPreferNativeObjectRowsWireExperiment()
+      && requiredScalarFastPath !== undefined;
+    if (preferRowsWire) {
+      try {
+        return normalizeNativeObjectRowsResult(
+          typeof compiledPlan?.projectRows === 'function'
+            ? compiledPlan.projectRows(nativeInput) as NativeObjectRowsResult
+            : projectXmlObjectRowsSync(nativeInput, objectRowsProjection.spec, { backend: backendPreference }),
+          objectRowsProjection,
+          nativeInput,
+          options
+        );
+      } catch (error) {
+        if (isProjectionCapabilityError(error)) {
+          return undefined;
+        }
+        throw error;
+      }
+    }
+    if (canUseNativeSchemaAwareRecordsPlan(compiledPlan, requiredScalarFastPath)) {
+      try {
+        return normalizeNativeObjectRecordsResult(
+          compiledPlan.projectSchemaAwareRecords(nativeInput) as NativeObjectRecordsResult,
+          objectRowsProjection,
+          options
+        );
+      } catch (error) {
+        if (!isProjectionCapabilityError(error)) {
+          throw error;
+        }
+      }
+    }
     if (
       typeof compiledPlan?.projectRecords === 'function'
       && canUseNativeObjectRecordsPlan(objectRowsProjection)
@@ -1149,13 +1226,21 @@ function normalizeNativeObjectRecordsResult(
   if (fieldCount !== projection.fields.length) {
     throw new Error('Native object records projection returned an unexpected field count.');
   }
-  const rows = Array.isArray(result.rows)
+  let rows = Array.isArray(result.rows)
     ? result.rows
     : typeof result.json === 'string'
       ? JSON.parse(result.json) as unknown[]
       : undefined;
   if (!Array.isArray(rows) || rows.length !== rowCount) {
     throw new Error('Native object records projection returned invalid rows.');
+  }
+
+  const fastPath = createNativeObjectRecordsRequiredScalarFastPath(projection, options);
+  if (fastPath) {
+    if (isStableNativeRecordShapeExperimentEnabled()) {
+      rows = cloneStableNativeObjectRecordsShape(rows, fastPath);
+    }
+    return normalizeSpecializedNativeObjectRecordsResult(rows, fastPath);
   }
 
   const hydrators = createNativeObjectRowsHydrators(projection, options);
@@ -1182,6 +1267,212 @@ function normalizeNativeObjectRecordsResult(
     }
   }
   return rows;
+}
+
+function isStableNativeRecordShapeExperimentEnabled(): boolean {
+  return (globalThis as Record<PropertyKey, unknown>)[STABLE_NATIVE_RECORD_SHAPE_EXPERIMENT_KEY] === true;
+}
+
+function shouldPreferNativeObjectRowsWireExperiment(): boolean {
+  return (globalThis as Record<PropertyKey, unknown>)[NATIVE_OBJECT_WIRE_EXPERIMENT_KEY] === 'rows';
+}
+
+function isSchemaAwareRecordsExperimentDisabled(): boolean {
+  return (globalThis as Record<PropertyKey, unknown>)[DISABLE_SCHEMA_AWARE_RECORDS_EXPERIMENT_KEY] === true;
+}
+
+function canUseNativeSchemaAwareRecordsPlan(
+  compiledPlan: StaxXmlObjectProjectionPlan | undefined,
+  fastPath: NativeObjectRecordsRequiredScalarFastPath | undefined,
+): compiledPlan is StaxXmlObjectProjectionPlan & {
+  projectSchemaAwareRecords: (input: Uint8Array) => unknown;
+} {
+  return fastPath !== undefined
+    && typeof compiledPlan?.projectSchemaAwareRecords === 'function'
+    && !isSchemaAwareRecordsExperimentDisabled();
+}
+
+function createNativeObjectRecordsRequiredScalarFastPath(
+  projection: NativeObjectRowsProjectionPlan,
+  options?: ParseOptions,
+): NativeObjectRecordsRequiredScalarFastPath | undefined {
+  if (options?.decodeEntities === true) {
+    return undefined;
+  }
+
+  const stringFieldNames: string[] = [];
+  const stringFieldIndexes: number[] = [];
+  const numberFieldNames: string[] = [];
+  const numberFieldIndexes: number[] = [];
+  const numberFieldPlans: DispatchScalarPlan[] = [];
+
+  for (let index = 0; index < projection.fields.length; index++) {
+    const field = projection.fields[index]!;
+    const plan = field.value;
+    if (plan.kind === 'string') {
+      if (plan.optional || plan.transforms.length !== 0) {
+        return undefined;
+      }
+      stringFieldNames.push(field.fieldName);
+      stringFieldIndexes.push(index);
+      continue;
+    }
+    if (plan.kind === 'number') {
+      if (plan.optional || plan.transforms.length !== 0) {
+        return undefined;
+      }
+      numberFieldNames.push(field.fieldName);
+      numberFieldIndexes.push(index);
+      numberFieldPlans.push(plan);
+      continue;
+    }
+    return undefined;
+  }
+
+  return {
+    stringFieldNames,
+    stringFieldIndexes,
+    numberFieldNames,
+    numberFieldIndexes,
+    numberFieldPlans,
+  };
+}
+
+function normalizeSpecializedNativeObjectRecordsResult(
+  rows: unknown[],
+  fastPath: NativeObjectRecordsRequiredScalarFastPath,
+): unknown[] {
+  const stringFieldCount = fastPath.stringFieldNames.length;
+  const numberFieldCount = fastPath.numberFieldNames.length;
+
+  if (stringFieldCount === 2 && numberFieldCount === 2) {
+    return normalizeSpecializedNativeObjectRecordsResult2x2(rows, fastPath);
+  }
+
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const row = rows[rowIndex];
+    if (!row || typeof row !== 'object') {
+      throw new Error('Native object records projection returned a non-object row.');
+    }
+    const record = row as Record<string, unknown>;
+
+    for (let fieldIndex = 0; fieldIndex < stringFieldCount; fieldIndex++) {
+      const fieldName = fastPath.stringFieldNames[fieldIndex]!;
+      if (typeof record[fieldName] !== 'string') {
+        throw new Error('Native object records projection returned a non-string value.');
+      }
+    }
+
+    for (let fieldIndex = 0; fieldIndex < numberFieldCount; fieldIndex++) {
+      const fieldName = fastPath.numberFieldNames[fieldIndex]!;
+      const plan = fastPath.numberFieldPlans[fieldIndex]!;
+      const rawValue = record[fieldName];
+
+      let normalizedValue: number;
+      if (rawValue === null) {
+        normalizedValue = parseNativeNumberValue(plan, NaN);
+      } else if (typeof rawValue === 'number') {
+        normalizedValue = parseNativeNumberValue(plan, rawValue);
+      } else if (typeof rawValue === 'string') {
+        normalizedValue = parseScalar(plan, rawValue, false) as number;
+      } else {
+        throw new Error('Native object records projection returned a non-number value.');
+      }
+
+      if (normalizedValue !== rawValue) {
+        record[fieldName] = normalizedValue;
+      }
+    }
+  }
+
+  return rows;
+}
+
+function normalizeSpecializedNativeObjectRecordsResult2x2(
+  rows: unknown[],
+  fastPath: NativeObjectRecordsRequiredScalarFastPath,
+): unknown[] {
+  const stringFieldName0 = fastPath.stringFieldNames[0]!;
+  const stringFieldName1 = fastPath.stringFieldNames[1]!;
+  const numberFieldName0 = fastPath.numberFieldNames[0]!;
+  const numberFieldName1 = fastPath.numberFieldNames[1]!;
+  const numberFieldPlan0 = fastPath.numberFieldPlans[0]!;
+  const numberFieldPlan1 = fastPath.numberFieldPlans[1]!;
+
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const row = rows[rowIndex];
+    if (!row || typeof row !== 'object') {
+      throw new Error('Native object records projection returned a non-object row.');
+    }
+    const record = row as Record<string, unknown>;
+
+    const stringValue0 = record[stringFieldName0];
+    if (typeof stringValue0 !== 'string') {
+      throw new Error('Native object records projection returned a non-string value.');
+    }
+    const stringValue1 = record[stringFieldName1];
+    if (typeof stringValue1 !== 'string') {
+      throw new Error('Native object records projection returned a non-string value.');
+    }
+
+    normalizeSpecializedNativeObjectRecordNumberField(record, numberFieldName0, numberFieldPlan0);
+    normalizeSpecializedNativeObjectRecordNumberField(record, numberFieldName1, numberFieldPlan1);
+  }
+
+  return rows;
+}
+
+function normalizeSpecializedNativeObjectRecordNumberField(
+  record: Record<string, unknown>,
+  fieldName: string,
+  plan: DispatchScalarPlan,
+): void {
+  const rawValue = record[fieldName];
+  let normalizedValue: number;
+  if (rawValue === null) {
+    normalizedValue = parseNativeNumberValue(plan, NaN);
+  } else if (typeof rawValue === 'number') {
+    normalizedValue = parseNativeNumberValue(plan, rawValue);
+  } else if (typeof rawValue === 'string') {
+    normalizedValue = parseScalar(plan, rawValue, false) as number;
+  } else {
+    throw new Error('Native object records projection returned a non-number value.');
+  }
+
+  if (normalizedValue !== rawValue) {
+    record[fieldName] = normalizedValue;
+  }
+}
+
+function cloneStableNativeObjectRecordsShape(
+  rows: unknown[],
+  fastPath: NativeObjectRecordsRequiredScalarFastPath,
+): unknown[] {
+  const stableRows = new Array<unknown>(rows.length);
+  const stringFieldCount = fastPath.stringFieldNames.length;
+  const numberFieldCount = fastPath.numberFieldNames.length;
+
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const row = rows[rowIndex];
+    if (!row || typeof row !== 'object') {
+      throw new Error('Native object records projection returned a non-object row.');
+    }
+    const sourceRecord = row as Record<string, unknown>;
+    const stableRecord: Record<string, unknown> = {};
+
+    for (let fieldIndex = 0; fieldIndex < stringFieldCount; fieldIndex++) {
+      const fieldName = fastPath.stringFieldNames[fieldIndex]!;
+      stableRecord[fieldName] = sourceRecord[fieldName];
+    }
+    for (let fieldIndex = 0; fieldIndex < numberFieldCount; fieldIndex++) {
+      const fieldName = fastPath.numberFieldNames[fieldIndex]!;
+      stableRecord[fieldName] = sourceRecord[fieldName];
+    }
+
+    stableRows[rowIndex] = stableRecord;
+  }
+
+  return stableRows;
 }
 
 function normalizeNativeObjectRowsResult(
@@ -1211,6 +1502,7 @@ function normalizeNativeObjectRowsResult(
   if (result.columns.length !== projection.fields.length) {
     throw new Error('Native object rows projection returned an invalid column count.');
   }
+  const requiredScalarFastPath = createNativeObjectRecordsRequiredScalarFastPath(projection, options);
   const hydrators = createNativeObjectRowsHydrators(projection, options);
   const valueColumns = new Array<NativeObjectRowsResolvedColumn>(result.columns.length);
   const spanSource = createUtf8SpanSource(input);
@@ -1225,6 +1517,15 @@ function normalizeNativeObjectRowsResult(
       throw new Error('Native object rows projection returned an invalid column height.');
     }
     valueColumns[index] = values;
+  }
+
+  if (requiredScalarFastPath) {
+    return normalizeSpecializedNativeObjectRowsResult(
+      valueColumns,
+      result.columns,
+      rowCount,
+      requiredScalarFastPath,
+    );
   }
 
   const columns = result.columns;
@@ -1253,6 +1554,83 @@ function normalizeNativeObjectRowsResult(
     rows[rowIndex] = output;
   }
   return rows;
+}
+
+function normalizeSpecializedNativeObjectRowsResult(
+  valueColumns: readonly NativeObjectRowsResolvedColumn[],
+  columns: readonly NativeObjectRowsColumn[],
+  rowCount: number,
+  fastPath: NativeObjectRecordsRequiredScalarFastPath,
+): unknown[] {
+  const rows = new Array<unknown>(rowCount);
+  const stringFieldCount = fastPath.stringFieldNames.length;
+  const numberFieldCount = fastPath.numberFieldNames.length;
+
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+    const output: Record<string, unknown> = {};
+
+    for (let fieldIndex = 0; fieldIndex < stringFieldCount; fieldIndex++) {
+      const columnIndex = fastPath.stringFieldIndexes[fieldIndex]!;
+      const column = columns[columnIndex]!;
+      if (column.present![rowIndex] !== true) {
+        output[fastPath.stringFieldNames[fieldIndex]!] = '';
+        continue;
+      }
+      const rawValue = readSpecializedNativeObjectRowsStringValue(valueColumns[columnIndex]!, rowIndex);
+      if (typeof rawValue !== 'string') {
+        throw new Error('Native object rows projection returned a non-string value.');
+      }
+      output[fastPath.stringFieldNames[fieldIndex]!] = rawValue;
+    }
+
+    for (let fieldIndex = 0; fieldIndex < numberFieldCount; fieldIndex++) {
+      const columnIndex = fastPath.numberFieldIndexes[fieldIndex]!;
+      const column = columns[columnIndex]!;
+      if (column.present![rowIndex] !== true) {
+        output[fastPath.numberFieldNames[fieldIndex]!] = NaN;
+        continue;
+      }
+      const plan = fastPath.numberFieldPlans[fieldIndex]!;
+      const rawValue = readSpecializedNativeObjectRowsNumberValue(valueColumns[columnIndex]!, rowIndex);
+      if (typeof rawValue === 'number') {
+        output[fastPath.numberFieldNames[fieldIndex]!] = parseNativeNumberValue(plan, rawValue);
+      } else if (typeof rawValue === 'string') {
+        output[fastPath.numberFieldNames[fieldIndex]!] = parseScalar(plan, rawValue, false);
+      } else {
+        throw new Error('Native object rows projection returned a non-number value.');
+      }
+    }
+
+    rows[rowIndex] = output;
+  }
+
+  return rows;
+}
+
+function readSpecializedNativeObjectRowsStringValue(
+  column: NativeObjectRowsResolvedColumn,
+  rowIndex: number,
+): string | undefined {
+  if (column.spanStarts && column.spanEnds && column.source) {
+    const start = column.spanStarts[rowIndex];
+    const end = column.spanEnds[rowIndex];
+    if (typeof start === 'number' && typeof end === 'number' && start >= 0 && end >= start) {
+      return copyUtf8Span(column.source, start, end);
+    }
+  }
+  const direct = column.values?.[rowIndex];
+  return typeof direct === 'string' ? direct : undefined;
+}
+
+function readSpecializedNativeObjectRowsNumberValue(
+  column: NativeObjectRowsResolvedColumn,
+  rowIndex: number,
+): string | number | undefined {
+  const direct = column.values?.[rowIndex];
+  if (typeof direct === 'number' || typeof direct === 'string') {
+    return direct;
+  }
+  return undefined;
 }
 
 function createNativeObjectRowsHydrators(

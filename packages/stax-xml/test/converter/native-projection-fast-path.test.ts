@@ -27,10 +27,13 @@ import { x } from '../../src/converter/index.js';
 import { initStaxXml } from '../../src/index.js';
 import { resetStaxXmlRuntimeForTests } from '../../src/runtime/index.js';
 
+const DISABLE_SCHEMA_AWARE_RECORDS_EXPERIMENT_KEY = Symbol.for('stax-xml.experiment.disable-schema-aware-records');
+
 describe('compiled converter native projection fast path', () => {
   beforeEach(() => {
     mocks.resolveBackend.mockReset();
     resetStaxXmlRuntimeForTests();
+    globalThis[DISABLE_SCHEMA_AWARE_RECORDS_EXPERIMENT_KEY] = false;
   });
 
   it('uses generic native table projection rows for supported object-array byte schemas', async () => {
@@ -233,6 +236,149 @@ describe('compiled converter native projection fast path', () => {
     expect(createObjectProjectionPlan).toHaveBeenCalledOnce();
     expect(parseObjectRecordsUint8Array).toHaveBeenCalledOnce();
     expect(parseObjectRowsUint8Array).not.toHaveBeenCalled();
+  });
+
+  it('prefers schema-aware native records for the bounded nested required-scalar family', async () => {
+    const xml = '<root><entry code="js"><meta><label>fallback</label><pages>1</pages><pages>2</pages></meta><ranking><score>1</score></ranking></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const projectSchemaAwareRecords = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 14,
+      maxDepth: 4,
+      fieldCount: 4,
+      rowCount: 1,
+      json: '[{"code":"schema","label":"native","secondPage":2,"score":42}]',
+    }));
+    const projectRecords = vi.fn(() => {
+      throw new Error('generic record projection should not be used for the bounded schema-aware family');
+    });
+    const projectRows = vi.fn(() => {
+      throw new Error('row projection should not be used for the bounded schema-aware family');
+    });
+    const createObjectProjectionPlan = vi.fn(() => ({
+      projectSchemaAwareRecords,
+      projectRecords,
+      projectRows,
+    }));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ createObjectProjectionPlan }),
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./meta/label'),
+        secondPage: x.number().xpath('./meta/pages[2]').int(),
+        score: x.number().xpath('./ranking/score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'schema', label: 'native', secondPage: 2, score: 42 }]);
+    expect(createObjectProjectionPlan).toHaveBeenCalledOnce();
+    expect(projectSchemaAwareRecords).toHaveBeenCalledOnce();
+    expect(projectRecords).not.toHaveBeenCalled();
+    expect(projectRows).not.toHaveBeenCalled();
+  });
+
+  it('does not use schema-aware native records when decodeEntities is enabled', async () => {
+    const xml = '<root><entry code="js"><label>fallback</label><score>1</score></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const projectSchemaAwareRecords = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 8,
+      maxDepth: 3,
+      fieldCount: 3,
+      rowCount: 1,
+      json: '[{"code":"schema","label":"native","score":42}]',
+    }));
+    const projectRecords = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 8,
+      maxDepth: 3,
+      fieldCount: 3,
+      rowCount: 1,
+      json: '[{"code":"record","label":"Native &amp; Label","score":42}]',
+    }));
+    const projectRows = vi.fn(() => {
+      throw new Error('row projection should not be used when generic record projection is available');
+    });
+    const createObjectProjectionPlan = vi.fn(() => ({
+      projectSchemaAwareRecords,
+      projectRecords,
+      projectRows,
+    }));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ createObjectProjectionPlan }),
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./label'),
+        score: x.number().xpath('./score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    await expect(schema.parse(input, {
+      acceleration: { backend: 'native' },
+      decodeEntities: true,
+    })).resolves.toEqual([{ code: 'record', label: 'Native & Label', score: 42 }]);
+    expect(projectSchemaAwareRecords).not.toHaveBeenCalled();
+    expect(projectRecords).toHaveBeenCalledOnce();
+    expect(projectRows).not.toHaveBeenCalled();
+  });
+
+  it('allows benchmark-only disabling of schema-aware native records', async () => {
+    const xml = '<root><entry code="js"><meta><label>fallback</label><pages>1</pages><pages>2</pages></meta><ranking><score>1</score></ranking></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const projectSchemaAwareRecords = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 14,
+      maxDepth: 4,
+      fieldCount: 4,
+      rowCount: 1,
+      json: '[{"code":"schema","label":"native","secondPage":2,"score":42}]',
+    }));
+    const projectRecords = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 14,
+      maxDepth: 4,
+      fieldCount: 4,
+      rowCount: 1,
+      json: '[{"code":"record","label":"fallback","secondPage":2,"score":42}]',
+    }));
+    const createObjectProjectionPlan = vi.fn(() => ({
+      projectSchemaAwareRecords,
+      projectRecords,
+    }));
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({ createObjectProjectionPlan }),
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./meta/label'),
+        secondPage: x.number().xpath('./meta/pages[2]').int(),
+        score: x.number().xpath('./ranking/score').int(),
+      }),
+      '//entry',
+    ).compile();
+
+    globalThis[DISABLE_SCHEMA_AWARE_RECORDS_EXPERIMENT_KEY] = true;
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'record', label: 'fallback', secondPage: 2, score: 42 }]);
+    expect(projectSchemaAwareRecords).not.toHaveBeenCalled();
+    expect(projectRecords).toHaveBeenCalledOnce();
   });
 
   it('applies compiled number validation to native projection row values', async () => {

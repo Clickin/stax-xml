@@ -32,6 +32,7 @@ export interface StaxXmlRuntimeCapabilities {
 export interface StaxXmlObjectProjectionPlan {
   projectRows?: (input: Uint8Array) => unknown;
   projectRecords?: (input: Uint8Array) => unknown;
+  projectSchemaAwareRecords?: (input: Uint8Array) => unknown;
 }
 
 export type StaxXmlStreamingEventBatchFactory = (options?: unknown) => StaxXmlStreamingEventBatchParser;

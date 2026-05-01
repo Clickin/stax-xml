@@ -593,6 +593,8 @@ pub(crate) struct ObjectRowsProjectionState {
     pub(crate) capture: Option<ObjectRowsProjectionCapture>,
     pub(crate) row_count: usize,
     pub(crate) columns: Vec<ObjectRowsProjectionColumn>,
+    pub(crate) output_names: Option<Vec<String>>,
+    pub(crate) records_json: Option<String>,
 }
 
 pub(crate) struct CurrentObjectRowsProjection {

@@ -236,6 +236,18 @@ impl StaxXmlObjectProjectionPlan {
             result,
         ))
     }
+
+    #[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+    pub fn project_schema_aware_records(
+        &self,
+        input: Uint8Array,
+    ) -> napi::Result<ObjectRecordsProjectionResult> {
+        to_napi_result(parse_object_records_normalized_direct(
+            input.as_ref(),
+            &self.output_names,
+            &self.spec,
+        ))
+    }
 }
 
 fn object_rows_projection_to_records_json(

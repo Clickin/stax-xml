@@ -67,6 +67,31 @@ pub(crate) fn parse_object_rows_normalized(
     })
 }
 
+pub(crate) fn parse_object_records_normalized_direct(
+    input: &[u8],
+    output_names: &[String],
+    spec: &NormalizedObjectRowsSpec,
+) -> Result<ObjectRecordsProjectionResult> {
+    let mut parser = ObjectRowsProjectionParser {
+        input,
+        state: create_object_records_projection_state(spec.fields.len(), output_names, input.len()),
+        spec: spec.clone(),
+        event_count: 0,
+        element_stack: Vec::new(),
+    };
+    parser.parse()?;
+    let json = finalize_object_records_projection_json(&mut parser.state)?;
+
+    Ok(ObjectRecordsProjectionResult {
+        input_bytes: input.len() as f64,
+        event_count: parser.event_count,
+        max_depth: to_u32_count(parser.state.max_depth, "object records projection max depth")?,
+        field_count: to_u32_count(spec.fields.len(), "object records projection field count")?,
+        row_count: to_u32_count(parser.state.row_count, "object records projection row count")?,
+        json,
+    })
+}
+
 pub(crate) fn parse_object_rows_via_table(
     input: &[u8],
     spec: &ObjectRowsProjectionSpec,
@@ -1131,6 +1156,27 @@ pub(crate) fn create_object_rows_projection_state(field_count: usize) -> ObjectR
                 span_ends: Vec::new(),
             })
             .collect(),
+        output_names: None,
+        records_json: None,
+    }
+}
+
+pub(crate) fn create_object_records_projection_state(
+    _field_count: usize,
+    output_names: &[String],
+    input_len: usize,
+) -> ObjectRowsProjectionState {
+    ObjectRowsProjectionState {
+        depth: 0,
+        max_depth: 0,
+        position_stack: Vec::new(),
+        element_names: Vec::new(),
+        current_row: None,
+        capture: None,
+        row_count: 0,
+        columns: Vec::new(),
+        output_names: Some(output_names.to_vec()),
+        records_json: Some(String::with_capacity(input_len.min(1024 * 1024))),
     }
 }
 
@@ -1620,21 +1666,25 @@ pub(crate) fn end_object_rows_projection_element_direct(
     if let Some(mut row) = state.current_row.take_if(|row| {
         row.depth == state.depth && &input[name_start..name_end] == spec.item_name.as_slice()
     }) {
-        for index in 0..spec.fields.len() {
-            state.columns[index].present.push(row.present[index]);
-            match spec.fields[index].value_kind {
-                ObjectRowsValueKind::String => {
-                    push_object_rows_projection_string_column(
-                        &mut state.columns[index],
-                        state.row_count,
-                        &mut row,
-                        index,
-                    );
-                }
-                ObjectRowsValueKind::Number => {
-                    state.columns[index]
-                        .number_values
-                        .push(row.number_values[index]);
+        if state.records_json.is_some() {
+            append_object_records_projection_row_json(input, spec, &mut row, state)?;
+        } else {
+            for index in 0..spec.fields.len() {
+                state.columns[index].present.push(row.present[index]);
+                match spec.fields[index].value_kind {
+                    ObjectRowsValueKind::String => {
+                        push_object_rows_projection_string_column(
+                            &mut state.columns[index],
+                            state.row_count,
+                            &mut row,
+                            index,
+                        );
+                    }
+                    ObjectRowsValueKind::Number => {
+                        state.columns[index]
+                            .number_values
+                            .push(row.number_values[index]);
+                    }
                 }
             }
         }
@@ -1785,4 +1835,105 @@ fn push_object_rows_projection_string_column(
         }
         column.values.push(std::mem::take(&mut row.values[index]));
     }
+}
+
+fn append_object_records_projection_row_json(
+    input: &[u8],
+    spec: &NormalizedObjectRowsSpec,
+    row: &mut CurrentObjectRowsProjection,
+    state: &mut ObjectRowsProjectionState,
+) -> Result<()> {
+    let output_names = state.output_names.as_ref().ok_or_else(|| {
+        Error::from_reason("Object records projection state missing output names")
+    })?;
+    let json = state.records_json.as_mut().ok_or_else(|| {
+        Error::from_reason("Object records projection state missing json sink")
+    })?;
+    if output_names.len() != spec.fields.len() {
+        return Err(Error::from_reason(
+            "Object records projection output name count mismatch",
+        ));
+    }
+
+    if state.row_count == 0 {
+        json.push('[');
+    } else {
+        json.push(',');
+    }
+    json.push('{');
+    for (index, field) in spec.fields.iter().enumerate() {
+        if index > 0 {
+            json.push(',');
+        }
+        push_json_string(json, &output_names[index]);
+        json.push(':');
+        match field.value_kind {
+            ObjectRowsValueKind::String => {
+                push_object_records_projection_string_value(json, input, row, index)?;
+            }
+            ObjectRowsValueKind::Number => {
+                push_object_records_projection_number_value(json, row, index)?;
+            }
+        }
+    }
+    json.push('}');
+    Ok(())
+}
+
+fn push_object_records_projection_string_value(
+    out: &mut String,
+    input: &[u8],
+    row: &CurrentObjectRowsProjection,
+    index: usize,
+) -> Result<()> {
+    if !row.present[index] {
+        push_json_string(out, "");
+        return Ok(());
+    }
+    if row.span_starts[index] >= 0 && !row.string_materialized[index] {
+        let start = row.span_starts[index] as usize;
+        let end = row.span_ends[index] as usize;
+        let value = std::str::from_utf8(
+            input
+                .get(start..end)
+                .ok_or_else(|| Error::from_reason("Object records projection string span out of range"))?,
+        )
+        .map_err(|error| Error::from_reason(error.to_string()))?;
+        push_json_string(out, value);
+        return Ok(());
+    }
+    push_json_string(out, &row.values[index]);
+    Ok(())
+}
+
+fn push_object_records_projection_number_value(
+    out: &mut String,
+    row: &CurrentObjectRowsProjection,
+    index: usize,
+) -> Result<()> {
+    let value = if row.present[index] {
+        row.number_values[index]
+    } else {
+        f64::NAN
+    };
+    if value.is_finite() {
+        use std::fmt::Write;
+        write!(out, "{value}").map_err(|error| Error::from_reason(error.to_string()))?;
+    } else {
+        out.push_str("null");
+    }
+    Ok(())
+}
+
+fn finalize_object_records_projection_json(
+    state: &mut ObjectRowsProjectionState,
+) -> Result<String> {
+    let mut json = state.records_json.take().ok_or_else(|| {
+        Error::from_reason("Object records projection state missing json sink")
+    })?;
+    if state.row_count == 0 {
+        json.push('[');
+    }
+    json.push(']');
+    Ok(json)
 }
