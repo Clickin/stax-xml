@@ -529,12 +529,15 @@ fn object_rows_projection_supports_generic_object_fields() {
         "<root><entry code=\"a\"><label>Alice</label><score>7</score></entry><entry code=\"b\"><label>Bob</label><score></score></entry><entry code=\"c\"><label>Cy</label></entry></root>";
     let spec = ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![
             ObjectRowsProjectionFieldSpec {
                 output_name: "code".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -542,6 +545,8 @@ fn object_rows_projection_supports_generic_object_fields() {
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -549,6 +554,8 @@ fn object_rows_projection_supports_generic_object_fields() {
                 value_kind: "number".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "score".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
         ],
@@ -594,6 +601,75 @@ fn object_rows_projection_supports_generic_object_fields() {
 }
 
 #[test]
+fn object_rows_projection_supports_multisegment_paths_and_positive_positions() {
+    let sample = concat!(
+        "<root>",
+        "<entry code=\"a\"><meta><label>Alpha</label><pages>10</pages><pages>11</pages></meta><ranking><score>7</score></ranking></entry>",
+        "<entry code=\"b\"><meta><label>Beta</label><pages>20</pages><pages>21</pages></meta><ranking><score>8</score></ranking></entry>",
+        "<entry code=\"c\"><meta><label>Gamma</label><pages>30</pages><pages>31</pages></meta><ranking><score>9</score></ranking></entry>",
+        "</root>"
+    );
+    let spec = ObjectRowsProjectionSpec {
+        item_name: "entry".to_owned(),
+        item_position: Some(2),
+        fields: vec![
+            ObjectRowsProjectionFieldSpec {
+                output_name: "code".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "attribute".to_owned(),
+                source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
+                text_mode: "direct".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                source_path: Some(vec!["meta".to_owned(), "label".to_owned()]),
+                source_positions: None,
+                text_mode: "subtree".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "secondPage".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "pages".to_owned(),
+                source_path: Some(vec!["meta".to_owned(), "pages".to_owned()]),
+                source_positions: Some(vec![0, 2]),
+                text_mode: "subtree".to_owned(),
+            },
+            ObjectRowsProjectionFieldSpec {
+                output_name: "score".to_owned(),
+                value_kind: "number".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "score".to_owned(),
+                source_path: Some(vec!["ranking".to_owned(), "score".to_owned()]),
+                source_positions: None,
+                text_mode: "subtree".to_owned(),
+            },
+        ],
+    };
+
+    let direct = parse_object_rows(sample.as_bytes(), &spec).unwrap();
+    let table = parse_object_rows_via_table(sample.as_bytes(), &spec).unwrap();
+
+    for result in [&direct, &table] {
+        assert_eq!(result.row_count, 1);
+        assert_eq!(result.field_count, 4);
+        assert_eq!(result.columns[0].present, vec![true]);
+        assert_eq!(utf8_spans(sample.as_bytes(), &result.columns[0]), vec!["b"]);
+        assert_eq!(result.columns[1].present, vec![true]);
+        assert_eq!(utf8_spans(sample.as_bytes(), &result.columns[1]), vec!["Beta"]);
+        assert_eq!(result.columns[2].present, vec![true]);
+        assert_eq!(result.columns[2].number_values, vec![20.0]);
+        assert_eq!(result.columns[3].present, vec![true]);
+        assert_eq!(result.columns[3].number_values, vec![8.0]);
+    }
+}
+
+#[test]
 fn document_nodes_projection_returns_txml_style_json_with_custom_entities() {
     let sample = r#"<root mark="&copy;">&copy;<item a="&amp;">ok</item></root>"#;
     let options = DocumentNodesProjectionOptions {
@@ -623,12 +699,15 @@ fn object_rows_projection_preserves_multibyte_span_strings() {
     );
     let spec = ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![
             ObjectRowsProjectionFieldSpec {
                 output_name: "code".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -636,6 +715,8 @@ fn object_rows_projection_preserves_multibyte_span_strings() {
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -643,6 +724,8 @@ fn object_rows_projection_preserves_multibyte_span_strings() {
                 value_kind: "number".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "score".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
         ],
@@ -771,70 +854,129 @@ fn object_rows_projection_rejects_invalid_specs_and_tables() {
     for invalid in [
         ObjectRowsProjectionSpec {
             item_name: String::new(),
+            item_position: None,
             fields: detailed_object_rows_spec().fields,
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: Vec::new(),
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: vec![ObjectRowsProjectionFieldSpec {
                 output_name: String::new(),
                 value_kind: "string".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             }],
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: vec![ObjectRowsProjectionFieldSpec {
                 output_name: "code".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: String::new(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             }],
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: vec![ObjectRowsProjectionFieldSpec {
                 output_name: "code".to_owned(),
                 value_kind: "boolean".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             }],
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: vec![ObjectRowsProjectionFieldSpec {
                 output_name: "code".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "text".to_owned(),
                 source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             }],
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: vec![ObjectRowsProjectionFieldSpec {
                 output_name: "label".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: String::new(),
             }],
         },
         ObjectRowsProjectionSpec {
             item_name: "entry".to_owned(),
+            item_position: None,
             fields: vec![ObjectRowsProjectionFieldSpec {
                 output_name: "label".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "invalid".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            item_position: Some(0),
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
+                text_mode: "subtree".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            item_position: None,
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                source_path: Some(vec!["meta".to_owned(), "value".to_owned()]),
+                source_positions: None,
+                text_mode: "subtree".to_owned(),
+            }],
+        },
+        ObjectRowsProjectionSpec {
+            item_name: "entry".to_owned(),
+            item_position: None,
+            fields: vec![ObjectRowsProjectionFieldSpec {
+                output_name: "label".to_owned(),
+                value_kind: "string".to_owned(),
+                source_kind: "element".to_owned(),
+                source_name: "label".to_owned(),
+                source_path: Some(vec!["meta".to_owned(), "label".to_owned()]),
+                source_positions: Some(vec![1]),
+                text_mode: "subtree".to_owned(),
             }],
         },
     ] {
@@ -843,11 +985,14 @@ fn object_rows_projection_rejects_invalid_specs_and_tables() {
 
     let attribute_empty_mode = ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![ObjectRowsProjectionFieldSpec {
             output_name: "code".to_owned(),
             value_kind: "string".to_owned(),
             source_kind: "attribute".to_owned(),
             source_name: "code".to_owned(),
+            source_path: None,
+            source_positions: None,
             text_mode: String::new(),
         }],
     };
@@ -1338,12 +1483,15 @@ fn projection_branch_coverage_covers_short_circuit_edges() {
 
     let object_spec = ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![
             ObjectRowsProjectionFieldSpec {
                 output_name: "label".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -1351,6 +1499,8 @@ fn projection_branch_coverage_covers_short_circuit_edges() {
                 value_kind: "number".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "score".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
         ],
@@ -1599,11 +1749,14 @@ fn napi_wrappers_cover_native_entrypoints() {
 
     let spec = ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![ObjectRowsProjectionFieldSpec {
             output_name: "code".to_owned(),
             value_kind: "string".to_owned(),
             source_kind: "attribute".to_owned(),
             source_name: "code".to_owned(),
+            source_path: None,
+            source_positions: None,
             text_mode: "direct".to_owned(),
         }],
     };
@@ -1615,11 +1768,14 @@ fn napi_wrappers_cover_native_entrypoints() {
     );
     let spec = ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![ObjectRowsProjectionFieldSpec {
             output_name: "code".to_owned(),
             value_kind: "string".to_owned(),
             source_kind: "attribute".to_owned(),
             source_name: "code".to_owned(),
+            source_path: None,
+            source_positions: None,
             text_mode: "direct".to_owned(),
         }],
     };
@@ -2432,12 +2588,15 @@ fn object_rows_string_values(input: &[u8], column: &ObjectRowsProjectionColumn) 
 fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {
     ObjectRowsProjectionSpec {
         item_name: "entry".to_owned(),
+        item_position: None,
         fields: vec![
             ObjectRowsProjectionFieldSpec {
                 output_name: "code".to_owned(),
                 value_kind: "string".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: "code".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -2445,6 +2604,8 @@ fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {
                 value_kind: "number".to_owned(),
                 source_kind: "attribute".to_owned(),
                 source_name: "rank".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -2452,6 +2613,8 @@ fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "label".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "direct".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -2459,6 +2622,8 @@ fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {
                 value_kind: "string".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "desc".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
             ObjectRowsProjectionFieldSpec {
@@ -2466,6 +2631,8 @@ fn detailed_object_rows_spec() -> ObjectRowsProjectionSpec {
                 value_kind: "number".to_owned(),
                 source_kind: "element".to_owned(),
                 source_name: "score".to_owned(),
+                source_path: None,
+                source_positions: None,
                 text_mode: "subtree".to_owned(),
             },
         ],

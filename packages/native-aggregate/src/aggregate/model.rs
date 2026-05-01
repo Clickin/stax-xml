@@ -181,6 +181,7 @@ pub struct ItemProjectionRowsResult {
 #[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ObjectRowsProjectionSpec {
     pub item_name: String,
+    pub item_position: Option<u32>,
     pub fields: Vec<ObjectRowsProjectionFieldSpec>,
 }
 
@@ -190,6 +191,8 @@ pub struct ObjectRowsProjectionFieldSpec {
     pub value_kind: String,
     pub source_kind: String,
     pub source_name: String,
+    pub source_path: Option<Vec<String>>,
+    pub source_positions: Option<Vec<u32>>,
     pub text_mode: String,
 }
 
@@ -569,18 +572,23 @@ pub(crate) struct NormalizedObjectRowsField {
     pub(crate) value_kind: ObjectRowsValueKind,
     pub(crate) source_kind: ObjectRowsSourceKind,
     pub(crate) source_name: Vec<u8>,
+    pub(crate) source_path: Vec<Vec<u8>>,
+    pub(crate) source_positions: Vec<usize>,
     pub(crate) text_mode: ObjectRowsTextMode,
 }
 
 #[derive(Clone)]
 pub(crate) struct NormalizedObjectRowsSpec {
     pub(crate) item_name: Vec<u8>,
+    pub(crate) item_position: Option<usize>,
     pub(crate) fields: Vec<NormalizedObjectRowsField>,
 }
 
 pub(crate) struct ObjectRowsProjectionState {
     pub(crate) depth: usize,
     pub(crate) max_depth: usize,
+    pub(crate) position_stack: Vec<usize>,
+    pub(crate) element_names: Vec<Vec<u8>>,
     pub(crate) current_row: Option<CurrentObjectRowsProjection>,
     pub(crate) capture: Option<ObjectRowsProjectionCapture>,
     pub(crate) row_count: usize,

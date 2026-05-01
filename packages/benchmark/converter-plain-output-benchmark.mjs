@@ -80,6 +80,14 @@ function buildProjectionXml(count) {
   return `<root>${entries}</root>`;
 }
 
+function buildNestedProjectionXml(count) {
+  const entries = Array.from({ length: count }, (_, i) =>
+    `<entry code="entry-${i}"><meta><label>Entry ${i}</label><pages>${i}</pages><pages>${i + 1}</pages></meta><ranking><score>${i % 100}</score></ranking></entry>`
+  ).join('');
+
+  return `<root>${entries}</root>`;
+}
+
 function parsePlainCatalogSync(xml) {
   const parser = new EventReaderSync(xml);
   const elementStack = [];
@@ -239,12 +247,12 @@ function describeOutputDifference(actual, expected, path = '$') {
   return `${path}: ${JSON.stringify(actual)} !== ${JSON.stringify(expected)}`;
 }
 
-function assertProjectionRows(result, expectedRowCount) {
+function assertProjectionRows(result, expectedRowCount, expectedFieldCount) {
   const rowCount = result.rowCount ?? result.row_count;
   if (rowCount !== expectedRowCount) {
     throw new Error(`ProjectionReader returned ${rowCount} rows; expected ${expectedRowCount}`);
   }
-  if (!Array.isArray(result.columns) || result.columns.length !== 3) {
+  if (!Array.isArray(result.columns) || result.columns.length !== expectedFieldCount) {
     throw new Error('ProjectionReader returned an invalid column shape');
   }
 }
@@ -267,7 +275,6 @@ async function initializeNativeProjection() {
       && typeof runtime.capabilities.objectRecordsProjection === 'function';
   } catch (error) {
     console.warn(`Native projection benchmark unavailable: ${error instanceof Error ? error.message : String(error)}`);
-    await initStaxXml({ backend: 'js' });
     return false;
   }
 }
@@ -278,6 +285,9 @@ const compiledSchema = catalogSchema.compile();
 const projectionFixtureSize = 10000;
 const projectionXml = buildProjectionXml(projectionFixtureSize);
 const projectionBytes = Buffer.from(projectionXml);
+const nestedProjectionFixtureSize = 10000;
+const nestedProjectionXml = buildNestedProjectionXml(nestedProjectionFixtureSize);
+const nestedProjectionBytes = Buffer.from(nestedProjectionXml);
 const projectionSpec = {
   itemName: 'entry',
   fields: [
@@ -294,6 +304,46 @@ const projectionSchema = x.array(
   }),
   '//entry'
 ).compile();
+const nestedProjectionSpec = {
+  itemName: 'entry',
+  fields: [
+    { outputName: 'code', valueKind: 'string', sourceKind: 'attribute', sourceName: 'code', textMode: 'direct' },
+    {
+      outputName: 'label',
+      valueKind: 'string',
+      sourceKind: 'element',
+      sourceName: 'label',
+      sourcePath: ['meta', 'label'],
+      textMode: 'subtree',
+    },
+    {
+      outputName: 'secondPage',
+      valueKind: 'number',
+      sourceKind: 'element',
+      sourceName: 'pages',
+      sourcePath: ['meta', 'pages'],
+      sourcePositions: [0, 2],
+      textMode: 'subtree',
+    },
+    {
+      outputName: 'score',
+      valueKind: 'number',
+      sourceKind: 'element',
+      sourceName: 'score',
+      sourcePath: ['ranking', 'score'],
+      textMode: 'subtree',
+    }
+  ]
+};
+const nestedProjectionSchema = x.array(
+  x.object({
+    code: x.string().xpath('./@code'),
+    label: x.string().xpath('./meta/label'),
+    secondPage: x.number().xpath('./meta/pages[2]').int(),
+    score: x.number().xpath('./ranking/score').int()
+  }),
+  '//entry'
+).compile();
 const projectionReader = new ProjectionReader();
 const nativeProjectionAvailable = await initializeNativeProjection();
 
@@ -301,6 +351,9 @@ const plainOutput = parsePlainCatalogSync(xml);
 const converterOutput = catalogSchema.parseSync(xml);
 const compiledOutput = compiledSchema.parseSync(xml);
 const projectionJsOutput = projectionSchema.parseSync(projectionBytes, {
+  acceleration: { backend: 'js' }
+});
+const nestedProjectionJsOutput = nestedProjectionSchema.parseSync(nestedProjectionBytes, {
   acceleration: { backend: 'js' }
 });
 
@@ -311,19 +364,39 @@ assertSameOutput(projectionJsOutput, Array.from({ length: projectionFixtureSize 
   title: `Entry ${i}`,
   score: i % 100
 })));
+assertSameOutput(nestedProjectionJsOutput, Array.from({ length: nestedProjectionFixtureSize }, (_, i) => ({
+  code: `entry-${i}`,
+  label: `Entry ${i}`,
+  secondPage: i,
+  score: i % 100
+})));
 
 if (nativeProjectionAvailable) {
   const projectionNativeOutput = projectionSchema.parseSync(projectionBytes, {
     acceleration: { backend: 'native' }
   });
+  const nestedProjectionNativeOutput = nestedProjectionSchema.parseSync(nestedProjectionBytes, {
+    acceleration: { backend: 'native' }
+  });
   assertSameOutput(projectionNativeOutput, projectionJsOutput);
+  assertSameOutput(nestedProjectionNativeOutput, nestedProjectionJsOutput);
   assertProjectionRows(
     projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' }),
-    projectionFixtureSize
+    projectionFixtureSize,
+    projectionSpec.fields.length
   );
   assertProjectionRecords(
     projectionReader.projectObjectRecordsSync(projectionBytes, projectionSpec, { backend: 'native' }),
     projectionFixtureSize
+  );
+  assertProjectionRows(
+    projectionReader.projectObjectRowsSync(nestedProjectionBytes, nestedProjectionSpec, { backend: 'native' }),
+    nestedProjectionFixtureSize,
+    nestedProjectionSpec.fields.length
+  );
+  assertProjectionRecords(
+    projectionReader.projectObjectRecordsSync(nestedProjectionBytes, nestedProjectionSpec, { backend: 'native' }),
+    nestedProjectionFixtureSize
   );
 }
 
@@ -342,15 +415,27 @@ measure('converter-api-compiled', () => compiledSchema.parseSync(xml));
 measure('converter-api-compiled-js-byte-projection', () =>
   projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'js' } })
 );
+measure('converter-api-compiled-js-byte-projection-nested-path', () =>
+  nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'js' } })
+);
 if (nativeProjectionAvailable) {
   measure('converter-api-compiled-native-byte-projection', () =>
     projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'native' } })
+  );
+  measure('converter-api-compiled-native-byte-projection-nested-path', () =>
+    nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'native' } })
   );
   measure('projection-reader-native-object-rows', () =>
     projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' })
   );
   measure('projection-reader-native-object-records', () =>
     projectionReader.projectObjectRecordsSync(projectionBytes, projectionSpec, { backend: 'native' })
+  );
+  measure('projection-reader-native-object-rows-nested-path', () =>
+    projectionReader.projectObjectRowsSync(nestedProjectionBytes, nestedProjectionSpec, { backend: 'native' })
+  );
+  measure('projection-reader-native-object-records-nested-path', () =>
+    projectionReader.projectObjectRecordsSync(nestedProjectionBytes, nestedProjectionSpec, { backend: 'native' })
   );
 }
 
@@ -360,15 +445,27 @@ bench('converter api compiled', () => compiledSchema.parseSync(xml));
 bench('converter api compiled js byte projection', () =>
   projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'js' } })
 );
+bench('converter api compiled js byte projection nested path', () =>
+  nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'js' } })
+);
 if (nativeProjectionAvailable) {
   bench('converter api compiled native byte projection', () =>
     projectionSchema.parseSync(projectionBytes, { acceleration: { backend: 'native' } })
+  );
+  bench('converter api compiled native byte projection nested path', () =>
+    nestedProjectionSchema.parseSync(nestedProjectionBytes, { acceleration: { backend: 'native' } })
   );
   bench('ProjectionReader native object rows', () =>
     projectionReader.projectObjectRowsSync(projectionBytes, projectionSpec, { backend: 'native' })
   );
   bench('ProjectionReader native object records', () =>
     projectionReader.projectObjectRecordsSync(projectionBytes, projectionSpec, { backend: 'native' })
+  );
+  bench('ProjectionReader native object rows nested path', () =>
+    projectionReader.projectObjectRowsSync(nestedProjectionBytes, nestedProjectionSpec, { backend: 'native' })
+  );
+  bench('ProjectionReader native object records nested path', () =>
+    projectionReader.projectObjectRecordsSync(nestedProjectionBytes, nestedProjectionSpec, { backend: 'native' })
   );
 }
 
@@ -378,8 +475,9 @@ const markdown = `# Converter API vs Plain Parser Benchmark
 
 - Fixture: catalog document with ${fixtureSize} featured items and ${fixtureSize} books
 - Projection fixture: byte input document with ${projectionFixtureSize} entry rows
+- Nested projection fixture: byte input document with ${nestedProjectionFixtureSize} entry rows and schema-known \`meta/label\`, \`meta/pages[2]\`, and \`ranking/score\` fields
 - Guarantee: converter implementations are verified to produce identical JSON output before benchmarking; ProjectionReader is verified against the same row count and column shape
-- Focus: compare a handwritten plain-parser implementation, declarative converter API, compiled converter API, and the public native projection fast path
+- Focus: compare a handwritten plain-parser implementation, declarative converter API, compiled converter API, and the public native projection fast path, including the bounded nested-path plus positive-position descriptor shape
 
 ## One-shot local timings
 

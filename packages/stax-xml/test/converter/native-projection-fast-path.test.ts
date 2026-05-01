@@ -90,6 +90,65 @@ describe('compiled converter native projection fast path', () => {
     expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
   });
 
+  it('emits bounded native descriptors for multisegment child paths and positive position filters', async () => {
+    const xml = '<root><entry code="js"><meta><label>fallback</label><pages>1</pages><pages>2</pages></meta></entry></root>';
+    const input = new TextEncoder().encode(xml);
+    const parseObjectRowsViaTableUint8Array = vi.fn(() => ({
+      inputBytes: input.byteLength,
+      eventCount: 12,
+      maxDepth: 4,
+      fieldCount: 3,
+      rowCount: 1,
+      columns: [
+        { present: [true], values: ['native'] },
+        { present: [true], values: ['Nested'] },
+        { present: [true], numberValues: [2] },
+      ],
+    }));
+    mocks.resolveBackend.mockResolvedValue({
+      kind: 'native',
+      packageName: '@stax-xml/native-test',
+      module: { parseObjectRowsViaTableUint8Array },
+      errors: [],
+    });
+
+    const schema = x.array(
+      x.object({
+        code: x.string().xpath('./@code'),
+        label: x.string().xpath('./meta/label'),
+        secondPage: x.number().xpath('./meta/pages[2]').int(),
+      }),
+      '//entry[2]',
+    ).compile();
+
+    await expect(schema.parse(input, { acceleration: { backend: 'native' } }))
+      .resolves.toEqual([{ code: 'native', label: 'Nested', secondPage: 2 }]);
+    expect(parseObjectRowsViaTableUint8Array).toHaveBeenCalledWith(input, {
+      itemName: 'entry',
+      itemPosition: 2,
+      fields: [
+        { outputName: 'code', valueKind: 'string', sourceKind: 'attribute', sourceName: 'code', textMode: 'direct' },
+        {
+          outputName: 'label',
+          valueKind: 'string',
+          sourceKind: 'element',
+          sourceName: 'label',
+          sourcePath: ['meta', 'label'],
+          textMode: 'subtree',
+        },
+        {
+          outputName: 'secondPage',
+          valueKind: 'number',
+          sourceKind: 'element',
+          sourceName: 'pages',
+          sourcePath: ['meta', 'pages'],
+          sourcePositions: [0, 2],
+          textMode: 'subtree',
+        },
+      ],
+    });
+  });
+
   it('prefers direct generic native projection over table projection when available', async () => {
     const xml = '<root><entry code="js"><label>fallback</label><score>1</score></entry></root>';
     const input = new TextEncoder().encode(xml);
@@ -483,15 +542,18 @@ describe('compiled converter native projection fast path', () => {
         [{ childId: 'c' }],
       ],
       [
-        x.array(x.object({ nested: x.string().xpath('./child/value') }), '//entry').compile(),
-        [{ nested: 'nested' }],
+        x.array(x.object({
+          child: x.string().xpath('./child'),
+          nested: x.string().xpath('./child/value'),
+        }), '//entry').compile(),
+        [{ child: 'nested', nested: 'nested' }],
       ],
       [
         x.array(x.object({ child: x.object({ value: x.string().xpath('./value') }).xpath('./child') }), '//entry').compile(),
         [{ child: { value: 'nested' } }],
       ],
       [
-        x.array(x.object({ label: x.string().xpath('./label[1]') }), '//entry').compile(),
+        x.array(x.object({ label: x.string().xpath('./label[last()]') }), '//entry').compile(),
         [{ label: 'label' }],
       ],
       [

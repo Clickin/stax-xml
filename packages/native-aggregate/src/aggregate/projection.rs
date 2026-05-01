@@ -749,6 +749,7 @@ impl<'a> ObjectRowsProjectionParser<'a> {
 
         self.event_count += 1;
         self.state.depth += 1;
+        record_object_rows_position(&mut self.state);
         self.state.max_depth = self.state.max_depth.max(self.state.depth);
         start_object_rows_projection_element_direct(
             self.input,
@@ -769,6 +770,7 @@ impl<'a> ObjectRowsProjectionParser<'a> {
                 &self.spec,
                 &mut self.state,
             )?;
+            pop_object_rows_position_scope(&mut self.state);
             self.state.depth -= 1;
         } else {
             self.element_stack.push((name_start, name_end));
@@ -806,6 +808,7 @@ impl<'a> ObjectRowsProjectionParser<'a> {
             &self.spec,
             &mut self.state,
         )?;
+        pop_object_rows_position_scope(&mut self.state);
         self.state.depth -= 1;
         Ok(end + 1)
     }
@@ -1075,11 +1078,13 @@ pub(crate) fn project_object_rows_from_span_table(
         match event.event_type {
             value if value == START_ELEMENT as u32 => {
                 state.depth += 1;
+                record_object_rows_position(&mut state);
                 state.max_depth = state.max_depth.max(state.depth);
                 start_object_rows_projection_element(input, &table, event, &spec, &mut state)?;
             }
             value if value == END_ELEMENT as u32 => {
                 end_object_rows_projection_element(input, event, &spec, &mut state)?;
+                pop_object_rows_position_scope(&mut state);
                 state.depth = state
                     .depth
                     .checked_sub(1)
@@ -1112,6 +1117,8 @@ pub(crate) fn create_object_rows_projection_state(field_count: usize) -> ObjectR
     ObjectRowsProjectionState {
         depth: 0,
         max_depth: 0,
+        position_stack: Vec::new(),
+        element_names: Vec::new(),
         current_row: None,
         capture: None,
         row_count: 0,
@@ -1135,6 +1142,15 @@ pub(crate) fn normalize_object_rows_spec(
             "Object rows projection requires an item element name",
         ));
     }
+    let item_position = match spec.item_position {
+        Some(0) => {
+            return Err(Error::from_reason(
+                "Object rows projection item position must be positive when provided",
+            ));
+        }
+        Some(value) => Some(value as usize),
+        None => None,
+    };
     if spec.fields.is_empty() {
         return Err(Error::from_reason(
             "Object rows projection requires at least one field",
@@ -1172,6 +1188,54 @@ pub(crate) fn normalize_object_rows_spec(
                 ));
             }
         };
+        let source_path = match (&field.source_path, source_kind) {
+            (Some(_), ObjectRowsSourceKind::Attribute) => {
+                return Err(Error::from_reason(
+                    "Object rows projection attribute fields do not support sourcePath",
+                ));
+            }
+            (_, ObjectRowsSourceKind::Attribute) => vec![field.source_name.as_bytes().to_vec()],
+            (Some(path), ObjectRowsSourceKind::Element) => {
+                if path.is_empty() {
+                    return Err(Error::from_reason(
+                        "Object rows projection element sourcePath cannot be empty",
+                    ));
+                }
+                let mut normalized = Vec::with_capacity(path.len());
+                for segment in path {
+                    if segment.is_empty() {
+                        return Err(Error::from_reason(
+                            "Object rows projection element sourcePath segments cannot be empty",
+                        ));
+                    }
+                    normalized.push(segment.as_bytes().to_vec());
+                }
+                if normalized.last().is_none_or(|segment| segment.as_slice() != field.source_name.as_bytes()) {
+                    return Err(Error::from_reason(
+                        "Object rows projection sourcePath must end with sourceName",
+                    ));
+                }
+                normalized
+            }
+            (None, ObjectRowsSourceKind::Element) => vec![field.source_name.as_bytes().to_vec()],
+        };
+        let source_positions = match (&field.source_positions, source_kind) {
+            (Some(_), ObjectRowsSourceKind::Attribute) => {
+                return Err(Error::from_reason(
+                    "Object rows projection attribute fields do not support sourcePositions",
+                ));
+            }
+            (Some(positions), ObjectRowsSourceKind::Element) => {
+                if positions.len() != source_path.len() {
+                    return Err(Error::from_reason(
+                        "Object rows projection sourcePositions must match sourcePath length",
+                    ));
+                }
+                positions.iter().map(|position| *position as usize).collect()
+            }
+            (None, ObjectRowsSourceKind::Attribute) => Vec::new(),
+            (None, ObjectRowsSourceKind::Element) => vec![0; source_path.len()],
+        };
         let text_mode = match field.text_mode.as_str() {
             "direct" => ObjectRowsTextMode::Direct,
             "subtree" => ObjectRowsTextMode::Subtree,
@@ -1187,14 +1251,71 @@ pub(crate) fn normalize_object_rows_spec(
             value_kind,
             source_kind,
             source_name: field.source_name.as_bytes().to_vec(),
+            source_path,
+            source_positions,
             text_mode,
         });
     }
 
     Ok(NormalizedObjectRowsSpec {
         item_name: spec.item_name.as_bytes().to_vec(),
+        item_position,
         fields,
     })
+}
+
+fn matches_object_rows_item_position(
+    spec: &NormalizedObjectRowsSpec,
+    state: &ObjectRowsProjectionState,
+) -> bool {
+    match spec.item_position {
+        Some(expected) => state.position_stack.get(state.depth - 1).copied() == Some(expected),
+        None => true,
+    }
+}
+
+fn object_rows_field_matches_element(
+    field: &NormalizedObjectRowsField,
+    row: &CurrentObjectRowsProjection,
+    state: &ObjectRowsProjectionState,
+) -> bool {
+    if field.source_path.is_empty() || state.depth != row.depth + field.source_path.len() {
+        return false;
+    }
+
+    for (index, segment) in field.source_path.iter().enumerate() {
+        let absolute_index = row.depth + index;
+        if state
+            .element_names
+            .get(absolute_index)
+            .is_none_or(|name| name.as_slice() != segment.as_slice())
+        {
+            return false;
+        }
+        let expected_position = field.source_positions.get(index).copied().unwrap_or(0);
+        if expected_position != 0
+            && state.position_stack.get(absolute_index).copied() != Some(expected_position)
+        {
+            return false;
+        }
+    }
+    true
+}
+
+fn record_object_rows_position(state: &mut ObjectRowsProjectionState) {
+    if state.position_stack.len() < state.depth {
+        state.position_stack.push(1);
+        return;
+    }
+    if let Some(position) = state.position_stack.get_mut(state.depth - 1) {
+        *position += 1;
+    }
+}
+
+fn pop_object_rows_position_scope(state: &mut ObjectRowsProjectionState) {
+    if state.position_stack.len() > state.depth {
+        state.position_stack.pop();
+    }
 }
 
 pub(crate) fn start_object_rows_projection_element(
@@ -1210,8 +1331,12 @@ pub(crate) fn start_object_rows_projection_element(
         ));
     };
     let name = &input[name_start..name_end];
+    state.element_names.push(name.to_vec());
 
-    if state.current_row.is_none() && name == spec.item_name.as_slice() {
+    if state.current_row.is_none()
+        && name == spec.item_name.as_slice()
+        && matches_object_rows_item_position(spec, state)
+    {
         let mut row = CurrentObjectRowsProjection {
             depth: state.depth,
             completed: vec![false; spec.fields.len()],
@@ -1228,26 +1353,26 @@ pub(crate) fn start_object_rows_projection_element(
         return Ok(());
     }
 
-    let Some(row) = &mut state.current_row else {
+    let Some(row) = state.current_row.as_ref() else {
         return Ok(());
     };
-    if state.depth != row.depth + 1 {
-        return Ok(());
-    }
 
     let mut field_indices = Vec::new();
     let mut text_mode = ObjectRowsTextMode::Subtree;
     for (index, field) in spec.fields.iter().enumerate() {
         if field.source_kind == ObjectRowsSourceKind::Element
-            && name == field.source_name.as_slice()
             && !row.completed[index]
+            && object_rows_field_matches_element(field, row, state)
         {
             field_indices.push(index);
             text_mode = field.text_mode;
-            row.present[index] = true;
         }
     }
     if !field_indices.is_empty() {
+        let row = state.current_row.as_mut().expect("current_row present while capture is active");
+        for index in &field_indices {
+            row.present[*index] = true;
+        }
         state.capture = Some(ObjectRowsProjectionCapture {
             depth: state.depth,
             field_indices,
@@ -1310,8 +1435,12 @@ pub(crate) fn start_object_rows_projection_element_direct(
     state: &mut ObjectRowsProjectionState,
 ) -> Result<()> {
     let name = &input[name_start..name_end];
+    state.element_names.push(name.to_vec());
 
-    if state.current_row.is_none() && name == spec.item_name.as_slice() {
+    if state.current_row.is_none()
+        && name == spec.item_name.as_slice()
+        && matches_object_rows_item_position(spec, state)
+    {
         let mut row = CurrentObjectRowsProjection {
             depth: state.depth,
             completed: vec![false; spec.fields.len()],
@@ -1328,26 +1457,26 @@ pub(crate) fn start_object_rows_projection_element_direct(
         return Ok(());
     }
 
-    let Some(row) = &mut state.current_row else {
+    let Some(row) = state.current_row.as_ref() else {
         return Ok(());
     };
-    if state.depth != row.depth + 1 {
-        return Ok(());
-    }
 
     let mut field_indices = Vec::new();
     let mut text_mode = ObjectRowsTextMode::Subtree;
     for (index, field) in spec.fields.iter().enumerate() {
         if field.source_kind == ObjectRowsSourceKind::Element
-            && name == field.source_name.as_slice()
             && !row.completed[index]
+            && object_rows_field_matches_element(field, row, state)
         {
             field_indices.push(index);
             text_mode = field.text_mode;
-            row.present[index] = true;
         }
     }
     if !field_indices.is_empty() {
+        let row = state.current_row.as_mut().expect("current_row present while capture is active");
+        for index in &field_indices {
+            row.present[*index] = true;
+        }
         state.capture = Some(ObjectRowsProjectionCapture {
             depth: state.depth,
             field_indices,
@@ -1424,6 +1553,9 @@ pub(crate) fn end_object_rows_projection_element(
     }
 
     let Some((name_start, name_end)) = event.name_range()? else {
+        if state.element_names.len() >= state.depth {
+            state.element_names.pop();
+        }
         return Ok(());
     };
     if let Some(mut row) = state.current_row.take_if(|row| {
@@ -1448,6 +1580,9 @@ pub(crate) fn end_object_rows_projection_element(
             }
         }
         state.row_count += 1;
+    }
+    if state.element_names.len() >= state.depth {
+        state.element_names.pop();
     }
     Ok(())
 }
@@ -1504,6 +1639,9 @@ pub(crate) fn end_object_rows_projection_element_direct(
             }
         }
         state.row_count += 1;
+    }
+    if state.element_names.len() >= state.depth {
+        state.element_names.pop();
     }
     Ok(())
 }

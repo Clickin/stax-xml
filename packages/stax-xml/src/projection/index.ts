@@ -64,11 +64,14 @@ export interface ObjectRowsProjectionFieldSpec {
   valueKind: ProjectionFieldValueKind;
   sourceKind: ProjectionFieldSourceKind;
   sourceName: string;
+  sourcePath?: string[];
+  sourcePositions?: number[];
   textMode: ProjectionFieldTextMode;
 }
 
 export interface ObjectRowsProjectionSpec {
   itemName: string;
+  itemPosition?: number;
   fields: ObjectRowsProjectionFieldSpec[];
 }
 

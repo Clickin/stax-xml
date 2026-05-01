@@ -1480,13 +1480,13 @@ function createNativeObjectRowsProjectionPlan(
     || root.itemSelector.mode !== 'descendant'
     || root.itemSelector.terminal !== 'element'
     || root.itemSelector.segments.length !== 1
-    || root.itemSelector.positionFilters
     || root.element.kind !== 'object'
     || root.element.transforms.length !== 0
   ) {
     return undefined;
   }
 
+  let requiresRequiredScalarFields = false;
   const fields: DispatchFieldPlan[] = [];
   const nativeFields: NativeObjectRowsProjectionFieldSpec[] = [];
   for (const field of root.element.fields) {
@@ -1496,13 +1496,16 @@ function createNativeObjectRowsProjectionPlan(
       || value.transforms.length !== 0
       || !value.selector
       || value.selector.mode !== 'relative'
-      || value.selector.positionFilters
     ) {
       return undefined;
     }
 
     if (value.selector.terminal === 'attribute') {
-      if (value.selector.segments.length !== 0 || !value.selector.attributeName) {
+      if (
+        value.selector.segments.length !== 0
+        || value.selector.positionFilters
+        || !value.selector.attributeName
+      ) {
         return undefined;
       }
       nativeFields.push({
@@ -1513,27 +1516,41 @@ function createNativeObjectRowsProjectionPlan(
         textMode: 'direct',
       });
     } else {
-      if (value.selector.segments.length !== 1) {
+      if (value.selector.segments.length === 0) {
         return undefined;
       }
-      nativeFields.push({
+      if (value.selector.segments.length > 1 || value.selector.positionFilters) {
+        requiresRequiredScalarFields = true;
+      }
+      const nativeField: NativeObjectRowsProjectionFieldSpec = {
         outputName: field.fieldName,
         valueKind: value.kind,
         sourceKind: 'element',
-        sourceName: value.selector.segments[0]!,
+        sourceName: value.selector.segments[value.selector.segments.length - 1]!,
         textMode: value.selector.textMode,
-      });
+      };
+      if (value.selector.segments.length > 1 || value.selector.positionFilters) {
+        nativeField.sourcePath = [...value.selector.segments];
+        if (value.selector.positionFilters) {
+          nativeField.sourcePositions = value.selector.positionFilters.map(position => position ?? 0);
+        }
+      }
+      nativeFields.push(nativeField);
+    }
+    if (requiresRequiredScalarFields && value.optional) {
+      return undefined;
     }
     fields.push(field);
   }
 
-  if (nativeFields.length === 0) {
+  if (nativeFields.length === 0 || hasOverlappingNativeObjectRowsCaptures(nativeFields)) {
     return undefined;
   }
 
   const projection = {
     spec: {
       itemName: root.itemSelector.segments[0]!,
+      itemPosition: root.itemSelector.positionFilters?.[0],
       fields: nativeFields,
     },
     fields,
@@ -1639,6 +1656,92 @@ function selectorEquals(
     && !actual.positionFilters
     && actual.segments.length === expected.segments.length
     && actual.segments.every((segment, index) => segment === expected.segments[index]);
+}
+
+function hasOverlappingNativeObjectRowsCaptures(
+  fields: readonly NativeObjectRowsProjectionFieldSpec[]
+): boolean {
+  const normalized = fields
+    .filter((field) => field.sourceKind === 'element')
+    .map((field) => ({
+      textMode: field.textMode,
+      path: field.sourcePath && field.sourcePath.length > 0
+        ? field.sourcePath
+        : [field.sourceName],
+      positions: normalizeNativeSourcePositions(field),
+    }));
+
+  for (let index = 0; index < normalized.length; index++) {
+    for (let otherIndex = index + 1; otherIndex < normalized.length; otherIndex++) {
+      const left = normalized[index]!;
+      const right = normalized[otherIndex]!;
+      if (
+        selectorsCouldMatchSameElement(left.path, left.positions, right.path, right.positions)
+        && left.textMode !== right.textMode
+      ) {
+        return true;
+      }
+      if (
+        selectorIsCompatiblePrefix(left.path, left.positions, right.path, right.positions)
+        || selectorIsCompatiblePrefix(right.path, right.positions, left.path, left.positions)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function normalizeNativeSourcePositions(
+  field: NativeObjectRowsProjectionFieldSpec
+): number[] {
+  const length = field.sourcePath?.length ?? 1;
+  const sourcePositions = field.sourcePositions ?? [];
+  return Array.from({ length }, (_, index) => sourcePositions[index] ?? 0);
+}
+
+function selectorsCouldMatchSameElement(
+  leftPath: readonly string[],
+  leftPositions: readonly number[],
+  rightPath: readonly string[],
+  rightPositions: readonly number[],
+): boolean {
+  if (leftPath.length !== rightPath.length) {
+    return false;
+  }
+  for (let index = 0; index < leftPath.length; index++) {
+    if (leftPath[index] !== rightPath[index]) {
+      return false;
+    }
+    if (!positionsAreCompatible(leftPositions[index] ?? 0, rightPositions[index] ?? 0)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function selectorIsCompatiblePrefix(
+  shorterPath: readonly string[],
+  shorterPositions: readonly number[],
+  longerPath: readonly string[],
+  longerPositions: readonly number[],
+): boolean {
+  if (shorterPath.length >= longerPath.length) {
+    return false;
+  }
+  for (let index = 0; index < shorterPath.length; index++) {
+    if (shorterPath[index] !== longerPath[index]) {
+      return false;
+    }
+    if (!positionsAreCompatible(shorterPositions[index] ?? 0, longerPositions[index] ?? 0)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function positionsAreCompatible(left: number, right: number): boolean {
+  return left === 0 || right === 0 || left === right;
 }
 
 async function tryCreateStructuralIndexTable(
