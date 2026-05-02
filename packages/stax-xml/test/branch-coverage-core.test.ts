@@ -53,7 +53,7 @@ function createAsyncWriter(options?: ConstructorParameters<typeof Writer>[1]) {
 }
 
 async function drainBatches(parser: EventReader): Promise<void> {
-  while ((await parser.nextBatch()).length > 0) { /* drain */ }
+  while ((await parser.nextBatch()) !== null) { /* drain */ }
 }
 
 describe('core branch coverage guards', () => {
@@ -63,7 +63,7 @@ describe('core branch coverage guards', () => {
         .toThrow('xmlStream must be a web standard ReadableStream');
     });
 
-    it('should support batched iteration until the empty finished batch', async () => {
+    it('should support batched iteration until the null finished batch', async () => {
       const parser = new EventReader(streamFrom('<root><a/><b/></root>'), {
         initialQueueCapacity: 1
       });
@@ -83,7 +83,7 @@ describe('core branch coverage guards', () => {
         XmlEventType.END_ELEMENT,
         XmlEventType.END_DOCUMENT
       ]);
-      expect(await parser.nextBatch()).toEqual([]);
+      expect(await parser.nextBatch()).toBeNull();
     });
 
     it('should filter characters, attributes, and cdata events', async () => {
@@ -119,7 +119,7 @@ describe('core branch coverage guards', () => {
 
       await expect(drainBatches(parser)).rejects.toThrow('Unclosed start tag');
       await expect(parser.nextBatch()).rejects.toThrow('Unclosed start tag');
-      expect(() => parser.next()).toThrow('Unclosed start tag');
+      await expect(parser.next()).rejects.toThrow('Unclosed start tag');
     });
 
     it('should surface unclosed final markup variants', async () => {

@@ -413,6 +413,13 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
     private readonly sourceIterator?: Iterator<StreamingByteBatch>,
   ) {}
 
+  activatePendingBatch(): boolean {
+    if (this.finished) {
+      return false;
+    }
+    return this.activatePendingTable();
+  }
+
   nextBatch(): boolean {
     if (this.finished) {
       return false;

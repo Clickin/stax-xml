@@ -1,8 +1,6 @@
 import {
-  createJavaScriptIterableReader,
   IterableEventType,
   IterableReader,
-  toByteBatches,
 } from '../IterableReader.js';
 import {
   createStaxXmlRuntimeFromBackend,
@@ -169,7 +167,7 @@ export class CompiledRootProcessor {
       }
       return this.finish<T>(runtime);
     }
-
+    throw new Error('Unsupported parseSync input type.');
   }
 
   async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
@@ -2220,15 +2218,6 @@ function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undef
     return undefined;
   }
   return options as ParseOptions;
-}
-
-function disableAcceleration(options: ParseOptions | undefined): ParseOptions | undefined {
-  if (!options?.acceleration) {
-    return options;
-  }
-  const clone: ParseOptions = { ...options };
-  delete clone.acceleration;
-  return clone;
 }
 
 function isSyncIterator(input: ParseInput): input is Iterator<AnyXmlEvent> & Iterable<AnyXmlEvent> {

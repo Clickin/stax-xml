@@ -59,11 +59,11 @@ describe('Coverage Tests for Missing Areas', () => {
       const xml = '<root><item>test</item></root>';
       const parser = new EventReader(stringToReadableStream(xml));
 
-      while ((await parser.nextBatch()).length > 0) {
+      while ((await parser.nextBatch()) !== null) {
         // drain all batches
       }
 
-      await expect(parser.nextBatch()).resolves.toEqual([]);
+      await expect(parser.nextBatch()).resolves.toBeNull();
     });
 
     test('should handle nextBatch on small and large XML inputs', async () => {
@@ -86,11 +86,11 @@ describe('Coverage Tests for Missing Areas', () => {
 
       for (let i = 0; i < 5; i++) {
         const batch = await parser.nextBatch();
-        if (batch.length === 0) break;
+        if (batch === null) break;
       }
 
       const finalBatch = await parser.nextBatch();
-      expect(Array.isArray(finalBatch)).toBe(true);
+      expect(finalBatch).toBeNull();
     });
 
     test('should include character-heavy content in chunk-derived batches', async () => {
@@ -105,7 +105,7 @@ describe('Coverage Tests for Missing Areas', () => {
       let totalBatches = 0;
       while (totalBatches < 10) {
         const batch = await parser.nextBatch();
-        if (batch.length === 0) break;
+        if (batch === null) break;
         totalBatches++;
       }
 

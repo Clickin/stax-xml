@@ -22,8 +22,10 @@ head:
 
 ## API 레퍼런스
 
-현재는 포괄적인 API 가이드를 참조해 주세요:
+현재는 generated API 레퍼런스와 focused guide를 함께 참조해 주세요:
 
+- [StreamReader](/stax-xml/ko/api/main/#streamreader) - 비동기 batch-first StAX core
+- [StreamReaderSync](/stax-xml/ko/api/main/#streamreadersync) - 동기 batch-first StAX core
 - [EventReader](/stax-xml/ko/api-guides/event-reader/) - 비동기 XML 파싱
 - [EventReaderSync](/stax-xml/ko/api-guides/event-reader-sync/) - 동기 XML 파싱
 - [Tree/Object helper](/stax-xml/ko/api-guides/event-reader/#unknown-xml-tree-object-helper) - unknown XML을 ElementTree식 tree 또는 compact object로 projection
@@ -36,12 +38,14 @@ head:
 
 패키지 import 경로가 이미 `stax-xml` namespace 역할을 하므로 canonical class name에는 `StaxXml` prefix를 붙이지 않습니다. 기존 prefixed alias는 의도적으로 export하지 않습니다.
 
-권장 방향: 목표 XML-to-object shape를 알고 있다면 converter API를 먼저 사용하세요. 전체 XML 순회가 필요할 때 가벼운 per-event 작업이면 `EventReader` 또는 `EventReaderSync`를 먼저 시도하고, unknown-schema 작업이 tree, node, row materialization처럼 무거워지면 `ProjectionReader`를 사용하세요.
+권장 방향: 목표 XML-to-object shape를 알고 있다면 converter API를 먼저 사용하세요. 저오버헤드 StAX core가 필요하면 `StreamReader` 또는 `StreamReaderSync`부터 시작하고, ergonomic event object가 필요하면 `EventReader` 또는 `EventReaderSync`를 사용하세요. unknown-schema 작업이 tree, node, row materialization처럼 무거워지면 `ProjectionReader`를 사용하세요.
 
 | Surface | Import path | 목적 | 구현체 메모 |
 | --- | --- | --- | --- |
+| `StreamReader` | `stax-xml` | `ReadableStream<Uint8Array>` 입력용 async batch-first StAX core. | 초기화된 native 또는 wasm streaming runtime이 필요합니다. public JavaScript fallback 없이 `StreamBatch` view를 반환합니다. |
+| `StreamReaderSync` | `stax-xml` | `Uint8Array` 또는 byte-batch iterable용 sync batch-first StAX core. | 초기화된 native 또는 wasm streaming runtime이 필요합니다. `StreamBatch` view를 반환하며 다음 `nextBatch()` 호출 시 이전 view는 invalid 됩니다. |
 | `EventReader` | `stax-xml` | `ReadableStream<Uint8Array>` 입력용 async event reader. | public boundary에서는 stream backpressure를 유지합니다. 초기화된 native streaming batch backend가 있으면 생성 시점에 native backend를 선택하고, 아니면 내부 JavaScript reader를 사용합니다. |
-| `EventReaderSync` | `stax-xml` | 메모리의 XML string을 순회하는 sync event reader. | string에서 lean `AnyXmlEvent`를 동기 iterator로 제공합니다. runtime backend가 초기화되어 있으면 내부적으로 structural-index table을 사용할 수 있고, 확장 namespace field가 필요하면 `namespaceAware: true`를 설정합니다. |
+| `EventReaderSync` | `stax-xml` | 메모리의 XML string을 순회하는 sync event reader. | streaming runtime이 초기화된 뒤에는 sync stream core에서 `AnyXmlEvent` batch를 materialize하고, `initStaxXml()` 이전에만 내부 JavaScript fallback을 사용할 수 있습니다. |
 | `Writer` | `stax-xml` | `WritableStream<Uint8Array>`용 async writer. | web writable stream으로 encoded XML을 incremental하게 씁니다. |
 | `WriterSync` | `stax-xml` | 메모리 기반 동기 writer. | XML string을 구성해 반환합니다. 패키지 default export는 계속 `WriterSync`입니다. |
 | `WriterSyncSink` | `stax-xml` | 대용량 출력용 synchronous sink writer. | 전체 XML string을 들고 있지 않고 `SyncTextSink`로 증분 출력합니다. |

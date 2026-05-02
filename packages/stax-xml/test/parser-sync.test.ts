@@ -10,13 +10,23 @@ function newNamespaceAwareReader(
 }
 
 describe('EventReaderSync', () => {
-  it('uses lean event objects by default', () => {
+  it('includes namespace-expanded fields by default', () => {
     const events = Array.from(new EventReaderSync('<root attr="value"/>'));
 
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'root', attributes: { attr: 'value' } },
-      { type: XmlEventType.END_ELEMENT, name: 'root' },
+      {
+        type: XmlEventType.START_ELEMENT,
+        name: 'root',
+        localName: 'root',
+        prefix: undefined,
+        uri: undefined,
+        attributes: { attr: 'value' },
+        attributesWithPrefix: {
+          attr: { value: 'value', localName: 'attr', prefix: undefined, uri: undefined },
+        },
+      },
+      { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
   });
@@ -106,7 +116,7 @@ describe('EventReaderSync', () => {
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
       { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
-      { type: XmlEventType.CHARACTERS, value: 'Hello' },
+      { type: XmlEventType.CHARACTERS, value: 'Hello ' },
       { type: XmlEventType.START_ELEMENT, name: 'bold', localName: 'bold', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'World' },
       { type: XmlEventType.END_ELEMENT, name: 'bold', localName: 'bold', prefix: undefined, uri: undefined },
@@ -274,7 +284,7 @@ describe('EventReaderSync', () => {
     expect(events).toEqual([
       { type: XmlEventType.START_DOCUMENT },
       { type: XmlEventType.START_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
-      { type: XmlEventType.CHARACTERS, value: 'Hello   World' }, // trim() is applied to characters
+      { type: XmlEventType.CHARACTERS, value: '  Hello   World  ' },
       { type: XmlEventType.END_ELEMENT, name: 'root', localName: 'root', prefix: undefined, uri: undefined },
       { type: XmlEventType.END_DOCUMENT },
     ]);
@@ -289,11 +299,11 @@ describe('EventReaderSync', () => {
       { type: XmlEventType.START_DOCUMENT },
       { type: XmlEventType.START_ELEMENT, name: 'library', localName: 'library', prefix: undefined, uri: undefined, attributes: { name: 'My Library' }, attributesWithPrefix: { name: { value: 'My Library', localName: 'name', prefix: undefined, uri: undefined } } },
       { type: XmlEventType.START_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined, attributes: { id: '123' }, attributesWithPrefix: { id: { value: '123', localName: 'id', prefix: undefined, uri: undefined } } },
-      { type: XmlEventType.CHARACTERS, value: 'Title' },
+      { type: XmlEventType.CHARACTERS, value: 'Title ' },
       { type: XmlEventType.START_ELEMENT, name: 'author', localName: 'author', prefix: undefined, uri: undefined, attributes: {}, attributesWithPrefix: {} },
       { type: XmlEventType.CHARACTERS, value: 'Author Name' },
       { type: XmlEventType.END_ELEMENT, name: 'author', localName: 'author', prefix: undefined, uri: undefined },
-      { type: XmlEventType.CHARACTERS, value: 'More Text' },
+      { type: XmlEventType.CHARACTERS, value: ' More Text' },
       { type: XmlEventType.END_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined },
       { type: XmlEventType.START_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined, attributes: { id: '456' }, attributesWithPrefix: { id: { value: '456', localName: 'id', prefix: undefined, uri: undefined } } },
       { type: XmlEventType.END_ELEMENT, name: 'book', localName: 'book', prefix: undefined, uri: undefined },

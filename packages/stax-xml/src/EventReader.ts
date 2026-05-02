@@ -1,116 +1,65 @@
 import {
-  IterableEventBackendIterator,
   IterableEventMaterializer,
-  readReadableStreamByteBatches,
-  readReadableStreamChunksIncrementally,
   STAX_XML_EVENT_BACKEND,
   type EntityDefinition,
-  type IterableEventBackendOptions
+  type IterableEventBackendIterator,
+  type MaterializableEventSource,
 } from './IterableEventBackend.js';
-import {
-  createJavaScriptIterableReader,
-} from './IterableReader.js';
-import {
-  getStaxXmlRuntimeForSyncApi,
-  type StaxXmlStreamingEventBatchParser,
-} from './runtime/native-backend.js';
-import {
-  StreamingSpanTableAdapter,
-  toUint8Array,
-} from './runtime/event-table.js';
-import {
-  XmlEventType,
-  type AnyXmlEvent,
-  type DocumentMode,
-  type ParserEventFilter
-} from './types.js';
+import { createJavaScriptIterableReader } from './IterableReader.js';
+import { getInitializedStaxXmlRuntime } from './runtime/index.js';
+import { StreamReader, type StreamBatch } from './StreamReader.js';
+import { XmlEventType, type AnyXmlEvent, type DocumentMode, type ParserEventFilter } from './types.js';
 
 /**
- * Configuration options for the EventReader
+ * Asynchronous event reader options.
  *
  * @public
  */
 export interface EventReaderOptions {
-  /**
-   * Text encoding for the input stream
-   * @defaultValue 'utf-8'
-   */
-  encoding?: string;
-
-  /**
-   * Additional custom entities to decode
-   * @defaultValue []
-   */
-  addEntities?: EntityDefinition[];
-
-  /**
-   * Whether to automatically decode XML entities
-   * @defaultValue true
-   */
   autoDecodeEntities?: boolean;
-
-  /**
-   * Maximum buffer size in bytes
-   * @defaultValue 65536
-   *
-   * @remarks
-   * Retained for API compatibility. The iterable backend owns chunk buffering.
-   */
-  maxBufferSize?: number;
-
-  /**
-   * Whether to enable buffer compaction for memory efficiency
-   * @defaultValue true
-   *
-   * @remarks
-   * Retained for API compatibility. The iterable backend owns chunk buffering.
-   */
-  enableBufferCompaction?: boolean;
-
-  /**
-   * Initial event queue capacity
-   * @defaultValue 1024
-   *
-   * @remarks
-   * Retained for API compatibility. The iterable backend exposes materialized batches directly.
-   */
-  initialQueueCapacity?: number;
-
-  /**
-   * Maximum source chunk size passed to the active reader backend.
-   *
-   * @remarks
-   * Oversized Uint8Array chunks are split with subarray views so the reader does
-   * not copy source bytes before handing them to the native streaming backend.
-   */
-  maxChunkBytes?: number;
-
+  addEntities?: EntityDefinition[];
   eventFilter?: ParserEventFilter;
-
-  /**
-   * XML document conformance mode.
-   *
-   * @defaultValue 'fragment'
-   */
   documentMode?: DocumentMode;
-
-  fallbackOnParseError?: boolean;
+  namespaceAware?: boolean;
+  maxChunkBytes?: number;
 }
 
-export class EventReader implements AsyncIterable<AnyXmlEvent> {
-  private readonly backend: EventReaderImpl;
-  private error: Error | undefined;
+/**
+ * Event-object adapter over the batch-first async stream core.
+ *
+ * @public
+ */
+export class EventReader implements AsyncIterable<AnyXmlEvent>, AsyncIterator<AnyXmlEvent> {
+  private readonly backend: EventReaderBackend;
 
   constructor(xmlStream: ReadableStream<Uint8Array>, options: EventReaderOptions = {}) {
     if (!(xmlStream instanceof ReadableStream)) {
-      throw new Error('xmlStream must be a web standard ReadableStream.');
+      throw new Error('xmlStream must be a web standard ReadableStream');
     }
 
-    this.backend = createEventReaderImpl(xmlStream, toBackendOptions(options));
+    const stream = maybeSplitReadableStream(xmlStream, options.maxChunkBytes);
+    const materializer = new IterableEventMaterializer({
+      autoDecodeEntities: options.autoDecodeEntities ?? true,
+      addEntities: options.addEntities,
+      eventFilter: options.eventFilter,
+      namespaceAware: options.namespaceAware ?? true,
+      trimText: false,
+    });
+    const runtime = getInitializedStaxXmlRuntime();
+    const source = !runtime
+      ? new JavaScriptAsyncEventBatchSource(stream, options.documentMode, materializer)
+      : runtime.capabilities.streamingEventBatches
+        ? new CoreAsyncEventBatchSource(
+            new StreamReader(stream, { documentMode: options.documentMode }),
+            materializer,
+          )
+        : unsupportedInitializedRuntime();
+
+    this.backend = new EventReaderBackend(source);
   }
 
   [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
-    return this as unknown as AsyncIterator<AnyXmlEvent>;
+    return this;
   }
 
   /** @internal */
@@ -118,42 +67,20 @@ export class EventReader implements AsyncIterable<AnyXmlEvent> {
     return this.backend as unknown as IterableEventBackendIterator;
   }
 
-  next(): IteratorResult<AnyXmlEvent> | Promise<IteratorResult<AnyXmlEvent>> {
-    if (this.error) {
-      throw this.error;
-    }
-
-    return this.backend.next().catch((error: Error) => {
-      this.error = error;
-      throw error;
-    });
+  next(): Promise<IteratorResult<AnyXmlEvent>> {
+    return this.backend.next();
   }
 
-  async return(): Promise<IteratorResult<AnyXmlEvent>> {
+  return(): Promise<IteratorResult<AnyXmlEvent>> {
     return this.backend.return();
   }
 
-  async nextBatch(): Promise<AnyXmlEvent[]> {
-    if (this.error) {
-      throw this.error;
-    }
-
-    try {
-      return await this.backend.nextBatch();
-    } catch (error) {
-      this.error = error as Error;
-      throw this.error;
-    }
+  nextBatch(): Promise<AnyXmlEvent[] | null> {
+    return this.backend.nextBatch();
   }
 
-  async *batchedIterator(): AsyncGenerator<AnyXmlEvent[]> {
-    while (true) {
-      const batch = await this.nextBatch();
-      if (batch.length === 0) {
-        break;
-      }
-      yield batch;
-    }
+  batchedIterator(): AsyncGenerator<AnyXmlEvent[]> {
+    return this.backend.batchedIterator();
   }
 
   get XmlEventType(): typeof XmlEventType {
@@ -168,31 +95,13 @@ export function createEventReader(
   return new EventReader(xmlStream, options);
 }
 
-function toBackendOptions(options: EventReaderOptions): IterableEventBackendOptions {
-  return {
-    encoding: options.encoding ?? 'utf-8',
-    batchSize: 1,
-    autoDecodeEntities: options.autoDecodeEntities ?? true,
-    addEntities: options.addEntities,
-    eventFilter: options.eventFilter,
-    maxChunkBytes: options.maxChunkBytes,
-    documentMode: options.documentMode,
-    fallbackOnParseError: options.fallbackOnParseError
-  };
-}
-
-interface EventReaderImpl extends AsyncIterator<AnyXmlEvent>, AsyncIterable<AnyXmlEvent> {
-  return(): Promise<IteratorResult<AnyXmlEvent>>;
-  nextBatch(): Promise<AnyXmlEvent[]>;
-  batchedIterator(): AsyncGenerator<AnyXmlEvent[]>;
-}
-
-abstract class EventReaderImplBase implements EventReaderImpl {
-  private sourceBatchIterator?: AsyncGenerator<AnyXmlEvent[]>;
+class EventReaderBackend implements AsyncIterable<AnyXmlEvent>, AsyncIterator<AnyXmlEvent> {
   private bufferedEvents: AnyXmlEvent[] = [];
   private bufferedIndex = 0;
-  private error: Error | undefined;
   private finished = false;
+  private error: Error | undefined;
+
+  constructor(private readonly source: AsyncEventBatchSource) {}
 
   [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
     return this;
@@ -202,10 +111,14 @@ abstract class EventReaderImplBase implements EventReaderImpl {
     if (this.error) {
       throw this.error;
     }
+    if (this.finished) {
+      return { value: undefined, done: true };
+    }
 
     if (this.bufferedIndex >= this.bufferedEvents.length) {
-      const batch = await this.nextBatch();
-      if (batch.length === 0) {
+      const batch = await this.loadNextBatch();
+      if (batch === null) {
+        this.finished = true;
         return { value: undefined, done: true };
       }
       this.bufferedEvents = batch;
@@ -221,154 +134,244 @@ abstract class EventReaderImplBase implements EventReaderImpl {
     this.finished = true;
     this.bufferedEvents = [];
     this.bufferedIndex = 0;
-    if (this.sourceBatchIterator) {
-      await this.sourceBatchIterator.return(undefined);
-    }
+    await this.source.return();
     return { value: undefined, done: true };
   }
 
-  async nextBatch(): Promise<AnyXmlEvent[]> {
+  async nextBatch(): Promise<AnyXmlEvent[] | null> {
     if (this.error) {
       throw this.error;
     }
     if (this.finished) {
-      return [];
+      return null;
     }
-
     if (this.bufferedIndex < this.bufferedEvents.length) {
       const remaining = this.bufferedEvents.slice(this.bufferedIndex);
       this.bufferedEvents = [];
       this.bufferedIndex = 0;
       return remaining;
     }
-
-    try {
-      const nextBatch = await this.ensureSourceBatchIterator().next();
-      if (nextBatch.done) {
-        this.finished = true;
-        return [];
-      }
-      return nextBatch.value;
-    } catch (error) {
-      this.error = error as Error;
-      throw this.error;
+    const batch = await this.loadNextBatch();
+    if (batch === null) {
+      this.finished = true;
+      return null;
     }
+    return batch;
   }
 
   async *batchedIterator(): AsyncGenerator<AnyXmlEvent[]> {
     while (true) {
       const batch = await this.nextBatch();
-      if (batch.length === 0) {
-        break;
+      if (batch === null) {
+        return;
       }
       yield batch;
     }
   }
 
-  protected abstract readMaterializedBatches(): AsyncGenerator<AnyXmlEvent[]>;
-
-  private ensureSourceBatchIterator(): AsyncGenerator<AnyXmlEvent[]> {
-    this.sourceBatchIterator ??= this.readMaterializedBatches();
-    return this.sourceBatchIterator;
+  private async loadNextBatch(): Promise<AnyXmlEvent[] | null> {
+    try {
+      return await this.source.nextBatch();
+    } catch (error) {
+      this.error = error as Error;
+      throw this.error;
+    }
   }
 }
 
-class EventReaderNative extends EventReaderImplBase {
-  private readonly streamingParser: StaxXmlStreamingEventBatchParser;
+interface AsyncEventBatchSource {
+  nextBatch(): Promise<AnyXmlEvent[] | null>;
+  return(): Promise<void>;
+}
 
+class CoreAsyncEventBatchSource implements AsyncEventBatchSource {
   constructor(
-    private readonly stream: ReadableStream<Uint8Array>,
-    private readonly options: IterableEventBackendOptions,
-  ) {
-    super();
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
-    const createStreamingParser = runtime?.capabilities.streamingEventBatches;
-    if (!createStreamingParser) {
-      throw new Error('EventReaderNative requires an initialized streaming event batch backend.');
+    private readonly reader: StreamReader,
+    private readonly materializer: IterableEventMaterializer,
+  ) {}
+
+  async nextBatch(): Promise<AnyXmlEvent[] | null> {
+    while (true) {
+      const batch = await this.reader.nextBatch();
+      if (batch === null) {
+        return null;
+      }
+      const events = this.materializer.materializeBatch(toMaterializableEventSource(batch));
+      if (events.length > 0) {
+        return events;
+      }
     }
-    this.streamingParser = createStreamingParser({
-      encoding: options.encoding,
-      documentMode: options.documentMode,
-    });
   }
 
-  protected async *readMaterializedBatches(): AsyncGenerator<AnyXmlEvent[]> {
-    const materializer = new IterableEventMaterializer(this.options);
-    for await (const chunk of readReadableStreamChunksIncrementally(this.stream, this.options.maxChunkBytes)) {
-      yield* materializeNativeStreamingBatch(
-        this.streamingParser.pushChunk(chunk, false),
-        materializer,
-      );
-    }
-    yield* materializeNativeStreamingBatch(
-      this.streamingParser.pushChunk(new Uint8Array(0), true),
-      materializer,
-    );
+  async return(): Promise<void> {
+    await this.reader.return();
   }
 }
 
-class EventReaderJs extends EventReaderImplBase {
+class JavaScriptAsyncEventBatchSource implements AsyncEventBatchSource {
+  private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
+  private readonly parser: ReturnType<typeof createJavaScriptIterableReader>;
+  private released = false;
+  private sourceDone = false;
+  private finished = false;
+
   constructor(
-    private readonly stream: ReadableStream<Uint8Array>,
-    private readonly options: IterableEventBackendOptions,
+    stream: ReadableStream<Uint8Array>,
+    documentMode: DocumentMode | undefined,
+    private readonly materializer: IterableEventMaterializer,
   ) {
-    super();
+    this.reader = stream.getReader();
+    this.parser = createJavaScriptIterableReader([], { documentMode });
   }
 
-  protected async *readMaterializedBatches(): AsyncGenerator<AnyXmlEvent[]> {
-    const parser = createJavaScriptIterableReader([], {
-      encoding: this.options.encoding,
-      incompleteFinalMarkupMessage: this.options.incompleteFinalMarkupMessage,
-      emitStartDocumentBatchImmediately: this.options.emitStartDocumentBatchImmediately,
-      documentMode: this.options.documentMode
-    });
-    const materializer = new IterableEventMaterializer(this.options);
-
-    if (this.options.emitStartDocumentBatchImmediately && parser.pushByteBatch([], false)) {
-      const batch = materializer.materializeBatch(parser);
-      yield batch;
+  async nextBatch(): Promise<AnyXmlEvent[] | null> {
+    if (this.finished) {
+      return null;
     }
 
-    for await (const byteBatch of readReadableStreamByteBatches(this.stream, this.options)) {
-      if (!parser.pushByteBatch(byteBatch, false)) {
+    while (!this.sourceDone) {
+      let readResult: ReadableStreamReadResult<Uint8Array>;
+      try {
+        readResult = await this.reader.read();
+      } catch (error) {
+        this.finished = true;
+        this.releaseLock();
+        throw error;
+      }
+
+      if (readResult.done) {
+        this.sourceDone = true;
+        this.releaseLock();
+        this.parser.pushByteBatch([], true);
+        return this.finalizeCurrentBatch();
+      }
+
+      if (!this.parser.pushByteBatch([readResult.value], false)) {
         continue;
       }
-      const batch = materializer.materializeBatch(parser);
-      if (batch.length > 0) {
-        yield batch;
+
+      const events = this.materializer.materializeBatch(this.parser);
+      if (events.length > 0) {
+        return events;
       }
     }
 
-    parser.pushByteBatch([], true);
-
-    const finalBatch = materializer.materializeBatch(parser);
-    yield finalBatch;
+    this.finished = true;
+    return null;
   }
-}
 
-function createEventReaderImpl(
-  stream: ReadableStream<Uint8Array>,
-  options: IterableEventBackendOptions,
-): EventReaderImpl {
-  const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
-  if (runtime?.capabilities.streamingEventBatches) {
-    return new EventReaderNative(stream, options);
-  }
-  return new EventReaderJs(stream, options);
-}
-
-function* materializeNativeStreamingBatch(
-  batch: { buffer: ArrayBuffer | ArrayBufferView; table: ArrayBuffer | ArrayBufferView },
-  materializer: IterableEventMaterializer,
-): Generator<AnyXmlEvent[]> {
-  const source = toUint8Array(batch.buffer);
-  const parser = new StreamingSpanTableAdapter(source, batch.table);
-  while (parser.nextBatch()) {
-    const events = materializer.materializeBatch(parser);
-    if (events.length > 0) {
-      yield events;
+  async return(): Promise<void> {
+    this.finished = true;
+    try {
+      await this.reader.cancel('EventReader.return()');
+    } finally {
+      this.releaseLock();
     }
   }
+
+  private finalizeCurrentBatch(): AnyXmlEvent[] | null {
+    const finalEvents = this.materializer.materializeBatch(this.parser);
+    if (finalEvents.length > 0) {
+      return finalEvents;
+    }
+    this.finished = true;
+    return null;
+  }
+
+  private releaseLock(): void {
+    if (this.released) {
+      return;
+    }
+    this.released = true;
+    this.reader.releaseLock();
+  }
+}
+
+function toMaterializableEventSource(batch: StreamBatch): MaterializableEventSource {
+  return {
+    eventCount: () => batch.eventCount,
+    attrCount: (eventIndex: number) => batch.attributeCountAt(eventIndex),
+    eventType: (index: number) => batch.typeAt(index),
+    copyName: (index: number) => batch.nameAt(index),
+    copyText: (index: number) => batch.textAt(index),
+    copyAttrName: (eventIndex: number, attrIndex: number) => batch.attributeNameAt(eventIndex, attrIndex),
+    copyAttrValue: (eventIndex: number, attrIndex: number) => batch.attributeValueAt(eventIndex, attrIndex),
+  };
+}
+
+function maybeSplitReadableStream(
+  stream: ReadableStream<Uint8Array>,
+  maxChunkBytes: number | undefined,
+): ReadableStream<Uint8Array> {
+  if (!maxChunkBytes || maxChunkBytes <= 0) {
+    return stream;
+  }
+
+  const sourceReader = stream.getReader();
+  let pendingChunk: Uint8Array | undefined;
+  let pendingOffset = 0;
+  let sourceClosed = false;
+  let released = false;
+
+  const releaseLock = () => {
+    if (released) {
+      return;
+    }
+    released = true;
+    sourceReader.releaseLock();
+  };
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      while (true) {
+        if (pendingChunk && pendingOffset < pendingChunk.byteLength) {
+          const end = Math.min(pendingOffset + maxChunkBytes, pendingChunk.byteLength);
+          const chunk = pendingChunk.subarray(pendingOffset, end);
+          pendingOffset = end;
+          if (pendingOffset >= pendingChunk.byteLength) {
+            pendingChunk = undefined;
+            pendingOffset = 0;
+          }
+          controller.enqueue(chunk);
+          return;
+        }
+
+        if (sourceClosed) {
+          releaseLock();
+          controller.close();
+          return;
+        }
+
+        const result = await sourceReader.read();
+        if (result.done) {
+          sourceClosed = true;
+          continue;
+        }
+
+        if (result.value.byteLength <= maxChunkBytes) {
+          controller.enqueue(result.value);
+          return;
+        }
+
+        pendingChunk = result.value;
+        pendingOffset = 0;
+      }
+    },
+    async cancel(reason) {
+      try {
+        await sourceReader.cancel(reason);
+      } finally {
+        releaseLock();
+      }
+    },
+  });
+}
+
+function unsupportedInitializedRuntime(): never {
+  throw new Error(
+    'EventReader requires a streaming event batch runtime once stax-xml has been initialized. ' +
+      'JavaScript fallback is only used before initStaxXml().',
+  );
 }
 
 export default EventReader;

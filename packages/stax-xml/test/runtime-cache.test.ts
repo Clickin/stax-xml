@@ -251,7 +251,7 @@ describe('stax-xml runtime init cache', () => {
     await reader.return();
   });
 
-  it('routes sync string parser through initialized structural index tables', async () => {
+  it('does not fall back to non-streaming sync runtime helpers after initialization', async () => {
     const parseStructuralIndexUint8Array = vi.fn((input: Uint8Array) => encodeStructuralIndex(input, [
       event(0),
       event(2, span(input, 'r')),
@@ -271,11 +271,9 @@ describe('stax-xml runtime init cache', () => {
         throw new Error('sync parser should not use the JavaScript iterable parser after initStaxXml');
       });
 
-    const events = [...new EventReaderSync('<r><name>Alice</name></r>')];
-
-    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
-    expect(events.map(event => 'name' in event ? event.name : 'value' in event ? event.value : event.type))
-      .toEqual(['START_DOCUMENT', 'r', 'name', 'Alice', 'name', 'r', 'END_DOCUMENT']);
+    expect(() => new EventReaderSync('<r><name>Alice</name></r>'))
+      .toThrow(/JavaScript fallback is only used before initStaxXml/);
+    expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
   });
 
   it('routes low-level iterable parser source chunks through initialized streaming event batches', async () => {

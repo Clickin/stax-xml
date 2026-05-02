@@ -22,8 +22,10 @@ head:
 
 ## API Reference
 
-For now, please refer to our comprehensive API guides:
+For now, please refer to the generated API reference plus the focused guides:
 
+- [StreamReader](/stax-xml/api/main/#streamreader) - Async batch-first StAX core
+- [StreamReaderSync](/stax-xml/api/main/#streamreadersync) - Sync batch-first StAX core
 - [EventReader](/stax-xml/api-guides/event-reader/) - Asynchronous XML parsing
 - [EventReaderSync](/stax-xml/api-guides/event-reader-sync/) - Synchronous XML parsing
 - [Tree/Object helpers](/stax-xml/api-guides/event-reader/#unknown-xml-tree-and-object-helpers) - Unknown XML projection to an ElementTree-like tree or compact object
@@ -36,12 +38,14 @@ For now, please refer to our comprehensive API guides:
 
 The package import path already provides the `stax-xml` namespace, so the canonical class names do not use a `StaxXml` prefix. The old prefixed aliases are intentionally not exported.
 
-Recommendation: use the converter API first when the target XML-to-object shape is known. If you need to traverse the whole XML, try `EventReader` or `EventReaderSync` first for light per-event work; use `ProjectionReader` when the unknown-schema job needs heavier tree, node, or row materialization.
+Recommendation: use the converter API first when the target XML-to-object shape is known. If you need a low-overhead StAX core, start with `StreamReader` or `StreamReaderSync`. If you want ergonomic event objects, use `EventReader` or `EventReaderSync`. Use `ProjectionReader` when the unknown-schema job needs heavier tree, node, or row materialization.
 
 | Surface | Import path | Purpose | Implementation notes |
 | --- | --- | --- | --- |
+| `StreamReader` | `stax-xml` | Async batch-first StAX core for `ReadableStream<Uint8Array>`. | Requires an initialized native or wasm streaming runtime. Yields `StreamBatch` views and does not expose a public JavaScript fallback. |
+| `StreamReaderSync` | `stax-xml` | Sync batch-first StAX core for `Uint8Array` or byte-batch iterables. | Requires an initialized native or wasm streaming runtime. Yields `StreamBatch` views and invalidates them on the next `nextBatch()` call. |
 | `EventReader` | `stax-xml` | Async event reader for `ReadableStream<Uint8Array>` input. | Preserves stream backpressure at the public boundary. When initialized native streaming batches are available, it selects the native backend at construction; otherwise it uses an internal JavaScript reader. |
-| `EventReaderSync` | `stax-xml` | Sync event reader for an in-memory XML string. | Iterates lean `AnyXmlEvent` values from a string. When a runtime backend has been initialized, it may use a structural-index table internally; set `namespaceAware: true` when expanded namespace fields are required. |
+| `EventReaderSync` | `stax-xml` | Sync event reader for an in-memory XML string. | Materializes `AnyXmlEvent` batches from the sync stream core when a streaming runtime has been initialized; before `initStaxXml()` it may use an internal JavaScript fallback. |
 | `Writer` | `stax-xml` | Async writer for `WritableStream<Uint8Array>`. | Emits encoded XML incrementally to a web writable stream. |
 | `WriterSync` | `stax-xml` | In-memory synchronous writer. | Builds and returns the XML string; the package default export remains `WriterSync`. |
 | `WriterSyncSink` | `stax-xml` | Synchronous sink writer for large output. | Writes incrementally to a `SyncTextSink` instead of retaining the full XML string. |
