@@ -469,43 +469,42 @@ function measureNativeReaderTiers({ id, filePath, fileSizeMiB, tiers, warmups, r
 function consumeStreamReader(filePath, tier) {
   let eventCount = 0;
   let checksum = 0;
-  const parser = new StreamReaderSync(nodeFileByteBatchesSync(filePath), { backend: 'native' });
+  const parser = new StreamReaderSync(nodeFileByteBatchesSync(filePath));
 
-  for (;;) {
-    const type = parser.next();
-    if (type === null) {
-      break;
-    }
-    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
-    eventCount++;
-    checksum = mixChecksum(checksum, streamEventTypeId(type));
+  for (const batch of parser) {
+    for (const event of batch) {
+      const type = event.type;
+      const attrCount = type === StreamEventType.START_ELEMENT ? event.getAttributeCount() : 0;
+      eventCount++;
+      checksum = mixChecksum(checksum, streamEventTypeId(type));
 
-    if (tier === 'count-only') {
-      checksum = mixChecksum(checksum, attrCount);
-    } else if (tier === 'name-string-only') {
-      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-        checksum = foldString(checksum, parser.name());
-      }
-    } else if (tier === 'text-string-only') {
-      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-        checksum = foldString(checksum, parser.text()?.trim());
-      }
-    } else if (tier === 'attr-value-string-only') {
-      checksum = mixChecksum(checksum, attrCount);
-      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
-      }
-    } else {
-      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-        checksum = foldString(checksum, parser.name());
-      }
-      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-        checksum = foldString(checksum, parser.text()?.trim());
-      }
-      checksum = mixChecksum(checksum, attrCount);
-      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-        checksum = foldString(checksum, parser.getAttributeName(attrIndex));
-        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+      if (tier === 'count-only') {
+        checksum = mixChecksum(checksum, attrCount);
+      } else if (tier === 'name-string-only') {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, event.name());
+        }
+      } else if (tier === 'text-string-only') {
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, event.text()?.trim());
+        }
+      } else if (tier === 'attr-value-string-only') {
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, event.getAttributeValue(attrIndex));
+        }
+      } else {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, event.name());
+        }
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, event.text()?.trim());
+        }
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, event.getAttributeName(attrIndex));
+          checksum = foldString(checksum, event.getAttributeValue(attrIndex));
+        }
       }
     }
   }
@@ -657,7 +656,7 @@ function escapePipe(value) {
 function createScenarioDetails(report) {
   return [
     '<details>',
-    '<summary>Scenario contract: stax-xml native StreamReaderSync plus native addon full-spec control, JS reference, Woodstox, quick-xml, and simdxml comparator</summary>',
+    '<summary>Scenario contract: stax-xml native StreamReaderSync plus wrapper decomposition rows, native addon full-spec control, JS reference, Woodstox, quick-xml, and simdxml comparator</summary>',
     '',
     `The comparator uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
     '',
@@ -681,7 +680,7 @@ function createScenarioDetails(report) {
     '~~~text',
     'comparator-result = {',
     '  tier: "count-only" | "name-string-only" | "attr-value-string-only" | "text-string-only" | "full-string",',
-    '  implementation: "stax-xml-js-event-reader" | "stax-xml-native-stream-reader" | "native-addon-full-spec" | "woodstox-java8" | "quick-xml" | "simdxml-file" | "simdxml-memory",',
+    '  implementation: "stax-xml-js-event-reader" | "stax-xml-native-stream-reader" | "stax-xml-native-stream-reader-indexed" | "stax-xml-native-stream-reader-raw" | "native-addon-full-spec" | "woodstox-java8" | "quick-xml" | "simdxml-file" | "simdxml-memory",',
     '  eventCount: number,',
     '  checksum: fold(selected event data for tier)',
     '}',
@@ -691,6 +690,8 @@ function createScenarioDetails(report) {
     '',
     '- `stax-xml JS on Node`: internal JavaScript reference reader, run on Node, with tier-specific checksum folding.',
     '- `stax-xml native StreamReaderSync`: initializes `stax-xml` with `initStaxXml({ backend: "native" })`, then measures the public byte-stream reader surface.',
+    '- `stax-xml native StreamReaderSync indexed`: keeps the public batch API but uses `eventCount`/`typeAt()`/indexed accessors to remove iterator and per-event view allocation.',
+    '- `stax-xml native StreamReaderSync raw`: uses the experimental raw batch table/frame view to isolate wrapper object overhead from native parsing and table handoff.',
     '- `native-addon-full-spec`: control row from `node-string-return.mjs` that calls the native aggregate addon full-spec file-input tier directly. Public native StreamReaderSync must remain at least 0.90x this row before it can be treated as wrapper-thin enough for headline claims; misses stay as optimization evidence for raising the public surface, not as a reason to remove the row or lower the final spec.',
     '- Woodstox: Java StAX `XMLStreamReader`, namespace-aware parsing disabled, coalescing enabled, DTD/external entities disabled, buffered file input.',
     '- `quick-xml`: Rust `Reader` over buffered file input; declaration, PI, doctype, and comments are skipped; text is trimmed for checksum parity.',
@@ -709,7 +710,7 @@ function createMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This artifact compares public stax-xml StreamReaderSync native rows, EventReaderSync reference rows, a native addon full-spec control row, and non-JS parser baselines under the same checksum contract.',
+    'This artifact compares public stax-xml StreamReaderSync native rows, wrapper-overhead decomposition rows, EventReaderSync reference rows, a native addon full-spec control row, and non-JS parser baselines under the same checksum contract.',
     'The public Woodstox row uses Java 8 because Woodstox supports Java 8 as its minimum runtime target; Java 25 is reported only as a verification check.',
     '',
     '## Environment',
@@ -791,7 +792,9 @@ function comparatorRows(report, tierId) {
   const jsNode = scenarioById(report, tierId, 'neutral') ?? scenarioById(report, tierId, 'node');
   return [
     ['stax-xml JS on Node', jsNode],
-    ['stax-xml native StreamReaderSync', nativeReaderTierById(report, tierId)],
+    ['stax-xml native StreamReaderSync (event view)', nativeReaderTierById(report, tierId)],
+    ['stax-xml native StreamReaderSync (indexed batch)', scenarioById(report, tierId, 'stream-reader-native-indexed')],
+    ['stax-xml native StreamReaderSync (raw batch)', scenarioById(report, tierId, 'stream-reader-native-raw')],
     ['native addon full spec control', scenarioById(report, tierId, 'native-addon-full-spec')],
     ['Woodstox on Java 8', scenarioById(report, tierId, 'woodstox')],
     ['quick-xml', scenarioById(report, tierId, 'quick-xml')],

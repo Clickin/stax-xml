@@ -23,6 +23,7 @@ const DEFAULT_OUTPUT_DIR = join(
   'iterable',
   `stream-reader-overhead-${new Date().toISOString().replace(/[:.]/g, '-')}`,
 );
+const utf8Decoder = new TextDecoder();
 
 const CASES = [
   {
@@ -33,11 +34,43 @@ const CASES = [
     batchSize: 1,
   },
   {
+    id: 'stream-native-indexed-count',
+    readerKind: 'stream',
+    backend: 'native',
+    tier: 'count-only',
+    batchSize: 1,
+    accessPattern: 'indexed',
+  },
+  {
+    id: 'stream-native-raw-count',
+    readerKind: 'stream',
+    backend: 'native',
+    tier: 'count-only',
+    batchSize: 1,
+    accessPattern: 'raw',
+  },
+  {
     id: 'stream-native-full',
     readerKind: 'stream',
     backend: 'native',
     tier: 'full-string',
     batchSize: 1,
+  },
+  {
+    id: 'stream-native-indexed-full',
+    readerKind: 'stream',
+    backend: 'native',
+    tier: 'full-string',
+    batchSize: 1,
+    accessPattern: 'indexed',
+  },
+  {
+    id: 'stream-native-raw-full',
+    readerKind: 'stream',
+    backend: 'native',
+    tier: 'full-string',
+    batchSize: 1,
+    accessPattern: 'raw',
   },
   {
     id: 'event-native-count',
@@ -98,7 +131,7 @@ const FOCUS_GROUPS = [
   {
     id: 'consumer_checksum',
     label: 'consumer checksum and accessor loop',
-    match: /^(foldString|mixChecksum|next|name|text|getAttributeCount|getAttributeName|getAttributeValue|consumeParser|consumeStreamReader)$/i,
+    match: /^(foldString|mixChecksum|next|name|text|getAttributeCount|getAttributeName|getAttributeValue|consumeParser|consumeStreamReader|consumeStreamReaderIndexed|consumeStreamReaderRaw|rawName|rawText|rawAttrName|rawAttrValue)$/i,
   },
 ];
 
@@ -304,14 +337,13 @@ function prepareInput(filePath, caseConfig, options) {
 function createParser(caseConfig, preparedInput) {
   if (caseConfig.readerKind === 'stream') {
     if (preparedInput.byteBatches) {
-      return new StreamReaderSync(preparedInput.byteBatches, { backend: 'native' });
+      return new StreamReaderSync(preparedInput.byteBatches);
     }
     return new StreamReaderSync(
       nodeFileByteBatchesSync(preparedInput.filePath, {
         chunkSize: 1024 * 1024,
         batchSize: caseConfig.batchSize ?? 1,
       }),
-      { backend: 'native' },
     );
   }
 
@@ -372,41 +404,40 @@ function consumeStreamReader(parser, tier) {
   let eventCount = 0;
   let checksum = 0;
 
-  for (;;) {
-    const type = parser.next();
-    if (type === null) {
-      break;
-    }
-    eventCount++;
-    checksum = mixChecksum(checksum, streamEventTypeId(type));
-    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
+  for (const batch of parser) {
+    for (const event of batch) {
+      const type = event.type;
+      eventCount++;
+      checksum = mixChecksum(checksum, streamEventTypeId(type));
+      const attrCount = type === StreamEventType.START_ELEMENT ? event.getAttributeCount() : 0;
 
-    if (tier === 'count-only') {
-      checksum = mixChecksum(checksum, attrCount);
-    } else if (tier === 'name-string-only') {
-      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-        checksum = foldString(checksum, parser.name());
-      }
-    } else if (tier === 'text-string-only') {
-      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-        checksum = foldString(checksum, parser.text()?.trim());
-      }
-    } else if (tier === 'attr-value-string-only') {
-      checksum = mixChecksum(checksum, attrCount);
-      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
-      }
-    } else {
-      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-        checksum = foldString(checksum, parser.name());
-      }
-      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-        checksum = foldString(checksum, parser.text()?.trim());
-      }
-      checksum = mixChecksum(checksum, attrCount);
-      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-        checksum = foldString(checksum, parser.getAttributeName(attrIndex));
-        checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+      if (tier === 'count-only') {
+        checksum = mixChecksum(checksum, attrCount);
+      } else if (tier === 'name-string-only') {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, event.name());
+        }
+      } else if (tier === 'text-string-only') {
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, event.text()?.trim());
+        }
+      } else if (tier === 'attr-value-string-only') {
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, event.getAttributeValue(attrIndex));
+        }
+      } else {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, event.name());
+        }
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, event.text()?.trim());
+        }
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, event.getAttributeName(attrIndex));
+          checksum = foldString(checksum, event.getAttributeValue(attrIndex));
+        }
       }
     }
   }
@@ -414,11 +445,185 @@ function consumeStreamReader(parser, tier) {
   return { eventCount, checksum };
 }
 
+function consumeStreamReaderIndexed(parser, tier) {
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (const batch of parser) {
+    const count = batch.eventCount;
+    for (let eventIndex = 0; eventIndex < count; eventIndex++) {
+      const type = batch.typeAt(eventIndex);
+      eventCount++;
+      checksum = mixChecksum(checksum, streamEventTypeId(type));
+      const attrCount = type === StreamEventType.START_ELEMENT ? batch.attributeCountAt(eventIndex) : 0;
+
+      if (tier === 'count-only') {
+        checksum = mixChecksum(checksum, attrCount);
+      } else if (tier === 'name-string-only') {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, batch.nameAt(eventIndex));
+        }
+      } else if (tier === 'text-string-only') {
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, batch.textAt(eventIndex)?.trim());
+        }
+      } else if (tier === 'attr-value-string-only') {
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, batch.attributeValueAt(eventIndex, attrIndex));
+        }
+      } else {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, batch.nameAt(eventIndex));
+        }
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, batch.textAt(eventIndex)?.trim());
+        }
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, batch.attributeNameAt(eventIndex, attrIndex));
+          checksum = foldString(checksum, batch.attributeValueAt(eventIndex, attrIndex));
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function consumeStreamReaderRaw(parser, tier) {
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (;;) {
+    const batch = parser.nextRawBatch();
+    if (batch === null) {
+      break;
+    }
+    const decodeSpan = createBatchSpanDecoder(batch.buffer);
+    const count = batch.eventCount;
+    for (let eventIndex = 0; eventIndex < count; eventIndex++) {
+      const type = rawEventType(batch, eventIndex);
+      eventCount++;
+      checksum = mixChecksum(checksum, streamEventTypeId(type));
+      const attrCount = type === StreamEventType.START_ELEMENT ? rawAttrCount(batch, eventIndex) : 0;
+
+      if (tier === 'count-only') {
+        checksum = mixChecksum(checksum, attrCount);
+      } else if (tier === 'name-string-only') {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, rawName(batch, eventIndex, decodeSpan));
+        }
+      } else if (tier === 'text-string-only') {
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, rawText(batch, eventIndex, decodeSpan)?.trim());
+        }
+      } else if (tier === 'attr-value-string-only') {
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, rawAttrValue(batch, eventIndex, attrIndex, decodeSpan));
+        }
+      } else {
+        if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+          checksum = foldString(checksum, rawName(batch, eventIndex, decodeSpan));
+        }
+        if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+          checksum = foldString(checksum, rawText(batch, eventIndex, decodeSpan)?.trim());
+        }
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, rawAttrName(batch, eventIndex, attrIndex, decodeSpan));
+          checksum = foldString(checksum, rawAttrValue(batch, eventIndex, attrIndex, decodeSpan));
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function createBatchSpanDecoder(buffer) {
+  if (Buffer.isBuffer(buffer) && typeof buffer.toString === 'function') {
+    return (start, end) => buffer.toString('utf8', start, end);
+  }
+  return (start, end) => utf8Decoder.decode(buffer.subarray(start, end));
+}
+
+function decodeRawSpan(decodeSpan, start, end) {
+  return start < 0 || end < 0 ? undefined : decodeSpan(start, end);
+}
+
+function rawEventBase(batch, eventIndex) {
+  return batch.eventWordOffset + eventIndex * batch.eventStrideWords;
+}
+
+function rawAttrBase(batch, eventIndex, attrIndex) {
+  if (batch.kind === 'word-table') {
+    const eventBase = rawEventBase(batch, eventIndex);
+    const attrTableIndex = batch.eventWords[eventBase + 5] + attrIndex;
+    return batch.attrWordOffset + attrTableIndex * batch.attrStrideWords;
+  }
+  return batch.attrStarts[eventIndex] + attrIndex;
+}
+
+function rawEventType(batch, eventIndex) {
+  if (batch.kind === 'word-table') {
+    return batch.eventWords[rawEventBase(batch, eventIndex)];
+  }
+  return batch.eventTypes[eventIndex];
+}
+
+function rawAttrCount(batch, eventIndex) {
+  if (batch.kind === 'word-table') {
+    return batch.eventWords[rawEventBase(batch, eventIndex) + 6];
+  }
+  return batch.attrCounts[eventIndex];
+}
+
+function rawName(batch, eventIndex, decodeSpan) {
+  if (batch.kind === 'word-table') {
+    const base = rawEventBase(batch, eventIndex);
+    return decodeRawSpan(decodeSpan, batch.spanWords[base + 1], batch.spanWords[base + 2]);
+  }
+  return decodeRawSpan(decodeSpan, batch.nameStarts[eventIndex], batch.nameEnds[eventIndex]);
+}
+
+function rawText(batch, eventIndex, decodeSpan) {
+  if (batch.kind === 'word-table') {
+    const base = rawEventBase(batch, eventIndex);
+    return decodeRawSpan(decodeSpan, batch.spanWords[base + 3], batch.spanWords[base + 4]);
+  }
+  return decodeRawSpan(decodeSpan, batch.textStarts[eventIndex], batch.textEnds[eventIndex]);
+}
+
+function rawAttrName(batch, eventIndex, attrIndex, decodeSpan) {
+  const base = rawAttrBase(batch, eventIndex, attrIndex);
+  if (batch.kind === 'word-table') {
+    return decodeRawSpan(decodeSpan, batch.spanWords[base], batch.spanWords[base + 1]);
+  }
+  return decodeRawSpan(decodeSpan, batch.attrNameStarts[base], batch.attrNameEnds[base]);
+}
+
+function rawAttrValue(batch, eventIndex, attrIndex, decodeSpan) {
+  const base = rawAttrBase(batch, eventIndex, attrIndex);
+  if (batch.kind === 'word-table') {
+    return decodeRawSpan(decodeSpan, batch.spanWords[base + 2], batch.spanWords[base + 3]);
+  }
+  return decodeRawSpan(decodeSpan, batch.attrValueStarts[base], batch.attrValueEnds[base]);
+}
+
 function runCaseOnce(caseConfig, preparedInput) {
   const parser = createParser(caseConfig, preparedInput);
-  return caseConfig.readerKind === 'stream'
-    ? consumeStreamReader(parser, caseConfig.tier)
-    : consumeEventReader(parser, caseConfig.tier);
+  if (caseConfig.readerKind === 'stream') {
+    if (caseConfig.accessPattern === 'indexed') {
+      return consumeStreamReaderIndexed(parser, caseConfig.tier);
+    }
+    if (caseConfig.accessPattern === 'raw') {
+      return consumeStreamReaderRaw(parser, caseConfig.tier);
+    }
+    return consumeStreamReader(parser, caseConfig.tier);
+  }
+  return consumeEventReader(parser, caseConfig.tier);
 }
 
 async function post(session, method, params = undefined) {
@@ -644,6 +849,7 @@ function generateReport(results, options) {
     lines.push(`- Tier: ${result.caseConfig.tier}`);
     if (result.caseConfig.readerKind === 'stream') {
       lines.push(`- Batch size: ${result.caseConfig.batchSize ?? 1}`);
+      lines.push(`- Access pattern: ${result.caseConfig.accessPattern ?? 'event-view'}`);
     }
     if (result.caseConfig.readerKind === 'event') {
       lines.push(`- namespaceAware: ${result.caseConfig.namespaceAware === true}`);

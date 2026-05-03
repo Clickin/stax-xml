@@ -81,27 +81,26 @@ function consumeStaxXmlStreamReader(inputBuffer) {
   let eventCount = 0;
   let checksum = 0;
   let attrCountTotal = 0;
-  const parser = new StreamReaderSync(inputBuffer, { backend: 'native' });
+  const parser = new StreamReaderSync(inputBuffer);
 
-  for (;;) {
-    const type = parser.next();
-    if (type === null) {
-      break;
-    }
-    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
-    eventCount++;
-    checksum = mixChecksum(checksum, streamEventTypeId(type));
-    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-      checksum = foldString(checksum, parser.name());
-    }
-    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-      checksum = foldString(checksum, parser.text()?.trim());
-    }
-    checksum = mixChecksum(checksum, attrCount);
-    attrCountTotal += attrCount;
-    for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-      checksum = foldString(checksum, parser.getAttributeName(attrIndex));
-      checksum = foldString(checksum, parser.getAttributeValue(attrIndex));
+  for (const batch of parser) {
+    for (const event of batch) {
+      const type = event.type;
+      const attrCount = type === StreamEventType.START_ELEMENT ? event.getAttributeCount() : 0;
+      eventCount++;
+      checksum = mixChecksum(checksum, streamEventTypeId(type));
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(checksum, event.name());
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldString(checksum, event.text()?.trim());
+      }
+      checksum = mixChecksum(checksum, attrCount);
+      attrCountTotal += attrCount;
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = foldString(checksum, event.getAttributeName(attrIndex));
+        checksum = foldString(checksum, event.getAttributeValue(attrIndex));
+      }
     }
   }
 

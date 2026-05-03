@@ -288,26 +288,25 @@ function consumeEventReader(xmlString, runtimeBackendPreference) {
 function consumeStreamReader(input) {
   let eventCount = 0;
   let checksum = 2166136261;
-  const parser = new StreamReaderSync(input, { backend: 'native' });
+  const parser = new StreamReaderSync(input);
 
-  for (;;) {
-    const type = parser.next();
-    if (type === null) {
-      break;
-    }
-    const attrCount = type === StreamEventType.START_ELEMENT ? parser.getAttributeCount() : 0;
-    eventCount++;
-    checksum = mix(checksum, streamEventTypeId(type));
-    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-      checksum = mixString(checksum, parser.name());
-    }
-    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-      checksum = mixString(checksum, parser.text()?.trim());
-    }
-    checksum = mix(checksum, attrCount);
-    for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-      checksum = mixString(checksum, parser.getAttributeName(attrIndex));
-      checksum = mixString(checksum, parser.getAttributeValue(attrIndex));
+  for (const batch of parser) {
+    for (const event of batch) {
+      const type = event.type;
+      const attrCount = type === StreamEventType.START_ELEMENT ? event.getAttributeCount() : 0;
+      eventCount++;
+      checksum = mix(checksum, streamEventTypeId(type));
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = mixString(checksum, event.name());
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = mixString(checksum, event.text()?.trim());
+      }
+      checksum = mix(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = mixString(checksum, event.getAttributeName(attrIndex));
+        checksum = mixString(checksum, event.getAttributeValue(attrIndex));
+      }
     }
   }
 

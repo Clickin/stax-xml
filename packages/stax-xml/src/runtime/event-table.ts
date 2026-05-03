@@ -2,6 +2,7 @@ import type {
   IterableEventType,
   IterableReaderBatchFrame,
 } from '../IterableReader.js';
+import type { StreamReaderSyncRawBatch } from '../stream-reader-core.js';
 import type { StaxXmlStreamingEventBatchParser } from './native-backend.js';
 import {
   byteSpanKey,
@@ -15,11 +16,15 @@ const STRUCTURAL_INDEX_MAGIC = 0x31545053;
 const STRUCTURAL_INDEX_HEADER_BYTES = 28;
 const STRUCTURAL_INDEX_EVENT_BYTES = 28;
 const STRUCTURAL_INDEX_ATTR_BYTES = 16;
+const STRUCTURAL_INDEX_HEADER_WORDS = 7;
+const STRUCTURAL_INDEX_EVENT_WORDS = 7;
+const STRUCTURAL_INDEX_ATTR_WORDS = 4;
 const STRUCTURAL_INDEX_SOURCE_KIND_UTF8 = 1;
 const STRUCTURAL_INDEX_FLAG_NAME_IDS = 1 << 8;
 const STRUCTURAL_INDEX_FLAG_VALUE_IDS = 1 << 9;
 const EMPTY_BUFFER = new Uint8Array(0);
 const utf8Decoder = new TextDecoder();
+const IS_LITTLE_ENDIAN = new Uint8Array(new Uint32Array([1]).buffer)[0] === 1;
 
 export type StreamingByteBatch = readonly Uint8Array[];
 
@@ -51,11 +56,19 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
   readonly attrCountValue: number;
 
   private readonly attrBase: number;
+  private readonly attrBaseWord: number;
   private readonly eventNamesBase: number | undefined;
+  private readonly eventNamesBaseWord: number;
   private readonly attrNamesBase: number | undefined;
+  private readonly attrNamesBaseWord: number;
   private readonly eventTextValuesBase: number | undefined;
+  private readonly eventTextValuesBaseWord: number;
   private readonly attrValuesBase: number | undefined;
+  private readonly attrValuesBaseWord: number;
   private readonly view: DataView;
+  private readonly u32: Uint32Array | undefined;
+  private readonly i32: Int32Array | undefined;
+  private readonly decodeUtf8Span: (start: number, end: number) => string;
   private frame: IterableReaderBatchFrame | undefined;
   private consumed = false;
 
@@ -67,10 +80,16 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     private readonly valueIdCache = new Map<number, string>(),
     private readonly nameHashCache = new Map<number, string>(),
     private readonly shortValueCache = new ShortValueStringCache(),
+    private readonly nameIdReverseCache = new Map<string, number>(),
   ) {
     this.view = table instanceof ArrayBuffer
       ? new DataView(table)
       : new DataView(table.buffer, table.byteOffset, table.byteLength);
+    if (IS_LITTLE_ENDIAN && this.view.byteOffset % 4 === 0 && this.view.byteLength % 4 === 0) {
+      this.u32 = new Uint32Array(this.view.buffer, this.view.byteOffset, this.view.byteLength / 4);
+      this.i32 = new Int32Array(this.view.buffer, this.view.byteOffset, this.view.byteLength / 4);
+    }
+    this.decodeUtf8Span = createUtf8SpanDecoder(this.source);
     const magic = this.view.getUint32(0, true);
     if (magic !== STRUCTURAL_INDEX_MAGIC) {
       throw new Error(`Invalid ${this.label} magic: 0x${magic.toString(16)}`);
@@ -93,19 +112,30 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     }
 
     this.attrBase = STRUCTURAL_INDEX_HEADER_BYTES + this.eventCountValue * STRUCTURAL_INDEX_EVENT_BYTES;
+    this.attrBaseWord = this.attrBase >> 2;
     const attrBytes = this.attrCountValue * STRUCTURAL_INDEX_ATTR_BYTES;
     let cursor = this.attrBase + attrBytes;
     if ((flags & STRUCTURAL_INDEX_FLAG_NAME_IDS) !== 0) {
       this.eventNamesBase = cursor;
+      this.eventNamesBaseWord = cursor >> 2;
       cursor += this.eventCountValue * 4;
       this.attrNamesBase = cursor;
+      this.attrNamesBaseWord = cursor >> 2;
       cursor += this.attrCountValue * 4;
+    } else {
+      this.eventNamesBaseWord = 0;
+      this.attrNamesBaseWord = 0;
     }
     if ((flags & STRUCTURAL_INDEX_FLAG_VALUE_IDS) !== 0) {
       this.eventTextValuesBase = cursor;
+      this.eventTextValuesBaseWord = cursor >> 2;
       cursor += this.eventCountValue * 4;
       this.attrValuesBase = cursor;
+      this.attrValuesBaseWord = cursor >> 2;
       cursor += this.attrCountValue * 4;
+    } else {
+      this.eventTextValuesBaseWord = 0;
+      this.attrValuesBaseWord = 0;
     }
 
     const expectedBytes = cursor;
@@ -127,7 +157,7 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
   }
 
   eventType(index: number): IterableEventType {
-    const type = this.view.getUint32(this.eventOffset(index), true);
+    const type = this.readEventU32(index, 0);
     if (type >= 0 && type <= 5) {
       return type as IterableEventType;
     }
@@ -139,39 +169,39 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
   }
 
   nameStart(index: number): number {
-    return this.view.getInt32(this.eventOffset(index) + 4, true);
+    return this.readEventI32(index, 1);
   }
 
   nameEnd(index: number): number {
-    return this.view.getInt32(this.eventOffset(index) + 8, true);
+    return this.readEventI32(index, 2);
   }
 
   textStart(index: number): number {
-    return this.view.getInt32(this.eventOffset(index) + 12, true);
+    return this.readEventI32(index, 3);
   }
 
   textEnd(index: number): number {
-    return this.view.getInt32(this.eventOffset(index) + 16, true);
+    return this.readEventI32(index, 4);
   }
 
   attrCount(index: number): number {
-    return this.view.getUint32(this.eventOffset(index) + 24, true);
+    return this.readEventU32(index, 6);
   }
 
   attrNameStart(eventIndex: number, attrIndex: number): number {
-    return this.view.getInt32(this.attrOffset(eventIndex, attrIndex), true);
+    return this.readAttrI32(this.attrTableIndex(eventIndex, attrIndex), 0);
   }
 
   attrNameEnd(eventIndex: number, attrIndex: number): number {
-    return this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 4, true);
+    return this.readAttrI32(this.attrTableIndex(eventIndex, attrIndex), 1);
   }
 
   attrValueStart(eventIndex: number, attrIndex: number): number {
-    return this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 8, true);
+    return this.readAttrI32(this.attrTableIndex(eventIndex, attrIndex), 2);
   }
 
   attrValueEnd(eventIndex: number, attrIndex: number): number {
-    return this.view.getInt32(this.attrOffset(eventIndex, attrIndex) + 12, true);
+    return this.readAttrI32(this.attrTableIndex(eventIndex, attrIndex), 3);
   }
 
   copyName(index: number): string | undefined {
@@ -210,8 +240,21 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
 
   copyAttrValueByName(eventIndex: number, name: string): string | undefined {
     const count = this.attrCount(eventIndex);
+    const cachedNameId = this.nameIdReverseCache.get(name);
+    if (cachedNameId !== undefined && cachedNameId > 0) {
+      for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+        if (this.attrNameId(eventIndex, attrIndex) === cachedNameId) {
+          return this.copyAttrValue(eventIndex, attrIndex);
+        }
+      }
+    }
+
     for (let attrIndex = 0; attrIndex < count; attrIndex++) {
       if (this.copyAttrName(eventIndex, attrIndex) === name) {
+        const nameId = this.attrNameId(eventIndex, attrIndex);
+        if (nameId > 0) {
+          this.nameIdReverseCache.set(name, nameId);
+        }
         return this.copyAttrValue(eventIndex, attrIndex);
       }
     }
@@ -260,22 +303,20 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     nameIds.fill(-1);
     attrNameIds.fill(-1);
     for (let eventIndex = 0; eventIndex < this.eventCountValue; eventIndex++) {
-      const eventOffset = this.eventOffset(eventIndex);
-      eventTypes[eventIndex] = this.view.getUint32(eventOffset, true);
-      nameStarts[eventIndex] = this.view.getInt32(eventOffset + 4, true);
-      nameEnds[eventIndex] = this.view.getInt32(eventOffset + 8, true);
-      textStarts[eventIndex] = this.view.getInt32(eventOffset + 12, true);
-      textEnds[eventIndex] = this.view.getInt32(eventOffset + 16, true);
-      attrStarts[eventIndex] = this.view.getUint32(eventOffset + 20, true);
-      attrCounts[eventIndex] = this.view.getUint32(eventOffset + 24, true);
+      eventTypes[eventIndex] = this.readEventU32(eventIndex, 0);
+      nameStarts[eventIndex] = this.readEventI32(eventIndex, 1);
+      nameEnds[eventIndex] = this.readEventI32(eventIndex, 2);
+      textStarts[eventIndex] = this.readEventI32(eventIndex, 3);
+      textEnds[eventIndex] = this.readEventI32(eventIndex, 4);
+      attrStarts[eventIndex] = this.readEventU32(eventIndex, 5);
+      attrCounts[eventIndex] = this.readEventU32(eventIndex, 6);
       nameIds[eventIndex] = this.eventNameId(eventIndex) > 0 ? this.eventNameId(eventIndex) : -1;
     }
     for (let attrIndex = 0; attrIndex < this.attrCountValue; attrIndex++) {
-      const attrOffset = this.attrBase + attrIndex * STRUCTURAL_INDEX_ATTR_BYTES;
-      attrNameStarts[attrIndex] = this.view.getInt32(attrOffset, true);
-      attrNameEnds[attrIndex] = this.view.getInt32(attrOffset + 4, true);
-      attrValueStarts[attrIndex] = this.view.getInt32(attrOffset + 8, true);
-      attrValueEnds[attrIndex] = this.view.getInt32(attrOffset + 12, true);
+      attrNameStarts[attrIndex] = this.readAttrI32(attrIndex, 0);
+      attrNameEnds[attrIndex] = this.readAttrI32(attrIndex, 1);
+      attrValueStarts[attrIndex] = this.readAttrI32(attrIndex, 2);
+      attrValueEnds[attrIndex] = this.readAttrI32(attrIndex, 3);
       attrNameIds[attrIndex] = this.attrNameIdFromTable(attrIndex) > 0 ? this.attrNameIdFromTable(attrIndex) : -1;
     }
 
@@ -300,13 +341,73 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     return this.frame;
   }
 
+  rawBatch(): StreamReaderSyncRawBatch {
+    if (this.u32 && this.i32) {
+      return {
+        kind: 'word-table',
+        eventCount: this.eventCountValue,
+        attrCount: this.attrCountValue,
+        buffer: this.source,
+        eventWords: this.u32,
+        spanWords: this.i32,
+        eventWordOffset: STRUCTURAL_INDEX_HEADER_WORDS,
+        eventStrideWords: STRUCTURAL_INDEX_EVENT_WORDS,
+        attrWordOffset: this.attrBaseWord,
+        attrStrideWords: STRUCTURAL_INDEX_ATTR_WORDS,
+      };
+    }
+
+    const frame = this.batchFrame();
+    return {
+      kind: 'frame',
+      eventCount: frame.eventCount,
+      attrCount: frame.attrCount,
+      buffer: frame.buffer,
+      eventTypes: frame.eventTypes,
+      nameStarts: frame.nameStarts,
+      nameEnds: frame.nameEnds,
+      nameIds: frame.nameIds,
+      textStarts: frame.textStarts,
+      textEnds: frame.textEnds,
+      attrStarts: frame.attrStarts,
+      attrCounts: frame.attrCounts,
+      attrNameStarts: frame.attrNameStarts,
+      attrNameEnds: frame.attrNameEnds,
+      attrNameIds: frame.attrNameIds,
+      attrValueStarts: frame.attrValueStarts,
+      attrValueEnds: frame.attrValueEnds,
+    };
+  }
+
   private eventOffset(index: number): number {
     return STRUCTURAL_INDEX_HEADER_BYTES + index * STRUCTURAL_INDEX_EVENT_BYTES;
   }
 
-  private attrOffset(eventIndex: number, attrIndex: number): number {
-    const attrStart = this.view.getUint32(this.eventOffset(eventIndex) + 20, true);
-    return this.attrBase + (attrStart + attrIndex) * STRUCTURAL_INDEX_ATTR_BYTES;
+  private eventWord(index: number): number {
+    return STRUCTURAL_INDEX_HEADER_WORDS + index * STRUCTURAL_INDEX_EVENT_WORDS;
+  }
+
+  private readEventU32(index: number, fieldWord: number): number {
+    return this.u32?.[this.eventWord(index) + fieldWord]
+      ?? this.view.getUint32(this.eventOffset(index) + fieldWord * 4, true);
+  }
+
+  private readEventI32(index: number, fieldWord: number): number {
+    return this.i32?.[this.eventWord(index) + fieldWord]
+      ?? this.view.getInt32(this.eventOffset(index) + fieldWord * 4, true);
+  }
+
+  private attrTableIndex(eventIndex: number, attrIndex: number): number {
+    return this.readEventU32(eventIndex, 5) + attrIndex;
+  }
+
+  private attrWord(attrIndex: number): number {
+    return this.attrBaseWord + attrIndex * STRUCTURAL_INDEX_ATTR_WORDS;
+  }
+
+  private readAttrI32(attrIndex: number, fieldWord: number): number {
+    return this.i32?.[this.attrWord(attrIndex) + fieldWord]
+      ?? this.view.getInt32(this.attrBase + attrIndex * STRUCTURAL_INDEX_ATTR_BYTES + fieldWord * 4, true);
   }
 
   private copyValueSpan(start: number, end: number, valueId: number): string | undefined {
@@ -329,12 +430,7 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
     if (ascii !== undefined) {
       return ascii;
     }
-    const bufferCtor = (globalThis as { Buffer?: { isBuffer(value: unknown): boolean } }).Buffer;
-    if (bufferCtor?.isBuffer(this.source) && typeof (this.source as { toString?: unknown }).toString === 'function') {
-      return (this.source as { toString(encoding: string, start: number, end: number): string })
-        .toString('utf8', start, end);
-    }
-    return utf8Decoder.decode(this.source.subarray(start, end));
+    return this.decodeUtf8Span(start, end);
   }
 
   private copyNameSpan(start: number, end: number, nameId: number): string | undefined {
@@ -348,6 +444,7 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
       }
       const value = this.decodeSpan(start, end);
       this.nameIdCache.set(nameId, value);
+      this.nameIdReverseCache.set(value, nameId);
       return value;
     }
 
@@ -364,35 +461,37 @@ export class StreamingSpanTableAdapter implements TableBackedEventSource {
   private eventNameId(index: number): number {
     return this.eventNamesBase === undefined
       ? 0
-      : this.view.getUint32(this.eventNamesBase + index * 4, true);
+      : this.u32?.[this.eventNamesBaseWord + index]
+        ?? this.view.getUint32(this.eventNamesBase + index * 4, true);
   }
 
   private attrNameId(eventIndex: number, attrIndex: number): number {
-    const attrStart = this.view.getUint32(this.eventOffset(eventIndex) + 20, true);
-    return this.attrNameIdFromTable(attrStart + attrIndex);
+    return this.attrNameIdFromTable(this.attrTableIndex(eventIndex, attrIndex));
   }
 
   private attrNameIdFromTable(attrIndex: number): number {
     return this.attrNamesBase === undefined
       ? 0
-      : this.view.getUint32(this.attrNamesBase + attrIndex * 4, true);
+      : this.u32?.[this.attrNamesBaseWord + attrIndex]
+        ?? this.view.getUint32(this.attrNamesBase + attrIndex * 4, true);
   }
 
   private eventTextValueId(index: number): number {
     return this.eventTextValuesBase === undefined
       ? 0
-      : this.view.getUint32(this.eventTextValuesBase + index * 4, true);
+      : this.u32?.[this.eventTextValuesBaseWord + index]
+        ?? this.view.getUint32(this.eventTextValuesBase + index * 4, true);
   }
 
   private attrValueId(eventIndex: number, attrIndex: number): number {
-    const attrStart = this.view.getUint32(this.eventOffset(eventIndex) + 20, true);
-    return this.attrValueIdFromTable(attrStart + attrIndex);
+    return this.attrValueIdFromTable(this.attrTableIndex(eventIndex, attrIndex));
   }
 
   private attrValueIdFromTable(attrIndex: number): number {
     return this.attrValuesBase === undefined
       ? 0
-      : this.view.getUint32(this.attrValuesBase + attrIndex * 4, true);
+      : this.u32?.[this.attrValuesBaseWord + attrIndex]
+        ?? this.view.getUint32(this.attrValuesBase + attrIndex * 4, true);
   }
 }
 
@@ -403,6 +502,9 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
   private readonly valueIdCache = new Map<number, string>();
   private readonly nameHashCache = new Map<number, string>();
   private readonly shortValueCache = new ShortValueStringCache();
+  private readonly nameIdReverseCache = new Map<string, number>();
+  private pendingChunkCursor = 0;
+  private pendingTableCursor = 0;
   private currentTable: StreamingSpanTableAdapter | undefined;
   private sourceDone = false;
   private finalPushed = false;
@@ -421,14 +523,18 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
   }
 
   nextBatch(): boolean {
+    return this.nextTable() !== null;
+  }
+
+  nextTable(): StreamingSpanTableAdapter | null {
     if (this.finished) {
-      return false;
+      return null;
     }
     if (this.activatePendingTable()) {
-      return true;
+      return this.currentTable!;
     }
     if (this.drainPendingChunks()) {
-      return true;
+      return this.currentTable!;
     }
 
     while (!this.sourceDone && this.sourceIterator) {
@@ -438,16 +544,16 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
         break;
       }
       if (this.pushStreamingByteBatch(result.value, false)) {
-        return true;
+        return this.currentTable!;
       }
     }
 
     if (this.sourceDone && this.pushFinalChunk()) {
-      return true;
+      return this.currentTable!;
     }
 
     this.finished = true;
-    return false;
+    return null;
   }
 
   pushByteBatch(batch: StreamingByteBatch, isFinal = false): boolean {
@@ -540,6 +646,10 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
     return this.requireCurrentTable().batchFrame();
   }
 
+  rawBatch(): StreamReaderSyncRawBatch {
+    return this.requireCurrentTable().rawBatch();
+  }
+
   private enqueueChunks(batch: StreamingByteBatch): void {
     for (let index = 0; index < batch.length; index++) {
       this.pendingChunks.push(batch[index]!);
@@ -547,13 +657,15 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
   }
 
   private drainPendingChunks(): boolean {
-    while (this.pendingChunks.length > 0) {
-      const chunk = this.pendingChunks.shift()!;
+    while (this.pendingChunkCursor < this.pendingChunks.length) {
+      const chunk = this.pendingChunks[this.pendingChunkCursor++]!;
       this.enqueueNativeBatch(this.streamingParser.pushChunk(chunk, false));
       if (this.activatePendingTable()) {
+        this.compactPendingChunks();
         return true;
       }
     }
+    this.compactPendingChunks();
     return false;
   }
 
@@ -611,6 +723,7 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
       this.valueIdCache,
       this.nameHashCache,
       this.shortValueCache,
+      this.nameIdReverseCache,
     );
     if (table.eventCount() > 0) {
       this.pendingTables.push(table);
@@ -618,12 +731,47 @@ export class StreamingEventBatchReader implements TableBackedEventSource {
   }
 
   private activatePendingTable(): boolean {
-    const table = this.pendingTables.shift();
+    if (this.pendingTableCursor >= this.pendingTables.length) {
+      this.compactPendingTables();
+      return false;
+    }
+    const table = this.pendingTables[this.pendingTableCursor++]!;
     if (!table) {
       return false;
     }
     this.currentTable = table;
+    this.compactPendingTables();
     return true;
+  }
+
+  private compactPendingChunks(): void {
+    if (this.pendingChunkCursor === 0) {
+      return;
+    }
+    if (this.pendingChunkCursor >= this.pendingChunks.length) {
+      this.pendingChunks.length = 0;
+      this.pendingChunkCursor = 0;
+      return;
+    }
+    if (this.pendingChunkCursor >= 64) {
+      this.pendingChunks.splice(0, this.pendingChunkCursor);
+      this.pendingChunkCursor = 0;
+    }
+  }
+
+  private compactPendingTables(): void {
+    if (this.pendingTableCursor === 0) {
+      return;
+    }
+    if (this.pendingTableCursor >= this.pendingTables.length) {
+      this.pendingTables.length = 0;
+      this.pendingTableCursor = 0;
+      return;
+    }
+    if (this.pendingTableCursor >= 64) {
+      this.pendingTables.splice(0, this.pendingTableCursor);
+      this.pendingTableCursor = 0;
+    }
   }
 
   private requireCurrentTable(): StreamingSpanTableAdapter {
@@ -650,6 +798,16 @@ export function toUint8Array(input: ArrayBuffer | ArrayBufferView): Uint8Array {
   return input instanceof ArrayBuffer
     ? new Uint8Array(input)
     : new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+}
+
+function createUtf8SpanDecoder(source: Uint8Array): (start: number, end: number) => string {
+  const bufferCtor = (globalThis as { Buffer?: { isBuffer(value: unknown): boolean } }).Buffer;
+  if (bufferCtor?.isBuffer(source) && typeof (source as { toString?: unknown }).toString === 'function') {
+    return (start: number, end: number) => (
+      source as { toString(encoding: string, start: number, end: number): string }
+    ).toString('utf8', start, end);
+  }
+  return (start: number, end: number) => utf8Decoder.decode(source.subarray(start, end));
 }
 
 function capitalize(value: string): string {

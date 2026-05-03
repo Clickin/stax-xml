@@ -58,6 +58,64 @@ export interface StreamBatch extends Iterable<StreamEventView> {
   attributeValueAt(eventIndex: number, attrIndexOrName: number | string): string | undefined;
 }
 
+/**
+ * Experimental low-level word-table view over a synchronous stream batch.
+ *
+ * The fields expose the native structural table layout directly. They are
+ * intended for benchmark and scanner-style traversal paths that need to avoid
+ * per-event wrapper allocation.
+ *
+ * @experimental
+ */
+export interface StreamReaderSyncWordTableBatch {
+  readonly kind: 'word-table';
+  readonly eventCount: number;
+  readonly attrCount: number;
+  readonly buffer: Uint8Array;
+  readonly eventWords: Uint32Array;
+  readonly spanWords: Int32Array;
+  readonly eventWordOffset: number;
+  readonly eventStrideWords: 7;
+  readonly attrWordOffset: number;
+  readonly attrStrideWords: 4;
+}
+
+/**
+ * Experimental SoA fallback view for synchronous stream batches whose native
+ * table cannot be exposed as aligned word arrays.
+ *
+ * @experimental
+ */
+export interface StreamReaderSyncFrameBatch {
+  readonly kind: 'frame';
+  readonly eventCount: number;
+  readonly attrCount: number;
+  readonly buffer: Uint8Array;
+  readonly eventTypes: Uint8Array;
+  readonly nameStarts: Int32Array;
+  readonly nameEnds: Int32Array;
+  readonly nameIds: Int32Array;
+  readonly textStarts: Int32Array;
+  readonly textEnds: Int32Array;
+  readonly attrStarts: Int32Array;
+  readonly attrCounts: Int32Array;
+  readonly attrNameStarts: Int32Array;
+  readonly attrNameEnds: Int32Array;
+  readonly attrNameIds: Int32Array;
+  readonly attrValueStarts: Int32Array;
+  readonly attrValueEnds: Int32Array;
+}
+
+/**
+ * Experimental raw batch traversal view returned by
+ * {@link StreamReaderSync.nextRawBatch}.
+ *
+ * @experimental
+ */
+export type StreamReaderSyncRawBatch =
+  | StreamReaderSyncWordTableBatch
+  | StreamReaderSyncFrameBatch;
+
 type GenerationSource = {
   currentGeneration(): number;
 };
@@ -72,16 +130,19 @@ export function createStreamBatchView(
 
 class StreamBatchView implements StreamBatch {
   private readonly events: Array<StreamEventView | undefined> = [];
+  private readonly eventCountValue: number;
 
   constructor(
     private readonly source: TableBackedEventSource,
     private readonly generation: number,
     private readonly generations: GenerationSource,
-  ) {}
+  ) {
+    this.eventCountValue = source.eventCount();
+  }
 
   get eventCount(): number {
     this.assertActive();
-    return this.source.eventCount();
+    return this.eventCountValue;
   }
 
   event(index: number): StreamEventView {
@@ -136,7 +197,8 @@ class StreamBatchView implements StreamBatch {
   }
 
   *[Symbol.iterator](): IterableIterator<StreamEventView> {
-    for (let index = 0; index < this.eventCount; index++) {
+    this.assertActive();
+    for (let index = 0; index < this.eventCountValue; index++) {
       yield this.event(index);
     }
   }
@@ -148,7 +210,7 @@ class StreamBatchView implements StreamBatch {
   }
 
   private assertEventIndex(index: number): void {
-    if (!Number.isInteger(index) || index < 0 || index >= this.source.eventCount()) {
+    if (!Number.isInteger(index) || index < 0 || index >= this.eventCountValue) {
       throw new RangeError(`event index out of range: ${index}`);
     }
   }

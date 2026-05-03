@@ -5,12 +5,13 @@ import {
   StreamEventType,
   type StreamBatch,
   type StreamEventView,
+  type StreamReaderSyncRawBatch,
   type StreamReaderSyncByteBatch,
 } from './stream-reader-core.js';
 import type { DocumentMode } from './types.js';
 
 export { StreamEventType };
-export type { StreamBatch, StreamEventView, StreamReaderSyncByteBatch };
+export type { StreamBatch, StreamEventView, StreamReaderSyncByteBatch, StreamReaderSyncRawBatch };
 
 /**
  * Synchronous stream reader options.
@@ -67,11 +68,34 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
     if (this.finished) {
       return null;
     }
-    if (!this.reader.nextBatch()) {
+    const table = this.reader.nextTable();
+    if (!table) {
       this.finished = true;
       return null;
     }
-    return createStreamBatchView(this.reader, this.generation, this);
+    return createStreamBatchView(table, this.generation, this);
+  }
+
+  /**
+   * Return an experimental low-level batch view without creating per-event
+   * wrapper objects.
+   *
+   * This API is intended for benchmark and scanner-style traversal paths. The
+   * existing {@link nextBatch} API remains the stable ergonomic surface.
+   *
+   * @experimental
+   */
+  nextRawBatch(): StreamReaderSyncRawBatch | null {
+    this.generation++;
+    if (this.finished) {
+      return null;
+    }
+    const table = this.reader.nextTable();
+    if (!table) {
+      this.finished = true;
+      return null;
+    }
+    return table.rawBatch();
   }
 
   *batchedIterator(): IterableIterator<StreamBatch> {

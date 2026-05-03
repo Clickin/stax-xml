@@ -6,7 +6,15 @@ import {
   StreamReaderSync,
 } from '../src/index.js';
 import { resetStaxXmlRuntimeForTests } from '../src/runtime/index.js';
-import { simpleRuntimeBatches } from './test-support/streaming-runtime-fixture.js';
+import {
+  attr,
+  buffer,
+  encodeStructuralIndex,
+  event,
+  none,
+  simpleRuntimeBatches,
+  span,
+} from './test-support/streaming-runtime-fixture.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -104,6 +112,131 @@ describe('StreamReaderSync batch core', () => {
     expect(() => batch.eventCount).toThrow(/inactive batch/i);
     expect(() => batch.nameAt(1)).toThrow(/inactive batch/i);
     expect(() => event.name()).toThrow(/inactive batch/i);
+  });
+
+  it('exposes raw word-table batches for wrapper-overhead benchmarks', async () => {
+    const { first, second, third, nativeBatches } = simpleRuntimeBatches();
+    let batchIndex = 0;
+
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushChunk() {
+            return nativeBatches[batchIndex++]!;
+          },
+        }),
+      }),
+    });
+
+    const reader = new StreamReaderSync([[first], [second], [third]]);
+    const raw = reader.nextRawBatch();
+    expect(raw?.kind).toBe('word-table');
+    if (!raw || raw.kind !== 'word-table') {
+      throw new Error('expected aligned raw word-table batch');
+    }
+
+    expect(raw.eventCount).toBe(2);
+    const eventBase = raw.eventWordOffset + raw.eventStrideWords;
+    expect(raw.eventWords[eventBase]).toBe(StreamEventType.START_ELEMENT);
+    expect(raw.eventWords[eventBase + 6]).toBe(1);
+
+    const attrBase = raw.attrWordOffset + raw.eventWords[eventBase + 5]! * raw.attrStrideWords;
+    const nameStart = raw.spanWords[eventBase + 1]!;
+    const nameEnd = raw.spanWords[eventBase + 2]!;
+    const attrValueStart = raw.spanWords[attrBase + 2]!;
+    const attrValueEnd = raw.spanWords[attrBase + 3]!;
+    expect(Buffer.from(raw.buffer.subarray(nameStart, nameEnd)).toString('utf8')).toBe('root');
+    expect(Buffer.from(raw.buffer.subarray(attrValueStart, attrValueEnd)).toString('utf8')).toBe('r1');
+
+    expect(reader.nextRawBatch()?.kind).toBe('word-table');
+  });
+
+  it('reads pushBatch results and falls back for unaligned table views', async () => {
+    const input = buffer('<root id="r1">hello</root>');
+    const table = encodeStructuralIndex(input, [
+      event(StreamEventType.START_DOCUMENT),
+      event(StreamEventType.START_ELEMENT, span(input, 'root'), none(), 0, 1),
+      event(StreamEventType.CHARACTERS, none(), span(input, 'hello')),
+      event(StreamEventType.END_ELEMENT, span(input, 'root')),
+      event(StreamEventType.END_DOCUMENT),
+    ], [
+      attr(span(input, 'id'), span(input, 'r1')),
+    ], { includeValueIds: true });
+    const unaligned = new Uint8Array(table.byteLength + 1);
+    unaligned.set(table, 1);
+    const unalignedTable = new DataView(unaligned.buffer, 1, table.byteLength);
+    const pushed: Array<{ count: number; isFinal: boolean }> = [];
+
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushBatch(chunks: readonly Uint8Array[], isFinal: boolean) {
+            pushed.push({ count: chunks.length, isFinal });
+            return { buffer: input, table: isFinal ? unalignedTable : encodeStructuralIndex(input, [], []) };
+          },
+          pushChunk() {
+            throw new Error('pushChunk should not be used when pushBatch is present');
+          },
+        }),
+      }),
+    });
+
+    const reader = new StreamReaderSync([[input]]);
+
+    const batch = reader.nextBatch();
+    expect(batch?.eventCount).toBe(5);
+    expect(batch?.nameAt(1)).toBe('root');
+    expect(batch?.textAt(2)).toBe('hello');
+    expect(batch?.attributeValueAt(1, 'id')).toBe('r1');
+    expect(batch?.attributeValueAt(1, 'id')).toBe('r1');
+    expect(reader.nextBatch()).toBeNull();
+    expect(pushed).toEqual([
+      { count: 1, isFinal: false },
+      { count: 0, isFinal: true },
+    ]);
+  });
+
+  it('falls back to frame raw batches for unaligned table views', async () => {
+    const input = buffer('<root id="r1">hello</root>');
+    const table = encodeStructuralIndex(input, [
+      event(StreamEventType.START_DOCUMENT),
+      event(StreamEventType.START_ELEMENT, span(input, 'root'), none(), 0, 1),
+      event(StreamEventType.END_DOCUMENT),
+    ], [
+      attr(span(input, 'id'), span(input, 'r1')),
+    ]);
+    const unaligned = new Uint8Array(table.byteLength + 1);
+    unaligned.set(table, 1);
+    const unalignedTable = new DataView(unaligned.buffer, 1, table.byteLength);
+
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushBatch(_chunks: readonly Uint8Array[], isFinal: boolean) {
+            return { buffer: input, table: isFinal ? encodeStructuralIndex(input, [], []) : unalignedTable };
+          },
+          pushChunk() {
+            throw new Error('pushChunk should not be used when pushBatch is present');
+          },
+        }),
+      }),
+    });
+
+    const raw = new StreamReaderSync([[input]]).nextRawBatch();
+    expect(raw?.kind).toBe('frame');
+    if (!raw || raw.kind !== 'frame') {
+      throw new Error('expected unaligned raw frame fallback');
+    }
+    expect(raw.eventCount).toBe(3);
+    expect(raw.eventTypes[1]).toBe(StreamEventType.START_ELEMENT);
+    expect(raw.attrCounts[1]).toBe(1);
+    expect(Buffer.from(raw.buffer.subarray(raw.nameStarts[1]!, raw.nameEnds[1]!)).toString('utf8')).toBe('root');
   });
 
   it('iterates batches directly from the reader iterator', async () => {

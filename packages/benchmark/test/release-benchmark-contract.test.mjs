@@ -185,8 +185,21 @@ test('node string-return benchmark gates StreamReaderSync and keeps EventReaderS
   assert.match(source, /StreamEventType/);
   assert.match(source, /nodeFileByteBatchesSync/);
   assert.match(source, /stream-reader-native/);
+  assert.match(source, /stream-reader-native-indexed/);
+  assert.match(source, /stream-reader-native-raw/);
   assert.match(source, /event-reader-native/);
   assert.match(source, /PUBLIC_NATIVE_WRAPPER_ID\s*=\s*'stream-reader-native'/);
+});
+
+test('node string-return benchmark carries wrapper decomposition rows', () => {
+  const source = readFileSync(join(repoRoot, 'packages', 'benchmark', 'node-string-return.mjs'), 'utf8');
+  const crossRuntimeSource = readFileSync(join(repoRoot, 'packages', 'benchmark', 'cross-runtime-comparison.mjs'), 'utf8');
+
+  assert.match(source, /consumeStreamReaderIndexed/);
+  assert.match(source, /consumeStreamReaderRaw/);
+  assert.match(source, /nextRawBatch/);
+  assert.match(crossRuntimeSource, /indexed batch/);
+  assert.match(crossRuntimeSource, /raw batch/);
 });
 
 test('published parser surface scenarios use public stream reader for native rows', () => {

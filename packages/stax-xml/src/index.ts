@@ -5,7 +5,7 @@ export type { EventReaderSyncOptions } from "./EventReaderSync.js";
 export { StreamReader } from "./StreamReader.js";
 export type { StreamReaderOptions } from "./StreamReader.js";
 export { StreamEventType, StreamReaderSync } from "./StreamReaderSync.js";
-export type { StreamBatch, StreamEventView, StreamReaderSyncByteBatch, StreamReaderSyncOptions } from "./StreamReaderSync.js";
+export type { StreamBatch, StreamEventView, StreamReaderSyncByteBatch, StreamReaderSyncOptions, StreamReaderSyncRawBatch } from "./StreamReaderSync.js";
 export * from "./XmlObject.js";
 export { Writer } from "./Writer.js";
 export type { WriterOptions } from "./Writer.js";
@@ -48,4 +48,3 @@ export type {
   WriteElementOptions,
   XmlAttribute,
 } from "./types.js";
-
