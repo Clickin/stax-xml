@@ -45,6 +45,124 @@ pub(crate) fn parse_aggregate_with_parser(
     })
 }
 
+pub(crate) fn collect_full_string_values(input: &[u8]) -> Result<FullStringValuesResult> {
+    let mut parser = Parser {
+        input,
+        tier: Tier::EventObjectFull,
+        state: AggregateState::default(),
+        element_stack: Vec::new(),
+    };
+    parser.parse()?;
+
+    let event_count = parser.state.event_count;
+    let checksum = parser.state.checksum;
+    let attr_count_total = parser.state.attr_count_total;
+    let object_count = parser.state.object_count;
+    let mut strings = Vec::new();
+    let mut string_units = 0usize;
+
+    for mut object in parser.state.object_sink {
+        if let Some(name) = object.name.take() {
+            string_units += name.encode_utf16().count();
+            strings.push(name);
+        }
+        if let Some(text) = object.text.take() {
+            let trimmed = text.trim();
+            string_units += trimmed.encode_utf16().count();
+            strings.push(trimmed.to_owned());
+        }
+        for (name, value) in std::mem::take(&mut object.attributes) {
+            string_units += name.encode_utf16().count();
+            strings.push(name);
+            string_units += value.encode_utf16().count();
+            strings.push(value);
+        }
+    }
+
+    let string_count = to_u32_count(strings.len(), "full string value count")?;
+    Ok(FullStringValuesResult {
+        input_bytes: input.len() as f64,
+        event_count,
+        checksum,
+        attr_count_total,
+        object_count,
+        string_count,
+        string_units: string_units as f64,
+        strings,
+    })
+}
+
+pub(crate) fn collect_full_string_arena(input: &[u8]) -> Result<FullStringArenaData> {
+    let mut parser = Parser {
+        input,
+        tier: Tier::EventObjectFull,
+        state: AggregateState::default(),
+        element_stack: Vec::new(),
+    };
+    parser.parse()?;
+
+    let event_count = parser.state.event_count;
+    let checksum = parser.state.checksum;
+    let attr_count_total = parser.state.attr_count_total;
+    let object_count = parser.state.object_count;
+    let mut arena = String::with_capacity(input.len());
+    let mut offsets = Vec::with_capacity(
+        (parser.state.object_sink.len() as u64)
+            .saturating_mul(16)
+            .min(usize::MAX as u64) as usize,
+    );
+    let mut string_count = 0usize;
+    let mut string_units = 0usize;
+
+    for mut object in parser.state.object_sink {
+        if let Some(name) = object.name.take() {
+            push_full_string_arena_span(&mut arena, &mut offsets, &mut string_units, &name)?;
+            string_count += 1;
+        }
+        if let Some(text) = object.text.take() {
+            let trimmed = text.trim();
+            push_full_string_arena_span(&mut arena, &mut offsets, &mut string_units, trimmed)?;
+            string_count += 1;
+        }
+        for (name, value) in std::mem::take(&mut object.attributes) {
+            push_full_string_arena_span(&mut arena, &mut offsets, &mut string_units, &name)?;
+            string_count += 1;
+            push_full_string_arena_span(&mut arena, &mut offsets, &mut string_units, &value)?;
+            string_count += 1;
+        }
+    }
+
+    Ok(FullStringArenaData {
+        input_bytes: input.len() as f64,
+        event_count,
+        checksum,
+        attr_count_total,
+        object_count,
+        string_count: to_u32_count(string_count, "full string arena string count")?,
+        string_units: string_units as f64,
+        arena,
+        offsets,
+    })
+}
+
+fn push_full_string_arena_span(
+    arena: &mut String,
+    offsets: &mut Vec<u8>,
+    string_units: &mut usize,
+    value: &str,
+) -> Result<()> {
+    let start = *string_units;
+    let units = value.encode_utf16().count();
+    let end = start
+        .checked_add(units)
+        .ok_or_else(|| Error::from_reason("Full string arena offset exceeded usize range"))?;
+    push_u32(offsets, to_u32_count(start, "full string arena offset")?);
+    push_u32(offsets, to_u32_count(end, "full string arena offset")?);
+    arena.push_str(value);
+    *string_units = end;
+    Ok(())
+}
+
 pub(crate) fn parse_aggregate_auto_stage(
     input: &[u8],
     tier: Tier,

@@ -157,6 +157,30 @@ pub struct AggregateResult {
 }
 
 #[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
+pub struct FullStringValuesResult {
+    pub input_bytes: f64,
+    pub event_count: u32,
+    pub checksum: i32,
+    pub attr_count_total: u32,
+    pub object_count: u32,
+    pub string_count: u32,
+    pub string_units: f64,
+    pub strings: Vec<String>,
+}
+
+pub(crate) struct FullStringArenaData {
+    pub(crate) input_bytes: f64,
+    pub(crate) event_count: u32,
+    pub(crate) checksum: i32,
+    pub(crate) attr_count_total: u32,
+    pub(crate) object_count: u32,
+    pub(crate) string_count: u32,
+    pub(crate) string_units: f64,
+    pub(crate) arena: String,
+    pub(crate) offsets: Vec<u8>,
+}
+
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
 pub struct ItemProjectionResult {
     pub input_bytes: f64,
     pub item_count: u32,

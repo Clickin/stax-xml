@@ -61,6 +61,45 @@ pub fn parse_aggregate_file(path: String, tier: String) -> napi::Result<Aggregat
 
 #[cfg(feature = "napi-bindings")]
 #[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+pub fn collect_full_string_values_file(path: String) -> napi::Result<FullStringValuesResult> {
+    let bytes = fs::read(path).map_err(|error| napi::Error::from_reason(error.to_string()))?;
+    to_napi_result(collect_full_string_values(&bytes))
+}
+
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi(object))]
+pub struct FullStringArenaResult {
+    pub input_bytes: f64,
+    pub event_count: u32,
+    pub checksum: i32,
+    pub attr_count_total: u32,
+    pub object_count: u32,
+    pub string_count: u32,
+    pub string_units: f64,
+    pub arena: String,
+    pub offsets: Buffer,
+}
+
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
+pub fn collect_full_string_arena_file(path: String) -> napi::Result<FullStringArenaResult> {
+    let bytes = fs::read(path).map_err(|error| napi::Error::from_reason(error.to_string()))?;
+    let result = to_napi_result(collect_full_string_arena(&bytes))?;
+    Ok(FullStringArenaResult {
+        input_bytes: result.input_bytes,
+        event_count: result.event_count,
+        checksum: result.checksum,
+        attr_count_total: result.attr_count_total,
+        object_count: result.object_count,
+        string_count: result.string_count,
+        string_units: result.string_units,
+        arena: result.arena,
+        offsets: Buffer::from(result.offsets),
+    })
+}
+
+#[cfg(feature = "napi-bindings")]
+#[cfg_attr(all(feature = "napi-bindings", not(test)), napi)]
 pub fn parse_aggregate_file_with_simd(
     path: String,
     tier: String,

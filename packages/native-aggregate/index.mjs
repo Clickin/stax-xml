@@ -15,6 +15,8 @@ const binding = require(join(__dirname, 'stax_xml_native_aggregate.node'));
 export const parseAggregateBuffer = binding.parseAggregateBuffer;
 export const parseAggregateBufferWithSimd = binding.parseAggregateBufferWithSimd;
 export const parseAggregateFile = binding.parseAggregateFile;
+export const collectFullStringValuesFile = binding.collectFullStringValuesFile;
+export const collectFullStringArenaFile = binding.collectFullStringArenaFile;
 export const parseAggregateFileWithSimd = binding.parseAggregateFileWithSimd;
 export const parseAggregateUint8Array = binding.parseAggregateUint8Array;
 export const parseAggregateUint8ArrayWithSimd = binding.parseAggregateUint8ArrayWithSimd;
@@ -46,6 +48,8 @@ if (
   typeof parseAggregateBuffer !== 'function' ||
   typeof parseAggregateBufferWithSimd !== 'function' ||
   typeof parseAggregateFile !== 'function' ||
+  typeof collectFullStringValuesFile !== 'function' ||
+  typeof collectFullStringArenaFile !== 'function' ||
   typeof parseAggregateFileWithSimd !== 'function' ||
   typeof parseAggregateUint8Array !== 'function' ||
   typeof parseAggregateUint8ArrayWithSimd !== 'function' ||
@@ -77,6 +81,14 @@ export function parse_aggregate_buffer_with_simd(input, tier, simd) {
 
 export function parse_aggregate_file(path, tier) {
   return parseAggregateFile(path, tier);
+}
+
+export function collect_full_string_values_file(path) {
+  return collectFullStringValuesFile(path);
+}
+
+export function collect_full_string_arena_file(path) {
+  return collectFullStringArenaFile(path);
 }
 
 export function parse_aggregate_file_with_simd(path, tier, simd) {
