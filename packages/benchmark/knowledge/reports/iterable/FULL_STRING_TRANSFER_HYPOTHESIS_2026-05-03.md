@@ -36,6 +36,11 @@ The focused diagnostic benchmark compares these paths:
 - `stream-raw-arraybuffer-per-span-decode`
   - Native returns the existing external buffer/table.
   - JS decodes each span from the ArrayBuffer/Buffer path.
+- `stream-raw-soa-string-arena-direct`
+  - Native fills SoA columns and a batch-local JS string arena during streaming
+    parse.
+  - JS consumes UTF-16 code-unit arena offsets directly and falls back to byte
+    decode only for invalid UTF-8 spans.
 - `stream-raw-js-string-arena-ascii`
   - JS decodes each native batch buffer once into one string arena and slices
     spans.
@@ -85,11 +90,17 @@ For full-string work, do not add a native API that returns one JavaScript string
 per name/text/attribute value as the main optimization path. It creates too
 many N-API/V8 string objects and loses to the external ArrayBuffer route.
 
+Implementation update: the streaming native parser now supports
+`batchLayout: 'soa-string-arena'` for `StreamReaderSync`. The layout keeps the
+stable public batch/event-view API, adds an experimental
+`nextRawBatch().kind === 'soa-string-arena'` path for benchmark consumers, and
+uses `-1` arena offsets to preserve byte-decode fallback semantics for invalid
+UTF-8 spans.
+
 The next useful experiments are:
 
-- Native SoA batch fill for count/traversal first.
-- UTF-16 string arena chunks with code-unit offset columns for full-string,
-  filled directly during native batch parsing rather than via `NativeEventObject`.
+- Measure native SoA arena batch fill against the previous raw word-table and
+  `EventObjectFull` transfer diagnostics on the standard 16MiB fixture.
 - External UTF-8/UTF-16 ArrayBuffer arena plus offsets as a CppHeap-avoiding
   variant, especially for workloads that may not read every string.
 

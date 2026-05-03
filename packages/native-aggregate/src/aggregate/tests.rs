@@ -381,7 +381,10 @@ fn span_table_utf8_value_sidecars_intern_short_values_and_skip_long_or_empty_val
         table.event_text_value_ids.unwrap().len(),
         table.event_count as usize * 4
     );
-    assert_eq!(table.attr_value_ids.unwrap().len(), table.attr_count as usize * 4);
+    assert_eq!(
+        table.attr_value_ids.unwrap().len(),
+        table.attr_count as usize * 4
+    );
 
     let first_text = read_table_event(&table, 3).unwrap();
     let second_text = read_table_event(&table, 6).unwrap();
@@ -435,8 +438,9 @@ fn streaming_span_table_reuses_short_value_ids_across_batches() {
         )
         .unwrap();
 
-    let first_table = parse_span_table_bytes(first_batch.table.as_ref()).unwrap();
-    let second_table = parse_span_table_bytes(second_batch.table.as_ref()).unwrap();
+    let first_table = parse_span_table_bytes(first_batch.table.as_ref().unwrap().as_ref()).unwrap();
+    let second_table =
+        parse_span_table_bytes(second_batch.table.as_ref().unwrap().as_ref()).unwrap();
 
     let first_attr = read_table_attr(&first_table, 0).unwrap();
     let second_attr = read_table_attr(&second_table, 0).unwrap();
@@ -447,6 +451,80 @@ fn streaming_span_table_reuses_short_value_ids_across_batches() {
     let second_text = read_table_event(&second_table, 1).unwrap();
     assert!(first_text.text_value_id > 0);
     assert_eq!(first_text.text_value_id, second_text.text_value_id);
+}
+
+#[test]
+fn streaming_soa_string_arena_uses_utf16_offsets_and_preserves_value_ids() {
+    let mut parser =
+        StaxXmlStreamingEventBatchParser::new_with_layout(StreamingBatchLayout::SoaStringArena);
+    let sample = "<root name=\"😀\" cafe=\"café\"><한글>😀한글</한글></root>";
+    let batch = parser
+        .push_chunk(Uint8Array::from(sample.as_bytes().to_vec()), true)
+        .unwrap();
+    let table = batch.soa_table.as_ref().unwrap().as_ref();
+    let arena = batch.string_arena.as_ref().unwrap();
+
+    assert!(batch.table.is_none());
+    assert_eq!(read_u32(table, 0), SOA_STRING_ARENA_MAGIC);
+    assert_eq!(read_u32(table, 4), SOA_STRING_ARENA_VERSION);
+    assert_eq!(read_u32(table, 8), 7);
+    assert_eq!(read_u32(table, 12), 2);
+    assert_eq!(read_u32(table, 16), sample.len() as u32);
+    assert_eq!(read_u32(table, 20), SOA_STRING_ARENA_SOURCE_KIND_UTF8);
+    assert_eq!(
+        read_u32(table, 29 * 4) as usize,
+        SOA_STRING_ARENA_HEADER_WORDS
+            + 7 * SOA_STRING_ARENA_EVENT_COLUMNS
+            + 2 * SOA_STRING_ARENA_ATTR_COLUMNS
+    );
+
+    let event_types = soa_column_offset(table, 6);
+    let name_arena_starts = soa_column_offset(table, 15);
+    let name_arena_ends = soa_column_offset(table, 16);
+    let text_arena_starts = soa_column_offset(table, 17);
+    let text_arena_ends = soa_column_offset(table, 18);
+    let attr_value_ids = soa_column_offset(table, 24);
+    let attr_value_arena_starts = soa_column_offset(table, 27);
+    let attr_value_arena_ends = soa_column_offset(table, 28);
+
+    assert_eq!(read_u32(table, event_types), START_DOCUMENT as u32);
+    assert_eq!(read_u32(table, event_types + 4), START_ELEMENT as u32);
+    assert_eq!(
+        utf16_slice(
+            arena,
+            read_i32(table, name_arena_starts + 4),
+            read_i32(table, name_arena_ends + 4)
+        ),
+        "root"
+    );
+    assert_eq!(
+        utf16_slice(
+            arena,
+            read_i32(table, attr_value_arena_starts),
+            read_i32(table, attr_value_arena_ends)
+        ),
+        "😀"
+    );
+    assert_eq!(
+        utf16_slice(
+            arena,
+            read_i32(table, attr_value_arena_starts + 4),
+            read_i32(table, attr_value_arena_ends + 4)
+        ),
+        "café"
+    );
+    assert!(read_u32(table, attr_value_ids) > 0);
+    assert!(read_u32(table, attr_value_ids + 4) > 0);
+
+    let text_event_index = 3;
+    assert_eq!(
+        utf16_slice(
+            arena,
+            read_i32(table, text_arena_starts + text_event_index * 4),
+            read_i32(table, text_arena_ends + text_event_index * 4)
+        ),
+        "😀한글"
+    );
 }
 
 #[test]
@@ -661,7 +739,10 @@ fn object_rows_projection_supports_multisegment_paths_and_positive_positions() {
         assert_eq!(result.columns[0].present, vec![true]);
         assert_eq!(utf8_spans(sample.as_bytes(), &result.columns[0]), vec!["b"]);
         assert_eq!(result.columns[1].present, vec![true]);
-        assert_eq!(utf8_spans(sample.as_bytes(), &result.columns[1]), vec!["Beta"]);
+        assert_eq!(
+            utf8_spans(sample.as_bytes(), &result.columns[1]),
+            vec!["Beta"]
+        );
         assert_eq!(result.columns[2].present, vec![true]);
         assert_eq!(result.columns[2].number_values, vec![20.0]);
         assert_eq!(result.columns[3].present, vec![true]);
@@ -2532,6 +2613,15 @@ fn read_i32(input: &[u8], offset: usize) -> i32 {
 
 fn span_to_string(input: &[u16], start: i32, end: i32) -> String {
     String::from_utf16(&input[start as usize..end as usize]).unwrap()
+}
+
+fn utf16_slice(input: &str, start: i32, end: i32) -> String {
+    let units = input.encode_utf16().collect::<Vec<_>>();
+    String::from_utf16(&units[start as usize..end as usize]).unwrap()
+}
+
+fn soa_column_offset(table: &[u8], header_word: usize) -> usize {
+    read_u32(table, header_word * 4) as usize * 4
 }
 
 fn utf8_spans(input: &[u8], column: &ObjectRowsProjectionColumn) -> Vec<String> {

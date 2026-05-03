@@ -42,7 +42,9 @@ export type StaxXmlStreamingEventBatchFactory = (options?: unknown) => StaxXmlSt
 
 export interface StaxXmlStreamingEventBatch {
   buffer: ArrayBuffer | ArrayBufferView;
-  table: ArrayBuffer | ArrayBufferView;
+  table?: ArrayBuffer | ArrayBufferView;
+  soaTable?: ArrayBuffer | ArrayBufferView;
+  stringArena?: string;
 }
 
 export interface StaxXmlStreamingEventBatchParser {

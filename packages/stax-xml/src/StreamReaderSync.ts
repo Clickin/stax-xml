@@ -58,6 +58,7 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
       createStreamingParser({
         encoding: options.encoding,
         documentMode: options.documentMode,
+        batchLayout: 'soa-string-arena',
       }),
       batches[Symbol.iterator](),
     );

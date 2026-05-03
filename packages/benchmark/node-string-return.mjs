@@ -568,6 +568,10 @@ function decodeRawSpan(decodeSpan, start, end) {
   return start < 0 || end < 0 ? undefined : decodeSpan(start, end);
 }
 
+function decodeRawArenaSpan(batch, start, end) {
+  return start < 0 || end < 0 ? undefined : batch.stringArena.slice(start, end);
+}
+
 function rawEventBase(batch, eventIndex) {
   return batch.eventWordOffset + eventIndex * batch.eventStrideWords;
 }
@@ -600,6 +604,10 @@ function rawName(batch, eventIndex, decodeSpan) {
     const base = rawEventBase(batch, eventIndex);
     return decodeRawSpan(decodeSpan, batch.spanWords[base + 1], batch.spanWords[base + 2]);
   }
+  if (batch.kind === 'soa-string-arena') {
+    return decodeRawArenaSpan(batch, batch.eventNameArenaStarts[eventIndex], batch.eventNameArenaEnds[eventIndex])
+      ?? decodeRawSpan(decodeSpan, batch.nameStarts[eventIndex], batch.nameEnds[eventIndex]);
+  }
   return decodeRawSpan(decodeSpan, batch.nameStarts[eventIndex], batch.nameEnds[eventIndex]);
 }
 
@@ -607,6 +615,10 @@ function rawText(batch, eventIndex, decodeSpan) {
   if (batch.kind === 'word-table') {
     const base = rawEventBase(batch, eventIndex);
     return decodeRawSpan(decodeSpan, batch.spanWords[base + 3], batch.spanWords[base + 4]);
+  }
+  if (batch.kind === 'soa-string-arena') {
+    return decodeRawArenaSpan(batch, batch.eventTextArenaStarts[eventIndex], batch.eventTextArenaEnds[eventIndex])
+      ?? decodeRawSpan(decodeSpan, batch.textStarts[eventIndex], batch.textEnds[eventIndex]);
   }
   return decodeRawSpan(decodeSpan, batch.textStarts[eventIndex], batch.textEnds[eventIndex]);
 }
@@ -616,6 +628,10 @@ function rawAttrName(batch, eventIndex, attrIndex, decodeSpan) {
   if (batch.kind === 'word-table') {
     return decodeRawSpan(decodeSpan, batch.spanWords[base], batch.spanWords[base + 1]);
   }
+  if (batch.kind === 'soa-string-arena') {
+    return decodeRawArenaSpan(batch, batch.attrNameArenaStarts[base], batch.attrNameArenaEnds[base])
+      ?? decodeRawSpan(decodeSpan, batch.attrNameStarts[base], batch.attrNameEnds[base]);
+  }
   return decodeRawSpan(decodeSpan, batch.attrNameStarts[base], batch.attrNameEnds[base]);
 }
 
@@ -623,6 +639,10 @@ function rawAttrValue(batch, eventIndex, attrIndex, decodeSpan) {
   const base = rawAttrBase(batch, eventIndex, attrIndex);
   if (batch.kind === 'word-table') {
     return decodeRawSpan(decodeSpan, batch.spanWords[base + 2], batch.spanWords[base + 3]);
+  }
+  if (batch.kind === 'soa-string-arena') {
+    return decodeRawArenaSpan(batch, batch.attrValueArenaStarts[base], batch.attrValueArenaEnds[base])
+      ?? decodeRawSpan(decodeSpan, batch.attrValueStarts[base], batch.attrValueEnds[base]);
   }
   return decodeRawSpan(decodeSpan, batch.attrValueStarts[base], batch.attrValueEnds[base]);
 }

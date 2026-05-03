@@ -11,6 +11,7 @@ import {
   buffer,
   encodeStructuralIndex,
   event,
+  soaStringArenaBatch,
   none,
   simpleRuntimeBatches,
   span,
@@ -151,6 +152,87 @@ describe('StreamReaderSync batch core', () => {
     expect(Buffer.from(raw.buffer.subarray(attrValueStart, attrValueEnd)).toString('utf8')).toBe('r1');
 
     expect(reader.nextRawBatch()?.kind).toBe('word-table');
+  });
+
+  it('uses SoA string arena batches when the native backend provides them', async () => {
+    const input = buffer('<root mood="😀" word="café"><한글>😀한글</한글></root>');
+    const batch = soaStringArenaBatch(input, [
+      event(StreamEventType.START_DOCUMENT),
+      event(StreamEventType.START_ELEMENT, span(input, 'root'), none(), 0, 2),
+      event(StreamEventType.START_ELEMENT, span(input, '한글')),
+      event(StreamEventType.CHARACTERS, none(), span(input, '😀한글')),
+      event(StreamEventType.END_ELEMENT, span(input, '한글')),
+      event(StreamEventType.END_ELEMENT, span(input, 'root')),
+      event(StreamEventType.END_DOCUMENT),
+    ], [
+      attr(span(input, 'mood'), span(input, '😀')),
+      attr(span(input, 'word'), span(input, 'café')),
+    ]);
+    let createOptions: unknown;
+
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: (options: unknown) => {
+          createOptions = options;
+          return {
+            pushBatch(_chunks: readonly Uint8Array[], isFinal: boolean) {
+              return isFinal
+                ? soaStringArenaBatch(new Uint8Array(0), [event(StreamEventType.END_DOCUMENT)], [])
+                : batch;
+            },
+          };
+        },
+      }),
+    });
+
+    const reader = new StreamReaderSync([[input]]);
+    const first = reader.nextBatch();
+    expect(createOptions).toMatchObject({ batchLayout: 'soa-string-arena' });
+    expect(first?.eventCount).toBe(7);
+    expect(first?.nameAt(1)).toBe('root');
+    expect(first?.attributeValueAt(1, 'mood')).toBe('😀');
+    expect(first?.attributeValueAt(1, 'word')).toBe('café');
+    expect(first?.nameAt(2)).toBe('한글');
+    expect(first?.textAt(3)).toBe('😀한글');
+
+    const raw = new StreamReaderSync([[input]]).nextRawBatch();
+    expect(raw?.kind).toBe('soa-string-arena');
+    if (!raw || raw.kind !== 'soa-string-arena') {
+      throw new Error('expected raw SoA string arena batch');
+    }
+    expect(raw.stringArena.slice(raw.eventTextArenaStarts[3]!, raw.eventTextArenaEnds[3]!)).toBe('😀한글');
+    expect(raw.stringArena.slice(raw.attrValueArenaStarts[0]!, raw.attrValueArenaEnds[0]!)).toBe('😀');
+  });
+
+  it('falls back to byte decode when a SoA arena span is invalid UTF-8', async () => {
+    const input = new Uint8Array([0x3c, 0x72, 0x3e, 0xff, 0x3c, 0x2f, 0x72, 0x3e]);
+    const text = { start: 3, end: 4 };
+    const batch = soaStringArenaBatch(input, [
+      event(StreamEventType.CHARACTERS, none(), text),
+    ], []);
+
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushBatch() {
+            return batch;
+          },
+        }),
+      }),
+    });
+
+    const parsed = new StreamReaderSync([[input]]).nextBatch();
+    expect(parsed?.textAt(0)).toBe(Buffer.from([0xff]).toString('utf8'));
+    const raw = new StreamReaderSync([[input]]).nextRawBatch();
+    expect(raw?.kind).toBe('soa-string-arena');
+    if (raw?.kind === 'soa-string-arena') {
+      expect(raw.eventTextArenaStarts[0]).toBe(-1);
+      expect(raw.textStarts[0]).toBe(3);
+    }
   });
 
   it('reads pushBatch results and falls back for unaligned table views', async () => {

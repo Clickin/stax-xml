@@ -8,6 +8,10 @@ const ATTR_BYTES = 16;
 const HEADER_BYTES = 28;
 const NAME_IDS_FLAG = 1 << 8;
 const VALUE_IDS_FLAG = 1 << 9;
+const SOA_HEADER_WORDS = 32;
+const SOA_EVENT_COLUMNS = 13;
+const SOA_ATTR_COLUMNS = 10;
+const fatalUtf8Decoder = new TextDecoder('utf-8', { fatal: true });
 
 export type Span = { start: number; end: number };
 export type EventRecord = {
@@ -141,6 +145,140 @@ export function encodeStructuralIndex(
   }
 
   return new Uint8Array(buffer);
+}
+
+export function encodeSoaStringArena(
+  input: Uint8Array,
+  events: EventRecord[],
+  attrs: AttrRecord[],
+): { soaTable: Uint8Array; stringArena: string } {
+  const allNameIds = internNameIds(
+    input,
+    [...events.map(record => record.name), ...attrs.map(record => record.name)],
+    value => spanBytes(input, value.start, value.end),
+  );
+  const eventNameIds = allNameIds.slice(0, events.length);
+  const attrNameIds = allNameIds.slice(events.length);
+  const allValueIds = internValueIds(
+    input,
+    [...events.map(record => record.text), ...attrs.map(record => record.value)],
+    value => spanBytes(input, value.start, value.end),
+  );
+  const eventTextValueIds = allValueIds.slice(0, events.length);
+  const attrValueIds = allValueIds.slice(events.length);
+  const eventNameArenaStarts = new Int32Array(events.length);
+  const eventNameArenaEnds = new Int32Array(events.length);
+  const eventTextArenaStarts = new Int32Array(events.length);
+  const eventTextArenaEnds = new Int32Array(events.length);
+  const attrNameArenaStarts = new Int32Array(attrs.length);
+  const attrNameArenaEnds = new Int32Array(attrs.length);
+  const attrValueArenaStarts = new Int32Array(attrs.length);
+  const attrValueArenaEnds = new Int32Array(attrs.length);
+  const arenaParts: string[] = [];
+  let arenaUnits = 0;
+
+  eventNameArenaStarts.fill(-1);
+  eventNameArenaEnds.fill(-1);
+  eventTextArenaStarts.fill(-1);
+  eventTextArenaEnds.fill(-1);
+  attrNameArenaStarts.fill(-1);
+  attrNameArenaEnds.fill(-1);
+  attrValueArenaStarts.fill(-1);
+  attrValueArenaEnds.fill(-1);
+
+  const appendSpan = (spanValue: Span): [number, number] => {
+    if (spanValue.start < 0 || spanValue.end < 0) {
+      return [-1, -1];
+    }
+    try {
+      const value = fatalUtf8Decoder.decode(input.subarray(spanValue.start, spanValue.end));
+      const start = arenaUnits;
+      arenaParts.push(value);
+      arenaUnits += value.length;
+      return [start, arenaUnits];
+    } catch {
+      return [-1, -1];
+    }
+  };
+
+  for (let eventIndex = 0; eventIndex < events.length; eventIndex++) {
+    const record = events[eventIndex]!;
+    for (let attrIndex = 0; attrIndex < record.attrCount; attrIndex++) {
+      const tableIndex = record.attrStart + attrIndex;
+      const attrRecord = attrs[tableIndex]!;
+      [attrNameArenaStarts[tableIndex], attrNameArenaEnds[tableIndex]] = appendSpan(attrRecord.name);
+      [attrValueArenaStarts[tableIndex], attrValueArenaEnds[tableIndex]] = appendSpan(attrRecord.value);
+    }
+    [eventNameArenaStarts[eventIndex], eventNameArenaEnds[eventIndex]] = appendSpan(record.name);
+    [eventTextArenaStarts[eventIndex], eventTextArenaEnds[eventIndex]] = appendSpan(record.text);
+  }
+
+  const columns = [
+    { kind: 'u32', values: Uint32Array.from(events.map(record => record.type)) },
+    { kind: 'i32', values: Int32Array.from(events.map(record => record.name.start)) },
+    { kind: 'i32', values: Int32Array.from(events.map(record => record.name.end)) },
+    { kind: 'i32', values: Int32Array.from(events.map(record => record.text.start)) },
+    { kind: 'i32', values: Int32Array.from(events.map(record => record.text.end)) },
+    { kind: 'u32', values: Uint32Array.from(events.map(record => record.attrStart)) },
+    { kind: 'u32', values: Uint32Array.from(events.map(record => record.attrCount)) },
+    { kind: 'u32', values: Uint32Array.from(eventNameIds) },
+    { kind: 'u32', values: Uint32Array.from(eventTextValueIds) },
+    { kind: 'i32', values: eventNameArenaStarts },
+    { kind: 'i32', values: eventNameArenaEnds },
+    { kind: 'i32', values: eventTextArenaStarts },
+    { kind: 'i32', values: eventTextArenaEnds },
+    { kind: 'i32', values: Int32Array.from(attrs.map(record => record.name.start)) },
+    { kind: 'i32', values: Int32Array.from(attrs.map(record => record.name.end)) },
+    { kind: 'i32', values: Int32Array.from(attrs.map(record => record.value.start)) },
+    { kind: 'i32', values: Int32Array.from(attrs.map(record => record.value.end)) },
+    { kind: 'u32', values: Uint32Array.from(attrNameIds) },
+    { kind: 'u32', values: Uint32Array.from(attrValueIds) },
+    { kind: 'i32', values: attrNameArenaStarts },
+    { kind: 'i32', values: attrNameArenaEnds },
+    { kind: 'i32', values: attrValueArenaStarts },
+    { kind: 'i32', values: attrValueArenaEnds },
+  ] as const;
+  const totalWords = SOA_HEADER_WORDS + events.length * SOA_EVENT_COLUMNS + attrs.length * SOA_ATTR_COLUMNS;
+  const output = new Uint8Array(totalWords * 4);
+  const view = new DataView(output.buffer);
+  view.setUint32(0, 0x31414f53, true);
+  view.setUint32(4, 1, true);
+  view.setUint32(8, events.length, true);
+  view.setUint32(12, attrs.length, true);
+  view.setUint32(16, input.byteLength, true);
+  view.setUint32(20, 1, true);
+
+  let cursor = SOA_HEADER_WORDS;
+  for (let columnIndex = 0; columnIndex < columns.length; columnIndex++) {
+    view.setUint32((6 + columnIndex) * 4, cursor, true);
+    cursor += columns[columnIndex].values.length;
+  }
+  view.setUint32(29 * 4, cursor, true);
+
+  let byteOffset = SOA_HEADER_WORDS * 4;
+  for (const column of columns) {
+    for (const value of column.values) {
+      if (column.kind === 'u32') {
+        view.setUint32(byteOffset, value, true);
+      } else {
+        view.setInt32(byteOffset, value, true);
+      }
+      byteOffset += 4;
+    }
+  }
+
+  return { soaTable: output, stringArena: arenaParts.join('') };
+}
+
+export function soaStringArenaBatch(
+  input: Uint8Array,
+  events: EventRecord[],
+  attrs: AttrRecord[],
+): { buffer: Uint8Array; soaTable: Uint8Array; stringArena: string } {
+  return {
+    buffer: input,
+    ...encodeSoaStringArena(input, events, attrs),
+  };
 }
 
 export function simpleRuntimeBatches() {

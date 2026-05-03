@@ -50,6 +50,8 @@ experimental raw traversal surface:
   tables.
 - `StreamReaderSync.nextRawBatch()` returns an experimental low-level raw
   batch:
+  - `soa-string-arena` for native streaming parsers that support direct SoA
+    string arena fill.
   - `word-table` for aligned native tables, exposing table words directly.
   - `frame` fallback for unaligned table views.
 - `node-string-return.mjs` now reports three native wrapper rows:
@@ -59,9 +61,9 @@ experimental raw traversal surface:
 - `cross-runtime-comparison.mjs` documents the indexed and raw rows as wrapper
   decomposition rows, not headline compatibility rows.
 
-This intentionally does not replace the public iterator API and does not yet
-change the Rust table ABI to SoA. The raw row is evidence for the next step:
-native SoA fill or bounded string arena.
+This intentionally does not replace the public iterator API. The Rust streaming
+parser now has a native SoA string-arena ABI for `StreamReaderSync`, while wasm
+and old native backends continue through the span-table fallback.
 
 ## Evidence
 
@@ -105,15 +107,12 @@ text and attribute materialization overhead even before native string arenas.
 
 Next optimization should target one of two paths:
 
-1. Native SoA count/traversal batch:
-   - Rust fills JS-owned typed arrays for event type and attr count.
-   - JS loops over simple contiguous arrays.
-   - This should attack the remaining count-only gap without string work.
-2. Chunked string arena for full-string:
-   - Native emits bounded UTF-16 string chunks plus code-unit offset tables.
-   - JS uses substring/sliced-string access with arena retention caps.
-   - This should follow SoA count evidence so string work does not hide wrapper
-     regressions.
+1. Measure the native SoA string-arena raw row against the prior word-table raw
+   row on the standard 16MiB count-only and full-string fixture.
+2. Evaluate a JS-owned typed-array fill variant if CppHeap pressure from owned
+   native buffers remains visible in Node 24 profiles.
+3. Keep arena retention bounded to batch-local strings; do not promote a
+   whole-document parent string into the public reader.
 
 Do not remove the event-view row. It is the compatibility/user ergonomics row.
 Do not lower the native-addon full-spec gate because the current rows are

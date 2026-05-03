@@ -260,7 +260,11 @@ function consumeRawJsStringArena(parser) {
   return consumeRaw(parser, createAsciiArenaDecoder);
 }
 
-function consumeRaw(parser, decoderFactory) {
+function consumeRawSoaStringArenaDirect(parser) {
+  return consumeRaw(parser, createBatchSpanDecoder, true);
+}
+
+function consumeRaw(parser, decoderFactory, preferSoaArena = false) {
   let eventCount = 0;
   let checksum = 0;
   let attrCountTotal = 0;
@@ -272,6 +276,10 @@ function consumeRaw(parser, decoderFactory) {
   for (;;) {
     const batch = parser.nextRawBatch();
     if (batch === null) {
+      break;
+    }
+    if (preferSoaArena && batch.kind !== 'soa-string-arena') {
+      skipped = true;
       break;
     }
     const decodeSpan = decoderFactory(batch.buffer);
@@ -287,7 +295,7 @@ function consumeRaw(parser, decoderFactory) {
       checksum = mixChecksum(checksum, streamEventTypeId(type));
 
       if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-        const value = rawName(batch, eventIndex, decodeSpan);
+        const value = rawName(batch, eventIndex, decodeSpan, preferSoaArena);
         checksum = foldString(checksum, value);
         if (value !== undefined) {
           stringCount++;
@@ -295,7 +303,7 @@ function consumeRaw(parser, decoderFactory) {
         }
       }
       if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-        const value = rawText(batch, eventIndex, decodeSpan)?.trim();
+        const value = rawText(batch, eventIndex, decodeSpan, preferSoaArena)?.trim();
         checksum = foldString(checksum, value);
         if (value !== undefined) {
           stringCount++;
@@ -307,8 +315,8 @@ function consumeRaw(parser, decoderFactory) {
       checksum = mixChecksum(checksum, attrCount);
       attrCountTotal += attrCount;
       for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-        const name = rawAttrName(batch, eventIndex, attrIndex, decodeSpan);
-        const value = rawAttrValue(batch, eventIndex, attrIndex, decodeSpan);
+        const name = rawAttrName(batch, eventIndex, attrIndex, decodeSpan, preferSoaArena);
+        const value = rawAttrValue(batch, eventIndex, attrIndex, decodeSpan, preferSoaArena);
         checksum = foldString(checksum, name);
         checksum = foldString(checksum, value);
         if (name !== undefined) {
@@ -331,7 +339,11 @@ function consumeRaw(parser, decoderFactory) {
     stringCount,
     stringUnits,
     arenaCount,
-    reason: skipped ? 'JS string arena approximation requires ASCII byte offsets to match UTF-16 offsets.' : undefined,
+    reason: skipped
+      ? preferSoaArena
+        ? 'StreamReaderSync raw batch did not expose the soa-string-arena layout.'
+        : 'JS string arena approximation requires ASCII byte offsets to match UTF-16 offsets.'
+      : undefined,
   };
 }
 
@@ -350,6 +362,10 @@ function createAsciiArenaDecoder(buffer) {
     ? buffer.toString('utf8')
     : utf8Decoder.decode(buffer);
   return (start, end) => start < 0 || end < 0 ? undefined : arena.slice(start, end);
+}
+
+function decodeSoaArenaSpan(batch, start, end) {
+  return start < 0 || end < 0 ? undefined : batch.stringArena.slice(start, end);
 }
 
 function isAscii(buffer) {
@@ -388,34 +404,50 @@ function rawAttrCount(batch, eventIndex) {
   return batch.attrCounts[eventIndex];
 }
 
-function rawName(batch, eventIndex, decodeSpan) {
+function rawName(batch, eventIndex, decodeSpan, preferSoaArena = false) {
   if (batch.kind === 'word-table') {
     const base = rawEventBase(batch, eventIndex);
     return decodeSpan(batch.spanWords[base + 1], batch.spanWords[base + 2]);
   }
+  if (preferSoaArena && batch.kind === 'soa-string-arena') {
+    return decodeSoaArenaSpan(batch, batch.eventNameArenaStarts[eventIndex], batch.eventNameArenaEnds[eventIndex])
+      ?? decodeSpan(batch.nameStarts[eventIndex], batch.nameEnds[eventIndex]);
+  }
   return decodeSpan(batch.nameStarts[eventIndex], batch.nameEnds[eventIndex]);
 }
 
-function rawText(batch, eventIndex, decodeSpan) {
+function rawText(batch, eventIndex, decodeSpan, preferSoaArena = false) {
   if (batch.kind === 'word-table') {
     const base = rawEventBase(batch, eventIndex);
     return decodeSpan(batch.spanWords[base + 3], batch.spanWords[base + 4]);
   }
+  if (preferSoaArena && batch.kind === 'soa-string-arena') {
+    return decodeSoaArenaSpan(batch, batch.eventTextArenaStarts[eventIndex], batch.eventTextArenaEnds[eventIndex])
+      ?? decodeSpan(batch.textStarts[eventIndex], batch.textEnds[eventIndex]);
+  }
   return decodeSpan(batch.textStarts[eventIndex], batch.textEnds[eventIndex]);
 }
 
-function rawAttrName(batch, eventIndex, attrIndex, decodeSpan) {
+function rawAttrName(batch, eventIndex, attrIndex, decodeSpan, preferSoaArena = false) {
   const base = rawAttrBase(batch, eventIndex, attrIndex);
   if (batch.kind === 'word-table') {
     return decodeSpan(batch.spanWords[base], batch.spanWords[base + 1]);
   }
+  if (preferSoaArena && batch.kind === 'soa-string-arena') {
+    return decodeSoaArenaSpan(batch, batch.attrNameArenaStarts[base], batch.attrNameArenaEnds[base])
+      ?? decodeSpan(batch.attrNameStarts[base], batch.attrNameEnds[base]);
+  }
   return decodeSpan(batch.attrNameStarts[base], batch.attrNameEnds[base]);
 }
 
-function rawAttrValue(batch, eventIndex, attrIndex, decodeSpan) {
+function rawAttrValue(batch, eventIndex, attrIndex, decodeSpan, preferSoaArena = false) {
   const base = rawAttrBase(batch, eventIndex, attrIndex);
   if (batch.kind === 'word-table') {
     return decodeSpan(batch.spanWords[base + 2], batch.spanWords[base + 3]);
+  }
+  if (preferSoaArena && batch.kind === 'soa-string-arena') {
+    return decodeSoaArenaSpan(batch, batch.attrValueArenaStarts[base], batch.attrValueArenaEnds[base])
+      ?? decodeSpan(batch.attrValueStarts[base], batch.attrValueEnds[base]);
   }
   return decodeSpan(batch.attrValueStarts[base], batch.attrValueEnds[base]);
 }
@@ -509,6 +541,13 @@ async function main(argv = process.argv.slice(2)) {
       'stream-raw-arraybuffer-per-span-decode',
       () => makeStreamReader(options.file, options),
       consumeRawPerSpan,
+      fileSizeMiB,
+      options,
+    ),
+    measure(
+      'stream-raw-soa-string-arena-direct',
+      () => makeStreamReader(options.file, options),
+      consumeRawSoaStringArenaDirect,
       fileSizeMiB,
       options,
     ),

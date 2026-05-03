@@ -107,6 +107,46 @@ export interface StreamReaderSyncFrameBatch {
 }
 
 /**
+ * Experimental direct SoA view with a batch-local UTF-16 string arena.
+ *
+ * Arena offsets are JavaScript UTF-16 code-unit offsets, suitable for
+ * `stringArena.slice(start, end)`. A `-1` arena offset means consumers should
+ * fall back to the corresponding byte span in `buffer`.
+ *
+ * @experimental
+ */
+export interface StreamReaderSyncSoaStringArenaBatch {
+  readonly kind: 'soa-string-arena';
+  readonly eventCount: number;
+  readonly attrCount: number;
+  readonly buffer: Uint8Array;
+  readonly stringArena: string;
+  readonly eventTypes: Uint32Array;
+  readonly nameStarts: Int32Array;
+  readonly nameEnds: Int32Array;
+  readonly textStarts: Int32Array;
+  readonly textEnds: Int32Array;
+  readonly attrStarts: Uint32Array;
+  readonly attrCounts: Uint32Array;
+  readonly eventNameIds: Uint32Array;
+  readonly eventTextValueIds: Uint32Array;
+  readonly eventNameArenaStarts: Int32Array;
+  readonly eventNameArenaEnds: Int32Array;
+  readonly eventTextArenaStarts: Int32Array;
+  readonly eventTextArenaEnds: Int32Array;
+  readonly attrNameStarts: Int32Array;
+  readonly attrNameEnds: Int32Array;
+  readonly attrValueStarts: Int32Array;
+  readonly attrValueEnds: Int32Array;
+  readonly attrNameIds: Uint32Array;
+  readonly attrValueIds: Uint32Array;
+  readonly attrNameArenaStarts: Int32Array;
+  readonly attrNameArenaEnds: Int32Array;
+  readonly attrValueArenaStarts: Int32Array;
+  readonly attrValueArenaEnds: Int32Array;
+}
+
+/**
  * Experimental raw batch traversal view returned by
  * {@link StreamReaderSync.nextRawBatch}.
  *
@@ -114,7 +154,8 @@ export interface StreamReaderSyncFrameBatch {
  */
 export type StreamReaderSyncRawBatch =
   | StreamReaderSyncWordTableBatch
-  | StreamReaderSyncFrameBatch;
+  | StreamReaderSyncFrameBatch
+  | StreamReaderSyncSoaStringArenaBatch;
 
 type GenerationSource = {
   currentGeneration(): number;
