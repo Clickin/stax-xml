@@ -60,17 +60,6 @@
     "writer"
   ],
   "license": "MIT",
-  "optionalDependencies": {
-    "@stax-xml/native-darwin-arm64": "1.0.0-rc3",
-    "@stax-xml/native-darwin-x64": "1.0.0-rc3",
-    "@stax-xml/native-linux-arm64-gnu": "1.0.0-rc3",
-    "@stax-xml/native-linux-arm64-musl": "1.0.0-rc3",
-    "@stax-xml/native-linux-x64-gnu": "1.0.0-rc3",
-    "@stax-xml/native-linux-x64-musl": "1.0.0-rc3",
-    "@stax-xml/native-wasm32-wasi": "1.0.0-rc3",
-    "@stax-xml/native-win32-arm64-msvc": "1.0.0-rc3",
-    "@stax-xml/native-win32-x64-msvc": "1.0.0-rc3"
-  },
   "scripts": {
     "build": "tsdown",
     "test": "vitest run --config vitest.unit.config.ts",

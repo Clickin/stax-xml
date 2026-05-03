@@ -1,15 +1,16 @@
 import {
-  IterableEventBackendIterator,
+  readReadableStreamByteBatches,
   readReadableStreamChunksIncrementally,
   type EntityDefinition
 } from '../IterableEventBackend.js';
 import { getStaxXmlRuntimeForSyncApi } from '../runtime/native-backend.js';
 import { StreamingEventBatchReader } from '../runtime/event-table.js';
+import { ByteCursorFacadeAsync } from './ByteCursorFacadeAsync.js';
 import { CursorEventView } from './CursorEventView.js';
 import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderAsyncOptions } from './types.js';
 
 export class CursorReaderAsync {
-  private readonly backend?: IterableEventBackendIterator;
+  private readonly byteCursor?: ByteCursorFacadeAsync;
   private readonly nativeReader?: StreamingEventBatchReader;
   private readonly nativeChunks?: AsyncGenerator<Uint8Array>;
   private readonly view = new CursorEventView();
@@ -34,26 +35,18 @@ export class CursorReaderAsync {
 
     const runtime = getStaxXmlRuntimeForSyncApi(undefined);
     const createStreamingParser = runtime?.capabilities.streamingEventBatches;
-    if (runtime?.backend.kind !== 'js' && createStreamingParser) {
+    if ((options.namespaceAware ?? true) !== false && runtime?.backend.kind !== 'js' && createStreamingParser) {
       this.nativeReader = new StreamingEventBatchReader(createStreamingParser({
         encoding: options.encoding ?? 'utf-8',
       }));
-      this.nativeChunks = readReadableStreamChunksIncrementally(stream, 8);
+      this.nativeChunks = readReadableStreamChunksIncrementally(stream);
       return;
     }
 
-    this.backend = new IterableEventBackendIterator(stream, {
-      encoding: options.encoding ?? 'utf-8',
-      batchSize: 1,
-      autoDecodeEntities: options.autoDecodeEntities ?? true,
-      addEntities: options.addEntities as EntityDefinition[] | undefined,
-      trimText: true,
-      implicitAttributeValue: 'name',
-      incompleteFinalMarkupMessage: 'Unexpected end of document. Incomplete markup at end of stream.',
-      emitStartDocumentBatchImmediately: true,
-      maxChunkBytes: 8,
-      fallbackOnParseError: options.fallbackOnParseError
-    });
+    this.byteCursor = new ByteCursorFacadeAsync(
+      readReadableStreamByteBatches(stream, { batchSize: 1 }),
+      options,
+    );
   }
 
   async next(): Promise<boolean> {
@@ -65,77 +58,110 @@ export class CursorReaderAsync {
       return this.nextNativeEvent();
     }
 
-    const result = await this.backend!.next();
-    if (result.done) {
+    const moved = await this.byteCursor!.next();
+    if (!moved) {
       this.closed = true;
-      this.view.reset();
       return false;
     }
-
-    this.view.moveTo(result.value);
     return true;
   }
 
   async close(): Promise<void> {
     this.closed = true;
     this.view.reset();
-    if (this.backend) {
-      await this.backend.return();
-    }
     if (this.nativeChunks) {
       await this.nativeChunks.return(undefined);
     }
   }
 
   eventType(): CursorEventTypeValue {
+    if (!this.nativeReader) {
+      return this.byteCursor!.eventType();
+    }
     return this.view.eventType();
   }
 
   name(): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.name();
+    }
     return this.view.name();
   }
 
   localName(): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.localName();
+    }
     return this.view.localName();
   }
 
   prefix(): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.prefix();
+    }
     return this.view.prefix();
   }
 
   uri(): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.uri();
+    }
     return this.view.uri();
   }
 
   text(): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.text();
+    }
     return this.view.text();
   }
 
   getAttributeCount(): number {
+    if (!this.nativeReader) {
+      return this.byteCursor!.getAttributeCount();
+    }
     return this.view.getAttributeCount();
   }
 
   getAttributeName(index: number): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.getAttributeName(index);
+    }
     return this.view.getAttributeName(index);
   }
 
   getAttributeLocalName(index: number): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.getAttributeLocalName(index);
+    }
     return this.view.getAttributeLocalName(index);
   }
 
   getAttributePrefix(index: number): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.getAttributePrefix(index);
+    }
     return this.view.getAttributePrefix(index);
   }
 
   getAttributeValue(indexOrName: number | string): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.getAttributeValue(indexOrName);
+    }
     return this.view.getAttributeValue(indexOrName);
   }
 
   getAttributeUri(index: number): string | undefined {
+    if (!this.nativeReader) {
+      return this.byteCursor!.getAttributeUri(index);
+    }
     return this.view.getAttributeUri(index);
   }
 
   depth(): number {
+    if (!this.nativeReader) {
+      return this.byteCursor!.depth();
+    }
     return this.view.depth();
   }
 

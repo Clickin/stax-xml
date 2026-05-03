@@ -202,14 +202,18 @@ test('node string-return benchmark carries wrapper decomposition rows', () => {
   assert.match(crossRuntimeSource, /raw batch/);
 });
 
-test('published parser surface scenarios use public stream reader for native rows', () => {
+test('published parser surface scenarios use public object-shape surfaces for native rows', () => {
   const labels = STAX_PARSER_SURFACE_SCENARIOS.map((scenario) => scenario.label);
-  assert.ok(labels.includes('stax-xml StreamReaderSync (native)'), labels.join('\n'));
-  assert.ok(labels.includes('stax-xml EventReaderSync (native reference)'), labels.join('\n'));
+  assert.ok(labels.includes('stax-xml EventReaderSync (native object)'), labels.join('\n'));
+  assert.ok(labels.includes('stax-xml StreamReaderSync (native object)'), labels.join('\n'));
+  assert.ok(labels.includes('stax-xml ProjectionReader (native object records)'), labels.join('\n'));
+  assert.ok(labels.includes('stax-xml Converter API (native object)'), labels.join('\n'));
   assert.equal(labels.some((label) => /native addon|aggregate/i.test(label)), false);
 
   const parserScenarioSource = readFileSync(join(repoRoot, 'packages', 'benchmark', 'common', 'parser-scenarios.mjs'), 'utf8');
   assert.doesNotMatch(parserScenarioSource, /native-aggregate-probe|parse_aggregate_/);
+  assert.match(parserScenarioSource, /ProjectionReader/);
+  assert.match(parserScenarioSource, /stax-xml\/converter/);
 });
 
 test('published native benchmark comparators do not call the native aggregate addon directly', () => {
@@ -224,7 +228,7 @@ test('published native benchmark comparators do not call the native aggregate ad
   }
 });
 
-test('published native reader benchmarks require native optimized table capabilities', () => {
+test('published native parser benchmarks require native streaming and projection capabilities', () => {
   for (const relativePath of [
     join('packages', 'benchmark', 'common', 'parser-scenarios.mjs'),
     join('packages', 'benchmark', 'cross-runtime-comparison.mjs'),
@@ -237,7 +241,8 @@ test('published native reader benchmarks require native optimized table capabili
     join(repoRoot, 'packages', 'benchmark', 'common', 'parser-scenarios.mjs'),
     'utf8',
   );
-  assert.match(parserScenarioSource, /documentNodesProjection/);
+  assert.match(parserScenarioSource, /objectRecordsProjection/);
+  assert.match(parserScenarioSource, /createObjectProjectionPlan/);
 });
 
 test('published converter benchmark uses the public projection fast surface', () => {

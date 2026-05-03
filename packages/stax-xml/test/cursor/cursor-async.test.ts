@@ -278,6 +278,24 @@ describe('CursorReaderAsync', () => {
     expect(cursor.getAttributeValue('ns:flag')).toBe('ns:flag');
   });
 
+  it('should allow namespaceAware false to skip namespace-expanded metadata', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<ns:root xmlns:ns="urn:ns" ns:flag="x"><ns:item/></ns:root>'), {
+      namespaceAware: false,
+    });
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // START_ELEMENT ns:root
+    expect(cursor.name()).toBe('ns:root');
+    expect(cursor.localName()).toBeUndefined();
+    expect(cursor.prefix()).toBeUndefined();
+    expect(cursor.uri()).toBeUndefined();
+    expect(cursor.getAttributeName(1)).toBe('ns:flag');
+    expect(cursor.getAttributeValue('ns:flag')).toBe('x');
+    expect(cursor.getAttributeLocalName(1)).toBeUndefined();
+    expect(cursor.getAttributePrefix(1)).toBeUndefined();
+    expect(cursor.getAttributeUri(1)).toBeUndefined();
+  });
+
   it('should stop attribute parsing on malformed separators', async () => {
     const emptyName = new CursorReaderAsync(streamFrom('<root = "value"/>'));
     await emptyName.next(); // START_DOCUMENT

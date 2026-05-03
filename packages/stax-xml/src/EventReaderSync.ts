@@ -3,10 +3,9 @@ import {
   type EntityDefinition,
   type MaterializableEventSource,
 } from './IterableEventBackend.js';
-import { createJavaScriptIterableReader, toByteBatches } from './IterableReader.js';
-import { getInitializedStaxXmlRuntime } from './runtime/index.js';
 import { StreamReaderSync, type StreamBatch } from './StreamReaderSync.js';
-import type { AnyXmlEvent, DocumentMode, ParserEventFilter } from './types.js';
+import { StringEventParserSync } from './StringEventParserSync.js';
+import { XmlEventType, type AnyXmlEvent, type DocumentMode, type ParserEventFilter } from './types.js';
 
 const textEncoder = new TextEncoder();
 
@@ -29,9 +28,7 @@ export interface EventReaderSyncOptions {
  * @public
  */
 export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
-  private readonly source: SyncEventBatchSource;
-  private bufferedEvents: AnyXmlEvent[] = [];
-  private bufferedIndex = 0;
+  private readonly source: SyncEventSource;
   private finished = false;
 
   private readonly iteratorResult: IteratorResult<AnyXmlEvent> = {
@@ -55,27 +52,22 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
       namespaceAware: options.namespaceAware ?? true,
       trimText: false,
     });
-    const bytes = textEncoder.encode(xml);
-    const runtime = getInitializedStaxXmlRuntime();
 
-    if (!runtime) {
-      const parser = createJavaScriptIterableReader(
-        toByteBatches([bytes], { batchSize: 1 }),
-        { documentMode: options.documentMode },
+    const useLegacyStringParser = (options.documentMode ?? 'fragment') === 'fragment';
+    if (useLegacyStringParser) {
+      this.source = new StringSyncEventSource(
+        new StringEventParserSync(xml, {
+          autoDecodeEntities: options.autoDecodeEntities,
+          addEntities: options.addEntities,
+          eventFilter: options.eventFilter,
+          namespaceAware: options.namespaceAware,
+        }),
       );
-      this.source = new JavaScriptSyncEventBatchSource(parser, materializer);
       return;
     }
 
-    if (!runtime.capabilities.streamingEventBatches) {
-      throw new Error(
-        'EventReaderSync requires a streaming event batch runtime once stax-xml has been initialized. ' +
-          'JavaScript fallback is only used before initStaxXml().',
-      );
-    }
-
-    this.source = new CoreSyncEventBatchSource(
-      new StreamReaderSync(bytes, { documentMode: options.documentMode }),
+    this.source = new CoreSyncEventSource(
+      new StreamReaderSync(textEncoder.encode(xml), { documentMode: options.documentMode }),
       materializer,
     );
   }
@@ -83,12 +75,6 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
   nextBatch(): AnyXmlEvent[] | null {
     if (this.finished) {
       return null;
-    }
-    if (this.bufferedIndex < this.bufferedEvents.length) {
-      const remaining = this.bufferedEvents.slice(this.bufferedIndex);
-      this.bufferedEvents = [];
-      this.bufferedIndex = 0;
-      return remaining;
     }
     const batch = this.source.nextBatch();
     if (batch === null) {
@@ -117,41 +103,44 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
       return this.doneResult;
     }
 
-    if (this.bufferedIndex >= this.bufferedEvents.length) {
-      const batch = this.source.nextBatch();
-      if (batch === null) {
-        this.finished = true;
-        return this.doneResult;
-      }
-      this.bufferedEvents = batch;
-      this.bufferedIndex = 0;
+    const event = this.source.nextEvent();
+    if (event === null) {
+      this.finished = true;
+      return this.doneResult;
     }
-
-    this.iteratorResult.value = this.bufferedEvents[this.bufferedIndex]!;
-    this.bufferedIndex++;
+    this.iteratorResult.value = event;
     this.iteratorResult.done = false;
     return this.iteratorResult;
   }
 
   return(): IteratorResult<AnyXmlEvent> {
     this.finished = true;
-    this.bufferedEvents = [];
-    this.bufferedIndex = 0;
     return this.doneResult;
   }
 }
 
-interface SyncEventBatchSource {
+interface SyncEventSource {
   nextBatch(): AnyXmlEvent[] | null;
+  nextEvent(): AnyXmlEvent | null;
 }
 
-class CoreSyncEventBatchSource implements SyncEventBatchSource {
+class CoreSyncEventSource implements SyncEventSource {
+  private bufferedEvents: AnyXmlEvent[] = [];
+  private bufferedIndex = 0;
+
   constructor(
     private readonly reader: StreamReaderSync,
     private readonly materializer: IterableEventMaterializer,
   ) {}
 
   nextBatch(): AnyXmlEvent[] | null {
+    if (this.bufferedIndex < this.bufferedEvents.length) {
+      const remaining = this.bufferedEvents.slice(this.bufferedIndex);
+      this.bufferedEvents = [];
+      this.bufferedIndex = 0;
+      return remaining;
+    }
+
     while (true) {
       const batch = this.reader.nextBatch();
       if (batch === null) {
@@ -163,22 +152,82 @@ class CoreSyncEventBatchSource implements SyncEventBatchSource {
       }
     }
   }
+
+  nextEvent(): AnyXmlEvent | null {
+    if (this.bufferedIndex >= this.bufferedEvents.length) {
+      const batch = this.nextBatch();
+      if (batch === null) {
+        return null;
+      }
+      this.bufferedEvents = batch;
+      this.bufferedIndex = 0;
+    }
+    const event = this.bufferedEvents[this.bufferedIndex]!;
+    this.bufferedIndex++;
+    if (this.bufferedIndex >= this.bufferedEvents.length) {
+      this.bufferedEvents = [];
+      this.bufferedIndex = 0;
+    }
+    return event;
+  }
 }
 
-class JavaScriptSyncEventBatchSource implements SyncEventBatchSource {
-  constructor(
-    private readonly parser: MaterializableEventSource & { nextBatch(): boolean },
-    private readonly materializer: IterableEventMaterializer,
-  ) {}
+class StringSyncEventSource implements SyncEventSource {
+  private bufferedEvent: AnyXmlEvent | null = null;
+  private finished = false;
+
+  constructor(private readonly parser: Iterator<AnyXmlEvent>) {}
 
   nextBatch(): AnyXmlEvent[] | null {
-    while (this.parser.nextBatch()) {
-      const events = this.materializer.materializeBatch(this.parser);
-      if (events.length > 0) {
-        return events;
-      }
+    if (this.finished) {
+      return null;
     }
-    return null;
+
+    const batch: AnyXmlEvent[] = [];
+    if (this.bufferedEvent) {
+      batch.push(this.bufferedEvent);
+      this.bufferedEvent = null;
+    }
+    for (;;) {
+      const result = this.parser.next();
+      if (result.done) {
+        this.finished = true;
+        return batch.length > 0 ? batch : null;
+      }
+      if (result.value.type === XmlEventType.END_DOCUMENT) {
+        if (batch.length === 0) {
+          this.finished = true;
+          return [result.value];
+        }
+        this.bufferedEvent = result.value;
+        return batch;
+      }
+      batch.push(result.value);
+    }
+  }
+
+  nextEvent(): AnyXmlEvent | null {
+    if (this.finished) {
+      return null;
+    }
+    if (this.bufferedEvent) {
+      const event = this.bufferedEvent;
+      this.bufferedEvent = null;
+      if (event.type === XmlEventType.END_DOCUMENT) {
+        this.finished = true;
+      }
+      return event;
+    }
+
+    const result = this.parser.next();
+    if (result.done) {
+      this.finished = true;
+      return null;
+    }
+    if (result.value.type === XmlEventType.END_DOCUMENT) {
+      this.finished = true;
+    }
+    return result.value;
   }
 }
 

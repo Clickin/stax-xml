@@ -5,8 +5,6 @@ import {
   type IterableEventBackendIterator,
   type MaterializableEventSource,
 } from './IterableEventBackend.js';
-import { createJavaScriptIterableReader } from './IterableReader.js';
-import { getInitializedStaxXmlRuntime } from './runtime/index.js';
 import { StreamReader, type StreamBatch } from './StreamReader.js';
 import { XmlEventType, type AnyXmlEvent, type DocumentMode, type ParserEventFilter } from './types.js';
 
@@ -45,15 +43,10 @@ export class EventReader implements AsyncIterable<AnyXmlEvent>, AsyncIterator<An
       namespaceAware: options.namespaceAware ?? true,
       trimText: false,
     });
-    const runtime = getInitializedStaxXmlRuntime();
-    const source = !runtime
-      ? new JavaScriptAsyncEventBatchSource(stream, options.documentMode, materializer)
-      : runtime.capabilities.streamingEventBatches
-        ? new CoreAsyncEventBatchSource(
-            new StreamReader(stream, { documentMode: options.documentMode }),
-            materializer,
-          )
-        : unsupportedInitializedRuntime();
+    const source = new CoreAsyncEventBatchSource(
+      new StreamReader(stream, { documentMode: options.documentMode }),
+      materializer,
+    );
 
     this.backend = new EventReaderBackend(source);
   }
@@ -208,85 +201,6 @@ class CoreAsyncEventBatchSource implements AsyncEventBatchSource {
   }
 }
 
-class JavaScriptAsyncEventBatchSource implements AsyncEventBatchSource {
-  private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
-  private readonly parser: ReturnType<typeof createJavaScriptIterableReader>;
-  private released = false;
-  private sourceDone = false;
-  private finished = false;
-
-  constructor(
-    stream: ReadableStream<Uint8Array>,
-    documentMode: DocumentMode | undefined,
-    private readonly materializer: IterableEventMaterializer,
-  ) {
-    this.reader = stream.getReader();
-    this.parser = createJavaScriptIterableReader([], { documentMode });
-  }
-
-  async nextBatch(): Promise<AnyXmlEvent[] | null> {
-    if (this.finished) {
-      return null;
-    }
-
-    while (!this.sourceDone) {
-      let readResult: ReadableStreamReadResult<Uint8Array>;
-      try {
-        readResult = await this.reader.read();
-      } catch (error) {
-        this.finished = true;
-        this.releaseLock();
-        throw error;
-      }
-
-      if (readResult.done) {
-        this.sourceDone = true;
-        this.releaseLock();
-        this.parser.pushByteBatch([], true);
-        return this.finalizeCurrentBatch();
-      }
-
-      if (!this.parser.pushByteBatch([readResult.value], false)) {
-        continue;
-      }
-
-      const events = this.materializer.materializeBatch(this.parser);
-      if (events.length > 0) {
-        return events;
-      }
-    }
-
-    this.finished = true;
-    return null;
-  }
-
-  async return(): Promise<void> {
-    this.finished = true;
-    try {
-      await this.reader.cancel('EventReader.return()');
-    } finally {
-      this.releaseLock();
-    }
-  }
-
-  private finalizeCurrentBatch(): AnyXmlEvent[] | null {
-    const finalEvents = this.materializer.materializeBatch(this.parser);
-    if (finalEvents.length > 0) {
-      return finalEvents;
-    }
-    this.finished = true;
-    return null;
-  }
-
-  private releaseLock(): void {
-    if (this.released) {
-      return;
-    }
-    this.released = true;
-    this.reader.releaseLock();
-  }
-}
-
 function toMaterializableEventSource(batch: StreamBatch): MaterializableEventSource {
   return {
     eventCount: () => batch.eventCount,
@@ -365,13 +279,6 @@ function maybeSplitReadableStream(
       }
     },
   });
-}
-
-function unsupportedInitializedRuntime(): never {
-  throw new Error(
-    'EventReader requires a streaming event batch runtime once stax-xml has been initialized. ' +
-      'JavaScript fallback is only used before initStaxXml().',
-  );
 }
 
 export default EventReader;

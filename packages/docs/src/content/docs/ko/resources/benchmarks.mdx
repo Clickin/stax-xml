@@ -72,20 +72,28 @@ API 선택 기준:
 - 목표 XML-to-object shape를 알고 있다면 converter API를 우선 사용합니다.
 - 전체 XML 순회가 필요하고 per-event 작업이 가볍다면 `EventReader` 또는 `EventReaderSync`를 먼저 시도합니다.
 - unknown-schema projection이나 object materialization이 무겁다면 `ProjectionReader`와 `stax-xml/projection` helper를 사용합니다.
+- converter가 XPath 1.0 selector와 field transform을 목표로 하기 때문에, selector 중심의 대부분의 `if` 분기는 predicate, position, descendant path, attribute test 같은 선언형 schema로 옮길 수 있습니다.
+- 반대로 stream 순서, 조기 종료, side effect, mutable cross-record state처럼 XPath selection으로 표현되지 않는 로직은 `EventReader` 또는 `StreamReader`에 남겨야 합니다.
 
 - `stax-xml StreamReaderSync (native)`: `initStaxXml({ backend: "native" })`와 native streaming runtime으로 구동되는 public lean byte-batch pull reader입니다. headline native wrapper claim은 이 row가 direct native addon full-spec file-input control row의 `0.90x` 이상일 때만 허용합니다. 이 floor에 못 미치는 결과는 row 삭제나 final spec 하향의 이유가 아니라 public surface를 끌어올리기 위한 최적화 evidence로 남깁니다.
 - `stax-xml EventReaderSync (native reference)`: native runtime으로 구동되는 ergonomic string event iterator입니다. object/iterator overhead를 추적하는 reference row로 계속 측정하지만, 0.9x gate 대상은 아닙니다.
 - `stax-xml ProjectionReader parseXmlNodes (native)`: `stax-xml/projection`을 통해 txml-style node를 반환하는 public unknown-schema object projection입니다.
 - `stax-xml to object`: object-shape reference row입니다. object materialization의 public 성능 근거는 native `ProjectionReader` row를 기준으로 봅니다.
 - `txml`, `fast-xml-parser`, `xml2js`: 각 라이브러리의 native object/DOM-style parse API를 사용합니다.
-- 13 MiB `xml2js` 행은 비교 무효로 표시합니다. `midsize.xml`은 top-level element가 반복되는 형태이며, xml2js는 전체 문서가 아니라 첫 top-level element shape만 반환합니다.
-- stax-xml backend/surface 행은 각 parser table에 직접 포함되어 fixture와 실행 환경이 타 라이브러리 행과 동일합니다.
+- 이 parser fixture 시리즈는 third-party parser가 아니라 public stax-xml surface끼리 비교합니다.
+- 모든 행은 fixture마다 같은 최종 JavaScript object array를 만든 뒤 반환합니다.
+- `EventReaderSync`: native-backed public string event iterator + manual object builder
+- `StreamReaderSync`: native-backed public byte-stream pull reader + manual object builder
+- `ProjectionReader`: 같은 object shape를 반환하는 native-backed public object-record projection
+- `Converter`: 한 번 compile한 public declarative schema가 `schema.parseSync()`를 통해 같은 object shape를 반환합니다
+- fixture input은 bytes로 메모리에 올리고, `EventReaderSync`는 decode된 string도 함께 받습니다. 즉 이 표는 low-memory large-file traversal benchmark가 아니라 in-memory sync 비교입니다.
+- parser table의 memory column은 benchmark 호출의 Mitata average heap footprint입니다. bounded-reader peak RSS metric이 아닙니다.
 
 </details>
 
 ### Parser Fixture 시리즈
 
-`parser-*` 섹션은 라이브러리 간 비교가 가능한 parser fixture 시리즈입니다. 별도 iterable file traversal 및 runtime matrix와 비교하기 전에, 이 네 표를 fixture 크기 순서대로 함께 읽어야 합니다.
+`parser-*` 섹션은 fixture마다 같은 최종 JavaScript object shape를 만드는 public stax-xml surface 비교입니다. 별도 iterable file traversal 및 runtime matrix와 비교하기 전에, 이 네 표를 fixture 크기 순서대로 함께 읽어야 합니다.
 
 #### 소형 문서 (2KB)
 
@@ -104,8 +112,6 @@ API 선택 기준:
 midsize.xml (13MB) 성능 결과:
 
 <BenchmarkSection locale="ko" section="parser-13mb" />
-
-*xml2js는 이 fixture에서 whole-document comparator가 아닙니다. `midsize.xml`은 반복된 top-level `<any_name>` root를 포함하고, xml2js는 첫 top-level element shape만 반환합니다.*
 
 #### 대형 문서 (98MB)
 
@@ -139,18 +145,19 @@ large.xml (98MB) 성능 결과:
 
 <BenchmarkSection locale="ko" section="npm-xml-parsers" />
 
-**성능 교차점 분석:**
-- **소형 파일 (2-4KB)**: 생성된 표를 직접 기준으로 봅니다. stax-xml 행은 살아남은 native/public surface만 타 라이브러리와 같은 표에 보여줍니다
-- **중형 파일 (13MB)**: xml2js는 첫 top-level element shape만 반환하므로 whole-document 결론에서는 제외합니다. 이 fixture는 stax-xml backend/surface 행과 나머지 parser 행을 기준으로 봅니다
-- **대형 파일 (98MB)**: parser와 fixture에 따라 처리량과 메모리 trade-off가 달라지므로 생성된 표를 직접 기준으로 봅니다
-- **초대형 파일 (1GB+)**: `EventReader` stream은 전체 XML string 보관을 피할 수 있습니다. public sync string parser는 in-memory 경로입니다
+**surface 해석 가이드:**
+- **EventReaderSync**: string-event convenience surface + manual object materialization
+- **StreamReaderSync**: byte-oriented pull surface + manual object materialization
+- **ProjectionReader**: unknown-schema extraction용 projection surface지만 여기서는 같은 최종 object를 반환합니다
+- **Converter**: target object shape가 이미 정해져 있다면 우선 선택할 declarative schema surface입니다
+- **초대형 파일 (1GB+)**: `EventReader` stream은 전체 XML string 보관을 피할 수 있고, 위 parser fixture 시리즈는 여전히 in-memory sync 비교입니다
 
 ### EventReader Stream Traversal (기본 1MiB ~ 1GiB)
 
 bounded file chunk 위에서 stax-xml native traversal을 비교합니다:
 
 <details>
-<summary>Scenario contract: EventReader stream JS/native file traversal</summary>
+<summary>Scenario contract: EventReader stream native file traversal</summary>
 
 Generated XML shape, 축약:
 
@@ -183,6 +190,7 @@ parse-result = {
 - `EventReader stream native`는 native backend로 package를 초기화한 뒤 같은 stream reader API를 측정합니다.
 - XML tokenization은 CPU-intensive 작업입니다. async file read를 사용해도 parse loop 자체가 non-blocking이 되지는 않으므로, latency-sensitive main event loop thread에서 실행해야 한다면 Worker 또는 worker thread로 offload할지 결정하세요.
 - 이 row들은 full object tree를 만들지 않고 structural checksum을 사용하므로 stream tokenization과 event materialization 비용을 측정합니다.
+- 렌더링된 표의 memory column은 traversal run의 peak JS heap입니다. peak RSS는 raw JSON에 기록되며, 의미 있게 유지하려면 isolated process에서 측정해야 합니다.
 
 </details>
 
@@ -192,7 +200,7 @@ parse-result = {
 
 **주요 인사이트:**
 - 이 섹션은 full-object materialization benchmark가 아니라 public stream reader throughput view입니다.
-- JS/native row는 같은 `EventReader` stream API를 공유하며, 차이는 초기화한 runtime backend입니다.
+- row는 bounded file chunk 위에서 public native-backed `EventReader` stream API를 사용합니다.
 - async stream parsing도 각 CPU parse batch가 실행되는 동안 main event loop를 block할 수 있습니다. visible latency가 중요하면 Worker 또는 worker thread를 사용하세요.
 - 100MiB를 넘는 파일에서 전체 XML string을 보관할 수 없다면 public full-string sync path를 피하고 bounded input buffering을 위해 async stream을 사용하세요.
 
@@ -303,7 +311,7 @@ byte-input fast path를 함께 비교합니다.
 - converter object hydration 없이 native columnar row projection을 반환하는
   `ProjectionReader` 자체 경로
 
-권장 방향: 이처럼 목표 object shape가 알려진 경우 ad-hoc event parsing보다 converter API를 우선 사용하세요. `EventReaderSync`는 가벼운 전체 XML 순회에 남기고, `ProjectionReader`는 무거운 unknown-schema materialization에 사용합니다.
+권장 방향: 이처럼 목표 object shape가 알려진 경우 ad-hoc event parsing보다 converter API를 우선 사용하세요. XPath 1.0 selector와 field transform이 selector 중심 `if` 로직 대부분을 흡수합니다. `EventReaderSync`는 가벼운 전체 XML 순회에 남기고, `ProjectionReader`는 무거운 unknown-schema materialization이나 여전히 stream-imperative인 로직에 사용합니다.
 
 현재 fixture:
 
@@ -323,6 +331,7 @@ byte-input fast path를 함께 비교합니다.
 - 순수 처리량 기준 최상한은 여전히 handwritten plain parser입니다.
 - 일반 converter API는 dispatch-friendly schema를 projection backend로 자동 route하고 schema object에 plan을 cache합니다.
 - `.compile()`은 같은 output contract를 유지하면서 dispatch 선택을 명시적이고 재사용 가능하게 만듭니다.
+- XPath 1.0 selector와 field transform은 대부분의 구조적 branch logic을 덮을 수 있지만, stream-order control, side effect, early-stop traversal은 여전히 StAX reader surface의 역할입니다.
 - byte input과 projection 가능한 compiled schema에서는 per-event JavaScript
   dispatch를 건너뛰고 public native projection surface에 row projection을
   위임할 수 있습니다.

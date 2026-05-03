@@ -93,14 +93,8 @@ const platformPackages = [
 ] as const;
 
 describe('runtime backend package topology', () => {
-  it('declares every platform package as an exact-version optional dependency', () => {
-    expect(Object.keys(staxPackage.optionalDependencies).sort()).toEqual(
-      platformPackages.map(pkg => pkg.name).sort()
-    );
-
-    for (const pkg of platformPackages) {
-      expect(staxPackage.optionalDependencies[pkg.name]).toBe(staxPackage.version);
-    }
+  it('does not auto-install native platform packages through the public stax-xml facade', () => {
+    expect(staxPackage.optionalDependencies ?? {}).toEqual({});
   });
 
   it('keeps retired low-level reader entries out of public package exports', () => {

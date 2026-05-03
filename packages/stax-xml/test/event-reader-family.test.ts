@@ -46,34 +46,14 @@ describe('zero-base event reader adapters', () => {
     expect(reader.nextBatch()).toBeNull();
   });
 
-  it('materializes sync adapter batches from the streaming core once runtime is initialized', async () => {
-    const xml = Buffer.from('<root id="r1">hello</root>');
-    const pushed: Array<{ chunk: string; isFinal: boolean }> = [];
-
+  it('keeps the sync event reader on the string-parser mainline even when a native runtime is initialized', async () => {
     await initStaxXml({
       backend: 'native',
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
       importPackage: async () => ({
         createStreamingEventBatchParser: () => ({
-          pushChunk(chunk: Uint8Array, isFinal: boolean) {
-            pushed.push({ chunk: Buffer.from(chunk).toString('utf8'), isFinal });
-            if (isFinal) {
-              return {
-                buffer: chunk,
-                table: simpleRuntimeBatches().nativeBatches[3]!.table,
-              };
-            }
-            return {
-              buffer: xml,
-              table: encodeStructuralIndex(xml, [
-                event(StreamEventType.START_DOCUMENT),
-                event(StreamEventType.START_ELEMENT, span(xml, 'root'), none(), 0, 1),
-                event(StreamEventType.CHARACTERS, none(), span(xml, 'hello')),
-                event(StreamEventType.END_ELEMENT, span(xml, 'root')),
-              ], [
-                attr(span(xml, 'id'), span(xml, 'r1')),
-              ]),
-            };
+          pushChunk() {
+            throw new Error('sync EventReaderSync should stay on the string parser mainline');
           },
         }),
       }),
@@ -96,7 +76,46 @@ describe('zero-base event reader adapters', () => {
     });
     expect(secondBatch?.map(event => event.type)).toEqual([XmlEventType.END_DOCUMENT]);
     expect(reader.nextBatch()).toBeNull();
-    expect(pushed.at(0)).toEqual({ chunk: '<root id="r1">hello</root>', isFinal: false });
+  });
+
+  it('keeps the lean namespace-unaware sync event reader on the string-parser mainline', async () => {
+    await initStaxXml({
+      backend: 'native',
+      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
+      importPackage: async () => ({
+        createStreamingEventBatchParser: () => ({
+          pushChunk() {
+            throw new Error('namespace-unaware EventReaderSync should stay on the string parser mainline');
+          },
+        }),
+      }),
+    });
+
+    const reader = new EventReaderSync('<root id="r1">hello</root>', { namespaceAware: false });
+    const firstBatch = reader.nextBatch();
+    const secondBatch = reader.nextBatch();
+
+    expect(firstBatch?.map(event => event.type)).toEqual([
+      XmlEventType.START_DOCUMENT,
+      XmlEventType.START_ELEMENT,
+      XmlEventType.CHARACTERS,
+      XmlEventType.END_ELEMENT,
+    ]);
+    expect(firstBatch?.[1]).toEqual({
+      type: XmlEventType.START_ELEMENT,
+      name: 'root',
+      attributes: { id: 'r1' },
+    });
+    expect(firstBatch?.[2]).toMatchObject({
+      type: XmlEventType.CHARACTERS,
+      value: 'hello',
+    });
+    expect(firstBatch?.[3]).toEqual({
+      type: XmlEventType.END_ELEMENT,
+      name: 'root',
+    });
+    expect(secondBatch?.map(event => event.type)).toEqual([XmlEventType.END_DOCUMENT]);
+    expect(reader.nextBatch()).toBeNull();
   });
 
   it('returns null batches on the async adapter and respects maxChunkBytes splitting', async () => {
@@ -153,7 +172,7 @@ describe('zero-base event reader adapters', () => {
     expect(pushed.filter(entry => !entry.isFinal).every(entry => entry.chunk.buffer === source.buffer)).toBe(true);
   });
 
-  it('does not fall back to JavaScript after runtime initialization without streaming support', async () => {
+  it('continues to operate through the JavaScript path when no streaming backend is available', async () => {
     await initStaxXml({
       backend: 'native',
       platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
@@ -162,7 +181,7 @@ describe('zero-base event reader adapters', () => {
       }),
     });
 
-    expect(() => new EventReaderSync('<root/>')).toThrow(/JavaScript fallback is only used before initStaxXml/i);
-    expect(() => new EventReader(new ReadableStream())).toThrow(/JavaScript fallback is only used before initStaxXml/i);
+    expect(() => new EventReaderSync('<root/>')).not.toThrow();
+    expect(() => new EventReader(new ReadableStream())).not.toThrow();
   });
 });

@@ -32,6 +32,8 @@ export type CursorEventType = typeof CursorEventType[keyof typeof CursorEventTyp
 export interface CursorReaderOptions {
   /** Whether to automatically decode XML entities. Default: true */
   autoDecodeEntities?: boolean;
+  /** Whether to compute namespace-expanded cursor metadata. Default: true */
+  namespaceAware?: boolean;
   /** Additional custom entities to decode */
   addEntities?: { entity: string; value: string }[];
   /** Whether backend parse errors fall back to JavaScript. */

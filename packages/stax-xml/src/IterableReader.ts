@@ -438,6 +438,18 @@ export class IterableReader {
     return this.decodeSpan(this.attrValueStart(eventIndex, attrIndex), this.attrValueEnd(eventIndex, attrIndex));
   }
 
+  copyAttrValueByName(eventIndex: number, name: string): string | undefined {
+    const count = this.attrCount(eventIndex);
+    for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+      if (this.copyAttrName(eventIndex, attrIndex) === name) {
+        return this.isImplicitAttributeValue(eventIndex, attrIndex)
+          ? 'true'
+          : this.copyAttrValue(eventIndex, attrIndex);
+      }
+    }
+    return undefined;
+  }
+
   isImplicitAttributeValue(eventIndex: number, attrIndex: number): boolean {
     if (this.nativeStreamingReader) {
       return this.nativeStreamingReader.isImplicitAttributeValue(eventIndex, attrIndex);

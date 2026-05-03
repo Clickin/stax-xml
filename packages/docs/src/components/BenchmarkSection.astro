@@ -115,13 +115,6 @@ function formatThroughput(stats: any) {
   return Number.isFinite(stats?.throughputMiBs) ? `${Number(stats.throughputMiBs).toFixed(2)} MiB/s` : 'n/a';
 }
 
-function formatRelative(candidate: any, baseline: any) {
-  if (!candidate?.avgNs || !baseline?.avgNs) return 'n/a';
-  return candidate.avgNs >= baseline.avgNs
-    ? `${(candidate.avgNs / baseline.avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`
-    : `${(baseline.avgNs / candidate.avgNs).toFixed(2)}x ${locale === 'en' ? 'faster' : '빠름'}`;
-}
-
 function parseLabel(label: string) {
   if (locale === 'en') return label;
   return label
@@ -174,7 +167,12 @@ function buildTable(section: Section): TableModel | null {
   });
   const staxSurfaceRows = (suiteId: string): Array<[string, string | string[], string]> => {
     const rows: Array<[string, string | string[], string]> = [];
-    if (findSuiteCase(suiteId, 'stax-xml EventReaderSync (native)')) {
+    if (findSuiteCase(suiteId, 'stax-xml EventReaderSync (native object)')) {
+      rows.push(['**EventReaderSync**', 'stax-xml EventReaderSync (native object)', locale === 'en' ? 'Public string event iterator building the same object shape manually' : '같은 object shape를 수동으로 만드는 public string event iterator']);
+      rows.push(['**StreamReaderSync**', 'stax-xml StreamReaderSync (native object)', locale === 'en' ? 'Public byte-stream pull reader building the same object shape manually' : '같은 object shape를 수동으로 만드는 public byte-stream pull reader']);
+      rows.push(['**ProjectionReader**', 'stax-xml ProjectionReader (native object records)', locale === 'en' ? 'Public projection surface returning the same object shape through object records' : 'object records를 통해 같은 object shape를 반환하는 public projection surface']);
+      rows.push(['**Converter**', 'stax-xml Converter API (native object)', locale === 'en' ? 'Declarative schema compiled once and returning the same object shape' : '한 번 compile한 선언형 schema로 같은 object shape를 반환하는 surface']);
+    } else if (findSuiteCase(suiteId, 'stax-xml EventReaderSync (native)')) {
       rows.push(['**stax-xml EventReaderSync (native)**', 'stax-xml EventReaderSync (native)', locale === 'en' ? 'Public lean string event reader, native runtime backend' : 'Public lean string event reader, native runtime backend']);
     } else if (findSuiteCase(suiteId, 'stax-xml native NodeIterableReader')) {
       rows.push(['**stax-xml native NodeIterableReader**', 'stax-xml native NodeIterableReader', locale === 'en' ? 'Legacy public NodeIterableReader row from an older benchmark snapshot' : '이전 benchmark snapshot의 legacy public NodeIterableReader row']);
@@ -191,21 +189,9 @@ function buildTable(section: Section): TableModel | null {
 
   switch (section) {
     case 'parser-2kb':
-      return parserRows('parser-2kb', [
-        ['**txml**', 'txml', locale === 'en' ? 'Lightweight object parser' : '경량 object parser'],
-        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
-        ...staxSurfaceRows('parser-2kb'),
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
-        ['xml2js', 'xml2js', locale === 'en' ? 'Callback object parser' : 'Callback object parser'],
-      ]);
+      return parserRows('parser-2kb', staxSurfaceRows('parser-2kb'));
     case 'parser-4kb':
-      return parserRows('parser-4kb', [
-        ['**txml**', 'txml', locale === 'en' ? 'Lightweight object parser' : '경량 object parser'],
-        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
-        ...staxSurfaceRows('parser-4kb'),
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
-        ['xml2js', 'xml2js', locale === 'en' ? 'Callback object parser' : 'Callback object parser'],
-      ]);
+      return parserRows('parser-4kb', staxSurfaceRows('parser-4kb'));
     case 'npm-xml-parsers':
       {
         const nativeRows: Array<[string, string | string[], string]> = findSuiteCase('npm-xml-parsers', 'stax-xml EventReaderSync (native)')
@@ -227,21 +213,9 @@ function buildTable(section: Section): TableModel | null {
       ]);
       }
     case 'parser-13mb':
-      return parserRows('parser-13mb', [
-        ['xml2js', 'xml2js', locale === 'en' ? 'Invalid comparator: first top-level element only*' : '비교 무효: 첫 top-level element만 처리*'],
-        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
-        ...staxSurfaceRows('parser-13mb'),
-        ['**txml**', 'txml', locale === 'en' ? 'Lightweight object parser' : '경량 object parser'],
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
-      ]);
+      return parserRows('parser-13mb', staxSurfaceRows('parser-13mb'));
     case 'parser-98mb':
-      return parserRows('parser-98mb', [
-        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Memory efficient' : '메모리 효율적'],
-        ...staxSurfaceRows('parser-98mb'),
-        ['**txml**', 'txml', locale === 'en' ? 'Object parser' : 'Object parser'],
-        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Object parser' : 'Object parser'],
-        ['xml2js', 'xml2js', locale === 'en' ? 'Callback object parser' : 'Callback object parser'],
-      ]);
+      return parserRows('parser-98mb', staxSurfaceRows('parser-98mb'));
     case 'async-size': {
       const candidateSizeRows: Array<[string, string]> = [
         ['async-size', '1MiB'],

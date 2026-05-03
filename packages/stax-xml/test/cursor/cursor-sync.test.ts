@@ -5,6 +5,17 @@ function drainCursor(cursor: CursorReader): void {
   while (cursor.next()) { /* drain */ }
 }
 
+function syncByteBatches(xml: string, chunkSize: number): Iterable<readonly Uint8Array[]> {
+  const bytes = new TextEncoder().encode(xml);
+  return {
+    *[Symbol.iterator]() {
+      for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+        yield [bytes.slice(offset, Math.min(offset + chunkSize, bytes.length))];
+      }
+    },
+  };
+}
+
 describe('CursorReader (sync)', () => {
   // ── Basic parsing ─────────────────────────────────────────────────
 
@@ -30,6 +41,29 @@ describe('CursorReader (sync)', () => {
       const et = cursor.eventType();
       events.push({
         type: et,
+        name: cursor.name() ?? undefined,
+        text: cursor.text() ?? undefined,
+      });
+    }
+
+    expect(events).toEqual([
+      { type: CursorEventType.START_DOCUMENT, name: undefined, text: undefined },
+      { type: CursorEventType.START_ELEMENT, name: 'root', text: undefined },
+      { type: CursorEventType.START_ELEMENT, name: 'item', text: undefined },
+      { type: CursorEventType.CHARACTERS, name: undefined, text: 'text' },
+      { type: CursorEventType.END_ELEMENT, name: 'item', text: undefined },
+      { type: CursorEventType.END_ELEMENT, name: 'root', text: undefined },
+      { type: CursorEventType.END_DOCUMENT, name: undefined, text: undefined },
+    ]);
+  });
+
+  it('should accept sync Iterable<Uint8Array[]> input without pre-materializing the full document', () => {
+    const cursor = new CursorReader(syncByteBatches('<root><item>text</item></root>', 3));
+    const events: { type: number; name?: string; text?: string }[] = [];
+
+    while (cursor.next()) {
+      events.push({
+        type: cursor.eventType(),
         name: cursor.name() ?? undefined,
         text: cursor.text() ?? undefined,
       });
@@ -554,6 +588,24 @@ describe('CursorReader (sync)', () => {
     expect(cursor.getAttributeLocalName(1)).toBe('flag');
     expect(cursor.getAttributePrefix(1)).toBe('ns');
     expect(cursor.getAttributeValue('ns:flag')).toBe('ns:flag');
+  });
+
+  it('should allow namespaceAware false to skip namespace-expanded metadata', () => {
+    const cursor = new CursorReader('<ns:root xmlns:ns="urn:ns" ns:flag="x"><ns:item/></ns:root>', {
+      namespaceAware: false,
+    });
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // START_ELEMENT ns:root
+    expect(cursor.name()).toBe('ns:root');
+    expect(cursor.localName()).toBeUndefined();
+    expect(cursor.prefix()).toBeUndefined();
+    expect(cursor.uri()).toBeUndefined();
+    expect(cursor.getAttributeName(1)).toBe('ns:flag');
+    expect(cursor.getAttributeValue('ns:flag')).toBe('x');
+    expect(cursor.getAttributeLocalName(1)).toBeUndefined();
+    expect(cursor.getAttributePrefix(1)).toBeUndefined();
+    expect(cursor.getAttributeUri(1)).toBeUndefined();
   });
 
   it('should stop lazy attribute parsing on malformed separators', () => {

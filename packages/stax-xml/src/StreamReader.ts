@@ -1,3 +1,4 @@
+import { createJavaScriptIterableReader } from './IterableReader.js';
 import { StreamingEventBatchReader } from './runtime/event-table.js';
 import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
 import {
@@ -36,7 +37,8 @@ export interface StreamReaderOptions {
  */
 export class StreamReader implements AsyncIterable<StreamBatch> {
   private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
-  private readonly streamingBatches: StreamingEventBatchReader;
+  private readonly streamingBatches: StreamingEventBatchReader | ReturnType<typeof createJavaScriptIterableReader>;
+  private readonly nativeReader: boolean;
   private generation = 0;
   private sourceDone = false;
   private finished = false;
@@ -48,16 +50,25 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
       throw new Error('stream must be a web standard ReadableStream.');
     }
 
-    const runtime = requireStreamingRuntime();
-    const createStreamingParser = runtime.capabilities.streamingEventBatches!;
-
     this.reader = stream.getReader();
-    this.streamingBatches = new StreamingEventBatchReader(
-      createStreamingParser({
-        encoding: options.encoding,
-        documentMode: options.documentMode,
-      }),
-    );
+    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
+    if (runtime?.capabilities.streamingEventBatches) {
+      const createStreamingParser = runtime.capabilities.streamingEventBatches;
+      this.nativeReader = true;
+      this.streamingBatches = new StreamingEventBatchReader(
+        createStreamingParser({
+          encoding: options.encoding,
+          documentMode: options.documentMode,
+        }),
+      );
+      return;
+    }
+
+    this.nativeReader = false;
+    this.streamingBatches = createJavaScriptIterableReader([], {
+      encoding: options.encoding,
+      documentMode: options.documentMode,
+    });
   }
 
   async nextBatch(): Promise<StreamBatch | null> {
@@ -117,8 +128,8 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   }
 
   private async readNextBatch(): Promise<StreamBatch | null> {
-    if (this.streamingBatches.activatePendingBatch()) {
-      return createStreamBatchView(this.streamingBatches, this.generation, this);
+    if (this.nativeReader && (this.streamingBatches as StreamingEventBatchReader).activatePendingBatch()) {
+      return createStreamBatchView(this.streamingBatches as StreamingEventBatchReader, this.generation, this);
     }
 
     while (!this.sourceDone) {
@@ -133,21 +144,21 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
 
       if (readResult.done) {
         this.sourceDone = true;
-        if (this.streamingBatches.pushByteBatch([], true)) {
+        if ((this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader> | StreamingEventBatchReader).pushByteBatch([], true)) {
           this.releaseLock();
-          return createStreamBatchView(this.streamingBatches, this.generation, this);
+          return createStreamBatchView(this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader>, this.generation, this);
         }
-        if (this.streamingBatches.activatePendingBatch()) {
+        if (this.nativeReader && (this.streamingBatches as StreamingEventBatchReader).activatePendingBatch()) {
           this.releaseLock();
-          return createStreamBatchView(this.streamingBatches, this.generation, this);
+          return createStreamBatchView(this.streamingBatches as StreamingEventBatchReader, this.generation, this);
         }
         this.finished = true;
         this.releaseLock();
         return null;
       }
 
-      if (this.streamingBatches.pushByteBatch([readResult.value], false)) {
-        return createStreamBatchView(this.streamingBatches, this.generation, this);
+      if ((this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader> | StreamingEventBatchReader).pushByteBatch([readResult.value], false)) {
+        return createStreamBatchView(this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader>, this.generation, this);
       }
     }
 
@@ -162,27 +173,4 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     this.lockReleased = true;
     this.reader.releaseLock();
   }
-}
-
-function requireStreamingRuntime() {
-  try {
-    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
-    if (runtime?.capabilities.streamingEventBatches) {
-      return runtime;
-    }
-  } catch (cause) {
-    throw streamReaderCapabilityError(cause);
-  }
-  throw streamReaderCapabilityError();
-}
-
-function streamReaderCapabilityError(cause?: unknown): Error {
-  const error = new Error(
-    'StreamReader requires an initialized native or wasm streaming event batch backend. ' +
-      'Call initStaxXml({ backend: "native" }) or initStaxXml({ backend: "wasm" }) before constructing StreamReader.',
-  );
-  if (cause !== undefined) {
-    (error as Error & { cause?: unknown }).cause = cause;
-  }
-  return error;
 }

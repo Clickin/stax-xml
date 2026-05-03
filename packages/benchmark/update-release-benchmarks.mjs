@@ -25,9 +25,9 @@ import {
 import { resetStaxXmlRuntimeForTests } from 'stax-xml/runtime';
 import { parseXmlNodesSync } from 'stax-xml/projection';
 import {
+  assertStaxParserSurfaceParity,
   createStaxParserSurfaceRunners,
   ensureNativeReaderRuntime,
-  parseXmlToObjectBaseline,
   STAX_PARSER_SURFACE_SCENARIOS,
 } from './common/parser-scenarios.mjs';
 import { normalizeFxpWriterTree, normalizeOrderedWriterTree, writeWriterTreeAsync, writeWriterTreeSync } from './common/writer-tree.mjs';
@@ -71,6 +71,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   const args = {
     aggregateOnly: false,
     includeStress: false,
+    measureEventReaderCase: null,
     only: null,
     runId: null,
     skipAuxiliary: false,
@@ -130,6 +131,15 @@ function parseArgs(argv = process.argv.slice(2)) {
     }
     if (arg.startsWith('--run-id=')) {
       args.runId = arg.slice('--run-id='.length);
+      continue;
+    }
+
+    if (arg === '--measure-event-reader-case' && argv[index + 1]) {
+      args.measureEventReaderCase = argv[++index];
+      continue;
+    }
+    if (arg.startsWith('--measure-event-reader-case=')) {
+      args.measureEventReaderCase = arg.slice('--measure-event-reader-case='.length);
       continue;
     }
 
@@ -669,30 +679,14 @@ async function registerParserSyncSuite(assetPath) {
   const inputBuffer = loadXmlBuffer(assetPath);
   const xmlString = inputBuffer.toString('utf8');
   await ensureNativeReaderRuntime();
-  const staxSurfaceRunners = createStaxParserSurfaceRunners({ xmlString, inputBuffer });
-  const parseObject = () => parseXmlToObjectBaseline(xmlString);
-  const parseXml2js = async () => {
-    await new Promise((resolve, reject) => {
-      xml2js.parseString(xmlString, (err) => (err ? reject(err) : resolve(undefined)));
-    });
-  };
-  const parseFastXml = () => {
-    const parser = new XMLParser();
-    parser.parse(xmlString);
-  };
-  const parseTxml = () => {
-    txml.parse(xmlString);
-  };
+  assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffer });
+  const staxSurfaceRunners = createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuffer });
 
   barplot(() => {
     summary(() => {
-      bench('stax-xml to object', () => parseObject()).gc('inner');
       for (const scenario of staxSurfaceRunners) {
         bench(scenario.label, scenario.run).gc('inner');
       }
-      bench('xml2js', async () => await parseXml2js()).gc('inner');
-      bench('fast-xml-parser', () => parseFastXml()).gc('inner');
-      bench('txml', () => parseTxml()).gc('inner');
     });
   });
 }
@@ -1027,6 +1021,45 @@ function ensureLargeAsyncFile(verbose = true) {
   return ensureIterableXmlFile(largeAsyncFileCase, verbose);
 }
 
+function iterableFixtureCaseById(id) {
+  return iterableFileSizeCases.find((fixtureCase) => fixtureCase.id === id)
+    ?? (largeAsyncFileCase.id === id ? largeAsyncFileCase : null);
+}
+
+async function measureIterableFixtureCaseDirect(fixtureCase, verbose = false) {
+  const fixture = ensureIterableXmlFile(fixtureCase, verbose);
+  return {
+    ...await measureLargeFileCase(
+      `EventReader stream native (${fixture.label} temp file)`,
+      fixture.bytes,
+      (onProgress) => parseEventReaderFile(fixture.filePath, 'native', onProgress),
+    ),
+    fixtureLabel: fixture.label,
+    bytes: fixture.bytes,
+    targetBytes: fixture.targetBytes,
+  };
+}
+
+function measureIterableFixtureCaseInChild(fixtureCase) {
+  const childArgs = [
+    '--expose-gc',
+    fileURLToPath(import.meta.url),
+    '--quiet',
+    '--measure-event-reader-case',
+    fixtureCase.id,
+  ];
+  const result = spawnSync(process.execPath, childArgs, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'inherit'],
+    maxBuffer: 1024 * 1024,
+  });
+  if (result.status !== 0) {
+    throw new Error(`Child measurement failed for iterable fixture ${fixtureCase.id}`);
+  }
+  return JSON.parse(result.stdout);
+}
+
 function updateMemoryPeak(peak) {
   const current = process.memoryUsage();
   peak.heapUsed = Math.max(peak.heapUsed, current.heapUsed);
@@ -1084,9 +1117,7 @@ async function parseEventReaderFile(filePath, backend, onProgress) {
       consumeMaterializedEvent(event, state);
     }
     state.batches++;
-    if ((state.batches & 255) === 0) {
-      onProgress();
-    }
+    onProgress();
   }
   onProgress();
   return state;
@@ -1187,7 +1218,7 @@ function normalizeIterableSizeSuiteResult(id, title, raw) {
 async function runIterableParserSizeSuite(verbose) {
   const raw = {
     id: 'async-size',
-    title: 'EventReader stream JS vs native size comparison',
+    title: 'EventReader stream native size comparison',
     generatedAt: new Date().toISOString(),
     context: createManualNodeContext(),
     chunkSize: iterableFileChunkSize,
@@ -1208,16 +1239,7 @@ async function runIterableParserSizeSuite(verbose) {
       reused: fixture.reused,
     });
 
-    raw.cases.push({
-      ...await measureLargeFileCase(
-        `EventReader stream native (${fixture.label} temp file)`,
-        fixture.bytes,
-        (onProgress) => parseEventReaderFile(fixture.filePath, 'native', onProgress),
-      ),
-      fixtureLabel: fixture.label,
-      bytes: fixture.bytes,
-      targetBytes: fixture.targetBytes,
-    });
+    raw.cases.push(measureIterableFixtureCaseInChild(fixtureCase));
   }
 
   writeFileSync(join(rawDir, 'async-size.json'), `${JSON.stringify(raw, null, 2)}\n`, 'utf8');
@@ -1269,11 +1291,7 @@ async function runAsyncFile4gbSuite(verbose) {
     cases: [],
   };
 
-  raw.cases.push(await measureLargeFileCase(
-    'EventReader stream native (4GiB temp file)',
-    fixture.bytes,
-    (onProgress) => parseEventReaderFile(fixture.filePath, 'native', onProgress),
-  ));
+  raw.cases.push(measureIterableFixtureCaseInChild(largeAsyncFileCase));
 
   writeFileSync(join(rawDir, 'async-file-4gb.json'), `${JSON.stringify(raw, null, 2)}\n`, 'utf8');
   return normalizeAsyncFile4gbSuiteResult('async-file-4gb', raw.title, raw);
@@ -1663,9 +1681,9 @@ export const manifest = [
   },
   {
     id: 'async-size',
-    title: 'EventReader stream JS vs native size comparison',
+    title: 'EventReader stream native size comparison',
     run: () => runIterableParserSizeSuite(true),
-    normalize: (rawFilePath) => normalizeIterableSizeSuiteResult('async-size', 'EventReader stream JS vs native size comparison', readJsonFile(rawFilePath)),
+    normalize: (rawFilePath) => normalizeIterableSizeSuiteResult('async-size', 'EventReader stream native size comparison', readJsonFile(rawFilePath)),
   },
   {
     id: 'async-file-4gb',
@@ -2097,35 +2115,25 @@ function createParserScenarioDetails() {
     'Consumer/output shape, expressed without library-specific syntax:',
     '',
     '~~~text',
-    'consume-only:',
-    '  for each parser event:',
-    '    count or inspect the event',
-    '    do not retain a full output tree',
+    'books fixture output:',
+    '  Array<{ id, title, author, price }>',
     '',
-    'object-output:',
-    '  document = {',
-    '    catalog: {',
-    '      book: [',
-    '        { attributes, title, author, price, tags }',
-    '      ]',
-    '    }',
-    '  }',
+    'person fixtures output:',
+    '  Array<{ id, name, age }>',
     '~~~',
     '',
-    'Runtime methods:',
+    'Measurement policy:',
     '',
-    'API selection guidance:',
-    '',
-    '- Prefer the converter API when the target XML-to-object shape is known.',
-    '- For whole-XML traversal with light per-event work, start with `EventReader` or `EventReaderSync`.',
-    '- For heavier unknown-schema projection or object materialization, use `ProjectionReader` and the `stax-xml/projection` helpers.',
-    '',
-    '- `stax-xml EventReaderSync (native)`: public lean string event reader backed by `initStaxXml({ backend: "native" })`; no private native diagnostic entry point is imported or called directly.',
-    '- `stax-xml ProjectionReader parseXmlNodes (native)`: public unknown-schema object projection returning txml-style nodes through `stax-xml/projection`.',
-    '- `stax-xml to object`: `parseXmlNodesSync` through the JavaScript fallback, kept as the stax object-shape reference row.',
-    '- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its string API-native object/DOM-style parse API.',
-    '- The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.',
-    '- The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.',
+    '- This parser fixture series compares public stax-xml surfaces against one another, not against third-party parsers.',
+    '- Every row builds the same final JavaScript object array for the fixture before returning.',
+    '- `EventReaderSync`: native-backed public string event iterator with a manual object builder.',
+    '- `StreamReaderSync`: native-backed public byte-stream pull reader with a manual object builder.',
+    '- `ProjectionReader`: native-backed public object-record projection returning the same object shape.',
+    '- `Converter`: public declarative converter schema compiled once and returning the same object shape through `schema.parseSync()`.',
+    '- Because the converter targets XPath 1.0 selectors plus field transforms, most selector-style `if` branches can move into declarative predicates, positions, descendant paths, and attribute tests instead of event-by-event manual dispatch.',
+    '- Keep `EventReaderSync` or `StreamReaderSync` when the logic depends on imperative stream state, early exit, side effects, or mutable cross-record state that XPath selection cannot express.',
+    '- The fixture input is loaded into memory as bytes, and `EventReaderSync` also receives the decoded string. This is an in-memory sync comparison, not the low-memory large-file traversal benchmark.',
+    '- The memory column for these parser tables is Mitata average heap footprint for the benchmarked call. It is not a bounded-reader peak RSS metric.',
     '',
     '</details>',
   ].join('\n');
@@ -2159,7 +2167,7 @@ function createLargeFileScenarioDetails(summary) {
   const maxLabel = asyncSizeMaxLabel(summary);
   return [
     '<details>',
-    '<summary>Scenario contract: EventReader stream JS and native file traversal</summary>',
+    '<summary>Scenario contract: EventReader stream native file traversal</summary>',
     '',
     'Generated XML shape, shortened:',
     '',
@@ -2192,6 +2200,7 @@ function createLargeFileScenarioDetails(summary) {
     '- `EventReader stream native` initializes the package with the native backend before measuring the same stream reader API.',
     '- XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.',
     '- These rows intentionally use a structural checksum rather than building a full object tree so the table measures stream tokenization and event materialization.',
+    '- The memory column in the rendered table is peak JS heap for the traversal run. Peak RSS is tracked in the raw JSON, but it must be measured in an isolated process to stay meaningful.',
     '',
     '</details>',
     '',
@@ -2330,7 +2339,7 @@ ${createParserScenarioDetails()}
 
 ### Parser Fixture Series
 
-The \`parser-*\` series is the comparable parser-library fixture set. Read these tables together, in fixture-size order, before comparing the separate EventReader stream traversal and runtime matrices.
+The \`parser-*\` series compares public stax-xml surfaces that all produce the same final JavaScript object shape for each fixture. Read these tables together, in fixture-size order, before comparing the separate EventReader stream traversal and runtime matrices.
 
 #### Small Documents (2KB)
 
@@ -2339,11 +2348,7 @@ For typical web service responses and configuration files (complex.xml):
 ${renderBenchmarkSourceLinks('parser-2kb')}
 
 ${renderParserTable(summary, 'parser-2kb', [
-  { display: '**txml**', label: 'txml', notes: 'Lightweight object parser' },
-  { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Object conversion' },
   ...staxParserSurfaceRows(),
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
-  { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
 #### Medium Documents (4KB)
@@ -2353,11 +2358,7 @@ For larger API responses and data files (books.xml):
 ${renderBenchmarkSourceLinks('parser-4kb')}
 
 ${renderParserTable(summary, 'parser-4kb', [
-  { display: '**txml**', label: 'txml', notes: 'Lightweight object parser' },
-  { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Object conversion' },
   ...staxParserSurfaceRows(),
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
-  { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
 #### Medium-Large Documents (13MB)
@@ -2367,14 +2368,8 @@ Performance results on midsize.xml (13MB):
 ${renderBenchmarkSourceLinks('parser-13mb')}
 
 ${renderParserTable(summary, 'parser-13mb', [
-  { display: 'xml2js', label: 'xml2js', notes: 'Invalid comparator: first top-level element only*' },
-  { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Object conversion' },
   ...staxParserSurfaceRows(),
-  { display: '**txml**', label: 'txml', notes: 'Lightweight object parser' },
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
 ])}
-
-*xml2js is not a valid whole-document comparator for this fixture. \`midsize.xml\` contains repeated top-level \`<any_name>\` roots, and xml2js returns only the first top-level element shape.
 
 #### Large Documents (98MB)
 
@@ -2383,11 +2378,7 @@ Performance results on large.xml (98MB):
 ${renderBenchmarkSourceLinks('parser-98mb')}
 
 ${renderParserTable(summary, 'parser-98mb', [
-  { display: '**stax-xml to object**', label: 'stax-xml to object', notes: 'Memory efficient' },
   ...staxParserSurfaceRows(),
-  { display: '**txml**', label: 'txml', notes: 'Object parser' },
-  { display: 'fast-xml-parser', label: 'fast-xml-parser', notes: 'Object parser' },
-  { display: 'xml2js', label: 'xml2js', notes: 'Callback object parser' },
 ])}
 
 ### Node npm XML Parsers
@@ -2412,7 +2403,7 @@ ${renderAsyncSizeTable(summary)}
 
 **Key Insights:**
 - This section is the public stream reader throughput view, not a full-object materialization benchmark.
-- The JS and native rows share the same \`EventReader\` stream API; the difference is the initialized runtime backend.
+- The rows use the public native-backed \`EventReader\` stream API over bounded file chunks.
 - Async stream parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
 - For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for bounded input buffering.
 
@@ -2426,7 +2417,7 @@ The benchmark below compares three ways to build the **same object output**:
 - The declarative converter API with automatic dispatch-plan routing
 - The converter API with \`.compile()\` enabled
 
-Recommendation: when this kind of target object shape is known, prefer the converter API over ad-hoc event parsing. Keep \`EventReaderSync\` for light whole-XML traversal and use \`ProjectionReader\` for heavier unknown-schema materialization.
+Recommendation: when this kind of target object shape is known, prefer the converter API over ad-hoc event parsing. XPath 1.0 selectors and field transforms absorb most selector-style \`if\` logic; keep \`EventReaderSync\` for light whole-XML traversal and use \`ProjectionReader\` for heavier unknown-schema materialization or when the logic remains stream-imperative.
 
 Current fixture:
 
@@ -2444,6 +2435,7 @@ Interpretation:
 - The handwritten parser remains the raw-throughput ceiling.
 - The normal converter API now auto-routes dispatch-friendly schemas onto the projection backend and caches the plan on the schema object.
 - \`.compile()\` keeps the same output contract while making that dispatch choice explicit and reusable.
+- XPath 1.0 selectors plus field transforms cover most structural branch logic; imperative stream-order control, side effects, and early-stop traversal still belong on the StAX reader surfaces.
 
 ## Writer Performance
 
@@ -2510,6 +2502,16 @@ ${createEnglishBenchmarkBlock(summary)}
 async function main() {
   const args = parseArgs();
   mkdirSync(rawDir, { recursive: true });
+
+  if (args.measureEventReaderCase) {
+    const fixtureCase = iterableFixtureCaseById(args.measureEventReaderCase);
+    if (!fixtureCase) {
+      throw new Error(`Unknown iterable fixture case id: ${args.measureEventReaderCase}`);
+    }
+    const measured = await measureIterableFixtureCaseDirect(fixtureCase, false);
+    process.stdout.write(JSON.stringify(measured));
+    return;
+  }
 
   if (args.aggregateOnly) {
     await aggregateReleaseBenchmarks({

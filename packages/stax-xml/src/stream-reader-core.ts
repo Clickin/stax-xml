@@ -232,9 +232,19 @@ class StreamBatchView implements StreamBatch {
     this.assertActive();
     this.assertEventIndex(eventIndex);
     if (typeof attrIndexOrName === 'string') {
-      return this.source.copyAttrValueByName(eventIndex, attrIndexOrName);
+      const count = this.source.attrCount(eventIndex);
+      for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+        if (this.source.copyAttrName(eventIndex, attrIndex) === attrIndexOrName) {
+          return this.source.isImplicitAttributeValue(eventIndex, attrIndex)
+            ? 'true'
+            : this.source.copyAttrValue(eventIndex, attrIndex);
+        }
+      }
+      return undefined;
     }
-    return this.source.copyAttrValue(eventIndex, attrIndexOrName);
+    return this.source.isImplicitAttributeValue(eventIndex, attrIndexOrName)
+      ? 'true'
+      : this.source.copyAttrValue(eventIndex, attrIndexOrName);
   }
 
   *[Symbol.iterator](): IterableIterator<StreamEventView> {

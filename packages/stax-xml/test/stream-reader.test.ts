@@ -14,6 +14,25 @@ afterEach(() => {
 });
 
 describe('StreamReader async batch core', () => {
+  it('falls back to the JavaScript iterable batch core when no runtime is initialized', async () => {
+    const input = Buffer.from('<root id="r1">hello</root>');
+    const { stream } = createStubReadableStream([
+      { done: false, value: input },
+      { done: true, value: undefined },
+    ]);
+
+    const reader = new StreamReader(stream);
+    const batch = await reader.nextBatch();
+    expect(batch?.eventCount).toBe(4);
+    expect(batch?.typeAt(1)).toBe(StreamEventType.START_ELEMENT);
+    expect(batch?.nameAt(1)).toBe('root');
+    expect(batch?.attributeValueAt(1, 'id')).toBe('r1');
+    expect(batch?.textAt(2)).toBe('hello');
+    expect(batch?.nameAt(3)).toBe('root');
+    expect((await reader.nextBatch())?.typeAt(0)).toBe(StreamEventType.END_DOCUMENT);
+    expect(await reader.nextBatch()).toBeNull();
+  });
+
   it('reads one source chunk per requested batch and flushes EOF once', async () => {
     const { first, second, third, nativeBatches } = simpleRuntimeBatches();
     const pushed: Array<{ chunk: string; isFinal: boolean }> = [];

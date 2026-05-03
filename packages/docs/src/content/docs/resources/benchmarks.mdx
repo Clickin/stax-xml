@@ -72,20 +72,23 @@ API selection guidance:
 - Prefer the converter API when the target XML-to-object shape is known.
 - For whole-XML traversal with light per-event work, start with `EventReader` or `EventReaderSync`.
 - For heavier unknown-schema projection or object materialization, use `ProjectionReader` and the `stax-xml/projection` helpers.
+- Because the converter targets XPath 1.0 selectors plus field transforms, most selector-style `if` branches can move into declarative predicates, positions, descendant paths, and attribute tests.
+- Keep `EventReader` or `StreamReader` when the logic depends on stream order, early exit, side effects, or mutable cross-record state that XPath selection cannot express.
 
-- `stax-xml StreamReaderSync (native)`: public lean byte-batch pull reader backed by `initStaxXml({ backend: "native" })` and the native streaming runtime. Headline native wrapper claims require this row to stay at least `0.90x` the direct native addon full-spec file-input control row. Falling below that floor remains tracked optimization evidence for raising the public surface, not a reason to remove the row or lower the final spec.
-- `stax-xml EventReaderSync (native reference)`: ergonomic string event iterator backed by the native runtime. It remains measured as a reference row for object/iterator overhead, but it is not the 0.9x gate target.
-- `stax-xml ProjectionReader parseXmlNodes (native)`: public unknown-schema object projection returning txml-style nodes through `stax-xml/projection`.
-- `stax-xml to object`: object-shape reference row. Native `ProjectionReader` rows are the public performance evidence for object materialization.
-- `txml`, `fast-xml-parser`, and `xml2js`: each library uses its native object/DOM-style parse API.
-- The 13 MiB `xml2js` row is marked as an invalid comparator: `midsize.xml` has repeated top-level elements and xml2js reports only the first top-level element shape instead of the whole document.
-- The stax-xml backend/surface rows are embedded directly in each parser table so the fixture and run environment are identical to the third-party rows.
+- This parser fixture series compares public stax-xml surfaces against one another, not against third-party parsers.
+- Every row builds the same final JavaScript object array for the fixture before returning.
+- `EventReaderSync`: native-backed public string event iterator with a manual object builder.
+- `StreamReaderSync`: native-backed public byte-stream pull reader with a manual object builder.
+- `ProjectionReader`: native-backed public object-record projection returning the same object shape.
+- `Converter`: public declarative converter schema compiled once and returning the same object shape through `schema.parseSync()`.
+- The fixture input is loaded into memory as bytes, and `EventReaderSync` also receives the decoded string. This is an in-memory sync comparison, not the low-memory large-file traversal benchmark.
+- The memory column for these parser tables is Mitata average heap footprint for the benchmarked call. It is not a bounded-reader peak RSS metric.
 
 </details>
 
 ### Parser Fixture Series
 
-The `parser-*` sections are the comparable parser-library fixture series. Read them together, in fixture-size order, before comparing the separate iterable file-traversal and runtime matrices.
+The `parser-*` sections compare public stax-xml surfaces that all produce the same final JavaScript object shape for each fixture. Read them together, in fixture-size order, before comparing the separate iterable file-traversal and runtime matrices.
 
 #### Small Documents (2KB)
 
@@ -104,8 +107,6 @@ For larger API responses and data files (books.xml):
 Performance results on midsize.xml (13MB):
 
 <BenchmarkSection locale="en" section="parser-13mb" />
-
-*xml2js is not a valid whole-document comparator for this fixture. `midsize.xml` contains repeated top-level `<any_name>` roots, and xml2js returns only the first top-level element shape.*
 
 #### Large Documents (98MB)
 
@@ -139,11 +140,12 @@ Measurement policy:
 
 <BenchmarkSection locale="en" section="npm-xml-parsers" />
 
-**Performance Crossover Analysis:**
-- **Small files (2-4KB)**: compare the generated table directly; the stax-xml rows focus on the surviving native/public surfaces beside third-party parsers
-- **Medium files (13MB)**: xml2js is excluded from whole-document conclusions because it only reports the first top-level element shape; use the stax-xml backend/surface rows and the remaining parser rows for this fixture
-- **Large files (98MB)**: compare the generated table directly; throughput and memory trade-offs move by parser and fixture
-- **Very large files (1GB+)**: `EventReader` streams avoid retaining one full XML string; the public sync string parser remains the in-memory path
+**Surface Reading Guide:**
+- **EventReaderSync**: string-event convenience surface with manual object materialization
+- **StreamReaderSync**: byte-oriented pull surface with manual object materialization
+- **ProjectionReader**: projection-oriented surface for unknown-schema extraction that still returns the same final objects here
+- **Converter**: declarative schema surface; use this first when the target object shape is already known
+- **Very large files (1GB+)**: `EventReader` streams avoid retaining one full XML string; the parser fixture series above remains an in-memory sync comparison
 
 
 ### EventReader Stream Traversal (1MiB to 1GiB default)
@@ -151,7 +153,7 @@ Measurement policy:
 stax-xml native traversal over bounded file chunks:
 
 <details>
-<summary>Scenario contract: EventReader stream JS and native file traversal</summary>
+<summary>Scenario contract: EventReader stream native file traversal</summary>
 
 Generated XML shape, shortened:
 
@@ -184,6 +186,7 @@ Parsing methods:
 - `EventReader stream native` initializes the package with the native backend before measuring the same stream reader API.
 - XML tokenization is CPU-intensive. Async file reads do not make the parse loop non-blocking; if this work would run on a latency-sensitive main event loop thread, offload parsing to a Worker or worker thread.
 - These rows intentionally use a structural checksum rather than building a full object tree so the table measures stream tokenization and event materialization.
+- The memory column in the rendered table is peak JS heap for the traversal run. Peak RSS is tracked in the raw JSON and must be measured in an isolated process to stay meaningful.
 
 </details>
 
@@ -193,7 +196,7 @@ The default release set stops at 1GiB; the 4GiB traversal is available with `rel
 
 **Key Insights:**
 - This section is the public stream reader throughput view, not a full-object materialization benchmark.
-- The JS and native rows share the same `EventReader` stream API; the difference is the initialized runtime backend.
+- The rows use the public native-backed `EventReader` stream API over bounded file chunks.
 - Async stream parsing can still block the main event loop while each CPU parse batch runs; use a Worker or worker thread when visible latency matters.
 - For files above 100MiB, avoid the public full-string sync path when retaining the full XML string is not acceptable; use async streams for bounded input buffering.
 
@@ -304,7 +307,7 @@ projection-lowerable byte-input fast path:
 - `ProjectionReader` itself, which returns the native columnar row projection
   without converter object hydration
 
-Recommendation: when this kind of target object shape is known, prefer the converter API over ad-hoc event parsing. Keep `EventReaderSync` for light whole-XML traversal and use `ProjectionReader` for heavier unknown-schema materialization.
+Recommendation: when this kind of target object shape is known, prefer the converter API over ad-hoc event parsing. XPath 1.0 selectors and field transforms absorb most selector-style `if` logic; keep `EventReaderSync` for light whole-XML traversal and use `ProjectionReader` for heavier unknown-schema materialization or when the logic remains stream-imperative.
 
 Fixture used in the current workspace run:
 
@@ -329,6 +332,7 @@ What this means:
 - The handwritten parser remains the raw-throughput ceiling.
 - The normal converter API now auto-routes dispatch-friendly schemas onto the projection backend and caches the plan on the schema object.
 - `.compile()` keeps the same output contract while making that dispatch choice explicit and reusable.
+- XPath 1.0 selectors plus field transforms cover most structural branch logic; imperative stream-order control, side effects, and early-stop traversal still belong on the StAX reader surfaces.
 - On byte input with a projection-lowerable compiled schema, the converter can
   skip per-event JavaScript dispatch and delegate the row projection through the
   public native projection surface.

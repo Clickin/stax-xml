@@ -272,7 +272,7 @@ describe('stax-xml runtime init cache', () => {
       });
 
     expect(() => new EventReaderSync('<r><name>Alice</name></r>'))
-      .toThrow(/JavaScript fallback is only used before initStaxXml/);
+      .not.toThrow();
     expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
   });
 

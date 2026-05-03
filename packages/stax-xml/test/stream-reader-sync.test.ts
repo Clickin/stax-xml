@@ -356,9 +356,18 @@ describe('StreamReaderSync batch core', () => {
     ]);
   });
 
-  it('requires an initialized native or wasm streaming runtime', () => {
-    expect(() => new StreamReaderSync([])).toThrow(
-      /StreamReaderSync requires an initialized native or wasm streaming event batch backend/i,
-    );
+  it('falls back to the JavaScript iterable batch core when no runtime is initialized', () => {
+    const input = buffer('<root id="r1">hello</root>');
+    const reader = new StreamReaderSync([[input]]);
+
+    const batch = reader.nextBatch();
+    expect(batch?.eventCount).toBe(4);
+    expect(batch?.typeAt(1)).toBe(StreamEventType.START_ELEMENT);
+    expect(batch?.nameAt(1)).toBe('root');
+    expect(batch?.attributeValueAt(1, 'id')).toBe('r1');
+    expect(batch?.textAt(2)).toBe('hello');
+    expect(batch?.nameAt(3)).toBe('root');
+    expect(reader.nextBatch()?.typeAt(0)).toBe(StreamEventType.END_DOCUMENT);
+    expect(reader.nextBatch()).toBeNull();
   });
 });
