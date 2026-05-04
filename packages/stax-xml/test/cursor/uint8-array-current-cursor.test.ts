@@ -54,16 +54,4 @@ describe('Uint8ArrayCurrentCursor', () => {
     }
   });
 
-  it('routes stream readers through the cursor core instead of IterableReader', () => {
-    const files = [
-      'packages/stax-xml/src/StreamReader.ts',
-      'packages/stax-xml/src/StreamReaderSync.ts',
-    ];
-
-    for (const file of files) {
-      const source = readFileSync(resolve(process.cwd(), '..', '..', file), 'utf8');
-      expect(source, file).toContain('Cursor');
-      expect(source, file).not.toContain('createJavaScriptIterableReader');
-    }
-  });
 });

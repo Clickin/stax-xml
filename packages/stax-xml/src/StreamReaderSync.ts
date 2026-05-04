@@ -1,7 +1,4 @@
-import { CursorStreamBatchSource } from './cursor-stream-batch.js';
-import { CursorEventType } from './cursor/types.js';
-import { DocumentModeStreamReaderSyncCore } from './document-mode-stream-core.js';
-import { Uint8ArrayCurrentCursor } from './iterable/Uint8ArrayCurrentCursor.js';
+import { createJavaScriptIterableReader } from './IterableReader.js';
 import {
   createStreamBatchView,
   StreamEventType,
@@ -42,11 +39,9 @@ export interface StreamReaderSyncOptions {
  * @public
  */
 export class StreamReaderSync implements Iterable<StreamBatch> {
-  private readonly cursor: Uint8ArrayCurrentCursor | undefined;
-  private readonly documentCore: DocumentModeStreamReaderSyncCore | undefined;
+  private readonly reader: ReturnType<typeof createJavaScriptIterableReader>;
   private generation = 0;
   private finished = false;
-  private pendingEndDocument = false;
 
   constructor(source: Iterable<StreamReaderSyncByteBatch>, options?: StreamReaderSyncOptions);
   constructor(source: Uint8Array, options?: StreamReaderSyncOptions);
@@ -55,13 +50,9 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
     options: StreamReaderSyncOptions = {},
   ) {
     const batches = source instanceof Uint8Array ? singleByteBatch(source) : source;
-    if (options.documentMode === 'document') {
-      this.documentCore = new DocumentModeStreamReaderSyncCore(source, options);
-      return;
-    }
-    void options.encoding;
-    this.cursor = new Uint8ArrayCurrentCursor(batches, {
-      implicitAttributeValue: 'true',
+    this.reader = createJavaScriptIterableReader(batches, {
+      encoding: options.encoding,
+      documentMode: options.documentMode,
     });
   }
 
@@ -71,20 +62,11 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
       return null;
     }
 
-    if (this.documentCore) {
-      const batch = this.documentCore.nextBatch(this.generation, this);
-      if (batch === null) {
-        this.finished = true;
-      }
-      return batch;
-    }
-
-    const source = this.readCursorBatch();
-    if (source === null) {
+    if (!this.reader.nextBatch()) {
       this.finished = true;
       return null;
     }
-    return createStreamBatchView(source, this.generation, this);
+    return createStreamBatchView(this.reader, this.generation, this);
   }
 
   /**
@@ -97,18 +79,35 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
    * @experimental
    */
   nextRawBatch(): StreamReaderSyncRawBatch | null {
+    this.generation++;
     if (this.finished) {
       return null;
     }
-    this.generation++;
-    if (this.documentCore) {
-      const batch = this.documentCore.nextRawBatch();
-      if (batch === null) {
-        this.finished = true;
-      }
-      return batch;
+
+    const frame = this.reader.nextBatchFrame();
+    if (!frame) {
+      this.finished = true;
+      return null;
     }
-    throw new Error('StreamReaderSync.nextRawBatch is not available on the cursor-backed stream reader.');
+    return {
+      kind: 'frame',
+      eventCount: frame.eventCount,
+      attrCount: frame.attrCount,
+      buffer: frame.buffer,
+      eventTypes: frame.eventTypes,
+      nameStarts: frame.nameStarts,
+      nameEnds: frame.nameEnds,
+      nameIds: frame.nameIds,
+      textStarts: frame.textStarts,
+      textEnds: frame.textEnds,
+      attrStarts: frame.attrStarts,
+      attrCounts: frame.attrCounts,
+      attrNameStarts: frame.attrNameStarts,
+      attrNameEnds: frame.attrNameEnds,
+      attrNameIds: frame.attrNameIds,
+      attrValueStarts: frame.attrValueStarts,
+      attrValueEnds: frame.attrValueEnds,
+    } satisfies StreamReaderSyncRawBatch;
   }
 
   *batchedIterator(): IterableIterator<StreamBatch> {
@@ -127,24 +126,6 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
 
   currentGeneration(): number {
     return this.generation;
-  }
-
-  private readCursorBatch(): CursorStreamBatchSource | null {
-    const source = new CursorStreamBatchSource();
-    if (this.pendingEndDocument) {
-      this.pendingEndDocument = false;
-      source.appendEvent(CursorEventType.END_DOCUMENT);
-      return source;
-    }
-    const cursor = this.cursor!;
-    while (source.eventCount() < 64 && cursor.next()) {
-      if (cursor.eventType() === CursorEventType.END_DOCUMENT && source.eventCount() > 0) {
-        this.pendingEndDocument = true;
-        break;
-      }
-      source.append(cursor);
-    }
-    return source.eventCount() === 0 ? null : source;
   }
 }
 

@@ -9,7 +9,6 @@ import { IterableEventType, IterableReader, toByteBatches } from '../src/Iterabl
 import { CursorEventType, CursorReader, CursorReaderAsync } from '../src/cursor';
 import { x } from '../src/converter';
 import { XmlParserInternal } from '../src/converter/XmlParserInternal';
-import { Uint8ArrayCurrentCursorAsync } from '../src/iterable/Uint8ArrayCurrentCursorAsync';
 
 type NormalizedEvent = {
   type: 'start-document' | 'end-document' | 'start' | 'end' | 'text' | 'cdata';
@@ -74,12 +73,12 @@ describe('release API parity matrix', () => {
     expect(await compiled.parse(streamFrom(xml, 6))).toEqual(expected);
   });
 
-  it('routes public async parser streams through the cursor backend', async () => {
-    const originalNext = Uint8ArrayCurrentCursorAsync.prototype.next;
-    let cursorNextCalls = 0;
-    Uint8ArrayCurrentCursorAsync.prototype.next = function countedCursorNext() {
-      cursorNextCalls++;
-      return originalNext.call(this);
+  it('routes public async parser streams through the iterable backend', async () => {
+    const originalPushByteBatch = IterableReader.prototype.pushByteBatch;
+    let pushByteBatchCalls = 0;
+    IterableReader.prototype.pushByteBatch = function countedPushByteBatch(batch, isFinal) {
+      pushByteBatchCalls++;
+      return originalPushByteBatch.call(this, batch, isFinal);
     };
 
     try {
@@ -92,9 +91,9 @@ describe('release API parity matrix', () => {
         { type: 'end', name: 'root' },
         { type: 'end-document' }
       ]);
-      expect(cursorNextCalls).toBeGreaterThan(0);
+      expect(pushByteBatchCalls).toBeGreaterThan(0);
     } finally {
-      Uint8ArrayCurrentCursorAsync.prototype.next = originalNext;
+      IterableReader.prototype.pushByteBatch = originalPushByteBatch;
     }
   });
 
