@@ -6,7 +6,6 @@ import {
   type AnyXmlEvent
 } from '../src/index';
 import { IterableEventType, IterableReader, toByteBatches } from '../src/IterableReader';
-import { CursorEventType, CursorReader, CursorReaderAsync } from '../src/cursor';
 import { x } from '../src/converter';
 import { XmlParserInternal } from '../src/converter/XmlParserInternal';
 
@@ -37,12 +36,10 @@ const parityFixtures = [
 
 describe('release API parity matrix', () => {
   for (const fixture of parityFixtures) {
-    it(`keeps parser, cursor, and iterable event output aligned for ${fixture.name}`, async () => {
+    it(`keeps parser and iterable event output aligned for ${fixture.name}`, async () => {
       const syncEvents = collectSyncParserEvents(fixture.xml);
 
       expect(await collectAsyncParserEvents(fixture.xml, fixture.chunkSize)).toEqual(syncEvents);
-      expect(collectSyncCursorEvents(fixture.xml)).toEqual(syncEvents);
-      expect(await collectAsyncCursorEvents(fixture.xml, fixture.chunkSize)).toEqual(syncEvents);
       expect(collectIterableEvents(fixture.xml, fixture.chunkSize)).toEqual(syncEvents);
     });
   }
@@ -107,39 +104,6 @@ describe('release API parity matrix', () => {
 
     try {
       expect(collectSyncParserEvents('<root><item>text</item></root>')).toEqual([
-        { type: 'start-document' },
-        { type: 'start', name: 'root', attributes: {} },
-        { type: 'start', name: 'item', attributes: {} },
-        { type: 'text', text: 'text' },
-        { type: 'end', name: 'item' },
-        { type: 'end', name: 'root' },
-        { type: 'end-document' }
-      ]);
-      expect(nextBatchCalls).toBeGreaterThanOrEqual(0);
-    } finally {
-      IterableReader.prototype.nextBatch = originalNextBatch;
-    }
-  });
-
-  it('keeps async cursor on the iterable backend while sync cursor stays aligned on its JS mainline', async () => {
-    const originalNextBatch = IterableReader.prototype.nextBatch;
-    let nextBatchCalls = 0;
-    IterableReader.prototype.nextBatch = function countedNextBatch() {
-      nextBatchCalls++;
-      return originalNextBatch.call(this);
-    };
-
-    try {
-      expect(collectSyncCursorEvents('<root><item>text</item></root>')).toEqual([
-        { type: 'start-document' },
-        { type: 'start', name: 'root', attributes: {} },
-        { type: 'start', name: 'item', attributes: {} },
-        { type: 'text', text: 'text' },
-        { type: 'end', name: 'item' },
-        { type: 'end', name: 'root' },
-        { type: 'end-document' }
-      ]);
-      await expect(collectAsyncCursorEvents('<root><item>text</item></root>', 3)).resolves.toEqual([
         { type: 'start-document' },
         { type: 'start', name: 'root', attributes: {} },
         { type: 'start', name: 'item', attributes: {} },
@@ -412,24 +376,6 @@ function collectIterableEvents(xml: string, chunkSize: number): NormalizedEvent[
   return events;
 }
 
-function collectSyncCursorEvents(xml: string): NormalizedEvent[] {
-  const cursor = new CursorReader(xml);
-  const events: NormalizedEvent[] = [];
-  while (cursor.next()) {
-    events.push(normalizeCursorEvent(cursor));
-  }
-  return events;
-}
-
-async function collectAsyncCursorEvents(xml: string, chunkSize: number): Promise<NormalizedEvent[]> {
-  const cursor = new CursorReaderAsync(streamFrom(xml, chunkSize));
-  const events: NormalizedEvent[] = [];
-  while (await cursor.next()) {
-    events.push(normalizeCursorEvent(cursor));
-  }
-  return events;
-}
-
 function normalizeXmlEvent(event: AnyXmlEvent): NormalizedEvent {
   if (event.type === XmlEventType.START_DOCUMENT) {
     return { type: 'start-document' };
@@ -470,34 +416,6 @@ function normalizeIterableEvent(parser: IterableReader, index: number): Normaliz
     return { type: 'cdata', text: parser.copyText(index) };
   }
   return { type: 'text', text: parser.copyText(index) };
-}
-
-function normalizeCursorEvent(cursor: CursorReader | CursorReaderAsync): NormalizedEvent {
-  const type = cursor.eventType();
-  if (type === CursorEventType.START_DOCUMENT) {
-    return { type: 'start-document' };
-  }
-  if (type === CursorEventType.END_DOCUMENT) {
-    return { type: 'end-document' };
-  }
-  if (type === CursorEventType.START_ELEMENT) {
-    return { type: 'start', name: cursor.name(), attributes: cursorAttributes(cursor) };
-  }
-  if (type === CursorEventType.END_ELEMENT) {
-    return { type: 'end', name: cursor.name() };
-  }
-  if (type === CursorEventType.CDATA) {
-    return { type: 'cdata', text: cursor.text() };
-  }
-  return { type: 'text', text: cursor.text() };
-}
-
-function cursorAttributes(cursor: CursorReader | CursorReaderAsync): Record<string, string> {
-  const attributes: Record<string, string> = {};
-  for (let index = 0; index < cursor.getAttributeCount(); index++) {
-    attributes[cursor.getAttributeName(index)!] = cursor.getAttributeValue(index)!;
-  }
-  return attributes;
 }
 
 function streamFrom(xml: string, chunkSize: number): ReadableStream<Uint8Array> {

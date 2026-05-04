@@ -65,7 +65,6 @@ for (const event of reader) {
 
 - `EventReaderSync` / `EventReader`: ergonomic event readers.
 - `StreamReaderSync` / `StreamReader`: batch-first pull readers for byte input.
-- `CursorReader` / `CursorReaderAsync`: low-allocation cursor APIs.
 - `parseXmlTree*()` / `parseXmlObject*()`: convenience helpers for unknown XML.
 - `stax-xml/converter`: schema-driven XML-to-object parsing and XML writing.
 - `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a sync
@@ -146,7 +145,6 @@ for (const event of reader) {
 
 - `EventReaderSync` / `EventReader`: 사용하기 쉬운 event reader.
 - `StreamReaderSync` / `StreamReader`: byte input을 위한 batch-first pull reader.
-- `CursorReader` / `CursorReaderAsync`: allocation을 줄인 cursor API.
 - `parseXmlTree*()` / `parseXmlObject*()`: unknown XML을 위한 convenience helper.
 - `stax-xml/converter`: schema 기반 XML-to-object parsing 및 XML writing.
 - `Writer`, `WriterSync`, `WriterSyncSink`: 큰 출력에 적합한 sync sink path를 포함한

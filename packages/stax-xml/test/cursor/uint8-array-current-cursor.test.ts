@@ -1,8 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { CursorEventType } from '../../src/cursor/index';
 import { Uint8ArrayCurrentCursor } from '../../src/iterable/Uint8ArrayCurrentCursor';
+
+const CursorEventType = {
+  START_DOCUMENT: 0,
+  END_DOCUMENT: 1,
+  START_ELEMENT: 2,
+  END_ELEMENT: 3,
+  CHARACTERS: 4,
+  CDATA: 5,
+} as const;
 
 function byteBatches(xml: string, chunkSize: number): readonly Uint8Array[][] {
   const bytes = new TextEncoder().encode(xml);
@@ -39,10 +47,8 @@ describe('Uint8ArrayCurrentCursor', () => {
     ]);
   });
 
-  it('keeps the public cursor facade free of node:buffer imports', () => {
+  it('keeps the internal cursor core free of node:buffer imports', () => {
     const files = [
-      'packages/stax-xml/src/cursor/ByteCursorFacadeSync.ts',
-      'packages/stax-xml/src/cursor/ByteCursorFacadeAsync.ts',
       'packages/stax-xml/src/iterable/Uint8ArrayCurrentCursor.ts',
       'packages/stax-xml/src/iterable/Uint8ArrayCurrentCursorAsync.ts',
     ];

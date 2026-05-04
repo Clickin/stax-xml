@@ -12,8 +12,6 @@ import {
 import { createBunSyncTextSink } from '../src/adapters/bun';
 import { createDenoSyncTextSink } from '../src/adapters/deno';
 import { createNodeFileSyncTextSink, createNodeSyncTextSink } from '../src/adapters/node';
-import { CursorEventType, CursorReader } from '../src/cursor';
-import { CursorEventView } from '../src/cursor/CursorEventView';
 
 function streamFrom(xml: string, chunkSize?: number): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
@@ -281,38 +279,6 @@ describe('core branch coverage guards', () => {
         value: { type: XmlEventType.START_DOCUMENT },
         done: false
       });
-    });
-  });
-
-  describe('cursor event view branches', () => {
-    it('should reject non-string sync cursor input', () => {
-      expect(() => new CursorReader(null as unknown as string))
-        .toThrow('xml must be a string');
-    });
-
-    it('should cover defensive cursor view accessors', () => {
-      const view = new CursorEventView();
-
-      expect(view.getAttributeValue('missing')).toBeUndefined();
-
-      view.moveTo({
-        type: XmlEventType.START_ELEMENT,
-        name: 'root',
-        attributes: {
-          plain: 'a',
-          'p:name': 'b'
-        }
-      });
-
-      expect(view.getAttributeLocalName(0)).toBe('plain');
-      expect(view.getAttributePrefix(0)).toBeUndefined();
-      expect(view.getAttributeLocalName(1)).toBe('name');
-      expect(view.getAttributePrefix(1)).toBe('p');
-      expect(view.getAttributeValue(99)).toBeUndefined();
-      expect(view.getAttributeUri(99)).toBeUndefined();
-
-      view.moveTo({ type: XmlEventType.ERROR, error: new Error('boom') });
-      expect(view.eventType()).toBe(CursorEventType.ERROR);
     });
   });
 

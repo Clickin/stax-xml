@@ -55,7 +55,6 @@ for (const event of reader) {
 
 - `EventReaderSync` / `EventReader`: ergonomic string event readers.
 - `StreamReaderSync` / `StreamReader`: batch-first pull readers for byte input.
-- `CursorReader` / `CursorReaderAsync`: low-allocation cursor APIs.
 - `parseXmlTree*()` / `parseXmlObject*()`: convenience helpers for unknown XML.
 - `stax-xml/converter`: schema-driven XML-to-object parsing and XML writing.
 - `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a sync
