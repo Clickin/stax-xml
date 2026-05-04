@@ -46,218 +46,10 @@ jobs:
       - name: Build package
         run: pnpm build
 
-  native:
-    # Native OS/variant packages must be built and packed on their matching runner.
-    # The publish job only publishes these tarballs; it must not repack native packages.
-    name: ${{ matrix.package_dir }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - package_dir: native-linux-x64-gnu
-            runner: ubuntu-24.04
-            rust_target: ''
-            install_musl: false
-            smoke: true
-            glibc_container: true
-          - package_dir: native-linux-x64-musl
-            runner: ubuntu-24.04
-            rust_target: x86_64-unknown-linux-musl
-            install_musl: true
-            smoke: false
-            glibc_container: false
-          - package_dir: native-linux-arm64-gnu
-            runner: ubuntu-24.04-arm
-            rust_target: ''
-            install_musl: false
-            smoke: true
-            glibc_container: true
-          - package_dir: native-linux-arm64-musl
-            runner: ubuntu-24.04-arm
-            rust_target: aarch64-unknown-linux-musl
-            install_musl: true
-            smoke: false
-            glibc_container: false
-          - package_dir: native-darwin-x64
-            runner: macos-15-intel
-            rust_target: ''
-            install_musl: false
-            smoke: true
-            glibc_container: false
-          - package_dir: native-darwin-arm64
-            runner: macos-15
-            rust_target: ''
-            install_musl: false
-            smoke: true
-            glibc_container: false
-          - package_dir: native-win32-x64-msvc
-            runner: windows-2025
-            rust_target: ''
-            install_musl: false
-            smoke: true
-            glibc_container: false
-          - package_dir: native-win32-arm64-msvc
-            runner: windows-11-arm
-            rust_target: ''
-            install_musl: false
-            smoke: true
-            glibc_container: false
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event_name == 'push' && github.ref || inputs.version }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20.19.0'
-
-      - name: Enable pnpm
-        shell: bash
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.18.0 --activate
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Install musl toolchain
-        if: matrix.install_musl
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y musl-tools
-
-      - name: Ensure Rust target
-        if: ${{ !matrix.glibc_container }}
-        shell: bash
-        run: |
-          if ! command -v rustup >/dev/null 2>&1; then
-            curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
-            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
-            export PATH="$HOME/.cargo/bin:$PATH"
-          fi
-          rustup default stable
-          if [ -n "${{ matrix.rust_target }}" ]; then
-            rustup target add "${{ matrix.rust_target }}"
-          fi
-          cargo --version
-
-      - name: Build native addon
-        shell: bash
-        run: |
-          if [ "${{ matrix.glibc_container }}" = "true" ]; then
-            container_name="stax-xml-glibc-${{ matrix.package_dir }}-${GITHUB_RUN_ID:-local}-$$"
-            cleanup() { docker rm -f "$container_name" >/dev/null 2>&1 || true; }
-            trap cleanup EXIT
-            docker run --name "$container_name" -v "$PWD:/work" -w /work node:20-bullseye bash -lc '
-              set -euo pipefail
-              apt-get update
-              apt-get install -y --no-install-recommends ca-certificates curl build-essential pkg-config python3 git
-              corepack enable
-              corepack prepare pnpm@10.18.0 --activate
-              curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
-              . "$HOME/.cargo/env"
-              export CI=true
-              pnpm --dir packages/native-aggregate run build:native
-              ldd --version > /tmp/stax-xml-ldd-version.txt 2>&1
-              sed -n "1p" /tmp/stax-xml-ldd-version.txt
-            '
-            docker cp "$container_name:/work/packages/native-aggregate/stax_xml_native_aggregate.node" packages/native-aggregate/stax_xml_native_aggregate.node
-            cleanup
-            trap - EXIT
-            exit 0
-          fi
-          if [[ "${{ matrix.rust_target }}" == *musl ]]; then
-            export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=-crt-static"
-          fi
-          if [ -n "${{ matrix.rust_target }}" ]; then
-            pnpm --dir packages/native-aggregate run build:native -- --target "${{ matrix.rust_target }}"
-          else
-            pnpm --dir packages/native-aggregate run build:native
-          fi
-
-      - name: Stage platform package
-        shell: bash
-        run: |
-          set -euo pipefail
-          pnpm --dir packages/native-aggregate run stage:platform -- "${{ matrix.package_dir }}"
-
-      - name: Smoke platform package
-        if: matrix.smoke
-        run: node packages/native-aggregate/scripts/smoke-platform-package.mjs "packages/${{ matrix.package_dir }}"
-
-      - name: Pack platform package
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "artifacts/${{ matrix.package_dir }}"
-          node packages/native-aggregate/scripts/assert-pack-contents.mjs "packages/${{ matrix.package_dir }}"
-          npm pack --json "./packages/${{ matrix.package_dir }}" --pack-destination "$PWD/artifacts/${{ matrix.package_dir }}"
-
-      - name: Upload platform package
-        uses: actions/upload-artifact@v6
-        with:
-          name: native-package-${{ matrix.package_dir }}
-          path: artifacts/${{ matrix.package_dir }}/*.tgz
-          if-no-files-found: error
-
-  wasm:
-    # The wasm package is platform-neutral, so packaging on Ubuntu is sufficient.
-    name: native-wasm32-wasi
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event_name == 'push' && github.ref || inputs.version }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20.19.0'
-
-      - name: Enable pnpm
-        shell: bash
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.18.0 --activate
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Ensure Rust wasm target
-        shell: bash
-        run: |
-          rustup default stable
-          rustup target add wasm32-wasip1-threads
-          cargo --version
-
-      - name: Build wasm addon
-        run: pnpm --dir packages/native-aggregate run build:wasm
-
-      - name: Pack wasm package
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts/native-wasm32-wasi
-          node packages/native-aggregate/scripts/assert-pack-contents.mjs packages/native-wasm32-wasi
-          npm pack --json ./packages/native-wasm32-wasi --pack-destination "$PWD/artifacts/native-wasm32-wasi"
-
-      - name: Upload wasm package
-        uses: actions/upload-artifact@v6
-        with:
-          name: native-package-native-wasm32-wasi
-          path: artifacts/native-wasm32-wasi/*.tgz
-          if-no-files-found: error
-
   publish:
     runs-on: ubuntu-24.04
     needs:
       - test
-      - native
-      - wasm
     permissions:
       contents: write
       id-token: write
@@ -298,30 +90,6 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Download native package tarballs
-        uses: actions/download-artifact@v6
-        with:
-          pattern: native-package-*
-          path: artifacts/native-packages
-          merge-multiple: true
-
-      - name: Publish native package tarballs
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          for tgz in artifacts/native-packages/*.tgz; do
-            package_json="$(tar -xOf "$tgz" package/package.json)"
-            name="$(node -e "const fs=require('node:fs'); console.log(JSON.parse(fs.readFileSync(0, 'utf8')).name)" <<< "$package_json")"
-            version="$(node -e "const fs=require('node:fs'); console.log(JSON.parse(fs.readFileSync(0, 'utf8')).version)" <<< "$package_json")"
-            published_version="$(npm dist-tag ls "$name" 2>/dev/null | awk -v tag="${{ steps.npm-dist-tag.outputs.tag }}" '$1 == tag ":" { print $2 }')"
-            if [ "$published_version" = "$version" ]; then
-              echo "$name@$version is already published on dist-tag ${{ steps.npm-dist-tag.outputs.tag }}; skipping."
-            else
-              npm publish "$tgz" --access public --tag "${{ steps.npm-dist-tag.outputs.tag }}"
-            fi
-          done
-
       - name: Publish facade package
         working-directory: packages/stax-xml
         run: |
@@ -332,7 +100,7 @@ jobs:
             npm publish --access public --tag "${{ steps.npm-dist-tag.outputs.tag }}"
           fi
 
-      - name: Smoke published native resolution
+      - name: Smoke published package
         shell: bash
         run: |
           set -euo pipefail
@@ -356,77 +124,20 @@ jobs:
           done
 
           node --input-type=module <<'NODE'
-          import { readFile } from 'node:fs/promises';
-          import { join } from 'node:path';
-          import * as staxXml from 'stax-xml';
-          import {
-            detectRuntimePlatform,
-            getStaxXmlNativePackageName,
-            resolveStaxXmlRuntimeBackend,
-          } from 'stax-xml/runtime';
+          import { EventReaderSync, XmlEventType } from 'stax-xml';
 
-          const cwd = process.cwd();
-          const facadePackageJsonPath = join(cwd, 'node_modules', 'stax-xml', 'package.json');
-          const facadePackageJson = JSON.parse(await readFile(facadePackageJsonPath, 'utf8'));
-          const platform = detectRuntimePlatform();
-          const expectedPackage = getStaxXmlNativePackageName(platform);
-
-          if (typeof staxXml.StaxXmlParserSync !== 'function') {
-            throw new Error('stax-xml root import did not expose StaxXmlParserSync.');
+          let events = 0;
+          let startElements = 0;
+          for (const event of new EventReaderSync('<root><item id="1">ok</item></root>')) {
+            events++;
+            if (event.type === XmlEventType.START_ELEMENT) {
+              startElements++;
+            }
           }
-
-          if (!expectedPackage) {
-            throw new Error('No native package is expected for ' + platform.platform + '/' + platform.arch + '.');
+          if (events <= 0 || startElements !== 2) {
+            throw new Error(`Unexpected parse result: events=${events}, startElements=${startElements}`);
           }
-
-          const expectedVersion = facadePackageJson.optionalDependencies?.[expectedPackage];
-          if (expectedVersion !== facadePackageJson.version) {
-            throw new Error(
-              'Expected ' + expectedPackage + '@' + facadePackageJson.version +
-                ' in stax-xml optionalDependencies, found ' + expectedVersion + '.',
-            );
-          }
-
-          const nativePackageJsonPath = join(cwd, 'node_modules', ...expectedPackage.split('/'), 'package.json');
-          const nativePackageJson = JSON.parse(await readFile(nativePackageJsonPath, 'utf8'));
-
-          if (nativePackageJson.version !== facadePackageJson.version) {
-            throw new Error(
-              'Installed native package version mismatch: ' + expectedPackage + '@' + nativePackageJson.version +
-                ', facade ' + facadePackageJson.version + '.',
-            );
-          }
-
-          const backend = await resolveStaxXmlRuntimeBackend();
-          if (backend.kind !== 'native' || backend.packageName !== expectedPackage) {
-            throw new Error(
-              'Expected native backend ' + expectedPackage + ', got ' + backend.kind + ' ' +
-                (backend.packageName ?? '(none)') + '.',
-            );
-          }
-
-          const nativeModule = backend.module;
-          if (typeof nativeModule?.parseAggregateStringUtf8 !== 'function') {
-            throw new Error(expectedPackage + ' did not expose parseAggregateStringUtf8.');
-          }
-
-          const aggregate = nativeModule.parseAggregateStringUtf8(
-            '<root><item id="1">ok</item></root>',
-            'count-only',
-          );
-          const eventCount = aggregate.eventCount ?? aggregate.event_count;
-          if (!Number.isInteger(eventCount) || eventCount <= 0) {
-            throw new Error('Unexpected native aggregate event count: ' + eventCount);
-          }
-
-          console.log(JSON.stringify({
-            facadeVersion: facadePackageJson.version,
-            platform,
-            expectedPackage,
-            nativeVersion: nativePackageJson.version,
-            backendKind: backend.kind,
-            eventCount,
-          }, null, 2));
+          console.log(JSON.stringify({ events, startElements }, null, 2));
           NODE
 
       - name: Generate changelog
