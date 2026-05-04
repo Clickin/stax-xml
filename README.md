@@ -8,18 +8,18 @@
 
 `stax-xml` is a performance-first, pull-based XML parser and writer for
 JavaScript and TypeScript. It is intentionally pure JavaScript: the parser core,
-cursor readers, stream readers, event readers, converter, and writer all run
+stream readers, event readers, converter, and writer all run
 without native addons, Wasm parser modules, or backend selection.
 
 ### Goals
 
 - Keep memory usage low for large XML documents.
 - Parse XML that is larger than JavaScript's practical single-string limit by
-  consuming streams, byte batches, and pull-style cursors.
+  consuming streams and byte batches.
 - Provide a StAX-style pull API so applications do not need to keep deep SAX
   state machines in user code.
 - Keep async work at I/O ingress boundaries. Once a byte batch has arrived,
-  tokenization and cursor draining stay synchronous.
+  tokenization and event draining stay synchronous.
 - Stay portable across Node, Bun, Deno, browsers, and edge runtimes.
 
 ### Why pure JavaScript?
@@ -37,9 +37,8 @@ linear memory island. The bridge adds decode, allocation, wrapper, and ownership
 costs, while native heap or Wasm memory also increases RSS.
 
 For that reason, the native experiment was moved out of this package and
-`stax-xml` is centered on a byte-oriented pure JavaScript cursor core. The full
-history and tradeoff analysis is in
-[Pure JavaScript Parser Decision History](./packages/docs/src/content/docs/resources/pure-js-parser-history.md).
+`stax-xml` is centered on byte-oriented pure JavaScript stream and event
+readers.
 
 ### Install
 
@@ -88,18 +87,18 @@ those runtimes are installed.
 
 `stax-xml`은 JavaScript와 TypeScript를 위한 성능 중심 pull 방식 XML parser 및
 writer입니다. 이 패키지는 의도적으로 pure JavaScript로 유지됩니다. parser core,
-cursor reader, stream reader, event reader, converter, writer 모두 native addon,
+stream reader, event reader, converter, writer 모두 native addon,
 Wasm parser module, backend selection 없이 동작합니다.
 
 ### 목표
 
 - 큰 XML 문서에서도 낮은 메모리 사용량을 유지합니다.
 - JavaScript의 실질적인 단일 문자열 한계를 넘는 XML을 stream, byte batch,
-  pull-style cursor로 처리합니다.
+  pull-style reader로 처리합니다.
 - 애플리케이션 코드가 깊은 SAX state machine을 직접 유지하지 않아도 되도록
   StAX-style pull API를 제공합니다.
 - async 작업은 I/O ingress boundary에만 둡니다. byte batch가 도착한 뒤의
-  tokenization과 cursor drain은 동기 loop로 유지합니다.
+  tokenization과 event drain은 동기 loop로 유지합니다.
 - Node, Bun, Deno, browser, edge runtime에서 portable하게 동작합니다.
 
 ### 왜 pure JavaScript인가?
@@ -117,9 +116,7 @@ bridge에는 decode, allocation, wrapper, ownership 비용이 생기며, native 
 Wasm memory는 RSS도 증가시킵니다.
 
 그래서 native 실험은 이 패키지 밖으로 분리하고, `stax-xml`은 byte-oriented pure
-JavaScript cursor core를 중심으로 다시 정립했습니다. 자세한 history와 tradeoff는
-[Pure JavaScript Parser Decision History](./packages/docs/src/content/docs/ko/resources/pure-js-parser-history.md)에
-정리되어 있습니다.
+JavaScript stream/event reader 중심으로 다시 정립했습니다.
 
 ### 설치
 

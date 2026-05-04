@@ -488,7 +488,7 @@ console.log(object.book);
 // }
 ```
 
-`parseXmlTree()` / `parseXmlTreeSync()` return an order-preserving tree similar in spirit to Python's ElementTree. `parseXmlObject()` / `parseXmlObjectSync()` return a compact object shape with attributes under the `@` prefix, text under `#text`, and CDATA under `#cdata`. The object helpers materialize the full result, so use the event, cursor, or converter APIs when you need streaming projection over unbounded input.
+`parseXmlTree()` / `parseXmlTreeSync()` return an order-preserving tree similar in spirit to Python's ElementTree. `parseXmlObject()` / `parseXmlObjectSync()` return a compact object shape with attributes under the `@` prefix, text under `#text`, and CDATA under `#cdata`. The object helpers materialize the full result, so use the event, stream, or converter APIs when you need streaming projection over unbounded input.
 
 #### Namespace Handling
 

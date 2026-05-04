@@ -488,7 +488,7 @@ console.log(object.book);
 // }
 ```
 
-`parseXmlTree()` / `parseXmlTreeSync()`는 Python ElementTree와 비슷한 순서 보존 tree를 반환합니다. `parseXmlObject()` / `parseXmlObjectSync()`는 attribute를 `@` prefix 아래에, text를 `#text`, CDATA를 `#cdata` 아래에 두는 compact object shape을 반환합니다. object helper는 결과 전체를 materialize하므로, unbounded input을 streaming projection해야 한다면 event, cursor, converter API를 사용하세요.
+`parseXmlTree()` / `parseXmlTreeSync()`는 Python ElementTree와 비슷한 순서 보존 tree를 반환합니다. `parseXmlObject()` / `parseXmlObjectSync()`는 attribute를 `@` prefix 아래에, text를 `#text`, CDATA를 `#cdata` 아래에 두는 compact object shape을 반환합니다. object helper는 결과 전체를 materialize하므로, unbounded input을 streaming projection해야 한다면 event, stream, converter API를 사용하세요.
 
 #### 네임스페이스 처리
 

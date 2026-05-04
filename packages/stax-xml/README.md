@@ -2,18 +2,18 @@
 
 A performance-first, pull-based XML parser and writer for JavaScript and
 TypeScript. The package is intentionally pure JavaScript: the parser core,
-cursor readers, stream readers, event readers, converter, and writer all run
+stream readers, event readers, converter, and writer all run
 without binary parser modules or backend selection.
 
 ## Goals
 
 - Keep memory usage low for large XML documents.
 - Parse XML that is larger than JavaScript's single-string comfort zone by
-  consuming streams, byte batches, and pull-style cursors.
+  consuming streams and byte batches.
 - Provide a StAX-style pull API so applications do not need to keep deep SAX
   state machines in user code.
 - Keep async work at I/O ingress boundaries. Once a byte batch has arrived,
-  tokenization and cursor draining stay synchronous.
+  tokenization and event draining stay synchronous.
 - Stay portable across Node, Bun, Deno, browsers, and edge runtimes.
 
 ## Why Pure JavaScript?
@@ -27,9 +27,6 @@ That boundary adds decode, allocation, wrapper, and ownership costs. It also
 adds native heap or Wasm linear memory to RSS. Because this package is optimized
 for low memory, very large XML, and pull-based JavaScript consumption, the native
 experiment was moved out of this package.
-
-See [Pure JavaScript Parser Decision History](https://clickin.github.io/stax-xml/resources/pure-js-parser-history/)
-for the full rationale.
 
 ## Install
 
