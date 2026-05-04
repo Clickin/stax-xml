@@ -1,12 +1,12 @@
 import { compileEntityDecoder, type EntityDefinition } from '../IterableEventBackend.js';
-import { NodeCurrentCursorAsync } from '../iterable/NodeCurrentCursorAsync.js';
+import { Uint8ArrayCurrentCursorAsync } from '../iterable/Uint8ArrayCurrentCursorAsync.js';
 import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderAsyncOptions } from './types.js';
 
 const EMPTY_NAMESPACES = new Map<string, string>();
 const TRUE_PROMISE = Promise.resolve(true);
 
 export class ByteCursorFacadeAsync {
-  private readonly cursor: NodeCurrentCursorAsync;
+  private readonly cursor: Uint8ArrayCurrentCursorAsync;
   private readonly entityDecoder: (value: string) => string;
   private readonly namespaceAware: boolean;
 
@@ -31,7 +31,7 @@ export class ByteCursorFacadeAsync {
   private readonly namespaceDepths: number[] = [];
 
   constructor(source: AsyncIterable<readonly Uint8Array[]>, options: CursorReaderAsyncOptions = {}) {
-    this.cursor = new NodeCurrentCursorAsync(source, {
+    this.cursor = new Uint8ArrayCurrentCursorAsync(source, {
       implicitAttributeValue: 'name',
     });
     this.namespaceAware = options.namespaceAware ?? true;

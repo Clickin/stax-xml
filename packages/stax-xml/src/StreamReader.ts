@@ -1,4 +1,7 @@
-import { createJavaScriptIterableReader } from './IterableReader.js';
+import { CursorStreamBatchSource } from './cursor-stream-batch.js';
+import { CursorEventType } from './cursor/types.js';
+import { DocumentModeStreamReaderAsyncCore } from './document-mode-stream-core.js';
+import { Uint8ArrayCurrentCursorAsync } from './iterable/Uint8ArrayCurrentCursorAsync.js';
 import {
   createStreamBatchView,
   type StreamBatch,
@@ -35,11 +38,12 @@ export interface StreamReaderOptions {
  */
 export class StreamReader implements AsyncIterable<StreamBatch> {
   private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
-  private readonly streamingBatches: ReturnType<typeof createJavaScriptIterableReader>;
+  private readonly cursor: Uint8ArrayCurrentCursorAsync | undefined;
+  private readonly documentCore: DocumentModeStreamReaderAsyncCore | undefined;
   private generation = 0;
-  private sourceDone = false;
   private finished = false;
   private lockReleased = false;
+  private pendingEndDocument = false;
   private nextBatchInFlight: Promise<StreamBatch | null> | undefined;
 
   constructor(stream: ReadableStream<Uint8Array>, options: StreamReaderOptions = {}) {
@@ -48,9 +52,13 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
 
     this.reader = stream.getReader();
-    this.streamingBatches = createJavaScriptIterableReader([], {
-      encoding: options.encoding,
-      documentMode: options.documentMode,
+    if (options.documentMode === 'document') {
+      this.documentCore = new DocumentModeStreamReaderAsyncCore(this.reader, () => this.releaseLock(), options);
+      return;
+    }
+    void options.encoding;
+    this.cursor = new Uint8ArrayCurrentCursorAsync(readableStreamByteBatches(this.reader, () => this.releaseLock()), {
+      implicitAttributeValue: 'true',
     });
   }
 
@@ -111,33 +119,54 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   }
 
   private async readNextBatch(): Promise<StreamBatch | null> {
-    while (!this.sourceDone) {
-      let readResult: ReadableStreamReadResult<Uint8Array>;
-      try {
-        readResult = await this.reader.read();
-      } catch (error) {
+    if (this.documentCore) {
+      const batch = await this.documentCore.nextBatch(this.generation, this);
+      if (batch === null) {
         this.finished = true;
-        this.releaseLock();
-        throw error;
       }
-
-      if (readResult.done) {
-        this.sourceDone = true;
-        if (this.streamingBatches.pushByteBatch([], true)) {
-          this.releaseLock();
-          return createStreamBatchView(this.streamingBatches, this.generation, this);
-        }
-        this.finished = true;
-        this.releaseLock();
-        return null;
-      }
-
-      if (this.streamingBatches.pushByteBatch([readResult.value], false)) {
-        return createStreamBatchView(this.streamingBatches, this.generation, this);
-      }
+      return batch;
     }
 
+    const source = new CursorStreamBatchSource();
+    if (this.pendingEndDocument) {
+      this.pendingEndDocument = false;
+      source.appendEvent(CursorEventType.END_DOCUMENT);
+      return createStreamBatchView(source, this.generation, this);
+    }
+    const cursor = this.cursor!;
+    while (source.eventCount() < 64) {
+      while (source.eventCount() < 64 && cursor.tryNextBuffered()) {
+        if (cursor.eventType() === CursorEventType.END_DOCUMENT && source.eventCount() > 0) {
+          this.pendingEndDocument = true;
+          break;
+        }
+        source.append(cursor);
+      }
+      if (this.pendingEndDocument) {
+        break;
+      }
+      if (source.eventCount() >= 64) {
+        break;
+      }
+      if (!await cursor.next()) {
+        if (source.eventCount() === 0) {
+          this.finished = true;
+          this.releaseLock();
+          return null;
+        }
+        break;
+      }
+      if (cursor.eventType() === CursorEventType.END_DOCUMENT && source.eventCount() > 0) {
+        this.pendingEndDocument = true;
+        break;
+      }
+      source.append(cursor);
+    }
+    if (source.eventCount() > 0) {
+      return createStreamBatchView(source, this.generation, this);
+    }
     this.finished = true;
+    this.releaseLock();
     return null;
   }
 
@@ -147,5 +176,22 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
     this.lockReleased = true;
     this.reader.releaseLock();
+  }
+}
+
+async function* readableStreamByteBatches(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  releaseLock: () => void,
+): AsyncIterable<readonly Uint8Array[]> {
+  try {
+    while (true) {
+      const result = await reader.read();
+      if (result.done) {
+        return;
+      }
+      yield [result.value];
+    }
+  } finally {
+    releaseLock();
   }
 }

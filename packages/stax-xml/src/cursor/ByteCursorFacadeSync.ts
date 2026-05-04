@@ -1,13 +1,13 @@
-import { Buffer } from 'node:buffer';
 import { compileEntityDecoder, type EntityDefinition } from '../IterableEventBackend.js';
-import { NodeCurrentCursor } from '../iterable/NodeCurrentCursor.js';
+import { Uint8ArrayCurrentCursor } from '../iterable/Uint8ArrayCurrentCursor.js';
 import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderOptions } from './types.js';
 
 const EMPTY_NAMESPACES = new Map<string, string>();
 const CHUNK_SIZE = 8;
+const textEncoder = new TextEncoder();
 
 export class ByteCursorFacadeSync {
-  private readonly cursor: NodeCurrentCursor;
+  private readonly cursor: Uint8ArrayCurrentCursor;
   private readonly entityDecoder: (value: string) => string;
   private readonly namespaceAware: boolean;
 
@@ -32,7 +32,7 @@ export class ByteCursorFacadeSync {
   private readonly namespaceDepths: number[] = [];
 
   constructor(input: string | Iterable<readonly Uint8Array[]>, options: CursorReaderOptions = {}) {
-    this.cursor = new NodeCurrentCursor(
+    this.cursor = new Uint8ArrayCurrentCursor(
       typeof input === 'string' ? byteBatchesFromString(input, CHUNK_SIZE) : input,
       {
         materialization: 'none',
@@ -315,14 +315,14 @@ export class ByteCursorFacadeSync {
   }
 }
 
-function* byteBatches(bytes: Buffer, chunkSize: number): Iterable<readonly Uint8Array[]> {
+function* byteBatches(bytes: Uint8Array, chunkSize: number): Iterable<readonly Uint8Array[]> {
   for (let offset = 0; offset < bytes.byteLength; offset += chunkSize) {
     yield [bytes.subarray(offset, Math.min(offset + chunkSize, bytes.byteLength))];
   }
 }
 
 function byteBatchesFromString(xml: string, chunkSize: number): Iterable<readonly Uint8Array[]> {
-  return byteBatches(Buffer.from(xml, 'utf8'), chunkSize);
+  return byteBatches(textEncoder.encode(xml), chunkSize);
 }
 
 function splitQName(
