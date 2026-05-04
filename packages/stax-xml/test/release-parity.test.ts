@@ -48,7 +48,7 @@ describe('release API parity matrix', () => {
   }
 
   it('keeps converter sync, async stream, and compiled paths aligned', async () => {
-    const xml = '<catalog><book id="b1"><title>Native XML</title><price>42</price></book><book id="b2"><title>Wasm XML</title><price>7</price></book></catalog>';
+    const xml = '<catalog><book id="b1"><title>Sample XML</title><price>42</price></book><book id="b2"><title>Runtime XML</title><price>7</price></book></catalog>';
     const schema = x.object({
       books: x.array(
         x.object({
@@ -62,8 +62,8 @@ describe('release API parity matrix', () => {
     const compiled = schema.compile();
     const expected = {
       books: [
-        { id: 'b1', title: 'Native XML', price: 42 },
-        { id: 'b2', title: 'Wasm XML', price: 7 }
+        { id: 'b1', title: 'Sample XML', price: 42 },
+        { id: 'b2', title: 'Runtime XML', price: 7 }
       ]
     };
 
@@ -155,7 +155,7 @@ describe('release API parity matrix', () => {
   });
 
   it('routes compiled async stream parsing through the iterable backend', async () => {
-    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const xml = '<catalog><book id="b1"><title>Sample XML</title></book></catalog>';
     const schema = x.object({
       books: x.array(
         x.object({
@@ -178,7 +178,7 @@ describe('release API parity matrix', () => {
 
     try {
       await expect(schema.parse(streamFrom(xml, 3))).resolves.toEqual({
-        books: [{ id: 'b1', title: 'Native XML' }]
+        books: [{ id: 'b1', title: 'Sample XML' }]
       });
     } finally {
       EventReader.prototype.next = originalNext;
@@ -187,7 +187,7 @@ describe('release API parity matrix', () => {
   });
 
   it('routes runtime converter async stream parsing through the iterable backend', async () => {
-    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const xml = '<catalog><book id="b1"><title>Sample XML</title></book></catalog>';
     const schema = x.object({
       books: x.array(
         x.object({
@@ -210,7 +210,7 @@ describe('release API parity matrix', () => {
 
     try {
       await expect(schema.parse(streamFrom(xml, 3))).resolves.toEqual({
-        books: [{ id: 'b1', title: 'Native XML' }]
+        books: [{ id: 'b1', title: 'Sample XML' }]
       });
     } finally {
       EventReader.prototype.next = originalNext;
@@ -239,7 +239,7 @@ describe('release API parity matrix', () => {
           start('catalog'),
           start('book', { id: 'b1' }),
           start('title'),
-          { type: XmlEventType.CHARACTERS, value: 'Native XML' },
+          { type: XmlEventType.CHARACTERS, value: 'Sample XML' },
           end('title'),
           end('book'),
           end('catalog'),
@@ -249,12 +249,12 @@ describe('release API parity matrix', () => {
     };
 
     await expect(schema.parse(source)).resolves.toEqual({
-      books: [{ id: 'b1', title: 'Native XML' }]
+      books: [{ id: 'b1', title: 'Sample XML' }]
     });
   });
 
   it('auto-routes uncompiled parseSync through the dispatch executor', () => {
-    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const xml = '<catalog><book id="b1"><title>Sample XML</title></book></catalog>';
     const schema = x.object({
       books: x.array(
         x.object({
@@ -272,7 +272,7 @@ describe('release API parity matrix', () => {
 
     try {
       expect(schema.parseSync(xml)).toEqual({
-        books: [{ id: 'b1', title: 'Native XML' }]
+        books: [{ id: 'b1', title: 'Sample XML' }]
       });
     } finally {
       XmlParserInternal.prototype.parseObject = originalParseObject;
@@ -280,7 +280,7 @@ describe('release API parity matrix', () => {
   });
 
   it('auto-routes mixed root object schemas through the dispatch executor', () => {
-    const xml = '<catalog><summary><source>benchmark</source></summary><book id="b1"><title>Native XML</title><meta><rating>5</rating></meta></book></catalog>';
+    const xml = '<catalog><summary><source>benchmark</source></summary><book id="b1"><title>Sample XML</title><meta><rating>5</rating></meta></book></catalog>';
     const schema = x.object({
       summary: x.object({
         source: x.string().xpath('./source')
@@ -297,7 +297,7 @@ describe('release API parity matrix', () => {
     });
     const expected = {
       summary: { source: 'benchmark' },
-      books: [{ id: 'b1', title: 'Native XML', rating: 5 }],
+      books: [{ id: 'b1', title: 'Sample XML', rating: 5 }],
       sourceName: 'benchmark'
     };
 
@@ -326,7 +326,7 @@ describe('release API parity matrix', () => {
   });
 
   it('auto-routes uncompiled async stream parsing through the dispatch executor', async () => {
-    const xml = '<catalog><book id="b1"><title>Native XML</title></book></catalog>';
+    const xml = '<catalog><book id="b1"><title>Sample XML</title></book></catalog>';
     const schema = x.object({
       books: x.array(
         x.object({
@@ -344,7 +344,7 @@ describe('release API parity matrix', () => {
 
     try {
       await expect(schema.parse(streamFrom(xml, 3))).resolves.toEqual({
-        books: [{ id: 'b1', title: 'Native XML' }]
+        books: [{ id: 'b1', title: 'Sample XML' }]
       });
     } finally {
       XmlParserInternal.prototype.parseObjectAsync = originalParseObjectAsync;

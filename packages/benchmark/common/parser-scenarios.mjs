@@ -1,28 +1,20 @@
-import { EventReaderSync, initStaxXml, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
 import { x } from 'stax-xml/converter';
-import { ProjectionReader } from 'stax-xml/projection';
 import { ASSET_PATHS } from './utils.mjs';
-
-const projectionReader = new ProjectionReader({ backend: 'native' });
 
 export const STAX_PARSER_SURFACE_SCENARIOS = [
   {
-    label: 'stax-xml EventReaderSync (native object)',
+    label: 'stax-xml EventReaderSync (JS object)',
     display: '**EventReaderSync**',
     notes: 'Public string event iterator building the same object shape manually',
   },
   {
-    label: 'stax-xml StreamReaderSync (native object)',
+    label: 'stax-xml StreamReaderSync (JS object)',
     display: '**StreamReaderSync**',
     notes: 'Public byte-stream pull reader building the same object shape manually',
   },
   {
-    label: 'stax-xml ProjectionReader (native object records)',
-    display: '**ProjectionReader**',
-    notes: 'Public projection surface returning the same object shape through object records',
-  },
-  {
-    label: 'stax-xml Converter API (native object)',
+    label: 'stax-xml Converter API (JS object)',
     display: '**Converter**',
     notes: 'Declarative schema compiled once and returning the same object shape through the public converter API',
   },
@@ -68,21 +60,6 @@ const FIXTURE_CONTRACTS = new Map([
   })],
 ]);
 
-export async function ensureNativeReaderRuntime() {
-  const runtime = await initStaxXml({ backend: 'native', fallbackOnLoadError: false });
-  if (
-    runtime.backend.kind !== 'native'
-    || !runtime.capabilities.streamingEventBatches
-    || !runtime.capabilities.objectRecordsProjection
-    || !runtime.capabilities.createObjectProjectionPlan
-  ) {
-    throw new Error(
-      'The native stax-xml runtime must expose streamingEventBatches, objectRecordsProjection, and createObjectProjectionPlan before public parser benchmarks can run.',
-    );
-  }
-  return runtime;
-}
-
 export function parserFixtureContractForAssetPath(assetPath) {
   const contract = FIXTURE_CONTRACTS.get(assetPath);
   if (!contract) {
@@ -95,19 +72,15 @@ export function createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuff
   const contract = parserFixtureContractForAssetPath(assetPath);
   return [
     {
-      label: 'stax-xml EventReaderSync (native object)',
+      label: 'stax-xml EventReaderSync (JS object)',
       run: () => parseWithEventReader(xmlString, contract),
     },
     {
-      label: 'stax-xml StreamReaderSync (native object)',
+      label: 'stax-xml StreamReaderSync (JS object)',
       run: () => parseWithStreamReader(inputBuffer, contract),
     },
     {
-      label: 'stax-xml ProjectionReader (native object records)',
-      run: () => parseWithProjectionReader(inputBuffer, contract),
-    },
-    {
-      label: 'stax-xml Converter API (native object)',
+      label: 'stax-xml Converter API (JS object)',
       run: () => parseWithConverter(inputBuffer, contract),
     },
   ];
@@ -118,7 +91,6 @@ export function assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffe
   const reference = parseWithEventReader(xmlString, contract);
   const candidates = [
     ['StreamReaderSync', parseWithStreamReader(inputBuffer, contract)],
-    ['ProjectionReader', parseWithProjectionReader(inputBuffer, contract)],
     ['Converter', parseWithConverter(inputBuffer, contract)],
   ];
 
@@ -144,17 +116,6 @@ function createFixtureContract({ itemName, rootXPath, fields, outputDescription 
   const elementFields = fields.filter((field) => field.sourceKind === 'element');
   const attributeFields = fields.filter((field) => field.sourceKind === 'attribute');
   const elementFieldByName = new Map(elementFields.map((field) => [field.sourceName, field]));
-  const projectionSpec = {
-    itemName,
-    fields: fields.map((field) => ({
-      outputName: field.outputName,
-      valueKind: 'string',
-      sourceKind: field.sourceKind,
-      sourceName: field.sourceName,
-      textMode: 'direct',
-    })),
-  };
-
   const converterShape = Object.fromEntries(fields.map((field) => [
     field.outputName,
     field.sourceKind === 'attribute'
@@ -169,7 +130,6 @@ function createFixtureContract({ itemName, rootXPath, fields, outputDescription 
     elementFields,
     attributeFields,
     elementFieldByName,
-    projectionSpec,
     converterSchema: x.array(x.object(converterShape), rootXPath).compile(),
   };
 }
@@ -187,7 +147,6 @@ function parseWithEventReader(xmlString, contract) {
   const parser = new EventReaderSync(
     xmlString,
     { autoDecodeEntities: false },
-    'native',
   );
   const rows = [];
   const elementStack = [];
@@ -294,20 +253,8 @@ function parseWithStreamReader(inputBuffer, contract) {
   return rows;
 }
 
-function parseWithProjectionReader(inputBuffer, contract) {
-  const result = projectionReader.projectObjectRecordsSync(inputBuffer, contract.projectionSpec, { backend: 'native' });
-  if (Array.isArray(result.rows)) {
-    return result.rows;
-  }
-  if (typeof result.json === 'string') {
-    return JSON.parse(result.json);
-  }
-  throw new Error('ProjectionReader object-record projection did not return rows or json.');
-}
-
 function parseWithConverter(inputBuffer, contract) {
   return contract.converterSchema.parseSync(inputBuffer, {
-    acceleration: { backend: 'native' },
     maxEvents: 20_000_000,
   });
 }

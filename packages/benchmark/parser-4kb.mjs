@@ -3,14 +3,12 @@ import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } 
 import {
   assertStaxParserSurfaceParity,
   createStaxParserSurfaceRunners,
-  ensureNativeReaderRuntime,
 } from './common/parser-scenarios.mjs';
 import { ASSET_PATHS, loadXmlBuffer } from './common/utils.mjs';
 
 const cli = parseMitataCliArgs();
 const inputBuffer = loadXmlBuffer(ASSET_PATHS.books);
 const xmlString = inputBuffer.toString('utf8');
-await ensureNativeReaderRuntime();
 assertStaxParserSurfaceParity({ assetPath: ASSET_PATHS.books, xmlString, inputBuffer });
 const staxSurfaceRunners = createStaxParserSurfaceRunners({ assetPath: ASSET_PATHS.books, xmlString, inputBuffer });
 

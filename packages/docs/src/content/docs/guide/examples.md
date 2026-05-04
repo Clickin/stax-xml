@@ -81,7 +81,7 @@ async function processLargeXml(filePath: string) {
 }
 ```
 
-For schema-known byte input, use the `ProjectionReader` subpath when you need the native row-projection fast path rather than a general event stream.
+For schema-known input, prefer the converter API when declarative field extraction fits better than a general event stream.
 
 ## XML Generation with Writer
 

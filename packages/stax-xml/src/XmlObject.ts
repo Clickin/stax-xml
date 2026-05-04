@@ -4,13 +4,10 @@ import {
   type EntityDefinition,
 } from './IterableEventBackend.js';
 import {
-  createJavaScriptIterableReader,
   IterableReader,
   toAsyncByteBatches,
   toByteBatches,
 } from './IterableReader.js';
-import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
-import { StaxXmlStructuralIndexParser } from './runtime/structural-index-parser.js';
 import {
   XmlEventType,
   type AnyXmlEvent,
@@ -32,7 +29,6 @@ export interface ParseXmlTreeOptions {
   addEntities?: EntityDefinition[];
   trimText?: boolean;
   batchSize?: number;
-  fallbackOnParseError?: boolean;
 }
 
 /** Options for compact object projection. */
@@ -128,8 +124,6 @@ function treeOptions(options: ParseXmlTreeOptions): RequiredTreeOptions {
     addEntities: options.addEntities,
     trimText: options.trimText ?? false,
     batchSize: normalizeBatchSize(options.batchSize),
-    fallbackOnParseError: options.fallbackOnParseError,
-    forceJavaScriptReader: false,
   };
 }
 
@@ -156,8 +150,6 @@ interface RequiredTreeOptions {
   addEntities: EntityDefinition[] | undefined;
   trimText: boolean;
   batchSize: number;
-  fallbackOnParseError: boolean | undefined;
-  forceJavaScriptReader: boolean;
 }
 
 interface RequiredObjectOptions {
@@ -169,64 +161,20 @@ interface RequiredObjectOptions {
 
 function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): Iterable<TreeXmlEvent> {
   const normalizedInput = typeof input === 'string' ? textEncoder.encode(input) : input;
-  const structuralParser = tryCreateStructuralSyncParser(normalizedInput, options);
   const materializer = new IterableEventMaterializer({
     autoDecodeEntities: options.autoDecodeEntities,
     addEntities: options.addEntities,
     trimText: options.trimText,
   });
-  if (structuralParser) {
-    while (structuralParser.nextBatch()) {
-      yield* materializer.materializeBatch(structuralParser) as TreeXmlEvent[];
-    }
-    return;
-  }
-
   const byteBatches = toByteBatches(syncInputChunks(normalizedInput), { batchSize: options.batchSize });
   const readerOptions = {
     encoding: options.encoding,
     documentMode: options.documentMode,
-    fallbackOnParseError: options.fallbackOnParseError,
   };
-  const parser = options.forceJavaScriptReader
-    ? createJavaScriptIterableReader(byteBatches, readerOptions)
-    : new IterableReader(byteBatches, readerOptions);
+  const parser = new IterableReader(byteBatches, readerOptions);
 
   while (parser.nextBatch()) {
     yield* materializer.materializeBatch(parser) as TreeXmlEvent[];
-  }
-}
-
-function tryCreateStructuralSyncParser(
-  input: XmlSyncInput,
-  options: RequiredTreeOptions,
-): StaxXmlStructuralIndexParser | undefined {
-  if (options.documentMode === 'document') {
-    return undefined;
-  }
-  if (!(input instanceof Uint8Array)) {
-    return undefined;
-  }
-
-  const runtime = getStaxXmlRuntimeForSyncApi(undefined);
-  if (!runtime || runtime.backend.kind === 'js') {
-    return undefined;
-  }
-  const buildTable = runtime.capabilities.structuralIndexUtf8;
-  if (!buildTable) {
-    return undefined;
-  }
-  try {
-    return new StaxXmlStructuralIndexParser(input, buildTable(input), {
-      decodeEntities: false,
-      sourceKind: 'utf8',
-    });
-  } catch (error) {
-    if (options.fallbackOnParseError === true) {
-      options.forceJavaScriptReader = true;
-      return undefined;
-    }
-    throw error;
   }
 }
 
@@ -239,7 +187,6 @@ async function* iterateAsyncEvents(input: Exclude<XmlAsyncInput, XmlSyncInput>, 
       addEntities: options.addEntities,
       trimText: options.trimText,
       batchSize: options.batchSize,
-      fallbackOnParseError: options.fallbackOnParseError,
     });
     for await (const event of backend) {
       yield event as TreeXmlEvent;
@@ -250,7 +197,6 @@ async function* iterateAsyncEvents(input: Exclude<XmlAsyncInput, XmlSyncInput>, 
   const parser = new IterableReader([], {
     encoding: options.encoding,
     documentMode: options.documentMode,
-    fallbackOnParseError: options.fallbackOnParseError,
   });
   const materializer = new IterableEventMaterializer({
     autoDecodeEntities: options.autoDecodeEntities,

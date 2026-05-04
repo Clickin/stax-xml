@@ -1,8 +1,0 @@
-[package]
-name = "quick-xml-bench"
-version = "0.0.0"
-edition = "2021"
-publish = false
-
-[dependencies]
-quick-xml = "0.39.2"

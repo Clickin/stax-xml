@@ -1,5 +1,3 @@
-import type { TableBackedEventSource } from './runtime/event-table.js';
-
 /**
  * Event type constants exposed by stream readers.
  *
@@ -61,7 +59,7 @@ export interface StreamBatch extends Iterable<StreamEventView> {
 /**
  * Experimental low-level word-table view over a synchronous stream batch.
  *
- * The fields expose the native structural table layout directly. They are
+ * The fields expose a compact structural table layout directly. They are
  * intended for benchmark and scanner-style traversal paths that need to avoid
  * per-event wrapper allocation.
  *
@@ -81,8 +79,7 @@ export interface StreamReaderSyncWordTableBatch {
 }
 
 /**
- * Experimental SoA fallback view for synchronous stream batches whose native
- * table cannot be exposed as aligned word arrays.
+ * Experimental SoA fallback view for synchronous stream batches.
  *
  * @experimental
  */
@@ -160,6 +157,17 @@ export type StreamReaderSyncRawBatch =
 type GenerationSource = {
   currentGeneration(): number;
 };
+
+export interface TableBackedEventSource {
+  eventCount(): number;
+  eventType(index: number): number;
+  attrCount(index: number): number;
+  copyName(index: number): string | undefined;
+  copyText(index: number): string | undefined;
+  copyAttrName(eventIndex: number, attrIndex: number): string | undefined;
+  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined;
+  isImplicitAttributeValue(eventIndex: number, attrIndex: number): boolean;
+}
 
 export function createStreamBatchView(
   source: TableBackedEventSource,

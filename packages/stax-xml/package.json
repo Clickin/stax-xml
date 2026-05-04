@@ -23,14 +23,6 @@
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js"
     },
-    "./projection": {
-      "types": "./dist/projection.d.ts",
-      "import": "./dist/projection.js"
-    },
-    "./runtime": {
-      "types": "./dist/runtime.d.ts",
-      "import": "./dist/runtime.js"
-    },
     "./adapters/node": {
       "types": "./dist/node.d.ts",
       "import": "./dist/node.js"
@@ -73,8 +65,7 @@
     "prepublishOnly": "pnpm build",
     "typedoc": "typedoc",
     "typedoc:main": "typedoc --options typedoc.main.json",
-    "typedoc:converter": "typedoc --options typedoc.converter.json",
-    "typedoc:projection": "typedoc --options typedoc.projection.json"
+    "typedoc:converter": "typedoc --options typedoc.converter.json"
   },
   "type": "module",
   "types": "./dist/index.d.ts"

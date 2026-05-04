@@ -36,8 +36,6 @@ export interface CursorReaderOptions {
   namespaceAware?: boolean;
   /** Additional custom entities to decode */
   addEntities?: { entity: string; value: string }[];
-  /** Whether backend parse errors fall back to JavaScript. */
-  fallbackOnParseError?: boolean;
 }
 
 /**

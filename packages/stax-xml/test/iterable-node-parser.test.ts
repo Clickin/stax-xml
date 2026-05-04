@@ -1,14 +1,12 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { initStaxXml } from '../src/index';
+import { describe, expect, it } from 'vitest';
 import { IterableEventType, IterableReader, toByteBatches } from '../src/IterableReader';
 import {
   nodeFileByteBatchesSync,
   NodeIterableReader,
 } from '../src/iterable/node';
-import { resetStaxXmlRuntimeForTests } from '../src/runtime';
 
 interface RawIterableParser {
   nextBatch(): boolean;
@@ -44,37 +42,6 @@ function byteBatches(xml: string, chunkSize: number, batchSize: number): readonl
   return Array.from(toByteBatches(bufferChunks(xml, chunkSize), { batchSize }));
 }
 
-class SinglePendingBatchSource implements Iterable<readonly Buffer[]> {
-  nextCalls = 0;
-  private current: readonly Buffer[] | undefined;
-  private closed = false;
-
-  constructor(batch: readonly Buffer[]) {
-    this.current = batch;
-  }
-
-  [Symbol.iterator](): Iterator<readonly Buffer[]> {
-    return this;
-  }
-
-  next(): IteratorResult<readonly Buffer[]> {
-    this.nextCalls++;
-    if (this.current) {
-      const value = this.current;
-      this.current = undefined;
-      return { value, done: false };
-    }
-    if (this.closed) {
-      return { value: undefined, done: true };
-    }
-    throw new Error('parser requested a second batch before the caller provided one');
-  }
-
-  close(): void {
-    this.closed = true;
-  }
-}
-
 function collect(parser: RawIterableParser): Array<{
   type: number;
   name?: string;
@@ -106,10 +73,6 @@ function collect(parser: RawIterableParser): Array<{
   return events;
 }
 
-afterEach(() => {
-  vi.restoreAllMocks();
-  resetStaxXmlRuntimeForTests();
-});
 
 describe('NodeIterableReader raw batch cursor', () => {
   it('matches the neutral iterable parser for basic events, text, and attributes', () => {
@@ -268,153 +231,6 @@ describe('NodeIterableReader raw batch cursor', () => {
     } as never)).toThrow('attributeScanner');
   });
 
-  it('uses the automatic backend by default and keeps the simple scanner on JavaScript', () => {
-    const auto = new NodeIterableReader(bufferBatches('<root><item/></root>', 64, 1));
-    expect(auto.backendKind()).toBe('pending');
-    expect(collect(auto).map(event => event.name ?? event.type)).toEqual([
-      IterableEventType.START_DOCUMENT,
-      'root',
-      'item',
-      'item',
-      'root',
-      IterableEventType.END_DOCUMENT,
-    ]);
-    expect(['native', 'js']).toContain(auto.backendKind());
-
-    const js = new NodeIterableReader(bufferBatches('<root/>', 64, 1), { attributeScanner: 'simple' });
-    expect(js.backendKind()).toBe('pending');
-    expect(collect(js).map(event => event.name ?? event.type)).toEqual([
-      IterableEventType.START_DOCUMENT,
-      'root',
-      'root',
-      IterableEventType.END_DOCUMENT,
-    ]);
-    expect(js.backendKind()).toBe('js');
-  });
-
-  it('prefers the zero-copy structural table for a single complete native Buffer', async () => {
-    const xml = '<root><item id="1">text</item></root>';
-    const input = Buffer.from(xml);
-    const parseStructuralIndexUint8Array = vi.fn((actual: Uint8Array) => {
-      expect(actual).toBe(input);
-      return encodeNativeStructuralIndex(actual, [
-        nativeEvent(IterableEventType.START_DOCUMENT),
-        nativeEvent(IterableEventType.START_ELEMENT, nativeSpan(actual, 'root')),
-        nativeEvent(IterableEventType.START_ELEMENT, nativeSpan(actual, 'item'), nativeNone(), 0, 1),
-        nativeEvent(IterableEventType.CHARACTERS, nativeNone(), nativeSpan(actual, 'text')),
-        nativeEvent(IterableEventType.END_ELEMENT, nativeSpan(actual, 'item')),
-        nativeEvent(IterableEventType.END_ELEMENT, nativeSpan(actual, 'root')),
-        nativeEvent(IterableEventType.END_DOCUMENT),
-      ], [
-        nativeAttr(nativeSpan(actual, 'id'), nativeSpan(actual, '1')),
-      ]);
-    });
-    const createStreamingEventBatchParser = vi.fn(() => ({
-      pushChunk() {
-        throw new Error('single complete Buffer should not use the streaming parser');
-      },
-    }));
-    await initStaxXml({
-      backend: 'native',
-      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
-      importPackage: async () => ({
-        parseStructuralIndexUint8Array,
-        createStreamingEventBatchParser,
-      }),
-    });
-
-    const parser = new NodeIterableReader([[input]]);
-
-    expect(collect(parser)).toEqual([
-      { type: IterableEventType.START_DOCUMENT },
-      { type: IterableEventType.START_ELEMENT, name: 'root' },
-      { type: IterableEventType.START_ELEMENT, name: 'item', attrs: { id: '1' } },
-      { type: IterableEventType.CHARACTERS, text: 'text' },
-      { type: IterableEventType.END_ELEMENT, name: 'item' },
-      { type: IterableEventType.END_ELEMENT, name: 'root' },
-      { type: IterableEventType.END_DOCUMENT },
-    ]);
-    expect(parser.backendKind()).toBe('native');
-    expect(parseStructuralIndexUint8Array).toHaveBeenCalledOnce();
-    expect(createStreamingEventBatchParser).not.toHaveBeenCalled();
-  });
-
-  it('does not prefetch another source batch before native streaming consumes the current one', async () => {
-    const input = Buffer.from('<root/>');
-    const source = new SinglePendingBatchSource([input]);
-    const parseStructuralIndexUint8Array = vi.fn(() => {
-      throw new Error('non-array streaming sources should not use the complete-buffer structural path');
-    });
-    const pushChunk = vi.fn((actual: Uint8Array, isFinal: boolean) => {
-      expect(actual).toBe(input);
-      expect(isFinal).toBe(false);
-      return {
-        buffer: actual,
-        table: encodeNativeStructuralIndex(actual, [
-          nativeEvent(IterableEventType.START_DOCUMENT),
-        ], []),
-      };
-    });
-    await initStaxXml({
-      backend: 'native',
-      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
-      importPackage: async () => ({
-        parseStructuralIndexUint8Array,
-        createStreamingEventBatchParser: () => ({ pushChunk }),
-      }),
-    });
-
-    const parser = new NodeIterableReader(source);
-
-    expect(parser.nextBatch()).toBe(true);
-    expect(parser.eventCount()).toBe(1);
-    expect(parser.backendKind()).toBe('native');
-    expect(source.nextCalls).toBe(1);
-    expect(parseStructuralIndexUint8Array).not.toHaveBeenCalled();
-    expect(pushChunk).toHaveBeenCalledOnce();
-  });
-
-  it('interns native structural names across repeated Buffer spans', async () => {
-    const input = Buffer.from('<root><item/><item/></root>');
-    const firstItem = nativeNthSpan(input, 'item', 0);
-    const secondItem = nativeNthSpan(input, 'item', 1);
-    await initStaxXml({
-      backend: 'native',
-      platform: { platform: 'linux', arch: 'x64', libc: 'gnu' },
-      importPackage: async () => ({
-        parseStructuralIndexUint8Array: (actual: Uint8Array) => encodeNativeStructuralIndex(actual, [
-          nativeEvent(IterableEventType.START_DOCUMENT),
-          nativeEvent(IterableEventType.START_ELEMENT, nativeSpan(actual, 'root')),
-          nativeEvent(IterableEventType.START_ELEMENT, firstItem),
-          nativeEvent(IterableEventType.END_ELEMENT, firstItem),
-          nativeEvent(IterableEventType.START_ELEMENT, secondItem),
-          nativeEvent(IterableEventType.END_ELEMENT, secondItem),
-          nativeEvent(IterableEventType.END_ELEMENT, nativeSpan(actual, 'root')),
-          nativeEvent(IterableEventType.END_DOCUMENT),
-        ], []),
-        createStreamingEventBatchParser: () => ({
-          pushChunk() {
-            throw new Error('single complete Buffer should not use the streaming parser');
-          },
-        }),
-      }),
-    });
-    const parser = new NodeIterableReader([[input]]);
-    const toStringSpy = vi.spyOn(input, 'toString');
-    expect(parser.nextBatch()).toBe(true);
-
-    expect(parser.copyName(2)).toBe('item');
-    expect(parser.copyName(3)).toBe('item');
-    expect(parser.copyName(4)).toBe('item');
-    expect(parser.copyName(5)).toBe('item');
-
-    const itemDecodeCalls = toStringSpy.mock.calls.filter(call =>
-      call[0] === 'utf8'
-      && (call[1] === firstItem.start || call[1] === secondItem.start)
-    );
-    expect(itemDecodeCalls.length).toBeLessThanOrEqual(1);
-  });
-
   it('skips XML declaration, comments, processing instructions, and doctype', () => {
     const xml = '<?xml version="1.0"?><!DOCTYPE root><root><!-- hidden --><?pi hidden?><item/></root>';
 
@@ -494,96 +310,3 @@ describe('NodeIterableReader raw batch cursor', () => {
   });
 });
 
-type NativeSpan = { start: number; end: number };
-type NativeEventRecord = {
-  type: number;
-  name: NativeSpan;
-  text: NativeSpan;
-  attrStart: number;
-  attrCount: number;
-};
-type NativeAttrRecord = { name: NativeSpan; value: NativeSpan };
-
-function nativeNone(): NativeSpan {
-  return { start: -1, end: -1 };
-}
-
-function nativeSpan(input: Uint8Array, value: string): NativeSpan {
-  return nativeNthSpan(input, value, 0);
-}
-
-function nativeNthSpan(input: Uint8Array, value: string, occurrence: number): NativeSpan {
-  const needle = Buffer.from(value);
-  let matchedCount = 0;
-  for (let start = 0; start <= input.byteLength - needle.byteLength; start++) {
-    let matched = true;
-    for (let index = 0; index < needle.byteLength; index++) {
-      if (input[start + index] !== needle[index]) {
-        matched = false;
-        break;
-      }
-    }
-    if (matched) {
-      if (matchedCount === occurrence) {
-        return { start, end: start + needle.byteLength };
-      }
-      matchedCount++;
-    }
-  }
-  throw new Error(`Missing native span value: ${value}#${occurrence}`);
-}
-
-function nativeEvent(
-  type: number,
-  name: NativeSpan = nativeNone(),
-  text: NativeSpan = nativeNone(),
-  attrStart = 0,
-  attrCount = 0,
-): NativeEventRecord {
-  return { type, name, text, attrStart, attrCount };
-}
-
-function nativeAttr(name: NativeSpan, value: NativeSpan): NativeAttrRecord {
-  return { name, value };
-}
-
-function encodeNativeStructuralIndex(
-  input: Uint8Array,
-  events: NativeEventRecord[],
-  attrs: NativeAttrRecord[],
-): Uint8Array {
-  const eventBytes = 28;
-  const attrBytes = 16;
-  const headerBytes = 28;
-  const buffer = new ArrayBuffer(headerBytes + events.length * eventBytes + attrs.length * attrBytes);
-  const view = new DataView(buffer);
-  view.setUint32(0, 0x31545053, true);
-  view.setUint32(4, events.length, true);
-  view.setUint32(8, attrs.length, true);
-  view.setUint32(12, input.byteLength, true);
-  view.setUint32(16, eventBytes, true);
-  view.setUint32(20, attrBytes, true);
-  view.setUint32(24, 1, true);
-
-  let offset = headerBytes;
-  for (const record of events) {
-    view.setUint32(offset, record.type, true);
-    view.setInt32(offset + 4, record.name.start, true);
-    view.setInt32(offset + 8, record.name.end, true);
-    view.setInt32(offset + 12, record.text.start, true);
-    view.setInt32(offset + 16, record.text.end, true);
-    view.setUint32(offset + 20, record.attrStart, true);
-    view.setUint32(offset + 24, record.attrCount, true);
-    offset += eventBytes;
-  }
-
-  for (const record of attrs) {
-    view.setInt32(offset, record.name.start, true);
-    view.setInt32(offset + 4, record.name.end, true);
-    view.setInt32(offset + 8, record.value.start, true);
-    view.setInt32(offset + 12, record.value.end, true);
-    offset += attrBytes;
-  }
-
-  return new Uint8Array(buffer);
-}

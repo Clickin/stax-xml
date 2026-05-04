@@ -264,6 +264,5 @@ interface EventReaderSyncOptions {
   namespaceAware?: boolean; // Default: false; opt in to localName/prefix/uri metadata
   eventFilter?: ParserEventFilter;
   documentMode?: 'fragment' | 'document';
-  fallbackOnParseError?: boolean;
 }
 ```

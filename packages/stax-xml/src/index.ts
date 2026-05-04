@@ -12,22 +12,6 @@ export type { WriterOptions } from "./Writer.js";
 export { WriterSync, WriterSyncSink } from "./WriterSync.js";
 export type { SyncTextSink, WriterSyncOptions, WriterSyncSinkOptions } from "./WriterSync.js";
 export { default } from "./WriterSync.js";
-export { getStaxXmlRuntime, initStaxXml } from "./runtime/index.js";
-export type {
-  InitStaxXmlOptions,
-  LinuxLibc,
-  OptionalPackageImporter,
-  StaxXmlRuntime,
-  StaxXmlRuntimeBackend,
-  StaxXmlRuntimeBackendKind,
-  StaxXmlRuntimeBackendPreference,
-  StaxXmlRuntimeCapabilities,
-  StaxXmlRuntimePlatform,
-  StaxXmlRuntimeResolverOptions,
-  StaxXmlStreamingEventBatch,
-  StaxXmlStreamingEventBatchFactory,
-  StaxXmlStreamingEventBatchParser,
-} from "./runtime/index.js";
 export type { EntityDefinition } from "./IterableEventBackend.js";
 
 export { isCdata, isCharacters, isEndDocument, isEndElement, isError, isStartDocument, isStartElement, XmlEventType } from "./types.js";

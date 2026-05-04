@@ -10,8 +10,7 @@ head:
 
 This matrix describes the public converter XPath surface. XPath expressions are
 evaluated by the TypeScript XPath 1.0 runtime over the converter's lightweight
-document tree. The native addon may supply parser/projection data before that
-tree is built, but it is not the XPath evaluator.
+document tree.
 
 Status values:
 

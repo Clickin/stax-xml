@@ -1,8 +1,0 @@
-[package]
-name = "simdxml-bench"
-version = "0.0.0"
-edition = "2021"
-publish = false
-
-[dependencies]
-simdxml = "0.2.1"

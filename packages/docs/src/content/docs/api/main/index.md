@@ -13,7 +13,7 @@ description: API reference for stax-xml
 
 ### EventReader
 
-Defined in: [packages/stax-xml/src/EventReader.ts:32](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L32)
+Defined in: [packages/stax-xml/src/EventReader.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L30)
 
 Event-object adapter over the batch-first async stream core.
 
@@ -28,7 +28,7 @@ Event-object adapter over the batch-first async stream core.
 
 > **new EventReader**(`xmlStream`, `options?`): [`EventReader`](#eventreader)
 
-Defined in: [packages/stax-xml/src/EventReader.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L35)
+Defined in: [packages/stax-xml/src/EventReader.ts:33](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L33)
 
 ###### Parameters
 
@@ -52,7 +52,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:35](https://github.com/Clickin
 
 > **get** **XmlEventType**(): `object`
 
-Defined in: [packages/stax-xml/src/EventReader.ts:86](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L86)
+Defined in: [packages/stax-xml/src/EventReader.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L79)
 
 ###### Returns
 
@@ -92,7 +92,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:86](https://github.com/Clickin
 
 > **\[asyncIterator\]**(): `AsyncIterator`\<[`AnyXmlEvent`](#anyxmlevent)\>
 
-Defined in: [packages/stax-xml/src/EventReader.ts:61](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L61)
+Defined in: [packages/stax-xml/src/EventReader.ts:54](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L54)
 
 ###### Returns
 
@@ -106,7 +106,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:61](https://github.com/Clickin
 
 > **next**(): `Promise`\<`IteratorResult`\<[`AnyXmlEvent`](#anyxmlevent), `any`\>\>
 
-Defined in: [packages/stax-xml/src/EventReader.ts:70](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L70)
+Defined in: [packages/stax-xml/src/EventReader.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L63)
 
 ###### Returns
 
@@ -120,7 +120,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:70](https://github.com/Clickin
 
 > **return**(): `Promise`\<`IteratorResult`\<[`AnyXmlEvent`](#anyxmlevent), `any`\>\>
 
-Defined in: [packages/stax-xml/src/EventReader.ts:74](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L74)
+Defined in: [packages/stax-xml/src/EventReader.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L67)
 
 ###### Returns
 
@@ -134,7 +134,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:74](https://github.com/Clickin
 
 > **nextBatch**(): `Promise`\<[`AnyXmlEvent`](#anyxmlevent)[] \| `null`\>
 
-Defined in: [packages/stax-xml/src/EventReader.ts:78](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L78)
+Defined in: [packages/stax-xml/src/EventReader.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L71)
 
 ###### Returns
 
@@ -144,7 +144,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:78](https://github.com/Clickin
 
 > **batchedIterator**(): `AsyncGenerator`\<[`AnyXmlEvent`](#anyxmlevent)[]\>
 
-Defined in: [packages/stax-xml/src/EventReader.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L82)
+Defined in: [packages/stax-xml/src/EventReader.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L75)
 
 ###### Returns
 
@@ -154,7 +154,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:82](https://github.com/Clickin
 
 ### EventReaderSync
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L31)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L30)
 
 Event-object adapter over the batch-first sync stream core.
 
@@ -169,7 +169,7 @@ Event-object adapter over the batch-first sync stream core.
 
 > **new EventReaderSync**(`xml`, `options?`): [`EventReaderSync`](#eventreadersync)
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:46](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L46)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L43)
 
 ###### Parameters
 
@@ -191,7 +191,7 @@ Defined in: [packages/stax-xml/src/EventReaderSync.ts:46](https://github.com/Cli
 
 > **nextBatch**(): [`AnyXmlEvent`](#anyxmlevent)[] \| `null`
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L83)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L75)
 
 ###### Returns
 
@@ -201,7 +201,7 @@ Defined in: [packages/stax-xml/src/EventReaderSync.ts:83](https://github.com/Cli
 
 > **batchedIterator**(): `IterableIterator`\<[`AnyXmlEvent`](#anyxmlevent)[]\>
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L101)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L87)
 
 ###### Returns
 
@@ -211,7 +211,7 @@ Defined in: [packages/stax-xml/src/EventReaderSync.ts:101](https://github.com/Cl
 
 > **\[iterator\]**(): `Iterator`\<[`AnyXmlEvent`](#anyxmlevent)\>
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:111](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L111)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:97](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L97)
 
 ###### Returns
 
@@ -225,7 +225,7 @@ Defined in: [packages/stax-xml/src/EventReaderSync.ts:111](https://github.com/Cl
 
 > **next**(): `IteratorResult`\<[`AnyXmlEvent`](#anyxmlevent)\>
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L115)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L101)
 
 ###### Returns
 
@@ -239,7 +239,7 @@ Defined in: [packages/stax-xml/src/EventReaderSync.ts:115](https://github.com/Cl
 
 > **return**(): `IteratorResult`\<[`AnyXmlEvent`](#anyxmlevent)\>
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:136](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L136)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L116)
 
 ###### Returns
 
@@ -253,7 +253,7 @@ Defined in: [packages/stax-xml/src/EventReaderSync.ts:136](https://github.com/Cl
 
 ### StreamReader
 
-Defined in: packages/stax-xml/src/StreamReader.ts:37
+Defined in: [packages/stax-xml/src/StreamReader.ts:36](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L36)
 
 Batch-first asynchronous StAX core over `ReadableStream<Uint8Array>`.
 
@@ -267,7 +267,7 @@ Batch-first asynchronous StAX core over `ReadableStream<Uint8Array>`.
 
 > **new StreamReader**(`stream`, `options?`): [`StreamReader`](#streamreader)
 
-Defined in: packages/stax-xml/src/StreamReader.ts:46
+Defined in: [packages/stax-xml/src/StreamReader.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L45)
 
 ###### Parameters
 
@@ -289,7 +289,7 @@ Defined in: packages/stax-xml/src/StreamReader.ts:46
 
 > **nextBatch**(): `Promise`\<[`StreamBatch`](#streambatch) \| `null`\>
 
-Defined in: packages/stax-xml/src/StreamReader.ts:63
+Defined in: [packages/stax-xml/src/StreamReader.ts:57](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L57)
 
 ###### Returns
 
@@ -299,7 +299,7 @@ Defined in: packages/stax-xml/src/StreamReader.ts:63
 
 > **return**(): `Promise`\<`void`\>
 
-Defined in: packages/stax-xml/src/StreamReader.ts:82
+Defined in: [packages/stax-xml/src/StreamReader.ts:76](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L76)
 
 ###### Returns
 
@@ -309,7 +309,7 @@ Defined in: packages/stax-xml/src/StreamReader.ts:82
 
 > **batchedIterator**(): `AsyncGenerator`\<[`StreamBatch`](#streambatch)\>
 
-Defined in: packages/stax-xml/src/StreamReader.ts:95
+Defined in: [packages/stax-xml/src/StreamReader.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L89)
 
 ###### Returns
 
@@ -319,7 +319,7 @@ Defined in: packages/stax-xml/src/StreamReader.ts:95
 
 > **\[asyncIterator\]**(): `AsyncGenerator`\<[`StreamBatch`](#streambatch)\>
 
-Defined in: packages/stax-xml/src/StreamReader.ts:111
+Defined in: [packages/stax-xml/src/StreamReader.ts:105](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L105)
 
 ###### Returns
 
@@ -333,7 +333,7 @@ Defined in: packages/stax-xml/src/StreamReader.ts:111
 
 > **currentGeneration**(): `number`
 
-Defined in: packages/stax-xml/src/StreamReader.ts:115
+Defined in: [packages/stax-xml/src/StreamReader.ts:109](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L109)
 
 ###### Returns
 
@@ -399,17 +399,35 @@ Defined in: [packages/stax-xml/src/StreamReaderSync.ts:47](https://github.com/Cl
 
 > **nextBatch**(): [`StreamBatch`](#streambatch) \| `null`
 
-Defined in: [packages/stax-xml/src/StreamReaderSync.ts:65](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L65)
+Defined in: [packages/stax-xml/src/StreamReaderSync.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L59)
 
 ###### Returns
 
 [`StreamBatch`](#streambatch) \| `null`
 
+##### nextRawBatch()
+
+> **nextRawBatch**(): [`StreamReaderSyncRawBatch`](#streamreadersyncrawbatch) \| `null`
+
+Defined in: [packages/stax-xml/src/StreamReaderSync.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L81)
+
+**`Experimental`**
+
+Return an experimental low-level batch view without creating per-event
+wrapper objects.
+
+This API is intended for benchmark and scanner-style traversal paths. The
+existing [nextBatch](#nextbatch-3) API remains the stable ergonomic surface.
+
+###### Returns
+
+[`StreamReaderSyncRawBatch`](#streamreadersyncrawbatch) \| `null`
+
 ##### batchedIterator()
 
 > **batchedIterator**(): `IterableIterator`\<[`StreamBatch`](#streambatch)\>
 
-Defined in: [packages/stax-xml/src/StreamReaderSync.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L77)
+Defined in: [packages/stax-xml/src/StreamReaderSync.ts:113](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L113)
 
 ###### Returns
 
@@ -419,7 +437,7 @@ Defined in: [packages/stax-xml/src/StreamReaderSync.ts:77](https://github.com/Cl
 
 > **\[iterator\]**(): `IterableIterator`\<[`StreamBatch`](#streambatch)\>
 
-Defined in: [packages/stax-xml/src/StreamReaderSync.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L87)
+Defined in: [packages/stax-xml/src/StreamReaderSync.ts:123](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L123)
 
 ###### Returns
 
@@ -433,7 +451,7 @@ Defined in: [packages/stax-xml/src/StreamReaderSync.ts:87](https://github.com/Cl
 
 > **currentGeneration**(): `number`
 
-Defined in: [packages/stax-xml/src/StreamReaderSync.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L91)
+Defined in: [packages/stax-xml/src/StreamReaderSync.ts:127](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L127)
 
 ###### Returns
 
@@ -1702,7 +1720,7 @@ Defined in: [packages/stax-xml/src/WriterSync.ts:592](https://github.com/Clickin
 
 ### EventReaderOptions
 
-Defined in: [packages/stax-xml/src/EventReader.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L18)
+Defined in: [packages/stax-xml/src/EventReader.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L16)
 
 Asynchronous event reader options.
 
@@ -1712,43 +1730,43 @@ Asynchronous event reader options.
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [packages/stax-xml/src/EventReader.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L19)
+Defined in: [packages/stax-xml/src/EventReader.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L17)
 
 ##### addEntities?
 
 > `optional` **addEntities?**: [`EntityDefinition`](#entitydefinition)[]
 
-Defined in: [packages/stax-xml/src/EventReader.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L20)
+Defined in: [packages/stax-xml/src/EventReader.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L18)
 
 ##### eventFilter?
 
 > `optional` **eventFilter?**: [`ParserEventFilter`](#parsereventfilter)
 
-Defined in: [packages/stax-xml/src/EventReader.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L21)
+Defined in: [packages/stax-xml/src/EventReader.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L19)
 
 ##### documentMode?
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-6)
 
-Defined in: [packages/stax-xml/src/EventReader.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L22)
+Defined in: [packages/stax-xml/src/EventReader.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L20)
 
 ##### namespaceAware?
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [packages/stax-xml/src/EventReader.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L23)
+Defined in: [packages/stax-xml/src/EventReader.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L21)
 
 ##### maxChunkBytes?
 
 > `optional` **maxChunkBytes?**: `number`
 
-Defined in: [packages/stax-xml/src/EventReader.ts:24](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L24)
+Defined in: [packages/stax-xml/src/EventReader.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L22)
 
 ***
 
 ### EventReaderSyncOptions
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L18)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L17)
 
 Synchronous event reader options.
 
@@ -1758,37 +1776,37 @@ Synchronous event reader options.
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L19)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L18)
 
 ##### addEntities?
 
 > `optional` **addEntities?**: [`EntityDefinition`](#entitydefinition)[]
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L20)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L19)
 
 ##### eventFilter?
 
 > `optional` **eventFilter?**: [`ParserEventFilter`](#parsereventfilter)
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L21)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L20)
 
 ##### documentMode?
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-6)
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L22)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L21)
 
 ##### namespaceAware?
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [packages/stax-xml/src/EventReaderSync.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L23)
+Defined in: [packages/stax-xml/src/EventReaderSync.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReaderSync.ts#L22)
 
 ***
 
 ### EntityDefinition
 
-Defined in: [packages/stax-xml/src/IterableEventBackend.ts:25](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/IterableEventBackend.ts#L25)
+Defined in: [packages/stax-xml/src/IterableEventBackend.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/IterableEventBackend.ts#L17)
 
 #### Properties
 
@@ -1796,19 +1814,19 @@ Defined in: [packages/stax-xml/src/IterableEventBackend.ts:25](https://github.co
 
 > **entity**: `string`
 
-Defined in: [packages/stax-xml/src/IterableEventBackend.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/IterableEventBackend.ts#L26)
+Defined in: [packages/stax-xml/src/IterableEventBackend.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/IterableEventBackend.ts#L18)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [packages/stax-xml/src/IterableEventBackend.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/IterableEventBackend.ts#L27)
+Defined in: [packages/stax-xml/src/IterableEventBackend.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/IterableEventBackend.ts#L19)
 
 ***
 
 ### StreamReaderOptions
 
-Defined in: packages/stax-xml/src/StreamReader.ts:16
+Defined in: [packages/stax-xml/src/StreamReader.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L15)
 
 Asynchronous stream reader options.
 
@@ -1818,7 +1836,7 @@ Asynchronous stream reader options.
 
 > `optional` **encoding?**: `string`
 
-Defined in: packages/stax-xml/src/StreamReader.ts:22
+Defined in: [packages/stax-xml/src/StreamReader.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L21)
 
 Text encoding passed to the active streaming backend.
 
@@ -1832,7 +1850,7 @@ Text encoding passed to the active streaming backend.
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-6)
 
-Defined in: packages/stax-xml/src/StreamReader.ts:29
+Defined in: [packages/stax-xml/src/StreamReader.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L28)
 
 XML document conformance mode.
 
@@ -2285,7 +2303,7 @@ If <= 1, treated as percentage of bufferSize. Otherwise absolute char count.
 
 ### ParseXmlTreeOptions
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L28)
+Defined in: [packages/stax-xml/src/XmlObject.ts:25](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L25)
 
 Options shared by XML tree and compact object helper parsers.
 
@@ -2299,49 +2317,43 @@ Options shared by XML tree and compact object helper parsers.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L29)
+Defined in: [packages/stax-xml/src/XmlObject.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L26)
 
 ##### documentMode?
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-6)
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L30)
+Defined in: [packages/stax-xml/src/XmlObject.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L27)
 
 ##### autoDecodeEntities?
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L31)
+Defined in: [packages/stax-xml/src/XmlObject.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L28)
 
 ##### addEntities?
 
 > `optional` **addEntities?**: [`EntityDefinition`](#entitydefinition)[]
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:32](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L32)
+Defined in: [packages/stax-xml/src/XmlObject.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L29)
 
 ##### trimText?
 
 > `optional` **trimText?**: `boolean`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:33](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L33)
+Defined in: [packages/stax-xml/src/XmlObject.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L30)
 
 ##### batchSize?
 
 > `optional` **batchSize?**: `number`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:34](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L34)
-
-##### fallbackOnParseError?
-
-> `optional` **fallbackOnParseError?**: `boolean`
-
-Defined in: [packages/stax-xml/src/XmlObject.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L35)
+Defined in: [packages/stax-xml/src/XmlObject.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L31)
 
 ***
 
 ### ParseXmlObjectOptions
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L39)
+Defined in: [packages/stax-xml/src/XmlObject.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L35)
 
 Options for compact object projection.
 
@@ -2355,7 +2367,7 @@ Options for compact object projection.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L29)
+Defined in: [packages/stax-xml/src/XmlObject.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L26)
 
 ###### Inherited from
 
@@ -2365,7 +2377,7 @@ Defined in: [packages/stax-xml/src/XmlObject.ts:29](https://github.com/Clickin/s
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-6)
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L30)
+Defined in: [packages/stax-xml/src/XmlObject.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L27)
 
 ###### Inherited from
 
@@ -2375,7 +2387,7 @@ Defined in: [packages/stax-xml/src/XmlObject.ts:30](https://github.com/Clickin/s
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L31)
+Defined in: [packages/stax-xml/src/XmlObject.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L28)
 
 ###### Inherited from
 
@@ -2385,7 +2397,7 @@ Defined in: [packages/stax-xml/src/XmlObject.ts:31](https://github.com/Clickin/s
 
 > `optional` **addEntities?**: [`EntityDefinition`](#entitydefinition)[]
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:32](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L32)
+Defined in: [packages/stax-xml/src/XmlObject.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L29)
 
 ###### Inherited from
 
@@ -2395,7 +2407,7 @@ Defined in: [packages/stax-xml/src/XmlObject.ts:32](https://github.com/Clickin/s
 
 > `optional` **trimText?**: `boolean`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:33](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L33)
+Defined in: [packages/stax-xml/src/XmlObject.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L30)
 
 ###### Inherited from
 
@@ -2405,27 +2417,17 @@ Defined in: [packages/stax-xml/src/XmlObject.ts:33](https://github.com/Clickin/s
 
 > `optional` **batchSize?**: `number`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:34](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L34)
+Defined in: [packages/stax-xml/src/XmlObject.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L31)
 
 ###### Inherited from
 
 [`ParseXmlTreeOptions`](#parsexmltreeoptions).[`batchSize`](#batchsize)
 
-##### fallbackOnParseError?
-
-> `optional` **fallbackOnParseError?**: `boolean`
-
-Defined in: [packages/stax-xml/src/XmlObject.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L35)
-
-###### Inherited from
-
-[`ParseXmlTreeOptions`](#parsexmltreeoptions).[`fallbackOnParseError`](#fallbackonparseerror)
-
 ##### attributePrefix?
 
 > `optional` **attributePrefix?**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:41](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L41)
+Defined in: [packages/stax-xml/src/XmlObject.ts:37](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L37)
 
 Prefix applied to XML attributes. Defaults to `@`, so `id` becomes `@id`.
 
@@ -2433,7 +2435,7 @@ Prefix applied to XML attributes. Defaults to `@`, so `id` becomes `@id`.
 
 > `optional` **textKey?**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L43)
+Defined in: [packages/stax-xml/src/XmlObject.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L39)
 
 Key used for text in mixed-content objects. Defaults to `#text`.
 
@@ -2441,7 +2443,7 @@ Key used for text in mixed-content objects. Defaults to `#text`.
 
 > `optional` **cdataKey?**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L45)
+Defined in: [packages/stax-xml/src/XmlObject.ts:41](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L41)
 
 Key used for CDATA in compact objects. Defaults to `#cdata`.
 
@@ -2449,7 +2451,7 @@ Key used for CDATA in compact objects. Defaults to `#cdata`.
 
 > `optional` **alwaysArray?**: `boolean`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:47](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L47)
+Defined in: [packages/stax-xml/src/XmlObject.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L43)
 
 When true, element children are always represented as arrays.
 
@@ -2457,7 +2459,7 @@ When true, element children are always represented as arrays.
 
 ### XmlTreeDocument
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:51](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L51)
+Defined in: [packages/stax-xml/src/XmlObject.ts:47](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L47)
 
 Document wrapper returned by `parseXmlTree()` and `parseXmlTreeSync()`.
 
@@ -2467,19 +2469,19 @@ Document wrapper returned by `parseXmlTree()` and `parseXmlTreeSync()`.
 
 > **type**: `"document"`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L52)
+Defined in: [packages/stax-xml/src/XmlObject.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L48)
 
 ##### children
 
 > **children**: [`XmlTreeNode`](#xmltreenode)[]
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L53)
+Defined in: [packages/stax-xml/src/XmlObject.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L49)
 
 ***
 
 ### XmlTreeElement
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L59)
+Defined in: [packages/stax-xml/src/XmlObject.ts:55](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L55)
 
 Order-preserving XML element node.
 
@@ -2489,31 +2491,31 @@ Order-preserving XML element node.
 
 > **type**: `"element"`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:60](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L60)
+Defined in: [packages/stax-xml/src/XmlObject.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L56)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:61](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L61)
+Defined in: [packages/stax-xml/src/XmlObject.ts:57](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L57)
 
 ##### attributes
 
 > **attributes**: [`XmlObjectRecord`](#xmlobjectrecord)\<`string`\>
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L62)
+Defined in: [packages/stax-xml/src/XmlObject.ts:58](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L58)
 
 ##### children
 
 > **children**: [`XmlTreeNode`](#xmltreenode)[]
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L63)
+Defined in: [packages/stax-xml/src/XmlObject.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L59)
 
 ***
 
 ### XmlTreeText
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L67)
+Defined in: [packages/stax-xml/src/XmlObject.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L63)
 
 Text node in an order-preserving XML tree.
 
@@ -2523,19 +2525,19 @@ Text node in an order-preserving XML tree.
 
 > **type**: `"text"`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:68](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L68)
+Defined in: [packages/stax-xml/src/XmlObject.ts:64](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L64)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L69)
+Defined in: [packages/stax-xml/src/XmlObject.ts:65](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L65)
 
 ***
 
 ### XmlTreeCdata
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:73](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L73)
+Defined in: [packages/stax-xml/src/XmlObject.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L69)
 
 CDATA node in an order-preserving XML tree.
 
@@ -2545,19 +2547,19 @@ CDATA node in an order-preserving XML tree.
 
 > **type**: `"cdata"`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:74](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L74)
+Defined in: [packages/stax-xml/src/XmlObject.ts:70](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L70)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L75)
+Defined in: [packages/stax-xml/src/XmlObject.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L71)
 
 ***
 
 ### XmlObjectArray
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L82)
+Defined in: [packages/stax-xml/src/XmlObject.ts:78](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L78)
 
 Array of compact object values used for repeated elements.
 
@@ -2573,7 +2575,7 @@ Array of compact object values used for repeated elements.
 
 ### XmlObjectRecord
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L85)
+Defined in: [packages/stax-xml/src/XmlObject.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L81)
 
 Null-prototype record used by tree attributes and compact object nodes.
 
@@ -2589,334 +2591,9 @@ Null-prototype record used by tree attributes and compact object nodes.
 
 ***
 
-### StaxXmlRuntimePlatform
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:8](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L8)
-
-#### Properties
-
-##### platform
-
-> **platform**: `string`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L9)
-
-##### arch
-
-> **arch**: `string`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:10](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L10)
-
-##### libc?
-
-> `optional` **libc?**: [`LinuxLibc`](#linuxlibc)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L11)
-
-***
-
-### StaxXmlRuntimeBackend
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:14](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L14)
-
-#### Properties
-
-##### kind
-
-> **kind**: [`StaxXmlRuntimeBackendKind`](#staxxmlruntimebackendkind)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L15)
-
-##### packageName?
-
-> `optional` **packageName?**: `string`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L16)
-
-##### module?
-
-> `optional` **module?**: `unknown`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L17)
-
-##### errors
-
-> **errors**: `object`[]
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L18)
-
-###### packageName
-
-> **packageName**: `string`
-
-###### error
-
-> **error**: `unknown`
-
-***
-
-### StaxXmlRuntimeCapabilities
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L21)
-
-#### Properties
-
-##### structuralIndexUtf8?
-
-> `optional` **structuralIndexUtf8?**: (`input`) => `ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L22)
-
-###### Parameters
-
-###### input
-
-`Uint8Array`
-
-###### Returns
-
-`ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
-
-##### streamingEventBatches?
-
-> `optional` **streamingEventBatches?**: [`StaxXmlStreamingEventBatchFactory`](#staxxmlstreamingeventbatchfactory)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L27)
-
-##### objectRowsProjection?
-
-> `optional` **objectRowsProjection?**: (`input`, `spec`) => `unknown`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L28)
-
-###### Parameters
-
-###### input
-
-`Uint8Array`
-
-###### spec
-
-`unknown`
-
-###### Returns
-
-`unknown`
-
-##### objectRecordsProjection?
-
-> `optional` **objectRecordsProjection?**: (`input`, `spec`) => `unknown`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L29)
-
-###### Parameters
-
-###### input
-
-`Uint8Array`
-
-###### spec
-
-`unknown`
-
-###### Returns
-
-`unknown`
-
-##### createObjectProjectionPlan?
-
-> `optional` **createObjectProjectionPlan?**: (`spec`) => `StaxXmlObjectProjectionPlan`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L30)
-
-###### Parameters
-
-###### spec
-
-`unknown`
-
-###### Returns
-
-`StaxXmlObjectProjectionPlan`
-
-##### itemRowsProjection?
-
-> `optional` **itemRowsProjection?**: (`input`) => `unknown`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L31)
-
-###### Parameters
-
-###### input
-
-`Uint8Array`
-
-###### Returns
-
-`unknown`
-
-##### documentNodesProjection?
-
-> `optional` **documentNodesProjection?**: (`input`, `options?`) => `unknown`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:32](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L32)
-
-###### Parameters
-
-###### input
-
-`Uint8Array`
-
-###### options?
-
-`unknown`
-
-###### Returns
-
-`unknown`
-
-***
-
-### StaxXmlStreamingEventBatch
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L43)
-
-#### Properties
-
-##### buffer
-
-> **buffer**: `ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:44](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L44)
-
-##### table
-
-> **table**: `ArrayBuffer` \| `ArrayBufferView`\<`ArrayBufferLike`\>
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L45)
-
-***
-
-### StaxXmlStreamingEventBatchParser
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L48)
-
-#### Methods
-
-##### pushChunk()
-
-> **pushChunk**(`chunk`, `isFinal`): [`StaxXmlStreamingEventBatch`](#staxxmlstreamingeventbatch)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L49)
-
-###### Parameters
-
-###### chunk
-
-`Uint8Array`
-
-###### isFinal
-
-`boolean`
-
-###### Returns
-
-[`StaxXmlStreamingEventBatch`](#staxxmlstreamingeventbatch)
-
-##### pushBatch()?
-
-> `optional` **pushBatch**(`chunks`, `isFinal`): [`StaxXmlStreamingEventBatch`](#staxxmlstreamingeventbatch)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:50](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L50)
-
-###### Parameters
-
-###### chunks
-
-readonly `Uint8Array`\<`ArrayBufferLike`\>[]
-
-###### isFinal
-
-`boolean`
-
-###### Returns
-
-[`StaxXmlStreamingEventBatch`](#staxxmlstreamingeventbatch)
-
-***
-
-### StaxXmlRuntime
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L53)
-
-#### Properties
-
-##### initialized
-
-> **initialized**: `boolean`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:54](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L54)
-
-##### backend
-
-> **backend**: [`StaxXmlRuntimeBackend`](#staxxmlruntimebackend)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:55](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L55)
-
-##### capabilities
-
-> **capabilities**: [`StaxXmlRuntimeCapabilities`](#staxxmlruntimecapabilities)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L56)
-
-***
-
-### StaxXmlRuntimeResolverOptions
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:61](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L61)
-
-#### Properties
-
-##### backend?
-
-> `optional` **backend?**: [`StaxXmlRuntimeBackendPreference`](#staxxmlruntimebackendpreference)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L62)
-
-##### fallbackBackend?
-
-> `optional` **fallbackBackend?**: `"wasm"`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L63)
-
-##### ~~fallbackOnLoadError?~~
-
-> `optional` **fallbackOnLoadError?**: `boolean`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:68](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L68)
-
-###### Deprecated
-
-JavaScript is no longer a public runtime fallback. Use
-`fallbackBackend: "wasm"` when wasm compatibility is intended.
-
-##### platform?
-
-> `optional` **platform?**: [`StaxXmlRuntimePlatform`](#staxxmlruntimeplatform)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L69)
-
-##### importPackage?
-
-> `optional` **importPackage?**: [`OptionalPackageImporter`](#optionalpackageimporter)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:70](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L70)
-
-***
-
 ### StreamEventView
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:36
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:34](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L34)
 
 Batch-local event view.
 
@@ -2926,7 +2603,7 @@ Batch-local event view.
 
 > `readonly` **type**: [`StreamEventType`](#streameventtype-1)
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:37
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L35)
 
 #### Methods
 
@@ -2934,7 +2611,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:37
 
 > **name**(): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:38
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:36](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L36)
 
 ###### Returns
 
@@ -2944,7 +2621,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:38
 
 > **text**(): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:39
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:37](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L37)
 
 ###### Returns
 
@@ -2954,7 +2631,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:39
 
 > **getAttributeCount**(): `number`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:40
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:38](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L38)
 
 ###### Returns
 
@@ -2964,7 +2641,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:40
 
 > **getAttributeName**(`index`): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:41
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L39)
 
 ###### Parameters
 
@@ -2980,7 +2657,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:41
 
 > **getAttributeValue**(`indexOrName`): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:42
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:40](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L40)
 
 ###### Parameters
 
@@ -2996,7 +2673,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:42
 
 ### StreamBatch
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:50
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L48)
 
 Batch view exposed by stream readers.
 
@@ -3010,7 +2687,7 @@ Batch view exposed by stream readers.
 
 > `readonly` **eventCount**: `number`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:51
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L49)
 
 #### Methods
 
@@ -3018,7 +2695,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:51
 
 > **event**(`index`): [`StreamEventView`](#streameventview)
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:52
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:50](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L50)
 
 ###### Parameters
 
@@ -3034,7 +2711,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:52
 
 > **typeAt**(`index`): [`StreamEventType`](#streameventtype-1)
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:53
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:51](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L51)
 
 ###### Parameters
 
@@ -3050,7 +2727,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:53
 
 > **nameAt**(`index`): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:54
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L52)
 
 ###### Parameters
 
@@ -3066,7 +2743,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:54
 
 > **textAt**(`index`): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:55
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L53)
 
 ###### Parameters
 
@@ -3082,7 +2759,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:55
 
 > **attributeCountAt**(`index`): `number`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:56
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:54](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L54)
 
 ###### Parameters
 
@@ -3098,7 +2775,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:56
 
 > **attributeNameAt**(`eventIndex`, `attrIndex`): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:57
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:55](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L55)
 
 ###### Parameters
 
@@ -3118,7 +2795,7 @@ Defined in: packages/stax-xml/src/stream-reader-core.ts:57
 
 > **attributeValueAt**(`eventIndex`, `attrIndexOrName`): `string` \| `undefined`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:58
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L56)
 
 ###### Parameters
 
@@ -3502,7 +3179,7 @@ Defined in: [packages/stax-xml/src/types.ts:365](https://github.com/Clickin/stax
 
 > **XmlSyncInput** = `string` \| `Uint8Array` \| `Iterable`\<`Uint8Array`\>
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L22)
+Defined in: [packages/stax-xml/src/XmlObject.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L19)
 
 XML inputs that can be parsed without crossing an async boundary.
 
@@ -3512,7 +3189,7 @@ XML inputs that can be parsed without crossing an async boundary.
 
 > **XmlAsyncInput** = [`XmlSyncInput`](#xmlsyncinput) \| `AsyncIterable`\<`Uint8Array`\> \| `ReadableStream`\<`Uint8Array`\>
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:25](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L25)
+Defined in: [packages/stax-xml/src/XmlObject.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L22)
 
 XML inputs accepted by the convenience tree/object helpers.
 
@@ -3522,7 +3199,7 @@ XML inputs accepted by the convenience tree/object helpers.
 
 > **XmlTreeNode** = [`XmlTreeElement`](#xmltreeelement) \| [`XmlTreeText`](#xmltreetext) \| [`XmlTreeCdata`](#xmltreecdata)
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L56)
+Defined in: [packages/stax-xml/src/XmlObject.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L52)
 
 ***
 
@@ -3530,77 +3207,9 @@ Defined in: [packages/stax-xml/src/XmlObject.ts:56](https://github.com/Clickin/s
 
 > **XmlObjectValue** = `string` \| [`XmlObjectRecord`](#xmlobjectrecord) \| [`XmlObjectArray`](#xmlobjectarray)
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L79)
+Defined in: [packages/stax-xml/src/XmlObject.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L75)
 
 Value stored in the compact object projection.
-
-***
-
-### StaxXmlRuntimeBackendPreference
-
-> **StaxXmlRuntimeBackendPreference** = `"auto"` \| `"native"` \| `"wasm"`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:3](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L3)
-
-***
-
-### StaxXmlRuntimeBackendKind
-
-> **StaxXmlRuntimeBackendKind** = `"native"` \| `"wasm"` \| `"js"`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:4](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L4)
-
-***
-
-### LinuxLibc
-
-> **LinuxLibc** = `"gnu"` \| `"musl"`
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L6)
-
-***
-
-### StaxXmlStreamingEventBatchFactory
-
-> **StaxXmlStreamingEventBatchFactory** = (`options?`) => [`StaxXmlStreamingEventBatchParser`](#staxxmlstreamingeventbatchparser)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:41](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L41)
-
-#### Parameters
-
-##### options?
-
-`unknown`
-
-#### Returns
-
-[`StaxXmlStreamingEventBatchParser`](#staxxmlstreamingeventbatchparser)
-
-***
-
-### OptionalPackageImporter
-
-> **OptionalPackageImporter** = (`packageName`) => `Promise`\<`unknown`\>
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L59)
-
-#### Parameters
-
-##### packageName
-
-`string`
-
-#### Returns
-
-`Promise`\<`unknown`\>
-
-***
-
-### InitStaxXmlOptions
-
-> **InitStaxXmlOptions** = [`StaxXmlRuntimeResolverOptions`](#staxxmlruntimeresolveroptions)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:73](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L73)
 
 ***
 
@@ -3608,7 +3217,7 @@ Defined in: [packages/stax-xml/src/runtime/native-backend.ts:73](https://github.
 
 > **StreamEventType** = *typeof* [`StreamEventType`](#streameventtype)\[keyof *typeof* [`StreamEventType`](#streameventtype)\]
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:8
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L6)
 
 Numeric XML stream event type.
 
@@ -3618,9 +3227,22 @@ Numeric XML stream event type.
 
 > **StreamReaderSyncByteBatch** = readonly `Uint8Array`[]
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:29
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L27)
 
 One synchronous byte batch consumed by [StreamReaderSync](#streamreadersync).
+
+***
+
+### StreamReaderSyncRawBatch
+
+> **StreamReaderSyncRawBatch** = `StreamReaderSyncWordTableBatch` \| `StreamReaderSyncFrameBatch` \| `StreamReaderSyncSoaStringArenaBatch`
+
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:152](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L152)
+
+**`Experimental`**
+
+Experimental raw batch traversal view returned by
+[StreamReaderSync.nextRawBatch](#nextrawbatch).
 
 ***
 
@@ -3658,7 +3280,7 @@ XML document conformance mode.
 
 > `const` **StreamEventType**: `object`
 
-Defined in: packages/stax-xml/src/stream-reader-core.ts:8
+Defined in: [packages/stax-xml/src/stream-reader-core.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/stream-reader-core.ts#L6)
 
 Event type constants exposed by stream readers.
 
@@ -3734,7 +3356,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **createEventReader**(`xmlStream`, `options?`): [`EventReader`](#eventreader)
 
-Defined in: [packages/stax-xml/src/EventReader.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L91)
+Defined in: [packages/stax-xml/src/EventReader.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/EventReader.ts#L84)
 
 #### Parameters
 
@@ -3756,7 +3378,7 @@ Defined in: [packages/stax-xml/src/EventReader.ts:91](https://github.com/Clickin
 
 > **parseXmlTreeSync**(`input`, `options?`): [`XmlTreeDocument`](#xmltreedocument)
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:95](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L95)
+Defined in: [packages/stax-xml/src/XmlObject.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L91)
 
 Parse XML into an order-preserving tree using a synchronous input.
 
@@ -3780,7 +3402,7 @@ Parse XML into an order-preserving tree using a synchronous input.
 
 > **parseXmlTree**(`input`, `options?`): `Promise`\<[`XmlTreeDocument`](#xmltreedocument)\>
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:100](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L100)
+Defined in: [packages/stax-xml/src/XmlObject.ts:96](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L96)
 
 Parse XML into an order-preserving tree.
 
@@ -3804,7 +3426,7 @@ Parse XML into an order-preserving tree.
 
 > **parseXmlObjectSync**(`input`, `options?`): [`XmlObjectRecord`](#xmlobjectrecord)
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:108](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L108)
+Defined in: [packages/stax-xml/src/XmlObject.ts:104](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L104)
 
 Parse XML into a compact JavaScript object using a synchronous input.
 
@@ -3828,7 +3450,7 @@ Parse XML into a compact JavaScript object using a synchronous input.
 
 > **parseXmlObject**(`input`, `options?`): `Promise`\<[`XmlObjectRecord`](#xmlobjectrecord)\<[`XmlObjectValue`](#xmlobjectvalue)\>\>
 
-Defined in: [packages/stax-xml/src/XmlObject.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L116)
+Defined in: [packages/stax-xml/src/XmlObject.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/XmlObject.ts#L112)
 
 Parse XML into a compact JavaScript object.
 
@@ -3845,36 +3467,6 @@ Parse XML into a compact JavaScript object.
 #### Returns
 
 `Promise`\<[`XmlObjectRecord`](#xmlobjectrecord)\<[`XmlObjectValue`](#xmlobjectvalue)\>\>
-
-***
-
-### initStaxXml()
-
-> **initStaxXml**(`options?`): `Promise`\<[`StaxXmlRuntime`](#staxxmlruntime)\>
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:166](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L166)
-
-#### Parameters
-
-##### options?
-
-[`StaxXmlRuntimeResolverOptions`](#staxxmlruntimeresolveroptions) = `{}`
-
-#### Returns
-
-`Promise`\<[`StaxXmlRuntime`](#staxxmlruntime)\>
-
-***
-
-### getStaxXmlRuntime()
-
-> **getStaxXmlRuntime**(): [`StaxXmlRuntime`](#staxxmlruntime)
-
-Defined in: [packages/stax-xml/src/runtime/native-backend.ts:187](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/runtime/native-backend.ts#L187)
-
-#### Returns
-
-[`StaxXmlRuntime`](#staxxmlruntime)
 
 ***
 

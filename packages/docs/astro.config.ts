@@ -1,6 +1,5 @@
 import mdx from '@astrojs/mdx';
 import starlight from '@astrojs/starlight';
-import starlightVersions from 'starlight-versions';
 import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 // import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
@@ -54,10 +53,7 @@ export default defineConfig({
     ],
     resolve: {
       alias: {
-        '@napi-rs/wasm-runtime': fileURLToPath(new URL('./node_modules/@napi-rs/wasm-runtime/runtime.js', import.meta.url)),
-        '@stax-xml/native-wasm32-wasi': fileURLToPath(new URL('../native-wasm32-wasi/stax_xml_native.wasi-browser.js', import.meta.url)),
         'stax-xml/converter': fileURLToPath(new URL('../stax-xml/src/converter/index.ts', import.meta.url)),
-        'stax-xml/runtime': fileURLToPath(new URL('../stax-xml/src/runtime/index.ts', import.meta.url)),
         'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
       },
     },
@@ -69,19 +65,6 @@ export default defineConfig({
     starlight({
       title: 'StAX-XML',
       description: 'High-performance XML parser for JavaScript/TypeScript',
-      plugins: [
-        starlightVersions({
-          current: {
-            label: 'Latest',
-          },
-          versions: [
-            {
-              slug: 'v1.0.0-rc1',
-              label: 'v1.0.0-rc1',
-            },
-          ],
-        }),
-      ],
       defaultLocale: 'root',
       locales: {
         root: {
@@ -302,7 +285,6 @@ export default defineConfig({
             { label: 'Overview', slug: 'api/overview', translations: { ko: '개요' } },
             { label: 'Core API', slug: 'api/main' },
             { label: 'Converter API', slug: 'api/converter' },
-            { label: 'Projection API', slug: 'api/projection' },
           ],
         },
         {

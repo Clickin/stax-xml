@@ -1,6 +1,4 @@
 import { createJavaScriptIterableReader } from './IterableReader.js';
-import { StreamingEventBatchReader } from './runtime/event-table.js';
-import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
 import {
   createStreamBatchView,
   type StreamBatch,
@@ -37,8 +35,7 @@ export interface StreamReaderOptions {
  */
 export class StreamReader implements AsyncIterable<StreamBatch> {
   private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
-  private readonly streamingBatches: StreamingEventBatchReader | ReturnType<typeof createJavaScriptIterableReader>;
-  private readonly nativeReader: boolean;
+  private readonly streamingBatches: ReturnType<typeof createJavaScriptIterableReader>;
   private generation = 0;
   private sourceDone = false;
   private finished = false;
@@ -51,20 +48,6 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
 
     this.reader = stream.getReader();
-    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
-    if (runtime?.capabilities.streamingEventBatches) {
-      const createStreamingParser = runtime.capabilities.streamingEventBatches;
-      this.nativeReader = true;
-      this.streamingBatches = new StreamingEventBatchReader(
-        createStreamingParser({
-          encoding: options.encoding,
-          documentMode: options.documentMode,
-        }),
-      );
-      return;
-    }
-
-    this.nativeReader = false;
     this.streamingBatches = createJavaScriptIterableReader([], {
       encoding: options.encoding,
       documentMode: options.documentMode,
@@ -128,10 +111,6 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   }
 
   private async readNextBatch(): Promise<StreamBatch | null> {
-    if (this.nativeReader && (this.streamingBatches as StreamingEventBatchReader).activatePendingBatch()) {
-      return createStreamBatchView(this.streamingBatches as StreamingEventBatchReader, this.generation, this);
-    }
-
     while (!this.sourceDone) {
       let readResult: ReadableStreamReadResult<Uint8Array>;
       try {
@@ -144,21 +123,17 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
 
       if (readResult.done) {
         this.sourceDone = true;
-        if ((this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader> | StreamingEventBatchReader).pushByteBatch([], true)) {
+        if (this.streamingBatches.pushByteBatch([], true)) {
           this.releaseLock();
-          return createStreamBatchView(this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader>, this.generation, this);
-        }
-        if (this.nativeReader && (this.streamingBatches as StreamingEventBatchReader).activatePendingBatch()) {
-          this.releaseLock();
-          return createStreamBatchView(this.streamingBatches as StreamingEventBatchReader, this.generation, this);
+          return createStreamBatchView(this.streamingBatches, this.generation, this);
         }
         this.finished = true;
         this.releaseLock();
         return null;
       }
 
-      if ((this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader> | StreamingEventBatchReader).pushByteBatch([readResult.value], false)) {
-        return createStreamBatchView(this.streamingBatches as ReturnType<typeof createJavaScriptIterableReader>, this.generation, this);
+      if (this.streamingBatches.pushByteBatch([readResult.value], false)) {
+        return createStreamBatchView(this.streamingBatches, this.generation, this);
       }
     }
 

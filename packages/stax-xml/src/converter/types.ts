@@ -55,29 +55,6 @@ export interface ParseOptions {
    */
   xpathNamespaces?: Record<string, string>;
 
-  /**
-   * Optional structural-index acceleration for compiled converter parsing.
-   *
-   * @remarks
-   * Node acceleration is native-first. `backend: "auto"` resolves the matching
-   * native package; `backend: "wasm"` is an explicit compatibility path.
-   * JavaScript is no longer a public acceleration backend or load fallback.
-   */
-  acceleration?: {
-    backend?: 'auto' | 'native' | 'wasm';
-    simd?: 'auto-safe' | 'off' | 'avx2';
-    fallbackBackend?: 'wasm';
-    /**
-     * @deprecated JavaScript load fallback is no longer supported. Use
-     * `fallbackBackend: "wasm"` when compatibility fallback is intended.
-     */
-    fallbackOnLoadError?: boolean;
-    /**
-     * @deprecated Native parse errors are not retried through the JavaScript
-     * parser on the public acceleration path.
-     */
-    fallbackOnParseError?: boolean;
-  };
 }
 
 /**

@@ -1,5 +1,0 @@
-/target/
-/target-napi-wasm/
-/node_modules/
-/.pnpm-store/
-/stax_xml_native_aggregate.node

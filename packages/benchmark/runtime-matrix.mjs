@@ -271,7 +271,7 @@ function createScenarioDetails(report) {
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
     '- `public-sync-full-string` uses `EventReaderSync` over one string.',
     '- `event-count-only` and `event-full-string` use public event reader checksum tiers; they are not async parser rows.',
-    '- This matrix intentionally excludes native addons.',
+    '- This matrix measures only the public pure JavaScript reader path.',
     '',
     '</details>',
   ].join('\n');
@@ -284,7 +284,7 @@ function createMarkdown(report) {
     `Generated: ${report.generatedAt}`,
     '',
     'This fixture compares the same built `stax-xml` JavaScript implementation on Node, Bun, and Deno.',
-    'It does not compare native addons; native and non-JS runtimes are covered by `cross-runtime-comparison.json`.',
+    'It does not compare binary parser modules or non-JavaScript parser backends.',
     '',
     '## Environment',
     '',

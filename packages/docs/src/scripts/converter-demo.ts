@@ -1,11 +1,26 @@
 // @ts-nocheck
 import { x } from 'stax-xml/converter';
-import {
-  JS_CONVERTER_BACKEND,
-  WASM_CONVERTER_BACKEND,
-  parseTextWithSelectedConverterBackend
-} from './converter-wasm-backend.ts';
 import ConverterDemoWorker from './converter-demo-worker.ts?worker';
+
+const JS_CONVERTER_BACKEND = {
+  id: 'js',
+  label: 'JS',
+  detail: 'Pure JavaScript converter path'
+};
+
+async function parseTextWithSelectedConverterBackend(schema, text, parseOptions, mode) {
+  const parseStart = performance.now();
+  const result = mode === 'async'
+    ? await schema.parse(text, parseOptions)
+    : schema.parseSync(text, parseOptions);
+  return {
+    result,
+    backend: JS_CONVERTER_BACKEND,
+    timings: {
+      jsParseMs: performance.now() - parseStart
+    }
+  };
+}
 
 function resetFileInputValue(fileInput) {
   if (!fileInput) {
@@ -20,8 +35,6 @@ let parseWorker = null;
 let parseWorkerRequestId = 0;
 const LARGE_INPUT_THRESHOLD = 5 * 1024 * 1024;
 const LARGE_INPUT_MAX_EVENTS = 5_000_000;
-const CONVERTER_BACKEND = JS_CONVERTER_BACKEND;
-const PREFERRED_CONVERTER_BACKEND = WASM_CONVERTER_BACKEND;
 
 const examples = {
   basic: {
@@ -322,8 +335,8 @@ function clearOutput() {
   modeEl.textContent = '-';
   xmlSizeEl.textContent = '-';
   throughputEl.textContent = '-';
-  backendEl.textContent = PREFERRED_CONVERTER_BACKEND.label;
-  backendEl.title = PREFERRED_CONVERTER_BACKEND.detail;
+  backendEl.textContent = JS_CONVERTER_BACKEND.label;
+  backendEl.title = JS_CONVERTER_BACKEND.detail;
   resetFileInputValue(fileInputEl);
   loadedFile = null;
 }
@@ -335,7 +348,7 @@ function getParseWorker() {
   return parseWorker;
 }
 
-function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions, requestedMode, requestedBackend }) {
+function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions, requestedMode }) {
   const worker = getParseWorker();
   const requestId = ++parseWorkerRequestId;
 
@@ -373,8 +386,7 @@ function parseXmlInWorker({ schemaInput, xmlInput, file, parseOptions, requested
       xmlInput,
       file: file ?? null,
       parseOptions,
-      requestedMode,
-      requestedBackend
+      requestedMode
     });
   });
 }
@@ -383,9 +395,7 @@ async function parseXML() {
   const xmlInput = xmlInputEl.value;
   const schemaInput = schemaInputEl.value;
   const modeInput = document.querySelector('input[name="mode"]:checked');
-  const backendInput = document.querySelector('input[name="backendMode"]:checked');
   const mode = modeInput?.value ?? 'sync';
-  const backendMode = backendInput?.value ?? 'wasm';
 
   if (!schemaInput) {
     messageEl.innerHTML = '<div class="error">⚠️ Please provide schema definition</div>';
@@ -406,7 +416,7 @@ async function parseXML() {
     let result;
     let xmlSize;
     let workerTimings = null;
-    let activeBackend = CONVERTER_BACKEND;
+    let activeBackend = JS_CONVERTER_BACKEND;
     const inputSize = loadedFile ? loadedFile.size : new Blob([xmlInput]).size;
     const parseOptions = inputSize > LARGE_INPUT_THRESHOLD
       ? { maxEvents: LARGE_INPUT_MAX_EVENTS }
@@ -419,7 +429,7 @@ async function parseXML() {
       }
       const schemaFunction = new Function('x', `return ${schemaInput}`);
       const schema = schemaFunction(x);
-      const backendResult = await parseTextWithSelectedConverterBackend(schema, xmlInput, parseOptions, 'sync', backendMode);
+      const backendResult = await parseTextWithSelectedConverterBackend(schema, xmlInput, parseOptions, 'sync');
       result = backendResult.result;
       activeBackend = backendResult.backend;
       workerTimings = backendResult.timings;
@@ -430,12 +440,11 @@ async function parseXML() {
         xmlInput,
         file: loadedFile,
         parseOptions,
-        requestedMode: mode,
-        requestedBackend: backendMode
+        requestedMode: mode
       });
       result = workerResponse.result;
       xmlSize = workerResponse.xmlSize;
-      activeBackend = workerResponse.backend ?? CONVERTER_BACKEND;
+      activeBackend = workerResponse.backend ?? JS_CONVERTER_BACKEND;
       workerTimings = workerResponse.timings ?? null;
       if (workerTimings) {
         console.info('converter-demo timings', workerTimings);

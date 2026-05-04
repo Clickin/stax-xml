@@ -328,15 +328,6 @@
             <input type="radio" name="mode" value="async"> Async
           </label>
         </div>
-        <div class="mode-toggle">
-          <label>Backend:</label>
-          <label>
-            <input type="radio" name="backendMode" value="wasm" checked> Wasm
-          </label>
-          <label>
-            <input type="radio" name="backendMode" value="js"> JS
-          </label>
-        </div>
         <button class="btn-primary" id="parseBtn">▶️ Parse XML</button>
         <button class="btn-secondary" id="clearBtn">🗑️ Clear</button>
         <div class="file-upload">
@@ -347,7 +338,7 @@
       <div class="panel" style="grid-column: 1 / -1;">
         <h2>ℹ️ Demo Notes</h2>
         <div id="modeNotice" class="message info">
-          Sync mode parses the textarea contents directly. Async mode runs the converter in a Web Worker and is required for files over 10MB. Backend shows whether this demo is using the Wasm span-table path or the JS fallback.
+          Sync mode parses the textarea contents directly. Async mode runs the converter in a Web Worker and is required for files over 10MB.
         </div>
       </div>
 

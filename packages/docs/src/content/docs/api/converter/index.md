@@ -6181,55 +6181,11 @@ XML default namespaces do not automatically apply to unprefixed XPath
 element names, matching XPath 1.0 semantics. Bind a prefix here and use it
 in XPath expressions when selecting namespaced elements.
 
-##### acceleration?
-
-> `optional` **acceleration?**: `object`
-
-Defined in: [converter/types.ts:66](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L66)
-
-Optional structural-index acceleration for compiled converter parsing.
-
-###### backend?
-
-> `optional` **backend?**: `"auto"` \| `"native"` \| `"wasm"`
-
-###### simd?
-
-> `optional` **simd?**: `"auto-safe"` \| `"off"` \| `"avx2"`
-
-###### fallbackBackend?
-
-> `optional` **fallbackBackend?**: `"wasm"`
-
-###### ~~fallbackOnLoadError?~~
-
-> `optional` **fallbackOnLoadError?**: `boolean`
-
-###### Deprecated
-
-JavaScript load fallback is no longer supported. Use
-`fallbackBackend: "wasm"` when compatibility fallback is intended.
-
-###### ~~fallbackOnParseError?~~
-
-> `optional` **fallbackOnParseError?**: `boolean`
-
-###### Deprecated
-
-Native parse errors are not retried through the JavaScript
-parser on the public acceleration path.
-
-###### Remarks
-
-Node acceleration is native-first. `backend: "auto"` resolves the matching
-native package; `backend: "wasm"` is an explicit compatibility path.
-JavaScript is no longer a public acceleration backend or load fallback.
-
 ***
 
 ### XmlStringOptions
 
-Defined in: [converter/types.ts:88](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L88)
+Defined in: [converter/types.ts:65](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L65)
 
 Options for string schema
 
@@ -6239,7 +6195,7 @@ Options for string schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [converter/types.ts:92](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L92)
+Defined in: [converter/types.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L69)
 
 XPath expression to locate the element
 
@@ -6247,7 +6203,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: [converter/types.ts:97](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L97)
+Defined in: [converter/types.ts:74](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L74)
 
 Minimum string length
 
@@ -6255,7 +6211,7 @@ Minimum string length
 
 > `optional` **max?**: `number`
 
-Defined in: [converter/types.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L102)
+Defined in: [converter/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L79)
 
 Maximum string length
 
@@ -6263,7 +6219,7 @@ Maximum string length
 
 > `optional` **pattern?**: `RegExp`
 
-Defined in: [converter/types.ts:107](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L107)
+Defined in: [converter/types.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L84)
 
 Regular expression pattern to validate against
 
@@ -6271,7 +6227,7 @@ Regular expression pattern to validate against
 
 ### XmlNumberOptions
 
-Defined in: [converter/types.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L115)
+Defined in: [converter/types.ts:92](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L92)
 
 Options for number schema
 
@@ -6281,7 +6237,7 @@ Options for number schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [converter/types.ts:119](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L119)
+Defined in: [converter/types.ts:96](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L96)
 
 XPath expression to locate the element
 
@@ -6289,7 +6245,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: [converter/types.ts:124](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L124)
+Defined in: [converter/types.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L101)
 
 Minimum value
 
@@ -6297,7 +6253,7 @@ Minimum value
 
 > `optional` **max?**: `number`
 
-Defined in: [converter/types.ts:129](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L129)
+Defined in: [converter/types.ts:106](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L106)
 
 Maximum value
 
@@ -6305,7 +6261,7 @@ Maximum value
 
 > `optional` **int?**: `boolean`
 
-Defined in: [converter/types.ts:135](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L135)
+Defined in: [converter/types.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L112)
 
 Whether the number must be an integer
 
@@ -6319,7 +6275,7 @@ false
 
 ### XmlObjectOptions
 
-Defined in: [converter/types.ts:143](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L143)
+Defined in: [converter/types.ts:120](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L120)
 
 Options for object schema
 
@@ -6329,7 +6285,7 @@ Options for object schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: [converter/types.ts:147](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L147)
+Defined in: [converter/types.ts:124](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L124)
 
 XPath expression to locate the element
 
@@ -6337,7 +6293,7 @@ XPath expression to locate the element
 
 > `optional` **strict?**: `boolean`
 
-Defined in: [converter/types.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L153)
+Defined in: [converter/types.ts:130](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L130)
 
 Strict mode - reject unknown properties
 
@@ -6351,7 +6307,7 @@ false
 
 ### XmlElementWriteConfig
 
-Defined in: [converter/types.ts:161](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L161)
+Defined in: [converter/types.ts:138](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L138)
 
 Writer configuration for XML element
 
@@ -6361,7 +6317,7 @@ Writer configuration for XML element
 
 > **element**: `string`
 
-Defined in: [converter/types.ts:165](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L165)
+Defined in: [converter/types.ts:142](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L142)
 
 Element name (required)
 
@@ -6369,7 +6325,7 @@ Element name (required)
 
 > `optional` **asAttribute?**: `string`
 
-Defined in: [converter/types.ts:171](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L171)
+Defined in: [converter/types.ts:148](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L148)
 
 Write as attribute instead of element
 Value is the attribute name
@@ -6378,7 +6334,7 @@ Value is the attribute name
 
 > `optional` **namespace?**: `object`
 
-Defined in: [converter/types.ts:176](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L176)
+Defined in: [converter/types.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L153)
 
 Namespace configuration
 
@@ -6398,7 +6354,7 @@ Namespace URI (e.g., 'http://purl.org/dc/elements/1.1/')
 
 > `optional` **cdata?**: `boolean`
 
-Defined in: [converter/types.ts:192](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L192)
+Defined in: [converter/types.ts:169](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L169)
 
 Wrap content in CDATA section
 
@@ -6412,7 +6368,7 @@ false
 
 > `optional` **selfClosing?**: `boolean`
 
-Defined in: [converter/types.ts:198](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L198)
+Defined in: [converter/types.ts:175](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L175)
 
 Use self-closing tag for empty elements
 
@@ -6426,7 +6382,7 @@ false
 
 > `optional` **comment?**: `string`
 
-Defined in: [converter/types.ts:203](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L203)
+Defined in: [converter/types.ts:180](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L180)
 
 Add XML comment before element
 
@@ -6434,7 +6390,7 @@ Add XML comment before element
 
 ### XmlWriteOptions
 
-Defined in: [converter/types.ts:211](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L211)
+Defined in: [converter/types.ts:188](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L188)
 
 Options for XML writer
 
@@ -6444,7 +6400,7 @@ Options for XML writer
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: [converter/types.ts:216](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L216)
+Defined in: [converter/types.ts:193](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L193)
 
 Format output with indentation
 
@@ -6458,7 +6414,7 @@ false
 
 > `optional` **indentString?**: `string`
 
-Defined in: [converter/types.ts:222](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L222)
+Defined in: [converter/types.ts:199](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L199)
 
 Indentation string
 
@@ -6472,7 +6428,7 @@ Indentation string
 
 > `optional` **encoding?**: `string`
 
-Defined in: [converter/types.ts:228](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L228)
+Defined in: [converter/types.ts:205](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L205)
 
 Text encoding for output
 
@@ -6486,7 +6442,7 @@ Text encoding for output
 
 > `optional` **rootElement?**: `string`
 
-Defined in: [converter/types.ts:234](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L234)
+Defined in: [converter/types.ts:211](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L211)
 
 Root element name
 If not provided, no root element wrapper is added
@@ -6495,7 +6451,7 @@ If not provided, no root element wrapper is added
 
 > `optional` **namespaces?**: `object`[]
 
-Defined in: [converter/types.ts:239](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L239)
+Defined in: [converter/types.ts:216](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L216)
 
 Global namespace declarations
 
@@ -6511,7 +6467,7 @@ Global namespace declarations
 
 > `optional` **includeDeclaration?**: `boolean`
 
-Defined in: [converter/types.ts:248](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L248)
+Defined in: [converter/types.ts:225](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L225)
 
 Include XML declaration
 
@@ -6525,7 +6481,7 @@ true
 
 > `optional` **xmlVersion?**: `string`
 
-Defined in: [converter/types.ts:254](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L254)
+Defined in: [converter/types.ts:231](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L231)
 
 XML version for declaration
 
@@ -6539,7 +6495,7 @@ XML version for declaration
 
 > `optional` **writer?**: [`Writer`](#writer) \| [`WriterSync`](#writersync) \| [`WriterSyncSink`](#writersyncsink)
 
-Defined in: [converter/types.ts:262](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L262)
+Defined in: [converter/types.ts:239](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L239)
 
 Custom writer instance
 - WriterSync: for writeSync() method
@@ -6954,7 +6910,7 @@ Defined in: [converter/index.ts:108](https://github.com/Clickin/stax-xml/blob/ma
 
 > **SchemaType** = *typeof* [`SchemaType`](#schematype)\[keyof *typeof* [`SchemaType`](#schematype)\]
 
-Defined in: [converter/types.ts:270](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L270)
+Defined in: [converter/types.ts:247](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L247)
 
 Schema type union
 
@@ -6964,7 +6920,7 @@ Schema type union
 
 > **XmlCoreSchema** = [`XmlStringSchema`](#xmlstringschema) \| [`XmlNumberSchema`](#xmlnumberschema) \| [`XmlArraySchema`](#xmlarrayschema)\<[`XmlSchemaBase`](#abstract-xmlschemabase)\<`unknown`, `unknown`\>\> \| [`XmlObjectSchema`](#xmlobjectschema)\<[`XmlObjectShape`](#xmlobjectshape)\>
 
-Defined in: [converter/types.ts:300](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L300)
+Defined in: [converter/types.ts:277](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L277)
 
 Core schema types (non-wrapper schemas)
 
@@ -6974,7 +6930,7 @@ Core schema types (non-wrapper schemas)
 
 > **XmlWrappedSchema** = [`XmlTransformSchema`](#xmltransformschema)\<`unknown`, `unknown`\> \| [`XmlOptionalSchema`](#xmloptionalschema)\<[`XmlSchemaBase`](#abstract-xmlschemabase)\<`unknown`, `unknown`\>\>
 
-Defined in: [converter/types.ts:311](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L311)
+Defined in: [converter/types.ts:288](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L288)
 
 Wrapper schema types (transform and optional)
 
@@ -6984,7 +6940,7 @@ Wrapper schema types (transform and optional)
 
 > **AnyXmlSchema** = [`XmlCoreSchema`](#xmlcoreschema) \| [`XmlWrappedSchema`](#xmlwrappedschema)
 
-Defined in: [converter/types.ts:320](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L320)
+Defined in: [converter/types.ts:297](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L297)
 
 Any XML schema type
 
@@ -7034,7 +6990,7 @@ Singleton builder instance
 
 > `const` **SchemaType**: `object`
 
-Defined in: [converter/types.ts:270](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L270)
+Defined in: [converter/types.ts:247](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L247)
 
 Schema type constants for XML schema classification
 
@@ -7110,7 +7066,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **isStringSchema**(`schema`): `schema is XmlStringSchema`
 
-Defined in: [converter/types.ts:327](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L327)
+Defined in: [converter/types.ts:304](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L304)
 
 Type guard for string schema
 
@@ -7130,7 +7086,7 @@ Type guard for string schema
 
 > **isNumberSchema**(`schema`): `schema is XmlNumberSchema`
 
-Defined in: [converter/types.ts:336](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L336)
+Defined in: [converter/types.ts:313](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L313)
 
 Type guard for number schema
 
@@ -7150,7 +7106,7 @@ Type guard for number schema
 
 > **isArraySchema**(`schema`): `schema is XmlArraySchema<XmlSchemaBase<unknown, unknown>>`
 
-Defined in: [converter/types.ts:345](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L345)
+Defined in: [converter/types.ts:322](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L322)
 
 Type guard for array schema
 
@@ -7170,7 +7126,7 @@ Type guard for array schema
 
 > **isObjectSchema**(`schema`): `schema is XmlObjectSchema<XmlObjectShape>`
 
-Defined in: [converter/types.ts:354](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L354)
+Defined in: [converter/types.ts:331](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L331)
 
 Type guard for object schema
 
@@ -7190,7 +7146,7 @@ Type guard for object schema
 
 > **isTransformSchema**(`schema`): `schema is XmlTransformSchema<unknown, unknown, unknown>`
 
-Defined in: [converter/types.ts:363](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L363)
+Defined in: [converter/types.ts:340](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L340)
 
 Type guard for transform schema
 
@@ -7210,7 +7166,7 @@ Type guard for transform schema
 
 > **isOptionalSchema**(`schema`): `schema is XmlOptionalSchema<XmlSchemaBase<unknown, unknown>>`
 
-Defined in: [converter/types.ts:372](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L372)
+Defined in: [converter/types.ts:349](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/types.ts#L349)
 
 Type guard for optional schema
 

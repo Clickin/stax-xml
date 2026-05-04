@@ -1,7 +1,5 @@
 import { Buffer } from 'node:buffer';
 import { closeSync, openSync, readSync, type PathLike } from 'node:fs';
-import { getStaxXmlRuntimeForSyncApi } from '../runtime/native-backend.js';
-import { StreamingEventBatchReader } from '../runtime/event-table.js';
 
 export const IterableEventType = {
   START_DOCUMENT: 0,
@@ -17,7 +15,7 @@ export type IterableEventType = typeof IterableEventType[keyof typeof IterableEv
 export type NodeByteBatch = readonly Buffer[];
 
 export type NodeAttributeScanner = 'general' | 'simple';
-export type NodeIterableReaderBackendKind = 'pending' | 'native' | 'wasm' | 'js';
+export type NodeIterableReaderBackendKind = 'js';
 
 export interface NodeByteBatchOptions {
   batchSize?: number;
@@ -29,19 +27,11 @@ export interface NodeFileByteBatchOptions extends NodeByteBatchOptions {
 
 export interface NodeIterableReaderOptions {
   attributeScanner?: NodeAttributeScanner;
-  fallbackOnParseError?: boolean;
 }
 
 const DEFAULT_BATCH_SIZE = 16;
 const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const EMPTY_BUFFER = Buffer.alloc(0);
-const STRUCTURAL_INDEX_MAGIC = 0x31545053;
-const STRUCTURAL_INDEX_HEADER_WORDS = 7;
-const STRUCTURAL_INDEX_EVENT_WORDS = 7;
-const STRUCTURAL_INDEX_ATTR_WORDS = 4;
-const STRUCTURAL_INDEX_EVENT_BYTES = STRUCTURAL_INDEX_EVENT_WORDS * 4;
-const STRUCTURAL_INDEX_ATTR_BYTES = STRUCTURAL_INDEX_ATTR_WORDS * 4;
-const STRUCTURAL_INDEX_SOURCE_KIND_UTF8 = 1;
 
 export function* nodeFileByteBatchesSync(
   path: PathLike,
@@ -76,13 +66,8 @@ export function* nodeFileByteBatchesSync(
 }
 
 export class NodeIterableReader {
-  private readonly source: Iterable<NodeByteBatch>;
   private iterator: Iterator<NodeByteBatch>;
   private readonly useSimpleAttributeScanner: boolean;
-  private readonly fallbackOnParseError: boolean | undefined;
-  private backendInitialized = false;
-  private nativeParser: NativeNodeIterableBackend | StreamingEventBatchReader | undefined;
-  private backendKindValue: NodeIterableReaderBackendKind = 'pending';
 
   private currentBuffer: Buffer = EMPTY_BUFFER;
   private pendingTail: Buffer = EMPTY_BUFFER;
@@ -112,9 +97,7 @@ export class NodeIterableReader {
   private readonly nameStrings: string[] = [];
 
   constructor(source: Iterable<NodeByteBatch>, options: NodeIterableReaderOptions = {}) {
-    this.source = source;
     this.iterator = source[Symbol.iterator]();
-    this.fallbackOnParseError = options.fallbackOnParseError;
     const attributeScanner = options.attributeScanner ?? 'general';
     if (attributeScanner !== 'general' && attributeScanner !== 'simple') {
       throw new RangeError(`Unknown attributeScanner: ${String(attributeScanner)}.`);
@@ -123,11 +106,6 @@ export class NodeIterableReader {
   }
 
   nextBatch(): boolean {
-    this.initializeBackend();
-    if (this.nativeParser) {
-      return this.nativeParser.nextBatch();
-    }
-
     if (this.finished) {
       return false;
     }
@@ -160,103 +138,58 @@ export class NodeIterableReader {
   }
 
   eventCount(): number {
-    if (this.nativeParser) {
-      return this.nativeParser.eventCount();
-    }
     return this.eventCursor;
   }
 
   buffer(): Buffer {
-    if (this.nativeParser) {
-      return asNodeBuffer(this.nativeParser.buffer());
-    }
     return this.currentBuffer;
   }
 
   eventType(index: number): IterableEventType {
-    if (this.nativeParser) {
-      return this.nativeParser.eventType(index);
-    }
     return this.eventTypes[index] as IterableEventType;
   }
 
   nameStart(index: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.nameStart(index);
-    }
     return this.nameStarts[index]!;
   }
 
   nameEnd(index: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.nameEnd(index);
-    }
     return this.nameEnds[index]!;
   }
 
   textStart(index: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.textStart(index);
-    }
     return this.textStarts[index]!;
   }
 
   textEnd(index: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.textEnd(index);
-    }
     return this.textEnds[index]!;
   }
 
   attrCount(index: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.attrCount(index);
-    }
     return this.attrCounts[index]!;
   }
 
   attrNameStart(eventIndex: number, attrIndex: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.attrNameStart(eventIndex, attrIndex);
-    }
     return this.attrNameStarts[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrNameEnd(eventIndex: number, attrIndex: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.attrNameEnd(eventIndex, attrIndex);
-    }
     return this.attrNameEnds[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrValueStart(eventIndex: number, attrIndex: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.attrValueStart(eventIndex, attrIndex);
-    }
     return this.attrValueStarts[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   attrValueEnd(eventIndex: number, attrIndex: number): number {
-    if (this.nativeParser) {
-      return this.nativeParser.attrValueEnd(eventIndex, attrIndex);
-    }
     return this.attrValueEnds[this.attrStarts[eventIndex]! + attrIndex]!;
   }
 
   decodeSpan(start: number, end: number): string {
-    if (this.nativeParser) {
-      const buffer = this.nativeParser.buffer();
-      return Buffer.isBuffer(buffer)
-        ? buffer.toString('utf8', start, end)
-        : new TextDecoder().decode(buffer.subarray(start, end));
-    }
     return this.currentBuffer.toString('utf8', start, end);
   }
 
   copyName(index: number): string | undefined {
-    if (this.nativeParser) {
-      return this.nativeParser.copyName(index);
-    }
     const nameId = this.nameIdsForEvents[index]!;
     if (nameId < 0) {
       return undefined;
@@ -265,20 +198,11 @@ export class NodeIterableReader {
   }
 
   copyText(index: number): string | undefined {
-    if (this.nativeParser) {
-      return this.nativeParser.copyText(index);
-    }
     const start = this.textStarts[index]!;
     return start < 0 ? undefined : this.decodeSpan(start, this.textEnds[index]!);
   }
 
   copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
-    if (this.nativeParser) {
-      if (attrIndex < 0 || attrIndex >= this.nativeParser.attrCount(eventIndex)) {
-        return undefined;
-      }
-      return this.nativeParser.copyAttrName(eventIndex, attrIndex);
-    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return undefined;
     }
@@ -288,12 +212,6 @@ export class NodeIterableReader {
   }
 
   copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
-    if (this.nativeParser) {
-      if (attrIndex < 0 || attrIndex >= this.nativeParser.attrCount(eventIndex)) {
-        return undefined;
-      }
-      return this.nativeParser.copyAttrValue(eventIndex, attrIndex);
-    }
     if (attrIndex < 0 || attrIndex >= this.attrCount(eventIndex)) {
       return undefined;
     }
@@ -301,21 +219,6 @@ export class NodeIterableReader {
   }
 
   copyAttributesObject(eventIndex: number): Record<string, string> {
-    if (this.nativeParser) {
-      const count = this.nativeParser.attrCount(eventIndex);
-      if (count === 0) {
-        return {};
-      }
-      const attributes: Record<string, string> = {};
-      for (let attrIndex = 0; attrIndex < count; attrIndex++) {
-        const name = this.nativeParser.copyAttrName(eventIndex, attrIndex);
-        const value = this.nativeParser.copyAttrValue(eventIndex, attrIndex);
-        if (name !== undefined && value !== undefined) {
-          attributes[name] = value;
-        }
-      }
-      return attributes;
-    }
     const count = this.attrCounts[eventIndex]!;
     if (count === 0) {
       return {};
@@ -334,54 +237,7 @@ export class NodeIterableReader {
   }
 
   backendKind(): NodeIterableReaderBackendKind {
-    return this.backendKindValue;
-  }
-
-  private initializeBackend(): void {
-    if (this.backendInitialized) {
-      return;
-    }
-    this.backendInitialized = true;
-
-    if (this.useSimpleAttributeScanner) {
-      this.backendKindValue = 'js';
-      return;
-    }
-
-    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
-    if (!runtime || runtime.backend.kind === 'js') {
-      this.backendKindValue = 'js';
-      return;
-    }
-
-    const createStreamingParser = runtime.capabilities.streamingEventBatches;
-    const buildTable = runtime.capabilities.structuralIndexUtf8;
-    if (buildTable) {
-      const input = singleCompleteBufferSource(this.source);
-      if (input) {
-        try {
-          const table = buildTable(input);
-          this.nativeParser = new NativeNodeIterableBackend(input, table);
-          this.backendKindValue = runtime.backend.kind;
-          return;
-        } catch {
-          if (this.fallbackOnParseError !== true) {
-            throw new Error(`Unable to parse XML with initialized ${runtime.backend.kind} backend.`);
-          }
-        }
-
-        this.backendKindValue = 'js';
-        return;
-      }
-    }
-
-    if (createStreamingParser) {
-      this.nativeParser = new StreamingEventBatchReader(createStreamingParser(), this.iterator);
-      this.backendKindValue = runtime.backend.kind;
-      return;
-    }
-
-    this.backendKindValue = 'js';
+    return 'js';
   }
 
   private resetFrames(): void {
@@ -779,357 +635,6 @@ function normalizeBatchSize(value: number | undefined): number {
     throw new RangeError('batchSize must be a positive integer.');
   }
   return batchSize;
-}
-
-class NativeNodeIterableBackend {
-  readonly eventCountValue: number;
-  readonly attrCountValue: number;
-
-  private readonly table: Int32Array;
-  private readonly eventBaseWords = STRUCTURAL_INDEX_HEADER_WORDS;
-  private readonly attrBaseWords: number;
-  private readonly eventNameIds: Int32Array;
-  private readonly attrNameIds: Int32Array;
-  private readonly nameIds = new Map<number, number>();
-  private readonly nameStrings: string[] = [];
-  private readonly shortValueStrings = new Map<number, string>();
-  private consumed = false;
-
-  constructor(
-    private readonly input: Buffer,
-    table: ArrayBuffer | ArrayBufferView,
-  ) {
-    const tableBytes = toBuffer(table);
-    const view = new DataView(tableBytes.buffer, tableBytes.byteOffset, tableBytes.byteLength);
-    const magic = view.getUint32(0, true);
-    if (magic !== STRUCTURAL_INDEX_MAGIC) {
-      throw new Error(`Invalid structural index magic: 0x${magic.toString(16)}`);
-    }
-
-    this.eventCountValue = view.getUint32(4, true);
-    this.attrCountValue = view.getUint32(8, true);
-    const sourceUnits = view.getUint32(12, true);
-    const eventStrideBytes = view.getUint32(16, true);
-    const attrStrideBytes = view.getUint32(20, true);
-    const flags = view.getUint32(24, true);
-    if (sourceUnits !== input.byteLength) {
-      throw new Error(`Structural index input length mismatch: ${sourceUnits}/${input.byteLength}`);
-    }
-    if (eventStrideBytes !== STRUCTURAL_INDEX_EVENT_BYTES || attrStrideBytes !== STRUCTURAL_INDEX_ATTR_BYTES) {
-      throw new Error(`Unsupported structural index strides: ${eventStrideBytes}/${attrStrideBytes}`);
-    }
-    if ((flags & 0xff) !== STRUCTURAL_INDEX_SOURCE_KIND_UTF8) {
-      throw new Error('Structural index source kind mismatch: utf16/utf8');
-    }
-    if ((tableBytes.byteOffset & 3) !== 0 || (tableBytes.byteLength & 3) !== 0) {
-      throw new Error('Structural index table is not 32-bit aligned.');
-    }
-
-    this.table = new Int32Array(tableBytes.buffer, tableBytes.byteOffset, tableBytes.byteLength / 4);
-    this.attrBaseWords = this.eventBaseWords + this.eventCountValue * STRUCTURAL_INDEX_EVENT_WORDS;
-    this.eventNameIds = new Int32Array(this.eventCountValue);
-    this.eventNameIds.fill(-1);
-    this.attrNameIds = new Int32Array(this.attrCountValue);
-    this.attrNameIds.fill(-1);
-    this.buildNameTables();
-  }
-
-  nextBatch(): boolean {
-    if (this.consumed || this.eventCountValue === 0) {
-      return false;
-    }
-    this.consumed = true;
-    return true;
-  }
-
-  eventCount(): number {
-    return this.eventCountValue;
-  }
-
-  buffer(): Buffer {
-    return this.input;
-  }
-
-  eventType(index: number): IterableEventType {
-    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS] as IterableEventType;
-  }
-
-  nameStart(index: number): number {
-    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 1]!;
-  }
-
-  nameEnd(index: number): number {
-    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 2]!;
-  }
-
-  textStart(index: number): number {
-    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 3]!;
-  }
-
-  textEnd(index: number): number {
-    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 4]!;
-  }
-
-  attrCount(index: number): number {
-    return this.table[this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS + 6]!;
-  }
-
-  attrNameStart(eventIndex: number, attrIndex: number): number {
-    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
-    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS]!;
-  }
-
-  attrNameEnd(eventIndex: number, attrIndex: number): number {
-    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
-    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS + 1]!;
-  }
-
-  attrValueStart(eventIndex: number, attrIndex: number): number {
-    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
-    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS + 2]!;
-  }
-
-  attrValueEnd(eventIndex: number, attrIndex: number): number {
-    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
-    return this.table[this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS + 3]!;
-  }
-
-  copyName(index: number): string | undefined {
-    const nameId = this.eventNameIds[index]!;
-    return nameId < 0 ? undefined : this.nameStrings[nameId];
-  }
-
-  copyText(index: number): string | undefined {
-    const eventOffset = this.eventBaseWords + index * STRUCTURAL_INDEX_EVENT_WORDS;
-    return this.copySpan(this.table[eventOffset + 3]!, this.table[eventOffset + 4]!);
-  }
-
-  copyAttrName(eventIndex: number, attrIndex: number): string | undefined {
-    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
-    const nameId = this.attrNameIds[attrRecordIndex]!;
-    return nameId < 0 ? undefined : this.nameStrings[nameId];
-  }
-
-  copyAttrValue(eventIndex: number, attrIndex: number): string | undefined {
-    const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-    const attrRecordIndex = this.table[eventOffset + 5]! + attrIndex;
-    const attrOffset = this.attrBaseWords + attrRecordIndex * STRUCTURAL_INDEX_ATTR_WORDS;
-    return this.copyShortValueSpan(this.table[attrOffset + 2]!, this.table[attrOffset + 3]!);
-  }
-
-  private copySpan(start: number, end: number): string | undefined {
-    if (start < 0 || end < 0) {
-      return undefined;
-    }
-    return decodeShortAsciiSpan(this.input, start, end) ?? this.input.toString('utf8', start, end);
-  }
-
-  private copyShortValueSpan(start: number, end: number): string | undefined {
-    if (start < 0 || end < 0) {
-      return undefined;
-    }
-    if (end - start > 32) {
-      return this.copySpan(start, end);
-    }
-    const key = nameKey(this.input, start, end);
-    const cached = this.shortValueStrings.get(key);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const value = this.copySpan(start, end)!;
-    this.shortValueStrings.set(key, value);
-    return value;
-  }
-
-  private buildNameTables(): void {
-    for (let eventIndex = 0; eventIndex < this.eventCountValue; eventIndex++) {
-      const eventOffset = this.eventBaseWords + eventIndex * STRUCTURAL_INDEX_EVENT_WORDS;
-      const start = this.table[eventOffset + 1]!;
-      if (start >= 0) {
-        this.eventNameIds[eventIndex] = this.internNameSpan(start, this.table[eventOffset + 2]!);
-      }
-    }
-    for (let attrIndex = 0; attrIndex < this.attrCountValue; attrIndex++) {
-      const offset = this.attrBaseWords + attrIndex * STRUCTURAL_INDEX_ATTR_WORDS;
-      const start = this.table[offset]!;
-      if (start >= 0) {
-        this.attrNameIds[attrIndex] = this.internNameSpan(start, this.table[offset + 1]!);
-      }
-    }
-  }
-
-  private internNameSpan(start: number, end: number): number {
-    if (start < 0) {
-      return -1;
-    }
-    const key = nameKey(this.input, start, end);
-    const cached = this.nameIds.get(key);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const value = this.copySpan(start, end)!;
-    const nameId = this.nameStrings.length;
-    this.nameIds.set(key, nameId);
-    this.nameStrings.push(value);
-    return nameId;
-  }
-
-}
-
-function toBuffer(table: ArrayBuffer | ArrayBufferView): Buffer {
-  if (Buffer.isBuffer(table)) {
-    return table;
-  }
-  if (table instanceof ArrayBuffer) {
-    return Buffer.from(table);
-  }
-  return Buffer.from(table.buffer, table.byteOffset, table.byteLength);
-}
-
-function asNodeBuffer(buffer: Uint8Array): Buffer {
-  return Buffer.isBuffer(buffer)
-    ? buffer
-    : Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-}
-
-function singleCompleteBufferSource(source: Iterable<NodeByteBatch>): Buffer | undefined {
-  if (!Array.isArray(source) || source.length !== 1) {
-    return undefined;
-  }
-  const batch = source[0];
-  if (!Array.isArray(batch) || batch.length !== 1) {
-    return undefined;
-  }
-  const input = batch[0];
-  return Buffer.isBuffer(input) ? input : undefined;
-}
-
-function decodeShortAsciiSpan(buffer: Uint8Array, start: number, end: number): string | undefined {
-  switch (end - start) {
-    case 0:
-      return '';
-    case 1: {
-      const b0 = buffer[start]!;
-      return b0 <= 0x7f ? String.fromCharCode(b0) : undefined;
-    }
-    case 2: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      return (b0 | b1) <= 0x7f ? String.fromCharCode(b0, b1) : undefined;
-    }
-    case 3: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      return (b0 | b1 | b2) <= 0x7f ? String.fromCharCode(b0, b1, b2) : undefined;
-    }
-    case 4: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      return (b0 | b1 | b2 | b3) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3) : undefined;
-    }
-    case 5: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      return (b0 | b1 | b2 | b3 | b4) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4) : undefined;
-    }
-    case 6: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5) : undefined;
-    }
-    case 7: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      const b6 = buffer[start + 6]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5 | b6) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6) : undefined;
-    }
-    case 8: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      const b6 = buffer[start + 6]!;
-      const b7 = buffer[start + 7]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7) : undefined;
-    }
-    case 9: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      const b6 = buffer[start + 6]!;
-      const b7 = buffer[start + 7]!;
-      const b8 = buffer[start + 8]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8) : undefined;
-    }
-    case 10: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      const b6 = buffer[start + 6]!;
-      const b7 = buffer[start + 7]!;
-      const b8 = buffer[start + 8]!;
-      const b9 = buffer[start + 9]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9) : undefined;
-    }
-    case 11: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      const b6 = buffer[start + 6]!;
-      const b7 = buffer[start + 7]!;
-      const b8 = buffer[start + 8]!;
-      const b9 = buffer[start + 9]!;
-      const b10 = buffer[start + 10]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10) : undefined;
-    }
-    case 12: {
-      const b0 = buffer[start]!;
-      const b1 = buffer[start + 1]!;
-      const b2 = buffer[start + 2]!;
-      const b3 = buffer[start + 3]!;
-      const b4 = buffer[start + 4]!;
-      const b5 = buffer[start + 5]!;
-      const b6 = buffer[start + 6]!;
-      const b7 = buffer[start + 7]!;
-      const b8 = buffer[start + 8]!;
-      const b9 = buffer[start + 9]!;
-      const b10 = buffer[start + 10]!;
-      const b11 = buffer[start + 11]!;
-      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11) : undefined;
-    }
-    default:
-      return undefined;
-  }
 }
 
 function normalizeChunkSize(value: number | undefined): number {

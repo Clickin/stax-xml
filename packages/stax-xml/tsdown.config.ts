@@ -11,20 +11,6 @@ export default defineConfig([
     logLevel: 'error',
     minify: true
   },
-  // Build secondary public entries separately for direct subpath imports
-  {
-    entry: {
-      projection: 'src/projection/index.ts',
-      runtime: 'src/runtime/index.ts',
-    },
-    format: ['esm'],
-    dts: true,
-    outDir: 'dist',
-    clean: false,
-    platform: "neutral",
-    logLevel: 'error',
-    minify: true
-  },
   // Build converter separately to prevent chunk splitting
   {
     entry: {

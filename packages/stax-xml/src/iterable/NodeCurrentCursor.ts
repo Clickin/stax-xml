@@ -27,7 +27,7 @@ const enum CursorEventType {
 }
 
 export class NodeCurrentCursor {
-  private readonly iterator: Iterator<NodeByteBatch>;
+  private readonly iterator: Iterator<readonly Uint8Array[]>;
   private currentBuffer: Buffer = EMPTY_BUFFER;
   private pendingTail: Buffer = EMPTY_BUFFER;
   private state: CursorState = CursorState.INITIAL;
@@ -606,13 +606,13 @@ export class NodeCurrentCursor {
   }
 }
 
-function growInt32(source: Int32Array, size: number): Int32Array {
+function growInt32(source: Int32Array<ArrayBufferLike>, size: number): Int32Array<ArrayBuffer> {
   const next = new Int32Array(size);
   next.set(source);
   return next;
 }
 
-function growUint8(source: Uint8Array, size: number): Uint8Array {
+function growUint8(source: Uint8Array<ArrayBufferLike>, size: number): Uint8Array<ArrayBuffer> {
   const next = new Uint8Array(size);
   next.set(source);
   return next;

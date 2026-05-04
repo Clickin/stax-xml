@@ -1,8 +1,25 @@
+// @ts-nocheck
 import { x } from 'stax-xml/converter';
-import {
-  JS_CONVERTER_BACKEND,
-  parseTextWithSelectedConverterBackend
-} from './converter-wasm-backend.ts';
+
+const JS_CONVERTER_BACKEND = {
+  id: 'js',
+  label: 'JS',
+  detail: 'Pure JavaScript converter path'
+};
+
+async function parseTextWithSelectedConverterBackend(schema, text, parseOptions, mode) {
+  const parseStart = performance.now();
+  const result = mode === 'async'
+    ? await schema.parse(text, parseOptions)
+    : schema.parseSync(text, parseOptions);
+  return {
+    result,
+    backend: JS_CONVERTER_BACKEND,
+    timings: {
+      jsParseMs: performance.now() - parseStart
+    }
+  };
+}
 
 const WORKER_STRING_PARSE_THRESHOLD = 25 * 1024 * 1024;
 const CONVERTER_BACKEND = JS_CONVERTER_BACKEND;
@@ -19,7 +36,7 @@ function createXmlStream(xmlInput: string) {
 }
 
 self.onmessage = async (event) => {
-  const { id, schemaInput, xmlInput, file, parseOptions, requestedMode, requestedBackend = 'wasm' } = event.data ?? {};
+  const { id, schemaInput, xmlInput, file, parseOptions, requestedMode } = event.data ?? {};
 
   try {
     const workerStart = performance.now();
@@ -38,7 +55,7 @@ self.onmessage = async (event) => {
       parseMode = file ? 'file-text-sync' : 'inline-text-sync';
       const inputPrepMs = performance.now() - inputPrepStart;
       const parseStart = performance.now();
-      const backendResult = await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'sync', requestedBackend);
+      const backendResult = await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'sync');
       result = backendResult.result;
       const parseMs = performance.now() - parseStart;
       self.postMessage({
@@ -63,8 +80,8 @@ self.onmessage = async (event) => {
     if (requestedMode === 'async') {
       const useTextBackend = !file || file.size <= WORKER_STRING_PARSE_THRESHOLD;
       parseMode = file
-        ? (useTextBackend ? `file-text-${requestedBackend}-async` : 'file-stream-js-async')
-        : `inline-text-${requestedBackend}-async`;
+        ? (useTextBackend ? 'file-text-js-async' : 'file-stream-js-async')
+        : 'inline-text-js-async';
       const text = useTextBackend ? (file ? await file.text() : xmlInput) : undefined;
       const input = useTextBackend ? undefined : (file ? file.stream() : createXmlStream(xmlInput));
       const inputPrepMs = performance.now() - inputPrepStart;
@@ -74,10 +91,10 @@ self.onmessage = async (event) => {
             result: await schema.parse(input, parseOptions),
             backend: CONVERTER_BACKEND,
             timings: {
-              fallbackReason: 'Large file streamed through JavaScript because browser wasm span-table parsing needs text input.'
+              fallbackReason: 'Large file streamed through JavaScript to avoid materializing the whole input as text.'
             }
           }
-        : await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'async', requestedBackend);
+        : await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'async');
       result = backendResult.result;
       const parseMs = performance.now() - parseStart;
       self.postMessage({
@@ -104,7 +121,7 @@ self.onmessage = async (event) => {
       parseMode = 'file-text-sync';
       const inputPrepMs = performance.now() - inputPrepStart;
       const parseStart = performance.now();
-      const backendResult = await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'sync', requestedBackend);
+      const backendResult = await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'sync');
       result = backendResult.result;
       const parseMs = performance.now() - parseStart;
       self.postMessage({

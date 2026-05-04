@@ -81,7 +81,7 @@ async function processLargeXml(filePath: string) {
 }
 ```
 
-schema가 정해진 byte input에서는 일반 event stream 대신 native row-projection fast path가 필요할 때 `ProjectionReader` subpath를 사용하세요.
+schema가 정해진 입력에서는 일반 event stream보다 선언형 field extraction이 더 잘 맞으면 converter API를 우선 사용하세요.
 
 ## XML Generation with Writer
 

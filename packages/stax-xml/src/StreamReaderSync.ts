@@ -1,6 +1,4 @@
 import { createJavaScriptIterableReader } from './IterableReader.js';
-import { StreamingEventBatchReader } from './runtime/event-table.js';
-import { getStaxXmlRuntimeForSyncApi } from './runtime/native-backend.js';
 import {
   createStreamBatchView,
   StreamEventType,
@@ -41,8 +39,7 @@ export interface StreamReaderSyncOptions {
  * @public
  */
 export class StreamReaderSync implements Iterable<StreamBatch> {
-  private readonly reader: StreamingEventBatchReader | ReturnType<typeof createJavaScriptIterableReader>;
-  private readonly nativeReader: boolean;
+  private readonly reader: ReturnType<typeof createJavaScriptIterableReader>;
   private generation = 0;
   private finished = false;
 
@@ -53,22 +50,6 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
     options: StreamReaderSyncOptions = {},
   ) {
     const batches = source instanceof Uint8Array ? singleByteBatch(source) : source;
-    const runtime = getStaxXmlRuntimeForSyncApi(undefined);
-    if (runtime?.capabilities.streamingEventBatches) {
-      const createStreamingParser = runtime.capabilities.streamingEventBatches;
-      this.nativeReader = true;
-      this.reader = new StreamingEventBatchReader(
-        createStreamingParser({
-          encoding: options.encoding,
-          documentMode: options.documentMode,
-          batchLayout: 'soa-string-arena',
-        }),
-        batches[Symbol.iterator](),
-      );
-      return;
-    }
-
-    this.nativeReader = false;
     this.reader = createJavaScriptIterableReader(batches, {
       encoding: options.encoding,
       documentMode: options.documentMode,
@@ -80,21 +61,12 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
     if (this.finished) {
       return null;
     }
-    if (this.nativeReader) {
-      const table = (this.reader as StreamingEventBatchReader).nextTable();
-      if (!table) {
-        this.finished = true;
-        return null;
-      }
-      return createStreamBatchView(table, this.generation, this);
-    }
 
-    const parser = this.reader as ReturnType<typeof createJavaScriptIterableReader>;
-    if (!parser.nextBatch()) {
+    if (!this.reader.nextBatch()) {
       this.finished = true;
       return null;
     }
-    return createStreamBatchView(parser, this.generation, this);
+    return createStreamBatchView(this.reader, this.generation, this);
   }
 
   /**
@@ -111,17 +83,8 @@ export class StreamReaderSync implements Iterable<StreamBatch> {
     if (this.finished) {
       return null;
     }
-    if (this.nativeReader) {
-      const table = (this.reader as StreamingEventBatchReader).nextTable();
-      if (!table) {
-        this.finished = true;
-        return null;
-      }
-      return table.rawBatch();
-    }
 
-    const parser = this.reader as ReturnType<typeof createJavaScriptIterableReader>;
-    const frame = parser.nextBatchFrame();
+    const frame = this.reader.nextBatchFrame();
     if (!frame) {
       this.finished = true;
       return null;

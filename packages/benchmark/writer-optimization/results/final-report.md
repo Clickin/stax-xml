@@ -593,20 +593,7 @@ writer.onChunk((chunk: Uint8Array) => {
 
 **Note**: This would require API changes. Current API buffers everything.
 
-### Scenario 3: WebAssembly Integration
-
-**Hypothesis**: If XML is consumed by WASM, binary format might be better
-
-**Test**:
-```typescript
-// Pass Uint8Array directly to WASM
-const xmlBytes = writer.getXmlBytes();
-wasmModule.parseXml(xmlBytes.buffer, xmlBytes.byteOffset, xmlBytes.byteLength);
-```
-
-**Note**: This avoids UTF-8 → UTF-16 → UTF-8 round-trip
-
-**But for the current use case**: None of these apply. String concat wins.
+**But for the current use case**: These alternatives do not apply. String concat wins.
 
 ---
 

@@ -39,7 +39,6 @@ export class StringCurrentCursorSync {
   private currentNameEnd = -1;
   private currentTextStart = -1;
   private currentTextEnd = -1;
-  private currentTagEnd = -1;
   private attrCount = 0;
 
   private attrNameStarts = new Int32Array(16);
@@ -313,7 +312,6 @@ export class StringCurrentCursorSync {
     this.attrCount = this.cursorParseAttributeSpans(cursor, actualEnd);
     this.currentNameStart = nameStart;
     this.currentNameEnd = cursor;
-    this.currentTagEnd = gt;
     this.elementDepth = (this.elementDepth + 1) | 0;
     this.currentDepth = this.elementDepth;
     this.pos = gt + 1;
@@ -336,7 +334,6 @@ export class StringCurrentCursorSync {
     this.beginEvent(CursorEventType.END_ELEMENT);
     this.currentNameStart = start;
     this.currentNameEnd = end;
-    this.currentTagEnd = gt;
     this.currentDepth = this.elementDepth > 0 ? this.elementDepth - 1 : 0;
     this.elementDepth = this.currentDepth;
     this.pos = gt + 1;
@@ -502,18 +499,17 @@ export class StringCurrentCursorSync {
     this.currentNameEnd = -1;
     this.currentTextStart = -1;
     this.currentTextEnd = -1;
-    this.currentTagEnd = -1;
     this.attrCount = 0;
   }
 }
 
-function copyInt32(source: Int32Array, size: number): Int32Array {
+function copyInt32(source: Int32Array<ArrayBufferLike>, size: number): Int32Array<ArrayBuffer> {
   const copy = new Int32Array(size);
   copy.set(source);
   return copy;
 }
 
-function copyUint8(source: Uint8Array, size: number): Uint8Array {
+function copyUint8(source: Uint8Array<ArrayBufferLike>, size: number): Uint8Array<ArrayBuffer> {
   const copy = new Uint8Array(size);
   copy.set(source);
   return copy;

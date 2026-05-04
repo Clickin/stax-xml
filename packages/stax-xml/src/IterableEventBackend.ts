@@ -13,14 +13,6 @@ import {
   type DocumentMode,
   type ParserEventFilter
 } from './types.js';
-import {
-  getStaxXmlRuntimeForSyncApi,
-  type StaxXmlRuntimeBackendPreference,
-} from './runtime/native-backend.js';
-import {
-  StreamingSpanTableAdapter,
-  toUint8Array,
-} from './runtime/event-table.js';
 
 export interface EntityDefinition {
   entity: string;
@@ -41,9 +33,6 @@ export interface IterableEventBackendOptions {
   implicitAttributeValue?: 'true' | 'name';
   namespaceAware?: boolean;
   documentMode?: DocumentMode;
-  backend?: StaxXmlRuntimeBackendPreference;
-  fallbackOnLoadError?: boolean;
-  fallbackOnParseError?: boolean;
 }
 
 export const STAX_XML_EVENT_BACKEND: unique symbol = Symbol.for('stax-xml.eventBackend') as never;
@@ -142,19 +131,7 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
   constructor(
     private readonly stream: ReadableStream<Uint8Array>,
     private readonly options: IterableEventBackendOptions = {}
-  ) {
-    const runtime = getStaxXmlRuntimeForSyncApi(options.backend);
-    if (
-      runtime
-      && runtime.backend.kind !== 'js'
-      && !runtime.capabilities.streamingEventBatches
-      && options.backend !== undefined
-      && options.backend !== 'auto'
-      && options.fallbackOnLoadError !== true
-    ) {
-      throw new Error(`Initialized ${options.backend} backend does not provide streamingEventBatches capability.`);
-    }
-  }
+  ) {}
 
   [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> {
     return this;
@@ -233,12 +210,6 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
   }
 
   private async *readMaterializedBatches(): AsyncGenerator<AnyXmlEvent[]> {
-    const nativeBatches = this.readNativeStreamingBatches();
-    if (nativeBatches) {
-      yield* nativeBatches;
-      return;
-    }
-
     const parser = new IterableReader([], {
       encoding: this.options.encoding,
       incompleteFinalMarkupMessage: this.options.incompleteFinalMarkupMessage,
@@ -266,45 +237,6 @@ export class IterableEventBackendIterator implements AsyncIterator<AnyXmlEvent>,
 
     const finalBatch = materializer.materializeBatch(parser);
     yield finalBatch;
-  }
-
-  private readNativeStreamingBatches(): AsyncGenerator<AnyXmlEvent[]> | undefined {
-    const runtime = getStaxXmlRuntimeForSyncApi(this.options.backend);
-    const createStreamingParser = runtime?.capabilities.streamingEventBatches;
-    if (!createStreamingParser) {
-      return undefined;
-    }
-    const streamingParser = createStreamingParser({
-      encoding: this.options.encoding,
-      documentMode: this.options.documentMode,
-    });
-    const stream = this.stream;
-    const options = this.options;
-
-    return (async function* (): AsyncGenerator<AnyXmlEvent[]> {
-      const materializer = new IterableEventMaterializer(options);
-      for await (const chunk of readReadableStreamChunksIncrementally(stream, options.maxChunkBytes)) {
-        const batch = streamingParser.pushChunk(chunk, false);
-        yield* materializeNativeStreamingBatch(batch.buffer, batch.table, materializer);
-      }
-      const finalBatch = streamingParser.pushChunk(new Uint8Array(0), true);
-      yield* materializeNativeStreamingBatch(finalBatch.buffer, finalBatch.table, materializer);
-    })();
-  }
-}
-
-function* materializeNativeStreamingBatch(
-  buffer: ArrayBuffer | ArrayBufferView,
-  table: ArrayBuffer | ArrayBufferView,
-  materializer: IterableEventMaterializer,
-): Generator<AnyXmlEvent[]> {
-  const source = toUint8Array(buffer);
-  const parser = new StreamingSpanTableAdapter(source, table);
-  while (parser.nextBatch()) {
-    const batch = materializer.materializeBatch(parser);
-    if (batch.length > 0) {
-      yield batch;
-    }
   }
 }
 

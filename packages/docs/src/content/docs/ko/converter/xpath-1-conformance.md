@@ -10,8 +10,7 @@ head:
 
 이 매트릭스는 public converter XPath surface를 기준으로 합니다. XPath 표현식은
 converter의 lightweight document tree 위에서 TypeScript XPath 1.0 runtime이
-평가합니다. native addon은 그 tree를 만들기 전 parser/projection 데이터를 제공할
-수 있지만 XPath evaluator 자체는 아닙니다.
+평가합니다.
 
 상태 값:
 
