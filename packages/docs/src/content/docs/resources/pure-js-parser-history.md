@@ -1,4 +1,7 @@
-# Pure JavaScript Parser Decision History
+---
+title: Pure JavaScript Parser Decision History
+description: Why stax-xml moved native and Wasm parser experiments out of this package and centered the public parser on pure JavaScript.
+---
 
 `stax-xml` is intentionally a pure JavaScript XML parser. This document records
 why the native addon and Wasm experiments were moved out of this package, and

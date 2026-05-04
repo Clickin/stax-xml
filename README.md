@@ -39,7 +39,7 @@ costs, while native heap or Wasm memory also increases RSS.
 For that reason, the native experiment was moved out of this package and
 `stax-xml` is centered on a byte-oriented pure JavaScript cursor core. The full
 history and tradeoff analysis is in
-[Pure JavaScript Parser Decision History](./docs/decisions/pure-js-parser-history.md).
+[Pure JavaScript Parser Decision History](./packages/docs/src/content/docs/resources/pure-js-parser-history.md).
 
 ### Install
 
@@ -119,7 +119,7 @@ Wasm memory는 RSS도 증가시킵니다.
 
 그래서 native 실험은 이 패키지 밖으로 분리하고, `stax-xml`은 byte-oriented pure
 JavaScript cursor core를 중심으로 다시 정립했습니다. 자세한 history와 tradeoff는
-[Pure JavaScript Parser Decision History](./docs/decisions/pure-js-parser-history.md)에
+[Pure JavaScript Parser Decision History](./packages/docs/src/content/docs/ko/resources/pure-js-parser-history.md)에
 정리되어 있습니다.
 
 ### 설치

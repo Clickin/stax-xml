@@ -28,7 +28,7 @@ adds native heap or Wasm linear memory to RSS. Because this package is optimized
 for low memory, very large XML, and pull-based JavaScript consumption, the native
 experiment was moved out of this package.
 
-See [Pure JavaScript Parser Decision History](https://github.com/Clickin/stax-xml/blob/master/docs/decisions/pure-js-parser-history.md)
+See [Pure JavaScript Parser Decision History](https://clickin.github.io/stax-xml/resources/pure-js-parser-history/)
 for the full rationale.
 
 ## Install

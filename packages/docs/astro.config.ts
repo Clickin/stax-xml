@@ -294,6 +294,7 @@ export default defineConfig({
           },
           items: [
             { label: 'Benchmarks', slug: 'resources/benchmarks', translations: { ko: '벤치마크' } },
+            { label: 'Pure JavaScript Parser History', slug: 'resources/pure-js-parser-history', translations: { ko: 'Pure JavaScript Parser 결정 기록' } },
             { label: 'FAQ', slug: 'resources/faq' },
           ],
         },
