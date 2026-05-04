@@ -855,6 +855,16 @@ function caseLabel(caseId: CaseId) {
       return 'Cursor-like JS current view';
     case 'cursor-js-direct':
       return 'Direct frame cursor JS';
+    case 'cursor-byte-core':
+      return 'Byte core cursor';
+    case 'cursor-public-sync':
+      return 'CursorReader public sync';
+    case 'cursor-public-async':
+      return 'CursorReader public async';
+    case 'cursor-public-sync-lean':
+      return 'CursorReader public sync lean';
+    case 'cursor-public-async-lean':
+      return 'CursorReader public async lean';
     case 'event-native':
       return 'EventReader native';
     case 'event-js-fallback':
@@ -974,11 +984,15 @@ async function tick() {
 }
 
 function parseArgs(argv: string[]) {
-  const result: { childCase?: CaseId; sizeMiB: number } = { sizeMiB: 4096 };
+  const result: { childCase?: CaseId; sizeMiB: number; cases?: CaseId[] } = { sizeMiB: 4096 };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
     if (arg === '--child-case' && argv[index + 1]) {
       result.childCase = argv[++index] as CaseId;
+      continue;
+    }
+    if (arg === '--cases' && argv[index + 1]) {
+      result.cases = parseCaseList(argv[++index]!);
       continue;
     }
     if (arg === '--size-mib' && argv[index + 1]) {
@@ -986,6 +1000,16 @@ function parseArgs(argv: string[]) {
     }
   }
   return result;
+}
+
+function parseCaseList(value: string): CaseId[] {
+  const selected = value.split(',').map((entry) => entry.trim()).filter(Boolean);
+  for (const caseId of selected) {
+    if (!(caseIds as readonly string[]).includes(caseId)) {
+      throw new Error(`Unknown benchmark case: ${caseId}`);
+    }
+  }
+  return selected as CaseId[];
 }
 
 function fixtureFromArgs({ sizeMiB }: { sizeMiB: number }) {
@@ -1010,7 +1034,8 @@ async function main() {
 
   const fixtureConfig = fixtureFromArgs(args);
   const fixture = ensureIterableXmlFile(fixtureConfig, true);
-  const results = caseIds.map((caseId) => runChildCase(caseId, fixture.filePath));
+  const selectedCases = args.cases ?? [...caseIds];
+  const results = selectedCases.map((caseId) => runChildCase(caseId, fixture.filePath));
 
   console.log('\nStreamReader 4GiB native vs JS fallback');
   console.log(`Fixture: ${fixture.filePath}`);

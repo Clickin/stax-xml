@@ -175,8 +175,25 @@ export class NodeCurrentCursor {
     return this.memoText;
   }
 
+  textNeedsTrim(): boolean {
+    if (this.currentTextStart < 0 || this.currentTextStart >= this.currentTextEnd) {
+      return false;
+    }
+    return textBoundaryNeedsTrim(this.currentBuffer[this.currentTextStart]!)
+      || textBoundaryNeedsTrim(this.currentBuffer[this.currentTextEnd - 1]!);
+  }
+
   getAttributeCount(): number {
     return this.attrCount;
+  }
+
+  hasNamespaceDeclaration(): boolean {
+    for (let index = 0; index < this.attrCount; index++) {
+      if (isXmlnsAttributeName(this.currentBuffer, this.attrNameStarts[index]!, this.attrNameEnds[index]!)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   getAttributeName(index: number): string | undefined {
@@ -611,6 +628,10 @@ function isWhitespace(byte: number): boolean {
   return byte === 32 || byte === 9 || byte === 10 || byte === 13;
 }
 
+function textBoundaryNeedsTrim(byte: number): boolean {
+  return isWhitespace(byte) || byte >= 128 || byte === 38 || byte === 59;
+}
+
 function isWhitespaceOnly(buffer: Buffer, start: number, end: number): boolean {
   for (let index = start; index < end; index++) {
     if (!isWhitespace(buffer[index]!)) {
@@ -618,6 +639,23 @@ function isWhitespaceOnly(buffer: Buffer, start: number, end: number): boolean {
     }
   }
   return true;
+}
+
+function isXmlnsAttributeName(buffer: Buffer, start: number, end: number): boolean {
+  const length = end - start;
+  if (length < 5) {
+    return false;
+  }
+  if (
+    buffer[start] !== 120 ||
+    buffer[start + 1] !== 109 ||
+    buffer[start + 2] !== 108 ||
+    buffer[start + 3] !== 110 ||
+    buffer[start + 4] !== 115
+  ) {
+    return false;
+  }
+  return length === 5 || (length > 6 && buffer[start + 5] === 58);
 }
 
 function startsWithAscii(buffer: Buffer, offset: number, value: string): boolean {

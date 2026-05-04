@@ -9,6 +9,8 @@ import { ByteCursorFacadeAsync } from './ByteCursorFacadeAsync.js';
 import { CursorEventView } from './CursorEventView.js';
 import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderAsyncOptions } from './types.js';
 
+const FALSE_PROMISE = Promise.resolve(false);
+
 export class CursorReaderAsync {
   private readonly byteCursor?: ByteCursorFacadeAsync;
   private readonly nativeReader?: StreamingEventBatchReader;
@@ -49,21 +51,20 @@ export class CursorReaderAsync {
     );
   }
 
-  async next(): Promise<boolean> {
+  next(): Promise<boolean> {
     if (this.closed) {
-      return false;
+      return FALSE_PROMISE;
     }
 
     if (this.nativeReader) {
       return this.nextNativeEvent();
     }
 
-    const moved = await this.byteCursor!.next();
-    if (!moved) {
-      this.closed = true;
-      return false;
+    try {
+      return this.byteCursor!.next();
+    } catch (error) {
+      return Promise.reject(error);
     }
-    return true;
   }
 
   async close(): Promise<void> {

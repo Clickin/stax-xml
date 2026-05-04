@@ -3,14 +3,6 @@ import { compileEntityDecoder, type EntityDefinition } from '../IterableEventBac
 import { NodeCurrentCursor } from '../iterable/NodeCurrentCursor.js';
 import { CursorEventType, type CursorEventType as CursorEventTypeValue, type CursorReaderOptions } from './types.js';
 
-type ElementContext = {
-  name: string;
-  localName: string;
-  prefix: string | undefined;
-  uri: string | undefined;
-  namespaces: Map<string, string>;
-};
-
 const EMPTY_NAMESPACES = new Map<string, string>();
 const CHUNK_SIZE = 8;
 
@@ -25,6 +17,8 @@ export class ByteCursorFacadeSync {
   private currentLocalName: string | undefined;
   private currentPrefix: string | undefined;
   private currentUri: string | undefined;
+  private currentQNameResolved = false;
+  private currentNamespaces: Map<string, string> | undefined;
   private currentText: string | undefined;
   private currentAttrCount = 0;
 
@@ -33,8 +27,9 @@ export class ByteCursorFacadeSync {
   private readonly attributeUris: Array<string | undefined> = [];
   private readonly attributeMetaReady: boolean[] = [];
 
-  private namespaceStack: Map<string, string>[] = [EMPTY_NAMESPACES];
-  private elementStack: ElementContext[] = [];
+  private activeNamespaces: Map<string, string> | undefined;
+  private readonly namespaceMaps: Map<string, string>[] = [];
+  private readonly namespaceDepths: number[] = [];
 
   constructor(input: string | Iterable<readonly Uint8Array[]>, options: CursorReaderOptions = {}) {
     this.cursor = new NodeCurrentCursor(
@@ -71,14 +66,17 @@ export class ByteCursorFacadeSync {
   }
 
   localName(): string | undefined {
+    this.ensureCurrentQName();
     return this.currentLocalName;
   }
 
   prefix(): string | undefined {
+    this.ensureCurrentQName();
     return this.currentPrefix;
   }
 
   uri(): string | undefined {
+    this.ensureCurrentQName();
     return this.currentUri;
   }
 
@@ -149,6 +147,8 @@ export class ByteCursorFacadeSync {
     this.currentLocalName = undefined;
     this.currentPrefix = undefined;
     this.currentUri = undefined;
+    this.currentQNameResolved = false;
+    this.currentNamespaces = undefined;
     this.currentText = undefined;
     this.currentAttrCount = 0;
     this.attributeLocalNames.length = 0;
@@ -157,10 +157,7 @@ export class ByteCursorFacadeSync {
     this.attributeMetaReady.length = 0;
 
     if (this.currentType === CursorEventType.START_DOCUMENT) {
-      if (this.namespaceAware) {
-        this.namespaceStack = [EMPTY_NAMESPACES];
-        this.elementStack = [];
-      }
+      this.resetNamespaces();
       this.currentDepth = 0;
       return true;
     }
@@ -168,9 +165,9 @@ export class ByteCursorFacadeSync {
       this.resetToEndDocument();
       return true;
     }
-
     if (this.currentType === CursorEventType.CHARACTERS) {
-      const value = this.entityDecoder(this.cursor.text() ?? '').trim();
+      const text = this.entityDecoder(this.cursor.text() ?? '');
+      const value = this.cursor.textNeedsTrim() ? text.trim() : text;
       if (!value) {
         return false;
       }
@@ -204,39 +201,30 @@ export class ByteCursorFacadeSync {
       return;
     }
 
-    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1] ?? EMPTY_NAMESPACES;
-    let namespaces = parentNamespaces;
+    let namespaces = this.activeNamespaces;
+    if (!this.cursor.hasNamespaceDeclaration()) {
+      this.currentNamespaces = namespaces;
+      return;
+    }
+
     let namespaceCopied = false;
     for (let index = 0; index < attrCount; index++) {
       const attrName = this.cursor.getAttributeName(index)!;
-      const attrValue = this.entityDecoder(this.cursor.getAttributeValue(index)!);
-      this.attributeLocalNames.push(undefined);
-      this.attributePrefixes.push(undefined);
-      this.attributeUris.push(undefined);
-      this.attributeMetaReady.push(false);
-
       if (attrName === 'xmlns' || (attrName.length >= 6 && attrName.charCodeAt(5) === 58 && attrName.slice(0, 5) === 'xmlns')) {
+        const attrValue = this.entityDecoder(this.cursor.getAttributeValue(index)!);
         if (!namespaceCopied) {
-          namespaces = new Map(parentNamespaces);
+          namespaces = new Map(namespaces ?? EMPTY_NAMESPACES);
           namespaceCopied = true;
         }
-        namespaces.set(attrName === 'xmlns' ? '' : attrName.slice(6), attrValue);
+        namespaces!.set(attrName === 'xmlns' ? '' : attrName.slice(6), attrValue);
       }
     }
-
-    const qname = splitQName(name, namespaces);
-    this.currentLocalName = qname.localName;
-    this.currentPrefix = qname.prefix;
-    this.currentUri = qname.uri;
-
-    this.namespaceStack.push(namespaces);
-    this.elementStack.push({
-      name,
-      localName: qname.localName,
-      prefix: qname.prefix,
-      uri: qname.uri,
-      namespaces,
-    });
+    this.currentNamespaces = namespaces;
+    if (namespaceCopied) {
+      this.namespaceMaps.push(namespaces!);
+      this.namespaceDepths.push(this.currentDepth - 1);
+      this.activeNamespaces = namespaces;
+    }
   }
 
   private moveToEndElement(): void {
@@ -248,48 +236,47 @@ export class ByteCursorFacadeSync {
       this.currentUri = undefined;
       return;
     }
-    const context = this.elementStack.pop();
-    if (this.namespaceStack.length > 1) {
-      this.namespaceStack.pop();
+    this.currentNamespaces = this.activeNamespaces;
+    const top = this.namespaceDepths.length - 1;
+    if (top >= 0 && this.namespaceDepths[top] === this.currentDepth) {
+      this.namespaceDepths.pop();
+      this.namespaceMaps.pop();
+      this.activeNamespaces = this.namespaceMaps[this.namespaceMaps.length - 1];
     }
-    if (context && context.name === name) {
-      this.currentLocalName = context.localName;
-      this.currentPrefix = context.prefix;
-      this.currentUri = context.uri;
-      return;
-    }
-    const namespaces = context?.namespaces ?? this.namespaceStack[this.namespaceStack.length - 1];
-    const qname = splitQName(name, namespaces);
-    this.currentLocalName = qname.localName;
-    this.currentPrefix = qname.prefix;
-    this.currentUri = qname.uri;
   }
 
   private ensureAttributeMeta(index: number): void {
     if (!this.namespaceAware) {
-      this.attributeMetaReady[index] = true;
-      this.attributeLocalNames[index] = undefined;
-      this.attributePrefixes[index] = undefined;
-      this.attributeUris[index] = undefined;
       return;
     }
     if (this.attributeMetaReady[index]) {
       return;
     }
+    this.ensureAttributeMetaArrays();
     this.attributeMetaReady[index] = true;
     const name = this.cursor.getAttributeName(index)!;
-    const value = this.entityDecoder(this.cursor.getAttributeValue(index)!);
-    const xmlnsInfo = xmlnsAttributeInfo(name, value);
+    const xmlnsInfo = xmlnsAttributeInfo(name);
     if (xmlnsInfo) {
       this.attributeLocalNames[index] = xmlnsInfo.localName;
       this.attributePrefixes[index] = xmlnsInfo.prefix;
       this.attributeUris[index] = xmlnsInfo.uri;
       return;
     }
-    const qname = splitQName(name, this.namespaceStack[this.namespaceStack.length - 1], false);
+    const qname = splitQName(name, this.currentNamespaces ?? this.activeNamespaces, false);
     this.attributeLocalNames[index] = qname.localName;
     this.attributePrefixes[index] = qname.prefix;
     this.attributeUris[index] = qname.uri;
+  }
+
+  private ensureCurrentQName(): void {
+    if (!this.namespaceAware || this.currentQNameResolved || this.currentName === undefined) {
+      return;
+    }
+    this.currentQNameResolved = true;
+    const qname = splitQName(this.currentName, this.currentNamespaces);
+    this.currentLocalName = qname.localName;
+    this.currentPrefix = qname.prefix;
+    this.currentUri = qname.uri;
   }
 
   private resetToEndDocument(): void {
@@ -299,16 +286,32 @@ export class ByteCursorFacadeSync {
     this.currentLocalName = undefined;
     this.currentPrefix = undefined;
     this.currentUri = undefined;
+    this.currentQNameResolved = false;
+    this.currentNamespaces = undefined;
     this.currentText = undefined;
     this.currentAttrCount = 0;
     this.attributeLocalNames.length = 0;
     this.attributePrefixes.length = 0;
     this.attributeUris.length = 0;
     this.attributeMetaReady.length = 0;
-    if (this.namespaceAware) {
-      this.namespaceStack = [EMPTY_NAMESPACES];
-      this.elementStack = [];
+    this.resetNamespaces();
+  }
+
+  private ensureAttributeMetaArrays(): void {
+    if (this.attributeMetaReady.length === this.currentAttrCount) {
+      return;
     }
+    this.attributeLocalNames.length = this.currentAttrCount;
+    this.attributePrefixes.length = this.currentAttrCount;
+    this.attributeUris.length = this.currentAttrCount;
+    this.attributeMetaReady.length = this.currentAttrCount;
+    this.attributeMetaReady.fill(false);
+  }
+
+  private resetNamespaces(): void {
+    this.activeNamespaces = undefined;
+    this.namespaceMaps.length = 0;
+    this.namespaceDepths.length = 0;
   }
 }
 
@@ -343,12 +346,12 @@ function splitQName(
   };
 }
 
-function xmlnsAttributeInfo(name: string, value: string): { localName: string; prefix: string | undefined; uri: string | undefined; value: string } | undefined {
+function xmlnsAttributeInfo(name: string): { localName: string; prefix: string | undefined; uri: string | undefined } | undefined {
   if (name === 'xmlns') {
-    return { value, localName: 'xmlns', prefix: undefined, uri: undefined };
+    return { localName: 'xmlns', prefix: undefined, uri: undefined };
   }
   if (name.length >= 6 && name.charCodeAt(5) === 58 && name.slice(0, 5) === 'xmlns') {
-    return { value, localName: name.slice(6), prefix: 'xmlns', uri: undefined };
+    return { localName: name.slice(6), prefix: 'xmlns', uri: undefined };
   }
   return undefined;
 }

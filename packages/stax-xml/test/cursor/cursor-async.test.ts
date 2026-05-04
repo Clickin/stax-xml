@@ -196,6 +196,66 @@ describe('CursorReaderAsync', () => {
     expect(cursor.uri()).toBe('http://default.ns');
   });
 
+  it('should resolve qnames without namespace maps when no xmlns appears', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root><ns:child attr="value"/></root>'));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // START_ELEMENT root
+    expect(cursor.localName()).toBe('root');
+    expect(cursor.prefix()).toBeUndefined();
+    expect(cursor.uri()).toBeUndefined();
+
+    await cursor.next(); // START_ELEMENT ns:child
+    expect(cursor.name()).toBe('ns:child');
+    expect(cursor.localName()).toBe('child');
+    expect(cursor.prefix()).toBe('ns');
+    expect(cursor.uri()).toBeUndefined();
+    expect(cursor.getAttributeLocalName(0)).toBe('attr');
+    expect(cursor.getAttributeUri(0)).toBeUndefined();
+  });
+
+  it('should activate namespace scopes from the first middle-document xmlns', async () => {
+    const xml = '<root><before/><ns:parent xmlns:ns="urn:ns"><ns:child/></ns:parent><after/></root>';
+    const cursor = new CursorReaderAsync(streamFrom(xml, 6));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // before
+    expect(cursor.localName()).toBe('before');
+    expect(cursor.uri()).toBeUndefined();
+    await cursor.next(); // /before
+    await cursor.next(); // ns:parent
+    expect(cursor.localName()).toBe('parent');
+    expect(cursor.prefix()).toBe('ns');
+    expect(cursor.uri()).toBe('urn:ns');
+    await cursor.next(); // ns:child
+    expect(cursor.localName()).toBe('child');
+    expect(cursor.uri()).toBe('urn:ns');
+    await cursor.next(); // /child
+    await cursor.next(); // /parent
+    expect(cursor.uri()).toBe('urn:ns');
+    await cursor.next(); // after
+    expect(cursor.localName()).toBe('after');
+    expect(cursor.uri()).toBeUndefined();
+  });
+
+  it('should pop default namespace scopes after their declaring element ends', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root><scoped xmlns="urn:default"><child/></scoped><plain/></root>', 7));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // scoped
+    expect(cursor.uri()).toBe('urn:default');
+    await cursor.next(); // child
+    expect(cursor.uri()).toBe('urn:default');
+    await cursor.next(); // /child
+    await cursor.next(); // /scoped
+    expect(cursor.uri()).toBe('urn:default');
+    await cursor.next(); // plain
+    expect(cursor.localName()).toBe('plain');
+    expect(cursor.uri()).toBeUndefined();
+  });
+
   // ── Entity decoding ───────────────────────────────────────────────
 
   it('should decode XML entities', async () => {
@@ -377,6 +437,29 @@ describe('CursorReaderAsync', () => {
     expect(await cursor.next()).toBe(false);
   });
 
+  it('should not pull bytes until the first real XML event is requested', async () => {
+    const encoder = new TextEncoder();
+    let pullCount = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pullCount++;
+        controller.enqueue(encoder.encode('<root/>'));
+        controller.close();
+      },
+    }, {
+      highWaterMark: 0,
+    });
+    const cursor = new CursorReaderAsync(stream, { namespaceAware: false });
+
+    expect(pullCount).toBe(0);
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.START_DOCUMENT);
+    expect(pullCount).toBe(0);
+    expect(await cursor.next()).toBe(true);
+    expect(cursor.eventType()).toBe(CursorEventType.START_ELEMENT);
+    expect(pullCount).toBeGreaterThanOrEqual(1);
+  });
+
   // ── Complex document with chunks ──────────────────────────────────
 
   it('should parse a complex document with small chunks', async () => {
@@ -478,6 +561,59 @@ describe('CursorReaderAsync', () => {
     while (await cursor.next()) names.push(cursor.name());
 
     expect(names).toEqual([undefined, 'root', 'root', undefined]);
+  });
+
+  it('should preserve text that has no trim boundary', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root>alpha beta</root>', 3));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should trim ASCII whitespace at text boundaries', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root>\talpha beta\n</root>', 4));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should trim non-ASCII whitespace at text boundaries', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root>\u00A0alpha beta\u00A0</root>', 5));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should trim decoded boundary entities conservatively', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root>&ws;alpha beta&ws;</root>', 6), {
+      addEntities: [{ entity: 'ws', value: ' ' }],
+    });
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should not trim CDATA text', async () => {
+    const cursor = new CursorReaderAsync(streamFrom('<root><![CDATA[ alpha beta ]]></root>', 4));
+
+    await cursor.next(); // START_DOCUMENT
+    await cursor.next(); // root
+    await cursor.next(); // CDATA
+
+    expect(cursor.eventType()).toBe(CursorEventType.CDATA);
+    expect(cursor.text()).toBe(' alpha beta ');
   });
 
   it('should emit top-level trailing text when no tags are present', async () => {

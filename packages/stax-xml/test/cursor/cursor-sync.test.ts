@@ -180,6 +180,66 @@ describe('CursorReader (sync)', () => {
     expect(cursor.uri()).toBe('http://default.ns');
   });
 
+  it('should resolve qnames without namespace maps when no xmlns appears', () => {
+    const cursor = new CursorReader('<root><ns:child attr="value"/></root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // START_ELEMENT root
+    expect(cursor.localName()).toBe('root');
+    expect(cursor.prefix()).toBeUndefined();
+    expect(cursor.uri()).toBeUndefined();
+
+    cursor.next(); // START_ELEMENT ns:child
+    expect(cursor.name()).toBe('ns:child');
+    expect(cursor.localName()).toBe('child');
+    expect(cursor.prefix()).toBe('ns');
+    expect(cursor.uri()).toBeUndefined();
+    expect(cursor.getAttributeLocalName(0)).toBe('attr');
+    expect(cursor.getAttributeUri(0)).toBeUndefined();
+  });
+
+  it('should activate namespace scopes from the first middle-document xmlns', () => {
+    const xml = '<root><before/><ns:parent xmlns:ns="urn:ns"><ns:child/></ns:parent><after/></root>';
+    const cursor = new CursorReader(xml);
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // before
+    expect(cursor.localName()).toBe('before');
+    expect(cursor.uri()).toBeUndefined();
+    cursor.next(); // /before
+    cursor.next(); // ns:parent
+    expect(cursor.localName()).toBe('parent');
+    expect(cursor.prefix()).toBe('ns');
+    expect(cursor.uri()).toBe('urn:ns');
+    cursor.next(); // ns:child
+    expect(cursor.localName()).toBe('child');
+    expect(cursor.uri()).toBe('urn:ns');
+    cursor.next(); // /child
+    cursor.next(); // /parent
+    expect(cursor.uri()).toBe('urn:ns');
+    cursor.next(); // after
+    expect(cursor.localName()).toBe('after');
+    expect(cursor.uri()).toBeUndefined();
+  });
+
+  it('should pop default namespace scopes after their declaring element ends', () => {
+    const cursor = new CursorReader('<root><scoped xmlns="urn:default"><child/></scoped><plain/></root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // scoped
+    expect(cursor.uri()).toBe('urn:default');
+    cursor.next(); // child
+    expect(cursor.uri()).toBe('urn:default');
+    cursor.next(); // /child
+    cursor.next(); // /scoped
+    expect(cursor.uri()).toBe('urn:default');
+    cursor.next(); // plain
+    expect(cursor.localName()).toBe('plain');
+    expect(cursor.uri()).toBeUndefined();
+  });
+
   it('should handle multiple namespace prefixes', () => {
     const xml = '<root xmlns:a="http://a.com" xmlns:b="http://b.com"><a:x/><b:y/></root>';
     const cursor = new CursorReader(xml);
@@ -460,6 +520,59 @@ describe('CursorReader (sync)', () => {
     while (cursor.next()) names.push(cursor.name());
 
     expect(names).toEqual([undefined, 'root', 'root', undefined]);
+  });
+
+  it('should preserve text that has no trim boundary', () => {
+    const cursor = new CursorReader('<root>alpha beta</root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should trim ASCII whitespace at text boundaries', () => {
+    const cursor = new CursorReader('<root>\talpha beta\n</root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should trim non-ASCII whitespace at text boundaries', () => {
+    const cursor = new CursorReader('<root>\u00A0alpha beta\u00A0</root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should trim decoded boundary entities conservatively', () => {
+    const cursor = new CursorReader('<root>&ws;alpha beta&ws;</root>', {
+      addEntities: [{ entity: 'ws', value: ' ' }],
+    });
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // text
+
+    expect(cursor.text()).toBe('alpha beta');
+  });
+
+  it('should not trim CDATA text', () => {
+    const cursor = new CursorReader('<root><![CDATA[ alpha beta ]]></root>');
+
+    cursor.next(); // START_DOCUMENT
+    cursor.next(); // root
+    cursor.next(); // CDATA
+
+    expect(cursor.eventType()).toBe(CursorEventType.CDATA);
+    expect(cursor.text()).toBe(' alpha beta ');
   });
 
   // ── Boundary conditions ───────────────────────────────────────────
