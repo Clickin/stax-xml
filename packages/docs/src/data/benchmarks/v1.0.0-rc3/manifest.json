@@ -1,0 +1,16 @@
+{
+  "version": "v1.0.0-rc3",
+  "createdAt": "2026-05-05T01:42:02.662Z",
+  "gitCommit": "502cafb8ee9a90d8f4890efc4b66ebbe57a2589d",
+  "sourceDir": "packages/benchmark/results/release",
+  "files": [
+    {
+      "source": "packages/benchmark/results/release/runtime-matrix.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0-rc3/runtime-matrix.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/stream-reader-4gb.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0-rc3/stream-reader-4gb.json"
+    }
+  ]
+}

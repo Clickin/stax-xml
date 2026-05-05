@@ -1,0 +1,112 @@
+---
+title: Benchmarks
+description: StAX-XML pure JavaScript 성능 확인
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
+slug: ko/v1.0.0-rc3/resources/benchmarks
+---
+
+StAX-XML의 벤치마크 기준은 pure JavaScript parser입니다. `latest` 문서와
+`v1.0.0-rc3` release benchmark set은 같은 계약을 사용합니다. 사용자가
+JavaScript에서 실제 호출하는 public surface를 full JavaScript string/object
+materialization 기준으로 측정합니다.
+
+## 실행 대상
+
+- `pnpm --dir packages/benchmark bench:sync`: 동기 parser와 builder 경로.
+- `pnpm --dir packages/benchmark bench:async`: 비동기 parser와 writer 경로.
+- `pnpm --dir packages/benchmark bench:runtime-matrix`: Node, Bun, Deno가
+  설치되어 있을 때 동일한 JavaScript reader workload를 runtime별로 비교.
+- `pnpm --filter benchmark run release:expanded`: release runtime matrix와
+  4 GiB `StreamReaderSync` index-first benchmark를 다시 생성.
+
+## 계약
+
+Parser benchmark는 JavaScript string과 JavaScript object를 반환합니다.
+native addon, Wasm parser module, binary parser aggregation, backend mode
+fallback은 사용하지 않습니다. 대용량 XML 확인은 낮은 RSS, JavaScript string
+크기 제한 회피, stream/event/converter API를 통한 pull 방식 소비를 기준으로
+유지합니다.
+
+## Release 결과
+
+현재 release set은 Node 24.15.0, Bun 1.3.13, Deno 2.7.13에서 다시
+측정했습니다. Runtime row는 생성된 16 MiB fixture, warmup 1회, 측정 3회를
+사용합니다.
+
+| Runtime | Workload | Throughput | Average | Heap delta |
+| --- | --- | ---: | ---: | ---: |
+| Node 24.15.0 | `public-sync-full-string` | 96.1 MiB/s | 166.50 ms | 24.6 MiB |
+| Node 24.15.0 | `stream-sync-index-full-string` | 105.5 MiB/s | 151.66 ms | 23.3 MiB |
+| Bun 1.3.13 | `public-sync-full-string` | 69.2 MiB/s | 231.12 ms | 16.8 MiB |
+| Bun 1.3.13 | `stream-sync-index-full-string` | 138.7 MiB/s | 115.36 ms | 67.2 MiB |
+| Deno 2.7.13 | `public-sync-full-string` | 93.3 MiB/s | 171.51 ms | 27.5 MiB |
+| Deno 2.7.13 | `stream-sync-index-full-string` | 111.2 MiB/s | 143.94 ms | 27.8 MiB |
+
+4 GiB 생성 stream fixture는 `Iterable<Uint8Array[]>` 위의 `StreamReaderSync`를
+사용하고, 각 batch를 `eventCount`와 index accessor로 소비합니다. Warmup은
+제외하고 3회 측정합니다.
+
+| Workload | Average | Throughput | Events | Average RSS delta |
+| --- | ---: | ---: | ---: | ---: |
+| `StreamReaderSync` index-first, 4 GiB | 43.44 s | 94.29 MiB/s | 572,662,314 | 4.0 MiB |
+
+## StreamReaderSync 소비 방식
+
+대용량 byte input에서는 batch-local index access를 권장합니다.
+
+```ts
+import { StreamEventType, StreamReaderSync } from 'stax-xml';
+
+const reader = new StreamReaderSync(byteBatches);
+
+for (const batch of reader) {
+  for (let index = 0; index < batch.eventCount; index++) {
+    if (batch.typeAt(index) === StreamEventType.START_ELEMENT) {
+      const name = batch.nameAt(index);
+      const attributeCount = batch.attributeCountAt(index);
+
+      for (let attribute = 0; attribute < attributeCount; attribute++) {
+        const attributeName = batch.attributeNameAt(index, attribute);
+        const attributeValue = batch.attributeValueAt(index, attribute);
+        consume(name, attributeName, attributeValue);
+      }
+    }
+  }
+}
+```
+
+`for (const event of batch)`도 계속 지원하지만 wrapper event object를
+할당합니다. Canonical 98 MiB fixture에서 index-first 소비는 730.56 ms,
+heap delta 약 39.8 MiB였고, wrapper iteration은 1.28 s, heap delta 약
+482.7 MiB였습니다.
+
+## Native와 Wasm을 제거한 이유
+
+Native 또는 Wasm code는 XML byte tokenize를 빠르게 할 수 있습니다. 하지만
+public JavaScript API는 결국 JavaScript string과 object를 반환해야 합니다.
+JavaScript string은 재사용 가능한 `char[]` view가 아니라 immutable primitive입니다.
+Native addon이 JavaScript-owned byte를 읽는 것은 가능하지만, 파싱된 name,
+text, attribute, event object가 JavaScript로 돌아오는 순간 decode, allocation,
+wrapper, ownership 비용을 피할 수 없습니다. Wasm도 별도의 linear memory를
+가지므로 같은 materialization boundary를 만납니다.
+
+그 bridge 비용 때문에 full public workload는 pure JavaScript path에 가까워졌고,
+native heap 또는 Wasm memory는 RSS를 증가시켰습니다. 그래서 StAX-XML은
+native/Wasm backend mode를 제거하고, 낮은 메모리, 대용량 XML, pull 방식 소비를
+위한 portable pure JavaScript parser에 집중합니다.

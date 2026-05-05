@@ -1,0 +1,105 @@
+---
+title: StAX-XML - 고성능 JavaScript XML 파서 라이브러리
+description: JavaScript/TypeScript용 빠른 스트리밍 XML 파서. Node.js, Bun, Deno, 브라우저에서 동작. TypeScript 지원으로 대용량 XML 파일의 메모리 효율적 처리.
+template: splash
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/ko.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/ko.png
+hero:
+  tagline: JavaScript & TypeScript용 고성능 스트리밍 XML 파서 - 유니버설 플랫폼 지원
+  actions:
+    - text: 빠른 시작 가이드
+      link: ./guide/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: GitHub에서 보기
+      link: https://github.com/Clickin/stax-xml
+      icon: external
+slug: ko/v1.0.0-rc3
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## 기능
+
+<CardGrid>
+  <Card title="🚀 고성능" icon="rocket">
+    스트리밍 지원으로 속도와 낮은 메모리 사용량을 위해 최적화됨
+  </Card>
+  <Card title="🔄 풀 기반 파싱" icon="refresh">
+    대용량 XML 파일의 메모리 효율적인 처리를 위한 스트림 기반 접근법
+  </Card>
+  <Card title="🌐 범용 호환성" icon="puzzle">
+    웹 표준 API를 사용하여 Node.js, Bun, Deno 및 웹 브라우저에서 작동
+  </Card>
+  <Card title="📝 TypeScript 지원" icon="document">
+    포괄적인 타입 정의와 함께 완전한 TypeScript 지원
+  </Card>
+</CardGrid>
+
+## 설치
+
+```bash
+# npm
+npm install stax-xml
+
+# yarn
+yarn add stax-xml
+
+# pnpm
+pnpm add stax-xml
+
+# bun
+bun add stax-xml
+
+# deno
+deno add npm:stax-xml
+```
+
+**ESM-only 패키지:** StAX-XML은 ESM-only로 배포됩니다. `require('stax-xml')` 대신 `import { ... } from 'stax-xml'`를 사용하세요.
+
+## 빠른 예제
+
+```typescript
+import { EventReader, XmlEventType } from 'stax-xml';
+
+const xmlContent = '<root><item>안녕하세요</item></root>';
+const stream = new ReadableStream({
+  start(controller) {
+    controller.enqueue(new TextEncoder().encode(xmlContent));
+    controller.close();
+  }
+});
+
+async function parseXml() {
+  const reader = new EventReader(stream);
+  for await (const event of reader) {
+    console.log(event);
+  }
+}
+parseXml();
+```
+
+## 왜 StAX-XML인가?
+
+기존의 XML-to-JSON 매퍼와 달리, StAX-XML은 스트리밍이나 직접 문자열 처리를 통해 XML 파일을 효율적으로 처리하면서 XML 데이터를 원하는 모든 사용자 정의 구조로 매핑할 수 있습니다.
+
+- **완전 비동기**: 대용량 XML 파일의 메모리 효율적인 처리
+- **동기 지원**: 작은 인메모리 XML 문자열의 고성능 파싱
+- **사용자 정의 매핑**: XML 데이터를 단순한 JSON 객체가 아닌 모든 구조로 매핑
+- **네임스페이스 지원**: 기본 XML 네임스페이스 처리
+- **엔티티 지원**: 사용자 정의 엔티티 지원과 함께 내장 엔티티 디코딩
