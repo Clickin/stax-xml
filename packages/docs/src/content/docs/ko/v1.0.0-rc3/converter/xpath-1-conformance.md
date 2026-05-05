@@ -6,7 +6,7 @@ head:
     attrs:
       property: og:image
       content: https://clickin.github.io/stax-xml/og/converter/xpath-guide.png
-slug: ko/v1.0.0-rc3/converter/xpath-1-conformance
+slug: ko/v1.0.0-rc3/converter/xpath-guide/xpath-1-conformance
 ---
 
 이 매트릭스는 public converter XPath surface를 기준으로 합니다. XPath 표현식은

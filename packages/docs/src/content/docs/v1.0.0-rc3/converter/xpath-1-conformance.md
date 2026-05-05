@@ -6,7 +6,7 @@ head:
     attrs:
       property: og:image
       content: https://clickin.github.io/stax-xml/og/converter/xpath-guide.png
-slug: v1.0.0-rc3/converter/xpath-1-conformance
+slug: v1.0.0-rc3/converter/xpath-guide/xpath-1-conformance
 ---
 
 This matrix describes the public converter XPath surface. XPath expressions are

@@ -1,6 +1,6 @@
 ---
 title: StAX-XML FAQ - JavaScript XML Parser Questions & Answers
-description: StAX-XML 사용법, runtime 지원, 성능, pure JavaScript parser 결정에 대한 FAQ.
+description: StAX-XML 사용법, runtime 지원, 성능, package 실행 모델에 대한 FAQ.
 head:
   - tag: meta
     attrs:
@@ -47,7 +47,7 @@ slug: ko/v1.0.0-rc3/resources/faq
       "name": "StAX-XML은 native addon이나 Wasm을 사용하나요?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "아니요. JavaScript string/object를 반환하는 과정에서 decode, allocation, wrapper 비용이 필요하고 native/Wasm memory가 RSS를 늘리기 때문에 native와 Wasm parser mode는 제거했습니다."
+        "text": "아니요. StAX-XML은 순수 JavaScript 패키지로 배포됩니다. 공개 API가 JavaScript 문자열과 객체를 반환하므로 parsing과 값 생성을 JavaScript runtime 안에서 처리합니다."
       }
     }
   ]
@@ -88,17 +88,13 @@ for (const batch of reader) {
 }
 ```
 
-### 왜 native 또는 Wasm backend mode가 없나요?
+### StAX-XML은 native addon이나 Wasm을 사용하나요?
 
-Native와 Wasm tokenizer 실험에서 byte scanning 자체는 JavaScript 밖에서 더
-빨라질 수 있었습니다. 하지만 public API는 결국 JavaScript string, attribute,
-event object를 반환해야 합니다. JavaScript string은 immutable primitive라서
-파싱된 `char[]`식 데이터를 재사용 가능한 view로 넘길 수 없습니다.
-
-이 boundary에는 decode, allocation, wrapper, ownership 비용이 들어갑니다.
-Native heap이나 Wasm linear memory도 RSS를 증가시킵니다. StAX-XML의 목표는 낮은
-메모리, 대용량 XML, pull 방식 JavaScript 소비이므로, JS boundary에서 이점을 많이
-잃는 native scanner보다 portable pure JavaScript parser에 집중합니다.
+아니요. StAX-XML은 순수 JavaScript 패키지로 배포됩니다. 설치하거나 선택해야 하는
+native addon, Wasm parser module, backend selection 단계가 없습니다. 공개 API가
+JavaScript 문자열, attribute, event object, converter output object를 반환하므로
+지원하는 실행 모델은 parsing과 값 생성을 JavaScript 안에서 처리합니다. 자세한
+설명은 [실행 모델](/stax-xml/ko/resources/runtime-model/)을 참고하세요.
 
 ### Unknown XML은 어떻게 파싱하나요?
 
@@ -118,9 +114,9 @@ attribute를 `@name` key로 담는 compact object가 필요하면 `parseXmlObjec
 ### 대용량 파일은 어떻게 처리하나요?
 
 I/O boundary는 streaming으로 유지하고, 도착한 byte batch는 동기적으로
-파싱하세요. Ergonomic async surface는 `EventReader`입니다. 호출자가 이미 byte를
-batching할 수 있다면 `Iterable<Uint8Array[]>` 위의 `StreamReaderSync`가 더 낮은
-overhead의 sync batch surface입니다.
+파싱하세요. 읽기 쉬운 async API가 필요하면 `EventReader`를 사용하면 됩니다.
+호출자가 이미 byte를 batching할 수 있다면 `Iterable<Uint8Array[]>` 위의
+`StreamReaderSync`가 더 낮은 overhead의 sync batch API입니다.
 
 ### XML은 어떻게 작성하나요?
 

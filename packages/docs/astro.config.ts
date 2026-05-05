@@ -271,6 +271,7 @@ export default defineConfig({
             { label: 'Core Concepts', slug: 'converter/core-concepts', translations: { ko: '핵심 개념' } },
             { label: 'Schema Types', slug: 'converter/schemas', translations: { ko: '스키마 타입' } },
             { label: 'XPath Guide', slug: 'converter/xpath-guide', translations: { ko: 'XPath 가이드' } },
+            { label: 'XPath 1.0 Conformance', slug: 'converter/xpath-guide/xpath-1-conformance', translations: { ko: 'XPath 1.0 준수 범위' } },
             { label: 'Transformations', slug: 'converter/transformations', translations: { ko: '변환' } },
             { label: 'Writing XML', slug: 'converter/writing-xml', translations: { ko: 'XML 작성' } },
             { label: 'Examples', slug: 'converter/examples', translations: { ko: '예제' } },
@@ -294,6 +295,7 @@ export default defineConfig({
           },
           items: [
             { label: 'Benchmarks', slug: 'resources/benchmarks', translations: { ko: '벤치마크' } },
+            { label: 'Runtime Model', slug: 'resources/runtime-model', translations: { ko: '실행 모델' } },
             { label: 'FAQ', slug: 'resources/faq' },
           ],
         },

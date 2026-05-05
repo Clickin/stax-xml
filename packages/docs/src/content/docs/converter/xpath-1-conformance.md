@@ -1,6 +1,7 @@
 ---
 title: Converter - XPath 1.0 Conformance
 description: XPath 1.0 conformance matrix for the public converter surface
+slug: converter/xpath-guide/xpath-1-conformance
 head:
   - tag: meta
     attrs:

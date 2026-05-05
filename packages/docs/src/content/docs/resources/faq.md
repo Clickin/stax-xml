@@ -1,6 +1,6 @@
 ---
 title: StAX-XML FAQ - JavaScript XML Parser Questions & Answers
-description: FAQ covering StAX-XML usage, runtime support, performance, and the pure JavaScript parser decision.
+description: FAQ covering StAX-XML usage, runtime support, performance, and the package runtime model.
 head:
   - tag: meta
     attrs:
@@ -46,7 +46,7 @@ head:
       "name": "Does StAX-XML use native addons or Wasm?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Native and Wasm parser modes were removed because returning JavaScript strings and objects still requires decode, allocation, and wrapper work, while native or Wasm memory increases RSS."
+        "text": "No. StAX-XML is distributed as a pure JavaScript package. The public API returns JavaScript strings and objects, so parsing and value materialization stay inside the JavaScript runtime."
       }
     }
   ]
@@ -88,17 +88,14 @@ for (const batch of reader) {
 }
 ```
 
-### Why is there no native or Wasm backend mode?
+### Does StAX-XML use native addons or Wasm?
 
-Native and Wasm tokenizer experiments showed that byte scanning can be faster
-outside JavaScript. The full public API still has to return JavaScript strings,
-attributes, and event objects. JavaScript strings are immutable primitives, so
-the parsed `char[]`-style data cannot be handed back as a reusable view.
-
-That boundary adds decode, allocation, wrapper, and ownership costs. Native heap
-or Wasm linear memory also increases RSS. For StAX-XML's goals, low memory,
-large XML, and pull-style JavaScript consumption were more important than a
-native scanner that loses much of its benefit at the JS boundary.
+No. StAX-XML is distributed as a pure JavaScript package. There is no optional
+native addon, Wasm parser module, or backend selection step. The public API
+returns JavaScript strings, attributes, event objects, and converter output
+objects, so the supported runtime model keeps parsing and value materialization
+inside JavaScript. See [Runtime Model](/stax-xml/resources/runtime-model/) for
+the rationale.
 
 ### How do I parse unknown XML?
 

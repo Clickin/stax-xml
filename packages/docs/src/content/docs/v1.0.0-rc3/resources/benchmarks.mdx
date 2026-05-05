@@ -40,18 +40,12 @@ JavaScript string and object materialization.
   converter compiled batch-plan benchmark, plus the 1 GiB writer benchmark
   artifact.
 
-## Contract
+## Measurement Scope
 
 Parser benchmarks return JavaScript strings and JavaScript objects. They do not
-use native addons, Wasm parser modules, binary parser aggregation, or backend
-mode fallback. Large-file checks focus on low RSS, staying below JavaScript
-string-size limits, and pull-style consumption through the stream, event, and
-converter APIs.
-
-This pure JavaScript contract only removes native/Wasm/backend rows. It does
-not retire benchmark tracks that are unrelated to the native decision. Parser,
-stream reader, converter, builder, writer, async writer, and large writer sink
-benchmarks remain separate measurement surfaces.
+count raw-byte traversal as a completed parse. Large-file checks focus on low
+RSS, staying below JavaScript string-size limits, and pull-style consumption
+through the stream, event, and converter APIs.
 
 ## Release Results
 
@@ -78,8 +72,9 @@ accessors, skips warmup, and measures 3 runs.
 
 ## Other Benchmark Tracks
 
-The native/Wasm decision does not change the writer and builder benchmark
-contract:
+The release matrix is only one part of the benchmark suite. Parser, stream
+reader, converter, builder, writer, async writer, and large writer sink
+benchmarks remain separate measurement surfaces:
 
 | Track | Command | What it measures |
 | --- | --- | --- |
@@ -98,9 +93,8 @@ The release artifact keeps the 1 GiB writer result under
 ## Converter API Comparison
 
 The converter comparison is part of the pure JavaScript release contract. It
-does not call a native projection reader. The manual baseline consumes
-`StreamReaderSync` batches with `eventCount` plus index accessors. The converter
-rows parse the same byte fixture through:
+uses a manual `StreamReaderSync` baseline built from batches with `eventCount`
+plus index accessors. The converter rows parse the same byte fixture through:
 
 - `schema.parseSync(bytes)`, which auto-lowers supported schemas to the compiled
   dispatch batch plan.
@@ -146,19 +140,3 @@ for (const batch of reader) {
 objects. On the canonical 98 MiB fixture, index-first consumption was 730.56 ms
 with about 39.8 MiB heap delta, while wrapper iteration was 1.28 s with about
 482.7 MiB heap delta.
-
-## Why Native and Wasm Were Dropped
-
-Native or Wasm code can tokenize XML bytes quickly, but the public JavaScript
-API still has to return JavaScript strings and objects. JavaScript strings are
-immutable primitives, not reusable `char[]` views. A native addon can inspect
-JavaScript-owned bytes, but once parsed names, text, attributes, or event
-objects cross back into JavaScript, the implementation pays decode, allocation,
-wrapper, and ownership costs. Wasm has a separate linear memory and hits the
-same materialization boundary.
-
-Those bridge costs made the full public workload converge toward the pure
-JavaScript path, while native heap or Wasm memory increased RSS. StAX-XML
-therefore dropped native/Wasm backend modes and keeps the package focused on a
-portable pure JavaScript parser for low memory, large XML, and pull-style
-consumption.
