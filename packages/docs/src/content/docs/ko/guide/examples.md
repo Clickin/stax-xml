@@ -27,7 +27,7 @@ This page contains practical examples showing how to use StAX-XML for various XM
 Parse XML documents with namespace declarations:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlWithNamespaces = `
 <root xmlns:book="http://example.com/book" xmlns="http://example.com/default">
@@ -39,12 +39,12 @@ const xmlWithNamespaces = `
 </root>
 `;
 
-const parser = new StaxXmlParserSync(xmlWithNamespaces);
+const reader = new EventReaderSync(xmlWithNamespaces);
 
-for (const event of parser) {
+for (const event of reader) {
   if (event.type === XmlEventType.START_ELEMENT) {
     console.log(`Element: ${event.name}`);
-    console.log(`Namespace URI: ${event.namespaceURI || 'default'}`);
+    console.log(`Namespace URI: ${event.uri || 'default'}`);
     console.log(`Local name: ${event.localName}`);
     if (event.prefix) {
       console.log(`Prefix: ${event.prefix}`);
@@ -53,22 +53,22 @@ for (const event of parser) {
 }
 ```
 
-## Processing Large Files with Async Parser
+## EventReader로 대용량 파일 처리
 
-파일/네트워크 I/O까지 비동기로 유지해야 하면 `StaxXmlParser`를 사용하세요. API는 end-to-end async이고, parser backend는 도착한 byte batch를 동기적으로 소비합니다.
+파일/네트워크 I/O까지 비동기로 유지해야 하면 `EventReader`를 사용하세요. API는 stream boundary에서 async이고, 내부 tokenizer는 도착한 byte batch를 동기적으로 소비합니다.
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
 
 async function processLargeXml(filePath: string) {
   const fileStream = createReadStream(filePath, { highWaterMark: 1024 * 1024 });
   const webStream = Readable.toWeb(fileStream) as ReadableStream<Uint8Array>;
-  const parser = new StaxXmlParser(webStream);
+  const reader = new EventReader(webStream);
   let elementCount = 0;
 
-  for await (const event of parser) {
+  for await (const event of reader) {
     if (event.type === XmlEventType.START_ELEMENT) {
       elementCount++;
       if (elementCount % 1000 === 0) {
@@ -85,13 +85,13 @@ schema가 정해진 입력에서는 일반 event stream보다 선언형 field ex
 
 ## XML Generation with Writer
 
-작은 XML 문서는 `StaxXmlWriterSync`로 메모리에서 생성할 수 있습니다. 대용량 파일 출력에는 writer sync 가이드의 `StaxXmlWriterSyncSink`를 사용하세요.
+작은 XML 문서는 `WriterSync`로 메모리에서 생성할 수 있습니다. 대용량 파일 출력에는 writer sync 가이드의 `WriterSyncSink`를 사용하세요.
 
 ```typescript
-import { StaxXmlWriterSync } from 'stax-xml';
+import { WriterSync } from 'stax-xml';
 
 function generateBookCatalog() {
-  const writer = new StaxXmlWriterSync();
+  const writer = new WriterSync();
 
   writer.writeStartDocument();
   writer.writeStartElement('catalog');
@@ -133,7 +133,7 @@ function generateBookCatalog() {
 Handle self-closing XML elements:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlWithSelfClosing = `
 <document>
@@ -149,9 +149,9 @@ const xmlWithSelfClosing = `
 </document>
 `;
 
-const parser = new StaxXmlParserSync(xmlWithSelfClosing);
+const reader = new EventReaderSync(xmlWithSelfClosing);
 
-for (const event of parser) {
+for (const event of reader) {
   if (event.type === XmlEventType.START_ELEMENT) {
     console.log(`Start: ${event.name}`);
     if (event.attributes) {
@@ -168,7 +168,7 @@ for (const event of parser) {
 Extract and process XML attributes:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlWithAttributes = `
 <products>
@@ -190,12 +190,12 @@ interface Product {
 }
 
 function parseProducts(xml: string): Product[] {
-  const parser = new StaxXmlParserSync(xml);
+  const reader = new EventReaderSync(xml);
   const products: Product[] = [];
   let currentProduct: Partial<Product> = {};
   let currentElement = '';
 
-  for (const event of parser) {
+  for (const event of reader) {
     switch (event.type) {
       case XmlEventType.START_ELEMENT:
         if (event.name === 'product' && event.attributes) {
@@ -210,8 +210,8 @@ function parseProducts(xml: string): Product[] {
         break;
 
       case XmlEventType.CHARACTERS:
-        if (currentElement === 'name' && event.text.trim()) {
-          currentProduct.name = event.text.trim();
+        if (currentElement === 'name' && event.value.trim()) {
+          currentProduct.name = event.value.trim();
         }
         break;
 
@@ -237,18 +237,18 @@ console.log(products);
 Implement robust error handling:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 function parseWithErrorHandling(xmlString: string) {
-  const parser = new StaxXmlParserSync(xmlString);
+  const reader = new EventReaderSync(xmlString);
   const errors: string[] = [];
   let isValid = true;
 
   try {
-    for (const event of parser) {
+    for (const event of reader) {
       if (event.type === XmlEventType.ERROR) {
         isValid = false;
-        errors.push(`Error at position ${event.position}: ${event.message}`);
+        errors.push(`XML parsing error: ${event.error.message}`);
       } else if (event.type === XmlEventType.START_ELEMENT) {
         console.log(`Processing element: ${event.name}`);
       }
@@ -283,14 +283,14 @@ if (!result.isValid) {
 Transform XML to JSON:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 function xmlToJson(xmlString: string): any {
-  const parser = new StaxXmlParserSync(xmlString);
+  const reader = new EventReaderSync(xmlString);
   const stack: any[] = [];
   let result: any = null;
 
-  for (const event of parser) {
+  for (const event of reader) {
     switch (event.type) {
       case XmlEventType.START_ELEMENT:
         const element: any = {};
@@ -316,7 +316,7 @@ function xmlToJson(xmlString: string): any {
         break;
 
       case XmlEventType.CHARACTERS:
-        const text = event.text.trim();
+        const text = event.value.trim();
         if (text && stack.length > 0) {
           const current = stack[stack.length - 1];
           if (typeof current === 'object' && !current['#text']) {
@@ -356,19 +356,19 @@ console.log(JSON.stringify(jsonResult, null, 2));
 Optimize parsing for high-performance scenarios:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 // Pre-compile frequently used patterns
 const ELEMENT_NAMES = new Set(['book', 'title', 'author', 'price']);
 const TARGET_ELEMENTS = ['title', 'author', 'price'];
 
 function optimizedParsing(xmlString: string) {
-  const parser = new StaxXmlParserSync(xmlString);
+  const reader = new EventReaderSync(xmlString);
   const results: any[] = [];
   let currentBook: any = null;
   let currentElement = '';
 
-  for (const event of parser) {
+  for (const event of reader) {
     switch (event.type) {
       case XmlEventType.START_ELEMENT:
         // Use Set for O(1) lookup instead of array includes
@@ -383,7 +383,7 @@ function optimizedParsing(xmlString: string) {
       case XmlEventType.CHARACTERS:
         // Only process if we're in a target element and have text
         if (currentBook && TARGET_ELEMENTS.includes(currentElement)) {
-          const text = event.text.trim();
+          const text = event.value.trim();
           if (text) {
             currentBook[currentElement] = text;
           }

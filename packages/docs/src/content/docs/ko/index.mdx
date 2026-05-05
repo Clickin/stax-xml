@@ -74,7 +74,7 @@ deno add npm:stax-xml
 ## 빠른 예제
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const xmlContent = '<root><item>안녕하세요</item></root>';
 const stream = new ReadableStream({
@@ -85,8 +85,8 @@ const stream = new ReadableStream({
 });
 
 async function parseXml() {
-  const parser = new StaxXmlParser(stream);
-  for await (const event of parser) {
+  const reader = new EventReader(stream);
+  for await (const event of reader) {
     console.log(event);
   }
 }

@@ -1,5 +1,7 @@
 import {
   EventReaderSync,
+  StreamEventType,
+  StreamReaderSync,
   XmlEventType,
 } from '../stax-xml/dist/index.js';
 
@@ -224,6 +226,37 @@ function consumeEventTier(xml, tier) {
   return { eventCount, checksum };
 }
 
+function consumeStreamReaderIndex(bytes) {
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (const batch of new StreamReaderSync(bytes)) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const type = batch.typeAt(index);
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(checksum, batch.nameAt(index));
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldString(checksum, batch.textAt(index)?.trim());
+      }
+      if (type === StreamEventType.START_ELEMENT) {
+        const attrCount = batch.attributeCountAt(index);
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldString(checksum, batch.attributeNameAt(index, attrIndex));
+          checksum = foldString(checksum, batch.attributeValueAt(index, attrIndex));
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
 function measure(id, run, fileSizeMiB, options) {
   for (let index = 0; index < options.warmups; index++) {
     run();
@@ -291,6 +324,7 @@ async function main() {
     },
     scenarios: [
       measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
+      measure('stream-sync-index-full-string', () => consumeStreamReaderIndex(bytes), fileSizeMiB, options),
       measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
       measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
     ],

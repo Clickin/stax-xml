@@ -26,10 +26,10 @@ head:
 
 ## 기본 비동기 파싱
 
-비동기 파서를 사용하여 `ReadableStream`에서 XML을 파싱하는 방법입니다:
+비동기 event reader를 사용하여 `ReadableStream`에서 XML을 파싱하는 방법입니다:
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const xmlContent = `
 <bookstore>
@@ -55,9 +55,9 @@ const stream = new ReadableStream({
 });
 
 async function parseBooks() {
-  const parser = new StaxXmlParser(stream);
+  const reader = new EventReader(stream);
 
-  for await (const event of parser) {
+  for await (const event of reader) {
     if (event.type === XmlEventType.START_ELEMENT) {
       console.log(`시작 요소: ${event.name}`);
       if (event.attributes) {
@@ -79,15 +79,15 @@ parseBooks();
 
 ## 기본 동기 파싱
 
-작은 XML 문자열의 경우 동기 파서를 사용할 수 있습니다:
+작은 XML 문자열의 경우 동기 event reader를 사용할 수 있습니다:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlString = '<greeting>안녕하세요, 세계!</greeting>';
-const parser = new StaxXmlParserSync(xmlString);
+const reader = new EventReaderSync(xmlString);
 
-for (const event of parser) {
+for (const event of reader) {
   console.log(event.type, event);
 }
 ```
@@ -132,12 +132,12 @@ element 순서와 mixed content가 중요하면 `parseXmlTreeSync()`를 사용�
 StAX-XML은 잘못된 형식의 XML에 대한 오류 이벤트를 제공합니다:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const malformedXml = '<root><unclosed>';
-const parser = new StaxXmlParserSync(malformedXml);
+const reader = new EventReaderSync(malformedXml);
 
-for (const event of parser) {
+for (const event of reader) {
   if (event.type === XmlEventType.ERROR) {
     console.error('XML 파싱 오류:', event.error.message);
   }

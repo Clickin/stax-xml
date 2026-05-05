@@ -316,20 +316,20 @@ interface XmlWriteOptions {
   encoding?: string;           // Encoding (default: "UTF-8")
   prettyPrint?: boolean;       // Format with indentation
   indentString?: string;       // Indent string (default: "  ")
-  writer?: StaxXmlWriterSync | StaxXmlWriterSyncSink | StaxXmlWriter; // Optional injected writer
+  writer?: WriterSync | WriterSyncSink | Writer; // Optional injected writer
 }
 ```
 
 ### Sink-Based Sync Writing
 
-Use `writeSync()` with an injected `StaxXmlWriterSyncSink` to avoid building the whole XML string in memory. This is the recommended converter write path for large XML output.
+Use `writeSync()` with an injected `WriterSyncSink` to avoid building the whole XML string in memory. This is the recommended converter write path for large XML output.
 
 ```typescript
 import { x } from 'stax-xml/converter';
 import { openSync } from 'fs';
 import {
-  StaxXmlWriterSyncSink,
-  StaxXmlWriterSync
+  WriterSyncSink,
+  WriterSync
 } from 'stax-xml';
 import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 
@@ -340,7 +340,7 @@ const schema = x.object({
 });
 
 const fd = openSync('./catalog.xml', 'w');
-const sink = new StaxXmlWriterSyncSink(
+const sink = new WriterSyncSink(
   createNodeFileSyncTextSink(fd),
   { flushThreshold: 0.8, enableAutoFlush: true }
 );

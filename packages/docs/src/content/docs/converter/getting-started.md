@@ -32,7 +32,7 @@ The converter is a high-level XML parsing API that allows you to:
 - **Transform results** with post-processing functions
 - **Infer TypeScript types** automatically from schemas
 
-Unlike the low-level event-based `StaxXmlParser`, the converter provides a declarative way to extract structured data from XML.
+Unlike the low-level event-based `EventReader`, the converter provides a declarative way to extract structured data from XML.
 
 :::note[Inspired by Zod]
 The converter API design is heavily inspired by [Zod](https://github.com/colinhacks/zod), the popular TypeScript-first schema validation library. We adopted Zod's elegant fluent API pattern and type inference approach for XML parsing. If you're familiar with Zod, you'll feel right at home with the converter!
@@ -180,7 +180,7 @@ if (result.success) {
 - You want a declarative API
 - You need to extract structured data
 
-**Use the low-level StaxXmlParser when:**
+**Use the low-level EventReader or StreamReader when:**
 - You need maximum performance and control
 - XML structure is dynamic or unknown
 - You want event-driven processing

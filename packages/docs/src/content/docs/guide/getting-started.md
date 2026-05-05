@@ -61,29 +61,32 @@ Browser parsing uses the same JavaScript parser path as server runtimes, so depl
 
 StAX-XML provides two main parsing approaches:
 
-### Asynchronous Parsing (StaxXmlParser)
+### Asynchronous Parsing (EventReader)
 For memory-efficient processing of large XML files using streams:
 
 ```typescript
-import { StaxXmlParser } from 'stax-xml';
+import { EventReader } from 'stax-xml';
 
-const parser = new StaxXmlParser(readableStream);
-for await (const event of parser) {
+const reader = new EventReader(readableStream);
+for await (const event of reader) {
   // Process XML events
 }
 ```
 
-### Synchronous Parsing (StaxXmlParserSync)
+### Synchronous Parsing (EventReaderSync)
 For high-performance parsing of smaller, in-memory XML strings:
 
 ```typescript
-import { StaxXmlParserSync } from 'stax-xml';
+import { EventReaderSync } from 'stax-xml';
 
-const parser = new StaxXmlParserSync(xmlString);
-for (const event of parser) {
+const reader = new EventReaderSync(xmlString);
+for (const event of reader) {
   // Process XML events
 }
 ```
+
+For large byte-oriented workloads, use `StreamReader` or `StreamReaderSync` and
+consume each `StreamBatch` with `eventCount` plus index accessors.
 
 ## Next Steps
 

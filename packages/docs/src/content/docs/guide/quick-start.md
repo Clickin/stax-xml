@@ -26,10 +26,10 @@ This guide will help you parse your first XML document with StAX-XML.
 
 ## Basic Asynchronous Parsing
 
-Here's how to parse XML from a `ReadableStream` using the asynchronous parser:
+Here's how to parse XML from a `ReadableStream` using the asynchronous event reader:
 
 ```typescript
-import { StaxXmlParser, XmlEventType } from 'stax-xml';
+import { EventReader, XmlEventType } from 'stax-xml';
 
 const xmlContent = `
 <bookstore>
@@ -55,9 +55,9 @@ const stream = new ReadableStream({
 });
 
 async function parseBooks() {
-  const parser = new StaxXmlParser(stream);
+  const reader = new EventReader(stream);
 
-  for await (const event of parser) {
+  for await (const event of reader) {
     if (event.type === XmlEventType.START_ELEMENT) {
       console.log(`Start element: ${event.name}`);
       if (event.attributes) {
@@ -79,15 +79,15 @@ parseBooks();
 
 ## Basic Synchronous Parsing
 
-For smaller XML strings, you can use the synchronous parser:
+For smaller XML strings, you can use the synchronous event reader:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlString = '<greeting>Hello, World!</greeting>';
-const parser = new StaxXmlParserSync(xmlString);
+const reader = new EventReaderSync(xmlString);
 
-for (const event of parser) {
+for (const event of reader) {
   console.log(event.type, event);
 }
 ```
@@ -132,12 +132,12 @@ Use `parseXmlTreeSync()` when element order and mixed content matter. Use `parse
 StAX-XML provides error events for malformed XML:
 
 ```typescript
-import { StaxXmlParserSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const malformedXml = '<root><unclosed>';
-const parser = new StaxXmlParserSync(malformedXml);
+const reader = new EventReaderSync(malformedXml);
 
-for (const event of parser) {
+for (const event of reader) {
   if (event.type === XmlEventType.ERROR) {
     console.error('XML parsing error:', event.error.message);
   }

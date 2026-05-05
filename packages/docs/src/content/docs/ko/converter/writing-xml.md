@@ -215,7 +215,7 @@ interface XmlWriteOptions {
   encoding?: string;           // 인코딩 (기본: "UTF-8")
   prettyPrint?: boolean;       // 들여쓰기로 포맷
   indent?: string;             // 들여쓰기 문자열 (기본: "  ")
-  writer?: StaxXmlWriterSync | StaxXmlWriterSyncSink | StaxXmlWriter; // 주입형 writer
+  writer?: WriterSync | WriterSyncSink | Writer; // 주입형 writer
 }
 ```
 
@@ -227,8 +227,8 @@ interface XmlWriteOptions {
 import { x } from 'stax-xml/converter';
 import { openSync } from 'fs';
 import {
-  StaxXmlWriterSyncSink,
-  StaxXmlWriterSync
+  WriterSyncSink,
+  WriterSync
 } from 'stax-xml';
 import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 
@@ -239,7 +239,7 @@ const schema = x.object({
 });
 
 const fd = openSync('./catalog.xml', 'w');
-const sink = new StaxXmlWriterSyncSink(
+const sink = new WriterSyncSink(
   createNodeFileSyncTextSink(fd),
   { flushThreshold: 0.8, enableAutoFlush: true }
 );

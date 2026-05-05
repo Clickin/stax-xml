@@ -257,7 +257,7 @@ function createScenarioDetails(report) {
     '',
     '~~~text',
     'runtime-result = {',
-    '  scenario: "public-sync-full-string" | "event-count-only" | "event-full-string",',
+    '  scenario: "public-sync-full-string" | "stream-sync-index-full-string" | "event-count-only" | "event-full-string",',
     '  eventCount: number,',
     '  checksum: fold(event type, names, text, attr names, attr values),',
     '  peakHeapUsedBytes: number',
@@ -270,6 +270,7 @@ function createScenarioDetails(report) {
     '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
     '- `public-sync-full-string` uses `EventReaderSync` over one string.',
+    '- `stream-sync-index-full-string` uses `StreamReaderSync` over bytes and consumes each `StreamBatch` with `eventCount` plus index accessors.',
     '- `event-count-only` and `event-full-string` use public event reader checksum tiers; they are not async parser rows.',
     '- This matrix measures only the public pure JavaScript reader path.',
     '',
@@ -321,6 +322,7 @@ function createMarkdown(report) {
   lines.push('## Contract');
   lines.push('');
   lines.push('- `public-sync-full-string` uses `EventReaderSync` and folds element names, text, attribute names, and attribute values into a checksum.');
+  lines.push('- `stream-sync-index-full-string` uses `StreamReaderSync` and folds the same full-string checksum through batch-local index accessors.');
   lines.push('- `event-count-only` uses the public event reader without string field folding beyond event counts and attribute counts.');
   lines.push('- `event-full-string` uses the same public event reader and materializes the full string checksum workload.');
   lines.push('- All runtime rows must preserve event count and checksum for the same scenario.');

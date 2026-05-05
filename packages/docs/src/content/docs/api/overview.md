@@ -37,19 +37,24 @@ The public package is a pure JavaScript StAX-style parser and writer.
 
 Recommendation: use the converter API first when the target XML-to-object shape
 is known. If you need a low-overhead StAX core, start with `StreamReader` or
-`StreamReaderSync`. If you want ergonomic event objects, use `EventReader` or
-`EventReaderSync`.
+`StreamReaderSync`; on large synchronous byte input, consume each batch with
+`eventCount` plus index accessors. If you want ergonomic event objects, use
+`EventReader` or `EventReaderSync`.
 
 | Surface | Import path | Purpose | Implementation notes |
 | --- | --- | --- | --- |
 | `StreamReader` | `stax-xml` | Async batch-first StAX core for `ReadableStream<Uint8Array>`. | Uses the JavaScript byte reader and yields `StreamBatch` views. |
-| `StreamReaderSync` | `stax-xml` | Sync batch-first StAX core for `Uint8Array` or byte-batch iterables. | Uses the JavaScript byte reader and invalidates views on the next `nextBatch()` call. |
+| `StreamReaderSync` | `stax-xml` | Sync batch-first StAX core for `Uint8Array` or byte-batch iterables. | Uses the JavaScript byte reader. `eventCount` is batch-local, and views are invalidated by the next `nextBatch()` call. |
 | `EventReader` | `stax-xml` | Async event reader for `ReadableStream<Uint8Array>` input. | Preserves stream backpressure at the public boundary. |
 | `EventReaderSync` | `stax-xml` | Sync event reader for an in-memory XML string. | Materializes `AnyXmlEvent` values from the JavaScript reader stack. |
 | `Writer` | `stax-xml` | Async writer for `WritableStream<Uint8Array>`. | Emits encoded XML incrementally to a web writable stream. |
 | `WriterSync` | `stax-xml` | In-memory synchronous writer. | Builds and returns the XML string; the package default export remains `WriterSync`. |
 | `WriterSyncSink` | `stax-xml` | Synchronous sink writer for large output. | Writes incrementally to a `SyncTextSink` instead of retaining the full XML string. |
 | Tree/object helpers | `stax-xml` | `parseXmlTree*()` and `parseXmlObject*()` convenience APIs. | Project unknown XML into an order-preserving tree or compact object using the same reader stack. |
+
+The package does not expose native, Wasm, or backend-selection modes. The
+public contract is pure JavaScript and the boundary cost of returning
+JavaScript strings and objects is part of the measured workload.
 
 ## Type Definitions
 

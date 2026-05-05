@@ -32,7 +32,7 @@ Converter는 다음을 가능하게 하는 고수준 XML 파싱 API입니다:
 - **결과 변환** - 후처리 함수 제공
 - **TypeScript 타입 자동 추론** - 스키마에서 자동 추론
 
-저수준 이벤트 기반 `StaxXmlParser`와 달리, Converter는 XML에서 구조화된 데이터를 추출하는 선언적 방법을 제공합니다.
+저수준 이벤트 기반 `EventReader`와 달리, Converter는 XML에서 구조화된 데이터를 추출하는 선언적 방법을 제공합니다.
 
 :::note[Zod에서 영감을 받았습니다]
 Converter API 디자인은 인기 있는 TypeScript 우선 스키마 검증 라이브러리인 [Zod](https://github.com/colinhacks/zod)에서 많은 영감을 받았습니다. XML 파싱을 위해 Zod의 우아한 fluent API 패턴과 타입 추론 방식을 채택했습니다. Zod에 익숙하다면 Converter도 편안하게 사용하실 수 있습니다!
@@ -180,7 +180,7 @@ if (result.success) {
 - 선언적 API를 원할 때
 - 구조화된 데이터 추출이 필요할 때
 
-**저수준 StaxXmlParser 사용:**
+**저수준 EventReader 또는 StreamReader 사용:**
 - 최대 성능과 제어가 필요할 때
 - XML 구조가 동적이거나 알 수 없을 때
 - 이벤트 기반 처리를 원할 때
