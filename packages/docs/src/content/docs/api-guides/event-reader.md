@@ -22,7 +22,7 @@ head:
 
 ## EventReader - Asynchronous XML Parsing
 
-`EventReader` is a high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). Its public API is asynchronous for stream and backpressure integration, while the tokenizer backend consumes received byte batches synchronously.
+`EventReader` is a high-performance, pull-based XML parser for JavaScript/TypeScript inspired by Java's StAX (Streaming API for XML). Its public API is asynchronous for stream and backpressure integration, while tokenization consumes received byte batches synchronously.
 
 ### 🔧 Quick Start
 

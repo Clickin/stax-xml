@@ -22,7 +22,7 @@ head:
 
 ## EventReader - 비동기 XML 파싱
 
-`EventReader`는 Java의 StAX(Streaming API for XML)에서 영감을 받은 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 공개 API는 stream/backpressure 연동을 위해 비동기이며, tokenizer backend는 도착한 byte batch를 동기적으로 소비합니다.
+`EventReader`는 Java의 StAX(Streaming API for XML)에서 영감을 받은 JavaScript/TypeScript용 고성능 풀 기반 XML 파서입니다. 공개 API는 stream/backpressure 연동을 위해 비동기이며, tokenization은 도착한 byte batch를 동기적으로 소비합니다.
 
 ### 🔧 빠른 시작
 

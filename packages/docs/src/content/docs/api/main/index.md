@@ -1838,7 +1838,7 @@ Asynchronous stream reader options.
 
 Defined in: [packages/stax-xml/src/StreamReader.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReader.ts#L21)
 
-Text encoding passed to the active streaming backend.
+Text encoding used when materializing text from byte batches.
 
 ###### Default Value
 
@@ -1876,7 +1876,7 @@ Synchronous stream reader options.
 
 Defined in: [packages/stax-xml/src/StreamReaderSync.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/StreamReaderSync.ts#L26)
 
-Text encoding passed to the active streaming backend.
+Text encoding used when materializing text from byte batches.
 
 ###### Default Value
 

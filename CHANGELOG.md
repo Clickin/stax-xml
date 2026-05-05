@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-rc3] - 2026-05-05
+
+### Changed
+
+- Re-centered the package on the pure JavaScript implementation: no native addon,
+  Wasm parser module, or backend-selection mode is part of the public package
+  contract.
+- Updated the release documentation around `StreamReaderSync`, `EventReader`,
+  converter, writer, runtime behavior, and XPath conformance for the rc3
+  surface.
+- Replaced hardcoded benchmark tables in the docs with generated tables that
+  read the rc3 benchmark JSON snapshot.
+
+### Performance
+
+- Refreshed the release benchmark set on Node 24.15.0, Bun 1.3.13, and Deno
+  2.7.13 with 16 MiB runtime rows, a 4 GiB `StreamReaderSync` index-first row,
+  converter compiled batch-plan rows, and the 1 GiB writer artifact.
+- Optimized converter compiled batch dispatch for the pure JavaScript path while
+  keeping converter positioned as a convenience/schema wrapper over the lower
+  level stream reader surface.
+
+### Removed
+
+- Removed native-addon and Wasm-parser positioning from release-facing docs and
+  benchmarks. Historical implementation notes are kept out of the public docs.
+
 ## [0.7.0] - 2026-04-19
 
 ### Added

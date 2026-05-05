@@ -19,7 +19,7 @@ export type { StreamBatch, StreamEventView, StreamReaderSyncByteBatch, StreamRea
  */
 export interface StreamReaderSyncOptions {
   /**
-   * Text encoding passed to the active streaming backend.
+   * Text encoding used when materializing text from byte batches.
    *
    * @defaultValue 'utf-8'
    */

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T02:23:55.933Z",
+  "generatedAt": "2026-05-05T03:50:47.714Z",
   "package": "stax-xml",
   "runtime": {
     "name": "node",
@@ -24,12 +24,12 @@
   "results": [
     {
       "name": "manual-streamreader-sync",
-      "averageMs": 199.57768000000002,
-      "throughputMiBs": 80.16971074628265,
-      "minMs": 190.92219999999998,
-      "maxMs": 208.28870000000006,
-      "averageHeapDeltaBytes": 58678446.4,
-      "averageRssDeltaBytes": 13780582.4,
+      "averageMs": 196.03638000000007,
+      "throughputMiBs": 81.61793681873822,
+      "minMs": 188.1496000000002,
+      "maxMs": 201.45839999999998,
+      "averageHeapDeltaBytes": 56480526.4,
+      "averageRssDeltaBytes": 11055104,
       "summary": {
         "books": 139458,
         "firstTitle": "Compiled Batch Plan 0",
@@ -38,12 +38,12 @@
     },
     {
       "name": "converter-auto-compiled-batch-plan",
-      "averageMs": 339.63238,
-      "throughputMiBs": 47.11001017339442,
-      "minMs": 325.5229999999997,
-      "maxMs": 347.4250000000002,
-      "averageHeapDeltaBytes": 50074126.4,
-      "averageRssDeltaBytes": 16403660.8,
+      "averageMs": 312.0019799999997,
+      "throughputMiBs": 51.28199788031529,
+      "minMs": 300.26489999999967,
+      "maxMs": 322.1293999999998,
+      "averageHeapDeltaBytes": 55772075.2,
+      "averageRssDeltaBytes": 12510822.4,
       "summary": {
         "books": 139458,
         "firstTitle": "Compiled Batch Plan 0",
@@ -52,12 +52,12 @@
     },
     {
       "name": "converter-explicit-compiled-batch-plan",
-      "averageMs": 347.6071,
-      "throughputMiBs": 46.02922344513147,
-      "minMs": 342.23189999999977,
-      "maxMs": 354.0738000000001,
-      "averageHeapDeltaBytes": 50119736,
-      "averageRssDeltaBytes": 14125465.6,
+      "averageMs": 319.63103999999964,
+      "throughputMiBs": 50.057982094023714,
+      "minMs": 304.7074999999995,
+      "maxMs": 328.21689999999944,
+      "averageHeapDeltaBytes": 55905054.4,
+      "averageRssDeltaBytes": 14136934.4,
       "summary": {
         "books": 139458,
         "firstTitle": "Compiled Batch Plan 0",

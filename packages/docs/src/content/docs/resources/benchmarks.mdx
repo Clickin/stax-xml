@@ -20,6 +20,8 @@ head:
       content: https://clickin.github.io/stax-xml/og/resources/benchmarks.png
 ---
 
+import ReleaseBenchmarkTable from '../../../components/ReleaseBenchmarkTable.astro';
+
 StAX-XML benchmarks the package as a pure JavaScript parser. The `latest`
 documentation and the `v1.0.0-rc3` release benchmark set use this same contract:
 measure the public JavaScript surfaces that users actually call, with full
@@ -52,22 +54,13 @@ The current release set was refreshed on Node 24.15.0, Bun 1.3.13, and Deno
 2.7.13. Runtime rows use a generated 16 MiB fixture, 1 warmup, and 3 measured
 runs.
 
-| Runtime | Workload | Throughput | Average | Heap delta |
-| --- | --- | ---: | ---: | ---: |
-| Node 24.15.0 | `public-sync-full-string` | 96.1 MiB/s | 166.50 ms | 24.6 MiB |
-| Node 24.15.0 | `stream-sync-index-full-string` | 105.5 MiB/s | 151.66 ms | 23.3 MiB |
-| Bun 1.3.13 | `public-sync-full-string` | 69.2 MiB/s | 231.12 ms | 16.8 MiB |
-| Bun 1.3.13 | `stream-sync-index-full-string` | 138.7 MiB/s | 115.36 ms | 67.2 MiB |
-| Deno 2.7.13 | `public-sync-full-string` | 93.3 MiB/s | 171.51 ms | 27.5 MiB |
-| Deno 2.7.13 | `stream-sync-index-full-string` | 111.2 MiB/s | 143.94 ms | 27.8 MiB |
+<ReleaseBenchmarkTable kind="runtime" />
 
 The 4 GiB generated stream fixture uses `StreamReaderSync` over
 `Iterable<Uint8Array[]>`, consumes each batch with `eventCount` plus index
 accessors, skips warmup, and measures 3 runs.
 
-| Workload | Average | Throughput | Events | Average RSS delta |
-| --- | ---: | ---: | ---: | ---: |
-| `StreamReaderSync` index-first, 4 GiB | 43.44 s | 94.29 MiB/s | 572,662,314 | 4.0 MiB |
+<ReleaseBenchmarkTable kind="stream4gib" />
 
 ## Other Benchmark Tracks
 
@@ -93,7 +86,9 @@ The release artifact keeps the 1 GiB writer result under
 
 The converter comparison is part of the pure JavaScript release contract. It
 uses a manual `StreamReaderSync` baseline built from batches with `eventCount`
-plus index accessors. The converter rows parse the same byte fixture through:
+plus index accessors. The manual baseline creates the same selected object
+layout, but it remains a fixture-specific lower bound rather than a schema
+wrapper. The converter rows parse the same byte fixture through:
 
 - `schema.parseSync(bytes)`, which auto-lowers supported schemas to the compiled
   dispatch batch plan.
@@ -104,11 +99,7 @@ Both converter rows are verified against the manual projection before timing.
 The release artifact is
 `packages/benchmark/results/release/converter-compiled-batch-plan.json`.
 
-| Case | Throughput | Average | Books | Checksum |
-| --- | ---: | ---: | ---: | ---: |
-| Manual `StreamReaderSync` projection | 80.17 MiB/s | 199.58 ms | 139,458 | -1845341048 |
-| Converter `schema.parseSync(bytes)` | 47.11 MiB/s | 339.63 ms | 139,458 | -1845341048 |
-| Converter `schema.compile().parseSync(bytes)` | 46.03 MiB/s | 347.61 ms | 139,458 | -1845341048 |
+<ReleaseBenchmarkTable kind="converter" />
 
 ## StreamReaderSync Consumption
 

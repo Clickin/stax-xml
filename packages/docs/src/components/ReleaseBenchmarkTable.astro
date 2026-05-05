@@ -1,0 +1,153 @@
+---
+import runtimeMatrix from '../data/benchmarks/v1.0.0-rc3/runtime-matrix.json';
+import streamReader4GiB from '../data/benchmarks/v1.0.0-rc3/stream-reader-4gb.json';
+import converterBatch from '../data/benchmarks/v1.0.0-rc3/converter-compiled-batch-plan.json';
+
+type Kind = 'runtime' | 'stream4gib' | 'converter';
+type Locale = 'en' | 'ko';
+
+const { kind, locale = 'en' } = Astro.props as { kind: Kind; locale?: Locale };
+
+const headings = {
+  en: {
+    runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Heap'],
+    stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Average RSS delta'],
+    converter: ['Case', 'Throughput', 'Average', 'Books', 'Checksum'],
+  },
+  ko: {
+    runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Heap'],
+    stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Average RSS delta'],
+    converter: ['Case', 'Throughput', 'Average', 'Books', 'Checksum'],
+  },
+} as const;
+
+const runtimeRows = runtimeMatrix.results.flatMap((runtime) =>
+  runtime.scenarios
+    .filter((scenario) =>
+      scenario.id === 'public-sync-full-string'
+      || scenario.id === 'stream-sync-index-full-string'
+    )
+    .map((scenario) => ({
+      runtime: `${runtime.runtime.id === 'node' ? 'Node' : runtime.runtime.id === 'bun' ? 'Bun' : 'Deno'} ${runtime.runtime.version}`,
+      workload: scenario.id,
+      throughput: `${formatNumber(scenario.mibPerSec, 1)} MiB/s`,
+      average: `${formatNumber(scenario.avgMs, 2)} ms`,
+      heap: `${formatNumber(scenario.peakHeapUsedBytes / 1024 / 1024, 1)} MiB`,
+    }))
+);
+
+const streamRows = streamReader4GiB.results.map((result) => ({
+  workload: 'StreamReaderSync index-first, 4 GiB',
+  average: `${formatNumber(result.avgMs / 1000, 2)} s`,
+  throughput: `${formatNumber(result.avgMiBs, 2)} MiB/s`,
+  events: formatInteger(result.events),
+  rss: `${formatNumber(result.avgRssDelta / 1024 / 1024, 1)} MiB`,
+}));
+
+const converterLabels = {
+  en: {
+    'manual-streamreader-sync': 'Manual StreamReaderSync projection',
+    'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
+    'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',
+  },
+  ko: {
+    'manual-streamreader-sync': '수동 StreamReaderSync 변환',
+    'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
+    'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',
+  },
+} as const;
+
+const converterRows = converterBatch.results.map((result) => ({
+  caseName: converterLabels[locale][result.name as keyof typeof converterLabels.en] ?? result.name,
+  throughput: `${formatNumber(result.throughputMiBs, 2)} MiB/s`,
+  average: `${formatNumber(result.averageMs, 2)} ms`,
+  books: formatInteger(result.summary.books),
+  checksum: String(result.summary.checksum),
+}));
+
+function formatNumber(value: number, digits: number): string {
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+function formatInteger(value: number): string {
+  return value.toLocaleString('en-US');
+}
+---
+
+{kind === 'runtime' && (
+  <table>
+    <thead>
+      <tr>
+        <th>{headings[locale].runtime[0]}</th>
+        <th>{headings[locale].runtime[1]}</th>
+        <th>{headings[locale].runtime[2]}</th>
+        <th>{headings[locale].runtime[3]}</th>
+        <th>{headings[locale].runtime[4]}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {runtimeRows.map((row) => (
+        <tr>
+          <td>{row.runtime}</td>
+          <td><code>{row.workload}</code></td>
+          <td>{row.throughput}</td>
+          <td>{row.average}</td>
+          <td>{row.heap}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
+{kind === 'stream4gib' && (
+  <table>
+    <thead>
+      <tr>
+        <th>{headings[locale].stream4gib[0]}</th>
+        <th>{headings[locale].stream4gib[1]}</th>
+        <th>{headings[locale].stream4gib[2]}</th>
+        <th>{headings[locale].stream4gib[3]}</th>
+        <th>{headings[locale].stream4gib[4]}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {streamRows.map((row) => (
+        <tr>
+          <td><code>{row.workload}</code></td>
+          <td>{row.average}</td>
+          <td>{row.throughput}</td>
+          <td>{row.events}</td>
+          <td>{row.rss}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
+{kind === 'converter' && (
+  <table>
+    <thead>
+      <tr>
+        <th>{headings[locale].converter[0]}</th>
+        <th>{headings[locale].converter[1]}</th>
+        <th>{headings[locale].converter[2]}</th>
+        <th>{headings[locale].converter[3]}</th>
+        <th>{headings[locale].converter[4]}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {converterRows.map((row) => (
+        <tr>
+          <td>{row.caseName}</td>
+          <td>{row.throughput}</td>
+          <td>{row.average}</td>
+          <td>{row.books}</td>
+          <td>{row.checksum}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}

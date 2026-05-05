@@ -69,6 +69,10 @@ for (const event of reader) {
 - `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a sync
   sink path for large output.
 
+For projection-heavy workloads, `StreamReaderSync` is the lower-level
+performance surface. The converter API is a schema wrapper for readability and
+validation, and it may trade throughput for that abstraction.
+
 ### Runtime Matrix
 
 Benchmark scripts live under `packages/benchmark`. The maintained runtime
@@ -146,6 +150,10 @@ for (const event of reader) {
 - `stax-xml/converter`: schema 기반 XML-to-object parsing 및 XML writing.
 - `Writer`, `WriterSync`, `WriterSyncSink`: 큰 출력에 적합한 sync sink path를 포함한
   XML output API.
+
+projection 중심 workload에서는 `StreamReaderSync`가 lower-level performance
+surface입니다. converter API는 readability와 validation을 위한 schema wrapper라서
+그 abstraction 비용만큼 throughput을 양보할 수 있습니다.
 
 ### Runtime Matrix
 

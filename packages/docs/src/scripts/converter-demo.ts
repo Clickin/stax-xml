@@ -2,20 +2,20 @@
 import { x } from 'stax-xml/converter';
 import ConverterDemoWorker from './converter-demo-worker.ts?worker';
 
-const JS_CONVERTER_BACKEND = {
+const JS_CONVERTER_PATH = {
   id: 'js',
   label: 'JS',
   detail: 'Pure JavaScript converter path'
 };
 
-async function parseTextWithSelectedConverterBackend(schema, text, parseOptions, mode) {
+async function parseTextWithConverterPath(schema, text, parseOptions, mode) {
   const parseStart = performance.now();
   const result = mode === 'async'
     ? await schema.parse(text, parseOptions)
     : schema.parseSync(text, parseOptions);
   return {
     result,
-    backend: JS_CONVERTER_BACKEND,
+    path: JS_CONVERTER_PATH,
     timings: {
       jsParseMs: performance.now() - parseStart
     }
@@ -286,7 +286,7 @@ const parseTimeEl = document.getElementById('parseTime');
 const modeEl = document.getElementById('mode');
 const xmlSizeEl = document.getElementById('xmlSize');
 const throughputEl = document.getElementById('throughput');
-const backendEl = document.getElementById('backend');
+const converterPathEl = document.getElementById('converterPath');
 const parseBtn = document.getElementById('parseBtn');
 const clearBtn = document.getElementById('clearBtn');
 const fileInputEl = document.getElementById('fileInput');
@@ -335,8 +335,8 @@ function clearOutput() {
   modeEl.textContent = '-';
   xmlSizeEl.textContent = '-';
   throughputEl.textContent = '-';
-  backendEl.textContent = JS_CONVERTER_BACKEND.label;
-  backendEl.title = JS_CONVERTER_BACKEND.detail;
+  converterPathEl.textContent = JS_CONVERTER_PATH.label;
+  converterPathEl.title = JS_CONVERTER_PATH.detail;
   resetFileInputValue(fileInputEl);
   loadedFile = null;
 }
@@ -416,7 +416,7 @@ async function parseXML() {
     let result;
     let xmlSize;
     let workerTimings = null;
-    let activeBackend = JS_CONVERTER_BACKEND;
+    let activePath = JS_CONVERTER_PATH;
     const inputSize = loadedFile ? loadedFile.size : new Blob([xmlInput]).size;
     const parseOptions = inputSize > LARGE_INPUT_THRESHOLD
       ? { maxEvents: LARGE_INPUT_MAX_EVENTS }
@@ -429,10 +429,10 @@ async function parseXML() {
       }
       const schemaFunction = new Function('x', `return ${schemaInput}`);
       const schema = schemaFunction(x);
-      const backendResult = await parseTextWithSelectedConverterBackend(schema, xmlInput, parseOptions, 'sync');
-      result = backendResult.result;
-      activeBackend = backendResult.backend;
-      workerTimings = backendResult.timings;
+      const pathResult = await parseTextWithConverterPath(schema, xmlInput, parseOptions, 'sync');
+      result = pathResult.result;
+      activePath = pathResult.path;
+      workerTimings = pathResult.timings;
       xmlSize = inputSize;
     } else {
       const workerResponse = await parseXmlInWorker({
@@ -444,7 +444,7 @@ async function parseXML() {
       });
       result = workerResponse.result;
       xmlSize = workerResponse.xmlSize;
-      activeBackend = workerResponse.backend ?? JS_CONVERTER_BACKEND;
+      activePath = workerResponse.path ?? JS_CONVERTER_PATH;
       workerTimings = workerResponse.timings ?? null;
       if (workerTimings) {
         console.info('converter-demo timings', workerTimings);
@@ -459,8 +459,8 @@ async function parseXML() {
     parseTimeEl.textContent = durationLabel;
     modeEl.textContent = mode.toUpperCase();
     xmlSizeEl.textContent = xmlSize.toLocaleString();
-    backendEl.textContent = activeBackend.label;
-    backendEl.title = activeBackend.detail;
+    converterPathEl.textContent = activePath.label;
+    converterPathEl.title = activePath.detail;
     const throughput = ((xmlSize / 1024) / (durationMs / 1000)).toFixed(2);
     throughputEl.textContent = throughput;
 
@@ -470,7 +470,7 @@ async function parseXML() {
     const timingSuffix = mode === 'async' && typeof workerTimings?.workerTotalMs === 'number'
       ? ` (worker ${workerTimings.workerTotalMs.toFixed(2)}ms, parse ${workerTimings.parseMs.toFixed(2)}ms, mode ${workerTimings.parseMode})`
       : '';
-    messageEl.innerHTML = `<div class="success">✅ Successfully parsed XML in ${durationLabel}ms using ${mode} mode on ${activeBackend.label}${parseOptionSuffix}${timingSuffix}.</div>`;
+    messageEl.innerHTML = `<div class="success">✅ Successfully parsed XML in ${durationLabel}ms using ${mode} mode on ${activePath.label}${parseOptionSuffix}${timingSuffix}.</div>`;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     outputEl.textContent = '';

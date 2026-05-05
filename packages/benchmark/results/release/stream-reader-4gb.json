@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T01:37:38.211Z",
+  "generatedAt": "2026-05-05T03:50:40.932Z",
   "packageVersion": "1.0.0-rc3",
   "runtime": {
     "id": "node",
@@ -24,11 +24,11 @@
       "style": "index-for",
       "events": 572662314,
       "checksum": -1788666544,
-      "avgMs": 43438.40936666667,
-      "minMs": 41904.5417,
-      "maxMs": 44221.24339999999,
-      "avgMiBs": 94.29442978418122,
-      "avgRssDelta": 4242090.666666667
+      "avgMs": 43556.3034,
+      "minMs": 42174.529500000004,
+      "maxMs": 44562.60309999999,
+      "avgMiBs": 94.03920264642271,
+      "avgRssDelta": 4456448
     }
   ]
 }

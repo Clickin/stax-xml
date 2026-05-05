@@ -14,7 +14,7 @@ export type { StreamBatch, StreamEventView } from './stream-reader-core.js';
  */
 export interface StreamReaderOptions {
   /**
-   * Text encoding passed to the active streaming backend.
+   * Text encoding used when materializing text from byte batches.
    *
    * @defaultValue 'utf-8'
    */

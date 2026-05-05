@@ -57,6 +57,10 @@ for (const event of reader) {
 - `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a sync
   sink path for large output.
 
+For projection-heavy workloads, `StreamReaderSync` is the lower-level
+performance surface. The converter API is a schema wrapper for readability and
+validation, and it may trade throughput for that abstraction.
+
 ## Benchmarks
 
 Benchmark scripts live under `packages/benchmark`. The maintained runtime

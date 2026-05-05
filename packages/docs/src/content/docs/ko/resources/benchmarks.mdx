@@ -20,6 +20,8 @@ head:
       content: https://clickin.github.io/stax-xml/og/ko/resources/benchmarks.png
 ---
 
+import ReleaseBenchmarkTable from '../../../../components/ReleaseBenchmarkTable.astro';
+
 StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `latest` 문서와
 `v1.0.0-rc3` 릴리스 결과는 같은 측정 기준을 사용합니다. JavaScript에서 실제
 호출하는 공개 API가 문자열과 객체를 만드는 비용까지 포함해 측정합니다.
@@ -47,22 +49,13 @@ RSS, JavaScript 문자열 크기 제한 회피, stream/event/converter API의 pu
 측정했습니다. Runtime 행은 생성된 16 MiB fixture, warmup 1회, 측정 3회를
 기준으로 합니다.
 
-| Runtime | Workload | Throughput | Average | Heap delta |
-| --- | --- | ---: | ---: | ---: |
-| Node 24.15.0 | `public-sync-full-string` | 96.1 MiB/s | 166.50 ms | 24.6 MiB |
-| Node 24.15.0 | `stream-sync-index-full-string` | 105.5 MiB/s | 151.66 ms | 23.3 MiB |
-| Bun 1.3.13 | `public-sync-full-string` | 69.2 MiB/s | 231.12 ms | 16.8 MiB |
-| Bun 1.3.13 | `stream-sync-index-full-string` | 138.7 MiB/s | 115.36 ms | 67.2 MiB |
-| Deno 2.7.13 | `public-sync-full-string` | 93.3 MiB/s | 171.51 ms | 27.5 MiB |
-| Deno 2.7.13 | `stream-sync-index-full-string` | 111.2 MiB/s | 143.94 ms | 27.8 MiB |
+<ReleaseBenchmarkTable kind="runtime" locale="ko" />
 
 4 GiB stream fixture는 `Iterable<Uint8Array[]>` 위의 `StreamReaderSync`를
 사용합니다. 각 batch는 `eventCount`와 index accessor로 소비하고, warmup 없이
 3회 측정합니다.
 
-| Workload | Average | Throughput | Events | Average RSS delta |
-| --- | ---: | ---: | ---: | ---: |
-| `StreamReaderSync` index-first, 4 GiB | 43.44 s | 94.29 MiB/s | 572,662,314 | 4.0 MiB |
+<ReleaseBenchmarkTable kind="stream4gib" locale="ko" />
 
 ## 기타 벤치마크 항목
 
@@ -85,10 +78,11 @@ converter, builder, writer, async writer, large writer sink benchmark는 계속
 
 ## Converter API 비교
 
-Converter 비교는 순수 JavaScript 릴리스 측정에 포함됩니다. Native reader를
-호출해 값을 받아오는 경로는 사용하지 않습니다. 수동 기준값은 `StreamReaderSync`
-batch를 `eventCount`와 index accessor로 소비해 만듭니다. Converter 행은 같은 byte fixture를
-다음 경로로 파싱합니다.
+Converter 비교는 순수 JavaScript 릴리스 측정에 포함됩니다. 수동 기준값은
+`StreamReaderSync` batch를 `eventCount`와 index accessor로 소비해 만듭니다.
+수동 기준값은 선택된 object layout을 converter 결과와 맞추지만, schema wrapper가
+아닌 fixture 전용 하한값입니다. Converter 행은 같은 byte fixture를 다음 경로로
+파싱합니다.
 
 - `schema.parseSync(bytes)`: 지원 가능한 schema를 compiled dispatch batch plan으로
   자동 변환합니다.
@@ -99,11 +93,7 @@ batch를 `eventCount`와 index accessor로 소비해 만듭니다. Converter 행
 결과 파일은
 `packages/benchmark/results/release/converter-compiled-batch-plan.json`입니다.
 
-| Case | Throughput | Average | Books | Checksum |
-| --- | ---: | ---: | ---: | ---: |
-| 수동 `StreamReaderSync` 변환 | 80.17 MiB/s | 199.58 ms | 139,458 | -1845341048 |
-| Converter `schema.parseSync(bytes)` | 47.11 MiB/s | 339.63 ms | 139,458 | -1845341048 |
-| Converter `schema.compile().parseSync(bytes)` | 46.03 MiB/s | 347.61 ms | 139,458 | -1845341048 |
+<ReleaseBenchmarkTable kind="converter" locale="ko" />
 
 ## StreamReaderSync 소비 방식
 
