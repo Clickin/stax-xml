@@ -413,6 +413,35 @@ describe('CompiledRootProcessor', () => {
       .toBe('only-attr');
   });
 
+  it('keeps benchmark-shaped schemas on the compiled byte dispatch path', () => {
+    const bytes = new TextEncoder().encode(
+      '<catalog><book id="a&amp;b"><title>One</title><author>Alice</author><price>12.5</price></book></catalog>'
+    );
+    const bookSchema = x.object({
+      id: x.string().xpath('./@id'),
+      title: x.string().xpath('./title'),
+      author: x.string().xpath('./author'),
+      price: x.number().xpath('./price'),
+      featured: x.string().xpath('./featured').optional()
+    });
+    const schema = x.object({
+      books: x.array(bookSchema, '/catalog/book'),
+      firstTitle: x.string().xpath('/catalog/book/title').optional()
+    });
+    const compiled = schema.compile();
+
+    expect(compiled.compiledPlan.kind).toBe('dispatch');
+    expect(compiled.compiledPlan.eventFilter).toEqual({
+      includeAttributes: true,
+      includeCharacters: true,
+      includeCdata: true
+    });
+    expect(compiled.parseSync(bytes, { decodeEntities: true })).toEqual({
+      books: [{ id: 'a&b', title: 'One', author: 'Alice', price: 12.5, featured: undefined }],
+      firstTitle: 'One'
+    });
+  });
+
   it('accepts sync event iterables and surfaces parser error events', async () => {
     const xml = '<root><value>ok</value></root>';
     const schema = x.object({

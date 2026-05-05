@@ -48,7 +48,8 @@ type ObjectState = {
   plan: DispatchObjectPlan;
   depth: number;
   values: Record<string, unknown>;
-  completedFields: Set<number>;
+  completedFieldBits: number;
+  completedFields?: Set<number>;
   childObjects: ObjectState[];
   childArrays: ArrayState[];
   parent: ParentBinding;
@@ -87,6 +88,8 @@ type RuntimeState = {
   arrays: ArrayState[];
   captures: CaptureState[];
   currentAttributes?: Record<string, string>;
+  currentStreamBatch?: StreamBatch;
+  currentStreamEventIndex?: number;
 };
 
 type BatchCapableParser = AsyncIterable<AnyXmlEvent> & AsyncIterator<AnyXmlEvent> & {
@@ -232,7 +235,7 @@ export class CompiledRootProcessor {
       recordElementPosition(runtime);
       runtime.currentAttributes = event.attributes;
       this.checkDepthLimit(runtime);
-      this.processStart(runtime, event.attributes);
+      this.processStart(runtime);
       runtime.currentAttributes = undefined;
     } else if (isCharacters(event) || isCdata(event)) {
       this.processText(runtime, event.value);
@@ -269,12 +272,15 @@ export class CompiledRootProcessor {
       recordElementPosition(runtime);
       runtime.currentAttributes = attributes;
       this.checkDepthLimit(runtime);
-      this.processStart(runtime, attributes);
+      this.processStart(runtime);
       runtime.currentAttributes = undefined;
       return;
     }
 
     if (type === IterableEventType.CHARACTERS || type === IterableEventType.CDATA) {
+      if (runtime.captures.length === 0) {
+        return;
+      }
       const text = parser.copyText(index)!;
       this.processText(runtime, decodeEntities(text, runtime.options));
       return;
@@ -305,20 +311,24 @@ export class CompiledRootProcessor {
 
     if (type === StreamEventType.START_ELEMENT) {
       const name = batch.nameAt(index)!;
-      const attributes = runtime.plan.eventFilter.includeAttributes
-        ? copyStreamAttributes(batch, index, runtime.options)
-        : undefined;
       runtime.depth++;
       runtime.elementStack.push(name);
       recordElementPosition(runtime);
-      runtime.currentAttributes = attributes;
+      if (runtime.plan.eventFilter.includeAttributes) {
+        runtime.currentStreamBatch = batch;
+        runtime.currentStreamEventIndex = index;
+      }
       this.checkDepthLimit(runtime);
-      this.processStart(runtime, attributes);
-      runtime.currentAttributes = undefined;
+      this.processStart(runtime);
+      runtime.currentStreamBatch = undefined;
+      runtime.currentStreamEventIndex = undefined;
       return;
     }
 
     if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      if (runtime.captures.length === 0) {
+        return;
+      }
       const text = batch.textAt(index)!;
       this.processText(runtime, decodeEntities(text, runtime.options));
       return;
@@ -332,7 +342,7 @@ export class CompiledRootProcessor {
     }
   }
 
-  private processStart(runtime: RuntimeState, attributes: Record<string, string> | undefined): void {
+  private processStart(runtime: RuntimeState): void {
     const root = runtime.plan.root;
     if (!runtime.rootDone && root.kind !== 'array' && !(root.kind === 'object' && !root.selector)) {
       this.tryStartValue(runtime, root, undefined, { kind: 'root' });
@@ -343,7 +353,7 @@ export class CompiledRootProcessor {
       if (!matchesSelector(array.plan.itemSelector, runtime, array.contextDepth)) {
         continue;
       }
-      this.startArrayItem(runtime, array, attributes);
+      this.startArrayItem(runtime, array);
     }
 
     for (let index = 0; index < runtime.objects.length; index++) {
@@ -358,7 +368,7 @@ export class CompiledRootProcessor {
         continue;
       }
 
-      if (object.completedFields.has(value.id)) {
+      if (hasCompletedField(object, value.id)) {
         continue;
       }
 
@@ -405,7 +415,7 @@ export class CompiledRootProcessor {
     }
 
     if (selector.terminal === 'attribute') {
-      const value = currentAttributes(runtime)?.[selector.attributeName!];
+      const value = currentAttributeValue(runtime, selector.attributeName!);
       if (value !== undefined) {
         this.assignScalar(runtime, plan, value, parent);
       } else {
@@ -423,12 +433,12 @@ export class CompiledRootProcessor {
     });
   }
 
-  private startArrayItem(runtime: RuntimeState, array: ArrayState, attributes: Record<string, string> | undefined): void {
+  private startArrayItem(runtime: RuntimeState, array: ArrayState): void {
     const itemSelector = array.plan.itemSelector;
     const element = array.plan.element;
 
     if (itemSelector.terminal === 'attribute') {
-      const value = attributes?.[itemSelector.attributeName!];
+      const value = currentAttributeValue(runtime, itemSelector.attributeName!);
       if (value !== undefined) {
         array.items.push(parseScalar(element as DispatchScalarPlan, value, true));
       }
@@ -490,7 +500,7 @@ export class CompiledRootProcessor {
       plan,
       depth,
       values: {},
-      completedFields: new Set(),
+      completedFieldBits: 0,
       childObjects: [],
       childArrays: [],
       parent
@@ -563,7 +573,7 @@ export class CompiledRootProcessor {
     }
 
     parent.object.values[parent.field.fieldName] = value;
-    parent.object.completedFields.add(plan.id);
+    markObjectFieldCompleted(parent.object, plan.id);
   }
 
   private finalizeObject(runtime: RuntimeState, object: ObjectState): unknown {
@@ -790,10 +800,40 @@ function currentAttributes(runtime: RuntimeState): Record<string, string> | unde
   return runtime.currentAttributes;
 }
 
+function currentAttributeValue(runtime: RuntimeState, name: string): string | undefined {
+  const batch = runtime.currentStreamBatch;
+  if (batch) {
+    const eventIndex = runtime.currentStreamEventIndex!;
+    const value = batch.attributeValueAt(eventIndex, name);
+    return value === undefined ? undefined : decodeEntities(value, runtime.options);
+  }
+  return currentAttributes(runtime)?.[name];
+}
+
 function markCompleted(parent: ParentBinding, plan: DispatchScalarPlan): void {
   if (parent.kind === 'field') {
-    parent.object.completedFields.add(plan.id);
+    markObjectFieldCompleted(parent.object, plan.id);
   }
+}
+
+function hasCompletedField(object: ObjectState, id: number): boolean {
+  if (id < 31) {
+    return (object.completedFieldBits & (1 << id)) !== 0;
+  }
+  return object.completedFields?.has(id) ?? false;
+}
+
+function markObjectFieldCompleted(object: ObjectState, id: number): void {
+  if (id < 31) {
+    object.completedFieldBits |= 1 << id;
+    return;
+  }
+  let completedFields = object.completedFields;
+  if (!completedFields) {
+    completedFields = new Set();
+    object.completedFields = completedFields;
+  }
+  completedFields.add(id);
 }
 
 function copyAttributes(
@@ -839,26 +879,6 @@ function hasAttributeLookup(
   copyAttrValueByName(eventIndex: number, name: string): string | undefined;
 } {
   return typeof parser.copyAttrValueByName === 'function';
-}
-
-function copyStreamAttributes(
-  batch: StreamBatch,
-  eventIndex: number,
-  options?: ParseOptions
-): Record<string, string> {
-  const count = batch.attributeCountAt(eventIndex);
-  if (count === 0) {
-    return {};
-  }
-
-  const attributes: Record<string, string> = {};
-  for (let attrIndex = 0; attrIndex < count; attrIndex++) {
-    attributes[batch.attributeNameAt(eventIndex, attrIndex)!] = decodeEntities(
-      batch.attributeValueAt(eventIndex, attrIndex)!,
-      options
-    );
-  }
-  return attributes;
 }
 
 function decodeEntities(value: string, options?: ParseOptions): string {
