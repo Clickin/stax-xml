@@ -18,6 +18,8 @@ const versionSlugRegex = /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
 const benchmarkFiles = [
   'runtime-matrix.json',
   'stream-reader-4gb.json',
+  'converter-compiled-batch-plan.json',
+  'raw/writer-1gb.json',
 ];
 
 function usage() {
@@ -228,6 +230,7 @@ async function main() {
 
     const parsed = await readJson(source);
     if (!dryRun) {
+      await mkdir(dirname(destination), { recursive: true });
       await writeFile(destination, `${JSON.stringify(parsed, null, 2)}\n`, 'utf8');
     }
 

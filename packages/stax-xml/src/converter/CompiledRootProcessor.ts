@@ -1,7 +1,7 @@
-import {
-  IterableEventType,
-  IterableReader,
-} from '../IterableReader.js';
+import { IterableEventType } from '../IterableReader.js';
+import { StreamReader } from '../StreamReader.js';
+import { StreamReaderSync } from '../StreamReaderSync.js';
+import { StreamEventType, type StreamBatch } from '../stream-reader-core.js';
 import {
   isCdata,
   isCharacters,
@@ -24,7 +24,6 @@ import type { ParseInput } from './XmlSchema.js';
 import type { ParseOptions } from './types.js';
 import {
   IterableEventBackendIterator,
-  createIterableReaderFromChunks,
   getIterableEventBackend,
   getIterableEventTable,
   type IterableEventTable,
@@ -117,13 +116,12 @@ export class CompiledRootProcessor {
     }
     if (isArrayBufferView(input)) {
       const runtime = this.createRuntime(this.plan, effectiveOptions);
-      const parser = createIterableReaderFromChunks([toUint8Array(input)], {
-        batchSize: 1,
+      const reader = new StreamReaderSync(toUint8Array(input), {
         documentMode: effectiveOptions?.documentMode
       });
-      while (parser.nextBatch()) {
-        for (let index = 0; index < parser.eventCount(); index++) {
-          this.processIterableEvent(runtime, parser, index);
+      for (const batch of reader) {
+        for (let index = 0; index < batch.eventCount; index++) {
+          this.processStreamEvent(runtime, batch, index);
         }
       }
       return this.finish<T>(runtime);
@@ -139,13 +137,12 @@ export class CompiledRootProcessor {
     const runtime = this.createRuntime(this.plan, effectiveOptions);
 
     if (isArrayBufferView(input)) {
-      const parser = createIterableReaderFromChunks([toUint8Array(input)], {
-        batchSize: 1,
+      const reader = new StreamReaderSync(toUint8Array(input), {
         documentMode: effectiveOptions?.documentMode
       });
-      while (parser.nextBatch()) {
-        for (let index = 0; index < parser.eventCount(); index++) {
-          this.processIterableEvent(runtime, parser, index);
+      for (const batch of reader) {
+        for (let index = 0; index < batch.eventCount; index++) {
+          this.processStreamEvent(runtime, batch, index);
         }
       }
       return this.finish<T>(runtime);
@@ -249,7 +246,7 @@ export class CompiledRootProcessor {
 
   private processIterableEvent(
     runtime: RuntimeState,
-    parser: IterableReader | IterableEventTable,
+    parser: IterableEventTable,
     index: number
   ): void {
     const type = parser.eventType(index);
@@ -284,6 +281,50 @@ export class CompiledRootProcessor {
     }
 
     if (type === IterableEventType.END_ELEMENT) {
+      popCompletedChildPositionScope(runtime);
+      this.processEnd(runtime);
+      runtime.elementStack.pop();
+      runtime.depth--;
+    }
+  }
+
+  private processStreamEvent(
+    runtime: RuntimeState,
+    batch: StreamBatch,
+    index: number
+  ): void {
+    const type = batch.typeAt(index);
+    if (type === StreamEventType.CHARACTERS && !runtime.plan.eventFilter.includeCharacters) {
+      return;
+    }
+    if (type === StreamEventType.CDATA && !runtime.plan.eventFilter.includeCdata) {
+      return;
+    }
+
+    this.checkEventLimit(runtime);
+
+    if (type === StreamEventType.START_ELEMENT) {
+      const name = batch.nameAt(index)!;
+      const attributes = runtime.plan.eventFilter.includeAttributes
+        ? copyStreamAttributes(batch, index, runtime.options)
+        : undefined;
+      runtime.depth++;
+      runtime.elementStack.push(name);
+      recordElementPosition(runtime);
+      runtime.currentAttributes = attributes;
+      this.checkDepthLimit(runtime);
+      this.processStart(runtime, attributes);
+      runtime.currentAttributes = undefined;
+      return;
+    }
+
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      const text = batch.textAt(index)!;
+      this.processText(runtime, decodeEntities(text, runtime.options));
+      return;
+    }
+
+    if (type === StreamEventType.END_ELEMENT) {
       popCompletedChildPositionScope(runtime);
       this.processEnd(runtime);
       runtime.elementStack.pop();
@@ -590,12 +631,14 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     stream: ReadableStream<Uint8Array>
   ): Promise<void> {
-    const backend = new IterableEventBackendIterator(stream, {
-      autoDecodeEntities: runtime.options?.decodeEntities === true,
-      trimText: false,
+    const reader = new StreamReader(stream, {
       documentMode: runtime.options?.documentMode,
     });
-    await this.processEventBackend(runtime, backend);
+    for await (const batch of reader) {
+      for (let index = 0; index < batch.eventCount; index++) {
+        this.processStreamEvent(runtime, batch, index);
+      }
+    }
   }
 
   private async processEventBackend(
@@ -754,11 +797,11 @@ function markCompleted(parent: ParentBinding, plan: DispatchScalarPlan): void {
 }
 
 function copyAttributes(
-  parser: IterableReader | IterableEventTable,
+  parser: IterableEventTable,
   eventIndex: number,
   options?: ParseOptions
 ): Record<string, string> {
-  const count = attributeCount(parser, eventIndex);
+  const count = parser.eventAttrCount(eventIndex);
   if (count === 0) {
     return {};
   }
@@ -791,18 +834,31 @@ function lazyAttributeRecord(
 }
 
 function hasAttributeLookup(
-  parser: IterableReader | IterableEventTable
+  parser: IterableEventTable
 ): parser is IterableEventTable & {
   copyAttrValueByName(eventIndex: number, name: string): string | undefined;
 } {
-  return !(parser instanceof IterableReader)
-    && typeof parser.copyAttrValueByName === 'function';
+  return typeof parser.copyAttrValueByName === 'function';
 }
 
-function attributeCount(parser: IterableReader | IterableEventTable, eventIndex: number): number {
-  return parser instanceof IterableReader
-    ? parser.attrCount(eventIndex)
-    : parser.eventAttrCount(eventIndex);
+function copyStreamAttributes(
+  batch: StreamBatch,
+  eventIndex: number,
+  options?: ParseOptions
+): Record<string, string> {
+  const count = batch.attributeCountAt(eventIndex);
+  if (count === 0) {
+    return {};
+  }
+
+  const attributes: Record<string, string> = {};
+  for (let attrIndex = 0; attrIndex < count; attrIndex++) {
+    attributes[batch.attributeNameAt(eventIndex, attrIndex)!] = decodeEntities(
+      batch.attributeValueAt(eventIndex, attrIndex)!,
+      options
+    );
+  }
+  return attributes;
 }
 
 function decodeEntities(value: string, options?: ParseOptions): string {

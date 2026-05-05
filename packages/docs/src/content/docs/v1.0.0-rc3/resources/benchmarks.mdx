@@ -36,7 +36,9 @@ JavaScript string and object materialization.
   JavaScript reader workload across Node, Bun, and Deno when those runtimes are
   installed.
 - `pnpm --filter benchmark run release:expanded` regenerates the release
-  runtime matrix and the 4 GiB `StreamReaderSync` index-first benchmark.
+  runtime matrix, the 4 GiB `StreamReaderSync` index-first benchmark, and the
+  converter compiled batch-plan benchmark, plus the 1 GiB writer benchmark
+  artifact.
 
 ## Contract
 
@@ -45,6 +47,11 @@ use native addons, Wasm parser modules, binary parser aggregation, or backend
 mode fallback. Large-file checks focus on low RSS, staying below JavaScript
 string-size limits, and pull-style consumption through the stream, event, and
 converter APIs.
+
+This pure JavaScript contract only removes native/Wasm/backend rows. It does
+not retire benchmark tracks that are unrelated to the native decision. Parser,
+stream reader, converter, builder, writer, async writer, and large writer sink
+benchmarks remain separate measurement surfaces.
 
 ## Release Results
 
@@ -68,6 +75,47 @@ accessors, skips warmup, and measures 3 runs.
 | Workload | Average | Throughput | Events | Average RSS delta |
 | --- | ---: | ---: | ---: | ---: |
 | `StreamReaderSync` index-first, 4 GiB | 43.44 s | 94.29 MiB/s | 572,662,314 | 4.0 MiB |
+
+## Other Benchmark Tracks
+
+The native/Wasm decision does not change the writer and builder benchmark
+contract:
+
+| Track | Command | What it measures |
+| --- | --- | --- |
+| Parser fixture series | `pnpm --dir packages/benchmark bench:sync` | 2 KiB, 4 KiB, 13 MiB, and 98 MiB parser fixtures plus sync builder rows. |
+| Builder small/large | `pnpm --dir packages/benchmark bench:builder:small` and `bench:builder:big` | XML emission from builder-friendly intermediate data. |
+| Converter compiled batch plan | `pnpm --dir packages/benchmark bench:converter:compiled-batch` | Manual `StreamReaderSync` projection vs converter auto-lowered and explicit `.compile()` batch dispatch plans. |
+| Async parser/writer | `pnpm --dir packages/benchmark bench:async` | Async parser and async-vs-sync writer API overhead. |
+| Writer core | `pnpm --dir packages/benchmark bench:writer:core` | Direct writer method throughput for compact and pretty output. |
+| 1 GiB writer | `pnpm --dir packages/benchmark bench:writer:1gb:json` | Async writer and sync sink writer over memory and temp-file targets. |
+
+For large XML output, `WriterSyncSink` remains the recommended synchronous path
+when the caller wants incremental writes without retaining the whole XML string.
+The release artifact keeps the 1 GiB writer result under
+`packages/benchmark/results/release/raw/writer-1gb.json`.
+
+## Converter API Comparison
+
+The converter comparison is part of the pure JavaScript release contract. It
+does not call a native projection reader. The manual baseline consumes
+`StreamReaderSync` batches with `eventCount` plus index accessors. The converter
+rows parse the same byte fixture through:
+
+- `schema.parseSync(bytes)`, which auto-lowers supported schemas to the compiled
+  dispatch batch plan.
+- `schema.compile().parseSync(bytes)`, which makes the same compiled batch plan
+  explicit and reusable.
+
+Both converter rows are verified against the manual projection before timing.
+The release artifact is
+`packages/benchmark/results/release/converter-compiled-batch-plan.json`.
+
+| Case | Throughput | Average | Books | Checksum |
+| --- | ---: | ---: | ---: | ---: |
+| Manual `StreamReaderSync` projection | 80.17 MiB/s | 199.58 ms | 139,458 | -1845341048 |
+| Converter `schema.parseSync(bytes)` | 47.11 MiB/s | 339.63 ms | 139,458 | -1845341048 |
+| Converter `schema.compile().parseSync(bytes)` | 46.03 MiB/s | 347.61 ms | 139,458 | -1845341048 |
 
 ## StreamReaderSync Consumption
 

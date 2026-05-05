@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-05-05T02:23:55.933Z",
+  "package": "stax-xml",
+  "runtime": {
+    "name": "node",
+    "version": "24.15.0",
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "bytes": 16777305,
+    "bookCount": 139458
+  },
+  "contract": {
+    "parser": "pure JavaScript StreamReaderSync batch path",
+    "manual": "manual object projection over StreamReaderSync eventCount plus index accessors",
+    "converterAuto": "converter schema parseSync(bytes), auto-lowered to compiled dispatch batch plan",
+    "converterCompiled": "converter schema compile().parseSync(bytes), explicit compiled dispatch batch plan",
+    "maxEvents": 20000000,
+    "native": false,
+    "wasm": false
+  },
+  "warmups": 1,
+  "runs": 5,
+  "results": [
+    {
+      "name": "manual-streamreader-sync",
+      "averageMs": 199.57768000000002,
+      "throughputMiBs": 80.16971074628265,
+      "minMs": 190.92219999999998,
+      "maxMs": 208.28870000000006,
+      "averageHeapDeltaBytes": 58678446.4,
+      "averageRssDeltaBytes": 13780582.4,
+      "summary": {
+        "books": 139458,
+        "firstTitle": "Compiled Batch Plan 0",
+        "checksum": -1845341048
+      }
+    },
+    {
+      "name": "converter-auto-compiled-batch-plan",
+      "averageMs": 339.63238,
+      "throughputMiBs": 47.11001017339442,
+      "minMs": 325.5229999999997,
+      "maxMs": 347.4250000000002,
+      "averageHeapDeltaBytes": 50074126.4,
+      "averageRssDeltaBytes": 16403660.8,
+      "summary": {
+        "books": 139458,
+        "firstTitle": "Compiled Batch Plan 0",
+        "checksum": -1845341048
+      }
+    },
+    {
+      "name": "converter-explicit-compiled-batch-plan",
+      "averageMs": 347.6071,
+      "throughputMiBs": 46.02922344513147,
+      "minMs": 342.23189999999977,
+      "maxMs": 354.0738000000001,
+      "averageHeapDeltaBytes": 50119736,
+      "averageRssDeltaBytes": 14125465.6,
+      "summary": {
+        "books": 139458,
+        "firstTitle": "Compiled Batch Plan 0",
+        "checksum": -1845341048
+      }
+    }
+  ]
+}
