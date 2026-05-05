@@ -133,6 +133,7 @@ function consumeManualStreamReader(bytes) {
             title: '',
             author: '',
             price: 0,
+            featured: undefined,
           };
         } else if (currentBook) {
           currentElement = name ?? '';
