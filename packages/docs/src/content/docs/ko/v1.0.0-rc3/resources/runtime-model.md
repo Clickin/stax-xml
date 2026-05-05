@@ -24,6 +24,3 @@ Parser를 JavaScript 안에 두면 다음 기준이 명확해집니다.
 각 batch를 `eventCount`와 index accessor로 소비하세요. 애플리케이션 코드에서
 읽기 쉬운 API가 필요하면 `EventReader`, `EventReaderSync`, converter schema를
 사용하면 됩니다.
-
-V8 같은 runtime 내부 구현에 대한 자세한 분석은 package docs의 범위를 넘습니다.
-공개 문서는 사용자가 의존할 수 있는 배포 형태와 API 기준만 설명합니다.

@@ -33,9 +33,9 @@ StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `la
 - `pnpm --dir packages/benchmark bench:async`: 비동기 parser와 writer 경로.
 - `pnpm --dir packages/benchmark bench:runtime-matrix`: Node, Bun, Deno가
   설치되어 있을 때 같은 JavaScript reader 작업을 런타임별로 비교.
-- `pnpm --filter benchmark run release:expanded`: 릴리스용 runtime matrix,
+- `pnpm --filter benchmark run release:expanded`: 생성된 runtime matrix,
   4 GiB `StreamReaderSync` index-first benchmark, converter compiled
-  batch-plan benchmark, 1 GiB writer benchmark 결과 파일을 다시 생성.
+  batch-plan benchmark, 1 GiB writer benchmark 결과를 다시 생성.
 
 ## 측정 기준
 
@@ -74,16 +74,15 @@ converter, builder, writer, async writer, large writer sink benchmark는 계속
 | 1 GiB writer | `pnpm --dir packages/benchmark bench:writer:1gb:json` | Memory/temp-file target 위의 async writer와 sync sink writer. |
 
 대용량 XML 출력에서 전체 XML 문자열을 보관하지 않고 조금씩 쓰려면
-`WriterSyncSink`가 계속 권장되는 동기 경로입니다. 1 GiB writer 결과는
-`packages/benchmark/results/release/raw/writer-1gb.json`에 보존합니다.
+`WriterSyncSink`가 계속 권장되는 동기 경로입니다. 생성된 release data에는
+1 GiB writer 결과도 포함됩니다.
 
 ## Converter API 비교
 
 Converter 비교는 순수 JavaScript 릴리스 측정에 포함됩니다. 수동 기준값은
 `StreamReaderSync` batch를 `eventCount`와 index accessor로 소비해 만듭니다.
-수동 기준값은 선택된 object layout을 converter 결과와 맞추지만, schema wrapper가
-아닌 fixture 전용 하한값입니다. Converter 행은 같은 byte fixture를 다음 경로로
-파싱합니다.
+수동 행은 converter 행과 같은 selected object layout을 사용합니다. Converter 행은
+같은 byte fixture를 다음 경로로 파싱합니다.
 
 - `schema.parseSync(bytes)`: 지원 가능한 schema를 compiled dispatch batch plan으로
   자동 변환합니다.
@@ -91,8 +90,6 @@ Converter 비교는 순수 JavaScript 릴리스 측정에 포함됩니다. 수�
   재사용합니다.
 
 두 converter 행은 측정 전에 수동 기준값과 동일한 결과를 만드는지 검증합니다.
-결과 파일은
-`packages/benchmark/results/release/converter-compiled-batch-plan.json`입니다.
 
 <ReleaseBenchmarkTable kind="converter" locale="ko" />
 

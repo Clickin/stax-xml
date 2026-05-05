@@ -25,6 +25,3 @@ For workloads that need lower allocation overhead, use `StreamReader` or
 `StreamReaderSync` and consume each batch with `eventCount` plus index
 accessors. For ergonomic application code, use `EventReader`, `EventReaderSync`,
 or converter schemas.
-
-Detailed runtime-engine notes belong outside the package docs. The public docs
-describe the supported package model and the API surfaces users can rely on.

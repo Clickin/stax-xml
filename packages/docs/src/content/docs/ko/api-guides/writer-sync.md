@@ -1,6 +1,6 @@
 ---
 title: WriterSync - 동기식 XML 생성
-description: 메모리 내 문자열 빌딩을 통한 프로그래밍 방식의 동기식 XML 문서 생성
+description: 메모리 내 문자열과 sink 기반 대용량 출력을 지원하는 동기식 XML writer
 head:
   - tag: meta
     attrs:
@@ -22,7 +22,7 @@ head:
 
 ## WriterSync - 동기식 XML 생성
 
-StAX-XML에는 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML 라이터가 포함되어 있습니다. `WriterSync`는 소형/중형 문서를 메모리에서 문자열로 만들고, `WriterSyncSink`는 대용량 문서를 sink로 증분 출력합니다.
+StAX-XML에는 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML writer가 포함되어 있습니다. `WriterSync`는 완성된 XML 문자열을 메모리에 만듭니다. `WriterSyncSink`는 같은 동기 writer 모델을 사용하면서 sink로 증분 출력하므로, 대용량 출력에서도 전체 XML 문자열을 보관하지 않고 높은 처리량을 유지할 수 있습니다.
 
 대용량 파일 출력에는 sink 경로를 권장합니다. 1GiB writer 벤치마크에서 `WriterSyncSink`가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
@@ -473,23 +473,23 @@ interface NamespaceDeclaration {
 
 ### 🚀 주요 기능
 
-- **동기식 작업**: 즉시 접근을 위한 메모리 내 XML 문자열 빌드
-- **고성능**: 작은~중간 크기 문서에 최적화
+- **동기식 작업**: 완성된 XML 문자열이 즉시 필요하면 `WriterSync` 사용
+- **Sink 기반 대용량 출력**: performance와 memory를 함께 챙겨야 하면 `WriterSyncSink` 사용
 - **프리티 프린팅**: 구성 가능한 들여쓰기 및 포맷팅
 - **네임스페이스 지원**: 접두사 관리를 통한 완전한 XML 네임스페이스 처리
 - **엔티티 인코딩**: 자동 또는 사용자 정의 엔티티 인코딩
 - **자체 닫힘 요소**: 자체 닫힘 태그에 대한 내장 지원
 - **타입 안전성**: 세부적인 타입 정의를 통한 완전한 TypeScript 지원
-- **메모리 효율적**: 스트리밍 오버헤드 없는 직접 문자열 빌드
+- **메모리 효율적**: sink 경로에서는 전체 XML 문자열을 보관하지 않고 증분 출력
 
 ### 💡 WriterSync 사용 시기
 
-다음과 같은 경우에 `WriterSync`를 사용하세요:
+다음과 같은 경우에 `WriterSync` / `WriterSyncSink`를 사용하세요:
 - 완전한 XML 문서를 메모리에서 즉시 필요로 할 때
-- 작은~중간 크기의 XML 문서 작업 시
+- `WriterSyncSink`를 통해 커스텀 sync sink로 직접 쓰고 싶을 때
 - 웹 API용 XML 응답 빌드 시
 - 구성 파일이나 데이터 내보내기 생성 시
 - 블로킹이 허용되는 동기식 워크플로우에서 작업 시
-- 메모리 사용량이 주요 관심사가 아닐 때
+- 동기식 응답/파일 쓰기가 필요한 워크플로우에서 작업 시
 
-대용량 문서나 스트리밍 시나리오의 경우 비동기 `Writer`를 대신 사용하는 것을 고려하세요.
+Web `WritableStream` response workflow에는 async `Writer`를 사용하세요. 대용량 동기식 파일/응답 쓰기에는 `WriterSyncSink`를 사용하세요.

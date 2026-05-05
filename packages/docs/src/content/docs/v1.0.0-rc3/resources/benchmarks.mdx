@@ -37,10 +37,10 @@ JavaScript string and object materialization.
 - `pnpm --dir packages/benchmark bench:runtime-matrix` compares the same
   JavaScript reader workload across Node, Bun, and Deno when those runtimes are
   installed.
-- `pnpm --filter benchmark run release:expanded` regenerates the release
+- `pnpm --filter benchmark run release:expanded` regenerates the generated
   runtime matrix, the 4 GiB `StreamReaderSync` index-first benchmark, and the
   converter compiled batch-plan benchmark, plus the 1 GiB writer benchmark
-  artifact.
+  result.
 
 ## Measurement Scope
 
@@ -80,25 +80,22 @@ benchmarks remain separate measurement surfaces:
 
 For large XML output, `WriterSyncSink` remains the recommended synchronous path
 when the caller wants incremental writes without retaining the whole XML string.
-The release artifact keeps the 1 GiB writer result under
-`packages/benchmark/results/release/raw/writer-1gb.json`.
+The generated release data includes the 1 GiB writer result.
 
 ## Converter API Comparison
 
 The converter comparison is part of the pure JavaScript release contract. It
 uses a manual `StreamReaderSync` baseline built from batches with `eventCount`
-plus index accessors. The manual baseline creates the same selected object
-layout, but it remains a fixture-specific lower bound rather than a schema
-wrapper. The converter rows parse the same byte fixture through:
+plus index accessors. The hand-written row uses the same selected object layout
+as the converter rows. The converter rows parse the same byte fixture through:
 
 - `schema.parseSync(bytes)`, which auto-lowers supported schemas to the compiled
   dispatch batch plan.
 - `schema.compile().parseSync(bytes)`, which makes the same compiled batch plan
   explicit and reusable.
 
-Both converter rows are verified against the manual projection before timing.
-The release artifact is
-`packages/benchmark/results/release/converter-compiled-batch-plan.json`.
+Both converter rows are verified against the hand-written projection before
+timing.
 
 <ReleaseBenchmarkTable kind="converter" />
 

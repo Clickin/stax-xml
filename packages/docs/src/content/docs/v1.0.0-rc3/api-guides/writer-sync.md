@@ -1,6 +1,6 @@
 ---
 title: WriterSync - Synchronous XML Generation
-description: Synchronous XML writer for generating XML documents programmatically with in-memory string building
+description: Synchronous XML writer for in-memory strings and sink-based large output
 head:
   - tag: meta
     attrs:
@@ -23,7 +23,7 @@ slug: v1.0.0-rc3/api-guides/writer-sync
 
 ## WriterSync - Synchronous XML Generation
 
-StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `WriterSync` builds the XML string in memory for small and medium documents, while `WriterSyncSink` writes incrementally to a sink for large documents.
+StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `WriterSync` builds a complete XML string in memory. `WriterSyncSink` uses the same synchronous writer model but writes incrementally to a sink, so large output can keep high throughput without retaining the whole XML string.
 
 For large file output, prefer the sink path. The 1GiB writer benchmark shows `WriterSyncSink` has the best write throughput while peak RSS stays in the same range as async writing.
 
@@ -474,8 +474,8 @@ interface NamespaceDeclaration {
 
 ### 🚀 Key Features
 
-- **Synchronous Operation**: Builds XML string in memory for immediate access
-- **High Performance**: Optimized for smaller to medium-sized documents
+- **Synchronous Operation**: Use `WriterSync` when you need the complete XML string immediately
+- **Sink-Based Large Output**: Use `WriterSyncSink` when performance and memory both matter
 - **Pretty Printing**: Configurable indentation and formatting
 - **Namespace Support**: Full XML namespace handling with prefix management
 - **Entity Encoding**: Automatic or custom entity encoding
@@ -485,12 +485,12 @@ interface NamespaceDeclaration {
 
 ### 💡 When to Use WriterSync
 
-Use `WriterSync` when:
+Use `WriterSync` / `WriterSyncSink` when:
 - You need the complete XML document in memory immediately
-- Working with smaller to medium-sized XML documents
+- You want direct synchronous writes to a custom sink through `WriterSyncSink`
 - Building XML responses for web APIs
 - Generating configuration files or data exports
 - Working in synchronous workflows where blocking is acceptable
 - Memory usage is not a primary concern
 
-For large documents or streaming scenarios, consider using the async `Writer` instead.
+For Web `WritableStream` response workflows, use the async `Writer`. For large synchronous file or response writes, use `WriterSyncSink`.

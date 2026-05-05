@@ -98,7 +98,7 @@ Write values as attributes instead of elements:
 
 ```typescript
 const schema = x.number().writer({
-  attribute: 'id'
+  asAttribute: 'id'
 });
 
 // Note: attributes need a container element
@@ -139,7 +139,7 @@ Object schemas write each field according to its writer configuration:
 
 ```typescript
 const bookSchema = x.object({
-  id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/book/@id').writer({ asAttribute: 'id' }),
   title: x.string().xpath('/book/title').writer({ element: 'title' }),
   author: x.string().xpath('/book/author').writer({ element: 'author' }),
   price: x.number().xpath('/book/price').writer({ element: 'price' })
@@ -196,8 +196,8 @@ const xml = personSchema.writeSync(person, { rootElement: 'person' });
 
 ```typescript
 const productSchema = x.object({
-  id: x.number().xpath('./@id').writer({ attribute: 'id' }),
-  sku: x.string().xpath('./@sku').writer({ attribute: 'sku' }),
+  id: x.number().xpath('./@id').writer({ asAttribute: 'id' }),
+  sku: x.string().xpath('./@sku').writer({ asAttribute: 'sku' }),
   name: x.string().xpath('./name').writer({ element: 'name' }),
   price: x.number().xpath('./price').writer({ element: 'price' }),
   description: x.string().xpath('./description').writer({
@@ -279,7 +279,7 @@ const xml = booksSchema.writeSync(books, { rootElement: 'library' });
 ```typescript
 const productsSchema = x.array(
   x.object({
-    id: x.number().xpath('./@id').writer({ attribute: 'id' }),
+    id: x.number().xpath('./@id').writer({ asAttribute: 'id' }),
     name: x.string().xpath('./name').writer({ element: 'name' }),
     price: x.number().xpath('./price').writer({ element: 'price' })
   }),
@@ -334,7 +334,7 @@ import {
 import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 
 const schema = x.object({
-  id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/book/@id').writer({ asAttribute: 'id' }),
   title: x.string().xpath('/book/title').writer({ element: 'title' }),
   price: x.number().xpath('/book/price').writer({ element: 'price' })
 });
@@ -361,6 +361,113 @@ schema.writeSync(data, {
 // and returns an empty string.
 sink.flush();
 sink.close();
+```
+
+### HTTP Response Streaming
+
+For Node response objects that accept synchronous `write(string)` calls, wrap
+the response with `WriterSyncSink`. This keeps converter output incremental
+without building the whole XML string.
+
+```typescript
+import express from 'express';
+import { x } from 'stax-xml/converter';
+import { WriterSyncSink } from 'stax-xml';
+import { createNodeSyncTextSink } from 'stax-xml/adapters/node';
+
+const catalogSchema = x.object({
+  title: x.string().writer({ element: 'title' }),
+  price: x.number().writer({ element: 'price' })
+});
+
+const loadCatalog = () => ({
+  title: 'High-Performance XML',
+  price: 12345
+});
+
+const app = express();
+
+app.get('/catalog.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+
+  const writer = new WriterSyncSink(
+    createNodeSyncTextSink(res, { closeMethod: 'end' })
+  );
+
+  catalogSchema.writeSync(loadCatalog(), {
+    rootElement: 'catalog',
+    writer
+  });
+
+  writer.close();
+});
+```
+
+For frameworks built around Web `WritableStream`, use `writeToStream()`.
+
+```typescript
+import { stream } from 'hono/streaming';
+import { x } from 'stax-xml/converter';
+
+const catalogSchema = x.object({
+  title: x.string().writer({ element: 'title' }),
+  price: x.number().writer({ element: 'price' })
+});
+
+const loadCatalog = () => ({
+  title: 'High-Performance XML',
+  price: 12345
+});
+
+app.get('/catalog.xml', (c) => {
+  c.header('Content-Type', 'application/xml; charset=utf-8');
+
+  return stream(c, async (out) => {
+    const writable = new WritableStream<Uint8Array>({
+      write(chunk) {
+        return out.write(chunk);
+      }
+    });
+
+    await catalogSchema.writeToStream(loadCatalog(), writable, {
+      rootElement: 'catalog'
+    });
+  });
+});
+```
+
+Elysia can return a Web `Response` backed by a `TransformStream`.
+
+```typescript
+import { Elysia } from 'elysia';
+import { x } from 'stax-xml/converter';
+
+const catalogSchema = x.object({
+  title: x.string().writer({ element: 'title' }),
+  price: x.number().writer({ element: 'price' })
+});
+
+const loadCatalog = () => ({
+  title: 'High-Performance XML',
+  price: 12345
+});
+
+new Elysia()
+  .get('/catalog.xml', () => {
+    const { readable, writable } = new TransformStream<Uint8Array>();
+
+    void catalogSchema.writeToStream(loadCatalog(), writable, {
+      rootElement: 'catalog'
+    }).catch((error) => {
+      void writable.abort(error);
+    });
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8'
+      }
+    });
+  });
 ```
 
 ### Pretty Printing
@@ -432,12 +539,12 @@ Schemas can be used for both parsing and writing:
 
 ```typescript
 const userSchema = x.object({
-  id: x.number().xpath('/user/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/user/@id').writer({ asAttribute: 'id' }),
   username: x.string().xpath('/user/username').writer({ element: 'username' }),
   email: x.string().xpath('/user/email').writer({ element: 'email' }),
   active: x.string()
     .xpath('/user/@active')
-    .writer({ attribute: 'active' })
+    .writer({ asAttribute: 'active' })
     .transform(v => v === 'true')  // Parse: string -> boolean
 });
 
@@ -498,8 +605,8 @@ const configSchema = x.object({
   }).xpath('/config/database').writer({ element: 'database' }),
   features: x.array(
     x.object({
-      name: x.string().xpath('./@name').writer({ attribute: 'name' }),
-      enabled: x.string().xpath('./@enabled').writer({ attribute: 'enabled' })
+      name: x.string().xpath('./@name').writer({ asAttribute: 'name' }),
+      enabled: x.string().xpath('./@enabled').writer({ asAttribute: 'enabled' })
     }),
     '/config/features/feature'
   ).writer({ element: 'feature' })
@@ -580,14 +687,14 @@ const xml = rssSchema.writeSync(rss, {
 
 ```typescript
 const svgSchema = x.object({
-  width: x.number().xpath('/svg/@width').writer({ attribute: 'width' }),
-  height: x.number().xpath('/svg/@height').writer({ attribute: 'height' }),
+  width: x.number().xpath('/svg/@width').writer({ asAttribute: 'width' }),
+  height: x.number().xpath('/svg/@height').writer({ asAttribute: 'height' }),
   circles: x.array(
     x.object({
-      cx: x.number().xpath('./@cx').writer({ attribute: 'cx' }),
-      cy: x.number().xpath('./@cy').writer({ attribute: 'cy' }),
-      r: x.number().xpath('./@r').writer({ attribute: 'r' }),
-      fill: x.string().xpath('./@fill').writer({ attribute: 'fill' })
+      cx: x.number().xpath('./@cx').writer({ asAttribute: 'cx' }),
+      cy: x.number().xpath('./@cy').writer({ asAttribute: 'cy' }),
+      r: x.number().xpath('./@r').writer({ asAttribute: 'r' }),
+      fill: x.string().xpath('./@fill').writer({ asAttribute: 'fill' })
     }),
     '//circle'
   ).writer({ element: 'circle' })
@@ -619,7 +726,7 @@ const xml = svgSchema.writeSync(svg, {
 ```typescript
 // ✅ Schema works for both directions
 const schema = x.object({
-  id: x.number().xpath('/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/@id').writer({ asAttribute: 'id' }),
   name: x.string().xpath('/name').writer({ element: 'name' })
 });
 
