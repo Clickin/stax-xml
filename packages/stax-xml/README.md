@@ -73,6 +73,18 @@ pnpm --dir packages/benchmark bench:runtime-matrix
 It compares the same JavaScript reader workload across Node, Bun, and Deno when
 those runtimes are installed.
 
+## Release Guides
+
+- [Migrating from v0.x](https://clickin.github.io/stax-xml/guide/migration-v0/)
+  maps older application code to the pure JavaScript 1.0 reader and writer
+  surfaces.
+- [Web Server Integration](https://clickin.github.io/stax-xml/guide/server-integration/)
+  shows request streaming patterns for Express, Fastify, Hono, Next.js, Bun,
+  Deno, and edge runtimes.
+- [Release Readiness](https://clickin.github.io/stax-xml/resources/release-readiness/)
+  records the packaging, benchmark, docs, and merge checklist used before
+  publishing.
+
 ## License
 
 MIT

@@ -249,6 +249,8 @@ export default defineConfig({
             { label: 'Getting Started', slug: 'guide/getting-started', translations: { ko: '시작하기' } },
             { label: 'Quick Start', slug: 'guide/quick-start', translations: { ko: '빠른 시작' } },
             { label: 'Examples', slug: 'guide/examples', translations: { ko: '예제' } },
+            { label: 'Migrating from v0.x', slug: 'guide/migration-v0', translations: { ko: 'v0.x 마이그레이션' } },
+            { label: 'Web Server Integration', slug: 'guide/server-integration', translations: { ko: 'Web Server 연동' } },
           ],
         },
         {
@@ -296,6 +298,7 @@ export default defineConfig({
           items: [
             { label: 'Benchmarks', slug: 'resources/benchmarks', translations: { ko: '벤치마크' } },
             { label: 'Runtime Model', slug: 'resources/runtime-model', translations: { ko: '실행 모델' } },
+            { label: 'Release Readiness', slug: 'resources/release-readiness', translations: { ko: '릴리스 준비' } },
             { label: 'FAQ', slug: 'resources/faq' },
           ],
         },

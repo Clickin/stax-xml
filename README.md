@@ -73,6 +73,17 @@ For projection-heavy workloads, `StreamReaderSync` is the lower-level
 performance surface. The converter API is a schema wrapper for readability and
 validation, and it may trade throughput for that abstraction.
 
+### Release Guides
+
+- [Migrating from v0.x](https://clickin.github.io/stax-xml/guide/migration-v0/)
+  maps older application code to the pure JavaScript 1.0 reader and writer
+  surfaces.
+- [Web Server Integration](https://clickin.github.io/stax-xml/guide/server-integration/)
+  shows how to keep XML request bodies streaming in Express, Fastify, Hono,
+  Next.js, Bun, Deno, and edge runtimes.
+- [Release Readiness](https://clickin.github.io/stax-xml/resources/release-readiness/)
+  records the pure JavaScript packaging, benchmark, docs, and merge checklist.
+
 ### Runtime Matrix
 
 Benchmark scripts live under `packages/benchmark`. The maintained runtime
@@ -154,6 +165,17 @@ for (const event of reader) {
 projection 중심 workload에서는 `StreamReaderSync`가 lower-level performance
 surface입니다. converter API는 readability와 validation을 위한 schema wrapper라서
 그 abstraction 비용만큼 throughput을 양보할 수 있습니다.
+
+### 릴리스 가이드
+
+- [v0.x 마이그레이션](https://clickin.github.io/stax-xml/ko/guide/migration-v0/)은
+  기존 애플리케이션 코드를 pure JavaScript 1.0 reader/writer surface로 옮기는 기준을
+  정리합니다.
+- [Web Server 연동](https://clickin.github.io/stax-xml/ko/guide/server-integration/)은
+  Express, Fastify, Hono, Next.js, Bun, Deno, edge runtime에서 XML request body를
+  streaming으로 유지하는 방법을 보여줍니다.
+- [릴리스 준비](https://clickin.github.io/stax-xml/ko/resources/release-readiness/)는
+  pure JavaScript packaging, benchmark, docs, merge checklist를 기록합니다.
 
 ### Runtime Matrix
 

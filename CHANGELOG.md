@@ -7,11 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-rc3] - 2026-05-05
 
+### Added
+
+- Added release-readiness, v0.x migration, and web-server integration guides so
+  release consumers can verify the pure JavaScript package contract, move from
+  older APIs, and keep request bodies streaming in common server frameworks.
+
 ### Changed
 
 - Re-centered the package on the pure JavaScript implementation: no native addon,
   Wasm parser module, or backend-selection mode is part of the public package
   contract.
+- Reworked the prerelease validator into a pure JavaScript package gate that
+  checks manifests, exports, workspace layout, source references, and packed npm
+  contents for native-addon or Wasm parser artifacts.
 - Updated the release documentation around `StreamReaderSync`, `EventReader`,
   converter, writer, runtime behavior, and XPath conformance for the rc3
   surface.

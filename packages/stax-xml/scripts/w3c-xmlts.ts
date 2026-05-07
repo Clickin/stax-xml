@@ -5,7 +5,7 @@ import { dirname, join, normalize, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pipeline } from 'node:stream/promises';
 import { get } from 'node:https';
-import { StaxXmlParserSync } from '../src/StaxXmlParserSync.js';
+import { EventReaderSync } from '../src/EventReaderSync.js';
 
 const XMLTS_URL = 'https://www.w3.org/XML/Test/xmlts20130923.zip';
 const XMLTS_SHA256 = 'f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb';
@@ -267,7 +267,7 @@ function runTests(tests: W3cCase[]): RunResult {
     let threw = false;
     let error = '';
     try {
-      Array.from(new StaxXmlParserSync(xml, { documentMode: 'document' }));
+      Array.from(new EventReaderSync(xml, { documentMode: 'document' }));
     } catch (cause) {
       threw = true;
       error = cause instanceof Error ? cause.message : String(cause);

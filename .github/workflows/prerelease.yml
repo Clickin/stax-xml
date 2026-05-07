@@ -70,7 +70,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate package versions
+      - name: Validate pure-JS package manifest
         run: node scripts/validate-prerelease.mjs "${{ inputs.version }}"
 
       - name: Validate docs snapshot
@@ -78,6 +78,9 @@ jobs:
 
       - name: Build package
         run: pnpm --filter=stax-xml build
+
+      - name: Validate pure-JS package contents
+        run: node scripts/validate-prerelease.mjs "${{ inputs.version }}" --pack
 
       - name: Build docs
         run: pnpm docs:build
