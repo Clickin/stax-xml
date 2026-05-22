@@ -89,6 +89,10 @@ Release-facing docs는 다음 항목을 포함해야 합니다.
 릴리스 전에 사용자가 유지할 public surface마다 application 형태의 sample을 하나 이상
 검증하세요.
 
+```bash
+pnpm verify:release-surfaces
+```
+
 - 인메모리 XML string용 `EventReaderSync`.
 - `ReadableStream<Uint8Array>` 입력용 `EventReader`.
 - Index-first byte batch 소비용 `StreamReaderSync`.

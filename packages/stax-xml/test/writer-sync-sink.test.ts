@@ -1,4 +1,4 @@
-import { mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
+import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
@@ -197,6 +197,7 @@ describe('sync sink adapters', () => {
       sink.close?.();
       expect(readFileSync(filePath, 'utf8')).toBe('<open/>');
     } finally {
+      closeSync(fd);
       rmSync(tempDir, { recursive: true, force: true });
     }
   });

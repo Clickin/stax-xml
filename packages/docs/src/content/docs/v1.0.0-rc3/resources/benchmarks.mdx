@@ -55,13 +55,13 @@ The current release set was refreshed on Node 24.15.0, Bun 1.3.13, and Deno
 2.7.13. Runtime rows use a generated 16 MiB fixture, 1 warmup, and 3 measured
 runs.
 
-<ReleaseBenchmarkTable kind="runtime" />
+<ReleaseBenchmarkTable kind="runtime" version="v1.0.0-rc3" />
 
 The 4 GiB generated stream fixture uses `StreamReaderSync` over
 `Iterable<Uint8Array[]>`, consumes each batch with `eventCount` plus index
 accessors, skips warmup, and measures 3 runs.
 
-<ReleaseBenchmarkTable kind="stream4gib" />
+<ReleaseBenchmarkTable kind="stream4gib" version="v1.0.0-rc3" />
 
 ## Other Benchmark Tracks
 
@@ -97,7 +97,7 @@ as the converter rows. The converter rows parse the same byte fixture through:
 Both converter rows are verified against the hand-written projection before
 timing.
 
-<ReleaseBenchmarkTable kind="converter" />
+<ReleaseBenchmarkTable kind="converter" version="v1.0.0-rc3" />
 
 ## StreamReaderSync Consumption
 

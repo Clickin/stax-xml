@@ -94,6 +94,10 @@ Release-facing docs must cover:
 Before release, test at least one application-shaped sample for each public
 surface that users are expected to keep:
 
+```bash
+pnpm verify:release-surfaces
+```
+
 - `EventReaderSync` for in-memory XML strings;
 - `EventReader` for `ReadableStream<Uint8Array>` input;
 - `StreamReaderSync` for index-first byte batch consumption;

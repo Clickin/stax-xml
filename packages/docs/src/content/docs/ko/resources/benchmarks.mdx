@@ -23,7 +23,7 @@ head:
 import ReleaseBenchmarkTable from '../../../../components/ReleaseBenchmarkTable.astro';
 
 StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `latest` 문서와
-`v1.0.0-rc3` 릴리스 결과는 같은 측정 기준을 사용합니다. JavaScript에서 실제
+`v1.0.0` 릴리스 결과는 같은 측정 기준을 사용합니다. JavaScript에서 실제
 호출하는 공개 API가 문자열과 객체를 만드는 비용까지 포함해 측정합니다.
 
 ## 실행 대상
@@ -49,13 +49,13 @@ RSS, JavaScript 문자열 크기 제한 회피, stream/event/converter API의 pu
 측정했습니다. Runtime 행은 생성된 16 MiB fixture, warmup 1회, 측정 3회를
 기준으로 합니다.
 
-<ReleaseBenchmarkTable kind="runtime" locale="ko" />
+<ReleaseBenchmarkTable kind="runtime" locale="ko" version="v1.0.0" />
 
 4 GiB stream fixture는 `Iterable<Uint8Array[]>` 위의 `StreamReaderSync`를
 사용합니다. 각 batch는 `eventCount`와 index accessor로 소비하고, warmup 없이
 3회 측정합니다.
 
-<ReleaseBenchmarkTable kind="stream4gib" locale="ko" />
+<ReleaseBenchmarkTable kind="stream4gib" locale="ko" version="v1.0.0" />
 
 ## 기타 벤치마크 항목
 
@@ -90,7 +90,7 @@ Converter 비교는 순수 JavaScript 릴리스 측정에 포함됩니다. 수�
 
 두 converter 행은 측정 전에 수동 기준값과 동일한 결과를 만드는지 검증합니다.
 
-<ReleaseBenchmarkTable kind="converter" locale="ko" />
+<ReleaseBenchmarkTable kind="converter" locale="ko" version="v1.0.0" />
 
 ## StreamReaderSync 소비 방식
 

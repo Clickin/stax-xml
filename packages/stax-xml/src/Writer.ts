@@ -333,6 +333,13 @@ export class Writer {
   }
 
   /**
+   * Finalize any open elements, flush buffered bytes, and close the underlying stream.
+   */
+  public async close(): Promise<void> {
+    await this.writeEndDocument();
+  }
+
+  /**
    * Write start element
    */
   public async writeStartElement(

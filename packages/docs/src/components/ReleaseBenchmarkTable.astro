@@ -1,12 +1,34 @@
 ---
-import runtimeMatrix from '../data/benchmarks/v1.0.0-rc3/runtime-matrix.json';
-import streamReader4GiB from '../data/benchmarks/v1.0.0-rc3/stream-reader-4gb.json';
-import converterBatch from '../data/benchmarks/v1.0.0-rc3/converter-compiled-batch-plan.json';
+import runtimeMatrixRc3 from '../data/benchmarks/v1.0.0-rc3/runtime-matrix.json';
+import streamReader4GiBRc3 from '../data/benchmarks/v1.0.0-rc3/stream-reader-4gb.json';
+import converterBatchRc3 from '../data/benchmarks/v1.0.0-rc3/converter-compiled-batch-plan.json';
+import runtimeMatrixV100 from '../data/benchmarks/v1.0.0/runtime-matrix.json';
+import streamReader4GiBV100 from '../data/benchmarks/v1.0.0/stream-reader-4gb.json';
+import converterBatchV100 from '../data/benchmarks/v1.0.0/converter-compiled-batch-plan.json';
 
 type Kind = 'runtime' | 'stream4gib' | 'converter';
 type Locale = 'en' | 'ko';
+type BenchmarkVersion = keyof typeof benchmarkData;
 
-const { kind, locale = 'en' } = Astro.props as { kind: Kind; locale?: Locale };
+const benchmarkData = {
+  'v1.0.0-rc3': {
+    runtimeMatrix: runtimeMatrixRc3,
+    streamReader4GiB: streamReader4GiBRc3,
+    converterBatch: converterBatchRc3,
+  },
+  'v1.0.0': {
+    runtimeMatrix: runtimeMatrixV100,
+    streamReader4GiB: streamReader4GiBV100,
+    converterBatch: converterBatchV100,
+  },
+} as const;
+
+const { kind, locale = 'en', version = 'v1.0.0' } = Astro.props as {
+  kind: Kind;
+  locale?: Locale;
+  version?: BenchmarkVersion;
+};
+const { runtimeMatrix, streamReader4GiB, converterBatch } = benchmarkData[version] ?? benchmarkData['v1.0.0'];
 
 const headings = {
   en: {

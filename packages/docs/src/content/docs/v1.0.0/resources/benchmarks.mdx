@@ -1,0 +1,130 @@
+---
+title: Benchmarks
+description: Pure JavaScript performance checks for StAX-XML
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/resources/benchmarks.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/resources/benchmarks.png
+slug: v1.0.0/resources/benchmarks
+---
+
+import ReleaseBenchmarkTable from '../../../../components/ReleaseBenchmarkTable.astro';
+
+StAX-XML benchmarks the package as a pure JavaScript parser. The `latest`
+documentation and the `v1.0.0` release benchmark set use this same contract:
+measure the public JavaScript surfaces that users actually call, with full
+JavaScript string and object materialization.
+
+## What to Run
+
+- `pnpm --dir packages/benchmark bench:sync` measures synchronous parser and
+  builder paths.
+- `pnpm --dir packages/benchmark bench:async` measures async parser and writer
+  paths.
+- `pnpm --dir packages/benchmark bench:runtime-matrix` compares the same
+  JavaScript reader workload across Node, Bun, and Deno when those runtimes are
+  installed.
+- `pnpm --filter benchmark run release:expanded` regenerates the generated
+  runtime matrix, the 4 GiB `StreamReaderSync` index-first benchmark, and the
+  converter compiled batch-plan benchmark, plus the 1 GiB writer benchmark
+  result.
+
+## Measurement Scope
+
+Parser benchmarks return JavaScript strings and JavaScript objects. They do not
+count raw-byte traversal as a completed parse. Large-file checks focus on low
+RSS, staying below JavaScript string-size limits, and pull-style consumption
+through the stream, event, and converter APIs.
+
+## Release Results
+
+The current release set was refreshed on Node 24.15.0, Bun 1.3.13, and Deno
+2.7.13. Runtime rows use a generated 16 MiB fixture, 1 warmup, and 3 measured
+runs.
+
+<ReleaseBenchmarkTable kind="runtime" version="v1.0.0" />
+
+The 4 GiB generated stream fixture uses `StreamReaderSync` over
+`Iterable<Uint8Array[]>`, consumes each batch with `eventCount` plus index
+accessors, skips warmup, and measures 3 runs.
+
+<ReleaseBenchmarkTable kind="stream4gib" version="v1.0.0" />
+
+## Other Benchmark Tracks
+
+The release matrix is only one part of the benchmark suite. Parser, stream
+reader, converter, builder, writer, async writer, and large writer sink
+benchmarks remain separate measurement surfaces:
+
+| Track | Command | What it measures |
+| --- | --- | --- |
+| Parser fixture series | `pnpm --dir packages/benchmark bench:sync` | 2 KiB, 4 KiB, 13 MiB, and 98 MiB parser fixtures plus sync builder rows. |
+| Builder small/large | `pnpm --dir packages/benchmark bench:builder:small` and `bench:builder:big` | XML emission from builder-friendly intermediate data. |
+| Converter compiled batch plan | `pnpm --dir packages/benchmark bench:converter:compiled-batch` | Manual `StreamReaderSync` projection vs converter auto-lowered and explicit `.compile()` batch dispatch plans. |
+| Async parser/writer | `pnpm --dir packages/benchmark bench:async` | Async parser and async-vs-sync writer API overhead. |
+| Writer core | `pnpm --dir packages/benchmark bench:writer:core` | Direct writer method throughput for compact and pretty output. |
+| 1 GiB writer | `pnpm --dir packages/benchmark bench:writer:1gb:json` | Async writer and sync sink writer over memory and temp-file targets. |
+
+For large XML output, `WriterSyncSink` remains the recommended synchronous path
+when the caller wants incremental writes without retaining the whole XML string.
+The generated release data includes the 1 GiB writer result.
+
+## Converter API Comparison
+
+The converter comparison is part of the pure JavaScript release contract. It
+uses a manual `StreamReaderSync` baseline built from batches with `eventCount`
+plus index accessors. The hand-written row uses the same selected object layout
+as the converter rows. The converter rows parse the same byte fixture through:
+
+- `schema.parseSync(bytes)`, which auto-lowers supported schemas to the compiled
+  dispatch batch plan.
+- `schema.compile().parseSync(bytes)`, which makes the same compiled batch plan
+  explicit and reusable.
+
+Both converter rows are verified against the hand-written projection before
+timing.
+
+<ReleaseBenchmarkTable kind="converter" version="v1.0.0" />
+
+## StreamReaderSync Consumption
+
+For large byte input, prefer batch-local index access:
+
+```ts
+import { StreamEventType, StreamReaderSync } from 'stax-xml';
+
+const reader = new StreamReaderSync(byteBatches);
+
+for (const batch of reader) {
+  for (let index = 0; index < batch.eventCount; index++) {
+    if (batch.typeAt(index) === StreamEventType.START_ELEMENT) {
+      const name = batch.nameAt(index);
+      const attributeCount = batch.attributeCountAt(index);
+
+      for (let attribute = 0; attribute < attributeCount; attribute++) {
+        const attributeName = batch.attributeNameAt(index, attribute);
+        const attributeValue = batch.attributeValueAt(index, attribute);
+        consume(name, attributeName, attributeValue);
+      }
+    }
+  }
+}
+```
+
+`for (const event of batch)` is still supported, but it allocates wrapper event
+objects. On the canonical 98 MiB fixture, index-first consumption was 730.56 ms
+with about 39.8 MiB heap delta, while wrapper iteration was 1.28 s with about
+482.7 MiB heap delta.

@@ -1,6 +1,6 @@
 # JavaScript Runtime Benchmark Matrix
 
-Generated: 2026-05-06T10:50:17.761Z
+Generated: 2026-05-22T14:36:20.383Z
 
 This fixture compares the same built `stax-xml` JavaScript implementation on Node, Bun, and Deno.
 It does not compare binary parser modules or non-JavaScript parser backends.
@@ -61,18 +61,18 @@ Runtime methods:
 
 | Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Status |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| node | 24.15.0 | public-sync-full-string | 92.7 MiB/s | 172.65 ms | 967967 | -746772258 | 24.5 MiB | ok |
-| node | 24.15.0 | stream-sync-index-full-string | 106.2 MiB/s | 150.67 ms | 967967 | -746772258 | 23.3 MiB | ok |
-| node | 24.15.0 | event-count-only | 118.6 MiB/s | 134.85 ms | 967967 | 2078515073 | 20.4 MiB | ok |
-| node | 24.15.0 | event-full-string | 84.7 MiB/s | 188.80 ms | 967967 | 1007437756 | 23.2 MiB | ok |
-| bun | 1.3.13 | public-sync-full-string | 68.3 MiB/s | 234.37 ms | 967967 | -746772258 | 16.8 MiB | ok |
-| bun | 1.3.13 | stream-sync-index-full-string | 137.0 MiB/s | 116.81 ms | 967967 | -746772258 | 68.3 MiB | ok |
-| bun | 1.3.13 | event-count-only | 81.9 MiB/s | 195.37 ms | 967967 | 2078515073 | 17.2 MiB | ok |
-| bun | 1.3.13 | event-full-string | 48.7 MiB/s | 328.62 ms | 967967 | 1007437756 | 17.2 MiB | ok |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | public-sync-full-string | 94.3 MiB/s | 169.70 ms | 967967 | -746772258 | 28.0 MiB | ok |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | stream-sync-index-full-string | 108.6 MiB/s | 147.32 ms | 967967 | -746772258 | 27.7 MiB | ok |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | event-count-only | 118.8 MiB/s | 134.72 ms | 967967 | 2078515073 | 27.7 MiB | ok |
-| deno | 2.7.13 (v8 14.7.173.20-rusty) | event-full-string | 97.9 MiB/s | 163.36 ms | 967967 | 1007437756 | 27.3 MiB | ok |
+| node | 24.15.0 | public-sync-full-string | 41.5 MiB/s | 385.48 ms | 967967 | -746772258 | 22.4 MiB | ok |
+| node | 24.15.0 | stream-sync-index-full-string | 61.8 MiB/s | 258.86 ms | 967967 | -746772258 | 20.3 MiB | ok |
+| node | 24.15.0 | event-count-only | 77.1 MiB/s | 207.64 ms | 967967 | 2078515073 | 20.5 MiB | ok |
+| node | 24.15.0 | event-full-string | 46.9 MiB/s | 341.11 ms | 967967 | 1007437756 | 23.3 MiB | ok |
+| bun | 1.3.13 | public-sync-full-string | 51.7 MiB/s | 309.43 ms | 967967 | -746772258 | 16.8 MiB | ok |
+| bun | 1.3.13 | stream-sync-index-full-string | 71.0 MiB/s | 225.37 ms | 967967 | -746772258 | 69.2 MiB | ok |
+| bun | 1.3.13 | event-count-only | 26.9 MiB/s | 595.58 ms | 967967 | 2078515073 | 17.2 MiB | ok |
+| bun | 1.3.13 | event-full-string | 22.2 MiB/s | 722.03 ms | 967967 | 1007437756 | 17.1 MiB | ok |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | public-sync-full-string | 88.5 MiB/s | 180.88 ms | 967967 | -746772258 | 27.8 MiB | ok |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | stream-sync-index-full-string | 75.2 MiB/s | 212.70 ms | 967967 | -746772258 | 27.7 MiB | ok |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | event-count-only | 103.5 MiB/s | 154.63 ms | 967967 | 2078515073 | 27.5 MiB | ok |
+| deno | 2.7.13 (v8 14.7.173.20-rusty) | event-full-string | 90.4 MiB/s | 176.90 ms | 967967 | 1007437756 | 27.3 MiB | ok |
 
 ## Contract
 

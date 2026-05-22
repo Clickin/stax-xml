@@ -1,10 +1,15 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import { StreamEventType, StreamReaderSync } from 'stax-xml';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const packageVersion = JSON.parse(
+  readFileSync(resolve(__dirname, '../stax-xml/package.json'), 'utf8'),
+).version;
 
 const sizeGiB = Number.parseFloat(readOption('--size-gib') ?? '4');
 const runs = Number.parseInt(readOption('--runs') ?? '3', 10);
@@ -43,7 +48,7 @@ for (const candidate of styles) {
 
 const report = {
   generatedAt: new Date().toISOString(),
-  packageVersion: '1.0.0-rc3',
+  packageVersion,
   runtime: {
     id: 'node',
     version: process.versions.node,
