@@ -21,6 +21,7 @@ head:
 slug: ko/v1.0.0/resources/benchmarks
 ---
 
+import BenchmarkSection from '../../../../../components/BenchmarkSection.astro';
 import ReleaseBenchmarkTable from '../../../../../components/ReleaseBenchmarkTable.astro';
 
 StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `latest` 문서와
@@ -33,9 +34,10 @@ StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `la
 - `pnpm --dir packages/benchmark bench:async`: 비동기 parser와 writer 경로.
 - `pnpm --dir packages/benchmark bench:runtime-matrix`: Node, Bun, Deno가
   설치되어 있을 때 같은 JavaScript reader 작업을 런타임별로 비교.
-- `pnpm --filter benchmark run release:expanded`: 생성된 runtime matrix,
-  4 GiB `StreamReaderSync` index-first benchmark, converter compiled
-  batch-plan benchmark, 1 GiB writer benchmark 결과를 다시 생성.
+- `pnpm --filter benchmark run release:expanded`: 전체 release benchmark set을
+  다시 생성합니다. Runtime matrix, 4 GiB `StreamReaderSync`, converter compiled
+  batch-plan, 1 GiB writer, parser fixture series, npm XML parser 비교,
+  1 MiB부터 4 GiB까지의 size series, writer small/big/async 행이 포함됩니다.
 
 ## 측정 기준
 
@@ -50,6 +52,52 @@ RSS, JavaScript 문자열 크기 제한 회피, stream/event/converter API의 pu
 측정했습니다. Runtime 행은 생성된 16 MiB fixture, warmup 1회, 측정 3회를
 기준으로 합니다.
 
+### Benchmark 환경
+
+<BenchmarkSection section="environment" locale="ko" />
+
+### Parser Fixture Series
+
+아래 행은 같은 fixture에서 동일한 최종 JavaScript object shape를 만드는 공개
+StAX-XML surface들을 비교합니다. 별도의 npm parser 비교나 대용량 traversal
+표와 섞어서 보지 말고 fixture 크기 순서대로 읽는 것이 기준입니다.
+
+#### 작은 문서 (2 KiB)
+
+<BenchmarkSection section="parser-2kb" locale="ko" />
+
+#### 중간 문서 (4 KiB)
+
+<BenchmarkSection section="parser-4kb" locale="ko" />
+
+#### 중대형 문서 (13 MiB)
+
+<BenchmarkSection section="parser-13mb" locale="ko" />
+
+#### 큰 문서 (98 MiB)
+
+<BenchmarkSection section="parser-98mb" locale="ko" />
+
+### Maintained Node XML Parsers
+
+이 표는 현재 benchmark workspace에 설치된 공개 npm XML parser package를 같은
+`books.xml` fixture로 비교합니다. Object parser는 각자의 string-to-object API를
+사용하고, event parser는 event name, text, attribute를 checksum으로 접어 parse
+작업이 제거되지 않도록 합니다.
+
+<BenchmarkSection section="npm-xml-parsers" locale="ko" />
+
+### StreamReaderSync Size Series
+
+대용량 input series는 생성된 byte batch와 공개 `StreamReaderSync` batch-local
+index API를 사용합니다. byte offset 기반 reader가 전체 XML을 하나의
+JavaScript string으로 만들지 않고도 문자열 크기 제한을 넘어설 수 있다는
+release evidence입니다.
+
+<BenchmarkSection section="stream-size" locale="ko" />
+
+### Runtime Matrix
+
 <ReleaseBenchmarkTable kind="runtime" locale="ko" version="v1.0.0" />
 
 4 GiB stream fixture는 `Iterable<Uint8Array[]>` 위의 `StreamReaderSync`를
@@ -61,8 +109,8 @@ RSS, JavaScript 문자열 크기 제한 회피, stream/event/converter API의 pu
 ## 기타 벤치마크 항목
 
 릴리스 matrix는 전체 benchmark suite의 일부입니다. Parser, stream reader,
-converter, builder, writer, async writer, large writer sink benchmark는 계속
-별도로 측정합니다.
+converter, builder, writer, async writer, large writer sink benchmark는
+release-facing 측정 surface이며 선택적인 부록이 아닙니다.
 
 | 항목 | 명령 | 측정 내용 |
 | --- | --- | --- |
@@ -91,7 +139,29 @@ Converter 비교는 순수 JavaScript 릴리스 측정에 포함됩니다. 수�
 
 두 converter 행은 측정 전에 수동 기준값과 동일한 결과를 만드는지 검증합니다.
 
-<ReleaseBenchmarkTable kind="converter" locale="ko" version="v1.0.0" />
+<BenchmarkSection section="converter" locale="ko" />
+
+## Writer 성능
+
+Writer benchmark는 builder-friendly input normalization을 timed region 밖에
+둡니다. 따라서 행들은 반복적인 JSON shape 변환이 아니라 XML emission throughput을
+측정합니다.
+
+### 작은 문서 생성
+
+<BenchmarkSection section="writer-small" locale="ko" />
+
+### 큰 문서 생성
+
+<BenchmarkSection section="writer-big" locale="ko" />
+
+### Async vs Sync Writer 비교
+
+<BenchmarkSection section="writer-async" locale="ko" />
+
+### 1 GiB Writer 비교
+
+<BenchmarkSection section="writer-1gb" locale="ko" />
 
 ## StreamReaderSync 소비 방식
 

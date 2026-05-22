@@ -1,0 +1,84 @@
+# StAX-XML Benchmarks
+
+Generated: 2026-05-22T15:24:19.784Z
+Run ID: 2026-05-22T15-24-19-783Z
+
+This release benchmark set measures public pure JavaScript surfaces. It keeps parser fixture series, maintained npm XML parser comparisons, incremental large-input measurements, converter rows, and writer rows together so docs do not publish a narrowed subset by accident.
+
+## Environment
+
+- Runtime: Node 24.15.0 (x64-win32)
+- CPU: 13th Gen Intel(R) Core(TM) i5-13600K (~3.49 GHz)
+- Package manager: pnpm@10.33.2
+
+## Parser Fixture Series
+
+### 2 KiB
+
+| Surface | Average | Ops/sec | Heap |
+| --- | --- | --- | --- |
+| EventReaderSync | 296.36 us | 3,374 ops/sec | 28.3 KiB |
+| StreamReaderSync | 460.56 us | 2,171 ops/sec | 47.9 KiB |
+| StreamReaderSync index-first | 407.86 us | 2,452 ops/sec | 35.5 KiB |
+| StreamReaderSync while-index | 387.95 us | 2,578 ops/sec | 33.9 KiB |
+| Converter | 504.04 us | 1,984 ops/sec | 60.1 KiB |
+
+### 4 KiB
+
+| Surface | Average | Ops/sec | Heap |
+| --- | --- | --- | --- |
+| EventReaderSync | 396.60 us | 2,521 ops/sec | 50.3 KiB |
+| StreamReaderSync | 626.37 us | 1,596 ops/sec | 84.0 KiB |
+| StreamReaderSync index-first | 568.68 us | 1,758 ops/sec | 46.5 KiB |
+| StreamReaderSync while-index | 557.76 us | 1,793 ops/sec | 42.0 KiB |
+| Converter | 750.47 us | 1,333 ops/sec | 117.2 KiB |
+
+### 13 MiB
+
+| Surface | Average | Ops/sec | Heap |
+| --- | --- | --- | --- |
+| EventReaderSync | 140.44 ms | 7.12 ops/sec | 57.6 MiB |
+| StreamReaderSync | 166.59 ms | 6 ops/sec | 75.3 MiB |
+| StreamReaderSync index-first | 105.23 ms | 9.5 ops/sec | 20.7 MiB |
+| StreamReaderSync while-index | 96.65 ms | 10.35 ops/sec | 20.6 MiB |
+| Converter | 137.51 ms | 7.27 ops/sec | 51.8 MiB |
+
+### 98 MiB
+
+| Surface | Average | Ops/sec | Heap |
+| --- | --- | --- | --- |
+| EventReaderSync | 882.40 ms | 1.13 ops/sec | 35.3 MiB |
+| StreamReaderSync | 1.42 s | 0.71 ops/sec | 482.9 MiB |
+| StreamReaderSync index-first | 720.92 ms | 1.39 ops/sec | 39.5 MiB |
+| StreamReaderSync while-index | 692.93 ms | 1.44 ops/sec | 39.4 MiB |
+| Converter | 774.65 ms | 1.29 ops/sec | 33.6 MiB |
+
+## Maintained Node XML Parser Comparison
+
+| Library | Average | Ops/sec | Heap |
+| --- | --- | --- | --- |
+| stax-xml EventReaderSync (JS event checksum) | 311.63 us | 3,209 ops/sec | 103.2 KiB |
+| stax-xml StreamReaderSync index-first (JS event checksum) | 410.25 us | 2,438 ops/sec | 61.5 KiB |
+| fast-xml-parser XMLParser | 740.40 us | 1,351 ops/sec | 892.3 KiB |
+| txml parse | 166.32 us | 6,012 ops/sec | 78.5 KiB |
+| xml2js parseString | 950.93 us | 1,052 ops/sec | 689.6 KiB |
+| sax strict event parser | 729.99 us | 1,370 ops/sec | 481.0 KiB |
+| saxes event parser | 416.33 us | 2,402 ops/sec | 101.3 KiB |
+| htmlparser2 xmlMode parser | 549.60 us | 1,819 ops/sec | 397.0 KiB |
+
+## StreamReaderSync Incremental Size Series
+
+| Size | Throughput | Average | RSS delta |
+| --- | --- | --- | --- |
+| (1MiB generated batches) | 42.72 MiB/s | 23.41 ms | -1.4 MiB |
+| (10MiB generated batches) | 74.17 MiB/s | 134.82 ms | 1009.3 KiB |
+| (100MiB generated batches) | 77.94 MiB/s | 1.28 s | 64.0 KiB |
+| (1GiB generated batches) | 77.11 MiB/s | 13.28 s | -3.9 MiB |
+| (4GiB generated batches) | 81.38 MiB/s | 50.33 s | 4.1 MiB |
+
+## Release Artifacts
+
+- Runtime matrix: `packages/benchmark/results/release/runtime-matrix.json`
+- 4 GiB stream reader: `packages/benchmark/results/release/stream-reader-4gb.json`
+- Converter compiled batch plan: `packages/benchmark/results/release/converter-compiled-batch-plan.json`
+- 1 GiB writer raw result: `packages/benchmark/results/release/raw/writer-1gb.json`

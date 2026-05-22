@@ -1,9 +1,13 @@
 {
   "version": "v1.0.0",
-  "createdAt": "2026-05-22T14:40:40.142Z",
-  "gitCommit": "2bfa43a4b5d81f041ffc56e192b72b8b7daf0bd3",
+  "createdAt": "2026-05-22T15:27:57.801Z",
+  "gitCommit": "94dc08a3a0aa65ee4f3e41ac36f54e351ef00a36",
   "sourceDir": "packages/benchmark/results/release",
   "files": [
+    {
+      "source": "packages/benchmark/results/release/latest-summary.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/latest-summary.json"
+    },
     {
       "source": "packages/benchmark/results/release/runtime-matrix.json",
       "destination": "packages/docs/src/data/benchmarks/v1.0.0/runtime-matrix.json"

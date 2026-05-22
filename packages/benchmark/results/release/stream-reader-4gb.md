@@ -1,6 +1,6 @@
 # StreamReaderSync 4GiB Index-First Benchmark
 
-Generated: 2026-05-22T14:39:28.832Z
+Generated: 2026-05-22T15:19:02.194Z
 
 This benchmark uses `StreamReaderSync` over generated `Uint8Array` batches and consumes each `StreamBatch` with `eventCount` plus index accessors.
 It measures the public pure JavaScript stream reader path and does not use native addons, Wasm modules, or backend selection.
@@ -16,4 +16,4 @@ It measures the public pure JavaScript stream reader path and does not use nativ
 
 | Style | Throughput | Average | Min | Max | Events | Checksum | Avg RSS delta |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| index-for | 65.35 MiB/s | 62678.67 ms | 56697.89 ms | 72579.09 ms | 572662314 | -1788666544 | 4.0 MiB |
+| index-for | 81.38 MiB/s | 50332.11 ms | 48989.73 ms | 51068.07 ms | 572662314 | -1788666544 | 4.1 MiB |

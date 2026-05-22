@@ -59,9 +59,13 @@ pnpm --filter benchmark run release:expanded
 
 Release set에는 다음 결과가 포함되어야 합니다.
 
+- 2 KiB, 4 KiB, 13 MiB, 98 MiB input에 대한 parser fixture series.
+- 유지되는 npm XML parser 비교 행.
+- 1 MiB부터 4 GiB까지의 `StreamReaderSync` incremental size series.
 - 설치된 Node, Bun, Deno version에 대한 runtime matrix.
 - 4 GiB `StreamReaderSync` index-first parsing evidence.
 - Converter compiled batch-plan 비교.
+- Writer small/big/async 행.
 - `WriterSyncSink`와 async writer row를 포함한 1 GiB writer evidence.
 
 4 GiB stream reader 결과는 큰 byte input을 하나의 JavaScript string으로 만들지 않고

@@ -60,9 +60,13 @@ pnpm --filter benchmark run release:expanded
 
 The release set must include:
 
+- parser fixture series for 2 KiB, 4 KiB, 13 MiB, and 98 MiB inputs;
+- maintained npm XML parser comparison rows;
+- `StreamReaderSync` incremental size series from 1 MiB through 4 GiB;
 - runtime matrix across installed Node, Bun, and Deno versions;
 - 4 GiB `StreamReaderSync` index-first parsing evidence;
 - converter compiled batch-plan comparison;
+- writer small/big/async rows;
 - 1 GiB writer evidence for `WriterSyncSink` and async writer rows.
 
 The 4 GiB stream reader result is the primary evidence that large byte input can

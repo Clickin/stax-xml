@@ -16,6 +16,7 @@ const importPathRegex = /(from ?["'])([^"']*)(["'];?\s?)$/gm;
 const versionSlugRegex = /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
 
 const benchmarkFiles = [
+  'latest-summary.json',
   'runtime-matrix.json',
   'stream-reader-4gb.json',
   'converter-compiled-batch-plan.json',
