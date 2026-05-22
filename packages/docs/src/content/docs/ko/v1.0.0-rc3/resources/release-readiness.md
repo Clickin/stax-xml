@@ -7,14 +7,20 @@ slug: ko/v1.0.0-rc3/resources/release-readiness
 Release tag를 만들거나 release branch를 `master`에 병합하기 전에 이 체크리스트를
 사용하세요.
 
+아래 command를 실행하기 전에 `RELEASE_TAG`를 아직 사용하지 않은 다음 release tag로
+설정하세요. 최종 1.0 release라면 `v1.0.0`, prerelease를 한 번 더 낸다면
+`v1.0.0-rc4` 같은 다음 rc tag를 사용합니다. `package.json`과
+`packages/stax-xml/package.json`의 version은 앞의 `v`를 뺀 tag와 이미 일치해야
+합니다.
+
 ## 1. Package contract
 
 Pure-JS package validator를 실행합니다.
 
 ```bash
-node scripts/validate-prerelease.mjs v1.0.0-rc3
+node scripts/validate-prerelease.mjs "$RELEASE_TAG"
 pnpm build
-node scripts/validate-prerelease.mjs v1.0.0-rc3 --pack
+node scripts/validate-prerelease.mjs "$RELEASE_TAG" --pack
 ```
 
 Validator는 다음 항목을 확인합니다.
@@ -69,7 +75,7 @@ Docs build와 release snapshot을 검증합니다.
 
 ```bash
 pnpm docs:build
-pnpm docs:snapshot:release v1.0.0-rc3 --dry-run
+pnpm docs:snapshot:release "$RELEASE_TAG" --dry-run
 ```
 
 Release-facing docs는 다음 항목을 포함해야 합니다.

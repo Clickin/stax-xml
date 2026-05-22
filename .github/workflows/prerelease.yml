@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Prerelease tag to create, for example v1.0.0-rc3'
+        description: 'Prerelease tag to create, for example v1.0.0-rc4'
         required: true
-        default: 'v1.0.0-rc3'
       npm_tag:
         description: 'Expected npm dist-tag used by release.yml for prereleases'
         required: true
@@ -38,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z.-]+$ ]]; then
-            echo "version must be a prerelease tag like v1.0.0-rc3" >&2
+            echo "version must be a prerelease tag like v1.0.0-rc4" >&2
             exit 1
           fi
           if [[ "${{ inputs.npm_tag }}" != "next" ]]; then

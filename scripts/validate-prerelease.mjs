@@ -63,7 +63,7 @@ const forbiddenPublishedPathPatterns = [
 
 function usage() {
   console.error([
-    'Usage: node scripts/validate-prerelease.mjs v1.0.0-rc3 [--pack]',
+    'Usage: node scripts/validate-prerelease.mjs v1.0.0 [--pack]',
     '',
     'Checks the pure-JS release contract:',
     '- root and public package versions match the release tag',

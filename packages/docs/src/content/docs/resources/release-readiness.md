@@ -6,14 +6,20 @@ description: Checklist for validating the pure JavaScript StAX-XML release.
 Use this checklist before creating a release tag or merging the release branch
 to `master`.
 
+Set `RELEASE_TAG` to the next unused release tag before running the commands
+below. For the final 1.0 release use `v1.0.0`; for another prerelease use the
+next rc tag, for example `v1.0.0-rc4`. The package versions in `package.json`
+and `packages/stax-xml/package.json` must already match the tag without the
+leading `v`.
+
 ## 1. Package Contract
 
 Run the pure-JS package validator:
 
 ```bash
-node scripts/validate-prerelease.mjs v1.0.0-rc3
+node scripts/validate-prerelease.mjs "$RELEASE_TAG"
 pnpm build
-node scripts/validate-prerelease.mjs v1.0.0-rc3 --pack
+node scripts/validate-prerelease.mjs "$RELEASE_TAG" --pack
 ```
 
 The validator checks:
@@ -69,7 +75,7 @@ Build the docs and validate the release snapshot:
 
 ```bash
 pnpm docs:build
-pnpm docs:snapshot:release v1.0.0-rc3 --dry-run
+pnpm docs:snapshot:release "$RELEASE_TAG" --dry-run
 ```
 
 Release-facing docs must cover:
