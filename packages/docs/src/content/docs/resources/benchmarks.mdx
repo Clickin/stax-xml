@@ -99,6 +99,43 @@ materializing one full XML string.
 
 <BenchmarkSection section="stream-size" />
 
+### Reader/Writer Throughput Asymmetry
+
+The 1 GiB reader and writer rows can look surprising when read side by side:
+`StreamReaderSync` index-first is around `77.11 MiB/s` for the 1 GiB generated
+batch row, while `WriterSyncSink` writing a 1 GiB temp file is around
+`263.03 MiB/s`. These rows are intentionally different workloads.
+
+The writer is mostly deterministic append work. The caller already knows each
+element name, attribute, and text value, so `WriterSyncSink` validates its own
+writer state, encodes known JavaScript strings, and flushes large sequential
+chunks to the sink or file descriptor. It does not search arbitrary XML for
+delimiters, recover tokens across chunk boundaries, or discover names, text, and
+attributes from incoming bytes. That is why the sync file writer can land in the
+same broad throughput class as native writers in other runtimes.
+
+`StreamReaderSync` is CPU-bound parsing. The current 1 GiB row uses generated
+byte batches rather than disk I/O, so storage speed is not the limiter. The
+reader must scan every byte, classify markup versus text, maintain XML state,
+build event batches, keep the accessor API stable, and decode/materialize
+JavaScript strings for names, text, and attributes when the consumer asks for
+them. The main restriction is pure-JavaScript byte scanning plus UTF-8 span
+decoding/string materialization under a stable StAX API. Native parsers such as
+Woodstox or quick-xml can put delimiter search and tokenization in JVM/Rust code
+with lower-level buffer access.
+
+Native-addon or FFI-style experiments do not remove that public-contract
+boundary. A Rust, C, or C++ tokenizer can reduce delimiter-search cost, and a
+lower-level boundary can expose pointers, buffers, or spans more directly. It
+still cannot hand ordinary JavaScript consumers a ready-made zero-copy StAX
+event stream with JavaScript strings. Once the benchmark contract requires
+JavaScript strings and events, V8 heap objects must be created or copied, and
+that materialization cost dominates the tokenizer-language or boundary choice.
+
+This is the core tradeoff of the pure JavaScript release: bounded memory and
+portable byte-offset parsing are prioritized, while parser throughput remains
+limited by JavaScript tokenizer and string-materialization costs.
+
 ### Runtime Matrix
 
 <ReleaseBenchmarkTable kind="runtime" version="v1.0.0" />
