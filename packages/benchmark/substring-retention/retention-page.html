@@ -1,0 +1,347 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Substring retention harness</title>
+<body>
+  <h1>Substring retention harness</h1>
+  <pre id="status">ready</pre>
+  <script>
+    (() => {
+      "use strict";
+
+      const MiB = 1024 * 1024;
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const statusEl = document.getElementById("status");
+
+      let scratchBytes = null;
+      let retained = [];
+      let lastChecksum = 0 >>> 0;
+
+      const setStatus = (value) => {
+        statusEl.textContent =
+          typeof value === "string" ? value : JSON.stringify(value, null, 2);
+      };
+
+      const normalizeMethod = (method) => {
+        switch (method || "direct") {
+          case "direct":
+            return "direct";
+          case "suffix":
+          case "suffix-detach":
+            return "suffix-detach";
+          case "json":
+          case "json-copy":
+            return "json-copy";
+          case "prefix":
+            return "prefix";
+          case "splitJoin":
+          case "split-join":
+            return "split-join";
+          default:
+            throw new Error(`Unknown method: ${method}`);
+        }
+      };
+
+      const normalizeConfig = (config = {}) => {
+        const cfg = { ...config };
+        cfg.method = normalizeMethod(cfg.method);
+        cfg.shape = cfg.shape || "ascii";
+        cfg.chunkMiB = Number(cfg.chunkMiB ?? 2);
+        cfg.chunksPerBatch = Number(cfg.chunksPerBatch ?? 20);
+        cfg.tokenLen = Number(cfg.tokenLen ?? 108);
+        cfg.minDetachLen = Number(cfg.minDetachLen ?? 0);
+        cfg.pressureMiB = Number(cfg.pressureMiB ?? 128);
+        cfg.settleMs = Number(cfg.settleMs ?? 150);
+        cfg.store = cfg.store || "object";
+        cfg.seed = Number(cfg.seed ?? 0);
+        cfg.keepScratch = cfg.keepScratch !== false;
+
+        if (!Number.isFinite(cfg.chunkMiB) || cfg.chunkMiB <= 0) {
+          throw new Error("chunkMiB must be > 0");
+        }
+        if (
+          !Number.isFinite(cfg.chunksPerBatch) ||
+          cfg.chunksPerBatch <= 0
+        ) {
+          throw new Error("chunksPerBatch must be > 0");
+        }
+        if (!Number.isFinite(cfg.tokenLen) || cfg.tokenLen <= 0) {
+          throw new Error("tokenLen must be > 0");
+        }
+        return cfg;
+      };
+
+      const ensureScratch = (byteLength) => {
+        if (!scratchBytes || scratchBytes.length !== byteLength) {
+          scratchBytes = new Uint8Array(byteLength);
+          scratchBytes.fill(0x61);
+          for (let i = 4096; i < byteLength; i += 65536) {
+            scratchBytes[i] = 0x7c;
+          }
+        }
+        return scratchBytes;
+      };
+
+      const writeDecimalInto = (bytes, offset, value, maxLen) => {
+        const text = String(value);
+        const n = Math.min(text.length, maxLen);
+        for (let i = 0; i < n; i++) {
+          bytes[offset + i] = text.charCodeAt(i);
+        }
+        return n;
+      };
+
+      const prepareAsciiBytes = (byteLength, tokenStart, tokenLen, seed) => {
+        const bytes = ensureScratch(byteLength);
+        for (let i = 0; i < tokenLen; i++) {
+          bytes[tokenStart + i] = 65 + ((seed + i * 131) % 26);
+        }
+        writeDecimalInto(bytes, tokenStart, seed, Math.min(14, tokenLen));
+
+        const marker = (seed * 2654435761) >>> 0;
+        const markerOffset = Math.max(
+          0,
+          Math.min(byteLength - 16, 1024 + (seed % 4096)),
+        );
+        writeDecimalInto(bytes, markerOffset, marker, 10);
+        return bytes;
+      };
+
+      const materialize = (chunk, start, len, method, minDetachLen) => {
+        const slice = chunk.slice(start, start + len);
+        switch (normalizeMethod(method)) {
+          case "direct":
+            return slice;
+          case "prefix":
+            return len < minDetachLen ? slice : ("\0" + slice).slice(1);
+          case "suffix-detach":
+            return len < minDetachLen
+              ? slice
+              : (slice + "\0").slice(0, len);
+          case "json-copy":
+            return JSON.parse(JSON.stringify(slice));
+          case "split-join":
+            return slice.split("").join("");
+        }
+      };
+
+      const mixChecksum = (acc, str) => {
+        let x = acc >>> 0;
+        x = (x ^ str.length) >>> 0;
+        if (str.length > 0) {
+          x = Math.imul(x ^ str.charCodeAt(0), 16777619) >>> 0;
+          x = Math.imul(x ^ str.charCodeAt(str.length - 1), 16777619) >>> 0;
+          x =
+            Math.imul(x ^ str.charCodeAt(str.length >> 1), 16777619) >>> 0;
+        }
+        return x >>> 0;
+      };
+
+      const sample = async (label) => {
+        const out = {
+          label,
+          t: performance.now(),
+          href: location.href,
+          crossOriginIsolated: Boolean(globalThis.crossOriginIsolated),
+          retainedCount: retained.length,
+          retainedChecksum: lastChecksum >>> 0,
+          ua: navigator.userAgent,
+        };
+
+        if (performance.memory) {
+          out.performanceMemory = {
+            usedJSHeapSize: performance.memory.usedJSHeapSize,
+            totalJSHeapSize: performance.memory.totalJSHeapSize,
+            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+          };
+        }
+
+        if (typeof performance.measureUserAgentSpecificMemory === "function") {
+          try {
+            const memory = await performance.measureUserAgentSpecificMemory();
+            out.measureUserAgentSpecificMemory = {
+              bytes: memory.bytes,
+              breakdown: Array.isArray(memory.breakdown)
+                ? memory.breakdown
+                    .map((entry) => ({
+                      bytes: entry.bytes,
+                      types: entry.types,
+                      attribution: entry.attribution,
+                    }))
+                    .slice(0, 20)
+                : undefined,
+            };
+          } catch (error) {
+            out.measureUserAgentSpecificMemoryError = String(
+              (error && error.message) || error,
+            );
+          }
+        }
+
+        return out;
+      };
+
+      const forceGc = async (options = {}) => {
+        const pressureMiB = Number(options.pressureMiB ?? 0);
+        const settleMs = Number(options.settleMs ?? 0);
+
+        if (typeof globalThis.gc === "function") {
+          try {
+            globalThis.gc();
+          } catch {}
+          await delay(0);
+          try {
+            globalThis.gc();
+          } catch {}
+        }
+
+        if (pressureMiB > 0) {
+          const garbage = [];
+          const stepMiB = 4;
+          for (let i = 0; i < pressureMiB; i += stepMiB) {
+            const bytes = new Uint8Array(
+              Math.min(stepMiB, pressureMiB - i) * MiB,
+            );
+            bytes[0] = i & 255;
+            bytes[bytes.length - 1] = (i * 17) & 255;
+            garbage.push(bytes);
+          }
+          await delay(0);
+          garbage.length = 0;
+        }
+
+        if (typeof globalThis.gc === "function") {
+          try {
+            globalThis.gc();
+          } catch {}
+          await delay(0);
+          try {
+            globalThis.gc();
+          } catch {}
+        }
+
+        if (settleMs > 0) {
+          await delay(settleMs);
+        }
+      };
+
+      const prepare = async (config = {}) => {
+        const cfg = normalizeConfig(config);
+        retained = [];
+        lastChecksum = 0 >>> 0;
+        if (!cfg.keepScratch) {
+          scratchBytes = null;
+        }
+        await forceGc({ pressureMiB: cfg.pressureMiB, settleMs: cfg.settleMs });
+        const pageSample = await sample("prepared");
+        setStatus({ phase: "prepared", config: cfg, sample: pageSample });
+        return pageSample;
+      };
+
+      const retainBatchSync = (config = {}, batchIndex = 0) => {
+        const cfg = normalizeConfig(config);
+        if (cfg.shape !== "ascii") {
+          throw new Error(
+            "This harness currently supports shape=ascii for retention trials.",
+          );
+        }
+
+        const byteLength = Math.floor(cfg.chunkMiB * MiB);
+        const tokenLen = cfg.tokenLen;
+        if (tokenLen >= byteLength) {
+          throw new Error("tokenLen must be smaller than chunk byte length");
+        }
+
+        const tokenStart = Math.floor((byteLength - tokenLen) / 2);
+        const decoder = new TextDecoder("utf-8");
+        let checksum = lastChecksum >>> 0;
+        const t0 = performance.now();
+
+        for (let i = 0; i < cfg.chunksPerBatch; i++) {
+          const seed = cfg.seed + batchIndex * cfg.chunksPerBatch + i;
+          const bytes = prepareAsciiBytes(
+            byteLength,
+            tokenStart,
+            tokenLen,
+            seed,
+          );
+          const chunk = decoder.decode(bytes);
+          const token = materialize(
+            chunk,
+            tokenStart,
+            tokenLen,
+            cfg.method,
+            cfg.minDetachLen,
+          );
+          checksum = mixChecksum(checksum, token);
+          if (cfg.store === "object") {
+            retained.push({ value: token, seed });
+          } else {
+            retained.push(token);
+          }
+        }
+
+        const elapsedMs = performance.now() - t0;
+        lastChecksum = checksum >>> 0;
+        return {
+          batchIndex,
+          elapsedMs,
+          nsPerChunk: (elapsedMs * 1e6) / cfg.chunksPerBatch,
+          chunksPerBatch: cfg.chunksPerBatch,
+          chunkMiB: cfg.chunkMiB,
+          tokenLen: cfg.tokenLen,
+          tokenStart,
+          retainedCount: retained.length,
+          checksum: lastChecksum >>> 0,
+          expectedLargeLiveMiBIfParentsRetained:
+            retained.length * cfg.chunkMiB,
+          expectedRetainedPayloadBytes: retained.length * cfg.tokenLen,
+        };
+      };
+
+      const retainBatch = async (config = {}, batchIndex = 0) => {
+        const cfg = normalizeConfig(config);
+        const stats = retainBatchSync(cfg, batchIndex);
+        await forceGc({ pressureMiB: cfg.pressureMiB, settleMs: cfg.settleMs });
+        const pageSample = await sample(`retained-batch-${batchIndex}`);
+        setStatus({ phase: "retained", batchIndex, stats, sample: pageSample });
+        return { stats, sample: pageSample };
+      };
+
+      const release = async (config = {}) => {
+        const cfg = normalizeConfig(config);
+        retained = [];
+        lastChecksum = 0 >>> 0;
+        if (!cfg.keepScratch) {
+          scratchBytes = null;
+        }
+        await forceGc({ pressureMiB: cfg.pressureMiB, settleMs: cfg.settleMs });
+        const pageSample = await sample("released");
+        setStatus({ phase: "released", sample: pageSample });
+        return pageSample;
+      };
+
+      const getRetainedSanity = () => {
+        let checksum = 0 >>> 0;
+        for (let i = 0; i < retained.length; i++) {
+          const str =
+            typeof retained[i] === "string" ? retained[i] : retained[i].value;
+          checksum = mixChecksum(checksum, str);
+        }
+        return {
+          retainedCount: retained.length,
+          checksum: checksum >>> 0,
+          lastChecksum: lastChecksum >>> 0,
+        };
+      };
+
+      globalThis.__retention = {
+        prepare,
+        retainBatch,
+        release,
+        sample,
+        forceGc,
+        getRetainedSanity,
+      };
+    })();
+  </script>
+</body>
