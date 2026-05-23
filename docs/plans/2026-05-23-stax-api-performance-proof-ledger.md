@@ -51,10 +51,35 @@ Rules:
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `stax-event` creates public event objects and attribute objects; `stax-stream` uses byte batches and index accessors. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. JavaScriptCore similarly has engine-owned string objects. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned V8/JSC source line references for the exact runtime versions used in release benchmarks. This does not prove no performance headroom exists in pure JS. |
 | `CLAIM-JS-RUNTIME-LIMIT-200MIB` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory on 1 GiB+ XML. | `HYPOTHESIS` | Current `stringFull` rows are well below that target; monomorphic raw-frame access improves but still stays below Woodstox. | Must run an exhaustive candidate matrix before this can become a conclusion: object-shape parity, cursor-style accessors, direct raw frames, string-input specialization, TextDecoder variants, V8/JSC traces, browser runs, allocation profiles, and 1 GiB+ memory gates. Any 200 MiB/s+ bounded-memory JS row is a counterexample. |
-| `CLAIM-CURRENT-HOTPATH` | Current full-string cost is dominated above the parser core, around string/accessor/materialization work. | `BENCH_FACT` + partial `TRACE_FACT` | Prior count/access/full splits and current monomorphic raw-frame benchmark show accessor/materialization improvements without parser-core changes. V8/JSC captures show calls around public accessors and string decode paths. | Need allocation sampling and current V8/JSC trace for the latest raw-frame and public event shapes. |
+| `CLAIM-CURRENT-HOTPATH` | Current full-string cost is dominated above the parser core, around string/accessor/materialization work. | `BENCH_FACT` + partial `TRACE_FACT` | Prior count/access/full splits, current monomorphic raw-frame benchmark, and object-shape parity benchmark show accessor/materialization/object-shape deltas without parser-core changes. V8/JSC captures show calls around public accessors and string decode paths. | Need allocation sampling and current V8/JSC trace for the latest raw-frame and public event shapes. |
 | `CLAIM-LAZY-GETTERS` | Lazy event getters are not a current optimization candidate. | `NEGATIVE_RESULT` | Runtime triage rejects lazy getters because they help count-only paths while destabilizing cache consistency. Projection design also excludes lazy getters on projected records. | This rejection can be revisited only with a benchmark that proves full-string or real StAX consumer improvement, bounded memory, and no cache-shape regression. |
 | `CLAIM-NODE-BUFFER-PRIMARY` | Node `Buffer` / `Buffer.toString()` should not be the primary stream fast lane. | `NEGATIVE_RESULT` + product constraint | Existing runtime triage records neutral-vs-node iterable measurements that did not justify the browser-compatibility split. User requirement keeps browser-compatible `Uint8Array`/`TextDecoder` as the neutral baseline. | A Node-only subpath can still be measured as diagnostic or optional, but it cannot be mixed into neutral/browser claims. |
 | `CLAIM-PROJECTION` | Projection can improve practical extraction workloads by avoiding negative-path materialization. | `HYPOTHESIS` until implemented under gates | The projection design specifies plan-first byte/span matching and large-input memory gates. | Must prove against `StreamReaderSync`, `EventReaderSync`, `sax`, and `saxes` on low/high selectivity fixtures, with materialized string counts, object counts, heap/RSS, and 1 GiB/4 GiB gates. |
+
+## Current Evidence: Object-Shape Parity
+
+`packages/benchmark/results/release/object-shape-parity.md` is a `BENCH_FACT`
+only for its recorded boundary: Node/V8, one 16 MiB fixture, `warmups=1`, and
+`runs=3`.
+
+It compares five JavaScript rows under the same full-string checksum contract:
+
+- `stream-batch-index`: `StreamBatch` index accessors, no per-event object;
+- `stream-event-view`: `StreamEventView` wrapper per event;
+- `cursor-adapter`: one mutable cursor over `StreamBatch`;
+- `event-reader-object`: public `EventReaderSync` event objects;
+- `raw-frame-name-id`: `nextRawBatch()` typed arrays with numeric name-id cache.
+
+The measured throughputs were 124.2 MiB/s, 86.4 MiB/s, 107.5 MiB/s,
+94.3 MiB/s, and 136.8 MiB/s respectively. All rows reported the same
+967,967 events and checksum `-746772258`.
+
+This is useful evidence against collapsing every gap into parser-core cost:
+per-event wrapper/object rows were slower than batch index access under the same
+checksum, and the raw-frame name-id row was faster than public shapes. It does
+not prove a 200 MiB/s JavaScript runtime ceiling. No 200 MiB/s counterexample
+was found in this run, but 1 GiB+ bounded-memory rows, browser runs, allocation
+profiles, and current V8/JSC traces are still missing.
 
 ## Required Proof Tracks
 
@@ -139,8 +164,8 @@ Acceptance:
 ## Current Next Experiments
 
 1. Add HotSpot allocation/inlining capture for `WoodstoxBench.consume`.
-2. Add a JS object-shape parity benchmark that compares batch access,
-   cursor-style accessors, and public event objects under the same checksum.
+2. Extend the JS object-shape parity benchmark to 1 GiB+ bounded-memory rows and
+   V8/JSC allocation/codegen captures.
 3. Add string/materialization counters to the monomorphic benchmark family.
 4. Capture V8 and Bun/JSC traces for `raw-frame-name-id-cache`, not only the
    public accessor row.

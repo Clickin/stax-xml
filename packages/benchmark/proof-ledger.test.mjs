@@ -19,6 +19,7 @@ function claimRow(markdown, id) {
 test('proof ledger keeps runtime-limit claims below conclusion strength', () => {
   const markdown = readLedger();
   assert.match(markdown, /## Proof Vocabulary/);
+  assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
   assert.match(markdown, /## Required Proof Tracks/);
   assert.match(markdown, /## Current Next Experiments/);
 
@@ -29,4 +30,6 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
 
   assert.doesNotMatch(markdown, /JavaScript runtimes cannot exceed 200 MiB\/s/i);
   assert.match(markdown, /Any 200 MiB\/s\+ bounded-memory JS row is a counterexample/);
+  assert.match(markdown, /object-shape-parity\.md/);
+  assert.match(markdown, /not prove a 200 MiB\/s JavaScript runtime ceiling/);
 });
