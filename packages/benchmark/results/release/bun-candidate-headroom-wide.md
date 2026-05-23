@@ -1,6 +1,6 @@
 # Large Candidate Headroom Matrix
 
-Generated: 2026-05-23T13:52:05.753Z
+Generated: 2026-05-23T16:45:26.138Z
 
 This experiment is a 1 GiB+ bounded-memory counterexample search over generated `Uint8Array` batches.
 Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.
@@ -11,6 +11,7 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 
 - Package: stax-xml 1.0.0
 - Runtime: Bun 1.3.13, JavaScriptCore WebKit 4d5e75ebd84a14edbc7ae264245dcd77fe597c10
+- Fixture source: generated
 - Generated size: 1.00 GiB (1073742042 bytes)
 - Fixture shape: diverse-cycle
 - Row cycle size: 65536
@@ -30,15 +31,16 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 
 | Variant | Family | Contract scope | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded memory | Counterexample | Events | Checksum | Full parity |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |
-| scanAllNoDecode | partial-upper-bound | event-types-and-attribute-counts-only | 238.72 MiB/s | 2.27x | 0.72x | not-applicable | yes | not-found | 44596829 | 178037248 | no |
-| nameStringOnly | partial-upper-bound | event-types-attribute-counts-and-element-names | 202.60 MiB/s | 1.92x | 0.61x | not-applicable | yes | not-found | 44596829 | -961575258 | no |
-| textStringOnly | partial-upper-bound | event-types-attribute-counts-and-text-cdata | 161.44 MiB/s | 1.53x | 0.48x | not-applicable | yes | not-found | 44596829 | -800270476 | no |
-| attrNameStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-names | 207.16 MiB/s | 1.97x | 0.62x | not-applicable | yes | not-found | 44596829 | -1641285685 | no |
-| attrValueStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-values | 170.65 MiB/s | 1.62x | 0.51x | not-applicable | yes | not-found | 44596829 | 1201035695 | no |
-| stringFull | full-stax-js | full-string-materialization | 105.38 MiB/s | 1.00x | 0.32x | below | yes | not-found | 44596829 | 2036370286 | yes |
-| cursorAccessor | full-stax-js | full-string-materialization | 107.97 MiB/s | 1.02x | 0.32x | below | yes | not-found | 44596829 | 2036370286 | yes |
-| rawFrameDirect | full-stax-js | full-string-materialization | 93.10 MiB/s | 0.88x | 0.28x | below | yes | not-found | 44596829 | 2036370286 | yes |
-| rawFrameNameId | full-stax-js | full-string-materialization | 111.09 MiB/s | 1.05x | 0.33x | below | yes | not-found | 44596829 | 2036370286 | yes |
+| scanAllNoDecode | partial-upper-bound | event-types-and-attribute-counts-only | 175.02 MiB/s | 3.31x | 0.52x | not-applicable | yes | not-found | 44596829 | 178037248 | no |
+| nameStringOnly | partial-upper-bound | event-types-attribute-counts-and-element-names | 104.65 MiB/s | 1.98x | 0.31x | not-applicable | yes | not-found | 44596829 | -961575258 | no |
+| textStringOnly | partial-upper-bound | event-types-attribute-counts-and-text-cdata | 85.47 MiB/s | 1.61x | 0.26x | not-applicable | yes | not-found | 44596829 | -800270476 | no |
+| attrNameStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-names | 107.52 MiB/s | 2.03x | 0.32x | not-applicable | yes | not-found | 44596829 | -1641285685 | no |
+| attrValueStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-values | 89.71 MiB/s | 1.69x | 0.27x | not-applicable | yes | not-found | 44596829 | 1201035695 | no |
+| stringFull | full-stax-js | full-string-materialization | 52.93 MiB/s | 1.00x | 0.16x | below | yes | not-found | 44596829 | 2036370286 | yes |
+| eventObjectFull | full-stax-js | full-event-object-materialization | 34.09 MiB/s | 0.64x | 0.10x | below | yes | not-found | 44596829 | 2036370286 | yes |
+| cursorAccessor | full-stax-js | full-string-materialization | 56.32 MiB/s | 1.06x | 0.17x | below | yes | not-found | 44596829 | 2036370286 | yes |
+| rawFrameDirect | full-stax-js | full-string-materialization | 52.49 MiB/s | 0.99x | 0.16x | below | yes | not-found | 44596829 | 2036370286 | yes |
+| rawFrameNameId | full-stax-js | full-string-materialization | 60.51 MiB/s | 1.14x | 0.18x | below | yes | not-found | 44596829 | 2036370286 | yes |
 
 ## Memory
 
@@ -46,15 +48,16 @@ Memory uses `process.memoryUsage()` before and after each measured run; max valu
 
 | Variant | Avg heap delta | Avg RSS delta | Max heap used | Max RSS |
 | --- | ---: | ---: | ---: | ---: |
-| scanAllNoDecode | +1.8 MiB | +54.7 MiB | 27.1 MiB | 253.9 MiB |
-| nameStringOnly | +1.6 MiB | -3.6 MiB | 28.8 MiB | 254.1 MiB |
-| textStringOnly | +32.6 MiB | +15.3 MiB | 61.3 MiB | 265.8 MiB |
-| attrNameStringOnly | +2.1 MiB | +64.3 MiB | 63.4 MiB | 330.1 MiB |
-| attrValueStringOnly | +1.4 MiB | +30.1 MiB | 64.9 MiB | 360.1 MiB |
-| stringFull | +8.7 MiB | -71.4 MiB | 73.6 MiB | 360.1 MiB |
-| cursorAccessor | -15.8 MiB | +13.3 MiB | 73.6 MiB | 302.0 MiB |
-| rawFrameDirect | +18.1 MiB | -6.7 MiB | 75.9 MiB | 302.0 MiB |
-| rawFrameNameId | -2.0 MiB | +6.6 MiB | 75.9 MiB | 302.0 MiB |
+| scanAllNoDecode | +1.1 MiB | +45.8 MiB | 26.3 MiB | 252.4 MiB |
+| nameStringOnly | -252.0 KiB | -4.8 MiB | 26.3 MiB | 253.0 MiB |
+| textStringOnly | +52.4 MiB | -30.8 MiB | 78.5 MiB | 248.8 MiB |
+| attrNameStringOnly | -52.4 MiB | +33.1 MiB | 78.5 MiB | 256.1 MiB |
+| attrValueStringOnly | -9.9 KiB | -10.7 MiB | 26.1 MiB | 256.2 MiB |
+| stringFull | +47.1 MiB | -28.2 MiB | 73.2 MiB | 250.9 MiB |
+| eventObjectFull | +14.7 MiB | +8.0 MiB | 87.8 MiB | 235.9 MiB |
+| cursorAccessor | -30.2 MiB | -15.6 MiB | 87.8 MiB | 241.3 MiB |
+| rawFrameDirect | +30.5 MiB | +24.8 MiB | 88.1 MiB | 255.9 MiB |
+| rawFrameNameId | -30.2 MiB | -35.5 MiB | 88.1 MiB | 261.3 MiB |
 
 ## Materialization Counters
 
@@ -68,28 +71,29 @@ Counters are collected inside the measured large-input loop to avoid a second 1 
 | attrNameStringOnly | 28,379,799 | 0 | 0 | 28,379,799 | 0 | 0 | 0/0 | 0 | 28,379,799 |
 | attrValueStringOnly | 28,379,799 | 0 | 0 | 0 | 28,379,799 | 0 | 0/0 | 0 | 28,379,799 |
 | stringFull | 101,356,425 | 32,434,056 | 12,162,771 | 28,379,799 | 28,379,799 | 0 | 0/0 | 0 | 28,379,799 |
+| eventObjectFull | 101,356,425 | 32,434,056 | 12,162,771 | 28,379,799 | 28,379,799 | 0 | 0/0 | 44,596,829 | 28,379,799 |
 | cursorAccessor | 101,356,425 | 32,434,056 | 12,162,771 | 28,379,799 | 28,379,799 | 0 | 0/0 | 0 | 28,379,799 |
 | rawFrameDirect | 101,356,425 | 32,434,056 | 12,162,771 | 28,379,799 | 28,379,799 | 101,356,425 | 0/0 | 0 | 28,379,799 |
 | rawFrameNameId | 101,356,425 | 32,434,056 | 12,162,771 | 28,379,799 | 28,379,799 | 40,548,737 | 60,807,688/6,167 | 0 | 28,379,799 |
 
 ## Omitted Rows
 
-- eventObjectFull: EventReaderSync requires a complete XML string input in this benchmark family, so it is excluded from the generated byte-batch bounded-memory matrix.
 - projectionLowSelectivity: Projection rows require a separate selector contract and remain future work.
 - projectionHighSelectivity: Projection rows require a separate selector contract and remain future work.
 
 ## Parity
 
 All rows event-count parity: ok, events=44596829.
-Full-string parity rows: ok, events=44596829, checksum=2036370286, rows=stringFull, cursorAccessor, rawFrameDirect, rawFrameNameId.
+Full-string parity rows: ok, events=44596829, checksum=2036370286, rows=stringFull, eventObjectFull, cursorAccessor, rawFrameDirect, rawFrameNameId.
 
 ## Findings
 
 - bounded-memory-contract: Rows consume generated Uint8Array batches and do not load a full XML string.
-  - stringFull: maxRSS=360.1 MiB
-  - cursorAccessor: maxRSS=302.0 MiB
-  - rawFrameDirect: maxRSS=302.0 MiB
-  - rawFrameNameId: maxRSS=302.0 MiB
+  - stringFull: maxRSS=250.9 MiB
+  - eventObjectFull: maxRSS=235.9 MiB
+  - cursorAccessor: maxRSS=241.3 MiB
+  - rawFrameDirect: maxRSS=255.9 MiB
+  - rawFrameNameId: maxRSS=261.3 MiB
 - contract-separation: Partial rows deliberately drop one or more string fields and are not StAX parity rows.
   - scanAllNoDecode: event-types-and-attribute-counts-only, strings=0
   - nameStringOnly: event-types-attribute-counts-and-element-names, strings=32434056
@@ -98,9 +102,10 @@ Full-string parity rows: ok, events=44596829, checksum=2036370286, rows=stringFu
   - attrValueStringOnly: event-types-attribute-counts-and-attribute-values, strings=28379799
 - full-string-parity: Full rows fold element names, text/CDATA, attribute names, and attribute values into the same checksum.
   - stringFull: events=44596829, checksum=2036370286
+  - eventObjectFull: events=44596829, checksum=2036370286
   - cursorAccessor: events=44596829, checksum=2036370286
   - rawFrameDirect: events=44596829, checksum=2036370286
   - rawFrameNameId: events=44596829, checksum=2036370286
 - headroom-search: The fastest row in each family is a headroom signal, not a runtime-limit conclusion.
-  - partial=scanAllNoDecode 238.72 MiB/s
-  - full=rawFrameNameId 111.09 MiB/s
+  - partial=scanAllNoDecode 175.02 MiB/s
+  - full=rawFrameNameId 60.51 MiB/s

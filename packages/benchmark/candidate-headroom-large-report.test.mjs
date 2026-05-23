@@ -62,6 +62,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
     'attrNameStringOnly',
     'attrValueStringOnly',
     'stringFull',
+    'eventObjectFull',
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
@@ -80,16 +81,20 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
 
   const scan = report.variants.find(entry => entry.id === 'scanAllNoDecode');
   const stringFull = report.variants.find(entry => entry.id === 'stringFull');
+  const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
   const rawDirect = report.variants.find(entry => entry.id === 'rawFrameDirect');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
 
   assert.equal(scan.materializationCounters.stringFieldReads, 0);
   assert.equal(scan.materializationCounters.rawSpanMaterializations, 0);
   assert.ok(stringFull.materializationCounters.stringFieldReads > 0);
+  assert.ok(eventObjectFull.fullStringParity);
+  assert.equal(eventObjectFull.materializationCounters.eventObjects, eventObjectFull.eventCount);
+  assert.equal(eventObjectFull.checksum, report.fullStringParity.checksum);
   assert.ok(rawDirect.materializationCounters.rawSpanMaterializations > 0);
   assert.ok(rawNameId.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawNameId.materializationCounters.rawSpanMaterializations < rawDirect.materializationCounters.rawSpanMaterializations);
-  assert.ok(report.omittedRows.some(entry => entry.id === 'eventObjectFull'));
+  assert.ok(!report.omittedRows.some(entry => entry.id === 'eventObjectFull'));
   assert.ok(report.omittedRows.some(entry => entry.id === 'projectionLowSelectivity'));
   assert.ok(report.omittedRows.some(entry => entry.id === 'projectionHighSelectivity'));
 
@@ -112,6 +117,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.match(markdown, /lazy getters/);
   assert.match(markdown, /## Omitted Rows/);
   assert.match(markdown, /eventObjectFull/);
+  assert.doesNotMatch(markdown, /eventObjectFull: EventReaderSync requires a complete XML string input/);
   assert.match(markdown, /Projection rows require a separate selector contract/);
   assert.match(markdown, /Full-string parity rows: ok/);
 });
