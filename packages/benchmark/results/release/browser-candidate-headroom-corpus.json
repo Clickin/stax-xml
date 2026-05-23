@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-23T15:38:16.838Z",
+  "generatedAt": "2026-05-23T16:11:21.200Z",
   "objective": "browser-candidate-headroom",
   "contract": "browser-corpus-byte-batch-mixed-materialization-headroom-matrix",
-  "note": "This is a browser-runtime counterexample search over Uint8Array batches. Memory is browser JS heap only, not process RSS.",
+  "note": "This is a browser-runtime counterexample search over Uint8Array batches. Variant memory is browser JS heap; host process-tree memory is reported separately when available.",
   "packageVersion": "1.0.0",
   "environment": {
     "runtimeName": "browser",
@@ -38,6 +38,237 @@
     "warmups": 0,
     "boundedJsHeapMiB": 512
   },
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+    "samples": [
+      {
+        "label": "browser-started",
+        "at": "2026-05-23T16:07:34.446Z",
+        "scope": "windows-process-tree",
+        "rootPid": 45276,
+        "processCount": 9,
+        "workingSetBytes": 395378688,
+        "privateBytes": 163749888,
+        "processes": [
+          {
+            "pid": 45276,
+            "parentPid": 31132,
+            "name": "chrome.exe",
+            "workingSetBytes": 120532992,
+            "privateBytes": 38141952
+          },
+          {
+            "pid": 46456,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 10350592,
+            "privateBytes": 2662400
+          },
+          {
+            "pid": 47520,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 37556224,
+            "privateBytes": 16281600
+          },
+          {
+            "pid": 48696,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 37433344,
+            "privateBytes": 13914112
+          },
+          {
+            "pid": 2436,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 19308544,
+            "privateBytes": 9748480
+          },
+          {
+            "pid": 16692,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 47865856,
+            "privateBytes": 22421504
+          },
+          {
+            "pid": 48828,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 30928896,
+            "privateBytes": 16351232
+          },
+          {
+            "pid": 8852,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 49946624,
+            "privateBytes": 23404544
+          },
+          {
+            "pid": 36612,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 41455616,
+            "privateBytes": 20824064
+          }
+        ]
+      },
+      {
+        "label": "before-run",
+        "at": "2026-05-23T16:07:35.076Z",
+        "scope": "windows-process-tree",
+        "rootPid": 45276,
+        "processCount": 10,
+        "workingSetBytes": 448368640,
+        "privateBytes": 184233984,
+        "processes": [
+          {
+            "pid": 45276,
+            "parentPid": 31132,
+            "name": "chrome.exe",
+            "workingSetBytes": 125038592,
+            "privateBytes": 39989248
+          },
+          {
+            "pid": 46456,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 10366976,
+            "privateBytes": 2662400
+          },
+          {
+            "pid": 47520,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 38764544,
+            "privateBytes": 16420864
+          },
+          {
+            "pid": 48696,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 38883328,
+            "privateBytes": 13938688
+          },
+          {
+            "pid": 2436,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 19308544,
+            "privateBytes": 9748480
+          },
+          {
+            "pid": 16692,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 48066560,
+            "privateBytes": 22433792
+          },
+          {
+            "pid": 48828,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 45826048,
+            "privateBytes": 18550784
+          },
+          {
+            "pid": 8852,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 49946624,
+            "privateBytes": 23404544
+          },
+          {
+            "pid": 36612,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 41455616,
+            "privateBytes": 20824064
+          },
+          {
+            "pid": 48492,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 30711808,
+            "privateBytes": 16261120
+          }
+        ]
+      },
+      {
+        "label": "after-run",
+        "at": "2026-05-23T16:11:20.577Z",
+        "scope": "windows-process-tree",
+        "rootPid": 45276,
+        "processCount": 8,
+        "workingSetBytes": 873611264,
+        "privateBytes": 685080576,
+        "processes": [
+          {
+            "pid": 45276,
+            "parentPid": 31132,
+            "name": "chrome.exe",
+            "workingSetBytes": 164462592,
+            "privateBytes": 60936192
+          },
+          {
+            "pid": 46456,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 10309632,
+            "privateBytes": 2531328
+          },
+          {
+            "pid": 47520,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 38780928,
+            "privateBytes": 16379904
+          },
+          {
+            "pid": 48696,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 40878080,
+            "privateBytes": 13938688
+          },
+          {
+            "pid": 2436,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 19791872,
+            "privateBytes": 9699328
+          },
+          {
+            "pid": 16692,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 51826688,
+            "privateBytes": 22892544
+          },
+          {
+            "pid": 48492,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 516919296,
+            "privateBytes": 542715904
+          },
+          {
+            "pid": 48776,
+            "parentPid": 45276,
+            "name": "chrome.exe",
+            "workingSetBytes": 30642176,
+            "privateBytes": 15986688
+          }
+        ]
+      }
+    ],
+    "maxWorkingSetBytes": 873611264,
+    "maxPrivateBytes": 685080576,
+    "maxProcessCount": 10
+  },
   "woodstoxTarget": {
     "status": "ok",
     "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
@@ -61,7 +292,7 @@
     },
     {
       "id": "processRss",
-      "reason": "Browsers do not expose a portable process RSS metric to page JavaScript; this report records JS heap via Chromium performance.memory."
+      "reason": "Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available."
     }
   ],
   "eventCountParity": {
@@ -86,21 +317,21 @@
       "implementation": "StreamBatch index accessors over browser byte batches",
       "contractScope": "event-types-and-attribute-counts-only",
       "fullStringParity": false,
-      "avgMs": 5938.234999999404,
-      "minMs": 5938.234999999404,
-      "maxMs": 5938.234999999404,
-      "mibPerSec": 172.60973046567725,
+      "avgMs": 10835.204999998212,
+      "minMs": 10835.204999998212,
+      "maxMs": 10835.204999998212,
+      "mibPerSec": 94.59877711514616,
       "eventCount": 75206126,
       "checksum": -1094942745,
       "samplesMs": [
-        5938.234999999404
+        10835.204999998212
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 276939076,
-        "avgJsHeapTotalDeltaBytes": 276624336,
-        "maxJsHeapUsedBytes": 373789286,
-        "maxJsHeapTotalBytes": 383735630,
+        "avgJsHeapUsedDeltaBytes": 277534856,
+        "avgJsHeapTotalDeltaBytes": 276100048,
+        "maxJsHeapUsedBytes": 374380182,
+        "maxJsHeapTotalBytes": 383211342,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
@@ -108,17 +339,17 @@
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
               "jsHeapTotalBytes": 107111294,
-              "jsHeapUsedBytes": 96850210
+              "jsHeapUsedBytes": 96845326
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 383735630,
-              "jsHeapUsedBytes": 373789286
+              "jsHeapTotalBytes": 383211342,
+              "jsHeapUsedBytes": 374380182
             },
             "delta": {
-              "jsHeapUsedBytes": 276939076,
-              "jsHeapTotalBytes": 276624336
+              "jsHeapUsedBytes": 277534856,
+              "jsHeapTotalBytes": 276100048
             }
           }
         ]
@@ -143,8 +374,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 3.37307044938486,
-      "woodstoxRatio": 0.5176757389499393,
+      "relativeToStringFull": 3.24510703766143,
+      "woodstoxRatio": 0.2837122317190669,
       "targetStatus": "not-applicable"
     },
     {
@@ -153,38 +384,38 @@
       "implementation": "StreamBatch index accessors over browser byte batches",
       "contractScope": "event-types-attribute-counts-and-element-names",
       "fullStringParity": false,
-      "avgMs": 7013.284999996424,
-      "minMs": 7013.284999996424,
-      "maxMs": 7013.284999996424,
-      "mibPerSec": 146.1507899354255,
+      "avgMs": 12478.769999995828,
+      "minMs": 12478.769999995828,
+      "maxMs": 12478.769999995828,
+      "mibPerSec": 82.13927677103518,
       "eventCount": 75206126,
       "checksum": -1903399745,
       "samplesMs": [
-        7013.284999996424
+        12478.769999995828
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 277511371,
+        "avgJsHeapUsedDeltaBytes": 278902115,
         "avgJsHeapTotalDeltaBytes": 276886719,
-        "maxJsHeapUsedBytes": 373371361,
-        "maxJsHeapTotalBytes": 383211533,
+        "maxJsHeapUsedBytes": 374759737,
+        "maxJsHeapTotalBytes": 382687245,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106324814,
-              "jsHeapUsedBytes": 95859990
+              "jsHeapTotalBytes": 105800526,
+              "jsHeapUsedBytes": 95857622
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 383211533,
-              "jsHeapUsedBytes": 373371361
+              "jsHeapTotalBytes": 382687245,
+              "jsHeapUsedBytes": 374759737
             },
             "delta": {
-              "jsHeapUsedBytes": 277511371,
+              "jsHeapUsedBytes": 278902115,
               "jsHeapTotalBytes": 276886719
             }
           }
@@ -210,8 +441,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 2.856020395579405,
-      "woodstoxRatio": 0.43832243972470136,
+      "relativeToStringFull": 2.81769757756656,
+      "woodstoxRatio": 0.24634480735554165,
       "targetStatus": "not-applicable"
     },
     {
@@ -220,39 +451,39 @@
       "implementation": "StreamBatch index accessors over browser byte batches",
       "contractScope": "event-types-attribute-counts-and-text-cdata",
       "fullStringParity": false,
-      "avgMs": 18939.14500000328,
-      "minMs": 18939.14500000328,
-      "maxMs": 18939.14500000328,
-      "mibPerSec": 54.12056050004214,
+      "avgMs": 31940.155000001192,
+      "minMs": 31940.155000001192,
+      "maxMs": 31940.155000001192,
+      "mibPerSec": 32.091176226029894,
       "eventCount": 75206126,
       "checksum": -198281981,
       "samplesMs": [
-        18939.14500000328
+        31940.155000001192
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 271006144,
-        "avgJsHeapTotalDeltaBytes": 265530140,
-        "maxJsHeapUsedBytes": 366887122,
-        "maxJsHeapTotalBytes": 371854954,
+        "avgJsHeapUsedDeltaBytes": 271024808,
+        "avgJsHeapTotalDeltaBytes": 268903808,
+        "maxJsHeapUsedBytes": 366905498,
+        "maxJsHeapTotalBytes": 374704334,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106324814,
-              "jsHeapUsedBytes": 95880978
+              "jsHeapTotalBytes": 105800526,
+              "jsHeapUsedBytes": 95880690
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 371854954,
-              "jsHeapUsedBytes": 366887122
+              "jsHeapTotalBytes": 374704334,
+              "jsHeapUsedBytes": 366905498
             },
             "delta": {
-              "jsHeapUsedBytes": 271006144,
-              "jsHeapTotalBytes": 265530140
+              "jsHeapUsedBytes": 271024808,
+              "jsHeapTotalBytes": 268903808
             }
           }
         ]
@@ -277,8 +508,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.0576023891256667,
-      "woodstoxRatio": 0.1623135675703709,
+      "relativeToStringFull": 1.1008525162134373,
+      "woodstoxRatio": 0.09624499917683461,
       "targetStatus": "not-applicable"
     },
     {
@@ -287,38 +518,38 @@
       "implementation": "StreamBatch index accessors over browser byte batches",
       "contractScope": "event-types-attribute-counts-and-attribute-names",
       "fullStringParity": false,
-      "avgMs": 6095.159999996424,
-      "minMs": 6095.159999996424,
-      "maxMs": 6095.159999996424,
-      "mibPerSec": 168.16574836302073,
+      "avgMs": 11371.875,
+      "minMs": 11371.875,
+      "maxMs": 11371.875,
+      "mibPerSec": 90.13440112485831,
       "eventCount": 75206126,
       "checksum": 1179526435,
       "samplesMs": [
-        6095.159999996424
+        11371.875
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 295722840,
+        "avgJsHeapUsedDeltaBytes": 295953636,
         "avgJsHeapTotalDeltaBytes": 293663744,
-        "maxJsHeapUsedBytes": 391617094,
-        "maxJsHeapTotalBytes": 399726414,
+        "maxJsHeapUsedBytes": 391846194,
+        "maxJsHeapTotalBytes": 399464270,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106062670,
-              "jsHeapUsedBytes": 95894254
+              "jsHeapTotalBytes": 105800526,
+              "jsHeapUsedBytes": 95892558
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 399726414,
-              "jsHeapUsedBytes": 391617094
+              "jsHeapTotalBytes": 399464270,
+              "jsHeapUsedBytes": 391846194
             },
             "delta": {
-              "jsHeapUsedBytes": 295722840,
+              "jsHeapUsedBytes": 295953636,
               "jsHeapTotalBytes": 293663744
             }
           }
@@ -344,8 +575,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 3.286227925109865,
-      "woodstoxRatio": 0.5043477434037643,
+      "relativeToStringFull": 3.091961527892147,
+      "woodstoxRatio": 0.27032307264044714,
       "targetStatus": "not-applicable"
     },
     {
@@ -354,38 +585,38 @@
       "implementation": "StreamBatch index accessors over browser byte batches",
       "contractScope": "event-types-attribute-counts-and-attribute-values",
       "fullStringParity": false,
-      "avgMs": 6210.22500000149,
-      "minMs": 6210.22500000149,
-      "maxMs": 6210.22500000149,
-      "mibPerSec": 165.04992054096303,
+      "avgMs": 11109.380000002682,
+      "minMs": 11109.380000002682,
+      "maxMs": 11109.380000002682,
+      "mibPerSec": 92.26411760075725,
       "eventCount": 75206126,
       "checksum": -360449985,
       "samplesMs": [
-        6210.22500000149
+        11109.380000002682
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 277114944,
+        "avgJsHeapUsedDeltaBytes": 278432200,
         "avgJsHeapTotalDeltaBytes": 276886528,
-        "maxJsHeapUsedBytes": 373009722,
-        "maxJsHeapTotalBytes": 382949198,
+        "maxJsHeapUsedBytes": 374326374,
+        "maxJsHeapTotalBytes": 382687054,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106062670,
-              "jsHeapUsedBytes": 95894778
+              "jsHeapTotalBytes": 105800526,
+              "jsHeapUsedBytes": 95894174
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 382949198,
-              "jsHeapUsedBytes": 373009722
+              "jsHeapTotalBytes": 382687054,
+              "jsHeapUsedBytes": 374326374
             },
             "delta": {
-              "jsHeapUsedBytes": 277114944,
+              "jsHeapUsedBytes": 278432200,
               "jsHeapTotalBytes": 276886528
             }
           }
@@ -411,8 +642,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 3.2253396616058336,
-      "woodstoxRatio": 0.49500302995178874,
+      "relativeToStringFull": 3.1650191099764355,
+      "woodstoxRatio": 0.27671032872062545,
       "targetStatus": "not-applicable"
     },
     {
@@ -421,39 +652,39 @@
       "implementation": "StreamBatch index accessors over browser byte batches",
       "contractScope": "full-string-materialization",
       "fullStringParity": true,
-      "avgMs": 20030.085000000894,
-      "minMs": 20030.085000000894,
-      "maxMs": 20030.085000000894,
-      "mibPerSec": 51.17288033434218,
+      "avgMs": 35161.39999999851,
+      "minMs": 35161.39999999851,
+      "maxMs": 35161.39999999851,
+      "mibPerSec": 29.151203956378062,
       "eventCount": 75206126,
       "checksum": -925527041,
       "samplesMs": [
-        20030.085000000894
+        35161.39999999851
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 270775759,
-        "avgJsHeapTotalDeltaBytes": 267824719,
-        "maxJsHeapUsedBytes": 366676121,
-        "maxJsHeapTotalBytes": 373887389,
+        "avgJsHeapUsedDeltaBytes": 270647391,
+        "avgJsHeapTotalDeltaBytes": 267789055,
+        "maxJsHeapUsedBytes": 366548505,
+        "maxJsHeapTotalBytes": 373589581,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106062670,
-              "jsHeapUsedBytes": 95900362
+              "jsHeapTotalBytes": 105800526,
+              "jsHeapUsedBytes": 95901114
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 373887389,
-              "jsHeapUsedBytes": 366676121
+              "jsHeapTotalBytes": 373589581,
+              "jsHeapUsedBytes": 366548505
             },
             "delta": {
-              "jsHeapUsedBytes": 270775759,
-              "jsHeapTotalBytes": 267824719
+              "jsHeapUsedBytes": 270647391,
+              "jsHeapTotalBytes": 267789055
             }
           }
         ]
@@ -479,7 +710,7 @@
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
       "relativeToStringFull": 1,
-      "woodstoxRatio": 0.15347314760186725,
+      "woodstoxRatio": 0.08742769604404874,
       "targetStatus": "below"
     },
     {
@@ -488,39 +719,39 @@
       "implementation": "single mutable cursor over StreamBatch browser byte batches",
       "contractScope": "full-string-materialization",
       "fullStringParity": true,
-      "avgMs": 20897.67499999702,
-      "minMs": 20897.67499999702,
-      "maxMs": 20897.67499999702,
-      "mibPerSec": 49.04838183156233,
+      "avgMs": 36009.984999999404,
+      "minMs": 36009.984999999404,
+      "maxMs": 36009.984999999404,
+      "mibPerSec": 28.464247979880163,
       "eventCount": 75206126,
       "checksum": -925527041,
       "samplesMs": [
-        20897.67499999702
+        36009.984999999404
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 259642427,
-        "avgJsHeapTotalDeltaBytes": 260337763,
-        "maxJsHeapUsedBytes": 355553293,
-        "maxJsHeapTotalBytes": 366924721,
+        "avgJsHeapUsedDeltaBytes": 250770483,
+        "avgJsHeapTotalDeltaBytes": 253233275,
+        "maxJsHeapUsedBytes": 346679897,
+        "maxJsHeapTotalBytes": 359558089,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106586958,
-              "jsHeapUsedBytes": 95910866
+              "jsHeapTotalBytes": 106324814,
+              "jsHeapUsedBytes": 95909414
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 366924721,
-              "jsHeapUsedBytes": 355553293
+              "jsHeapTotalBytes": 359558089,
+              "jsHeapUsedBytes": 346679897
             },
             "delta": {
-              "jsHeapUsedBytes": 259642427,
-              "jsHeapTotalBytes": 260337763
+              "jsHeapUsedBytes": 250770483,
+              "jsHeapTotalBytes": 253233275
             }
           }
         ]
@@ -545,8 +776,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 0.9584838983285822,
-      "woodstoxRatio": 0.14710154080219562,
+      "relativeToStringFull": 0.9764347305337419,
+      "woodstoxRatio": 0.08536743882795662,
       "targetStatus": "below"
     },
     {
@@ -555,39 +786,39 @@
       "implementation": "nextRawBatch typed arrays with direct span decode",
       "contractScope": "full-string-materialization",
       "fullStringParity": true,
-      "avgMs": 19848.714999996126,
-      "minMs": 19848.714999996126,
-      "maxMs": 19848.714999996126,
-      "mibPerSec": 51.64047863007495,
+      "avgMs": 35573.064999997616,
+      "minMs": 35573.064999997616,
+      "maxMs": 35573.064999997616,
+      "mibPerSec": 28.81385516799907,
       "eventCount": 75206126,
       "checksum": -925527041,
       "samplesMs": [
-        19848.714999996126
+        35573.064999997616
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 253311462,
-        "avgJsHeapTotalDeltaBytes": 251657158,
-        "maxJsHeapUsedBytes": 349235268,
-        "maxJsHeapTotalBytes": 358244116,
+        "avgJsHeapUsedDeltaBytes": 253509902,
+        "avgJsHeapTotalDeltaBytes": 252207390,
+        "maxJsHeapUsedBytes": 349431840,
+        "maxJsHeapTotalBytes": 358532204,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106586958,
-              "jsHeapUsedBytes": 95923806
+              "jsHeapTotalBytes": 106324814,
+              "jsHeapUsedBytes": 95921938
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 358244116,
-              "jsHeapUsedBytes": 349235268
+              "jsHeapTotalBytes": 358532204,
+              "jsHeapUsedBytes": 349431840
             },
             "delta": {
-              "jsHeapUsedBytes": 253311462,
-              "jsHeapTotalBytes": 251657158
+              "jsHeapUsedBytes": 253509902,
+              "jsHeapTotalBytes": 252207390
             }
           }
         ]
@@ -612,8 +843,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.0091376192365502,
-      "woodstoxRatio": 0.154875526787688,
+      "relativeToStringFull": 0.9884276207293599,
+      "woodstoxRatio": 0.08641594958666876,
       "targetStatus": "below"
     },
     {
@@ -622,39 +853,39 @@
       "implementation": "nextRawBatch typed arrays with numeric name-id cache",
       "contractScope": "full-string-materialization",
       "fullStringParity": true,
-      "avgMs": 20719.125,
-      "minMs": 20719.125,
-      "maxMs": 20719.125,
-      "mibPerSec": 49.471063222590146,
+      "avgMs": 37290.79999999702,
+      "minMs": 37290.79999999702,
+      "maxMs": 37290.79999999702,
+      "mibPerSec": 27.486595696306594,
       "eventCount": 75206126,
       "checksum": -925527041,
       "samplesMs": [
-        20719.125
+        37290.79999999702
       ],
       "memory": {
         "scope": "browser-js-heap",
-        "avgJsHeapUsedDeltaBytes": 255174179,
-        "avgJsHeapTotalDeltaBytes": 257710083,
-        "maxJsHeapUsedBytes": 351140097,
-        "maxJsHeapTotalBytes": 364297041,
+        "avgJsHeapUsedDeltaBytes": 254810207,
+        "avgJsHeapTotalDeltaBytes": 257642443,
+        "maxJsHeapUsedBytes": 350774665,
+        "maxJsHeapTotalBytes": 363967257,
         "jsHeapSizeLimitBytes": 4294967296,
         "samples": [
           {
             "before": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 106586958,
-              "jsHeapUsedBytes": 95965918
+              "jsHeapTotalBytes": 106324814,
+              "jsHeapUsedBytes": 95964458
             },
             "after": {
               "scope": "browser-js-heap",
               "jsHeapSizeLimitBytes": 4294967296,
-              "jsHeapTotalBytes": 364297041,
-              "jsHeapUsedBytes": 351140097
+              "jsHeapTotalBytes": 363967257,
+              "jsHeapUsedBytes": 350774665
             },
             "delta": {
-              "jsHeapUsedBytes": 255174179,
-              "jsHeapTotalBytes": 257710083
+              "jsHeapUsedBytes": 254810207,
+              "jsHeapTotalBytes": 257642443
             }
           }
         ]
@@ -679,8 +910,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 0.9667437693435844,
-      "woodstoxRatio": 0.14836920920565347,
+      "relativeToStringFull": 0.9428974438735912,
+      "woodstoxRatio": 0.08243535112369084,
       "targetStatus": "below"
     }
   ],
@@ -689,20 +920,29 @@
       "id": "browser-byte-batch-contract",
       "summary": "Rows consume corpus-backed browser Uint8Array batches and do not load a full XML string.",
       "evidence": [
-        "stringFull: maxJsHeap=349.7 MiB",
-        "cursorAccessor: maxJsHeap=339.1 MiB",
-        "rawFrameDirect: maxJsHeap=333.1 MiB",
-        "rawFrameNameId: maxJsHeap=334.9 MiB"
+        "stringFull: maxJsHeap=349.6 MiB",
+        "cursorAccessor: maxJsHeap=330.6 MiB",
+        "rawFrameDirect: maxJsHeap=333.2 MiB",
+        "rawFrameNameId: maxJsHeap=334.5 MiB"
       ]
     },
     {
       "id": "browser-memory-scope",
-      "summary": "Memory is browser JS heap only; it is not a process RSS replacement.",
+      "summary": "Variant memory is browser JS heap only; it is not a process RSS replacement.",
       "evidence": [
         "stringFull: jsHeapLimit=4.00 GiB",
         "cursorAccessor: jsHeapLimit=4.00 GiB",
         "rawFrameDirect: jsHeapLimit=4.00 GiB",
         "rawFrameNameId: jsHeapLimit=4.00 GiB"
+      ]
+    },
+    {
+      "id": "browser-host-process-memory",
+      "summary": "Host process-tree memory is recorded separately from variant JS heap when the host supports it.",
+      "evidence": [
+        "maxWorkingSet=833.1 MiB",
+        "maxPrivateBytes=653.3 MiB",
+        "maxProcessCount=10"
       ]
     },
     {
@@ -730,8 +970,8 @@
       "id": "headroom-search",
       "summary": "The fastest row in each family is a browser headroom signal, not a runtime-limit conclusion.",
       "evidence": [
-        "partial=scanAllNoDecode 172.61 MiB/s",
-        "full=rawFrameDirect 51.64 MiB/s"
+        "partial=scanAllNoDecode 94.60 MiB/s",
+        "full=stringFull 29.15 MiB/s"
       ]
     },
     {

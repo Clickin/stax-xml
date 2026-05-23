@@ -1,11 +1,11 @@
 # Browser Candidate Headroom Matrix
 
-Generated: 2026-05-23T15:45:41.143Z
+Generated: 2026-05-23T16:02:32.838Z
 
 This experiment is a browser-runtime counterexample search over generated browser `Uint8Array` batches.
 Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.
 Full rows preserve the event, name, text/CDATA, attribute name, attribute value, and UTF-16 checksum contract.
-Memory is browser JS heap only; it is not process RSS and must not be mixed with Node/Bun RSS rows as the same memory proof.
+Variant memory uses browser JS heap only. Host process-tree memory is reported separately when available and must not be mixed with Node/Bun RSS rows as the same memory proof.
 
 ## Fixture
 
@@ -31,15 +31,15 @@ Memory is browser JS heap only; it is not process RSS and must not be mixed with
 
 | Variant | Family | Contract scope | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded JS heap | Counterexample | Events | Checksum | Full parity |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |
-| scanAllNoDecode | partial-upper-bound | event-types-and-attribute-counts-only | 153.75 MiB/s | 1.93x | 0.46x | not-applicable | yes | not-found | 45189256 | 773645869 | no |
-| nameStringOnly | partial-upper-bound | event-types-attribute-counts-and-element-names | 135.55 MiB/s | 1.70x | 0.41x | not-applicable | yes | not-found | 45189256 | -779910903 | no |
-| textStringOnly | partial-upper-bound | event-types-attribute-counts-and-text-cdata | 100.52 MiB/s | 1.26x | 0.30x | not-applicable | yes | not-found | 45189256 | -1618348602 | no |
-| attrNameStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-names | 146.59 MiB/s | 1.84x | 0.44x | not-applicable | yes | not-found | 45189256 | 494150397 | no |
-| attrValueStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-values | 139.06 MiB/s | 1.75x | 0.42x | not-applicable | yes | not-found | 45189256 | 946031520 | no |
-| stringFull | full-stax-js | full-string-materialization | 79.58 MiB/s | 1.00x | 0.24x | below | yes | not-found | 45189256 | 1421012805 | yes |
-| cursorAccessor | full-stax-js | full-string-materialization | 78.82 MiB/s | 0.99x | 0.24x | below | yes | not-found | 45189256 | 1421012805 | yes |
-| rawFrameDirect | full-stax-js | full-string-materialization | 76.20 MiB/s | 0.96x | 0.23x | below | yes | not-found | 45189256 | 1421012805 | yes |
-| rawFrameNameId | full-stax-js | full-string-materialization | 82.08 MiB/s | 1.03x | 0.25x | below | yes | not-found | 45189256 | 1421012805 | yes |
+| scanAllNoDecode | partial-upper-bound | event-types-and-attribute-counts-only | 149.91 MiB/s | 2.44x | 0.45x | not-applicable | yes | not-found | 45189256 | 773645869 | no |
+| nameStringOnly | partial-upper-bound | event-types-attribute-counts-and-element-names | 122.35 MiB/s | 1.99x | 0.37x | not-applicable | yes | not-found | 45189256 | -779910903 | no |
+| textStringOnly | partial-upper-bound | event-types-attribute-counts-and-text-cdata | 93.86 MiB/s | 1.53x | 0.28x | not-applicable | yes | not-found | 45189256 | -1618348602 | no |
+| attrNameStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-names | 133.69 MiB/s | 2.18x | 0.40x | not-applicable | yes | not-found | 45189256 | 494150397 | no |
+| attrValueStringOnly | partial-upper-bound | event-types-attribute-counts-and-attribute-values | 127.67 MiB/s | 2.08x | 0.38x | not-applicable | yes | not-found | 45189256 | 946031520 | no |
+| stringFull | full-stax-js | full-string-materialization | 61.36 MiB/s | 1.00x | 0.18x | below | yes | not-found | 45189256 | 1421012805 | yes |
+| cursorAccessor | full-stax-js | full-string-materialization | 71.05 MiB/s | 1.16x | 0.21x | below | yes | not-found | 45189256 | 1421012805 | yes |
+| rawFrameDirect | full-stax-js | full-string-materialization | 70.65 MiB/s | 1.15x | 0.21x | below | yes | not-found | 45189256 | 1421012805 | yes |
+| rawFrameNameId | full-stax-js | full-string-materialization | 75.37 MiB/s | 1.23x | 0.23x | below | yes | not-found | 45189256 | 1421012805 | yes |
 
 ## Memory
 
@@ -47,15 +47,30 @@ Memory uses Chromium `performance.memory` before and after each measured run; ma
 
 | Variant | Avg used heap delta | Max used heap | Max total heap | JS heap limit |
 | --- | ---: | ---: | ---: | ---: |
-| scanAllNoDecode | +3.9 MiB | 12.4 MiB | 20.0 MiB | 4.00 GiB |
-| nameStringOnly | +6.0 MiB | 14.6 MiB | 21.0 MiB | 4.00 GiB |
-| textStringOnly | +1.7 MiB | 10.3 MiB | 26.8 MiB | 4.00 GiB |
-| attrNameStringOnly | +13.6 MiB | 21.1 MiB | 32.3 MiB | 4.00 GiB |
-| attrValueStringOnly | +12.9 MiB | 20.5 MiB | 30.5 MiB | 4.00 GiB |
-| stringFull | +11.1 MiB | 18.7 MiB | 29.1 MiB | 4.00 GiB |
-| cursorAccessor | +6.1 MiB | 13.7 MiB | 27.7 MiB | 4.00 GiB |
-| rawFrameDirect | +3.2 MiB | 10.8 MiB | 26.7 MiB | 4.00 GiB |
-| rawFrameNameId | +6.7 MiB | 14.4 MiB | 27.9 MiB | 4.00 GiB |
+| scanAllNoDecode | +4.2 MiB | 12.7 MiB | 20.4 MiB | 4.00 GiB |
+| nameStringOnly | +8.2 MiB | 16.8 MiB | 22.4 MiB | 4.00 GiB |
+| textStringOnly | +4.2 MiB | 12.8 MiB | 27.8 MiB | 4.00 GiB |
+| attrNameStringOnly | +11.7 MiB | 19.3 MiB | 31.1 MiB | 4.00 GiB |
+| attrValueStringOnly | +1.7 MiB | 9.2 MiB | 26.3 MiB | 4.00 GiB |
+| stringFull | +7.4 MiB | 14.9 MiB | 27.4 MiB | 4.00 GiB |
+| cursorAccessor | +5.1 MiB | 12.6 MiB | 27.4 MiB | 4.00 GiB |
+| rawFrameDirect | +8.9 MiB | 16.5 MiB | 27.7 MiB | 4.00 GiB |
+| rawFrameNameId | +8.4 MiB | 16.0 MiB | 28.2 MiB | 4.00 GiB |
+
+## Host Process Memory
+
+Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.
+
+- Scope: windows-process-tree
+- Max working set: 440.6 MiB
+- Max private bytes: 192.6 MiB
+- Max process count: 10
+
+| Sample | Scope | Processes | Working set | Private bytes |
+| --- | --- | ---: | ---: | ---: |
+| browser-started | windows-process-tree | 9 | 374.0 MiB | 150.5 MiB |
+| before-run | windows-process-tree | 10 | 425.9 MiB | 170.2 MiB |
+| after-run | windows-process-tree | 8 | 440.6 MiB | 192.6 MiB |
 
 ## Materialization Counters
 
@@ -76,7 +91,7 @@ Memory uses Chromium `performance.memory` before and after each measured run; ma
 - eventObjectFull: EventReaderSync complete-string input is not part of this browser byte-batch matrix.
 - projectionLowSelectivity: Projection rows require a separate selector contract and remain future work.
 - projectionHighSelectivity: Projection rows require a separate selector contract and remain future work.
-- processRss: Browsers do not expose a portable process RSS metric to page JavaScript; this report records JS heap via Chromium performance.memory.
+- processRss: Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available.
 
 ## Parity
 
@@ -86,15 +101,19 @@ Memory uses Chromium `performance.memory` before and after each measured run; ma
 ## Findings
 
 - browser-byte-batch-contract: Rows consume generated browser Uint8Array batches and do not load a full XML string.
-  - stringFull: maxJsHeap=18.7 MiB
-  - cursorAccessor: maxJsHeap=13.7 MiB
-  - rawFrameDirect: maxJsHeap=10.8 MiB
-  - rawFrameNameId: maxJsHeap=14.4 MiB
-- browser-memory-scope: Memory is browser JS heap only; it is not a process RSS replacement.
+  - stringFull: maxJsHeap=14.9 MiB
+  - cursorAccessor: maxJsHeap=12.6 MiB
+  - rawFrameDirect: maxJsHeap=16.5 MiB
+  - rawFrameNameId: maxJsHeap=16.0 MiB
+- browser-memory-scope: Variant memory is browser JS heap only; it is not a process RSS replacement.
   - stringFull: jsHeapLimit=4.00 GiB
   - cursorAccessor: jsHeapLimit=4.00 GiB
   - rawFrameDirect: jsHeapLimit=4.00 GiB
   - rawFrameNameId: jsHeapLimit=4.00 GiB
+- browser-host-process-memory: Host process-tree memory is recorded separately from variant JS heap when the host supports it.
+  - maxWorkingSet=440.6 MiB
+  - maxPrivateBytes=192.6 MiB
+  - maxProcessCount=10
 - contract-separation: Partial rows deliberately drop one or more string fields and are not StAX parity rows.
   - scanAllNoDecode: event-types-and-attribute-counts-only, strings=0
   - nameStringOnly: event-types-attribute-counts-and-element-names, strings=32864912
@@ -107,5 +126,5 @@ Memory uses Chromium `performance.memory` before and after each measured run; ma
   - rawFrameDirect: events=45189256, checksum=1421012805
   - rawFrameNameId: events=45189256, checksum=1421012805
 - headroom-search: The fastest row in each family is a browser headroom signal, not a runtime-limit conclusion.
-  - partial=scanAllNoDecode 153.75 MiB/s
-  - full=rawFrameNameId 82.08 MiB/s
+  - partial=scanAllNoDecode 149.91 MiB/s
+  - full=rawFrameNameId 75.37 MiB/s

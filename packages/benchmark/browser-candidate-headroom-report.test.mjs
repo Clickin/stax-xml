@@ -80,6 +80,12 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   assert.ok(report.variants.every(entry => entry.eventCount === report.eventCountParity.eventCount));
   assert.ok(report.variants.filter(entry => entry.fullStringParity).every(entry => entry.checksum === report.fullStringParity.checksum));
   assert.ok(report.variants.every(entry => entry.memory?.scope === 'browser-js-heap'));
+  assert.equal(report.hostProcessMemory.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
+  assert.ok(report.hostProcessMemory.samples.length >= 2);
+  if (process.platform === 'win32') {
+    assert.ok(report.hostProcessMemory.maxWorkingSetBytes > 0);
+    assert.ok(report.hostProcessMemory.maxPrivateBytes > 0);
+  }
 
   const scan = report.variants.find(entry => entry.id === 'scanAllNoDecode');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
@@ -89,7 +95,8 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Browser Candidate Headroom Matrix/);
   assert.match(markdown, /browser `Uint8Array` batches/);
-  assert.match(markdown, /Memory is browser JS heap only/);
+  assert.match(markdown, /Variant memory uses browser JS heap only/);
+  assert.match(markdown, /Host Process Memory/);
   assert.match(markdown, /Full-string parity rows: ok/);
 });
 
@@ -147,6 +154,7 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
   assert.ok(report.variants.every(entry => entry.memory?.scope === 'browser-js-heap'));
+  assert.equal(report.hostProcessMemory.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
   assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
 
   const markdown = readFileSync(corpusMdOut, 'utf8');

@@ -3,7 +3,7 @@ import { createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmS
 import { cpus, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
@@ -29,6 +29,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     boundedJsHeapMiB: 512,
     browserExecutable: process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable(),
     browserTimeoutMs: 20 * 60 * 1000,
+    collectHostProcessMemory: true,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -76,6 +77,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--browser-timeout-ms':
         options.browserTimeoutMs = parsePositiveInteger(readValue(), '--browser-timeout-ms');
+        break;
+      case '--no-host-process-memory':
+        options.collectHostProcessMemory = false;
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -131,24 +135,28 @@ async function main() {
   let client;
   let targetId;
   let browserPort;
+  const hostProcessMemorySamples = [];
   const userDataDir = mkdtempSync(join(tmpdir(), 'stax-browser-headroom-'));
   try {
     browserPort = await reservePort();
     browser = launchBrowser(options, browserPort, userDataDir);
     await waitForBrowser(browserPort, options.browserTimeoutMs, browser);
+    hostProcessMemorySamples.push(collectHostProcessMemorySample(browser.pid, 'browser-started', options));
     const runnerUrl = `http://127.0.0.1:${server.port}/runner.html`;
     const target = await openPage(browserPort, 'about:blank');
     targetId = target.id;
     client = await CdpClient.connect(target.webSocketDebuggerUrl);
     await client.send('Page.enable');
     await client.send('Runtime.enable');
+    hostProcessMemorySamples.push(collectHostProcessMemorySample(browser.pid, 'before-run', options));
     await client.send('Page.navigate', { url: runnerUrl });
     await withTimeout(client.waitForEvent('Runtime.executionContextCreated'), 5000, 'Timed out waiting for browser execution context.').catch(() => {});
     const browserResult = await evaluateRunner(client, options.browserTimeoutMs);
+    hostProcessMemorySamples.push(collectHostProcessMemorySample(browser.pid, 'after-run', options));
     if (browserResult?.error) {
       throw new Error(`${browserResult.error.name}: ${browserResult.error.message}\n${browserResult.error.stack ?? ''}`);
     }
-    const report = createReport(browserResult, options);
+    const report = createReport(browserResult, options, summarizeHostProcessMemory(hostProcessMemorySamples, options));
     writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
     writeOutput(options.mdOut, renderMarkdown(report));
     printSummary(report);
@@ -434,7 +442,160 @@ class CdpClient {
   }
 }
 
-function createReport(browserResult, options) {
+function collectHostProcessMemorySample(rootPid, label, options) {
+  const at = new Date().toISOString();
+  if (!options.collectHostProcessMemory) {
+    return {
+      label,
+      at,
+      scope: 'disabled',
+      reason: 'Host process memory collection was disabled with --no-host-process-memory.',
+    };
+  }
+  if (process.platform !== 'win32') {
+    return {
+      label,
+      at,
+      scope: 'unsupported',
+      reason: 'Host process-tree memory collection is currently implemented only for Windows.',
+    };
+  }
+  if (!Number.isInteger(rootPid) || rootPid <= 0) {
+    return {
+      label,
+      at,
+      scope: 'unavailable',
+      error: `Invalid browser root pid: ${rootPid}`,
+    };
+  }
+
+  const script = `
+$ErrorActionPreference = 'Stop'
+$root = [int]${rootPid}
+$all = @(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,WorkingSetSize,PrivatePageCount)
+$ids = [System.Collections.Generic.HashSet[int]]::new()
+[void]$ids.Add($root)
+do {
+  $changed = $false
+  foreach ($process in $all) {
+    $processId = [int]$process.ProcessId
+    $parentProcessId = [int]$process.ParentProcessId
+    if ($ids.Contains($parentProcessId) -and -not $ids.Contains($processId)) {
+      [void]$ids.Add($processId)
+      $changed = $true
+    }
+  }
+} while ($changed)
+$selected = @($all | Where-Object { $ids.Contains([int]$_.ProcessId) })
+$workingSet = ($selected | Measure-Object -Property WorkingSetSize -Sum).Sum
+if ($null -eq $workingSet) { $workingSet = 0 }
+$privateBytes = ($selected | Measure-Object -Property PrivatePageCount -Sum).Sum
+if ($null -eq $privateBytes) { $privateBytes = 0 }
+[pscustomobject]@{
+  rootPid = $root
+  processCount = $selected.Count
+  workingSetBytes = [int64]$workingSet
+  privateBytes = [int64]$privateBytes
+  processes = @($selected | ForEach-Object {
+    [pscustomobject]@{
+      pid = [int]$_.ProcessId
+      parentPid = [int]$_.ParentProcessId
+      name = [string]$_.Name
+      workingSetBytes = [int64]$_.WorkingSetSize
+      privateBytes = [int64]$_.PrivatePageCount
+    }
+  })
+} | ConvertTo-Json -Depth 5 -Compress
+`;
+
+  const result = spawnSync('powershell.exe', [
+    '-NoProfile',
+    '-NonInteractive',
+    '-ExecutionPolicy',
+    'Bypass',
+    '-Command',
+    script,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 15_000,
+  });
+  if (result.error || result.status !== 0) {
+    return {
+      label,
+      at,
+      scope: 'unavailable',
+      error: result.error?.message ?? result.stderr.trim() ?? `PowerShell exited with ${result.status}`,
+    };
+  }
+  try {
+    const parsed = JSON.parse(result.stdout.trim());
+    return {
+      label,
+      at,
+      scope: 'windows-process-tree',
+      rootPid: parsed.rootPid,
+      processCount: parsed.processCount,
+      workingSetBytes: parsed.workingSetBytes,
+      privateBytes: parsed.privateBytes,
+      processes: Array.isArray(parsed.processes) ? parsed.processes : [],
+    };
+  } catch (error) {
+    return {
+      label,
+      at,
+      scope: 'unavailable',
+      error: `Could not parse host process memory sample: ${error.message}`,
+    };
+  }
+}
+
+function summarizeHostProcessMemory(samples, options) {
+  if (!options.collectHostProcessMemory) {
+    return {
+      scope: 'disabled',
+      note: 'Host process memory collection was disabled.',
+      samples,
+      maxWorkingSetBytes: null,
+      maxPrivateBytes: null,
+      maxProcessCount: null,
+    };
+  }
+  if (process.platform !== 'win32') {
+    return {
+      scope: 'unsupported',
+      note: 'Host process-tree memory collection is currently implemented only for Windows.',
+      samples,
+      maxWorkingSetBytes: null,
+      maxPrivateBytes: null,
+      maxProcessCount: null,
+    };
+  }
+
+  const usableSamples = samples.filter(sample => sample.scope === 'windows-process-tree');
+  if (usableSamples.length === 0) {
+    return {
+      scope: 'unavailable',
+      note: 'Windows host process-tree memory collection failed for every sample.',
+      samples,
+      maxWorkingSetBytes: null,
+      maxPrivateBytes: null,
+      maxProcessCount: null,
+    };
+  }
+
+  return {
+    scope: 'windows-process-tree',
+    note: 'Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.',
+    samples,
+    maxWorkingSetBytes: Math.max(...usableSamples.map(sample => sample.workingSetBytes ?? 0)),
+    maxPrivateBytes: Math.max(...usableSamples.map(sample => sample.privateBytes ?? 0)),
+    maxProcessCount: Math.max(...usableSamples.map(sample => sample.processCount ?? 0)),
+  };
+}
+
+function createReport(browserResult, options, hostProcessMemory) {
   const woodstoxTarget = readWoodstoxTarget();
   const boundedJsHeapBytes = options.boundedJsHeapMiB * MIB;
   const stringFull = browserResult.variants.find(entry => entry.id === 'stringFull');
@@ -463,7 +624,7 @@ function createReport(browserResult, options) {
     contract: browserResult.fixture.source === 'corpus-file'
       ? 'browser-corpus-byte-batch-mixed-materialization-headroom-matrix'
       : 'browser-byte-batch-mixed-materialization-headroom-matrix',
-    note: 'This is a browser-runtime counterexample search over Uint8Array batches. Memory is browser JS heap only, not process RSS.',
+    note: 'This is a browser-runtime counterexample search over Uint8Array batches. Variant memory is browser JS heap; host process-tree memory is reported separately when available.',
     packageVersion,
     environment: {
       ...browserResult.environment,
@@ -477,6 +638,7 @@ function createReport(browserResult, options) {
       warmups: options.warmups,
       boundedJsHeapMiB: options.boundedJsHeapMiB,
     },
+    hostProcessMemory,
     woodstoxTarget,
     omittedRows: [
       {
@@ -493,13 +655,13 @@ function createReport(browserResult, options) {
       },
       {
         id: 'processRss',
-        reason: 'Browsers do not expose a portable process RSS metric to page JavaScript; this report records JS heap via Chromium performance.memory.',
+        reason: 'Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available.',
       },
     ],
     eventCountParity: browserResult.eventCountParity,
     fullStringParity: browserResult.fullStringParity,
     variants,
-    findings: createFindings(variants, browserResult.fixture),
+    findings: createFindings(variants, browserResult.fixture, hostProcessMemory),
   };
 }
 
@@ -526,7 +688,7 @@ function readWoodstoxTarget() {
   };
 }
 
-function createFindings(variants, fixture) {
+function createFindings(variants, fixture, hostProcessMemory) {
   const partialRows = variants.filter(entry => !entry.fullStringParity);
   const fullRows = variants.filter(entry => entry.fullStringParity);
   const fastestPartial = maxBy(partialRows, entry => entry.mibPerSec);
@@ -541,8 +703,19 @@ function createFindings(variants, fixture) {
     },
     {
       id: 'browser-memory-scope',
-      summary: 'Memory is browser JS heap only; it is not a process RSS replacement.',
+      summary: 'Variant memory is browser JS heap only; it is not a process RSS replacement.',
       evidence: fullRows.map(entry => `${entry.id}: jsHeapLimit=${formatBytes(entry.memory.jsHeapSizeLimitBytes)}`),
+    },
+    {
+      id: 'browser-host-process-memory',
+      summary: 'Host process-tree memory is recorded separately from variant JS heap when the host supports it.',
+      evidence: hostProcessMemory.scope === 'windows-process-tree'
+        ? [
+            `maxWorkingSet=${formatBytes(hostProcessMemory.maxWorkingSetBytes)}`,
+            `maxPrivateBytes=${formatBytes(hostProcessMemory.maxPrivateBytes)}`,
+            `maxProcessCount=${hostProcessMemory.maxProcessCount}`,
+          ]
+        : [`scope=${hostProcessMemory.scope}: ${hostProcessMemory.note}`],
     },
     {
       id: 'contract-separation',
@@ -589,7 +762,7 @@ function renderMarkdown(report) {
       : 'This experiment is a browser-runtime counterexample search over generated browser `Uint8Array` batches.',
     'Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.',
     'Full rows preserve the event, name, text/CDATA, attribute name, attribute value, and UTF-16 checksum contract.',
-    'Memory is browser JS heap only; it is not process RSS and must not be mixed with Node/Bun RSS rows as the same memory proof.',
+    'Variant memory uses browser JS heap only. Host process-tree memory is reported separately when available and must not be mixed with Node/Bun RSS rows as the same memory proof.',
     '',
     '## Fixture',
     '',
@@ -635,6 +808,25 @@ function renderMarkdown(report) {
       `| ${entry.id} | ${formatSignedBytes(entry.memory.avgJsHeapUsedDeltaBytes)} | `
       + `${formatBytes(entry.memory.maxJsHeapUsedBytes)} | ${formatBytes(entry.memory.maxJsHeapTotalBytes)} | `
       + `${formatBytes(entry.memory.jsHeapSizeLimitBytes)} |`,
+    );
+  }
+
+  lines.push('');
+  lines.push('## Host Process Memory');
+  lines.push('');
+  lines.push(report.hostProcessMemory.note);
+  lines.push('');
+  lines.push(`- Scope: ${report.hostProcessMemory.scope}`);
+  lines.push(`- Max working set: ${formatBytes(report.hostProcessMemory.maxWorkingSetBytes)}`);
+  lines.push(`- Max private bytes: ${formatBytes(report.hostProcessMemory.maxPrivateBytes)}`);
+  lines.push(`- Max process count: ${report.hostProcessMemory.maxProcessCount ?? 'n/a'}`);
+  lines.push('');
+  lines.push('| Sample | Scope | Processes | Working set | Private bytes |');
+  lines.push('| --- | --- | ---: | ---: | ---: |');
+  for (const sample of report.hostProcessMemory.samples) {
+    lines.push(
+      `| ${sample.label} | ${sample.scope} | ${sample.processCount ?? 'n/a'} | `
+      + `${formatBytes(sample.workingSetBytes)} | ${formatBytes(sample.privateBytes)} |`,
     );
   }
 
