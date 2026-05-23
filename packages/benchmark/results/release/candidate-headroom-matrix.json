@@ -1,0 +1,1280 @@
+{
+  "generatedAt": "2026-05-23T12:05:53.747Z",
+  "objective": "candidate-headroom-matrix",
+  "contract": "mixed-materialization-headroom-matrix",
+  "note": "Partial rows are upper-bound probes only. Only full-string rows keep the StAX-like checksum contract, and this 16 MiB run is not a 1 GiB runtime-limit counterexample gate.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "source": "file",
+    "file": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "byteLength": 16777038,
+    "sizeMiB": 15.99983024597168
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1
+  },
+  "woodstoxTarget": {
+    "status": "ok",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 300.08892774117845,
+    "woodstoxMiBPerSec": 333.43214193464274
+  },
+  "eventCountParity": {
+    "status": "ok",
+    "eventCount": 967967
+  },
+  "fullStringParity": {
+    "status": "ok",
+    "rowIds": [
+      "stringFull",
+      "cursorAccessor",
+      "eventObjectFull",
+      "rawFrameDirect",
+      "rawFrameNameId"
+    ],
+    "eventCount": 967967,
+    "checksum": -746772258
+  },
+  "variants": [
+    {
+      "id": "scanAllNoDecode",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors",
+      "contractScope": "event-types-and-attribute-counts-only",
+      "fullStringParity": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 86.22426666666665,
+      "minMs": 85.54839999999999,
+      "maxMs": 87.45499999999998,
+      "mibPerSec": 185.56064162105582,
+      "eventCount": 967967,
+      "checksum": -141941271,
+      "samplesMs": [
+        87.45499999999998,
+        85.54839999999999,
+        85.6694
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1182909.3333333333,
+        "avgHeapTotalDeltaBytes": 961194.6666666666,
+        "avgRssDeltaBytes": 4612096,
+        "avgExternalDeltaBytes": 13128186,
+        "avgArrayBuffersDeltaBytes": 6640981.333333333,
+        "maxHeapUsedBytes": 6216232,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 151846912,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 139173888,
+              "heapTotalBytes": 7798784,
+              "heapUsedBytes": 4922976,
+              "externalBytes": 92100854,
+              "arrayBuffersBytes": 67194045
+            },
+            "after": {
+              "rssBytes": 128380928,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6216232,
+              "externalBytes": 108416740,
+              "arrayBuffersBytes": 57756861
+            },
+            "delta": {
+              "rssBytes": -10792960,
+              "heapTotalBytes": 2621440,
+              "heapUsedBytes": 1293256,
+              "externalBytes": 16315886,
+              "arrayBuffersBytes": -9437184
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 127283200,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4989376,
+              "externalBytes": 76435172,
+              "arrayBuffersBytes": 53562557
+            },
+            "after": {
+              "rssBytes": 151711744,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6134520,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 24428544,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 1145144,
+              "externalBytes": 23068672,
+              "arrayBuffersBytes": 27262976
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 151646208,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5005704,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 78728381
+            },
+            "after": {
+              "rssBytes": 151846912,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 6116032,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 200704,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1110328,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 2097152
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 0,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.8001799957320603,
+      "woodstoxRatio": 0.5565169588762329,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "nameStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors",
+      "contractScope": "event-types-attribute-counts-and-element-names",
+      "fullStringParity": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 101.2306666666667,
+      "minMs": 96.4194,
+      "maxMs": 103.65460000000007,
+      "mibPerSec": 158.0531944796538,
+      "eventCount": 967967,
+      "checksum": 567705755,
+      "samplesMs": [
+        103.65460000000007,
+        103.61800000000005,
+        96.4194
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 793794.6666666666,
+        "avgHeapTotalDeltaBytes": 87381.33333333333,
+        "avgRssDeltaBytes": -7734613.333333333,
+        "avgExternalDeltaBytes": -742741.3333333334,
+        "avgArrayBuffersDeltaBytes": -5636096,
+        "maxHeapUsedBytes": 6188688,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 152842240,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 152842240,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5043248,
+              "externalBytes": 101732068,
+              "arrayBuffersBytes": 78859453
+            },
+            "after": {
+              "rssBytes": 151928832,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6174568,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": -913408,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 1131320,
+              "externalBytes": -2228224,
+              "arrayBuffersBytes": 1966080
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 151588864,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5043432,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 78728381
+            },
+            "after": {
+              "rssBytes": 152481792,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6188688,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 892928,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1145256,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 2097152
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 152354816,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5044840,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 78728381
+            },
+            "after": {
+              "rssBytes": 129171456,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5149648,
+              "externalBytes": 99503844,
+              "arrayBuffersBytes": 57756861
+            },
+            "delta": {
+              "rssBytes": -23183360,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 104808,
+              "externalBytes": 0,
+              "arrayBuffersBytes": -20971520
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 683270,
+        "nameStringReads": 683270,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.5333219182592883,
+      "woodstoxRatio": 0.47401907195447995,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "textStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors",
+      "contractScope": "event-types-attribute-counts-and-text-cdata",
+      "fullStringParity": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 128.66510000000002,
+      "minMs": 127.46080000000006,
+      "maxMs": 129.57259999999997,
+      "mibPerSec": 124.35252641137089,
+      "eventCount": 967967,
+      "checksum": 2143003593,
+      "samplesMs": [
+        128.9619,
+        129.57259999999997,
+        127.46080000000006
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 948336,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": -8481450.666666666,
+        "avgExternalDeltaBytes": -8432298.666666666,
+        "avgArrayBuffersDeltaBytes": -7846912,
+        "maxHeapUsedBytes": 5667536,
+        "maxHeapTotalBytes": 10158080,
+        "maxRssBytes": 154935296,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 154935296,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4269968,
+              "externalBytes": 101730803,
+              "arrayBuffersBytes": 82995389
+            },
+            "after": {
+              "rssBytes": 151941120,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4962312,
+              "externalBytes": 99502579,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": -2994176,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 692344,
+              "externalBytes": -2228224,
+              "arrayBuffersBytes": -2169856
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 151552000,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4237392,
+              "externalBytes": 99502579,
+              "arrayBuffersBytes": 79714493
+            },
+            "after": {
+              "rssBytes": 152264704,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4956904,
+              "externalBytes": 99502579,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 712704,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 719512,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 1111040
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 152383488,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4234384,
+              "externalBytes": 99502579,
+              "arrayBuffersBytes": 80238781
+            },
+            "after": {
+              "rssBytes": 129220608,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5667536,
+              "externalBytes": 76433907,
+              "arrayBuffersBytes": 57756861
+            },
+            "delta": {
+              "rssBytes": -23162880,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1433152,
+              "externalBytes": -23068672,
+              "arrayBuffersBytes": -22481920
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 284695,
+        "nameStringReads": 0,
+        "textStringReads": 284695,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.2063815284797506,
+      "woodstoxRatio": 0.37294702811148206,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "attrNameStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors",
+      "contractScope": "event-types-attribute-counts-and-attribute-names",
+      "fullStringParity": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 93.25363333333341,
+      "minMs": 92.1395,
+      "maxMs": 94.62800000000016,
+      "mibPerSec": 171.57326394758883,
+      "eventCount": 967967,
+      "checksum": -69729623,
+      "samplesMs": [
+        94.62800000000016,
+        92.99340000000007,
+        92.1395
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 797298.6666666666,
+        "avgHeapTotalDeltaBytes": 174762.66666666666,
+        "avgRssDeltaBytes": -6767957.333333333,
+        "avgExternalDeltaBytes": -742741.3333333334,
+        "avgArrayBuffersDeltaBytes": -4237994.666666667,
+        "maxHeapUsedBytes": 5404880,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 153559040,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 153276416,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4234816,
+              "externalBytes": 101729514,
+              "arrayBuffersBytes": 78859453
+            },
+            "after": {
+              "rssBytes": 153559040,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5404880,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 282624,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 1170064,
+              "externalBytes": -2228224,
+              "arrayBuffersBytes": 1966080
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 151097344,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 4224560,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 76631229
+            },
+            "after": {
+              "rssBytes": 152428544,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5374592,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 1331200,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1150032,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 4194304
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 151322624,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4229392,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 76631229
+            },
+            "after": {
+              "rssBytes": 129404928,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 4301192,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 57756861
+            },
+            "delta": {
+              "rssBytes": -21917696,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 71800,
+              "externalBytes": 0,
+              "arrayBuffersBytes": -18874368
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 284695,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 284695,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.6644842077645576,
+      "woodstoxRatio": 0.5145672608288001,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "attrValueStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors",
+      "contractScope": "event-types-attribute-counts-and-attribute-values",
+      "fullStringParity": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 92.83809999999978,
+      "minMs": 92.48999999999978,
+      "maxMs": 93.38629999999966,
+      "mibPerSec": 172.34120739191903,
+      "eventCount": 967967,
+      "checksum": -324005832,
+      "samplesMs": [
+        93.38629999999966,
+        92.63799999999992,
+        92.48999999999978
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1467357.3333333333,
+        "avgHeapTotalDeltaBytes": 349525.3333333333,
+        "avgRssDeltaBytes": 226645.33333333334,
+        "avgExternalDeltaBytes": -742741.3333333334,
+        "avgArrayBuffersDeltaBytes": -199680,
+        "maxHeapUsedBytes": 5786960,
+        "maxHeapTotalBytes": 10682368,
+        "maxRssBytes": 155533312,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 154726400,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4270904,
+              "externalBytes": 101729514,
+              "arrayBuffersBytes": 82598077
+            },
+            "after": {
+              "rssBytes": 152657920,
+              "heapTotalBytes": 10682368,
+              "heapUsedBytes": 5721152,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": -2068480,
+              "heapTotalBytes": 524288,
+              "heapUsedBytes": 1450248,
+              "externalBytes": -2228224,
+              "arrayBuffersBytes": -1772544
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 152702976,
+              "heapTotalBytes": 10682368,
+              "heapUsedBytes": 4279424,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80238781
+            },
+            "after": {
+              "rssBytes": 152715264,
+              "heapTotalBytes": 10682368,
+              "heapUsedBytes": 5786960,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 12288,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1507536,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 586752
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 152797184,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4271992,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80238781
+            },
+            "after": {
+              "rssBytes": 155533312,
+              "heapTotalBytes": 10682368,
+              "heapUsedBytes": 5716280,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 2736128,
+              "heapTotalBytes": 524288,
+              "heapUsedBytes": 1444288,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 586752
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 284695,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 284695,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.6719342597489648,
+      "woodstoxRatio": 0.5168704084494058,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "stringFull",
+      "family": "full-stax-js",
+      "implementation": "StreamBatch index accessors",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 155.2192,
+      "minMs": 153.3040000000001,
+      "maxMs": 158.19790000000012,
+      "mibPerSec": 103.07893769566961,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        153.3040000000001,
+        154.1556999999998,
+        158.19790000000012
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1000269.3333333334,
+        "avgHeapTotalDeltaBytes": 87381.33333333333,
+        "avgRssDeltaBytes": -8895146.666666666,
+        "avgExternalDeltaBytes": -12778496,
+        "avgArrayBuffersDeltaBytes": -11863040,
+        "maxHeapUsedBytes": 5344416,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 183984128,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 183984128,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4288768,
+              "externalBytes": 137836778,
+              "arrayBuffersBytes": 117063869
+            },
+            "after": {
+              "rssBytes": 153464832,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5237504,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": -30519296,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 948736,
+              "externalBytes": -38335488,
+              "arrayBuffersBytes": -36238336
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 153202688,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4294920,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80763069
+            },
+            "after": {
+              "rssBytes": 153640960,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5344416,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 438272,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1049496,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 62464
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 153681920,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4302416,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80238781
+            },
+            "after": {
+              "rssBytes": 157077504,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5304992,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 3395584,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 1002576,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 586752
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 1537355,
+        "nameStringReads": 683270,
+        "textStringReads": 284695,
+        "attrNameStringReads": 284695,
+        "attrValueStringReads": 284695,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1,
+      "woodstoxRatio": 0.309145174480133,
+      "targetStatus": "below"
+    },
+    {
+      "id": "cursorAccessor",
+      "family": "full-stax-js",
+      "implementation": "single mutable cursor over StreamBatch",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 156.02986666666675,
+      "minMs": 152.71180000000004,
+      "maxMs": 161.3996000000002,
+      "mibPerSec": 102.54338215998607,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        161.3996000000002,
+        152.71180000000004,
+        153.97820000000002
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1624448,
+        "avgHeapTotalDeltaBytes": 87381.33333333333,
+        "avgRssDeltaBytes": -7685461.333333333,
+        "avgExternalDeltaBytes": -7667712,
+        "avgArrayBuffersDeltaBytes": -6884352,
+        "maxHeapUsedBytes": 6350168,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 156725248,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 155123712,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 4341680,
+              "externalBytes": 99435754,
+              "arrayBuffersBytes": 80107709
+            },
+            "after": {
+              "rssBytes": 130867200,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6350168,
+              "externalBytes": 76432618,
+              "arrayBuffersBytes": 57756861
+            },
+            "delta": {
+              "rssBytes": -24256512,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 2008488,
+              "externalBytes": -23003136,
+              "arrayBuffersBytes": -22350848
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 129814528,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4317712,
+              "externalBytes": 76432618,
+              "arrayBuffersBytes": 56645821
+            },
+            "after": {
+              "rssBytes": 156725248,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 5197368,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80825533
+            },
+            "delta": {
+              "rssBytes": 26910720,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 879656,
+              "externalBytes": 23068672,
+              "arrayBuffersBytes": 24179712
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 156479488,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4319792,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 80238781
+            },
+            "after": {
+              "rssBytes": 130768896,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6304992,
+              "externalBytes": 76432618,
+              "arrayBuffersBytes": 57756861
+            },
+            "delta": {
+              "rssBytes": -25710592,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 1985200,
+              "externalBytes": -23068672,
+              "arrayBuffersBytes": -22481920
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 1537355,
+        "nameStringReads": 683270,
+        "textStringReads": 284695,
+        "attrNameStringReads": 284695,
+        "attrValueStringReads": 284695,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 0.9948044135139934,
+      "woodstoxRatio": 0.3075389839893899,
+      "targetStatus": "below"
+    },
+    {
+      "id": "eventObjectFull",
+      "family": "full-stax-js",
+      "implementation": "EventReaderSync public event objects",
+      "contractScope": "full-string-materialization-from-string-input",
+      "fullStringParity": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 194.97520000000046,
+      "minMs": 189.8032000000003,
+      "maxMs": 203.60100000000057,
+      "mibPerSec": 82.06084797436618,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        203.60100000000057,
+        189.8032000000003,
+        191.52140000000054
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 691410.6666666666,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": -30614869.333333332,
+        "avgExternalDeltaBytes": -34994176,
+        "avgArrayBuffersDeltaBytes": -34623829.333333336,
+        "maxHeapUsedBytes": 5324528,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 187604992,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 187604992,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 4464688,
+              "externalBytes": 140458218,
+              "arrayBuffersBytes": 120671421
+            },
+            "after": {
+              "rssBytes": 98918400,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 4962432,
+              "externalBytes": 35475690,
+              "arrayBuffersBytes": 16799933
+            },
+            "delta": {
+              "rssBytes": -88686592,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 497744,
+              "externalBytes": -104982528,
+              "arrayBuffersBytes": -103871488
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 98922496,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 4328792,
+              "externalBytes": 35475690,
+              "arrayBuffersBytes": 16799933
+            },
+            "after": {
+              "rssBytes": 96985088,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5324528,
+              "externalBytes": 35475690,
+              "arrayBuffersBytes": 16799933
+            },
+            "delta": {
+              "rssBytes": -1937408,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 995736,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 0
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 96976896,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4345256,
+              "externalBytes": 35475690,
+              "arrayBuffersBytes": 16799933
+            },
+            "after": {
+              "rssBytes": 95756288,
+              "heapTotalBytes": 10158080,
+              "heapUsedBytes": 4926008,
+              "externalBytes": 35475690,
+              "arrayBuffersBytes": 16799933
+            },
+            "delta": {
+              "rssBytes": -1220608,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 580752,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 0
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 1537355,
+        "nameStringReads": 683270,
+        "textStringReads": 284695,
+        "attrNameStringReads": 284695,
+        "attrValueStringReads": 284695,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 967967,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 0.7960971446624987,
+      "woodstoxRatio": 0.24610959068982388,
+      "targetStatus": "below"
+    },
+    {
+      "id": "rawFrameDirect",
+      "family": "full-stax-js",
+      "implementation": "nextRawBatch typed arrays with direct span decode",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 144.78120000000004,
+      "minMs": 143.55249999999978,
+      "maxMs": 146.1201000000001,
+      "mibPerSec": 110.51041327169324,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        144.67100000000028,
+        143.55249999999978,
+        146.1201000000001
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1914805.3333333333,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": 2363392,
+        "avgExternalDeltaBytes": 1764352,
+        "avgArrayBuffersDeltaBytes": 3903146.6666666665,
+        "maxHeapUsedBytes": 6399136,
+        "maxHeapTotalBytes": 15138816,
+        "maxRssBytes": 142364672,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 136941568,
+              "heapTotalBytes": 15138816,
+              "heapUsedBytes": 4428896,
+              "externalBytes": 76382442,
+              "arrayBuffersBytes": 53512381
+            },
+            "after": {
+              "rssBytes": 142364672,
+              "heapTotalBytes": 15138816,
+              "heapUsedBytes": 6399136,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 62999741
+            },
+            "delta": {
+              "rssBytes": 5423104,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1970240,
+              "externalBytes": 5293056,
+              "arrayBuffersBytes": 9487360
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 141312000,
+              "heapTotalBytes": 15138816,
+              "heapUsedBytes": 4425608,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 61888701
+            },
+            "after": {
+              "rssBytes": 140308480,
+              "heapTotalBytes": 15138816,
+              "heapUsedBytes": 6306432,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 62999741
+            },
+            "delta": {
+              "rssBytes": -1003520,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1880824,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 1111040
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139587584,
+              "heapTotalBytes": 15138816,
+              "heapUsedBytes": 4437208,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 61888701
+            },
+            "after": {
+              "rssBytes": 142258176,
+              "heapTotalBytes": 15138816,
+              "heapUsedBytes": 6330560,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 62999741
+            },
+            "delta": {
+              "rssBytes": 2670592,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1893352,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 1111040
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 1537355,
+        "nameStringReads": 683270,
+        "textStringReads": 284695,
+        "attrNameStringReads": 284695,
+        "attrValueStringReads": 284695,
+        "rawSpanMaterializations": 1537355,
+        "rawNameSpanMaterializations": 683270,
+        "rawTextSpanMaterializations": 284695,
+        "rawAttrNameSpanMaterializations": 284695,
+        "rawAttrValueSpanMaterializations": 284695,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.0720949957591175,
+      "woodstoxRatio": 0.33143299452322983,
+      "targetStatus": "below"
+    },
+    {
+      "id": "rawFrameNameId",
+      "family": "full-stax-js",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "avgMs": 124.17616666666679,
+      "minMs": 121.83050000000003,
+      "maxMs": 125.59689999999955,
+      "mibPerSec": 128.84783509963665,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        125.59689999999955,
+        125.10110000000077,
+        121.83050000000003
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1450258.6666666667,
+        "avgHeapTotalDeltaBytes": 87381.33333333333,
+        "avgRssDeltaBytes": -9827669.333333334,
+        "avgExternalDeltaBytes": -7706282.666666667,
+        "avgArrayBuffersDeltaBytes": -5567488,
+        "maxHeapUsedBytes": 7462688,
+        "maxHeapTotalBytes": 14876672,
+        "maxRssBytes": 167583744,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 167583744,
+              "heapTotalBytes": 14614528,
+              "heapUsedBytes": 4460032,
+              "externalBytes": 99501290,
+              "arrayBuffersBytes": 77617341
+            },
+            "after": {
+              "rssBytes": 139829248,
+              "heapTotalBytes": 14876672,
+              "heapUsedBytes": 7462688,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 62999741
+            },
+            "delta": {
+              "rssBytes": -27754496,
+              "heapTotalBytes": 262144,
+              "heapUsedBytes": 3002656,
+              "externalBytes": -17825792,
+              "arrayBuffersBytes": -14617600
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139108352,
+              "heapTotalBytes": 14876672,
+              "heapUsedBytes": 4458136,
+              "externalBytes": 81675498,
+              "arrayBuffersBytes": 61888701
+            },
+            "after": {
+              "rssBytes": 145981440,
+              "heapTotalBytes": 14876672,
+              "heapUsedBytes": 5353000,
+              "externalBytes": 76382442,
+              "arrayBuffersBytes": 57706685
+            },
+            "delta": {
+              "rssBytes": 6873088,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 894864,
+              "externalBytes": -5293056,
+              "arrayBuffersBytes": -4182016
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 145977344,
+              "heapTotalBytes": 14876672,
+              "heapUsedBytes": 4459920,
+              "externalBytes": 76382442,
+              "arrayBuffersBytes": 55609533
+            },
+            "after": {
+              "rssBytes": 137375744,
+              "heapTotalBytes": 14876672,
+              "heapUsedBytes": 4913176,
+              "externalBytes": 76382442,
+              "arrayBuffersBytes": 57706685
+            },
+            "delta": {
+              "rssBytes": -8601600,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 453256,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 2097152
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 1537355,
+        "nameStringReads": 683270,
+        "textStringReads": 284695,
+        "attrNameStringReads": 284695,
+        "attrValueStringReads": 284695,
+        "rawSpanMaterializations": 569400,
+        "rawNameSpanMaterializations": 6,
+        "rawTextSpanMaterializations": 284695,
+        "rawAttrNameSpanMaterializations": 4,
+        "rawAttrValueSpanMaterializations": 284695,
+        "rawNameCacheHits": 967955,
+        "rawNameCacheMisses": 10,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "attributePairs": 284695
+      },
+      "relativeToStringFull": 1.2499918798159055,
+      "woodstoxRatio": 0.3864289577844376,
+      "targetStatus": "below"
+    }
+  ],
+  "findings": [
+    {
+      "id": "contract-separation",
+      "summary": "Partial rows deliberately drop one or more string fields and are not StAX parity rows.",
+      "evidence": [
+        "scanAllNoDecode: event-types-and-attribute-counts-only, strings=0",
+        "nameStringOnly: event-types-attribute-counts-and-element-names, strings=683270",
+        "textStringOnly: event-types-attribute-counts-and-text-cdata, strings=284695",
+        "attrNameStringOnly: event-types-attribute-counts-and-attribute-names, strings=284695",
+        "attrValueStringOnly: event-types-attribute-counts-and-attribute-values, strings=284695"
+      ]
+    },
+    {
+      "id": "full-string-parity",
+      "summary": "Full rows fold element names, text/CDATA, attribute names, and attribute values into the same checksum.",
+      "evidence": [
+        "stringFull: events=967967, checksum=-746772258",
+        "cursorAccessor: events=967967, checksum=-746772258",
+        "eventObjectFull: events=967967, checksum=-746772258",
+        "rawFrameDirect: events=967967, checksum=-746772258",
+        "rawFrameNameId: events=967967, checksum=-746772258"
+      ]
+    },
+    {
+      "id": "headroom-search",
+      "summary": "The fastest row in each family is a headroom signal, not a runtime-limit conclusion.",
+      "evidence": [
+        "partial=scanAllNoDecode 185.6 MiB/s",
+        "full=rawFrameNameId 128.8 MiB/s"
+      ]
+    }
+  ]
+}
