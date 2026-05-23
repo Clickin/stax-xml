@@ -29,6 +29,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Wide-Cycle Candidate Headroom Matrix/);
+  assert.match(markdown, /## Current Evidence: 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
@@ -69,6 +70,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /candidate-headroom-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
+  assert.match(markdown, /candidate-headroom-corpus\.md/);
+  assert.match(markdown, /bun-candidate-headroom-corpus\.md/);
+  assert.match(markdown, /treebank_e\.xml/);
+  assert.match(markdown, /`rawFrameNameId`\s+at `136\.73 MiB\/s`/);
+  assert.match(markdown, /`rawFrameNameId`\s+at\s+`145\.84 MiB\/s`/);
+  assert.match(markdown, /Bun\/JSC corpus-cycle full rows were not bounded under the 512 MiB RSS gate/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);

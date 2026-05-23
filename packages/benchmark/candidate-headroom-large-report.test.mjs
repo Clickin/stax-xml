@@ -47,6 +47,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'candidate-headroom-large');
   assert.equal(report.contract, 'generated-byte-batch-mixed-materialization-headroom-matrix');
+  assert.equal(report.environment.gcStrategy, 'globalThis.gc');
   assert.equal(report.fixture.generated, true);
   assert.equal(report.fixture.shape, 'diverse-cycle');
   assert.equal(report.fixture.rowCycleSize, 64);
@@ -113,4 +114,60 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.match(markdown, /eventObjectFull/);
   assert.match(markdown, /Projection rows require a separate selector contract/);
   assert.match(markdown, /Full-string parity rows: ok/);
+});
+
+test('large candidate headroom matrix supports a corpus-cycle fixture seed', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [jsonOut, mdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'candidate-headroom-large.mjs'),
+    '--size-gib',
+    '0.001',
+    '--fixture-shape',
+    'corpus-cycle',
+    '--corpus-file',
+    join(__dirname, 'assets', 'books.xml'),
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.objective, 'candidate-headroom-large');
+  assert.equal(report.contract, 'byte-batch-mixed-materialization-headroom-matrix');
+  assert.equal(report.environment.gcStrategy, 'globalThis.gc');
+  assert.equal(report.fixture.generated, false);
+  assert.equal(report.fixture.source, 'corpus-file');
+  assert.equal(report.fixture.shape, 'corpus-cycle');
+  assert.equal(report.fixture.rowCycleSize, 1);
+  assert.equal(report.fixture.batchSize, 1);
+  assert.match(report.fixture.sourceFile, /books\.xml$/);
+  assert.equal(report.eventCountParity.status, 'ok');
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.ok(report.variants.every(entry => entry.boundedMemory === true));
+  assert.ok(report.variants.some(entry => entry.fullStringParity));
+  assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /corpus-backed `Uint8Array` batches/);
+  assert.match(markdown, /Fixture source: corpus-file/);
+  assert.match(markdown, /Source file: .*books\.xml/);
+  assert.match(markdown, /corpus-cycle-fixture/);
 });

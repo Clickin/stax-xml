@@ -59,6 +59,7 @@ test('bun large candidate headroom matrix records JSC bounded byte-batch rows', 
   assert.equal(report.environment.bunVersion, readBunVersion());
   assert.match(report.environment.webkitCommit, /^[0-9a-f]{40}$/);
   assert.equal(report.environment.javascriptEngine, 'JavaScriptCore');
+  assert.equal(report.environment.gcStrategy, 'Bun.gc');
   assert.equal(report.fixture.generated, true);
   assert.equal(report.fixture.shape, 'diverse-cycle');
   assert.equal(report.fixture.rowCycleSize, 64);
