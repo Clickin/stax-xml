@@ -43,6 +43,7 @@ results/*.md
 results/*.html
 results/integrated-parser-evidence/**/*
 results/iterable-v8-validation/**/*
+results/v8-allocation/**/*
 results/v8-codegen/**/*
 results/woodstox-hotspot/**/*
 profiles/**/*
