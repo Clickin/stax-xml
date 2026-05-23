@@ -21,6 +21,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Proof Vocabulary/);
   assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
   assert.match(markdown, /## Current Evidence: Woodstox HotSpot Trace/);
+  assert.match(markdown, /## Current Evidence: Woodstox JFR Allocation Sampling/);
   assert.match(markdown, /## Current Evidence: Rust quick-xml Shape Audit/);
   assert.match(markdown, /## Current Evidence: Monomorphic Materialization Counters/);
   assert.match(markdown, /## Current Evidence: V8 Monomorphic Shape Trace/);
@@ -40,6 +41,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Any 200 MiB\/s\+ bounded-memory JS row is a counterexample/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /woodstox-hotspot-trace\.md/);
+  assert.match(markdown, /woodstox-jfr-allocation\.md/);
   assert.match(markdown, /quick-xml-shape-audit\.md/);
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
@@ -63,4 +65,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /not a global runtime-limit\s+proof/);
   assert.match(markdown, /not an allocation profile or machine-code\s+trace/);
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
+  assert.match(markdown, /sampled JFR allocation stacks/);
+  assert.match(markdown, /TextBuffer\.contentsAsString/);
+  assert.match(markdown, /not a deterministic allocation census/);
 });

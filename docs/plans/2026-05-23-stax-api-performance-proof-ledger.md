@@ -47,7 +47,7 @@ Rules:
 
 | ID | Claim | Status | Current evidence | Missing proof or counterexample search |
 | --- | --- | --- | --- | --- |
-| `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. | Allocation profiles are still needed before attributing Woodstox speed to a specific optimized representation or string lifetime. |
+| `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. `packages/benchmark/results/release/woodstox-jfr-allocation.md` captures sampled JFR allocation stacks for the same comparator boundary. | More allocation and object-lifetime evidence is still needed before attributing Woodstox speed to a complete optimized representation. |
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `stax-event` creates public event objects and attribute objects; `stax-stream` uses byte batches and index accessors. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. | Symbol/asm and allocation evidence are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
@@ -76,6 +76,39 @@ evidence that the comparator ran under observed HotSpot compilation/inlining.
 It is not an allocation profile and does not prove Woodstox internal object
 lifetime, borrowed string lifetime, or the same object shape as a JavaScript
 public event object.
+
+## Current Evidence: Woodstox JFR Allocation Sampling
+
+`packages/benchmark/results/release/woodstox-jfr-allocation.md` is a
+`TRACE_FACT` for the recorded boundary: Java/HotSpot Temurin 8u472, Woodstox,
+one 16 MiB fixture, JFR `profile` settings, `warmups=4`, and `runs=1`.
+
+The run preserves the same high-level full-string checksum contract as the
+external baseline and HotSpot trace: 967,967 events and checksum `-746772258`.
+It reported 320.3 MiB/s during the JFR run, which is close to the non-JFR
+Woodstox release baseline for the same fixture.
+
+JFR reported 56 `ObjectAllocationInNewTLAB` samples and zero
+`ObjectAllocationOutsideTLAB` samples. The report classifies 49 samples under a
+`WoodstoxBench.consume` stack, 48 under a Woodstox stack, and 42 as
+string-boundary samples. The top consume-stack sampled classes were `char[]`
+with 32 samples / 2.0 KiB, `java.lang.String` with 10 samples / 240 B,
+`com.ctc.wstx.sr.Attribute` with 6 samples / 192 B, and one
+`BufferedInputStream` sample.
+
+The key sampled stacks include `java.util.Arrays.copyOfRange` ->
+`java.lang.String::<init>` -> `TextBuffer.contentsAsString` ->
+`BasicStreamReader.getText` -> `WoodstoxBench.consume`, and
+`TextBuilder.getAllValues` / `AttributeCollector.getValue` /
+`BasicStreamReader.getAttributeValue`. This is a counterexample to any claim
+that the current Woodstox comparator avoids Java string/char materialization
+entirely while folding the checksum.
+
+It is still not a deterministic allocation census and not a complete object
+lifetime proof. The recording is process-level sampled JFR evidence and includes
+JVM startup plus warmups because the comparator is launched as a separate
+process. Use it to identify observed allocation paths, not to infer total
+allocation volume or to prove the absence of other allocation paths.
 
 ## Current Evidence: Rust quick-xml Shape Audit
 
@@ -389,8 +422,9 @@ Acceptance:
 
 ## Current Next Experiments
 
-1. Add JFR or async-profiler allocation capture for `WoodstoxBench.consume`
-   and key Woodstox accessor paths.
+1. Add a second Woodstox allocation run with isolated measured-iteration
+   recording or async-profiler so startup/warmup allocation can be separated
+   from the measured `consume` iteration.
 2. Add Rust allocation or symbol/asm profile for quick-xml reader, name decode,
    text decode, and attribute decode paths.
 3. Repeat less-repetitive 1 GiB+ fixtures across additional cycle sizes and
