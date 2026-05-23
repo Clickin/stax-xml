@@ -1,0 +1,270 @@
+{
+  "generatedAt": "2026-05-23T12:32:37.249Z",
+  "objective": "event-reader-string-large",
+  "contract": "event-reader-sync-string-input-full-object-materialization",
+  "note": "This measures EventReaderSync over a complete XML string. It is a reference/object path, not the bounded byte-batch StreamReaderSync target.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "options": {
+    "sizesMiB": [
+      256,
+      512,
+      1024
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 4096,
+    "sampleEveryEvents": 250000
+  },
+  "woodstoxTarget": {
+    "status": "ok",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 300.08892774117845,
+    "woodstoxMiBPerSec": 333.43214193464274
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "sizeMiB": 256,
+      "fixture": {
+        "generated": true,
+        "shape": "diverse-cycle",
+        "rowCycleSize": 4096,
+        "minRowBytes": 222,
+        "maxRowBytes": 284,
+        "averageRowBytes": 261.37109375,
+        "targetBytes": 268435456,
+        "actualUtf8Bytes": 268435598,
+        "sizeGiB": 0.2500001322478056,
+        "stringCodeUnits": 268061494,
+        "estimatedUtf16Bytes": 536122988
+      },
+      "generation": {
+        "ms": 81.3057,
+        "before": {
+          "rssBytes": 62431232,
+          "heapTotalBytes": 16187392,
+          "heapUsedBytes": 6445888,
+          "externalBytes": 2297995,
+          "arrayBuffersBytes": 22895
+        },
+        "after": {
+          "rssBytes": 600637440,
+          "heapTotalBytes": 554455040,
+          "heapUsedBytes": 544953432,
+          "externalBytes": 2104846,
+          "arrayBuffersBytes": 22895
+        },
+        "delta": {
+          "rssBytes": 538206208,
+          "heapTotalBytes": 538267648,
+          "heapUsedBytes": 538507544,
+          "externalBytes": -193149,
+          "arrayBuffersBytes": 0
+        }
+      },
+      "avgMs": 3486.0408,
+      "minMs": 3486.0408,
+      "maxMs": 3486.0408,
+      "mibPerSec": 73.43578291503442,
+      "eventCount": 11297376,
+      "checksum": 1035231802,
+      "samplesMs": [
+        3486.0408
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 5949488,
+        "avgHeapTotalDeltaBytes": 2359296,
+        "avgRssDeltaBytes": 14286848,
+        "avgExternalDeltaBytes": 0,
+        "avgArrayBuffersDeltaBytes": 0,
+        "maxHeapUsedBytes": 548594416,
+        "maxHeapTotalBytes": 562798592,
+        "maxRssBytes": 613265408,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 598978560,
+              "heapTotalBytes": 560439296,
+              "heapUsedBytes": 542644928,
+              "externalBytes": 2104846,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 613265408,
+              "heapTotalBytes": 562798592,
+              "heapUsedBytes": 548594416,
+              "externalBytes": 2104846,
+              "arrayBuffersBytes": 22895
+            },
+            "delta": {
+              "rssBytes": 14286848,
+              "heapTotalBytes": 2359296,
+              "heapUsedBytes": 5949488,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 0
+            }
+          }
+        ],
+        "peakRssBytes": 613265408,
+        "peakHeapUsedBytes": 552863136,
+        "peakHeapTotalBytes": 562798592
+      },
+      "materializationCounters": {
+        "stringFieldReads": 25675850,
+        "nameStringReads": 8216272,
+        "textStringReads": 3081102,
+        "attrNameStringReads": 7189238,
+        "attrValueStringReads": 7189238,
+        "eventObjects": 11297376,
+        "attributePairs": 7189238
+      }
+    },
+    {
+      "status": "ok",
+      "sizeMiB": 512,
+      "fixture": {
+        "generated": true,
+        "shape": "diverse-cycle",
+        "rowCycleSize": 4096,
+        "minRowBytes": 222,
+        "maxRowBytes": 284,
+        "averageRowBytes": 261.37109375,
+        "targetBytes": 536870912,
+        "actualUtf8Bytes": 536871010,
+        "sizeGiB": 0.5000000912696123,
+        "stringCodeUnits": 536122798,
+        "estimatedUtf16Bytes": 1072245596
+      },
+      "generation": {
+        "ms": 228.2597,
+        "before": {
+          "rssBytes": 61911040,
+          "heapTotalBytes": 15925248,
+          "heapUsedBytes": 6445288,
+          "externalBytes": 2296652,
+          "arrayBuffersBytes": 22895
+        },
+        "after": {
+          "rssBytes": 1136484352,
+          "heapTotalBytes": 1090314240,
+          "heapUsedBytes": 1081041752,
+          "externalBytes": 2104846,
+          "arrayBuffersBytes": 22895
+        },
+        "delta": {
+          "rssBytes": 1074573312,
+          "heapTotalBytes": 1074388992,
+          "heapUsedBytes": 1074596464,
+          "externalBytes": -191806,
+          "arrayBuffersBytes": 0
+        }
+      },
+      "avgMs": 6901.2339,
+      "minMs": 6901.2339,
+      "maxMs": 6901.2339,
+      "mibPerSec": 74.18964505174691,
+      "eventCount": 22594728,
+      "checksum": 1125502925,
+      "samplesMs": [
+        6901.2339
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 9990288,
+        "avgHeapTotalDeltaBytes": 2359296,
+        "avgRssDeltaBytes": 14106624,
+        "avgExternalDeltaBytes": 0,
+        "avgArrayBuffersDeltaBytes": 0,
+        "maxHeapUsedBytes": 1088757600,
+        "maxHeapTotalBytes": 1098919936,
+        "maxRssBytes": 1148915712,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 1134809088,
+              "heapTotalBytes": 1096560640,
+              "heapUsedBytes": 1078767312,
+              "externalBytes": 2104846,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 1148915712,
+              "heapTotalBytes": 1098919936,
+              "heapUsedBytes": 1088757600,
+              "externalBytes": 2104846,
+              "arrayBuffersBytes": 22895
+            },
+            "delta": {
+              "rssBytes": 14106624,
+              "heapTotalBytes": 2359296,
+              "heapUsedBytes": 9990288,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 0
+            }
+          }
+        ],
+        "peakRssBytes": 1148915712,
+        "peakHeapUsedBytes": 1088944544,
+        "peakHeapTotalBytes": 1098919936
+      },
+      "materializationCounters": {
+        "stringFieldReads": 51351650,
+        "nameStringReads": 16432528,
+        "textStringReads": 6162198,
+        "attrNameStringReads": 14378462,
+        "attrValueStringReads": 14378462,
+        "eventObjects": 22594728,
+        "attributePairs": 14378462
+      }
+    },
+    {
+      "status": "error",
+      "sizeMiB": 1024,
+      "error": "Invalid string length",
+      "stack": "RangeError: Invalid string length\n    at String.repeat (<anonymous>)\n    at createXmlString (file:///G:/programming/stax-xml/packages/benchmark/event-reader-string-large.mjs:382:28)\n    at runMeasuredChild (file:///G:/programming/stax-xml/packages/benchmark/event-reader-string-large.mjs:173:21)\n    at main (file:///G:/programming/stax-xml/packages/benchmark/event-reader-string-large.mjs:108:20)\n    at file:///G:/programming/stax-xml/packages/benchmark/event-reader-string-large.mjs:767:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)\n    at async node:internal/modules/esm/loader:639:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)"
+    }
+  ],
+  "findings": [
+    {
+      "id": "string-input-boundary",
+      "summary": "EventReaderSync requires a complete XML string before parsing, so input memory is part of the measured boundary.",
+      "evidence": [
+        "256.0 MiB input, estimated UTF-16=511.3 MiB",
+        "512.0 MiB input, estimated UTF-16=1022.6 MiB"
+      ]
+    },
+    {
+      "id": "event-object-materialization",
+      "summary": "Rows materialize public event objects and attribute objects/maps while folding the full checksum contract.",
+      "evidence": [
+        "256.0 MiB: events=11297376, objects=11297376",
+        "512.0 MiB: events=22594728, objects=22594728"
+      ]
+    },
+    {
+      "id": "largest-successful-row",
+      "summary": "Largest successful row is evidence for the EventReaderSync string-input reference path only.",
+      "evidence": [
+        "size=512.0 MiB",
+        "throughput=74.19 MiB/s",
+        "peakRSS=1.07 GiB",
+        "checksum=1125502925"
+      ]
+    },
+    {
+      "id": "failed-rows",
+      "summary": "At least one size failed in the isolated child process.",
+      "evidence": [
+        "1024 MiB: status=error"
+      ]
+    }
+  ]
+}
