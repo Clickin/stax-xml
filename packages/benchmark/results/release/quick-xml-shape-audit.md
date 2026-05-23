@@ -1,6 +1,6 @@
 # quick-xml Shape Audit
 
-Generated: 2026-05-23T11:27:53.117Z
+Generated: 2026-05-23T11:33:41.186Z
 
 This report is a SOURCE_FACT for the Rust + quick-xml comparator shape.
 It is not an allocation profile, machine-code trace, or proof that JavaScript runtime headroom is exhausted.

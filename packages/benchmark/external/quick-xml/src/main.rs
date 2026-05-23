@@ -78,6 +78,8 @@ struct Options {
 struct ConsumeResult {
     event_count: i64,
     checksum: i32,
+    #[cfg(feature = "count-allocations")]
+    shape_stats: ShapeStats,
 }
 
 #[cfg(feature = "count-allocations")]
@@ -90,6 +92,19 @@ struct AllocationStats {
     realloc_count: u64,
     realloc_bytes_in: u64,
     realloc_bytes_out: u64,
+}
+
+#[cfg(feature = "count-allocations")]
+#[derive(Clone, Copy, Default)]
+struct ShapeStats {
+    text_decode_count: u64,
+    text_borrowed_count: u64,
+    text_owned_count: u64,
+    text_non_empty_count: u64,
+    cdata_decode_count: u64,
+    cdata_borrowed_count: u64,
+    cdata_owned_count: u64,
+    cdata_non_empty_count: u64,
 }
 
 fn main() {
@@ -115,6 +130,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut samples_ms = Vec::with_capacity(options.runs);
     #[cfg(feature = "count-allocations")]
     let mut allocation_samples = Vec::with_capacity(options.runs);
+    #[cfg(feature = "count-allocations")]
+    let mut shape_samples = Vec::with_capacity(options.runs);
     let mut stable: Option<ConsumeResult> = None;
     for _ in 0..options.runs {
         #[cfg(feature = "count-allocations")]
@@ -129,6 +146,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         if options.count_allocations {
             TRACK_ALLOCATIONS.store(false, Ordering::SeqCst);
             allocation_samples.push(snapshot_allocation_stats());
+            shape_samples.push(result.shape_stats);
         }
         if let Some(previous) = &stable {
             if previous.event_count != result.event_count || previous.checksum != result.checksum {
@@ -169,6 +187,15 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         print!("],\"allocationSummary\":");
         print_allocation_sample(&sum_allocation_samples(&allocation_samples));
+        print!(",\"shapeSamples\":[");
+        for (index, sample) in shape_samples.iter().enumerate() {
+            if index > 0 {
+                print!(",");
+            }
+            print_shape_sample(sample);
+        }
+        print!("],\"shapeSummary\":");
+        print_shape_sample(&sum_shape_samples(&shape_samples));
     }
     println!("}}");
 
@@ -245,6 +272,8 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
     let mut buffer = Vec::with_capacity(64 * 1024);
     let mut event_count = 1i64;
     let mut checksum = mix_checksum(0, 0);
+    #[cfg(feature = "count-allocations")]
+    let mut shape_stats = ShapeStats::default();
 
     loop {
         match reader.read_event_into(&mut buffer)? {
@@ -267,10 +296,14 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
             }
             Event::Text(event) => {
                 let text = event.decode()?;
+                #[cfg(feature = "count-allocations")]
+                record_text_decode(&mut shape_stats, &text, false);
                 checksum = fold_text_event(checksum, &text, 4, &mut event_count);
             }
             Event::CData(event) => {
                 let text = event.decode()?;
+                #[cfg(feature = "count-allocations")]
+                record_text_decode(&mut shape_stats, &text, true);
                 checksum = fold_text_event(checksum, &text, 5, &mut event_count);
             }
             Event::Eof => {
@@ -286,6 +319,8 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
     Ok(ConsumeResult {
         event_count,
         checksum,
+        #[cfg(feature = "count-allocations")]
+        shape_stats,
     })
 }
 
@@ -428,5 +463,70 @@ fn print_allocation_sample(sample: &AllocationStats) {
         total_allocated_bytes,
         total_released_bytes,
         net_alloc_bytes
+    );
+}
+
+#[cfg(feature = "count-allocations")]
+fn record_text_decode(stats: &mut ShapeStats, text: &Cow<'_, str>, is_cdata: bool) {
+    if is_cdata {
+        stats.cdata_decode_count += 1;
+        if text.trim().is_empty() {
+            return;
+        }
+        stats.cdata_non_empty_count += 1;
+        match text {
+            Cow::Borrowed(_) => stats.cdata_borrowed_count += 1,
+            Cow::Owned(_) => stats.cdata_owned_count += 1,
+        }
+        return;
+    }
+
+    stats.text_decode_count += 1;
+    if text.trim().is_empty() {
+        return;
+    }
+    stats.text_non_empty_count += 1;
+    match text {
+        Cow::Borrowed(_) => stats.text_borrowed_count += 1,
+        Cow::Owned(_) => stats.text_owned_count += 1,
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+fn sum_shape_samples(samples: &[ShapeStats]) -> ShapeStats {
+    let mut total = ShapeStats::default();
+    for sample in samples {
+        total.text_decode_count += sample.text_decode_count;
+        total.text_borrowed_count += sample.text_borrowed_count;
+        total.text_owned_count += sample.text_owned_count;
+        total.text_non_empty_count += sample.text_non_empty_count;
+        total.cdata_decode_count += sample.cdata_decode_count;
+        total.cdata_borrowed_count += sample.cdata_borrowed_count;
+        total.cdata_owned_count += sample.cdata_owned_count;
+        total.cdata_non_empty_count += sample.cdata_non_empty_count;
+    }
+    total
+}
+
+#[cfg(feature = "count-allocations")]
+fn print_shape_sample(sample: &ShapeStats) {
+    let total_decode_count = sample.text_decode_count + sample.cdata_decode_count;
+    let total_borrowed_count = sample.text_borrowed_count + sample.cdata_borrowed_count;
+    let total_owned_count = sample.text_owned_count + sample.cdata_owned_count;
+    let total_non_empty_count = sample.text_non_empty_count + sample.cdata_non_empty_count;
+    print!(
+        "{{\"textDecodeCount\":{},\"textBorrowedCount\":{},\"textOwnedCount\":{},\"textNonEmptyCount\":{},\"cdataDecodeCount\":{},\"cdataBorrowedCount\":{},\"cdataOwnedCount\":{},\"cdataNonEmptyCount\":{},\"totalDecodeCount\":{},\"totalBorrowedCount\":{},\"totalOwnedCount\":{},\"totalNonEmptyCount\":{}}}",
+        sample.text_decode_count,
+        sample.text_borrowed_count,
+        sample.text_owned_count,
+        sample.text_non_empty_count,
+        sample.cdata_decode_count,
+        sample.cdata_borrowed_count,
+        sample.cdata_owned_count,
+        sample.cdata_non_empty_count,
+        total_decode_count,
+        total_borrowed_count,
+        total_owned_count,
+        total_non_empty_count
     );
 }

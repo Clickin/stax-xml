@@ -129,6 +129,36 @@ function createSelfTestReport(options) {
       totalReleasedBytes: 1147648,
       netAllocatedBytes: 768,
     },
+    shapeSamples: [
+      {
+        textDecodeCount: 42,
+        textBorrowedCount: 42,
+        textOwnedCount: 0,
+        textNonEmptyCount: 42,
+        cdataDecodeCount: 1,
+        cdataBorrowedCount: 1,
+        cdataOwnedCount: 0,
+        cdataNonEmptyCount: 1,
+        totalDecodeCount: 43,
+        totalBorrowedCount: 43,
+        totalOwnedCount: 0,
+        totalNonEmptyCount: 43,
+      },
+    ],
+    shapeSummary: {
+      textDecodeCount: 42,
+      textBorrowedCount: 42,
+      textOwnedCount: 0,
+      textNonEmptyCount: 42,
+      cdataDecodeCount: 1,
+      cdataBorrowedCount: 1,
+      cdataOwnedCount: 0,
+      cdataNonEmptyCount: 1,
+      totalDecodeCount: 43,
+      totalBorrowedCount: 43,
+      totalOwnedCount: 0,
+      totalNonEmptyCount: 43,
+    },
   };
   return createReport({
     options,
@@ -225,10 +255,13 @@ function validateBenchmark(benchmark, expectedRuns) {
   if (!Array.isArray(benchmark.allocationSamples) || benchmark.allocationSamples.length !== expectedRuns) {
     throw new Error(`quick-xml emitted ${benchmark.allocationSamples?.length ?? 0} allocation samples, expected ${expectedRuns}.`);
   }
-  for (const field of ['eventCount', 'checksum', 'mibPerSec', 'allocationSummary']) {
+  for (const field of ['eventCount', 'checksum', 'mibPerSec', 'allocationSummary', 'shapeSummary']) {
     if (benchmark[field] === undefined || benchmark[field] === null) {
       throw new Error(`quick-xml output is missing ${field}.`);
     }
+  }
+  if (!Array.isArray(benchmark.shapeSamples) || benchmark.shapeSamples.length !== expectedRuns) {
+    throw new Error(`quick-xml emitted ${benchmark.shapeSamples?.length ?? 0} shape samples, expected ${expectedRuns}.`);
   }
 }
 
@@ -240,12 +273,15 @@ function analyzeAllocations(benchmark, fixture) {
     samples,
     summary,
     averagePerRun: average,
+    shapeSamples: benchmark.shapeSamples,
+    shapeSummary: benchmark.shapeSummary,
+    shapeAveragePerRun: divideAllocationStats(benchmark.shapeSummary, samples.length),
     operationsPerEvent: average.allocationOperations / benchmark.eventCount,
     totalAllocatedBytesPerMiB: average.totalAllocatedBytes / fixture.sizeMiB,
     caveats: [
       'Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.',
       'The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.',
-      'The counter has no stack attribution, type attribution, borrowed-vs-owned Cow frequency, or object lifetime information.',
+      'The counter has no stack attribution, allocator object type attribution, or object lifetime information.',
       'The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline.',
     ],
   };
@@ -283,6 +319,16 @@ function createFindings(benchmark, allocation) {
       ],
     },
     {
+      id: 'cow-ownership-counters',
+      classification: 'TRACE_FACT',
+      summary: 'The measured run counted quick-xml text and CDATA decode ownership at the Cow<str> boundary.',
+      evidence: [
+        `avgDecodeCount=${allocation.shapeAveragePerRun.totalDecodeCount.toFixed(1)}`,
+        `avgBorrowedCount=${allocation.shapeAveragePerRun.totalBorrowedCount.toFixed(1)}`,
+        `avgOwnedCount=${allocation.shapeAveragePerRun.totalOwnedCount.toFixed(1)}`,
+      ],
+    },
+    {
       id: 'not-js-object-shape',
       classification: 'SOURCE_FACT_LINK',
       summary: 'The measured binary still uses the Rust quick-xml comparator shape, not JavaScript public event objects.',
@@ -293,7 +339,7 @@ function createFindings(benchmark, allocation) {
     {
       id: 'not-stack-or-lifetime-proof',
       classification: 'LIMITATION',
-      summary: 'The counter does not prove allocation stacks, object types, object lifetimes, or borrowed-vs-owned Cow frequency.',
+      summary: 'The counter does not prove allocation stacks, allocator object types, or object lifetimes.',
       evidence: allocation.caveats,
     },
   ];
@@ -414,6 +460,23 @@ function renderMarkdown(report) {
     `Average allocation operations per event: ${report.allocation.operationsPerEvent.toExponential(3)}.`,
     `Average allocated bytes per fixture MiB: ${formatBytes(report.allocation.totalAllocatedBytesPerMiB)}.`,
     '',
+    '## Cow Ownership Counts',
+    '',
+    '| Metric | Total | Average per run |',
+    '| --- | ---: | ---: |',
+    shapeRow('textDecodeCount', report),
+    shapeRow('textBorrowedCount', report),
+    shapeRow('textOwnedCount', report),
+    shapeRow('textNonEmptyCount', report),
+    shapeRow('cdataDecodeCount', report),
+    shapeRow('cdataBorrowedCount', report),
+    shapeRow('cdataOwnedCount', report),
+    shapeRow('cdataNonEmptyCount', report),
+    shapeRow('totalDecodeCount', report),
+    shapeRow('totalBorrowedCount', report),
+    shapeRow('totalOwnedCount', report),
+    shapeRow('totalNonEmptyCount', report),
+    '',
     '## Caveats',
     '',
     ...report.allocation.caveats.map(caveat => `- ${caveat}`),
@@ -431,6 +494,10 @@ function renderMarkdown(report) {
 
 function allocationRow(key, report, formatter = formatNumber) {
   return `| ${key} | ${formatter(report.allocation.summary[key])} | ${formatter(report.allocation.averagePerRun[key])} |`;
+}
+
+function shapeRow(key, report) {
+  return `| ${key} | ${formatNumber(report.allocation.shapeSummary[key])} | ${formatNumber(report.allocation.shapeAveragePerRun[key])} |`;
 }
 
 function runCommandChecked(command, args, cwd) {

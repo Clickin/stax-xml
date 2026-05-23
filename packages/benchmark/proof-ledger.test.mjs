@@ -68,7 +68,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /not an allocation profile or machine-code\s+trace/);
   assert.match(markdown, /Rust global allocator counter/);
   assert.match(markdown, /170,824\s+allocation operations/);
-  assert.match(markdown, /borrowed-vs-owned `Cow<str>` frequency/);
+  assert.match(markdown, /284,695 borrowed and 0 owned/);
+  assert.match(markdown, /escaped, non-ASCII, or mixed-encoding fixtures/);
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
   assert.match(markdown, /sampled JFR allocation stacks/);
   assert.match(markdown, /TextBuffer\.contentsAsString/);
