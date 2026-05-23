@@ -1,0 +1,856 @@
+{
+  "generatedAt": "2026-05-23T08:45:07.874Z",
+  "objective": "v8-monomorphic-shape-trace",
+  "contract": "trace-fact-only",
+  "note": "V8 trace and optimized-code signals for monomorphic JavaScript reader shapes. This is not a throughput benchmark or impossibility proof.",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "source": "self-generated",
+    "elements": 128,
+    "byteLength": 35854
+  },
+  "options": {
+    "warmups": 24,
+    "iterations": 6,
+    "quick": true,
+    "cases": [
+      "public-accessor",
+      "raw-frame-direct-decode",
+      "raw-frame-name-id-cache"
+    ],
+    "functions": [
+      "consumePublicAccessor",
+      "consumeRawFrameDirect",
+      "consumeRawFrameNameIdCache",
+      "consumeRawFrame",
+      "materializeName",
+      "decodeSpan",
+      "foldString"
+    ]
+  },
+  "rawArtifacts": {
+    "manifestPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\manifest.json",
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release",
+    "committed": false
+  },
+  "cases": [
+    {
+      "caseId": "public-accessor",
+      "status": "optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "public-accessor",
+        "warmups": 24,
+        "iterations": 6,
+        "elements": 128,
+        "eventCount": 2180,
+        "checksum": 1331061553,
+        "sink": 368977443
+      },
+      "optimizedFunctions": [
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "assertTextAllowedOutsideDocumentElement",
+        "attributeNameAt",
+        "consumePublicAccessor",
+        "foldString",
+        "nameAt",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseStartTag",
+        "parseTag",
+        "re",
+        "y"
+      ],
+      "deoptCount": 35,
+      "warmupDeoptCount": 35,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "patternCounts": {
+        "CallApiCallback": 0,
+        "CEntry": 22,
+        "TypedArrayPrototypeSubArray": 1,
+        "TextDecoderDecode": 0,
+        "LoadIC": 0,
+        "KeyedLoadIC": 0,
+        "StoreIC": 0,
+        "KeyedStoreIC": 0,
+        "Runtime": 0,
+        "DeoptExit": 432
+      },
+      "optCodeFiles": [
+        {
+          "functionName": "consumePublicAccessor",
+          "bytes": 272918,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-consumePublicAccessor-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 17,
+            "TypedArrayPrototypeSubArray": 1,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 408
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{33,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{37,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{43,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrameDirect",
+          "bytes": 48053,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-consumeRawFrameDirect-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{32,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{37,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{43,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrameNameIdCache",
+          "bytes": 48091,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-consumeRawFrameNameIdCache-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{32,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{37,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{40,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrame",
+          "bytes": 48080,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-consumeRawFrame-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{33,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{36,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{40,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "materializeName",
+          "bytes": 48080,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-materializeName-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{16,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{34,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{38,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "decodeSpan",
+          "bytes": 48076,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-decodeSpan-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{33,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{37,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:parseBuffer) id{10,-1} start{6965} ---\r",
+              "source": "(e,t){let n=0;for(;n<e.byteLength;){let r=e.indexOf(60,n);if(r===-1){t?this.addText(n,e.byteLength):this.pendingTail=e.subarray(n);return}r>n&&this.addText(n,r);let i=this.parseTag(e,r,t);if(i<0){this.pendingTail=e.subarray(r);return}n=i}}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "foldString",
+          "bytes": 91318,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\public-accessor-foldString-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 5,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 24
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{33,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{37,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{45,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "raw-frame-direct-decode",
+      "status": "optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "raw-frame-direct-decode",
+        "warmups": 24,
+        "iterations": 6,
+        "elements": 128,
+        "eventCount": 2180,
+        "checksum": 1331061553,
+        "sink": 368977443
+      },
+      "optimizedFunctions": [
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "assertTextAllowedOutsideDocumentElement",
+        "b",
+        "consumeRawFrame",
+        "decodeShortAsciiSpan",
+        "foldString",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "re"
+      ],
+      "deoptCount": 11,
+      "warmupDeoptCount": 11,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "patternCounts": {
+        "CallApiCallback": 0,
+        "CEntry": 45,
+        "TypedArrayPrototypeSubArray": 8,
+        "TextDecoderDecode": 0,
+        "LoadIC": 0,
+        "KeyedLoadIC": 0,
+        "StoreIC": 0,
+        "KeyedStoreIC": 0,
+        "Runtime": 0,
+        "DeoptExit": 988
+      },
+      "optCodeFiles": [
+        {
+          "functionName": "consumePublicAccessor",
+          "bytes": 48385,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-consumePublicAccessor-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrameDirect",
+          "bytes": 44341,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-consumeRawFrameDirect-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{29,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrameNameIdCache",
+          "bytes": 53662,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-consumeRawFrameNameIdCache-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{29,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{31,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrame",
+          "bytes": 650330,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-consumeRawFrame-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 40,
+            "TypedArrayPrototypeSubArray": 8,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 964
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{29,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "materializeName",
+          "bytes": 52150,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-materializeName-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{29,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{31,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "decodeSpan",
+          "bytes": 53878,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-decodeSpan-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{29,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:parseBuffer) id{9,-1} start{6965} ---\r",
+              "source": "(e,t){let n=0;for(;n<e.byteLength;){let r=e.indexOf(60,n);if(r===-1){t?this.addText(n,e.byteLength):this.pendingTail=e.subarray(n);return}r>n&&this.addText(n,r);let i=this.parseTag(e,r,t);if(i<0){this.pendingTail=e.subarray(r);return}n=i}}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "foldString",
+          "bytes": 95388,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-direct-decode-foldString-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 5,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 24
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{29,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{26,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{31,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "caseId": "raw-frame-name-id-cache",
+      "status": "optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "raw-frame-name-id-cache",
+        "warmups": 24,
+        "iterations": 6,
+        "elements": 128,
+        "eventCount": 2180,
+        "checksum": 1331061553,
+        "sink": 368977443
+      },
+      "optimizedFunctions": [
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "assertTextAllowedOutsideDocumentElement",
+        "consumeRawFrame",
+        "foldString",
+        "mixChecksum",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseStartTag",
+        "parseTag",
+        "re"
+      ],
+      "deoptCount": 15,
+      "warmupDeoptCount": 15,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "patternCounts": {
+        "CallApiCallback": 0,
+        "CEntry": 25,
+        "TypedArrayPrototypeSubArray": 4,
+        "TextDecoderDecode": 0,
+        "LoadIC": 0,
+        "KeyedLoadIC": 0,
+        "StoreIC": 0,
+        "KeyedStoreIC": 0,
+        "Runtime": 0,
+        "DeoptExit": 528
+      },
+      "optCodeFiles": [
+        {
+          "functionName": "consumePublicAccessor",
+          "bytes": 48379,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-consumePublicAccessor-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrameDirect",
+          "bytes": 54204,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-consumeRawFrameDirect-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrameNameIdCache",
+          "bytes": 40569,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-consumeRawFrameNameIdCache-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{31,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "consumeRawFrame",
+          "bytes": 364068,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-consumeRawFrame-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 20,
+            "TypedArrayPrototypeSubArray": 4,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 504
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{29,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "materializeName",
+          "bytes": 40558,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-materializeName-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "decodeSpan",
+          "bytes": 51119,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-decodeSpan-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 0,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 0
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        },
+        {
+          "functionName": "foldString",
+          "bytes": 95935,
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\monomorphic-shape-release\\raw-frame-name-id-cache-foldString-optcode.log",
+          "riskCounts": {
+            "CallApiCallback": 0,
+            "CEntry": 5,
+            "TypedArrayPrototypeSubArray": 0,
+            "TextDecoderDecode": 0,
+            "LoadIC": 0,
+            "KeyedLoadIC": 0,
+            "StoreIC": 0,
+            "KeyedStoreIC": 0,
+            "Runtime": 0,
+            "DeoptExit": 24
+          },
+          "sourceSnippets": [
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:p) id{28,-1} start{15737} ---\r",
+              "source": "(e){return e===32||e===9||e===10||e===13}\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/benchmark/v8-monomorphic-shape-trace.mjs:foldString) id{25,-1} start{27629} ---\r",
+              "source": "(seed, value) {\r"
+            },
+            {
+              "header": "--- FUNCTION SOURCE (file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js:re) id{30,-1} start{19475} ---\r",
+              "source": "(e,t){let n=e.byteLength,r=0;for(let i=t;i<n;i++){let t=e[i];if(t===34||t===39){if(r===0){r=t;continue}else if(r===t){r=0;continue}continue}if(t===62&&r===0)return i}return-1}\r"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "post-warmup-deopt-gate",
+      "summary": "Records whether each reader shape deoptimized after the warmup marker in this Node/V8 run.",
+      "evidence": [
+        "public-accessor: status=optimized-no-post-warmup-deopt, postWarmupDeopts=0",
+        "raw-frame-direct-decode: status=optimized-no-post-warmup-deopt, postWarmupDeopts=0",
+        "raw-frame-name-id-cache: status=optimized-no-post-warmup-deopt, postWarmupDeopts=0"
+      ]
+    },
+    {
+      "id": "optimized-code-risk-signals",
+      "summary": "Counts selected V8 optimized-code/runtime/native-call signals in filtered optcode logs.",
+      "evidence": [
+        "public-accessor: CEntry=22, TypedArrayPrototypeSubArray=1, DeoptExit=432",
+        "raw-frame-direct-decode: CEntry=45, TypedArrayPrototypeSubArray=8, DeoptExit=988",
+        "raw-frame-name-id-cache: CEntry=25, TypedArrayPrototypeSubArray=4, DeoptExit=528"
+      ]
+    }
+  ]
+}
