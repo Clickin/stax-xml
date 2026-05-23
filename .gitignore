@@ -22,6 +22,7 @@ packages/*/coverage
 packages/*/.cache
 packages/*/node_modules
 packages/benchmark/*.log
+packages/benchmark/results/machine-code-comparison/
 packages/benchmark/native/
 packages/benchmark/external/*/target/
 packages/benchmark/external/woodstox/dependency-reduced-pom.xml
