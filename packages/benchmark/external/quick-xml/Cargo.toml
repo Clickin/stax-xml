@@ -6,3 +6,6 @@ publish = false
 
 [dependencies]
 quick-xml = "0.40.1"
+
+[features]
+count-allocations = []

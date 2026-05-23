@@ -32,7 +32,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
 
   assert.match(claimRow(markdown, 'CLAIM-JS-RUNTIME-LIMIT-200MIB'), /\| `HYPOTHESIS` \|/);
   assert.match(claimRow(markdown, 'CLAIM-WOODSTOX-SAME-JS-OBJECTS'), /\| `COUNTEREXAMPLE` \|/);
-  assert.match(claimRow(markdown, 'CLAIM-QUICKXML-SAME-DATA'), /\| `SOURCE_FACT` \+ `BENCH_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-QUICKXML-SAME-DATA'), /\| `SOURCE_FACT` \+ `BENCH_FACT` \+ partial `TRACE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-QUICKXML-SAME-JS-OBJECTS'), /\| `COUNTEREXAMPLE` \|/);
   assert.match(claimRow(markdown, 'CLAIM-LAZY-GETTERS'), /\| `NEGATIVE_RESULT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-JS-STRING-ZERO-COPY'), /\| `ENGINE_INVARIANT`/);
@@ -44,6 +44,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /woodstox-jfr-allocation\.md/);
   assert.match(markdown, /woodstox-measured-jfr-allocation\.md/);
   assert.match(markdown, /quick-xml-shape-audit\.md/);
+  assert.match(markdown, /quick-xml-allocation-count\.md/);
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
   assert.match(markdown, /v8-allocation-sampling\.md/);
@@ -65,6 +66,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does not cover Bun\/JSC or browser engines/);
   assert.match(markdown, /not a global runtime-limit\s+proof/);
   assert.match(markdown, /not an allocation profile or machine-code\s+trace/);
+  assert.match(markdown, /Rust global allocator counter/);
+  assert.match(markdown, /170,824\s+allocation operations/);
+  assert.match(markdown, /borrowed-vs-owned `Cow<str>` frequency/);
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
   assert.match(markdown, /sampled JFR allocation stacks/);
   assert.match(markdown, /TextBuffer\.contentsAsString/);

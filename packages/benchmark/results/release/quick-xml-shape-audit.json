@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-23T09:14:11.331Z",
+  "generatedAt": "2026-05-23T11:27:53.117Z",
   "objective": "quick-xml-shape-audit",
   "contract": "source-shape-audit",
   "note": "Source-level shape audit for Rust + quick-xml comparator. This is not an allocation profile or machine-code trace.",
@@ -196,11 +196,11 @@
       ]
     },
     {
-      "id": "allocation-still-missing",
+      "id": "allocation-not-covered-by-source-audit",
       "classification": "MISSING_TRACE_FACT",
-      "summary": "This audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.",
+      "summary": "This source audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.",
       "evidence": [
-        "Need heap/allocation profiler or symbol/asm profile before attributing quick-xml speed to allocation shape."
+        "Use quick-xml-allocation-count.md for measured allocator counters; stack/type attribution and Cow borrowed-vs-owned frequency still require separate evidence."
       ]
     }
   ]

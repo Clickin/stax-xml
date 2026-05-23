@@ -40,7 +40,7 @@ test('quick-xml shape audit records source facts without claiming allocation pro
   assert.equal(report.checks.allSupported, true);
   assert.ok(report.findings.some(entry => entry.id === 'not-js-object-shape'));
   assert.ok(report.findings.some(entry => entry.id === 'attribute-vector-materialization'));
-  assert.ok(report.findings.some(entry => entry.id === 'allocation-still-missing'));
+  assert.ok(report.findings.some(entry => entry.id === 'allocation-not-covered-by-source-audit'));
   assert.equal(report.baseline.quickXml.eventCount, 967967);
   assert.equal(report.baseline.quickXml.checksum, -746772258);
 
@@ -49,5 +49,6 @@ test('quick-xml shape audit records source facts without claiming allocation pro
   assert.match(markdown, /SOURCE_FACT/);
   assert.match(markdown, /Cow<str>/);
   assert.match(markdown, /not an allocation profile/);
+  assert.match(markdown, /quick-xml-allocation-count\.md/);
   assert.match(markdown, /not-js-object-shape/);
 });

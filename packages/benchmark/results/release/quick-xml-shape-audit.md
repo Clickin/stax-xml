@@ -1,6 +1,6 @@
 # quick-xml Shape Audit
 
-Generated: 2026-05-23T09:14:11.331Z
+Generated: 2026-05-23T11:27:53.117Z
 
 This report is a SOURCE_FACT for the Rust + quick-xml comparator shape.
 It is not an allocation profile, machine-code trace, or proof that JavaScript runtime headroom is exhausted.
@@ -55,5 +55,5 @@ It is not an allocation profile, machine-code trace, or proof that JavaScript ru
   - text-decodes-to-cow-str: event.decode()?
   - text-decodes-to-cow-str: BytesText::decode -> Cow<str>
   - text-decodes-to-cow-str: Decoder::decode -> Cow<str>
-- allocation-still-missing (MISSING_TRACE_FACT): This audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.
-  - Need heap/allocation profiler or symbol/asm profile before attributing quick-xml speed to allocation shape.
+- allocation-not-covered-by-source-audit (MISSING_TRACE_FACT): This source audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.
+  - Use quick-xml-allocation-count.md for measured allocator counters; stack/type attribution and Cow borrowed-vs-owned frequency still require separate evidence.

@@ -1,22 +1,95 @@
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::Reader;
+#[cfg(feature = "count-allocations")]
+use std::alloc::{GlobalAlloc, Layout, System};
 use std::borrow::Cow;
 use std::env;
 use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::PathBuf;
 use std::process;
+#[cfg(feature = "count-allocations")]
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::Instant;
+
+#[cfg(feature = "count-allocations")]
+struct CountingAllocator;
+
+#[cfg(feature = "count-allocations")]
+static TRACK_ALLOCATIONS: AtomicBool = AtomicBool::new(false);
+#[cfg(feature = "count-allocations")]
+static ALLOC_COUNT: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+static ALLOC_BYTES: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+static DEALLOC_COUNT: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+static DEALLOC_BYTES: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+static REALLOC_COUNT: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+static REALLOC_BYTES_IN: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+static REALLOC_BYTES_OUT: AtomicU64 = AtomicU64::new(0);
+
+#[cfg(feature = "count-allocations")]
+#[global_allocator]
+static GLOBAL: CountingAllocator = CountingAllocator;
+
+#[cfg(feature = "count-allocations")]
+unsafe impl GlobalAlloc for CountingAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        let ptr = unsafe { System.alloc(layout) };
+        if TRACK_ALLOCATIONS.load(Ordering::Relaxed) && !ptr.is_null() {
+            ALLOC_COUNT.fetch_add(1, Ordering::Relaxed);
+            ALLOC_BYTES.fetch_add(layout.size() as u64, Ordering::Relaxed);
+        }
+        ptr
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        if TRACK_ALLOCATIONS.load(Ordering::Relaxed) && !ptr.is_null() {
+            DEALLOC_COUNT.fetch_add(1, Ordering::Relaxed);
+            DEALLOC_BYTES.fetch_add(layout.size() as u64, Ordering::Relaxed);
+        }
+        unsafe {
+            System.dealloc(ptr, layout);
+        }
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        let next = unsafe { System.realloc(ptr, layout, new_size) };
+        if TRACK_ALLOCATIONS.load(Ordering::Relaxed) && !next.is_null() {
+            REALLOC_COUNT.fetch_add(1, Ordering::Relaxed);
+            REALLOC_BYTES_IN.fetch_add(layout.size() as u64, Ordering::Relaxed);
+            REALLOC_BYTES_OUT.fetch_add(new_size as u64, Ordering::Relaxed);
+        }
+        next
+    }
+}
 
 struct Options {
     file: PathBuf,
     runs: usize,
     warmups: usize,
+    count_allocations: bool,
 }
 
 struct ConsumeResult {
     event_count: i64,
     checksum: i32,
+}
+
+#[cfg(feature = "count-allocations")]
+#[derive(Clone, Copy)]
+struct AllocationStats {
+    alloc_count: u64,
+    alloc_bytes: u64,
+    dealloc_count: u64,
+    dealloc_bytes: u64,
+    realloc_count: u64,
+    realloc_bytes_in: u64,
+    realloc_bytes_out: u64,
 }
 
 fn main() {
@@ -28,6 +101,10 @@ fn main() {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let options = parse_args()?;
+    #[cfg(not(feature = "count-allocations"))]
+    if options.count_allocations {
+        return Err("--count-allocations requires the count-allocations cargo feature".into());
+    }
     let size_bytes = fs::metadata(&options.file)?.len();
     let size_mib = size_bytes as f64 / 1024.0 / 1024.0;
 
@@ -36,11 +113,23 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let mut samples_ms = Vec::with_capacity(options.runs);
+    #[cfg(feature = "count-allocations")]
+    let mut allocation_samples = Vec::with_capacity(options.runs);
     let mut stable: Option<ConsumeResult> = None;
     for _ in 0..options.runs {
+        #[cfg(feature = "count-allocations")]
+        if options.count_allocations {
+            reset_allocation_stats();
+            TRACK_ALLOCATIONS.store(true, Ordering::SeqCst);
+        }
         let started_at = Instant::now();
         let result = consume(&options.file)?;
         let elapsed_ms = started_at.elapsed().as_secs_f64() * 1000.0;
+        #[cfg(feature = "count-allocations")]
+        if options.count_allocations {
+            TRACK_ALLOCATIONS.store(false, Ordering::SeqCst);
+            allocation_samples.push(snapshot_allocation_stats());
+        }
         if let Some(previous) = &stable {
             if previous.event_count != result.event_count || previous.checksum != result.checksum {
                 return Err("quick-xml produced unstable event count or checksum".into());
@@ -68,7 +157,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         print!("{}", json_f64(*sample));
     }
-    println!("]}}");
+    print!("]");
+    #[cfg(feature = "count-allocations")]
+    if options.count_allocations {
+        print!(",\"allocationSamples\":[");
+        for (index, sample) in allocation_samples.iter().enumerate() {
+            if index > 0 {
+                print!(",");
+            }
+            print_allocation_sample(sample);
+        }
+        print!("],\"allocationSummary\":");
+        print_allocation_sample(&sum_allocation_samples(&allocation_samples));
+    }
+    println!("}}");
 
     Ok(())
 }
@@ -78,6 +180,7 @@ fn parse_args() -> Result<Options, Box<dyn std::error::Error>> {
     let mut file: Option<PathBuf> = None;
     let mut runs = 3usize;
     let mut warmups = 1usize;
+    let mut count_allocations = false;
     let mut index = 0usize;
 
     while index < args.len() {
@@ -95,6 +198,9 @@ fn parse_args() -> Result<Options, Box<dyn std::error::Error>> {
                 index += 1;
                 warmups = parse_usize(read_value(&args, index, arg)?, arg)?;
             }
+            "--count-allocations" => {
+                count_allocations = true;
+            }
             _ => return Err(format!("Unknown argument: {arg}").into()),
         }
         index += 1;
@@ -104,6 +210,7 @@ fn parse_args() -> Result<Options, Box<dyn std::error::Error>> {
         file: file.ok_or("--file is required")?,
         runs,
         warmups,
+        count_allocations,
     })
 }
 
@@ -254,4 +361,72 @@ fn json_f64(value: f64) -> String {
     } else {
         "null".to_string()
     }
+}
+
+#[cfg(feature = "count-allocations")]
+fn reset_allocation_stats() {
+    ALLOC_COUNT.store(0, Ordering::SeqCst);
+    ALLOC_BYTES.store(0, Ordering::SeqCst);
+    DEALLOC_COUNT.store(0, Ordering::SeqCst);
+    DEALLOC_BYTES.store(0, Ordering::SeqCst);
+    REALLOC_COUNT.store(0, Ordering::SeqCst);
+    REALLOC_BYTES_IN.store(0, Ordering::SeqCst);
+    REALLOC_BYTES_OUT.store(0, Ordering::SeqCst);
+}
+
+#[cfg(feature = "count-allocations")]
+fn snapshot_allocation_stats() -> AllocationStats {
+    AllocationStats {
+        alloc_count: ALLOC_COUNT.load(Ordering::SeqCst),
+        alloc_bytes: ALLOC_BYTES.load(Ordering::SeqCst),
+        dealloc_count: DEALLOC_COUNT.load(Ordering::SeqCst),
+        dealloc_bytes: DEALLOC_BYTES.load(Ordering::SeqCst),
+        realloc_count: REALLOC_COUNT.load(Ordering::SeqCst),
+        realloc_bytes_in: REALLOC_BYTES_IN.load(Ordering::SeqCst),
+        realloc_bytes_out: REALLOC_BYTES_OUT.load(Ordering::SeqCst),
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+fn sum_allocation_samples(samples: &[AllocationStats]) -> AllocationStats {
+    let mut total = AllocationStats {
+        alloc_count: 0,
+        alloc_bytes: 0,
+        dealloc_count: 0,
+        dealloc_bytes: 0,
+        realloc_count: 0,
+        realloc_bytes_in: 0,
+        realloc_bytes_out: 0,
+    };
+    for sample in samples {
+        total.alloc_count += sample.alloc_count;
+        total.alloc_bytes += sample.alloc_bytes;
+        total.dealloc_count += sample.dealloc_count;
+        total.dealloc_bytes += sample.dealloc_bytes;
+        total.realloc_count += sample.realloc_count;
+        total.realloc_bytes_in += sample.realloc_bytes_in;
+        total.realloc_bytes_out += sample.realloc_bytes_out;
+    }
+    total
+}
+
+#[cfg(feature = "count-allocations")]
+fn print_allocation_sample(sample: &AllocationStats) {
+    let total_allocated_bytes = sample.alloc_bytes + sample.realloc_bytes_out;
+    let total_released_bytes = sample.dealloc_bytes + sample.realloc_bytes_in;
+    let net_alloc_bytes = total_allocated_bytes as i128 - total_released_bytes as i128;
+    print!(
+        "{{\"allocCount\":{},\"allocBytes\":{},\"deallocCount\":{},\"deallocBytes\":{},\"reallocCount\":{},\"reallocBytesIn\":{},\"reallocBytesOut\":{},\"allocationOperations\":{},\"totalAllocatedBytes\":{},\"totalReleasedBytes\":{},\"netAllocatedBytes\":{}}}",
+        sample.alloc_count,
+        sample.alloc_bytes,
+        sample.dealloc_count,
+        sample.dealloc_bytes,
+        sample.realloc_count,
+        sample.realloc_bytes_in,
+        sample.realloc_bytes_out,
+        sample.alloc_count + sample.realloc_count,
+        total_allocated_bytes,
+        total_released_bytes,
+        net_alloc_bytes
+    );
 }

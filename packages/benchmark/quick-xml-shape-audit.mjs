@@ -299,10 +299,10 @@ function createFindings(checks, baseline) {
       evidence: evidenceFor(checks, ['text-decodes-to-cow-str']),
     },
     {
-      id: 'allocation-still-missing',
+      id: 'allocation-not-covered-by-source-audit',
       classification: 'MISSING_TRACE_FACT',
-      summary: 'This audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.',
-      evidence: ['Need heap/allocation profiler or symbol/asm profile before attributing quick-xml speed to allocation shape.'],
+      summary: 'This source audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.',
+      evidence: ['Use quick-xml-allocation-count.md for measured allocator counters; stack/type attribution and Cow borrowed-vs-owned frequency still require separate evidence.'],
     },
   ];
 
