@@ -29,6 +29,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Wide-Cycle Candidate Headroom Matrix/);
+  assert.match(markdown, /## Current Evidence: 1 GiB Projection-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
@@ -55,6 +56,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-CORPUS-CYCLE-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-CORPUS-CYCLE-1GIB'), /\| `BENCH_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-PROJECTION'), /\| `BENCH_FACT` for current low-selectivity rows; `HYPOTHESIS` for broad workloads \|/);
 
   assert.doesNotMatch(markdown, /JavaScript runtimes cannot exceed 200 MiB\/s/i);
   assert.match(markdown, /full-string parity candidate that reaches 200 MiB\/s\+ with bounded memory/);
@@ -77,6 +79,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-candidate-headroom-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-large-stability\.md/);
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
+  assert.match(markdown, /candidate-headroom-projection-large\.md/);
+  assert.match(markdown, /bun-candidate-headroom-projection-large\.md/);
   assert.match(markdown, /candidate-headroom-corpus\.md/);
   assert.match(markdown, /bun-candidate-headroom-corpus\.md/);
   assert.match(markdown, /browser-candidate-headroom-large\.md/);
@@ -170,6 +174,22 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /still not a full-string 200 MiB\/s counterexample/);
   assert.match(markdown, /older 200 MiB\/s\+ partial rows should not be treated as stable current\s+evidence/);
   assert.match(markdown, /`eventObjectFull` reported `34\.09 MiB\/s`/);
+  assert.match(markdown, /1\.00 GiB `projection-cycle` fixture/);
+  assert.match(markdown, /Low selectivity selects `\/root\/book\[@code="7"\]`/);
+  assert.match(markdown, /high\s+selectivity selects every `\/root\/book`/);
+  assert.match(markdown, /Node\/V8\s+reported 60,416,563 stream events and full-row checksum `1441552024`/);
+  assert.match(markdown, /fastest\s+full row was `rawFrameNameId` at `82\.91 MiB\/s`/);
+  assert.match(markdown, /public `eventObjectFull`\s+was `57\.67 MiB\/s`/);
+  assert.match(markdown, /Bun\/JSC preserved the same stream-event count and checksum/);
+  assert.match(markdown, /fastest full row was `rawFrameNameId` at `84\.68 MiB\/s`/);
+  assert.match(markdown, /public\s+`eventObjectFull` was `63\.29 MiB\/s`/);
+  assert.match(markdown, /Node\/V8 `projectionLowSelectivity` reported\s+`127\.79 MiB\/s`, 33,382 records, checksum `-403434369`, 66,764 selected string\s+fields, and max RSS `156\.1 MiB`/);
+  assert.match(markdown, /`projectionHighSelectivity` reported\s+`99\.60 MiB\/s`, 3,179,819 records, checksum `-2078190377`, 6,359,638 selected\s+string fields, and max RSS `156\.1 MiB`/);
+  assert.match(markdown, /Bun\/JSC `projectionLowSelectivity`\s+reported `126\.08 MiB\/s`/);
+  assert.match(markdown, /`projectionHighSelectivity` reported `75\.84 MiB\/s`/);
+  assert.match(markdown, /Bun\/JSC `scanAllNoDecode` row in this same artifact reached `245\.41 MiB\/s`/);
+  assert.match(markdown, /it drops all strings/);
+  assert.match(markdown, /selected-field projection rows are headroom evidence, not full StAX counterexamples/);
   assert.match(markdown, /The 512 MiB row\s+succeeded at 74\.19 MiB\/s/);
   assert.match(markdown, /peak RSS 1\.07 GiB/);
   assert.match(markdown, /RangeError: Invalid string length/);

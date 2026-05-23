@@ -180,6 +180,93 @@ test('large candidate headroom matrix supports a corpus-cycle fixture seed', () 
   assert.match(markdown, /corpus-cycle-fixture/);
 });
 
+test('large candidate headroom matrix includes projection rows on projection fixtures', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [jsonOut, mdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'candidate-headroom-large.mjs'),
+    '--size-gib',
+    '0.001',
+    '--fixture-shape',
+    'projection-cycle',
+    '--diverse-cycle-size',
+    '64',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.objective, 'candidate-headroom-large');
+  assert.equal(report.fixture.shape, 'projection-cycle');
+  assert.deepEqual(report.variants.map(entry => entry.id), [
+    'scanAllNoDecode',
+    'nameStringOnly',
+    'textStringOnly',
+    'attrNameStringOnly',
+    'attrValueStringOnly',
+    'stringFull',
+    'eventObjectFull',
+    'cursorAccessor',
+    'rawFrameDirect',
+    'rawFrameNameId',
+    'projectionLowSelectivity',
+    'projectionHighSelectivity',
+  ]);
+  assert.ok(!report.omittedRows.some(entry => entry.id === 'projectionLowSelectivity'));
+  assert.ok(!report.omittedRows.some(entry => entry.id === 'projectionHighSelectivity'));
+  assert.equal(report.projectionParity.status, 'ok');
+  assert.deepEqual(report.projectionParity.rowIds, ['projectionLowSelectivity', 'projectionHighSelectivity']);
+
+  const streamRows = report.variants.filter(entry => entry.eventCountKind === 'stream-events');
+  assert.ok(streamRows.every(entry => entry.eventCount === report.eventCountParity.eventCount));
+
+  const low = report.variants.find(entry => entry.id === 'projectionLowSelectivity');
+  const high = report.variants.find(entry => entry.id === 'projectionHighSelectivity');
+  assert.equal(low.family, 'projection-js');
+  assert.equal(high.family, 'projection-js');
+  assert.equal(low.eventCountKind, 'projected-records');
+  assert.equal(high.eventCountKind, 'projected-records');
+  assert.equal(low.fullStringParity, false);
+  assert.equal(high.fullStringParity, false);
+  assert.ok(low.eventCount > 0);
+  assert.ok(high.eventCount > low.eventCount);
+  assert.equal(low.materializationCounters.projectedRecords, low.eventCount);
+  assert.equal(high.materializationCounters.projectedRecords, high.eventCount);
+  assert.equal(low.materializationCounters.projectionFieldReads, low.eventCount * 2);
+  assert.equal(high.materializationCounters.projectionFieldReads, high.eventCount * 2);
+  assert.equal(low.materializationCounters.attrValueStringReads, low.eventCount);
+  assert.equal(high.materializationCounters.attrValueStringReads, high.eventCount);
+  assert.equal(low.materializationCounters.textStringReads, low.eventCount);
+  assert.equal(high.materializationCounters.textStringReads, high.eventCount);
+  assert.equal(low.runtimeLimitCounterexampleEligible, false);
+  assert.equal(high.runtimeLimitCounterexampleEligible, false);
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /projectionLowSelectivity/);
+  assert.match(markdown, /projectionHighSelectivity/);
+  assert.match(markdown, /Projection rows report projected record counts/);
+  assert.match(markdown, /selects `\/root\/book\[@code="7"\]`/);
+  assert.match(markdown, /selects every `\/root\/book`/);
+});
+
 test('large candidate headroom matrix renders multi-run timing stability', () => {
   mkdirSync(tmpDir, { recursive: true });
   for (const filePath of [stabilityJsonOut, stabilityMdOut]) {
