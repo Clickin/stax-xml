@@ -1,0 +1,169 @@
+{
+  "generatedAt": "2026-05-23T21:38:08.516Z",
+  "objective": "chrome-v8-source-pin-audit",
+  "contract": "chrome-v8-exact-revision-string-boundary-source-lines",
+  "note": "Exact Chromium/V8 source-line pinning for browser string boundary evidence. These source facts constrain complete-string and external-string claims, but they are not throughput proof.",
+  "environment": {
+    "browserVersion": "Chrome/148.0.7778.179",
+    "v8Version": "14.8.178.22"
+  },
+  "source": {
+    "repository": "v8/v8",
+    "revision": "refs/tags/14.8.178.22",
+    "path": "include/v8-primitive.h",
+    "url": "https://chromium.googlesource.com/v8/v8/+/refs/tags/14.8.178.22/include/v8-primitive.h?format=TEXT",
+    "fetchedAt": "2026-05-23T21:38:08.515Z"
+  },
+  "derived": {
+    "x64MaxStringLengthCodeUnits": 536870888,
+    "formula": "(1 << 29) - 24",
+    "projectedBrowserStringLimitAuditCodeUnits": 1072245626,
+    "projectedExcessCodeUnits": 535374738
+  },
+  "anchors": {
+    "kMaxLength": {
+      "status": "found",
+      "label": "String::kMaxLength",
+      "lineNumber": 126,
+      "context": [
+        {
+          "lineNumber": 124,
+          "text": "class V8_EXPORT String : public Name {"
+        },
+        {
+          "lineNumber": 125,
+          "text": " public:"
+        },
+        {
+          "lineNumber": 126,
+          "text": "  static constexpr int kMaxLength ="
+        },
+        {
+          "lineNumber": 127,
+          "text": "      internal::kApiSystemPointerSize == 4 ? (1 << 28) - 16 : (1 << 29) - 24;"
+        },
+        {
+          "lineNumber": 128,
+          "text": ""
+        }
+      ]
+    },
+    "newFromUtf8": {
+      "status": "found",
+      "label": "String::NewFromUtf8",
+      "lineNumber": 485,
+      "context": [
+        {
+          "lineNumber": 483,
+          "text": "  /** Allocates a new string from UTF-8 data. Only returns an empty value when"
+        },
+        {
+          "lineNumber": 484,
+          "text": "   * length > kMaxLength. **/"
+        },
+        {
+          "lineNumber": 485,
+          "text": "  static V8_WARN_UNUSED_RESULT MaybeLocal<String> NewFromUtf8("
+        },
+        {
+          "lineNumber": 486,
+          "text": "      Isolate* isolate, const char* data,"
+        },
+        {
+          "lineNumber": 487,
+          "text": "      NewStringType type = NewStringType::kNormal, int length = -1);"
+        }
+      ]
+    },
+    "externalResourceDispose": {
+      "status": "found",
+      "label": "external string resource Dispose",
+      "lineNumber": 300,
+      "context": [
+        {
+          "lineNumber": 298,
+          "text": ""
+        },
+        {
+          "lineNumber": 299,
+          "text": "    /**"
+        },
+        {
+          "lineNumber": 300,
+          "text": "     * Internally V8 will call this Dispose method when the external string"
+        },
+        {
+          "lineNumber": 301,
+          "text": "     * resource is no longer needed. The default implementation will use the"
+        },
+        {
+          "lineNumber": 302,
+          "text": "     * delete operator. This method can be overridden in subclasses to"
+        }
+      ]
+    },
+    "newExternalOneByte": {
+      "status": "found",
+      "label": "String::NewExternalOneByte",
+      "lineNumber": 550,
+      "context": [
+        {
+          "lineNumber": 548,
+          "text": "   * destructor of the external string resource."
+        },
+        {
+          "lineNumber": 549,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 550,
+          "text": "  static V8_WARN_UNUSED_RESULT MaybeLocal<String> NewExternalOneByte("
+        },
+        {
+          "lineNumber": 551,
+          "text": "      Isolate* isolate, ExternalOneByteStringResource* resource);"
+        },
+        {
+          "lineNumber": 552,
+          "text": ""
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "browser-v8-string-max-length-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The exact Chromium/V8 source used by the browser artifact pins String::kMaxLength to the 64-bit V8 formula used by the browser string-limit audit.",
+      "evidence": [
+        "String::kMaxLength line 126",
+        "x64 formula resolves to 536,870,888 UTF-16 code units."
+      ]
+    },
+    {
+      "id": "new-from-utf8-allocating-api-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "The V8 public UTF-8 string creation API is pinned at this revision for source-level string-boundary discussion.",
+      "evidence": [
+        "String::NewFromUtf8 line 485"
+      ]
+    },
+    {
+      "id": "external-string-resource-lifetime-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "The external-string API remains a resource-lifetime contract, not a portable parser-owned byte-span-to-primitive-string escape hatch.",
+      "evidence": [
+        "External resource Dispose line 300",
+        "NewExternalOneByte line 550"
+      ]
+    },
+    {
+      "id": "source-pin-not-throughput-proof",
+      "classification": "SOURCE_FACT_LIMIT",
+      "summary": "Source-line pinning constrains string-size and ownership claims, but it does not prove that Chrome/V8 or JavaScript runtimes have no remaining performance headroom.",
+      "evidence": [
+        "Keep runtime-limit claims below CONCLUSION until broader counterexample searches and runtime traces are complete."
+      ]
+    }
+  ]
+}
