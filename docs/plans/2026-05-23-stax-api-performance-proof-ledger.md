@@ -43,6 +43,41 @@ Rules:
 - `byteFull` is an upper bound only when it avoids string materialization.
   `stringFull` remains the realistic parity metric for string-return claims.
 
+## Runtime-Limit Conclusion Gate
+
+`CLAIM-JS-RUNTIME-LIMIT-200MIB` may not move from `HYPOTHESIS` to
+`CONCLUSION` merely because current full-string benchmark rows are slow. The
+claim needs a proof bundle that separates static runtime invariants from failed
+counterexample searches.
+
+Required proof obligations:
+
+- Define the target shape as a full-string StAX-like reader contract, not as
+  identical object shape across languages. Woodstox and quick-xml remain
+  comparator rows through semantic fields, event count, and checksum parity,
+  not through JavaScript object-shape parity.
+- List every serious JavaScript counterexample family tested: public event
+  objects, stream/index accessors, raw frame direct decode, raw frame name-id
+  cache, cursor-like accessors, TextDecoder span variants, complete-string
+  references, projection rows as separated non-StAX headroom evidence, and any
+  runtime-specific optional lanes.
+- Pin source facts for the exact runtime builds used in the benchmark claim:
+  string primitive ownership, ordinary string creation/copy boundaries,
+  TextDecoder/span-view behavior where source evidence is available, and
+  maximum string-size boundaries where complete-string input is discussed.
+- Pair source facts with runtime evidence: JIT/codegen/profiler/allocation
+  captures for the relevant implementation shapes on each claimed engine.
+- Require 1 GiB+ same-contract benchmark rows with memory gates across enough
+  fixtures and runtimes to make the claim scope explicit. A single engine, a
+  single generated cycle, or a single negative micro-variant is not sufficient.
+- Treat any 200 MiB/s+ bounded-memory full-string JavaScript row as a
+  counterexample. Treat partial byte-scan, projection, and Node-only rows as
+  narrower headroom evidence unless they preserve the full StAX contract.
+
+Current allowed statement: the present artifacts have not found a
+200 MiB/s+ bounded-memory full-string JavaScript counterexample. They do not
+prove that JavaScript runtimes have no further headroom.
+
 ## Current Claims
 
 | ID | Claim | Status | Current evidence | Missing proof or counterexample search |
@@ -60,6 +95,7 @@ Rules:
 | `CLAIM-BROWSER-V8-BYTE-BATCH-1GIB` | Headless Chrome/V8 can run the generated 1 GiB neutral `Uint8Array`/`TextDecoder` byte-batch matrix, but it does not find a 200 MiB/s full-string StAX counterexample. | `BENCH_FACT` | `packages/benchmark/results/release/browser-candidate-headroom-large.md` records Chrome 148.0.0.0 HeadlessChrome/V8 over the same generated 1.00 GiB `diverse-cycle` byte-batch fixture shape as the Node/Bun candidate matrix after adding the public `eventObjectFull` row. The fastest partial row was `scanAllNoDecode` at `96.64 MiB/s`; the fastest full-string parity row was `rawFrameNameId` at `43.45 MiB/s`. `eventObjectFull` reported `33.10 MiB/s`, 45,189,256 public event objects, checksum `1421012805`, and max used JS heap `38.8 MiB`. The report records Chromium `performance.memory` JS heap endpoints and separate Windows host process-tree counters: max working set `522.1 MiB` and private bytes `283.9 MiB`. | This covers one headless Chromium/V8 build and one generated fixture only. Browser variant memory is JS heap, while host process-tree memory is Windows-specific and not portable browser RSS. It does not cover Safari/JSC, Firefox/SpiderMonkey, independent browser corpus suites, projection rows, browser codegen traces, or non-V8 browser allocation traces. |
 | `CLAIM-BROWSER-V8-CORPUS-CYCLE-1GIB` | Headless Chrome/V8 can run the 1 GiB `treebank_e.xml` corpus-cycle byte-batch matrix, but it does not find a 200 MiB/s full-string StAX counterexample. | `BENCH_FACT` | `packages/benchmark/results/release/browser-candidate-headroom-corpus.md` records Chrome 148.0.0.0 HeadlessChrome/V8 over the same 85.4 MiB `treebank_e.xml` seed repeated to 1.00 GiB after adding the public `eventObjectFull` row. The fastest partial row was `scanAllNoDecode` at `95.80 MiB/s`; the fastest full-string parity row was `stringFull` at `30.38 MiB/s`, with `rawFrameDirect` at `30.29 MiB/s`, `cursorAccessor` at `30.07 MiB/s`, `rawFrameNameId` at `29.05 MiB/s`, and `eventObjectFull` at `28.92 MiB/s`. Full rows preserved 75,206,126 events and checksum `-925527041`, and `eventObjectFull` counted 75,206,126 public event objects. The report records Chromium `performance.memory` JS heap endpoints; `stringFull` max used heap was `349.8 MiB`, `eventObjectFull` was `358.4 MiB`, and `rawFrameNameId` was `345.8 MiB`. It also records separate Windows host process-tree counters: max working set `865.8 MiB` and private bytes `689.2 MiB`. | This covers one headless Chromium/V8 build and one repeated corpus seed only. Browser variant memory is JS heap, while host process-tree memory is Windows-specific and not portable browser RSS or ArrayBuffer external-memory proof. It does not cover Safari/JSC, Firefox/SpiderMonkey, additional corpus fixtures, projection rows, browser codegen traces, or non-V8 browser allocation traces. |
 | `CLAIM-BROWSER-V8-COMPLETE-STRING-1GIB` | Headless Chrome/V8 cannot use the complete-string `EventReaderSync` shape as the 1 GiB generated reader path in the current browser artifact. | `BENCH_FACT` + `SOURCE_FACT` | `packages/benchmark/results/release/browser-string-limit-audit.md` records Chrome 148.0.0.0 / CDP Chrome 148.0.7778.179 / V8 14.8.178.22 over the same generated `diverse-cycle` fixture projection. A 64 MiB complete-string control row parsed through browser `EventReaderSync` at `81.08 MiB/s`, with 2,824,406 public event objects, checksum `288962256`, 6,419,100 string-field reads, and max used JS heap `150.2 MiB`. The projected 1024 MiB complete XML string requires 1,072,245,626 UTF-16 code units and failed string construction before parsing with `RangeError: Invalid string length`. `packages/benchmark/results/release/chrome-v8-source-pin-audit.md` pins the matching official V8 14.8.178.22 source tag: `String::kMaxLength` line 126 with the x64 formula `(1 << 29) - 24`, `String::NewFromUtf8` line 485, external resource `Dispose` line 300, and `NewExternalOneByte` line 550. | This is a browser complete-string boundary for one Chromium/V8 build, not a byte-batch ceiling. It does not cover Safari/JSC or Firefox/SpiderMonkey. |
+| `CLAIM-TEXTDECODER-SPAN-VARIANTS` | Browser-compatible `Uint8Array` + `TextDecoder` span-view variants do not currently reveal a 200 MiB/s full-string 1 GiB counterexample on Node/V8 or Bun/JSC. | `BENCH_FACT` | `packages/benchmark/results/release/textdecoder-span-variants.md` records Node v24.15.0 / V8 13.6.233.17-node.48 over the generated 1.00 GiB `diverse-cycle` byte-batch fixture. All rows preserved 45,189,256 events and checksum `1421012805` under the same full-string materialization contract. Pure TextDecoder rows reported `37.33 MiB/s` for `subarraySharedDecoder`, `35.66 MiB/s` for `viewSharedDecoder`, `30.52 MiB/s` for `sliceCopySharedDecoder`, and `32.80 MiB/s` for `subarrayNewDecoder`; the diagnostic short-ASCII+subarray row reported `51.60 MiB/s`. `packages/benchmark/results/release/bun-textdecoder-span-variants.md` repeats the same script and contract on Bun 1.3.13 / JavaScriptCore WebKit `4d5e75ebd84a14edbc7ae264245dcd77fe597c10`: `subarraySharedDecoder` reported `40.31 MiB/s`, `viewSharedDecoder` `33.44 MiB/s`, `sliceCopySharedDecoder` `30.04 MiB/s`, `subarrayNewDecoder` `21.27 MiB/s`, and short-ASCII+subarray `47.67 MiB/s`. Both artifacts state that they do not use Node `Buffer.toString()`, native addons, or lazy getters. | This partially closes the TextDecoder-variant counterexample search only for Node/V8 and Bun/JSC on one generated fixture. It is not browser-engine coverage, not codegen/source proof of TextDecoder internals, not a corpus suite, not a stability rerun, and not an impossibility proof. |
 | `CLAIM-JS-RUNTIME-LIMIT-200MIB` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory on 1 GiB+ XML. | `HYPOTHESIS` | Current full-string rows are still below that target; monomorphic raw-frame access improves but remains below Woodstox. The regenerated 1 GiB Node/V8 generated candidate matrix found no 200 MiB/s row: fastest partial `scanAllNoDecode` was 122.37 MiB/s, fastest full-string parity `rawFrameNameId` was 55.85 MiB/s, and public `eventObjectFull` was 39.45 MiB/s. A same-process Node/V8 3-run stability rerun recorded fastest full `rawFrameNameId` at 58.48 MiB/s with 0.7% timing spread and public `eventObjectFull` at 43.75 MiB/s with 2.7% spread; it still found no 200 MiB/s full-row counterexample. The regenerated Bun/JSC generated matrices also found no 200 MiB/s row: fastest partial rows were 176.15 MiB/s and 175.02 MiB/s, fastest full `rawFrameNameId` rows were 57.99 MiB/s and 60.51 MiB/s, and public `eventObjectFull` rows were 37.27 MiB/s and 34.09 MiB/s. A same-process Bun/JSC 3-run stability rerun recorded fastest full `rawFrameNameId` at 58.73 MiB/s with 2.2% timing spread and public `eventObjectFull` at 37.63 MiB/s with 2.9% spread; it still found no 200 MiB/s full-row counterexample. The projection-cycle matrix adds selected-field workload rows: Node/V8 fastest full `rawFrameNameId` was 82.91 MiB/s, public `eventObjectFull` was 57.67 MiB/s, low-selectivity projection was 127.79 MiB/s, and high-selectivity projection was 99.60 MiB/s; Bun/JSC fastest full `rawFrameNameId` was 84.68 MiB/s, public `eventObjectFull` was 63.29 MiB/s, low-selectivity projection was 126.08 MiB/s, and high-selectivity projection was 75.84 MiB/s. Same-process projection-cycle stability reruns still found no full-row 200 MiB/s counterexample: Node/V8 `rawFrameNameId` was 82.47 MiB/s with 0.7% spread and `eventObjectFull` was 59.93 MiB/s with 5.6% spread; Bun/JSC `rawFrameNameId` was 83.10 MiB/s with 0.5% spread and `eventObjectFull` was 62.14 MiB/s with 1.0% spread. Node/V8 projection rows reported low/high selectivity at 128.02 MiB/s and 99.34 MiB/s; Bun/JSC projection rows reported 125.90 MiB/s and 89.98 MiB/s, with high 31.6% spread on the Bun/JSC high-selectivity row. A fresh-process Node/Bun/Deno 3x projection rerun still found no full-row 200 MiB/s counterexample: Node/V8 averaged 90.40 MiB/s for `stringFull`, 57.56 MiB/s for `eventObjectFull`, 82.01 MiB/s for `rawFrameNameId`, 128.98 MiB/s for low-selectivity projection, and 99.42 MiB/s for high-selectivity projection; Bun/JSC averaged 97.67 MiB/s, 63.09 MiB/s, 83.82 MiB/s, 125.78 MiB/s, and 69.87 MiB/s for the same rows; Deno/V8 averaged 87.42 MiB/s, 56.53 MiB/s, 76.92 MiB/s, 120.77 MiB/s, and 91.39 MiB/s. The older Bun/JSC projection-cycle partial `scanAllNoDecode` single-run row reached 245.41 MiB/s, but it drops all strings and did not reproduce as a 200 MiB/s+ average in the stability artifact. The corpus-cycle matrix adds a less synthetic countercheck: Node/V8 fastest full `rawFrameNameId` was 77.00 MiB/s with public `eventObjectFull` at 61.80 MiB/s, and Bun/JSC fastest full `rawFrameNameId` was 76.08 MiB/s with public `eventObjectFull` at 62.08 MiB/s but unbounded RSS. The browser Chrome/V8 generated 1 GiB matrix found fastest partial `scanAllNoDecode` at 96.64 MiB/s, fastest full parity `rawFrameNameId` at 43.45 MiB/s, and public `eventObjectFull` at 33.10 MiB/s; the browser Chrome/V8 corpus-cycle matrix found fastest partial `scanAllNoDecode` at 95.80 MiB/s, fastest full parity `stringFull` at 30.38 MiB/s, and public `eventObjectFull` at 28.92 MiB/s; the browser Chrome/V8 projection-cycle matrix found fastest partial `scanAllNoDecode` at 128.27 MiB/s, fastest full parity `rawFrameNameId` at 60.32 MiB/s, public `eventObjectFull` at 48.12 MiB/s, low-selectivity projection at 104.33 MiB/s, and high-selectivity projection at 69.37 MiB/s. A same-process Chrome/V8 projection-cycle stability rerun recorded fastest full `rawFrameNameId` at 60.12 MiB/s with 1.0% spread and public `eventObjectFull` at 47.42 MiB/s with 6.0% spread; low-selectivity projection was 103.92 MiB/s with 1.7% spread, and high-selectivity projection was 72.07 MiB/s with 4.8% spread. A fresh-browser-process Chrome/V8 3x projection rerun averaged 63.63 MiB/s for `stringFull`, 48.33 MiB/s for `eventObjectFull`, 60.34 MiB/s for `rawFrameNameId`, 104.64 MiB/s for low-selectivity projection, and 70.78 MiB/s for high-selectivity projection. The Chrome/V8 browser allocation-sampling artifact recorded same-contract 16 MiB diverse-cycle rows at 67.61 MiB/s for `stringFull`, 51.44 MiB/s for public `eventObjectFull`, and 65.85 MiB/s for `rawFrameNameId`, with sampled allocation totals of 119.8 KiB, 41.7 KiB, and 73.0 KiB. Browser variant memory evidence is JS heap, and browser host process-tree evidence is Windows-specific. The Node/V8 complete-string reference hit a 1024 MiB string-length failure; the browser Chrome/V8 string-limit audit also failed the projected 1024 MiB complete XML string before parsing with `RangeError: Invalid string length` after a 64 MiB browser `EventReaderSync` control row at 81.08 MiB/s; the Bun/JSC complete-string row parsed 1 GiB at 47.88 MiB/s but used 13.45 GiB peak RSS. | Must expand the candidate matrix before this can become a conclusion: TextDecoder variants, V8/JSC/browser codegen traces, Safari/JSC and Firefox/SpiderMonkey rows, non-V8 browser allocation profiles, non-V8 browser projection rows, and more independent real/corpus 1 GiB+ fixtures. Any 200 MiB/s+ bounded-memory full-string JS row is a counterexample for the StAX claim; partial 200 MiB/s+ rows and selected-field projection rows are headroom evidence, not full StAX counterexamples. |
 | `CLAIM-CURRENT-HOTPATH` | Current full-string cost is dominated above the parser core, around string/accessor/materialization work. | `BENCH_FACT` + partial `TRACE_FACT` | Prior count/access/full splits, current monomorphic raw-frame benchmark with materialization counters, object-shape parity benchmark, Node/V8, Bun/JSC, and browser Chrome/V8 1 GiB candidate headroom matrices, Node/V8 and Bun/JSC EventReaderSync string-input large benchmarks, 1 GiB generated byte-batch shape run, V8 monomorphic shape trace, 16 MiB V8 allocation sampling, 16 MiB V8 projection-cycle allocation sampling, 1 GiB generated byte-batch V8 allocation sampling, 16 MiB browser Chrome/V8 allocation sampling, and 64 MiB Bun/JSC CPU-profiler sampling show accessor/materialization/object-shape/input-boundary deltas without parser-core changes. V8/JSC captures show calls around public accessors and string decode paths. | Need Bun/JSC codegen/IR trace, browser codegen traces, non-V8 browser allocation traces, non-V8 browser rows, and more large less-repetitive fixtures before turning the hotpath explanation into a runtime-limit conclusion. |
 | `CLAIM-LAZY-GETTERS` | Lazy event getters are not a current optimization candidate. | `NEGATIVE_RESULT` | Runtime triage rejects lazy getters because they help count-only paths while destabilizing cache consistency. Projection design also excludes lazy getters on projected records. `packages/benchmark/results/release/materialization-contract-audit.md` carries this as a guardrail so object-shape confusion does not reopen lazy getters by default. | This rejection can be revisited only with a benchmark that proves full-string or real StAX consumer improvement, bounded memory, and no cache-shape regression. |
@@ -1204,6 +1240,38 @@ finite cycle, the run count is one, and the evidence remains Node/V8 statistical
 self-size sampling rather than browser/JSC/Bun coverage or a deterministic
 allocation census.
 
+## Current Evidence: TextDecoder Span Variant Matrix
+
+`packages/benchmark/results/release/textdecoder-span-variants.md` and
+`packages/benchmark/results/release/bun-textdecoder-span-variants.md` are
+1 GiB `BENCH_FACT` artifacts for a browser-compatible decode-span
+counterexample search. They use the same generated `diverse-cycle` byte-batch
+fixture, the same full-string checksum contract, `warmups=0`, `runs=1`, and a
+512 MiB bounded-RSS reporting gate. They explicitly avoid Node
+`Buffer.toString()`, native addons, and lazy getters.
+
+The Node/V8 artifact preserved 45,189,256 events and checksum `1421012805` on
+all rows. Pure `TextDecoder.decode` rows reported 37.33 MiB/s for
+`subarraySharedDecoder`, 35.66 MiB/s for `viewSharedDecoder`, 30.52 MiB/s for
+`sliceCopySharedDecoder`, and 32.80 MiB/s for `subarrayNewDecoder`. The
+diagnostic `shortAsciiSubarraySharedDecoder` row reported 51.60 MiB/s by
+reducing `TextDecoder` calls from 102,702,850 to 12,215,015. All rows remained
+bounded under the artifact's 512 MiB RSS gate.
+
+The Bun/JSC artifact preserved the same event count and checksum. Pure
+`TextDecoder.decode` rows reported 40.31 MiB/s for `subarraySharedDecoder`,
+33.44 MiB/s for `viewSharedDecoder`, 30.04 MiB/s for `sliceCopySharedDecoder`,
+and 21.27 MiB/s for `subarrayNewDecoder`. The diagnostic
+`shortAsciiSubarraySharedDecoder` row reported 47.67 MiB/s, again with
+12,215,015 `TextDecoder` calls and 90,487,835 short-ASCII hits. All rows
+remained bounded under the artifact's 512 MiB RSS gate.
+
+These rows close one concrete "try TextDecoder span shapes first" hole, but
+they do not prove a runtime ceiling. They cover one generated fixture, one run
+per runtime, no browser engine, no TextDecoder source/codegen proof, and no
+independent corpus fixture. Slow rows reject only their exact span strategy
+under this boundary.
+
 ## Required Proof Tracks
 
 ### Track A: Comparator Shape Proof
@@ -1267,6 +1335,9 @@ Minimum rows:
 - `rawFrameDirect`
 - `rawFrameNameId`
 - `cursorAccessor`
+- TextDecoder span variants (`subarraySharedDecoder`, `viewSharedDecoder`,
+  `sliceCopySharedDecoder`, `subarrayNewDecoder`, and a clearly marked
+  short-ASCII diagnostic row)
 - `projectionLowSelectivity`
 - `projectionHighSelectivity`
 
@@ -1303,11 +1374,12 @@ Acceptance:
    1 GiB Chrome/V8 generated, Node/Bun/Chrome-V8 projection-cycle,
    Node/Bun/Chrome-V8 projection-cycle stability, Node/Bun/Deno fresh-process
    projection-cycle, Chrome/V8 fresh-browser-process projection-cycle,
-   Node/Bun treebank corpus-cycle, Chrome/V8 treebank corpus-cycle, and
-   Chrome/V8 browser allocation-sampling artifacts: add non-V8 browser
-   projection rows, additional independent corpus fixtures, broader
-   browser/runtime rows, and non-V8 browser allocation sampling only where
-   profiler overhead is acceptable for the claim being tested.
+   Node/Bun treebank corpus-cycle, Chrome/V8 treebank corpus-cycle, Node/Bun
+   TextDecoder span variants, and Chrome/V8 browser allocation-sampling
+   artifacts: add non-V8 browser TextDecoder/projection rows, additional
+   independent corpus fixtures, broader browser/runtime rows, and non-V8 browser
+   allocation sampling only where profiler overhead is acceptable for the claim
+   being tested.
 4. Capture Bun/JSC codegen/IR traces for `raw-frame-name-id-cache` and the
    200 MiB/s+ partial byte-batch rows; for non-V8 browser/Safari claims, pin
    string-boundary and maximum-string source facts for the exact tested browser
