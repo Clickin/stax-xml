@@ -18,6 +18,13 @@ string values for Node without moving the bottleneck back to per-event
 materialization. The other lines are treated as rejected unless new benchmark
 evidence contradicts the existing measurements.
 
+Claim strength for this note is governed by
+`docs/plans/2026-05-23-stax-api-performance-proof-ledger.md`. This note is a
+triage document, not a proof that JavaScript runtimes have no remaining
+headroom. Runtime-source facts and prior negative results narrow the candidate
+space; they do not by themselves prove that a 200 MiB/s+ bounded-memory
+StAX-like reader is impossible.
+
 ## Current Evidence
 
 The release benchmark on Node 24.15.0 / V8 13.6.233.17-node.48 shows the

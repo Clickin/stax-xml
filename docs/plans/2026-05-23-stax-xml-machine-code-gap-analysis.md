@@ -11,6 +11,13 @@ full event traversal, full relevant string materialization, event-count parity,
 and checksum parity. It deliberately does not compare a checksum-only shortcut
 against a fully materialized parser path.
 
+Claim strength for this note is governed by
+`docs/plans/2026-05-23-stax-api-performance-proof-ledger.md`. In particular,
+runtime-source facts, trace facts, benchmark facts, negative results, and
+hypotheses must not be collapsed into a language-limit conclusion. The current
+evidence does not prove that JavaScript runtimes cannot reach a 200 MiB/s+
+bounded-memory StAX-like reader shape.
+
 Native addon work is excluded for this analysis. It should not be revived as a
 candidate until native code can safely and stably construct JavaScript events
 plus UTF-16 or UTF-8 string values for Node. Tokenizer-only native throughput is
