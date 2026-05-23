@@ -178,6 +178,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /browser-textdecoder-span-variants\.md/);
   assert.match(markdown, /textdecoder-span-variants-corpus\.md/);
   assert.match(markdown, /bun-textdecoder-span-variants-corpus\.md/);
+  assert.match(markdown, /browser-textdecoder-span-variants-corpus\.md/);
   assert.match(markdown, /subarraySharedDecoder` reported `40\.31 MiB\/s`/);
   assert.match(markdown, /HeadlessChrome 148\.0\.0\.0 \/ browser V8/);
   assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 16\.63 MiB\/s for\s+`subarraySharedDecoder`/);
@@ -187,6 +188,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 69\.16 MiB\/s/);
   assert.match(markdown, /every Bun\/JSC\s+corpus row was unbounded under the 512 MiB RSS gate/);
   assert.match(markdown, /1\.41 GiB to 3\.05 GiB/);
+  assert.match(markdown, /Chrome\/V8 browser corpus artifact preserved the same event count and\s+checksum/);
+  assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 19\.30 MiB\/s for\s+`subarraySharedDecoder`/);
+  assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 30\.57 MiB\/s/);
+  assert.match(markdown, /All browser\s+corpus rows remained bounded under the artifact's 512 MiB JS heap gate/);
+  assert.match(markdown, /max used JS heap from 327\.2 MiB to 332\.7 MiB/);
+  assert.match(markdown, /host process-tree max working set 805\.0 MiB and max private bytes 635\.0 MiB/);
+  assert.doesNotMatch(markdown, /no browser corpus row for this specific TextDecoder\s+matrix/);
   assert.match(markdown, /shortAsciiSubarraySharedDecoder` row reported 51\.60 MiB\/s/);
   assert.match(markdown, /12,215,015 `TextDecoder` calls and 90,487,835 short-ASCII hits/);
   assert.match(markdown, /TextDecoder span variants \(`subarraySharedDecoder`, `viewSharedDecoder`,/);

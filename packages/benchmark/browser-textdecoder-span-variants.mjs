@@ -585,7 +585,7 @@ function createReport(browserResult, options, hostProcessMemory) {
 function createFindings(fixture, variants, hostProcessMemory) {
   const fastest = maxBy(variants, entry => entry.mibPerSec);
   const counterexamples = variants.filter(entry => entry.runtimeLimitCounterexampleEligible);
-  return [
+  const findings = [
     {
       id: 'same-full-string-contract',
       status: 'BENCH_FACT',
@@ -619,16 +619,27 @@ function createFindings(fixture, variants, hostProcessMemory) {
       summary: `Fixture is ${fixture.source === 'generated' ? 'generated' : 'corpus-backed'} ${formatBytes(fixture.actualBytes)} ${fixture.shape}; broaden browser engines and corpus coverage before drawing global conclusions.`,
     },
   ];
+  if (fixture.source === 'corpus-file') {
+    findings.push({
+      id: 'corpus-cycle-fixture',
+      status: 'BENCH_FACT',
+      summary: 'The browser fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows.',
+    });
+  }
+  return findings;
 }
 
 function renderMarkdown(report) {
   const fastest = maxBy(report.variants, entry => entry.mibPerSec);
+  const corpusBacked = report.fixture.source === 'corpus-file';
   const lines = [
     '# Browser TextDecoder Span Variant Matrix',
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This experiment compares browser-compatible `Uint8Array` + `TextDecoder` span materialization variants under the same full-string checksum contract.',
+    corpusBacked
+      ? 'This experiment compares browser-compatible `Uint8Array` + `TextDecoder` span materialization variants over corpus-backed browser `Uint8Array` batches under the same full-string checksum contract.'
+      : 'This experiment compares browser-compatible `Uint8Array` + `TextDecoder` span materialization variants under the same full-string checksum contract.',
     'Every row folds event type, element names, text/CDATA, attribute names, and attribute values.',
     'It does not use Node `Buffer.toString()`, does not use native addons, and does not use lazy getters.',
     'Variant memory uses browser JS heap. Host process-tree memory is reported separately when available.',

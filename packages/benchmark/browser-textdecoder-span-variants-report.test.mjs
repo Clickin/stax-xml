@@ -10,6 +10,8 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'browser-textdecoder-span-variants-report-test.json');
 const mdOut = join(tmpDir, 'browser-textdecoder-span-variants-report-test.md');
+const corpusJsonOut = join(tmpDir, 'browser-textdecoder-span-variants-corpus-report-test.json');
+const corpusMdOut = join(tmpDir, 'browser-textdecoder-span-variants-corpus-report-test.md');
 
 test('browser TextDecoder span variants stay on the same full-string contract', (t) => {
   const browserExecutable = findBrowserExecutable();
@@ -106,6 +108,68 @@ test('browser TextDecoder span variants stay on the same full-string contract', 
   assert.match(markdown, /does not use native addons/);
   assert.match(markdown, /does not use lazy getters/);
   assert.match(markdown, /not a proof that JavaScript runtimes have no further headroom/);
+});
+
+test('browser TextDecoder span variants support a corpus-cycle fixture seed', (t) => {
+  const browserExecutable = findBrowserExecutable();
+  if (!browserExecutable) {
+    t.skip('Chrome or Edge executable was not found.');
+    return;
+  }
+
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [corpusJsonOut, corpusMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'browser-textdecoder-span-variants.mjs'),
+    '--browser-executable',
+    browserExecutable,
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'corpus-cycle',
+    '--corpus-file',
+    join(__dirname, 'assets', 'books.xml'),
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--json-out',
+    corpusJsonOut,
+    '--md-out',
+    corpusMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 120_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(corpusJsonOut, 'utf8'));
+  assert.equal(report.objective, 'browser-textdecoder-span-variants');
+  assert.equal(report.contract, 'browser-full-string-textdecoder-span-variant-headroom');
+  assert.equal(report.fixture.generated, false);
+  assert.equal(report.fixture.source, 'corpus-file');
+  assert.equal(report.fixture.shape, 'corpus-cycle');
+  assert.equal(report.fixture.rowCycleSize, 1);
+  assert.equal(report.fixture.batchSize, 1);
+  assert.match(report.fixture.sourceFile, /books\.xml$/);
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.equal(report.eventCountParity.status, 'ok');
+  assert.ok(report.variants.every(entry => entry.fullStringParity));
+  assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
+
+  const markdown = readFileSync(corpusMdOut, 'utf8');
+  assert.match(markdown, /corpus-backed browser `Uint8Array` batches/);
+  assert.match(markdown, /Fixture source: corpus-file/);
+  assert.match(markdown, /Source file: .*books\.xml/);
+  assert.match(markdown, /corpus-cycle-fixture/);
 });
 
 function findBrowserExecutable() {
