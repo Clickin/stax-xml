@@ -73,6 +73,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /candidate-headroom-matrix\.md/);
   assert.match(markdown, /candidate-headroom-large\.md/);
+  assert.match(markdown, /candidate-headroom-large-stability\.md/);
   assert.match(markdown, /bun-candidate-headroom-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /candidate-headroom-corpus\.md/);
@@ -141,6 +142,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /45,189,256 public\s+event objects/);
   assert.match(markdown, /below the artifact's\s+512 MiB bounded-RSS reporting gate/);
   assert.match(markdown, /No 200 MiB\/s bounded-memory counterexample was found in this Node\/V8 1 GiB\s+matrix/);
+  assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
+  assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
+  assert.match(markdown, /timing spread was\s+high at `25\.2%`/);
+  assert.match(markdown, /`eventObjectFull` reported `43\.75 MiB\/s` with `2\.7%` spread/);
+  assert.match(markdown, /`rawFrameNameId` reported `58\.48 MiB\/s` with `0\.7%` spread/);
+  assert.match(markdown, /max RSS was `103\.6 MiB` for `stringFull`, `206\.2 MiB` for\s+`eventObjectFull`, and `220\.9 MiB` for `rawFrameNameId`/);
   assert.match(markdown, /regenerated Bun\/JSC partial rows did not reproduce the previous 200 MiB\/s\+/);
   assert.match(markdown, /`scanAllNoDecode` reached `176\.15 MiB\/s` with\s+max RSS `199\.6 MiB`/);
   assert.match(markdown, /`eventObjectFull` reported `37\.27 MiB\/s`/);

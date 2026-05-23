@@ -10,6 +10,8 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'candidate-headroom-large-report-test.json');
 const mdOut = join(tmpDir, 'candidate-headroom-large-report-test.md');
+const stabilityJsonOut = join(tmpDir, 'candidate-headroom-large-stability-report-test.json');
+const stabilityMdOut = join(tmpDir, 'candidate-headroom-large-stability-report-test.md');
 
 test('large candidate headroom matrix preserves bounded byte-batch contract', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -176,4 +178,48 @@ test('large candidate headroom matrix supports a corpus-cycle fixture seed', () 
   assert.match(markdown, /Fixture source: corpus-file/);
   assert.match(markdown, /Source file: .*books\.xml/);
   assert.match(markdown, /corpus-cycle-fixture/);
+});
+
+test('large candidate headroom matrix renders multi-run timing stability', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [stabilityJsonOut, stabilityMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'candidate-headroom-large.mjs'),
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'diverse-cycle',
+    '--diverse-cycle-size',
+    '16',
+    '--runs',
+    '2',
+    '--warmups',
+    '0',
+    '--json-out',
+    stabilityJsonOut,
+    '--md-out',
+    stabilityMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(stabilityJsonOut, 'utf8'));
+  assert.equal(report.options.runs, 2);
+  assert.ok(report.variants.every(entry => entry.samplesMs.length === 2));
+
+  const markdown = readFileSync(stabilityMdOut, 'utf8');
+  assert.match(markdown, /## Timing Stability/);
+  assert.match(markdown, /Rows with `runs > 1` report same-process timing spread/);
+  assert.match(markdown, /\| eventObjectFull \| 2 \|/);
+  assert.match(markdown, /\| rawFrameNameId \| 2 \|/);
 });
