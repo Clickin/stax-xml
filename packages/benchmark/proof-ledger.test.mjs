@@ -44,6 +44,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
   assert.match(markdown, /v8-allocation-sampling\.md/);
+  assert.match(markdown, /event-reader-object/);
   assert.match(markdown, /stream-reader-1gb-shapes\.md/);
   assert.match(markdown, /not an allocation profile/);
   assert.match(markdown, /not prove a 200 MiB\/s JavaScript runtime ceiling/);
@@ -51,5 +52,5 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does not cover Bun\/JSC or browser engines/);
   assert.match(markdown, /not a global runtime-limit\s+proof/);
   assert.match(markdown, /not an allocation profile or machine-code\s+trace/);
-  assert.match(markdown, /does not prove a\s+JavaScript runtime ceiling/);
+  assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
 });

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { StreamEventType, StreamReaderSync } from 'stax-xml';
+import { EventReaderSync, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
 
 const MIB = 1024 * 1024;
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -12,9 +12,10 @@ const defaultOutputDir = join(__dirname, 'results', 'v8-allocation', 'monomorphi
 const defaultJsonOut = join(__dirname, 'results', 'release', 'v8-allocation-sampling.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'v8-allocation-sampling.md');
 const textEncoder = new TextEncoder();
-const caseIds = ['public-accessor', 'raw-frame-direct-decode', 'raw-frame-name-id-cache'];
+const caseIds = ['public-accessor', 'event-reader-object', 'raw-frame-direct-decode', 'raw-frame-name-id-cache'];
 const targetFunctions = new Set([
   'consumePublicAccessor',
+  'consumeEventReaderObject',
   'consumeRawFrameDirect',
   'consumeRawFrameNameIdCache',
   'consumeRawFrame',
@@ -127,7 +128,7 @@ async function main() {
 
   const cases = [];
   for (const caseId of options.cases) {
-    cases.push(await sampleCase(caseId, fixture.bytes, options));
+    cases.push(await sampleCase(caseId, fixture, options));
   }
 
   const report = createReport({ options, fixture, cases });
@@ -138,10 +139,12 @@ async function main() {
 
 function loadFixture(options) {
   if (options.selfTest) {
-    const bytes = textEncoder.encode(makeXml(options.elements));
+    const xml = makeXml(options.elements);
+    const bytes = textEncoder.encode(xml);
     return {
       source: 'self-test-generated',
       file: null,
+      xml,
       bytes,
       byteLength: bytes.byteLength,
     };
@@ -151,17 +154,19 @@ function loadFixture(options) {
     throw new Error(`Benchmark fixture does not exist: ${options.file}`);
   }
   const bytes = readFileSync(options.file);
+  const xml = readFileSync(options.file, 'utf8');
   return {
     source: 'file',
     file: options.file,
+    xml,
     bytes,
     byteLength: statSync(options.file).size,
   };
 }
 
-async function sampleCase(caseId, bytes, options) {
+async function sampleCase(caseId, fixture, options) {
   for (let index = 0; index < options.warmups; index++) {
-    consumeCase(caseId, bytes);
+    consumeCase(caseId, fixture);
   }
 
   globalThis.gc?.();
@@ -173,7 +178,7 @@ async function sampleCase(caseId, bytes, options) {
     let stable;
     for (let index = 0; index < options.iterations; index++) {
       const startedAt = performance.now();
-      const result = consumeCase(caseId, bytes);
+      const result = consumeCase(caseId, fixture);
       const elapsedMs = performance.now() - startedAt;
       if (stable && (stable.eventCount !== result.eventCount || stable.checksum !== result.checksum)) {
         throw new Error(`${caseId} produced unstable event count or checksum.`);
@@ -263,7 +268,7 @@ function createReport({ options, fixture, cases }) {
     generatedAt: new Date().toISOString(),
     objective: 'v8-allocation-sampling',
     contract: 'inspector-heapprofiler-sampling',
-    note: 'V8 inspector HeapProfiler allocation sampling for monomorphic JavaScript reader shapes. Sampling is statistical and runtime-specific.',
+    note: 'V8 inspector HeapProfiler allocation sampling for full-string JavaScript reader shapes. Sampling is statistical and runtime-specific.',
     environment: {
       node: process.version,
       v8: process.versions.v8,
@@ -317,8 +322,16 @@ function createFindings(cases) {
     {
       id: 'sampled-allocation-shape',
       classification: 'TRACE_FACT',
-      summary: 'HeapProfiler sampled JavaScript allocation bytes per monomorphic shape in this Node/V8 build.',
+      summary: 'HeapProfiler sampled JavaScript allocation bytes per full-string reader shape in this Node/V8 build.',
       evidence: cases.map(entry => `${entry.caseId}: sampledBytes=${entry.sampledBytes}, targetFunctionBytes=${entry.targetFunctionBytes}, staxXmlSourceBytes=${entry.staxXmlSourceBytes}`),
+    },
+    {
+      id: 'sampling-attribution-limit',
+      classification: 'TRACE_FACT_LIMIT',
+      summary: 'Function/source byte attribution is based on sampled self-size frames and can attribute work to native frames instead of the JavaScript caller.',
+      evidence: [
+        'A zero source-byte bucket in this report does not mean the reader performed no work or allocated no values.',
+      ],
     },
     {
       id: 'allocation-sampling-not-ceiling-proof',
@@ -415,14 +428,16 @@ function printSummary(report) {
   }
 }
 
-function consumeCase(caseId, bytes) {
+function consumeCase(caseId, fixture) {
   switch (caseId) {
     case 'public-accessor':
-      return consumePublicAccessor(bytes);
+      return consumePublicAccessor(fixture.bytes);
+    case 'event-reader-object':
+      return consumeEventReaderObject(fixture.xml);
     case 'raw-frame-direct-decode':
-      return consumeRawFrameDirect(bytes);
+      return consumeRawFrameDirect(fixture.bytes);
     case 'raw-frame-name-id-cache':
-      return consumeRawFrameNameIdCache(bytes);
+      return consumeRawFrameNameIdCache(fixture.bytes);
     default:
       throw new Error(`Unknown case: ${caseId}`);
   }
@@ -474,6 +489,53 @@ function consumePublicAccessor(bytes) {
   }
 
   return { eventCount, checksum };
+}
+
+function consumeEventReaderObject(xml) {
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (const event of new EventReaderSync(xml)) {
+    const typeCode = publicEventTypeCode(event.type);
+    eventCount++;
+    checksum = mixChecksum(checksum, typeCode);
+
+    if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+      checksum = foldString(checksum, event.name);
+    }
+    if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+      checksum = foldString(checksum, event.value?.trim());
+    }
+    if (event.type === XmlEventType.START_ELEMENT) {
+      const entries = Object.entries(event.attributes);
+      checksum = mixChecksum(checksum, entries.length);
+      for (const [name, value] of entries) {
+        checksum = foldString(checksum, name);
+        checksum = foldString(checksum, value);
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function publicEventTypeCode(type) {
+  switch (type) {
+    case XmlEventType.START_DOCUMENT:
+      return 0;
+    case XmlEventType.END_DOCUMENT:
+      return 1;
+    case XmlEventType.START_ELEMENT:
+      return 2;
+    case XmlEventType.END_ELEMENT:
+      return 3;
+    case XmlEventType.CHARACTERS:
+      return 4;
+    case XmlEventType.CDATA:
+      return 5;
+    default:
+      return 6;
+  }
 }
 
 function consumeRawFrameDirect(bytes) {

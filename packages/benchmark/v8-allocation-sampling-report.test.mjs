@@ -43,12 +43,14 @@ test('V8 allocation sampling report records per-shape allocation evidence withou
   assert.equal(report.rawArtifacts.committed, false);
   assert.deepEqual(report.cases.map(entry => entry.caseId), [
     'public-accessor',
+    'event-reader-object',
     'raw-frame-direct-decode',
     'raw-frame-name-id-cache',
   ]);
   assert.ok(report.cases.every(entry => entry.eventCount === report.parity.eventCount));
   assert.ok(report.cases.every(entry => entry.checksum === report.parity.checksum));
   assert.ok(report.cases.every(entry => entry.sampledBytes >= 0));
+  assert.ok(report.findings.some(entry => entry.id === 'sampling-attribution-limit'));
   assert.ok(report.findings.some(entry => entry.id === 'allocation-sampling-not-ceiling-proof'));
 
   const markdown = readFileSync(mdOut, 'utf8');
