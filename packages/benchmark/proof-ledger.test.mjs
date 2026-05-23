@@ -175,7 +175,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /stream-reader-1gb-allocation-diverse-shapes\.md/);
   assert.match(markdown, /textdecoder-span-variants\.md/);
   assert.match(markdown, /bun-textdecoder-span-variants\.md/);
+  assert.match(markdown, /browser-textdecoder-span-variants\.md/);
   assert.match(markdown, /subarraySharedDecoder` reported `40\.31 MiB\/s`/);
+  assert.match(markdown, /HeadlessChrome 148\.0\.0\.0 \/ browser V8/);
+  assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 16\.63 MiB\/s for\s+`subarraySharedDecoder`/);
+  assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 39\.42 MiB\/s/);
+  assert.match(markdown, /max working set 480\.0 MiB and max private\s+bytes 240\.4 MiB/);
   assert.match(markdown, /shortAsciiSubarraySharedDecoder` row reported 51\.60 MiB\/s/);
   assert.match(markdown, /12,215,015 `TextDecoder` calls and 90,487,835 short-ASCII hits/);
   assert.match(markdown, /TextDecoder span variants \(`subarraySharedDecoder`, `viewSharedDecoder`,/);
