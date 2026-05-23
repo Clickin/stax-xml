@@ -14,6 +14,8 @@ const corpusJsonOut = join(tmpDir, 'browser-candidate-headroom-corpus-report-tes
 const corpusMdOut = join(tmpDir, 'browser-candidate-headroom-corpus-report-test.md');
 const projectionJsonOut = join(tmpDir, 'browser-candidate-headroom-projection-report-test.json');
 const projectionMdOut = join(tmpDir, 'browser-candidate-headroom-projection-report-test.md');
+const timingJsonOut = join(tmpDir, 'browser-candidate-headroom-timing-report-test.json');
+const timingMdOut = join(tmpDir, 'browser-candidate-headroom-timing-report-test.md');
 
 test('browser candidate headroom matrix records the same byte-batch contract', (t) => {
   const browserExecutable = findBrowserExecutable();
@@ -262,6 +264,59 @@ test('browser candidate headroom matrix includes projection rows on projection f
   assert.match(markdown, /Projection rows report projected record counts/);
   assert.match(markdown, /projectionLowSelectivity/);
   assert.match(markdown, /projectionHighSelectivity/);
+});
+
+test('browser candidate headroom matrix renders multi-run timing stability', (t) => {
+  const browserExecutable = findBrowserExecutable();
+  if (!browserExecutable) {
+    t.skip('Chrome or Edge executable was not found.');
+    return;
+  }
+
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [timingJsonOut, timingMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'browser-candidate-headroom.mjs'),
+    '--browser-executable',
+    browserExecutable,
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'projection-cycle',
+    '--diverse-cycle-size',
+    '16',
+    '--runs',
+    '2',
+    '--warmups',
+    '0',
+    '--json-out',
+    timingJsonOut,
+    '--md-out',
+    timingMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 120_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(timingJsonOut, 'utf8'));
+  assert.equal(report.options.runs, 2);
+  assert.ok(report.variants.every(entry => entry.samplesMs.length === 2));
+
+  const markdown = readFileSync(timingMdOut, 'utf8');
+  assert.match(markdown, /## Timing Stability/);
+  assert.match(markdown, /same-process timing spread/);
+  assert.match(markdown, /\| Variant \| Runs \| Avg ms \| Min ms \| Max ms \| Spread \| Samples ms \|/);
+  assert.match(markdown, /\| projectionLowSelectivity \| 2 \|/);
+  assert.match(markdown, /\| projectionHighSelectivity \| 2 \|/);
 });
 
 function findBrowserExecutable() {

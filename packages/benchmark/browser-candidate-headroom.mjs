@@ -832,6 +832,22 @@ function renderMarkdown(report) {
     );
   }
 
+  if (report.options.runs > 1) {
+    lines.push('');
+    lines.push('## Timing Stability');
+    lines.push('');
+    lines.push('Rows with `runs > 1` report same-process timing spread; this is variance evidence for the recorded browser build and machine, not a cross-process statistical proof.');
+    lines.push('');
+    lines.push('| Variant | Runs | Avg ms | Min ms | Max ms | Spread | Samples ms |');
+    lines.push('| --- | ---: | ---: | ---: | ---: | ---: | --- |');
+    for (const entry of report.variants) {
+      lines.push(
+        `| ${entry.id} | ${entry.samplesMs.length} | ${formatMs(entry.avgMs)} | ${formatMs(entry.minMs)} | `
+        + `${formatMs(entry.maxMs)} | ${formatPercent(timingSpreadRatio(entry))} | ${formatSamplesMs(entry.samplesMs)} |`,
+      );
+    }
+  }
+
   lines.push('');
   lines.push('## Memory');
   lines.push('');
@@ -944,6 +960,22 @@ function formatOptionalRatio(value) {
 
 function formatRate(value) {
   return `${value.toFixed(2)} MiB/s`;
+}
+
+function timingSpreadRatio(entry) {
+  return entry.avgMs > 0 ? (entry.maxMs - entry.minMs) / entry.avgMs : 0;
+}
+
+function formatMs(value) {
+  return value.toFixed(2);
+}
+
+function formatPercent(value) {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatSamplesMs(values) {
+  return values.map(formatMs).join(', ');
 }
 
 function formatBytes(value) {
