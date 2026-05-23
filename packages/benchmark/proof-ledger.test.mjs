@@ -28,6 +28,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Candidate Headroom Matrix/);
+  assert.match(markdown, /### Bun\/JSC CPU Profile/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Wide-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: 1 GiB Projection-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Projection-Cycle Candidate Headroom Matrix/);
@@ -84,6 +85,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /candidate-headroom-large-stability\.md/);
   assert.match(markdown, /bun-candidate-headroom-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-large-stability\.md/);
+  assert.match(markdown, /bun-jsc-cpu-profile\.md/);
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /candidate-headroom-projection-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-projection-large\.md/);
@@ -205,6 +207,19 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`rawFrameNameId` reported `58\.73 MiB\/s` with `2\.2%` spread/);
   assert.match(markdown, /max RSS was `185\.5 MiB` for `stringFull`, `180\.7 MiB` for `eventObjectFull`,\s+and `191\.8 MiB` for `rawFrameNameId`/);
   assert.match(markdown, /not a\s+cross-process statistical proof and it does not cover browsers, corpus fixtures,\s+projection rows, or Bun\/JSC machine-code\/allocation traces/);
+  assert.match(markdown, /64 MiB `TRACE_FACT`/);
+  assert.match(markdown, /collected 329 samples over 2,547\.57 ms/);
+  assert.match(markdown, /38\.78% in `stax-xml` bundled frames/);
+  assert.match(markdown, /`scanAllNoDecode` at 223\.32 MiB\/s/);
+  assert.match(markdown, /`stringFull` at 102\.29 MiB\/s/);
+  assert.match(markdown, /`eventObjectFull` at 73\.39 MiB\/s/);
+  assert.match(markdown, /`rawFrameNameId` at 108\.77 MiB\/s/);
+  assert.match(markdown, /full rows preserved 2,824,406 events and checksum `288962256`/);
+  assert.match(markdown, /materializePublicEventObject/);
+  assert.match(markdown, /not a JavaScriptCore codegen\/IR\/assembly trace/);
+  assert.match(markdown, /partial `scanAllNoDecode` row crosses\s+200 MiB\/s on this 64 MiB profiler run/);
+  assert.match(markdown, /drops all strings and is not a\s+full StAX counterexample/);
+  assert.match(markdown, /fastest full row, `rawFrameNameId`, remains below\s+200 MiB\/s/);
   assert.match(markdown, /65,536-row `diverse-cycle` fixture/);
   assert.match(markdown, /wide-cycle Bun\/JSC run is a cache-sensitivity check/);
   assert.match(markdown, /still not a full-string 200 MiB\/s counterexample/);

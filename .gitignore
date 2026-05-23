@@ -23,6 +23,7 @@ packages/*/.cache
 packages/*/node_modules
 packages/benchmark/*.log
 packages/benchmark/results/machine-code-comparison/
+packages/benchmark/results/bun-jsc-cpu-profile/
 packages/benchmark/results/woodstox-jfr/
 packages/benchmark/native/
 packages/benchmark/external/*/target/
