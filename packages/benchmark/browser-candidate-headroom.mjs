@@ -531,7 +531,7 @@ function createFindings(variants, fixture) {
   const fullRows = variants.filter(entry => entry.fullStringParity);
   const fastestPartial = maxBy(partialRows, entry => entry.mibPerSec);
   const fastestFull = maxBy(fullRows, entry => entry.mibPerSec);
-  return [
+  const findings = [
     {
       id: 'browser-byte-batch-contract',
       summary: fixture.source === 'corpus-file'
@@ -563,15 +563,30 @@ function createFindings(variants, fixture) {
       ],
     },
   ];
+  if (fixture.source === 'corpus-file') {
+    findings.push({
+      id: 'corpus-cycle-fixture',
+      summary: 'The browser fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows.',
+      evidence: [
+        `sourceFile=${fixture.sourceFile}`,
+        `sourceBytes=${fixture.maxRowBytes}`,
+        `actualBytes=${fixture.actualBytes}`,
+      ],
+    });
+  }
+  return findings;
 }
 
 function renderMarkdown(report) {
+  const corpusBacked = report.fixture.source === 'corpus-file';
   const lines = [
     '# Browser Candidate Headroom Matrix',
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This experiment is a browser-runtime counterexample search over browser `Uint8Array` batches.',
+    corpusBacked
+      ? 'This experiment is a browser-runtime counterexample search over corpus-backed browser `Uint8Array` batches.'
+      : 'This experiment is a browser-runtime counterexample search over generated browser `Uint8Array` batches.',
     'Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.',
     'Full rows preserve the event, name, text/CDATA, attribute name, attribute value, and UTF-16 checksum contract.',
     'Memory is browser JS heap only; it is not process RSS and must not be mixed with Node/Bun RSS rows as the same memory proof.',

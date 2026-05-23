@@ -10,6 +10,8 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'browser-candidate-headroom-report-test.json');
 const mdOut = join(tmpDir, 'browser-candidate-headroom-report-test.md');
+const corpusJsonOut = join(tmpDir, 'browser-candidate-headroom-corpus-report-test.json');
+const corpusMdOut = join(tmpDir, 'browser-candidate-headroom-corpus-report-test.md');
 
 test('browser candidate headroom matrix records the same byte-batch contract', (t) => {
   const browserExecutable = findBrowserExecutable();
@@ -89,6 +91,69 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   assert.match(markdown, /browser `Uint8Array` batches/);
   assert.match(markdown, /Memory is browser JS heap only/);
   assert.match(markdown, /Full-string parity rows: ok/);
+});
+
+test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (t) => {
+  const browserExecutable = findBrowserExecutable();
+  if (!browserExecutable) {
+    t.skip('Chrome or Edge executable was not found.');
+    return;
+  }
+
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [corpusJsonOut, corpusMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'browser-candidate-headroom.mjs'),
+    '--browser-executable',
+    browserExecutable,
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'corpus-cycle',
+    '--corpus-file',
+    join(__dirname, 'assets', 'books.xml'),
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--json-out',
+    corpusJsonOut,
+    '--md-out',
+    corpusMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 120_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(corpusJsonOut, 'utf8'));
+  assert.equal(report.objective, 'browser-candidate-headroom');
+  assert.equal(report.contract, 'browser-corpus-byte-batch-mixed-materialization-headroom-matrix');
+  assert.equal(report.environment.runtimeName, 'browser');
+  assert.equal(report.fixture.generated, false);
+  assert.equal(report.fixture.source, 'corpus-file');
+  assert.equal(report.fixture.shape, 'corpus-cycle');
+  assert.equal(report.fixture.rowCycleSize, 1);
+  assert.equal(report.fixture.batchSize, 1);
+  assert.match(report.fixture.sourceFile, /books\.xml$/);
+  assert.equal(report.eventCountParity.status, 'ok');
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.ok(report.variants.every(entry => entry.memory?.scope === 'browser-js-heap'));
+  assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
+
+  const markdown = readFileSync(corpusMdOut, 'utf8');
+  assert.match(markdown, /corpus-backed browser `Uint8Array` batches/);
+  assert.match(markdown, /Fixture source: corpus-file/);
+  assert.match(markdown, /Source file: .*books\.xml/);
+  assert.match(markdown, /corpus-cycle-fixture/);
 });
 
 function findBrowserExecutable() {
