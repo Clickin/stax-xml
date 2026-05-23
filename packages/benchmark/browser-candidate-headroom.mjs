@@ -14,7 +14,9 @@ const externalBaselinePath = resolve(__dirname, 'results', 'release', 'external-
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'browser-candidate-headroom-large.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'browser-candidate-headroom-large.md');
 const defaultCorpusFile = resolve(__dirname, '../stax-xml/performance/samples/treebank_e.xml');
-const distIndexPath = resolve(__dirname, '../stax-xml/dist/index.js');
+const distDir = resolve(__dirname, '../stax-xml/dist');
+const distIndexPath = resolve(distDir, 'index.js');
+const distProjectionPath = resolve(distDir, 'projection.js');
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -92,14 +94,17 @@ function parseArgs(argv = process.argv.slice(2)) {
     }
   }
 
-  if (!['repeated-person', 'diverse-cycle', 'corpus-cycle'].includes(options.fixtureShape)) {
-    throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle, corpus-cycle.');
+  if (!['repeated-person', 'diverse-cycle', 'corpus-cycle', 'projection-cycle'].includes(options.fixtureShape)) {
+    throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle, corpus-cycle, projection-cycle.');
   }
   if (!options.browserExecutable || !existsSync(options.browserExecutable)) {
     throw new Error('Chrome or Edge executable was not found. Pass --browser-executable or set CHROME_PATH/EDGE_PATH.');
   }
   if (!existsSync(distIndexPath)) {
     throw new Error(`Built browser module does not exist: ${distIndexPath}. Run pnpm --filter stax-xml build first.`);
+  }
+  if (!existsSync(distProjectionPath)) {
+    throw new Error(`Built browser projection module does not exist: ${distProjectionPath}. Run pnpm --filter stax-xml build first.`);
   }
   if (options.fixtureShape === 'corpus-cycle' && !existsSync(options.corpusFile)) {
     throw new Error(`--corpus-file does not exist: ${options.corpusFile}`);
@@ -187,6 +192,20 @@ async function startBenchmarkServer(options) {
     if (url.pathname === '/stax/index.js') {
       sendFile(response, distIndexPath, 'text/javascript; charset=utf-8');
       return;
+    }
+    if (url.pathname === '/stax/projection.js') {
+      sendFile(response, distProjectionPath, 'text/javascript; charset=utf-8');
+      return;
+    }
+    if (url.pathname.startsWith('/stax/') && url.pathname.endsWith('.js')) {
+      const fileName = url.pathname.slice('/stax/'.length);
+      if (!fileName.includes('/') && !fileName.includes('\\')) {
+        const filePath = resolve(distDir, fileName);
+        if (existsSync(filePath)) {
+          sendFile(response, filePath, 'text/javascript; charset=utf-8');
+          return;
+        }
+      }
     }
     if (url.pathname === '/corpus') {
       sendFile(response, options.corpusFile, 'application/xml; charset=utf-8');
@@ -640,25 +659,34 @@ function createReport(browserResult, options, hostProcessMemory) {
     },
     hostProcessMemory,
     woodstoxTarget,
-    omittedRows: [
-      {
-        id: 'projectionLowSelectivity',
-        reason: 'Projection rows require a separate selector contract and remain future work.',
-      },
-      {
-        id: 'projectionHighSelectivity',
-        reason: 'Projection rows require a separate selector contract and remain future work.',
-      },
-      {
-        id: 'processRss',
-        reason: 'Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available.',
-      },
-    ],
+    omittedRows: createOmittedRows(browserResult.fixture),
     eventCountParity: browserResult.eventCountParity,
     fullStringParity: browserResult.fullStringParity,
+    projectionParity: browserResult.projectionParity,
     variants,
     findings: createFindings(variants, browserResult.fixture, hostProcessMemory),
   };
+}
+
+function createOmittedRows(fixture) {
+  const rows = [];
+  if (fixture.shape !== 'projection-cycle') {
+    rows.push(
+      {
+        id: 'projectionLowSelectivity',
+        reason: 'Projection rows require a separate selector contract and are emitted only for projection-cycle fixtures.',
+      },
+      {
+        id: 'projectionHighSelectivity',
+        reason: 'Projection rows require a separate selector contract and are emitted only for projection-cycle fixtures.',
+      },
+    );
+  }
+  rows.push({
+    id: 'processRss',
+    reason: 'Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available.',
+  });
+  return rows;
 }
 
 function readWoodstoxTarget() {
@@ -685,8 +713,9 @@ function readWoodstoxTarget() {
 }
 
 function createFindings(variants, fixture, hostProcessMemory) {
-  const partialRows = variants.filter(entry => !entry.fullStringParity);
+  const partialRows = variants.filter(entry => entry.family === 'partial-upper-bound');
   const fullRows = variants.filter(entry => entry.fullStringParity);
+  const projectionRows = variants.filter(entry => entry.eventCountKind === 'projected-records');
   const fastestPartial = maxBy(partialRows, entry => entry.mibPerSec);
   const fastestFull = maxBy(fullRows, entry => entry.mibPerSec);
   const findings = [
@@ -743,11 +772,19 @@ function createFindings(variants, fixture, hostProcessMemory) {
       ],
     });
   }
+  if (projectionRows.length > 0) {
+    findings.push({
+      id: 'projection-contract',
+      summary: 'Projection rows report projected record counts and selected-field checksums, not full StAX event parity.',
+      evidence: projectionRows.map(entry => `${entry.id}: records=${entry.eventCount}, checksum=${entry.checksum}, strings=${entry.materializationCounters.stringFieldReads}`),
+    });
+  }
   return findings;
 }
 
 function renderMarkdown(report) {
   const corpusBacked = report.fixture.source === 'corpus-file';
+  const hasProjectionRows = report.projectionParity?.status === 'ok';
   const lines = [
     '# Browser Candidate Headroom Matrix',
     '',
@@ -758,6 +795,9 @@ function renderMarkdown(report) {
       : 'This experiment is a browser-runtime counterexample search over generated browser `Uint8Array` batches.',
     'Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.',
     'Full rows preserve the event, name, text/CDATA, attribute name, attribute value, and UTF-16 checksum contract.',
+    ...(hasProjectionRows
+      ? ['Projection rows report projected record counts and selected-field checksums; they are workload headroom rows, not full StAX parity rows.']
+      : []),
     'Variant memory uses browser JS heap only. Host process-tree memory is reported separately when available and must not be mixed with Node/Bun RSS rows as the same memory proof.',
     '',
     '## Fixture',
@@ -780,12 +820,12 @@ function renderMarkdown(report) {
     '',
     '## Results',
     '',
-    '| Variant | Family | Contract scope | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded JS heap | Counterexample | Events | Checksum | Full parity |',
-    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |',
+    '| Variant | Family | Contract scope | Count kind | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded JS heap | Counterexample | Events | Checksum | Full parity |',
+    '| --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |',
   ];
   for (const entry of report.variants) {
     lines.push(
-      `| ${entry.id} | ${entry.family} | ${entry.contractScope} | ${formatRate(entry.mibPerSec)} | `
+      `| ${entry.id} | ${entry.family} | ${entry.contractScope} | ${entry.eventCountKind} | ${formatRate(entry.mibPerSec)} | `
       + `${entry.relativeToStringFull.toFixed(2)}x | ${formatOptionalRatio(entry.woodstoxRatio)} | ${entry.targetStatus} | `
       + `${entry.boundedMemory ? 'yes' : 'no'} | ${entry.counterexampleStatus} | ${entry.eventCount} | ${entry.checksum} | `
       + `${entry.fullStringParity ? 'yes' : 'no'} |`,
@@ -829,8 +869,8 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Materialization Counters');
   lines.push('');
-  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Event objects | Attribute pairs |');
-  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Event objects | Projected records | Projection fields | Attribute pairs |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
   for (const entry of report.variants) {
     const counters = entry.materializationCounters;
     lines.push(
@@ -838,7 +878,8 @@ function renderMarkdown(report) {
       + `${formatCount(counters.textStringReads)} | ${formatCount(counters.attrNameStringReads)} | `
       + `${formatCount(counters.attrValueStringReads)} | ${formatCount(counters.rawSpanMaterializations)} | `
       + `${formatCount(counters.rawNameCacheHits)}/${formatCount(counters.rawNameCacheMisses)} | `
-      + `${formatCount(counters.eventObjects)} | ${formatCount(counters.attributePairs)} |`,
+      + `${formatCount(counters.eventObjects)} | ${formatCount(counters.projectedRecords)} | `
+      + `${formatCount(counters.projectionFieldReads)} | ${formatCount(counters.attributePairs)} |`,
     );
   }
 
@@ -852,8 +893,17 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Parity');
   lines.push('');
-  lines.push(`- Event count parity: ${report.eventCountParity.status}, events=${report.eventCountParity.eventCount}`);
-  lines.push(`- Full-string parity rows: ${report.fullStringParity.status}, events=${report.fullStringParity.eventCount}, checksum=${report.fullStringParity.checksum}`);
+  lines.push(
+    hasProjectionRows
+      ? `- Stream-event rows event-count parity: ${report.eventCountParity.status}, events=${report.eventCountParity.eventCount}, rows=${report.eventCountParity.rowIds.join(', ')}`
+      : `- All rows event-count parity: ${report.eventCountParity.status}, events=${report.eventCountParity.eventCount}, rows=${report.eventCountParity.rowIds.join(', ')}`,
+  );
+  lines.push(`- Full-string parity rows: ${report.fullStringParity.status}, events=${report.fullStringParity.eventCount}, checksum=${report.fullStringParity.checksum}, rows=${report.fullStringParity.rowIds.join(', ')}`);
+  if (hasProjectionRows) {
+    lines.push(`- Projection rows report projected record counts: ${report.projectionParity.status}, rows=${report.projectionParity.rowIds.join(', ')}`);
+    lines.push('- Projection low selectivity selects `/root/book[@code="7"]` and captures `@id` plus direct `title` text.');
+    lines.push('- Projection high selectivity selects every `/root/book` and captures `@id` plus direct `title` text.');
+  }
 
   lines.push('');
   lines.push('## Findings');
@@ -935,7 +985,7 @@ function writeOutput(filePath, content) {
 }
 
 function printSummary(report) {
-  const fastestPartial = maxBy(report.variants.filter(entry => !entry.fullStringParity), entry => entry.mibPerSec);
+  const fastestPartial = maxBy(report.variants.filter(entry => entry.family === 'partial-upper-bound'), entry => entry.mibPerSec);
   const fastestFull = maxBy(report.variants.filter(entry => entry.fullStringParity), entry => entry.mibPerSec);
   console.log(`Wrote ${report.objective}: ${report.fixture.actualBytes} bytes`);
   console.log(`Fastest partial: ${fastestPartial.id} ${formatRate(fastestPartial.mibPerSec)}`);
@@ -964,11 +1014,26 @@ function createRunnerScript(options) {
   };
   return `
 import { StreamEventType, StreamReaderSync, XmlEventType } from '/stax/index.js';
+import { attr, attrEquals, childText, compileProjection, many, projectXmlSync } from '/stax/projection.js';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder('utf-8', { ignoreBOM: true });
+const projectionLowSelectivity = compileProjection({
+  books: many('/root/book', {
+    id: attr('id'),
+    title: childText('title'),
+  }, {
+    where: attrEquals('code', '7'),
+  }),
+});
+const projectionHighSelectivity = compileProjection({
+  books: many('/root/book', {
+    id: attr('id'),
+    title: childText('title'),
+  }),
+});
 const allStringFields = Object.freeze({
   name: true,
   text: true,
@@ -993,12 +1058,13 @@ async function runBenchmark() {
     fixture: createFixtureReport(fixture),
     eventCountParity: computeEventCountParity(variants),
     fullStringParity: computeFullStringParity(variants),
+    projectionParity: computeProjectionParity(variants),
     variants,
   };
 }
 
 function createVariants(fixture) {
-  return [
+  const variants = [
     {
       id: 'scanAllNoDecode',
       family: 'partial-upper-bound',
@@ -1080,6 +1146,31 @@ function createVariants(fixture) {
       run: () => consumeRawFrameStyle(fixture, []),
     },
   ];
+
+  if (fixture.fixtureShape === 'projection-cycle') {
+    variants.push(
+      {
+        id: 'projectionLowSelectivity',
+        family: 'projection-js',
+        implementation: 'stax-xml/projection over browser byte batches',
+        contractScope: 'projected-records-low-selectivity',
+        fullStringParity: false,
+        eventCountKind: 'projected-records',
+        run: () => consumeProjectionSelectivity(fixture, projectionLowSelectivity),
+      },
+      {
+        id: 'projectionHighSelectivity',
+        family: 'projection-js',
+        implementation: 'stax-xml/projection over browser byte batches',
+        contractScope: 'projected-records-high-selectivity',
+        fullStringParity: false,
+        eventCountKind: 'projected-records',
+        run: () => consumeProjectionSelectivity(fixture, projectionHighSelectivity),
+      },
+    );
+  }
+
+  return variants;
 }
 
 async function createFixture(options) {
@@ -1134,6 +1225,9 @@ async function createFixtureRows(shape, cycleSize) {
     }
     return [new Uint8Array(await response.arrayBuffer())];
   }
+  if (shape === 'projection-cycle') {
+    return Array.from({ length: cycleSize }, (_, id) => textEncoder.encode(makeProjectionRow(id)));
+  }
   return Array.from({ length: cycleSize }, (_, id) => textEncoder.encode(makeDiverseRow(id)));
 }
 
@@ -1166,6 +1260,7 @@ function measureVariant(variant, fixture, options) {
     family: variant.family,
     implementation: variant.implementation,
     contractScope: variant.contractScope,
+    eventCountKind: variant.eventCountKind ?? 'stream-events',
     fullStringParity: variant.fullStringParity,
     avgMs,
     minMs: Math.min(...samplesMs),
@@ -1250,14 +1345,29 @@ function forceGc() {
 }
 
 function computeEventCountParity(variants) {
-  const first = variants[0];
-  const mismatch = variants.find(entry => entry.eventCount !== first.eventCount);
+  const streamRows = variants.filter(entry => entry.eventCountKind !== 'projected-records');
+  const first = streamRows[0];
+  const mismatch = streamRows.find(entry => entry.eventCount !== first.eventCount);
   if (mismatch) {
     throw new Error('Variant ' + mismatch.id + ' does not match ' + first.id + ' event count.');
   }
   return {
     status: 'ok',
     eventCount: first.eventCount,
+    rowIds: streamRows.map(entry => entry.id),
+  };
+}
+
+function computeProjectionParity(variants) {
+  const projectionRows = variants.filter(entry => entry.eventCountKind === 'projected-records');
+  for (const row of projectionRows) {
+    if (row.eventCount <= 0 || !Number.isFinite(row.checksum)) {
+      throw new Error('Projection variant ' + row.id + ' did not produce projected record evidence.');
+    }
+  }
+  return {
+    status: projectionRows.length > 0 ? 'ok' : 'not-applicable',
+    rowIds: projectionRows.map(entry => entry.id),
   };
 }
 
@@ -1396,6 +1506,25 @@ function consumeEventObjectFull(fixture) {
 
   globalThis.__staxBrowserCandidateEventObjectSink = objectSink[(objectSinkIndex - 1) & (objectSink.length - 1)];
   return { eventCount, checksum, materializationCounters };
+}
+
+function consumeProjectionSelectivity(fixture, projection) {
+  const materializationCounters = createMaterializationCounters();
+  let records = 0;
+  let checksum = 2166136261;
+
+  projectXmlSync(byteBatches(fixture), projection, {
+    onRecord(record) {
+      records++;
+      materializationCounters.projectedRecords++;
+      materializationCounters.projectionFieldReads += 2;
+      countStringField(materializationCounters, 'attrValue');
+      countStringField(materializationCounters, 'text');
+      checksum = foldString(foldString(checksum, record.id), record.title);
+    },
+  });
+
+  return { eventCount: records, checksum, materializationCounters };
 }
 
 function materializePublicEventObject(batch, index, materializationCounters) {
@@ -1766,6 +1895,8 @@ function createMaterializationCounters() {
     rawNameCacheMisses: 0,
     implicitAttrValueReads: 0,
     eventObjects: 0,
+    projectedRecords: 0,
+    projectionFieldReads: 0,
     attributePairs: 0,
   };
 }
@@ -1853,6 +1984,17 @@ function makeDiverseRow(id) {
     + '<' + childB + ' rank="' + (id % 29) + '">Full string checksum payload ' + ((id * 8191) % 104729) + '</' + childB + '>'
     + '<' + childC + ' shard="' + (id % 37) + '" bucket="' + ((id * 19) % 389) + '">Text ' + id + ' ' + ((id * id) % 99991) + '</' + childC + '>'
     + '</' + rootName + '>';
+}
+
+function makeProjectionRow(id) {
+  const code = id % 97;
+  return '<root><book id="book-' + id + '" lang="en" code="' + code + '">'
+    + '<title>Projection Benchmark ' + id + '</title>'
+    + '<author>Author ' + (id % 113) + '</author>'
+    + '<description>Repeated projection benchmark payload ' + id + ' with stable ASCII text. The projection row ignores this field.</description>'
+    + '<chapter number="1">Intro ' + id + '</chapter>'
+    + '<chapter number="2">Body ' + ((id * 17) % 104729) + '</chapter>'
+    + '</book></root>';
 }
 
 function summarizeRows(rowList) {

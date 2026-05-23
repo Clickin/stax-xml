@@ -1,0 +1,1234 @@
+{
+  "generatedAt": "2026-05-23T18:22:35.996Z",
+  "objective": "browser-candidate-headroom",
+  "contract": "browser-byte-batch-mixed-materialization-headroom-matrix",
+  "note": "This is a browser-runtime counterexample search over Uint8Array batches. Variant memory is browser JS heap; host process-tree memory is reported separately when available.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "V8",
+    "browserName": "Chrome",
+    "browserVersion": "148.0.0.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "window.gc",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "sourceFile": null,
+    "shape": "projection-cycle",
+    "rowXml": "<root><book id=\"book-0\" lang=\"en\" code=\"0\"><title>Projection Benchmark 0</title><author>Author 0</author><description>Repeated projection benchmark payload 0 with stable ASCII text. The projection row ignores this field.</description><chapter number=\"1\">Intro 0</chapter><chapter number=\"2\">Body 0</chapter></book></root>",
+    "rowPreviewTruncated": false,
+    "rowCycleSize": 4096,
+    "minRowBytes": 321,
+    "maxRowBytes": 340,
+    "averageRowBytes": 337.675048828125,
+    "targetBytes": 1073741824,
+    "actualBytes": 1073742077,
+    "sizeGiB": 1.0000002356246114,
+    "batchSize": 16
+  },
+  "options": {
+    "runs": 1,
+    "warmups": 0,
+    "boundedJsHeapMiB": 512
+  },
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+    "samples": [
+      {
+        "label": "browser-started",
+        "at": "2026-05-23T18:19:42.653Z",
+        "scope": "windows-process-tree",
+        "rootPid": 44560,
+        "processCount": 9,
+        "workingSetBytes": 380153856,
+        "privateBytes": 160157696,
+        "processes": [
+          {
+            "pid": 44560,
+            "parentPid": 39944,
+            "name": "chrome.exe",
+            "workingSetBytes": 117215232,
+            "privateBytes": 37625856
+          },
+          {
+            "pid": 16304,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 9887744,
+            "privateBytes": 2621440
+          },
+          {
+            "pid": 24508,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 36122624,
+            "privateBytes": 16363520
+          },
+          {
+            "pid": 42336,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 35540992,
+            "privateBytes": 13787136
+          },
+          {
+            "pid": 41288,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 18460672,
+            "privateBytes": 9760768
+          },
+          {
+            "pid": 36412,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 44146688,
+            "privateBytes": 19632128
+          },
+          {
+            "pid": 46972,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 29966336,
+            "privateBytes": 16330752
+          },
+          {
+            "pid": 39880,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 45965312,
+            "privateBytes": 19456000
+          },
+          {
+            "pid": 46012,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 42848256,
+            "privateBytes": 24580096
+          }
+        ]
+      },
+      {
+        "label": "before-run",
+        "at": "2026-05-23T18:19:43.268Z",
+        "scope": "windows-process-tree",
+        "rootPid": 44560,
+        "processCount": 10,
+        "workingSetBytes": 431931392,
+        "privateBytes": 180654080,
+        "processes": [
+          {
+            "pid": 44560,
+            "parentPid": 39944,
+            "name": "chrome.exe",
+            "workingSetBytes": 121622528,
+            "privateBytes": 39514112
+          },
+          {
+            "pid": 16304,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 9887744,
+            "privateBytes": 2621440
+          },
+          {
+            "pid": 24508,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 37232640,
+            "privateBytes": 16482304
+          },
+          {
+            "pid": 42336,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 36941824,
+            "privateBytes": 13811712
+          },
+          {
+            "pid": 41288,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 18460672,
+            "privateBytes": 9760768
+          },
+          {
+            "pid": 36412,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 44347392,
+            "privateBytes": 19644416
+          },
+          {
+            "pid": 46972,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 44851200,
+            "privateBytes": 18513920
+          },
+          {
+            "pid": 39880,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 45965312,
+            "privateBytes": 19456000
+          },
+          {
+            "pid": 46012,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 42848256,
+            "privateBytes": 24580096
+          },
+          {
+            "pid": 45160,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 29773824,
+            "privateBytes": 16269312
+          }
+        ]
+      },
+      {
+        "label": "after-run",
+        "at": "2026-05-23T18:22:35.409Z",
+        "scope": "windows-process-tree",
+        "rootPid": 44560,
+        "processCount": 8,
+        "workingSetBytes": 465854464,
+        "privateBytes": 220712960,
+        "processes": [
+          {
+            "pid": 44560,
+            "parentPid": 39944,
+            "name": "chrome.exe",
+            "workingSetBytes": 148922368,
+            "privateBytes": 50708480
+          },
+          {
+            "pid": 16304,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 9838592,
+            "privateBytes": 2490368
+          },
+          {
+            "pid": 24508,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 37486592,
+            "privateBytes": 16601088
+          },
+          {
+            "pid": 42336,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 38682624,
+            "privateBytes": 13983744
+          },
+          {
+            "pid": 41288,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 18890752,
+            "privateBytes": 9699328
+          },
+          {
+            "pid": 36412,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 44863488,
+            "privateBytes": 19652608
+          },
+          {
+            "pid": 45160,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 137523200,
+            "privateBytes": 91615232
+          },
+          {
+            "pid": 45132,
+            "parentPid": 44560,
+            "name": "chrome.exe",
+            "workingSetBytes": 29646848,
+            "privateBytes": 15962112
+          }
+        ]
+      }
+    ],
+    "maxWorkingSetBytes": 465854464,
+    "maxPrivateBytes": 220712960,
+    "maxProcessCount": 10
+  },
+  "woodstoxTarget": {
+    "status": "ok",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 300.08892774117845,
+    "woodstoxMiBPerSec": 333.43214193464274
+  },
+  "omittedRows": [
+    {
+      "id": "processRss",
+      "reason": "Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available."
+    }
+  ],
+  "eventCountParity": {
+    "status": "ok",
+    "eventCount": 60416563,
+    "rowIds": [
+      "scanAllNoDecode",
+      "nameStringOnly",
+      "textStringOnly",
+      "attrNameStringOnly",
+      "attrValueStringOnly",
+      "stringFull",
+      "eventObjectFull",
+      "cursorAccessor",
+      "rawFrameDirect",
+      "rawFrameNameId"
+    ]
+  },
+  "fullStringParity": {
+    "status": "ok",
+    "rowIds": [
+      "stringFull",
+      "eventObjectFull",
+      "cursorAccessor",
+      "rawFrameDirect",
+      "rawFrameNameId"
+    ],
+    "eventCount": 60416563,
+    "checksum": 1441552024
+  },
+  "projectionParity": {
+    "status": "ok",
+    "rowIds": [
+      "projectionLowSelectivity",
+      "projectionHighSelectivity"
+    ]
+  },
+  "variants": [
+    {
+      "id": "scanAllNoDecode",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "event-types-and-attribute-counts-only",
+      "eventCountKind": "stream-events",
+      "fullStringParity": false,
+      "avgMs": 7983.130000002682,
+      "minMs": 7983.130000002682,
+      "maxMs": 7983.130000002682,
+      "mibPerSec": 128.27052062026524,
+      "eventCount": 60416563,
+      "checksum": 830926359,
+      "samplesMs": [
+        7983.130000002682
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 2157628,
+        "avgJsHeapTotalDeltaBytes": 928724,
+        "maxJsHeapUsedBytes": 11386824,
+        "maxJsHeapTotalBytes": 19895408,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 18966684,
+              "jsHeapUsedBytes": 9229196
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 19895408,
+              "jsHeapUsedBytes": 11386824
+            },
+            "delta": {
+              "jsHeapUsedBytes": 2157628,
+              "jsHeapTotalBytes": 928724
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 0,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 2.272649324262298,
+      "woodstoxRatio": 0.38469752758691156,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "nameStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "event-types-attribute-counts-and-element-names",
+      "eventCountKind": "stream-events",
+      "fullStringParity": false,
+      "avgMs": 10410.910000003874,
+      "minMs": 10410.910000003874,
+      "maxMs": 10410.910000003874,
+      "mibPerSec": 98.3583799378941,
+      "eventCount": 60416563,
+      "checksum": -136145711,
+      "samplesMs": [
+        10410.910000003874
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 4970934,
+        "avgJsHeapTotalDeltaBytes": 2590250,
+        "maxJsHeapUsedBytes": 14287298,
+        "maxJsHeapTotalBytes": 21556934,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 18966684,
+              "jsHeapUsedBytes": 9316364
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 21556934,
+              "jsHeapUsedBytes": 14287298
+            },
+            "delta": {
+              "jsHeapUsedBytes": 4970934,
+              "jsHeapTotalBytes": 2590250
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 44517466,
+        "nameStringReads": 44517466,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.7426771531016425,
+      "woodstoxRatio": 0.2949876978481987,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "textStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "event-types-attribute-counts-and-text-cdata",
+      "eventCountKind": "stream-events",
+      "fullStringParity": false,
+      "avgMs": 15082.79999999702,
+      "minMs": 15082.79999999702,
+      "maxMs": 15082.79999999702,
+      "mibPerSec": 67.89191935713556,
+      "eventCount": 60416563,
+      "checksum": 1877738387,
+      "samplesMs": [
+        15082.79999999702
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 1731433,
+        "avgJsHeapTotalDeltaBytes": 339869,
+        "maxJsHeapUsedBytes": 11060293,
+        "maxJsHeapTotalBytes": 19568697,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 19228828,
+              "jsHeapUsedBytes": 9328860
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 19568697,
+              "jsHeapUsedBytes": 11060293
+            },
+            "delta": {
+              "jsHeapUsedBytes": 1731433,
+              "jsHeapTotalBytes": 339869
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 15899095,
+        "nameStringReads": 0,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.2028837483761472,
+      "woodstoxRatio": 0.20361540121241015,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "attrNameStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "event-types-attribute-counts-and-attribute-names",
+      "eventCountKind": "stream-events",
+      "fullStringParity": false,
+      "avgMs": 10082.984999999404,
+      "minMs": 10082.984999999404,
+      "maxMs": 10082.984999999404,
+      "mibPerSec": 101.55725127823384,
+      "eventCount": 60416563,
+      "checksum": -1847060873,
+      "samplesMs": [
+        10082.984999999404
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 3196019,
+        "avgJsHeapTotalDeltaBytes": 1487271,
+        "maxJsHeapUsedBytes": 11471267,
+        "maxJsHeapTotalBytes": 19667475,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 18180204,
+              "jsHeapUsedBytes": 8275248
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 19667475,
+              "jsHeapUsedBytes": 11471267
+            },
+            "delta": {
+              "jsHeapUsedBytes": 3196019,
+              "jsHeapTotalBytes": 1487271
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 15899095,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.7993535644459695,
+      "woodstoxRatio": 0.3045814680281796,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "attrValueStringOnly",
+      "family": "partial-upper-bound",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "event-types-attribute-counts-and-attribute-values",
+      "eventCountKind": "stream-events",
+      "fullStringParity": false,
+      "avgMs": 10386.870000004768,
+      "minMs": 10386.870000004768,
+      "maxMs": 10386.870000004768,
+      "mibPerSec": 98.58602651993642,
+      "eventCount": 60416563,
+      "checksum": -1613934246,
+      "samplesMs": [
+        10386.870000004768
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 7354643,
+        "avgJsHeapTotalDeltaBytes": 3235099,
+        "maxJsHeapUsedBytes": 15624783,
+        "maxJsHeapTotalBytes": 21415303,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 18180204,
+              "jsHeapUsedBytes": 8270140
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 21415303,
+              "jsHeapUsedBytes": 15624783
+            },
+            "delta": {
+              "jsHeapUsedBytes": 7354643,
+              "jsHeapTotalBytes": 3235099
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 15899095,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.7467105104806206,
+      "woodstoxRatio": 0.29567043521335334,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "stringFull",
+      "family": "full-stax-js",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 18142.855000004172,
+      "minMs": 18142.855000004172,
+      "maxMs": 18142.855000004172,
+      "mibPerSec": 56.44096484700818,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        18142.855000004172
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 6207659,
+        "avgJsHeapTotalDeltaBytes": 2543843,
+        "maxJsHeapUsedBytes": 14493771,
+        "maxJsHeapTotalBytes": 20724047,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 18180204,
+              "jsHeapUsedBytes": 8286112
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 20724047,
+              "jsHeapUsedBytes": 14493771
+            },
+            "delta": {
+              "jsHeapUsedBytes": 6207659,
+              "jsHeapTotalBytes": 2543843
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": true,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1,
+      "woodstoxRatio": 0.16927271773958547,
+      "targetStatus": "below"
+    },
+    {
+      "id": "eventObjectFull",
+      "family": "full-stax-js",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 21279.265000000596,
+      "minMs": 21279.265000000596,
+      "maxMs": 21279.265000000596,
+      "mibPerSec": 48.121974197866955,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        21279.265000000596
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 8357164,
+        "avgJsHeapTotalDeltaBytes": 27117072,
+        "maxJsHeapUsedBytes": 16652396,
+        "maxJsHeapTotalBytes": 45297276,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 18180204,
+              "jsHeapUsedBytes": 8295232
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 45297276,
+              "jsHeapUsedBytes": 16652396
+            },
+            "delta": {
+              "jsHeapUsedBytes": 8357164,
+              "jsHeapTotalBytes": 27117072
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 60416563,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": true,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 0.8526072211612413,
+      "woodstoxRatio": 0.14432314149035913,
+      "targetStatus": "below"
+    },
+    {
+      "id": "cursorAccessor",
+      "family": "full-stax-js",
+      "implementation": "single mutable cursor over StreamBatch browser byte batches",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 18235.625,
+      "minMs": 18235.625,
+      "maxMs": 18235.625,
+      "mibPerSec": 56.15383302078224,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        18235.625
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 9278855,
+        "avgJsHeapTotalDeltaBytes": 3649231,
+        "maxJsHeapUsedBytes": 17593936,
+        "maxJsHeapTotalBytes": 46995296,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 43346065,
+              "jsHeapUsedBytes": 8315081
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 46995296,
+              "jsHeapUsedBytes": 17593936
+            },
+            "delta": {
+              "jsHeapUsedBytes": 9278855,
+              "jsHeapTotalBytes": 3649231
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": true,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 0.994912705213239,
+      "woodstoxRatio": 0.168411577525088,
+      "targetStatus": "below"
+    },
+    {
+      "id": "rawFrameDirect",
+      "family": "full-stax-js",
+      "implementation": "nextRawBatch typed arrays with direct span decode",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 17751.314999997616,
+      "minMs": 17751.314999997616,
+      "maxMs": 17751.314999997616,
+      "mibPerSec": 57.685880808252215,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        17751.314999997616
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 8969080,
+        "avgJsHeapTotalDeltaBytes": 2706532,
+        "maxJsHeapUsedBytes": 17293317,
+        "maxJsHeapTotalBytes": 46052597,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 43346065,
+              "jsHeapUsedBytes": 8324237
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 46052597,
+              "jsHeapUsedBytes": 17293317
+            },
+            "delta": {
+              "jsHeapUsedBytes": 8969080,
+              "jsHeapTotalBytes": 2706532
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 92214751,
+        "rawNameSpanMaterializations": 44517466,
+        "rawTextSpanMaterializations": 15899095,
+        "rawAttrNameSpanMaterializations": 15899095,
+        "rawAttrValueSpanMaterializations": 15899095,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": true,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.0220569574708471,
+      "woodstoxRatio": 0.1730063588757422,
+      "targetStatus": "below"
+    },
+    {
+      "id": "rawFrameNameId",
+      "family": "full-stax-js",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 16975.954999998212,
+      "minMs": 16975.954999998212,
+      "maxMs": 16975.954999998212,
+      "mibPerSec": 60.320626514367525,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        16975.954999998212
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 23090185,
+        "avgJsHeapTotalDeltaBytes": 8618593,
+        "maxJsHeapUsedBytes": 31490514,
+        "maxJsHeapTotalBytes": 51964658,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 43346065,
+              "jsHeapUsedBytes": 8400329
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 51964658,
+              "jsHeapUsedBytes": 31490514
+            },
+            "delta": {
+              "jsHeapUsedBytes": 23090185,
+              "jsHeapTotalBytes": 8618593
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 31798200,
+        "rawNameSpanMaterializations": 6,
+        "rawTextSpanMaterializations": 15899095,
+        "rawAttrNameSpanMaterializations": 4,
+        "rawAttrValueSpanMaterializations": 15899095,
+        "rawNameCacheHits": 60416551,
+        "rawNameCacheMisses": 10,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": true,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.068738400873829,
+      "woodstoxRatio": 0.1809082536685716,
+      "targetStatus": "below"
+    },
+    {
+      "id": "projectionLowSelectivity",
+      "family": "projection-js",
+      "implementation": "stax-xml/projection over browser byte batches",
+      "contractScope": "projected-records-low-selectivity",
+      "eventCountKind": "projected-records",
+      "fullStringParity": false,
+      "avgMs": 9814.92500000447,
+      "minMs": 9814.92500000447,
+      "maxMs": 9814.92500000447,
+      "mibPerSec": 104.33092879254153,
+      "eventCount": 33382,
+      "checksum": -403434369,
+      "samplesMs": [
+        9814.92500000447
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 27205785,
+        "avgJsHeapTotalDeltaBytes": 15793493,
+        "maxJsHeapUsedBytes": 35610582,
+        "maxJsHeapTotalBytes": 59139558,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 43346065,
+              "jsHeapUsedBytes": 8404797
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 59139558,
+              "jsHeapUsedBytes": 35610582
+            },
+            "delta": {
+              "jsHeapUsedBytes": 27205785,
+              "jsHeapTotalBytes": 15793493
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 66764,
+        "nameStringReads": 0,
+        "textStringReads": 33382,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 33382,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 33382,
+        "projectionFieldReads": 66764,
+        "attributePairs": 0
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.848496549896806,
+      "woodstoxRatio": 0.3129000347332796,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "projectionHighSelectivity",
+      "family": "projection-js",
+      "implementation": "stax-xml/projection over browser byte batches",
+      "contractScope": "projected-records-high-selectivity",
+      "eventCountKind": "projected-records",
+      "fullStringParity": false,
+      "avgMs": 14761.710000000894,
+      "minMs": 14761.710000000894,
+      "maxMs": 14761.710000000894,
+      "mibPerSec": 69.36867349917726,
+      "eventCount": 3179819,
+      "checksum": -2078190377,
+      "samplesMs": [
+        14761.710000000894
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 11371441,
+        "avgJsHeapTotalDeltaBytes": 3761509,
+        "maxJsHeapUsedBytes": 19880210,
+        "maxJsHeapTotalBytes": 47107574,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 43346065,
+              "jsHeapUsedBytes": 8508769
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 47107574,
+              "jsHeapUsedBytes": 19880210
+            },
+            "delta": {
+              "jsHeapUsedBytes": 11371441,
+              "jsHeapTotalBytes": 3761509
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 6359638,
+        "nameStringReads": 0,
+        "textStringReads": 3179819,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 3179819,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 3179819,
+        "projectionFieldReads": 6359638,
+        "attributePairs": 0
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.2290483284120248,
+      "woodstoxRatio": 0.20804435078359804,
+      "targetStatus": "not-applicable"
+    }
+  ],
+  "findings": [
+    {
+      "id": "browser-byte-batch-contract",
+      "summary": "Rows consume generated browser Uint8Array batches and do not load a full XML string.",
+      "evidence": [
+        "stringFull: maxJsHeap=13.8 MiB",
+        "eventObjectFull: maxJsHeap=15.9 MiB",
+        "cursorAccessor: maxJsHeap=16.8 MiB",
+        "rawFrameDirect: maxJsHeap=16.5 MiB",
+        "rawFrameNameId: maxJsHeap=30.0 MiB"
+      ]
+    },
+    {
+      "id": "browser-memory-scope",
+      "summary": "Variant memory is browser JS heap only; it is not a process RSS replacement.",
+      "evidence": [
+        "stringFull: jsHeapLimit=4.00 GiB",
+        "eventObjectFull: jsHeapLimit=4.00 GiB",
+        "cursorAccessor: jsHeapLimit=4.00 GiB",
+        "rawFrameDirect: jsHeapLimit=4.00 GiB",
+        "rawFrameNameId: jsHeapLimit=4.00 GiB"
+      ]
+    },
+    {
+      "id": "browser-host-process-memory",
+      "summary": "Host process-tree memory is recorded separately from variant JS heap when the host supports it.",
+      "evidence": [
+        "maxWorkingSet=444.3 MiB",
+        "maxPrivateBytes=210.5 MiB",
+        "maxProcessCount=10"
+      ]
+    },
+    {
+      "id": "contract-separation",
+      "summary": "Partial rows deliberately drop one or more string fields and are not StAX parity rows.",
+      "evidence": [
+        "scanAllNoDecode: event-types-and-attribute-counts-only, strings=0",
+        "nameStringOnly: event-types-attribute-counts-and-element-names, strings=44517466",
+        "textStringOnly: event-types-attribute-counts-and-text-cdata, strings=15899095",
+        "attrNameStringOnly: event-types-attribute-counts-and-attribute-names, strings=15899095",
+        "attrValueStringOnly: event-types-attribute-counts-and-attribute-values, strings=15899095"
+      ]
+    },
+    {
+      "id": "full-string-parity",
+      "summary": "Full rows fold element names, text/CDATA, attribute names, and attribute values into the same checksum.",
+      "evidence": [
+        "stringFull: events=60416563, checksum=1441552024",
+        "eventObjectFull: events=60416563, checksum=1441552024",
+        "cursorAccessor: events=60416563, checksum=1441552024",
+        "rawFrameDirect: events=60416563, checksum=1441552024",
+        "rawFrameNameId: events=60416563, checksum=1441552024"
+      ]
+    },
+    {
+      "id": "headroom-search",
+      "summary": "The fastest row in each family is a browser headroom signal, not a runtime-limit conclusion.",
+      "evidence": [
+        "partial=scanAllNoDecode 128.27 MiB/s",
+        "full=rawFrameNameId 60.32 MiB/s"
+      ]
+    },
+    {
+      "id": "projection-contract",
+      "summary": "Projection rows report projected record counts and selected-field checksums, not full StAX event parity.",
+      "evidence": [
+        "projectionLowSelectivity: records=33382, checksum=-403434369, strings=66764",
+        "projectionHighSelectivity: records=3179819, checksum=-2078190377, strings=6359638"
+      ]
+    }
+  ]
+}

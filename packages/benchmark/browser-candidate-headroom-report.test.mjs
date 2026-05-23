@@ -12,6 +12,8 @@ const jsonOut = join(tmpDir, 'browser-candidate-headroom-report-test.json');
 const mdOut = join(tmpDir, 'browser-candidate-headroom-report-test.md');
 const corpusJsonOut = join(tmpDir, 'browser-candidate-headroom-corpus-report-test.json');
 const corpusMdOut = join(tmpDir, 'browser-candidate-headroom-corpus-report-test.md');
+const projectionJsonOut = join(tmpDir, 'browser-candidate-headroom-projection-report-test.json');
+const projectionMdOut = join(tmpDir, 'browser-candidate-headroom-projection-report-test.md');
 
 test('browser candidate headroom matrix records the same byte-batch contract', (t) => {
   const browserExecutable = findBrowserExecutable();
@@ -171,6 +173,95 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.match(markdown, /Fixture source: corpus-file/);
   assert.match(markdown, /Source file: .*books\.xml/);
   assert.match(markdown, /corpus-cycle-fixture/);
+});
+
+test('browser candidate headroom matrix includes projection rows on projection fixtures', (t) => {
+  const browserExecutable = findBrowserExecutable();
+  if (!browserExecutable) {
+    t.skip('Chrome or Edge executable was not found.');
+    return;
+  }
+
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [projectionJsonOut, projectionMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'browser-candidate-headroom.mjs'),
+    '--browser-executable',
+    browserExecutable,
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'projection-cycle',
+    '--diverse-cycle-size',
+    '16',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--json-out',
+    projectionJsonOut,
+    '--md-out',
+    projectionMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 120_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(projectionJsonOut, 'utf8'));
+  assert.equal(report.objective, 'browser-candidate-headroom');
+  assert.equal(report.fixture.shape, 'projection-cycle');
+  assert.deepEqual(report.variants.map(entry => entry.id), [
+    'scanAllNoDecode',
+    'nameStringOnly',
+    'textStringOnly',
+    'attrNameStringOnly',
+    'attrValueStringOnly',
+    'stringFull',
+    'eventObjectFull',
+    'cursorAccessor',
+    'rawFrameDirect',
+    'rawFrameNameId',
+    'projectionLowSelectivity',
+    'projectionHighSelectivity',
+  ]);
+  assert.ok(!report.omittedRows.some(entry => entry.id === 'projectionLowSelectivity'));
+  assert.ok(!report.omittedRows.some(entry => entry.id === 'projectionHighSelectivity'));
+  assert.equal(report.projectionParity.status, 'ok');
+  assert.deepEqual(report.projectionParity.rowIds, ['projectionLowSelectivity', 'projectionHighSelectivity']);
+
+  const streamRows = report.variants.filter(entry => entry.eventCountKind === 'stream-events');
+  assert.ok(streamRows.every(entry => entry.eventCount === report.eventCountParity.eventCount));
+
+  const low = report.variants.find(entry => entry.id === 'projectionLowSelectivity');
+  const high = report.variants.find(entry => entry.id === 'projectionHighSelectivity');
+  assert.equal(low.family, 'projection-js');
+  assert.equal(high.family, 'projection-js');
+  assert.equal(low.eventCountKind, 'projected-records');
+  assert.equal(high.eventCountKind, 'projected-records');
+  assert.equal(low.fullStringParity, false);
+  assert.equal(high.fullStringParity, false);
+  assert.ok(low.eventCount > 0);
+  assert.ok(high.eventCount > low.eventCount);
+  assert.equal(low.materializationCounters.projectedRecords, low.eventCount);
+  assert.equal(high.materializationCounters.projectedRecords, high.eventCount);
+  assert.equal(low.materializationCounters.projectionFieldReads, low.eventCount * 2);
+  assert.equal(high.materializationCounters.projectionFieldReads, high.eventCount * 2);
+  assert.equal(low.runtimeLimitCounterexampleEligible, false);
+  assert.equal(high.runtimeLimitCounterexampleEligible, false);
+
+  const markdown = readFileSync(projectionMdOut, 'utf8');
+  assert.match(markdown, /Projection rows report projected record counts/);
+  assert.match(markdown, /projectionLowSelectivity/);
+  assert.match(markdown, /projectionHighSelectivity/);
 });
 
 function findBrowserExecutable() {
