@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-05-23T04:59:35.707Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "sizeBytes": 16777038,
+    "sizeMiB": 15.99983024597168
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1,
+    "tools": [
+      "stax-stream",
+      "stax-event",
+      "woodstox",
+      "quick-xml"
+    ]
+  },
+  "target": {
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 296.37527792679737
+  },
+  "results": [
+    {
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 150.4379666666667,
+      "minMs": 149.19340000000005,
+      "maxMs": 152.86160000000004,
+      "mibPerSec": 106.35500200174431,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        152.86160000000004,
+        149.25890000000004,
+        149.19340000000005
+      ],
+      "woodstoxRatio": 0.32296722746629336,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-event",
+      "implementation": "Node + stax-xml EventReaderSync",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 171.1722333333333,
+      "minMs": 166.69499999999994,
+      "maxMs": 176.16769999999997,
+      "mibPerSec": 93.47211247056823,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        176.16769999999997,
+        166.69499999999994,
+        170.654
+      ],
+      "woodstoxRatio": 0.28384587881952045,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "runtime": "1.8.0_472",
+      "avgMs": 48.586533,
+      "minMs": 45.1724,
+      "maxMs": 55.411399,
+      "mibPerSec": 329.3058643631082,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        55.411399,
+        45.1724,
+        45.1758
+      ],
+      "woodstoxRatio": 1,
+      "targetStatus": "met"
+    },
+    {
+      "tool": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "runtime": "1.0.0",
+      "avgMs": 52.92033333333333,
+      "minMs": 52.6622,
+      "maxMs": 53.4051,
+      "mibPerSec": 302.3380473662615,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        53.4051,
+        52.6622,
+        52.6937
+      ],
+      "woodstoxRatio": 0.9181070854932887,
+      "targetStatus": "met"
+    }
+  ]
+}

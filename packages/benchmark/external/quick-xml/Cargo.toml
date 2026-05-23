@@ -1,0 +1,8 @@
+[package]
+name = "quick_xml_baseline"
+version = "1.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+quick-xml = "0.40.1"

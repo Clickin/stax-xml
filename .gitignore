@@ -24,6 +24,7 @@ packages/*/node_modules
 packages/benchmark/*.log
 packages/benchmark/native/
 packages/benchmark/external/*/target/
+packages/benchmark/external/woodstox/dependency-reduced-pom.xml
 packages/native-*/stax_xml_native.node
 coverage/
 directions

@@ -1,0 +1,370 @@
+{
+  "generatedAt": "2026-05-23T04:17:07.569Z",
+  "package": "stax-xml",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "runtime": "node",
+    "version": "24.15.0",
+    "platform": "win32-x64",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "options": {
+    "compareSizeMiB": 16,
+    "sizesGiB": [
+      1,
+      4
+    ],
+    "warmups": 0,
+    "runs": 3
+  },
+  "contract": {
+    "parser": "pure JavaScript stax-xml/projection over StreamReaderSync byte batches",
+    "lowSelectivity": "select /root/book where @code=\"7\", capture @id and child title",
+    "highSelectivity": "select every /root/book, capture @id and child title",
+    "inMemoryComparison": "projection vs manual StreamReaderSync, EventReaderSync, sax, and saxes over the same generated XML string",
+    "generatedSizeComparison": "projection vs manual StreamReaderSync over generated Uint8Array batches without building the full input string",
+    "native": false,
+    "wasm": false
+  },
+  "comparison": {
+    "fixture": {
+      "kind": "in-memory-string",
+      "targetBytes": 16777216,
+      "actualBytes": 16777310,
+      "sizeMiB": 16.000089645385742,
+      "rowCount": 43092
+    },
+    "cases": [
+      {
+        "name": "projection-low-selectivity",
+        "selectivity": "low",
+        "records": 445,
+        "checksum": -1725406409,
+        "avgMs": 75.03216666666667,
+        "minMs": 73.9307,
+        "maxMs": 77.1719,
+        "throughputMiBs": 213.24307102134964,
+        "avgHeapDeltaBytes": 5536752,
+        "avgRssDeltaBytes": 14042453.333333334,
+        "samplesMs": [
+          73.9307,
+          77.1719,
+          73.99390000000002
+        ]
+      },
+      {
+        "name": "manual-streamreader-low-selectivity",
+        "selectivity": "low",
+        "records": 445,
+        "checksum": -1725406409,
+        "avgMs": 76.97320000000002,
+        "minMs": 73.74340000000001,
+        "maxMs": 82.18510000000003,
+        "throughputMiBs": 207.86572008680602,
+        "avgHeapDeltaBytes": 4224624,
+        "avgRssDeltaBytes": 699050.6666666666,
+        "samplesMs": [
+          73.74340000000001,
+          82.18510000000003,
+          74.99110000000002
+        ]
+      },
+      {
+        "name": "eventreader-low-selectivity",
+        "selectivity": "low",
+        "records": 445,
+        "checksum": -1725406409,
+        "avgMs": 78.81590000000001,
+        "minMs": 75.86210000000005,
+        "maxMs": 83.13160000000005,
+        "throughputMiBs": 203.00586106846131,
+        "avgHeapDeltaBytes": 6193754.666666667,
+        "avgRssDeltaBytes": -8346282.666666667,
+        "samplesMs": [
+          75.86210000000005,
+          83.13160000000005,
+          77.45399999999995
+        ]
+      },
+      {
+        "name": "sax-low-selectivity",
+        "selectivity": "low",
+        "records": 445,
+        "checksum": -1725406409,
+        "avgMs": 243.67340000000002,
+        "minMs": 238.1323,
+        "maxMs": 249.47440000000006,
+        "throughputMiBs": 65.66202813021751,
+        "avgHeapDeltaBytes": 6785194.666666667,
+        "avgRssDeltaBytes": 305834.6666666667,
+        "samplesMs": [
+          238.1323,
+          243.4135,
+          249.47440000000006
+        ]
+      },
+      {
+        "name": "saxes-low-selectivity",
+        "selectivity": "low",
+        "records": 445,
+        "checksum": -1725406409,
+        "avgMs": 95.12536666666672,
+        "minMs": 94.51160000000004,
+        "maxMs": 96.21990000000005,
+        "throughputMiBs": 168.20003124353158,
+        "avgHeapDeltaBytes": 4867482.666666667,
+        "avgRssDeltaBytes": 161109.33333333334,
+        "samplesMs": [
+          96.21990000000005,
+          94.64460000000008,
+          94.51160000000004
+        ]
+      },
+      {
+        "name": "projection-high-selectivity",
+        "selectivity": "high",
+        "records": 43092,
+        "checksum": -422428697,
+        "avgMs": 91.51559999999988,
+        "minMs": 88.62209999999982,
+        "maxMs": 96.70679999999993,
+        "throughputMiBs": 174.8345598497498,
+        "avgHeapDeltaBytes": 5314941.333333333,
+        "avgRssDeltaBytes": 9317034.666666666,
+        "samplesMs": [
+          96.70679999999993,
+          88.62209999999982,
+          89.21789999999987
+        ]
+      },
+      {
+        "name": "manual-streamreader-high-selectivity",
+        "selectivity": "high",
+        "records": 43092,
+        "checksum": -422428697,
+        "avgMs": 80.28393333333331,
+        "minMs": 79.39199999999983,
+        "maxMs": 81.14859999999999,
+        "throughputMiBs": 199.2937936779266,
+        "avgHeapDeltaBytes": 4948322.666666667,
+        "avgRssDeltaBytes": 495616,
+        "samplesMs": [
+          79.39199999999983,
+          80.3112000000001,
+          81.14859999999999
+        ]
+      },
+      {
+        "name": "eventreader-high-selectivity",
+        "selectivity": "high",
+        "records": 43092,
+        "checksum": -422428697,
+        "avgMs": 84.1242000000002,
+        "minMs": 83.66900000000032,
+        "maxMs": 84.7536,
+        "throughputMiBs": 190.19603925369518,
+        "avgHeapDeltaBytes": 7828336,
+        "avgRssDeltaBytes": -8557909.333333334,
+        "samplesMs": [
+          83.95000000000027,
+          83.66900000000032,
+          84.7536
+        ]
+      },
+      {
+        "name": "sax-high-selectivity",
+        "selectivity": "high",
+        "records": 43092,
+        "checksum": -422428697,
+        "avgMs": 253.80643333333333,
+        "minMs": 251.7568000000001,
+        "maxMs": 254.9928,
+        "throughputMiBs": 63.04052042830702,
+        "avgHeapDeltaBytes": 8356061.333333333,
+        "avgRssDeltaBytes": 1047210.6666666666,
+        "samplesMs": [
+          254.9928,
+          251.7568000000001,
+          254.66969999999992
+        ]
+      },
+      {
+        "name": "saxes-high-selectivity",
+        "selectivity": "high",
+        "records": 43092,
+        "checksum": -422428697,
+        "avgMs": 103.65776666666655,
+        "minMs": 102.5351999999998,
+        "maxMs": 104.55470000000014,
+        "throughputMiBs": 154.35495245462323,
+        "avgHeapDeltaBytes": 712189.3333333334,
+        "avgRssDeltaBytes": 262144,
+        "samplesMs": [
+          103.88339999999971,
+          102.5351999999998,
+          104.55470000000014
+        ]
+      }
+    ]
+  },
+  "generatedSizes": [
+    {
+      "fixture": {
+        "kind": "generated-byte-batches",
+        "targetBytes": 1073741824,
+        "actualBytes": 1073741879,
+        "sizeGiB": 1.0000000512227416,
+        "rowCount": 2757822
+      },
+      "cases": [
+        {
+          "name": "projection-low-selectivity",
+          "selectivity": "low",
+          "records": 28432,
+          "checksum": -58436355,
+          "avgMs": 3351.9255333333335,
+          "minMs": 3288.604300000001,
+          "maxMs": 3387.11,
+          "throughputMiBs": 305.49606256728714,
+          "avgHeapDeltaBytes": 5238760,
+          "avgRssDeltaBytes": 4057770.6666666665,
+          "samplesMs": [
+            3387.11,
+            3380.0623000000005,
+            3288.604300000001
+          ]
+        },
+        {
+          "name": "manual-streamreader-low-selectivity",
+          "selectivity": "low",
+          "records": 28432,
+          "checksum": -58436355,
+          "avgMs": 3422.9628000000007,
+          "minMs": 3316.4635000000017,
+          "maxMs": 3521.979800000001,
+          "throughputMiBs": 299.1560564000541,
+          "avgHeapDeltaBytes": 2134306.6666666665,
+          "avgRssDeltaBytes": -236202.66666666666,
+          "samplesMs": [
+            3430.445099999999,
+            3316.4635000000017,
+            3521.979800000001
+          ]
+        },
+        {
+          "name": "projection-high-selectivity",
+          "selectivity": "high",
+          "records": 2757822,
+          "checksum": -1687952599,
+          "avgMs": 4548.632766666666,
+          "minMs": 4530.405200000001,
+          "maxMs": 4583.725600000002,
+          "throughputMiBs": 225.12260386377517,
+          "avgHeapDeltaBytes": 7889826.666666667,
+          "avgRssDeltaBytes": -2502656,
+          "samplesMs": [
+            4530.405200000001,
+            4583.725600000002,
+            4531.7674999999945
+          ]
+        },
+        {
+          "name": "manual-streamreader-high-selectivity",
+          "selectivity": "high",
+          "records": 2757822,
+          "checksum": -1687952599,
+          "avgMs": 4005.7658999999985,
+          "minMs": 3969.533899999995,
+          "maxMs": 4076.999300000003,
+          "throughputMiBs": 255.63152665813243,
+          "avgHeapDeltaBytes": 7845002.666666667,
+          "avgRssDeltaBytes": 1227434.6666666667,
+          "samplesMs": [
+            3970.7644999999975,
+            3969.533899999995,
+            4076.999300000003
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "kind": "generated-byte-batches",
+        "targetBytes": 4294967296,
+        "actualBytes": 4294967587,
+        "sizeGiB": 4.000000271014869,
+        "rowCount": 11031284
+      },
+      "cases": [
+        {
+          "name": "projection-low-selectivity",
+          "selectivity": "low",
+          "records": 113725,
+          "checksum": 1823708471,
+          "avgMs": 13247.835433333328,
+          "minMs": 13025.262999999992,
+          "maxMs": 13453.294600000001,
+          "throughputMiBs": 309.1826055759374,
+          "avgHeapDeltaBytes": 4479792,
+          "avgRssDeltaBytes": 1821354.6666666667,
+          "samplesMs": [
+            13453.294600000001,
+            13025.262999999992,
+            13264.948699999994
+          ]
+        },
+        {
+          "name": "manual-streamreader-low-selectivity",
+          "selectivity": "low",
+          "records": 113725,
+          "checksum": 1823708471,
+          "avgMs": 13688.152399999997,
+          "minMs": 13555.330099999992,
+          "maxMs": 13859.399600000004,
+          "throughputMiBs": 299.2368990221958,
+          "avgHeapDeltaBytes": 7025805.333333333,
+          "avgRssDeltaBytes": -462848,
+          "samplesMs": [
+            13555.330099999992,
+            13649.727499999994,
+            13859.399600000004
+          ]
+        },
+        {
+          "name": "projection-high-selectivity",
+          "selectivity": "high",
+          "records": 11031284,
+          "checksum": -1141209733,
+          "avgMs": 17766.721566666663,
+          "minMs": 17545.334000000003,
+          "maxMs": 18007.275599999994,
+          "throughputMiBs": 230.54339328444289,
+          "avgHeapDeltaBytes": 5478869.333333333,
+          "avgRssDeltaBytes": -2684245.3333333335,
+          "samplesMs": [
+            18007.275599999994,
+            17747.555099999998,
+            17545.334000000003
+          ]
+        },
+        {
+          "name": "manual-streamreader-high-selectivity",
+          "selectivity": "high",
+          "records": 11031284,
+          "checksum": -1141209733,
+          "avgMs": 16186.144999999999,
+          "minMs": 16103.446800000005,
+          "maxMs": 16229.429999999993,
+          "throughputMiBs": 253.0559486226786,
+          "avgHeapDeltaBytes": 4602712,
+          "avgRssDeltaBytes": 1318912,
+          "samplesMs": [
+            16103.446800000005,
+            16225.5582,
+            16229.429999999993
+          ]
+        }
+      ]
+    }
+  ]
+}

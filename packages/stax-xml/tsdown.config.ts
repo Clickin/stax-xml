@@ -15,6 +15,7 @@ export default defineConfig([
   {
     entry: {
       converter: 'src/converter/index.ts',
+      projection: 'src/projection/index.ts',
     },
     format: ['esm'],
     dts: true,

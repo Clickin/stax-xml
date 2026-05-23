@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T15:16:30.755Z",
+  "generatedAt": "2026-05-23T04:29:40.906Z",
   "environment": {
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
     "platform": "win32-x64",
@@ -38,69 +38,103 @@
         {
           "id": "public-sync-full-string",
           "status": "ok",
-          "avgMs": 197.76743333333334,
-          "minMs": 173.92990000000003,
-          "maxMs": 226.23919999999998,
-          "mibPerSec": 80.9022495579657,
+          "avgMs": 170.83336666666665,
+          "minMs": 166.85980000000006,
+          "maxMs": 173.99739999999997,
+          "mibPerSec": 93.6575246286099,
           "eventCount": 967967,
           "checksum": -746772258,
-          "peakRssBytes": 106987520,
-          "peakHeapUsedBytes": 23838904,
+          "peakRssBytes": 98922496,
+          "peakHeapUsedBytes": 25769200,
           "samplesMs": [
-            173.92990000000003,
-            226.23919999999998,
-            193.1332
+            173.99739999999997,
+            171.6429,
+            166.85980000000006
           ]
         },
         {
           "id": "stream-sync-index-full-string",
           "status": "ok",
-          "avgMs": 161.81453333333332,
-          "minMs": 155.60390000000007,
-          "maxMs": 169.4659999999999,
-          "mibPerSec": 98.87758482739302,
+          "avgMs": 150.4067,
+          "minMs": 147.67139999999995,
+          "maxMs": 153.36529999999993,
+          "mibPerSec": 106.37711116573716,
           "eventCount": 967967,
           "checksum": -746772258,
-          "peakRssBytes": 147382272,
-          "peakHeapUsedBytes": 23496248,
+          "peakRssBytes": 140029952,
+          "peakHeapUsedBytes": 24536664,
           "samplesMs": [
-            160.37369999999999,
-            169.4659999999999,
-            155.60390000000007
+            153.36529999999993,
+            150.18340000000012,
+            147.67139999999995
+          ]
+        },
+        {
+          "id": "projection-low-selectivity",
+          "status": "ok",
+          "avgMs": 97.14899999999989,
+          "minMs": 92.64889999999991,
+          "maxMs": 102.07489999999984,
+          "mibPerSec": 164.6937204291521,
+          "eventCount": 587,
+          "checksum": -394352661,
+          "peakRssBytes": 139919360,
+          "peakHeapUsedBytes": 25089712,
+          "samplesMs": [
+            96.7231999999999,
+            102.07489999999984,
+            92.64889999999991
+          ]
+        },
+        {
+          "id": "projection-high-selectivity",
+          "status": "ok",
+          "avgMs": 116.58980000000004,
+          "minMs": 114.80479999999989,
+          "maxMs": 118.85840000000007,
+          "mibPerSec": 137.23181827202444,
+          "eventCount": 56939,
+          "checksum": 998171959,
+          "peakRssBytes": 141012992,
+          "peakHeapUsedBytes": 25398552,
+          "samplesMs": [
+            114.80479999999989,
+            116.10620000000017,
+            118.85840000000007
           ]
         },
         {
           "id": "event-count-only",
           "status": "ok",
-          "avgMs": 140.74753333333334,
-          "minMs": 137.22389999999996,
-          "maxMs": 143.15159999999992,
-          "mibPerSec": 113.67751794327488,
+          "avgMs": 138.1591,
+          "minMs": 136.7559000000001,
+          "maxMs": 140.72019999999975,
+          "mibPerSec": 115.80728483300541,
           "eventCount": 967967,
           "checksum": 2078515073,
-          "peakRssBytes": 107687936,
-          "peakHeapUsedBytes": 21473936,
+          "peakRssBytes": 104247296,
+          "peakHeapUsedBytes": 21683112,
           "samplesMs": [
-            137.22389999999996,
-            143.15159999999992,
-            141.86710000000016
+            137.00120000000015,
+            136.7559000000001,
+            140.72019999999975
           ]
         },
         {
           "id": "event-full-string",
           "status": "ok",
-          "avgMs": 198.60483333333332,
-          "minMs": 194.42599999999993,
-          "maxMs": 203.0545000000002,
-          "mibPerSec": 80.56113226166038,
+          "avgMs": 196.32786666666667,
+          "minMs": 186.11810000000014,
+          "maxMs": 209.55629999999974,
+          "mibPerSec": 81.49546224702189,
           "eventCount": 967967,
           "checksum": 1007437756,
-          "peakRssBytes": 107884544,
-          "peakHeapUsedBytes": 24718480,
+          "peakRssBytes": 103804928,
+          "peakHeapUsedBytes": 24175384,
           "samplesMs": [
-            203.0545000000002,
-            194.42599999999993,
-            198.33399999999983
+            193.30920000000015,
+            209.55629999999974,
+            186.11810000000014
           ]
         }
       ],
@@ -124,69 +158,103 @@
         {
           "id": "public-sync-full-string",
           "status": "ok",
-          "avgMs": 246.6281,
-          "minMs": 241.2095,
-          "maxMs": 253.4466,
-          "mibPerSec": 64.87431986043634,
+          "avgMs": 232.29036666666664,
+          "minMs": 218.12720000000002,
+          "maxMs": 248.31550000000004,
+          "mibPerSec": 68.878578460084,
           "eventCount": 967967,
           "checksum": -746772258,
-          "peakRssBytes": 272125952,
-          "peakHeapUsedBytes": 17590326,
+          "peakRssBytes": 272908288,
+          "peakHeapUsedBytes": 17701124,
           "samplesMs": [
-            241.2095,
-            253.4466,
-            245.22820000000002
+            218.12720000000002,
+            230.4283999999999,
+            248.31550000000004
           ]
         },
         {
           "id": "stream-sync-index-full-string",
           "status": "ok",
-          "avgMs": 128.13613333333333,
-          "minMs": 122.92420000000016,
-          "maxMs": 131.4004,
-          "mibPerSec": 124.86587373718949,
+          "avgMs": 121.71896666666673,
+          "minMs": 113.11339999999996,
+          "maxMs": 133.0771000000002,
+          "mibPerSec": 131.44894903509973,
           "eventCount": 967967,
           "checksum": -746772258,
-          "peakRssBytes": 421904384,
-          "peakHeapUsedBytes": 70518303,
+          "peakRssBytes": 383729664,
+          "peakHeapUsedBytes": 70628973,
           "samplesMs": [
-            131.4004,
-            122.92420000000016,
-            130.08379999999988
+            133.0771000000002,
+            118.96640000000002,
+            113.11339999999996
+          ]
+        },
+        {
+          "id": "projection-low-selectivity",
+          "status": "ok",
+          "avgMs": 74.02316666666661,
+          "minMs": 70.85079999999994,
+          "maxMs": 75.88489999999979,
+          "mibPerSec": 216.1462548342527,
+          "eventCount": 587,
+          "checksum": -394352661,
+          "peakRssBytes": 441298944,
+          "peakHeapUsedBytes": 70628973,
+          "samplesMs": [
+            75.88489999999979,
+            70.85079999999994,
+            75.33380000000011
+          ]
+        },
+        {
+          "id": "projection-high-selectivity",
+          "status": "ok",
+          "avgMs": 134.32353333333336,
+          "minMs": 133.38110000000006,
+          "maxMs": 135.4969000000001,
+          "mibPerSec": 119.11412578961104,
+          "eventCount": 56939,
+          "checksum": 998171959,
+          "peakRssBytes": 506040320,
+          "peakHeapUsedBytes": 117165502,
+          "samplesMs": [
+            133.38110000000006,
+            134.09259999999995,
+            135.4969000000001
           ]
         },
         {
           "id": "event-count-only",
           "status": "ok",
-          "avgMs": 199.09916666666672,
-          "minMs": 196.10640000000012,
-          "maxMs": 202.4466,
-          "mibPerSec": 80.36111106762547,
+          "avgMs": 194.86386666666658,
+          "minMs": 187.49039999999968,
+          "maxMs": 205.9725000000003,
+          "mibPerSec": 82.10773253997331,
           "eventCount": 967967,
           "checksum": 2078515073,
-          "peakRssBytes": 356257792,
-          "peakHeapUsedBytes": 18081536,
+          "peakRssBytes": 552595456,
+          "peakHeapUsedBytes": 18651595,
           "samplesMs": [
-            198.74450000000002,
-            202.4466,
-            196.10640000000012
+            191.12869999999975,
+            205.9725000000003,
+            187.49039999999968
           ]
         },
         {
           "id": "event-full-string",
           "status": "ok",
-          "avgMs": 382.4671,
-          "minMs": 332.79089999999997,
-          "maxMs": 461.51640000000043,
-          "mibPerSec": 41.83321976183488,
+          "avgMs": 336.8896666666669,
+          "minMs": 306.7596000000003,
+          "maxMs": 355.3734999999997,
+          "mibPerSec": 47.49279015970115,
           "eventCount": 967967,
           "checksum": 1007437756,
-          "peakRssBytes": 263340032,
-          "peakHeapUsedBytes": 18065375,
+          "peakRssBytes": 280834048,
+          "peakHeapUsedBytes": 18638301,
           "samplesMs": [
-            332.79089999999997,
-            461.51640000000043,
-            353.0939999999996
+            306.7596000000003,
+            355.3734999999997,
+            348.53590000000077
           ]
         }
       ],
@@ -210,73 +278,379 @@
         {
           "id": "public-sync-full-string",
           "status": "ok",
-          "avgMs": 176.87906666666672,
-          "minMs": 163.34130000000005,
-          "maxMs": 193.86950000000002,
-          "mibPerSec": 90.4563244678568,
+          "avgMs": 179.4150666666667,
+          "minMs": 168.95050000000003,
+          "maxMs": 193.7527,
+          "mibPerSec": 89.17774043858643,
           "eventCount": 967967,
           "checksum": -746772258,
-          "peakRssBytes": 101339136,
-          "peakHeapUsedBytes": 29282304,
+          "peakRssBytes": 100069376,
+          "peakHeapUsedBytes": 29726760,
           "samplesMs": [
-            173.42640000000003,
-            163.34130000000005,
-            193.86950000000002
+            175.542,
+            168.95050000000003,
+            193.7527
           ]
         },
         {
           "id": "stream-sync-index-full-string",
           "status": "ok",
-          "avgMs": 158.02936666666662,
-          "minMs": 138.36130000000003,
-          "maxMs": 176.84699999999975,
-          "mibPerSec": 101.24593031952301,
+          "avgMs": 158.15886666666657,
+          "minMs": 135.64609999999993,
+          "maxMs": 185.16539999999986,
+          "mibPerSec": 101.1630304590681,
           "eventCount": 967967,
           "checksum": -746772258,
-          "peakRssBytes": 169197568,
-          "peakHeapUsedBytes": 29154296,
+          "peakRssBytes": 162926592,
+          "peakHeapUsedBytes": 29181472,
           "samplesMs": [
-            158.87980000000005,
-            138.36130000000003,
-            176.84699999999975
+            153.66509999999994,
+            135.64609999999993,
+            185.16539999999986
+          ]
+        },
+        {
+          "id": "projection-low-selectivity",
+          "status": "ok",
+          "avgMs": 92.01136666666669,
+          "minMs": 87.67710000000011,
+          "maxMs": 97.76299999999992,
+          "mibPerSec": 173.88971412559184,
+          "eventCount": 587,
+          "checksum": -394352661,
+          "peakRssBytes": 170086400,
+          "peakHeapUsedBytes": 26720664,
+          "samplesMs": [
+            97.76299999999992,
+            90.59400000000005,
+            87.67710000000011
+          ]
+        },
+        {
+          "id": "projection-high-selectivity",
+          "status": "ok",
+          "avgMs": 117.51349999999995,
+          "minMs": 114.5967999999998,
+          "maxMs": 119.74849999999992,
+          "mibPerSec": 136.15312492583138,
+          "eventCount": 56939,
+          "checksum": 998171959,
+          "peakRssBytes": 167190528,
+          "peakHeapUsedBytes": 25891280,
+          "samplesMs": [
+            119.74849999999992,
+            118.19520000000011,
+            114.5967999999998
           ]
         },
         {
           "id": "event-count-only",
           "status": "ok",
-          "avgMs": 143.4512666666666,
-          "minMs": 134.1848,
-          "maxMs": 156.21180000000004,
-          "mibPerSec": 111.53495272474662,
+          "avgMs": 135.64796666666658,
+          "minMs": 132.92379999999957,
+          "maxMs": 140.8112000000001,
+          "mibPerSec": 117.95112480593781,
           "eventCount": 967967,
           "checksum": 2078515073,
-          "peakRssBytes": 170082304,
-          "peakHeapUsedBytes": 28959128,
+          "peakRssBytes": 167800832,
+          "peakHeapUsedBytes": 27052240,
           "samplesMs": [
-            134.1848,
-            139.95719999999983,
-            156.21180000000004
+            132.92379999999957,
+            133.20890000000009,
+            140.8112000000001
           ]
         },
         {
           "id": "event-full-string",
           "status": "ok",
-          "avgMs": 172.53853333333322,
-          "minMs": 167.32789999999977,
-          "maxMs": 182.3793999999998,
-          "mibPerSec": 92.73192449747471,
+          "avgMs": 164.80273333333312,
+          "minMs": 162.10969999999998,
+          "maxMs": 166.98679999999968,
+          "mibPerSec": 97.08473835570507,
           "eventCount": 967967,
           "checksum": 1007437756,
-          "peakRssBytes": 169762816,
-          "peakHeapUsedBytes": 28894872,
+          "peakRssBytes": 162897920,
+          "peakHeapUsedBytes": 26598984,
           "samplesMs": [
-            167.32789999999977,
-            182.3793999999998,
-            167.90830000000005
+            162.10969999999998,
+            165.31169999999975,
+            166.98679999999968
           ]
         }
       ],
       "status": "ok"
+    }
+  ],
+  "comparisons": [
+    {
+      "workload": "public-sync-full-string",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 93.6575246286099,
+          "avgMs": 170.83336666666665,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakHeapUsedBytes": 25769200,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 68.878578460084,
+          "avgMs": 232.29036666666664,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakHeapUsedBytes": 17701124,
+          "relativeToBaseline": 0.7354302682375551
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.13 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 89.17774043858643,
+          "avgMs": 179.4150666666667,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakHeapUsedBytes": 29726760,
+          "relativeToBaseline": 0.9521684540800364
+        }
+      ]
+    },
+    {
+      "workload": "stream-sync-index-full-string",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 106.37711116573716,
+          "avgMs": 150.4067,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakHeapUsedBytes": 24536664,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 131.44894903509973,
+          "avgMs": 121.71896666666673,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakHeapUsedBytes": 70628973,
+          "relativeToBaseline": 1.2356882753687517
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.13 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 101.1630304590681,
+          "avgMs": 158.15886666666657,
+          "eventCount": 967967,
+          "checksum": -746772258,
+          "peakHeapUsedBytes": 29181472,
+          "relativeToBaseline": 0.9509849379295002
+        }
+      ]
+    },
+    {
+      "workload": "projection-low-selectivity",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 587,
+        "checksum": -394352661,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 164.6937204291521,
+          "avgMs": 97.14899999999989,
+          "eventCount": 587,
+          "checksum": -394352661,
+          "peakHeapUsedBytes": 25089712,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 216.1462548342527,
+          "avgMs": 74.02316666666661,
+          "eventCount": 587,
+          "checksum": -394352661,
+          "peakHeapUsedBytes": 70628973,
+          "relativeToBaseline": 1.312413456147737
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.13 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 173.88971412559184,
+          "avgMs": 92.01136666666669,
+          "eventCount": 587,
+          "checksum": -394352661,
+          "peakHeapUsedBytes": 26720664,
+          "relativeToBaseline": 1.0558369418850773
+        }
+      ]
+    },
+    {
+      "workload": "projection-high-selectivity",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 56939,
+        "checksum": 998171959,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 137.23181827202444,
+          "avgMs": 116.58980000000004,
+          "eventCount": 56939,
+          "checksum": 998171959,
+          "peakHeapUsedBytes": 25398552,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 119.11412578961104,
+          "avgMs": 134.32353333333336,
+          "eventCount": 56939,
+          "checksum": 998171959,
+          "peakHeapUsedBytes": 117165502,
+          "relativeToBaseline": 0.867977465353552
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.13 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 136.15312492583138,
+          "avgMs": 117.51349999999995,
+          "eventCount": 56939,
+          "checksum": 998171959,
+          "peakHeapUsedBytes": 25891280,
+          "relativeToBaseline": 0.9921396265109973
+        }
+      ]
+    },
+    {
+      "workload": "event-count-only",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 967967,
+        "checksum": 2078515073,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 115.80728483300541,
+          "avgMs": 138.1591,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakHeapUsedBytes": 21683112,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 82.10773253997331,
+          "avgMs": 194.86386666666658,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakHeapUsedBytes": 18651595,
+          "relativeToBaseline": 0.7090031741817711
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.13 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 117.95112480593781,
+          "avgMs": 135.64796666666658,
+          "eventCount": 967967,
+          "checksum": 2078515073,
+          "peakHeapUsedBytes": 27052240,
+          "relativeToBaseline": 1.018512133982105
+        }
+      ]
+    },
+    {
+      "workload": "event-full-string",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 967967,
+        "checksum": 1007437756,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 81.49546224702189,
+          "avgMs": 196.32786666666667,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakHeapUsedBytes": 24175384,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 47.49279015970115,
+          "avgMs": 336.8896666666669,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakHeapUsedBytes": 18638301,
+          "relativeToBaseline": 0.5827660688118459
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.13 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 97.08473835570507,
+          "avgMs": 164.80273333333312,
+          "eventCount": 967967,
+          "checksum": 1007437756,
+          "peakHeapUsedBytes": 26598984,
+          "relativeToBaseline": 1.191290112097657
+        }
+      ]
     }
   ]
 }

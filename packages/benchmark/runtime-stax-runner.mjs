@@ -4,6 +4,30 @@ import {
   StreamReaderSync,
   XmlEventType,
 } from '../stax-xml/dist/index.js';
+import {
+  attr,
+  attrEquals,
+  childText,
+  compileProjection,
+  many,
+  projectXmlSync,
+} from '../stax-xml/dist/projection.js';
+
+const projectionLowSelectivityPlan = compileProjection({
+  books: many('/root/book', {
+    id: attr('id'),
+    title: childText('title'),
+  }, {
+    where: attrEquals('code', '7'),
+  }),
+});
+
+const projectionHighSelectivityPlan = compileProjection({
+  books: many('/root/book', {
+    id: attr('id'),
+    title: childText('title'),
+  }),
+});
 
 function argv() {
   if (globalThis.Deno?.args) {
@@ -257,6 +281,21 @@ function consumeStreamReaderIndex(bytes) {
   return { eventCount, checksum };
 }
 
+function consumeProjection(bytes, projectionPlan) {
+  let eventCount = 0;
+  let checksum = 0;
+
+  projectXmlSync(bytes, projectionPlan, {
+    onRecord(record) {
+      eventCount++;
+      checksum = foldString(checksum, record.id);
+      checksum = foldString(checksum, record.title);
+    },
+  });
+
+  return { eventCount, checksum };
+}
+
 function measure(id, run, fileSizeMiB, options) {
   for (let index = 0; index < options.warmups; index++) {
     run();
@@ -325,6 +364,8 @@ async function main() {
     scenarios: [
       measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
       measure('stream-sync-index-full-string', () => consumeStreamReaderIndex(bytes), fileSizeMiB, options),
+      measure('projection-low-selectivity', () => consumeProjection(bytes, projectionLowSelectivityPlan), fileSizeMiB, options),
+      measure('projection-high-selectivity', () => consumeProjection(bytes, projectionHighSelectivityPlan), fileSizeMiB, options),
       measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
       measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
     ],

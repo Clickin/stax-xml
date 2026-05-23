@@ -231,10 +231,93 @@ function formatBytes(bytes) {
   return `${(bytes / 1024).toFixed(1)} KiB`;
 }
 
-function createScenarioDetails(report) {
+function createRuntimeComparisons(results) {
+  const workloads = [];
+  const seen = new Set();
+
+  for (const result of results) {
+    if (result.status !== 'ok') continue;
+    for (const scenario of result.scenarios) {
+      if (seen.has(scenario.id)) continue;
+      seen.add(scenario.id);
+      workloads.push(scenario.id);
+    }
+  }
+
+  return workloads.map((workload) => {
+    const runtimes = [];
+    let baseline;
+
+    for (const result of results) {
+      if (result.status !== 'ok') {
+        continue;
+      }
+      const scenario = result.scenarios.find(entry => entry.id === workload);
+      if (!scenario) {
+        continue;
+      }
+      const entry = {
+        runtime: result.runtime.id,
+        version: result.runtime.version,
+        status: scenario.status,
+        mibPerSec: scenario.mibPerSec,
+        avgMs: scenario.avgMs,
+        eventCount: scenario.eventCount,
+        checksum: scenario.checksum,
+        peakHeapUsedBytes: scenario.peakHeapUsedBytes,
+      };
+      if (!baseline && scenario.status === 'ok') {
+        baseline = entry;
+      }
+      runtimes.push(entry);
+    }
+
+    const parity = baseline
+      ? {
+          status: runtimes.every(entry => (
+            entry.status === 'ok'
+            && entry.eventCount === baseline.eventCount
+            && entry.checksum === baseline.checksum
+          )) ? 'ok' : 'mismatch',
+          eventCount: baseline.eventCount,
+          checksum: baseline.checksum,
+          mismatches: runtimes
+            .filter(entry => (
+              entry.status !== 'ok'
+              || entry.eventCount !== baseline.eventCount
+              || entry.checksum !== baseline.checksum
+            ))
+            .map(entry => ({
+              runtime: entry.runtime,
+              status: entry.status,
+              eventCount: entry.eventCount,
+              checksum: entry.checksum,
+            })),
+        }
+      : {
+          status: 'missing',
+          eventCount: null,
+          checksum: null,
+          mismatches: [],
+        };
+
+    const baselineThroughput = baseline?.mibPerSec ?? null;
+    return {
+      workload,
+      baselineRuntime: baseline?.runtime ?? null,
+      parity,
+      runtimes: runtimes.map(entry => ({
+        ...entry,
+        relativeToBaseline: baselineThroughput ? entry.mibPerSec / baselineThroughput : null,
+      })),
+    };
+  });
+}
+
+function createWorkloadDetails(report) {
   return [
     '<details>',
-    '<summary>Scenario contract: Node, Bun, and Deno runtime matrix</summary>',
+    '<summary>Workload contract: Node, Bun, and Deno runtime matrix</summary>',
     '',
     `The matrix uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
     '',
@@ -257,8 +340,10 @@ function createScenarioDetails(report) {
     '',
     '~~~text',
     'runtime-result = {',
-    '  scenario: "public-sync-full-string" | "stream-sync-index-full-string" | "event-count-only" | "event-full-string",',
-    '  eventCount: number,',
+    '  workload: "public-sync-full-string" | "stream-sync-index-full-string" |',
+    '            "projection-low-selectivity" | "projection-high-selectivity" |',
+    '            "event-count-only" | "event-full-string",',
+    '  eventCount: number, // record count for projection workloads',
     '  checksum: fold(event type, names, text, attr names, attr values),',
     '  peakHeapUsedBytes: number',
     '}',
@@ -271,6 +356,8 @@ function createScenarioDetails(report) {
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
     '- `public-sync-full-string` uses `EventReaderSync` over one string.',
     '- `stream-sync-index-full-string` uses `StreamReaderSync` over bytes and consumes each `StreamBatch` with `eventCount` plus index accessors.',
+    '- `projection-low-selectivity` uses `stax-xml/projection` over bytes, selects `/root/book[@code="7"]`, and folds only `id` plus direct `title` child text.',
+    '- `projection-high-selectivity` uses the same projected fields but selects every `/root/book` record.',
     '- `event-count-only` and `event-full-string` use public event reader checksum tiers; they are not async parser rows.',
     '- This matrix measures only the public pure JavaScript reader path.',
     '',
@@ -294,28 +381,35 @@ function createMarkdown(report) {
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
     '',
-    '## Scenario',
+    '## Workloads',
     '',
-    createScenarioDetails(report),
+    createWorkloadDetails(report),
     '',
-    '## Results',
+    '## Runtime Comparisons',
     '',
-    '| Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Status |',
-    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |',
+    'Compare rows only within the same workload. Each workload preserves one input fixture, one API path, one materialization shape, and one checksum contract across runtimes.',
+    '',
+    '| Workload | Runtime | Version | Throughput | Relative to baseline | Average | Events | Checksum | Peak heap | Status |',
+    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
   ];
 
-  for (const result of report.results) {
-    if (result.status !== 'ok') {
-      lines.push(`| ${result.runtime.id} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | ${result.status}: ${escapePipe(result.reason)} |`);
-      continue;
-    }
-    for (const scenario of result.scenarios) {
+  for (const comparison of report.comparisons) {
+    for (const runtime of comparison.runtimes) {
       lines.push(
-        `| ${result.runtime.id} | ${escapePipe(result.runtime.version)} | ${scenario.id} | ` +
-        `${formatRate(scenario.mibPerSec)} | ${formatMs(scenario.avgMs)} | ` +
-        `${scenario.eventCount} | ${scenario.checksum} | ${formatBytes(scenario.peakHeapUsedBytes)} | ok |`,
+        `| ${comparison.workload} | ${runtime.runtime} | ${escapePipe(runtime.version)} | ` +
+        `${formatRate(runtime.mibPerSec)} | ${formatRelative(runtime.relativeToBaseline)} | ` +
+        `${formatMs(runtime.avgMs)} | ${runtime.eventCount} | ${runtime.checksum} | ` +
+        `${formatBytes(runtime.peakHeapUsedBytes)} | ${runtime.status} |`,
       );
     }
+    if (comparison.parity.status !== 'ok') {
+      lines.push(`| ${comparison.workload} | parity | n/a | n/a | n/a | n/a | ${comparison.parity.eventCount ?? 'n/a'} | ${comparison.parity.checksum ?? 'n/a'} | n/a | ${comparison.parity.status} |`);
+    }
+  }
+
+  const failedResults = report.results.filter(result => result.status !== 'ok');
+  for (const result of failedResults) {
+    lines.push(`| runtime-startup | ${result.runtime.id} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | ${result.status}: ${escapePipe(result.reason)} |`);
   }
 
   lines.push('');
@@ -323,11 +417,18 @@ function createMarkdown(report) {
   lines.push('');
   lines.push('- `public-sync-full-string` uses `EventReaderSync` and folds element names, text, attribute names, and attribute values into a checksum.');
   lines.push('- `stream-sync-index-full-string` uses `StreamReaderSync` and folds the same full-string checksum through batch-local index accessors.');
+  lines.push('- `projection-low-selectivity` uses `stax-xml/projection`, byte-span selector matching, `attrEquals("code", "7")`, `attr("id")`, and `childText("title")`; its event count column is projected record count.');
+  lines.push('- `projection-high-selectivity` uses the same projection engine and projected fields without the attribute predicate, so it materializes every generated book record.');
   lines.push('- `event-count-only` uses the public event reader without string field folding beyond event counts and attribute counts.');
   lines.push('- `event-full-string` uses the same public event reader and materializes the full string checksum workload.');
-  lines.push('- All runtime rows must preserve event count and checksum for the same scenario.');
+  lines.push('- All runtime rows must preserve event count and checksum within the same workload.');
 
   return `${lines.join('\n')}\n`;
+}
+
+function formatRelative(value) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return 'n/a';
+  return `${value.toFixed(2)}x`;
 }
 
 function escapePipe(value) {
@@ -365,6 +466,7 @@ async function main() {
     },
     results,
   };
+  report.comparisons = createRuntimeComparisons(results);
 
   mkdirSync(dirname(options.jsonOut), { recursive: true });
   writeFileSync(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
