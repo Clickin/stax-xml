@@ -73,6 +73,7 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
     'attrNameStringOnly',
     'attrValueStringOnly',
     'stringFull',
+    'eventObjectFull',
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
@@ -88,9 +89,14 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   }
 
   const scan = report.variants.find(entry => entry.id === 'scanAllNoDecode');
+  const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
   assert.equal(scan.materializationCounters.stringFieldReads, 0);
+  assert.ok(eventObjectFull.fullStringParity);
+  assert.equal(eventObjectFull.materializationCounters.eventObjects, eventObjectFull.eventCount);
+  assert.equal(eventObjectFull.checksum, report.fullStringParity.checksum);
   assert.ok(rawNameId.materializationCounters.rawNameCacheHits > 0);
+  assert.ok(!report.omittedRows.some(entry => entry.id === 'eventObjectFull'));
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Browser Candidate Headroom Matrix/);
@@ -154,6 +160,9 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
   assert.ok(report.variants.every(entry => entry.memory?.scope === 'browser-js-heap'));
+  const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
+  assert.equal(eventObjectFull.materializationCounters.eventObjects, eventObjectFull.eventCount);
+  assert.equal(eventObjectFull.checksum, report.fullStringParity.checksum);
   assert.equal(report.hostProcessMemory.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
   assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
 

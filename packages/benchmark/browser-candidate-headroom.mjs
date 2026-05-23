@@ -642,10 +642,6 @@ function createReport(browserResult, options, hostProcessMemory) {
     woodstoxTarget,
     omittedRows: [
       {
-        id: 'eventObjectFull',
-        reason: 'EventReaderSync complete-string input is not part of this browser byte-batch matrix.',
-      },
-      {
         id: 'projectionLowSelectivity',
         reason: 'Projection rows require a separate selector contract and remain future work.',
       },
@@ -967,7 +963,7 @@ function createRunnerScript(options) {
     sourceFile: options.fixtureShape === 'corpus-cycle' ? options.corpusFile : null,
   };
   return `
-import { StreamEventType, StreamReaderSync } from '/stax/index.js';
+import { StreamEventType, StreamReaderSync, XmlEventType } from '/stax/index.js';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
@@ -1050,6 +1046,14 @@ function createVariants(fixture) {
       contractScope: 'full-string-materialization',
       fullStringParity: true,
       run: () => consumeStreamSelective(fixture, allStringFields),
+    },
+    {
+      id: 'eventObjectFull',
+      family: 'full-stax-js',
+      implementation: 'public event objects materialized from browser byte batches',
+      contractScope: 'full-event-object-materialization',
+      fullStringParity: true,
+      run: () => consumeEventObjectFull(fixture),
     },
     {
       id: 'cursorAccessor',
@@ -1353,6 +1357,112 @@ function consumeCursorAccessor(fixture) {
   }
 
   return { eventCount, checksum, materializationCounters };
+}
+
+function consumeEventObjectFull(fixture) {
+  const materializationCounters = createMaterializationCounters();
+  const objectSink = new Array(1024);
+  let objectSinkIndex = 0;
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (const batch of new StreamReaderSync(byteBatches(fixture))) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const event = materializePublicEventObject(batch, index, materializationCounters);
+      objectSink[objectSinkIndex & (objectSink.length - 1)] = event;
+      objectSinkIndex++;
+
+      eventCount++;
+      checksum = mixChecksum(checksum, publicEventTypeCode(event.type));
+
+      if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+        checksum = foldString(checksum, event.name);
+      }
+      if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+        checksum = foldString(checksum, event.value?.trim());
+      }
+      if (event.type === XmlEventType.START_ELEMENT) {
+        const entries = Object.entries(event.attributes);
+        materializationCounters.attributePairs += entries.length;
+        checksum = mixChecksum(checksum, entries.length);
+        for (const [name, value] of entries) {
+          checksum = foldString(checksum, name);
+          checksum = foldString(checksum, value);
+        }
+      }
+    }
+  }
+
+  globalThis.__staxBrowserCandidateEventObjectSink = objectSink[(objectSinkIndex - 1) & (objectSink.length - 1)];
+  return { eventCount, checksum, materializationCounters };
+}
+
+function materializePublicEventObject(batch, index, materializationCounters) {
+  const type = batch.typeAt(index);
+  materializationCounters.eventObjects++;
+  switch (type) {
+    case StreamEventType.START_DOCUMENT:
+      return { type: XmlEventType.START_DOCUMENT };
+    case StreamEventType.END_DOCUMENT:
+      return { type: XmlEventType.END_DOCUMENT };
+    case StreamEventType.START_ELEMENT: {
+      countStringField(materializationCounters, 'name');
+      const name = batch.nameAt(index);
+      const attrCount = batch.attributeCountAt(index);
+      const attributes = {};
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        countStringField(materializationCounters, 'attrName');
+        const attrName = batch.attributeNameAt(index, attrIndex);
+        countStringField(materializationCounters, 'attrValue');
+        attributes[attrName] = batch.attributeValueAt(index, attrIndex);
+      }
+      return {
+        type: XmlEventType.START_ELEMENT,
+        name,
+        attributes,
+      };
+    }
+    case StreamEventType.END_ELEMENT:
+      countStringField(materializationCounters, 'name');
+      return {
+        type: XmlEventType.END_ELEMENT,
+        name: batch.nameAt(index),
+      };
+    case StreamEventType.CHARACTERS:
+      countStringField(materializationCounters, 'text');
+      return {
+        type: XmlEventType.CHARACTERS,
+        value: batch.textAt(index),
+      };
+    case StreamEventType.CDATA:
+      countStringField(materializationCounters, 'text');
+      return {
+        type: XmlEventType.CDATA,
+        value: batch.textAt(index),
+      };
+    default:
+      throw new Error('Unsupported stream event type: ' + type);
+  }
+}
+
+function publicEventTypeCode(type) {
+  switch (type) {
+    case XmlEventType.START_DOCUMENT:
+      return StreamEventType.START_DOCUMENT;
+    case XmlEventType.END_DOCUMENT:
+      return StreamEventType.END_DOCUMENT;
+    case XmlEventType.START_ELEMENT:
+      return StreamEventType.START_ELEMENT;
+    case XmlEventType.END_ELEMENT:
+      return StreamEventType.END_ELEMENT;
+    case XmlEventType.CHARACTERS:
+      return StreamEventType.CHARACTERS;
+    case XmlEventType.CDATA:
+      return StreamEventType.CDATA;
+    default:
+      throw new Error('Unsupported public event type: ' + type);
+  }
 }
 
 class BatchCursor {
