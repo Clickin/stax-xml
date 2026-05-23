@@ -82,6 +82,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /candidate-headroom-projection-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-projection-large\.md/);
+  assert.match(markdown, /candidate-headroom-projection-stability\.md/);
+  assert.match(markdown, /bun-candidate-headroom-projection-stability\.md/);
   assert.match(markdown, /browser-candidate-headroom-projection-large\.md/);
   assert.match(markdown, /browser-candidate-headroom-projection-stability\.md/);
   assert.match(markdown, /candidate-headroom-corpus\.md/);
@@ -190,8 +192,17 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`projectionHighSelectivity` reported\s+`99\.60 MiB\/s`, 3,179,819 records, checksum `-2078190377`, 6,359,638 selected\s+string fields, and max RSS `156\.1 MiB`/);
   assert.match(markdown, /Bun\/JSC `projectionLowSelectivity`\s+reported `126\.08 MiB\/s`/);
   assert.match(markdown, /`projectionHighSelectivity` reported `75\.84 MiB\/s`/);
-  assert.match(markdown, /Bun\/JSC `scanAllNoDecode` row in this same artifact reached `245\.41 MiB\/s`/);
+  assert.match(markdown, /older Bun\/JSC\s+`scanAllNoDecode` single-run row in this same artifact reached `245\.41 MiB\/s`/);
   assert.match(markdown, /it drops all strings/);
+  assert.match(markdown, /did not reproduce as a 200 MiB\/s\+ average in the `runs=3` stability artifact/);
+  assert.match(markdown, /Node\/V8 reported `scanAllNoDecode` at `151\.85 MiB\/s` with `37\.8%` spread/);
+  assert.match(markdown, /`rawFrameNameId` at `82\.47 MiB\/s` with\s+`0\.7%` spread/);
+  assert.match(markdown, /Node\/V8 projection rows reported `projectionLowSelectivity` at\s+`128\.02 MiB\/s` with `2\.9%` spread/);
+  assert.match(markdown, /`projectionHighSelectivity` at\s+`99\.34 MiB\/s` with `2\.3%` spread/);
+  assert.match(markdown, /Bun\/JSC reported `scanAllNoDecode` at `173\.22 MiB\/s` with `44\.8%` spread/);
+  assert.match(markdown, /`rawFrameNameId` at `83\.10 MiB\/s` with\s+`0\.5%` spread/);
+  assert.match(markdown, /Bun\/JSC `projectionLowSelectivity` reported `125\.90 MiB\/s` with\s+`1\.9%` spread/);
+  assert.match(markdown, /`projectionHighSelectivity` reported\s+`89\.98 MiB\/s` with high `31\.6%` spread/);
   assert.match(markdown, /selected-field projection rows are headroom evidence, not full StAX counterexamples/);
   assert.match(markdown, /Browser Chrome\/V8 1 GiB Projection-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /browser counterpart of the projection-cycle\s+matrix/);
@@ -208,7 +219,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`projectionHighSelectivity` reported `72\.07 MiB\/s` with `4\.8%` spread/);
   assert.match(markdown, /max used JS heap `55\.6 MiB` for `rawFrameNameId`/);
   assert.match(markdown, /max working set `518\.8 MiB` and max private bytes\s+`280\.1 MiB`/);
-  assert.match(markdown, /Node\/Bun projection stability rows/);
+  assert.match(markdown, /cross-process projection stability rows/);
   assert.match(markdown, /non-V8 browser projection rows/);
   assert.match(markdown, /The 512 MiB row\s+succeeded at 74\.19 MiB\/s/);
   assert.match(markdown, /peak RSS 1\.07 GiB/);
