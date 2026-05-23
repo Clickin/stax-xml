@@ -34,6 +34,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
+  assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 Allocation Sampling/);
   assert.match(markdown, /## Current Evidence: EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 String Limit Audit/);
@@ -94,6 +95,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-candidate-headroom-corpus\.md/);
   assert.match(markdown, /browser-candidate-headroom-large\.md/);
   assert.match(markdown, /browser-candidate-headroom-corpus\.md/);
+  assert.match(markdown, /browser-v8-allocation-sampling\.md/);
   assert.match(markdown, /treebank_e\.xml/);
   assert.match(markdown, /`rawFrameNameId` at\s+`77\.00 MiB\/s`/);
   assert.match(markdown, /`eventObjectFull` counted 75,206,126 public event objects/);
@@ -124,6 +126,18 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /max working set `865\.8 MiB`/);
   assert.match(markdown, /max private bytes\s+`689\.2 MiB`/);
   assert.match(markdown, /not a\s+proof of ArrayBuffer external-memory accounting/);
+  assert.match(markdown, /Chrome\/V8 browser allocation-sampling artifact recorded same-contract 16 MiB diverse-cycle rows/);
+  assert.match(markdown, /67\.61 MiB\/s for `stringFull`/);
+  assert.match(markdown, /51\.44 MiB\/s for public `eventObjectFull`/);
+  assert.match(markdown, /65\.85 MiB\/s for `rawFrameNameId`/);
+  assert.match(markdown, /sampled allocation totals of 119\.8 KiB, 41\.7 KiB, and 73\.0 KiB/);
+  assert.match(markdown, /CDP Chrome\s+148\.0\.7778\.179 \/ browser V8 14\.8\.178\.22/);
+  assert.match(markdown, /The sampled rows preserved 706,158 events and checksum `1039217453`/);
+  assert.match(markdown, /public\s+event-object row counted 706,158 public event objects/);
+  assert.match(markdown, /Top sampled functions included\s+`stax\/index\.js` parser\/materialization frames/);
+  assert.match(markdown, /does not cover 1 GiB browser allocation sampling/);
+  assert.match(markdown, /browser codegen traces/);
+  assert.match(markdown, /non-V8 browser allocation traces/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /browser-string-limit-audit\.md/);
