@@ -30,6 +30,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Wide-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
+  assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
@@ -50,6 +51,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-BUN-JSC-STRING-MAX-LENGTH'), /\| `ENGINE_INVARIANT` \+ `SOURCE_FACT` \+ `TRACE_FACT` \+ `COUNTEREXAMPLE` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BUN-JSC-COMPLETE-STRING-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BUN-JSC-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \+ partial `COUNTEREXAMPLE` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \|/);
 
   assert.doesNotMatch(markdown, /JavaScript runtimes cannot exceed 200 MiB\/s/i);
   assert.match(markdown, /full-string parity candidate that reaches 200 MiB\/s\+ with bounded memory/);
@@ -72,10 +74,18 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /candidate-headroom-corpus\.md/);
   assert.match(markdown, /bun-candidate-headroom-corpus\.md/);
+  assert.match(markdown, /browser-candidate-headroom-large\.md/);
   assert.match(markdown, /treebank_e\.xml/);
   assert.match(markdown, /`rawFrameNameId`\s+at `136\.73 MiB\/s`/);
   assert.match(markdown, /`rawFrameNameId`\s+at\s+`145\.84 MiB\/s`/);
   assert.match(markdown, /Bun\/JSC corpus-cycle full rows were not bounded under the 512 MiB RSS gate/);
+  assert.match(markdown, /Headless Chrome 148\.0\.0\.0 \/ browser V8/);
+  assert.match(markdown, /fastest partial row was\s+`scanAllNoDecode` at `151\.69 MiB\/s`/);
+  assert.match(markdown, /fastest full-string parity row was\s+`rawFrameNameId` at `80\.09 MiB\/s`/);
+  assert.match(markdown, /45,189,256 events, checksum\s+`1421012805`/);
+  assert.match(markdown, /Browser memory evidence is JS heap only, not process RSS/);
+  assert.match(markdown, /max used JS heap `16\.8 MiB`/);
+  assert.match(markdown, /Safari\/JSC, Firefox\/SpiderMonkey/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
