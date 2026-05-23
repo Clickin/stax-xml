@@ -1,12 +1,13 @@
 {
-  "generatedAt": "2026-05-23T19:43:07.392Z",
+  "generatedAt": "2026-05-23T20:15:35.112Z",
   "objective": "candidate-headroom-cross-process",
   "contract": "independent-process-candidate-headroom-stability",
   "note": "Each sample invokes candidate-headroom-large.mjs in a fresh process with --runs=1. Projection rows report projected records, not full StAX parity.",
   "options": {
     "runtimes": [
       "node",
-      "bun"
+      "bun",
+      "deno"
     ],
     "processRuns": 3,
     "childWarmups": 0,
@@ -38,6 +39,7 @@
         "node": "v24.15.0",
         "v8": "13.6.233.17-node.48",
         "bunVersion": null,
+        "denoVersion": null,
         "webkitCommit": null,
         "userAgent": "Node.js/24",
         "gcStrategy": "globalThis.gc"
@@ -72,6 +74,7 @@
             "node": "v24.15.0",
             "v8": "13.6.233.17-node.48",
             "bunVersion": null,
+            "denoVersion": null,
             "webkitCommit": null,
             "userAgent": "Node.js/24",
             "gcStrategy": "globalThis.gc"
@@ -79,15 +82,15 @@
           "variants": [
             {
               "id": "stringFull",
-              "mibPerSec": 91.83801174765759,
+              "mibPerSec": 95.52347718655051,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 77295616,
-              "maxHeapUsedBytes": 9137728,
+              "maxRssBytes": 77172736,
+              "maxHeapUsedBytes": 6982200,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -110,15 +113,15 @@
             },
             {
               "id": "eventObjectFull",
-              "mibPerSec": 60.614952953579326,
+              "mibPerSec": 55.151530424964854,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 141443072,
-              "maxHeapUsedBytes": 37845304,
+              "maxRssBytes": 141066240,
+              "maxHeapUsedBytes": 39366368,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -141,15 +144,15 @@
             },
             {
               "id": "rawFrameNameId",
-              "mibPerSec": 85.49073975458654,
+              "mibPerSec": 82.43462436950323,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 150876160,
-              "maxHeapUsedBytes": 30286816,
+              "maxRssBytes": 149176320,
+              "maxHeapUsedBytes": 30090648,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -172,15 +175,15 @@
             },
             {
               "id": "projectionLowSelectivity",
-              "mibPerSec": 131.2504508566771,
+              "mibPerSec": 131.00154073633988,
               "eventCount": 33382,
               "checksum": -403434369,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 152993792,
-              "maxHeapUsedBytes": 22527880,
+              "maxRssBytes": 168030208,
+              "maxHeapUsedBytes": 22059264,
               "materializationCounters": {
                 "stringFieldReads": 66764,
                 "nameStringReads": 0,
@@ -203,15 +206,15 @@
             },
             {
               "id": "projectionHighSelectivity",
-              "mibPerSec": 99.24048303661709,
+              "mibPerSec": 98.84414743840546,
               "eventCount": 3179819,
               "checksum": -2078190377,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 153128960,
-              "maxHeapUsedBytes": 39715568,
+              "maxRssBytes": 167276544,
+              "maxHeapUsedBytes": 6853648,
               "materializationCounters": {
                 "stringFieldReads": 6359638,
                 "nameStringReads": 0,
@@ -246,6 +249,7 @@
             "node": "v24.15.0",
             "v8": "13.6.233.17-node.48",
             "bunVersion": null,
+            "denoVersion": null,
             "webkitCommit": null,
             "userAgent": "Node.js/24",
             "gcStrategy": "globalThis.gc"
@@ -253,15 +257,15 @@
           "variants": [
             {
               "id": "stringFull",
-              "mibPerSec": 91.59881136969996,
+              "mibPerSec": 80.79880722048287,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 77225984,
-              "maxHeapUsedBytes": 9139168,
+              "maxRssBytes": 75964416,
+              "maxHeapUsedBytes": 7016112,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -284,15 +288,15 @@
             },
             {
               "id": "eventObjectFull",
-              "mibPerSec": 56.17417023828441,
+              "mibPerSec": 58.9008032065729,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 140328960,
-              "maxHeapUsedBytes": 8772008,
+              "maxRssBytes": 141373440,
+              "maxHeapUsedBytes": 14173032,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -315,15 +319,15 @@
             },
             {
               "id": "rawFrameNameId",
-              "mibPerSec": 82.42056201293069,
+              "mibPerSec": 81.07248559224715,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 151408640,
-              "maxHeapUsedBytes": 30157576,
+              "maxRssBytes": 150224896,
+              "maxHeapUsedBytes": 29961672,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -346,15 +350,15 @@
             },
             {
               "id": "projectionLowSelectivity",
-              "mibPerSec": 128.1364217706936,
+              "mibPerSec": 129.2622110194497,
               "eventCount": 33382,
               "checksum": -403434369,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 166551552,
-              "maxHeapUsedBytes": 23173368,
+              "maxRssBytes": 165744640,
+              "maxHeapUsedBytes": 22518896,
               "materializationCounters": {
                 "stringFieldReads": 66764,
                 "nameStringReads": 0,
@@ -377,15 +381,15 @@
             },
             {
               "id": "projectionHighSelectivity",
-              "mibPerSec": 99.33084311869806,
+              "mibPerSec": 100.03464981404964,
               "eventCount": 3179819,
               "checksum": -2078190377,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 166658048,
-              "maxHeapUsedBytes": 40116912,
+              "maxRssBytes": 165871616,
+              "maxHeapUsedBytes": 39266928,
               "materializationCounters": {
                 "stringFieldReads": 6359638,
                 "nameStringReads": 0,
@@ -420,6 +424,7 @@
             "node": "v24.15.0",
             "v8": "13.6.233.17-node.48",
             "bunVersion": null,
+            "denoVersion": null,
             "webkitCommit": null,
             "userAgent": "Node.js/24",
             "gcStrategy": "globalThis.gc"
@@ -427,15 +432,15 @@
           "variants": [
             {
               "id": "stringFull",
-              "mibPerSec": 96.33865147460452,
+              "mibPerSec": 94.87316130988916,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 77574144,
-              "maxHeapUsedBytes": 6956864,
+              "maxRssBytes": 77377536,
+              "maxHeapUsedBytes": 6825736,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -458,15 +463,15 @@
             },
             {
               "id": "eventObjectFull",
-              "mibPerSec": 60.29790462944133,
+              "mibPerSec": 58.61785346666659,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 141684736,
-              "maxHeapUsedBytes": 17208752,
+              "maxRssBytes": 141783040,
+              "maxHeapUsedBytes": 16090464,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -489,15 +494,15 @@
             },
             {
               "id": "rawFrameNameId",
-              "mibPerSec": 81.84999957433229,
+              "mibPerSec": 82.52884249623172,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 150470656,
-              "maxHeapUsedBytes": 30197568,
+              "maxRssBytes": 150138880,
+              "maxHeapUsedBytes": 30057688,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -520,15 +525,15 @@
             },
             {
               "id": "projectionLowSelectivity",
-              "mibPerSec": 129.6496912102889,
+              "mibPerSec": 126.68716943945951,
               "eventCount": 33382,
               "checksum": -403434369,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 166563840,
-              "maxHeapUsedBytes": 21819616,
+              "maxRssBytes": 164048896,
+              "maxHeapUsedBytes": 23206880,
               "materializationCounters": {
                 "stringFieldReads": 66764,
                 "nameStringReads": 0,
@@ -551,15 +556,15 @@
             },
             {
               "id": "projectionHighSelectivity",
-              "mibPerSec": 100.9496641511543,
+              "mibPerSec": 99.36942171877757,
               "eventCount": 3179819,
               "checksum": -2078190377,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 166662144,
-              "maxHeapUsedBytes": 39730568,
+              "maxRssBytes": 162910208,
+              "maxHeapUsedBytes": 6923168,
               "materializationCounters": {
                 "stringFieldReads": 6359638,
                 "nameStringReads": 0,
@@ -604,14 +609,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 93.25849153065401,
-          "minMiBPerSec": 91.59881136969996,
-          "maxMiBPerSec": 96.33865147460452,
-          "spreadRatio": 0.0508247562995009,
+          "avgMiBPerSec": 90.39848190564085,
+          "minMiBPerSec": 80.79880722048287,
+          "maxMiBPerSec": 95.52347718655051,
+          "spreadRatio": 0.16288625268549803,
           "mibPerSecSamples": [
-            91.83801174765759,
-            91.59881136969996,
-            96.33865147460452
+            95.52347718655051,
+            80.79880722048287,
+            94.87316130988916
           ],
           "eventCounts": [
             60416563
@@ -621,8 +626,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 77574144,
-          "maxHeapUsedBytes": 9139168,
+          "maxRssBytes": 77377536,
+          "maxHeapUsedBytes": 7016112,
           "counterexampleFound": false
         },
         {
@@ -632,14 +637,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 59.02900927376836,
-          "minMiBPerSec": 56.17417023828441,
-          "maxMiBPerSec": 60.614952953579326,
-          "spreadRatio": 0.07523051411381786,
+          "avgMiBPerSec": 57.55672903273478,
+          "minMiBPerSec": 55.151530424964854,
+          "maxMiBPerSec": 58.9008032065729,
+          "spreadRatio": 0.06514047696274905,
           "mibPerSecSamples": [
-            60.614952953579326,
-            56.17417023828441,
-            60.29790462944133
+            55.151530424964854,
+            58.9008032065729,
+            58.61785346666659
           ],
           "eventCounts": [
             60416563
@@ -649,8 +654,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 141684736,
-          "maxHeapUsedBytes": 37845304,
+          "maxRssBytes": 141783040,
+          "maxHeapUsedBytes": 39366368,
           "counterexampleFound": false
         },
         {
@@ -660,14 +665,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 83.25376711394983,
-          "minMiBPerSec": 81.84999957433229,
-          "maxMiBPerSec": 85.49073975458654,
-          "spreadRatio": 0.04373063593952639,
+          "avgMiBPerSec": 82.0119841526607,
+          "minMiBPerSec": 81.07248559224715,
+          "maxMiBPerSec": 82.52884249623172,
+          "spreadRatio": 0.017757854770025363,
           "mibPerSecSamples": [
-            85.49073975458654,
-            82.42056201293069,
-            81.84999957433229
+            82.43462436950323,
+            81.07248559224715,
+            82.52884249623172
           ],
           "eventCounts": [
             60416563
@@ -677,8 +682,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 151408640,
-          "maxHeapUsedBytes": 30286816,
+          "maxRssBytes": 150224896,
+          "maxHeapUsedBytes": 30090648,
           "counterexampleFound": false
         },
         {
@@ -688,14 +693,14 @@
           "eventCountKind": "projected-records",
           "fullStringParity": false,
           "sampleCount": 3,
-          "avgMiBPerSec": 129.6788546125532,
-          "minMiBPerSec": 128.1364217706936,
-          "maxMiBPerSec": 131.2504508566771,
-          "spreadRatio": 0.024013391352718336,
+          "avgMiBPerSec": 128.98364039841638,
+          "minMiBPerSec": 126.68716943945951,
+          "maxMiBPerSec": 131.00154073633988,
+          "spreadRatio": 0.033448980688975324,
           "mibPerSecSamples": [
-            131.2504508566771,
-            128.1364217706936,
-            129.6496912102889
+            131.00154073633988,
+            129.2622110194497,
+            126.68716943945951
           ],
           "eventCounts": [
             33382
@@ -705,8 +710,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 166563840,
-          "maxHeapUsedBytes": 23173368,
+          "maxRssBytes": 168030208,
+          "maxHeapUsedBytes": 23206880,
           "counterexampleFound": false
         },
         {
@@ -716,14 +721,14 @@
           "eventCountKind": "projected-records",
           "fullStringParity": false,
           "sampleCount": 3,
-          "avgMiBPerSec": 99.84033010215649,
-          "minMiBPerSec": 99.24048303661709,
-          "maxMiBPerSec": 100.9496641511543,
-          "spreadRatio": 0.017119145267131732,
+          "avgMiBPerSec": 99.4160729904109,
+          "minMiBPerSec": 98.84414743840546,
+          "maxMiBPerSec": 100.03464981404964,
+          "spreadRatio": 0.011974948716381257,
           "mibPerSecSamples": [
-            99.24048303661709,
-            99.33084311869806,
-            100.9496641511543
+            98.84414743840546,
+            100.03464981404964,
+            99.36942171877757
           ],
           "eventCounts": [
             3179819
@@ -733,8 +738,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 166662144,
-          "maxHeapUsedBytes": 40116912,
+          "maxRssBytes": 167276544,
+          "maxHeapUsedBytes": 39266928,
           "counterexampleFound": false
         }
       ]
@@ -749,6 +754,7 @@
         "node": "v24.3.0",
         "v8": "13.6.233.10-node.18",
         "bunVersion": "1.3.13",
+        "denoVersion": null,
         "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
         "userAgent": "Bun/1.3.13",
         "gcStrategy": "Bun.gc"
@@ -783,6 +789,7 @@
             "node": "v24.3.0",
             "v8": "13.6.233.10-node.18",
             "bunVersion": "1.3.13",
+            "denoVersion": null,
             "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
             "userAgent": "Bun/1.3.13",
             "gcStrategy": "Bun.gc"
@@ -790,15 +797,15 @@
           "variants": [
             {
               "id": "stringFull",
-              "mibPerSec": 98.73240458362399,
+              "mibPerSec": 97.81574449490464,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 213401600,
-              "maxHeapUsedBytes": 25127956,
+              "maxRssBytes": 201379840,
+              "maxHeapUsedBytes": 25132250,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -821,15 +828,15 @@
             },
             {
               "id": "eventObjectFull",
-              "mibPerSec": 62.97646102062421,
+              "mibPerSec": 64.82076466364214,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 213463040,
-              "maxHeapUsedBytes": 53134234,
+              "maxRssBytes": 201547776,
+              "maxHeapUsedBytes": 53148330,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -852,15 +859,15 @@
             },
             {
               "id": "rawFrameNameId",
-              "mibPerSec": 83.70616899194165,
+              "mibPerSec": 84.96883148829328,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 194859008,
-              "maxHeapUsedBytes": 53134234,
+              "maxRssBytes": 194498560,
+              "maxHeapUsedBytes": 53148330,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -883,15 +890,15 @@
             },
             {
               "id": "projectionLowSelectivity",
-              "mibPerSec": 127.19112481402517,
+              "mibPerSec": 125.89436197718737,
               "eventCount": 33382,
               "checksum": -403434369,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 214929408,
-              "maxHeapUsedBytes": 25834964,
+              "maxRssBytes": 215068672,
+              "maxHeapUsedBytes": 27123327,
               "materializationCounters": {
                 "stringFieldReads": 66764,
                 "nameStringReads": 0,
@@ -914,15 +921,15 @@
             },
             {
               "id": "projectionHighSelectivity",
-              "mibPerSec": 69.32147883608653,
+              "mibPerSec": 72.68191683488625,
               "eventCount": 3179819,
               "checksum": -2078190377,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 215109632,
-              "maxHeapUsedBytes": 47091762,
+              "maxRssBytes": 215289856,
+              "maxHeapUsedBytes": 50389166,
               "materializationCounters": {
                 "stringFieldReads": 6359638,
                 "nameStringReads": 0,
@@ -957,6 +964,7 @@
             "node": "v24.3.0",
             "v8": "13.6.233.10-node.18",
             "bunVersion": "1.3.13",
+            "denoVersion": null,
             "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
             "userAgent": "Bun/1.3.13",
             "gcStrategy": "Bun.gc"
@@ -964,15 +972,15 @@
           "variants": [
             {
               "id": "stringFull",
-              "mibPerSec": 97.54854201302801,
+              "mibPerSec": 97.70020370197645,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 189669376,
-              "maxHeapUsedBytes": 25137466,
+              "maxRssBytes": 190201856,
+              "maxHeapUsedBytes": 25139316,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -995,15 +1003,15 @@
             },
             {
               "id": "eventObjectFull",
-              "mibPerSec": 62.74531044047542,
+              "mibPerSec": 62.02459567072676,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 189399040,
-              "maxHeapUsedBytes": 53134382,
+              "maxRssBytes": 189984768,
+              "maxHeapUsedBytes": 53123038,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -1026,15 +1034,15 @@
             },
             {
               "id": "rawFrameNameId",
-              "mibPerSec": 84.40602036675595,
+              "mibPerSec": 82.6814613221061,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 180670464,
-              "maxHeapUsedBytes": 53134382,
+              "maxRssBytes": 180977664,
+              "maxHeapUsedBytes": 53123038,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -1057,15 +1065,15 @@
             },
             {
               "id": "projectionLowSelectivity",
-              "mibPerSec": 126.65903397073677,
+              "mibPerSec": 125.1446546330498,
               "eventCount": 33382,
               "checksum": -403434369,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 194834432,
-              "maxHeapUsedBytes": 27113417,
+              "maxRssBytes": 193675264,
+              "maxHeapUsedBytes": 25841994,
               "materializationCounters": {
                 "stringFieldReads": 66764,
                 "nameStringReads": 0,
@@ -1088,15 +1096,15 @@
             },
             {
               "id": "projectionHighSelectivity",
-              "mibPerSec": 67.88658980882921,
+              "mibPerSec": 70.02284161511216,
               "eventCount": 3179819,
               "checksum": -2078190377,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 194510848,
-              "maxHeapUsedBytes": 47086323,
+              "maxRssBytes": 193454080,
+              "maxHeapUsedBytes": 47093560,
               "materializationCounters": {
                 "stringFieldReads": 6359638,
                 "nameStringReads": 0,
@@ -1131,6 +1139,7 @@
             "node": "v24.3.0",
             "v8": "13.6.233.10-node.18",
             "bunVersion": "1.3.13",
+            "denoVersion": null,
             "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
             "userAgent": "Bun/1.3.13",
             "gcStrategy": "Bun.gc"
@@ -1138,15 +1147,15 @@
           "variants": [
             {
               "id": "stringFull",
-              "mibPerSec": 96.27378344114462,
+              "mibPerSec": 97.47980134074315,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 186986496,
-              "maxHeapUsedBytes": 25135792,
+              "maxRssBytes": 189321216,
+              "maxHeapUsedBytes": 25137305,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -1169,15 +1178,15 @@
             },
             {
               "id": "eventObjectFull",
-              "mibPerSec": 63.217406113491045,
+              "mibPerSec": 62.43214644117412,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 183394304,
-              "maxHeapUsedBytes": 53110489,
+              "maxRssBytes": 189059072,
+              "maxHeapUsedBytes": 53141337,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -1200,15 +1209,15 @@
             },
             {
               "id": "rawFrameNameId",
-              "mibPerSec": 83.16433539895696,
+              "mibPerSec": 83.81871709161317,
               "eventCount": 60416563,
               "checksum": 1441552024,
               "eventCountKind": "stream-events",
               "fullStringParity": true,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 181321728,
-              "maxHeapUsedBytes": 53110489,
+              "maxRssBytes": 180936704,
+              "maxHeapUsedBytes": 53141337,
               "materializationCounters": {
                 "stringFieldReads": 92214751,
                 "nameStringReads": 44517466,
@@ -1231,15 +1240,15 @@
             },
             {
               "id": "projectionLowSelectivity",
-              "mibPerSec": 126.73305917327293,
+              "mibPerSec": 126.31383519546726,
               "eventCount": 33382,
               "checksum": -403434369,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 197816320,
-              "maxHeapUsedBytes": 25838623,
+              "maxRssBytes": 196419584,
+              "maxHeapUsedBytes": 27116427,
               "materializationCounters": {
                 "stringFieldReads": 66764,
                 "nameStringReads": 0,
@@ -1262,15 +1271,15 @@
             },
             {
               "id": "projectionHighSelectivity",
-              "mibPerSec": 69.37726334576541,
+              "mibPerSec": 66.8948097903433,
               "eventCount": 3179819,
               "checksum": -2078190377,
               "eventCountKind": "projected-records",
               "fullStringParity": false,
               "boundedMemory": true,
               "counterexampleStatus": "not-found",
-              "maxRssBytes": 197459968,
-              "maxHeapUsedBytes": 52447902,
+              "maxRssBytes": 196079616,
+              "maxHeapUsedBytes": 52453536,
               "materializationCounters": {
                 "stringFieldReads": 6359638,
                 "nameStringReads": 0,
@@ -1315,14 +1324,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 97.5182433459322,
-          "minMiBPerSec": 96.27378344114462,
-          "maxMiBPerSec": 98.73240458362399,
-          "spreadRatio": 0.02521190967066297,
+          "avgMiBPerSec": 97.66524984587475,
+          "minMiBPerSec": 97.47980134074315,
+          "maxMiBPerSec": 97.81574449490464,
+          "spreadRatio": 0.003439740897521225,
           "mibPerSecSamples": [
-            98.73240458362399,
-            97.54854201302801,
-            96.27378344114462
+            97.81574449490464,
+            97.70020370197645,
+            97.47980134074315
           ],
           "eventCounts": [
             60416563
@@ -1332,8 +1341,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 213401600,
-          "maxHeapUsedBytes": 25137466,
+          "maxRssBytes": 201379840,
+          "maxHeapUsedBytes": 25139316,
           "counterexampleFound": false
         },
         {
@@ -1343,14 +1352,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 62.97972585819689,
-          "minMiBPerSec": 62.74531044047542,
-          "maxMiBPerSec": 63.217406113491045,
-          "spreadRatio": 0.007495994410623165,
+          "avgMiBPerSec": 63.092502258514344,
+          "minMiBPerSec": 62.02459567072676,
+          "maxMiBPerSec": 64.82076466364214,
+          "spreadRatio": 0.044318562314399776,
           "mibPerSecSamples": [
-            62.97646102062421,
-            62.74531044047542,
-            63.217406113491045
+            64.82076466364214,
+            62.02459567072676,
+            62.43214644117412
           ],
           "eventCounts": [
             60416563
@@ -1360,8 +1369,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 213463040,
-          "maxHeapUsedBytes": 53134382,
+          "maxRssBytes": 201547776,
+          "maxHeapUsedBytes": 53148330,
           "counterexampleFound": false
         },
         {
@@ -1371,14 +1380,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 83.75884158588485,
-          "minMiBPerSec": 83.16433539895696,
-          "maxMiBPerSec": 84.40602036675595,
-          "spreadRatio": 0.01482452412532218,
+          "avgMiBPerSec": 83.82300330067085,
+          "minMiBPerSec": 82.6814613221061,
+          "maxMiBPerSec": 84.96883148829328,
+          "spreadRatio": 0.027288096060963583,
           "mibPerSecSamples": [
-            83.70616899194165,
-            84.40602036675595,
-            83.16433539895696
+            84.96883148829328,
+            82.6814613221061,
+            83.81871709161317
           ],
           "eventCounts": [
             60416563
@@ -1388,8 +1397,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 194859008,
-          "maxHeapUsedBytes": 53134382,
+          "maxRssBytes": 194498560,
+          "maxHeapUsedBytes": 53148330,
           "counterexampleFound": false
         },
         {
@@ -1399,14 +1408,14 @@
           "eventCountKind": "projected-records",
           "fullStringParity": false,
           "sampleCount": 3,
-          "avgMiBPerSec": 126.86107265267829,
-          "minMiBPerSec": 126.65903397073677,
-          "maxMiBPerSec": 127.19112481402517,
-          "spreadRatio": 0.004194279869800294,
+          "avgMiBPerSec": 125.78428393523482,
+          "minMiBPerSec": 125.1446546330498,
+          "maxMiBPerSec": 126.31383519546726,
+          "spreadRatio": 0.009295124365612055,
           "mibPerSecSamples": [
-            127.19112481402517,
-            126.65903397073677,
-            126.73305917327293
+            125.89436197718737,
+            125.1446546330498,
+            126.31383519546726
           ],
           "eventCounts": [
             33382
@@ -1416,8 +1425,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 214929408,
-          "maxHeapUsedBytes": 27113417,
+          "maxRssBytes": 215068672,
+          "maxHeapUsedBytes": 27123327,
           "counterexampleFound": false
         },
         {
@@ -1427,14 +1436,14 @@
           "eventCountKind": "projected-records",
           "fullStringParity": false,
           "sampleCount": 3,
-          "avgMiBPerSec": 68.86177733022704,
-          "minMiBPerSec": 67.88658980882921,
-          "maxMiBPerSec": 69.37726334576541,
-          "spreadRatio": 0.02164732881911639,
+          "avgMiBPerSec": 69.86652274678056,
+          "minMiBPerSec": 66.8948097903433,
+          "maxMiBPerSec": 72.68191683488625,
+          "spreadRatio": 0.0828309012245728,
           "mibPerSecSamples": [
-            69.32147883608653,
-            67.88658980882921,
-            69.37726334576541
+            72.68191683488625,
+            70.02284161511216,
+            66.8948097903433
           ],
           "eventCounts": [
             3179819
@@ -1444,8 +1453,723 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 215109632,
-          "maxHeapUsedBytes": 52447902,
+          "maxRssBytes": 215289856,
+          "maxHeapUsedBytes": 52453536,
+          "counterexampleFound": false
+        }
+      ]
+    },
+    {
+      "runtime": "deno",
+      "environment": {
+        "runtimeName": "deno",
+        "javascriptEngine": "V8",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "platform": "win32-x64",
+        "node": "v24.2.0",
+        "v8": "14.7.173.20-rusty",
+        "bunVersion": null,
+        "denoVersion": "2.7.13",
+        "webkitCommit": null,
+        "userAgent": "Deno/2.7.13",
+        "gcStrategy": "unavailable"
+      },
+      "sampleCount": 3,
+      "fixture": {
+        "generated": true,
+        "source": "generated",
+        "sourceFile": null,
+        "shape": "projection-cycle",
+        "rowXml": "<root><book id=\"book-0\" lang=\"en\" code=\"0\"><title>Projection Benchmark 0</title><author>Author 0</author><description>Repeated projection benchmark payload 0 with stable ASCII text. The projection row ignores this field.</description><chapter number=\"1\">Intro 0</chapter><chapter number=\"2\">Body 0</chapter></book></root>",
+        "rowPreviewTruncated": false,
+        "rowCycleSize": 4096,
+        "minRowBytes": 321,
+        "maxRowBytes": 340,
+        "averageRowBytes": 337.675048828125,
+        "targetBytes": 1073741824,
+        "actualBytes": 1073742077,
+        "sizeGiB": 1.0000002356246114,
+        "batchSize": 16
+      },
+      "childReports": [
+        {
+          "runIndex": 1,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\candidate-headroom-projection-release\\deno-run-1.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\candidate-headroom-projection-release\\deno-run-1.md",
+          "environment": {
+            "runtimeName": "deno",
+            "javascriptEngine": "V8",
+            "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+            "platform": "win32-x64",
+            "node": "v24.2.0",
+            "v8": "14.7.173.20-rusty",
+            "bunVersion": null,
+            "denoVersion": "2.7.13",
+            "webkitCommit": null,
+            "userAgent": "Deno/2.7.13",
+            "gcStrategy": "unavailable"
+          },
+          "variants": [
+            {
+              "id": "stringFull",
+              "mibPerSec": 87.27544742460118,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 73412608,
+              "maxHeapUsedBytes": 13636768,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "eventObjectFull",
+              "mibPerSec": 56.54789523756068,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 139800576,
+              "maxHeapUsedBytes": 30967552,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 60416563,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "rawFrameNameId",
+              "mibPerSec": 76.8638529493657,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 152977408,
+              "maxHeapUsedBytes": 30972784,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 31798200,
+                "rawNameSpanMaterializations": 6,
+                "rawTextSpanMaterializations": 15899095,
+                "rawAttrNameSpanMaterializations": 4,
+                "rawAttrValueSpanMaterializations": 15899095,
+                "rawNameCacheHits": 60416551,
+                "rawNameCacheMisses": 10,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "projectionLowSelectivity",
+              "mibPerSec": 120.54171779883887,
+              "eventCount": 33382,
+              "checksum": -403434369,
+              "eventCountKind": "projected-records",
+              "fullStringParity": false,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 152977408,
+              "maxHeapUsedBytes": 29084016,
+              "materializationCounters": {
+                "stringFieldReads": 66764,
+                "nameStringReads": 0,
+                "textStringReads": 33382,
+                "attrNameStringReads": 0,
+                "attrValueStringReads": 33382,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 33382,
+                "projectionFieldReads": 66764,
+                "attributePairs": 0
+              }
+            },
+            {
+              "id": "projectionHighSelectivity",
+              "mibPerSec": 92.0459161667748,
+              "eventCount": 3179819,
+              "checksum": -2078190377,
+              "eventCountKind": "projected-records",
+              "fullStringParity": false,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 150179840,
+              "maxHeapUsedBytes": 19000432,
+              "materializationCounters": {
+                "stringFieldReads": 6359638,
+                "nameStringReads": 0,
+                "textStringReads": 3179819,
+                "attrNameStringReads": 0,
+                "attrValueStringReads": 3179819,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 3179819,
+                "projectionFieldReads": 6359638,
+                "attributePairs": 0
+              }
+            }
+          ]
+        },
+        {
+          "runIndex": 2,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\candidate-headroom-projection-release\\deno-run-2.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\candidate-headroom-projection-release\\deno-run-2.md",
+          "environment": {
+            "runtimeName": "deno",
+            "javascriptEngine": "V8",
+            "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+            "platform": "win32-x64",
+            "node": "v24.2.0",
+            "v8": "14.7.173.20-rusty",
+            "bunVersion": null,
+            "denoVersion": "2.7.13",
+            "webkitCommit": null,
+            "userAgent": "Deno/2.7.13",
+            "gcStrategy": "unavailable"
+          },
+          "variants": [
+            {
+              "id": "stringFull",
+              "mibPerSec": 87.3718389195753,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 71970816,
+              "maxHeapUsedBytes": 12206688,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "eventObjectFull",
+              "mibPerSec": 56.18056277634368,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 141668352,
+              "maxHeapUsedBytes": 29488464,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 60416563,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "rawFrameNameId",
+              "mibPerSec": 76.26209255875875,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 150171648,
+              "maxHeapUsedBytes": 29493904,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 31798200,
+                "rawNameSpanMaterializations": 6,
+                "rawTextSpanMaterializations": 15899095,
+                "rawAttrNameSpanMaterializations": 4,
+                "rawAttrValueSpanMaterializations": 15899095,
+                "rawNameCacheHits": 60416551,
+                "rawNameCacheMisses": 10,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "projectionLowSelectivity",
+              "mibPerSec": 120.47358594068898,
+              "eventCount": 33382,
+              "checksum": -403434369,
+              "eventCountKind": "projected-records",
+              "fullStringParity": false,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 167419904,
+              "maxHeapUsedBytes": 29438776,
+              "materializationCounters": {
+                "stringFieldReads": 66764,
+                "nameStringReads": 0,
+                "textStringReads": 33382,
+                "attrNameStringReads": 0,
+                "attrValueStringReads": 33382,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 33382,
+                "projectionFieldReads": 66764,
+                "attributePairs": 0
+              }
+            },
+            {
+              "id": "projectionHighSelectivity",
+              "mibPerSec": 90.63901947790484,
+              "eventCount": 3179819,
+              "checksum": -2078190377,
+              "eventCountKind": "projected-records",
+              "fullStringParity": false,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 167419904,
+              "maxHeapUsedBytes": 21631776,
+              "materializationCounters": {
+                "stringFieldReads": 6359638,
+                "nameStringReads": 0,
+                "textStringReads": 3179819,
+                "attrNameStringReads": 0,
+                "attrValueStringReads": 3179819,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 3179819,
+                "projectionFieldReads": 6359638,
+                "attributePairs": 0
+              }
+            }
+          ]
+        },
+        {
+          "runIndex": 3,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\candidate-headroom-projection-release\\deno-run-3.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\candidate-headroom-projection-release\\deno-run-3.md",
+          "environment": {
+            "runtimeName": "deno",
+            "javascriptEngine": "V8",
+            "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+            "platform": "win32-x64",
+            "node": "v24.2.0",
+            "v8": "14.7.173.20-rusty",
+            "bunVersion": null,
+            "denoVersion": "2.7.13",
+            "webkitCommit": null,
+            "userAgent": "Deno/2.7.13",
+            "gcStrategy": "unavailable"
+          },
+          "variants": [
+            {
+              "id": "stringFull",
+              "mibPerSec": 87.61822950224216,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 71737344,
+              "maxHeapUsedBytes": 12275976,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "eventObjectFull",
+              "mibPerSec": 56.85463821387343,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 137875456,
+              "maxHeapUsedBytes": 30028872,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 60416563,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "rawFrameNameId",
+              "mibPerSec": 77.64826698243235,
+              "eventCount": 60416563,
+              "checksum": 1441552024,
+              "eventCountKind": "stream-events",
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 150163456,
+              "maxHeapUsedBytes": 30034312,
+              "materializationCounters": {
+                "stringFieldReads": 92214751,
+                "nameStringReads": 44517466,
+                "textStringReads": 15899095,
+                "attrNameStringReads": 15899095,
+                "attrValueStringReads": 15899095,
+                "rawSpanMaterializations": 31798200,
+                "rawNameSpanMaterializations": 6,
+                "rawTextSpanMaterializations": 15899095,
+                "rawAttrNameSpanMaterializations": 4,
+                "rawAttrValueSpanMaterializations": 15899095,
+                "rawNameCacheHits": 60416551,
+                "rawNameCacheMisses": 10,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 0,
+                "projectionFieldReads": 0,
+                "attributePairs": 15899095
+              }
+            },
+            {
+              "id": "projectionLowSelectivity",
+              "mibPerSec": 121.28589613426544,
+              "eventCount": 33382,
+              "checksum": -403434369,
+              "eventCountKind": "projected-records",
+              "fullStringParity": false,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 167067648,
+              "maxHeapUsedBytes": 29519312,
+              "materializationCounters": {
+                "stringFieldReads": 66764,
+                "nameStringReads": 0,
+                "textStringReads": 33382,
+                "attrNameStringReads": 0,
+                "attrValueStringReads": 33382,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 33382,
+                "projectionFieldReads": 66764,
+                "attributePairs": 0
+              }
+            },
+            {
+              "id": "projectionHighSelectivity",
+              "mibPerSec": 91.47588191860027,
+              "eventCount": 3179819,
+              "checksum": -2078190377,
+              "eventCountKind": "projected-records",
+              "fullStringParity": false,
+              "boundedMemory": true,
+              "counterexampleStatus": "not-found",
+              "maxRssBytes": 167067648,
+              "maxHeapUsedBytes": 20221880,
+              "materializationCounters": {
+                "stringFieldReads": 6359638,
+                "nameStringReads": 0,
+                "textStringReads": 3179819,
+                "attrNameStringReads": 0,
+                "attrValueStringReads": 3179819,
+                "rawSpanMaterializations": 0,
+                "rawNameSpanMaterializations": 0,
+                "rawTextSpanMaterializations": 0,
+                "rawAttrNameSpanMaterializations": 0,
+                "rawAttrValueSpanMaterializations": 0,
+                "rawNameCacheHits": 0,
+                "rawNameCacheMisses": 0,
+                "implicitAttrValueReads": 0,
+                "eventObjects": 0,
+                "projectedRecords": 3179819,
+                "projectionFieldReads": 6359638,
+                "attributePairs": 0
+              }
+            }
+          ]
+        }
+      ],
+      "parity": {
+        "streamAndFullRowsStable": true,
+        "projectionRowsStable": true,
+        "streamAndFullRowIds": [
+          "stringFull",
+          "eventObjectFull",
+          "rawFrameNameId"
+        ],
+        "projectionRowIds": [
+          "projectionLowSelectivity",
+          "projectionHighSelectivity"
+        ]
+      },
+      "variants": [
+        {
+          "id": "stringFull",
+          "family": "full-stax-js",
+          "contractScope": "full-string-materialization",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 87.42183861547288,
+          "minMiBPerSec": 87.27544742460118,
+          "maxMiBPerSec": 87.61822950224216,
+          "spreadRatio": 0.003921011992766607,
+          "mibPerSecSamples": [
+            87.27544742460118,
+            87.3718389195753,
+            87.61822950224216
+          ],
+          "eventCounts": [
+            60416563
+          ],
+          "checksums": [
+            1441552024
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 73412608,
+          "maxHeapUsedBytes": 13636768,
+          "counterexampleFound": false
+        },
+        {
+          "id": "eventObjectFull",
+          "family": "full-stax-js",
+          "contractScope": "full-event-object-materialization",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 56.5276987425926,
+          "minMiBPerSec": 56.18056277634368,
+          "maxMiBPerSec": 56.85463821387343,
+          "spreadRatio": 0.011924692717445574,
+          "mibPerSecSamples": [
+            56.54789523756068,
+            56.18056277634368,
+            56.85463821387343
+          ],
+          "eventCounts": [
+            60416563
+          ],
+          "checksums": [
+            1441552024
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 141668352,
+          "maxHeapUsedBytes": 30967552,
+          "counterexampleFound": false
+        },
+        {
+          "id": "rawFrameNameId",
+          "family": "full-stax-js",
+          "contractScope": "full-string-materialization",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 76.92473749685227,
+          "minMiBPerSec": 76.26209255875875,
+          "maxMiBPerSec": 77.64826698243235,
+          "spreadRatio": 0.018019878504366895,
+          "mibPerSecSamples": [
+            76.8638529493657,
+            76.26209255875875,
+            77.64826698243235
+          ],
+          "eventCounts": [
+            60416563
+          ],
+          "checksums": [
+            1441552024
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 152977408,
+          "maxHeapUsedBytes": 30972784,
+          "counterexampleFound": false
+        },
+        {
+          "id": "projectionLowSelectivity",
+          "family": "projection-js",
+          "contractScope": "projected-records-low-selectivity",
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "sampleCount": 3,
+          "avgMiBPerSec": 120.76706662459776,
+          "minMiBPerSec": 120.47358594068898,
+          "maxMiBPerSec": 121.28589613426544,
+          "spreadRatio": 0.006726255893103016,
+          "mibPerSecSamples": [
+            120.54171779883887,
+            120.47358594068898,
+            121.28589613426544
+          ],
+          "eventCounts": [
+            33382
+          ],
+          "checksums": [
+            -403434369
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 167419904,
+          "maxHeapUsedBytes": 29519312,
+          "counterexampleFound": false
+        },
+        {
+          "id": "projectionHighSelectivity",
+          "family": "projection-js",
+          "contractScope": "projected-records-high-selectivity",
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "sampleCount": 3,
+          "avgMiBPerSec": 91.38693918775998,
+          "minMiBPerSec": 90.63901947790484,
+          "maxMiBPerSec": 92.0459161667748,
+          "spreadRatio": 0.015394942662204819,
+          "mibPerSecSamples": [
+            92.0459161667748,
+            90.63901947790484,
+            91.47588191860027
+          ],
+          "eventCounts": [
+            3179819
+          ],
+          "checksums": [
+            -2078190377
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 167419904,
+          "maxHeapUsedBytes": 21631776,
           "counterexampleFound": false
         }
       ]
@@ -1458,7 +2182,8 @@
       "summary": "Each sample was measured by a separate runtime process, unlike same-process runs-based timing stability.",
       "evidence": [
         "node: processRuns=3",
-        "bun: processRuns=3"
+        "bun: processRuns=3",
+        "deno: processRuns=3"
       ]
     },
     {
@@ -1469,7 +2194,9 @@
         "node: projectionLowSelectivity",
         "node: projectionHighSelectivity",
         "bun: projectionLowSelectivity",
-        "bun: projectionHighSelectivity"
+        "bun: projectionHighSelectivity",
+        "deno: projectionLowSelectivity",
+        "deno: projectionHighSelectivity"
       ]
     },
     {

@@ -97,8 +97,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle, corpus-cycle, projection-cycle.');
   }
   for (const runtime of options.runtimes) {
-    if (runtime !== 'node' && runtime !== 'bun') {
-      throw new Error(`--runtimes currently supports node,bun. Received: ${runtime}`);
+    if (runtime !== 'node' && runtime !== 'bun' && runtime !== 'deno') {
+      throw new Error(`--runtimes currently supports node,bun,deno. Received: ${runtime}`);
     }
   }
   return options;
@@ -215,6 +215,19 @@ function runtimeCommand(runtime, options, jsonOut, mdOut) {
     return {
       command: 'bun',
       args,
+    };
+  }
+  if (runtime === 'deno') {
+    return {
+      command: 'deno',
+      args: [
+        'run',
+        '--allow-read',
+        '--allow-env',
+        '--allow-sys',
+        `--allow-write=${options.outputDir}`,
+        ...args,
+      ],
     };
   }
   throw new Error(`Unknown runtime: ${runtime}`);
@@ -413,6 +426,7 @@ function renderMarkdown(report) {
     lines.push(`- Engine: ${runtime.environment.javascriptEngine}`);
     lines.push(`- Node: ${runtime.environment.node}`);
     if (runtime.environment.bunVersion) lines.push(`- Bun: ${runtime.environment.bunVersion}`);
+    if (runtime.environment.denoVersion) lines.push(`- Deno: ${runtime.environment.denoVersion}`);
     if (runtime.environment.webkitCommit) lines.push(`- WebKit: ${runtime.environment.webkitCommit}`);
     lines.push(`- Platform: ${runtime.environment.platform}`);
     lines.push(`- CPU: ${runtime.environment.cpuName}`);

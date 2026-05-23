@@ -463,18 +463,25 @@ function createOmittedRows(fixture) {
 
 function createRuntimeEnvironment() {
   const isBun = Boolean(process.versions.bun);
+  const denoVersion = globalThis.Deno?.version;
   return {
-    runtimeName: isBun ? 'bun' : 'node',
+    runtimeName: isBun ? 'bun' : denoVersion ? 'deno' : 'node',
     javascriptEngine: isBun ? 'JavaScriptCore' : 'V8',
-    cpuName: cpus()[0]?.model ?? 'unknown',
+    cpuName: sanitizeEnvironmentString(cpus()[0]?.model),
     platform: `${process.platform}-${process.arch}`,
     node: process.version,
-    v8: process.versions.v8,
+    v8: denoVersion?.v8 ?? process.versions.v8,
     bunVersion: process.versions.bun ?? null,
+    denoVersion: denoVersion?.deno ?? null,
     webkitCommit: process.versions.webkit ?? null,
     userAgent: globalThis.navigator?.userAgent ?? null,
     gcStrategy: detectGcStrategy(),
   };
+}
+
+function sanitizeEnvironmentString(value) {
+  const cleaned = String(value ?? '').replace(/\0/g, '').trim();
+  return cleaned || 'unknown';
 }
 
 function detectGcStrategy() {
