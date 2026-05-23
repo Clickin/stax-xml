@@ -12,6 +12,8 @@ const jsonOut = join(tmpDir, 'candidate-headroom-large-report-test.json');
 const mdOut = join(tmpDir, 'candidate-headroom-large-report-test.md');
 const stabilityJsonOut = join(tmpDir, 'candidate-headroom-large-stability-report-test.json');
 const stabilityMdOut = join(tmpDir, 'candidate-headroom-large-stability-report-test.md');
+const filteredJsonOut = join(tmpDir, 'candidate-headroom-large-filtered-report-test.json');
+const filteredMdOut = join(tmpDir, 'candidate-headroom-large-filtered-report-test.md');
 
 test('large candidate headroom matrix preserves bounded byte-batch contract', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -265,6 +267,61 @@ test('large candidate headroom matrix includes projection rows on projection fix
   assert.match(markdown, /Projection rows report projected record counts/);
   assert.match(markdown, /selects `\/root\/book\[@code="7"\]`/);
   assert.match(markdown, /selects every `\/root\/book`/);
+});
+
+test('large candidate headroom matrix can filter cases without mixing projection parity', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [filteredJsonOut, filteredMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'candidate-headroom-large.mjs'),
+    '--size-gib',
+    '0.001',
+    '--fixture-shape',
+    'projection-cycle',
+    '--diverse-cycle-size',
+    '64',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--cases',
+    'stringFull,rawFrameNameId,projectionLowSelectivity,projectionHighSelectivity',
+    '--json-out',
+    filteredJsonOut,
+    '--md-out',
+    filteredMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(filteredJsonOut, 'utf8'));
+  assert.deepEqual(report.options.cases, [
+    'stringFull',
+    'rawFrameNameId',
+    'projectionLowSelectivity',
+    'projectionHighSelectivity',
+  ]);
+  assert.deepEqual(report.variants.map(entry => entry.id), report.options.cases);
+  assert.equal(report.eventCountParity.status, 'ok');
+  assert.deepEqual(report.eventCountParity.rowIds, ['stringFull', 'rawFrameNameId']);
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.deepEqual(report.fullStringParity.rowIds, ['stringFull', 'rawFrameNameId']);
+  assert.equal(report.projectionParity.status, 'ok');
+  assert.deepEqual(report.projectionParity.rowIds, ['projectionLowSelectivity', 'projectionHighSelectivity']);
+
+  const markdown = readFileSync(filteredMdOut, 'utf8');
+  assert.match(markdown, /Cases: stringFull, rawFrameNameId, projectionLowSelectivity, projectionHighSelectivity/);
+  assert.match(markdown, /Projection rows report projected record counts/);
 });
 
 test('large candidate headroom matrix renders multi-run timing stability', () => {

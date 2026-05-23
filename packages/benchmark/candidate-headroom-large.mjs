@@ -47,6 +47,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     batchSize: 16,
     batchSizeExplicit: false,
     boundedRssMiB: 512,
+    cases: null,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -89,6 +90,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--bounded-rss-mib':
         options.boundedRssMiB = parsePositiveNumber(readValue(), '--bounded-rss-mib');
         break;
+      case '--cases':
+        options.cases = parseCaseList(readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -130,10 +134,18 @@ function parseNonNegativeInteger(value, flag) {
   return parsed;
 }
 
+function parseCaseList(value) {
+  const parsed = value.split(',').map(entry => entry.trim()).filter(Boolean);
+  if (parsed.length === 0) {
+    throw new Error('--cases must contain at least one case id.');
+  }
+  return parsed;
+}
+
 function main() {
   const options = parseArgs();
   const fixture = createFixture(options);
-  const variants = createVariants(fixture);
+  const variants = filterVariants(createVariants(fixture), options.cases);
   const results = variants.map((variant) => measureVariant(variant, fixture, options));
   const report = createReport(fixture, options, results);
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
@@ -249,6 +261,20 @@ function createVariants(fixture) {
   }
 
   return variants;
+}
+
+function filterVariants(variants, caseIds) {
+  if (!caseIds) {
+    return variants;
+  }
+  const byId = new Map(variants.map(variant => [variant.id, variant]));
+  return caseIds.map((id) => {
+    const variant = byId.get(id);
+    if (!variant) {
+      throw new Error(`Unknown case for this fixture: ${id}`);
+    }
+    return variant;
+  });
 }
 
 function createFixture(options) {
@@ -391,6 +417,7 @@ function createReport(fixture, options, variants) {
       runs: options.runs,
       warmups: options.warmups,
       boundedRssMiB: options.boundedRssMiB,
+      cases: options.cases,
     },
     woodstoxTarget,
     omittedRows: createOmittedRows(fixture),
@@ -496,6 +523,13 @@ function readWoodstoxTarget() {
 function computeEventCountParity(variants) {
   const streamRows = variants.filter((entry) => entry.eventCountKind !== 'projected-records');
   const first = streamRows[0];
+  if (!first) {
+    return {
+      status: 'not-applicable',
+      eventCount: null,
+      rowIds: [],
+    };
+  }
   const mismatch = streamRows.find((entry) => entry.eventCount !== first.eventCount);
   if (mismatch) {
     throw new Error(`Variant ${mismatch.id} does not match ${first.id} event count.`);
@@ -523,6 +557,14 @@ function computeProjectionParity(variants) {
 function computeFullStringParity(variants) {
   const fullRows = variants.filter((entry) => entry.fullStringParity);
   const first = fullRows[0];
+  if (!first) {
+    return {
+      status: 'not-applicable',
+      rowIds: [],
+      eventCount: null,
+      checksum: null,
+    };
+  }
   const mismatch = fullRows.find((entry) => entry.eventCount !== first.eventCount || entry.checksum !== first.checksum);
   if (mismatch) {
     throw new Error(`Full-string variant ${mismatch.id} does not match ${first.id}.`);
@@ -1306,6 +1348,7 @@ function renderMarkdown(report) {
     `- Row cycle size: ${report.fixture.rowCycleSize}`,
     `- Row bytes: min=${report.fixture.minRowBytes}, max=${report.fixture.maxRowBytes}, avg=${report.fixture.averageRowBytes.toFixed(1)}`,
     `- Batch size: ${report.fixture.batchSize}`,
+    `- Cases: ${report.options.cases?.join(', ') ?? 'all'}`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
     `- Bounded RSS reporting gate: ${report.options.boundedRssMiB.toFixed(1)} MiB`,
     '',
