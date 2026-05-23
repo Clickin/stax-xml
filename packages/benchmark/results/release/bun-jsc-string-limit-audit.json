@@ -1,0 +1,184 @@
+{
+  "generatedAt": "2026-05-23T13:07:02.871Z",
+  "objective": "bun-jsc-string-limit-audit",
+  "contract": "bun-jsc-complete-js-string-input-boundary",
+  "note": "This pins a Bun/JSC maximum-string source/runtime fact and checks whether it explains the 1 GiB EventReaderSync complete-string failure. It is not a byte-batch runtime ceiling.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "runtime": {
+    "bunVersion": "1.3.13",
+    "bunRevision": "1.3.13+bf2e2cecf",
+    "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+    "userAgent": "Bun/1.3.13",
+    "processVersions": {
+      "node": "24.3.0",
+      "bun": "1.3.13",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "57029fb1f193e633462e76af745599e1dbfd4b58",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+      "webkit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "zig": "365343af4fc5a1a632e6b54aadd0b87be30edd81",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.51.1-dev",
+      "napi": "10",
+      "icu": "73.2",
+      "unicode": "15.0",
+      "modules": "137"
+    }
+  },
+  "options": {
+    "sizesMiB": [
+      512,
+      1024
+    ],
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 4096,
+    "eventReaderPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\event-reader-string-large.json"
+  },
+  "jscMaxStringLength": {
+    "value": 2147483647,
+    "units": "UTF-16 code units",
+    "formula": "std::numeric_limits<int32_t>::max()",
+    "valueMiCodeUnits": 2047.9999990463257
+  },
+  "overLimitProbe": {
+    "status": "throws",
+    "requestedLength": 2147483648,
+    "errorName": "RangeError",
+    "errorMessage": "Out of memory"
+  },
+  "fixtureProjections": [
+    {
+      "sizeMiB": 512,
+      "targetBytes": 536870912,
+      "actualUtf8Bytes": 536871010,
+      "actualMiB": 512.000093460083,
+      "stringCodeUnits": 536122798,
+      "estimatedUtf16Bytes": 1072245596,
+      "estimatedUtf16MiB": 1022.5730857849121,
+      "fullCycles": 501,
+      "tailRows": 1970,
+      "cycleUtf8Bytes": 1070576,
+      "cycleStringCodeUnits": 1069084,
+      "exceedsJscMaxStringLength": false,
+      "jscCodeUnitHeadroom": 1611360849,
+      "constructingCompleteStringIsExpectedToFailByJscLength": false
+    },
+    {
+      "sizeMiB": 1024,
+      "targetBytes": 1073741824,
+      "actualUtf8Bytes": 1073742038,
+      "actualMiB": 1024.0002040863037,
+      "stringCodeUnits": 1072245626,
+      "estimatedUtf16Bytes": 2144491252,
+      "estimatedUtf16MiB": 2045.1462287902832,
+      "fullCycles": 1002,
+      "tailRows": 3922,
+      "cycleUtf8Bytes": 1070576,
+      "cycleStringCodeUnits": 1069084,
+      "exceedsJscMaxStringLength": false,
+      "jscCodeUnitHeadroom": 1075238021,
+      "constructingCompleteStringIsExpectedToFailByJscLength": false
+    }
+  ],
+  "eventReaderRelease": {
+    "status": "loaded",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\event-reader-string-large.json",
+    "generatedAt": "2026-05-23T12:32:37.249Z",
+    "contract": "event-reader-sync-string-input-full-object-materialization",
+    "nodeV8Environment": {
+      "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+      "platform": "win32-x64",
+      "node": "v24.15.0",
+      "v8": "13.6.233.17-node.48"
+    },
+    "largestSuccessfulSizeMiB": 512,
+    "largestSuccessfulStringCodeUnits": 536122798,
+    "v8ReleaseFailure": {
+      "status": "error",
+      "sizeMiB": 1024,
+      "error": "Invalid string length",
+      "stackHead": "RangeError: Invalid string length\n    at String.repeat (<anonymous>)\n    at createXmlString (file:///G:/programming/stax-xml/packages/benchmark/event-reader-string-large.mjs:382:28)"
+    }
+  },
+  "sourceFacts": [
+    {
+      "id": "bun-uses-javascriptcore",
+      "type": "official-doc",
+      "url": "https://bun.com/docs",
+      "fact": "Bun describes its JavaScript runtime as built on JavaScriptCore."
+    },
+    {
+      "id": "bun-patched-webkit-source",
+      "type": "official-doc",
+      "url": "https://bun.com/docs/project/license",
+      "fact": "Bun documents that it statically links JavaScriptCore/WebKit and points to the patched WebKit mirror."
+    },
+    {
+      "id": "bun-runtime-webkit-commit",
+      "type": "runtime",
+      "fact": "Local Bun 1.3.13+bf2e2cecf exposes process.versions.webkit=4d5e75ebd84a14edbc7ae264245dcd77fe597c10."
+    },
+    {
+      "id": "jsc-stringimpl-maxlength",
+      "type": "source",
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L153",
+      "fact": "Bun 1.3.13 patched WebKit StringImplShape::MaxLength is std::numeric_limits<int32_t>::max()."
+    },
+    {
+      "id": "jsc-stringimpl-isvalidlength",
+      "type": "source",
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L1248-L1251",
+      "fact": "StringImpl::isValidLength bounds concrete character storage by MaxLength and allocation-size limits for the character type."
+    }
+  ],
+  "findings": [
+    {
+      "id": "jsc-max-string-source-fact",
+      "status": "source-and-runtime-fact",
+      "summary": "Bun/JSC exposes a larger single-string source limit than current Node/V8 for this local Bun build.",
+      "evidence": [
+        "bun=1.3.13",
+        "webkit=4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+        "StringImpl::MaxLength=2,147,483,647",
+        "over-limit probe=RangeError: Out of memory"
+      ]
+    },
+    {
+      "id": "jsc-limit-does-not-explain-1gib-v8-failure",
+      "status": "counterexample-to-porting-v8-limit",
+      "summary": "The 1024 MiB generated fixture projection is below the Bun/JSC StringImpl::MaxLength source limit.",
+      "evidence": [
+        "1024 MiB projection=1,072,245,626 code units",
+        "JSC code-unit headroom=1,075,238,021",
+        "Node/V8 release failure=Invalid string length"
+      ]
+    },
+    {
+      "id": "scope-boundary",
+      "status": "not-a-runtime-ceiling",
+      "summary": "This only distinguishes string-length invariants; it does not prove Bun/JSC can parse a 1 GiB complete string within acceptable memory.",
+      "evidence": [
+        "No 1 GiB Bun EventReaderSync parse row is measured here.",
+        "No browser JSC/Safari runtime row is measured here.",
+        "This is not a byte-batch runtime ceiling."
+      ]
+    }
+  ]
+}
