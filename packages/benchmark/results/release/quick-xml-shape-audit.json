@@ -1,0 +1,207 @@
+{
+  "generatedAt": "2026-05-23T09:14:11.331Z",
+  "objective": "quick-xml-shape-audit",
+  "contract": "source-shape-audit",
+  "note": "Source-level shape audit for Rust + quick-xml comparator. This is not an allocation profile or machine-code trace.",
+  "environment": {
+    "rustc": "rustc 1.94.1 (e408947bf 2026-03-25)",
+    "cargo": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "metadata": {
+    "quickXmlVersion": "0.40.1",
+    "quickXmlSource": "C:\\Users\\z1z0b\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\quick-xml-0.40.1",
+    "comparatorSource": "G:\\programming\\stax-xml\\packages\\benchmark\\external\\quick-xml\\src\\main.rs"
+  },
+  "baseline": {
+    "source": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
+    "generatedAt": "2026-05-23T09:13:56.492Z",
+    "fixture": {
+      "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+      "sizeBytes": 16777038,
+      "sizeMiB": 15.99983024597168
+    },
+    "options": {
+      "runs": 3,
+      "warmups": 1,
+      "tools": [
+        "stax-stream",
+        "stax-event",
+        "woodstox",
+        "quick-xml"
+      ]
+    },
+    "quickXml": {
+      "tool": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "runtime": "1.0.0",
+      "avgMs": 51.64193333333333,
+      "minMs": 51.348,
+      "maxMs": 52.065,
+      "mibPerSec": 309.8224487975214,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        52.065,
+        51.348,
+        51.5128
+      ],
+      "woodstoxRatio": 0.9291919099336585,
+      "targetStatus": "met"
+    },
+    "woodstox": {
+      "tool": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "runtime": "1.8.0_472",
+      "avgMs": 47.98526666666667,
+      "minMs": 44.2581,
+      "maxMs": 55.3941,
+      "mibPerSec": 333.43214193464274,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        55.3941,
+        44.2581,
+        44.3036
+      ],
+      "woodstoxRatio": 1,
+      "targetStatus": "met"
+    }
+  },
+  "checks": {
+    "allSupported": true,
+    "items": [
+      {
+        "id": "comparator-reuses-read-buffer",
+        "label": "Comparator reuses one reader buffer",
+        "supported": true,
+        "evidence": [
+          "read_event_into(&mut buffer)",
+          "buffer.clear()"
+        ]
+      },
+      {
+        "id": "quick-xml-event-lifetime-tied-to-buffer",
+        "label": "quick-xml read_event_into returns events tied to caller buffer lifetime",
+        "supported": true,
+        "evidence": [
+          "Reader::read_event_into<'b>(&mut self, buf: &'b mut Vec<u8>) -> Result<Event<'b>>"
+        ]
+      },
+      {
+        "id": "event-storage-is-cow-bytes",
+        "label": "quick-xml event structs store Cow byte slices",
+        "supported": true,
+        "evidence": [
+          "BytesStart Cow<[u8]>",
+          "BytesText Cow<[u8]>",
+          "Attribute value Cow<[u8]>"
+        ]
+      },
+      {
+        "id": "names-and-attributes-fold-bytes",
+        "label": "Comparator folds names and attribute values from byte views",
+        "supported": true,
+        "evidence": [
+          "event.name().as_ref()",
+          "attr.key.as_ref()",
+          "attr.value.as_ref()"
+        ]
+      },
+      {
+        "id": "attributes-materialized-as-vec",
+        "label": "Comparator materializes each start tag attribute iterator into a Vec",
+        "supported": true,
+        "evidence": [
+          "let mut collected = Vec::new()",
+          "collected.push(attr?)"
+        ]
+      },
+      {
+        "id": "text-decodes-to-cow-str",
+        "label": "Text and CDATA path decodes to Cow<str>",
+        "supported": true,
+        "evidence": [
+          "event.decode()?",
+          "BytesText::decode -> Cow<str>",
+          "Decoder::decode -> Cow<str>"
+        ]
+      },
+      {
+        "id": "checksum-uses-utf16-units",
+        "label": "Rust checksum folds UTF-16 code units like JS string charCodeAt",
+        "supported": true,
+        "evidence": [
+          "value.encode_utf16()"
+        ]
+      },
+      {
+        "id": "quick-xml-uses-memchr-scanning",
+        "label": "quick-xml reader source uses memchr byte scanning",
+        "supported": true,
+        "evidence": [
+          "memchr::memchr* in reader source"
+        ]
+      }
+    ],
+    "missing": []
+  },
+  "findings": [
+    {
+      "id": "same-contract-result",
+      "classification": "BENCH_FACT",
+      "summary": "Existing external baseline records quick-xml under the same full-string checksum contract.",
+      "evidence": [
+        "throughput=309.8 MiB/s",
+        "woodstoxRatio=0.93x",
+        "events=967967",
+        "checksum=-746772258"
+      ]
+    },
+    {
+      "id": "not-js-object-shape",
+      "classification": "SOURCE_FACT",
+      "summary": "quick-xml comparator uses Rust enum events, borrowed byte views, Cow strings, and a reused buffer rather than JS public event objects.",
+      "evidence": [
+        "quick-xml-event-lifetime-tied-to-buffer: Reader::read_event_into<'b>(&mut self, buf: &'b mut Vec<u8>) -> Result<Event<'b>>",
+        "event-storage-is-cow-bytes: BytesStart Cow<[u8]>",
+        "event-storage-is-cow-bytes: BytesText Cow<[u8]>",
+        "event-storage-is-cow-bytes: Attribute value Cow<[u8]>",
+        "comparator-reuses-read-buffer: read_event_into(&mut buffer)",
+        "comparator-reuses-read-buffer: buffer.clear()"
+      ]
+    },
+    {
+      "id": "attribute-vector-materialization",
+      "classification": "SOURCE_FACT",
+      "summary": "The current Rust comparator still materializes attributes into a Vec before folding so it can mix the attribute count first.",
+      "evidence": [
+        "attributes-materialized-as-vec: let mut collected = Vec::new()",
+        "attributes-materialized-as-vec: collected.push(attr?)"
+      ]
+    },
+    {
+      "id": "text-cow-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "Text and CDATA call quick-xml decode and receive Cow<str>; source audit alone does not prove borrowed-vs-owned frequency.",
+      "evidence": [
+        "text-decodes-to-cow-str: event.decode()?",
+        "text-decodes-to-cow-str: BytesText::decode -> Cow<str>",
+        "text-decodes-to-cow-str: Decoder::decode -> Cow<str>"
+      ]
+    },
+    {
+      "id": "allocation-still-missing",
+      "classification": "MISSING_TRACE_FACT",
+      "summary": "This audit is not an allocation profile, machine-code trace, or proof of runtime allocation counts.",
+      "evidence": [
+        "Need heap/allocation profiler or symbol/asm profile before attributing quick-xml speed to allocation shape."
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # External Parser Baseline Matrix
 
-Generated: 2026-05-23T04:59:35.707Z
+Generated: 2026-05-23T09:13:56.492Z
 
 This benchmark compares full string-return checksum consumers against external parser baselines.
 Rows are comparable only because they share the same generated XML fixture and checksum contract.
@@ -15,14 +15,14 @@ Rows are comparable only because they share the same generated XML fixture and c
 ## Woodstox Target
 
 Target: reach at least 0.9x Woodstox throughput on the same full-string checksum workload.
-Current target throughput: 296.4 MiB/s.
+Current target throughput: 300.1 MiB/s.
 
 | Tool | Implementation | Throughput | Woodstox ratio | 0.9x target | Average | Events | Checksum | Status |
 | --- | --- | ---: | ---: | --- | ---: | ---: | ---: | --- |
-| stax-stream | Node + stax-xml StreamReaderSync | 106.4 MiB/s | 0.32x | below | 150.44 ms | 967967 | -746772258 | ok |
-| stax-event | Node + stax-xml EventReaderSync | 93.5 MiB/s | 0.28x | below | 171.17 ms | 967967 | -746772258 | ok |
-| woodstox | Java + Woodstox 7.2.0 | 329.3 MiB/s | 1.00x | met | 48.59 ms | 967967 | -746772258 | ok |
-| quick-xml | Rust + quick-xml 0.40.1 | 302.3 MiB/s | 0.92x | met | 52.92 ms | 967967 | -746772258 | ok |
+| stax-stream | Node + stax-xml StreamReaderSync | 105.3 MiB/s | 0.32x | below | 151.95 ms | 967967 | -746772258 | ok |
+| stax-event | Node + stax-xml EventReaderSync | 95.9 MiB/s | 0.29x | below | 166.77 ms | 967967 | -746772258 | ok |
+| woodstox | Java + Woodstox 7.2.0 | 333.4 MiB/s | 1.00x | met | 47.99 ms | 967967 | -746772258 | ok |
+| quick-xml | Rust + quick-xml 0.40.1 | 309.8 MiB/s | 0.93x | met | 51.64 ms | 967967 | -746772258 | ok |
 
 ## Contract
 
