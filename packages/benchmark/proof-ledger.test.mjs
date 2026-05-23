@@ -176,11 +176,17 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /textdecoder-span-variants\.md/);
   assert.match(markdown, /bun-textdecoder-span-variants\.md/);
   assert.match(markdown, /browser-textdecoder-span-variants\.md/);
+  assert.match(markdown, /textdecoder-span-variants-corpus\.md/);
+  assert.match(markdown, /bun-textdecoder-span-variants-corpus\.md/);
   assert.match(markdown, /subarraySharedDecoder` reported `40\.31 MiB\/s`/);
   assert.match(markdown, /HeadlessChrome 148\.0\.0\.0 \/ browser V8/);
   assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 16\.63 MiB\/s for\s+`subarraySharedDecoder`/);
   assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 39\.42 MiB\/s/);
   assert.match(markdown, /max working set 480\.0 MiB and max private\s+bytes 240\.4 MiB/);
+  assert.match(markdown, /Node\/V8 corpus artifact preserved 75,206,126 events and checksum\s+`-925527041`/);
+  assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 69\.16 MiB\/s/);
+  assert.match(markdown, /every Bun\/JSC\s+corpus row was unbounded under the 512 MiB RSS gate/);
+  assert.match(markdown, /1\.41 GiB to 3\.05 GiB/);
   assert.match(markdown, /shortAsciiSubarraySharedDecoder` row reported 51\.60 MiB\/s/);
   assert.match(markdown, /12,215,015 `TextDecoder` calls and 90,487,835 short-ASCII hits/);
   assert.match(markdown, /TextDecoder span variants \(`subarraySharedDecoder`, `viewSharedDecoder`,/);

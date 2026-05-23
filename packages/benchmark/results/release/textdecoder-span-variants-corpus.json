@@ -1,0 +1,429 @@
+{
+  "generatedAt": "2026-05-23T23:14:33.612Z",
+  "objective": "textdecoder-span-variants",
+  "contract": "full-string-textdecoder-span-variant-headroom",
+  "note": "Compares browser-compatible TextDecoder span materialization variants under the same full-string checksum contract.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "runtimeName": "node",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "bunVersion": null,
+    "webkitCommit": null,
+    "gcStrategy": "globalThis.gc"
+  },
+  "options": {
+    "sizeGiB": 1,
+    "runs": 1,
+    "warmups": 0,
+    "fixtureShape": "corpus-cycle",
+    "diverseCycleSize": 4096,
+    "batchSize": 1,
+    "boundedRssMiB": 512
+  },
+  "fixture": {
+    "source": "corpus-file",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+    "generated": false,
+    "shape": "corpus-cycle",
+    "rowCycleSize": 1,
+    "batchSize": 1,
+    "targetBytes": 1073741824,
+    "actualBytes": 1074787404,
+    "sizeGiB": 1.0009737722575665,
+    "minRowBytes": 89565617,
+    "maxRowBytes": 89565617,
+    "averageRowBytes": 89565617,
+    "rowPreview": "<FILE name=\"head.cmb\" >\r\n <EMPTY>\r\n  <S>\r\n   <NP>\r\n    <JJ>Vz+gjytHnSqmoW8pTex59B==</JJ>\r\n    <NN>l333Xdexuj+rLngvm5JwYa==</NN>\r\n    <NNS>0fKDQZ+3ZRIjAo11SUyMQx==</NNS>\r\n   </NP>\r\n   <VBP>ItAvafJCEinspfoHNn8VbR==</VBP>\r\n   <VP>\r\n    <VBN>wtLif6joihOeW/VvC+lIW6==</VBN>\r\n    <NP>\r\n     <NN>CRtAgTzGVllR050ybz8wLM==</NN>\r\n    </NP>\r\n    <S>\r\n     <NP>\r\n      <_NONE_>O9Dgkfn4JDLYMry5bfJG39==</_NONE_>\r\n     </NP>\r\n     <TO>l7qHDSm13CMOXnY+jkrZ6t==</TO>\r\n     <VP>\r\n      <VB>OrwbtC5iVeBNpJFWBVdiLK==</VB>\r\n      <N",
+    "rowPreviewTruncated": true
+  },
+  "fullStringParity": {
+    "status": "ok",
+    "rowIds": [
+      "subarraySharedDecoder",
+      "viewSharedDecoder",
+      "sliceCopySharedDecoder",
+      "subarrayNewDecoder",
+      "shortAsciiSubarraySharedDecoder"
+    ],
+    "eventCount": 75206126,
+    "checksum": -925527041
+  },
+  "eventCountParity": {
+    "status": "ok",
+    "rowIds": [
+      "subarraySharedDecoder",
+      "viewSharedDecoder",
+      "sliceCopySharedDecoder",
+      "subarrayNewDecoder",
+      "shortAsciiSubarraySharedDecoder"
+    ],
+    "eventCount": 75206126
+  },
+  "variants": [
+    {
+      "id": "subarraySharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 0,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "avgMs": 19235.903599999998,
+      "minMs": 19235.903599999998,
+      "maxMs": 19235.903599999998,
+      "samplesMs": [
+        19235.903599999998
+      ],
+      "mibPerSec": 53.28562484539319,
+      "memory": {
+        "avgHeapUsedDeltaBytes": 876368,
+        "avgRssDeltaBytes": 130068480,
+        "maxHeapUsedBytes": 5600808,
+        "maxRssBytes": 371507200,
+        "samples": [
+          {
+            "heapUsedBeforeBytes": 4724440,
+            "heapUsedAfterBytes": 5600808,
+            "heapUsedDeltaBytes": 876368,
+            "rssBeforeBytes": 241438720,
+            "rssAfterBytes": 371507200,
+            "rssDeltaBytes": 130068480
+          }
+        ]
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "viewSharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "shared TextDecoder over new Uint8Array(buffer, offset, length)",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "decodeStrategy": {
+        "spanView": "Uint8Array constructor view",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 0,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "avgMs": 21225.0888,
+      "minMs": 21225.0888,
+      "maxMs": 21225.0888,
+      "samplesMs": [
+        21225.0888
+      ],
+      "mibPerSec": 48.29177170706339,
+      "memory": {
+        "avgHeapUsedDeltaBytes": 947648,
+        "avgRssDeltaBytes": -13688832,
+        "maxHeapUsedBytes": 5996624,
+        "maxRssBytes": 371646464,
+        "samples": [
+          {
+            "heapUsedBeforeBytes": 5048976,
+            "heapUsedAfterBytes": 5996624,
+            "heapUsedDeltaBytes": 947648,
+            "rssBeforeBytes": 371646464,
+            "rssAfterBytes": 357957632,
+            "rssDeltaBytes": -13688832
+          }
+        ]
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "sliceCopySharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "shared TextDecoder over copied Uint8Array span",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "decodeStrategy": {
+        "spanView": "Uint8Array copy",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": true,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 0,
+        "copiedSpans": 75206148,
+        "copiedSpanBytes": 566857080,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "avgMs": 23902.7581,
+      "minMs": 23902.7581,
+      "maxMs": 23902.7581,
+      "samplesMs": [
+        23902.7581
+      ],
+      "mibPerSec": 42.881961090161724,
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1653888,
+        "avgRssDeltaBytes": 1417216,
+        "maxHeapUsedBytes": 5758856,
+        "maxRssBytes": 359444480,
+        "samples": [
+          {
+            "heapUsedBeforeBytes": 4104968,
+            "heapUsedAfterBytes": 5758856,
+            "heapUsedDeltaBytes": 1653888,
+            "rssBeforeBytes": 358027264,
+            "rssAfterBytes": 359444480,
+            "rssDeltaBytes": 1417216
+          }
+        ]
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "subarrayNewDecoder",
+      "family": "full-stax-js",
+      "implementation": "new TextDecoder for each buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-span-new",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 75206148,
+        "shortAsciiHits": 0,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "avgMs": 22948.330599999994,
+      "minMs": 22948.330599999994,
+      "maxMs": 22948.330599999994,
+      "samplesMs": [
+        22948.330599999994
+      ],
+      "mibPerSec": 44.665433867845195,
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1788400,
+        "avgRssDeltaBytes": 22171648,
+        "maxHeapUsedBytes": 5918216,
+        "maxRssBytes": 381661184,
+        "samples": [
+          {
+            "heapUsedBeforeBytes": 4129816,
+            "heapUsedAfterBytes": 5918216,
+            "heapUsedDeltaBytes": 1788400,
+            "rssBeforeBytes": 359489536,
+            "rssAfterBytes": 381661184,
+            "rssDeltaBytes": 22171648
+          }
+        ]
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "shortAsciiSubarraySharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "short ASCII fast path, then shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": true,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 16870380,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 58335768,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "avgMs": 14821.204800000007,
+      "minMs": 14821.204800000007,
+      "maxMs": 14821.204800000007,
+      "samplesMs": [
+        14821.204800000007
+      ],
+      "mibPerSec": 69.15747785846314,
+      "memory": {
+        "avgHeapUsedDeltaBytes": 1583208,
+        "avgRssDeltaBytes": -14716928,
+        "maxHeapUsedBytes": 5723360,
+        "maxRssBytes": 379830272,
+        "samples": [
+          {
+            "heapUsedBeforeBytes": 4140152,
+            "heapUsedAfterBytes": 5723360,
+            "heapUsedDeltaBytes": 1583208,
+            "rssBeforeBytes": 379830272,
+            "rssAfterBytes": 365113344,
+            "rssDeltaBytes": -14716928
+          }
+        ]
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    }
+  ],
+  "findings": [
+    {
+      "id": "same-full-string-contract",
+      "status": "BENCH_FACT",
+      "summary": "All TextDecoder variants fold event type, names, text/CDATA, attribute names, and attribute values into the same checksum."
+    },
+    {
+      "id": "textdecoder-variants-are-headroom-search",
+      "status": "BENCH_FACT",
+      "summary": "Fastest row in this run was shortAsciiSubarraySharedDecoder at 69.16 MiB/s; this is a decode-span headroom search, not an impossibility proof."
+    },
+    {
+      "id": "runtime-limit-still-unproven",
+      "status": "HYPOTHESIS",
+      "summary": "No 200 MiB/s+ bounded-memory 1 GiB+ full-string row was found in this TextDecoder span matrix, but absence in this matrix is not a proof that JavaScript runtimes have no further headroom."
+    },
+    {
+      "id": "no-buffer-native-or-lazy-getter-path",
+      "status": "SOURCE_FACT",
+      "summary": "Rows use Uint8Array plus TextDecoder only; they do not use Node Buffer.toString(), native addons, or lazy getters."
+    },
+    {
+      "id": "fixture-scope",
+      "status": "BENCH_FACT",
+      "summary": "Fixture is corpus-backed 1.00 GiB corpus-cycle; broaden corpus/runtime coverage before drawing global conclusions."
+    },
+    {
+      "id": "corpus-cycle-fixture",
+      "status": "BENCH_FACT",
+      "summary": "The fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows."
+    }
+  ]
+}
