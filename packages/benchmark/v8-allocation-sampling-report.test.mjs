@@ -11,6 +11,9 @@ const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'v8-allocation-sampling-report-test.json');
 const mdOut = join(tmpDir, 'v8-allocation-sampling-report-test.md');
 const outputDir = join(tmpDir, 'v8-allocation-sampling-report-test-raw');
+const diverseJsonOut = join(tmpDir, 'v8-allocation-sampling-diverse-test.json');
+const diverseMdOut = join(tmpDir, 'v8-allocation-sampling-diverse-test.md');
+const diverseOutputDir = join(tmpDir, 'v8-allocation-sampling-diverse-test-raw');
 
 test('V8 allocation sampling report records per-shape allocation evidence without claiming a runtime ceiling', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -58,4 +61,57 @@ test('V8 allocation sampling report records per-shape allocation evidence withou
   assert.match(markdown, /TRACE_FACT/);
   assert.match(markdown, /HeapProfiler/);
   assert.match(markdown, /not a proof that JavaScript runtimes have no further headroom/);
+});
+
+test('V8 allocation sampling supports generated diverse fixtures for stronger public event-object sampling', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [diverseJsonOut, diverseMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'v8-allocation-sampling.mjs'),
+    '--generated-fixture',
+    'diverse',
+    '--size-mib',
+    '1',
+    '--cases',
+    'public-accessor,event-reader-object',
+    '--warmups',
+    '0',
+    '--iterations',
+    '1',
+    '--sampling-interval',
+    '1024',
+    '--output-dir',
+    diverseOutputDir,
+    '--json-out',
+    diverseJsonOut,
+    '--md-out',
+    diverseMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(diverseJsonOut, 'utf8'));
+  assert.equal(report.fixture.source, 'generated');
+  assert.equal(report.fixture.shape, 'diverse');
+  assert.ok(report.fixture.byteLength >= 0.95 * 1024 * 1024);
+  assert.deepEqual(report.cases.map(entry => entry.caseId), [
+    'public-accessor',
+    'event-reader-object',
+  ]);
+  assert.ok(report.cases.every(entry => entry.eventCount === report.parity.eventCount));
+  assert.ok(report.cases.every(entry => entry.checksum === report.parity.checksum));
+
+  const markdown = readFileSync(diverseMdOut, 'utf8');
+  assert.match(markdown, /Fixture shape: diverse/);
+  assert.match(markdown, /less-repetitive generated fixture/);
 });

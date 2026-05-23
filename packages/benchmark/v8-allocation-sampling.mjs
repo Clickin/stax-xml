@@ -38,6 +38,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     samplingInterval: 16 * 1024,
     selfTest: false,
     elements: 32,
+    generatedFixture: null,
+    sizeMiB: 16,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -89,6 +91,12 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--elements':
         options.elements = parsePositiveInteger(readValue(), name);
         break;
+      case '--generated-fixture':
+        options.generatedFixture = parseGeneratedFixture(readValue());
+        break;
+      case '--size-mib':
+        options.sizeMiB = parsePositiveNumber(readValue(), name);
+        break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
@@ -109,9 +117,22 @@ function parseCaseList(value) {
   return parsed;
 }
 
+function parseGeneratedFixture(value) {
+  if (value === 'basic' || value === 'diverse') {
+    return value;
+  }
+  throw new Error(`--generated-fixture must be one of basic, diverse. Received: ${value}`);
+}
+
 function parsePositiveInteger(value, flag) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) throw new Error(`${flag} must be a positive integer.`);
+  return parsed;
+}
+
+function parsePositiveNumber(value, flag) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) throw new Error(`${flag} must be a positive number.`);
   return parsed;
 }
 
@@ -143,10 +164,26 @@ function loadFixture(options) {
     const bytes = textEncoder.encode(xml);
     return {
       source: 'self-test-generated',
+      shape: 'basic',
       file: null,
       xml,
       bytes,
       byteLength: bytes.byteLength,
+    };
+  }
+
+  if (options.generatedFixture) {
+    const targetBytes = Math.floor(options.sizeMiB * MIB);
+    const xml = makeGeneratedXml(targetBytes, options.generatedFixture);
+    const bytes = textEncoder.encode(xml);
+    return {
+      source: 'generated',
+      shape: options.generatedFixture,
+      file: null,
+      xml,
+      bytes,
+      byteLength: bytes.byteLength,
+      targetBytes,
     };
   }
 
@@ -157,6 +194,7 @@ function loadFixture(options) {
   const xml = readFileSync(options.file, 'utf8');
   return {
     source: 'file',
+    shape: 'runtime-comparison',
     file: options.file,
     xml,
     bytes,
@@ -277,15 +315,19 @@ function createReport({ options, fixture, cases }) {
     },
     fixture: {
       source: fixture.source,
+      shape: fixture.shape,
       file: fixture.file,
       byteLength: fixture.byteLength,
       sizeMiB: fixture.byteLength / MIB,
+      targetBytes: fixture.targetBytes,
     },
     options: {
       warmups: options.warmups,
       iterations: options.iterations,
       samplingInterval: options.samplingInterval,
       cases: options.cases,
+      generatedFixture: options.generatedFixture,
+      sizeMiB: options.sizeMiB,
     },
     rawArtifacts: {
       outputDir: options.outputDir,
@@ -294,7 +336,7 @@ function createReport({ options, fixture, cases }) {
     },
     parity,
     cases,
-    findings: createFindings(cases),
+    findings: createFindings(cases, fixture),
   };
 }
 
@@ -311,8 +353,8 @@ function computeParity(cases) {
   };
 }
 
-function createFindings(cases) {
-  return [
+function createFindings(cases, fixture) {
+  const findings = [
     {
       id: 'same-contract-result',
       classification: 'TRACE_FACT',
@@ -342,6 +384,20 @@ function createFindings(cases) {
       ],
     },
   ];
+
+  if (fixture.source === 'generated' && fixture.shape === 'diverse') {
+    findings.splice(2, 0, {
+      id: 'less-repetitive-generated-fixture',
+      classification: 'TRACE_FACT',
+      summary: 'This run used a less-repetitive generated fixture with varied names, attributes, and text values to reduce single-pattern sampling bias.',
+      evidence: [
+        `fixtureBytes=${fixture.byteLength}`,
+        `targetBytes=${fixture.targetBytes}`,
+      ],
+    });
+  }
+
+  return findings;
 }
 
 function renderMarkdown(report) {
@@ -361,6 +417,7 @@ function renderMarkdown(report) {
     `- Platform: ${report.environment.platform}`,
     `- CPU: ${report.environment.cpuName}`,
     `- Fixture: ${report.fixture.source}${report.fixture.file ? ` (${report.fixture.file})` : ''}`,
+    `- Fixture shape: ${report.fixture.shape}`,
     `- Fixture size: ${formatBytes(report.fixture.byteLength)} (${report.fixture.byteLength} bytes)`,
     `- Runs: warmups=${report.options.warmups}, iterations=${report.options.iterations}`,
     `- Sampling interval: ${report.options.samplingInterval} bytes`,
@@ -446,18 +503,67 @@ function consumeCase(caseId, fixture) {
 function makeXml(elements) {
   const parts = ['<?xml version="1.0" encoding="UTF-8"?>\n<root>\n'];
   for (let id = 0; id < elements; id++) {
-    parts.push(
-      `  <book id="book-${id}" lang="en" code="${id % 97}">`
-      + `<title>Runtime Benchmark ${id}</title>`
-      + `<author>Author ${id % 4096}</author>`
-      + `<description>Full string checksum text payload ${id} with stable words and numbers.</description>`
-      + `<chapter number="1">Intro ${id}</chapter>`
-      + `<chapter number="2">Body ${id}</chapter>`
-      + '</book>\n',
-    );
+    parts.push(makeBasicElement(id));
   }
   parts.push('</root>\n');
   return parts.join('');
+}
+
+function makeGeneratedXml(targetBytes, shape) {
+  const header = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
+  const footer = '</root>\n';
+  const parts = [header];
+  let byteLength = textEncoder.encode(header).byteLength + textEncoder.encode(footer).byteLength;
+  let id = 0;
+
+  while (true) {
+    const element = shape === 'diverse' ? makeDiverseElement(id) : makeBasicElement(id);
+    const elementBytes = textEncoder.encode(element).byteLength;
+    if (byteLength + elementBytes > targetBytes) {
+      break;
+    }
+    parts.push(element);
+    byteLength += elementBytes;
+    id++;
+  }
+
+  if (id === 0) {
+    throw new Error(`Generated fixture target is too small: ${targetBytes} bytes.`);
+  }
+
+  parts.push(footer);
+  return parts.join('');
+}
+
+function makeBasicElement(id) {
+  return `  <book id="book-${id}" lang="en" code="${id % 97}">`
+    + `<title>Runtime Benchmark ${id}</title>`
+    + `<author>Author ${id % 4096}</author>`
+    + `<description>Full string checksum text payload ${id} with stable words and numbers.</description>`
+    + `<chapter number="1">Intro ${id}</chapter>`
+    + `<chapter number="2">Body ${id}</chapter>`
+    + '</book>\n';
+}
+
+function makeDiverseElement(id) {
+  const rootNames = ['book', 'record', 'entry', 'invoice', 'profile', 'sample', 'asset'];
+  const childNames = ['title', 'author', 'description', 'chapter', 'summary', 'note', 'keyword'];
+  const rootName = `${rootNames[id % rootNames.length]}${id % 251}`;
+  const childA = `${childNames[id % childNames.length]}${(id * 3) % 173}`;
+  const childB = `${childNames[(id + 2) % childNames.length]}${(id * 5) % 191}`;
+  const childC = `${childNames[(id + 4) % childNames.length]}${(id * 7) % 223}`;
+  const attrA = `data${id % 997}`;
+  const attrB = `code${(id * 13) % 991}`;
+  const attrC = `flag${(id * 17) % 983}`;
+  const utf8Text = id % 5 === 0
+    ? ` mixed utf8 ${String.fromCodePoint(0x2603)}-${id}-${String.fromCodePoint(0x1f642)}`
+    : '';
+
+  return `  <${rootName} id="item-${id}" ${attrA}="value-${(id * 31) % 65521}" ${attrB}="group-${id % 4093}" ${attrC}="${id % 2 === 0 ? 'true' : 'false'}">`
+    + `<${childA}>Runtime Benchmark ${id}${utf8Text}</${childA}>`
+    + `<${childB} rank="${id % 29}">Full string checksum payload ${(id * 8191) % 104729}</${childB}>`
+    + `<${childC} shard="${id % 37}" bucket="${(id * 19) % 389}">Text ${id} ${(id * id) % 99991}</${childC}>`
+    + `</${rootName}>\n`;
 }
 
 function consumePublicAccessor(bytes) {

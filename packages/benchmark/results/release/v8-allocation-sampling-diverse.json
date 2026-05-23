@@ -1,0 +1,527 @@
+{
+  "generatedAt": "2026-05-23T09:56:05.953Z",
+  "objective": "v8-allocation-sampling",
+  "contract": "inspector-heapprofiler-sampling",
+  "note": "V8 inspector HeapProfiler allocation sampling for full-string JavaScript reader shapes. Sampling is statistical and runtime-specific.",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "platform": "win32-x64",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "source": "generated",
+    "shape": "diverse",
+    "file": null,
+    "byteLength": 16776986,
+    "sizeMiB": 15.999780654907227,
+    "targetBytes": 16777216
+  },
+  "options": {
+    "warmups": 1,
+    "iterations": 4,
+    "samplingInterval": 2048,
+    "cases": [
+      "public-accessor",
+      "event-reader-object",
+      "raw-frame-direct-decode",
+      "raw-frame-name-id-cache"
+    ],
+    "generatedFixture": "diverse",
+    "sizeMiB": 16
+  },
+  "rawArtifacts": {
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release",
+    "committed": false,
+    "profiles": [
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\public-accessor.heapprofile.json",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\event-reader-object.heapprofile.json",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\raw-frame-direct-decode.heapprofile.json",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\raw-frame-name-id-cache.heapprofile.json"
+    ]
+  },
+  "parity": {
+    "status": "ok",
+    "eventCount": 662215,
+    "checksum": -2075823699
+  },
+  "cases": [
+    {
+      "caseId": "public-accessor",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 222.81157500000003,
+      "samplesMs": [
+        235.20399999999995,
+        227.50110000000006,
+        217.9924000000001,
+        210.54880000000003
+      ],
+      "sampledBytes": 254272,
+      "sampleCount": 94,
+      "targetFunctionBytes": 11552,
+      "staxXmlSourceBytes": 62456,
+      "topFrames": [
+        {
+          "functionName": "post",
+          "url": "node:inspector",
+          "lineNumber": 114,
+          "columnNumber": 6,
+          "selfSize": 53928,
+          "percent": 0.21208784293984395
+        },
+        {
+          "functionName": "compileForInternalLoader",
+          "url": "node:internal/bootstrap/realm",
+          "lineNumber": 382,
+          "columnNumber": 26,
+          "selfSize": 31016,
+          "percent": 0.12197961238358923
+        },
+        {
+          "functionName": "set",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 17192,
+          "percent": 0.06761263528819532
+        },
+        {
+          "functionName": "p",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 15737,
+          "selfSize": 17136,
+          "percent": 0.06739239869116537
+        },
+        {
+          "functionName": "addEvent",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 13697,
+          "selfSize": 14528,
+          "percent": 0.05713566574377045
+        },
+        {
+          "functionName": "(anonymous)",
+          "url": "node:internal/perf/observe",
+          "lineNumber": 0,
+          "columnNumber": 0,
+          "selfSize": 10896,
+          "percent": 0.04285174930782784
+        },
+        {
+          "functionName": "compileForInternalLoader",
+          "url": "node:internal/bootstrap/realm",
+          "lineNumber": 382,
+          "columnNumber": 26,
+          "selfSize": 10776,
+          "percent": 0.04237981374276365
+        },
+        {
+          "functionName": "foldString",
+          "url": "file:///G:/programming/stax-xml/packages/benchmark/v8-allocation-sampling.mjs",
+          "lineNumber": 895,
+          "columnNumber": 19,
+          "selfSize": 9248,
+          "percent": 0.036370500880946385
+        },
+        {
+          "functionName": "(anonymous)",
+          "url": "node:internal/perf/usertiming",
+          "lineNumber": 0,
+          "columnNumber": 0,
+          "selfSize": 8360,
+          "percent": 0.032878177699471434
+        },
+        {
+          "functionName": "(anonymous)",
+          "url": "node:internal/histogram",
+          "lineNumber": 0,
+          "columnNumber": 0,
+          "selfSize": 8304,
+          "percent": 0.03265794110244148
+        },
+        {
+          "functionName": "imul",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 6432,
+          "percent": 0.025295746287440222
+        },
+        {
+          "functionName": "p",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 15737,
+          "selfSize": 5664,
+          "percent": 0.02227535867102945
+        },
+        {
+          "functionName": "(anonymous)",
+          "url": "node:internal/perf/performance",
+          "lineNumber": 0,
+          "columnNumber": 0,
+          "selfSize": 4696,
+          "percent": 0.018468411779511706
+        },
+        {
+          "functionName": "assertActive",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 28320,
+          "selfSize": 4680,
+          "percent": 0.018405487037503145
+        },
+        {
+          "functionName": "nextBatch",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 2500,
+          "selfSize": 4528,
+          "percent": 0.017807701988421847
+        },
+        {
+          "functionName": "(anonymous)",
+          "url": "node:internal/perf/performance_entry",
+          "lineNumber": 0,
+          "columnNumber": 0,
+          "selfSize": 4200,
+          "percent": 0.016517744777246414
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\public-accessor.heapprofile.json"
+    },
+    {
+      "caseId": "event-reader-object",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 417.58447500000005,
+      "samplesMs": [
+        483.76030000000014,
+        415.29890000000023,
+        385.7806999999998,
+        385.49800000000005
+      ],
+      "sampledBytes": 73304,
+      "sampleCount": 21,
+      "targetFunctionBytes": 0,
+      "staxXmlSourceBytes": 16856,
+      "topFrames": [
+        {
+          "functionName": "indexOf",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 28128,
+          "percent": 0.3837171232129215
+        },
+        {
+          "functionName": "trim",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 17328,
+          "percent": 0.23638546327621957
+        },
+        {
+          "functionName": "publicEventTypeCode",
+          "url": "file:///G:/programming/stax-xml/packages/benchmark/v8-allocation-sampling.mjs",
+          "lineNumber": 627,
+          "columnNumber": 28,
+          "selfSize": 10424,
+          "percent": 0.1422023354796464
+        },
+        {
+          "functionName": "charCodeAt",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 4272,
+          "percent": 0.058277856597184326
+        },
+        {
+          "functionName": "charCodeAt",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 2496,
+          "percent": 0.03404998362981556
+        },
+        {
+          "functionName": "parseNextEvent",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 35817,
+          "selfSize": 2160,
+          "percent": 0.029466331987340392
+        },
+        {
+          "functionName": "createCharactersEvent",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 39473,
+          "selfSize": 2160,
+          "percent": 0.029466331987340392
+        },
+        {
+          "functionName": "parseNextEvent",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 35817,
+          "selfSize": 2112,
+          "percent": 0.028811524609843937
+        },
+        {
+          "functionName": "charCodeAt",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 2112,
+          "percent": 0.028811524609843937
+        },
+        {
+          "functionName": "slice",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 2112,
+          "percent": 0.028811524609843937
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\event-reader-object.heapprofile.json"
+    },
+    {
+      "caseId": "raw-frame-direct-decode",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 244.59662499999968,
+      "samplesMs": [
+        251.66579999999976,
+        243.78219999999965,
+        241.55049999999983,
+        241.38799999999947
+      ],
+      "sampledBytes": 69824,
+      "sampleCount": 22,
+      "targetFunctionBytes": 2160,
+      "staxXmlSourceBytes": 50952,
+      "topFrames": [
+        {
+          "functionName": "assertValidName",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 12018,
+          "selfSize": 16840,
+          "percent": 0.24117781851512374
+        },
+        {
+          "functionName": "get byteLength",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 14744,
+          "percent": 0.21115948670944087
+        },
+        {
+          "functionName": "p",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 15737,
+          "selfSize": 12024,
+          "percent": 0.1722043996333639
+        },
+        {
+          "functionName": "ensureElementCapacity",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 14944,
+          "selfSize": 6320,
+          "percent": 0.09051329055912008
+        },
+        {
+          "functionName": "parseAttributes",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 10557,
+          "selfSize": 6112,
+          "percent": 0.08753437213565536
+        },
+        {
+          "functionName": "TextDecoder",
+          "url": "node:internal/encoding",
+          "lineNumber": 430,
+          "columnNumber": 13,
+          "selfSize": 4128,
+          "percent": 0.05912007332722273
+        },
+        {
+          "functionName": "(anonymous)",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 840,
+          "selfSize": 2912,
+          "percent": 0.04170485792850596
+        },
+        {
+          "functionName": "finish",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 6532,
+          "selfSize": 2304,
+          "percent": 0.03299725022914757
+        },
+        {
+          "functionName": "nextRawBatch",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 33678,
+          "selfSize": 2280,
+          "percent": 0.03265352887259395
+        },
+        {
+          "functionName": "foldString",
+          "url": "file:///G:/programming/stax-xml/packages/benchmark/v8-allocation-sampling.mjs",
+          "lineNumber": 895,
+          "columnNumber": 19,
+          "selfSize": 2160,
+          "percent": 0.030934922089825848
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\raw-frame-direct-decode.heapprofile.json"
+    },
+    {
+      "caseId": "raw-frame-name-id-cache",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 211.85737499999982,
+      "samplesMs": [
+        232.5118999999995,
+        204.02840000000015,
+        203.6894000000002,
+        207.1997999999994
+      ],
+      "sampledBytes": 77784,
+      "sampleCount": 23,
+      "targetFunctionBytes": 8104,
+      "staxXmlSourceBytes": 47728,
+      "topFrames": [
+        {
+          "functionName": "get",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 25800,
+          "percent": 0.3316877506942302
+        },
+        {
+          "functionName": "addEvent",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 13697,
+          "selfSize": 16592,
+          "percent": 0.2133086495937468
+        },
+        {
+          "functionName": "re",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 19475,
+          "selfSize": 13608,
+          "percent": 0.17494600431965443
+        },
+        {
+          "functionName": "decodeSpan",
+          "url": "file:///G:/programming/stax-xml/packages/benchmark/v8-allocation-sampling.mjs",
+          "lineNumber": 749,
+          "columnNumber": 19,
+          "selfSize": 8104,
+          "percent": 0.10418595083821866
+        },
+        {
+          "functionName": "ensureElementCapacity",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 14944,
+          "selfSize": 7344,
+          "percent": 0.09441530391854366
+        },
+        {
+          "functionName": "delete",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 2128,
+          "percent": 0.027357811375089993
+        },
+        {
+          "functionName": "push",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 2128,
+          "percent": 0.027357811375089993
+        },
+        {
+          "functionName": "parseEndTag",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 9072,
+          "selfSize": 2080,
+          "percent": 0.02674071788542631
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\diverse-release\\raw-frame-name-id-cache.heapprofile.json"
+    }
+  ],
+  "findings": [
+    {
+      "id": "same-contract-result",
+      "classification": "TRACE_FACT",
+      "summary": "All sampled shapes preserved the same event count and checksum during allocation sampling.",
+      "evidence": [
+        "public-accessor: events=662215, checksum=-2075823699",
+        "event-reader-object: events=662215, checksum=-2075823699",
+        "raw-frame-direct-decode: events=662215, checksum=-2075823699",
+        "raw-frame-name-id-cache: events=662215, checksum=-2075823699"
+      ]
+    },
+    {
+      "id": "sampled-allocation-shape",
+      "classification": "TRACE_FACT",
+      "summary": "HeapProfiler sampled JavaScript allocation bytes per full-string reader shape in this Node/V8 build.",
+      "evidence": [
+        "public-accessor: sampledBytes=254272, targetFunctionBytes=11552, staxXmlSourceBytes=62456",
+        "event-reader-object: sampledBytes=73304, targetFunctionBytes=0, staxXmlSourceBytes=16856",
+        "raw-frame-direct-decode: sampledBytes=69824, targetFunctionBytes=2160, staxXmlSourceBytes=50952",
+        "raw-frame-name-id-cache: sampledBytes=77784, targetFunctionBytes=8104, staxXmlSourceBytes=47728"
+      ]
+    },
+    {
+      "id": "less-repetitive-generated-fixture",
+      "classification": "TRACE_FACT",
+      "summary": "This run used a less-repetitive generated fixture with varied names, attributes, and text values to reduce single-pattern sampling bias.",
+      "evidence": [
+        "fixtureBytes=16776986",
+        "targetBytes=16777216"
+      ]
+    },
+    {
+      "id": "sampling-attribution-limit",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "Function/source byte attribution is based on sampled self-size frames and can attribute work to native frames instead of the JavaScript caller.",
+      "evidence": [
+        "A zero source-byte bucket in this report does not mean the reader performed no work or allocated no values."
+      ]
+    },
+    {
+      "id": "allocation-sampling-not-ceiling-proof",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "This is statistical allocation evidence for one runtime/build/input, not a proof that JavaScript runtimes have no further headroom.",
+      "evidence": [
+        "Need larger fixtures, browser/Bun/JSC runs, and deeper source/asm evidence before promoting runtime-limit claims."
+      ]
+    }
+  ]
+}
