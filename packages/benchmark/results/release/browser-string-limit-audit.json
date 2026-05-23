@@ -1,0 +1,228 @@
+{
+  "generatedAt": "2026-05-23T20:58:02.703Z",
+  "objective": "browser-string-limit-audit",
+  "contract": "browser-v8-complete-js-string-input-boundary",
+  "note": "This audits the browser EventReaderSync complete-string input boundary. It is not a byte-batch runtime ceiling or a 200 MiB/s impossibility proof.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "V8",
+    "browserName": "Chrome",
+    "browserVersion": "148.0.0.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "window.gc",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "cdpVersion": {
+      "Browser": "Chrome/148.0.7778.179",
+      "Protocol-Version": "1.3",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+      "V8-Version": "14.8.178.22",
+      "WebKit-Version": "537.36 (@4687a88676f95bfbce9ec62314791faae363fea6)",
+      "webSocketDebuggerUrl": "ws://127.0.0.1:55192/devtools/browser/96d6f922-ef4b-4fa3-8622-729fdc7187ea"
+    }
+  },
+  "options": {
+    "sizesMiB": [
+      64,
+      1024
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 4096,
+    "sampleEveryEvents": 250000
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "sizeMiB": 64,
+      "fixture": {
+        "generated": true,
+        "shape": "diverse-cycle",
+        "rowCycleSize": 4096,
+        "minRowBytes": 222,
+        "maxRowBytes": 284,
+        "averageRowBytes": 261.37109375,
+        "targetBytes": 67108864,
+        "actualUtf8Bytes": 67109030,
+        "sizeGiB": 0.06250015459954739,
+        "stringCodeUnits": 67015502,
+        "estimatedUtf16Bytes": 134031004,
+        "fullCycles": 62,
+        "tailRows": 2812,
+        "cycleUtf8Bytes": 1070576,
+        "cycleStringCodeUnits": 1069084,
+        "constructingCompleteStringIsExpectedToFail": false
+      },
+      "generation": {
+        "ms": 20.979999996721745,
+        "before": {
+          "scope": "browser-js-heap",
+          "jsHeapSizeLimitBytes": 4294967296,
+          "jsHeapTotalBytes": 19102949,
+          "jsHeapUsedBytes": 11933105
+        },
+        "after": {
+          "scope": "browser-js-heap",
+          "jsHeapSizeLimitBytes": 4294967296,
+          "jsHeapTotalBytes": 155278565,
+          "jsHeapUsedBytes": 148159005
+        },
+        "delta": {
+          "jsHeapUsedBytes": 136225900,
+          "jsHeapTotalBytes": 136175616
+        }
+      },
+      "avgMs": 789.3150000050664,
+      "minMs": 789.3150000050664,
+      "maxMs": 789.3150000050664,
+      "mibPerSec": 81.08316490821247,
+      "eventCount": 2824406,
+      "checksum": 288962256,
+      "samplesMs": [
+        789.3150000050664
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": 11571036,
+        "avgJsHeapTotalDeltaBytes": 30146560,
+        "maxJsHeapUsedBytes": 157542857,
+        "maxJsHeapTotalBytes": 183282917,
+        "jsHeapSizeLimitBytes": 4294967296,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 153136357,
+              "jsHeapUsedBytes": 145971821
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": 4294967296,
+              "jsHeapTotalBytes": 183282917,
+              "jsHeapUsedBytes": 157542857
+            },
+            "delta": {
+              "jsHeapUsedBytes": 11571036,
+              "jsHeapTotalBytes": 30146560
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 6419100,
+        "nameStringReads": 2054112,
+        "textStringReads": 770292,
+        "attrNameStringReads": 1797348,
+        "attrValueStringReads": 1797348,
+        "eventObjects": 2824406,
+        "attributePairs": 1797348
+      },
+      "parsed": true
+    },
+    {
+      "status": "string-construction-failed",
+      "sizeMiB": 1024,
+      "fixture": {
+        "generated": true,
+        "shape": "diverse-cycle",
+        "rowCycleSize": 4096,
+        "minRowBytes": 222,
+        "maxRowBytes": 284,
+        "averageRowBytes": 261.37109375,
+        "targetBytes": 1073741824,
+        "actualUtf8Bytes": 1073742038,
+        "sizeGiB": 1.000000199303031,
+        "stringCodeUnits": 1072245626,
+        "estimatedUtf16Bytes": 2144491252,
+        "fullCycles": 1002,
+        "tailRows": 3922,
+        "cycleUtf8Bytes": 1070576,
+        "cycleStringCodeUnits": 1069084,
+        "constructingCompleteStringIsExpectedToFail": true
+      },
+      "stringConstructionProbe": {
+        "status": "throws",
+        "requestedLength": 1072245626,
+        "errorName": "RangeError",
+        "errorMessage": "Invalid string length"
+      },
+      "parsed": false
+    }
+  ],
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Windows process-tree memory rooted at the browser pid. This is host process context, not variant-level JS heap memory.",
+    "samples": [
+      {
+        "label": "browser-started",
+        "at": "2026-05-23T20:57:59.729Z",
+        "scope": "windows-process-tree",
+        "rootPid": 47524,
+        "processCount": 9,
+        "workingSetBytes": 377335808,
+        "privateBytes": 156860416
+      },
+      {
+        "label": "before-run",
+        "at": "2026-05-23T20:58:00.311Z",
+        "scope": "windows-process-tree",
+        "rootPid": 47524,
+        "processCount": 10,
+        "workingSetBytes": 429604864,
+        "privateBytes": 178958336
+      },
+      {
+        "label": "after-run",
+        "at": "2026-05-23T20:58:02.165Z",
+        "scope": "windows-process-tree",
+        "rootPid": 47524,
+        "processCount": 10,
+        "workingSetBytes": 644771840,
+        "privateBytes": 376209408
+      }
+    ],
+    "maxWorkingSetBytes": 644771840,
+    "maxPrivateBytes": 376209408,
+    "maxProcessCount": 10
+  },
+  "findings": [
+    {
+      "id": "browser-string-input-control",
+      "classification": "BENCH_FACT",
+      "summary": "At least one browser EventReaderSync complete-string control row parsed successfully.",
+      "evidence": [
+        "64 MiB: 81.08 MiB/s, events=2,824,406, checksum=288962256"
+      ]
+    },
+    {
+      "id": "browser-complete-string-boundary",
+      "classification": "BENCH_FACT",
+      "summary": "At least one projected complete XML string failed browser string construction before EventReaderSync parsing.",
+      "evidence": [
+        "1024 MiB: RangeError: Invalid string length"
+      ]
+    },
+    {
+      "id": "browser-memory-scope",
+      "classification": "BENCH_FACT",
+      "summary": "Measured row memory is Chromium page JS heap. Host process-tree memory is reported separately when available.",
+      "evidence": [
+        "64 MiB: maxJsHeap=150.2 MiB"
+      ]
+    },
+    {
+      "id": "not-byte-batch-runtime-ceiling",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "A complete-string construction failure limits EventReaderSync string input only; it is not a byte-batch runtime ceiling.",
+      "evidence": [
+        "StreamReaderSync byte-batch browser artifacts remain the relevant bounded-memory reader path."
+      ]
+    }
+  ]
+}

@@ -36,6 +36,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 1 GiB Corpus-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
+  assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 Monomorphic Shape Trace/);
@@ -57,6 +58,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-CORPUS-CYCLE-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-CORPUS-CYCLE-1GIB'), /\| `BENCH_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-COMPLETE-STRING-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-PROJECTION'), /\| `BENCH_FACT` for current low-selectivity rows; `HYPOTHESIS` for broad workloads \|/);
 
   assert.doesNotMatch(markdown, /JavaScript runtimes cannot exceed 200 MiB\/s/i);
@@ -124,6 +126,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /not a\s+proof of ArrayBuffer external-memory accounting/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
+  assert.match(markdown, /browser-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
   assert.match(markdown, /bun-event-reader-string-large\.md/);
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
@@ -259,6 +262,19 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /\(1 << 29\) - 24/);
   assert.match(markdown, /Code-unit headroom below `MAX_STRING_LENGTH`\s+was `748,090`/);
   assert.match(markdown, /not a byte-batch runtime ceiling/);
+  assert.match(markdown, /CDP Chrome 148\.0\.7778\.179/);
+  assert.match(markdown, /V8 14\.8\.178\.22/);
+  assert.match(markdown, /64 MiB complete XML string control row/);
+  assert.match(markdown, /2,824,406\s+public event objects/);
+  assert.match(markdown, /6,419,100 string-field reads/);
+  assert.match(markdown, /checksum `288962256`/);
+  assert.match(markdown, /throughput `81\.08 MiB\/s`/);
+  assert.match(markdown, /max used JS\s+heap `150\.2 MiB`/);
+  assert.match(markdown, /max\s+working set `614\.9 MiB` and max private bytes `358\.8 MiB`/);
+  assert.match(markdown, /`1,072,245,626` UTF-16 code units/);
+  assert.match(markdown, /failed string\s+construction before parsing with `RangeError: Invalid string length`/);
+  assert.match(markdown, /browser Chrome\/V8 string-limit audit also failed the projected 1024 MiB complete XML string before parsing/);
+  assert.match(markdown, /non-V8 browser feasibility rows/);
   assert.match(markdown, /StringImpl::MaxLength` is `2,147,483,647` UTF-16\s+code units/);
   assert.match(markdown, /std::numeric_limits<int32_t>::max\(\)/);
   assert.match(markdown, /1024 MiB projection is below the Bun\/JSC\s+StringImpl::MaxLength/);
