@@ -1,3 +1,4 @@
+import inspector from 'node:inspector';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -18,6 +19,13 @@ const style = readOption('--style') ?? 'index-for';
 const jsonOut = readOption('--json-out');
 const mdOut = readOption('--md-out');
 const targetBytes = Math.floor(sizeGiB * GIB);
+const allocationSampling = readFlag('--allocation-sampling');
+const allocationSamplingInterval = Number.parseInt(readOption('--allocation-sampling-interval') ?? `${64 * 1024}`, 10);
+const allocationOutputDir = readOption('--allocation-output-dir') ?? 'results/v8-allocation/stream-reader-large-shape';
+
+if (!Number.isInteger(allocationSamplingInterval) || allocationSamplingInterval <= 0) {
+  throw new Error('--allocation-sampling-interval must be a positive integer.');
+}
 
 const styleIds = ['index-for', 'while-index', 'raw-frame-direct', 'raw-frame-name-id'];
 const styleGroups = new Map([
@@ -43,17 +51,21 @@ const results = [];
 
 console.log('StreamReaderSync large shape consumption checksum');
 console.log(`target=${formatBytes(expectedBytes)}, rowBytes=${row.byteLength}, warmups=${warmups}, runs=${runs}, style=${style}`);
+if (allocationSampling) {
+  mkdirSync(resolve(process.cwd(), allocationOutputDir), { recursive: true });
+  console.log(`allocationSampling=true interval=${allocationSamplingInterval} outputDir=${allocationOutputDir}`);
+}
 
 for (const candidate of styles) {
-  const measured = measure(candidate);
+  const measured = await measure(candidate);
   results.push({ style: candidate, ...measured });
   console.log(`${candidate.padEnd(18)} avg=${measured.avgMs.toFixed(2)} ms throughput=${measured.avgMiBs.toFixed(2)} MiB/s min=${measured.minMs.toFixed(2)} ms max=${measured.maxMs.toFixed(2)} ms events=${measured.events} checksum=${measured.checksum} rssDelta=${formatSignedBytes(measured.memory.avgRssDeltaBytes)} strings=${measured.materialization.stringFieldReads}`);
 }
 
 const report = {
   generatedAt: new Date().toISOString(),
-  objective: 'stream-reader-large-shape',
-  contract: 'generated-byte-batch-full-string',
+  objective: allocationSampling ? 'stream-reader-large-shape-allocation' : 'stream-reader-large-shape',
+  contract: allocationSampling ? 'generated-byte-batch-full-string-allocation-sampling' : 'generated-byte-batch-full-string',
   packageVersion,
   runtime: {
     id: 'node',
@@ -74,6 +86,20 @@ const report = {
     runs,
     style,
   },
+  allocationSampling: {
+    enabled: allocationSampling,
+    samplingInterval: allocationSamplingInterval,
+    rawArtifacts: {
+      outputDir: resolve(process.cwd(), allocationOutputDir),
+      committed: false,
+      profiles: results
+        .map((result) => result.allocation?.rawProfilePath)
+        .filter(Boolean),
+    },
+    note: allocationSampling
+      ? 'V8 HeapProfiler allocation sampling is statistical self-size evidence and not a deterministic allocation census.'
+      : 'Disabled for this run.',
+  },
   parity: computeParity(results),
   results,
 };
@@ -85,7 +111,7 @@ if (mdOut) {
   writeOutput(mdOut, renderMarkdown(report));
 }
 
-function measure(candidate) {
+async function measure(candidate) {
   for (let index = 0; index < warmups; index++) {
     consume(candidate);
   }
@@ -93,26 +119,106 @@ function measure(candidate) {
   const times = [];
   const memorySamples = [];
   let last;
-  for (let index = 0; index < runs; index++) {
-    globalThis.gc?.();
-    const before = takeMemorySnapshot();
-    const start = performance.now();
-    last = consume(candidate);
-    const elapsed = performance.now() - start;
-    const after = takeMemorySnapshot();
-    times.push(elapsed);
-    memorySamples.push(createMemorySample(before, after));
-  }
+  const session = allocationSampling ? new inspector.Session() : null;
+  try {
+    if (session) {
+      session.connect();
+      await post(session, 'HeapProfiler.startSampling', { samplingInterval: allocationSamplingInterval });
+    }
+    for (let index = 0; index < runs; index++) {
+      globalThis.gc?.();
+      const before = takeMemorySnapshot();
+      const start = performance.now();
+      last = consume(candidate);
+      const elapsed = performance.now() - start;
+      const after = takeMemorySnapshot();
+      times.push(elapsed);
+      memorySamples.push(createMemorySample(before, after));
+    }
 
-  const avgMs = average(times);
+    let allocation;
+    if (session) {
+      const { profile } = await post(session, 'HeapProfiler.stopSampling');
+      const rawProfilePath = writeAllocationProfile(candidate, profile);
+      allocation = {
+        ...summarizeProfile(profile),
+        rawProfilePath,
+      };
+    }
+
+    const avgMs = average(times);
+    return {
+      ...last,
+      avgMs,
+      minMs: Math.min(...times),
+      maxMs: Math.max(...times),
+      avgMiBs: (expectedBytes / MIB) / (avgMs / 1000),
+      memory: summarizeMemorySamples(memorySamples),
+      allocation,
+    };
+  } finally {
+    session?.disconnect();
+  }
+}
+
+function post(session, method, params = {}) {
+  return new Promise((resolvePromise, reject) => {
+    session.post(method, params, (error, result) => {
+      if (error) reject(error);
+      else resolvePromise(result ?? {});
+    });
+  });
+}
+
+function writeAllocationProfile(candidate, profile) {
+  const rawProfilePath = resolve(process.cwd(), allocationOutputDir, `${candidate}.heapprofile.json`);
+  mkdirSync(dirname(rawProfilePath), { recursive: true });
+  writeFileSync(rawProfilePath, `${JSON.stringify(profile, null, 2)}\n`, 'utf8');
+  return rawProfilePath;
+}
+
+function summarizeProfile(profile) {
+  const nodes = [];
+  collectNodes(profile?.head, nodes);
+  const sampledBytes = nodes.reduce((sum, node) => sum + node.selfSize, 0);
   return {
-    ...last,
-    avgMs,
-    minMs: Math.min(...times),
-    maxMs: Math.max(...times),
-    avgMiBs: (expectedBytes / MIB) / (avgMs / 1000),
-    memory: summarizeMemorySamples(memorySamples),
+    sampledBytes,
+    sampleCount: Array.isArray(profile?.samples) ? profile.samples.length : 0,
+    staxXmlSourceBytes: nodes
+      .filter(node => /packages[\\/]stax-xml[\\/]/.test(node.url) || /node_modules[\\/]stax-xml[\\/]/.test(node.url))
+      .reduce((sum, node) => sum + node.selfSize, 0),
+    benchmarkSourceBytes: nodes
+      .filter(node => node.url.includes('stream-reader-4gb-consumption.mjs'))
+      .reduce((sum, node) => sum + node.selfSize, 0),
+    topFrames: nodes
+      .filter(node => node.selfSize > 0)
+      .sort((a, b) => b.selfSize - a.selfSize)
+      .slice(0, 16)
+      .map(node => ({
+        functionName: node.functionName,
+        url: node.url,
+        lineNumber: node.lineNumber,
+        columnNumber: node.columnNumber,
+        selfSize: node.selfSize,
+        percent: sampledBytes > 0 ? node.selfSize / sampledBytes : 0,
+      })),
   };
+}
+
+function collectNodes(node, output) {
+  if (!node) return;
+  const callFrame = node.callFrame ?? {};
+  output.push({
+    id: node.id,
+    selfSize: Number(node.selfSize ?? 0),
+    functionName: callFrame.functionName || '(anonymous)',
+    url: callFrame.url || '',
+    lineNumber: Number(callFrame.lineNumber ?? -1),
+    columnNumber: Number(callFrame.columnNumber ?? -1),
+  });
+  for (const child of node.children ?? []) {
+    collectNodes(child, output);
+  }
 }
 
 function consume(candidate) {
@@ -511,6 +617,10 @@ function readOption(name) {
   return index === -1 ? undefined : process.argv[index + 1];
 }
 
+function readFlag(name) {
+  return process.argv.includes(name);
+}
+
 function computeParity(entries) {
   const first = entries[0];
   const mismatch = entries.find((entry) => entry.events !== first.events || entry.checksum !== first.checksum);
@@ -596,6 +706,48 @@ function renderMarkdown(report) {
     );
   }
 
+  if (report.allocationSampling.enabled) {
+    lines.push('');
+    lines.push('## V8 Allocation Sampling');
+    lines.push('');
+    lines.push('V8 HeapProfiler allocation sampling is statistical self-size evidence and not a deterministic allocation census.');
+    lines.push('');
+    lines.push(`- Sampling interval: ${report.allocationSampling.samplingInterval} bytes`);
+    lines.push(`- Raw output dir: ${report.allocationSampling.rawArtifacts.outputDir}`);
+    lines.push(`- Raw artifacts committed: ${report.allocationSampling.rawArtifacts.committed ? 'yes' : 'no'}`);
+    lines.push('');
+    lines.push('| Style | Sampled bytes | Samples | stax-xml source bytes | Benchmark source bytes |');
+    lines.push('| --- | ---: | ---: | ---: | ---: |');
+    for (const result of report.results) {
+      const allocation = result.allocation;
+      lines.push(
+        `| ${result.style} | ${formatBytes(allocation.sampledBytes)} | ${allocation.sampleCount} | ` +
+        `${formatBytes(allocation.staxXmlSourceBytes)} | ${formatBytes(allocation.benchmarkSourceBytes)} |`,
+      );
+    }
+
+    lines.push('');
+    lines.push('### Top Frames');
+    for (const result of report.results) {
+      lines.push('');
+      lines.push(`#### ${result.style}`);
+      lines.push('');
+      const allocation = result.allocation;
+      if (!allocation.topFrames.length) {
+        lines.push('- No sampled allocation frames.');
+        continue;
+      }
+      lines.push('| Function | Self size | Percent | Source |');
+      lines.push('| --- | ---: | ---: | --- |');
+      for (const frame of allocation.topFrames.slice(0, 8)) {
+        lines.push(
+          `| ${escapePipe(frame.functionName)} | ${formatBytes(frame.selfSize)} | ` +
+          `${(frame.percent * 100).toFixed(1)}% | ${escapePipe(formatFrameSource(frame))} |`,
+        );
+      }
+    }
+  }
+
   lines.push('');
   lines.push('## Parity');
   lines.push('');
@@ -612,8 +764,16 @@ function average(values) {
 
 function formatBytes(bytes) {
   const absBytes = Math.abs(bytes);
-  const mib = absBytes / MIB;
-  const value = mib >= 1024 ? `${(absBytes / GIB).toFixed(2)} GiB` : `${mib.toFixed(1)} MiB`;
+  let value;
+  if (absBytes >= GIB) {
+    value = `${(absBytes / GIB).toFixed(2)} GiB`;
+  } else if (absBytes >= MIB) {
+    value = `${(absBytes / MIB).toFixed(1)} MiB`;
+  } else if (absBytes >= 1024) {
+    value = `${(absBytes / 1024).toFixed(1)} KiB`;
+  } else {
+    value = `${absBytes.toFixed(0)} B`;
+  }
   return bytes < 0 ? `-${value}` : value;
 }
 
@@ -624,6 +784,15 @@ function formatSignedBytes(bytes) {
 
 function formatCount(value) {
   return String(value);
+}
+
+function formatFrameSource(frame) {
+  if (!frame.url) return '(native or anonymous)';
+  return `${frame.url}:${frame.lineNumber + 1}:${frame.columnNumber + 1}`;
+}
+
+function escapePipe(value) {
+  return String(value ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
 }
 
 function mix(seed, value) {
