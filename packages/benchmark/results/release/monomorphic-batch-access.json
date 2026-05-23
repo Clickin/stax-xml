@@ -1,0 +1,123 @@
+{
+  "generatedAt": "2026-05-23T05:50:13.533Z",
+  "objective": "monomorphic-batch-access",
+  "contract": "full-string-materialization",
+  "note": "This experiment does not filter events, skip string fields, use native addons, or use Node Buffer-specific decoding.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "source": "file",
+    "file": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "byteLength": 16777038,
+    "sizeMiB": 15.99983024597168
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1
+  },
+  "woodstoxTarget": {
+    "status": "ok",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 296.37527792679737,
+    "woodstoxMiBPerSec": 329.3058643631082
+  },
+  "parity": {
+    "status": "ok",
+    "eventCount": 967967,
+    "checksum": -746772258
+  },
+  "variants": [
+    {
+      "id": "public-accessor",
+      "implementation": "StreamBatch public index accessors",
+      "materialization": "full-string",
+      "avgMs": 150.4809,
+      "minMs": 147.5369,
+      "maxMs": 152.85309999999998,
+      "mibPerSec": 106.32465811921433,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        152.85309999999998,
+        147.5369,
+        151.05270000000002
+      ],
+      "relativeToPublic": 1,
+      "woodstoxRatio": 0.32287508248555136,
+      "targetStatus": "below"
+    },
+    {
+      "id": "raw-frame-direct-decode",
+      "implementation": "nextRawBatch typed arrays, direct span decode",
+      "materialization": "full-string",
+      "avgMs": 134.13963333333334,
+      "minMs": 131.7693999999999,
+      "maxMs": 136.69370000000004,
+      "mibPerSec": 119.27742642782195,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        131.7693999999999,
+        136.69370000000004,
+        133.95580000000007
+      ],
+      "relativeToPublic": 1.1218228070301866,
+      "woodstoxRatio": 0.36220863135404424,
+      "targetStatus": "below"
+    },
+    {
+      "id": "raw-frame-name-id-cache",
+      "implementation": "nextRawBatch typed arrays, numeric name-id cache",
+      "materialization": "full-string",
+      "avgMs": 122.93503333333342,
+      "minMs": 121.14460000000008,
+      "maxMs": 125.90640000000008,
+      "mibPerSec": 130.14866317714967,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        125.90640000000008,
+        121.75410000000011,
+        121.14460000000008
+      ],
+      "relativeToPublic": 1.2240684849531627,
+      "woodstoxRatio": 0.39522121304721625,
+      "targetStatus": "below"
+    }
+  ],
+  "findings": [
+    {
+      "id": "full-materialization-not-avoided",
+      "summary": "Every variant consumes all events and folds element names, text, attribute names, and attribute values into the checksum.",
+      "evidence": [
+        "public-accessor: events=967967, checksum=-746772258",
+        "raw-frame-direct-decode: events=967967, checksum=-746772258",
+        "raw-frame-name-id-cache: events=967967, checksum=-746772258"
+      ]
+    },
+    {
+      "id": "direct-raw-frame-delta",
+      "summary": "Direct raw-frame traversal isolates accessor indirection from parser and string materialization cost.",
+      "evidence": [
+        "public-accessor=106.3 MiB/s",
+        "raw-frame-direct-decode=119.3 MiB/s",
+        "relative=1.12x"
+      ]
+    },
+    {
+      "id": "numeric-name-id-cache-delta",
+      "summary": "The numeric name-id variant keeps full string materialization but avoids repeated accessor calls for already-interned names.",
+      "evidence": [
+        "public-accessor=106.3 MiB/s",
+        "raw-frame-name-id-cache=130.1 MiB/s",
+        "relative=1.22x"
+      ]
+    }
+  ]
+}

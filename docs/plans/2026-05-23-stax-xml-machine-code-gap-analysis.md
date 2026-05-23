@@ -184,30 +184,60 @@ not show enough benefit and would lower browser compatibility.
 
 ## Candidate Directions
 
-### 1. Projection-first byte matching
+Priority update after the first follow-up experiment: start with monomorphic
+batch access when the question is "why is JS event/string materialization
+expensive?". Projection-first and plan-compiled matching remain useful product
+directions, but they mostly avoid materialization on negative paths. They do
+not explain or directly reduce the cost of full public string/event access.
 
-Keep projection as the primary performance direction. It avoids the losing
-case by deciding whether an event matters before public event objects and most
-strings exist. This is also the safest cross-runtime direction for V8 and JSC:
-typed arrays, length checks, first-byte checks, and short byte comparisons can
-be kept inside stable JavaScript code without depending on native addons. The
-JSC capture also argues for smaller projection kernels instead of a single large
-full-materialization traversal function.
+### 1. Monomorphic batch access
 
-### 2. Plan-compiled matchers
+Reduce calls through the accessor layer in hot full-materialization paths. This
+does not filter events or skip strings. It reads the batch frame directly and
+still folds element names, text, attribute names, and attribute values into the
+checksum.
+
+Current experiment:
+
+```powershell
+pnpm --dir packages\benchmark run bench:monomorphic-batch-access
+```
+
+Result on the 16 MiB parity fixture:
+
+| Variant | Throughput | Public ratio | Woodstox ratio | Events | Checksum |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `public-accessor` | 106.3 MiB/s | 1.00x | 0.32x | 967967 | -746772258 |
+| `raw-frame-direct-decode` | 119.3 MiB/s | 1.12x | 0.36x | 967967 | -746772258 |
+| `raw-frame-name-id-cache` | 130.1 MiB/s | 1.22x | 0.40x | 967967 | -746772258 |
+
+Interpretation:
+
+- Accessor indirection and repeated public method calls are material enough to
+  measure.
+- Numeric name-id reuse helps without using a rejected `Map<string, string>`
+  localName cache.
+- This still does not close the Woodstox gap. The best row remains below the
+  296.4 MiB/s 0.9x target.
+- The next implementation question is whether the raw frame shape should become
+  a narrower, stable internal fast path for full materialization consumers, not
+  whether projection can avoid the work.
+
+### 2. Projection-first byte matching
+
+Projection remains useful for product workloads that do not need every event or
+string, but it is not the first experiment for the full-materialization
+question. It avoids the losing case by deciding whether an event matters before
+public event objects and most strings exist. That makes it a throughput feature
+for selective extraction, not proof that JavaScript event/string materialization
+has become cheap.
+
+### 3. Plan-compiled matchers
 
 Translate Woodstox-style symbol reuse into plan-specific byte matching, not a
 general `Map<string, string>` cache. Match target names and requested attribute
 names by span length and bytes before decoding. Only decode values selected by
 the projection plan.
-
-### 3. Monomorphic batch access
-
-Reduce calls through the accessor layer in hot projected paths. A projection
-plan can read typed arrays and spans directly inside one monomorphic loop and
-materialize owned records only at the output boundary. This is a different
-target from optimizing the public `StreamEventBatch` accessor surface for every
-event.
 
 ### 4. JSC-specific fixes need a projection capture first
 
@@ -233,6 +263,8 @@ projection target after its hot loop is smaller.
 
 - Capture V8 evidence for a projection target, not only the public
   full-materialization accessor target.
+- Capture V8 and Bun/JSC evidence for `raw-frame-name-id-cache` so the 1.22x
+  runtime delta is tied back to generated code, not only wall-clock timing.
 - Add JSC/Bun capture for the projection workload and verify whether smaller
   plan-compiled kernels reach Baseline, DFG, or B3 tiers.
 - Add HotSpot `PrintCompilation` and `PrintInlining`; use assembly only if
