@@ -86,18 +86,21 @@ function main() {
       implementation: 'StreamBatch public index accessors',
       materialization: 'full-string',
       run: () => consumePublicAccessor(fixture.bytes),
+      count: () => countPublicAccessorMaterialization(fixture.bytes),
     },
     {
       id: 'raw-frame-direct-decode',
       implementation: 'nextRawBatch typed arrays, direct span decode',
       materialization: 'full-string',
       run: () => consumeRawFrameDirect(fixture.bytes),
+      count: () => countRawFrameDirectMaterialization(fixture.bytes),
     },
     {
       id: 'raw-frame-name-id-cache',
       implementation: 'nextRawBatch typed arrays, numeric name-id cache',
       materialization: 'full-string',
       run: () => consumeRawFrameNameIdCache(fixture.bytes),
+      count: () => countRawFrameNameIdMaterialization(fixture.bytes),
     },
   ];
 
@@ -214,10 +217,15 @@ function measureVariant(variant, fixture, options) {
   }
 
   const avgMs = average(samplesMs);
+  const counted = variant.count();
+  if (counted.eventCount !== first.eventCount || counted.checksum !== first.checksum) {
+    throw new Error(`${variant.id} materialization counters do not match measured event count or checksum.`);
+  }
   return {
     id: variant.id,
     implementation: variant.implementation,
     materialization: variant.materialization,
+    materializationCounters: counted.materializationCounters,
     avgMs,
     minMs: Math.min(...samplesMs),
     maxMs: Math.max(...samplesMs),
@@ -445,6 +453,158 @@ function consumeRawFrameNameIdCache(bytes) {
   return { eventCount, checksum };
 }
 
+function countPublicAccessorMaterialization(bytes) {
+  const materializationCounters = createMaterializationCounters();
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (const batch of new StreamReaderSync(bytes)) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const type = batch.typeAt(index);
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        countStringField(materializationCounters, 'name');
+        checksum = foldString(checksum, batch.nameAt(index));
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        countStringField(materializationCounters, 'text');
+        checksum = foldString(checksum, batch.textAt(index)?.trim());
+      }
+      if (type === StreamEventType.START_ELEMENT) {
+        const attrCount = batch.attributeCountAt(index);
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          countStringField(materializationCounters, 'attrName');
+          checksum = foldString(checksum, batch.attributeNameAt(index, attrIndex));
+          countStringField(materializationCounters, 'attrValue');
+          checksum = foldString(checksum, batch.attributeValueAt(index, attrIndex));
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum, materializationCounters };
+}
+
+function countRawFrameDirectMaterialization(bytes) {
+  return countRawFrameMaterialization(bytes, undefined);
+}
+
+function countRawFrameNameIdMaterialization(bytes) {
+  return countRawFrameMaterialization(bytes, []);
+}
+
+function countRawFrameMaterialization(bytes, nameCache) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const reader = new StreamReaderSync(bytes);
+  const materializationCounters = createMaterializationCounters();
+  let eventCount = 0;
+  let checksum = 0;
+  let frame;
+
+  while ((frame = reader.nextRawBatch()) !== null) {
+    const result = countRawFrame(frame, checksum, eventCount, decoder, nameCache, materializationCounters);
+    checksum = result.checksum;
+    eventCount = result.eventCount;
+  }
+
+  return { eventCount, checksum, materializationCounters };
+}
+
+function countRawFrame(frame, checksum, eventCount, decoder, nameCache, materializationCounters) {
+  if (frame.kind !== 'frame') {
+    throw new Error(`Unsupported raw batch kind in monomorphic benchmark counters: ${frame.kind}`);
+  }
+
+  const eventTypes = frame.eventTypes;
+  const nameStarts = frame.nameStarts;
+  const nameEnds = frame.nameEnds;
+  const nameIds = frame.nameIds;
+  const textStarts = frame.textStarts;
+  const textEnds = frame.textEnds;
+  const attrStarts = frame.attrStarts;
+  const attrCounts = frame.attrCounts;
+  const attrNameStarts = frame.attrNameStarts;
+  const attrNameEnds = frame.attrNameEnds;
+  const attrNameIds = frame.attrNameIds;
+  const attrValueStarts = frame.attrValueStarts;
+  const attrValueEnds = frame.attrValueEnds;
+  const buffer = frame.buffer;
+  const count = frame.eventCount;
+
+  for (let index = 0; index < count; index++) {
+    const type = eventTypes[index];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
+
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      countStringField(materializationCounters, 'name');
+      checksum = foldString(
+        checksum,
+        materializeNameForCounters(
+          buffer,
+          nameStarts[index],
+          nameEnds[index],
+          nameIds[index],
+          decoder,
+          nameCache,
+          materializationCounters,
+          'name',
+        ),
+      );
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      const start = textStarts[index];
+      if (start >= 0) {
+        countStringField(materializationCounters, 'text');
+        checksum = foldString(
+          checksum,
+          decodeSpanForCounters(buffer, start, textEnds[index], decoder, materializationCounters, 'text').trim(),
+        );
+      }
+    }
+    if (type === StreamEventType.START_ELEMENT) {
+      const attrStart = attrStarts[index];
+      const attrCount = attrCounts[index];
+      checksum = mixChecksum(checksum, attrCount);
+      const attrEnd = attrStart + attrCount;
+      for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+        countStringField(materializationCounters, 'attrName');
+        checksum = foldString(
+          checksum,
+          materializeNameForCounters(
+            buffer,
+            attrNameStarts[attrIndex],
+            attrNameEnds[attrIndex],
+            attrNameIds[attrIndex],
+            decoder,
+            nameCache,
+            materializationCounters,
+            'attrName',
+          ),
+        );
+        countStringField(materializationCounters, 'attrValue');
+        const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
+          ? countImplicitAttributeValue(materializationCounters)
+          : decodeSpanForCounters(
+            buffer,
+            attrValueStarts[attrIndex],
+            attrValueEnds[attrIndex],
+            decoder,
+            materializationCounters,
+            'attrValue',
+          );
+        checksum = foldString(checksum, value);
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
 function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache) {
   const eventTypes = frame.eventTypes;
   const nameStarts = frame.nameStarts;
@@ -514,6 +674,29 @@ function materializeName(buffer, start, end, nameId, decoder, nameCache) {
 function decodeSpan(buffer, start, end, decoder) {
   const ascii = decodeShortAsciiSpan(buffer, start, end);
   return ascii ?? decoder.decode(buffer.subarray(start, end));
+}
+
+function materializeNameForCounters(buffer, start, end, nameId, decoder, nameCache, counters, kind) {
+  if (nameId < 0 || start < 0) {
+    return undefined;
+  }
+  if (nameCache) {
+    const cached = nameCache[nameId];
+    if (cached !== undefined) {
+      counters.rawNameCacheHits++;
+      return cached;
+    }
+    counters.rawNameCacheMisses++;
+    const value = decodeSpanForCounters(buffer, start, end, decoder, counters, kind);
+    nameCache[nameId] = value;
+    return value;
+  }
+  return decodeSpanForCounters(buffer, start, end, decoder, counters, kind);
+}
+
+function decodeSpanForCounters(buffer, start, end, decoder, counters, kind) {
+  countRawSpanMaterialization(counters, kind);
+  return decodeSpan(buffer, start, end, decoder);
 }
 
 function decodeShortAsciiSpan(buffer, start, end) {
@@ -653,6 +836,70 @@ function isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts,
   return attrNameStarts[index] === attrValueStarts[index] && attrNameEnds[index] === attrValueEnds[index];
 }
 
+function createMaterializationCounters() {
+  return {
+    stringFieldReads: 0,
+    nameStringReads: 0,
+    textStringReads: 0,
+    attrNameStringReads: 0,
+    attrValueStringReads: 0,
+    rawSpanMaterializations: 0,
+    rawNameSpanMaterializations: 0,
+    rawTextSpanMaterializations: 0,
+    rawAttrNameSpanMaterializations: 0,
+    rawAttrValueSpanMaterializations: 0,
+    rawNameCacheHits: 0,
+    rawNameCacheMisses: 0,
+    implicitAttrValueReads: 0,
+    eventObjects: 0,
+  };
+}
+
+function countStringField(counters, kind) {
+  counters.stringFieldReads++;
+  switch (kind) {
+    case 'name':
+      counters.nameStringReads++;
+      break;
+    case 'text':
+      counters.textStringReads++;
+      break;
+    case 'attrName':
+      counters.attrNameStringReads++;
+      break;
+    case 'attrValue':
+      counters.attrValueStringReads++;
+      break;
+    default:
+      throw new Error(`Unknown string field kind: ${kind}`);
+  }
+}
+
+function countRawSpanMaterialization(counters, kind) {
+  counters.rawSpanMaterializations++;
+  switch (kind) {
+    case 'name':
+      counters.rawNameSpanMaterializations++;
+      break;
+    case 'text':
+      counters.rawTextSpanMaterializations++;
+      break;
+    case 'attrName':
+      counters.rawAttrNameSpanMaterializations++;
+      break;
+    case 'attrValue':
+      counters.rawAttrValueSpanMaterializations++;
+      break;
+    default:
+      throw new Error(`Unknown raw span kind: ${kind}`);
+  }
+}
+
+function countImplicitAttributeValue(counters) {
+  counters.implicitAttrValueReads++;
+  return 'true';
+}
+
 function mixChecksum(seed, value) {
   return Math.imul((seed ^ value) | 0, 16777619) | 0;
 }
@@ -718,6 +965,27 @@ function renderMarkdown(report) {
     );
   }
   lines.push('');
+  lines.push('## Materialization Counters');
+  lines.push('');
+  lines.push('Counters are collected in a separate parity-checked pass after timed samples, so throughput rows stay focused on the implementation shape under test.');
+  lines.push('String fields are the names, text values, attribute names, and attribute values consumed by the checksum contract. Raw span materializations are string creations performed by raw-frame benchmark code rather than public accessors.');
+  lines.push('');
+  lines.push('| Variant | String fields | Names | Text | Attr names | Attr values | Raw span materializations | Raw name spans | Raw text spans | Raw attr-name spans | Raw attr-value spans | Name cache hit/miss | Event objects |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  for (const entry of report.variants) {
+    const counters = entry.materializationCounters;
+    lines.push(
+      `| ${entry.id} | ${formatCount(counters.stringFieldReads)} | `
+      + `${formatCount(counters.nameStringReads)} | ${formatCount(counters.textStringReads)} | `
+      + `${formatCount(counters.attrNameStringReads)} | ${formatCount(counters.attrValueStringReads)} | `
+      + `${formatCount(counters.rawSpanMaterializations)} | ${formatCount(counters.rawNameSpanMaterializations)} | `
+      + `${formatCount(counters.rawTextSpanMaterializations)} | ${formatCount(counters.rawAttrNameSpanMaterializations)} | `
+      + `${formatCount(counters.rawAttrValueSpanMaterializations)} | `
+      + `${formatCount(counters.rawNameCacheHits)}/${formatCount(counters.rawNameCacheMisses)} | `
+      + `${formatCount(counters.eventObjects)} |`,
+    );
+  }
+  lines.push('');
   lines.push('## Parity');
   lines.push('');
   lines.push(`Status: ${report.parity.status}`);
@@ -756,6 +1024,7 @@ function printSummary(report) {
       + `relative=${entry.relativeToPublic.toFixed(2)}x `
       + `heapDelta=${formatSignedBytes(entry.memory.avgHeapUsedDeltaBytes)} `
       + `rssDelta=${formatSignedBytes(entry.memory.avgRssDeltaBytes)} `
+      + `strings=${entry.materializationCounters.stringFieldReads} `
       + `events=${entry.eventCount} checksum=${entry.checksum}`,
     );
   }
@@ -786,6 +1055,10 @@ function formatOptionalRatio(value) {
 
 function formatMs(value) {
   return `${value.toFixed(2)} ms`;
+}
+
+function formatCount(value) {
+  return String(value);
 }
 
 function formatBytes(bytes) {

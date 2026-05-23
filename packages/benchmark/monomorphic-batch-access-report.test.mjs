@@ -61,13 +61,23 @@ test('monomorphic batch access report preserves full materialization parity', ()
     assert.equal(typeof entry.memory?.maxHeapUsedBytes, 'number');
     assert.equal(typeof entry.memory?.maxRssBytes, 'number');
     assert.equal(entry.memory.samples.length, 1);
+    assert.equal(typeof entry.materializationCounters?.stringFieldReads, 'number');
+    assert.equal(typeof entry.materializationCounters?.rawSpanMaterializations, 'number');
+    assert.equal(typeof entry.materializationCounters?.rawNameCacheHits, 'number');
+    assert.equal(entry.materializationCounters.eventObjects, 0);
   }
+  assert.ok(report.variants.every(entry => entry.materializationCounters.stringFieldReads > 0));
+  assert.equal(report.variants.find(entry => entry.id === 'public-accessor').materializationCounters.rawSpanMaterializations, 0);
+  assert.ok(report.variants.find(entry => entry.id === 'raw-frame-direct-decode').materializationCounters.rawSpanMaterializations > 0);
+  assert.ok(report.variants.find(entry => entry.id === 'raw-frame-name-id-cache').materializationCounters.rawNameCacheHits > 0);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Monomorphic Batch Access/);
   assert.match(markdown, /## Woodstox Target/);
   assert.match(markdown, /Avg heap delta/);
   assert.match(markdown, /Max RSS/);
+  assert.match(markdown, /## Materialization Counters/);
+  assert.match(markdown, /Name cache hit\/miss/);
   assert.match(markdown, /full-string materialization/);
   assert.match(markdown, /raw-frame-name-id-cache/);
   assert.match(markdown, /does not filter events/);
