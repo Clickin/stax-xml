@@ -12,6 +12,7 @@ const quickXmlExe = join(quickXmlDir, 'target', 'release', process.platform === 
 const defaultFile = join(__dirname, 'test-data', 'runtime-comparison-16mib.xml');
 const defaultJsonOut = join(__dirname, 'results', 'release', 'quick-xml-allocation-count.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'quick-xml-allocation-count.md');
+const variantFixtureDir = join(__dirname, 'test-data');
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -22,6 +23,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     mdOut: defaultMdOut,
     fileExplicit: false,
     skipBuild: false,
+    includeVariants: false,
+    variantSizeBytes: MIB,
     selfTest: false,
   };
 
@@ -34,6 +37,10 @@ function parseArgs(argv = process.argv.slice(2)) {
     }
     if (arg === '--skip-build') {
       options.skipBuild = true;
+      continue;
+    }
+    if (arg === '--include-variants') {
+      options.includeVariants = true;
       continue;
     }
 
@@ -56,6 +63,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--warmups':
         options.warmups = parseNonNegativeInteger(readValue(), name);
+        break;
+      case '--variant-size-kib':
+        options.variantSizeBytes = parsePositiveInteger(readValue(), name) * 1024;
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -161,7 +171,7 @@ function createSelfTestReport(options) {
     },
   };
   return createReport({
-    options,
+    options: { ...options, includeVariants: true },
     environment: {
       rustc: 'rustc self-test',
       cargo: 'cargo self-test',
@@ -177,52 +187,177 @@ function createSelfTestReport(options) {
     command: ['quick_xml_baseline', '--count-allocations'],
     elapsedMs: 0,
     benchmark,
+    variants: [
+      createSelfTestVariant('escaped-utf8', 101, 1234, 11, 11, 0),
+      createSelfTestVariant('nonascii-utf8', 102, 1235, 12, 12, 0),
+      createSelfTestVariant('cdata-utf8', 103, 1236, 13, 13, 0),
+      createSelfTestVariant('utf8-bom', 104, 1237, 14, 14, 0),
+    ],
   });
+}
+
+function createSelfTestVariant(id, eventCount, checksum, decodeCount, borrowedCount, ownedCount) {
+  const benchmark = {
+    runtime: '1.0.0',
+    avgMs: 5,
+    minMs: 5,
+    maxMs: 5,
+    mibPerSec: 64,
+    eventCount,
+    checksum,
+    samplesMs: [5],
+    allocationSamples: [
+      {
+        allocCount: 3,
+        allocBytes: 1024,
+        deallocCount: 3,
+        deallocBytes: 1024,
+        reallocCount: 0,
+        reallocBytesIn: 0,
+        reallocBytesOut: 0,
+        allocationOperations: 3,
+        totalAllocatedBytes: 1024,
+        totalReleasedBytes: 1024,
+        netAllocatedBytes: 0,
+      },
+    ],
+    allocationSummary: {
+      allocCount: 3,
+      allocBytes: 1024,
+      deallocCount: 3,
+      deallocBytes: 1024,
+      reallocCount: 0,
+      reallocBytesIn: 0,
+      reallocBytesOut: 0,
+      allocationOperations: 3,
+      totalAllocatedBytes: 1024,
+      totalReleasedBytes: 1024,
+      netAllocatedBytes: 0,
+    },
+    shapeSamples: [
+      {
+        textDecodeCount: decodeCount,
+        textBorrowedCount: borrowedCount,
+        textOwnedCount: ownedCount,
+        textNonEmptyCount: decodeCount,
+        cdataDecodeCount: 0,
+        cdataBorrowedCount: 0,
+        cdataOwnedCount: 0,
+        cdataNonEmptyCount: 0,
+        totalDecodeCount: decodeCount,
+        totalBorrowedCount: borrowedCount,
+        totalOwnedCount: ownedCount,
+        totalNonEmptyCount: decodeCount,
+      },
+    ],
+    shapeSummary: {
+      textDecodeCount: decodeCount,
+      textBorrowedCount: borrowedCount,
+      textOwnedCount: ownedCount,
+      textNonEmptyCount: decodeCount,
+      cdataDecodeCount: 0,
+      cdataBorrowedCount: 0,
+      cdataOwnedCount: 0,
+      cdataNonEmptyCount: 0,
+      totalDecodeCount: decodeCount,
+      totalBorrowedCount: borrowedCount,
+      totalOwnedCount: ownedCount,
+      totalNonEmptyCount: decodeCount,
+    },
+  };
+  return {
+    id,
+    description: `${id} self-test fixture`,
+    fixture: {
+      path: null,
+      sizeBytes: 512,
+      sizeMiB: 512 / MIB,
+      source: 'self-test',
+    },
+    command: {
+      cwd: repoRoot,
+      argv: ['quick_xml_baseline', '--count-allocations', '--fixture', id],
+      elapsedMs: 0,
+    },
+    benchmark,
+    allocation: analyzeAllocations(benchmark, { sizeMiB: 512 / MIB }),
+  };
 }
 
 function runAllocationCount(options) {
   ensureFixture(options);
   ensureQuickXmlBinary(options);
-  const stats = statSync(options.file);
   const environment = {
     rustc: firstLine(runCommandChecked('rustc', ['--version'], repoRoot)),
     cargo: firstLine(runCommandChecked('cargo', ['--version'], repoRoot)),
     cpuName: cpus()[0]?.model ?? 'unknown',
     platform: `${process.platform}-${process.arch}`,
   };
-  const args = [
+  const primary = runFixture(options, {
+    id: 'primary',
+    description: 'runtime-comparison-16mib baseline fixture',
+    path: options.file,
+    source: 'file',
+  });
+  const variants = options.includeVariants
+    ? generateVariantFixtures(options).map(spec => runFixture(options, spec))
+    : [];
+  return createReport({
+    options,
+    environment,
+    fixture: primary.fixture,
+    command: primary.command.argv,
+    elapsedMs: primary.command.elapsedMs,
+    benchmark: primary.benchmark,
+    variants,
+  });
+}
+
+function runFixture(options, spec) {
+  const stats = statSync(spec.path);
+  const fixture = {
+    path: spec.path,
+    sizeBytes: stats.size,
+    sizeMiB: stats.size / MIB,
+    source: spec.source ?? 'file',
+  };
+  const args = createQuickXmlArgs(spec.path, options);
+  const startedAt = Date.now();
+  const result = runCommand(quickXmlExe, args, repoRoot);
+  const elapsedMs = Date.now() - startedAt;
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(`quick-xml allocation count run failed for ${spec.id}: ${trimSpawnOutput(result)}`);
+  }
+  const benchmark = JSON.parse(String(result.stdout ?? '').trim());
+  validateBenchmark(benchmark, options.runs);
+  return {
+    id: spec.id,
+    description: spec.description,
+    fixture,
+    command: {
+      cwd: repoRoot,
+      argv: [quickXmlExe, ...args],
+      elapsedMs,
+    },
+    benchmark,
+    allocation: analyzeAllocations(benchmark, fixture),
+  };
+}
+
+function createQuickXmlArgs(file, options) {
+  return [
     '--file',
-    options.file,
+    file,
     '--runs',
     String(options.runs),
     '--warmups',
     String(options.warmups),
     '--count-allocations',
   ];
-  const startedAt = Date.now();
-  const result = runCommand(quickXmlExe, args, repoRoot);
-  const elapsedMs = Date.now() - startedAt;
-  if (result.error) throw result.error;
-  if (result.status !== 0) {
-    throw new Error(`quick-xml allocation count run failed: ${trimSpawnOutput(result)}`);
-  }
-  const benchmark = JSON.parse(String(result.stdout ?? '').trim());
-  return createReport({
-    options,
-    environment,
-    fixture: {
-      path: options.file,
-      sizeBytes: stats.size,
-      sizeMiB: stats.size / MIB,
-      source: 'file',
-    },
-    command: [quickXmlExe, ...args],
-    elapsedMs,
-    benchmark,
-  });
 }
 
-function createReport({ options, environment, fixture, command, elapsedMs, benchmark }) {
+function createReport({ options, environment, fixture, command, elapsedMs, benchmark, variants = [] }) {
   validateBenchmark(benchmark, options.runs);
   const allocation = analyzeAllocations(benchmark, fixture);
   return {
@@ -236,6 +371,8 @@ function createReport({ options, environment, fixture, command, elapsedMs, bench
       runs: options.runs,
       warmups: options.warmups,
       countAllocations: true,
+      includeVariants: options.includeVariants,
+      variantSizeBytes: options.variantSizeBytes,
     },
     command: {
       cwd: repoRoot,
@@ -244,7 +381,8 @@ function createReport({ options, environment, fixture, command, elapsedMs, bench
     },
     benchmark,
     allocation,
-    findings: createFindings(benchmark, allocation),
+    variants,
+    findings: createFindings(benchmark, allocation, variants),
   };
 }
 
@@ -282,6 +420,7 @@ function analyzeAllocations(benchmark, fixture) {
       'Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.',
       'The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.',
       'The counter has no stack attribution, allocator object type attribution, or object lifetime information.',
+      'Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.',
       'The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline.',
     ],
   };
@@ -295,8 +434,8 @@ function divideAllocationStats(stats, divisor) {
   return copy;
 }
 
-function createFindings(benchmark, allocation) {
-  return [
+function createFindings(benchmark, allocation, variants) {
+  const findings = [
     {
       id: 'same-contract-result',
       classification: 'BENCH_FACT',
@@ -343,6 +482,17 @@ function createFindings(benchmark, allocation) {
       evidence: allocation.caveats,
     },
   ];
+  if (variants.length > 0) {
+    findings.splice(3, 0, {
+      id: 'variant-cow-ownership-counters',
+      classification: 'TRACE_FACT',
+      summary: 'Generated UTF-8 fixture variants also counted quick-xml text and CDATA decode ownership at the Cow<str> boundary.',
+      evidence: variants.map(variant => (
+        `${variant.id}: decode=${variant.allocation.shapeSummary.totalDecodeCount}, borrowed=${variant.allocation.shapeSummary.totalBorrowedCount}, owned=${variant.allocation.shapeSummary.totalOwnedCount}`
+      )),
+    });
+  }
+  return findings;
 }
 
 function ensureFixture(options) {
@@ -415,13 +565,66 @@ function makeBookElement(id) {
     + '</book>\n';
 }
 
+function generateVariantFixtures(options) {
+  mkdirSync(variantFixtureDir, { recursive: true });
+  const specs = [
+    {
+      id: 'escaped-utf8',
+      description: 'UTF-8 text with XML entity spellings in text and attributes; comparator decodes but does not unescape.',
+      row: id => `  <entry id="e-${id}" note="A &amp; B ${id}"><text>Escaped &amp; entity &lt;tag&gt; &quot;quote&quot; ${id}</text></entry>\n`,
+    },
+    {
+      id: 'nonascii-utf8',
+      description: 'UTF-8 text with Korean, Japanese, Greek, and emoji code points.',
+      row: id => `  <entry id="n-${id}" lang="ko"><text>한글 일본어 日本語 Ελληνικά emoji 😀 ${id}</text></entry>\n`,
+    },
+    {
+      id: 'cdata-utf8',
+      description: 'UTF-8 CDATA sections with markup-looking payload.',
+      row: id => `  <entry id="c-${id}"><![CDATA[CDATA payload <tag attr="value"> & raw-ish text ${id}]]></entry>\n`,
+    },
+    {
+      id: 'utf8-bom',
+      description: 'UTF-8 document with BOM and non-ASCII text.',
+      bom: true,
+      row: id => `  <entry id="b-${id}"><text>BOM UTF-8 café 한글 ${id}</text></entry>\n`,
+    },
+  ];
+
+  return specs.map((spec) => {
+    const path = join(variantFixtureDir, `quick-xml-${spec.id}.xml`);
+    writeVariantFixture(path, spec, options.variantSizeBytes);
+    return {
+      id: spec.id,
+      description: spec.description,
+      path,
+      source: 'generated',
+    };
+  });
+}
+
+function writeVariantFixture(path, spec, targetBytes) {
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
+  let id = 0;
+  while (Buffer.byteLength(xml, 'utf8') < targetBytes) {
+    xml += spec.row(id);
+    id++;
+  }
+  xml += '</root>\n';
+  const payload = Buffer.from(xml, 'utf8');
+  const content = spec.bom ? Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), payload]) : payload;
+  writeFileSync(path, content);
+}
+
 function renderMarkdown(report) {
   const lines = [
     '# quick-xml Measured Allocation Count',
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This report is a TRACE_FACT for one Rust + quick-xml binary and one XML fixture.',
+    report.options.includeVariants
+      ? 'This report is a TRACE_FACT for one Rust + quick-xml binary, one primary XML fixture, and generated UTF-8 fixture variants.'
+      : 'This report is a TRACE_FACT for one Rust + quick-xml binary and one XML fixture.',
     'It counts Rust global allocator calls only inside measured `consume()` windows after warmup.',
     'It preserves the same high-level data/checksum contract, but it is not a JavaScript object-shape row and not a speed baseline.',
     '',
@@ -434,6 +637,7 @@ function renderMarkdown(report) {
     `- Fixture: ${report.fixture.path ?? report.fixture.source}`,
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- Variant matrix: ${report.options.includeVariants ? 'yes' : 'no'}`,
     '',
     '## Benchmark Result',
     '',
@@ -477,6 +681,7 @@ function renderMarkdown(report) {
     shapeRow('totalOwnedCount', report),
     shapeRow('totalNonEmptyCount', report),
     '',
+    ...renderVariantSection(report),
     '## Caveats',
     '',
     ...report.allocation.caveats.map(caveat => `- ${caveat}`),
@@ -490,6 +695,23 @@ function renderMarkdown(report) {
     '',
   ];
   return lines.join('\n');
+}
+
+function renderVariantSection(report) {
+  if (!report.variants.length) return [];
+  return [
+    '## Generated Fixture Variants',
+    '',
+    'These rows use the same quick-xml comparator contract on generated UTF-8 fixtures. They are counterchecks for the `Cow<str>` boundary, not replacements for the 16 MiB external baseline.',
+    '',
+    '| Variant | Fixture size | Instrumented throughput | Events | Checksum | Decode | Borrowed | Owned | Allocation ops | Notes |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+    ...report.variants.map(variant => {
+      const shape = variant.allocation.shapeSummary;
+      return `| ${variant.id} | ${variant.fixture.sizeMiB.toFixed(2)} MiB | ${variant.benchmark.mibPerSec.toFixed(1)} MiB/s | ${variant.benchmark.eventCount} | ${variant.benchmark.checksum} | ${shape.totalDecodeCount} | ${shape.totalBorrowedCount} | ${shape.totalOwnedCount} | ${variant.allocation.summary.allocationOperations} | ${escapePipe(variant.description)} |`;
+    }),
+    '',
+  ];
 }
 
 function allocationRow(key, report, formatter = formatNumber) {

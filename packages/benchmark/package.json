@@ -75,7 +75,7 @@
     "bench:woodstox-jfr-allocation": "node ./woodstox-jfr-allocation.mjs --runs 1 --warmups 4 --skip-build --raw-jfr-out=results/woodstox-jfr/woodstox-allocation.jfr --raw-events-json-out=results/woodstox-jfr/woodstox-allocation-events.json --json-out=results/release/woodstox-jfr-allocation.json --md-out=results/release/woodstox-jfr-allocation.md",
     "bench:woodstox-jfr-allocation:measured": "node ./woodstox-jfr-allocation.mjs --recording-mode=measured --runs 1 --warmups 4 --skip-build --raw-jfr-out=results/woodstox-jfr/woodstox-measured-allocation.jfr --raw-events-json-out=results/woodstox-jfr/woodstox-measured-allocation-events.json --json-out=results/release/woodstox-measured-jfr-allocation.json --md-out=results/release/woodstox-measured-jfr-allocation.md",
     "bench:quick-xml-shape-audit": "node ./quick-xml-shape-audit.mjs --json-out=results/release/quick-xml-shape-audit.json --md-out=results/release/quick-xml-shape-audit.md",
-    "bench:quick-xml-allocation-count": "node ./quick-xml-allocation-count.mjs --runs 1 --warmups 4 --json-out=results/release/quick-xml-allocation-count.json --md-out=results/release/quick-xml-allocation-count.md",
+    "bench:quick-xml-allocation-count": "node ./quick-xml-allocation-count.mjs --runs 1 --warmups 4 --include-variants --json-out=results/release/quick-xml-allocation-count.json --md-out=results/release/quick-xml-allocation-count.md",
     "bench:object-shape-parity": "node --expose-gc ./object-shape-parity.mjs",
     "bench:async:fast-path:poc": "node --expose-gc ./async-fast-path-poc.mjs",
     "bench:async:writer": "node --expose-gc ./async-writer.mjs",

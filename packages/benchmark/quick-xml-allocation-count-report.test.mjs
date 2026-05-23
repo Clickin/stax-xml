@@ -46,9 +46,18 @@ test('quick-xml allocation count report records measured allocator counters with
   assert.equal(report.allocation.shapeSummary.totalDecodeCount, 43);
   assert.equal(report.allocation.shapeSummary.totalBorrowedCount, 43);
   assert.equal(report.allocation.shapeSummary.totalOwnedCount, 0);
+  assert.equal(report.variants.length, 4);
+  assert.deepEqual(report.variants.map(variant => variant.id), [
+    'escaped-utf8',
+    'nonascii-utf8',
+    'cdata-utf8',
+    'utf8-bom',
+  ]);
+  assert.ok(report.variants.every(variant => variant.allocation.shapeSummary.totalOwnedCount === 0));
   assert.ok(report.findings.some(entry => entry.id === 'same-contract-result' && entry.classification === 'BENCH_FACT'));
   assert.ok(report.findings.some(entry => entry.id === 'measured-allocation-counters' && entry.classification === 'TRACE_FACT'));
   assert.ok(report.findings.some(entry => entry.id === 'cow-ownership-counters' && entry.classification === 'TRACE_FACT'));
+  assert.ok(report.findings.some(entry => entry.id === 'variant-cow-ownership-counters' && entry.classification === 'TRACE_FACT'));
   assert.ok(report.findings.some(entry => entry.id === 'not-stack-or-lifetime-proof'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -57,6 +66,11 @@ test('quick-xml allocation count report records measured allocator counters with
   assert.match(markdown, /same high-level data\/checksum contract/);
   assert.match(markdown, /not a JavaScript object-shape row/);
   assert.match(markdown, /Cow Ownership Counts/);
+  assert.match(markdown, /Generated Fixture Variants/);
+  assert.match(markdown, /escaped-utf8/);
+  assert.match(markdown, /nonascii-utf8/);
+  assert.match(markdown, /cdata-utf8/);
+  assert.match(markdown, /utf8-bom/);
   assert.match(markdown, /totalBorrowedCount/);
   assert.match(markdown, /measured `consume\(\)` windows after warmup/);
   assert.match(markdown, /not a speed baseline/);
