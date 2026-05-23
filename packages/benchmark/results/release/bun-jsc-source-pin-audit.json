@@ -1,0 +1,713 @@
+{
+  "generatedAt": "2026-05-23T21:56:29.021Z",
+  "objective": "bun-jsc-source-pin-audit",
+  "contract": "bun-jsc-exact-webkit-string-boundary-source-lines",
+  "note": "Exact Bun-patched WebKit source-line pinning for JavaScriptCore string boundary evidence. These source facts constrain JSString/WTF::String/StringImpl ownership claims, but they are not throughput proof.",
+  "runtime": {
+    "bunVersion": "1.3.13",
+    "bunRevision": "1.3.13+bf2e2cecf",
+    "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+    "userAgent": "Bun/1.3.13",
+    "processVersions": {
+      "node": "24.3.0",
+      "bun": "1.3.13",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "57029fb1f193e633462e76af745599e1dbfd4b58",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+      "webkit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "zig": "365343af4fc5a1a632e6b54aadd0b87be30edd81",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.51.1-dev",
+      "napi": "10",
+      "icu": "73.2",
+      "unicode": "15.0",
+      "modules": "137"
+    },
+    "source": "bun-runtime-probe"
+  },
+  "source": {
+    "repository": "oven-sh/webkit",
+    "revision": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+    "files": [
+      "Source/JavaScriptCore/runtime/JSString.h",
+      "Source/WTF/wtf/text/WTFString.h",
+      "Source/WTF/wtf/text/StringImpl.h",
+      "Source/WTF/wtf/text/StringImpl.cpp"
+    ],
+    "fetchedAt": "2026-05-23T21:56:28.783Z"
+  },
+  "derived": {
+    "stringImplMaxLengthCodeUnits": 2147483647,
+    "formula": "std::numeric_limits<int32_t>::max()",
+    "projected1024MiBGeneratedFixtureCodeUnits": 1072245626,
+    "projected1024MiBHeadroomCodeUnits": 1075238021
+  },
+  "anchors": {
+    "jsStringClass": {
+      "status": "found",
+      "label": "JSString cell class",
+      "file": "Source/JavaScriptCore/runtime/JSString.h",
+      "lineNumber": 102,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/JavaScriptCore/runtime/JSString.h#L102",
+      "context": [
+        {
+          "lineNumber": 100,
+          "text": "//                                                               ^"
+        },
+        {
+          "lineNumber": 101,
+          "text": "//                                            x:(is8Bit),y:(isSubstring),z:(isRope) bit flags"
+        },
+        {
+          "lineNumber": 102,
+          "text": "class JSString : public JSCell {"
+        },
+        {
+          "lineNumber": 103,
+          "text": "public:"
+        },
+        {
+          "lineNumber": 104,
+          "text": "    friend class JIT;"
+        }
+      ]
+    },
+    "jsStringMaxLength": {
+      "status": "found",
+      "label": "JSString MaxLength",
+      "file": "Source/JavaScriptCore/runtime/JSString.h",
+      "lineNumber": 134,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/JavaScriptCore/runtime/JSString.h#L134",
+      "context": [
+        {
+          "lineNumber": 132,
+          "text": "    // is INT_MAX. Hence, it cannot be changed into another length value without"
+        },
+        {
+          "lineNumber": 133,
+          "text": "    // breaking all the bounds and overflow checks that assume this."
+        },
+        {
+          "lineNumber": 134,
+          "text": "    static constexpr unsigned MaxLength = std::numeric_limits<int32_t>::max();"
+        },
+        {
+          "lineNumber": 135,
+          "text": "    static_assert(MaxLength == String::MaxLength);"
+        },
+        {
+          "lineNumber": 136,
+          "text": ""
+        }
+      ]
+    },
+    "jsStringValueInternal": {
+      "status": "found",
+      "label": "JSString valueInternal",
+      "file": "Source/JavaScriptCore/runtime/JSString.h",
+      "lineNumber": 153,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/JavaScriptCore/runtime/JSString.h#L153",
+      "context": [
+        {
+          "lineNumber": 151,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 152,
+          "text": ""
+        },
+        {
+          "lineNumber": 153,
+          "text": "    String& valueInternal() const"
+        },
+        {
+          "lineNumber": 154,
+          "text": "    {"
+        },
+        {
+          "lineNumber": 155,
+          "text": "        ASSERT(!isRope());"
+        }
+      ]
+    },
+    "jsStringConstructorStoresString": {
+      "status": "found",
+      "label": "JSString stores WTF::String",
+      "file": "Source/JavaScriptCore/runtime/JSString.h",
+      "lineNumber": 168,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/JavaScriptCore/runtime/JSString.h#L168",
+      "context": [
+        {
+          "lineNumber": 166,
+          "text": "        : JSCell(CreatingWellDefinedBuiltinCell, vm.stringStructure.get()->id(), defaultTypeInfoBlob())"
+        },
+        {
+          "lineNumber": 167,
+          "text": "    {"
+        },
+        {
+          "lineNumber": 168,
+          "text": "        new (&uninitializedValueInternal()) String(WTF::move(value));"
+        },
+        {
+          "lineNumber": 169,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 170,
+          "text": ""
+        }
+      ]
+    },
+    "jsStringAllocateCell": {
+      "status": "found",
+      "label": "JSString allocateCell",
+      "file": "Source/JavaScriptCore/runtime/JSString.h",
+      "lineNumber": 207,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/JavaScriptCore/runtime/JSString.h#L207",
+      "context": [
+        {
+          "lineNumber": 205,
+          "text": "        ASSERT(length > 0);"
+        },
+        {
+          "lineNumber": 206,
+          "text": "        size_t cost = value->cost();"
+        },
+        {
+          "lineNumber": 207,
+          "text": "        JSString* newString = new (NotNull, allocateCell<JSString>(vm)) JSString(vm, WTF::move(value));"
+        },
+        {
+          "lineNumber": 208,
+          "text": "        newString->finishCreation(vm, length, cost);"
+        },
+        {
+          "lineNumber": 209,
+          "text": "        return newString;"
+        }
+      ]
+    },
+    "jsStringViewReturnsValue": {
+      "status": "found",
+      "label": "JSString view returns valueInternal",
+      "file": "Source/JavaScriptCore/runtime/JSString.h",
+      "lineNumber": 927,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/JavaScriptCore/runtime/JSString.h#L927",
+      "context": [
+        {
+          "lineNumber": 925,
+          "text": "    if (isRope())"
+        },
+        {
+          "lineNumber": 926,
+          "text": "        return { this, static_cast<const JSRopeString*>(this)->resolveRope(globalObject) };"
+        },
+        {
+          "lineNumber": 927,
+          "text": "    return { this, valueInternal() };"
+        },
+        {
+          "lineNumber": 928,
+          "text": "}"
+        },
+        {
+          "lineNumber": 929,
+          "text": "#if USE(BUN_JSC_ADDITIONS)"
+        }
+      ]
+    },
+    "wtfStringClass": {
+      "status": "found",
+      "label": "WTF::String class",
+      "file": "Source/WTF/wtf/text/WTFString.h",
+      "lineNumber": 61,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/WTFString.h#L61",
+      "context": [
+        {
+          "lineNumber": 59,
+          "text": "enum class TrailingZerosPolicy : bool { Keep, Truncate };"
+        },
+        {
+          "lineNumber": 60,
+          "text": ""
+        },
+        {
+          "lineNumber": 61,
+          "text": "class String final {"
+        },
+        {
+          "lineNumber": 62,
+          "text": "    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(String);"
+        },
+        {
+          "lineNumber": 63,
+          "text": "public:"
+        }
+      ]
+    },
+    "wtfStringMaxLength": {
+      "status": "found",
+      "label": "WTF::String MaxLength",
+      "file": "Source/WTF/wtf/text/WTFString.h",
+      "lineNumber": 338,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/WTFString.h#L338",
+      "context": [
+        {
+          "lineNumber": 336,
+          "text": "    void clearImplIfNotShared();"
+        },
+        {
+          "lineNumber": 337,
+          "text": ""
+        },
+        {
+          "lineNumber": 338,
+          "text": "    static constexpr unsigned MaxLength = StringImpl::MaxLength;"
+        },
+        {
+          "lineNumber": 339,
+          "text": ""
+        },
+        {
+          "lineNumber": 340,
+          "text": "private:"
+        }
+      ]
+    },
+    "wtfStringCreateUninitialized": {
+      "status": "found",
+      "label": "WTF::String createUninitialized",
+      "file": "Source/WTF/wtf/text/WTFString.h",
+      "lineNumber": 227,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/WTFString.h#L227",
+      "context": [
+        {
+          "lineNumber": 225,
+          "text": "    // Returns an uninitialized string. The characters needs to be written"
+        },
+        {
+          "lineNumber": 226,
+          "text": "    // into the buffer returned in data before the returned string is used."
+        },
+        {
+          "lineNumber": 227,
+          "text": "    static String createUninitialized(unsigned length, std::span<char16_t>& data) { return StringImpl::createUninitialized(length, data); }"
+        },
+        {
+          "lineNumber": 228,
+          "text": "    static String createUninitialized(unsigned length, std::span<Latin1Character>& data) { return StringImpl::createUninitialized(length, data); }"
+        },
+        {
+          "lineNumber": 229,
+          "text": ""
+        }
+      ]
+    },
+    "wtfStringImplPointer": {
+      "status": "found",
+      "label": "WTF::String StringImpl pointer",
+      "file": "Source/WTF/wtf/text/WTFString.h",
+      "lineNumber": 348,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/WTFString.h#L348",
+      "context": [
+        {
+          "lineNumber": 346,
+          "text": "    WTF_EXPORT_PRIVATE explicit String(const char* characters);"
+        },
+        {
+          "lineNumber": 347,
+          "text": ""
+        },
+        {
+          "lineNumber": 348,
+          "text": "    RefPtr<StringImpl> m_impl;"
+        },
+        {
+          "lineNumber": 349,
+          "text": "} SWIFT_ESCAPABLE;"
+        },
+        {
+          "lineNumber": 350,
+          "text": ""
+        }
+      ]
+    },
+    "stringImplMaxLength": {
+      "status": "found",
+      "label": "StringImpl MaxLength",
+      "file": "Source/WTF/wtf/text/StringImpl.h",
+      "lineNumber": 153,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L153",
+      "context": [
+        {
+          "lineNumber": 151,
+          "text": "    WTF_MAKE_NONCOPYABLE(StringImplShape);"
+        },
+        {
+          "lineNumber": 152,
+          "text": "public:"
+        },
+        {
+          "lineNumber": 153,
+          "text": "    static constexpr unsigned MaxLength = std::numeric_limits<int32_t>::max();"
+        },
+        {
+          "lineNumber": 154,
+          "text": ""
+        },
+        {
+          "lineNumber": 155,
+          "text": "protected:"
+        }
+      ]
+    },
+    "stringImplBufferOwnership": {
+      "status": "found",
+      "label": "StringImpl BufferOwnership",
+      "file": "Source/WTF/wtf/text/StringImpl.h",
+      "lineNumber": 209,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L209",
+      "context": [
+        {
+          "lineNumber": 207,
+          "text": ""
+        },
+        {
+          "lineNumber": 208,
+          "text": "public:"
+        },
+        {
+          "lineNumber": 209,
+          "text": "    enum BufferOwnership { BufferInternal, BufferOwned, BufferSubstring, BufferExternal };"
+        },
+        {
+          "lineNumber": 210,
+          "text": ""
+        },
+        {
+          "lineNumber": 211,
+          "text": "    // Prefer using isValidLength over MaxLength when the character type is known."
+        }
+      ]
+    },
+    "stringImplIsValidLength": {
+      "status": "found",
+      "label": "StringImpl isValidLength",
+      "file": "Source/WTF/wtf/text/StringImpl.h",
+      "lineNumber": 212,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L212",
+      "context": [
+        {
+          "lineNumber": 210,
+          "text": ""
+        },
+        {
+          "lineNumber": 211,
+          "text": "    // Prefer using isValidLength over MaxLength when the character type is known."
+        },
+        {
+          "lineNumber": 212,
+          "text": "    template<typename> static constexpr bool isValidLength(size_t);"
+        },
+        {
+          "lineNumber": 213,
+          "text": ""
+        },
+        {
+          "lineNumber": 214,
+          "text": "    static constexpr unsigned MaxLength = StringImplShape::MaxLength;"
+        }
+      ]
+    },
+    "stringImplCreate": {
+      "status": "found",
+      "label": "StringImpl create span",
+      "file": "Source/WTF/wtf/text/StringImpl.h",
+      "lineNumber": 263,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L263",
+      "context": [
+        {
+          "lineNumber": 261,
+          "text": "    WTF_EXPORT_PRIVATE static void destroy(StringImpl*);"
+        },
+        {
+          "lineNumber": 262,
+          "text": ""
+        },
+        {
+          "lineNumber": 263,
+          "text": "    WTF_EXPORT_PRIVATE static Ref<StringImpl> create(std::span<const char16_t>);"
+        },
+        {
+          "lineNumber": 264,
+          "text": "    WTF_EXPORT_PRIVATE static Ref<StringImpl> create(std::span<const Latin1Character>);"
+        },
+        {
+          "lineNumber": 265,
+          "text": "    ALWAYS_INLINE static Ref<StringImpl> create(std::span<const char> characters) { return create(byteCast<Latin1Character>(characters)); }"
+        }
+      ]
+    },
+    "stringImplCreateWithoutCopying": {
+      "status": "found",
+      "label": "StringImpl createWithoutCopying",
+      "file": "Source/WTF/wtf/text/StringImpl.h",
+      "lineNumber": 276,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L276",
+      "context": [
+        {
+          "lineNumber": 274,
+          "text": "    ALWAYS_INLINE static Ref<StringImpl> create(ASCIILiteral literal) { return createWithoutCopying(literal.span8()); }"
+        },
+        {
+          "lineNumber": 275,
+          "text": ""
+        },
+        {
+          "lineNumber": 276,
+          "text": "    static Ref<StringImpl> createWithoutCopying(std::span<const char16_t> characters) { return characters.empty() ?  Ref { *empty() } : createWithoutCopyingNonEmpty(characters); }"
+        },
+        {
+          "lineNumber": 277,
+          "text": "    static Ref<StringImpl> createWithoutCopying(std::span<const Latin1Character> characters) { return characters.empty() ? Ref { *empty() } : createWithoutCopyingNonEmpty(characters); }"
+        },
+        {
+          "lineNumber": 278,
+          "text": "    ALWAYS_INLINE static Ref<StringImpl> createWithoutCopying(std::span<const char> characters) { return createWithoutCopying(byteCast<Latin1Character>(characters)); }"
+        }
+      ]
+    },
+    "stringImplTryCreateUninitialized": {
+      "status": "found",
+      "label": "StringImpl tryCreateUninitialized",
+      "file": "Source/WTF/wtf/text/StringImpl.h",
+      "lineNumber": 283,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.h#L283",
+      "context": [
+        {
+          "lineNumber": 281,
+          "text": "    WTF_EXPORT_PRIVATE static Ref<StringImpl> createUninitialized(size_t length, std::span<char16_t>&);"
+        },
+        {
+          "lineNumber": 282,
+          "text": ""
+        },
+        {
+          "lineNumber": 283,
+          "text": "    template<typename CharacterType> static RefPtr<StringImpl> tryCreateUninitialized(size_t length, std::span<CharacterType>&);"
+        },
+        {
+          "lineNumber": 284,
+          "text": ""
+        },
+        {
+          "lineNumber": 285,
+          "text": "    static Ref<StringImpl> createByReplacingInCharacters(std::span<const Latin1Character>, char16_t target, char16_t replacement, size_t indexOfFirstTargetCharacter);"
+        }
+      ]
+    },
+    "stringImplCreateInternal": {
+      "status": "found",
+      "label": "StringImpl createInternal",
+      "file": "Source/WTF/wtf/text/StringImpl.cpp",
+      "lineNumber": 269,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.cpp#L269",
+      "context": [
+        {
+          "lineNumber": 267,
+          "text": "}"
+        },
+        {
+          "lineNumber": 268,
+          "text": ""
+        },
+        {
+          "lineNumber": 269,
+          "text": "template<typename CharacterType> inline Ref<StringImpl> StringImpl::createInternal(std::span<const CharacterType> characters)"
+        },
+        {
+          "lineNumber": 270,
+          "text": "{"
+        },
+        {
+          "lineNumber": 271,
+          "text": "    if (characters.empty())"
+        }
+      ]
+    },
+    "stringImplCreateUninitializedInternal": {
+      "status": "found",
+      "label": "StringImpl createUninitializedInternalNonEmpty",
+      "file": "Source/WTF/wtf/text/StringImpl.cpp",
+      "lineNumber": 274,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.cpp#L274",
+      "context": [
+        {
+          "lineNumber": 272,
+          "text": "        return *empty();"
+        },
+        {
+          "lineNumber": 273,
+          "text": "    std::span<CharacterType> data;"
+        },
+        {
+          "lineNumber": 274,
+          "text": "    auto string = createUninitializedInternalNonEmpty(characters.size(), data);"
+        },
+        {
+          "lineNumber": 275,
+          "text": "    copyCharacters(data, characters);"
+        },
+        {
+          "lineNumber": 276,
+          "text": "    return string;"
+        }
+      ]
+    },
+    "stringImplCreateCopyCharacters": {
+      "status": "found",
+      "label": "StringImpl copyCharacters",
+      "file": "Source/WTF/wtf/text/StringImpl.cpp",
+      "lineNumber": 275,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.cpp#L275",
+      "context": [
+        {
+          "lineNumber": 273,
+          "text": "    std::span<CharacterType> data;"
+        },
+        {
+          "lineNumber": 274,
+          "text": "    auto string = createUninitializedInternalNonEmpty(characters.size(), data);"
+        },
+        {
+          "lineNumber": 275,
+          "text": "    copyCharacters(data, characters);"
+        },
+        {
+          "lineNumber": 276,
+          "text": "    return string;"
+        },
+        {
+          "lineNumber": 277,
+          "text": "}"
+        }
+      ]
+    },
+    "stringImplCreate8BitIfPossible": {
+      "status": "found",
+      "label": "StringImpl create8BitIfPossible",
+      "file": "Source/WTF/wtf/text/StringImpl.cpp",
+      "lineNumber": 336,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.cpp#L336",
+      "context": [
+        {
+          "lineNumber": 334,
+          "text": "}"
+        },
+        {
+          "lineNumber": 335,
+          "text": ""
+        },
+        {
+          "lineNumber": 336,
+          "text": "Ref<StringImpl> StringImpl::create8BitIfPossible(std::span<const char16_t> characters)"
+        },
+        {
+          "lineNumber": 337,
+          "text": "{"
+        },
+        {
+          "lineNumber": 338,
+          "text": "    if (characters.empty())"
+        }
+      ]
+    },
+    "stringImplCreate8BitCopyElements": {
+      "status": "found",
+      "label": "StringImpl copyElements",
+      "file": "Source/WTF/wtf/text/StringImpl.cpp",
+      "lineNumber": 344,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WTF/wtf/text/StringImpl.cpp#L344",
+      "context": [
+        {
+          "lineNumber": 342,
+          "text": "        std::span<Latin1Character> data;"
+        },
+        {
+          "lineNumber": 343,
+          "text": "        Ref string = createUninitializedInternalNonEmpty(characters.size(), data);"
+        },
+        {
+          "lineNumber": 344,
+          "text": "        copyElements(data, characters);"
+        },
+        {
+          "lineNumber": 345,
+          "text": "        return string;"
+        },
+        {
+          "lineNumber": 346,
+          "text": "    }"
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "jsc-jsstring-engine-cell-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "JavaScriptCore JSString is pinned as a JSCell-backed engine value that stores a WTF::String in the VM-managed cell, not as an arbitrary parser-owned byte-span primitive.",
+      "evidence": [
+        "JSString class line 102",
+        "JSString constructor stores WTF::String line 168",
+        "JSString allocateCell line 207",
+        "JSString view returns valueInternal line 927"
+      ]
+    },
+    {
+      "id": "jsc-stringimpl-storage-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "WTF::String is pinned as a RefPtr<StringImpl> wrapper, and the ordinary StringImpl create path allocates uninitialized internal storage then copies the supplied character span.",
+      "evidence": [
+        "WTF::String RefPtr<StringImpl> line 348",
+        "StringImpl createInternal line 269",
+        "StringImpl copyCharacters line 275",
+        "StringImpl create8BitIfPossible copyElements line 344"
+      ]
+    },
+    {
+      "id": "jsc-string-max-length-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The same pinned WebKit revision defines the JSC/WTF maximum string length as int32 max, matching the Bun/JSC string-limit audit.",
+      "evidence": [
+        "JSString MaxLength line 134",
+        "StringImpl MaxLength line 153",
+        "String::MaxLength line 338",
+        "1024 MiB generated projection headroom=1,075,238,021 code units"
+      ]
+    },
+    {
+      "id": "source-pin-not-throughput-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This source pin constrains the engine-owned string boundary only; it is not a throughput proof and does not prove that all JS-runtime headroom has been exhausted.",
+      "evidence": [
+        "No benchmark row is run by this audit.",
+        "No browser Safari/JSC row is run by this audit.",
+        "No claim about a 200 MiB/s ceiling follows from these source lines alone."
+      ]
+    }
+  ]
+}

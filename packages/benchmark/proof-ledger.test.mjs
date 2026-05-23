@@ -40,6 +40,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/V8 Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
+  assert.match(markdown, /## Current Evidence: Bun\/JSC Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 Monomorphic Shape Trace/);
   assert.match(markdown, /## Current Evidence: V8 Allocation Sampling/);
@@ -144,6 +145,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /browser-string-limit-audit\.md/);
   assert.match(markdown, /chrome-v8-source-pin-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
+  assert.match(markdown, /bun-jsc-source-pin-audit\.md/);
   assert.match(markdown, /bun-event-reader-string-large\.md/);
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
   assert.match(markdown, /v8-allocation-sampling\.md/);
@@ -303,6 +305,17 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /1024 MiB projection is below the Bun\/JSC\s+StringImpl::MaxLength/);
   assert.match(markdown, /JSC\s+code-unit headroom was `1,075,238,021`/);
   assert.match(markdown, /counterexample to porting the\s+V8 complete-string size conclusion directly to Bun\/JSC/);
+  assert.match(markdown, /`JSString` as a `JSCell` at\s+line 102/);
+  assert.match(markdown, /constructor storing a `WTF::String` at line 168/);
+  assert.match(markdown, /`allocateCell<JSString>` construction at line 207/);
+  assert.match(markdown, /`WTF::String` as holding `RefPtr<StringImpl>` at line 348/);
+  assert.match(markdown, /`StringImpl::createInternal` at line 269/);
+  assert.match(markdown, /uninitialized-storage call at line 274/);
+  assert.match(markdown, /`copyCharacters` call at\s+line 275/);
+  assert.match(markdown, /`StringImpl::create8BitIfPossible` line 336/);
+  assert.match(markdown, /`copyElements` line 344/);
+  assert.match(markdown, /JSC JavaScript string is an engine-owned\s+value backed by `JSString` \/ `WTF::String` \/ `StringImpl` storage/);
+  assert.match(markdown, /does\s+not prove that Bun\/JSC has no remaining JS-runtime headroom/);
   assert.match(markdown, /Bun\/JSC parsed the 1\.00 GiB complete string/);
   assert.match(markdown, /45,189,256 public event objects/);
   assert.match(markdown, /102,702,850 string-field reads/);

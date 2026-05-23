@@ -51,7 +51,7 @@ Rules:
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox as `java-xmlstreamreader-cursor`, `stax-event` as `js-public-event-object`, and `stax-stream` as `js-stream-batch-index-accessors`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml under the same semantic fields and checksum. `packages/benchmark/results/release/quick-xml-shape-audit.md` records source shape facts, and `packages/benchmark/results/release/quick-xml-allocation-count.md` records measured-window Rust global allocator counters plus `Cow<str>` borrowed/owned counts for the same checksum boundary and generated UTF-8 fixture variants. | More symbol/asm narrowing, allocation stack/type attribution, and non-UTF-8 encoding coverage are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml as `rust-enum-event-with-buffer-lifetime`, not `js-public-event-object`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
-| `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. `packages/benchmark/results/release/v8-string-limit-audit.md` now pins Node v24.15.0's vendored V8 source lines for `String::kMaxLength`, guarded string creation, and external one-byte string lifetime constraints. JavaScriptCore similarly has engine-owned string objects. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned JSC source line references for the browser/Bun runtime versions used in release benchmarks. This does not prove no performance headroom exists in pure JS. |
+| `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary + `SOURCE_FACT` for current V8 and Bun/JSC builds | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. `packages/benchmark/results/release/v8-string-limit-audit.md` pins Node v24.15.0's vendored V8 source lines for `String::kMaxLength`, guarded string creation, and external one-byte string lifetime constraints. `packages/benchmark/results/release/chrome-v8-source-pin-audit.md` pins the browser V8 string boundary used by the Chrome artifacts. `packages/benchmark/results/release/bun-jsc-source-pin-audit.md` pins the Bun/JSC WebKit commit's `JSString`, `WTF::String`, and `StringImpl` source boundaries: `JSString` is a `JSCell`, stores a `WTF::String`, is created through `allocateCell<JSString>`, `WTF::String` wraps `RefPtr<StringImpl>`, and ordinary `StringImpl::createInternal` copies supplied character spans into engine-managed storage. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned browser Safari/JSC and Firefox/SpiderMonkey source line references for those exact tested browser builds. This does not prove no performance headroom exists in pure JS. |
 | `CLAIM-JS-STRING-MAX-LENGTH` | Current Node/V8 cannot represent a single JS string beyond `buffer.constants.MAX_STRING_LENGTH`, so complete-string XML input has a hard size ceiling before parsing. | `ENGINE_INVARIANT` + `SOURCE_FACT` + `TRACE_FACT` | `packages/benchmark/results/release/v8-string-limit-audit.md` records Node v24.15.0 / V8 13.6.233.17-node.48 exposing `MAX_STRING_LENGTH=536,870,888`, matching vendored V8's `(1 << 29) - 24` formula. It also records an over-limit `RangeError: Invalid string length` probe, the 512 MiB `EventReaderSync` string row's `748,090` code-unit headroom, the projected 1024 MiB fixture's `535,374,738` code-unit excess, and the release 1024 MiB `EventReaderSync` failure. | This proves only the complete-string input boundary for this Node/V8 build. It does not cover Bun/JSC or browser engines and is not a byte-batch runtime ceiling. |
 | `CLAIM-BUN-JSC-STRING-MAX-LENGTH` | The Node/V8 1024 MiB complete-string failure cannot be ported directly to Bun/JSC as a string-length failure. | `ENGINE_INVARIANT` + `SOURCE_FACT` + `TRACE_FACT` + `COUNTEREXAMPLE` | `packages/benchmark/results/release/bun-jsc-string-limit-audit.md` records local Bun 1.3.13+bf2e2cecf exposing `process.versions.webkit=4d5e75ebd84a14edbc7ae264245dcd77fe597c10`. That exact patched WebKit source defines `StringImpl::MaxLength` as `2,147,483,647` via `std::numeric_limits<int32_t>::max()`. The same 1024 MiB generated fixture projection is `1,072,245,626` code units, below the Bun/JSC source limit with `1,075,238,021` code units of headroom. `packages/benchmark/results/release/bun-event-reader-string-large.md` then parsed the 1 GiB complete-string row successfully in Bun/JSC, which is a runtime counterexample to treating the V8 size failure as a Bun/JSC size failure. | This is a counterexample to reusing the V8 complete-string limit for Bun/JSC, not a proof of acceptable memory. It does not cover Safari/browser rows. |
 | `CLAIM-BUN-JSC-COMPLETE-STRING-1GIB` | Bun/JSC can parse the generated 1 GiB complete-string `EventReaderSync` public-object row in the local release environment, but not with acceptable memory. | `BENCH_FACT` | `packages/benchmark/results/release/bun-event-reader-string-large.md` records Bun 1.3.13+bf2e2cecf parsing the 1.00 GiB `diverse-cycle` complete string with status `ok`, 45,189,256 public event objects, 102,702,850 string-field reads, checksum `1421012805`, throughput `47.88 MiB/s`, and peak RSS `13.45 GiB`. The related string-limit audit records that the 1024 MiB projected string length remains below `StringImpl::MaxLength`. | This is not a bounded-memory reader result, not a browser result, and not a counterexample to the 200 MiB/s bounded-memory target. It is evidence that the remaining Bun/JSC problem is memory/throughput/materialization, not maximum string length. |
@@ -934,6 +934,35 @@ memory, and it does not prove anything about browser Safari rows. It only
 narrows the source-level string-length part of the proof ledger and preserves
 `CLAIM-JS-RUNTIME-LIMIT-200MIB` as a hypothesis.
 
+## Current Evidence: Bun/JSC Source Pin Audit
+
+`packages/benchmark/results/release/bun-jsc-source-pin-audit.md` is a
+`SOURCE_FACT` for the JavaScriptCore string-value boundary in the same local
+Bun/JSC release environment: Bun 1.3.13+bf2e2cecf, patched WebKit commit
+`4d5e75ebd84a14edbc7ae264245dcd77fe597c10`, and the `oven-sh/webkit` source
+mirror that Bun documents for its patched WebKit.
+
+The audit fetches and anchors four exact source files from that commit:
+`Source/JavaScriptCore/runtime/JSString.h`,
+`Source/WTF/wtf/text/WTFString.h`, `Source/WTF/wtf/text/StringImpl.h`, and
+`Source/WTF/wtf/text/StringImpl.cpp`. It records `JSString` as a `JSCell` at
+line 102, the constructor storing a `WTF::String` at line 168, and
+`allocateCell<JSString>` construction at line 207. The same source pin records
+`WTF::String` as holding `RefPtr<StringImpl>` at line 348.
+
+For the backing storage path, the audit records `StringImpl::MaxLength` at
+line 153, `StringImpl::createInternal` at line 269, the engine-managed
+uninitialized-storage call at line 274, and the `copyCharacters` call at
+line 275. It also records the 8-bit narrowing path through
+`StringImpl::create8BitIfPossible` line 336 and `copyElements` line 344. This
+supports the narrow invariant that a JSC JavaScript string is an engine-owned
+value backed by `JSString` / `WTF::String` / `StringImpl` storage rather than a
+portable parser-owned XML byte-span view.
+
+This source pin does not run a benchmark and is not a throughput proof. It does
+not prove that Bun/JSC has no remaining JS-runtime headroom, does not cover
+Safari/browser JSC builds, and does not speak for Firefox/SpiderMonkey.
+
 ## Current Evidence: Bun/JSC EventReaderSync String-Input Large Reference
 
 `packages/benchmark/results/release/bun-event-reader-string-large.md` is a
@@ -1173,8 +1202,9 @@ Evidence to gather:
 
 - Pinned V8 source references for the exact Node/V8 release used in benchmark
   reports.
-- Pinned JavaScriptCore source references for the exact Bun/JSC release when
-  possible.
+- Pinned JavaScriptCore source references for the exact Bun/JSC release are now
+  present; exact Safari/browser JSC pins remain separate if Safari rows are
+  claimed.
 - V8 optimized-code and allocation evidence for public accessor, raw-frame
   direct, name-id cache, and public event object rows.
 - Bun/JSC codegen evidence for the same rows.
@@ -1247,8 +1277,8 @@ Acceptance:
    profiler overhead is acceptable for the claim being tested.
 4. Capture Bun/JSC traces for `raw-frame-name-id-cache` and the 200 MiB/s+
    partial byte-batch rows; for non-V8 browser/Safari claims, pin
-   maximum-string source facts for the exact tested browser builds instead of
-   reusing the Bun source boundary.
+   string-boundary and maximum-string source facts for the exact tested browser
+   builds instead of reusing the Bun source boundary.
 5. Run additional 1 GiB browser rows for independent real/corpus XML fixtures
    and non-V8 browser engines. The current browser byte-batch rows are
    Chrome/V8 only and record JS heap, not process RSS. String-input public
