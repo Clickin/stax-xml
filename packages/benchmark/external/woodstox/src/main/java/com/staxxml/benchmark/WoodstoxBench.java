@@ -5,6 +5,7 @@ import com.ctc.wstx.stax.WstxInputFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
+import jdk.jfr.Recording;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -31,9 +32,16 @@ public final class WoodstoxBench {
     Result stable = null;
     for (int index = 0; index < options.runs; index++) {
       System.gc();
+      Recording recording = null;
+      if (options.measuredJfrOut != null) {
+        recording = startMeasuredRecording();
+      }
       long startedAt = System.nanoTime();
       Result result = consume(factory, options.file);
       double elapsedMs = (System.nanoTime() - startedAt) / 1_000_000.0;
+      if (recording != null) {
+        stopAndDumpRecording(recording, options.measuredJfrOut);
+      }
       if (stable != null && (stable.eventCount != result.eventCount || stable.checksum != result.checksum)) {
         throw new IllegalStateException("woodstox produced unstable event count or checksum");
       }
@@ -61,6 +69,30 @@ public final class WoodstoxBench {
     json.append(']');
     json.append('}');
     System.out.println(json);
+  }
+
+  private static Recording startMeasuredRecording() {
+    Recording recording = new Recording();
+    recording.setName("woodstox-measured-allocation");
+    recording.setToDisk(true);
+    recording.setDumpOnExit(false);
+    recording.enable("jdk.ObjectAllocationInNewTLAB").withStackTrace();
+    recording.enable("jdk.ObjectAllocationOutsideTLAB").withStackTrace();
+    recording.start();
+    return recording;
+  }
+
+  private static void stopAndDumpRecording(Recording recording, Path output) throws Exception {
+    Path parent = output.getParent();
+    if (parent != null) {
+      Files.createDirectories(parent);
+    }
+    try {
+      recording.stop();
+      recording.dump(output);
+    } finally {
+      recording.close();
+    }
   }
 
   private static XMLInputFactory createFactory() {
@@ -222,17 +254,20 @@ public final class WoodstoxBench {
     final Path file;
     final int runs;
     final int warmups;
+    final Path measuredJfrOut;
 
-    private Options(Path file, int runs, int warmups) {
+    private Options(Path file, int runs, int warmups, Path measuredJfrOut) {
       this.file = file;
       this.runs = runs;
       this.warmups = warmups;
+      this.measuredJfrOut = measuredJfrOut;
     }
 
     static Options parse(String[] args) {
       Path file = null;
       int runs = 3;
       int warmups = 1;
+      Path measuredJfrOut = null;
 
       for (int index = 0; index < args.length; index++) {
         String arg = args[index];
@@ -242,6 +277,8 @@ public final class WoodstoxBench {
           runs = parsePositiveInteger(readValue(args, ++index, arg), arg);
         } else if ("--warmups".equals(arg)) {
           warmups = parseNonNegativeInteger(readValue(args, ++index, arg), arg);
+        } else if ("--measured-jfr-out".equals(arg)) {
+          measuredJfrOut = Paths.get(readValue(args, ++index, arg));
         } else {
           throw new IllegalArgumentException("Unknown argument: " + arg);
         }
@@ -250,7 +287,10 @@ public final class WoodstoxBench {
       if (file == null) {
         throw new IllegalArgumentException("--file is required");
       }
-      return new Options(file, runs, warmups);
+      if (measuredJfrOut != null && runs != 1) {
+        throw new IllegalArgumentException("--measured-jfr-out currently requires --runs 1");
+      }
+      return new Options(file, runs, warmups, measuredJfrOut);
     }
 
     private static String readValue(String[] args, int index, String flag) {

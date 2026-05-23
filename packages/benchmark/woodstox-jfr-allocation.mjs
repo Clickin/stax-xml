@@ -26,6 +26,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     rawJfrOut: defaultRawJfrOut,
     rawEventsJsonOut: defaultRawEventsJsonOut,
     stackDepth: 32,
+    recordingMode: 'process',
     fileExplicit: false,
     skipBuild: false,
     selfTest: false,
@@ -78,9 +79,21 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--stack-depth':
         options.stackDepth = parsePositiveInteger(readValue(), name);
         break;
+      case '--recording-mode': {
+        const value = readValue();
+        if (!['process', 'measured'].includes(value)) {
+          throw new Error('--recording-mode must be one of process, measured.');
+        }
+        options.recordingMode = value;
+        break;
+      }
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
+  }
+
+  if (options.recordingMode === 'measured' && options.runs !== 1) {
+    throw new Error('--recording-mode=measured currently requires --runs 1.');
   }
 
   return options;
@@ -153,7 +166,7 @@ function createSelfTestReport(options) {
     options,
     javaVersionText: 'openjdk version "1.8.0_472"\nOpenJDK 64-Bit Server VM (Temurin)(build 25.472-b08, mixed mode)',
     fixture,
-    command: ['java', '-XX:+FlightRecorder', '-XX:StartFlightRecording=filename=self-test.jfr,settings=profile,dumponexit=true', '-jar', 'woodstox-baseline-1.0.0-bench.jar'],
+    command: selfTestCommand(options),
     rawArtifacts: {
       jfr: { path: options.rawJfrOut, committed: false },
       allocationEventsJson: { path: options.rawEventsJsonOut, committed: false },
@@ -168,6 +181,13 @@ function createSelfTestReport(options) {
     ].join('\n'),
     rawEvents,
   });
+}
+
+function selfTestCommand(options) {
+  if (options.recordingMode === 'measured') {
+    return ['java', '-XX:+FlightRecorder', '-jar', 'woodstox-baseline-1.0.0-bench.jar', '--measured-jfr-out', 'self-test.jfr'];
+  }
+  return ['java', '-XX:+FlightRecorder', '-XX:StartFlightRecording=filename=self-test.jfr,settings=profile,dumponexit=true', '-jar', 'woodstox-baseline-1.0.0-bench.jar'];
 }
 
 function fakeAllocationEvent(className, allocationSize, frames, threadName = 'main') {
@@ -203,20 +223,7 @@ function runJfrAllocation(options) {
   removeIfExists(options.rawEventsJsonOut);
 
   const javaVersion = runCommand('java', ['-version'], repoRoot);
-  const recordingOption = `filename=${options.rawJfrOut},settings=profile,dumponexit=true`;
-  const args = [
-    '-XX:+FlightRecorder',
-    `-XX:FlightRecorderOptions=stackdepth=${options.stackDepth}`,
-    `-XX:StartFlightRecording=${recordingOption}`,
-    '-jar',
-    woodstoxJar,
-    '--file',
-    options.file,
-    '--runs',
-    String(options.runs),
-    '--warmups',
-    String(options.warmups),
-  ];
+  const args = createJavaArgs(options);
   const startedAt = Date.now();
   const result = runCommand('java', args, repoRoot);
   const elapsedMs = Date.now() - startedAt;
@@ -273,6 +280,31 @@ function runJfrAllocation(options) {
   });
 }
 
+function createJavaArgs(options) {
+  const args = [
+    '-XX:+FlightRecorder',
+    `-XX:FlightRecorderOptions=stackdepth=${options.stackDepth}`,
+  ];
+  if (options.recordingMode === 'process') {
+    const recordingOption = `filename=${options.rawJfrOut},settings=profile,dumponexit=true`;
+    args.push(`-XX:StartFlightRecording=${recordingOption}`);
+  }
+  args.push(
+    '-jar',
+    woodstoxJar,
+    '--file',
+    options.file,
+    '--runs',
+    String(options.runs),
+    '--warmups',
+    String(options.warmups),
+  );
+  if (options.recordingMode === 'measured') {
+    args.push('--measured-jfr-out', options.rawJfrOut);
+  }
+  return args;
+}
+
 function ensureFixture(options) {
   if (!existsSync(options.file) && !options.fileExplicit) {
     generateXmlFile(options.file, 16 * MIB);
@@ -296,9 +328,11 @@ function createReport({ options, javaVersionText, fixture, command, rawArtifacts
   const jfrSummary = parseJfrSummary(jfrSummaryText);
   return {
     generatedAt: new Date().toISOString(),
-    objective: 'woodstox-jfr-allocation',
-    contract: 'jfr-allocation-sampling',
-    note: 'JFR allocation events for the Java + Woodstox comparator. This is process-level sampled allocation evidence, not a deterministic allocation census or a proof of all Woodstox object lifetimes.',
+    objective: options.recordingMode === 'measured' ? 'woodstox-measured-jfr-allocation' : 'woodstox-jfr-allocation',
+    contract: options.recordingMode === 'measured' ? 'jfr-measured-allocation-sampling' : 'jfr-allocation-sampling',
+    note: options.recordingMode === 'measured'
+      ? 'JFR allocation events for one measured Java + Woodstox consume run after warmup. This is sampled allocation evidence, not a deterministic allocation census or a proof of all Woodstox object lifetimes.'
+      : 'JFR allocation events for the Java + Woodstox comparator process. This is process-level sampled allocation evidence, not a deterministic allocation census or a proof of all Woodstox object lifetimes.',
     environment: {
       java: firstLine(javaVersionText),
       javaVersionText,
@@ -311,6 +345,7 @@ function createReport({ options, javaVersionText, fixture, command, rawArtifacts
       warmups: options.warmups,
       stackDepth: options.stackDepth,
       jfrSettings: 'profile',
+      recordingMode: options.recordingMode,
       allocationEvents,
     },
     command: {
@@ -322,7 +357,7 @@ function createReport({ options, javaVersionText, fixture, command, rawArtifacts
     benchmark,
     jfrSummary,
     allocation: analysis,
-    findings: createFindings(benchmark, analysis),
+    findings: createFindings(benchmark, analysis, options.recordingMode),
   };
 }
 
@@ -431,7 +466,7 @@ function topClassSummary(samples) {
     .slice(0, 16);
 }
 
-function createFindings(benchmark, analysis) {
+function createFindings(benchmark, analysis, recordingMode) {
   const findings = [
     {
       id: 'same-contract-result',
@@ -444,7 +479,9 @@ function createFindings(benchmark, analysis) {
     },
     {
       id: 'allocation-samples-visible',
-      summary: 'JFR emitted allocation samples for the comparator process.',
+      summary: recordingMode === 'measured'
+        ? 'JFR emitted allocation samples for the measured comparator consume run.'
+        : 'JFR emitted allocation samples for the comparator process.',
       evidence: [
         `allocationEvents=${analysis.eventCount}`,
         `sampledBytes=${formatBytes(analysis.sampledBytes)}`,
@@ -454,9 +491,13 @@ function createFindings(benchmark, analysis) {
     },
     {
       id: 'not-deterministic-census',
-      summary: 'JFR allocation events are sampled process-level evidence, not a deterministic allocation census.',
+      summary: recordingMode === 'measured'
+        ? 'JFR allocation events are measured-run sampled evidence, not a deterministic allocation census.'
+        : 'JFR allocation events are sampled process-level evidence, not a deterministic allocation census.',
       evidence: [
-        'The recording covers JVM startup, warmups, and the measured run because the comparator is launched as a separate process.',
+        recordingMode === 'measured'
+          ? 'The recording starts after warmups and after the pre-run System.gc(), then stops after the measured consume call.'
+          : 'The recording covers JVM startup, warmups, and the measured run because the comparator is launched as a separate process.',
         'Use it to identify observed allocation paths, not to prove total allocation volume or all object lifetimes.',
       ],
     },
@@ -483,14 +524,19 @@ function extractBenchmarkJson(stdout) {
 }
 
 function renderMarkdown(report) {
+  const measuredMode = report.options.recordingMode === 'measured';
   const lines = [
-    '# Woodstox JFR Allocation Sampling',
+    measuredMode ? '# Woodstox Measured-Run JFR Allocation Sampling' : '# Woodstox JFR Allocation Sampling',
     '',
     `Generated: ${report.generatedAt}`,
     '',
     'This report is a TRACE_FACT for one Java/HotSpot build and one XML fixture.',
-    'It captures JFR `ObjectAllocationInNewTLAB` and `ObjectAllocationOutsideTLAB` events for the Java + Woodstox comparator process.',
-    'It is sampled process-level evidence, not a deterministic allocation census and not proof of every Woodstox object lifetime.',
+    measuredMode
+      ? 'It captures JFR `ObjectAllocationInNewTLAB` and `ObjectAllocationOutsideTLAB` events around one measured Java + Woodstox `consume` call after warmup.'
+      : 'It captures JFR `ObjectAllocationInNewTLAB` and `ObjectAllocationOutsideTLAB` events for the Java + Woodstox comparator process.',
+    measuredMode
+      ? 'It is measured-run sampled evidence, not a deterministic allocation census and not proof of every Woodstox object lifetime.'
+      : 'It is sampled process-level evidence, not a deterministic allocation census and not proof of every Woodstox object lifetime.',
     '',
     '## Environment',
     '',
@@ -501,6 +547,7 @@ function renderMarkdown(report) {
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
     `- JFR settings: ${report.options.jfrSettings}`,
+    `- Recording mode: ${report.options.recordingMode}`,
     `- Stack depth: ${report.options.stackDepth}`,
     `- Raw JFR: ${report.rawArtifacts.jfr.path}`,
     `- Raw JFR committed: ${report.rawArtifacts.jfr.committed ? 'yes' : 'no'}`,

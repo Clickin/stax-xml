@@ -47,7 +47,7 @@ Rules:
 
 | ID | Claim | Status | Current evidence | Missing proof or counterexample search |
 | --- | --- | --- | --- | --- |
-| `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. `packages/benchmark/results/release/woodstox-jfr-allocation.md` captures sampled JFR allocation stacks for the same comparator boundary. | More allocation and object-lifetime evidence is still needed before attributing Woodstox speed to a complete optimized representation. |
+| `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. `packages/benchmark/results/release/woodstox-jfr-allocation.md` and `packages/benchmark/results/release/woodstox-measured-jfr-allocation.md` capture sampled JFR allocation stacks for the same comparator boundary. | More allocation and object-lifetime evidence is still needed before attributing Woodstox speed to a complete optimized representation. |
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `stax-event` creates public event objects and attribute objects; `stax-stream` uses byte batches and index accessors. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. | Symbol/asm and allocation evidence are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
@@ -109,6 +109,34 @@ lifetime proof. The recording is process-level sampled JFR evidence and includes
 JVM startup plus warmups because the comparator is launched as a separate
 process. Use it to identify observed allocation paths, not to infer total
 allocation volume or to prove the absence of other allocation paths.
+
+`packages/benchmark/results/release/woodstox-measured-jfr-allocation.md` is the
+narrower follow-up `TRACE_FACT` for the same Java/HotSpot build and 16 MiB
+fixture. The Java comparator starts JFR after warmups and after the pre-run
+`System.gc()`, then stops and dumps the recording immediately after the measured
+`consume` call. This removes JVM startup and warmup allocation from the captured
+JFR event window.
+
+The measured-run JFR row also preserves the checksum contract: 967,967 events
+and checksum `-746772258`. With JFR active only around the measured consume call,
+the timed row reported 201.1 MiB/s, so this artifact should not replace the
+non-JFR Woodstox throughput baseline. It is allocation-path evidence, not a
+speed baseline.
+
+JFR reported 10 `ObjectAllocationInNewTLAB` samples and zero
+`ObjectAllocationOutsideTLAB` samples in the measured window. All 10 samples
+were on the main thread, under `WoodstoxBench.consume`, and under Woodstox
+stacks; 9 were string-boundary samples. The sampled classes were `char[]` with
+5 samples / 336 B, `java.lang.String` with 4 samples / 96 B, and
+`com.ctc.wstx.sr.Attribute` with 1 sample / 32 B. The observed stacks again
+cross `TextBuffer.contentsAsString`, `TextBuilder.getAllValues`,
+`AttributeCollector.getValue`, `BasicStreamReader.getText`, and
+`BasicStreamReader.getAttributeValue`.
+
+This strengthens the counterexample to "Woodstox avoids Java string/char
+materialization entirely" because it no longer depends on startup or warmup
+samples. It still remains sampled evidence, not a total allocation census or
+proof of every object lifetime.
 
 ## Current Evidence: Rust quick-xml Shape Audit
 
@@ -422,9 +450,9 @@ Acceptance:
 
 ## Current Next Experiments
 
-1. Add a second Woodstox allocation run with isolated measured-iteration
-   recording or async-profiler so startup/warmup allocation can be separated
-   from the measured `consume` iteration.
+1. Repeat Woodstox measured-iteration allocation capture with additional JFR
+   samples or async-profiler so the current 10-sample measured window is not
+   overread as total allocation volume.
 2. Add Rust allocation or symbol/asm profile for quick-xml reader, name decode,
    text decode, and attribute decode paths.
 3. Repeat less-repetitive 1 GiB+ fixtures across additional cycle sizes and

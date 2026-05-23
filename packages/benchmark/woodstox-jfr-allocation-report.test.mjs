@@ -12,6 +12,8 @@ const jsonOut = join(tmpDir, 'woodstox-jfr-allocation-report-test.json');
 const mdOut = join(tmpDir, 'woodstox-jfr-allocation-report-test.md');
 const rawJfrOut = join(tmpDir, 'woodstox-jfr-allocation-report-test.jfr');
 const rawEventsJsonOut = join(tmpDir, 'woodstox-jfr-allocation-report-test-events.json');
+const measuredJsonOut = join(tmpDir, 'woodstox-measured-jfr-allocation-report-test.json');
+const measuredMdOut = join(tmpDir, 'woodstox-measured-jfr-allocation-report-test.md');
 
 test('Woodstox JFR allocation report records sampled allocation facts without claiming a census', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -64,4 +66,48 @@ test('Woodstox JFR allocation report records sampled allocation facts without cl
   assert.match(markdown, /not a deterministic allocation census/);
   assert.match(markdown, /TextBuffer::contentsAsString/);
   assert.match(markdown, /BasicStreamReader::getAttributeValue/);
+});
+
+test('Woodstox measured-run JFR allocation report records the narrower recording boundary', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [measuredJsonOut, measuredMdOut, rawJfrOut, rawEventsJsonOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'woodstox-jfr-allocation.mjs'),
+    '--self-test',
+    '--recording-mode',
+    'measured',
+    '--json-out',
+    measuredJsonOut,
+    '--md-out',
+    measuredMdOut,
+    '--raw-jfr-out',
+    rawJfrOut,
+    '--raw-events-json-out',
+    rawEventsJsonOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(measuredJsonOut, 'utf8'));
+  assert.equal(report.objective, 'woodstox-measured-jfr-allocation');
+  assert.equal(report.contract, 'jfr-measured-allocation-sampling');
+  assert.equal(report.options.recordingMode, 'measured');
+  assert.equal(report.allocation.consumeStackEventCount, 3);
+  assert.equal(report.allocation.stringBoundaryEventCount, 2);
+  assert.ok(report.findings.some(entry => entry.evidence.some(line => /after warmups/.test(line))));
+
+  const markdown = readFileSync(measuredMdOut, 'utf8');
+  assert.match(markdown, /# Woodstox Measured-Run JFR Allocation Sampling/);
+  assert.match(markdown, /Recording mode: measured/);
+  assert.match(markdown, /measured-run sampled evidence/);
+  assert.match(markdown, /not a deterministic allocation census/);
 });
