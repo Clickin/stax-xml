@@ -27,6 +27,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Candidate Headroom Matrix/);
+  assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Wide-Cycle Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
@@ -61,6 +62,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /candidate-headroom-matrix\.md/);
   assert.match(markdown, /candidate-headroom-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-large\.md/);
+  assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
@@ -99,6 +101,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`rawFrameNameId` reported\s+`112\.95 MiB\/s`/);
   assert.match(markdown, /full-row max RSS\s+endpoints were 262\.0 MiB/);
   assert.match(markdown, /not simply "JS runtime cannot scan bytes fast\s+enough/);
+  assert.match(markdown, /65,536-row `diverse-cycle` fixture/);
+  assert.match(markdown, /wide-cycle Bun\/JSC run is a cache-sensitivity check/);
+  assert.match(markdown, /still not a full-string 200 MiB\/s counterexample/);
   assert.match(markdown, /The 512 MiB row\s+succeeded at 74\.19 MiB\/s/);
   assert.match(markdown, /peak RSS 1\.07 GiB/);
   assert.match(markdown, /RangeError: Invalid string length/);
