@@ -1,0 +1,321 @@
+{
+  "generatedAt": "2026-05-23T14:27:31.679Z",
+  "objective": "materialization-contract-audit",
+  "contract": "semantic-materialization-not-object-shape",
+  "note": "Audits the comparator boundary: rows share semantic fields and checksum parity, but not language/runtime object shape.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "metadata": {
+    "woodstoxSource": "G:\\programming\\stax-xml\\packages\\benchmark\\external\\woodstox\\src\\main\\java\\com\\staxxml\\benchmark\\WoodstoxBench.java",
+    "quickXmlSource": "G:\\programming\\stax-xml\\packages\\benchmark\\external\\quick-xml\\src\\main.rs",
+    "externalBaselineSource": "G:\\programming\\stax-xml\\packages\\benchmark\\external-baseline.mjs",
+    "proofLedgerSource": "G:\\programming\\stax-xml\\docs\\plans\\2026-05-23-stax-api-performance-proof-ledger.md",
+    "externalBaselineReport": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json"
+  },
+  "semanticFields": [
+    "event type",
+    "element local name",
+    "attribute count",
+    "attribute local name",
+    "attribute value",
+    "trimmed non-empty text",
+    "trimmed non-empty CDATA",
+    "UTF-16-code-unit checksum"
+  ],
+  "sourceChecks": {
+    "allSupported": true,
+    "items": [
+      {
+        "id": "woodstox-cursor-getters",
+        "supported": true,
+        "evidence": [
+          "XMLStreamReader",
+          "reader.getEventType()",
+          "reader.getLocalName()",
+          "reader.getAttributeLocalName(attrIndex)",
+          "reader.getAttributeValue(attrIndex)",
+          "reader.getText().trim()"
+        ]
+      },
+      {
+        "id": "quick-xml-buffered-enum-events",
+        "supported": true,
+        "evidence": [
+          "read_event_into(&mut buffer)",
+          "Event::Start(event)",
+          "event.name().as_ref()",
+          "attr.key.as_ref()",
+          "attr.value.as_ref()",
+          "event.decode()?",
+          "value.encode_utf16()"
+        ]
+      },
+      {
+        "id": "stax-event-public-objects",
+        "supported": true,
+        "evidence": [
+          "new EventReaderSync(xml)",
+          "event.name",
+          "Object.entries(event.attributes)"
+        ]
+      },
+      {
+        "id": "stax-stream-index-accessors",
+        "supported": true,
+        "evidence": [
+          "new StreamReaderSync(bytes)",
+          "batch.nameAt(index)",
+          "batch.attributeNameAt(index, attrIndex)",
+          "batch.attributeValueAt(index, attrIndex)"
+        ]
+      },
+      {
+        "id": "lazy-getters-negative-ledger",
+        "supported": true,
+        "evidence": [
+          "CLAIM-LAZY-GETTERS",
+          "NEGATIVE_RESULT"
+        ]
+      }
+    ],
+    "missing": []
+  },
+  "parity": {
+    "status": "same-semantic-fields",
+    "baselineRows": [
+      {
+        "id": "woodstox",
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "mibPerSec": 333.43214193464274
+      },
+      {
+        "id": "quick-xml",
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "mibPerSec": 309.8224487975214
+      },
+      {
+        "id": "stax-stream",
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "mibPerSec": 105.29785621801416
+      },
+      {
+        "id": "stax-event",
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "mibPerSec": 95.93811833355923
+      }
+    ],
+    "notSameObjectShape": true,
+    "explanation": "The parity boundary is event/checksum/field equality, not identical language object representation."
+  },
+  "consumers": [
+    {
+      "id": "woodstox",
+      "implementation": "Java + Woodstox XMLStreamReader",
+      "runtimeShape": "java-xmlstreamreader-cursor",
+      "sourceCheck": "woodstox-cursor-getters",
+      "perEventPublicObject": false,
+      "materialization": "cursor getters returning Java primitives/String values",
+      "objectShapeComparableToJsPublicEvent": false,
+      "semanticFields": [
+        "event type",
+        "element local name",
+        "attribute count",
+        "attribute local name",
+        "attribute value",
+        "trimmed non-empty text",
+        "trimmed non-empty CDATA",
+        "UTF-16-code-unit checksum"
+      ],
+      "sourceSupported": true,
+      "baseline": {
+        "tool": "woodstox",
+        "implementation": "Java + Woodstox 7.2.0",
+        "workload": "full-string-checksum",
+        "status": "ok",
+        "runtime": "1.8.0_472",
+        "avgMs": 47.98526666666667,
+        "minMs": 44.2581,
+        "maxMs": 55.3941,
+        "mibPerSec": 333.43214193464274,
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "samplesMs": [
+          55.3941,
+          44.2581,
+          44.3036
+        ],
+        "woodstoxRatio": 1,
+        "targetStatus": "met"
+      }
+    },
+    {
+      "id": "quick-xml",
+      "implementation": "Rust + quick-xml Reader",
+      "runtimeShape": "rust-enum-event-with-buffer-lifetime",
+      "sourceCheck": "quick-xml-buffered-enum-events",
+      "perEventPublicObject": false,
+      "materialization": "enum events plus byte views/Cow string decode",
+      "objectShapeComparableToJsPublicEvent": false,
+      "semanticFields": [
+        "event type",
+        "element local name",
+        "attribute count",
+        "attribute local name",
+        "attribute value",
+        "trimmed non-empty text",
+        "trimmed non-empty CDATA",
+        "UTF-16-code-unit checksum"
+      ],
+      "sourceSupported": true,
+      "baseline": {
+        "tool": "quick-xml",
+        "implementation": "Rust + quick-xml 0.40.1",
+        "workload": "full-string-checksum",
+        "status": "ok",
+        "runtime": "1.0.0",
+        "avgMs": 51.64193333333333,
+        "minMs": 51.348,
+        "maxMs": 52.065,
+        "mibPerSec": 309.8224487975214,
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "samplesMs": [
+          52.065,
+          51.348,
+          51.5128
+        ],
+        "woodstoxRatio": 0.9291919099336585,
+        "targetStatus": "met"
+      }
+    },
+    {
+      "id": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync",
+      "runtimeShape": "js-stream-batch-index-accessors",
+      "sourceCheck": "stax-stream-index-accessors",
+      "perEventPublicObject": false,
+      "materialization": "batch index accessors returning JS string primitives",
+      "objectShapeComparableToJsPublicEvent": false,
+      "semanticFields": [
+        "event type",
+        "element local name",
+        "attribute count",
+        "attribute local name",
+        "attribute value",
+        "trimmed non-empty text",
+        "trimmed non-empty CDATA",
+        "UTF-16-code-unit checksum"
+      ],
+      "sourceSupported": true,
+      "baseline": {
+        "tool": "stax-stream",
+        "implementation": "Node + stax-xml StreamReaderSync",
+        "workload": "full-string-checksum",
+        "status": "ok",
+        "avgMs": 151.9483,
+        "minMs": 150.5749,
+        "maxMs": 152.75979999999998,
+        "mibPerSec": 105.29785621801416,
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "samplesMs": [
+          152.5102,
+          152.75979999999998,
+          150.5749
+        ],
+        "woodstoxRatio": 0.3157999573977903,
+        "targetStatus": "below"
+      }
+    },
+    {
+      "id": "stax-event",
+      "implementation": "Node + stax-xml EventReaderSync",
+      "runtimeShape": "js-public-event-object",
+      "sourceCheck": "stax-event-public-objects",
+      "perEventPublicObject": true,
+      "materialization": "public JavaScript event objects and attribute objects",
+      "objectShapeComparableToJsPublicEvent": true,
+      "semanticFields": [
+        "event type",
+        "element local name",
+        "attribute count",
+        "attribute local name",
+        "attribute value",
+        "trimmed non-empty text",
+        "trimmed non-empty CDATA",
+        "UTF-16-code-unit checksum"
+      ],
+      "sourceSupported": true,
+      "baseline": {
+        "tool": "stax-event",
+        "implementation": "Node + stax-xml EventReaderSync",
+        "workload": "full-string-checksum",
+        "status": "ok",
+        "avgMs": 166.77240000000006,
+        "minMs": 163.37900000000013,
+        "maxMs": 171.01970000000006,
+        "mibPerSec": 95.93811833355923,
+        "eventCount": 967967,
+        "checksum": -746772258,
+        "samplesMs": [
+          171.01970000000006,
+          165.9185,
+          163.37900000000013
+        ],
+        "woodstoxRatio": 0.287729064681366,
+        "targetStatus": "below"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "same-semantic-materialization-contract",
+      "classification": "SOURCE_FACT + BENCH_FACT",
+      "summary": "The external and JavaScript rows consume the same semantic fields when their event count and checksum match.",
+      "evidence": [
+        "semantic fields: event type, element local name, attribute count, attribute local name, attribute value, trimmed non-empty text, trimmed non-empty CDATA, UTF-16-code-unit checksum",
+        "woodstox: events=967967, checksum=-746772258",
+        "quick-xml: events=967967, checksum=-746772258",
+        "stax-stream: events=967967, checksum=-746772258",
+        "stax-event: events=967967, checksum=-746772258"
+      ]
+    },
+    {
+      "id": "not-same-object-shape",
+      "classification": "COUNTEREXAMPLE",
+      "summary": "The same semantic fields are not the same object shape across Java, Rust, and JavaScript runtimes.",
+      "evidence": [
+        "woodstox: java-xmlstreamreader-cursor, perEventPublicObject=false",
+        "quick-xml: rust-enum-event-with-buffer-lifetime, perEventPublicObject=false",
+        "stax-stream: js-stream-batch-index-accessors, perEventPublicObject=false",
+        "stax-event: js-public-event-object, perEventPublicObject=true"
+      ]
+    },
+    {
+      "id": "runtime-limit-still-unproven",
+      "classification": "HYPOTHESIS",
+      "summary": "Object-shape differences and current throughput gaps do not prove a JavaScript runtime ceiling.",
+      "evidence": [
+        "A 200 MiB/s+ bounded-memory full-string JavaScript row remains a valid counterexample.",
+        "Partial byte-scan or partial string rows are parser/runtime headroom evidence, not StAX full-materialization proof."
+      ]
+    },
+    {
+      "id": "lazy-getters-remain-rejected",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Lazy getters remain a recorded negative result, not a fresh default optimization candidate.",
+      "evidence": [
+        "They can improve count-only paths while moving or destabilizing full-string cache/materialization costs.",
+        "Revisit only with full-string improvement, bounded memory, and no cache-shape regression."
+      ]
+    }
+  ]
+}

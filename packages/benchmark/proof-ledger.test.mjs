@@ -20,6 +20,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   const markdown = readLedger();
   assert.match(markdown, /## Proof Vocabulary/);
   assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
+  assert.match(markdown, /## Current Evidence: Materialization Contract Audit/);
   assert.match(markdown, /## Current Evidence: Woodstox HotSpot Trace/);
   assert.match(markdown, /## Current Evidence: Woodstox JFR Allocation Sampling/);
   assert.match(markdown, /## Current Evidence: Rust quick-xml Shape Audit/);
@@ -53,6 +54,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /full-string parity candidate that reaches 200 MiB\/s\+ with bounded memory/);
   assert.match(markdown, /still headroom evidence for the narrower runtime\/parser boundary/);
   assert.match(markdown, /object-shape-parity\.md/);
+  assert.match(markdown, /materialization-contract-audit\.md/);
+  assert.match(markdown, /same semantic fields/);
+  assert.match(markdown, /not the same object shape/);
+  assert.match(markdown, /Woodstox uses `XMLStreamReader` cursor\/accessor calls/);
+  assert.match(markdown, /Lazy getters\s+remain a recorded negative result/);
   assert.match(markdown, /woodstox-hotspot-trace\.md/);
   assert.match(markdown, /woodstox-jfr-allocation\.md/);
   assert.match(markdown, /woodstox-measured-jfr-allocation\.md/);
