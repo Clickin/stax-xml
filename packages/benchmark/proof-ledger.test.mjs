@@ -127,9 +127,17 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
   assert.match(markdown, /v8-allocation-sampling\.md/);
   assert.match(markdown, /v8-allocation-sampling-diverse\.md/);
+  assert.match(markdown, /v8-allocation-sampling-projection\.md/);
   assert.match(markdown, /event-reader-object/);
   assert.match(markdown, /less-repetitive generated/);
   assert.match(markdown, /two-sample evidence/);
+  assert.match(markdown, /generated 16 MiB\s+`projection-cycle` fixture/);
+  assert.match(markdown, /stream-event rows preserved 932,199 events and checksum\s+`765158370`/);
+  assert.match(markdown, /low selectivity produced 506 records and checksum\s+`-1924876833`/);
+  assert.match(markdown, /high selectivity produced 49,063 records and checksum\s+`970928115`/);
+  assert.match(markdown, /Projection low\/high\s+sampled `125\.7 KiB` and `104\.3 KiB`/);
+  assert.match(markdown, /sampled `stax-xml` source bytes were\s+`88\.8 KiB`, `21\.8 KiB`, `45\.1 KiB`, `29\.6 KiB`, `93\.9 KiB`, and `69\.9 KiB`/);
+  assert.match(markdown, /not Bun\/JSC\/browser coverage/);
   assert.match(markdown, /stream-reader-1gb-shapes\.md/);
   assert.match(markdown, /stream-reader-1gb-diverse-shapes\.md/);
   assert.match(markdown, /stream-reader-1gb-allocation-shapes\.md/);

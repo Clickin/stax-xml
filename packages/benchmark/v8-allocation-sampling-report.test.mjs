@@ -14,6 +14,9 @@ const outputDir = join(tmpDir, 'v8-allocation-sampling-report-test-raw');
 const diverseJsonOut = join(tmpDir, 'v8-allocation-sampling-diverse-test.json');
 const diverseMdOut = join(tmpDir, 'v8-allocation-sampling-diverse-test.md');
 const diverseOutputDir = join(tmpDir, 'v8-allocation-sampling-diverse-test-raw');
+const projectionJsonOut = join(tmpDir, 'v8-allocation-sampling-projection-test.json');
+const projectionMdOut = join(tmpDir, 'v8-allocation-sampling-projection-test.md');
+const projectionOutputDir = join(tmpDir, 'v8-allocation-sampling-projection-test-raw');
 
 test('V8 allocation sampling report records per-shape allocation evidence without claiming a runtime ceiling', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -114,4 +117,71 @@ test('V8 allocation sampling supports generated diverse fixtures for stronger pu
   const markdown = readFileSync(diverseMdOut, 'utf8');
   assert.match(markdown, /Fixture shape: diverse/);
   assert.match(markdown, /less-repetitive generated fixture/);
+});
+
+test('V8 allocation sampling separates projection record evidence from stream parity', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [projectionJsonOut, projectionMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'v8-allocation-sampling.mjs'),
+    '--generated-fixture',
+    'projection-cycle',
+    '--size-mib',
+    '1',
+    '--cases',
+    'raw-frame-name-id-cache,projection-low-selectivity,projection-high-selectivity',
+    '--warmups',
+    '0',
+    '--iterations',
+    '1',
+    '--sampling-interval',
+    '1024',
+    '--output-dir',
+    projectionOutputDir,
+    '--json-out',
+    projectionJsonOut,
+    '--md-out',
+    projectionMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(projectionJsonOut, 'utf8'));
+  assert.equal(report.fixture.source, 'generated');
+  assert.equal(report.fixture.shape, 'projection-cycle');
+  assert.deepEqual(report.cases.map(entry => entry.caseId), [
+    'raw-frame-name-id-cache',
+    'projection-low-selectivity',
+    'projection-high-selectivity',
+  ]);
+  assert.equal(report.parity.status, 'ok');
+  assert.deepEqual(report.parity.rowIds, ['raw-frame-name-id-cache']);
+  assert.equal(report.projectionParity.status, 'ok');
+  assert.deepEqual(report.projectionParity.rowIds, ['projection-low-selectivity', 'projection-high-selectivity']);
+
+  const low = report.cases.find(entry => entry.caseId === 'projection-low-selectivity');
+  const high = report.cases.find(entry => entry.caseId === 'projection-high-selectivity');
+  assert.equal(low.eventCountKind, 'projected-records');
+  assert.equal(high.eventCountKind, 'projected-records');
+  assert.ok(low.eventCount > 0);
+  assert.ok(high.eventCount > low.eventCount);
+  assert.ok(low.sampledBytes >= 0);
+  assert.ok(high.sampledBytes >= 0);
+  assert.ok(report.findings.some(entry => entry.id === 'projection-selected-field-sampling'));
+
+  const markdown = readFileSync(projectionMdOut, 'utf8');
+  assert.match(markdown, /Fixture shape: projection-cycle/);
+  assert.match(markdown, /Projection rows report projected record counts/);
+  assert.match(markdown, /projection-low-selectivity/);
+  assert.match(markdown, /projection-high-selectivity/);
 });

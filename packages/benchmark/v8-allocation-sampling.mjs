@@ -4,6 +4,7 @@ import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EventReaderSync, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
+import { attr, attrEquals, childText, compileProjection, many, projectXmlSync } from 'stax-xml/projection';
 
 const MIB = 1024 * 1024;
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -12,12 +13,29 @@ const defaultOutputDir = join(__dirname, 'results', 'v8-allocation', 'monomorphi
 const defaultJsonOut = join(__dirname, 'results', 'release', 'v8-allocation-sampling.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'v8-allocation-sampling.md');
 const textEncoder = new TextEncoder();
-const caseIds = ['public-accessor', 'event-reader-object', 'raw-frame-direct-decode', 'raw-frame-name-id-cache'];
+const defaultCaseIds = ['public-accessor', 'event-reader-object', 'raw-frame-direct-decode', 'raw-frame-name-id-cache'];
+const projectionCaseIds = ['projection-low-selectivity', 'projection-high-selectivity'];
+const caseIds = [...defaultCaseIds, ...projectionCaseIds];
+const projectionLowSelectivity = compileProjection({
+  books: many('/root/book', {
+    id: attr('id'),
+    title: childText('title'),
+  }, {
+    where: attrEquals('code', '7'),
+  }),
+});
+const projectionHighSelectivity = compileProjection({
+  books: many('/root/book', {
+    id: attr('id'),
+    title: childText('title'),
+  }),
+});
 const targetFunctions = new Set([
   'consumePublicAccessor',
   'consumeEventReaderObject',
   'consumeRawFrameDirect',
   'consumeRawFrameNameIdCache',
+  'consumeProjectionSelectivity',
   'consumeRawFrame',
   'materializeName',
   'decodeSpan',
@@ -32,7 +50,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     outputDir: defaultOutputDir,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
-    cases: [...caseIds],
+    cases: [...defaultCaseIds],
     warmups: 1,
     iterations: 2,
     samplingInterval: 16 * 1024,
@@ -118,10 +136,10 @@ function parseCaseList(value) {
 }
 
 function parseGeneratedFixture(value) {
-  if (value === 'basic' || value === 'diverse') {
+  if (value === 'basic' || value === 'diverse' || value === 'projection-cycle') {
     return value;
   }
-  throw new Error(`--generated-fixture must be one of basic, diverse. Received: ${value}`);
+  throw new Error(`--generated-fixture must be one of basic, diverse, projection-cycle. Received: ${value}`);
 }
 
 function parsePositiveInteger(value, flag) {
@@ -230,6 +248,7 @@ async function sampleCase(caseId, fixture, options) {
     const summary = summarizeProfile(profile);
     return {
       caseId,
+      eventCountKind: stable.eventCountKind ?? 'stream-events',
       eventCount: stable.eventCount,
       checksum: stable.checksum,
       avgMs: average(samplesMs),
@@ -302,11 +321,12 @@ function collectNodes(node, output) {
 
 function createReport({ options, fixture, cases }) {
   const parity = computeParity(cases);
+  const projectionParity = computeProjectionParity(cases);
   return {
     generatedAt: new Date().toISOString(),
     objective: 'v8-allocation-sampling',
     contract: 'inspector-heapprofiler-sampling',
-    note: 'V8 inspector HeapProfiler allocation sampling for full-string JavaScript reader shapes. Sampling is statistical and runtime-specific.',
+    note: 'V8 inspector HeapProfiler allocation sampling for full-string JavaScript reader shapes and optional selected-field projection rows. Sampling is statistical and runtime-specific.',
     environment: {
       node: process.version,
       v8: process.versions.v8,
@@ -335,31 +355,59 @@ function createReport({ options, fixture, cases }) {
       profiles: cases.map(entry => entry.rawProfilePath),
     },
     parity,
+    projectionParity,
     cases,
     findings: createFindings(cases, fixture),
   };
 }
 
 function computeParity(cases) {
-  const first = cases[0];
-  const mismatch = cases.find(entry => entry.eventCount !== first.eventCount || entry.checksum !== first.checksum);
+  const streamRows = cases.filter(entry => entry.eventCountKind !== 'projected-records');
+  const first = streamRows[0];
+  if (!first) {
+    return {
+      status: 'not-applicable',
+      rowIds: [],
+      eventCount: null,
+      checksum: null,
+    };
+  }
+  const mismatch = streamRows.find(entry => entry.eventCount !== first.eventCount || entry.checksum !== first.checksum);
   if (mismatch) {
     throw new Error(`Case ${mismatch.caseId} does not match ${first.caseId}.`);
   }
   return {
     status: 'ok',
+    rowIds: streamRows.map(entry => entry.caseId),
     eventCount: first.eventCount,
     checksum: first.checksum,
   };
 }
 
+function computeProjectionParity(cases) {
+  const projectionRows = cases.filter(entry => entry.eventCountKind === 'projected-records');
+  for (const row of projectionRows) {
+    if (row.eventCount <= 0 || !Number.isFinite(row.checksum)) {
+      throw new Error(`Projection case ${row.caseId} did not produce projected record evidence.`);
+    }
+  }
+  return {
+    status: projectionRows.length > 0 ? 'ok' : 'not-applicable',
+    rowIds: projectionRows.map(entry => entry.caseId),
+  };
+}
+
 function createFindings(cases, fixture) {
+  const streamRows = cases.filter(entry => entry.eventCountKind !== 'projected-records');
+  const projectionRows = cases.filter(entry => entry.eventCountKind === 'projected-records');
   const findings = [
     {
       id: 'same-contract-result',
       classification: 'TRACE_FACT',
-      summary: 'All sampled shapes preserved the same event count and checksum during allocation sampling.',
-      evidence: cases.map(entry => `${entry.caseId}: events=${entry.eventCount}, checksum=${entry.checksum}`),
+      summary: 'All sampled stream-event shapes preserved the same event count and checksum during allocation sampling.',
+      evidence: streamRows.length > 0
+        ? streamRows.map(entry => `${entry.caseId}: events=${entry.eventCount}, checksum=${entry.checksum}`)
+        : ['stream-event cases not sampled in this report'],
     },
     {
       id: 'sampled-allocation-shape',
@@ -397,6 +445,27 @@ function createFindings(cases, fixture) {
     });
   }
 
+  if (fixture.source === 'generated' && fixture.shape === 'projection-cycle') {
+    findings.splice(2, 0, {
+      id: 'projection-cycle-generated-fixture',
+      classification: 'TRACE_FACT',
+      summary: 'This run used a projection-shaped generated fixture with repeated /root/book rows, selected attributes/text, and ignored negative-path fields.',
+      evidence: [
+        `fixtureBytes=${fixture.byteLength}`,
+        `targetBytes=${fixture.targetBytes}`,
+      ],
+    });
+  }
+
+  if (projectionRows.length > 0) {
+    findings.splice(3, 0, {
+      id: 'projection-selected-field-sampling',
+      classification: 'TRACE_FACT',
+      summary: 'Projection rows report projected record counts and selected-field checksums during allocation sampling, not full StAX event parity.',
+      evidence: projectionRows.map(entry => `${entry.caseId}: records=${entry.eventCount}, checksum=${entry.checksum}, sampledBytes=${entry.sampledBytes}`),
+    });
+  }
+
   return findings;
 }
 
@@ -407,8 +476,11 @@ function renderMarkdown(report) {
     `Generated: ${report.generatedAt}`,
     '',
     'This report is a TRACE_FACT for one Node/V8 build and one fixture.',
-    'It uses inspector `HeapProfiler.startSampling` / `HeapProfiler.stopSampling` around each full-string reader shape.',
+    'It uses inspector `HeapProfiler.startSampling` / `HeapProfiler.stopSampling` around full-string reader shapes and optional selected-field projection rows.',
     'It is not a proof that JavaScript runtimes have no further headroom.',
+    ...(report.projectionParity.status === 'ok'
+      ? ['Projection rows report projected record counts and selected-field checksums; they are not full StAX parity rows.']
+      : []),
     '',
     '## Environment',
     '',
@@ -429,11 +501,11 @@ function renderMarkdown(report) {
     '',
     '## Results',
     '',
-    '| Case | Avg time | Events | Checksum | Sampled bytes | Samples | Target function bytes | stax-xml source bytes |',
-    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+    '| Case | Count kind | Avg time | Events | Checksum | Sampled bytes | Samples | Target function bytes | stax-xml source bytes |',
+    '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ];
   for (const entry of report.cases) {
-    lines.push(`| ${entry.caseId} | ${formatMs(entry.avgMs)} | ${entry.eventCount} | ${entry.checksum} | ${formatBytes(entry.sampledBytes)} | ${entry.sampleCount} | ${formatBytes(entry.targetFunctionBytes)} | ${formatBytes(entry.staxXmlSourceBytes)} |`);
+    lines.push(`| ${entry.caseId} | ${entry.eventCountKind} | ${formatMs(entry.avgMs)} | ${entry.eventCount} | ${entry.checksum} | ${formatBytes(entry.sampledBytes)} | ${entry.sampleCount} | ${formatBytes(entry.targetFunctionBytes)} | ${formatBytes(entry.staxXmlSourceBytes)} |`);
   }
 
   lines.push('');
@@ -457,9 +529,12 @@ function renderMarkdown(report) {
 
   lines.push('## Parity');
   lines.push('');
-  lines.push(`Status: ${report.parity.status}`);
-  lines.push(`Events: ${report.parity.eventCount}`);
-  lines.push(`Checksum: ${report.parity.checksum}`);
+  lines.push(`Stream-event status: ${report.parity.status}`);
+  lines.push(`Stream-event rows: ${report.parity.rowIds.join(', ') || 'n/a'}`);
+  lines.push(`Stream-event events: ${report.parity.eventCount ?? 'n/a'}`);
+  lines.push(`Stream-event checksum: ${report.parity.checksum ?? 'n/a'}`);
+  lines.push(`Projection status: ${report.projectionParity.status}`);
+  lines.push(`Projection rows: ${report.projectionParity.rowIds.join(', ') || 'n/a'}`);
   lines.push('');
   lines.push('## Findings');
   lines.push('');
@@ -495,6 +570,10 @@ function consumeCase(caseId, fixture) {
       return consumeRawFrameDirect(fixture.bytes);
     case 'raw-frame-name-id-cache':
       return consumeRawFrameNameIdCache(fixture.bytes);
+    case 'projection-low-selectivity':
+      return consumeProjectionSelectivity(fixture.bytes, projectionLowSelectivity);
+    case 'projection-high-selectivity':
+      return consumeProjectionSelectivity(fixture.bytes, projectionHighSelectivity);
     default:
       throw new Error(`Unknown case: ${caseId}`);
   }
@@ -510,6 +589,10 @@ function makeXml(elements) {
 }
 
 function makeGeneratedXml(targetBytes, shape) {
+  if (shape === 'projection-cycle') {
+    return makeProjectionCycleXml(targetBytes);
+  }
+
   const header = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
   const footer = '</root>\n';
   const parts = [header];
@@ -532,6 +615,29 @@ function makeGeneratedXml(targetBytes, shape) {
   }
 
   parts.push(footer);
+  return parts.join('');
+}
+
+function makeProjectionCycleXml(targetBytes) {
+  const parts = [];
+  let byteLength = 0;
+  let id = 0;
+
+  while (true) {
+    const row = makeProjectionRow(id);
+    const rowBytes = textEncoder.encode(row).byteLength;
+    if (byteLength + rowBytes > targetBytes) {
+      break;
+    }
+    parts.push(row);
+    byteLength += rowBytes;
+    id++;
+  }
+
+  if (id === 0) {
+    throw new Error(`Generated fixture target is too small: ${targetBytes} bytes.`);
+  }
+
   return parts.join('');
 }
 
@@ -564,6 +670,17 @@ function makeDiverseElement(id) {
     + `<${childB} rank="${id % 29}">Full string checksum payload ${(id * 8191) % 104729}</${childB}>`
     + `<${childC} shard="${id % 37}" bucket="${(id * 19) % 389}">Text ${id} ${(id * id) % 99991}</${childC}>`
     + `</${rootName}>\n`;
+}
+
+function makeProjectionRow(id) {
+  const code = id % 97;
+  return `<root><book id="book-${id}" lang="en" code="${code}">`
+    + `<title>Projection Benchmark ${id}</title>`
+    + `<author>Author ${id % 113}</author>`
+    + `<description>Repeated projection benchmark payload ${id} with stable ASCII text. The projection row ignores this field.</description>`
+    + `<chapter number="1">Intro ${id}</chapter>`
+    + `<chapter number="2">Body ${(id * 17) % 104729}</chapter>`
+    + '</book></root>';
 }
 
 function consumePublicAccessor(bytes) {
@@ -675,6 +792,20 @@ function consumeRawFrameNameIdCache(bytes) {
   }
 
   return { eventCount, checksum };
+}
+
+function consumeProjectionSelectivity(bytes, projection) {
+  let records = 0;
+  let checksum = 2166136261;
+
+  projectXmlSync(bytes, projection, {
+    onRecord(record) {
+      records++;
+      checksum = foldString(foldString(checksum, record.id), record.title);
+    },
+  });
+
+  return { eventCountKind: 'projected-records', eventCount: records, checksum };
 }
 
 function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache) {
