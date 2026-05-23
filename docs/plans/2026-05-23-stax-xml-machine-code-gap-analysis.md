@@ -207,9 +207,17 @@ Result on the 16 MiB parity fixture:
 
 | Variant | Throughput | Public ratio | Woodstox ratio | Events | Checksum |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `public-accessor` | 106.3 MiB/s | 1.00x | 0.32x | 967967 | -746772258 |
-| `raw-frame-direct-decode` | 119.3 MiB/s | 1.12x | 0.36x | 967967 | -746772258 |
-| `raw-frame-name-id-cache` | 130.1 MiB/s | 1.22x | 0.40x | 967967 | -746772258 |
+| `public-accessor` | 104.7 MiB/s | 1.00x | 0.32x | 967967 | -746772258 |
+| `raw-frame-direct-decode` | 111.9 MiB/s | 1.07x | 0.34x | 967967 | -746772258 |
+| `raw-frame-name-id-cache` | 126.7 MiB/s | 1.21x | 0.38x | 967967 | -746772258 |
+
+Memory endpoint deltas from the same run:
+
+| Variant | Avg heap delta | Avg RSS delta | Max heap used | Max RSS |
+| --- | ---: | ---: | ---: | ---: |
+| `public-accessor` | +1.2 MiB | +7.0 MiB | 6.5 MiB | 130.3 MiB |
+| `raw-frame-direct-decode` | +1.8 MiB | -724.0 KiB | 6.7 MiB | 132.1 MiB |
+| `raw-frame-name-id-cache` | +781.8 KiB | -517.3 KiB | 5.7 MiB | 131.5 MiB |
 
 Interpretation:
 
@@ -217,6 +225,9 @@ Interpretation:
   measure.
 - Numeric name-id reuse helps without using a rejected `Map<string, string>`
   localName cache.
+- The observed memory footprint stays in the same band. The name-id cache row
+  did not buy throughput by retaining substantially less data; it mostly avoids
+  repeated name materialization and accessor work.
 - This still does not close the Woodstox gap. The best row remains below the
   296.4 MiB/s 0.9x target.
 - The next implementation question is whether the raw frame shape should become
@@ -263,7 +274,7 @@ projection target after its hot loop is smaller.
 
 - Capture V8 evidence for a projection target, not only the public
   full-materialization accessor target.
-- Capture V8 and Bun/JSC evidence for `raw-frame-name-id-cache` so the 1.22x
+- Capture V8 and Bun/JSC evidence for `raw-frame-name-id-cache` so the 1.21x
   runtime delta is tied back to generated code, not only wall-clock timing.
 - Add JSC/Bun capture for the projection workload and verify whether smaller
   plan-compiled kernels reach Baseline, DFG, or B3 tiers.

@@ -196,17 +196,21 @@ function measureVariant(variant, fixture, options) {
   }
 
   const samplesMs = [];
+  const memorySamples = [];
   let first;
   for (let index = 0; index < options.runs; index++) {
     globalThis.gc?.();
+    const memoryBefore = takeMemorySnapshot();
     const startedAt = performance.now();
     const result = variant.run();
     const elapsedMs = performance.now() - startedAt;
+    const memoryAfter = takeMemorySnapshot();
     if (first && (result.eventCount !== first.eventCount || result.checksum !== first.checksum)) {
       throw new Error(`${variant.id} produced unstable event count or checksum.`);
     }
     first ??= result;
     samplesMs.push(elapsedMs);
+    memorySamples.push(createMemorySample(memoryBefore, memoryAfter));
   }
 
   const avgMs = average(samplesMs);
@@ -221,6 +225,46 @@ function measureVariant(variant, fixture, options) {
     eventCount: first.eventCount,
     checksum: first.checksum,
     samplesMs,
+    memory: summarizeMemorySamples(memorySamples),
+  };
+}
+
+function takeMemorySnapshot() {
+  const usage = process.memoryUsage();
+  return {
+    rssBytes: usage.rss,
+    heapTotalBytes: usage.heapTotal,
+    heapUsedBytes: usage.heapUsed,
+    externalBytes: usage.external,
+    arrayBuffersBytes: usage.arrayBuffers,
+  };
+}
+
+function createMemorySample(before, after) {
+  return {
+    before,
+    after,
+    delta: {
+      rssBytes: after.rssBytes - before.rssBytes,
+      heapTotalBytes: after.heapTotalBytes - before.heapTotalBytes,
+      heapUsedBytes: after.heapUsedBytes - before.heapUsedBytes,
+      externalBytes: after.externalBytes - before.externalBytes,
+      arrayBuffersBytes: after.arrayBuffersBytes - before.arrayBuffersBytes,
+    },
+  };
+}
+
+function summarizeMemorySamples(samples) {
+  return {
+    avgHeapUsedDeltaBytes: average(samples.map((sample) => sample.delta.heapUsedBytes)),
+    avgHeapTotalDeltaBytes: average(samples.map((sample) => sample.delta.heapTotalBytes)),
+    avgRssDeltaBytes: average(samples.map((sample) => sample.delta.rssBytes)),
+    avgExternalDeltaBytes: average(samples.map((sample) => sample.delta.externalBytes)),
+    avgArrayBuffersDeltaBytes: average(samples.map((sample) => sample.delta.arrayBuffersBytes)),
+    maxHeapUsedBytes: Math.max(...samples.flatMap((sample) => [sample.before.heapUsedBytes, sample.after.heapUsedBytes])),
+    maxHeapTotalBytes: Math.max(...samples.flatMap((sample) => [sample.before.heapTotalBytes, sample.after.heapTotalBytes])),
+    maxRssBytes: Math.max(...samples.flatMap((sample) => [sample.before.rssBytes, sample.after.rssBytes])),
+    samples,
   };
 }
 
@@ -657,6 +701,23 @@ function renderMarkdown(report) {
     );
   }
   lines.push('');
+  lines.push('## Memory');
+  lines.push('');
+  lines.push('Memory uses `process.memoryUsage()` before and after each measured run; max values are the maximum observed run endpoints.');
+  lines.push('');
+  lines.push('| Variant | Avg heap delta | Avg heap total delta | Avg RSS delta | Avg external delta | Avg arrayBuffers delta | Max heap used | Max RSS |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  for (const entry of report.variants) {
+    lines.push(
+      `| ${entry.id} | ${formatSignedBytes(entry.memory.avgHeapUsedDeltaBytes)} | `
+      + `${formatSignedBytes(entry.memory.avgHeapTotalDeltaBytes)} | `
+      + `${formatSignedBytes(entry.memory.avgRssDeltaBytes)} | `
+      + `${formatSignedBytes(entry.memory.avgExternalDeltaBytes)} | `
+      + `${formatSignedBytes(entry.memory.avgArrayBuffersDeltaBytes)} | `
+      + `${formatBytes(entry.memory.maxHeapUsedBytes)} | ${formatBytes(entry.memory.maxRssBytes)} |`,
+    );
+  }
+  lines.push('');
   lines.push('## Parity');
   lines.push('');
   lines.push(`Status: ${report.parity.status}`);
@@ -690,7 +751,13 @@ function renderWoodstoxTarget(target) {
 function printSummary(report) {
   console.log('Monomorphic batch access');
   for (const entry of report.variants) {
-    console.log(`${entry.id.padEnd(28)} ${formatRate(entry.mibPerSec).padStart(14)} relative=${entry.relativeToPublic.toFixed(2)}x events=${entry.eventCount} checksum=${entry.checksum}`);
+    console.log(
+      `${entry.id.padEnd(28)} ${formatRate(entry.mibPerSec).padStart(14)} `
+      + `relative=${entry.relativeToPublic.toFixed(2)}x `
+      + `heapDelta=${formatSignedBytes(entry.memory.avgHeapUsedDeltaBytes)} `
+      + `rssDelta=${formatSignedBytes(entry.memory.avgRssDeltaBytes)} `
+      + `events=${entry.eventCount} checksum=${entry.checksum}`,
+    );
   }
 }
 
@@ -722,8 +789,24 @@ function formatMs(value) {
 }
 
 function formatBytes(bytes) {
-  const mib = bytes / MIB;
-  return mib >= 1024 ? `${(mib / 1024).toFixed(2)} GiB` : `${mib.toFixed(1)} MiB`;
+  const absBytes = Math.abs(bytes);
+  if (absBytes >= 1024 * MIB) {
+    return `${(bytes / (1024 * MIB)).toFixed(2)} GiB`;
+  }
+  if (absBytes >= MIB) {
+    return `${(bytes / MIB).toFixed(1)} MiB`;
+  }
+  if (absBytes >= 1024) {
+    return `${(bytes / 1024).toFixed(1)} KiB`;
+  }
+  return `${bytes.toFixed(0)} B`;
+}
+
+function formatSignedBytes(bytes) {
+  if (bytes === 0) {
+    return formatBytes(bytes);
+  }
+  return `${bytes > 0 ? '+' : ''}${formatBytes(bytes)}`;
 }
 
 main();

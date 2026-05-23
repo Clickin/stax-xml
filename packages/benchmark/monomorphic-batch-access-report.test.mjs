@@ -54,10 +54,20 @@ test('monomorphic batch access report preserves full materialization parity', ()
   assert.ok(report.variants.every(entry => entry.checksum === report.parity.checksum));
   assert.ok(report.variants.every(entry => entry.eventCount > 0));
   assert.ok(report.variants.every(entry => entry.materialization === 'full-string'));
+  for (const entry of report.variants) {
+    assert.equal(typeof entry.memory?.avgHeapUsedDeltaBytes, 'number');
+    assert.equal(typeof entry.memory?.avgHeapTotalDeltaBytes, 'number');
+    assert.equal(typeof entry.memory?.avgRssDeltaBytes, 'number');
+    assert.equal(typeof entry.memory?.maxHeapUsedBytes, 'number');
+    assert.equal(typeof entry.memory?.maxRssBytes, 'number');
+    assert.equal(entry.memory.samples.length, 1);
+  }
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Monomorphic Batch Access/);
   assert.match(markdown, /## Woodstox Target/);
+  assert.match(markdown, /Avg heap delta/);
+  assert.match(markdown, /Max RSS/);
   assert.match(markdown, /full-string materialization/);
   assert.match(markdown, /raw-frame-name-id-cache/);
   assert.match(markdown, /does not filter events/);
