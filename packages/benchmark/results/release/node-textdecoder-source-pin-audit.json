@@ -1,0 +1,645 @@
+{
+  "generatedAt": "2026-05-23T23:52:45.038Z",
+  "objective": "node-textdecoder-source-pin-audit",
+  "contract": "node-exact-revision-textdecoder-string-boundary-source-lines",
+  "note": "Exact Node source-line pinning for TextDecoder.decode and StringBytes::Encode. These source facts constrain the Node TextDecoder string-creation boundary; they are not a throughput proof and do not cover browser TextDecoder implementations.",
+  "environment": {
+    "nodeVersion": "v24.15.0",
+    "v8Version": "13.6.233.17-node.48"
+  },
+  "source": {
+    "repository": "nodejs/node",
+    "revision": "v24.15.0",
+    "files": [
+      "lib/internal/encoding.js",
+      "src/encoding_binding.cc",
+      "src/string_bytes.cc"
+    ],
+    "fetchedAt": "2026-05-23T23:52:44.561Z"
+  },
+  "anchors": {
+    "textDecoderClass": {
+      "status": "found",
+      "label": "TextDecoder class",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 430,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L430",
+      "context": [
+        {
+          "lineNumber": 428,
+          "text": "}"
+        },
+        {
+          "lineNumber": 429,
+          "text": ""
+        },
+        {
+          "lineNumber": 430,
+          "text": "class TextDecoder {"
+        },
+        {
+          "lineNumber": 431,
+          "text": "  constructor(encoding = 'utf-8', options = kEmptyObject) {"
+        },
+        {
+          "lineNumber": 432,
+          "text": "    encoding = `${encoding}`;"
+        }
+      ]
+    },
+    "textDecoderDecode": {
+      "status": "found",
+      "label": "TextDecoder.decode",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 482,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L482",
+      "context": [
+        {
+          "lineNumber": 480,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 481,
+          "text": ""
+        },
+        {
+          "lineNumber": 482,
+          "text": "  decode(input = empty, options = kEmptyObject) {"
+        },
+        {
+          "lineNumber": 483,
+          "text": "    validateDecoder(this);"
+        },
+        {
+          "lineNumber": 484,
+          "text": "    validateObject(options, 'options', kValidateObjectAllowObjectsAndNull);"
+        }
+      ]
+    },
+    "utf8FastPath": {
+      "status": "found",
+      "label": "kUTF8FastPath branch",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 450,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L450",
+      "context": [
+        {
+          "lineNumber": 448,
+          "text": "    this[kIgnoreBOM] = Boolean(options?.ignoreBOM);"
+        },
+        {
+          "lineNumber": 449,
+          "text": "    this[kFatal] = Boolean(options?.fatal);"
+        },
+        {
+          "lineNumber": 450,
+          "text": "    this[kUTF8FastPath] = false;"
+        },
+        {
+          "lineNumber": 451,
+          "text": "    this[kHandle] = undefined;"
+        },
+        {
+          "lineNumber": 452,
+          "text": "    this[kSingleByte] = undefined; // Does not care about streaming or BOM"
+        }
+      ]
+    },
+    "directDecodeUtf8": {
+      "status": "found",
+      "label": "direct decodeUTF8 fast path",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 494,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L494",
+      "context": [
+        {
+          "lineNumber": 492,
+          "text": "      if (!stream) {"
+        },
+        {
+          "lineNumber": 493,
+          "text": "        this[kBOMSeen] = false;"
+        },
+        {
+          "lineNumber": 494,
+          "text": "        if (!chunk) return decodeUTF8(input, ignoreBom, this[kFatal]);"
+        },
+        {
+          "lineNumber": 495,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 496,
+          "text": ""
+        }
+      ]
+    },
+    "streamingDecodeUtf8": {
+      "status": "found",
+      "label": "streaming decodeUTF8 call",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 524,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L524",
+      "context": [
+        {
+          "lineNumber": 522,
+          "text": "      try {"
+        },
+        {
+          "lineNumber": 523,
+          "text": "        const res = (prefix ? decodeUTF8(prefix, ignoreBom, this[kFatal]) : '') +"
+        },
+        {
+          "lineNumber": 524,
+          "text": "                    decodeUTF8(u, ignoreBom || prefix, this[kFatal]);"
+        },
+        {
+          "lineNumber": 525,
+          "text": ""
+        },
+        {
+          "lineNumber": 526,
+          "text": "        // \"BOM seen\" is set on the current decode call only if it did not error,"
+        }
+      ]
+    },
+    "parseInputFunction": {
+      "status": "found",
+      "label": "parseInput function",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 395,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L395",
+      "context": [
+        {
+          "lineNumber": 393,
+          "text": "  });"
+        },
+        {
+          "lineNumber": 394,
+          "text": ""
+        },
+        {
+          "lineNumber": 395,
+          "text": "function parseInput(input) {"
+        },
+        {
+          "lineNumber": 396,
+          "text": "  if (isAnyArrayBuffer(input)) {"
+        },
+        {
+          "lineNumber": 397,
+          "text": "    try {"
+        }
+      ]
+    },
+    "parseInputViewFastBuffer": {
+      "status": "found",
+      "label": "ArrayBufferView FastBuffer wrapper",
+      "file": "lib/internal/encoding.js",
+      "lineNumber": 404,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/internal/encoding.js#L404",
+      "context": [
+        {
+          "lineNumber": 402,
+          "text": "  } else if (isArrayBufferView(input)) {"
+        },
+        {
+          "lineNumber": 403,
+          "text": "    try {"
+        },
+        {
+          "lineNumber": 404,
+          "text": "      return new FastBuffer(input.buffer, input.byteOffset, input.byteLength);"
+        },
+        {
+          "lineNumber": 405,
+          "text": "    } catch {"
+        },
+        {
+          "lineNumber": 406,
+          "text": "      return empty;"
+        }
+      ]
+    },
+    "decodeUtf8Binding": {
+      "status": "found",
+      "label": "BindingData::DecodeUTF8",
+      "file": "src/encoding_binding.cc",
+      "lineNumber": 151,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/encoding_binding.cc#L151",
+      "context": [
+        {
+          "lineNumber": 149,
+          "text": ""
+        },
+        {
+          "lineNumber": 150,
+          "text": "// Convert the input into an encoded string"
+        },
+        {
+          "lineNumber": 151,
+          "text": "void BindingData::DecodeUTF8(const FunctionCallbackInfo<Value>& args) {"
+        },
+        {
+          "lineNumber": 152,
+          "text": "  Environment* env = Environment::GetCurrent(args);  // list, flags"
+        },
+        {
+          "lineNumber": 153,
+          "text": ""
+        }
+      ]
+    },
+    "arrayBufferViewContents": {
+      "status": "found",
+      "label": "ArrayBufferViewContents<char>",
+      "file": "src/encoding_binding.cc",
+      "lineNumber": 164,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/encoding_binding.cc#L164",
+      "context": [
+        {
+          "lineNumber": 162,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 163,
+          "text": ""
+        },
+        {
+          "lineNumber": 164,
+          "text": "  ArrayBufferViewContents<char> buffer(args[0]);"
+        },
+        {
+          "lineNumber": 165,
+          "text": ""
+        },
+        {
+          "lineNumber": 166,
+          "text": "  bool ignore_bom = args[1]->IsTrue();"
+        }
+      ]
+    },
+    "simdutfFatalAsciiValidation": {
+      "status": "found",
+      "label": "fatal ASCII validation",
+      "file": "src/encoding_binding.cc",
+      "lineNumber": 181,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/encoding_binding.cc#L181",
+      "context": [
+        {
+          "lineNumber": 179,
+          "text": "  if (has_fatal) {"
+        },
+        {
+          "lineNumber": 180,
+          "text": "    // Are we perhaps ASCII? Then we won't have to check for UTF-8"
+        },
+        {
+          "lineNumber": 181,
+          "text": "    if (!simdutf::validate_ascii_with_errors(data, length).error) {"
+        },
+        {
+          "lineNumber": 182,
+          "text": "      Local<Value> ret;"
+        },
+        {
+          "lineNumber": 183,
+          "text": "      if (StringBytes::Encode(env->isolate(), data, length, LATIN1)"
+        }
+      ]
+    },
+    "bindingStringBytesEncodeUtf8": {
+      "status": "found",
+      "label": "DecodeUTF8 StringBytes::Encode UTF8",
+      "file": "src/encoding_binding.cc",
+      "lineNumber": 203,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/encoding_binding.cc#L203",
+      "context": [
+        {
+          "lineNumber": 201,
+          "text": ""
+        },
+        {
+          "lineNumber": 202,
+          "text": "  Local<Value> ret;"
+        },
+        {
+          "lineNumber": 203,
+          "text": "  if (StringBytes::Encode(env->isolate(), data, length, UTF8).ToLocal(&ret)) {"
+        },
+        {
+          "lineNumber": 204,
+          "text": "    args.GetReturnValue().Set(ret);"
+        },
+        {
+          "lineNumber": 205,
+          "text": "  }"
+        }
+      ]
+    },
+    "stringBytesEncode": {
+      "status": "found",
+      "label": "StringBytes::Encode",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 503,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L503",
+      "context": [
+        {
+          "lineNumber": 501,
+          "text": "  } while (0)"
+        },
+        {
+          "lineNumber": 502,
+          "text": ""
+        },
+        {
+          "lineNumber": 503,
+          "text": "MaybeLocal<Value> StringBytes::Encode(Isolate* isolate,"
+        },
+        {
+          "lineNumber": 504,
+          "text": "                                      const char* buf,"
+        },
+        {
+          "lineNumber": 505,
+          "text": "                                      size_t buflen,"
+        }
+      ]
+    },
+    "stringBytesUtf8Case": {
+      "status": "found",
+      "label": "StringBytes UTF8 case",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 541,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L541",
+      "context": [
+        {
+          "lineNumber": 539,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 540,
+          "text": ""
+        },
+        {
+          "lineNumber": 541,
+          "text": "    case UTF8: {"
+        },
+        {
+          "lineNumber": 542,
+          "text": "      buflen = keep_buflen_in_range(buflen);"
+        },
+        {
+          "lineNumber": 543,
+          "text": ""
+        }
+      ]
+    },
+    "asciiFastPathCopy": {
+      "status": "found",
+      "label": "UTF8 ASCII fast path NewFromCopy",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 548,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L548",
+      "context": [
+        {
+          "lineNumber": 546,
+          "text": "      // This is cheap compared to the benefits though"
+        },
+        {
+          "lineNumber": 547,
+          "text": "      if (!simdutf::validate_ascii_with_errors(buf, buflen).error) {"
+        },
+        {
+          "lineNumber": 548,
+          "text": "        return ExternOneByteString::NewFromCopy(isolate, buf, buflen);"
+        },
+        {
+          "lineNumber": 549,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 550,
+          "text": ""
+        }
+      ]
+    },
+    "newFromUtf8Fallback": {
+      "status": "found",
+      "label": "String::NewFromUtf8 fallback",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 571,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L571",
+      "context": [
+        {
+          "lineNumber": 569,
+          "text": ""
+        },
+        {
+          "lineNumber": 570,
+          "text": "      val ="
+        },
+        {
+          "lineNumber": 571,
+          "text": "          String::NewFromUtf8(isolate, buf, v8::NewStringType::kNormal, buflen);"
+        },
+        {
+          "lineNumber": 572,
+          "text": "      Local<String> str;"
+        },
+        {
+          "lineNumber": 573,
+          "text": "      if (!val.ToLocal(&str)) {"
+        }
+      ]
+    },
+    "simdutfUtf16Conversion": {
+      "status": "found",
+      "label": "simdutf UTF8 to UTF16 conversion",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 565,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L565",
+      "context": [
+        {
+          "lineNumber": 563,
+          "text": "          return MaybeLocal<Value>();"
+        },
+        {
+          "lineNumber": 564,
+          "text": "        }"
+        },
+        {
+          "lineNumber": 565,
+          "text": "        size_t utf16len = simdutf::convert_valid_utf8_to_utf16("
+        },
+        {
+          "lineNumber": 566,
+          "text": "            buf, buflen, reinterpret_cast<char16_t*>(dst));"
+        },
+        {
+          "lineNumber": 567,
+          "text": "        return ExternTwoByteString::New(isolate, dst, utf16len);"
+        }
+      ]
+    },
+    "externalTwoByteNew": {
+      "status": "found",
+      "label": "ExternTwoByteString::New",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 567,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L567",
+      "context": [
+        {
+          "lineNumber": 565,
+          "text": "        size_t utf16len = simdutf::convert_valid_utf8_to_utf16("
+        },
+        {
+          "lineNumber": 566,
+          "text": "            buf, buflen, reinterpret_cast<char16_t*>(dst));"
+        },
+        {
+          "lineNumber": 567,
+          "text": "        return ExternTwoByteString::New(isolate, dst, utf16len);"
+        },
+        {
+          "lineNumber": 568,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 569,
+          "text": ""
+        }
+      ]
+    },
+    "externStringCopy": {
+      "status": "found",
+      "label": "ExternString NewFromCopy memcpy",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 92,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L92",
+      "context": [
+        {
+          "lineNumber": 90,
+          "text": "      return MaybeLocal<Value>();"
+        },
+        {
+          "lineNumber": 91,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 92,
+          "text": "    memcpy(new_data, data, length * sizeof(*new_data));"
+        },
+        {
+          "lineNumber": 93,
+          "text": ""
+        },
+        {
+          "lineNumber": 94,
+          "text": "    return ExternString<ResourceType, TypeName>::New(isolate, new_data, length);"
+        }
+      ]
+    },
+    "newFromOneByte": {
+      "status": "found",
+      "label": "String::NewFromOneByte simple copy",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 173,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L173",
+      "context": [
+        {
+          "lineNumber": 171,
+          "text": "                                                         size_t length) {"
+        },
+        {
+          "lineNumber": 172,
+          "text": "  Local<String> str;"
+        },
+        {
+          "lineNumber": 173,
+          "text": "  if (!String::NewFromOneByte(isolate,"
+        },
+        {
+          "lineNumber": 174,
+          "text": "                              reinterpret_cast<const uint8_t*>(data),"
+        },
+        {
+          "lineNumber": 175,
+          "text": "                              v8::NewStringType::kNormal,"
+        }
+      ]
+    },
+    "newFromTwoByte": {
+      "status": "found",
+      "label": "String::NewFromTwoByte simple copy",
+      "file": "src/string_bytes.cc",
+      "lineNumber": 189,
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/string_bytes.cc#L189",
+      "context": [
+        {
+          "lineNumber": 187,
+          "text": "                                                         size_t length) {"
+        },
+        {
+          "lineNumber": 188,
+          "text": "  Local<String> str;"
+        },
+        {
+          "lineNumber": 189,
+          "text": "  if (!String::NewFromTwoByte(isolate, data, v8::NewStringType::kNormal, length)"
+        },
+        {
+          "lineNumber": 190,
+          "text": "           .ToLocal(&str)) {"
+        },
+        {
+          "lineNumber": 191,
+          "text": "    isolate->ThrowException(node::ERR_STRING_TOO_LONG(isolate));"
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "node-textdecoder-js-fast-path-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Node TextDecoder.decode reaches a UTF-8 fast path that calls the internal decodeUTF8 binding for non-streaming and streaming UTF-8 inputs.",
+      "evidence": [
+        "TextDecoder.decode line 482",
+        "direct decodeUTF8 line 494",
+        "streaming decodeUTF8 line 524"
+      ]
+    },
+    {
+      "id": "node-textdecoder-buffer-source-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "The Node fast path accepts ArrayBuffer and ArrayBufferView input at the binding boundary; stream bookkeeping can wrap ArrayBufferView input as FastBuffer, but the benchmark does not call Buffer.toString().",
+      "evidence": [
+        "parseInput line 395",
+        "ArrayBufferView FastBuffer wrapper line 404",
+        "ArrayBufferViewContents<char> line 164"
+      ]
+    },
+    {
+      "id": "node-textdecoder-v8-string-creation-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Node DecodeUTF8 returns JavaScript strings through StringBytes::Encode; its UTF-8 branch uses ASCII copy, simdutf UTF-16 conversion plus external string resource, or V8 String::NewFromUtf8 fallback.",
+      "evidence": [
+        "DecodeUTF8 StringBytes::Encode UTF8 line 203",
+        "ASCII NewFromCopy line 548",
+        "simdutf UTF-16 conversion line 565",
+        "String::NewFromUtf8 fallback line 571"
+      ]
+    },
+    {
+      "id": "node-textdecoder-source-pin-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "These source lines explain the Node TextDecoder boundary only. They are not browser TextDecoder internals, not a JIT/codegen trace, and not evidence that JavaScript runtimes have no remaining headroom.",
+      "evidence": [
+        "The audit does not run a benchmark row.",
+        "The audit does not inspect Blink, WebKit, or SpiderMonkey TextDecoder implementations.",
+        "Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis."
+      ]
+    }
+  ]
+}

@@ -41,6 +41,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/V8 Source Pin Audit/);
+  assert.match(markdown, /## Current Evidence: Node TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC EventReaderSync String-Input Large Reference/);
@@ -66,6 +67,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-CORPUS-CYCLE-1GIB'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BROWSER-V8-COMPLETE-STRING-1GIB'), /\| `BENCH_FACT` \+ `SOURCE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-TEXTDECODER-SPAN-VARIANTS'), /\| `BENCH_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-PROJECTION'), /\| `BENCH_FACT` for current low-selectivity rows; `HYPOTHESIS` for broad workloads \|/);
 
   assert.match(markdown, /may not move from `HYPOTHESIS` to\s+`CONCLUSION` merely because current full-string benchmark rows are slow/);
@@ -152,6 +154,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /browser-string-limit-audit\.md/);
   assert.match(markdown, /chrome-v8-source-pin-audit\.md/);
+  assert.match(markdown, /node-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-source-pin-audit\.md/);
   assert.match(markdown, /bun-event-reader-string-large\.md/);
@@ -344,6 +347,19 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`String::NewFromUtf8` at line 485/);
   assert.match(markdown, /`NewExternalOneByte`\s+line 550/);
   assert.match(markdown, /not a\s+throughput proof/);
+  assert.match(markdown, /Node TextDecoder Source Pin Audit/);
+  assert.match(markdown, /Node v24\.15\.0, V8 13\.6\.233\.17-node\.48/);
+  assert.match(markdown, /`TextDecoder\.decode` at line 482/);
+  assert.match(markdown, /UTF-8 fast path call to `decodeUTF8` at line 494/);
+  assert.match(markdown, /`BindingData::DecodeUTF8` line 151/);
+  assert.match(markdown, /`ArrayBufferViewContents<char>` line\s+164/);
+  assert.match(markdown, /`StringBytes::Encode\(\.\.\., UTF8\)` at line 203/);
+  assert.match(markdown, /`StringBytes::Encode` at line\s+503/);
+  assert.match(markdown, /UTF-8 branch at line 541/);
+  assert.match(markdown, /UTF-8 ASCII\s+`ExternOneByteString::NewFromCopy` path at line 548/);
+  assert.match(markdown, /`String::NewFromUtf8` fallback at\s+line 571/);
+  assert.match(markdown, /does not make Node\s+`Buffer\.toString\(\)` a neutral browser-compatible lane/);
+  assert.match(markdown, /does not cover Blink,\s+WebKit, or SpiderMonkey TextDecoder internals/);
   assert.match(markdown, /browser Chrome\/V8 string-limit audit also failed the projected 1024 MiB complete XML string before parsing/);
   assert.match(markdown, /non-V8 browser feasibility rows/);
   assert.match(markdown, /StringImpl::MaxLength` is `2,147,483,647` UTF-16\s+code units/);
