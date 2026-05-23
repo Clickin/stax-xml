@@ -26,6 +26,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Monomorphic Materialization Counters/);
   assert.match(markdown, /## Current Evidence: Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: 1 GiB Candidate Headroom Matrix/);
+  assert.match(markdown, /## Current Evidence: Bun\/JSC 1 GiB Candidate Headroom Matrix/);
   assert.match(markdown, /## Current Evidence: EventReaderSync String-Input Large Reference/);
   assert.match(markdown, /## Current Evidence: V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
@@ -45,9 +46,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-JS-STRING-MAX-LENGTH'), /\| `ENGINE_INVARIANT` \+ `SOURCE_FACT` \+ `TRACE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BUN-JSC-STRING-MAX-LENGTH'), /\| `ENGINE_INVARIANT` \+ `SOURCE_FACT` \+ `TRACE_FACT` \+ `COUNTEREXAMPLE` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BUN-JSC-COMPLETE-STRING-1GIB'), /\| `BENCH_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-BUN-JSC-BYTE-BATCH-1GIB'), /\| `BENCH_FACT` \+ partial `COUNTEREXAMPLE` \|/);
 
   assert.doesNotMatch(markdown, /JavaScript runtimes cannot exceed 200 MiB\/s/i);
-  assert.match(markdown, /Any 200 MiB\/s\+ bounded-memory JS row is a counterexample/);
+  assert.match(markdown, /full-string parity candidate that reaches 200 MiB\/s\+ with bounded memory/);
+  assert.match(markdown, /still headroom evidence for the narrower runtime\/parser boundary/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /woodstox-hotspot-trace\.md/);
   assert.match(markdown, /woodstox-jfr-allocation\.md/);
@@ -57,6 +60,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /candidate-headroom-matrix\.md/);
   assert.match(markdown, /candidate-headroom-large\.md/);
+  assert.match(markdown, /bun-candidate-headroom-large\.md/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
@@ -80,14 +84,22 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /not a proof that no further JavaScript headroom exists/);
   assert.match(markdown, /counterexample-search matrix/);
   assert.match(markdown, /partial rows intentionally keep event-count parity/);
-  assert.match(markdown, /fastest full-string parity row was `rawFrameNameId` at 128\.8 MiB\/s/);
+  assert.match(markdown, /128\.8 MiB\/s for `rawFrameNameId`/);
   assert.match(markdown, /No 200 MiB\/s counterexample was found in this\s+matrix/);
-  assert.match(markdown, /fastest full-string parity row was `rawFrameNameId` at 102\.09 MiB\/s with max RSS 79\.0 MiB/);
+  assert.match(markdown, /fastest full-string parity `rawFrameNameId` was 102\.09 MiB\/s/);
+  assert.match(markdown, /79\.0 MiB for\s+`rawFrameNameId`/);
   assert.match(markdown, /generated 1\.00 GiB\s+`diverse-cycle` byte-batch fixture/);
   assert.match(markdown, /eventObjectFull` is explicitly\s+omitted/);
   assert.match(markdown, /below the artifact's 512 MiB bounded-RSS reporting gate/);
-  assert.match(markdown, /No 200 MiB\/s bounded-memory counterexample was found in this 1 GiB matrix/);
-  assert.match(markdown, /EventReaderSync string-input reference path reached 74\.19 MiB\/s at 512 MiB/);
+  assert.match(markdown, /No 200 MiB\/s bounded-memory counterexample was found in this Node\/V8 1 GiB\s+matrix/);
+  assert.match(markdown, /Bun\/JSC partial rows provide real headroom evidence/);
+  assert.match(markdown, /`scanAllNoDecode`\s+reached `218\.65 MiB\/s` with max RSS `208\.2 MiB`/);
+  assert.match(markdown, /`attrNameStringOnly` reached `205\.75 MiB\/s` with max RSS `245\.4 MiB`/);
+  assert.match(markdown, /counterexamples to any broad claim that Bun\/JSC byte-batch parsing\s+cannot exceed 200 MiB\/s/);
+  assert.match(markdown, /`rawFrameNameId` reported\s+`112\.95 MiB\/s`/);
+  assert.match(markdown, /full-row max RSS\s+endpoints were 262\.0 MiB/);
+  assert.match(markdown, /not simply "JS runtime cannot scan bytes fast\s+enough/);
+  assert.match(markdown, /The 512 MiB row\s+succeeded at 74\.19 MiB\/s/);
   assert.match(markdown, /peak RSS 1\.07 GiB/);
   assert.match(markdown, /RangeError: Invalid string length/);
   assert.match(markdown, /MAX_STRING_LENGTH` is `536,870,888` UTF-16 code units/);
