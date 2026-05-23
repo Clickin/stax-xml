@@ -75,6 +75,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /candidate-headroom-large\.md/);
   assert.match(markdown, /candidate-headroom-large-stability\.md/);
   assert.match(markdown, /bun-candidate-headroom-large\.md/);
+  assert.match(markdown, /bun-candidate-headroom-large-stability\.md/);
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /candidate-headroom-corpus\.md/);
   assert.match(markdown, /bun-candidate-headroom-corpus\.md/);
@@ -155,6 +156,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`rawFrameNameId` reported `57\.99 MiB\/s`/);
   assert.match(markdown, /177\.0 MiB for\s+`eventObjectFull`/);
   assert.match(markdown, /current Bun\/JSC generated rows still have bounded\s+memory, but no row reaches 200 MiB\/s/);
+  assert.match(markdown, /### Bun\/JSC 1 GiB Candidate Headroom Stability Rerun/);
+  assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun for the same generated 1\.00 GiB\s+`diverse-cycle` byte-batch fixture/);
+  assert.match(markdown, /`scanAllNoDecode` at `139\.49 MiB\/s`/);
+  assert.match(markdown, /high `36\.8%` timing\s+spread across samples `5562\.83`, `8196\.78`, and `8263\.59` ms/);
+  assert.match(markdown, /`stringFull` reported `54\.24 MiB\/s` with `3\.2%` spread/);
+  assert.match(markdown, /`eventObjectFull` reported `37\.63 MiB\/s` with `2\.9%` spread/);
+  assert.match(markdown, /`rawFrameNameId` reported `58\.73 MiB\/s` with `2\.2%` spread/);
+  assert.match(markdown, /max RSS was `185\.5 MiB` for `stringFull`, `180\.7 MiB` for `eventObjectFull`,\s+and `191\.8 MiB` for `rawFrameNameId`/);
+  assert.match(markdown, /not a\s+cross-process statistical proof and it does not cover browsers, corpus fixtures,\s+projection rows, or Bun\/JSC machine-code\/allocation traces/);
   assert.match(markdown, /65,536-row `diverse-cycle` fixture/);
   assert.match(markdown, /wide-cycle Bun\/JSC run is a cache-sensitivity check/);
   assert.match(markdown, /still not a full-string 200 MiB\/s counterexample/);
