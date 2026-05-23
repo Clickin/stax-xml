@@ -13,6 +13,9 @@ const mdOut = join(tmpDir, 'stream-reader-large-shape-report-test.md');
 const allocationJsonOut = join(tmpDir, 'stream-reader-large-shape-allocation-report-test.json');
 const allocationMdOut = join(tmpDir, 'stream-reader-large-shape-allocation-report-test.md');
 const allocationOutputDir = join(tmpDir, 'stream-reader-large-shape-allocation-raw');
+const diverseJsonOut = join(tmpDir, 'stream-reader-large-shape-diverse-report-test.json');
+const diverseMdOut = join(tmpDir, 'stream-reader-large-shape-diverse-report-test.md');
+const diverseOutputDir = join(tmpDir, 'stream-reader-large-shape-diverse-raw');
 
 test('large stream-reader shape report records parity, memory, and materialization counters', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -124,4 +127,57 @@ test('large stream-reader shape report can include V8 allocation sampling withou
   const markdown = readFileSync(allocationMdOut, 'utf8');
   assert.match(markdown, /## V8 Allocation Sampling/);
   assert.match(markdown, /not a deterministic allocation census/);
+});
+
+test('large stream-reader allocation report supports a bounded diverse row cycle', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [diverseJsonOut, diverseMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'stream-reader-4gb-consumption.mjs'),
+    '--size-gib',
+    '0.001',
+    '--style',
+    'shapes',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--fixture-shape',
+    'diverse-cycle',
+    '--diverse-cycle-size',
+    '64',
+    '--allocation-sampling',
+    '--allocation-sampling-interval',
+    '1024',
+    '--allocation-output-dir',
+    diverseOutputDir,
+    '--json-out',
+    diverseJsonOut,
+    '--md-out',
+    diverseMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(diverseJsonOut, 'utf8'));
+  assert.equal(report.fixture.shape, 'diverse-cycle');
+  assert.equal(report.fixture.rowCycleSize, 64);
+  assert.ok(report.fixture.minRowBytes < report.fixture.maxRowBytes);
+  assert.ok(report.results.every(entry => entry.events === report.parity.events));
+  assert.ok(report.results.every(entry => entry.checksum === report.parity.checksum));
+  assert.ok(report.results.every(entry => entry.allocation.sampledBytes >= 0));
+
+  const markdown = readFileSync(diverseMdOut, 'utf8');
+  assert.match(markdown, /Fixture shape: diverse-cycle/);
+  assert.match(markdown, /Row cycle size: 64/);
 });

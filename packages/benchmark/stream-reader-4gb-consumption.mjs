@@ -22,9 +22,17 @@ const targetBytes = Math.floor(sizeGiB * GIB);
 const allocationSampling = readFlag('--allocation-sampling');
 const allocationSamplingInterval = Number.parseInt(readOption('--allocation-sampling-interval') ?? `${64 * 1024}`, 10);
 const allocationOutputDir = readOption('--allocation-output-dir') ?? 'results/v8-allocation/stream-reader-large-shape';
+const fixtureShape = readOption('--fixture-shape') ?? 'repeated-person';
+const diverseCycleSize = Number.parseInt(readOption('--diverse-cycle-size') ?? '4096', 10);
 
 if (!Number.isInteger(allocationSamplingInterval) || allocationSamplingInterval <= 0) {
   throw new Error('--allocation-sampling-interval must be a positive integer.');
+}
+if (!['repeated-person', 'diverse-cycle'].includes(fixtureShape)) {
+  throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle.');
+}
+if (!Number.isInteger(diverseCycleSize) || diverseCycleSize <= 0) {
+  throw new Error('--diverse-cycle-size must be a positive integer.');
 }
 
 const styleIds = ['index-for', 'while-index', 'raw-frame-direct', 'raw-frame-name-id'];
@@ -41,16 +49,17 @@ for (const candidate of styles) {
   }
 }
 
-const row = new TextEncoder().encode(
-  '<person id="123"><name>Jane Doe</name><age>42</age></person>',
-);
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder('utf-8', { ignoreBOM: true });
+const rows = createFixtureRows(fixtureShape, diverseCycleSize);
+const rowStats = summarizeRows(rows);
 const batchSize = 16;
-const expectedBytes = Math.ceil(targetBytes / row.byteLength) * row.byteLength;
+const expectedBytes = computeExpectedBytes(targetBytes, rows);
 
 const results = [];
 
 console.log('StreamReaderSync large shape consumption checksum');
-console.log(`target=${formatBytes(expectedBytes)}, rowBytes=${row.byteLength}, warmups=${warmups}, runs=${runs}, style=${style}`);
+console.log(`target=${formatBytes(expectedBytes)}, fixtureShape=${fixtureShape}, rowCycleSize=${rows.length}, rowBytes=${rowStats.minRowBytes}-${rowStats.maxRowBytes}, warmups=${warmups}, runs=${runs}, style=${style}`);
 if (allocationSampling) {
   mkdirSync(resolve(process.cwd(), allocationOutputDir), { recursive: true });
   console.log(`allocationSampling=true interval=${allocationSamplingInterval} outputDir=${allocationOutputDir}`);
@@ -75,8 +84,13 @@ const report = {
   },
   fixture: {
     generated: true,
-    rowXml: new TextDecoder().decode(row),
-    rowBytes: row.byteLength,
+    shape: fixtureShape,
+    rowXml: textDecoder.decode(rows[0]),
+    rowBytes: rows[0].byteLength,
+    rowCycleSize: rows.length,
+    minRowBytes: rowStats.minRowBytes,
+    maxRowBytes: rowStats.maxRowBytes,
+    averageRowBytes: rowStats.averageRowBytes,
     targetBytes,
     actualBytes: expectedBytes,
     sizeGiB: expectedBytes / GIB,
@@ -599,14 +613,69 @@ function countImplicitAttributeValue(stats) {
 
 function* byteBatches() {
   let emittedBytes = 0;
+  let rowIndex = 0;
   while (emittedBytes < targetBytes) {
     const batch = [];
     for (let index = 0; index < batchSize && emittedBytes < targetBytes; index++) {
-      batch.push(row);
-      emittedBytes += row.byteLength;
+      const nextRow = rows[rowIndex % rows.length];
+      batch.push(nextRow);
+      emittedBytes += nextRow.byteLength;
+      rowIndex++;
     }
     yield batch;
   }
+}
+
+function createFixtureRows(shape, cycleSize) {
+  if (shape === 'repeated-person') {
+    return [textEncoder.encode(makeRepeatedPersonRow())];
+  }
+  return Array.from({ length: cycleSize }, (_, id) => textEncoder.encode(makeDiverseRow(id)));
+}
+
+function makeRepeatedPersonRow() {
+  return '<person id="123"><name>Jane Doe</name><age>42</age></person>';
+}
+
+function makeDiverseRow(id) {
+  const rootNames = ['person', 'record', 'entry', 'invoice', 'profile', 'asset', 'sample'];
+  const childNames = ['name', 'title', 'summary', 'note', 'group', 'bucket', 'payload'];
+  const rootName = `${rootNames[id % rootNames.length]}${id % 257}`;
+  const childA = `${childNames[id % childNames.length]}${(id * 3) % 193}`;
+  const childB = `${childNames[(id + 2) % childNames.length]}${(id * 5) % 197}`;
+  const childC = `${childNames[(id + 4) % childNames.length]}${(id * 7) % 199}`;
+  const attrA = `data${id % 997}`;
+  const attrB = `code${(id * 11) % 991}`;
+  const attrC = `flag${(id * 17) % 983}`;
+  const utf8Text = id % 11 === 0
+    ? ` ${String.fromCodePoint(0x2603)}-${id}-${String.fromCodePoint(0x1f642)}`
+    : '';
+
+  return `<${rootName} id="item-${id}" ${attrA}="value-${(id * 31) % 65521}" ${attrB}="group-${id % 4093}" ${attrC}="${id % 2 === 0 ? 'true' : 'false'}">`
+    + `<${childA}>Runtime Benchmark ${id}${utf8Text}</${childA}>`
+    + `<${childB} rank="${id % 29}">Full string checksum payload ${(id * 8191) % 104729}</${childB}>`
+    + `<${childC} shard="${id % 37}" bucket="${(id * 19) % 389}">Text ${id} ${(id * id) % 99991}</${childC}>`
+    + `</${rootName}>`;
+}
+
+function summarizeRows(rowList) {
+  const rowBytes = rowList.map((entry) => entry.byteLength);
+  return {
+    minRowBytes: Math.min(...rowBytes),
+    maxRowBytes: Math.max(...rowBytes),
+    averageRowBytes: average(rowBytes),
+  };
+}
+
+function computeExpectedBytes(target, rowList) {
+  const cycleBytes = rowList.reduce((sum, entry) => sum + entry.byteLength, 0);
+  let emittedBytes = Math.floor(target / cycleBytes) * cycleBytes;
+  let rowIndex = 0;
+  while (emittedBytes < target) {
+    emittedBytes += rowList[rowIndex % rowList.length].byteLength;
+    rowIndex++;
+  }
+  return emittedBytes;
 }
 
 function readOption(name) {
@@ -655,7 +724,10 @@ function renderMarkdown(report) {
     '',
     `- Package: stax-xml ${report.packageVersion}`,
     `- Runtime: Node ${report.runtime.version} / V8 ${report.runtime.v8} (${report.runtime.platform})`,
-    `- Fixture: generated repeated person rows, ${formatBytes(report.fixture.actualBytes)}`,
+    `- Fixture: generated byte-batch rows, ${formatBytes(report.fixture.actualBytes)}`,
+    `- Fixture shape: ${report.fixture.shape}`,
+    `- Row cycle size: ${report.fixture.rowCycleSize}`,
+    `- Row bytes: min=${report.fixture.minRowBytes}, max=${report.fixture.maxRowBytes}, avg=${report.fixture.averageRowBytes.toFixed(1)}`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
     '',
     '## Results',
