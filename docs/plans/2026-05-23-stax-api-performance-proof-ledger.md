@@ -51,8 +51,9 @@ Rules:
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `stax-event` creates public event objects and attribute objects; `stax-stream` uses byte batches and index accessors. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. `packages/benchmark/results/release/quick-xml-shape-audit.md` records source shape facts, and `packages/benchmark/results/release/quick-xml-allocation-count.md` records measured-window Rust global allocator counters plus `Cow<str>` borrowed/owned counts for the same checksum boundary and generated UTF-8 fixture variants. | More symbol/asm narrowing, allocation stack/type attribution, and non-UTF-8 encoding coverage are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
-| `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. JavaScriptCore similarly has engine-owned string objects. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned V8/JSC source line references for the exact runtime versions used in release benchmarks. This does not prove no performance headroom exists in pure JS. |
-| `CLAIM-JS-RUNTIME-LIMIT-200MIB` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory on 1 GiB+ XML. | `HYPOTHESIS` | Current `stringFull` rows are well below that target; monomorphic raw-frame access improves but still stays below Woodstox. The 16 MiB candidate headroom matrix found no 200 MiB/s row even among partial upper-bound probes, and its fastest full-string parity row was `rawFrameNameId` at 128.8 MiB/s. The 1 GiB candidate headroom matrix found no 200 MiB/s row either: the fastest partial upper-bound row was `scanAllNoDecode` at 174.17 MiB/s, and the fastest full-string parity row was `rawFrameNameId` at 102.09 MiB/s with max RSS 79.0 MiB. The EventReaderSync string-input reference path reached 74.19 MiB/s at 512 MiB with peak RSS 1.07 GiB and failed to construct the 1024 MiB string fixture with `RangeError: Invalid string length`. | Must expand the candidate matrix before this can become a conclusion: projection rows, TextDecoder variants, V8/JSC traces, browser runs, allocation profiles, and more 1 GiB+ fixtures/runtimes. Any 200 MiB/s+ bounded-memory JS row is a counterexample. |
+| `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. `packages/benchmark/results/release/v8-string-limit-audit.md` now pins Node v24.15.0's vendored V8 source lines for `String::kMaxLength`, guarded string creation, and external one-byte string lifetime constraints. JavaScriptCore similarly has engine-owned string objects. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned JSC source line references for the browser/Bun runtime versions used in release benchmarks. This does not prove no performance headroom exists in pure JS. |
+| `CLAIM-JS-STRING-MAX-LENGTH` | Current Node/V8 cannot represent a single JS string beyond `buffer.constants.MAX_STRING_LENGTH`, so complete-string XML input has a hard size ceiling before parsing. | `ENGINE_INVARIANT` + `SOURCE_FACT` + `TRACE_FACT` | `packages/benchmark/results/release/v8-string-limit-audit.md` records Node v24.15.0 / V8 13.6.233.17-node.48 exposing `MAX_STRING_LENGTH=536,870,888`, matching vendored V8's `(1 << 29) - 24` formula. It also records an over-limit `RangeError: Invalid string length` probe, the 512 MiB `EventReaderSync` string row's `748,090` code-unit headroom, the projected 1024 MiB fixture's `535,374,738` code-unit excess, and the release 1024 MiB `EventReaderSync` failure. | This proves only the complete-string input boundary for this Node/V8 build. It does not cover Bun/JSC or browser engines and is not a byte-batch runtime ceiling. |
+| `CLAIM-JS-RUNTIME-LIMIT-200MIB` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory on 1 GiB+ XML. | `HYPOTHESIS` | Current `stringFull` rows are well below that target; monomorphic raw-frame access improves but still stays below Woodstox. The 16 MiB candidate headroom matrix found no 200 MiB/s row even among partial upper-bound probes, and its fastest full-string parity row was `rawFrameNameId` at 128.8 MiB/s. The 1 GiB candidate headroom matrix found no 200 MiB/s row either: the fastest partial upper-bound row was `scanAllNoDecode` at 174.17 MiB/s, and the fastest full-string parity row was `rawFrameNameId` at 102.09 MiB/s with max RSS 79.0 MiB. The EventReaderSync string-input reference path reached 74.19 MiB/s at 512 MiB with peak RSS 1.07 GiB and failed to construct the 1024 MiB string fixture with `RangeError: Invalid string length`; `v8-string-limit-audit.md` pins that failure to the Node/V8 complete-string limit, not to byte-batch parsing. | Must expand the candidate matrix before this can become a conclusion: projection rows, TextDecoder variants, V8/JSC traces, browser runs, allocation profiles, and more 1 GiB+ fixtures/runtimes. Any 200 MiB/s+ bounded-memory JS row is a counterexample. |
 | `CLAIM-CURRENT-HOTPATH` | Current full-string cost is dominated above the parser core, around string/accessor/materialization work. | `BENCH_FACT` + partial `TRACE_FACT` | Prior count/access/full splits, current monomorphic raw-frame benchmark with materialization counters, object-shape parity benchmark, 16 MiB and 1 GiB candidate headroom matrices, EventReaderSync string-input large benchmark, 1 GiB generated byte-batch shape run, V8 monomorphic shape trace, 16 MiB V8 allocation sampling, and 1 GiB generated byte-batch V8 allocation sampling show accessor/materialization/object-shape/input-boundary deltas without parser-core changes. V8/JSC captures show calls around public accessors and string decode paths. | Need Bun/JSC trace, browser rows, and more large less-repetitive fixtures before turning the hotpath explanation into a runtime-limit conclusion. |
 | `CLAIM-LAZY-GETTERS` | Lazy event getters are not a current optimization candidate. | `NEGATIVE_RESULT` | Runtime triage rejects lazy getters because they help count-only paths while destabilizing cache consistency. Projection design also excludes lazy getters on projected records. | This rejection can be revisited only with a benchmark that proves full-string or real StAX consumer improvement, bounded memory, and no cache-shape regression. |
 | `CLAIM-NODE-BUFFER-PRIMARY` | Node `Buffer` / `Buffer.toString()` should not be the primary stream fast lane. | `NEGATIVE_RESULT` + product constraint | Existing runtime triage records neutral-vs-node iterable measurements that did not justify the browser-compatibility split. User requirement keeps browser-compatible `Uint8Array`/`TextDecoder` as the neutral baseline. | A Node-only subpath can still be measured as diagnostic or optional, but it cannot be mixed into neutral/browser claims. |
@@ -345,12 +346,45 @@ input size 1022.6 MiB, and peak RSS 1.07 GiB.
 The 1024 MiB row failed before parsing with `RangeError: Invalid string length`
 while constructing the complete XML string fixture. This is a concrete negative
 result for using the current string-input `EventReaderSync` shape as the
-1 GiB+ stable reader path in this Node/V8 boundary. It is not proof that the
-byte-batch `StreamReaderSync` target cannot handle 1 GiB+ input, and it is not
-yet a pinned V8/JSC source-level maximum-string invariant. It does, however,
-close the omitted `eventObjectFull` gap in the 1 GiB byte-batch matrix: the
-object/string path is a high-memory reference path, not the bounded-memory
-target.
+1 GiB+ stable reader path in this Node/V8 boundary. The follow-up V8 string
+limit audit pins this failure to the Node/V8 maximum-string invariant; it still
+does not prove that the byte-batch `StreamReaderSync` target cannot handle
+1 GiB+ input. It does, however, close the omitted `eventObjectFull` gap in the
+1 GiB byte-batch matrix: the object/string path is a high-memory reference
+path, not the bounded-memory target.
+
+## Current Evidence: V8 String Limit Audit
+
+`packages/benchmark/results/release/v8-string-limit-audit.md` is an
+`ENGINE_INVARIANT` plus `SOURCE_FACT` and `TRACE_FACT` for the recorded
+boundary: Node v24.15.0, V8 13.6.233.17-node.48, and win32-x64.
+
+The source chain is pinned to the exact Node release used by the benchmark:
+Node's `buffer.constants.MAX_STRING_LENGTH` docs define the value as the
+largest single `string` length in UTF-16 code units; Node v24.15.0
+`lib/buffer.js` exposes `MAX_STRING_LENGTH` from `kStringMaxLength`;
+`src/node_buffer.cc` sets that binding to `v8::String::kMaxLength`; and the
+vendored V8 `include/v8-primitive.h` defines that maximum as `(1 << 28) - 16`
+on 32-bit API pointers and `(1 << 29) - 24` otherwise.
+
+For this runtime, `MAX_STRING_LENGTH` is `536,870,888` UTF-16 code units and it
+matches `(1 << 29) - 24`. The audit also performs an over-limit probe by
+requesting one more code unit than the runtime maximum and records
+`RangeError: Invalid string length` without allocating a max-sized string.
+
+Using the same generated 4,096-row `diverse-cycle` fixture shape as the
+`EventReaderSync` string-input large benchmark, the audit projects the complete
+XML string lengths without constructing those strings. The 512 MiB fixture
+requires `536,122,798` code units. Code-unit headroom below `MAX_STRING_LENGTH`
+was `748,090`; the 1024 MiB fixture requires `1,072,245,626` code units, which
+exceeds the limit by `535,374,738`. This matches the release artifact shape:
+512 MiB succeeded and 1024 MiB failed before parsing with
+`RangeError: Invalid string length`.
+
+This is not a byte-batch runtime ceiling and not a 200 MiB/s impossibility
+proof. It only proves that the complete-string `EventReaderSync` input shape is
+not a viable 1 GiB+ stable reader path for this Node/V8 runtime. It does not
+cover Bun/JSC or browser engines.
 
 ## Current Evidence: V8 Monomorphic Shape Trace
 
@@ -602,13 +636,13 @@ Acceptance:
    explicitly; the current global allocator counter has no stack/type
    attribution.
 3. Extend the candidate headroom matrices beyond the current 16 MiB and 1 GiB
-   Node/V8 artifacts: add projection low/high selectivity rows, pin the
-   Node/V8 maximum-string source fact behind the 1024 MiB `EventReaderSync`
-   failure, add less-repetitive fixtures across additional cycle sizes, and
-   browser/runtime rows; add allocation sampling only where profiler overhead is
-   acceptable for the claim being tested.
+   Node/V8 artifacts: add projection low/high selectivity rows, add
+   less-repetitive fixtures across additional cycle sizes, and browser/runtime
+   rows; add allocation sampling only where profiler overhead is acceptable for
+   the claim being tested.
 4. Capture Bun/JSC traces for `raw-frame-name-id-cache`, not only the public
-   accessor row.
+   accessor row, and pin JSC maximum-string source facts for the exact tested
+   browser/Bun builds.
 5. Run additional 1 GiB bounded-memory rows for browser runtimes, string-input
    public event objects, and less repetitive XML fixtures before promoting any
    candidate above `HYPOTHESIS`.

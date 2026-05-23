@@ -1,0 +1,165 @@
+{
+  "generatedAt": "2026-05-23T12:50:00.476Z",
+  "objective": "v8-string-limit-audit",
+  "contract": "node-v8-complete-js-string-input-boundary",
+  "note": "This pins the complete JS string input boundary for current Node/V8. It is not a byte-batch runtime ceiling and not a 200 MiB/s impossibility proof.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "options": {
+    "sizesMiB": [
+      512,
+      1024
+    ],
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 4096,
+    "eventReaderPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\event-reader-string-large.json"
+  },
+  "runtimeMaxStringLength": {
+    "value": 536870888,
+    "aliasValue": 536870888,
+    "units": "UTF-16 code units",
+    "formula64Bit": "(1 << 29) - 24",
+    "formula64BitValue": 536870888,
+    "formula32Bit": "(1 << 28) - 16",
+    "formula32BitValue": 268435440,
+    "matches64BitFormula": true,
+    "valueMiCodeUnits": 511.9999771118164
+  },
+  "overLimitProbe": {
+    "status": "throws",
+    "requestedLength": 536870889,
+    "errorName": "RangeError",
+    "errorMessage": "Invalid string length"
+  },
+  "fixtureProjections": [
+    {
+      "sizeMiB": 512,
+      "targetBytes": 536870912,
+      "actualUtf8Bytes": 536871010,
+      "actualMiB": 512.000093460083,
+      "stringCodeUnits": 536122798,
+      "estimatedUtf16Bytes": 1072245596,
+      "estimatedUtf16MiB": 1022.5730857849121,
+      "fullCycles": 501,
+      "tailRows": 1970,
+      "cycleUtf8Bytes": 1070576,
+      "cycleStringCodeUnits": 1069084,
+      "exceedsMaxStringLength": false,
+      "codeUnitsOverLimit": -748090,
+      "constructingCompleteStringIsExpectedToFail": false
+    },
+    {
+      "sizeMiB": 1024,
+      "targetBytes": 1073741824,
+      "actualUtf8Bytes": 1073742038,
+      "actualMiB": 1024.0002040863037,
+      "stringCodeUnits": 1072245626,
+      "estimatedUtf16Bytes": 2144491252,
+      "estimatedUtf16MiB": 2045.1462287902832,
+      "fullCycles": 1002,
+      "tailRows": 3922,
+      "cycleUtf8Bytes": 1070576,
+      "cycleStringCodeUnits": 1069084,
+      "exceedsMaxStringLength": true,
+      "codeUnitsOverLimit": 535374738,
+      "constructingCompleteStringIsExpectedToFail": true
+    }
+  ],
+  "eventReaderRelease": {
+    "status": "loaded",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\event-reader-string-large.json",
+    "generatedAt": "2026-05-23T12:32:37.249Z",
+    "contract": "event-reader-sync-string-input-full-object-materialization",
+    "environment": {
+      "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+      "platform": "win32-x64",
+      "node": "v24.15.0",
+      "v8": "13.6.233.17-node.48"
+    },
+    "largestSuccessfulSizeMiB": 512,
+    "largestSuccessfulThroughputMiBPerSec": 74.18964505174691,
+    "largestSuccessfulStringCodeUnits": 536122798,
+    "largestSuccessfulUtf8Bytes": 536871010,
+    "largestSuccessfulEstimatedUtf16Bytes": 1072245596,
+    "largestSuccessfulPeakRssBytes": 1148915712,
+    "largestSuccessfulCodeUnitHeadroom": 748090,
+    "largestSuccessfulBelowRuntimeLimit": true,
+    "releaseFailure": {
+      "status": "error",
+      "sizeMiB": 1024,
+      "error": "Invalid string length",
+      "stackHead": "RangeError: Invalid string length\n    at String.repeat (<anonymous>)\n    at createXmlString (file:///G:/programming/stax-xml/packages/benchmark/event-reader-string-large.mjs:382:28)"
+    }
+  },
+  "sourceFacts": [
+    {
+      "id": "node-buffer-docs-max-string-length",
+      "type": "official-doc",
+      "url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html#bufferconstantsmax_string_length",
+      "fact": "Node documents buffer.constants.MAX_STRING_LENGTH as the largest single string length in UTF-16 code units and engine-dependent."
+    },
+    {
+      "id": "node-v24-buffer-js-constant",
+      "type": "source",
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/lib/buffer.js#L166-L168",
+      "fact": "Node v24.15.0 exposes MAX_STRING_LENGTH from internal binding kStringMaxLength."
+    },
+    {
+      "id": "node-v24-buffer-cc-binding",
+      "type": "source",
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/src/node_buffer.cc#L1665-L1666",
+      "fact": "Node v24.15.0 sets kStringMaxLength to v8::String::kMaxLength."
+    },
+    {
+      "id": "node-v24-v8-string-kmaxlength",
+      "type": "source",
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/deps/v8/include/v8-primitive.h#L126-L127",
+      "fact": "Vendored V8 defines v8::String::kMaxLength as (1 << 28) - 16 on 32-bit API pointers and (1 << 29) - 24 otherwise."
+    },
+    {
+      "id": "node-v24-v8-string-creation-guard",
+      "type": "source",
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/deps/v8/include/v8-primitive.h#L534-L546",
+      "fact": "V8 public string allocation APIs document empty results when length exceeds kMaxLength."
+    },
+    {
+      "id": "node-v24-v8-external-string-lifetime",
+      "type": "source",
+      "url": "https://github.com/nodejs/node/blob/v24.15.0/deps/v8/include/v8-primitive.h#L435-L439",
+      "fact": "V8 external one-byte strings require immutable Latin-1 external data, not arbitrary UTF-8 parser spans."
+    }
+  ],
+  "findings": [
+    {
+      "id": "node-v8-single-string-limit",
+      "summary": "Current Node/V8 exposes a single JS string maximum matching v8::String::kMaxLength.",
+      "evidence": [
+        "MAX_STRING_LENGTH=536870888",
+        "formula64Bit=(1 << 29) - 24",
+        "over-limit probe=RangeError: Invalid string length"
+      ]
+    },
+    {
+      "id": "event-reader-complete-string-boundary",
+      "summary": "The EventReaderSync complete-string input path reaches this string boundary before parsing 1 GiB input.",
+      "evidence": [
+        "largest successful release row=512 MiB",
+        "1024 MiB projection exceeds MAX_STRING_LENGTH by 535,374,738 code units",
+        "1024 MiB release row=Invalid string length"
+      ]
+    },
+    {
+      "id": "scope-boundary",
+      "summary": "This is a complete-string EventReaderSync input invariant, not a byte-batch runtime ceiling.",
+      "evidence": [
+        "It does not apply to StreamReaderSync byte batches that never build one full XML string.",
+        "It is not a 200 MiB/s impossibility proof."
+      ]
+    }
+  ]
+}
