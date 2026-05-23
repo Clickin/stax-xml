@@ -294,6 +294,8 @@ test('browser candidate headroom matrix renders multi-run timing stability', (t)
     '2',
     '--warmups',
     '0',
+    '--cases',
+    'stringFull,rawFrameNameId,projectionLowSelectivity,projectionHighSelectivity',
     '--json-out',
     timingJsonOut,
     '--md-out',
@@ -309,11 +311,19 @@ test('browser candidate headroom matrix renders multi-run timing stability', (t)
 
   const report = JSON.parse(readFileSync(timingJsonOut, 'utf8'));
   assert.equal(report.options.runs, 2);
+  assert.deepEqual(report.options.cases, [
+    'stringFull',
+    'rawFrameNameId',
+    'projectionLowSelectivity',
+    'projectionHighSelectivity',
+  ]);
+  assert.deepEqual(report.variants.map(entry => entry.id), report.options.cases);
   assert.ok(report.variants.every(entry => entry.samplesMs.length === 2));
 
   const markdown = readFileSync(timingMdOut, 'utf8');
   assert.match(markdown, /## Timing Stability/);
   assert.match(markdown, /same-process timing spread/);
+  assert.match(markdown, /Cases: stringFull, rawFrameNameId, projectionLowSelectivity, projectionHighSelectivity/);
   assert.match(markdown, /\| Variant \| Runs \| Avg ms \| Min ms \| Max ms \| Spread \| Samples ms \|/);
   assert.match(markdown, /\| projectionLowSelectivity \| 2 \|/);
   assert.match(markdown, /\| projectionHighSelectivity \| 2 \|/);

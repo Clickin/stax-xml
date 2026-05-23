@@ -1,0 +1,1534 @@
+{
+  "generatedAt": "2026-05-23T20:36:29.930Z",
+  "objective": "browser-candidate-headroom-cross-process",
+  "contract": "independent-browser-process-candidate-headroom-stability",
+  "note": "Each sample invokes browser-candidate-headroom.mjs, which launches a fresh browser process with --runs=1. Variant memory is browser JS heap; host process-tree memory is summarized separately.",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "V8",
+    "browserName": "Chrome",
+    "browserVersion": "148.0.0.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "window.gc",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "hostCpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "sourceFile": null,
+    "shape": "projection-cycle",
+    "rowXml": "<root><book id=\"book-0\" lang=\"en\" code=\"0\"><title>Projection Benchmark 0</title><author>Author 0</author><description>Repeated projection benchmark payload 0 with stable ASCII text. The projection row ignores this field.</description><chapter number=\"1\">Intro 0</chapter><chapter number=\"2\">Body 0</chapter></book></root>",
+    "rowPreviewTruncated": false,
+    "rowCycleSize": 4096,
+    "minRowBytes": 321,
+    "maxRowBytes": 340,
+    "averageRowBytes": 337.675048828125,
+    "targetBytes": 1073741824,
+    "actualBytes": 1073742077,
+    "sizeGiB": 1.0000002356246114,
+    "batchSize": 16
+  },
+  "options": {
+    "processRuns": 3,
+    "childWarmups": 0,
+    "sizeGiB": 1,
+    "fixtureShape": "projection-cycle",
+    "diverseCycleSize": 4096,
+    "batchSize": 16,
+    "boundedJsHeapMiB": 512,
+    "cases": [
+      "stringFull",
+      "eventObjectFull",
+      "rawFrameNameId",
+      "projectionLowSelectivity",
+      "projectionHighSelectivity"
+    ],
+    "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "browserTimeoutMs": 1200000,
+    "collectHostProcessMemory": true
+  },
+  "rawArtifacts": {
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release",
+    "committed": false
+  },
+  "sampleCount": 3,
+  "childReports": [
+    {
+      "runIndex": 1,
+      "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release\\browser-run-1.json",
+      "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release\\browser-run-1.md",
+      "environment": {
+        "runtimeName": "browser",
+        "javascriptEngine": "V8",
+        "browserName": "Chrome",
+        "browserVersion": "148.0.0.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrency": 20,
+        "gcStrategy": "window.gc",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "hostPlatform": "win32-x64",
+        "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      "hostProcessMemory": {
+        "scope": "windows-process-tree",
+        "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+        "samples": [
+          {
+            "label": "browser-started",
+            "at": "2026-05-23T20:32:21.095Z",
+            "scope": "windows-process-tree",
+            "rootPid": 23620,
+            "processCount": 9,
+            "workingSetBytes": 380751872,
+            "privateBytes": 158109696,
+            "processes": [
+              {
+                "pid": 23620,
+                "parentPid": 41380,
+                "name": "chrome.exe",
+                "workingSetBytes": 117833728,
+                "privateBytes": 37793792
+              },
+              {
+                "pid": 30992,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 9883648,
+                "privateBytes": 2621440
+              },
+              {
+                "pid": 48668,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 36290560,
+                "privateBytes": 16216064
+              },
+              {
+                "pid": 21476,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 35348480,
+                "privateBytes": 13721600
+              },
+              {
+                "pid": 23312,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 18472960,
+                "privateBytes": 9793536
+              },
+              {
+                "pid": 33424,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 46931968,
+                "privateBytes": 21405696
+              },
+              {
+                "pid": 19020,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 29962240,
+                "privateBytes": 16338944
+              },
+              {
+                "pid": 45968,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 45928448,
+                "privateBytes": 19456000
+              },
+              {
+                "pid": 37772,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 40099840,
+                "privateBytes": 20762624
+              }
+            ]
+          },
+          {
+            "label": "before-run",
+            "at": "2026-05-23T20:32:21.659Z",
+            "scope": "windows-process-tree",
+            "rootPid": 23620,
+            "processCount": 10,
+            "workingSetBytes": 432807936,
+            "privateBytes": 178626560,
+            "processes": [
+              {
+                "pid": 23620,
+                "parentPid": 41380,
+                "name": "chrome.exe",
+                "workingSetBytes": 122458112,
+                "privateBytes": 39677952
+              },
+              {
+                "pid": 30992,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 9883648,
+                "privateBytes": 2621440
+              },
+              {
+                "pid": 48668,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 37445632,
+                "privateBytes": 16334848
+              },
+              {
+                "pid": 21476,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 36765696,
+                "privateBytes": 13762560
+              },
+              {
+                "pid": 23312,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 18472960,
+                "privateBytes": 9793536
+              },
+              {
+                "pid": 33424,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 47132672,
+                "privateBytes": 21413888
+              },
+              {
+                "pid": 19020,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 44879872,
+                "privateBytes": 18534400
+              },
+              {
+                "pid": 45968,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 45928448,
+                "privateBytes": 19456000
+              },
+              {
+                "pid": 37772,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 40099840,
+                "privateBytes": 20762624
+              },
+              {
+                "pid": 28832,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 29741056,
+                "privateBytes": 16269312
+              }
+            ]
+          },
+          {
+            "label": "after-run",
+            "at": "2026-05-23T20:33:41.552Z",
+            "scope": "windows-process-tree",
+            "rootPid": 23620,
+            "processCount": 8,
+            "workingSetBytes": 470691840,
+            "privateBytes": 223080448,
+            "processes": [
+              {
+                "pid": 23620,
+                "parentPid": 41380,
+                "name": "chrome.exe",
+                "workingSetBytes": 148348928,
+                "privateBytes": 50741248
+              },
+              {
+                "pid": 30992,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 9818112,
+                "privateBytes": 2482176
+              },
+              {
+                "pid": 48668,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 37154816,
+                "privateBytes": 16572416
+              },
+              {
+                "pid": 21476,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 38469632,
+                "privateBytes": 13815808
+              },
+              {
+                "pid": 23312,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 18923520,
+                "privateBytes": 9752576
+              },
+              {
+                "pid": 33424,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 50802688,
+                "privateBytes": 21921792
+              },
+              {
+                "pid": 28832,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 137527296,
+                "privateBytes": 91828224
+              },
+              {
+                "pid": 29596,
+                "parentPid": 23620,
+                "name": "chrome.exe",
+                "workingSetBytes": 29646848,
+                "privateBytes": 15966208
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 470691840,
+        "maxPrivateBytes": 223080448,
+        "maxProcessCount": 10
+      },
+      "variants": [
+        {
+          "id": "stringFull",
+          "mibPerSec": 63.1702735370797,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 11973578,
+          "maxJsHeapTotalBytes": 20091894,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "eventObjectFull",
+          "mibPerSec": 47.69310246957798,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 12062656,
+          "maxJsHeapTotalBytes": 44720888,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 60416563,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "rawFrameNameId",
+          "mibPerSec": 59.67383022156577,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 32307377,
+          "maxJsHeapTotalBytes": 52520393,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 31798200,
+            "rawNameSpanMaterializations": 6,
+            "rawTextSpanMaterializations": 15899095,
+            "rawAttrNameSpanMaterializations": 4,
+            "rawAttrValueSpanMaterializations": 15899095,
+            "rawNameCacheHits": 60416551,
+            "rawNameCacheMisses": 10,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "projectionLowSelectivity",
+          "mibPerSec": 104.80568133443263,
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 34082328,
+          "maxJsHeapTotalBytes": 58561944,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 66764,
+            "nameStringReads": 0,
+            "textStringReads": 33382,
+            "attrNameStringReads": 0,
+            "attrValueStringReads": 33382,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 33382,
+            "projectionFieldReads": 66764,
+            "attributePairs": 0
+          }
+        },
+        {
+          "id": "projectionHighSelectivity",
+          "mibPerSec": 71.77836760886682,
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 13711419,
+          "maxJsHeapTotalBytes": 45388731,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 6359638,
+            "nameStringReads": 0,
+            "textStringReads": 3179819,
+            "attrNameStringReads": 0,
+            "attrValueStringReads": 3179819,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 3179819,
+            "projectionFieldReads": 6359638,
+            "attributePairs": 0
+          }
+        }
+      ]
+    },
+    {
+      "runIndex": 2,
+      "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release\\browser-run-2.json",
+      "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release\\browser-run-2.md",
+      "environment": {
+        "runtimeName": "browser",
+        "javascriptEngine": "V8",
+        "browserName": "Chrome",
+        "browserVersion": "148.0.0.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrency": 20,
+        "gcStrategy": "window.gc",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "hostPlatform": "win32-x64",
+        "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      "hostProcessMemory": {
+        "scope": "windows-process-tree",
+        "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+        "samples": [
+          {
+            "label": "browser-started",
+            "at": "2026-05-23T20:33:44.428Z",
+            "scope": "windows-process-tree",
+            "rootPid": 7348,
+            "processCount": 9,
+            "workingSetBytes": 385224704,
+            "privateBytes": 163418112,
+            "processes": [
+              {
+                "pid": 7348,
+                "parentPid": 24572,
+                "name": "chrome.exe",
+                "workingSetBytes": 119468032,
+                "privateBytes": 39284736
+              },
+              {
+                "pid": 46960,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 9875456,
+                "privateBytes": 2605056
+              },
+              {
+                "pid": 48760,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 36319232,
+                "privateBytes": 16236544
+              },
+              {
+                "pid": 1708,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 35368960,
+                "privateBytes": 13651968
+              },
+              {
+                "pid": 43804,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 18432000,
+                "privateBytes": 9719808
+              },
+              {
+                "pid": 41972,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 44130304,
+                "privateBytes": 19636224
+              },
+              {
+                "pid": 3096,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 32768000,
+                "privateBytes": 19165184
+              },
+              {
+                "pid": 36648,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 45977600,
+                "privateBytes": 19509248
+              },
+              {
+                "pid": 49012,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 42885120,
+                "privateBytes": 23609344
+              }
+            ]
+          },
+          {
+            "label": "before-run",
+            "at": "2026-05-23T20:33:44.981Z",
+            "scope": "windows-process-tree",
+            "rootPid": 7348,
+            "processCount": 10,
+            "workingSetBytes": 436199424,
+            "privateBytes": 184868864,
+            "processes": [
+              {
+                "pid": 7348,
+                "parentPid": 24572,
+                "name": "chrome.exe",
+                "workingSetBytes": 123318272,
+                "privateBytes": 41091072
+              },
+              {
+                "pid": 46960,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 9883648,
+                "privateBytes": 2613248
+              },
+              {
+                "pid": 48760,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 37208064,
+                "privateBytes": 16367616
+              },
+              {
+                "pid": 1708,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 36765696,
+                "privateBytes": 13672448
+              },
+              {
+                "pid": 43804,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 18432000,
+                "privateBytes": 9719808
+              },
+              {
+                "pid": 41972,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 44343296,
+                "privateBytes": 19656704
+              },
+              {
+                "pid": 3096,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 47661056,
+                "privateBytes": 21331968
+              },
+              {
+                "pid": 36648,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 45977600,
+                "privateBytes": 19509248
+              },
+              {
+                "pid": 49012,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 42885120,
+                "privateBytes": 23609344
+              },
+              {
+                "pid": 34164,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 29724672,
+                "privateBytes": 17297408
+              }
+            ]
+          },
+          {
+            "label": "after-run",
+            "at": "2026-05-23T20:35:04.829Z",
+            "scope": "windows-process-tree",
+            "rootPid": 7348,
+            "processCount": 8,
+            "workingSetBytes": 466599936,
+            "privateBytes": 221188096,
+            "processes": [
+              {
+                "pid": 7348,
+                "parentPid": 24572,
+                "name": "chrome.exe",
+                "workingSetBytes": 150499328,
+                "privateBytes": 51585024
+              },
+              {
+                "pid": 46960,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 9822208,
+                "privateBytes": 2478080
+              },
+              {
+                "pid": 48760,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 37171200,
+                "privateBytes": 16592896
+              },
+              {
+                "pid": 1708,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 38658048,
+                "privateBytes": 14069760
+              },
+              {
+                "pid": 43804,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 18894848,
+                "privateBytes": 9691136
+              },
+              {
+                "pid": 41972,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 44871680,
+                "privateBytes": 19664896
+              },
+              {
+                "pid": 34164,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 136146944,
+                "privateBytes": 90726400
+              },
+              {
+                "pid": 27064,
+                "parentPid": 7348,
+                "name": "chrome.exe",
+                "workingSetBytes": 30535680,
+                "privateBytes": 16379904
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 466599936,
+        "maxPrivateBytes": 221188096,
+        "maxProcessCount": 10
+      },
+      "variants": [
+        {
+          "id": "stringFull",
+          "mibPerSec": 62.87203188542195,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 12094236,
+          "maxJsHeapTotalBytes": 20135280,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "eventObjectFull",
+          "mibPerSec": 48.72176719515735,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 22493879,
+          "maxJsHeapTotalBytes": 46602499,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 60416563,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "rawFrameNameId",
+          "mibPerSec": 60.219952222744865,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 35221662,
+          "maxJsHeapTotalBytes": 53545610,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 31798200,
+            "rawNameSpanMaterializations": 6,
+            "rawTextSpanMaterializations": 15899095,
+            "rawAttrNameSpanMaterializations": 4,
+            "rawAttrValueSpanMaterializations": 15899095,
+            "rawNameCacheHits": 60416551,
+            "rawNameCacheMisses": 10,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "projectionLowSelectivity",
+          "mibPerSec": 103.80891877354235,
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 32353104,
+          "maxJsHeapTotalBytes": 57574700,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 66764,
+            "nameStringReads": 0,
+            "textStringReads": 33382,
+            "attrNameStringReads": 0,
+            "attrValueStringReads": 33382,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 33382,
+            "projectionFieldReads": 66764,
+            "attributePairs": 0
+          }
+        },
+        {
+          "id": "projectionHighSelectivity",
+          "mibPerSec": 70.06868585866067,
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 15300532,
+          "maxJsHeapTotalBytes": 45916860,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 6359638,
+            "nameStringReads": 0,
+            "textStringReads": 3179819,
+            "attrNameStringReads": 0,
+            "attrValueStringReads": 3179819,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 3179819,
+            "projectionFieldReads": 6359638,
+            "attributePairs": 0
+          }
+        }
+      ]
+    },
+    {
+      "runIndex": 3,
+      "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release\\browser-run-3.json",
+      "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\browser-candidate-headroom-projection-release\\browser-run-3.md",
+      "environment": {
+        "runtimeName": "browser",
+        "javascriptEngine": "V8",
+        "browserName": "Chrome",
+        "browserVersion": "148.0.0.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrency": 20,
+        "gcStrategy": "window.gc",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "hostPlatform": "win32-x64",
+        "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      "hostProcessMemory": {
+        "scope": "windows-process-tree",
+        "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+        "samples": [
+          {
+            "label": "browser-started",
+            "at": "2026-05-23T20:35:07.758Z",
+            "scope": "windows-process-tree",
+            "rootPid": 43956,
+            "processCount": 9,
+            "workingSetBytes": 387997696,
+            "privateBytes": 166289408,
+            "processes": [
+              {
+                "pid": 43956,
+                "parentPid": 39424,
+                "name": "chrome.exe",
+                "workingSetBytes": 119570432,
+                "privateBytes": 39182336
+              },
+              {
+                "pid": 48208,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 9900032,
+                "privateBytes": 2633728
+              },
+              {
+                "pid": 48960,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 35979264,
+                "privateBytes": 16211968
+              },
+              {
+                "pid": 47536,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 35397632,
+                "privateBytes": 13721600
+              },
+              {
+                "pid": 23120,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 18522112,
+                "privateBytes": 9846784
+              },
+              {
+                "pid": 17772,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 46952448,
+                "privateBytes": 22425600
+              },
+              {
+                "pid": 15200,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 32800768,
+                "privateBytes": 19185664
+              },
+              {
+                "pid": 48272,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 45985792,
+                "privateBytes": 19488768
+              },
+              {
+                "pid": 48588,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 42889216,
+                "privateBytes": 23592960
+              }
+            ]
+          },
+          {
+            "label": "before-run",
+            "at": "2026-05-23T20:35:08.353Z",
+            "scope": "windows-process-tree",
+            "rootPid": 43956,
+            "processCount": 10,
+            "workingSetBytes": 441237504,
+            "privateBytes": 188112896,
+            "processes": [
+              {
+                "pid": 43956,
+                "parentPid": 39424,
+                "name": "chrome.exe",
+                "workingSetBytes": 124997632,
+                "privateBytes": 41181184
+              },
+              {
+                "pid": 48208,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 9900032,
+                "privateBytes": 2633728
+              },
+              {
+                "pid": 48960,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 37388288,
+                "privateBytes": 16351232
+              },
+              {
+                "pid": 47536,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 36933632,
+                "privateBytes": 13873152
+              },
+              {
+                "pid": 23120,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 18522112,
+                "privateBytes": 9846784
+              },
+              {
+                "pid": 17772,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 47157248,
+                "privateBytes": 22446080
+              },
+              {
+                "pid": 15200,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 47742976,
+                "privateBytes": 22433792
+              },
+              {
+                "pid": 48272,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 45985792,
+                "privateBytes": 19488768
+              },
+              {
+                "pid": 48588,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 42889216,
+                "privateBytes": 23592960
+              },
+              {
+                "pid": 41316,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 29720576,
+                "privateBytes": 16265216
+              }
+            ]
+          },
+          {
+            "label": "after-run",
+            "at": "2026-05-23T20:36:27.309Z",
+            "scope": "windows-process-tree",
+            "rootPid": 43956,
+            "processCount": 8,
+            "workingSetBytes": 470851584,
+            "privateBytes": 225587200,
+            "processes": [
+              {
+                "pid": 43956,
+                "parentPid": 39424,
+                "name": "chrome.exe",
+                "workingSetBytes": 151179264,
+                "privateBytes": 51900416
+              },
+              {
+                "pid": 48208,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 9834496,
+                "privateBytes": 2494464
+              },
+              {
+                "pid": 48960,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 37154816,
+                "privateBytes": 16584704
+              },
+              {
+                "pid": 47536,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 38834176,
+                "privateBytes": 14295040
+              },
+              {
+                "pid": 23120,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 18911232,
+                "privateBytes": 9728000
+              },
+              {
+                "pid": 17772,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 47661056,
+                "privateBytes": 22458368
+              },
+              {
+                "pid": 41316,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 137621504,
+                "privateBytes": 92139520
+              },
+              {
+                "pid": 43584,
+                "parentPid": 43956,
+                "name": "chrome.exe",
+                "workingSetBytes": 29655040,
+                "privateBytes": 15986688
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 470851584,
+        "maxPrivateBytes": 225587200,
+        "maxProcessCount": 10
+      },
+      "variants": [
+        {
+          "id": "stringFull",
+          "mibPerSec": 64.83821105335163,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 11599295,
+          "maxJsHeapTotalBytes": 19699607,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "eventObjectFull",
+          "mibPerSec": 48.573013488963504,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 11401469,
+          "maxJsHeapTotalBytes": 44345761,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 60416563,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "rawFrameNameId",
+          "mibPerSec": 61.11879851928582,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 32539434,
+          "maxJsHeapTotalBytes": 52317234,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 92214751,
+            "nameStringReads": 44517466,
+            "textStringReads": 15899095,
+            "attrNameStringReads": 15899095,
+            "attrValueStringReads": 15899095,
+            "rawSpanMaterializations": 31798200,
+            "rawNameSpanMaterializations": 6,
+            "rawTextSpanMaterializations": 15899095,
+            "rawAttrNameSpanMaterializations": 4,
+            "rawAttrValueSpanMaterializations": 15899095,
+            "rawNameCacheHits": 60416551,
+            "rawNameCacheMisses": 10,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 0,
+            "projectionFieldReads": 0,
+            "attributePairs": 15899095
+          }
+        },
+        {
+          "id": "projectionLowSelectivity",
+          "mibPerSec": 105.30209727787731,
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 32883224,
+          "maxJsHeapTotalBytes": 57630468,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 66764,
+            "nameStringReads": 0,
+            "textStringReads": 33382,
+            "attrNameStringReads": 0,
+            "attrValueStringReads": 33382,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 33382,
+            "projectionFieldReads": 66764,
+            "attributePairs": 0
+          }
+        },
+        {
+          "id": "projectionHighSelectivity",
+          "mibPerSec": 70.50510223958352,
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "eventCountKind": "projected-records",
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": 14387213,
+          "maxJsHeapTotalBytes": 45342645,
+          "jsHeapSizeLimitBytes": 4294967296,
+          "materializationCounters": {
+            "stringFieldReads": 6359638,
+            "nameStringReads": 0,
+            "textStringReads": 3179819,
+            "attrNameStringReads": 0,
+            "attrValueStringReads": 3179819,
+            "rawSpanMaterializations": 0,
+            "rawNameSpanMaterializations": 0,
+            "rawTextSpanMaterializations": 0,
+            "rawAttrNameSpanMaterializations": 0,
+            "rawAttrValueSpanMaterializations": 0,
+            "rawNameCacheHits": 0,
+            "rawNameCacheMisses": 0,
+            "implicitAttrValueReads": 0,
+            "eventObjects": 0,
+            "projectedRecords": 3179819,
+            "projectionFieldReads": 6359638,
+            "attributePairs": 0
+          }
+        }
+      ]
+    }
+  ],
+  "parity": {
+    "streamAndFullRowsStable": true,
+    "projectionRowsStable": true,
+    "streamAndFullRowIds": [
+      "stringFull",
+      "eventObjectFull",
+      "rawFrameNameId"
+    ],
+    "projectionRowIds": [
+      "projectionLowSelectivity",
+      "projectionHighSelectivity"
+    ]
+  },
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Host process-tree memory is inherited from each child report and is process-level browser memory, not a portable per-variant JS heap measurement.",
+    "childRows": [
+      {
+        "runIndex": 1,
+        "scope": "windows-process-tree",
+        "maxWorkingSetBytes": 470691840,
+        "maxPrivateBytes": 223080448,
+        "maxProcessCount": 10
+      },
+      {
+        "runIndex": 2,
+        "scope": "windows-process-tree",
+        "maxWorkingSetBytes": 466599936,
+        "maxPrivateBytes": 221188096,
+        "maxProcessCount": 10
+      },
+      {
+        "runIndex": 3,
+        "scope": "windows-process-tree",
+        "maxWorkingSetBytes": 470851584,
+        "maxPrivateBytes": 225587200,
+        "maxProcessCount": 10
+      }
+    ],
+    "maxWorkingSetBytes": 470851584,
+    "maxPrivateBytes": 225587200,
+    "maxProcessCount": 10
+  },
+  "variants": [
+    {
+      "id": "stringFull",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 63.626838825284416,
+      "minMiBPerSec": 62.87203188542195,
+      "maxMiBPerSec": 64.83821105335163,
+      "spreadRatio": 0.030901726444852846,
+      "mibPerSecSamples": [
+        63.1702735370797,
+        62.87203188542195,
+        64.83821105335163
+      ],
+      "eventCounts": [
+        60416563
+      ],
+      "checksums": [
+        1441552024
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": true,
+      "maxJsHeapUsedBytes": 12094236,
+      "maxJsHeapTotalBytes": 20135280,
+      "jsHeapSizeLimitBytes": 4294967296,
+      "counterexampleFound": false
+    },
+    {
+      "id": "eventObjectFull",
+      "family": "full-stax-js",
+      "contractScope": "full-event-object-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 48.32929438456628,
+      "minMiBPerSec": 47.69310246957798,
+      "maxMiBPerSec": 48.72176719515735,
+      "spreadRatio": 0.02128449708770975,
+      "mibPerSecSamples": [
+        47.69310246957798,
+        48.72176719515735,
+        48.573013488963504
+      ],
+      "eventCounts": [
+        60416563
+      ],
+      "checksums": [
+        1441552024
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": true,
+      "maxJsHeapUsedBytes": 22493879,
+      "maxJsHeapTotalBytes": 46602499,
+      "jsHeapSizeLimitBytes": 4294967296,
+      "counterexampleFound": false
+    },
+    {
+      "id": "rawFrameNameId",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 60.33752698786549,
+      "minMiBPerSec": 59.67383022156577,
+      "maxMiBPerSec": 61.11879851928582,
+      "spreadRatio": 0.023948086205300454,
+      "mibPerSecSamples": [
+        59.67383022156577,
+        60.219952222744865,
+        61.11879851928582
+      ],
+      "eventCounts": [
+        60416563
+      ],
+      "checksums": [
+        1441552024
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": true,
+      "maxJsHeapUsedBytes": 35221662,
+      "maxJsHeapTotalBytes": 53545610,
+      "jsHeapSizeLimitBytes": 4294967296,
+      "counterexampleFound": false
+    },
+    {
+      "id": "projectionLowSelectivity",
+      "family": "projection-js",
+      "contractScope": "projected-records-low-selectivity",
+      "eventCountKind": "projected-records",
+      "fullStringParity": false,
+      "sampleCount": 3,
+      "avgMiBPerSec": 104.63889912861742,
+      "minMiBPerSec": 103.80891877354235,
+      "maxMiBPerSec": 105.30209727787731,
+      "spreadRatio": 0.014269822377427879,
+      "mibPerSecSamples": [
+        104.80568133443263,
+        103.80891877354235,
+        105.30209727787731
+      ],
+      "eventCounts": [
+        33382
+      ],
+      "checksums": [
+        -403434369
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": true,
+      "maxJsHeapUsedBytes": 34082328,
+      "maxJsHeapTotalBytes": 58561944,
+      "jsHeapSizeLimitBytes": 4294967296,
+      "counterexampleFound": false
+    },
+    {
+      "id": "projectionHighSelectivity",
+      "family": "projection-js",
+      "contractScope": "projected-records-high-selectivity",
+      "eventCountKind": "projected-records",
+      "fullStringParity": false,
+      "sampleCount": 3,
+      "avgMiBPerSec": 70.78405190237034,
+      "minMiBPerSec": 70.06868585866067,
+      "maxMiBPerSec": 71.77836760886682,
+      "spreadRatio": 0.024153488028125898,
+      "mibPerSecSamples": [
+        71.77836760886682,
+        70.06868585866067,
+        70.50510223958352
+      ],
+      "eventCounts": [
+        3179819
+      ],
+      "checksums": [
+        -2078190377
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": true,
+      "maxJsHeapUsedBytes": 15300532,
+      "maxJsHeapTotalBytes": 45916860,
+      "jsHeapSizeLimitBytes": 4294967296,
+      "counterexampleFound": false
+    }
+  ],
+  "findings": [
+    {
+      "id": "independent-browser-process-rerun",
+      "classification": "BENCH_FACT",
+      "summary": "Each sample launched a fresh browser process through the browser candidate harness.",
+      "evidence": [
+        "processRuns=3",
+        "browser=Chrome 148.0.0.0"
+      ]
+    },
+    {
+      "id": "browser-memory-scope",
+      "classification": "BENCH_FACT",
+      "summary": "Variant memory is browser JS heap. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.",
+      "evidence": [
+        "stringFull: maxJsHeap=11.5 MiB",
+        "eventObjectFull: maxJsHeap=21.5 MiB",
+        "rawFrameNameId: maxJsHeap=33.6 MiB",
+        "projectionLowSelectivity: maxJsHeap=32.5 MiB",
+        "projectionHighSelectivity: maxJsHeap=14.6 MiB"
+      ]
+    },
+    {
+      "id": "projection-contract-separated",
+      "classification": "BENCH_FACT",
+      "summary": "Projection rows are selected-field projected-record workloads, not full StAX event-parity rows.",
+      "evidence": [
+        "projectionLowSelectivity",
+        "projectionHighSelectivity"
+      ]
+    },
+    {
+      "id": "full-stax-counterexample-search",
+      "classification": "BENCH_FACT",
+      "summary": "No full-string row reported a 200 MiB/s bounded-memory browser counterexample in these fresh process samples.",
+      "evidence": [
+        "counterexample=not-found"
+      ]
+    },
+    {
+      "id": "browser-v8-scope",
+      "classification": "BENCH_FACT",
+      "summary": "This report is browser evidence for the recorded Chromium/V8 build only; it is not JSC/SpiderMonkey browser evidence.",
+      "evidence": [
+        "engine=V8",
+        "userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36"
+      ]
+    }
+  ]
+}

@@ -29,6 +29,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     batchSize: 16,
     batchSizeExplicit: false,
     boundedJsHeapMiB: 512,
+    cases: null,
     browserExecutable: process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable(),
     browserTimeoutMs: 20 * 60 * 1000,
     collectHostProcessMemory: true,
@@ -73,6 +74,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--bounded-js-heap-mib':
         options.boundedJsHeapMiB = parsePositiveNumber(readValue(), '--bounded-js-heap-mib');
+        break;
+      case '--cases':
+        options.cases = parseCaseList(readValue());
         break;
       case '--browser-executable':
         options.browserExecutable = resolve(process.cwd(), readValue());
@@ -130,6 +134,14 @@ function parsePositiveInteger(value, flag) {
 function parseNonNegativeInteger(value, flag) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 0) throw new Error(`${flag} must be a non-negative integer.`);
+  return parsed;
+}
+
+function parseCaseList(value) {
+  const parsed = value.split(',').map(entry => entry.trim()).filter(Boolean);
+  if (parsed.length === 0) {
+    throw new Error('--cases must contain at least one case id.');
+  }
   return parsed;
 }
 
@@ -656,6 +668,7 @@ function createReport(browserResult, options, hostProcessMemory) {
       runs: options.runs,
       warmups: options.warmups,
       boundedJsHeapMiB: options.boundedJsHeapMiB,
+      cases: options.cases,
     },
     hostProcessMemory,
     woodstoxTarget,
@@ -813,6 +826,7 @@ function renderMarkdown(report) {
     `- Batch size: ${report.fixture.batchSize}`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
     `- Bounded JS heap reporting gate: ${report.options.boundedJsHeapMiB.toFixed(1)} MiB`,
+    `- Cases: ${report.options.cases ? report.options.cases.join(', ') : 'all'}`,
     '',
     '## Woodstox Target',
     '',
@@ -1020,8 +1034,8 @@ function printSummary(report) {
   const fastestPartial = maxBy(report.variants.filter(entry => entry.family === 'partial-upper-bound'), entry => entry.mibPerSec);
   const fastestFull = maxBy(report.variants.filter(entry => entry.fullStringParity), entry => entry.mibPerSec);
   console.log(`Wrote ${report.objective}: ${report.fixture.actualBytes} bytes`);
-  console.log(`Fastest partial: ${fastestPartial.id} ${formatRate(fastestPartial.mibPerSec)}`);
-  console.log(`Fastest full: ${fastestFull.id} ${formatRate(fastestFull.mibPerSec)}`);
+  console.log(`Fastest partial: ${fastestPartial ? `${fastestPartial.id} ${formatRate(fastestPartial.mibPerSec)}` : 'n/a'}`);
+  console.log(`Fastest full: ${fastestFull ? `${fastestFull.id} ${formatRate(fastestFull.mibPerSec)}` : 'n/a'}`);
 }
 
 function findBrowserExecutable() {
@@ -1042,6 +1056,7 @@ function createRunnerScript(options) {
     fixtureShape: options.fixtureShape,
     diverseCycleSize: options.diverseCycleSize,
     batchSize: options.batchSize,
+    cases: options.cases,
     sourceFile: options.fixtureShape === 'corpus-cycle' ? options.corpusFile : null,
   };
   return `
@@ -1084,7 +1099,7 @@ globalThis.__staxBrowserBenchmarkResult = runBenchmark().catch(error => ({
 
 async function runBenchmark() {
   const fixture = await createFixture(config);
-  const variants = createVariants(fixture).map(variant => measureVariant(variant, fixture, config));
+  const variants = filterVariants(createVariants(fixture), config.cases).map(variant => measureVariant(variant, fixture, config));
   return {
     environment: createRuntimeEnvironment(),
     fixture: createFixtureReport(fixture),
@@ -1203,6 +1218,20 @@ function createVariants(fixture) {
   }
 
   return variants;
+}
+
+function filterVariants(variants, caseIds) {
+  if (!caseIds) {
+    return variants;
+  }
+  const byId = new Map(variants.map(variant => [variant.id, variant]));
+  return caseIds.map((id) => {
+    const variant = byId.get(id);
+    if (!variant) {
+      throw new Error('Unknown case for this fixture: ' + id);
+    }
+    return variant;
+  });
 }
 
 async function createFixture(options) {
@@ -1378,6 +1407,13 @@ function forceGc() {
 
 function computeEventCountParity(variants) {
   const streamRows = variants.filter(entry => entry.eventCountKind !== 'projected-records');
+  if (streamRows.length === 0) {
+    return {
+      status: 'not-applicable',
+      eventCount: null,
+      rowIds: [],
+    };
+  }
   const first = streamRows[0];
   const mismatch = streamRows.find(entry => entry.eventCount !== first.eventCount);
   if (mismatch) {
@@ -1405,6 +1441,14 @@ function computeProjectionParity(variants) {
 
 function computeFullStringParity(variants) {
   const fullRows = variants.filter(entry => entry.fullStringParity);
+  if (fullRows.length === 0) {
+    return {
+      status: 'not-applicable',
+      rowIds: [],
+      eventCount: null,
+      checksum: null,
+    };
+  }
   const first = fullRows[0];
   const mismatch = fullRows.find(entry => entry.eventCount !== first.eventCount || entry.checksum !== first.checksum);
   if (mismatch) {

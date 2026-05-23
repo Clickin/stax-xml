@@ -87,6 +87,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /candidate-headroom-cross-process-projection\.md/);
   assert.match(markdown, /browser-candidate-headroom-projection-large\.md/);
   assert.match(markdown, /browser-candidate-headroom-projection-stability\.md/);
+  assert.match(markdown, /browser-candidate-headroom-cross-process-projection\.md/);
   assert.match(markdown, /candidate-headroom-corpus\.md/);
   assert.match(markdown, /bun-candidate-headroom-corpus\.md/);
   assert.match(markdown, /browser-candidate-headroom-large\.md/);
@@ -240,7 +241,16 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`projectionHighSelectivity` reported `72\.07 MiB\/s` with `4\.8%` spread/);
   assert.match(markdown, /max used JS heap `55\.6 MiB` for `rawFrameNameId`/);
   assert.match(markdown, /max working set `518\.8 MiB` and max private bytes\s+`280\.1 MiB`/);
-  assert.match(markdown, /browser cross-process projection stability rows/);
+  assert.match(markdown, /fresh-browser-process Chrome\/V8 3x projection rerun averaged 63\.63 MiB\/s/);
+  assert.match(markdown, /`48\.33 MiB\/s` for public `eventObjectFull`/);
+  assert.match(markdown, /`60\.34 MiB\/s` for\s+`rawFrameNameId`/);
+  assert.match(markdown, /`104\.64 MiB\/s` for low-selectivity projection/);
+  assert.match(markdown, /`70\.78 MiB\/s` for high-selectivity projection/);
+  assert.match(markdown, /Max used JS heap endpoints were\s+`11\.5 MiB`, `21\.5 MiB`, `33\.6 MiB`, `32\.5 MiB`, and `14\.6 MiB`/);
+  assert.match(markdown, /max working set\s+`449\.0 MiB` and max private bytes `215\.1 MiB`/);
+  assert.match(markdown, /104\.64 MiB\/s with 1\.4% spread in the fresh-process rerun/);
+  assert.match(markdown, /70\.78 MiB\/s with 2\.4% fresh-process spread/);
+  assert.match(markdown, /Chrome\/V8 fresh-browser-process projection-cycle/);
   assert.match(markdown, /non-V8 browser projection rows/);
   assert.match(markdown, /The 512 MiB row\s+succeeded at 74\.19 MiB\/s/);
   assert.match(markdown, /peak RSS 1\.07 GiB/);
