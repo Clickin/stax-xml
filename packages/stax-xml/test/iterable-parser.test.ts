@@ -5,6 +5,8 @@ import {
   toAsyncByteBatches,
   toByteBatches,
 } from '../src/IterableReader';
+import { readReadableStreamByteBatches } from '../src/IterableEventBackend';
+import { createEventReaderFromAsyncByteBatches } from '../src/EventReader';
 
 function byteChunks(xml: string, chunkSize: number): Uint8Array[] {
   const bytes = new TextEncoder().encode(xml);
@@ -495,6 +497,59 @@ describe('byte batch helpers', () => {
     }
 
     expect(batches.map(batch => batch.length)).toEqual([2]);
+  });
+
+  it('groups ReadableStream chunks without reading past the requested byte batch', async () => {
+    const chunks = byteChunks('<root><a/><b/></root>', 3);
+    let pullCount = 0;
+    let offset = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pullCount++;
+        if (offset >= chunks.length) {
+          controller.close();
+          return;
+        }
+        controller.enqueue(chunks[offset]!);
+        offset++;
+      },
+    });
+    const iterator = readReadableStreamByteBatches(stream, { batchSize: 2 });
+
+    const first = await iterator.next();
+    expect(first.done).toBe(false);
+    expect(first.value?.length).toBe(2);
+    expect(pullCount).toBeLessThanOrEqual(3);
+
+    const pullsAfterFirstBatch = pullCount;
+    const second = await iterator.next();
+    expect(second.done).toBe(false);
+    expect(second.value?.length).toBe(2);
+    expect(pullCount).toBeGreaterThan(pullsAfterFirstBatch);
+  });
+
+  it('parses public events from async byte batches with one await per batch', async () => {
+    const batches = byteBatches('<root><a x="1">text</a><b/></root>', 4, 3);
+    let yielded = 0;
+    async function* source(): AsyncIterable<readonly Uint8Array[]> {
+      for (const batch of batches) {
+        yielded++;
+        yield batch;
+      }
+    }
+
+    const reader = createEventReaderFromAsyncByteBatches(source());
+    const events = [];
+    for await (const event of reader) {
+      events.push(event);
+      if (events.length === 3) {
+        expect(yielded).toBeLessThanOrEqual(2);
+      }
+    }
+
+    expect(events.map(event => event.type)).toContain('START_ELEMENT');
+    expect(events.some(event => event.type === 'CHARACTERS' && event.value === 'text')).toBe(true);
+    expect(yielded).toBe(batches.length);
   });
 
   it('rejects invalid batch sizes', async () => {

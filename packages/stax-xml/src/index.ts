@@ -1,5 +1,5 @@
-export { EventReader, createEventReader } from "./EventReader.js";
-export type { EventReaderOptions } from "./EventReader.js";
+export { EventReader, createEventReader, createEventReaderFromAsyncByteBatches } from "./EventReader.js";
+export type { EventReaderLike, EventReaderOptions } from "./EventReader.js";
 export { EventReaderSync } from "./EventReaderSync.js";
 export type { EventReaderSyncOptions } from "./EventReaderSync.js";
 export { StreamReader } from "./StreamReader.js";
