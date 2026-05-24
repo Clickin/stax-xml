@@ -249,7 +249,7 @@ It records `win32-x64`, no local Safari executable, no `safaridriver`, and
 `Current harness supports Safari/WebKit: yes`. The existing browser harness
 family now supports Chrome/Edge through CDP, Firefox through built-in WebDriver
 BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when
-`safaridriver` is available.
+`safaridriver` is available, including the cross-process stability runner.
 
 This explains why the current local counterexample search still has zero
 Safari/WebKit browser benchmark rows. It does not close the

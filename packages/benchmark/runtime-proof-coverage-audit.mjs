@@ -343,7 +343,7 @@ function createObligationRows(coverage) {
           hasSafariAvailabilityAudit ? 'Local Safari/WebKit availability audit is present and records that the current host/harness cannot run Safari rows.' : 'No local Safari/WebKit availability audit was found.',
         ].join(' '),
       nextExperiment: hasSafariAvailabilityAudit
-        ? 'Run same-contract Safari/WebKit rows on a macOS host after adding a Safari/WebKit harness path.'
+        ? 'Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner.'
         : 'Pin the exact Safari/WebKit browser build and run same-contract browser rows separately from Bun/JSC.',
     },
     {

@@ -134,6 +134,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /safari-webkit-availability-audit\.md/);
   assert.match(markdown, /Current harness supports Safari\/WebKit: yes/);
   assert.match(markdown, /safaridriver WebDriver wrapper/);
+  assert.match(markdown, /cross-process stability runner/);
   assert.match(markdown, /not a benchmark row\s+and not evidence that Safari\/WebKit cannot be a counterexample/);
   assert.match(markdown, /1 open or partial obligations/);
   assert.match(markdown, /does not\s+turn missing evidence\s+into\s+evidence that optimization\s+is impossible/);

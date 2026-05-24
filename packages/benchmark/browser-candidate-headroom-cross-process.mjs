@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findSafariDriverExecutable } from './safari-webdriver-candidate-headroom.mjs';
 
 const MIB = 1024 * 1024;
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -10,6 +11,7 @@ const repoRoot = resolve(__dirname, '..', '..');
 const browserHarnessPath = join(__dirname, 'browser-candidate-headroom.mjs');
 const firefoxBidiHarnessPath = join(__dirname, 'firefox-bidi-candidate-headroom.mjs');
 const firefoxBidiTextDecoderHarnessPath = join(__dirname, 'firefox-bidi-textdecoder-span-variants.mjs');
+const safariWebDriverHarnessPath = join(__dirname, 'safari-webdriver-candidate-headroom.mjs');
 const defaultJsonOut = join(__dirname, 'results', 'release', 'browser-candidate-headroom-cross-process-projection.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'browser-candidate-headroom-cross-process-projection.md');
 const defaultOutputDir = join(__dirname, 'results', 'cross-process', 'browser-candidate-headroom-projection');
@@ -95,6 +97,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--browser-executable':
         options.browserExecutable = resolve(process.cwd(), readValue());
         break;
+      case '--driver-executable':
+        options.browserExecutable = resolve(process.cwd(), readValue());
+        break;
       case '--browser-timeout-ms':
         options.browserTimeoutMs = parsePositiveInteger(readValue(), '--browser-timeout-ms');
         break;
@@ -118,8 +123,8 @@ function parseArgs(argv = process.argv.slice(2)) {
   if (!['repeated-person', 'diverse-cycle', 'corpus-cycle', 'projection-cycle'].includes(options.fixtureShape)) {
     throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle, corpus-cycle, projection-cycle.');
   }
-  if (!['browser', 'firefox-bidi', 'firefox-bidi-textdecoder'].includes(options.harness)) {
-    throw new Error('--harness must be one of browser, firefox-bidi, firefox-bidi-textdecoder.');
+  if (!['browser', 'firefox-bidi', 'firefox-bidi-textdecoder', 'safari-webdriver'].includes(options.harness)) {
+    throw new Error('--harness must be one of browser, firefox-bidi, firefox-bidi-textdecoder, safari-webdriver.');
   }
   if (options.cases === null) {
     options.cases = options.harness === 'firefox-bidi-textdecoder'
@@ -130,14 +135,20 @@ function parseArgs(argv = process.argv.slice(2)) {
     throw new Error('--fixture-shape projection-cycle is not supported by the Firefox TextDecoder span harness.');
   }
   if (!options.browserExecutable) {
-    options.browserExecutable = options.harness.startsWith('firefox-bidi')
-      ? process.env.FIREFOX_PATH || findFirefoxExecutable()
-      : process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable();
+    if (options.harness.startsWith('firefox-bidi')) {
+      options.browserExecutable = process.env.FIREFOX_PATH || findFirefoxExecutable();
+    } else if (options.harness === 'safari-webdriver') {
+      options.browserExecutable = process.env.SAFARIDRIVER_PATH || findSafariDriverExecutable();
+    } else {
+      options.browserExecutable = process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable();
+    }
   }
   if (!options.browserExecutable || !existsSync(options.browserExecutable)) {
     const message = options.harness.startsWith('firefox-bidi')
       ? 'Firefox executable was not found. Pass --browser-executable or set FIREFOX_PATH.'
-      : 'Chrome or Edge executable was not found. Pass --browser-executable or set CHROME_PATH/EDGE_PATH.';
+      : options.harness === 'safari-webdriver'
+        ? 'safaridriver executable was not found. Pass --driver-executable or set SAFARIDRIVER_PATH.'
+        : 'Chrome or Edge executable was not found. Pass --browser-executable or set CHROME_PATH/EDGE_PATH.';
     throw new Error(message);
   }
   return options;
@@ -220,10 +231,13 @@ function createChildArgs(options, jsonOut, mdOut) {
     ? firefoxBidiHarnessPath
     : options.harness === 'firefox-bidi-textdecoder'
       ? firefoxBidiTextDecoderHarnessPath
-      : browserHarnessPath;
+      : options.harness === 'safari-webdriver'
+        ? safariWebDriverHarnessPath
+        : browserHarnessPath;
+  const executableFlag = options.harness === 'safari-webdriver' ? '--driver-executable' : '--browser-executable';
   const args = [
     harnessPath,
-    '--browser-executable',
+    executableFlag,
     options.browserExecutable,
     '--browser-timeout-ms',
     String(options.browserTimeoutMs),
@@ -277,7 +291,9 @@ function createReport(options, samples) {
       : 'independent-browser-process-candidate-headroom-stability',
     note: options.harness === 'firefox-bidi-textdecoder'
       ? 'Each sample invokes firefox-bidi-textdecoder-span-variants.mjs, which launches a fresh Firefox process with --runs=1. Firefox page JS heap is unavailable; host process-tree memory is summarized separately.'
-      : 'Each sample invokes browser-candidate-headroom.mjs, which launches a fresh browser process with --runs=1. Variant memory is browser JS heap; host process-tree memory is summarized separately.',
+      : options.harness === 'safari-webdriver'
+        ? 'Each sample invokes safari-webdriver-candidate-headroom.mjs, which launches a fresh Safari WebDriver session with --runs=1. Safari page JS heap is available only if the browser exposes counters; portable host process-tree memory is not normalized.'
+        : 'Each sample invokes browser-candidate-headroom.mjs, which launches a fresh browser process with --runs=1. Variant memory is browser JS heap; host process-tree memory is summarized separately.',
     environment: {
       ...first.environment,
       hostCpuName: cpus()[0]?.model ?? 'unknown',
@@ -438,7 +454,9 @@ function createFindings(report) {
       classification: 'BENCH_FACT',
       summary: report.environment.javascriptEngine === 'SpiderMonkey'
         ? 'Firefox does not expose Chromium performance.memory, so variant JS heap is unavailable. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.'
-        : 'Variant memory is browser JS heap. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.',
+        : report.environment.javascriptEngine === 'JavaScriptCore'
+          ? 'Safari/WebKit page JS heap counters are available only if exposed by the browser. Portable host process-tree memory is not recorded by this harness and is not mixed with Node/Bun RSS evidence.'
+          : 'Variant memory is browser JS heap. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.',
       evidence: report.variants.map(row => `${row.id}: maxJsHeap=${formatBytes(row.maxJsHeapUsedBytes)}`),
     },
     {
@@ -462,7 +480,9 @@ function createFindings(report) {
       classification: 'BENCH_FACT',
       summary: report.environment.javascriptEngine === 'SpiderMonkey'
         ? 'This report is browser evidence for the recorded Firefox/SpiderMonkey build only; it is not Chromium/V8, Safari/JSC, codegen, or allocation evidence.'
-        : 'This report is browser evidence for the recorded Chromium/V8 build only; it is not JSC/SpiderMonkey browser evidence.',
+        : report.environment.javascriptEngine === 'JavaScriptCore'
+          ? 'This report is browser evidence for the recorded Safari/WebKit build only; it is not Chromium/V8, Firefox/SpiderMonkey, codegen, or allocation evidence.'
+          : 'This report is browser evidence for the recorded Chromium/V8 build only; it is not JSC/SpiderMonkey browser evidence.',
       evidence: [`engine=${report.environment.javascriptEngine}`, `userAgent=${report.environment.userAgent}`],
     },
   ];
@@ -476,14 +496,18 @@ function renderMarkdown(report) {
     '',
     report.options.harness === 'firefox-bidi-textdecoder'
       ? 'This report repeats Firefox TextDecoder span rows in fresh Firefox browser processes.'
-      : 'This report repeats selected browser candidate-headroom rows in fresh browser processes.',
+      : report.options.harness === 'safari-webdriver'
+        ? 'This report repeats selected Safari/WebKit candidate-headroom rows in fresh safaridriver WebDriver sessions.'
+        : 'This report repeats selected browser candidate-headroom rows in fresh browser processes.',
     'It is browser-runtime timing evidence for the recorded machine, not proof that JavaScript runtimes have no further headroom.',
     report.parity.projectionRowIds.length > 0
       ? 'Projection rows report projected record counts and selected-field checksums; they are workload headroom rows, not full StAX parity rows.'
       : 'All selected rows preserve full-string StAX parity; no projection rows are included.',
     report.environment.javascriptEngine === 'SpiderMonkey'
       ? 'Firefox does not expose Chromium performance.memory, so variant JS heap is unavailable. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.'
-      : 'Variant memory is browser JS heap. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.',
+      : report.environment.javascriptEngine === 'JavaScriptCore'
+        ? 'Safari/WebKit page JS heap counters may be unavailable; host process memory is not recorded by this harness and must not be mixed with Node/Bun RSS rows as the same memory proof.'
+        : 'Variant memory is browser JS heap. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.',
     '',
     '## Options',
     '',
@@ -496,7 +520,7 @@ function renderMarkdown(report) {
     `- Batch size: ${report.options.batchSize}`,
     `- Bounded JS heap gate: ${report.options.boundedJsHeapMiB.toFixed(1)} MiB`,
     `- Cases: ${report.options.cases.join(', ')}`,
-    `- Browser executable: ${report.options.browserExecutable}`,
+    `- Browser/driver executable: ${report.options.browserExecutable}`,
     '',
     '## Raw Artifacts',
     '',
@@ -653,4 +677,13 @@ function findFirefoxExecutable() {
   return candidates.find(candidate => existsSync(candidate));
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main();
+}
+
+export {
+  createChildArgs,
+  createFindings,
+  parseArgs,
+  renderMarkdown,
+};

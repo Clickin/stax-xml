@@ -4,6 +4,11 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
+import {
+  createChildArgs,
+  parseArgs,
+  renderMarkdown,
+} from './browser-candidate-headroom-cross-process.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
@@ -17,6 +22,108 @@ const firefoxMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-cross-process
 const firefoxTextDecoderOutputDir = join(tmpDir, 'firefox-bidi-textdecoder-cross-process-report-test');
 const firefoxTextDecoderJsonOut = join(tmpDir, 'firefox-bidi-textdecoder-cross-process-report-test.json');
 const firefoxTextDecoderMdOut = join(tmpDir, 'firefox-bidi-textdecoder-cross-process-report-test.md');
+
+test('browser cross-process report wires Safari WebDriver child arguments without local Safari', () => {
+  const options = parseArgs([
+    '--harness',
+    'safari-webdriver',
+    '--driver-executable',
+    process.execPath,
+    '--process-runs',
+    '3',
+    '--size-gib',
+    '1',
+    '--fixture-shape',
+    'diverse-cycle',
+    '--diverse-cycle-size',
+    '4096',
+    '--cases',
+    'stringFull,eventObjectFull,rawFrameNameId',
+  ]);
+
+  assert.equal(options.harness, 'safari-webdriver');
+  assert.equal(options.browserExecutable, resolve(process.cwd(), process.execPath));
+  assert.deepEqual(options.cases, ['stringFull', 'eventObjectFull', 'rawFrameNameId']);
+
+  const args = createChildArgs(options, 'child.json', 'child.md');
+  assert.equal(args[0], join(__dirname, 'safari-webdriver-candidate-headroom.mjs'));
+  assert.ok(args.includes('--driver-executable'));
+  assert.equal(args.includes('--browser-executable'), false);
+  assert.ok(args.includes('--cases'));
+  assert.ok(args.includes('stringFull,eventObjectFull,rawFrameNameId'));
+});
+
+test('browser cross-process markdown describes Safari WebDriver memory scope', () => {
+  const markdown = renderMarkdown({
+    generatedAt: '2026-05-24T00:00:00.000Z',
+    options: {
+      processRuns: 3,
+      harness: 'safari-webdriver',
+      childWarmups: 0,
+      fixtureShape: 'diverse-cycle',
+      sizeGiB: 1,
+      diverseCycleSize: 4096,
+      batchSize: 16,
+      boundedJsHeapMiB: 512,
+      cases: ['stringFull'],
+      browserExecutable: '/usr/bin/safaridriver',
+    },
+    rawArtifacts: { outputDir: 'out', committed: false },
+    environment: {
+      browserName: 'Safari',
+      browserVersion: '17.0',
+      javascriptEngine: 'JavaScriptCore',
+      platform: 'macOS',
+      hostPlatform: 'darwin-arm64',
+      hostCpuName: 'Apple',
+      userAgent: 'Safari',
+    },
+    fixture: {
+      source: 'generated',
+      shape: 'diverse-cycle',
+      actualBytes: 1024,
+      sizeGiB: 1,
+      rowCycleSize: 4096,
+    },
+    parity: {
+      streamAndFullRowsStable: true,
+      streamAndFullRowIds: ['stringFull'],
+      projectionRowsStable: true,
+      projectionRowIds: [],
+    },
+    hostProcessMemory: {
+      note: 'Host memory unavailable.',
+      scope: 'unavailable',
+      maxWorkingSetBytes: null,
+      maxPrivateBytes: null,
+      maxProcessCount: null,
+      childRows: [{ runIndex: 1, scope: 'unavailable', maxWorkingSetBytes: null, maxPrivateBytes: null, maxProcessCount: null }],
+    },
+    variants: [{
+      id: 'stringFull',
+      eventCountKind: 'stream-events',
+      avgMiBPerSec: 123.456,
+      minMiBPerSec: 120,
+      maxMiBPerSec: 126,
+      spreadRatio: 0.05,
+      mibPerSecSamples: [123.456],
+      stableResult: true,
+      boundedMemoryAll: false,
+      counterexampleFound: false,
+      maxJsHeapUsedBytes: null,
+    }],
+    findings: [{
+      id: 'browser-v8-scope',
+      classification: 'BENCH_FACT',
+      summary: 'This report is browser evidence for the recorded Safari/WebKit build only.',
+      evidence: ['engine=JavaScriptCore'],
+    }],
+  });
+
+  assert.match(markdown, /fresh safaridriver WebDriver sessions/);
+  assert.match(markdown, /Safari\/WebKit page JS heap counters may be unavailable/);
+  assert.match(markdown, /Browser\/driver executable: \/usr\/bin\/safaridriver/);
+});
 
 test('browser candidate headroom cross-process report summarizes fresh browser process rows', (t) => {
   const browserExecutable = findBrowserExecutable();

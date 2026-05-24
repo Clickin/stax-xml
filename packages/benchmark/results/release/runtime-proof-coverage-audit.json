@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T12:22:38.673Z",
+  "generatedAt": "2026-05-24T12:36:39.522Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -12589,7 +12589,7 @@
       "id": "safari-jsc-source-and-browser-rows-open",
       "status": "open",
       "evidence": "Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host/harness cannot run Safari rows.",
-      "nextExperiment": "Run same-contract Safari/WebKit rows on a macOS host after adding a Safari/WebKit harness path."
+      "nextExperiment": "Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner."
     },
     {
       "id": "codegen-traces-open",
