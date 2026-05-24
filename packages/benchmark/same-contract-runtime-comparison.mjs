@@ -69,6 +69,14 @@ const variantArtifacts = [
     cases: candidateCases,
   },
   {
+    group: 'corpus-1gib-candidate',
+    file: 'firefox-bidi-candidate-headroom-corpus.json',
+    runtimeId: 'firefox-spidermonkey-browser',
+    runtimeLabel: 'Firefox/SpiderMonkey browser',
+    jsRuntime: true,
+    cases: candidateCases,
+  },
+  {
     group: 'generated-1gib-textdecoder',
     file: 'textdecoder-span-variants.json',
     runtimeId: 'node-v8',

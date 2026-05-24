@@ -10,6 +10,8 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp', 'firefox-bidi-candidate-headroom-report-test');
 const jsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom.json');
 const mdOut = join(tmpDir, 'firefox-bidi-candidate-headroom.md');
+const corpusJsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom-corpus.json');
+const corpusMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-corpus.md');
 
 test('Firefox BiDi candidate headroom records same-contract SpiderMonkey rows', (t) => {
   const firefox = findFirefoxExecutable();
@@ -82,6 +84,68 @@ test('Firefox BiDi candidate headroom records same-contract SpiderMonkey rows', 
   assert.match(markdown, /Full rows preserve/);
 });
 
+test('Firefox BiDi candidate headroom supports a corpus-cycle fixture seed', (t) => {
+  const firefox = findFirefoxExecutable();
+  if (!firefox) {
+    t.skip('Firefox executable was not found.');
+    return;
+  }
+
+  resetTmp();
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-bidi-candidate-headroom.mjs'),
+    '--browser-executable',
+    firefox,
+    '--size-gib',
+    '0.001',
+    '--fixture-shape',
+    'corpus-cycle',
+    '--corpus-file',
+    join(__dirname, 'assets', 'books.xml'),
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--cases',
+    'stringFull,eventObjectFull,rawFrameNameId',
+    '--json-out',
+    corpusJsonOut,
+    '--md-out',
+    corpusMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 120_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(corpusJsonOut, 'utf8'));
+  assert.equal(report.objective, 'firefox-bidi-candidate-headroom');
+  assert.equal(report.environment.browserName, 'Firefox');
+  assert.equal(report.environment.javascriptEngine, 'SpiderMonkey');
+  assert.equal(report.fixture.shape, 'corpus-cycle');
+  assert.equal(report.fixture.source, 'corpus-file');
+  assert.equal(report.fixture.batchSize, 1);
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.deepEqual(report.variants.map(entry => entry.id), [
+    'stringFull',
+    'eventObjectFull',
+    'rawFrameNameId',
+  ]);
+  for (const row of report.variants) {
+    assert.equal(row.fullStringParity, true);
+    assert.equal(row.hostProcessMemoryProbe?.probeEventCount, row.eventCount);
+    assert.equal(row.hostProcessMemoryProbe?.probeChecksum, row.checksum);
+  }
+
+  const markdown = readFileSync(corpusMdOut, 'utf8');
+  assert.match(markdown, /corpus-backed browser `Uint8Array` batches/);
+  assert.match(markdown, /Fixture shape: corpus-cycle/);
+  assert.match(markdown, /Firefox BiDi Notes/);
+});
+
 function findFirefoxExecutable() {
   const candidates = [
     'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
@@ -93,7 +157,7 @@ function findFirefoxExecutable() {
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
-  for (const filePath of [jsonOut, mdOut]) {
+  for (const filePath of [jsonOut, mdOut, corpusJsonOut, corpusMdOut]) {
     if (existsSync(filePath)) {
       rmSync(filePath);
     }

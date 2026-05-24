@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T03:59:15.838Z",
+  "generatedAt": "2026-05-24T04:14:07.998Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -14,6 +14,7 @@
       "candidate-headroom-corpus.json",
       "bun-candidate-headroom-corpus.json",
       "browser-candidate-headroom-corpus.json",
+      "firefox-bidi-candidate-headroom-corpus.json",
       "textdecoder-span-variants.json",
       "bun-textdecoder-span-variants.json",
       "browser-textdecoder-span-variants.json",
@@ -23,8 +24,8 @@
     ]
   },
   "summary": {
-    "rowCount": 31,
-    "jsLargeFullRowCount": 27,
+    "rowCount": 34,
+    "jsLargeFullRowCount": 30,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "corpus-1gib-candidate",
@@ -1256,6 +1257,153 @@
       "runtimeLimitCounterexample": false
     },
     {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "firefox-bidi-candidate-headroom-corpus.json",
+      "runtimeId": "firefox-spidermonkey-browser",
+      "runtimeLabel": "Firefox/SpiderMonkey browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": "143.0",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 44.92,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "browser-js-heap-unavailable",
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+        "hostProcessTreeProbe": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 1064.98,
+          "maxPrivateMiB": 1007.66,
+          "maxProcessCount": 12,
+          "probeMibPerSec": 44.67,
+          "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.13,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "firefox-bidi-candidate-headroom-corpus.json",
+      "runtimeId": "firefox-spidermonkey-browser",
+      "runtimeLabel": "Firefox/SpiderMonkey browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": "143.0",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 36.27,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "browser-js-heap-unavailable",
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+        "hostProcessTreeProbe": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 1220.22,
+          "maxPrivateMiB": 1164.92,
+          "maxProcessCount": 12,
+          "probeMibPerSec": 35.94,
+          "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 75206126,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.11,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "firefox-bidi-candidate-headroom-corpus.json",
+      "runtimeId": "firefox-spidermonkey-browser",
+      "runtimeLabel": "Firefox/SpiderMonkey browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": "143.0",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 48.15,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "browser-js-heap-unavailable",
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+        "hostProcessTreeProbe": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 1060.55,
+          "maxPrivateMiB": 1002.8,
+          "maxProcessCount": 12,
+          "probeMibPerSec": 47.67,
+          "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 16702403,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.14,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
       "group": "generated-1gib-textdecoder",
       "sourceArtifact": "textdecoder-span-variants.json",
       "runtimeId": "node-v8",
@@ -1619,7 +1767,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=27",
+        "jsLargeFullRows=30",
         "counterexamples=0"
       ]
     },
