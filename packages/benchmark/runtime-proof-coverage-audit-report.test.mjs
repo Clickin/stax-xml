@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 98);
-  assert.equal(report.summary.measuredRowCount, 620);
-  assert.equal(report.summary.largeJsFullRowCount, 372);
+  assert.equal(report.summary.scannedArtifactCount, 99);
+  assert.equal(report.summary.measuredRowCount, 622);
+  assert.equal(report.summary.largeJsFullRowCount, 374);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 71);
+  assert.equal(report.summary.benchmarkArtifactCount, 72);
   assert.equal(report.summary.sourceArtifactCount, 12);
   assert.equal(report.summary.traceArtifactCount, 7);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -53,7 +53,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
 
-  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 95);
+  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 97);
   assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 81);
   assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
   assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 81);
@@ -85,6 +85,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('node-v8')
     && row.runtimes.includes('bun-jsc')
     && row.runtimes.includes('deno-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'browser-fetch-readable-stream-books-corpus.json'
+    && row.runtimes.includes('chrome-v8-browser')
+    && row.measuredRowCount === 2
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'deno-textdecoder-source-pin-audit.json'

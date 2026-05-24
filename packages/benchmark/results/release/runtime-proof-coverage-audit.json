@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T19:26:54.957Z",
+  "generatedAt": "2026-05-24T19:41:33.554Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -154,6 +154,27 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "objective": "browser-candidate-headroom",
+      "contract": "browser-corpus-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736
+      },
+      "corpusSeed": "books.xml",
+      "measuredRowCount": 2
     },
     {
       "sourceArtifact": "browser-string-limit-audit.json",
@@ -1923,16 +1944,16 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 98,
+    "scannedArtifactCount": 99,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 620,
-    "benchmarkArtifactCount": 71,
+    "measuredRowCount": 622,
+    "benchmarkArtifactCount": 72,
     "sourceArtifactCount": 12,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 1,
-    "largeJsFullRowCount": 372,
+    "largeJsFullRowCount": 374,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2087,9 +2108,9 @@
       {
         "runtimeId": "chrome-v8-browser",
         "runtimeLabel": "Chrome/V8 browser",
-        "artifactCount": 14,
-        "measuredRowCount": 95,
-        "largeFullStringRowCount": 53,
+        "artifactCount": 15,
+        "measuredRowCount": 97,
+        "largeFullStringRowCount": 55,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "browser-candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -3568,6 +3589,40 @@
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "projected-records-high-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "books.xml",
+          "mibPerSec": 67.63,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "id": "fetchReadableStreamFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "books.xml",
+          "mibPerSec": 9.18,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "contractScope": "full-event-object-materialization-live-readable-stream-source"
         },
         {
           "sourceArtifact": "browser-string-limit-audit.json",
@@ -9323,6 +9378,40 @@
           "contractScope": "projected-records-high-selectivity"
         },
         {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "books.xml",
+          "mibPerSec": 67.63,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "id": "fetchReadableStreamFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "books.xml",
+          "mibPerSec": 9.18,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "contractScope": "full-event-object-materialization-live-readable-stream-source"
+        },
+        {
           "sourceArtifact": "browser-string-limit-audit.json",
           "id": "0",
           "runtimeId": "chrome-v8-browser",
@@ -10111,6 +10200,40 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "id": "eventObjectFull",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 67.63,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-event-object-materialization"
+      },
+      {
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "id": "fetchReadableStreamFull",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 9.18,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-event-object-materialization-live-readable-stream-source"
       },
       {
         "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
@@ -12748,7 +12871,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 372,
+    "largeJsFullRowCount": 374,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

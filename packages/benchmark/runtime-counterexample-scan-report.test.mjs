@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 98);
-  assert.equal(report.summary.measuredRowCount, 620);
-  assert.equal(report.summary.largeJsFullRowCount, 372);
+  assert.equal(report.summary.scannedArtifactCount, 99);
+  assert.equal(report.summary.measuredRowCount, 622);
+  assert.equal(report.summary.largeJsFullRowCount, 374);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
@@ -62,6 +62,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('bun-event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-cross-process-corpus.json'));
+  assert.ok(report.scannedArtifacts.includes('browser-fetch-readable-stream-books-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-span-variants.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-span-variants-corpus.json'));
   assert.ok(report.partialHeadroomRows.some(row =>

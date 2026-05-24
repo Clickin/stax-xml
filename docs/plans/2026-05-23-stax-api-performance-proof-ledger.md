@@ -1206,6 +1206,18 @@ host process-tree counters peaked at `559.2 MiB` working set and `258.7 MiB`
 private bytes. This is browser V8 evidence only, not Safari/WebKit or
 SpiderMonkey evidence.
 
+`packages/benchmark/results/release/browser-fetch-readable-stream-books-corpus.md`
+adds a focused Chrome/V8 1.00 GiB `books.xml` row that consumes
+`fetch(...).body` directly through public asynchronous `EventReader`, while the
+server repeats corpus bytes to the target size. It preserves the same
+57,096,514 events and checksum `-540013997` as the prepared browser
+`eventObjectFull` row, but reports only `9.18 MiB/s` with max used JS heap
+`20.5 MiB`; the paired prepared `eventObjectFull` row in the same artifact
+reports `67.63 MiB/s` with max used JS heap `11.9 MiB`. This closes the live
+browser `ReadableStream` source gap for Chrome/V8 on this corpus, and records a
+negative result for the hypothesis that direct browser fetch streaming exposes
+hidden 200 MiB/s full-StAX headroom.
+
 `packages/benchmark/results/release/firefox-bidi-candidate-headroom-cross-process-books-corpus.md`
 adds the Firefox/SpiderMonkey counterpart as fresh Firefox processes with
 `processRuns=3`, child `runs=1`, and `warmups=0`. The Firefox

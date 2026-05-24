@@ -1,20 +1,20 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T19:26:54.957Z
+Generated: 2026-05-24T19:41:33.554Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 98
+- Scanned primary artifacts: 99
 - Ignored derived artifacts: 5
-- Measured rows recognized: 620
-- Benchmark artifacts: 71
+- Measured rows recognized: 622
+- Benchmark artifacts: 72
 - Source artifacts: 12
 - Trace/profile artifacts: 7
 - Allocation artifacts: 13
 - Environment artifacts: 1
-- 1 GiB+ JS full-string rows: 372
+- 1 GiB+ JS full-string rows: 374
 - Corpus seeds: 3
 - Open or partial obligations: 2
 
@@ -25,7 +25,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | Node/V8 | 31 | 172 | 100 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
 | Bun/JSC | 25 | 172 | 105 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 2 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
-| Chrome/V8 browser | 14 | 95 | 53 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
+| Chrome/V8 browser | 15 | 97 | 55 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 15 | 81 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 3 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
 | Java/Woodstox | 6 | 3 | 0 | none | 0 | 1 | 2 |
@@ -50,7 +50,7 @@ Current release corpus seeds: `books.xml`, `large.xml`, `treebank_e.xml`.
 
 ## Browser Coverage
 
-- Chrome/V8 browser benchmark rows: 95
+- Chrome/V8 browser benchmark rows: 97
 - Firefox/SpiderMonkey browser benchmark rows: 81
 - Safari/WebKit browser benchmark rows: 0
 - Non-V8 browser benchmark rows: 81

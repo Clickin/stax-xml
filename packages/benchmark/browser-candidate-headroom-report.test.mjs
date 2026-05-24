@@ -165,19 +165,28 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.equal(report.fixture.rowCycleSize, 1);
   assert.equal(report.fixture.batchSize, 1);
   assert.match(report.fixture.sourceFile, /books\.xml$/);
+  assert.match(report.sourceContract.fetchReadableStream, /Response\.body/);
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
   assert.ok(report.variants.every(entry => entry.memory?.scope === 'browser-js-heap'));
   const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
+  const fetchReadable = report.variants.find(entry => entry.id === 'fetchReadableStreamFull');
   assert.equal(eventObjectFull.materializationCounters.eventObjects, eventObjectFull.eventCount);
   assert.equal(eventObjectFull.checksum, report.fullStringParity.checksum);
+  assert.ok(fetchReadable);
+  assert.equal(fetchReadable.family, 'readable-stream-live-source');
+  assert.equal(fetchReadable.eventCount, report.fullStringParity.eventCount);
+  assert.equal(fetchReadable.checksum, report.fullStringParity.checksum);
   assert.equal(report.hostProcessMemory.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
   assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
   assert.ok(report.findings.some(entry => entry.id === 'browser-streaming-source-gap'));
+  assert.ok(report.findings.some(entry => entry.id === 'browser-fetch-readable-stream-source'));
   assert.match(report.sourceContract.corpusScope, /arrayBuffer\(\)/);
 
   const markdown = readFileSync(corpusMdOut, 'utf8');
   assert.match(markdown, /corpus-backed browser `Uint8Array` batches/);
+  assert.match(markdown, /Fetch ReadableStream:/);
+  assert.match(markdown, /fetchReadableStreamFull/);
   assert.match(markdown, /arrayBuffer\(\) as a seed/);
   assert.match(markdown, /Fixture source: corpus-file/);
   assert.match(markdown, /Source file: .*books\.xml/);
