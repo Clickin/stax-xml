@@ -70,12 +70,13 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
+    'rawFrameSemanticChecksum',
     'rawFrameStringCache',
   ]);
 
   const partialRows = report.variants.filter(entry => !entry.fullStringParity);
   const fullRows = report.variants.filter(entry => entry.fullStringParity);
-  assert.ok(partialRows.every(entry => entry.family === 'partial-upper-bound'));
+  assert.ok(partialRows.every(entry => entry.family === 'partial-upper-bound' || entry.family === 'semantic-upper-bound'));
   assert.ok(fullRows.every(entry => entry.family === 'full-stax-js'));
   assert.ok(report.variants.every(entry => entry.eventCount === report.eventCountParity.eventCount));
   assert.ok(fullRows.every(entry => entry.eventCount === report.fullStringParity.eventCount));
@@ -89,6 +90,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
   const rawDirect = report.variants.find(entry => entry.id === 'rawFrameDirect');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
+  const rawSemanticChecksum = report.variants.find(entry => entry.id === 'rawFrameSemanticChecksum');
   const rawStringCache = report.variants.find(entry => entry.id === 'rawFrameStringCache');
 
   assert.equal(scan.materializationCounters.stringFieldReads, 0);
@@ -100,6 +102,10 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.ok(rawDirect.materializationCounters.rawSpanMaterializations > 0);
   assert.ok(rawNameId.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawNameId.materializationCounters.rawSpanMaterializations < rawDirect.materializationCounters.rawSpanMaterializations);
+  assert.equal(rawSemanticChecksum.fullStringParity, false);
+  assert.equal(rawSemanticChecksum.checksum, report.fullStringParity.checksum);
+  assert.equal(rawSemanticChecksum.materializationCounters.stringFieldReads, 0);
+  assert.ok(rawSemanticChecksum.materializationCounters.semanticByteFoldFields > 0);
   assert.ok(rawStringCache.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawValueCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawSpanMaterializations <= rawNameId.materializationCounters.rawSpanMaterializations);
@@ -234,6 +240,7 @@ test('large candidate headroom matrix includes projection rows on projection fix
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
+    'rawFrameSemanticChecksum',
     'rawFrameStringCache',
     'projectionLowSelectivity',
     'projectionHighSelectivity',

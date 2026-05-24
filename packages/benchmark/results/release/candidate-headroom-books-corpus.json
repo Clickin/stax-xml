@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T13:22:53.013Z",
+  "generatedAt": "2026-05-24T14:03:54.800Z",
   "objective": "candidate-headroom-large",
   "contract": "byte-batch-mixed-materialization-headroom-matrix",
   "note": "This is a 1 GiB+ bounded-memory counterexample search for corpus-backed byte batches. Partial rows are upper-bound probes only; full rows keep the StAX-like checksum contract.",
@@ -71,6 +71,7 @@
       "cursorAccessor",
       "rawFrameDirect",
       "rawFrameNameId",
+      "rawFrameSemanticChecksum",
       "rawFrameStringCache"
     ]
   },
@@ -99,46 +100,46 @@
       "contractScope": "event-types-and-attribute-counts-only",
       "eventCountKind": "stream-events",
       "fullStringParity": false,
-      "avgMs": 3739.9827999999998,
-      "minMs": 3739.9827999999998,
-      "maxMs": 3739.9827999999998,
-      "mibPerSec": 273.7987931654684,
+      "avgMs": 3912.4073,
+      "minMs": 3912.4073,
+      "maxMs": 3912.4073,
+      "mibPerSec": 261.73215071437204,
       "eventCount": 57096514,
       "checksum": -239086029,
       "samplesMs": [
-        3739.9827999999998
+        3912.4073
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 912752,
-        "avgHeapTotalDeltaBytes": 262144,
-        "avgRssDeltaBytes": 3158016,
-        "avgExternalDeltaBytes": 460854,
-        "avgArrayBuffersDeltaBytes": 558741,
-        "maxHeapUsedBytes": 5839224,
-        "maxHeapTotalBytes": 8323072,
-        "maxRssBytes": 66256896,
+        "avgHeapUsedDeltaBytes": 1291160,
+        "avgHeapTotalDeltaBytes": 786432,
+        "avgRssDeltaBytes": 4317184,
+        "avgExternalDeltaBytes": 923433,
+        "avgArrayBuffersDeltaBytes": 1027700,
+        "maxHeapUsedBytes": 6229024,
+        "maxHeapTotalBytes": 8847360,
+        "maxRssBytes": 67084288,
         "samples": [
           {
             "before": {
-              "rssBytes": 63098880,
+              "rssBytes": 62767104,
               "heapTotalBytes": 8060928,
-              "heapUsedBytes": 4926472,
-              "externalBytes": 2026641,
+              "heapUsedBytes": 4937864,
+              "externalBytes": 2033021,
               "arrayBuffersBytes": 27481
             },
             "after": {
-              "rssBytes": 66256896,
-              "heapTotalBytes": 8323072,
-              "heapUsedBytes": 5839224,
-              "externalBytes": 2487495,
-              "arrayBuffersBytes": 586222
+              "rssBytes": 67084288,
+              "heapTotalBytes": 8847360,
+              "heapUsedBytes": 6229024,
+              "externalBytes": 2956454,
+              "arrayBuffersBytes": 1055181
             },
             "delta": {
-              "rssBytes": 3158016,
-              "heapTotalBytes": 262144,
-              "heapUsedBytes": 912752,
-              "externalBytes": 460854,
-              "arrayBuffersBytes": 558741
+              "rssBytes": 4317184,
+              "heapTotalBytes": 786432,
+              "heapUsedBytes": 1291160,
+              "externalBytes": 923433,
+              "arrayBuffersBytes": 1027700
             }
           }
         ]
@@ -158,6 +159,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -167,8 +174,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 2.2165301669301796,
-      "woodstoxRatio": 0.8211529685675495,
+      "relativeToStringFull": 2.036855365237663,
+      "woodstoxRatio": 0.7849637686269464,
       "targetStatus": "not-applicable"
     },
     {
@@ -178,46 +185,46 @@
       "contractScope": "event-types-attribute-counts-and-element-names",
       "eventCountKind": "stream-events",
       "fullStringParity": false,
-      "avgMs": 4215.0923,
-      "minMs": 4215.0923,
-      "maxMs": 4215.0923,
-      "mibPerSec": 242.93721328465554,
+      "avgMs": 4283.700799999999,
+      "minMs": 4283.700799999999,
+      "maxMs": 4283.700799999999,
+      "mibPerSec": 239.04628845684314,
       "eventCount": 57096514,
       "checksum": -929151437,
       "samplesMs": [
-        4215.0923
+        4283.700799999999
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 1504880,
+        "avgHeapUsedDeltaBytes": 362464,
         "avgHeapTotalDeltaBytes": 2621440,
-        "avgRssDeltaBytes": 5455872,
-        "avgExternalDeltaBytes": 1101826,
-        "avgArrayBuffersDeltaBytes": 1660567,
-        "maxHeapUsedBytes": 6755016,
-        "maxHeapTotalBytes": 10682368,
-        "maxRssBytes": 71880704,
+        "avgRssDeltaBytes": 4665344,
+        "avgExternalDeltaBytes": -837752,
+        "avgArrayBuffersDeltaBytes": -514489,
+        "maxHeapUsedBytes": 5625304,
+        "maxHeapTotalBytes": 10944512,
+        "maxRssBytes": 71409664,
         "samples": [
           {
             "before": {
-              "rssBytes": 66424832,
-              "heapTotalBytes": 8060928,
-              "heapUsedBytes": 5250136,
-              "externalBytes": 2487495,
-              "arrayBuffersBytes": 27481
+              "rssBytes": 66744320,
+              "heapTotalBytes": 8323072,
+              "heapUsedBytes": 5262840,
+              "externalBytes": 2956454,
+              "arrayBuffersBytes": 731918
             },
             "after": {
-              "rssBytes": 71880704,
-              "heapTotalBytes": 10682368,
-              "heapUsedBytes": 6755016,
-              "externalBytes": 3589321,
-              "arrayBuffersBytes": 1688048
+              "rssBytes": 71409664,
+              "heapTotalBytes": 10944512,
+              "heapUsedBytes": 5625304,
+              "externalBytes": 2118702,
+              "arrayBuffersBytes": 217429
             },
             "delta": {
-              "rssBytes": 5455872,
+              "rssBytes": 4665344,
               "heapTotalBytes": 2621440,
-              "heapUsedBytes": 1504880,
-              "externalBytes": 1101826,
-              "arrayBuffersBytes": 1660567
+              "heapUsedBytes": 362464,
+              "externalBytes": -837752,
+              "arrayBuffersBytes": -514489
             }
           }
         ]
@@ -237,6 +244,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -246,8 +259,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.9666911445806297,
-      "woodstoxRatio": 0.728595665298142,
+      "relativeToStringFull": 1.8603091513767724,
+      "woodstoxRatio": 0.7169263499009028,
       "targetStatus": "not-applicable"
     },
     {
@@ -257,46 +270,46 @@
       "contractScope": "event-types-attribute-counts-and-text-cdata",
       "eventCountKind": "stream-events",
       "fullStringParity": false,
-      "avgMs": 5449.651499999999,
-      "minMs": 5449.651499999999,
-      "maxMs": 5449.651499999999,
-      "mibPerSec": 187.90243322891556,
+      "avgMs": 5470.553699999999,
+      "minMs": 5470.553699999999,
+      "maxMs": 5470.553699999999,
+      "mibPerSec": 187.18448501832816,
       "eventCount": 57096514,
       "checksum": 1377684179,
       "samplesMs": [
-        5449.651499999999
+        5470.553699999999
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 1503944,
-        "avgHeapTotalDeltaBytes": 786432,
-        "avgRssDeltaBytes": -2269184,
-        "avgExternalDeltaBytes": -1047190,
-        "avgArrayBuffersDeltaBytes": -13659,
-        "maxHeapUsedBytes": 6761744,
+        "avgHeapUsedDeltaBytes": 1478344,
+        "avgHeapTotalDeltaBytes": 524288,
+        "avgRssDeltaBytes": -1339392,
+        "avgExternalDeltaBytes": 414323,
+        "avgArrayBuffersDeltaBytes": 604271,
+        "maxHeapUsedBytes": 6750032,
         "maxHeapTotalBytes": 10944512,
-        "maxRssBytes": 71946240,
+        "maxRssBytes": 71467008,
         "samples": [
           {
             "before": {
-              "rssBytes": 71946240,
-              "heapTotalBytes": 10158080,
-              "heapUsedBytes": 5257800,
-              "externalBytes": 3589321,
-              "arrayBuffersBytes": 654517
+              "rssBytes": 71467008,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5271688,
+              "externalBytes": 2118702,
+              "arrayBuffersBytes": 27481
             },
             "after": {
-              "rssBytes": 69677056,
+              "rssBytes": 70127616,
               "heapTotalBytes": 10944512,
-              "heapUsedBytes": 6761744,
-              "externalBytes": 2542131,
-              "arrayBuffersBytes": 640858
+              "heapUsedBytes": 6750032,
+              "externalBytes": 2533025,
+              "arrayBuffersBytes": 631752
             },
             "delta": {
-              "rssBytes": -2269184,
-              "heapTotalBytes": 786432,
-              "heapUsedBytes": 1503944,
-              "externalBytes": -1047190,
-              "arrayBuffersBytes": -13659
+              "rssBytes": -1339392,
+              "heapTotalBytes": 524288,
+              "heapUsedBytes": 1478344,
+              "externalBytes": 414323,
+              "arrayBuffersBytes": 604271
             }
           }
         ]
@@ -316,6 +329,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -325,8 +344,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.5211586832662605,
-      "woodstoxRatio": 0.5635402518145566,
+      "relativeToStringFull": 1.4567095466040303,
+      "woodstoxRatio": 0.5613870454487224,
       "targetStatus": "not-applicable"
     },
     {
@@ -336,46 +355,46 @@
       "contractScope": "event-types-attribute-counts-and-attribute-names",
       "eventCountKind": "stream-events",
       "fullStringParity": false,
-      "avgMs": 3723.7004000000015,
-      "minMs": 3723.7004000000015,
-      "maxMs": 3723.7004000000015,
-      "mibPerSec": 274.99601662357395,
+      "avgMs": 3860.8202999999994,
+      "minMs": 3860.8202999999994,
+      "maxMs": 3860.8202999999994,
+      "mibPerSec": 265.2293288811213,
       "eventCount": 57096514,
       "checksum": 878766131,
       "samplesMs": [
-        3723.7004000000015
+        3860.8202999999994
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 1399440,
-        "avgHeapTotalDeltaBytes": 262144,
-        "avgRssDeltaBytes": 3190784,
-        "avgExternalDeltaBytes": 928812,
-        "avgArrayBuffersDeltaBytes": 1542189,
-        "maxHeapUsedBytes": 6704256,
-        "maxHeapTotalBytes": 10682368,
-        "maxRssBytes": 72978432,
+        "avgHeapUsedDeltaBytes": 1397296,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": 2629632,
+        "avgExternalDeltaBytes": 951577,
+        "avgArrayBuffersDeltaBytes": 1555848,
+        "maxHeapUsedBytes": 6710992,
+        "maxHeapTotalBytes": 10944512,
+        "maxRssBytes": 72519680,
         "samples": [
           {
             "before": {
-              "rssBytes": 69787648,
-              "heapTotalBytes": 10420224,
-              "heapUsedBytes": 5304816,
-              "externalBytes": 2542131,
+              "rssBytes": 69890048,
+              "heapTotalBytes": 10944512,
+              "heapUsedBytes": 5313696,
+              "externalBytes": 2533025,
               "arrayBuffersBytes": 27481
             },
             "after": {
-              "rssBytes": 72978432,
-              "heapTotalBytes": 10682368,
-              "heapUsedBytes": 6704256,
-              "externalBytes": 3470943,
-              "arrayBuffersBytes": 1569670
+              "rssBytes": 72519680,
+              "heapTotalBytes": 10944512,
+              "heapUsedBytes": 6710992,
+              "externalBytes": 3484602,
+              "arrayBuffersBytes": 1583329
             },
             "delta": {
-              "rssBytes": 3190784,
-              "heapTotalBytes": 262144,
-              "heapUsedBytes": 1399440,
-              "externalBytes": 928812,
-              "arrayBuffersBytes": 1542189
+              "rssBytes": 2629632,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1397296,
+              "externalBytes": 951577,
+              "arrayBuffersBytes": 1555848
             }
           }
         ]
@@ -395,6 +414,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -404,8 +429,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 2.2262222546153274,
-      "woodstoxRatio": 0.8247435745935883,
+      "relativeToStringFull": 2.064071150889877,
+      "woodstoxRatio": 0.7954521940872452,
       "targetStatus": "not-applicable"
     },
     {
@@ -415,46 +440,46 @@
       "contractScope": "event-types-attribute-counts-and-attribute-values",
       "eventCountKind": "stream-events",
       "fullStringParity": false,
-      "avgMs": 3727.5010999999977,
-      "minMs": 3727.5010999999977,
-      "maxMs": 3727.5010999999977,
-      "mibPerSec": 274.71562036550705,
+      "avgMs": 3942.606599999999,
+      "minMs": 3942.606599999999,
+      "maxMs": 3942.606599999999,
+      "mibPerSec": 259.72735324381836,
       "eventCount": 57096514,
       "checksum": -923412077,
       "samplesMs": [
-        3727.5010999999977
+        3942.606599999999
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 2159688,
-        "avgHeapTotalDeltaBytes": 262144,
-        "avgRssDeltaBytes": -638976,
-        "avgExternalDeltaBytes": 728480,
-        "avgArrayBuffersDeltaBytes": 2270669,
-        "maxHeapUsedBytes": 7449720,
-        "maxHeapTotalBytes": 10682368,
-        "maxRssBytes": 73027584,
+        "avgHeapUsedDeltaBytes": 2287448,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": -16384,
+        "avgExternalDeltaBytes": 874176,
+        "avgArrayBuffersDeltaBytes": 2367560,
+        "maxHeapUsedBytes": 7595400,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 72540160,
         "samples": [
           {
             "before": {
-              "rssBytes": 73027584,
+              "rssBytes": 72540160,
               "heapTotalBytes": 10420224,
-              "heapUsedBytes": 5290032,
-              "externalBytes": 3470943,
-              "arrayBuffersBytes": 27481
+              "heapUsedBytes": 5307952,
+              "externalBytes": 3484602,
+              "arrayBuffersBytes": 89945
             },
             "after": {
-              "rssBytes": 72388608,
-              "heapTotalBytes": 10682368,
-              "heapUsedBytes": 7449720,
-              "externalBytes": 4199423,
-              "arrayBuffersBytes": 2298150
+              "rssBytes": 72523776,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 7595400,
+              "externalBytes": 4358778,
+              "arrayBuffersBytes": 2457505
             },
             "delta": {
-              "rssBytes": -638976,
-              "heapTotalBytes": 262144,
-              "heapUsedBytes": 2159688,
-              "externalBytes": 728480,
-              "arrayBuffersBytes": 2270669
+              "rssBytes": -16384,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 2287448,
+              "externalBytes": 874176,
+              "arrayBuffersBytes": 2367560
             }
           }
         ]
@@ -474,6 +499,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -483,8 +514,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": false,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 2.2239523148631677,
-      "woodstoxRatio": 0.8239026350955544,
+      "relativeToStringFull": 2.0212536041511218,
+      "woodstoxRatio": 0.7789511585080735,
       "targetStatus": "not-applicable"
     },
     {
@@ -494,46 +525,46 @@
       "contractScope": "full-string-materialization",
       "eventCountKind": "stream-events",
       "fullStringParity": true,
-      "avgMs": 8289.7847,
-      "minMs": 8289.7847,
-      "maxMs": 8289.7847,
-      "mibPerSec": 123.52585913354413,
+      "avgMs": 7969.007799999999,
+      "minMs": 7969.007799999999,
+      "maxMs": 7969.007799999999,
+      "mibPerSec": 128.49815219149485,
       "eventCount": 57096514,
       "checksum": -540013997,
       "samplesMs": [
-        8289.7847
+        7969.007799999999
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 1394816,
-        "avgHeapTotalDeltaBytes": 262144,
-        "avgRssDeltaBytes": -794624,
-        "avgExternalDeltaBytes": -1716481,
-        "avgArrayBuffersDeltaBytes": -523595,
-        "maxHeapUsedBytes": 6719880,
-        "maxHeapTotalBytes": 10682368,
-        "maxRssBytes": 72499200,
+        "avgHeapUsedDeltaBytes": 1456168,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": -1232896,
+        "avgExternalDeltaBytes": -1834859,
+        "avgArrayBuffersDeltaBytes": -723927,
+        "maxHeapUsedBytes": 6792800,
+        "maxHeapTotalBytes": 10420224,
+        "maxRssBytes": 72650752,
         "samples": [
           {
             "before": {
-              "rssBytes": 72499200,
+              "rssBytes": 72650752,
               "heapTotalBytes": 10420224,
-              "heapUsedBytes": 5325064,
-              "externalBytes": 4199423,
-              "arrayBuffersBytes": 1105264
+              "heapUsedBytes": 5336632,
+              "externalBytes": 4358778,
+              "arrayBuffersBytes": 1346573
             },
             "after": {
-              "rssBytes": 71704576,
-              "heapTotalBytes": 10682368,
-              "heapUsedBytes": 6719880,
-              "externalBytes": 2482942,
-              "arrayBuffersBytes": 581669
+              "rssBytes": 71417856,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 6792800,
+              "externalBytes": 2523919,
+              "arrayBuffersBytes": 622646
             },
             "delta": {
-              "rssBytes": -794624,
-              "heapTotalBytes": 262144,
-              "heapUsedBytes": 1394816,
-              "externalBytes": -1716481,
-              "arrayBuffersBytes": -523595
+              "rssBytes": -1232896,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 1456168,
+              "externalBytes": -1834859,
+              "arrayBuffersBytes": -723927
             }
           }
         ]
@@ -553,6 +584,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -563,7 +600,7 @@
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
       "relativeToStringFull": 1,
-      "woodstoxRatio": 0.37046776119669017,
+      "woodstoxRatio": 0.3853802199329729,
       "targetStatus": "below"
     },
     {
@@ -573,46 +610,46 @@
       "contractScope": "full-event-object-materialization",
       "eventCountKind": "stream-events",
       "fullStringParity": true,
-      "avgMs": 7450.3074000000015,
-      "minMs": 7450.3074000000015,
-      "maxMs": 7450.3074000000015,
-      "mibPerSec": 137.44436600020143,
+      "avgMs": 8051.639599999995,
+      "minMs": 8051.639599999995,
+      "maxMs": 8051.639599999995,
+      "mibPerSec": 127.1794104022751,
       "eventCount": 57096514,
       "checksum": -540013997,
       "samplesMs": [
-        7450.3074000000015
+        8051.639599999995
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 7243192,
-        "avgHeapTotalDeltaBytes": 62914560,
-        "avgRssDeltaBytes": 68210688,
-        "avgExternalDeltaBytes": 546360,
-        "avgArrayBuffersDeltaBytes": 1100548,
-        "maxHeapUsedBytes": 12600280,
+        "avgHeapUsedDeltaBytes": 6975968,
+        "avgHeapTotalDeltaBytes": 63176704,
+        "avgRssDeltaBytes": 68567040,
+        "avgExternalDeltaBytes": 468959,
+        "avgArrayBuffersDeltaBytes": 819540,
+        "maxHeapUsedBytes": 12334568,
         "maxHeapTotalBytes": 73596928,
-        "maxRssBytes": 139943936,
+        "maxRssBytes": 139743232,
         "samples": [
           {
             "before": {
-              "rssBytes": 71733248,
-              "heapTotalBytes": 10682368,
-              "heapUsedBytes": 5357088,
-              "externalBytes": 2482942,
-              "arrayBuffersBytes": 27481
+              "rssBytes": 71176192,
+              "heapTotalBytes": 10420224,
+              "heapUsedBytes": 5358600,
+              "externalBytes": 2523919,
+              "arrayBuffersBytes": 272065
             },
             "after": {
-              "rssBytes": 139943936,
+              "rssBytes": 139743232,
               "heapTotalBytes": 73596928,
-              "heapUsedBytes": 12600280,
-              "externalBytes": 3029302,
-              "arrayBuffersBytes": 1128029
+              "heapUsedBytes": 12334568,
+              "externalBytes": 2992878,
+              "arrayBuffersBytes": 1091605
             },
             "delta": {
-              "rssBytes": 68210688,
-              "heapTotalBytes": 62914560,
-              "heapUsedBytes": 7243192,
-              "externalBytes": 546360,
-              "arrayBuffersBytes": 1100548
+              "rssBytes": 68567040,
+              "heapTotalBytes": 63176704,
+              "heapUsedBytes": 6975968,
+              "externalBytes": 468959,
+              "arrayBuffersBytes": 819540
             }
           }
         ]
@@ -632,6 +669,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 57096514,
         "projectedRecords": 0,
@@ -641,8 +684,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.1126768675343512,
-      "woodstoxRatio": 0.41221090805079735,
+      "relativeToStringFull": 0.9897372704063908,
+      "woodstoxRatio": 0.3814251669450751,
       "targetStatus": "below"
     },
     {
@@ -652,46 +695,46 @@
       "contractScope": "full-string-materialization",
       "eventCountKind": "stream-events",
       "fullStringParity": true,
-      "avgMs": 6543.649300000005,
-      "minMs": 6543.649300000005,
-      "maxMs": 6543.649300000005,
-      "mibPerSec": 156.48802833911174,
+      "avgMs": 6880.301399999997,
+      "minMs": 6880.301399999997,
+      "maxMs": 6880.301399999997,
+      "mibPerSec": 148.83109293723817,
       "eventCount": 57096514,
       "checksum": -540013997,
       "samplesMs": [
-        6543.649300000005
+        6880.301399999997
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 19434984,
+        "avgHeapUsedDeltaBytes": 19570464,
         "avgHeapTotalDeltaBytes": 0,
-        "avgRssDeltaBytes": 11468800,
-        "avgExternalDeltaBytes": 7530662,
-        "avgArrayBuffersDeltaBytes": 8568746,
-        "maxHeapUsedBytes": 24820264,
+        "avgRssDeltaBytes": 9277440,
+        "avgExternalDeltaBytes": 7621722,
+        "avgArrayBuffersDeltaBytes": 8624406,
+        "maxHeapUsedBytes": 24964024,
         "maxHeapTotalBytes": 73596928,
-        "maxRssBytes": 151412736,
+        "maxRssBytes": 149020672,
         "samples": [
           {
             "before": {
-              "rssBytes": 139943936,
+              "rssBytes": 139743232,
               "heapTotalBytes": 73596928,
-              "heapUsedBytes": 5385280,
-              "externalBytes": 3029302,
-              "arrayBuffersBytes": 89945
+              "heapUsedBytes": 5393560,
+              "externalBytes": 2992878,
+              "arrayBuffersBytes": 88921
             },
             "after": {
-              "rssBytes": 151412736,
+              "rssBytes": 149020672,
               "heapTotalBytes": 73596928,
-              "heapUsedBytes": 24820264,
-              "externalBytes": 10559964,
-              "arrayBuffersBytes": 8658691
+              "heapUsedBytes": 24964024,
+              "externalBytes": 10614600,
+              "arrayBuffersBytes": 8713327
             },
             "delta": {
-              "rssBytes": 11468800,
+              "rssBytes": 9277440,
               "heapTotalBytes": 0,
-              "heapUsedBytes": 19434984,
-              "externalBytes": 7530662,
-              "arrayBuffersBytes": 8568746
+              "heapUsedBytes": 19570464,
+              "externalBytes": 7621722,
+              "arrayBuffersBytes": 8624406
             }
           }
         ]
@@ -711,6 +754,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -720,8 +769,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.26684428213474,
-      "woodstoxRatio": 0.46932496498728526,
+      "relativeToStringFull": 1.1582352773092182,
+      "woodstoxRatio": 0.44636096590355434,
       "targetStatus": "below"
     },
     {
@@ -731,46 +780,46 @@
       "contractScope": "full-string-materialization",
       "eventCountKind": "stream-events",
       "fullStringParity": true,
-      "avgMs": 6503.096299999997,
-      "minMs": 6503.096299999997,
-      "maxMs": 6503.096299999997,
-      "mibPerSec": 157.4638802595634,
+      "avgMs": 7188.572399999997,
+      "minMs": 7188.572399999997,
+      "maxMs": 7188.572399999997,
+      "mibPerSec": 142.44869775528863,
       "eventCount": 57096514,
       "checksum": -540013997,
       "samplesMs": [
-        6503.096299999997
+        7188.572399999997
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 15138552,
+        "avgHeapUsedDeltaBytes": 15001648,
         "avgHeapTotalDeltaBytes": 0,
-        "avgRssDeltaBytes": -4907008,
-        "avgExternalDeltaBytes": -4065829,
-        "avgArrayBuffersDeltaBytes": -2586104,
-        "maxHeapUsedBytes": 20544792,
-        "maxHeapTotalBytes": 73596928,
-        "maxRssBytes": 151437312,
+        "avgRssDeltaBytes": -2973696,
+        "avgExternalDeltaBytes": -4161442,
+        "avgArrayBuffersDeltaBytes": -2904814,
+        "maxHeapUsedBytes": 20428304,
+        "maxHeapTotalBytes": 73334784,
+        "maxRssBytes": 149118976,
         "samples": [
           {
             "before": {
-              "rssBytes": 151437312,
-              "heapTotalBytes": 73596928,
-              "heapUsedBytes": 5406240,
-              "externalBytes": 10559964,
-              "arrayBuffersBytes": 7178966
+              "rssBytes": 149118976,
+              "heapTotalBytes": 73334784,
+              "heapUsedBytes": 5426656,
+              "externalBytes": 10614600,
+              "arrayBuffersBytes": 7456699
             },
             "after": {
-              "rssBytes": 146530304,
-              "heapTotalBytes": 73596928,
-              "heapUsedBytes": 20544792,
-              "externalBytes": 6494135,
-              "arrayBuffersBytes": 4592862
+              "rssBytes": 146145280,
+              "heapTotalBytes": 73334784,
+              "heapUsedBytes": 20428304,
+              "externalBytes": 6453158,
+              "arrayBuffersBytes": 4551885
             },
             "delta": {
-              "rssBytes": -4907008,
+              "rssBytes": -2973696,
               "heapTotalBytes": 0,
-              "heapUsedBytes": 15138552,
-              "externalBytes": -4065829,
-              "arrayBuffersBytes": -2586104
+              "heapUsedBytes": 15001648,
+              "externalBytes": -4161442,
+              "arrayBuffersBytes": -2904814
             }
           }
         ]
@@ -790,6 +839,12 @@
         "rawNameCacheMisses": 0,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -799,8 +854,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.2747442629751622,
-      "woodstoxRatio": 0.47225165320273316,
+      "relativeToStringFull": 1.1085661180793007,
+      "woodstoxRatio": 0.4272194543956429,
       "targetStatus": "below"
     },
     {
@@ -810,46 +865,46 @@
       "contractScope": "full-string-materialization",
       "eventCountKind": "stream-events",
       "fullStringParity": true,
-      "avgMs": 5992.967900000003,
-      "minMs": 5992.967900000003,
-      "maxMs": 5992.967900000003,
-      "mibPerSec": 170.8673889442339,
+      "avgMs": 6158.493800000004,
+      "minMs": 6158.493800000004,
+      "maxMs": 6158.493800000004,
+      "mibPerSec": 166.27487342759179,
       "eventCount": 57096514,
       "checksum": -540013997,
       "samplesMs": [
-        5992.967900000003
+        6158.493800000004
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 875272,
-        "avgHeapTotalDeltaBytes": 0,
-        "avgRssDeltaBytes": 4149248,
-        "avgExternalDeltaBytes": -4216078,
-        "avgArrayBuffersDeltaBytes": -2790989,
-        "maxHeapUsedBytes": 6366472,
-        "maxHeapTotalBytes": 73596928,
-        "maxRssBytes": 150695936,
+        "avgHeapUsedDeltaBytes": 1026232,
+        "avgHeapTotalDeltaBytes": 524288,
+        "avgRssDeltaBytes": 4243456,
+        "avgExternalDeltaBytes": -4115912,
+        "avgArrayBuffersDeltaBytes": -2695376,
+        "maxHeapUsedBytes": 6524936,
+        "maxHeapTotalBytes": 73859072,
+        "maxRssBytes": 150417408,
         "samples": [
           {
             "before": {
-              "rssBytes": 146546688,
-              "heapTotalBytes": 73596928,
-              "heapUsedBytes": 5491200,
-              "externalBytes": 6494135,
-              "arrayBuffersBytes": 3167773
+              "rssBytes": 146173952,
+              "heapTotalBytes": 73334784,
+              "heapUsedBytes": 5498704,
+              "externalBytes": 6453158,
+              "arrayBuffersBytes": 3131349
             },
             "after": {
-              "rssBytes": 150695936,
-              "heapTotalBytes": 73596928,
-              "heapUsedBytes": 6366472,
-              "externalBytes": 2278057,
-              "arrayBuffersBytes": 376784
+              "rssBytes": 150417408,
+              "heapTotalBytes": 73859072,
+              "heapUsedBytes": 6524936,
+              "externalBytes": 2337246,
+              "arrayBuffersBytes": 435973
             },
             "delta": {
-              "rssBytes": 4149248,
-              "heapTotalBytes": 0,
-              "heapUsedBytes": 875272,
-              "externalBytes": -4216078,
-              "arrayBuffersBytes": -2790989
+              "rssBytes": 4243456,
+              "heapTotalBytes": 524288,
+              "heapUsedBytes": 1026232,
+              "externalBytes": -4115912,
+              "arrayBuffersBytes": -2695376
             }
           }
         ]
@@ -869,6 +924,12 @@
         "rawNameCacheMisses": 9,
         "rawValueCacheHits": 0,
         "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -878,9 +939,94 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 1.3832519777054029,
-      "woodstoxRatio": 0.5124502633514145,
+      "relativeToStringFull": 1.2939864939053756,
+      "woodstoxRatio": 0.49867679961155015,
       "targetStatus": "below"
+    },
+    {
+      "id": "rawFrameSemanticChecksum",
+      "family": "semantic-upper-bound",
+      "implementation": "nextRawBatch typed arrays with direct UTF-16 checksum folding and no string materialization on ASCII spans",
+      "contractScope": "same-fields-checksum-no-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": false,
+      "avgMs": 6465.636899999998,
+      "minMs": 6465.636899999998,
+      "maxMs": 6465.636899999998,
+      "mibPerSec": 158.37616509204372,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "samplesMs": [
+        6465.636899999998
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 32674088,
+        "avgHeapTotalDeltaBytes": 0,
+        "avgRssDeltaBytes": 1208320,
+        "avgExternalDeltaBytes": 14742614,
+        "avgArrayBuffersDeltaBytes": 14865545,
+        "maxHeapUsedBytes": 38185264,
+        "maxHeapTotalBytes": 73859072,
+        "maxRssBytes": 151638016,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 150429696,
+              "heapTotalBytes": 73859072,
+              "heapUsedBytes": 5511176,
+              "externalBytes": 2337246,
+              "arrayBuffersBytes": 313042
+            },
+            "after": {
+              "rssBytes": 151638016,
+              "heapTotalBytes": 73859072,
+              "heapUsedBytes": 38185264,
+              "externalBytes": 17079860,
+              "arrayBuffersBytes": 15178587
+            },
+            "delta": {
+              "rssBytes": 1208320,
+              "heapTotalBytes": 0,
+              "heapUsedBytes": 32674088,
+              "externalBytes": 14742614,
+              "arrayBuffersBytes": 14865545
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 0,
+        "nameStringReads": 0,
+        "textStringReads": 0,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 0,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "rawValueCacheHits": 0,
+        "rawValueCacheMisses": 0,
+        "semanticByteFoldFields": 62758976,
+        "semanticNameByteFoldFields": 40109120,
+        "semanticTextByteFoldFields": 16987392,
+        "semanticAttrNameByteFoldFields": 2831232,
+        "semanticAttrValueByteFoldFields": 2831232,
+        "semanticByteFoldFallbacks": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 2831232
+      },
+      "boundedMemory": true,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.2325170626268855,
+      "woodstoxRatio": 0.4749876966662908,
+      "targetStatus": "not-applicable"
     },
     {
       "id": "rawFrameStringCache",
@@ -889,46 +1035,46 @@
       "contractScope": "full-string-materialization",
       "eventCountKind": "stream-events",
       "fullStringParity": true,
-      "avgMs": 8807.333899999998,
-      "minMs": 8807.333899999998,
-      "maxMs": 8807.333899999998,
-      "mibPerSec": 116.2670552435408,
+      "avgMs": 8405.746,
+      "minMs": 8405.746,
+      "maxMs": 8405.746,
+      "mibPerSec": 121.8217606265535,
       "eventCount": 57096514,
       "checksum": -540013997,
       "samplesMs": [
-        8807.333899999998
+        8405.746
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 9946464,
+        "avgHeapUsedDeltaBytes": 9882680,
         "avgHeapTotalDeltaBytes": 262144,
-        "avgRssDeltaBytes": 765952,
-        "avgExternalDeltaBytes": 4108195,
-        "avgArrayBuffersDeltaBytes": 4235679,
-        "maxHeapUsedBytes": 15441840,
-        "maxHeapTotalBytes": 73859072,
-        "maxRssBytes": 151470080,
+        "avgRssDeltaBytes": 20480,
+        "avgExternalDeltaBytes": -10720926,
+        "avgArrayBuffersDeltaBytes": -9273072,
+        "maxHeapUsedBytes": 15459456,
+        "maxHeapTotalBytes": 74121216,
+        "maxRssBytes": 151711744,
         "samples": [
           {
             "before": {
-              "rssBytes": 150704128,
-              "heapTotalBytes": 73596928,
-              "heapUsedBytes": 5495376,
-              "externalBytes": 2278057,
-              "arrayBuffersBytes": 249300
+              "rssBytes": 151691264,
+              "heapTotalBytes": 73859072,
+              "heapUsedBytes": 5576776,
+              "externalBytes": 17079860,
+              "arrayBuffersBytes": 13730733
             },
             "after": {
-              "rssBytes": 151470080,
-              "heapTotalBytes": 73859072,
-              "heapUsedBytes": 15441840,
-              "externalBytes": 6386252,
-              "arrayBuffersBytes": 4484979
+              "rssBytes": 151711744,
+              "heapTotalBytes": 74121216,
+              "heapUsedBytes": 15459456,
+              "externalBytes": 6358934,
+              "arrayBuffersBytes": 4457661
             },
             "delta": {
-              "rssBytes": 765952,
+              "rssBytes": 20480,
               "heapTotalBytes": 262144,
-              "heapUsedBytes": 9946464,
-              "externalBytes": 4108195,
-              "arrayBuffersBytes": 4235679
+              "heapUsedBytes": 9882680,
+              "externalBytes": -10720926,
+              "arrayBuffersBytes": -9273072
             }
           }
         ]
@@ -948,6 +1094,12 @@
         "rawNameCacheMisses": 9,
         "rawValueCacheHits": 19818557,
         "rawValueCacheMisses": 67,
+        "semanticByteFoldFields": 0,
+        "semanticNameByteFoldFields": 0,
+        "semanticTextByteFoldFields": 0,
+        "semanticAttrNameByteFoldFields": 0,
+        "semanticAttrValueByteFoldFields": 0,
+        "semanticByteFoldFallbacks": 0,
         "implicitAttrValueReads": 0,
         "eventObjects": 0,
         "projectedRecords": 0,
@@ -957,8 +1109,8 @@
       "boundedMemory": true,
       "runtimeLimitCounterexampleEligible": true,
       "counterexampleStatus": "not-found",
-      "relativeToStringFull": 0.9412365642229145,
-      "woodstoxRatio": 0.3486978027041278,
+      "relativeToStringFull": 0.948042898274585,
+      "woodstoxRatio": 0.36535698064295263,
       "targetStatus": "below"
     }
   ],
@@ -967,12 +1119,12 @@
       "id": "bounded-memory-contract",
       "summary": "Rows consume corpus-backed Uint8Array batches and do not load a full XML string.",
       "evidence": [
-        "stringFull: maxRSS=69.1 MiB",
-        "eventObjectFull: maxRSS=133.5 MiB",
-        "cursorAccessor: maxRSS=144.4 MiB",
-        "rawFrameDirect: maxRSS=144.4 MiB",
-        "rawFrameNameId: maxRSS=143.7 MiB",
-        "rawFrameStringCache: maxRSS=144.5 MiB"
+        "stringFull: maxRSS=69.3 MiB",
+        "eventObjectFull: maxRSS=133.3 MiB",
+        "cursorAccessor: maxRSS=142.1 MiB",
+        "rawFrameDirect: maxRSS=142.2 MiB",
+        "rawFrameNameId: maxRSS=143.4 MiB",
+        "rawFrameStringCache: maxRSS=144.7 MiB"
       ]
     },
     {
@@ -984,6 +1136,13 @@
         "textStringOnly: event-types-attribute-counts-and-text-cdata, strings=16987392",
         "attrNameStringOnly: event-types-attribute-counts-and-attribute-names, strings=2831232",
         "attrValueStringOnly: event-types-attribute-counts-and-attribute-values, strings=2831232"
+      ]
+    },
+    {
+      "id": "semantic-no-string-upper-bound",
+      "summary": "Semantic checksum rows fold the same fields and checksum without string materialization on ASCII spans, but they are not StAX full-string materialization rows.",
+      "evidence": [
+        "rawFrameSemanticChecksum: 158.38 MiB/s, checksum=-540013997, semanticByteFields=62758976, fallbacks=0"
       ]
     },
     {
@@ -1002,8 +1161,8 @@
       "id": "headroom-search",
       "summary": "The fastest row in each family is a headroom signal, not a runtime-limit conclusion.",
       "evidence": [
-        "partial=attrNameStringOnly 275.00 MiB/s",
-        "full=rawFrameNameId 170.87 MiB/s"
+        "partial=attrNameStringOnly 265.23 MiB/s",
+        "full=rawFrameNameId 166.27 MiB/s"
       ]
     },
     {

@@ -34,7 +34,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 85);
-  assert.equal(report.summary.measuredRowCount, 524);
+  assert.equal(report.summary.measuredRowCount, 526);
   assert.equal(report.summary.largeJsFullRowCount, 287);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
@@ -46,8 +46,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec < 200);
   assert.equal(report.summary.fastestPartialHeadroomRow.fullStringParity, false);
   assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
-  assert.equal(report.summary.fastestPartialHeadroomRow.id, 'scanAllNoDecode');
-  assert.equal(report.summary.fastestPartialHeadroomRow.mibPerSec, 333.40);
+  assert.equal(report.summary.fastestPartialHeadroomRow.id, 'attrNameStringOnly');
+  assert.equal(report.summary.fastestPartialHeadroomRow.mibPerSec, 293.91);
   assert.ok(report.summary.fastestPartialHeadroomRow.mibPerSec >= 200);
   assert.ok(report.ignoredArtifacts.includes('runtime-limit-proof-obligation-gate.json'));
   assert.ok(report.ignoredArtifacts.includes('same-contract-runtime-comparison.json'));
@@ -76,9 +76,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.memoryKind === 'process-rss'
   ));
   assert.ok(report.fastestLargeFullRows.some(row =>
-    row.sourceArtifact === 'bun-candidate-headroom-books-corpus.json'
-    && row.id === 'rawFrameNameId'
-    && row.mibPerSec === 171.51
+    row.sourceArtifact === 'bun-candidate-headroom-books-corpus-stability.json'
+    && row.id === 'stringFull'
+    && row.mibPerSec === 171.35
     && row.hasMemoryProof === true
   ));
   assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-large-asset-corpus.json'));

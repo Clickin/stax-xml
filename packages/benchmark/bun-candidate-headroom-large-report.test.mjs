@@ -76,6 +76,7 @@ test('bun large candidate headroom matrix records JSC bounded byte-batch rows', 
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
+    'rawFrameSemanticChecksum',
     'rawFrameStringCache',
   ]);
 
@@ -88,6 +89,7 @@ test('bun large candidate headroom matrix records JSC bounded byte-batch rows', 
 
   const rawDirect = report.variants.find(entry => entry.id === 'rawFrameDirect');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
+  const rawSemanticChecksum = report.variants.find(entry => entry.id === 'rawFrameSemanticChecksum');
   const rawStringCache = report.variants.find(entry => entry.id === 'rawFrameStringCache');
   const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
   assert.equal(eventObjectFull.materializationCounters.eventObjects, eventObjectFull.eventCount);
@@ -95,6 +97,10 @@ test('bun large candidate headroom matrix records JSC bounded byte-batch rows', 
   assert.ok(rawDirect.materializationCounters.rawSpanMaterializations > 0);
   assert.ok(rawNameId.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawNameId.materializationCounters.rawSpanMaterializations < rawDirect.materializationCounters.rawSpanMaterializations);
+  assert.equal(rawSemanticChecksum.fullStringParity, false);
+  assert.equal(rawSemanticChecksum.checksum, report.fullStringParity.checksum);
+  assert.equal(rawSemanticChecksum.materializationCounters.stringFieldReads, 0);
+  assert.ok(rawSemanticChecksum.materializationCounters.semanticByteFoldFields > 0);
   assert.ok(rawStringCache.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawValueCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawSpanMaterializations <= rawNameId.materializationCounters.rawSpanMaterializations);

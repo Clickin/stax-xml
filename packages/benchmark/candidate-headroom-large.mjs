@@ -236,6 +236,14 @@ function createVariants(fixture) {
       run: () => consumeRawFrameStyle(fixture, []),
     },
     {
+      id: 'rawFrameSemanticChecksum',
+      family: 'semantic-upper-bound',
+      implementation: 'nextRawBatch typed arrays with direct UTF-16 checksum folding and no string materialization on ASCII spans',
+      contractScope: 'same-fields-checksum-no-string-materialization',
+      fullStringParity: false,
+      run: () => consumeRawFrameSemanticChecksumStyle(fixture),
+    },
+    {
       id: 'rawFrameStringCache',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache and bounded span string cache',
@@ -594,6 +602,7 @@ function computeFullStringParity(variants) {
 
 function createFindings(variants, fixture) {
   const partialRows = variants.filter((entry) => entry.family === 'partial-upper-bound');
+  const semanticRows = variants.filter((entry) => entry.family === 'semantic-upper-bound');
   const fullRows = variants.filter((entry) => entry.fullStringParity);
   const projectionRows = variants.filter((entry) => entry.eventCountKind === 'projected-records');
   const fastestPartial = maxBy(partialRows, (entry) => entry.mibPerSec);
@@ -610,6 +619,13 @@ function createFindings(variants, fixture) {
       id: 'contract-separation',
       summary: 'Partial rows deliberately drop one or more string fields and are not StAX parity rows.',
       evidence: partialRows.map((entry) => `${entry.id}: ${entry.contractScope}, strings=${entry.materializationCounters.stringFieldReads}`),
+    },
+    {
+      id: 'semantic-no-string-upper-bound',
+      summary: 'Semantic checksum rows fold the same fields and checksum without string materialization on ASCII spans, but they are not StAX full-string materialization rows.',
+      evidence: semanticRows.length
+        ? semanticRows.map((entry) => `${entry.id}: ${formatRate(entry.mibPerSec)}, checksum=${entry.checksum}, semanticByteFields=${entry.materializationCounters.semanticByteFoldFields}, fallbacks=${entry.materializationCounters.semanticByteFoldFallbacks}`)
+        : ['semantic-upper-bound=missing'],
     },
     {
       id: 'full-string-parity',
@@ -905,6 +921,23 @@ function consumeRawFrameStyle(fixture, nameCache, valueCache) {
   return { eventCount, checksum, materializationCounters };
 }
 
+function consumeRawFrameSemanticChecksumStyle(fixture) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const parser = new StreamReaderSync(byteBatches(fixture));
+  const materializationCounters = createMaterializationCounters();
+  let checksum = 0;
+  let eventCount = 0;
+  let frame;
+
+  while ((frame = parser.nextRawBatch()) !== null) {
+    const result = consumeRawFrameSemanticChecksum(frame, checksum, eventCount, decoder, materializationCounters);
+    checksum = result.checksum;
+    eventCount = result.eventCount;
+  }
+
+  return { eventCount, checksum, materializationCounters };
+}
+
 function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueCache, materializationCounters) {
   if (frame.kind !== 'frame') {
     throw new Error(`Unsupported raw batch kind in large candidate matrix: ${frame.kind}`);
@@ -979,6 +1012,77 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             'attrValue',
           );
         checksum = foldString(checksum, value);
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function consumeRawFrameSemanticChecksum(frame, checksum, eventCount, decoder, materializationCounters) {
+  if (frame.kind !== 'frame') {
+    throw new Error(`Unsupported raw batch kind in large candidate matrix: ${frame.kind}`);
+  }
+
+  const {
+    buffer,
+    eventTypes,
+    nameStarts,
+    nameEnds,
+    textStarts,
+    textEnds,
+    attrStarts,
+    attrCounts,
+    attrNameStarts,
+    attrNameEnds,
+    attrValueStarts,
+    attrValueEnds,
+  } = frame;
+  const count = frame.eventCount;
+
+  for (let index = 0; index < count; index++) {
+    const type = eventTypes[index];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
+
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      checksum = foldSemanticSpan(checksum, buffer, nameStarts[index], nameEnds[index], decoder, materializationCounters, 'name');
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      const start = textStarts[index];
+      if (start >= 0) {
+        checksum = foldSemanticSpan(checksum, buffer, start, textEnds[index], decoder, materializationCounters, 'text', true);
+      }
+    }
+    if (type === StreamEventType.START_ELEMENT) {
+      const attrStart = attrStarts[index];
+      const attrCount = attrCounts[index];
+      materializationCounters.attributePairs += attrCount;
+      checksum = mixChecksum(checksum, attrCount);
+      const attrEnd = attrStart + attrCount;
+      for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+        checksum = foldSemanticSpan(
+          checksum,
+          buffer,
+          attrNameStarts[attrIndex],
+          attrNameEnds[attrIndex],
+          decoder,
+          materializationCounters,
+          'attrName',
+        );
+        if (isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)) {
+          materializationCounters.implicitAttrValueReads++;
+        } else {
+          checksum = foldSemanticSpan(
+            checksum,
+            buffer,
+            attrValueStarts[attrIndex],
+            attrValueEnds[attrIndex],
+            decoder,
+            materializationCounters,
+            'attrValue',
+          );
+        }
       }
     }
   }
@@ -1080,6 +1184,50 @@ function spanEquals(buffer, start, end, bytes) {
     }
   }
   return true;
+}
+
+function foldSemanticSpan(seed, buffer, start, end, decoder, materializationCounters, kind, trim = false) {
+  incrementSemanticByteFoldField(materializationCounters, kind);
+  const [trimmedStart, trimmedEnd] = trim ? trimAsciiWhitespace(buffer, start, end) : [start, end];
+  if (canFoldAsciiSpan(buffer, trimmedStart, trimmedEnd)) {
+    return foldAsciiSpan(seed, buffer, trimmedStart, trimmedEnd);
+  }
+  materializationCounters.semanticByteFoldFallbacks++;
+  const value = decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+  return foldString(seed, trim ? value.trim() : value);
+}
+
+function canFoldAsciiSpan(buffer, start, end) {
+  for (let index = start; index < end; index++) {
+    if (buffer[index] > 0x7f) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function foldAsciiSpan(seed, buffer, start, end) {
+  let next = seed;
+  for (let index = start; index < end; index++) {
+    next = ((next << 5) - next + buffer[index]) | 0;
+  }
+  return next;
+}
+
+function trimAsciiWhitespace(buffer, start, end) {
+  let trimmedStart = start;
+  let trimmedEnd = end;
+  while (trimmedStart < trimmedEnd && isAsciiXmlWhitespace(buffer[trimmedStart])) {
+    trimmedStart++;
+  }
+  while (trimmedEnd > trimmedStart && isAsciiXmlWhitespace(buffer[trimmedEnd - 1])) {
+    trimmedEnd--;
+  }
+  return [trimmedStart, trimmedEnd];
+}
+
+function isAsciiXmlWhitespace(value) {
+  return value === 0x20 || value === 0x09 || value === 0x0a || value === 0x0d;
 }
 
 function decodeSpan(buffer, start, end, decoder, materializationCounters, kind) {
@@ -1241,12 +1389,36 @@ function createMaterializationCounters() {
     rawNameCacheMisses: 0,
     rawValueCacheHits: 0,
     rawValueCacheMisses: 0,
+    semanticByteFoldFields: 0,
+    semanticNameByteFoldFields: 0,
+    semanticTextByteFoldFields: 0,
+    semanticAttrNameByteFoldFields: 0,
+    semanticAttrValueByteFoldFields: 0,
+    semanticByteFoldFallbacks: 0,
     implicitAttrValueReads: 0,
     eventObjects: 0,
     projectedRecords: 0,
     projectionFieldReads: 0,
     attributePairs: 0,
   };
+}
+
+function incrementSemanticByteFoldField(counters, kind) {
+  counters.semanticByteFoldFields++;
+  switch (kind) {
+    case 'name':
+      counters.semanticNameByteFoldFields++;
+      break;
+    case 'text':
+      counters.semanticTextByteFoldFields++;
+      break;
+    case 'attrName':
+      counters.semanticAttrNameByteFoldFields++;
+      break;
+    case 'attrValue':
+      counters.semanticAttrValueByteFoldFields++;
+      break;
+  }
 }
 
 function countStringField(counters, kind) {
@@ -1509,8 +1681,8 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('Counters are collected inside the measured large-input loop to avoid a second 1 GiB+ pass.');
   lines.push('');
-  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Event objects | Projected records | Projection fields | Attribute pairs |');
-  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Event objects | Projected records | Projection fields | Attribute pairs |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
   for (const entry of report.variants) {
     const counters = entry.materializationCounters;
     lines.push(
@@ -1519,6 +1691,7 @@ function renderMarkdown(report) {
       + `${formatCount(counters.attrValueStringReads)} | ${formatCount(counters.rawSpanMaterializations)} | `
       + `${formatCount(counters.rawNameCacheHits)}/${formatCount(counters.rawNameCacheMisses)} | `
       + `${formatCount(counters.rawValueCacheHits)}/${formatCount(counters.rawValueCacheMisses)} | `
+      + `${formatCount(counters.semanticByteFoldFields)}/${formatCount(counters.semanticByteFoldFallbacks)} | `
       + `${formatCount(counters.eventObjects)} | ${formatCount(counters.projectedRecords)} | `
       + `${formatCount(counters.projectionFieldReads)} | ${formatCount(counters.attributePairs)} |`,
     );
