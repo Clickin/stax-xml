@@ -1,0 +1,252 @@
+{
+  "generatedAt": "2026-05-24T23:47:11.808Z",
+  "objective": "file-backed-core-decomposition",
+  "contract": "file-backed-parser-core-materialization-decomposition",
+  "note": "Runs each parser-core consumption shape in a fresh Node process over the same demand-driven file-backed byte batches. Partial rows expose parser/frame headroom but are not full-string StAX counterexamples.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "tools": [
+      "stax-scan-all-no-decode",
+      "stax-raw-frame-semantic-checksum",
+      "stax-stream",
+      "stax-raw-frame-name-id"
+    ],
+    "chunkKiB": 256,
+    "batchSize": 1,
+    "runs": 1,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "stax-scan-all-no-decode",
+      "tool": "stax-scan-all-no-decode",
+      "implementation": "Node + stax-xml StreamReaderSync scan-only file-backed Iterable<Uint8Array[]>",
+      "family": "partial-scan",
+      "contractScope": "partial-scan-no-string-materialization",
+      "fullStringParity": false,
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 178.4637054499658,
+      "avgMs": 5737.8604000000005,
+      "minMs": 5737.8604000000005,
+      "maxMs": 5737.8604000000005,
+      "samplesMs": [
+        5737.8604000000005
+      ],
+      "eventCount": 61236571,
+      "checksum": -1830981171,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 70705152,
+        "maxHeapUsedBytes": 6317592,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64331776,
+              "heapUsedBytes": 4928032,
+              "externalBytes": 2166143,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 70705152,
+              "heapUsedBytes": 6317592,
+              "externalBytes": 5165481,
+              "arrayBuffersBytes": 3083530
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "stax-raw-frame-semantic-checksum",
+      "tool": "stax-raw-frame-semantic-checksum",
+      "implementation": "Node + stax-xml nextRawBatch semantic byte-fold file-backed Iterable<Uint8Array[]>",
+      "family": "same-fields-no-string-materialization",
+      "contractScope": "same-fields-checksum-no-string-materialization",
+      "fullStringParity": false,
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 103.37751440744827,
+      "avgMs": 9905.4406,
+      "minMs": 9905.4406,
+      "maxMs": 9905.4406,
+      "samplesMs": [
+        9905.4406
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 135712768,
+        "maxHeapUsedBytes": 6207024,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64307200,
+              "heapUsedBytes": 4928088,
+              "externalBytes": 2166143,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 135712768,
+              "heapUsedBytes": 6207024,
+              "externalBytes": 66722412,
+              "arrayBuffersBytes": 64640461
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "stax-stream",
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "family": "full-string-materialization",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 95.08086864509156,
+      "avgMs": 10769.7778,
+      "minMs": 10769.7778,
+      "maxMs": 10769.7778,
+      "samplesMs": [
+        10769.7778
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 72208384,
+        "maxHeapUsedBytes": 6081800,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64581632,
+              "heapUsedBytes": 4927664,
+              "externalBytes": 2166143,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 72208384,
+              "heapUsedBytes": 6081800,
+              "externalBytes": 3854683,
+              "arrayBuffersBytes": 1772732
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "stax-raw-frame-name-id",
+      "tool": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "family": "full-string-materialization",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 83.66412149897135,
+      "avgMs": 12239.4141,
+      "minMs": 12239.4141,
+      "maxMs": 12239.4141,
+      "samplesMs": [
+        12239.4141
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 72499200,
+        "maxHeapUsedBytes": 7331048,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64188416,
+              "heapUsedBytes": 4927712,
+              "externalBytes": 2166143,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 72499200,
+              "heapUsedBytes": 7331048,
+              "externalBytes": 5115362,
+              "arrayBuffersBytes": 3033411
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 4,
+    "fastest": {
+      "id": "stax-scan-all-no-decode",
+      "family": "partial-scan",
+      "throughputMiBPerSec": 178.46,
+      "eventCount": 61236571,
+      "checksum": -1830981171,
+      "boundedMemory": true,
+      "maxRssMiB": 67.43
+    },
+    "fastestFullString": {
+      "id": "stax-stream",
+      "family": "full-string-materialization",
+      "throughputMiBPerSec": 95.08,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "maxRssMiB": 68.86
+    },
+    "partialThresholdRows": [],
+    "counterexamples200MiB": 0
+  },
+  "findings": [
+    {
+      "id": "fresh-process-parser-core-decomposition",
+      "classification": "BENCH_FACT",
+      "summary": "Parser-core consumption shapes were measured in separate Node processes over the same file-backed source contract.",
+      "evidence": [
+        "stax-scan-all-no-decode=178.46 MiB/s fullString=false",
+        "stax-raw-frame-semantic-checksum=103.38 MiB/s fullString=false",
+        "stax-stream=95.08 MiB/s fullString=true",
+        "stax-raw-frame-name-id=83.66 MiB/s fullString=true"
+      ]
+    },
+    {
+      "id": "same-fields-without-string-materialization",
+      "classification": "HEADROOM_EVIDENCE",
+      "summary": "The semantic byte-fold row preserves event count and checksum of the full-string row while avoiding JavaScript string materialization on ASCII spans.",
+      "evidence": [
+        "stax-raw-frame-semantic-checksum: events=61236571, checksum=-716099804, mibPerSec=103.38",
+        "stax-stream: events=61236571, checksum=-716099804, mibPerSec=95.08",
+        "stax-raw-frame-name-id: events=61236571, checksum=-716099804, mibPerSec=83.66"
+      ]
+    },
+    {
+      "id": "bounded-counterexample-search",
+      "classification": "COUNTEREXAMPLE_NOT_FOUND",
+      "summary": "Fastest bounded full-string row was stax-stream at 95.08 MiB/s.",
+      "evidence": [
+        "fastest=stax-scan-all-no-decode 178.46 MiB/s",
+        "fastestFullString=stax-stream 95.08 MiB/s"
+      ]
+    }
+  ]
+}

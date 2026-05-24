@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:31:36.513Z",
+  "generatedAt": "2026-05-24T23:47:38.938Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1213,6 +1213,27 @@
       "measuredRowCount": 4
     },
     {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "objective": "file-backed-core-decomposition",
+      "contract": "file-backed-parser-core-materialization-decomposition",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741644
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 4
+    },
+    {
       "sourceArtifact": "file-backed-source-sweep.json",
       "objective": "file-backed-source-sweep",
       "contract": "same-full-string-checksum-file-backed-byte-batches",
@@ -2085,17 +2106,17 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 108,
+    "scannedArtifactCount": 109,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 650,
-    "benchmarkArtifactCount": 76,
+    "measuredRowCount": 654,
+    "benchmarkArtifactCount": 77,
     "sourceArtifactCount": 14,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 4,
-    "largeJsFullRowCount": 399,
+    "largeJsFullRowCount": 401,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2106,9 +2127,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 34,
-        "measuredRowCount": 187,
-        "largeFullStringRowCount": 115,
+        "artifactCount": 35,
+        "measuredRowCount": 191,
+        "largeFullStringRowCount": 117,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -13460,7 +13481,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 399,
+    "largeJsFullRowCount": 401,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

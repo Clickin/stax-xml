@@ -19,7 +19,15 @@ const woodstoxDir = join(__dirname, 'external', 'woodstox');
 const quickXmlDir = join(__dirname, 'external', 'quick-xml');
 const woodstoxJar = join(woodstoxDir, 'target', 'woodstox-baseline-1.0.0-bench.jar');
 const quickXmlExe = join(quickXmlDir, 'target', 'release', process.platform === 'win32' ? 'quick_xml_baseline.exe' : 'quick_xml_baseline');
-const allTools = ['stax-stream', 'stax-raw-frame-name-id', 'stax-event', 'woodstox', 'quick-xml'];
+const allTools = [
+  'stax-scan-all-no-decode',
+  'stax-raw-frame-semantic-checksum',
+  'stax-stream',
+  'stax-raw-frame-name-id',
+  'stax-event',
+  'woodstox',
+  'quick-xml',
+];
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -291,6 +299,122 @@ function consumeStaxStream(bytes) {
   return { eventCount, checksum };
 }
 
+function consumeStaxScanAllNoDecode(bytes) {
+  let eventCount = 0;
+  let checksum = 0;
+
+  for (const batch of new StreamReaderSync(bytes)) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const type = batch.typeAt(index);
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+      if (type === StreamEventType.START_ELEMENT) {
+        checksum = mixChecksum(checksum, batch.attributeCountAt(index));
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function consumeStaxRawFrameSemanticChecksum(bytes) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const parser = new StreamReaderSync(bytes);
+  let eventCount = 0;
+  let checksum = 0;
+  let frame;
+
+  while ((frame = parser.nextRawBatch()) !== null) {
+    if (frame.kind !== 'frame') {
+      throw new Error(`Unsupported raw batch kind: ${frame.kind}`);
+    }
+    const buffer = frame.buffer;
+    const eventTypes = frame.eventTypes;
+    const nameStarts = frame.nameStarts;
+    const nameEnds = frame.nameEnds;
+    const textStarts = frame.textStarts;
+    const textEnds = frame.textEnds;
+    const attrStarts = frame.attrStarts;
+    const attrCounts = frame.attrCounts;
+    const attrNameStarts = frame.attrNameStarts;
+    const attrNameEnds = frame.attrNameEnds;
+    const attrValueStarts = frame.attrValueStarts;
+    const attrValueEnds = frame.attrValueEnds;
+    const count = frame.eventCount;
+
+    for (let index = 0; index < count; index++) {
+      const type = eventTypes[index];
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldSemanticSpan(checksum, buffer, nameStarts[index], nameEnds[index], decoder);
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        const start = textStarts[index];
+        if (start >= 0) {
+          checksum = foldSemanticSpan(checksum, buffer, start, textEnds[index], decoder, true);
+        }
+      }
+      if (type === StreamEventType.START_ELEMENT) {
+        const attrStart = attrStarts[index];
+        const attrCount = attrCounts[index];
+        checksum = mixChecksum(checksum, attrCount);
+        const attrEnd = attrStart + attrCount;
+        for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+          checksum = foldSemanticSpan(checksum, buffer, attrNameStarts[attrIndex], attrNameEnds[attrIndex], decoder);
+          checksum = foldSemanticSpan(checksum, buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder);
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function foldSemanticSpan(seed, buffer, start, end, decoder, trim = false) {
+  const [trimmedStart, trimmedEnd] = trim ? trimAsciiWhitespace(buffer, start, end) : [start, end];
+  if (canFoldAsciiSpan(buffer, trimmedStart, trimmedEnd)) {
+    return foldAsciiSpan(seed, buffer, trimmedStart, trimmedEnd);
+  }
+  const value = decodeSpan(buffer, start, end, decoder);
+  return foldString(seed, trim ? value.trim() : value);
+}
+
+function canFoldAsciiSpan(buffer, start, end) {
+  for (let index = start; index < end; index++) {
+    if (buffer[index] > 0x7f) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function foldAsciiSpan(seed, buffer, start, end) {
+  let next = seed;
+  for (let index = start; index < end; index++) {
+    next = ((next << 5) - next + buffer[index]) | 0;
+  }
+  return next;
+}
+
+function trimAsciiWhitespace(buffer, start, end) {
+  let trimmedStart = start;
+  let trimmedEnd = end;
+  while (trimmedStart < trimmedEnd && isAsciiXmlWhitespace(buffer[trimmedStart])) {
+    trimmedStart++;
+  }
+  while (trimmedEnd > trimmedStart && isAsciiXmlWhitespace(buffer[trimmedEnd - 1])) {
+    trimmedEnd--;
+  }
+  return [trimmedStart, trimmedEnd];
+}
+
+function isAsciiXmlWhitespace(value) {
+  return value === 0x20 || value === 0x09 || value === 0x0a || value === 0x0d;
+}
+
 function consumeStaxRawFrameNameId(bytes) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const parser = new StreamReaderSync(bytes);
@@ -545,7 +669,7 @@ function gcNow() {
   }
 }
 
-function measureLocal(tool, implementation, run, fileSizeMiB, options) {
+function measureLocal(tool, implementation, run, fileSizeMiB, options, rowOptions = {}) {
   for (let index = 0; index < options.warmups; index++) {
     run();
   }
@@ -577,7 +701,9 @@ function measureLocal(tool, implementation, run, fileSizeMiB, options) {
   return {
     tool,
     implementation,
-    workload: 'full-string-checksum',
+    workload: rowOptions.workload ?? 'full-string-checksum',
+    fullStringParity: rowOptions.fullStringParity,
+    contractScope: rowOptions.contractScope,
     status: 'ok',
     avgMs,
     minMs: Math.min(...samplesMs),
@@ -829,6 +955,8 @@ function createMarkdown(report) {
   lines.push('## Contract');
   lines.push('');
   lines.push('- Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.');
+  lines.push('- `stax-scan-all-no-decode` is a partial row: event types plus start-element attribute counts only.');
+  lines.push('- `stax-raw-frame-semantic-checksum` is a same-fields checksum row that avoids JavaScript string materialization on ASCII spans; it is not a full-string materialization row.');
   lines.push(`- \`stax-stream\` and \`stax-raw-frame-name-id\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
   lines.push('- `stax-event` uses `stax-xml` `EventReaderSync` public event objects.');
   lines.push('- `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.');
@@ -850,7 +978,9 @@ async function main() {
   const options = parseArgs();
   const needsStaxEvent = options.tools.includes('stax-event');
   const needsPreloadedStaxStream = (
-    options.tools.includes('stax-stream')
+    options.tools.includes('stax-scan-all-no-decode')
+    || options.tools.includes('stax-raw-frame-semantic-checksum')
+    || options.tools.includes('stax-stream')
     || options.tools.includes('stax-raw-frame-name-id')
   ) && options.staxStreamSource === 'preloaded';
   const xml = needsStaxEvent ? readTextFile(options.file) : null;
@@ -861,7 +991,31 @@ async function main() {
 
   const results = [];
   for (const tool of options.tools) {
-    if (tool === 'stax-stream') {
+    if (tool === 'stax-scan-all-no-decode') {
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml StreamReaderSync scan-only file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml StreamReaderSync scan-only preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxScanAllNoDecode(createFileByteBatches(options.file, chunkBytes, options.batchSize))
+        : () => consumeStaxScanAllNoDecode(bytes);
+      results.push(measureLocal('stax-scan-all-no-decode', implementation, run, fileSizeMiB, options, {
+        workload: 'event-types-and-attribute-counts-only',
+        contractScope: 'partial-scan-no-string-materialization',
+        fullStringParity: false,
+      }));
+    } else if (tool === 'stax-raw-frame-semantic-checksum') {
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml nextRawBatch semantic byte-fold file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml nextRawBatch semantic byte-fold preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxRawFrameSemanticChecksum(createFileByteBatches(options.file, chunkBytes, options.batchSize))
+        : () => consumeStaxRawFrameSemanticChecksum(bytes);
+      results.push(measureLocal('stax-raw-frame-semantic-checksum', implementation, run, fileSizeMiB, options, {
+        workload: 'same-fields-checksum-no-string-materialization',
+        contractScope: 'same-fields-checksum-no-string-materialization',
+        fullStringParity: false,
+      }));
+    } else if (tool === 'stax-stream') {
       const implementation = options.staxStreamSource === 'file-sync-batches'
         ? 'Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>'
         : 'Node + stax-xml StreamReaderSync preloaded Uint8Array';

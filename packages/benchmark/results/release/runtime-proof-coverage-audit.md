@@ -1,21 +1,21 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T23:31:36.513Z
+Generated: 2026-05-24T23:47:38.938Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 108
+- Scanned primary artifacts: 109
 - Ignored derived artifacts: 5
-- Measured rows recognized: 650
-- Benchmark artifacts: 76
+- Measured rows recognized: 654
+- Benchmark artifacts: 77
 - Source artifacts: 14
 - Trace/profile artifacts: 7
 - Allocation artifacts: 13
 - Environment artifacts: 2
 - Negative-result artifacts: 4
-- 1 GiB+ JS full-string rows: 399
+- 1 GiB+ JS full-string rows: 401
 - Corpus seeds: 3
 - Open or partial obligations: 2
 
@@ -23,7 +23,7 @@ This audit scans current release artifacts to show which proof obligations are c
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 34 | 187 | 115 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
+| Node/V8 | 35 | 191 | 117 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
 | Bun/JSC | 26 | 181 | 114 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 2 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
