@@ -45,6 +45,7 @@ results/integrated-parser-evidence/**/*
 results/iterable-v8-validation/**/*
 results/v8-allocation/**/*
 results/v8-codegen/**/*
+results/bun-jsc-heap-allocation-profile/**/*
 results/woodstox-hotspot/**/*
 profiles/**/*
 !profiles/.gitkeep

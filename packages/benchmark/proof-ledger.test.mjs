@@ -116,14 +116,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest\s+selected and bounded row is Bun\/JSC projection-cycle `eventObjectFull` at\s+63\.29 MiB\/s/);
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 505\s+measured rows/);
+  assert.match(markdown, /recognizes 508\s+measured rows/);
   assert.match(markdown, /277 JavaScript 1 GiB\+ full-string rows and zero\s+bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` from\s+`bun-candidate-headroom-books-corpus-stability\.json` at 176\.55 MiB\/s/);
   assert.match(markdown, /remains below the 200 MiB\/s\s+counterexample threshold/);
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 334\.63 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
-  assert.match(markdown, /recognizes 505\s+measured rows/);
-  assert.match(markdown, /58 benchmark artifacts, 9 source artifacts, 3\s+trace\/profile artifacts, 10 allocation artifacts/);
+  assert.match(markdown, /recognizes 508\s+measured rows/);
+  assert.match(markdown, /59 benchmark artifacts, 9 source artifacts, 3\s+trace\/profile artifacts, 11 allocation artifacts/);
   assert.match(markdown, /three release corpus seeds: `books\.xml`, `large\.xml`, and\s+`treebank_e\.xml`/);
   assert.match(markdown, /92 Chrome\/V8 browser rows, 78 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 78 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
@@ -146,6 +146,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-candidate-headroom-large-stability\.md/);
   assert.match(markdown, /bun-jsc-cpu-profile\.md/);
   assert.match(markdown, /bun-jsc-memory-allocation-profile\.md/);
+  assert.match(markdown, /bun-jsc-heap-allocation-profile\.md/);
   assert.match(markdown, /bun-candidate-headroom-wide\.md/);
   assert.match(markdown, /candidate-headroom-projection-large\.md/);
   assert.match(markdown, /bun-candidate-headroom-projection-large\.md/);
@@ -617,4 +618,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /after warmups and after the pre-run\s+`System\.gc\(\)`/);
   assert.match(markdown, /It is allocation-path evidence, not a\s+speed baseline/);
   assert.match(markdown, /not a deterministic allocation census/);
+  assert.match(markdown, /Bun\/JSC Heap Allocation Profile/);
+  assert.match(markdown, /retained heap snapshot pass/);
+  assert.match(markdown, /`rawFrameNameId` reported\s+`75\.37 MiB\/s`, `191\.73 MiB` max RSS, 2,198,945 retained heap bytes/);
+  assert.match(markdown, /not a 1 GiB profile row, not Bun\/JSC codegen\/IR evidence/);
 });

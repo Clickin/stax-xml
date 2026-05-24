@@ -32,11 +32,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 78);
-  assert.equal(report.summary.measuredRowCount, 505);
+  assert.equal(report.summary.scannedArtifactCount, 79);
+  assert.equal(report.summary.measuredRowCount, 508);
   assert.equal(report.summary.largeJsFullRowCount, 277);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 3);
+  assert.equal(report.summary.benchmarkArtifactCount, 59);
+  assert.equal(report.summary.allocationArtifactCount, 11);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
   assert.ok(runtimeIds.includes('node-v8'));
@@ -76,6 +78,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
+  assert.match(markdown, /11 allocation\/profile artifacts found/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);
   assert.match(markdown, /3 proof obligation\(s\) remain open or partial/);
