@@ -1,0 +1,183 @@
+{
+  "generatedAt": "2026-05-24T15:43:15.626Z",
+  "objective": "event-reader-byte-batch",
+  "contract": "public-event-object-full-string-checksum",
+  "note": "Compares direct ReadableStream chunk consumption with an AsyncIterable<Uint8Array[]> source that yields already-grouped byte batches. Both sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.",
+  "environment": {
+    "packageVersion": "1.0.0",
+    "runtimeName": "deno",
+    "runtimeLabel": "Deno/V8",
+    "nodeVersion": "v24.2.0",
+    "bunVersion": null,
+    "denoVersion": "2.7.13",
+    "v8Version": "14.7.173.20-rusty",
+    "webkitVersion": null,
+    "platform": "win32-x64",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13600K\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+  },
+  "options": {
+    "sizeGiB": 1,
+    "runs": 1,
+    "warmups": 0,
+    "diverseCycleSize": 4096,
+    "batchSizes": [
+      1,
+      16,
+      64
+    ],
+    "boundedRssMiB": 512,
+    "runtimeLabel": "Deno/V8"
+  },
+  "fixture": {
+    "source": "generated-diverse-cycle",
+    "targetBytes": 1073741824,
+    "actualBytes": 1073741863,
+    "sizeGiB": 1.0000000363215804,
+    "rows": 4096
+  },
+  "variants": [
+    {
+      "id": "readableStreamBatch1",
+      "family": "readable-stream",
+      "implementation": "EventReader over ReadableStream with internal byte batch size 1",
+      "batchSize": 1,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 50765.1455,
+      "minMs": 50765.1455,
+      "maxMs": 50765.1455,
+      "mibPerSec": 20.171320836523524,
+      "samplesMs": [
+        50765.1455
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774419,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 101838848,
+        "maxHeapUsedBytes": 22706384
+      }
+    },
+    {
+      "id": "readableStreamBatch16",
+      "family": "readable-stream",
+      "implementation": "EventReader over ReadableStream with internal byte batch size 16",
+      "batchSize": 16,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 36072.706300000005,
+      "minMs": 36072.706300000005,
+      "maxMs": 36072.706300000005,
+      "mibPerSec": 28.38711430956036,
+      "samplesMs": [
+        36072.706300000005
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774419,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 138514432,
+        "maxHeapUsedBytes": 39495992
+      }
+    },
+    {
+      "id": "readableStreamBatch64",
+      "family": "readable-stream",
+      "implementation": "EventReader over ReadableStream with internal byte batch size 64",
+      "batchSize": 64,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 34856.8612,
+      "minMs": 34856.8612,
+      "maxMs": 34856.8612,
+      "mibPerSec": 29.377287625464636,
+      "samplesMs": [
+        34856.8612
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774419,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 140554240,
+        "maxHeapUsedBytes": 37498784
+      }
+    },
+    {
+      "id": "asyncByteBatch16",
+      "family": "async-byte-batch",
+      "implementation": "createEventReaderFromAsyncByteBatches with 16 chunks yielded per await",
+      "batchSize": 16,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 33474.0177,
+      "minMs": 33474.0177,
+      "maxMs": 33474.0177,
+      "mibPerSec": 30.590891310704492,
+      "samplesMs": [
+        33474.0177
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 360902,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 141381632,
+        "maxHeapUsedBytes": 39861400
+      }
+    },
+    {
+      "id": "asyncByteBatch64",
+      "family": "async-byte-batch",
+      "implementation": "createEventReaderFromAsyncByteBatches with 64 chunks yielded per await",
+      "batchSize": 64,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 33826.20729999998,
+      "minMs": 33826.20729999998,
+      "maxMs": 33826.20729999998,
+      "mibPerSec": 30.27238697237272,
+      "samplesMs": [
+        33826.20729999998
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 90226,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 142708736,
+        "maxHeapUsedBytes": 45938776
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "backpressure-preserved",
+      "classification": "SOURCE_FACT",
+      "summary": "Both benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), and the async byte-batch source yields one batch only when next() is awaited.",
+      "evidence": [
+        "readableStreamBatch1: sourceReads=5774419, sourceBatches=5774418",
+        "readableStreamBatch16: sourceReads=5774419, sourceBatches=5774418",
+        "readableStreamBatch64: sourceReads=5774419, sourceBatches=5774418",
+        "asyncByteBatch16: sourceReads=5774418, sourceBatches=360902",
+        "asyncByteBatch64: sourceReads=5774418, sourceBatches=90226"
+      ]
+    },
+    {
+      "id": "async-byte-batch-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "At batch size 16, async byte batches were 1.08x the ReadableStream row on this run.",
+      "evidence": [
+        "readableStreamBatch16=28.39 MiB/s",
+        "asyncByteBatch16=30.59 MiB/s"
+      ]
+    }
+  ]
+}

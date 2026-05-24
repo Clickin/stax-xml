@@ -488,8 +488,8 @@ function classifyRuntimeFromArtifact(sourceArtifact, root) {
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
   if (sourceArtifact.startsWith('quick-xml-')) return 'quick-xml-rust';
-  if (/v8|node|candidate-headroom|textdecoder-span|stream-reader|event-reader|monomorphic/.test(sourceArtifact)) return 'node-v8';
   if (root.environment) return classifyRuntime(sourceArtifact, root, { environment: root.environment });
+  if (/v8|node|candidate-headroom|textdecoder-span|stream-reader|event-reader|monomorphic/.test(sourceArtifact)) return 'node-v8';
   return null;
 }
 

@@ -345,14 +345,16 @@ function makeDiverseRow(id) {
 }
 
 function createEnvironment(runtimeLabel) {
-  const runtimeName = typeof Bun !== 'undefined' ? 'bun' : 'node';
+  const runtimeName = typeof Bun !== 'undefined' ? 'bun' : globalThis.Deno ? 'deno' : 'node';
+  const denoVersion = globalThis.Deno?.version;
   return {
     packageVersion,
     runtimeName,
-    runtimeLabel: runtimeLabel ?? (runtimeName === 'bun' ? 'Bun/JSC' : 'Node/V8'),
+    runtimeLabel: runtimeLabel ?? (runtimeName === 'bun' ? 'Bun/JSC' : runtimeName === 'deno' ? 'Deno/V8' : 'Node/V8'),
     nodeVersion: process.version,
     bunVersion: typeof Bun !== 'undefined' ? Bun.version : null,
-    v8Version: process.versions.v8 ?? null,
+    denoVersion: denoVersion?.deno ?? null,
+    v8Version: denoVersion?.v8 ?? process.versions.v8 ?? null,
     webkitVersion: process.versions.webkit ?? null,
     platform: `${process.platform}-${process.arch}`,
     cpu: cpus()[0]?.model ?? 'unknown',
