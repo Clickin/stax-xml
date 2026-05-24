@@ -239,7 +239,7 @@ function createFindings(pageProbe) {
       classification: 'TRACE_FACT_LIMIT',
       summary: 'Current Firefox benchmark memory remains host process-tree evidence unless a separate privileged/profiler path is added.',
       evidence: [
-        'This audit explains the missing row-level JS heap proof; it does not replace a SpiderMonkey allocation profile.',
+        'This audit explains the missing row-level JS heap proof; it does not replace a SpiderMonkey allocator stack/type profile.',
         'Firefox/SpiderMonkey benchmark rows must stay classified separately from bounded JS heap counterexamples.',
       ],
     },

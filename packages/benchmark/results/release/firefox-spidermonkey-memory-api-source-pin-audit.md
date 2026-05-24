@@ -40,5 +40,5 @@ It is negative capability evidence for the current BiDi page context, not an all
   - Components.classes=undefined
   - Components.interfaces.nsIMemoryReporterManager=undefined
 - host-counter-boundary (TRACE_FACT_LIMIT): Current Firefox benchmark memory remains host process-tree evidence unless a separate privileged/profiler path is added.
-  - This audit explains the missing row-level JS heap proof; it does not replace a SpiderMonkey allocation profile.
+  - This audit explains the missing row-level JS heap proof; it does not replace a SpiderMonkey allocator stack/type profile.
   - Firefox/SpiderMonkey benchmark rows must stay classified separately from bounded JS heap counterexamples.

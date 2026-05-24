@@ -52,6 +52,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey String Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey Memory API Source Pin Audit/);
+  assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey Allocation Profile/);
   assert.match(markdown, /## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun TextDecoder Dispatch Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Node TextDecoder Source Pin Audit/);
@@ -125,11 +126,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 334\.63 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
   assert.match(markdown, /recognizes 514\s+measured rows/);
-  assert.match(markdown, /61 benchmark artifacts, 11 source artifacts, 5\s+trace\/profile artifacts, 11 allocation artifacts/);
+  assert.match(markdown, /61 benchmark artifacts, 11 source artifacts, 5\s+trace\/profile artifacts, 12 allocation artifacts/);
   assert.match(markdown, /three release corpus seeds: `books\.xml`, `large\.xml`, and\s+`treebank_e\.xml`/);
   assert.match(markdown, /95 Chrome\/V8 browser rows, 78 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 78 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
-  assert.match(markdown, /2 open or partial obligations/);
+  assert.match(markdown, /1 open or partial obligations/);
   assert.match(markdown, /does not\s+turn missing evidence\s+into\s+evidence that optimization\s+is impossible/);
   assert.match(markdown, /same semantic fields/);
   assert.match(markdown, /not the same object shape/);
@@ -270,7 +271,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Top sampled functions included\s+`stax\/index\.js` parser\/materialization frames/);
   assert.match(markdown, /does not cover 1 GiB browser allocation sampling/);
   assert.match(markdown, /browser codegen traces/);
-  assert.match(markdown, /non-V8 browser allocation traces/);
+  assert.match(markdown, /non-V8 browser allocation stack\/type traces/);
   assert.match(markdown, /event-reader-string-large\.md/);
   assert.match(markdown, /v8-string-limit-audit\.md/);
   assert.match(markdown, /browser-string-limit-audit\.md/);
@@ -283,7 +284,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /firefox-spidermonkey-memory-api-source-pin-audit\.md/);
   assert.match(markdown, /performance\.memory: undefined/);
   assert.match(markdown, /performance\.measureUserAgentSpecificMemory: undefined/);
-  assert.match(markdown, /This audit explains the missing row-level JS heap proof; it does not replace a\s+SpiderMonkey allocation profile/);
+  assert.match(markdown, /This audit explains the missing row-level JS heap proof; it does not replace a\s+SpiderMonkey allocator stack\/type profile/);
+  assert.match(markdown, /firefox-spidermonkey-allocation-profile\.md/);
+  assert.match(markdown, /Firefox\/SpiderMonkey Allocation Profile/);
+  assert.match(markdown, /ALLOCATION_FACT_LIMIT/);
+  assert.match(markdown, /14\s+per-variant host process-tree memory rows/);
+  assert.match(markdown, /not row-level JS heap proof/);
+  assert.match(markdown, /not portable browser RSS/);
   assert.match(markdown, /bun-webkit-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-textdecoder-dispatch-source-pin-audit\.md/);
   assert.match(markdown, /node-textdecoder-source-pin-audit\.md/);
