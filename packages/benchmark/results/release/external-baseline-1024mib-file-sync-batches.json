@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:06:11.414Z",
+  "generatedAt": "2026-05-24T23:20:58.552Z",
   "environment": {
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
     "platform": "win32-x64",
@@ -15,17 +15,19 @@
     "warmups": 0,
     "tools": [
       "stax-stream",
+      "stax-raw-frame-name-id",
       "woodstox",
       "quick-xml"
     ],
     "staxStreamSource": "file-sync-batches",
     "chunkKiB": 64,
-    "batchSize": 1
+    "batchSize": 1,
+    "boundedRssMiB": 512
   },
   "target": {
     "baselineTool": "woodstox",
     "goalRatio": 0.9,
-    "targetThroughputMiB": 234.83483484484776
+    "targetThroughputMiB": 292.0777773539032
   },
   "results": [
     {
@@ -33,16 +35,75 @@
       "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
       "workload": "full-string-checksum",
       "status": "ok",
-      "avgMs": 10963.996299999999,
-      "minMs": 10963.996299999999,
-      "maxMs": 10963.996299999999,
-      "mibPerSec": 93.39658645621974,
+      "avgMs": 10916.1371,
+      "minMs": 10916.1371,
+      "maxMs": 10916.1371,
+      "mibPerSec": 93.80606151773442,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        10963.996299999999
+        10916.1371
       ],
-      "woodstoxRatio": 0.35794062608357513,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71270400,
+        "maxHeapUsedBytes": 7193216,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64028672,
+              "heapUsedBytes": 4917256,
+              "externalBytes": 2159879,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 71270400,
+              "heapUsedBytes": 7193216,
+              "externalBytes": 3441157,
+              "arrayBuffersBytes": 1359206
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.2890512798707887,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 13253.5283,
+      "minMs": 13253.5283,
+      "maxMs": 13253.5283,
+      "mibPerSec": 77.2624319471686,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        13253.5283
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71798784,
+        "maxHeapUsedBytes": 6841512,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 71376896,
+              "heapUsedBytes": 5345680,
+              "externalBytes": 3441157,
+              "arrayBuffersBytes": 1359206
+            },
+            "after": {
+              "rssBytes": 71798784,
+              "heapUsedBytes": 6841512,
+              "externalBytes": 3128831,
+              "arrayBuffersBytes": 1046880
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.23807421907417667,
       "targetStatus": "below"
     },
     {
@@ -51,14 +112,14 @@
       "workload": "full-string-checksum",
       "status": "ok",
       "runtime": "1.8.0_472",
-      "avgMs": 3924.4597,
-      "minMs": 3924.4597,
-      "maxMs": 3924.4597,
-      "mibPerSec": 260.92759427205306,
+      "avgMs": 3155.3234,
+      "minMs": 3155.3234,
+      "maxMs": 3155.3234,
+      "mibPerSec": 324.53086372655906,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        3924.4597
+        3155.3234
       ],
       "woodstoxRatio": 1,
       "targetStatus": "met"
@@ -69,17 +130,17 @@
       "workload": "full-string-checksum",
       "status": "ok",
       "runtime": "1.0.0",
-      "avgMs": 3576.7896,
-      "minMs": 3576.7896,
-      "maxMs": 3576.7896,
-      "mibPerSec": 286.2902051433562,
+      "avgMs": 3519.9163000000003,
+      "minMs": 3519.9163000000003,
+      "maxMs": 3519.9163000000003,
+      "mibPerSec": 290.91595966035413,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        3576.7896
+        3519.9163000000003
       ],
-      "woodstoxRatio": 1.0972017196650314,
-      "targetStatus": "met"
+      "woodstoxRatio": 0.8964200086235005,
+      "targetStatus": "below"
     }
   ]
 }

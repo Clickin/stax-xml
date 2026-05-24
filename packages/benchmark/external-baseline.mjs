@@ -19,7 +19,7 @@ const woodstoxDir = join(__dirname, 'external', 'woodstox');
 const quickXmlDir = join(__dirname, 'external', 'quick-xml');
 const woodstoxJar = join(woodstoxDir, 'target', 'woodstox-baseline-1.0.0-bench.jar');
 const quickXmlExe = join(quickXmlDir, 'target', 'release', process.platform === 'win32' ? 'quick_xml_baseline.exe' : 'quick_xml_baseline');
-const allTools = ['stax-stream', 'stax-event', 'woodstox', 'quick-xml'];
+const allTools = ['stax-stream', 'stax-raw-frame-name-id', 'stax-event', 'woodstox', 'quick-xml'];
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -35,6 +35,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     staxStreamSource: 'preloaded',
     chunkKiB: 64,
     batchSize: 1,
+    boundedRssMiB: 512,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -90,6 +91,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--batch-size':
         options.batchSize = parsePositiveInteger(readValue(), name);
         break;
+      case '--bounded-rss-mib':
+        options.boundedRssMiB = parsePositiveNumber(readValue(), name);
+        break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
@@ -137,6 +141,14 @@ function parseNonNegativeInteger(value, flag) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 0) {
     throw new Error(`${flag} must be a non-negative integer.`);
+  }
+  return parsed;
+}
+
+function parsePositiveNumber(value, flag) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${flag} must be a positive number.`);
   }
   return parsed;
 }
@@ -279,6 +291,231 @@ function consumeStaxStream(bytes) {
   return { eventCount, checksum };
 }
 
+function consumeStaxRawFrameNameId(bytes) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const parser = new StreamReaderSync(bytes);
+  const nameCache = [];
+  let eventCount = 0;
+  let checksum = 0;
+  let frame;
+
+  while ((frame = parser.nextRawBatch()) !== null) {
+    if (frame.kind !== 'frame') {
+      throw new Error(`Unsupported raw batch kind: ${frame.kind}`);
+    }
+    const buffer = frame.buffer;
+    const eventTypes = frame.eventTypes;
+    const nameStarts = frame.nameStarts;
+    const nameEnds = frame.nameEnds;
+    const nameIds = frame.nameIds;
+    const textStarts = frame.textStarts;
+    const textEnds = frame.textEnds;
+    const attrStarts = frame.attrStarts;
+    const attrCounts = frame.attrCounts;
+    const attrNameStarts = frame.attrNameStarts;
+    const attrNameEnds = frame.attrNameEnds;
+    const attrNameIds = frame.attrNameIds;
+    const attrValueStarts = frame.attrValueStarts;
+    const attrValueEnds = frame.attrValueEnds;
+    const count = frame.eventCount;
+
+    for (let index = 0; index < count; index++) {
+      const type = eventTypes[index];
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldString(
+          checksum,
+          materializeName(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache),
+        );
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        const start = textStarts[index];
+        if (start >= 0) {
+          checksum = foldString(checksum, decodeSpan(buffer, start, textEnds[index], decoder).trim());
+        }
+      }
+      if (type === StreamEventType.START_ELEMENT) {
+        const attrStart = attrStarts[index];
+        const attrCount = attrCounts[index];
+        checksum = mixChecksum(checksum, attrCount);
+        const attrEnd = attrStart + attrCount;
+        for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+          checksum = foldString(
+            checksum,
+            materializeName(
+              buffer,
+              attrNameStarts[attrIndex],
+              attrNameEnds[attrIndex],
+              attrNameIds[attrIndex],
+              decoder,
+              nameCache,
+            ),
+          );
+          checksum = foldString(
+            checksum,
+            decodeSpan(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder),
+          );
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function materializeName(buffer, start, end, nameId, decoder, nameCache) {
+  if (nameId < 0 || start < 0) {
+    return undefined;
+  }
+  const cached = nameCache[nameId];
+  if (cached !== undefined) {
+    return cached;
+  }
+  const value = decodeSpan(buffer, start, end, decoder);
+  nameCache[nameId] = value;
+  return value;
+}
+
+function decodeSpan(buffer, start, end, decoder) {
+  const ascii = decodeShortAsciiSpan(buffer, start, end);
+  return ascii ?? decoder.decode(buffer.subarray(start, end));
+}
+
+function decodeShortAsciiSpan(buffer, start, end) {
+  switch (end - start) {
+    case 0:
+      return '';
+    case 1: {
+      const b0 = buffer[start];
+      return b0 <= 0x7f ? String.fromCharCode(b0) : undefined;
+    }
+    case 2: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      return (b0 | b1) <= 0x7f ? String.fromCharCode(b0, b1) : undefined;
+    }
+    case 3: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      return (b0 | b1 | b2) <= 0x7f ? String.fromCharCode(b0, b1, b2) : undefined;
+    }
+    case 4: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      return (b0 | b1 | b2 | b3) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3) : undefined;
+    }
+    case 5: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      return (b0 | b1 | b2 | b3 | b4) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4) : undefined;
+    }
+    case 6: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      return (b0 | b1 | b2 | b3 | b4 | b5) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5) : undefined;
+    }
+    case 7: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6) : undefined;
+    }
+    case 8: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7)
+        : undefined;
+    }
+    case 9: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8)
+        : undefined;
+    }
+    case 10: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9)
+        : undefined;
+    }
+    case 11: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10)
+        : undefined;
+    }
+    case 12: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11)
+        : undefined;
+    }
+    default:
+      return undefined;
+  }
+}
+
 function* createFileByteBatches(filePath, chunkBytes, batchSize) {
   const fd = openSync(filePath, 'r');
   try {
@@ -314,23 +551,29 @@ function measureLocal(tool, implementation, run, fileSizeMiB, options) {
   }
 
   const samplesMs = [];
+  const memorySamples = [];
   let eventCount = 0;
   let checksum = 0;
 
   for (let index = 0; index < options.runs; index++) {
     gcNow();
+    const before = takeMemorySnapshot();
     const startedAt = performance.now();
     const result = run();
     const elapsedMs = performance.now() - startedAt;
+    const after = takeMemorySnapshot();
     if (index > 0 && (eventCount !== result.eventCount || checksum !== result.checksum)) {
       throw new Error(`${tool} produced unstable event count or checksum.`);
     }
     eventCount = result.eventCount;
     checksum = result.checksum;
     samplesMs.push(elapsedMs);
+    memorySamples.push({ before, after });
   }
 
   const avgMs = samplesMs.reduce((sum, value) => sum + value, 0) / samplesMs.length;
+  const maxRssBytes = Math.max(...memorySamples.map(sample => sample.after.rssBytes));
+  const maxHeapUsedBytes = Math.max(...memorySamples.map(sample => sample.after.heapUsedBytes));
   return {
     tool,
     implementation,
@@ -343,6 +586,22 @@ function measureLocal(tool, implementation, run, fileSizeMiB, options) {
     eventCount,
     checksum,
     samplesMs,
+    boundedMemory: maxRssBytes <= options.boundedRssMiB * 1024 * 1024,
+    memory: {
+      maxRssBytes,
+      maxHeapUsedBytes,
+      samples: memorySamples,
+    },
+  };
+}
+
+function takeMemorySnapshot() {
+  const memory = process.memoryUsage();
+  return {
+    rssBytes: memory.rss,
+    heapUsedBytes: memory.heapUsed,
+    externalBytes: memory.external,
+    arrayBuffersBytes: memory.arrayBuffers,
   };
 }
 
@@ -541,6 +800,7 @@ function createMarkdown(report) {
     `- Fixture: ${report.fixture.path}`,
     `- Fixture size: ${report.fixture.sizeMiB.toFixed(2)} MiB`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- Bounded RSS gate: ${report.options.boundedRssMiB.toFixed(1)} MiB`,
     '',
     '## Woodstox Target',
     '',
@@ -569,7 +829,7 @@ function createMarkdown(report) {
   lines.push('## Contract');
   lines.push('');
   lines.push('- Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.');
-  lines.push(`- \`stax-stream\` uses \`stax-xml\` \`StreamReaderSync\` byte batches and index accessors; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
+  lines.push(`- \`stax-stream\` and \`stax-raw-frame-name-id\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
   lines.push('- `stax-event` uses `stax-xml` `EventReaderSync` public event objects.');
   lines.push('- `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.');
   lines.push('- `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.');
@@ -589,7 +849,10 @@ function formatStatus(result) {
 async function main() {
   const options = parseArgs();
   const needsStaxEvent = options.tools.includes('stax-event');
-  const needsPreloadedStaxStream = options.tools.includes('stax-stream') && options.staxStreamSource === 'preloaded';
+  const needsPreloadedStaxStream = (
+    options.tools.includes('stax-stream')
+    || options.tools.includes('stax-raw-frame-name-id')
+  ) && options.staxStreamSource === 'preloaded';
   const xml = needsStaxEvent ? readTextFile(options.file) : null;
   const bytes = needsPreloadedStaxStream ? readFileSync(options.file) : null;
   const fileSizeBytes = statSync(options.file).size;
@@ -606,6 +869,14 @@ async function main() {
         ? () => consumeStaxStream(createFileByteBatches(options.file, chunkBytes, options.batchSize))
         : () => consumeStaxStream(bytes);
       results.push(measureLocal('stax-stream', implementation, run, fileSizeMiB, options));
+    } else if (tool === 'stax-raw-frame-name-id') {
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml nextRawBatch name-id cache preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize))
+        : () => consumeStaxRawFrameNameId(bytes);
+      results.push(measureLocal('stax-raw-frame-name-id', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-event') {
       results.push(measureLocal('stax-event', 'Node + stax-xml EventReaderSync', () => consumeStaxEvent(xml), fileSizeMiB, options));
     } else if (tool === 'woodstox') {
@@ -635,6 +906,7 @@ async function main() {
       staxStreamSource: options.staxStreamSource,
       chunkKiB: options.chunkKiB,
       batchSize: options.batchSize,
+      boundedRssMiB: options.boundedRssMiB,
     },
     target: annotated.target,
     results: annotated.results,

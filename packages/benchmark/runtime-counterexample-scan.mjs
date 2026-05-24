@@ -275,6 +275,7 @@ function inferRuntimeLabel(sourceArtifact, node, context) {
   if (node.tool === 'woodstox') return 'Java/Woodstox';
   if (node.tool === 'quick-xml') return 'Rust/quick-xml';
   if (node.tool === 'stax-stream') return 'Node/V8 stax-stream';
+  if (node.tool === 'stax-raw-frame-name-id') return 'Node/V8 stax-raw-frame-name-id';
   if (node.tool === 'stax-event') return 'Node/V8 stax-event';
   const environment = context.environment ?? {};
   if (environment.runtimeName === 'bun') return 'Bun/JSC';

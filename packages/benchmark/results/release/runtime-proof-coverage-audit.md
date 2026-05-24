@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T23:10:18.831Z
+Generated: 2026-05-24T23:21:37.665Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -8,14 +8,14 @@ This audit scans current release artifacts to show which proof obligations are c
 
 - Scanned primary artifacts: 107
 - Ignored derived artifacts: 5
-- Measured rows recognized: 645
+- Measured rows recognized: 646
 - Benchmark artifacts: 75
 - Source artifacts: 14
 - Trace/profile artifacts: 7
 - Allocation artifacts: 13
 - Environment artifacts: 2
 - Negative-result artifacts: 4
-- 1 GiB+ JS full-string rows: 394
+- 1 GiB+ JS full-string rows: 395
 - Corpus seeds: 3
 - Open or partial obligations: 2
 
@@ -23,14 +23,14 @@ This audit scans current release artifacts to show which proof obligations are c
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 33 | 182 | 110 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
+| Node/V8 | 33 | 183 | 111 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
 | Bun/JSC | 26 | 181 | 114 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 2 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
-| Java/Woodstox | 7 | 4 | 1 | woodstox 260.93 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 2 |
-| Rust/quick-xml | 5 | 4 | 1 | quick-xml 286.29 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 1 |
+| Java/Woodstox | 7 | 4 | 1 | woodstox 324.53 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 2 |
+| Rust/quick-xml | 5 | 4 | 1 | quick-xml 290.92 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 1 |
 | unknown | 9 | 44 | 0 | none | 0 | 1 | 3 |
 
 ## Open Obligations

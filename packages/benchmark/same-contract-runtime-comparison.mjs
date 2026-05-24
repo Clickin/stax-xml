@@ -283,13 +283,8 @@ function extractExternalRows(report, spec = externalBaselineArtifacts[0]) {
       eventCount: row.eventCount,
       checksum: row.checksum,
       mibPerSec: round(row.mibPerSec),
-      boundedMemory: null,
-      memory: {
-        primaryKind: 'not-recorded',
-        note: report.options?.staxStreamSource === 'file-sync-batches' && row.tool === 'stax-stream'
-          ? 'external-baseline records throughput and checksum parity, not peak memory; this stax-stream row is demand-driven file-backed byte batches.'
-          : 'external-baseline records throughput and checksum parity, not peak memory.',
-      },
+      boundedMemory: typeof row.boundedMemory === 'boolean' ? row.boundedMemory : null,
+      memory: extractExternalMemory(row, report),
       woodstoxRatio: round(row.woodstoxRatio),
       targetStatus: row.targetStatus ?? null,
       runtimeLimitCounterexample: false,
@@ -335,6 +330,18 @@ function extractVariantRows(report, spec) {
       runtimeLimitCounterexample: counterexample,
     };
   });
+}
+
+function extractExternalMemory(row, report) {
+  if (row.memory?.maxRssBytes !== undefined) {
+    return extractMemory(row, report);
+  }
+  return {
+    primaryKind: 'not-recorded',
+    note: report.options?.staxStreamSource === 'file-sync-batches' && String(row.tool ?? '').startsWith('stax-')
+      ? 'external-baseline records throughput and checksum parity; this stax row is demand-driven file-backed byte batches.'
+      : 'external-baseline records throughput and checksum parity, not peak memory.',
+  };
 }
 
 function extractAllocationEvidence(report, spec) {
@@ -411,6 +418,7 @@ function summarize(rows, allocationEvidence) {
   const largeWoodstox = externalLargeRows.find(row => row.runtimeId === 'woodstox-jvm');
   const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');
   const largeStaxStream = externalLargeRows.find(row => row.caseId === 'stax-stream');
+  const largeRawFrameNameId = externalLargeRows.find(row => row.caseId === 'stax-raw-frame-name-id');
 
   return {
     rowCount: rows.length,
@@ -431,6 +439,8 @@ function summarize(rows, allocationEvidence) {
     externalBaseline1024MiBFileSyncBatches: {
       staxStreamMiBPerSec: round(largeStaxStream?.mibPerSec),
       staxStreamWoodstoxRatio: round(largeStaxStream?.woodstoxRatio),
+      rawFrameNameIdMiBPerSec: round(largeRawFrameNameId?.mibPerSec),
+      rawFrameNameIdWoodstoxRatio: round(largeRawFrameNameId?.woodstoxRatio),
       woodstoxMiBPerSec: round(largeWoodstox?.mibPerSec),
       quickXmlMiBPerSec: round(largeQuickXml?.mibPerSec),
       quickXmlWoodstoxRatio: round(largeQuickXml?.woodstoxRatio),
@@ -470,6 +480,8 @@ function createFindings(summary) {
         `16MiB quick-xml/Woodstox=${formatNumber(summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}`,
         `1024MiB stax-stream=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec)} MiB/s`,
         `1024MiB stax-stream/Woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio)}`,
+        `1024MiB rawFrameNameId=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec)} MiB/s`,
+        `1024MiB rawFrameNameId/Woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio)}`,
         `1024MiB woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
         `1024MiB quick-xml=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s`,
       ],
@@ -496,6 +508,7 @@ function renderMarkdown(report) {
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
     `- 16 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline16MiB.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}x Woodstox)`,
     `- 1024 MiB file-backed stax-stream baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio)}x Woodstox)`,
+    `- 1024 MiB file-backed rawFrameNameId baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio)}x Woodstox)`,
     `- 1024 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
     `- 1024 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio)}x Woodstox)`,
     '',
@@ -648,6 +661,8 @@ function externalRuntimeId(tool) {
       return 'quick-xml-rust';
     case 'stax-stream':
       return 'node-v8-stax-stream';
+    case 'stax-raw-frame-name-id':
+      return 'node-v8-stax-raw-frame-name-id';
     case 'stax-event':
       return 'node-v8-stax-event';
     default:
@@ -663,6 +678,8 @@ function externalRuntimeLabel(tool) {
       return 'Rust/quick-xml';
     case 'stax-stream':
       return 'Node/V8 stax-stream';
+    case 'stax-raw-frame-name-id':
+      return 'Node/V8 stax-raw-frame-name-id';
     case 'stax-event':
       return 'Node/V8 stax-event';
     default:

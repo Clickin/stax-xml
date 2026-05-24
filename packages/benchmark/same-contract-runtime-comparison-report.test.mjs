@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 49);
-  assert.equal(report.summary.jsLargeFullRowCount, 43);
+  assert.equal(report.summary.rowCount, 50);
+  assert.equal(report.summary.jsLargeFullRowCount, 44);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.caseId, 'eventObjectFull');
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory, true);
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
@@ -41,7 +41,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec > 90);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio < 0.4);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio > 1);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec > 70);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio < 0.3);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio > 0.89);
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'not-recorded', 'process-rss']);
 
   assert.ok(report.comparisonRows.some(row =>
@@ -53,7 +55,15 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     row.sourceArtifact === 'external-baseline-1024mib-file-sync-batches.json'
     && row.caseId === 'stax-stream'
     && row.fullStringParity === true
-    && row.memory.note.includes('demand-driven file-backed byte batches')
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.sourceArtifact === 'external-baseline-1024mib-file-sync-batches.json'
+    && row.caseId === 'stax-raw-frame-name-id'
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'browser-candidate-headroom-large.json'
@@ -115,6 +125,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /does not assert identical object shape/);
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
   assert.match(markdown, /1024 MiB file-backed stax-stream baseline/);
+  assert.match(markdown, /1024 MiB file-backed rawFrameNameId baseline/);
   assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);
   assert.match(markdown, /Woodstox JFR rows are sampled allocation evidence/);
   assert.match(markdown, /dominantPhase=attribute-collection/);

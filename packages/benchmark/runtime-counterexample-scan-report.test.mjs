@@ -34,10 +34,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 107);
-  assert.equal(report.summary.measuredRowCount, 645);
-  assert.equal(report.summary.largeJsFullRowCount, 394);
+  assert.equal(report.summary.measuredRowCount, 646);
+  assert.equal(report.summary.largeJsFullRowCount, 395);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
-  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
+  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'candidate-headroom-cross-process-books-corpus.json');

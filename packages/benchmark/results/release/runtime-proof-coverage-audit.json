@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:10:18.831Z",
+  "generatedAt": "2026-05-24T23:21:37.665Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1186,7 +1186,7 @@
         "actualBytes": 1073741644
       },
       "corpusSeed": null,
-      "measuredRowCount": 3
+      "measuredRowCount": 4
     },
     {
       "sourceArtifact": "external-baseline.json",
@@ -2067,14 +2067,14 @@
     "scannedArtifactCount": 107,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 645,
+    "measuredRowCount": 646,
     "benchmarkArtifactCount": 75,
     "sourceArtifactCount": 14,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 4,
-    "largeJsFullRowCount": 394,
+    "largeJsFullRowCount": 395,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2086,8 +2086,8 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 33,
-        "measuredRowCount": 182,
-        "largeFullStringRowCount": 110,
+        "measuredRowCount": 183,
+        "largeFullStringRowCount": 111,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -2358,7 +2358,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 260.93,
+          "mibPerSec": 324.53,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -2390,7 +2390,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 286.29,
+          "mibPerSec": 290.92,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -13439,7 +13439,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 394,
+    "largeJsFullRowCount": 395,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

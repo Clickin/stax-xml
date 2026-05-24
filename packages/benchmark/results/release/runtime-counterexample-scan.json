@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:10:13.570Z",
+  "generatedAt": "2026-05-24T23:21:39.788Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -129,11 +129,11 @@
     "scannedArtifactCount": 107,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 645,
-    "largeJsFullRowCount": 394,
+    "measuredRowCount": 646,
+    "largeJsFullRowCount": 395,
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 12,
-    "unboundedOrUnknownLargeFullRowCount": 90,
+    "unboundedOrUnknownLargeFullRowCount": 89,
     "fastestLargeFullRow": {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
       "runtimeLabel": "Node/V8",
@@ -1221,25 +1221,6 @@
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
       "hasMemoryProof": true
-    },
-    {
-      "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
-      "jsonPath": "results.0",
-      "id": "stax-stream",
-      "runtimeLabel": "Node/V8 stax-stream",
-      "jsRuntime": true,
-      "fullStringParity": true,
-      "boundedMemory": null,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 93.4,
-      "eventCount": 61236571,
-      "checksum": -716099804,
-      "contractScope": "full-string-checksum",
-      "family": null,
-      "counterexampleStatus": null,
-      "memoryKind": "not-recorded",
-      "hasMemoryProof": false
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-books-corpus.json",
@@ -2586,7 +2567,7 @@
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
+      "summary": "89 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
     }
   ]
 }
