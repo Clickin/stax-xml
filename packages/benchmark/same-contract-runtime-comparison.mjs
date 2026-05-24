@@ -459,7 +459,7 @@ function renderMarkdown(report) {
     '## Limits',
     '',
     '- Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.',
-    '- Firefox browser rows currently lack page-exposed JS heap counters; their Windows host process-tree memory is report-level evidence, not row-level bounded-memory proof.',
+    '- Firefox browser rows currently lack page-exposed JS heap counters; their fresh-browser per-variant Windows host process-tree probes are row-level host evidence, not portable browser RSS or bounded JS heap proof.',
     '- Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.',
     '- This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.',
   );
@@ -483,11 +483,13 @@ function extractFixture(fixture = {}) {
 function extractMemory(row, report) {
   const memory = row.memory ?? {};
   const host = report.hostProcessMemory ?? null;
+  const hostProbe = extractHostProcessMemoryProbe(row.hostProcessMemoryProbe);
   if (memory.scope === 'browser-js-heap' || memory.maxJsHeapUsedBytes !== undefined) {
     if (typeof memory.maxJsHeapUsedBytes !== 'number') {
       return {
         primaryKind: 'browser-js-heap-unavailable',
         note: 'this browser did not expose performance.memory heap counters to page JavaScript',
+        hostProcessTreeProbe: hostProbe,
       };
     }
     return {
@@ -500,6 +502,7 @@ function extractMemory(row, report) {
         maxPrivateMiB: round(bytesToMiB(host.maxPrivateBytes)),
         note: 'host process-tree counters are report-level, not per-variant memory',
       } : null,
+      hostProcessTreeProbe: hostProbe,
     };
   }
   if (memory.maxRssBytes !== undefined) {
@@ -515,6 +518,20 @@ function extractMemory(row, report) {
   return {
     primaryKind: 'not-recorded',
     note: 'memory was not recorded for this row',
+  };
+}
+
+function extractHostProcessMemoryProbe(probe) {
+  if (!probe) {
+    return null;
+  }
+  return {
+    kind: probe.scope ?? 'host-process-tree-probe',
+    maxWorkingSetMiB: round(bytesToMiB(probe.maxWorkingSetBytes)),
+    maxPrivateMiB: round(bytesToMiB(probe.maxPrivateBytes)),
+    maxProcessCount: probe.maxProcessCount ?? null,
+    probeMibPerSec: round(probe.probeMibPerSec),
+    note: 'fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof',
   };
 }
 
@@ -652,7 +669,13 @@ function formatMemory(memory) {
     const host = memory.hostProcessTree
       ? `; host working set ${formatNumber(memory.hostProcessTree.maxWorkingSetMiB)} MiB`
       : '';
-    return `JS heap max ${formatNumber(memory.maxMiB)} MiB${host}`;
+    const probe = memory.hostProcessTreeProbe
+      ? `; fresh host probe ${formatNumber(memory.hostProcessTreeProbe.maxWorkingSetMiB)} MiB`
+      : '';
+    return `JS heap max ${formatNumber(memory.maxMiB)} MiB${host}${probe}`;
+  }
+  if (memory.primaryKind === 'browser-js-heap-unavailable' && memory.hostProcessTreeProbe) {
+    return `browser-js-heap-unavailable; fresh host probe ${formatNumber(memory.hostProcessTreeProbe.maxWorkingSetMiB)} MiB`;
   }
   return memory.primaryKind ?? 'n/a';
 }

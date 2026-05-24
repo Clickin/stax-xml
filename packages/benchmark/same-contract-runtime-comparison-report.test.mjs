@@ -56,8 +56,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     row.sourceArtifact === 'firefox-bidi-candidate-headroom.json'
     && row.runtimeId === 'firefox-spidermonkey-browser'
     && row.caseId === 'rawFrameNameId'
-    && row.mibPerSec === 58.74
+    && row.mibPerSec === 35.02
     && row.memory.primaryKind === 'browser-js-heap-unavailable'
+    && row.memory.hostProcessTreeProbe?.maxWorkingSetMiB > 700
     && row.boundedMemory === false
   ));
   assert.ok(report.comparisonRows.some(row =>
@@ -82,6 +83,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
   assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);
   assert.match(markdown, /Woodstox JFR rows are sampled allocation evidence/);
+  assert.match(markdown, /fresh-browser per-variant Windows host process-tree probes/);
   assert.match(markdown, /not proof that JavaScript runtimes have no remaining headroom/);
 });
 

@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T03:18:34.046Z
+Generated: 2026-05-24T03:57:11.783Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -25,7 +25,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | Bun/JSC | 15 | 97 | 49 | stringFull 97.82 MiB/s from candidate-headroom-cross-process-projection.json | 3 | 1 | 0 |
 | Deno/V8 | 1 | 15 | 9 | stringFull 87.62 MiB/s from candidate-headroom-cross-process-projection.json | 0 | 0 | 0 |
 | Chrome/V8 browser | 11 | 73 | 39 | stringFull 64.84 MiB/s from browser-candidate-headroom-cross-process-projection.json | 2 | 0 | 1 |
-| Firefox/SpiderMonkey browser | 2 | 3 | 3 | rawFrameNameId 58.74 MiB/s from firefox-bidi-candidate-headroom.json | 1 | 0 | 0 |
+| Firefox/SpiderMonkey browser | 2 | 3 | 3 | rawFrameNameId 35.02 MiB/s from firefox-bidi-candidate-headroom.json | 1 | 0 | 0 |
 | Java/Woodstox | 6 | 3 | 0 | none | 0 | 1 | 2 |
 | Rust/quick-xml | 4 | 3 | 0 | none | 0 | 0 | 1 |
 | unknown | 7 | 44 | 0 | none | 0 | 1 | 3 |

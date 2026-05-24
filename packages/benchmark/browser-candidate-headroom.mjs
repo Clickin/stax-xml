@@ -897,6 +897,27 @@ function renderMarkdown(report) {
     );
   }
 
+  const rowsWithHostMemoryProbe = report.variants.filter(entry => entry.hostProcessMemoryProbe);
+  if (rowsWithHostMemoryProbe.length > 0) {
+    lines.push('');
+    lines.push('## Per-Variant Host Process Memory Probes');
+    lines.push('');
+    lines.push('These counters bracket separate fresh-browser per-case probe runs at the host process-tree level. They are useful row-level host evidence, but they are not portable browser RSS, not page JS heap measurements, and not the timing samples used for the throughput table.');
+    lines.push('');
+    lines.push('| Variant | Scope | Max working set | Max private bytes | Max process count | Samples | Probe throughput |');
+    lines.push('| --- | --- | ---: | ---: | ---: | ---: | ---: |');
+    for (const entry of rowsWithHostMemoryProbe) {
+      lines.push(
+        `| ${entry.id} | ${entry.hostProcessMemoryProbe.scope} | `
+        + `${formatBytes(entry.hostProcessMemoryProbe.maxWorkingSetBytes)} | `
+        + `${formatBytes(entry.hostProcessMemoryProbe.maxPrivateBytes)} | `
+        + `${entry.hostProcessMemoryProbe.maxProcessCount ?? 'n/a'} | `
+        + `${entry.hostProcessMemoryProbe.samples?.length ?? 0} | `
+        + `${formatRate(entry.hostProcessMemoryProbe.probeMibPerSec)} |`,
+      );
+    }
+  }
+
   lines.push('');
   lines.push('## Materialization Counters');
   lines.push('');

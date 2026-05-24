@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-24T02:51:10.908Z
+Generated: 2026-05-24T03:59:15.838Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -19,7 +19,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Group | Runtime | Case | MiB/s | Bounded | Memory |
 | --- | --- | --- | ---: | --- | --- |
-| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 58.74 | no | browser-js-heap-unavailable |
+| `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 57.99 | yes | process RSS max 192.98 MiB |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB |
 
@@ -40,9 +40,9 @@ This report aggregates existing release artifacts. It compares rows only through
 | `generated-1gib-candidate` | Chrome/V8 browser | `stringFull` | 45189256 | 1421012805 | 34.46 | yes | JS heap max 14.66 MiB; host working set 522.09 MiB | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `eventObjectFull` | 45189256 | 1421012805 | 33.10 | yes | JS heap max 38.78 MiB; host working set 522.09 MiB | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `rawFrameNameId` | 45189256 | 1421012805 | 43.45 | yes | JS heap max 17.86 MiB; host working set 522.09 MiB | `browser-candidate-headroom-large.json` |
-| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 45189256 | 1421012805 | 54.71 | no | browser-js-heap-unavailable | `firefox-bidi-candidate-headroom.json` |
-| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 45189256 | 1421012805 | 44.00 | no | browser-js-heap-unavailable | `firefox-bidi-candidate-headroom.json` |
-| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 45189256 | 1421012805 | 58.74 | no | browser-js-heap-unavailable | `firefox-bidi-candidate-headroom.json` |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 45189256 | 1421012805 | 33.02 | no | browser-js-heap-unavailable; fresh host probe 783.20 MiB | `firefox-bidi-candidate-headroom.json` |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 45189256 | 1421012805 | 23.31 | no | browser-js-heap-unavailable; fresh host probe 956.18 MiB | `firefox-bidi-candidate-headroom.json` |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 45189256 | 1421012805 | 35.02 | no | browser-js-heap-unavailable; fresh host probe 775.57 MiB | `firefox-bidi-candidate-headroom.json` |
 | `corpus-1gib-candidate` | Node/V8 | `stringFull` | 75206126 | -925527041 | 62.17 | yes | process RSS max 353.58 MiB | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Node/V8 | `eventObjectFull` | 75206126 | -925527041 | 61.80 | yes | process RSS max 419.02 MiB | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 75206126 | -925527041 | 77.00 | yes | process RSS max 419.31 MiB | `candidate-headroom-corpus.json` |
@@ -87,6 +87,6 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 ## Limits
 
 - Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.
-- Firefox browser rows currently lack page-exposed JS heap counters; their Windows host process-tree memory is report-level evidence, not row-level bounded-memory proof.
+- Firefox browser rows currently lack page-exposed JS heap counters; their fresh-browser per-variant Windows host process-tree probes are row-level host evidence, not portable browser RSS or bounded JS heap proof.
 - Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.
 - This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.

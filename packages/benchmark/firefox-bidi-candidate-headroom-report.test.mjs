@@ -68,13 +68,17 @@ test('Firefox BiDi candidate headroom records same-contract SpiderMonkey rows', 
     assert.equal(row.eventCount, report.fullStringParity.eventCount);
     assert.equal(row.checksum, report.fullStringParity.checksum);
     assert.equal(row.memory.scope, 'browser-js-heap');
+    assert.equal(row.hostProcessMemoryProbe?.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
+    assert.equal(row.hostProcessMemoryProbe?.probeEventCount, row.eventCount);
+    assert.equal(row.hostProcessMemoryProbe?.probeChecksum, row.checksum);
   }
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Firefox BiDi Notes/);
   assert.match(markdown, /SpiderMonkey/);
   assert.match(markdown, /does not use Playwright, Selenium, CDP, or a native addon/);
-  assert.match(markdown, /not row-level bounded-memory proof/);
+  assert.match(markdown, /per-variant host process-tree probes are Windows host evidence/);
+  assert.match(markdown, /Per-Variant Host Process Memory Probes/);
   assert.match(markdown, /Full rows preserve/);
 });
 

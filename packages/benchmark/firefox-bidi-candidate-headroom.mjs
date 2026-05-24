@@ -131,13 +131,23 @@ async function main() {
     contextId = created.context;
     hostProcessMemorySamples.push(collectHostProcessMemorySample(browser.pid, 'browser-started', options));
     const runnerUrl = `http://127.0.0.1:${server.port}/runner.html`;
-    await client.send('browsingContext.navigate', { context: contextId, url: runnerUrl, wait: 'complete' });
     hostProcessMemorySamples.push(collectHostProcessMemorySample(browser.pid, 'before-run', options));
+    await client.send('browsingContext.navigate', { context: contextId, url: runnerUrl, wait: 'complete' });
     const browserResult = await evaluateRunner(client, contextId, options.browserTimeoutMs);
     hostProcessMemorySamples.push(collectHostProcessMemorySample(browser.pid, 'after-run', options));
     if (browserResult?.error) {
       throw new Error(`${browserResult.error.name}: ${browserResult.error.message}\n${browserResult.error.stack ?? ''}`);
     }
+
+    await client?.send('browsingContext.close', { context: contextId }).catch(() => {});
+    contextId = null;
+    await client?.send('session.end', {}).catch(() => {});
+    await client?.close().catch(() => {});
+    client = null;
+    await terminateBrowser(browser);
+    browser = null;
+
+    await collectVariantHostProcessMemoryProbes(browserResult, options);
     const report = createReport(browserResult, options, summarizeHostProcessMemory(hostProcessMemorySamples, options));
     report.objective = 'firefox-bidi-candidate-headroom';
     report.automation = {
@@ -158,6 +168,68 @@ async function main() {
     await terminateBrowser(browser);
     await server.close();
     safeRemoveDir(userDataDir);
+  }
+}
+
+async function collectVariantHostProcessMemoryProbes(browserResult, options) {
+  if (!options.collectHostProcessMemory) {
+    return;
+  }
+  for (const variant of browserResult.variants) {
+    variant.hostProcessMemoryProbe = await collectSingleVariantHostProcessMemoryProbe(variant.id, options);
+  }
+}
+
+async function collectSingleVariantHostProcessMemoryProbe(caseId, options) {
+  const caseOptions = { ...options, cases: [caseId] };
+  let probeBrowser;
+  let probeClient;
+  let probeContextId;
+  const userDataDir = mkdtempSync(join(tmpdir(), 'stax-firefox-bidi-memory-probe-'));
+  const samples = [];
+  try {
+    const browserPort = await reservePort();
+    probeBrowser = launchFirefox(caseOptions, browserPort, userDataDir);
+    probeClient = await FirefoxBidiClient.connect(`ws://127.0.0.1:${browserPort}/session`, caseOptions.browserTimeoutMs, probeBrowser);
+    await probeClient.send('session.new', { capabilities: { alwaysMatch: {} } });
+    const created = await probeClient.send('browsingContext.create', { type: 'tab' });
+    probeContextId = created.context;
+    samples.push(collectHostProcessMemorySample(probeBrowser.pid, `probe-before-${caseId}`, options));
+    const probeResult = await runBenchmarkCase(probeClient, probeContextId, caseOptions);
+    samples.push(collectHostProcessMemorySample(probeBrowser.pid, `probe-after-${caseId}`, options));
+    if (probeResult?.error) {
+      throw new Error(`${probeResult.error.name}: ${probeResult.error.message}\n${probeResult.error.stack ?? ''}`);
+    }
+    const probeVariant = probeResult.variants.find(entry => entry.id === caseId);
+    if (!probeVariant) {
+      throw new Error(`Firefox host-memory probe did not return variant ${caseId}.`);
+    }
+    return {
+      ...summarizeHostProcessMemory(samples, options),
+      note: 'Separate fresh-browser per-case Firefox probe pass bracketing this variant with Windows host process-tree counters. This is not portable browser RSS, not JS heap proof, and not the timing sample used for throughput.',
+      probeMibPerSec: probeVariant.mibPerSec,
+      probeEventCount: probeVariant.eventCount,
+      probeChecksum: probeVariant.checksum,
+    };
+  } finally {
+    if (probeContextId) {
+      await probeClient?.send('browsingContext.close', { context: probeContextId }).catch(() => {});
+    }
+    await probeClient?.send('session.end', {}).catch(() => {});
+    await probeClient?.close().catch(() => {});
+    await terminateBrowser(probeBrowser);
+    safeRemoveDir(userDataDir);
+  }
+}
+
+async function runBenchmarkCase(client, contextId, caseOptions) {
+  const server = await startBenchmarkServer(caseOptions);
+  try {
+    const runnerUrl = `http://127.0.0.1:${server.port}/runner.html`;
+    await client.send('browsingContext.navigate', { context: contextId, url: runnerUrl, wait: 'complete' });
+    return await evaluateRunner(client, contextId, caseOptions.browserTimeoutMs);
+  } finally {
+    await server.close();
   }
 }
 
@@ -310,7 +382,7 @@ function appendFirefoxNotes(markdown, report) {
     `- Browser: ${report.environment.browserName} ${report.environment.browserVersion}`,
     `- Engine: ${report.environment.javascriptEngine}`,
     '- This path does not use Playwright, Selenium, CDP, or a native addon.',
-    '- Firefox does not expose Chromium `performance.memory`; host process-tree memory is report-level evidence, not row-level bounded-memory proof.',
+    '- Firefox does not expose Chromium `performance.memory`; per-variant host process-tree probes are Windows host evidence, not portable browser RSS or JS heap proof.',
   );
   return `${lines.join('\n')}\n`;
 }

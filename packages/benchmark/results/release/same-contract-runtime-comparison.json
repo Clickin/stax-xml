@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T02:51:10.908Z",
+  "generatedAt": "2026-05-24T03:59:15.838Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -82,16 +82,20 @@
         "group": "generated-1gib-candidate",
         "fastest": {
           "group": "generated-1gib-candidate",
-          "runtimeId": "firefox-spidermonkey-browser",
-          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "runtimeId": "bun-jsc",
+          "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
-          "mibPerSec": 58.74,
-          "boundedMemory": false,
+          "mibPerSec": 57.99,
+          "boundedMemory": true,
           "memory": {
-            "primaryKind": "browser-js-heap-unavailable",
-            "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+            "primaryKind": "process-rss",
+            "maxMiB": 192.98,
+            "deltaMiB": -19.54,
+            "maxHeapUsedMiB": 45.72,
+            "maxExternalMiB": 9.01,
+            "maxArrayBuffersMiB": 8.18
           },
-          "sourceArtifact": "firefox-bidi-candidate-headroom.json"
+          "sourceArtifact": "bun-candidate-headroom-large.json"
         }
       },
       {
@@ -576,7 +580,8 @@
           "maxWorkingSetMiB": 522.09,
           "maxPrivateMiB": 283.91,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -624,7 +629,8 @@
           "maxWorkingSetMiB": 522.09,
           "maxPrivateMiB": 283.91,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -672,7 +678,8 @@
           "maxWorkingSetMiB": 522.09,
           "maxPrivateMiB": 283.91,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -709,11 +716,19 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 54.71,
+      "mibPerSec": 33.02,
       "boundedMemory": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
-        "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+        "hostProcessTreeProbe": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 783.2,
+          "maxPrivateMiB": 623.32,
+          "maxProcessCount": 12,
+          "probeMibPerSec": 33.43,
+          "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+        }
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -721,7 +736,7 @@
         "rawSpanMaterializations": 0,
         "attributePairs": 28756798
       },
-      "woodstoxRatio": 0.16,
+      "woodstoxRatio": 0.1,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -750,11 +765,19 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 44,
+      "mibPerSec": 23.31,
       "boundedMemory": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
-        "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+        "hostProcessTreeProbe": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 956.18,
+          "maxPrivateMiB": 794.43,
+          "maxProcessCount": 12,
+          "probeMibPerSec": 23.85,
+          "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+        }
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -762,7 +785,7 @@
         "rawSpanMaterializations": 0,
         "attributePairs": 28756798
       },
-      "woodstoxRatio": 0.13,
+      "woodstoxRatio": 0.07,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -791,11 +814,19 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 58.74,
+      "mibPerSec": 35.02,
       "boundedMemory": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
-        "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+        "hostProcessTreeProbe": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 775.57,
+          "maxPrivateMiB": 617.36,
+          "maxProcessCount": 12,
+          "probeMibPerSec": 36.91,
+          "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+        }
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -803,7 +834,7 @@
         "rawSpanMaterializations": 41087307,
         "attributePairs": 28756798
       },
-      "woodstoxRatio": 0.18,
+      "woodstoxRatio": 0.11,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -1113,7 +1144,8 @@
           "maxWorkingSetMiB": 865.83,
           "maxPrivateMiB": 689.17,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 75206148,
@@ -1161,7 +1193,8 @@
           "maxWorkingSetMiB": 865.83,
           "maxPrivateMiB": 689.17,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 75206148,
@@ -1209,7 +1242,8 @@
           "maxWorkingSetMiB": 865.83,
           "maxPrivateMiB": 689.17,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 75206148,
@@ -1441,7 +1475,8 @@
           "maxWorkingSetMiB": 479.99,
           "maxPrivateMiB": 240.38,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
@@ -1490,7 +1525,8 @@
           "maxWorkingSetMiB": 479.99,
           "maxPrivateMiB": 240.38,
           "note": "host process-tree counters are report-level, not per-variant memory"
-        }
+        },
+        "hostProcessTreeProbe": null
       },
       "materializationCounters": {
         "stringFieldReads": 102702850,
