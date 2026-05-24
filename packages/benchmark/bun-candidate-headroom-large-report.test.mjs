@@ -76,6 +76,7 @@ test('bun large candidate headroom matrix records JSC bounded byte-batch rows', 
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
+    'rawFrameStringCache',
   ]);
 
   const fullRows = report.variants.filter(entry => entry.fullStringParity);
@@ -87,12 +88,16 @@ test('bun large candidate headroom matrix records JSC bounded byte-batch rows', 
 
   const rawDirect = report.variants.find(entry => entry.id === 'rawFrameDirect');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
+  const rawStringCache = report.variants.find(entry => entry.id === 'rawFrameStringCache');
   const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
   assert.equal(eventObjectFull.materializationCounters.eventObjects, eventObjectFull.eventCount);
   assert.equal(eventObjectFull.checksum, report.fullStringParity.checksum);
   assert.ok(rawDirect.materializationCounters.rawSpanMaterializations > 0);
   assert.ok(rawNameId.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawNameId.materializationCounters.rawSpanMaterializations < rawDirect.materializationCounters.rawSpanMaterializations);
+  assert.ok(rawStringCache.materializationCounters.rawNameCacheHits > 0);
+  assert.ok(rawStringCache.materializationCounters.rawValueCacheHits > 0);
+  assert.ok(rawStringCache.materializationCounters.rawSpanMaterializations <= rawNameId.materializationCounters.rawSpanMaterializations);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Large Candidate Headroom Matrix/);

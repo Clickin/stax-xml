@@ -235,6 +235,14 @@ function createVariants(fixture) {
       fullStringParity: true,
       run: () => consumeRawFrameStyle(fixture, []),
     },
+    {
+      id: 'rawFrameStringCache',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache and bounded span string cache',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], new SpanStringCache()),
+    },
   ];
 
   if (fixture.fixtureShape === 'projection-cycle') {
@@ -880,7 +888,7 @@ class BatchCursor {
   }
 }
 
-function consumeRawFrameStyle(fixture, nameCache) {
+function consumeRawFrameStyle(fixture, nameCache, valueCache) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const parser = new StreamReaderSync(byteBatches(fixture));
   const materializationCounters = createMaterializationCounters();
@@ -889,7 +897,7 @@ function consumeRawFrameStyle(fixture, nameCache) {
   let frame;
 
   while ((frame = parser.nextRawBatch()) !== null) {
-    const result = consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, materializationCounters);
+    const result = consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueCache, materializationCounters);
     checksum = result.checksum;
     eventCount = result.eventCount;
   }
@@ -897,7 +905,7 @@ function consumeRawFrameStyle(fixture, nameCache) {
   return { eventCount, checksum, materializationCounters };
 }
 
-function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, materializationCounters) {
+function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueCache, materializationCounters) {
   if (frame.kind !== 'frame') {
     throw new Error(`Unsupported raw batch kind in large candidate matrix: ${frame.kind}`);
   }
@@ -934,7 +942,7 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, materi
       const start = textStarts[index];
       if (start >= 0) {
         countStringField(materializationCounters, 'text');
-        checksum = foldString(checksum, decodeSpan(buffer, start, textEnds[index], decoder, materializationCounters, 'text').trim());
+        checksum = foldString(checksum, materializeValue(buffer, start, textEnds[index], decoder, valueCache, materializationCounters, 'text').trim());
       }
     }
     if (type === StreamEventType.START_ELEMENT) {
@@ -961,7 +969,15 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, materi
         countStringField(materializationCounters, 'attrValue');
         const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
           ? countImplicitAttributeValue(materializationCounters)
-          : decodeSpan(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, materializationCounters, 'attrValue');
+          : materializeValue(
+            buffer,
+            attrValueStarts[attrIndex],
+            attrValueEnds[attrIndex],
+            decoder,
+            valueCache,
+            materializationCounters,
+            'attrValue',
+          );
         checksum = foldString(checksum, value);
       }
     }
@@ -986,6 +1002,84 @@ function materializeName(buffer, start, end, nameId, decoder, nameCache, materia
     return value;
   }
   return decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+}
+
+function materializeValue(buffer, start, end, decoder, valueCache, materializationCounters, kind) {
+  if (!valueCache) {
+    return decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+  }
+  const cached = valueCache.get(buffer, start, end);
+  if (cached !== undefined) {
+    materializationCounters.rawValueCacheHits++;
+    return cached;
+  }
+  materializationCounters.rawValueCacheMisses++;
+  const value = decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+  valueCache.set(buffer, start, end, value);
+  return value;
+}
+
+class SpanStringCache {
+  constructor(maxStoredBytes = 4 * 1024 * 1024) {
+    this.maxStoredBytes = maxStoredBytes;
+  }
+
+  buckets = new Map();
+  maxStoredBytes;
+  storedBytes = 0;
+
+  get(buffer, start, end) {
+    const length = end - start;
+    const hash = hashSpan(buffer, start, end);
+    const bucket = this.buckets.get(`${length}:${hash}`);
+    if (bucket === undefined) {
+      return undefined;
+    }
+    for (const entry of bucket) {
+      if (spanEquals(buffer, start, end, entry.bytes)) {
+        return entry.value;
+      }
+    }
+    return undefined;
+  }
+
+  set(buffer, start, end, value) {
+    const length = end - start;
+    if (this.storedBytes + length > this.maxStoredBytes) {
+      return;
+    }
+    const hash = hashSpan(buffer, start, end);
+    const key = `${length}:${hash}`;
+    const bucket = this.buckets.get(key);
+    const bytes = buffer.slice(start, end);
+    this.storedBytes += bytes.byteLength;
+    if (bucket === undefined) {
+      this.buckets.set(key, [{ bytes, value }]);
+      return;
+    }
+    bucket.push({ bytes, value });
+  }
+}
+
+function hashSpan(buffer, start, end) {
+  let hash = 2166136261;
+  for (let index = start; index < end; index++) {
+    hash = Math.imul((hash ^ buffer[index]) >>> 0, 16777619) >>> 0;
+  }
+  return hash;
+}
+
+function spanEquals(buffer, start, end, bytes) {
+  const length = end - start;
+  if (bytes.byteLength !== length) {
+    return false;
+  }
+  for (let index = 0; index < length; index++) {
+    if (buffer[start + index] !== bytes[index]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function decodeSpan(buffer, start, end, decoder, materializationCounters, kind) {
@@ -1145,6 +1239,8 @@ function createMaterializationCounters() {
     rawAttrValueSpanMaterializations: 0,
     rawNameCacheHits: 0,
     rawNameCacheMisses: 0,
+    rawValueCacheHits: 0,
+    rawValueCacheMisses: 0,
     implicitAttrValueReads: 0,
     eventObjects: 0,
     projectedRecords: 0,
@@ -1413,8 +1509,8 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('Counters are collected inside the measured large-input loop to avoid a second 1 GiB+ pass.');
   lines.push('');
-  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Event objects | Projected records | Projection fields | Attribute pairs |');
-  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Event objects | Projected records | Projection fields | Attribute pairs |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
   for (const entry of report.variants) {
     const counters = entry.materializationCounters;
     lines.push(
@@ -1422,6 +1518,7 @@ function renderMarkdown(report) {
       + `${formatCount(counters.textStringReads)} | ${formatCount(counters.attrNameStringReads)} | `
       + `${formatCount(counters.attrValueStringReads)} | ${formatCount(counters.rawSpanMaterializations)} | `
       + `${formatCount(counters.rawNameCacheHits)}/${formatCount(counters.rawNameCacheMisses)} | `
+      + `${formatCount(counters.rawValueCacheHits)}/${formatCount(counters.rawValueCacheMisses)} | `
       + `${formatCount(counters.eventObjects)} | ${formatCount(counters.projectedRecords)} | `
       + `${formatCount(counters.projectionFieldReads)} | ${formatCount(counters.attributePairs)} |`,
     );

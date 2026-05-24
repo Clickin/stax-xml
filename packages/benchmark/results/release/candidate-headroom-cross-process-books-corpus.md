@@ -1,6 +1,6 @@
 # Candidate Headroom Cross-Process Stability
 
-Generated: 2026-05-24T07:45:06.680Z
+Generated: 2026-05-24T13:21:16.185Z
 
 This report repeats the selected candidate-headroom rows in fresh runtime processes.
 It is cross-process timing evidence for the recorded machine, not a proof that JavaScript runtimes have no further headroom.
@@ -16,7 +16,7 @@ Projection rows report projected record counts and selected-field checksums; the
 - Diverse cycle size: 4096
 - Batch size: 1
 - Bounded RSS gate: 512.0 MiB
-- Cases: stringFull, eventObjectFull, rawFrameNameId
+- Cases: stringFull, eventObjectFull, rawFrameNameId, rawFrameStringCache
 
 ## Raw Artifacts
 
@@ -33,14 +33,15 @@ Projection rows report projected record counts and selected-field checksums; the
 
 | Variant | Count kind | Avg throughput | Min | Max | Spread | Samples | Stable result | Bounded all | Counterexample | Max RSS |
 | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | ---: |
-| stringFull | stream-events | 158.21 MiB/s | 154.61 MiB/s | 163.48 MiB/s | 5.6% | 156.55, 154.61, 163.48 | yes | yes | not-found | 65.7 MiB |
-| eventObjectFull | stream-events | 125.85 MiB/s | 121.18 MiB/s | 130.62 MiB/s | 7.5% | 125.75, 121.18, 130.62 | yes | yes | not-found | 127.7 MiB |
-| rawFrameNameId | stream-events | 166.68 MiB/s | 164.10 MiB/s | 170.10 MiB/s | 3.6% | 165.85, 164.10, 170.10 | yes | yes | not-found | 129.7 MiB |
+| stringFull | stream-events | 164.68 MiB/s | 160.00 MiB/s | 167.83 MiB/s | 4.8% | 160.00, 166.21, 167.83 | yes | yes | not-found | 66.0 MiB |
+| eventObjectFull | stream-events | 132.46 MiB/s | 130.53 MiB/s | 134.07 MiB/s | 2.7% | 134.07, 130.53, 132.77 | yes | yes | not-found | 131.3 MiB |
+| rawFrameNameId | stream-events | 173.26 MiB/s | 171.73 MiB/s | 175.23 MiB/s | 2.0% | 175.23, 171.73, 172.82 | yes | yes | not-found | 140.4 MiB |
+| rawFrameStringCache | stream-events | 126.66 MiB/s | 125.58 MiB/s | 127.57 MiB/s | 1.6% | 127.57, 126.82, 125.58 | yes | yes | not-found | 144.0 MiB |
 
 ### Parity
 
 - Stream/full rows stable across processes: yes
-- Stream/full rows: stringFull, eventObjectFull, rawFrameNameId
+- Stream/full rows: stringFull, eventObjectFull, rawFrameNameId, rawFrameStringCache
 - Projection rows stable across processes: yes
 - Projection rows: n/a
 
@@ -56,14 +57,15 @@ Projection rows report projected record counts and selected-field checksums; the
 
 | Variant | Count kind | Avg throughput | Min | Max | Spread | Samples | Stable result | Bounded all | Counterexample | Max RSS |
 | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | ---: |
-| stringFull | stream-events | 165.30 MiB/s | 158.18 MiB/s | 171.65 MiB/s | 8.1% | 166.06, 158.18, 171.65 | yes | yes | not-found | 189.0 MiB |
-| eventObjectFull | stream-events | 131.21 MiB/s | 124.91 MiB/s | 134.60 MiB/s | 7.4% | 134.60, 124.91, 134.13 | yes | yes | not-found | 188.8 MiB |
-| rawFrameNameId | stream-events | 171.04 MiB/s | 168.25 MiB/s | 173.63 MiB/s | 3.1% | 171.25, 168.25, 173.63 | yes | yes | not-found | 188.8 MiB |
+| stringFull | stream-events | 173.53 MiB/s | 172.48 MiB/s | 174.66 MiB/s | 1.3% | 174.66, 172.48, 173.46 | yes | yes | not-found | 189.4 MiB |
+| eventObjectFull | stream-events | 137.90 MiB/s | 136.98 MiB/s | 139.34 MiB/s | 1.7% | 139.34, 136.98, 137.38 | yes | yes | not-found | 189.4 MiB |
+| rawFrameNameId | stream-events | 181.51 MiB/s | 179.81 MiB/s | 183.10 MiB/s | 1.8% | 179.81, 181.61, 183.10 | yes | yes | not-found | 188.8 MiB |
+| rawFrameStringCache | stream-events | 144.80 MiB/s | 143.30 MiB/s | 146.67 MiB/s | 2.3% | 146.67, 144.43, 143.30 | yes | yes | not-found | 180.0 MiB |
 
 ### Parity
 
 - Stream/full rows stable across processes: yes
-- Stream/full rows: stringFull, eventObjectFull, rawFrameNameId
+- Stream/full rows: stringFull, eventObjectFull, rawFrameNameId, rawFrameStringCache
 - Projection rows stable across processes: yes
 - Projection rows: n/a
 
