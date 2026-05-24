@@ -57,6 +57,10 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.equal(report.fixture.rowCycleSize, 64);
   assert.equal(report.woodstoxTarget.baselineTool, 'woodstox');
   assert.equal(report.woodstoxTarget.goalRatio, 0.9);
+  assert.match(report.sourceContract.parserInput, /Iterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.batchBackpressure, /one grouped Uint8Array\[\] batch per synchronous parser pull/);
+  assert.match(report.sourceContract.readableStreamScope, /does not consume a pure ReadableStream directly/);
+  assert.match(report.sourceContract.corpusScope, /generated fixtures/);
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
   assert.deepEqual(report.variants.map(entry => entry.id), [
@@ -70,6 +74,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
+    'rawFrameNameIdFoldTrim',
     'rawFrameSemanticChecksum',
     'rawFrameStringCache',
   ]);
@@ -90,6 +95,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   const eventObjectFull = report.variants.find(entry => entry.id === 'eventObjectFull');
   const rawDirect = report.variants.find(entry => entry.id === 'rawFrameDirect');
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
+  const rawNameIdFoldTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdFoldTrim');
   const rawSemanticChecksum = report.variants.find(entry => entry.id === 'rawFrameSemanticChecksum');
   const rawStringCache = report.variants.find(entry => entry.id === 'rawFrameStringCache');
 
@@ -102,6 +108,10 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.ok(rawDirect.materializationCounters.rawSpanMaterializations > 0);
   assert.ok(rawNameId.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawNameId.materializationCounters.rawSpanMaterializations < rawDirect.materializationCounters.rawSpanMaterializations);
+  assert.equal(rawNameIdFoldTrim.fullStringParity, true);
+  assert.equal(rawNameIdFoldTrim.checksum, report.fullStringParity.checksum);
+  assert.equal(rawNameIdFoldTrim.materializationCounters.stringFieldReads, rawNameId.materializationCounters.stringFieldReads);
+  assert.equal(rawNameIdFoldTrim.materializationCounters.rawSpanMaterializations, rawNameId.materializationCounters.rawSpanMaterializations);
   assert.equal(rawSemanticChecksum.fullStringParity, false);
   assert.equal(rawSemanticChecksum.checksum, report.fullStringParity.checksum);
   assert.equal(rawSemanticChecksum.materializationCounters.stringFieldReads, 0);
@@ -109,6 +119,8 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.ok(rawStringCache.materializationCounters.rawNameCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawValueCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawSpanMaterializations <= rawNameId.materializationCounters.rawSpanMaterializations);
+  assert.ok(report.findings.some(entry => entry.id === 'source-consumption-contract'));
+  assert.ok(report.findings.some(entry => entry.id === 'fold-trim-text-checksum-candidate'));
   assert.ok(!report.omittedRows.some(entry => entry.id === 'eventObjectFull'));
   assert.ok(report.omittedRows.some(entry => entry.id === 'projectionLowSelectivity'));
   assert.ok(report.omittedRows.some(entry => entry.id === 'projectionHighSelectivity'));
@@ -126,6 +138,9 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.match(markdown, /# Large Candidate Headroom Matrix/);
   assert.match(markdown, /1 GiB\+ bounded-memory counterexample search/);
   assert.match(markdown, /generated `Uint8Array` batches/);
+  assert.match(markdown, /## Source Consumption/);
+  assert.match(markdown, /synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /does not consume a pure ReadableStream directly/);
   assert.match(markdown, /Partial rows intentionally skip/);
   assert.match(markdown, /Full rows preserve/);
   assert.match(markdown, /Node `Buffer\.toString\(\)`/);
@@ -179,6 +194,7 @@ test('large candidate headroom matrix supports a corpus-cycle fixture seed', () 
   assert.equal(report.fixture.shape, 'corpus-cycle');
   assert.equal(report.fixture.rowCycleSize, 1);
   assert.equal(report.fixture.batchSize, 1);
+  assert.match(report.sourceContract.corpusScope, /loads one corpus seed with readFileSync/);
   assert.match(report.fixture.sourceFile, /books\.xml$/);
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
@@ -240,6 +256,7 @@ test('large candidate headroom matrix includes projection rows on projection fix
     'cursorAccessor',
     'rawFrameDirect',
     'rawFrameNameId',
+    'rawFrameNameIdFoldTrim',
     'rawFrameSemanticChecksum',
     'rawFrameStringCache',
     'projectionLowSelectivity',
