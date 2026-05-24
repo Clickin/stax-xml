@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T02:51:31.009Z",
+  "generatedAt": "2026-05-24T03:18:34.046Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1394,8 +1394,8 @@
           {
             "runtimeId": "firefox-spidermonkey-browser",
             "kind": "TextDecoder source boundary",
-            "revision": "5836a062726f715fda621338a17b51aff30d0a8c",
-            "limitation": "source pin only; no benchmark row for the tested Firefox browser build",
+            "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+            "limitation": "source pin only; benchmark, codegen, and allocation evidence remain separate",
             "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json"
           }
         ],
@@ -5111,8 +5111,8 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "kind": "TextDecoder source boundary",
-        "revision": "5836a062726f715fda621338a17b51aff30d0a8c",
-        "limitation": "source pin only; no benchmark row for the tested Firefox browser build",
+        "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+        "limitation": "source pin only; benchmark, codegen, and allocation evidence remain separate",
         "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json"
       },
       {

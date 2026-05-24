@@ -68,7 +68,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /# Runtime Proof Coverage Audit/);
   assert.match(markdown, /not an impossibility proof/);
   assert.match(markdown, /3 Firefox\/SpiderMonkey browser benchmark rows found/);
-  assert.match(markdown, /Firefox benchmark rows are now present/);
+  assert.match(markdown, /Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present/);
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 3/);

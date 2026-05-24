@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T02:51:31.009Z
+Generated: 2026-05-24T03:18:34.046Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -53,7 +53,7 @@ Current release corpus seeds: `treebank_e.xml`.
 - Safari/WebKit browser benchmark rows: 0
 - Non-V8 browser benchmark rows: 3
 
-Firefox benchmark rows are now present, but Firefox codegen/allocation evidence and exact tested-build source pinning remain separate gaps. Safari/browser JSC is still not covered by Bun/JSC.
+Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present, but Firefox codegen/allocation evidence remains a separate gap. Safari/browser JSC is still not covered by Bun/JSC.
 
 ## Findings
 

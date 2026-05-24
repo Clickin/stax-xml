@@ -412,7 +412,7 @@ function classifySourcePins(sourceArtifact, root) {
       runtimeId: 'firefox-spidermonkey-browser',
       kind: 'TextDecoder source boundary',
       revision: root.source?.revision ?? null,
-      limitation: 'source pin only; no benchmark row for the tested Firefox browser build',
+      limitation: 'source pin only; benchmark, codegen, and allocation evidence remain separate',
     }];
   }
   if (sourceArtifact === 'bun-webkit-textdecoder-source-pin-audit.json' || sourceArtifact === 'bun-jsc-source-pin-audit.json') {
@@ -638,7 +638,7 @@ function renderMarkdown(report) {
     `- Non-V8 browser benchmark rows: ${report.coverage.browser.nonV8BenchmarkRows.length}`,
     '',
     report.coverage.browser.firefoxBenchmarkRows.length > 0
-      ? 'Firefox benchmark rows are now present, but Firefox codegen/allocation evidence and exact tested-build source pinning remain separate gaps. Safari/browser JSC is still not covered by Bun/JSC.'
+      ? 'Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present, but Firefox codegen/allocation evidence remains a separate gap. Safari/browser JSC is still not covered by Bun/JSC.'
       : 'Firefox source pin without benchmark rows and Safari/browser JSC not covered by Bun/JSC remain explicit gaps.',
     '',
     '## Findings',

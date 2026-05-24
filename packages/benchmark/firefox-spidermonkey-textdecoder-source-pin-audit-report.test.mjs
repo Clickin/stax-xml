@@ -102,9 +102,9 @@ test('Firefox/SpiderMonkey TextDecoder source-pin audit records Gecko and encodi
     '--source-dir',
     tmpDir,
     '--revision',
-    '5836a062726f715fda621338a17b51aff30d0a8c-test',
+    '644b498d517849c3fb95679e2017e965fe62b77a-test',
     '--firefox-version',
-    'gecko-dev test snapshot',
+    '143.0.1 build 20250918214338 test snapshot',
     '--json-out',
     jsonOut,
     '--md-out',
@@ -120,8 +120,9 @@ test('Firefox/SpiderMonkey TextDecoder source-pin audit records Gecko and encodi
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'firefox-spidermonkey-textdecoder-source-pin-audit');
   assert.equal(report.contract, 'gecko-exact-revision-textdecoder-source-lines');
-  assert.equal(report.environment.firefoxVersion, 'gecko-dev test snapshot');
-  assert.equal(report.source.revision, '5836a062726f715fda621338a17b51aff30d0a8c-test');
+  assert.equal(report.environment.firefoxVersion, '143.0.1 build 20250918214338 test snapshot');
+  assert.equal(report.source.repository, 'https://hg.mozilla.org/releases/mozilla-release');
+  assert.equal(report.source.revision, '644b498d517849c3fb95679e2017e965fe62b77a-test');
   assert.equal(report.anchors.textDecoderInit.status, 'found');
   assert.equal(report.anchors.textDecoderForLabelNoReplacement.status, 'found');
   assert.equal(report.anchors.decodeNative.status, 'found');
@@ -134,7 +135,7 @@ test('Firefox/SpiderMonkey TextDecoder source-pin audit records Gecko and encodi
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Firefox\/SpiderMonkey TextDecoder Source Pin Audit/);
   assert.match(markdown, /TextDecoder\.decode\(\)/);
-  assert.match(markdown, /mozilla\/gecko-dev/);
+  assert.match(markdown, /hg\.mozilla\.org\/releases\/mozilla-release/);
   assert.match(markdown, /TextDecoderCommon::DecodeNative/);
   assert.match(markdown, /DecodeToUTF16/);
   assert.match(markdown, /encoding_rs/);

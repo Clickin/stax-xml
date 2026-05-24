@@ -1,20 +1,20 @@
 {
-  "generatedAt": "2026-05-24T00:51:17.743Z",
+  "generatedAt": "2026-05-24T03:11:44.957Z",
   "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
   "contract": "gecko-exact-revision-textdecoder-source-lines",
   "note": "Exact Gecko source-line pinning for the Firefox/SpiderMonkey TextDecoder host-API boundary. These source facts constrain the Gecko TextDecoder path at the pinned source revision; they are not Firefox benchmark evidence, not SpiderMonkey codegen evidence, and not a throughput proof.",
   "environment": {
-    "firefoxVersion": "gecko-dev master snapshot"
+    "firefoxVersion": "143.0.1 build 20250918214338"
   },
   "source": {
-    "repository": "mozilla/gecko-dev",
-    "revision": "5836a062726f715fda621338a17b51aff30d0a8c",
+    "repository": "https://hg.mozilla.org/releases/mozilla-release",
+    "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
     "files": [
       "dom/encoding/TextDecoder.cpp",
       "dom/encoding/TextDecoder.h",
       "intl/Encoding.h"
     ],
-    "fetchedAt": "2026-05-24T00:51:17.723Z"
+    "fetchedAt": "2026-05-24T03:11:42.262Z"
   },
   "anchors": {
     "textDecoderInit": {
@@ -22,7 +22,7 @@
       "label": "TextDecoder::Init",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 19,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L19",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L19",
       "context": [
         {
           "lineNumber": 17,
@@ -51,7 +51,7 @@
       "label": "Encoding::ForLabelNoReplacement",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 24,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L24",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L24",
       "context": [
         {
           "lineNumber": 22,
@@ -80,7 +80,7 @@
       "label": "TextDecoder::InitWithEncoding",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 34,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L34",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L34",
       "context": [
         {
           "lineNumber": 32,
@@ -109,7 +109,7 @@
       "label": "encoding name stored",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 36,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L36",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L36",
       "context": [
         {
           "lineNumber": 34,
@@ -138,7 +138,7 @@
       "label": "fatal option stored",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 38,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L38",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L38",
       "context": [
         {
           "lineNumber": 36,
@@ -167,7 +167,7 @@
       "label": "NewDecoderWithoutBOMHandling",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 43,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L43",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L43",
       "context": [
         {
           "lineNumber": 41,
@@ -196,7 +196,7 @@
       "label": "NewDecoderWithBOMRemoval",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 45,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L45",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L45",
       "context": [
         {
           "lineNumber": 43,
@@ -225,7 +225,7 @@
       "label": "TextDecoderCommon::DecodeNative",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 49,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L49",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L49",
       "context": [
         {
           "lineNumber": 47,
@@ -254,7 +254,7 @@
       "label": "output string truncate",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 53,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L53",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L53",
       "context": [
         {
           "lineNumber": 51,
@@ -283,7 +283,7 @@
       "label": "MaxUTF16BufferLength",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 56,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L56",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L56",
       "context": [
         {
           "lineNumber": 54,
@@ -312,7 +312,7 @@
       "label": "GetMutableData",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 62,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L62",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L62",
       "context": [
         {
           "lineNumber": 60,
@@ -341,7 +341,7 @@
       "label": "DecodeToUTF16WithoutReplacement",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 73,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L73",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L73",
       "context": [
         {
           "lineNumber": 71,
@@ -370,7 +370,7 @@
       "label": "DecodeToUTF16",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 80,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L80",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L80",
       "context": [
         {
           "lineNumber": 78,
@@ -399,7 +399,7 @@
       "label": "SetLength",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 86,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L86",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L86",
       "context": [
         {
           "lineNumber": 84,
@@ -428,7 +428,7 @@
       "label": "NewDecoderWithoutBOMHandlingInto reset",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 95,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L95",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L95",
       "context": [
         {
           "lineNumber": 93,
@@ -457,7 +457,7 @@
       "label": "NewDecoderWithBOMRemovalInto reset",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 97,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L97",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L97",
       "context": [
         {
           "lineNumber": 95,
@@ -486,7 +486,7 @@
       "label": "TextDecoder::Decode",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 102,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L102",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L102",
       "context": [
         {
           "lineNumber": 100,
@@ -515,7 +515,7 @@
       "label": "DecodeNative null input",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 106,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L106",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L106",
       "context": [
         {
           "lineNumber": 104,
@@ -544,7 +544,7 @@
       "label": "ProcessTypedArrays",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 110,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L110",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L110",
       "context": [
         {
           "lineNumber": 108,
@@ -573,7 +573,7 @@
       "label": "DecodeNative typed array",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 112,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L112",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L112",
       "context": [
         {
           "lineNumber": 110,
@@ -602,7 +602,7 @@
       "label": "GetEncoding",
       "file": "dom/encoding/TextDecoder.cpp",
       "lineNumber": 116,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L116",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.cpp#L116",
       "context": [
         {
           "lineNumber": 114,
@@ -630,28 +630,28 @@
       "status": "found",
       "label": "TextDecoderBinding include",
       "file": "dom/encoding/TextDecoder.h",
-      "lineNumber": 12,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L12",
+      "lineNumber": 15,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L15",
       "context": [
         {
-          "lineNumber": 10,
+          "lineNumber": 13,
           "text": "#include \"mozilla/dom/BufferSourceBindingFwd.h\""
         },
         {
-          "lineNumber": 11,
+          "lineNumber": 14,
           "text": "#include \"mozilla/dom/NonRefcountedDOMObject.h\""
         },
         {
-          "lineNumber": 12,
+          "lineNumber": 15,
           "text": "#include \"mozilla/dom/TextDecoderBinding.h\""
         },
         {
-          "lineNumber": 13,
+          "lineNumber": 16,
           "text": "#include \"mozilla/dom/TypedArray.h\""
         },
         {
-          "lineNumber": 14,
-          "text": "#include \"mozilla/Encoding.h\""
+          "lineNumber": 17,
+          "text": ""
         }
       ]
     },
@@ -659,27 +659,27 @@
       "status": "found",
       "label": "mozilla/Encoding.h include",
       "file": "dom/encoding/TextDecoder.h",
-      "lineNumber": 14,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L14",
+      "lineNumber": 10,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L10",
       "context": [
         {
-          "lineNumber": 12,
-          "text": "#include \"mozilla/dom/TextDecoderBinding.h\""
+          "lineNumber": 8,
+          "text": "#define mozilla_dom_textdecoder_h_"
         },
         {
-          "lineNumber": 13,
-          "text": "#include \"mozilla/dom/TypedArray.h\""
+          "lineNumber": 9,
+          "text": ""
         },
         {
-          "lineNumber": 14,
+          "lineNumber": 10,
           "text": "#include \"mozilla/Encoding.h\""
         },
         {
-          "lineNumber": 15,
+          "lineNumber": 11,
           "text": "#include \"mozilla/ErrorResult.h\""
         },
         {
-          "lineNumber": 16,
+          "lineNumber": 12,
           "text": "#include \"mozilla/UniquePtr.h\""
         }
       ]
@@ -689,7 +689,7 @@
       "label": "TextDecoderCommon class",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 20,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L20",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L20",
       "context": [
         {
           "lineNumber": 18,
@@ -718,7 +718,7 @@
       "label": "DecodeNative declaration",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 38,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L38",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L38",
       "context": [
         {
           "lineNumber": 36,
@@ -747,7 +747,7 @@
       "label": "Decoder storage",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 53,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L53",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L53",
       "context": [
         {
           "lineNumber": 51,
@@ -776,7 +776,7 @@
       "label": "mEncoding storage",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 54,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L54",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L54",
       "context": [
         {
           "lineNumber": 52,
@@ -805,7 +805,7 @@
       "label": "TextDecoder class",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 59,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L59",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L59",
       "context": [
         {
           "lineNumber": 57,
@@ -834,7 +834,7 @@
       "label": "Constructor declaration",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 63,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L63",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L63",
       "context": [
         {
           "lineNumber": 61,
@@ -863,7 +863,7 @@
       "label": "TextDecoder_Binding::Wrap",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 81,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L81",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L81",
       "context": [
         {
           "lineNumber": 79,
@@ -892,7 +892,7 @@
       "label": "Init declaration",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 91,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L91",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L91",
       "context": [
         {
           "lineNumber": 89,
@@ -921,7 +921,7 @@
       "label": "InitWithEncoding declaration",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 101,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L101",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L101",
       "context": [
         {
           "lineNumber": 99,
@@ -950,7 +950,7 @@
       "label": "Decode declaration",
       "file": "dom/encoding/TextDecoder.h",
       "lineNumber": 104,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L104",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/dom/encoding/TextDecoder.h#L104",
       "context": [
         {
           "lineNumber": 102,
@@ -979,7 +979,7 @@
       "label": "encoding_rs source comment",
       "file": "intl/Encoding.h",
       "lineNumber": 10,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L10",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L10",
       "context": [
         {
           "lineNumber": 8,
@@ -1008,7 +1008,7 @@
       "label": "encoding_rs implementation comment",
       "file": "intl/Encoding.h",
       "lineNumber": 12,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L12",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L12",
       "context": [
         {
           "lineNumber": 10,
@@ -1037,7 +1037,7 @@
       "label": "mozilla_encoding_decode_to_nsstring",
       "file": "intl/Encoding.h",
       "lineNumber": 41,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L41",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L41",
       "context": [
         {
           "lineNumber": 39,
@@ -1066,7 +1066,7 @@
       "label": "mozilla_encoding_decode_to_nsstring_with_bom_removal",
       "file": "intl/Encoding.h",
       "lineNumber": 45,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L45",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L45",
       "context": [
         {
           "lineNumber": 43,
@@ -1095,7 +1095,7 @@
       "label": "mozilla_encoding_decode_to_nsstring_without_bom_handling",
       "file": "intl/Encoding.h",
       "lineNumber": 49,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L49",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L49",
       "context": [
         {
           "lineNumber": 47,
@@ -1124,7 +1124,7 @@
       "label": "mozilla_encoding_decode_to_nsstring_without_bom_handling_and_without_replacement",
       "file": "intl/Encoding.h",
       "lineNumber": 54,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L54",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L54",
       "context": [
         {
           "lineNumber": 52,
@@ -1153,7 +1153,7 @@
       "label": "Encoding class",
       "file": "intl/Encoding.h",
       "lineNumber": 154,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L154",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L154",
       "context": [
         {
           "lineNumber": 152,
@@ -1182,7 +1182,7 @@
       "label": "Encoding::ForLabel",
       "file": "intl/Encoding.h",
       "lineNumber": 171,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L171",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L171",
       "context": [
         {
           "lineNumber": 169,
@@ -1211,7 +1211,7 @@
       "label": "Encoding::ForLabel string overload",
       "file": "intl/Encoding.h",
       "lineNumber": 179,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L179",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L179",
       "context": [
         {
           "lineNumber": 177,
@@ -1240,7 +1240,7 @@
       "label": "Encoding::ForLabelNoReplacement",
       "file": "intl/Encoding.h",
       "lineNumber": 198,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L198",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L198",
       "context": [
         {
           "lineNumber": 196,
@@ -1269,7 +1269,7 @@
       "label": "Encoding::ForLabelNoReplacement string overload",
       "file": "intl/Encoding.h",
       "lineNumber": 206,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L206",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L206",
       "context": [
         {
           "lineNumber": 204,
@@ -1298,7 +1298,7 @@
       "label": "Encoding::Name",
       "file": "intl/Encoding.h",
       "lineNumber": 235,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L235",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L235",
       "context": [
         {
           "lineNumber": 233,
@@ -1327,7 +1327,7 @@
       "label": "DecodeWithBOMRemoval",
       "file": "intl/Encoding.h",
       "lineNumber": 413,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L413",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L413",
       "context": [
         {
           "lineNumber": 411,
@@ -1356,7 +1356,7 @@
       "label": "DecodeWithBOMRemoval FFI",
       "file": "intl/Encoding.h",
       "lineNumber": 45,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L45",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L45",
       "context": [
         {
           "lineNumber": 43,
@@ -1385,7 +1385,7 @@
       "label": "DecodeWithoutBOMHandling",
       "file": "intl/Encoding.h",
       "lineNumber": 475,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L475",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L475",
       "context": [
         {
           "lineNumber": 473,
@@ -1414,7 +1414,7 @@
       "label": "DecodeWithoutBOMHandling FFI",
       "file": "intl/Encoding.h",
       "lineNumber": 49,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L49",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L49",
       "context": [
         {
           "lineNumber": 47,
@@ -1443,7 +1443,7 @@
       "label": "DecodeWithoutBOMHandlingAndWithoutReplacement",
       "file": "intl/Encoding.h",
       "lineNumber": 506,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L506",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L506",
       "context": [
         {
           "lineNumber": 504,
@@ -1472,7 +1472,7 @@
       "label": "DecodeWithoutBOMHandlingAndWithoutReplacement FFI",
       "file": "intl/Encoding.h",
       "lineNumber": 54,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L54",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L54",
       "context": [
         {
           "lineNumber": 52,
@@ -1501,7 +1501,7 @@
       "label": "NewDecoder",
       "file": "intl/Encoding.h",
       "lineNumber": 656,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L656",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L656",
       "context": [
         {
           "lineNumber": 654,
@@ -1530,7 +1530,7 @@
       "label": "encoding_new_decoder",
       "file": "intl/Encoding.h",
       "lineNumber": 657,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L657",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L657",
       "context": [
         {
           "lineNumber": 655,
@@ -1559,7 +1559,7 @@
       "label": "NewDecoderWithBOMRemoval",
       "file": "intl/Encoding.h",
       "lineNumber": 681,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L681",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L681",
       "context": [
         {
           "lineNumber": 679,
@@ -1588,7 +1588,7 @@
       "label": "encoding_new_decoder_with_bom_removal",
       "file": "intl/Encoding.h",
       "lineNumber": 682,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L682",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L682",
       "context": [
         {
           "lineNumber": 680,
@@ -1617,7 +1617,7 @@
       "label": "NewDecoderWithBOMRemovalInto",
       "file": "intl/Encoding.h",
       "lineNumber": 696,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L696",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L696",
       "context": [
         {
           "lineNumber": 694,
@@ -1646,7 +1646,7 @@
       "label": "encoding_new_decoder_with_bom_removal_into",
       "file": "intl/Encoding.h",
       "lineNumber": 697,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L697",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L697",
       "context": [
         {
           "lineNumber": 695,
@@ -1675,7 +1675,7 @@
       "label": "NewDecoderWithoutBOMHandling",
       "file": "intl/Encoding.h",
       "lineNumber": 711,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L711",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L711",
       "context": [
         {
           "lineNumber": 709,
@@ -1704,7 +1704,7 @@
       "label": "encoding_new_decoder_without_bom_handling",
       "file": "intl/Encoding.h",
       "lineNumber": 712,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L712",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L712",
       "context": [
         {
           "lineNumber": 710,
@@ -1733,7 +1733,7 @@
       "label": "NewDecoderWithoutBOMHandlingInto",
       "file": "intl/Encoding.h",
       "lineNumber": 728,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L728",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L728",
       "context": [
         {
           "lineNumber": 726,
@@ -1762,7 +1762,7 @@
       "label": "encoding_new_decoder_without_bom_handling_into",
       "file": "intl/Encoding.h",
       "lineNumber": 729,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L729",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L729",
       "context": [
         {
           "lineNumber": 727,
@@ -1791,7 +1791,7 @@
       "label": "Decoder class",
       "file": "intl/Encoding.h",
       "lineNumber": 883,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L883",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L883",
       "context": [
         {
           "lineNumber": 881,
@@ -1820,7 +1820,7 @@
       "label": "Decoder::Encoding",
       "file": "intl/Encoding.h",
       "lineNumber": 896,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L896",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L896",
       "context": [
         {
           "lineNumber": 894,
@@ -1849,7 +1849,7 @@
       "label": "Decoder::MaxUTF16BufferLength",
       "file": "intl/Encoding.h",
       "lineNumber": 986,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L986",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L986",
       "context": [
         {
           "lineNumber": 984,
@@ -1878,7 +1878,7 @@
       "label": "decoder_max_utf16_buffer_length",
       "file": "intl/Encoding.h",
       "lineNumber": 987,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L987",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L987",
       "context": [
         {
           "lineNumber": 985,
@@ -1907,7 +1907,7 @@
       "label": "Decoder::DecodeToUTF16",
       "file": "intl/Encoding.h",
       "lineNumber": 1003,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1003",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L1003",
       "context": [
         {
           "lineNumber": 1001,
@@ -1936,7 +1936,7 @@
       "label": "decoder_decode_to_utf16 FFI",
       "file": "intl/Encoding.h",
       "lineNumber": 1008,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1008",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L1008",
       "context": [
         {
           "lineNumber": 1006,
@@ -1965,7 +1965,7 @@
       "label": "Decoder::DecodeToUTF16WithoutReplacement",
       "file": "intl/Encoding.h",
       "lineNumber": 1020,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1020",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L1020",
       "context": [
         {
           "lineNumber": 1018,
@@ -1994,7 +1994,7 @@
       "label": "decoder_decode_to_utf16_without_replacement FFI",
       "file": "intl/Encoding.h",
       "lineNumber": 1024,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1024",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L1024",
       "context": [
         {
           "lineNumber": 1022,
@@ -2023,7 +2023,7 @@
       "label": "SpiderMonkey-style string storage optimization warning",
       "file": "intl/Encoding.h",
       "lineNumber": 1044,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1044",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L1044",
       "context": [
         {
           "lineNumber": 1042,
@@ -2052,7 +2052,7 @@
       "label": "Latin1ByteCompatibleUpTo",
       "file": "intl/Encoding.h",
       "lineNumber": 1047,
-      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1047",
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/intl/Encoding.h#L1047",
       "context": [
         {
           "lineNumber": 1045,
@@ -2119,11 +2119,11 @@
     {
       "id": "gecko-spidermonkey-string-optimization-scope-guard",
       "classification": "SCOPE_GUARD",
-      "summary": "Encoding.h exposes a Latin1ByteCompatibleUpTo helper for SpiderMonkey-style string storage optimizations, but the pinned TextDecoder.cpp path audited here uses the nsAString UTF-16 DecodeNative path. This source fact is not a Firefox benchmark, codegen trace, or runtime-ceiling proof.",
+      "summary": "Encoding.h exposes a Latin1ByteCompatibleUpTo helper for SpiderMonkey-style string storage optimizations, but the pinned TextDecoder.cpp path audited here uses the nsAString UTF-16 DecodeNative path. This source fact is not a benchmark row, codegen trace, or runtime-ceiling proof.",
       "evidence": [
         "SpiderMonkey-style string storage optimization warning line 1044",
         "Latin1ByteCompatibleUpTo line 1047",
-        "The audit does not run a Firefox benchmark row.",
+        "The audit does not run or replace Firefox benchmark rows.",
         "The audit does not inspect SpiderMonkey-generated machine code.",
         "Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis."
       ]

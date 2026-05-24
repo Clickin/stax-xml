@@ -3,8 +3,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const defaultRepository = 'mozilla/gecko-dev';
-const defaultGeckoRevision = '5836a062726f715fda621338a17b51aff30d0a8c';
+const defaultRepository = 'https://hg.mozilla.org/releases/mozilla-release';
+const defaultGeckoRevision = '644b498d517849c3fb95679e2017e965fe62b77a';
+const defaultFirefoxVersion = '143.0.1 build 20250918214338';
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'firefox-spidermonkey-textdecoder-source-pin-audit.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'firefox-spidermonkey-textdecoder-source-pin-audit.md');
 
@@ -19,7 +20,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     sourceDir: null,
     repository: defaultRepository,
     geckoRevision: defaultGeckoRevision,
-    firefoxVersion: 'gecko-dev master snapshot',
+    firefoxVersion: defaultFirefoxVersion,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -113,10 +114,24 @@ async function loadSource(options, sourcePath) {
 }
 
 function rawSourceUrl(repository, revision, sourcePath) {
+  if (/^https:\/\/hg\.mozilla\.org\//.test(repository)) {
+    return `${repository.replace(/\/$/, '')}/raw-file/${revision}/${sourcePath}`;
+  }
+  if (/^https:\/\/github\.com\//.test(repository)) {
+    const repoPath = repository.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, '').replace(/\/$/, '');
+    return `https://raw.githubusercontent.com/${repoPath}/${revision}/${sourcePath}`;
+  }
   return `https://raw.githubusercontent.com/${repository}/${revision}/${sourcePath}`;
 }
 
 function browserSourceUrl(repository, revision, sourcePath) {
+  if (/^https:\/\/hg\.mozilla\.org\//.test(repository)) {
+    return `${repository.replace(/\/$/, '')}/file/${revision}/${sourcePath}`;
+  }
+  if (/^https:\/\/github\.com\//.test(repository)) {
+    const repoPath = repository.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, '').replace(/\/$/, '');
+    return `https://github.com/${repoPath}/blob/${revision}/${sourcePath}`;
+  }
   return `https://github.com/${repository}/blob/${revision}/${sourcePath}`;
 }
 
@@ -309,11 +324,11 @@ function createFindings(report) {
     {
       id: 'gecko-spidermonkey-string-optimization-scope-guard',
       classification: 'SCOPE_GUARD',
-      summary: 'Encoding.h exposes a Latin1ByteCompatibleUpTo helper for SpiderMonkey-style string storage optimizations, but the pinned TextDecoder.cpp path audited here uses the nsAString UTF-16 DecodeNative path. This source fact is not a Firefox benchmark, codegen trace, or runtime-ceiling proof.',
+      summary: 'Encoding.h exposes a Latin1ByteCompatibleUpTo helper for SpiderMonkey-style string storage optimizations, but the pinned TextDecoder.cpp path audited here uses the nsAString UTF-16 DecodeNative path. This source fact is not a benchmark row, codegen trace, or runtime-ceiling proof.',
       evidence: [
         `SpiderMonkey-style string storage optimization warning line ${report.anchors.latin1OptimizationComment.lineNumber}`,
         `Latin1ByteCompatibleUpTo line ${report.anchors.latin1ByteCompatibleUpTo.lineNumber}`,
-        'The audit does not run a Firefox benchmark row.',
+        'The audit does not run or replace Firefox benchmark rows.',
         'The audit does not inspect SpiderMonkey-generated machine code.',
         'Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis.',
       ],
@@ -329,7 +344,7 @@ function renderMarkdown(report) {
     '',
     '## Scope',
     '',
-    'This audit pins Mozilla Gecko source lines for the DOM `TextDecoder.decode()` host-API boundary used by Firefox/SpiderMonkey. It is source evidence for the pinned `mozilla/gecko-dev` revision only. It is not a Firefox benchmark row, not SpiderMonkey JIT/codegen evidence, not heap/allocation evidence, and not a runtime-ceiling proof.',
+    'This audit pins Mozilla Gecko source lines for the DOM `TextDecoder.decode()` host-API boundary used by Firefox/SpiderMonkey. It is source evidence for the pinned Gecko revision only. It is not a Firefox benchmark row, not SpiderMonkey JIT/codegen evidence, not heap/allocation evidence, and not a runtime-ceiling proof.',
     '',
     '## Runtime And Source',
     '',
@@ -364,7 +379,7 @@ function renderMarkdown(report) {
     '',
     '`intl/Encoding.h` also contains a separate `Latin1ByteCompatibleUpTo` helper documented for SpiderMonkey-style string storage optimizations. That helper is useful scope evidence, but it does not change the audited `TextDecoder.cpp` path into a zero-copy JavaScript string path and it does not prove that Firefox/SpiderMonkey has no remaining performance headroom.',
     '',
-    'The source pin narrows one non-V8 browser source-boundary gap. It must be paired with Firefox benchmark rows, SpiderMonkey codegen/profiler traces, and allocation evidence before supporting any broader runtime-limit conclusion.',
+    'This source pin now matches the installed Firefox build recorded by `application.ini`/`platform.ini`. It still must be paired with Firefox benchmark rows, SpiderMonkey codegen/profiler traces, and allocation evidence before supporting any broader runtime-limit conclusion.',
   );
 
   return `${lines.join('\n')}\n`;
