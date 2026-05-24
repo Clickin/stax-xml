@@ -115,7 +115,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 16 required artifact mentions
+all 10 required claim guards are satisfied, all 17 required artifact mentions
 are present, all 7 required open-obligation disclosures are present, and all 7
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -133,6 +133,33 @@ shape parity, treating lazy getters as an untried default candidate, and
 turning JavaScript string/runtime invariants into a performance impossibility
 claim without counterexample searches. If the broad runtime-limit claim is
 upgraded to `CONCLUSION` while these open obligations remain, the gate fails.
+
+## Current Evidence: Same-Contract Runtime Comparison
+
+`packages/benchmark/results/release/same-contract-runtime-comparison.md`
+aggregates existing release artifacts under the same full-string checksum
+contract without normalizing object shapes or memory models. It includes the
+16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows, 1
+GiB TextDecoder span rows, quick-xml global allocator counters, and Woodstox
+JFR sampled allocation artifacts.
+
+The current aggregate has 28 selected comparison rows and 24 JavaScript 1 GiB+
+full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
+counterexamples in those artifacts. The fastest selected 1 GiB+ JavaScript
+full-string row is Node/V8 `rawFrameNameId` at 77.00 MiB/s with process RSS max
+419.31 MiB. For the public event-object shape, the fastest selected row is the
+Bun/JSC corpus `eventObjectFull` row at 62.08 MiB/s but unbounded under the RSS
+gate, while the fastest bounded public event-object row is Node/V8
+`eventObjectFull` at 61.80 MiB/s with process RSS max 419.02 MiB.
+
+The same report keeps the external target visible: the 16 MiB Woodstox row is
+333.43 MiB/s and the 16 MiB quick-xml row is 309.82 MiB/s, or 0.93x Woodstox,
+under the same event/checksum contract. Its memory section is intentionally
+non-normalizing: Node/Bun rows use process RSS, Chrome browser rows use
+variant-level JS heap plus separate Windows process-tree host counters,
+quick-xml records allocator traffic, and Woodstox records JFR sampled
+allocations. Therefore this artifact improves cross-runtime comparison hygiene;
+it is not a peak-memory equivalence proof and not a runtime-limit conclusion.
 
 ## Current Evidence: Woodstox HotSpot Trace
 

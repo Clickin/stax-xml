@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-24T01:20:16.139Z
+Generated: 2026-05-24T01:38:02.115Z
 
 ## Scope
 
@@ -33,6 +33,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | Artifact | Present |
 | --- | --- |
 | `materialization-contract-audit.md` | yes |
+| `same-contract-runtime-comparison.md` | yes |
 | `quick-xml-shape-audit.md` | yes |
 | `quick-xml-allocation-count.md` | yes |
 | `woodstox-hotspot-trace.md` | yes |

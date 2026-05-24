@@ -21,6 +21,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Proof Vocabulary/);
   assert.match(markdown, /## Runtime-Limit Conclusion Gate/);
   assert.match(markdown, /## Current Evidence: Runtime-Limit Proof Obligation Gate/);
+  assert.match(markdown, /## Current Evidence: Same-Contract Runtime Comparison/);
   assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
   assert.match(markdown, /## Current Evidence: Materialization Contract Audit/);
   assert.match(markdown, /## Current Evidence: Woodstox HotSpot Trace/);
@@ -88,7 +89,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-limit-proof-obligation-gate\.md/);
   assert.match(markdown, /incomplete-proof-correctly-blocked/);
   assert.match(markdown, /all 10 required claim guards are satisfied/);
-  assert.match(markdown, /all 16 required artifact mentions\s+are present/);
+  assert.match(markdown, /all 17 required artifact mentions\s+are present/);
   assert.match(markdown, /all 7 required open-obligation disclosures are present/);
   assert.match(markdown, /all 7\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
@@ -98,6 +99,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /If the broad runtime-limit claim is\s+upgraded to `CONCLUSION` while these open obligations remain, the gate fails/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /materialization-contract-audit\.md/);
+  assert.match(markdown, /same-contract-runtime-comparison\.md/);
+  assert.match(markdown, /28 selected comparison rows and 24 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
+  assert.match(markdown, /fastest bounded public event-object row is Node\/V8\s+`eventObjectFull` at 61\.80 MiB\/s/);
+  assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
+  assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
   assert.match(markdown, /same semantic fields/);
   assert.match(markdown, /not the same object shape/);
   assert.match(markdown, /Woodstox uses `XMLStreamReader` cursor\/accessor calls/);

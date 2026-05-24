@@ -1,0 +1,1479 @@
+{
+  "generatedAt": "2026-05-24T01:36:39.751Z",
+  "objective": "same-contract-runtime-comparison",
+  "contract": "same-full-string-checksum-contract-not-same-object-shape",
+  "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
+  "metadata": {
+    "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
+    "sourceArtifacts": [
+      "external-baseline.json",
+      "candidate-headroom-large.json",
+      "bun-candidate-headroom-large.json",
+      "browser-candidate-headroom-large.json",
+      "candidate-headroom-corpus.json",
+      "bun-candidate-headroom-corpus.json",
+      "browser-candidate-headroom-corpus.json",
+      "textdecoder-span-variants.json",
+      "bun-textdecoder-span-variants.json",
+      "browser-textdecoder-span-variants.json",
+      "quick-xml-allocation-count.json",
+      "woodstox-jfr-allocation.json",
+      "woodstox-measured-jfr-allocation.json"
+    ]
+  },
+  "summary": {
+    "rowCount": 28,
+    "jsLargeFullRowCount": 24,
+    "jsRuntimeCounterexamples200MiB": 0,
+    "fastestJsLargeFullRow": {
+      "group": "corpus-1gib-candidate",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "mibPerSec": 77,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 419.31,
+        "deltaMiB": 0.2,
+        "maxHeapUsedMiB": 7.01,
+        "maxExternalMiB": 351.31,
+        "maxArrayBuffersMiB": 349.5
+      },
+      "sourceArtifact": "candidate-headroom-corpus.json"
+    },
+    "fastestJsLargePublicEventRow": {
+      "group": "corpus-1gib-candidate",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "caseId": "eventObjectFull",
+      "mibPerSec": 62.08,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 1476.53,
+        "deltaMiB": -311.41,
+        "maxHeapUsedMiB": 399.91,
+        "maxExternalMiB": 398.06,
+        "maxArrayBuffersMiB": 85.42
+      },
+      "sourceArtifact": "bun-candidate-headroom-corpus.json"
+    },
+    "fastestBoundedJsLargePublicEventRow": {
+      "group": "corpus-1gib-candidate",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "caseId": "eventObjectFull",
+      "mibPerSec": 61.8,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 419.02,
+        "deltaMiB": 94.52,
+        "maxHeapUsedMiB": 30.65,
+        "maxExternalMiB": 351.31,
+        "maxArrayBuffersMiB": 349.5
+      },
+      "sourceArtifact": "candidate-headroom-corpus.json"
+    },
+    "fastestRowsByGroup": [
+      {
+        "group": "generated-1gib-candidate",
+        "fastest": {
+          "group": "generated-1gib-candidate",
+          "runtimeId": "bun-jsc",
+          "runtimeLabel": "Bun/JSC",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 57.99,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 192.98,
+            "deltaMiB": -19.54,
+            "maxHeapUsedMiB": 45.72,
+            "maxExternalMiB": 9.01,
+            "maxArrayBuffersMiB": 8.18
+          },
+          "sourceArtifact": "bun-candidate-headroom-large.json"
+        }
+      },
+      {
+        "group": "corpus-1gib-candidate",
+        "fastest": {
+          "group": "corpus-1gib-candidate",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 77,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 419.31,
+            "deltaMiB": 0.2,
+            "maxHeapUsedMiB": 7.01,
+            "maxExternalMiB": 351.31,
+            "maxArrayBuffersMiB": 349.5
+          },
+          "sourceArtifact": "candidate-headroom-corpus.json"
+        }
+      },
+      {
+        "group": "generated-1gib-textdecoder",
+        "fastest": {
+          "group": "generated-1gib-textdecoder",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "shortAsciiSubarraySharedDecoder",
+          "mibPerSec": 51.6,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 83.91,
+            "deltaMiB": 1.83,
+            "maxHeapUsedMiB": 11.73,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceArtifact": "textdecoder-span-variants.json"
+        }
+      }
+    ],
+    "externalBaseline16MiB": {
+      "woodstoxMiBPerSec": 333.43,
+      "quickXmlMiBPerSec": 309.82,
+      "quickXmlWoodstoxRatio": 0.93
+    },
+    "memoryMetricKinds": [
+      "browser-js-heap",
+      "not-recorded",
+      "process-rss"
+    ],
+    "allocationEvidenceKinds": [
+      "global-allocator-counters",
+      "jfr-sampled-allocation",
+      "measured-window-jfr-sampled-allocation"
+    ],
+    "conclusionAllowed": false
+  },
+  "comparisonRows": [
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "node-v8-stax-stream",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 105.3,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory."
+      },
+      "woodstoxRatio": 0.32,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "node-v8-stax-event",
+      "runtimeLabel": "Node/V8 stax-event",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-event",
+      "implementation": "Node + stax-xml EventReaderSync",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 95.94,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory."
+      },
+      "woodstoxRatio": 0.29,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "languageFamily": "java",
+      "jsRuntime": false,
+      "caseId": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 333.43,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory."
+      },
+      "woodstoxRatio": 1,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "languageFamily": "rust",
+      "jsRuntime": false,
+      "caseId": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 309.82,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory."
+      },
+      "woodstoxRatio": 0.93,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "candidate-headroom-large.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over generated byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 49.01,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 85.56,
+        "deltaMiB": 7.66,
+        "maxHeapUsedMiB": 7.83,
+        "maxExternalMiB": 3.31,
+        "maxArrayBuffersMiB": 1.5
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.15,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "candidate-headroom-large.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 39.45,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 137.52,
+        "deltaMiB": 52.13,
+        "maxHeapUsedMiB": 29.99,
+        "maxExternalMiB": 5.45,
+        "maxArrayBuffersMiB": 3.63
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 45189256,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.12,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "candidate-headroom-large.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 55.85,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 144.54,
+        "deltaMiB": 3.92,
+        "maxHeapUsedMiB": 23.71,
+        "maxExternalMiB": 7.91,
+        "maxArrayBuffersMiB": 6.1
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 41087307,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.17,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "bun-candidate-headroom-large.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over generated byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 52.93,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 188.56,
+        "deltaMiB": -12.96,
+        "maxHeapUsedMiB": 46.03,
+        "maxExternalMiB": 44.3,
+        "maxArrayBuffersMiB": 43.65
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.16,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "bun-candidate-headroom-large.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 37.27,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 177,
+        "deltaMiB": 1.27,
+        "maxHeapUsedMiB": 46.03,
+        "maxExternalMiB": 21.6,
+        "maxArrayBuffersMiB": 20.89
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 45189256,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.11,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "bun-candidate-headroom-large.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 57.99,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 192.98,
+        "deltaMiB": -19.54,
+        "maxHeapUsedMiB": 45.72,
+        "maxExternalMiB": 9.01,
+        "maxArrayBuffersMiB": 8.18
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 41087307,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.17,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "browser-candidate-headroom-large.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 34.46,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 14.66,
+        "deltaMiB": 7.1,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 522.09,
+          "maxPrivateMiB": 283.91,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.1,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "browser-candidate-headroom-large.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 33.1,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 38.78,
+        "deltaMiB": 31.22,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 522.09,
+          "maxPrivateMiB": 283.91,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 45189256,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.1,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "browser-candidate-headroom-large.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 43.45,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 17.86,
+        "deltaMiB": 10.19,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 522.09,
+          "maxPrivateMiB": 283.91,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 41087307,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.13,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "candidate-headroom-corpus.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over generated byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 62.17,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 353.58,
+        "deltaMiB": -28.21,
+        "maxHeapUsedMiB": 6.09,
+        "maxExternalMiB": 319.31,
+        "maxArrayBuffersMiB": 317.5
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.19,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "candidate-headroom-corpus.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 61.8,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 419.02,
+        "deltaMiB": 94.52,
+        "maxHeapUsedMiB": 30.65,
+        "maxExternalMiB": 351.31,
+        "maxArrayBuffersMiB": 349.5
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 75206126,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.19,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "candidate-headroom-corpus.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 77,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 419.31,
+        "deltaMiB": 0.2,
+        "maxHeapUsedMiB": 7.01,
+        "maxExternalMiB": 351.31,
+        "maxArrayBuffersMiB": 349.5
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 16702403,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.23,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "bun-candidate-headroom-corpus.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over generated byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 56.23,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 1470.83,
+        "deltaMiB": 909.14,
+        "maxHeapUsedMiB": 398.83,
+        "maxExternalMiB": 397.91,
+        "maxArrayBuffersMiB": 85.42
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.17,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "bun-candidate-headroom-corpus.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 62.08,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 1476.53,
+        "deltaMiB": -311.41,
+        "maxHeapUsedMiB": 399.91,
+        "maxExternalMiB": 398.06,
+        "maxArrayBuffersMiB": 85.42
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 75206126,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.19,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "bun-candidate-headroom-corpus.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 76.08,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 1751.13,
+        "deltaMiB": -279.23,
+        "maxHeapUsedMiB": 399.09,
+        "maxExternalMiB": 398.15,
+        "maxArrayBuffersMiB": 85.42
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 16702403,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.23,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "browser-candidate-headroom-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 30.38,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 349.79,
+        "deltaMiB": 258.33,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 865.83,
+          "maxPrivateMiB": 689.17,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.09,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "browser-candidate-headroom-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 28.92,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 358.37,
+        "deltaMiB": 266.9,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 865.83,
+          "maxPrivateMiB": 689.17,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 75206126,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.09,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "corpus-1gib-candidate",
+      "sourceArtifact": "browser-candidate-headroom-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "mibPerSec": 29.05,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 345.78,
+        "deltaMiB": 254.23,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 865.83,
+          "maxPrivateMiB": 689.17,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 16702403,
+        "attributePairs": 12
+      },
+      "woodstoxRatio": 0.09,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-textdecoder",
+      "sourceArtifact": "textdecoder-span-variants.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "subarraySharedDecoder",
+      "implementation": "shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 37.33,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 72.16,
+        "deltaMiB": 6.36,
+        "maxHeapUsedMiB": 9.23,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "rawSpanMaterializations": 102702850,
+        "textDecoderCalls": 102702850,
+        "shortAsciiHits": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-textdecoder",
+      "sourceArtifact": "textdecoder-span-variants.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "shortAsciiSubarraySharedDecoder",
+      "implementation": "short ASCII fast path, then shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 51.6,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 83.91,
+        "deltaMiB": 1.83,
+        "maxHeapUsedMiB": 11.73,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "rawSpanMaterializations": 102702850,
+        "textDecoderCalls": 12215015,
+        "shortAsciiHits": 90487835,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-textdecoder",
+      "sourceArtifact": "bun-textdecoder-span-variants.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "subarraySharedDecoder",
+      "implementation": "shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 40.31,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 186.27,
+        "deltaMiB": 38.69,
+        "maxHeapUsedMiB": 45.39,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "rawSpanMaterializations": 102702850,
+        "textDecoderCalls": 102702850,
+        "shortAsciiHits": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-textdecoder",
+      "sourceArtifact": "bun-textdecoder-span-variants.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "shortAsciiSubarraySharedDecoder",
+      "implementation": "short ASCII fast path, then shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 47.67,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 215.22,
+        "deltaMiB": 19.72,
+        "maxHeapUsedMiB": 43.67,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "rawSpanMaterializations": 102702850,
+        "textDecoderCalls": 12215015,
+        "shortAsciiHits": 90487835,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-textdecoder",
+      "sourceArtifact": "browser-textdecoder-span-variants.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "subarraySharedDecoder",
+      "implementation": "shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 16.63,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 9.77,
+        "deltaMiB": 1.33,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 479.99,
+          "maxPrivateMiB": 240.38,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "rawSpanMaterializations": 102702850,
+        "textDecoderCalls": 102702850,
+        "shortAsciiHits": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-textdecoder",
+      "sourceArtifact": "browser-textdecoder-span-variants.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "shortAsciiSubarraySharedDecoder",
+      "implementation": "short ASCII fast path, then shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 39.42,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 10.04,
+        "deltaMiB": 2.51,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 479.99,
+          "maxPrivateMiB": 240.38,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        }
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "rawSpanMaterializations": 102702850,
+        "textDecoderCalls": 12215015,
+        "shortAsciiHits": 90487835,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    }
+  ],
+  "allocationEvidence": [
+    {
+      "id": "quick-xml-global-allocator",
+      "sourceArtifact": "quick-xml-allocation-count.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "evidenceKind": "global-allocator-counters",
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 279.42,
+      "memory": {
+        "primaryKind": "total-allocator-traffic",
+        "totalAllocatedMiB": 27.13,
+        "netAllocatedMiB": 0,
+        "allocationOperations": 170824
+      },
+      "shapeSummary": {
+        "totalDecodeCount": 284695,
+        "totalBorrowedCount": 284695,
+        "totalOwnedCount": 0
+      },
+      "limitation": "Global allocator traffic is not peak RSS and is not directly comparable to JavaScript heap or browser host process counters."
+    },
+    {
+      "id": "woodstox-jfr-profile",
+      "sourceArtifact": "woodstox-jfr-allocation.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "evidenceKind": "jfr-sampled-allocation",
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 320.27,
+      "memory": {
+        "primaryKind": "jfr-sampled-allocation",
+        "sampledBytes": 3040,
+        "sampledMiB": 0.002899169921875,
+        "stringBoundaryEventCount": 42,
+        "consumeStackEventCount": 49
+      },
+      "shapeSummary": null,
+      "limitation": "JFR object allocation events are sampled counts/bytes, not a deterministic allocation census or peak RSS."
+    },
+    {
+      "id": "woodstox-measured-jfr-profile",
+      "sourceArtifact": "woodstox-measured-jfr-allocation.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "evidenceKind": "measured-window-jfr-sampled-allocation",
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 201.11,
+      "memory": {
+        "primaryKind": "measured-window-jfr-sampled-allocation",
+        "sampledBytes": 464,
+        "sampledMiB": 0.0004425048828125,
+        "stringBoundaryEventCount": 9,
+        "consumeStackEventCount": 10
+      },
+      "shapeSummary": null,
+      "limitation": "JFR object allocation events are sampled counts/bytes, not a deterministic allocation census or peak RSS."
+    }
+  ],
+  "findings": [
+    {
+      "id": "same-contract-not-same-memory-counter",
+      "status": "SOURCE_AGGREGATION",
+      "summary": "Rows are grouped by semantic checksum contract, while memory counters remain runtime-specific.",
+      "evidence": [
+        "browser-js-heap",
+        "not-recorded",
+        "process-rss"
+      ]
+    },
+    {
+      "id": "no-js-200mib-large-full-counterexample-in-aggregated-artifacts",
+      "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
+      "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
+      "evidence": [
+        "jsLargeFullRows=24",
+        "counterexamples=0"
+      ]
+    },
+    {
+      "id": "external-target-remains-visible",
+      "status": "BENCH_FACT",
+      "summary": "The 16 MiB external baseline keeps Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.",
+      "evidence": [
+        "woodstox=333.43 MiB/s",
+        "quick-xml=309.82 MiB/s",
+        "quick-xml/Woodstox=0.93"
+      ]
+    }
+  ]
+}
