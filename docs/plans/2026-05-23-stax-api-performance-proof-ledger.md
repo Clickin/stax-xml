@@ -115,7 +115,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 17 required artifact mentions
+all 10 required claim guards are satisfied, all 18 required artifact mentions
 are present, all 7 required open-obligation disclosures are present, and all 7
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -160,6 +160,32 @@ variant-level JS heap plus separate Windows process-tree host counters,
 quick-xml records allocator traffic, and Woodstox records JFR sampled
 allocations. Therefore this artifact improves cross-runtime comparison hygiene;
 it is not a peak-memory equivalence proof and not a runtime-limit conclusion.
+
+## Current Evidence: Runtime Counterexample Scan
+
+`packages/benchmark/results/release/runtime-counterexample-scan.md` scans
+recognized throughput rows in primary release JSON artifacts for the broad
+counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
+bounded memory with row-level memory evidence, and throughput at or above
+200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
+
+The current scan covers 59 primary release JSON artifacts and recognizes 342
+measured rows. It finds 141 JavaScript 1 GiB+ full-string rows and zero
+bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
+is Bun/JSC `stringFull` from the fresh-process projection artifact at
+97.82 MiB/s, but that row has only a derived bounded flag and no row-level
+memory counter, so it cannot satisfy the bounded-memory counterexample rule.
+The fastest row with row-level memory evidence is Bun/JSC `rawFrameNameId` from
+`bun-candidate-headroom-projection-large.json` at 84.68 MiB/s with process RSS
+evidence.
+
+The scan also records one threshold-crossing partial/projection row:
+Bun/JSC `scanAllNoDecode` at 245.41 MiB/s from
+`bun-candidate-headroom-projection-large.json`. It preserves event-count style
+work but drops the full-string StAX contract, so it is headroom evidence rather
+than a runtime-limit counterexample. This scan is a mechanical guard over the
+current release artifacts; absence of a counterexample here is still not an
+impossibility proof.
 
 ## Current Evidence: Woodstox HotSpot Trace
 

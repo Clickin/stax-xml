@@ -76,6 +76,7 @@ const requiredClaimGuards = [
 const requiredArtifactMentions = [
   'materialization-contract-audit.md',
   'same-contract-runtime-comparison.md',
+  'runtime-counterexample-scan.md',
   'quick-xml-shape-audit.md',
   'quick-xml-allocation-count.md',
   'woodstox-hotspot-trace.md',
