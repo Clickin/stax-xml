@@ -595,38 +595,31 @@ public event-object contract.
 `packages/benchmark/results/release/event-reader-byte-batch-corpus.md`,
 `packages/benchmark/results/release/bun-event-reader-byte-batch-corpus.md`, and
 `packages/benchmark/results/release/deno-event-reader-byte-batch-corpus.md`
-repeat the same public `EventReader` source-boundary comparison on the 1.00 GiB
-`treebank_e.xml` corpus-cycle fixture. The corpus source is split into 64 KiB
-`Uint8Array` chunks and repeats only complete corpus cycles, so the
-`AsyncIterable<Uint8Array[]>` source still respects backpressure and avoids
-pre-materializing a whole 1 GiB ArrayBuffer or document. All corpus rows
-preserved 75,206,126 events and checksum `1421140645`. On Node/V8,
-`readableStreamBatch1` was fastest at `66.52 MiB/s`; async byte batches
-reported `44.50 MiB/s` at batch size 16 and `42.39 MiB/s` at batch size 64.
-On Bun/JSC, `readableStreamBatch1` reported `56.64 MiB/s`, while async byte
-batches reported `53.58 MiB/s` and `55.08 MiB/s`; only the batch-1
-ReadableStream row stayed under the 512 MiB RSS gate. On Deno/V8,
-`readableStreamBatch1` reported `56.70 MiB/s`, and async byte batches reported
-`42.62 MiB/s` and `38.90 MiB/s`; all Deno corpus rows stayed bounded. This
-turns the async-batch optimization into a scenario-dependent result: it helped
-the generated tiny-row fixture, but it did not reveal corpus-cycle headroom or a
-200 MiB/s counterexample.
+repeat the same source-boundary comparison on the 1.00 GiB `books.xml`
+corpus-cycle fixture. The corpus source is split into 64 KiB `Uint8Array`
+chunks and repeats only complete corpus cycles, so the byte-batch sources still
+respect backpressure and avoid pre-materializing a whole 1 GiB ArrayBuffer or
+document. All corpus rows preserved 57,096,514 events and checksum `45154785`.
+On Node/V8, `readableStreamBatch16` reported `80.41 MiB/s`,
+`asyncByteBatch16` reported `79.89 MiB/s`, and `syncIterableBatch16` reported
+`128.30 MiB/s` with `281.3 MiB` max RSS. On Bun/JSC, the same rows reported
+`59.25 MiB/s`, `59.49 MiB/s`, and `88.79 MiB/s` with `222.1 MiB` max RSS. On
+Deno/V8, they reported `43.31 MiB/s`, `42.37 MiB/s`, and `68.91 MiB/s` with
+`184.4 MiB` max RSS. All three `syncIterableBatch16` rows stayed under the
+512 MiB RSS gate.
 
-Commit `a9bf6de` extends the same source-boundary benchmark with
+Commit `a9bf6de` extends the source-boundary benchmark with
 `syncIterableBatch*` rows. These rows consume a backpressure-preserving
 `Iterable<Uint8Array[]>` through `StreamReaderSync`, then materialize the same
-public event-object shape before folding the same full-string checksum. The raw
-1 GiB `books.xml` corpus-cycle probe reports are preserved off-mainline on
-evidence branch `evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit
-`6120711`. They show that the previous async-byte-batch comparison did not
-fully isolate source overhead: Node/V8 `syncIterableBatch16` reported
-`131.07 MiB/s` with `294.3 MiB` max RSS versus `readableStreamBatch16` at
-`84.27 MiB/s`; Deno/V8 reported `114.30 MiB/s` with `162.7 MiB` max RSS versus
-`68.62 MiB/s`; Bun/JSC reported `85.79 MiB/s` with `221.9 MiB` max RSS versus
-`57.79 MiB/s`. All three stayed under the 512 MiB RSS gate. This is material
-headroom evidence and invalidates using pure `ReadableStream` or
-`AsyncIterable` overhead as a runtime-ceiling argument, but it is still a
-single-run local probe and remains below the 200 MiB/s full-StAX target.
+public event-object shape before folding the same full-string checksum. The
+current release artifacts show that pure `ReadableStream` or `AsyncIterable`
+overhead did hide meaningful synchronous source headroom, so it cannot be used
+as a runtime-ceiling argument by itself. They also keep the result
+scenario-bounded: the best current 1 GiB corpus-cycle sync-iterable row is
+Node/V8 `syncIterableBatch1` at `132.57 MiB/s`, and no runtime crosses the
+200 MiB/s full-StAX target under this contract. The raw pre-release 1 GiB
+`books.xml` probe reports are preserved off-mainline on evidence branch
+`evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit `6120711`.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 

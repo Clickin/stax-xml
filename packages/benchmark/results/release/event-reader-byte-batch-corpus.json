@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-24T16:28:26.078Z",
+  "generatedAt": "2026-05-24T17:45:45.431Z",
   "objective": "event-reader-byte-batch",
   "contract": "public-event-object-full-string-checksum",
-  "note": "Compares direct ReadableStream chunk consumption with an AsyncIterable<Uint8Array[]> source that yields already-grouped byte batches. Both sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.",
+  "note": "Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]> and Iterable<Uint8Array[]> sources that yield already-grouped byte batches. All sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.",
   "environment": {
     "packageVersion": "1.0.0",
     "runtimeName": "node",
@@ -20,7 +20,7 @@
     "runs": 1,
     "warmups": 0,
     "fixtureShape": "corpus-cycle",
-    "corpusFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+    "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
     "corpusChunkKiB": 64,
     "diverseCycleSize": 4096,
     "batchSizes": [
@@ -29,16 +29,16 @@
       64
     ],
     "boundedRssMiB": 512,
-    "runtimeLabel": null
+    "runtimeLabel": "Node/V8"
   },
   "fixture": {
     "source": "corpus-cycle",
     "targetBytes": 1073741824,
-    "actualBytes": 1074787404,
-    "sourceBytes": 89565617,
+    "actualBytes": 1073744736,
+    "sourceBytes": 4551,
     "chunkBytes": 65536,
-    "sizeGiB": 1.0009737722575665,
-    "rows": 1367
+    "sizeGiB": 1.0000027120113373,
+    "rows": 1
   },
   "variants": [
     {
@@ -48,21 +48,21 @@
       "batchSize": 1,
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 15407.958700000001,
-      "minMs": 15407.958700000001,
-      "maxMs": 15407.958700000001,
-      "mibPerSec": 66.52387657242019,
+      "avgMs": 12842.0375,
+      "minMs": 12842.0375,
+      "maxMs": 12842.0375,
+      "mibPerSec": 79.73834191806475,
       "samplesMs": [
-        15407.958700000001
+        12842.0375
       ],
-      "eventCount": 75206126,
-      "checksum": 1421140645,
-      "sourceReads": 16405,
-      "sourceBatches": 16404,
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235937,
+      "sourceBatches": 235936,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 300699648,
-        "maxHeapUsedBytes": 31556984
+        "maxRssBytes": 204808192,
+        "maxHeapUsedBytes": 28917128
       }
     },
     {
@@ -72,21 +72,21 @@
       "batchSize": 16,
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 21166.9568,
-      "minMs": 21166.9568,
-      "maxMs": 21166.9568,
-      "mibPerSec": 48.424398106757984,
+      "avgMs": 12733.980300000001,
+      "minMs": 12733.980300000001,
+      "maxMs": 12733.980300000001,
+      "mibPerSec": 80.41498046762403,
       "samplesMs": [
-        21166.9568
+        12733.980300000001
       ],
-      "eventCount": 75206126,
-      "checksum": 1421140645,
-      "sourceReads": 16405,
-      "sourceBatches": 16404,
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235937,
+      "sourceBatches": 235936,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 463065088,
-        "maxHeapUsedBytes": 65247256
+        "maxRssBytes": 205778944,
+        "maxHeapUsedBytes": 51589640
       }
     },
     {
@@ -96,21 +96,21 @@
       "batchSize": 64,
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 21237.063499999997,
-      "minMs": 21237.063499999997,
-      "maxMs": 21237.063499999997,
-      "mibPerSec": 48.26454197830826,
+      "avgMs": 13264.625599999996,
+      "minMs": 13264.625599999996,
+      "maxMs": 13264.625599999996,
+      "mibPerSec": 77.19801583390411,
       "samplesMs": [
-        21237.063499999997
+        13264.625599999996
       ],
-      "eventCount": 75206126,
-      "checksum": 1421140645,
-      "sourceReads": 16405,
-      "sourceBatches": 16404,
-      "boundedMemory": false,
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235937,
+      "sourceBatches": 235936,
+      "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 564740096,
-        "maxHeapUsedBytes": 233950016
+        "maxRssBytes": 303058944,
+        "maxHeapUsedBytes": 98872880
       }
     },
     {
@@ -120,21 +120,21 @@
       "batchSize": 16,
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 23032.007300000005,
-      "minMs": 23032.007300000005,
-      "maxMs": 23032.007300000005,
-      "mibPerSec": 44.503161597719185,
+      "avgMs": 12817.614700000006,
+      "minMs": 12817.614700000006,
+      "maxMs": 12817.614700000006,
+      "mibPerSec": 79.89027608230484,
       "samplesMs": [
-        23032.007300000005
+        12817.614700000006
       ],
-      "eventCount": 75206126,
-      "checksum": 1421140645,
-      "sourceReads": 16404,
-      "sourceBatches": 1026,
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235936,
+      "sourceBatches": 14746,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 523767808,
-        "maxHeapUsedBytes": 129219424
+        "maxRssBytes": 294420480,
+        "maxHeapUsedBytes": 33246616
       }
     },
     {
@@ -144,21 +144,93 @@
       "batchSize": 64,
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 24182.79449999999,
-      "minMs": 24182.79449999999,
-      "maxMs": 24182.79449999999,
-      "mibPerSec": 42.38538861965471,
+      "avgMs": 13641.5461,
+      "minMs": 13641.5461,
+      "maxMs": 13641.5461,
+      "mibPerSec": 75.06500873090987,
       "samplesMs": [
-        24182.79449999999
+        13641.5461
       ],
-      "eventCount": 75206126,
-      "checksum": 1421140645,
-      "sourceReads": 16404,
-      "sourceBatches": 257,
-      "boundedMemory": false,
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235936,
+      "sourceBatches": 3687,
+      "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 574992384,
-        "maxHeapUsedBytes": 254685104
+        "maxRssBytes": 298909696,
+        "maxHeapUsedBytes": 33899760
+      }
+    },
+    {
+      "id": "syncIterableBatch1",
+      "family": "sync-iterable-byte-batch",
+      "implementation": "StreamReaderSync over Iterable<Uint8Array[]> with 1 chunks yielded per batch, materialized as public event objects",
+      "batchSize": 1,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 7723.981700000004,
+      "minMs": 7723.981700000004,
+      "maxMs": 7723.981700000004,
+      "mibPerSec": 132.5744696028486,
+      "samplesMs": [
+        7723.981700000004
+      ],
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235936,
+      "sourceBatches": 235936,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 303435776,
+        "maxHeapUsedBytes": 22108112
+      }
+    },
+    {
+      "id": "syncIterableBatch16",
+      "family": "sync-iterable-byte-batch",
+      "implementation": "StreamReaderSync over Iterable<Uint8Array[]> with 16 chunks yielded per batch, materialized as public event objects",
+      "batchSize": 16,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 7981.547999999995,
+      "minMs": 7981.547999999995,
+      "maxMs": 7981.547999999995,
+      "mibPerSec": 128.296262466831,
+      "samplesMs": [
+        7981.547999999995
+      ],
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235936,
+      "sourceBatches": 14746,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 295002112,
+        "maxHeapUsedBytes": 8012120
+      }
+    },
+    {
+      "id": "syncIterableBatch64",
+      "family": "sync-iterable-byte-batch",
+      "implementation": "StreamReaderSync over Iterable<Uint8Array[]> with 64 chunks yielded per batch, materialized as public event objects",
+      "batchSize": 64,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 7806.688099999999,
+      "minMs": 7806.688099999999,
+      "maxMs": 7806.688099999999,
+      "mibPerSec": 131.16993582715435,
+      "samplesMs": [
+        7806.688099999999
+      ],
+      "eventCount": 57096514,
+      "checksum": 45154785,
+      "sourceReads": 235936,
+      "sourceBatches": 3687,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 305913856,
+        "maxHeapUsedBytes": 71687464
       }
     }
   ],
@@ -166,22 +238,34 @@
     {
       "id": "backpressure-preserved",
       "classification": "SOURCE_FACT",
-      "summary": "Both benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), and the async byte-batch source yields one batch only when next() is awaited.",
+      "summary": "All benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), the async byte-batch source yields one batch only when next() is awaited, and the sync iterable source yields one batch per parser pull.",
       "evidence": [
-        "readableStreamBatch1: sourceReads=16405, sourceBatches=16404",
-        "readableStreamBatch16: sourceReads=16405, sourceBatches=16404",
-        "readableStreamBatch64: sourceReads=16405, sourceBatches=16404",
-        "asyncByteBatch16: sourceReads=16404, sourceBatches=1026",
-        "asyncByteBatch64: sourceReads=16404, sourceBatches=257"
+        "readableStreamBatch1: sourceReads=235937, sourceBatches=235936",
+        "readableStreamBatch16: sourceReads=235937, sourceBatches=235936",
+        "readableStreamBatch64: sourceReads=235937, sourceBatches=235936",
+        "asyncByteBatch16: sourceReads=235936, sourceBatches=14746",
+        "asyncByteBatch64: sourceReads=235936, sourceBatches=3687",
+        "syncIterableBatch1: sourceReads=235936, sourceBatches=235936",
+        "syncIterableBatch16: sourceReads=235936, sourceBatches=14746",
+        "syncIterableBatch64: sourceReads=235936, sourceBatches=3687"
       ]
     },
     {
       "id": "async-byte-batch-headroom",
       "classification": "BENCH_FACT",
-      "summary": "At batch size 16, async byte batches were 0.92x the ReadableStream row on this run.",
+      "summary": "At batch size 16, async byte batches were 0.99x the ReadableStream row on this run.",
       "evidence": [
-        "readableStreamBatch16=48.42 MiB/s",
-        "asyncByteBatch16=44.50 MiB/s"
+        "readableStreamBatch16=80.41 MiB/s",
+        "asyncByteBatch16=79.89 MiB/s"
+      ]
+    },
+    {
+      "id": "sync-iterable-byte-batch-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "At batch size 16, sync iterable byte batches were 1.60x the ReadableStream row on this run.",
+      "evidence": [
+        "readableStreamBatch16=80.41 MiB/s",
+        "syncIterableBatch16=128.30 MiB/s"
       ]
     }
   ]
