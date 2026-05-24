@@ -180,8 +180,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 94 primary release JSON artifacts and recognizes 572
-measured rows. It finds 327 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 100 primary release JSON artifacts and recognizes 623
+measured rows. It finds 375 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Node/V8 `rawFrameNameId` from
 `candidate-headroom-cross-process-books-corpus.json` at 180.08 MiB/s with
@@ -196,7 +196,7 @@ event-count style work but drop the full-string StAX contract, so they are
 headroom evidence rather than runtime-limit counterexamples. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
-satisfy the bounded-memory counterexample rule. The scan reports 95 full-string
+satisfy the bounded-memory counterexample rule. The scan reports 89 full-string
 rows without bounded-memory proof. This scan is a mechanical guard over the
 current release artifacts; absence of a counterexample here is still not an
 impossibility proof.
@@ -208,15 +208,15 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 94 primary release artifacts and recognizes 572
-measured rows. It records 69 benchmark artifacts, 12 source artifacts, 5
-trace/profile artifacts, 12 allocation artifacts, and 1 environment artifact,
-327 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+The current audit scans 100 primary release artifacts and recognizes 623
+measured rows. It records 72 benchmark artifacts, 12 source artifacts, 7
+trace/profile artifacts, 13 allocation artifacts, 1 environment artifact, and 2
+negative-result artifacts, 375 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
-coverage now includes 95 Chrome/V8 browser rows, 78 Firefox/SpiderMonkey
-browser rows, zero Safari/WebKit browser rows, and 78 non-V8 browser benchmark
+coverage now includes 98 Chrome/V8 browser rows, 81 Firefox/SpiderMonkey
+browser rows, zero Safari/WebKit browser rows, and 81 non-V8 browser benchmark
 rows.
 Firefox benchmark rows, exact tested-build JS string and TextDecoder source
 pinning, a tested-build page memory API boundary pin, and Firefox host
@@ -1207,14 +1207,16 @@ private bytes. This is browser V8 evidence only, not Safari/WebKit or
 SpiderMonkey evidence.
 
 `packages/benchmark/results/release/browser-fetch-readable-stream-books-corpus.md`
-adds a focused Chrome/V8 1.00 GiB `books.xml` row that consumes
-`fetch(...).body` directly through public asynchronous `EventReader`, while the
-server repeats corpus bytes to the target size. It preserves the same
-57,096,514 events and checksum `-540013997` as the prepared browser
-`eventObjectFull` row, but reports only `9.18 MiB/s` with max used JS heap
-`20.5 MiB`; the paired prepared `eventObjectFull` row in the same artifact
-reports `67.63 MiB/s` with max used JS heap `11.9 MiB`. This closes the live
-browser `ReadableStream` source gap for Chrome/V8 on this corpus, and records a
+adds focused Chrome/V8 1.00 GiB `books.xml` live fetch source rows. The
+`fetchReadableStreamFull` row consumes `fetch(...).body` directly through public
+asynchronous `EventReader`; `fetchAsyncByteBatchFull` manually groups
+`Response.body` reads into `AsyncIterable<Uint8Array[]>` batches. Both preserve
+the same 57,096,514 events and checksum `-540013997` as the prepared browser
+`eventObjectFull` row. The live rows report only `9.49 MiB/s` and `9.68 MiB/s`
+with max used JS heap `16.7 MiB` and `37.0 MiB`; the paired prepared
+`eventObjectFull` row in the same artifact reports `67.78 MiB/s` with max used
+JS heap `11.5 MiB`. This closes the live browser `ReadableStream` and
+manual async-byte-batch source gap for Chrome/V8 on this corpus, and records a
 negative result for the hypothesis that direct browser fetch streaming exposes
 hidden 200 MiB/s full-StAX headroom.
 

@@ -33,8 +33,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 100);
-  assert.equal(report.summary.measuredRowCount, 622);
-  assert.equal(report.summary.largeJsFullRowCount, 374);
+  assert.equal(report.summary.measuredRowCount, 623);
+  assert.equal(report.summary.largeJsFullRowCount, 375);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 72);
@@ -54,7 +54,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
 
-  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 97);
+  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 98);
   assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 81);
   assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
   assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 81);
@@ -90,7 +90,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'browser-fetch-readable-stream-books-corpus.json'
     && row.runtimes.includes('chrome-v8-browser')
-    && row.measuredRowCount === 2
+    && row.measuredRowCount === 3
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'firefox-fetch-readable-stream-timeout-audit.json'
