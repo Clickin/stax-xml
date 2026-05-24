@@ -110,9 +110,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /same-contract-runtime-comparison\.md/);
   assert.match(markdown, /runtime-counterexample-scan\.md/);
   assert.match(markdown, /runtime-proof-coverage-audit\.md/);
-  assert.match(markdown, /34 selected comparison rows and 30 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /46 selected comparison rows and 42 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
-  assert.match(markdown, /fastest bounded public event-object row is Node\/V8\s+`eventObjectFull` at 61\.80 MiB\/s/);
+  assert.match(markdown, /fastest selected 1 GiB\+ JavaScript\s+full-string row is Bun\/JSC projection-cycle `rawFrameNameId` at 84\.68 MiB\/s/);
+  assert.match(markdown, /fastest\s+selected and bounded row is Bun\/JSC projection-cycle `eventObjectFull` at\s+63\.29 MiB\/s/);
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
   assert.match(markdown, /recognizes 353\s+measured rows/);

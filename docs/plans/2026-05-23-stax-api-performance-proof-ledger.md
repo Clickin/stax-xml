@@ -143,24 +143,22 @@ upgraded to `CONCLUSION` while these open obligations remain, the gate fails.
 aggregates existing release artifacts under the same full-string checksum
 contract without normalizing object shapes or memory models. It includes the
 16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows, 1
-GiB TextDecoder span rows, quick-xml global allocator counters, and Woodstox
-JFR sampled allocation artifacts.
+GiB projection-cycle full-string rows, 1 GiB TextDecoder span rows, quick-xml
+global allocator counters, and Woodstox JFR sampled allocation artifacts.
 
-The current aggregate has 34 selected comparison rows and 30 JavaScript 1 GiB+
+The current aggregate has 46 selected comparison rows and 42 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest selected 1 GiB+ JavaScript
-full-string row is Node/V8 `rawFrameNameId` at 77.00 MiB/s with process RSS max
-419.31 MiB. For the public event-object shape, the fastest selected row is the
-Bun/JSC corpus `eventObjectFull` row at 62.08 MiB/s but unbounded under the RSS
-gate, while the fastest bounded public event-object row is Node/V8
-`eventObjectFull` at 61.80 MiB/s with process RSS max 419.02 MiB. The generated
-1 GiB candidate group now includes Firefox/SpiderMonkey generated and corpus
-rows; the fastest
-selected row in that group remains Bun/JSC `rawFrameNameId` at 57.99 MiB/s,
-while the fastest Firefox generated row is `rawFrameNameId` at 35.02 MiB/s and
-the fastest Firefox corpus row is `rawFrameNameId` at 48.15 MiB/s. Firefox's
-memory kind is `browser-js-heap-unavailable`, so these rows are not
-bounded-memory counterexamples.
+full-string row is Bun/JSC projection-cycle `rawFrameNameId` at 84.68 MiB/s
+with process RSS max 199.15 MiB. For the public event-object shape, the fastest
+selected and bounded row is Bun/JSC projection-cycle `eventObjectFull` at
+63.29 MiB/s with process RSS max 182.34 MiB. The generated, corpus, and
+projection groups now include Firefox/SpiderMonkey rows; the fastest Firefox
+generated row is `rawFrameNameId` at 35.02 MiB/s, the fastest Firefox corpus row
+is `rawFrameNameId` at 48.15 MiB/s, and the fastest Firefox projection-cycle
+full row is `rawFrameNameId` at 64.24 MiB/s. Firefox's memory kind is
+`browser-js-heap-unavailable`, so these rows are not bounded-memory
+counterexamples.
 
 The same report keeps the external target visible: the 16 MiB Woodstox row is
 333.43 MiB/s and the 16 MiB quick-xml row is 309.82 MiB/s, or 0.93x Woodstox,

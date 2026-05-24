@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 34);
-  assert.equal(report.summary.jsLargeFullRowCount, 30);
+  assert.equal(report.summary.rowCount, 46);
+  assert.equal(report.summary.jsLargeFullRowCount, 42);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.caseId, 'eventObjectFull');
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory, true);
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
@@ -70,6 +70,18 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.checksum === -925527041
     && row.memory.primaryKind === 'browser-js-heap-unavailable'
     && row.memory.hostProcessTreeProbe?.maxWorkingSetMiB > 1000
+    && row.boundedMemory === false
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'projection-1gib-full'
+    && row.sourceArtifact === 'firefox-bidi-candidate-headroom-projection.json'
+    && row.runtimeId === 'firefox-spidermonkey-browser'
+    && row.caseId === 'rawFrameNameId'
+    && row.mibPerSec === 64.24
+    && row.eventCount === 60416563
+    && row.checksum === 1441552024
+    && row.memory.primaryKind === 'browser-js-heap-unavailable'
+    && row.memory.hostProcessTreeProbe?.maxWorkingSetMiB > 700
     && row.boundedMemory === false
   ));
   assert.ok(report.comparisonRows.some(row =>

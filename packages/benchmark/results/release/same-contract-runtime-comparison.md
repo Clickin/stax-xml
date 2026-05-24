@@ -1,17 +1,17 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-24T04:14:07.998Z
+Generated: 2026-05-24T05:01:09.105Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 34
-- 1 GiB+ JavaScript full-string rows: 30
+- Aggregated rows: 46
+- 1 GiB+ JavaScript full-string rows: 42
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
-- Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 77.00 MiB/s (process RSS max 419.31 MiB)
-- Fastest 1 GiB+ JS public event-object row: Bun/JSC eventObjectFull at 62.08 MiB/s (process RSS max 1476.53 MiB)
-- Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 61.80 MiB/s (process RSS max 419.02 MiB)
+- Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 84.68 MiB/s (process RSS max 199.15 MiB)
+- Fastest 1 GiB+ JS public event-object row: Bun/JSC eventObjectFull at 63.29 MiB/s (process RSS max 182.34 MiB)
+- Fastest bounded 1 GiB+ JS public event-object row: Bun/JSC eventObjectFull at 63.29 MiB/s (process RSS max 182.34 MiB)
 - 16 MiB Woodstox baseline: 333.43 MiB/s
 - 16 MiB quick-xml baseline: 309.82 MiB/s (0.93x Woodstox)
 
@@ -21,6 +21,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | --- | --- | --- | ---: | --- | --- |
 | `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 57.99 | yes | process RSS max 192.98 MiB |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB |
+| `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 84.68 | yes | process RSS max 199.15 MiB |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB |
 
 ## Selected Comparison Rows
@@ -55,6 +56,18 @@ This report aggregates existing release artifacts. It compares rows only through
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 75206126 | -925527041 | 44.92 | no | browser-js-heap-unavailable; fresh host probe 1064.98 MiB | `firefox-bidi-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 75206126 | -925527041 | 36.27 | no | browser-js-heap-unavailable; fresh host probe 1220.22 MiB | `firefox-bidi-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 75206126 | -925527041 | 48.15 | no | browser-js-heap-unavailable; fresh host probe 1060.55 MiB | `firefox-bidi-candidate-headroom-corpus.json` |
+| `projection-1gib-full` | Node/V8 | `stringFull` | 60416563 | 1441552024 | 67.04 | yes | process RSS max 78.53 MiB | `candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Node/V8 | `eventObjectFull` | 60416563 | 1441552024 | 57.67 | yes | process RSS max 135.87 MiB | `candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Node/V8 | `rawFrameNameId` | 60416563 | 1441552024 | 82.91 | yes | process RSS max 145.97 MiB | `candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Bun/JSC | `stringFull` | 60416563 | 1441552024 | 77.04 | yes | process RSS max 214.97 MiB | `bun-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Bun/JSC | `eventObjectFull` | 60416563 | 1441552024 | 63.29 | yes | process RSS max 182.34 MiB | `bun-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 60416563 | 1441552024 | 84.68 | yes | process RSS max 199.15 MiB | `bun-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Chrome/V8 browser | `stringFull` | 60416563 | 1441552024 | 56.44 | yes | JS heap max 13.82 MiB; host working set 444.27 MiB | `browser-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Chrome/V8 browser | `eventObjectFull` | 60416563 | 1441552024 | 48.12 | yes | JS heap max 15.88 MiB; host working set 444.27 MiB | `browser-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Chrome/V8 browser | `rawFrameNameId` | 60416563 | 1441552024 | 60.32 | yes | JS heap max 30.03 MiB; host working set 444.27 MiB | `browser-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Firefox/SpiderMonkey browser | `stringFull` | 60416563 | 1441552024 | 61.77 | no | browser-js-heap-unavailable; fresh host probe 673.60 MiB | `firefox-bidi-candidate-headroom-projection.json` |
+| `projection-1gib-full` | Firefox/SpiderMonkey browser | `eventObjectFull` | 60416563 | 1441552024 | 52.54 | no | browser-js-heap-unavailable; fresh host probe 724.15 MiB | `firefox-bidi-candidate-headroom-projection.json` |
+| `projection-1gib-full` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 60416563 | 1441552024 | 64.24 | no | browser-js-heap-unavailable; fresh host probe 702.56 MiB | `firefox-bidi-candidate-headroom-projection.json` |
 | `generated-1gib-textdecoder` | Node/V8 | `subarraySharedDecoder` | 45189256 | 1421012805 | 37.33 | yes | process RSS max 72.16 MiB | `textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 51.60 | yes | process RSS max 83.91 MiB | `textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Bun/JSC | `subarraySharedDecoder` | 45189256 | 1421012805 | 40.31 | yes | process RSS max 186.27 MiB | `bun-textdecoder-span-variants.json` |
@@ -80,7 +93,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - not-recorded
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=30
+  - jsLargeFullRows=42
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The 16 MiB external baseline keeps Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - woodstox=333.43 MiB/s
