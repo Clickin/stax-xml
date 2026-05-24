@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 95);
+  assert.equal(report.summary.scannedArtifactCount, 96);
   assert.equal(report.summary.measuredRowCount, 572);
   assert.equal(report.summary.largeJsFullRowCount, 327);
   assert.equal(report.summary.corpusSeedCount, 3);
@@ -40,7 +40,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.benchmarkArtifactCount, 69);
   assert.equal(report.summary.sourceArtifactCount, 12);
   assert.equal(report.summary.traceArtifactCount, 6);
-  assert.equal(report.summary.allocationArtifactCount, 12);
+  assert.equal(report.summary.allocationArtifactCount, 13);
   assert.equal(report.summary.environmentArtifactCount, 1);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
@@ -114,6 +114,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.traceArtifacts.includes('deno-v8-codegen-trace.json')
   ));
   assert.ok(report.coverage.runtimes.some(row =>
+    row.runtimeId === 'deno-v8'
+    && row.allocationArtifacts.includes('deno-v8-allocation-sampling.json')
+  ));
+  assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'firefox-spidermonkey-browser'
     && row.allocationArtifacts.includes('firefox-spidermonkey-allocation-profile.json')
   ));
@@ -142,7 +146,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Bun\/JSC codegen\/IR evidence present/);
   assert.match(markdown, /Browser codegen trace evidence present/);
-  assert.match(markdown, /12 allocation\/profile artifacts found/);
+  assert.match(markdown, /13 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 1/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);

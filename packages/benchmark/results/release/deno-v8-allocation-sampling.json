@@ -1,0 +1,255 @@
+{
+  "generatedAt": "2026-05-24T17:38:02.177Z",
+  "objective": "v8-allocation-sampling",
+  "contract": "inspector-heapprofiler-sampling",
+  "note": "V8 inspector HeapProfiler allocation sampling for full-string JavaScript reader shapes and optional selected-field projection rows. Sampling is statistical and runtime-specific.",
+  "environment": {
+    "runtimeName": "deno",
+    "runtimeLabel": "Deno/V8",
+    "node": "v24.2.0",
+    "denoVersion": "2.7.13",
+    "v8": "14.7.173.20-rusty",
+    "platform": "win32-x64",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "source": "generated",
+    "shape": "diverse",
+    "file": null,
+    "byteLength": 16776986,
+    "sizeMiB": 15.999780654907227,
+    "targetBytes": 16777216
+  },
+  "options": {
+    "warmups": 1,
+    "iterations": 2,
+    "samplingInterval": 8192,
+    "cases": [
+      "public-accessor",
+      "event-reader-object",
+      "raw-frame-direct-decode",
+      "raw-frame-name-id-cache"
+    ],
+    "generatedFixture": "diverse",
+    "sizeMiB": 16
+  },
+  "rawArtifacts": {
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release",
+    "committed": false,
+    "profiles": [
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\public-accessor.heapprofile.json",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\event-reader-object.heapprofile.json",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\raw-frame-direct-decode.heapprofile.json",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\raw-frame-name-id-cache.heapprofile.json"
+    ]
+  },
+  "parity": {
+    "status": "ok",
+    "rowIds": [
+      "public-accessor",
+      "event-reader-object",
+      "raw-frame-direct-decode",
+      "raw-frame-name-id-cache"
+    ],
+    "eventCount": 662215,
+    "checksum": -2075823699
+  },
+  "projectionParity": {
+    "status": "not-applicable",
+    "rowIds": []
+  },
+  "cases": [
+    {
+      "caseId": "public-accessor",
+      "eventCountKind": "stream-events",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 213.71710000000002,
+      "samplesMs": [
+        216.9303,
+        210.50390000000004
+      ],
+      "sampledBytes": 35696,
+      "sampleCount": 4,
+      "targetFunctionBytes": 0,
+      "staxXmlSourceBytes": 35696,
+      "topFrames": [
+        {
+          "functionName": "attributeCountAt",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 30833,
+          "selfSize": 18032,
+          "percent": 0.5051546391752577
+        },
+        {
+          "functionName": "parseStartTag",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 9790,
+          "selfSize": 9216,
+          "percent": 0.2581801882563873
+        },
+        {
+          "functionName": "p",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 15741,
+          "selfSize": 8448,
+          "percent": 0.236665172568355
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\public-accessor.heapprofile.json"
+    },
+    {
+      "caseId": "event-reader-object",
+      "eventCountKind": "stream-events",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 281.8239,
+      "samplesMs": [
+        294.2075000000002,
+        269.44029999999975
+      ],
+      "sampledBytes": 49384,
+      "sampleCount": 5,
+      "targetFunctionBytes": 0,
+      "staxXmlSourceBytes": 16608,
+      "topFrames": [
+        {
+          "functionName": "indexOf",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 19208,
+          "percent": 0.3889518872509315
+        },
+        {
+          "functionName": "get",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 13568,
+          "percent": 0.2747448566337275
+        },
+        {
+          "functionName": "isWhitespace",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 38785,
+          "selfSize": 8400,
+          "percent": 0.1700955775149846
+        },
+        {
+          "functionName": "parseNextEvent",
+          "url": "file:///G:/programming/stax-xml/packages/stax-xml/dist/index.js",
+          "lineNumber": 0,
+          "columnNumber": 34630,
+          "selfSize": 8208,
+          "percent": 0.1662076786003564
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\event-reader-object.heapprofile.json"
+    },
+    {
+      "caseId": "raw-frame-direct-decode",
+      "eventCountKind": "stream-events",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 214.77384999999992,
+      "samplesMs": [
+        205.99669999999992,
+        223.55099999999993
+      ],
+      "sampledBytes": 0,
+      "sampleCount": 0,
+      "targetFunctionBytes": 0,
+      "staxXmlSourceBytes": 0,
+      "topFrames": [],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\raw-frame-direct-decode.heapprofile.json"
+    },
+    {
+      "caseId": "raw-frame-name-id-cache",
+      "eventCountKind": "stream-events",
+      "eventCount": 662215,
+      "checksum": -2075823699,
+      "avgMs": 196.1784,
+      "samplesMs": [
+        181.70859999999993,
+        210.6482000000001
+      ],
+      "sampledBytes": 16568,
+      "sampleCount": 2,
+      "targetFunctionBytes": 8208,
+      "staxXmlSourceBytes": 8208,
+      "topFrames": [
+        {
+          "functionName": "trim",
+          "url": "",
+          "lineNumber": -1,
+          "columnNumber": -1,
+          "selfSize": 8360,
+          "percent": 0.5045871559633027
+        },
+        {
+          "functionName": "materializeName",
+          "url": "file:///G:/programming/stax-xml/packages/benchmark/v8-allocation-sampling.mjs",
+          "lineNumber": 880,
+          "columnNumber": 24,
+          "selfSize": 8208,
+          "percent": 0.4954128440366973
+        }
+      ],
+      "rawProfilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-allocation\\deno-v8-allocation-release\\raw-frame-name-id-cache.heapprofile.json"
+    }
+  ],
+  "findings": [
+    {
+      "id": "same-contract-result",
+      "classification": "TRACE_FACT",
+      "summary": "All sampled stream-event shapes preserved the same event count and checksum during allocation sampling.",
+      "evidence": [
+        "public-accessor: events=662215, checksum=-2075823699",
+        "event-reader-object: events=662215, checksum=-2075823699",
+        "raw-frame-direct-decode: events=662215, checksum=-2075823699",
+        "raw-frame-name-id-cache: events=662215, checksum=-2075823699"
+      ]
+    },
+    {
+      "id": "sampled-allocation-shape",
+      "classification": "TRACE_FACT",
+      "summary": "HeapProfiler sampled JavaScript allocation bytes per full-string reader shape in this Deno/V8 build.",
+      "evidence": [
+        "public-accessor: sampledBytes=35696, targetFunctionBytes=0, staxXmlSourceBytes=35696",
+        "event-reader-object: sampledBytes=49384, targetFunctionBytes=0, staxXmlSourceBytes=16608",
+        "raw-frame-direct-decode: sampledBytes=0, targetFunctionBytes=0, staxXmlSourceBytes=0",
+        "raw-frame-name-id-cache: sampledBytes=16568, targetFunctionBytes=8208, staxXmlSourceBytes=8208"
+      ]
+    },
+    {
+      "id": "less-repetitive-generated-fixture",
+      "classification": "TRACE_FACT",
+      "summary": "This run used a less-repetitive generated fixture with varied names, attributes, and text values to reduce single-pattern sampling bias.",
+      "evidence": [
+        "fixtureBytes=16776986",
+        "targetBytes=16777216"
+      ]
+    },
+    {
+      "id": "sampling-attribution-limit",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "Function/source byte attribution is based on sampled self-size frames and can attribute work to native frames instead of the JavaScript caller.",
+      "evidence": [
+        "A zero source-byte bucket in this report does not mean the reader performed no work or allocated no values."
+      ]
+    },
+    {
+      "id": "allocation-sampling-not-ceiling-proof",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "This is statistical allocation evidence for one runtime/build/input, not a proof that JavaScript runtimes have no further headroom.",
+      "evidence": [
+        "Need larger fixtures, browser/Bun/JSC runs, and deeper source/asm evidence before promoting runtime-limit claims."
+      ]
+    }
+  ]
+}

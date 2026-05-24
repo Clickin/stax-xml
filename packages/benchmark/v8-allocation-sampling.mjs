@@ -322,16 +322,22 @@ function collectNodes(node, output) {
 function createReport({ options, fixture, cases }) {
   const parity = computeParity(cases);
   const projectionParity = computeProjectionParity(cases);
+  const runtimeName = globalThis.Deno ? 'deno' : 'node';
+  const denoVersion = globalThis.Deno?.version;
+  const runtimeLabel = runtimeName === 'deno' ? 'Deno/V8' : 'Node/V8';
   return {
     generatedAt: new Date().toISOString(),
     objective: 'v8-allocation-sampling',
     contract: 'inspector-heapprofiler-sampling',
     note: 'V8 inspector HeapProfiler allocation sampling for full-string JavaScript reader shapes and optional selected-field projection rows. Sampling is statistical and runtime-specific.',
     environment: {
+      runtimeName,
+      runtimeLabel,
       node: process.version,
-      v8: process.versions.v8,
+      denoVersion: denoVersion?.deno ?? null,
+      v8: denoVersion?.v8 ?? process.versions.v8,
       platform: `${process.platform}-${process.arch}`,
-      cpuName: cpus()[0]?.model ?? 'unknown',
+      cpuName: sanitizeText(cpus()[0]?.model ?? 'unknown'),
     },
     fixture: {
       source: fixture.source,
@@ -412,7 +418,7 @@ function createFindings(cases, fixture) {
     {
       id: 'sampled-allocation-shape',
       classification: 'TRACE_FACT',
-      summary: 'HeapProfiler sampled JavaScript allocation bytes per full-string reader shape in this Node/V8 build.',
+      summary: `HeapProfiler sampled JavaScript allocation bytes per full-string reader shape in this ${runtimeLabel()} build.`,
       evidence: cases.map(entry => `${entry.caseId}: sampledBytes=${entry.sampledBytes}, targetFunctionBytes=${entry.targetFunctionBytes}, staxXmlSourceBytes=${entry.staxXmlSourceBytes}`),
     },
     {
@@ -469,13 +475,21 @@ function createFindings(cases, fixture) {
   return findings;
 }
 
+function runtimeLabel() {
+  return globalThis.Deno ? 'Deno/V8' : 'Node/V8';
+}
+
+function sanitizeText(value) {
+  return String(value).replace(/\0/g, '').trim();
+}
+
 function renderMarkdown(report) {
   const lines = [
     '# V8 Allocation Sampling',
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This report is a TRACE_FACT for one Node/V8 build and one fixture.',
+    `This report is a TRACE_FACT for one ${report.environment.runtimeLabel} build and one fixture.`,
     'It uses inspector `HeapProfiler.startSampling` / `HeapProfiler.stopSampling` around full-string reader shapes and optional selected-field projection rows.',
     'It is not a proof that JavaScript runtimes have no further headroom.',
     ...(report.projectionParity.status === 'ok'
@@ -484,7 +498,9 @@ function renderMarkdown(report) {
     '',
     '## Environment',
     '',
-    `- Node: ${report.environment.node}`,
+    `- Runtime: ${report.environment.runtimeLabel}`,
+    report.environment.denoVersion ? `- Deno: ${report.environment.denoVersion}` : null,
+    `- Node compatibility: ${report.environment.node}`,
     `- V8: ${report.environment.v8}`,
     `- Platform: ${report.environment.platform}`,
     `- CPU: ${report.environment.cpuName}`,
@@ -503,7 +519,7 @@ function renderMarkdown(report) {
     '',
     '| Case | Count kind | Avg time | Events | Checksum | Sampled bytes | Samples | Target function bytes | stax-xml source bytes |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
-  ];
+  ].filter(line => line !== null);
   for (const entry of report.cases) {
     lines.push(`| ${entry.caseId} | ${entry.eventCountKind} | ${formatMs(entry.avgMs)} | ${entry.eventCount} | ${entry.checksum} | ${formatBytes(entry.sampledBytes)} | ${entry.sampleCount} | ${formatBytes(entry.targetFunctionBytes)} | ${formatBytes(entry.staxXmlSourceBytes)} |`);
   }

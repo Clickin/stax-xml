@@ -1834,6 +1834,27 @@ small selected-function trace. It is not a 1 GiB benchmark row, not an
 allocation profile, not TextDecoder-specific machine-code proof, not browser
 coverage, and not a JavaScript runtime ceiling proof.
 
+## Current Evidence: Deno/V8 Allocation Sampling
+
+`packages/benchmark/results/release/deno-v8-allocation-sampling.md` is a
+`TRACE_FACT` for Deno 2.7.13 / V8 14.7.173.20-rusty using the same inspector
+`HeapProfiler.startSampling` / `HeapProfiler.stopSampling` path as the Node/V8
+allocation sampler. It runs a 16 MiB less-repetitive generated fixture with
+`public-accessor`, `event-reader-object`, `raw-frame-direct-decode`, and
+`raw-frame-name-id-cache` under the same stream-event checksum contract.
+
+All four rows preserved 662,215 events and checksum `-2075823699`.
+HeapProfiler sampled `34.9 KiB` for `public-accessor`, `48.2 KiB` for
+`event-reader-object`, `0 B` for `raw-frame-direct-decode`, and `16.2 KiB` for
+`raw-frame-name-id-cache`. The top sampled frames were mostly stax-xml bundled
+code or native string/object operations; the zero-sample raw-frame row is a
+sampling observation, not proof of zero allocation.
+
+This closes the narrow "Deno/V8 has no allocation evidence" coverage gap in
+the release audit. It is still statistical sampling on a 16 MiB generated
+fixture, not a deterministic allocation census, not a 1 GiB profile, not
+browser evidence, and not a JavaScript runtime ceiling proof.
+
 ## Current Evidence: Bun/JSC String Limit Audit
 
 `packages/benchmark/results/release/bun-jsc-string-limit-audit.md` is an

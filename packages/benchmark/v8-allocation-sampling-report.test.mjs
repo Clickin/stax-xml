@@ -17,6 +17,9 @@ const diverseOutputDir = join(tmpDir, 'v8-allocation-sampling-diverse-test-raw')
 const projectionJsonOut = join(tmpDir, 'v8-allocation-sampling-projection-test.json');
 const projectionMdOut = join(tmpDir, 'v8-allocation-sampling-projection-test.md');
 const projectionOutputDir = join(tmpDir, 'v8-allocation-sampling-projection-test-raw');
+const denoJsonOut = join(tmpDir, 'deno-v8-allocation-sampling-test.json');
+const denoMdOut = join(tmpDir, 'deno-v8-allocation-sampling-test.md');
+const denoOutputDir = join(tmpDir, 'deno-v8-allocation-sampling-test-raw');
 
 test('V8 allocation sampling report records per-shape allocation evidence without claiming a runtime ceiling', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -185,3 +188,59 @@ test('V8 allocation sampling separates projection record evidence from stream pa
   assert.match(markdown, /projection-low-selectivity/);
   assert.match(markdown, /projection-high-selectivity/);
 });
+
+test('V8 allocation sampling records Deno runtime metadata when run under Deno', { skip: !hasDeno() }, () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [denoJsonOut, denoMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync('deno', [
+    'run',
+    '--allow-read',
+    '--allow-write',
+    '--allow-env',
+    '--allow-sys',
+    join(__dirname, 'v8-allocation-sampling.mjs'),
+    '--self-test',
+    '--cases',
+    'raw-frame-name-id-cache',
+    '--output-dir',
+    denoOutputDir,
+    '--json-out',
+    denoJsonOut,
+    '--md-out',
+    denoMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(denoJsonOut, 'utf8'));
+  assert.equal(report.environment.runtimeName, 'deno');
+  assert.equal(report.environment.runtimeLabel, 'Deno/V8');
+  assert.match(report.environment.denoVersion, /^\d+\./);
+  assert.match(report.environment.v8, /^\d+\./);
+  assert.equal(report.parity.status, 'ok');
+  assert.equal(report.cases[0].caseId, 'raw-frame-name-id-cache');
+  assert.ok(report.cases[0].sampledBytes >= 0);
+
+  const markdown = readFileSync(denoMdOut, 'utf8');
+  assert.match(markdown, /Runtime: Deno\/V8/);
+  assert.match(markdown, /Deno:/);
+  assert.match(markdown, /HeapProfiler/);
+});
+
+function hasDeno() {
+  const result = spawnSync('deno', ['--version'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  return result.status === 0;
+}
