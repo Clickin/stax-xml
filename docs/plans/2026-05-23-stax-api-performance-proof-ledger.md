@@ -107,6 +107,28 @@ prove that JavaScript runtimes have no further headroom.
 | `CLAIM-NODE-BUFFER-PRIMARY` | Node `Buffer` / `Buffer.toString()` should not be the primary stream fast lane. | `NEGATIVE_RESULT` + product constraint | Existing runtime triage records neutral-vs-node iterable measurements that did not justify the browser-compatibility split. User requirement keeps browser-compatible `Uint8Array`/`TextDecoder` as the neutral baseline. | A Node-only subpath can still be measured as diagnostic or optional, but it cannot be mixed into neutral/browser claims. |
 | `CLAIM-PROJECTION` | Projection can improve practical extraction workloads by avoiding negative-path materialization. | `BENCH_FACT` for current low-selectivity rows; `HYPOTHESIS` for broad workloads | `packages/benchmark/results/release/projection-benchmark.md` records projection-vs-manual/EventReader/sax/saxes comparison rows, and `packages/benchmark/results/release/candidate-headroom-projection-large.md`, `packages/benchmark/results/release/bun-candidate-headroom-projection-large.md`, `packages/benchmark/results/release/candidate-headroom-projection-stability.md`, `packages/benchmark/results/release/bun-candidate-headroom-projection-stability.md`, `packages/benchmark/results/release/browser-candidate-headroom-projection-large.md`, `packages/benchmark/results/release/browser-candidate-headroom-projection-stability.md`, and `packages/benchmark/results/release/browser-candidate-headroom-cross-process-projection.md` add the candidate-headroom projection rows on a 1.00 GiB `projection-cycle` fixture. `packages/benchmark/results/release/candidate-headroom-cross-process-projection.md` adds fresh-process Node/V8, Bun/JSC, and Deno/V8 3x repeats for selected full-string and projection rows, and `packages/benchmark/results/release/v8-allocation-sampling-projection.md` adds Node/V8 HeapProfiler sampling for the 16 MiB `projection-cycle` fixture. Node/V8 low-selectivity projection reported 127.79 MiB/s in the single run, 128.02 MiB/s with 2.9% spread in the same-process stability rerun, and 128.98 MiB/s with 3.3% spread in the fresh-process rerun; high-selectivity projection reported 99.60 MiB/s in the single run, 99.34 MiB/s with 2.3% spread, and 99.42 MiB/s with 1.2% fresh-process spread. Bun/JSC low-selectivity projection reported 126.08 MiB/s in the single run, 125.90 MiB/s with 1.9% spread, and 125.78 MiB/s with 0.9% fresh-process spread; high-selectivity projection reported 75.84 MiB/s in the single run, 89.98 MiB/s with high 31.6% same-process spread, and 69.87 MiB/s with 8.3% fresh-process spread. Deno/V8 fresh-process projection reported 120.77 MiB/s low-selectivity and 91.39 MiB/s high-selectivity. Browser Chrome/V8 low-selectivity projection reported 104.33 MiB/s in the single run, 103.92 MiB/s with 1.7% spread in the same-process stability rerun, and 104.64 MiB/s with 1.4% spread in the fresh-process rerun; high-selectivity projection reported 69.37 MiB/s in the single run, 72.07 MiB/s with 4.8% spread, and 70.78 MiB/s with 2.4% fresh-process spread. | Projection rows report projected records and selected-field checksums, not full StAX event parity. They are not counterexamples to `CLAIM-JS-RUNTIME-LIMIT-200MIB`, and broad projection claims still need non-V8 browser rows, additional corpus fixtures, and more allocation/codegen traces. |
 
+## Current Evidence: Runtime-Limit Proof Obligation Gate
+
+`packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md` is
+a static proof-obligation gate for `CLAIM-JS-RUNTIME-LIMIT-200MIB`. It parses
+this ledger's claim table, checks required guard claims and artifact mentions,
+and records whether the broad runtime-limit conclusion is currently allowed.
+
+The current gate report passes with status `incomplete-proof-correctly-blocked`:
+all 10 required claim guards are satisfied, all 16 required artifact mentions
+are present, and all 7 required open-obligation disclosures are present. The
+important result is `conclusionAllowed: false`, not a proof of impossibility.
+The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
+Woodstox/quick-xml object-shape parity claims are rejected, lazy getters remain
+a negative result, Node `Buffer` is not a neutral/browser primary lane, and the
+Node/Chrome/Bun/Firefox TextDecoder source-boundary claims are present.
+
+This is deliberately a conservative proof-language step: a passing gate means
+the ledger is not overclaiming. It does not run benchmark rows, inspect
+generated code, measure allocations, or prove that JavaScript runtimes have no
+remaining headroom. If the broad runtime-limit claim is upgraded to
+`CONCLUSION` while these open obligations remain, the gate fails.
+
 ## Current Evidence: Woodstox HotSpot Trace
 
 `packages/benchmark/results/release/woodstox-hotspot-trace.md` is a

@@ -1,0 +1,131 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, '..', '..');
+const tmpDir = join(__dirname, 'results', 'tmp', 'runtime-limit-proof-obligation-gate');
+const goodLedger = join(tmpDir, 'good-proof-ledger.md');
+const badLedger = join(tmpDir, 'bad-proof-ledger.md');
+const goodJsonOut = join(tmpDir, 'good-runtime-limit-proof-obligation-gate.json');
+const goodMdOut = join(tmpDir, 'good-runtime-limit-proof-obligation-gate.md');
+const badJsonOut = join(tmpDir, 'bad-runtime-limit-proof-obligation-gate.json');
+const badMdOut = join(tmpDir, 'bad-runtime-limit-proof-obligation-gate.md');
+
+test('runtime-limit proof-obligation gate permits only a conservative non-conclusion ledger', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--json-out',
+    goodJsonOut,
+    '--md-out',
+    goodMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(goodJsonOut, 'utf8'));
+  assert.equal(report.objective, 'runtime-limit-proof-obligation-gate');
+  assert.equal(report.contract, 'static-ledger-proof-obligations');
+  assert.equal(report.gate.pass, true);
+  assert.equal(report.gate.status, 'incomplete-proof-correctly-blocked');
+  assert.equal(report.conclusionAllowed, false);
+  assert.equal(report.runtimeClaim.markedConclusion, false);
+  assert.equal(report.summary.satisfiedClaimGuards, report.summary.requiredClaimGuards);
+  assert.equal(report.summary.presentArtifactMentions, report.summary.requiredArtifactMentions);
+  assert.equal(report.summary.disclosedOpenObligations, report.summary.requiredOpenObligations);
+  assert.ok(report.openObligations.some(item => item.id === 'firefox-browser-rows-open' && item.disclosed));
+  assert.ok(report.artifactMentions.some(item => item.file === 'firefox-spidermonkey-textdecoder-source-pin-audit.md' && item.present));
+
+  const markdown = readFileSync(goodMdOut, 'utf8');
+  assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
+  assert.match(markdown, /Gate pass: yes/);
+  assert.match(markdown, /Conclusion allowed: no/);
+  assert.match(markdown, /runtime-limit-remains-hypothesis/);
+  assert.match(markdown, /firefox-browser-rows-open/);
+  assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
+});
+
+test('runtime-limit proof-obligation gate fails if the broad claim is upgraded too early', () => {
+  resetTmp();
+  writeFileSync(badLedger, createLedgerFixture('`CONCLUSION`'));
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    badLedger,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.gate.status, 'ledger-guard-failed');
+  assert.equal(report.conclusionAllowed, false);
+  assert.equal(report.runtimeClaim.markedConclusion, true);
+  assert.ok(report.gate.errors.some(error => error.includes('marked CONCLUSION')));
+  assert.ok(report.claimGuards.some(item => item.id === 'runtime-limit-remains-hypothesis' && !item.satisfied));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /marked CONCLUSION/);
+});
+
+function resetTmp() {
+  rmSync(tmpDir, { recursive: true, force: true });
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [goodJsonOut, goodMdOut, badJsonOut, badMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+}
+
+function createLedgerFixture(runtimeStatus) {
+  return [
+    '# stax-api Performance Proof Ledger',
+    '',
+    '## Runtime-Limit Conclusion Gate',
+    '',
+    'Treat any 200 MiB/s+ bounded-memory full-string JavaScript row as a counterexample.',
+    '',
+    '## Current Claims',
+    '',
+    '| ID | Claim | Status | Current evidence | Missing proof or counterexample search |',
+    '| --- | --- | --- | --- | --- |',
+    `| \`CLAIM-JS-RUNTIME-LIMIT-200MIB\` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory. | ${runtimeStatus} | Current rows are slow. | Must expand Firefox/SpiderMonkey rows, Safari/JSC, non-V8 browser rows, codegen traces, allocation profiles, and additional independent corpus fixtures. |`,
+    '| `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape. | `COUNTEREXAMPLE` | materialization-contract-audit.md | Rejected. |',
+    '| `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape. | `COUNTEREXAMPLE` | quick-xml-shape-audit.md | Rejected. |',
+    '| `CLAIM-LAZY-GETTERS` | Lazy event getters are not a candidate. | `NEGATIVE_RESULT` | materialization-contract-audit.md | Needs new proof. |',
+    '| `CLAIM-NODE-BUFFER-PRIMARY` | Node Buffer is not neutral primary. | `NEGATIVE_RESULT` | textdecoder-span-variants.md | Keep neutral browser lane. |',
+    '| `CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY` | Node TextDecoder source boundary. | `SOURCE_FACT` | node-textdecoder-source-pin-audit.md | Not codegen. |',
+    '| `CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY` | Chrome/Blink TextDecoder source boundary. | `SOURCE_FACT` | chrome-blink-textdecoder-source-pin-audit.md | Not codegen. |',
+    '| `CLAIM-BUN-WEBKIT-TEXTDECODER-SOURCE-BOUNDARY` | Bun WebKit source boundary. | `SOURCE_FACT` | bun-webkit-textdecoder-source-pin-audit.md | Not dispatch proof. |',
+    '| `CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY` | Bun dispatch source boundary. | `SOURCE_FACT` + `COUNTEREXAMPLE` | bun-textdecoder-dispatch-source-pin-audit.md | Not throughput. |',
+    '| `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | Firefox/Gecko source boundary. | `SOURCE_FACT` | firefox-spidermonkey-textdecoder-source-pin-audit.md | Not Firefox benchmark rows, not heap/allocation, not generated-code evidence. |',
+    '',
+    'Artifacts: quick-xml-allocation-count.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md.',
+    '',
+    'Open work: Firefox benchmark rows, Safari/browser JSC source pins, non-V8 browser allocation evidence, codegen traces, and a broad corpus suite remain open.',
+    '',
+  ].join('\n');
+}

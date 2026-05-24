@@ -1,0 +1,68 @@
+# Runtime-Limit Proof Obligation Gate
+
+Generated: 2026-05-24T01:08:12.759Z
+
+## Scope
+
+This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMIT-200MIB` claim. It does not prove a JavaScript runtime ceiling. It checks that the current ledger keeps the broad claim below conclusion strength while known proof obligations remain open.
+
+## Verdict
+
+- Gate pass: yes
+- Gate status: incomplete-proof-correctly-blocked
+- Conclusion allowed: no
+- Runtime claim status: `HYPOTHESIS`
+
+## Claim Guards
+
+| ID | Claim | Required status | Actual status | Satisfied |
+| --- | --- | --- | --- | --- |
+| `runtime-limit-remains-hypothesis` | `CLAIM-JS-RUNTIME-LIMIT-200MIB` | `HYPOTHESIS` | `HYPOTHESIS` | yes |
+| `woodstox-object-shape-counterexample` | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | `COUNTEREXAMPLE` | `COUNTEREXAMPLE` | yes |
+| `quickxml-object-shape-counterexample` | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | `COUNTEREXAMPLE` | `COUNTEREXAMPLE` | yes |
+| `lazy-getters-negative-result` | `CLAIM-LAZY-GETTERS` | `NEGATIVE_RESULT` | `NEGATIVE_RESULT` | yes |
+| `node-buffer-not-neutral-primary` | `CLAIM-NODE-BUFFER-PRIMARY` | `NEGATIVE_RESULT` | `NEGATIVE_RESULT` + product constraint | yes |
+| `node-textdecoder-source-boundary` | `CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY` | `SOURCE_FACT` | `SOURCE_FACT` | yes |
+| `chrome-blink-textdecoder-source-boundary` | `CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY` | `SOURCE_FACT` | `SOURCE_FACT` | yes |
+| `bun-webkit-textdecoder-source-boundary` | `CLAIM-BUN-WEBKIT-TEXTDECODER-SOURCE-BOUNDARY` | `SOURCE_FACT` | `SOURCE_FACT` | yes |
+| `bun-textdecoder-dispatch-counterexample` | `CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY` | `SOURCE_FACT` + `COUNTEREXAMPLE` | `SOURCE_FACT` + `COUNTEREXAMPLE` | yes |
+| `firefox-spidermonkey-textdecoder-source-boundary` | `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | `SOURCE_FACT` | `SOURCE_FACT` | yes |
+
+## Artifact Mentions
+
+| Artifact | Present |
+| --- | --- |
+| `materialization-contract-audit.md` | yes |
+| `quick-xml-shape-audit.md` | yes |
+| `quick-xml-allocation-count.md` | yes |
+| `woodstox-hotspot-trace.md` | yes |
+| `woodstox-jfr-allocation.md` | yes |
+| `woodstox-measured-jfr-allocation.md` | yes |
+| `candidate-headroom-large.md` | yes |
+| `bun-candidate-headroom-large.md` | yes |
+| `browser-candidate-headroom-large.md` | yes |
+| `textdecoder-span-variants.md` | yes |
+| `bun-textdecoder-span-variants.md` | yes |
+| `browser-textdecoder-span-variants.md` | yes |
+| `node-textdecoder-source-pin-audit.md` | yes |
+| `chrome-blink-textdecoder-source-pin-audit.md` | yes |
+| `bun-textdecoder-dispatch-source-pin-audit.md` | yes |
+| `firefox-spidermonkey-textdecoder-source-pin-audit.md` | yes |
+
+## Open Obligations
+
+These are intentionally open obligations. They must be disclosed while the broad runtime-limit claim remains below `CONCLUSION`.
+
+| ID | Disclosed | Meaning |
+| --- | --- | --- |
+| `firefox-browser-rows-open` | yes | Firefox browser benchmark rows are still required before making Firefox runtime claims. |
+| `safari-jsc-source-and-browser-rows-open` | yes | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
+| `codegen-traces-open` | yes | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
+| `allocation-profiles-open` | yes | Allocation/heap evidence remains required for runtimes without adequate traces. |
+| `non-v8-browser-coverage-open` | yes | Non-V8 browser benchmark and profiling coverage remains open. |
+| `independent-corpus-suite-open` | yes | More independent real/corpus fixtures remain required. |
+| `counterexample-rule-present` | yes | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
+
+## Interpretation
+
+A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, and broader corpus coverage. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.

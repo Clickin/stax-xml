@@ -1,0 +1,258 @@
+{
+  "generatedAt": "2026-05-24T01:08:12.759Z",
+  "objective": "runtime-limit-proof-obligation-gate",
+  "contract": "static-ledger-proof-obligations",
+  "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
+  "metadata": {
+    "ledger": "G:\\programming\\stax-xml\\docs\\plans\\2026-05-23-stax-api-performance-proof-ledger.md"
+  },
+  "conclusionClaim": "CLAIM-JS-RUNTIME-LIMIT-200MIB",
+  "conclusionAllowed": false,
+  "gate": {
+    "pass": true,
+    "status": "incomplete-proof-correctly-blocked",
+    "errors": []
+  },
+  "runtimeClaim": {
+    "id": "CLAIM-JS-RUNTIME-LIMIT-200MIB",
+    "status": "`HYPOTHESIS`",
+    "markedConclusion": false
+  },
+  "claimGuards": [
+    {
+      "id": "runtime-limit-remains-hypothesis",
+      "claimId": "CLAIM-JS-RUNTIME-LIMIT-200MIB",
+      "requiredStatus": [
+        "HYPOTHESIS"
+      ],
+      "description": "The broad 200 MiB/s JavaScript runtime-limit claim must remain a hypothesis while proof obligations are open.",
+      "actualStatus": "`HYPOTHESIS`",
+      "satisfied": true
+    },
+    {
+      "id": "woodstox-object-shape-counterexample",
+      "claimId": "CLAIM-WOODSTOX-SAME-JS-OBJECTS",
+      "requiredStatus": [
+        "COUNTEREXAMPLE"
+      ],
+      "description": "Woodstox must stay recorded as semantic/checksum parity, not JavaScript object-shape parity.",
+      "actualStatus": "`COUNTEREXAMPLE`",
+      "satisfied": true
+    },
+    {
+      "id": "quickxml-object-shape-counterexample",
+      "claimId": "CLAIM-QUICKXML-SAME-JS-OBJECTS",
+      "requiredStatus": [
+        "COUNTEREXAMPLE"
+      ],
+      "description": "quick-xml must stay recorded as semantic/checksum parity, not JavaScript object-shape parity.",
+      "actualStatus": "`COUNTEREXAMPLE`",
+      "satisfied": true
+    },
+    {
+      "id": "lazy-getters-negative-result",
+      "claimId": "CLAIM-LAZY-GETTERS",
+      "requiredStatus": [
+        "NEGATIVE_RESULT"
+      ],
+      "description": "Lazy getters must remain a recorded negative result unless new benchmark evidence reopens them.",
+      "actualStatus": "`NEGATIVE_RESULT`",
+      "satisfied": true
+    },
+    {
+      "id": "node-buffer-not-neutral-primary",
+      "claimId": "CLAIM-NODE-BUFFER-PRIMARY",
+      "requiredStatus": [
+        "NEGATIVE_RESULT"
+      ],
+      "description": "Node Buffer lanes must not be mixed into neutral/browser-compatible claims.",
+      "actualStatus": "`NEGATIVE_RESULT` + product constraint",
+      "satisfied": true
+    },
+    {
+      "id": "node-textdecoder-source-boundary",
+      "claimId": "CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY",
+      "requiredStatus": [
+        "SOURCE_FACT"
+      ],
+      "description": "Node TextDecoder source boundaries must be pinned before using Node TextDecoder rows as engine evidence.",
+      "actualStatus": "`SOURCE_FACT`",
+      "satisfied": true
+    },
+    {
+      "id": "chrome-blink-textdecoder-source-boundary",
+      "claimId": "CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY",
+      "requiredStatus": [
+        "SOURCE_FACT"
+      ],
+      "description": "Chrome/Blink TextDecoder source boundaries must be pinned separately from Node/Bun source facts.",
+      "actualStatus": "`SOURCE_FACT`",
+      "satisfied": true
+    },
+    {
+      "id": "bun-webkit-textdecoder-source-boundary",
+      "claimId": "CLAIM-BUN-WEBKIT-TEXTDECODER-SOURCE-BOUNDARY",
+      "requiredStatus": [
+        "SOURCE_FACT"
+      ],
+      "description": "The WebKit implementation boundary must remain separate from Bun dispatch evidence.",
+      "actualStatus": "`SOURCE_FACT`",
+      "satisfied": true
+    },
+    {
+      "id": "bun-textdecoder-dispatch-counterexample",
+      "claimId": "CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY",
+      "requiredStatus": [
+        "SOURCE_FACT",
+        "COUNTEREXAMPLE"
+      ],
+      "description": "Bun default UTF-8 TextDecoder dispatch must stay pinned as Bun Zig, not WebKit TextDecoder.cpp.",
+      "actualStatus": "`SOURCE_FACT` + `COUNTEREXAMPLE`",
+      "satisfied": true
+    },
+    {
+      "id": "firefox-spidermonkey-textdecoder-source-boundary",
+      "claimId": "CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY",
+      "requiredStatus": [
+        "SOURCE_FACT"
+      ],
+      "description": "Firefox/SpiderMonkey-facing Gecko TextDecoder source boundaries must be recorded as source facts only.",
+      "actualStatus": "`SOURCE_FACT`",
+      "satisfied": true
+    }
+  ],
+  "artifactMentions": [
+    {
+      "id": "materialization-contract-audit.md",
+      "file": "materialization-contract-audit.md",
+      "present": true
+    },
+    {
+      "id": "quick-xml-shape-audit.md",
+      "file": "quick-xml-shape-audit.md",
+      "present": true
+    },
+    {
+      "id": "quick-xml-allocation-count.md",
+      "file": "quick-xml-allocation-count.md",
+      "present": true
+    },
+    {
+      "id": "woodstox-hotspot-trace.md",
+      "file": "woodstox-hotspot-trace.md",
+      "present": true
+    },
+    {
+      "id": "woodstox-jfr-allocation.md",
+      "file": "woodstox-jfr-allocation.md",
+      "present": true
+    },
+    {
+      "id": "woodstox-measured-jfr-allocation.md",
+      "file": "woodstox-measured-jfr-allocation.md",
+      "present": true
+    },
+    {
+      "id": "candidate-headroom-large.md",
+      "file": "candidate-headroom-large.md",
+      "present": true
+    },
+    {
+      "id": "bun-candidate-headroom-large.md",
+      "file": "bun-candidate-headroom-large.md",
+      "present": true
+    },
+    {
+      "id": "browser-candidate-headroom-large.md",
+      "file": "browser-candidate-headroom-large.md",
+      "present": true
+    },
+    {
+      "id": "textdecoder-span-variants.md",
+      "file": "textdecoder-span-variants.md",
+      "present": true
+    },
+    {
+      "id": "bun-textdecoder-span-variants.md",
+      "file": "bun-textdecoder-span-variants.md",
+      "present": true
+    },
+    {
+      "id": "browser-textdecoder-span-variants.md",
+      "file": "browser-textdecoder-span-variants.md",
+      "present": true
+    },
+    {
+      "id": "node-textdecoder-source-pin-audit.md",
+      "file": "node-textdecoder-source-pin-audit.md",
+      "present": true
+    },
+    {
+      "id": "chrome-blink-textdecoder-source-pin-audit.md",
+      "file": "chrome-blink-textdecoder-source-pin-audit.md",
+      "present": true
+    },
+    {
+      "id": "bun-textdecoder-dispatch-source-pin-audit.md",
+      "file": "bun-textdecoder-dispatch-source-pin-audit.md",
+      "present": true
+    },
+    {
+      "id": "firefox-spidermonkey-textdecoder-source-pin-audit.md",
+      "file": "firefox-spidermonkey-textdecoder-source-pin-audit.md",
+      "present": true
+    }
+  ],
+  "openObligations": [
+    {
+      "id": "firefox-browser-rows-open",
+      "pattern": {},
+      "description": "Firefox browser benchmark rows are still required before making Firefox runtime claims.",
+      "disclosed": true
+    },
+    {
+      "id": "safari-jsc-source-and-browser-rows-open",
+      "pattern": {},
+      "description": "Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage.",
+      "disclosed": true
+    },
+    {
+      "id": "codegen-traces-open",
+      "pattern": {},
+      "description": "Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions.",
+      "disclosed": true
+    },
+    {
+      "id": "allocation-profiles-open",
+      "pattern": {},
+      "description": "Allocation/heap evidence remains required for runtimes without adequate traces.",
+      "disclosed": true
+    },
+    {
+      "id": "non-v8-browser-coverage-open",
+      "pattern": {},
+      "description": "Non-V8 browser benchmark and profiling coverage remains open.",
+      "disclosed": true
+    },
+    {
+      "id": "independent-corpus-suite-open",
+      "pattern": {},
+      "description": "More independent real/corpus fixtures remain required.",
+      "disclosed": true
+    },
+    {
+      "id": "counterexample-rule-present",
+      "pattern": {},
+      "description": "The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim.",
+      "disclosed": true
+    }
+  ],
+  "summary": {
+    "satisfiedClaimGuards": 10,
+    "requiredClaimGuards": 10,
+    "presentArtifactMentions": 16,
+    "requiredArtifactMentions": 16,
+    "disclosedOpenObligations": 7,
+    "requiredOpenObligations": 7
+  }
+}

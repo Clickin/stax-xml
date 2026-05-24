@@ -20,6 +20,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   const markdown = readLedger();
   assert.match(markdown, /## Proof Vocabulary/);
   assert.match(markdown, /## Runtime-Limit Conclusion Gate/);
+  assert.match(markdown, /## Current Evidence: Runtime-Limit Proof Obligation Gate/);
   assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
   assert.match(markdown, /## Current Evidence: Materialization Contract Audit/);
   assert.match(markdown, /## Current Evidence: Woodstox HotSpot Trace/);
@@ -84,6 +85,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.doesNotMatch(markdown, /JavaScript runtimes cannot exceed 200 MiB\/s/i);
   assert.match(markdown, /full-string parity candidate that reaches 200 MiB\/s\+ with bounded memory/);
   assert.match(markdown, /still headroom evidence for the narrower runtime\/parser boundary/);
+  assert.match(markdown, /runtime-limit-proof-obligation-gate\.md/);
+  assert.match(markdown, /incomplete-proof-correctly-blocked/);
+  assert.match(markdown, /all 10 required claim guards are satisfied/);
+  assert.match(markdown, /all 16 required artifact mentions\s+are present/);
+  assert.match(markdown, /all 7 required open-obligation disclosures are present/);
+  assert.match(markdown, /`conclusionAllowed: false`/);
+  assert.match(markdown, /If the broad runtime-limit claim is upgraded to\s+`CONCLUSION` while these open obligations remain, the gate fails/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /materialization-contract-audit\.md/);
   assert.match(markdown, /same semantic fields/);
