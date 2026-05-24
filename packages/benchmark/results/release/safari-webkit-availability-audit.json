@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-05-24T12:08:24.108Z",
+  "objective": "safari-webkit-availability-audit",
+  "contract": "local-safari-webkit-browser-row-availability",
+  "note": "ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.",
+  "environment": {
+    "runtimeName": "browser",
+    "browserName": "Safari/WebKit",
+    "javascriptEngine": "JavaScriptCore",
+    "hostPlatform": "win32-x64",
+    "osRelease": "10.0.26200",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "probes": {
+    "commands": [
+      {
+        "name": "safaridriver",
+        "found": false,
+        "resolvedPath": null
+      },
+      {
+        "name": "Safari",
+        "found": false,
+        "resolvedPath": null
+      },
+      {
+        "name": "MiniBrowser",
+        "found": false,
+        "resolvedPath": null
+      },
+      {
+        "name": "WebKitWebDriver",
+        "found": false,
+        "resolvedPath": null
+      }
+    ],
+    "paths": [
+      {
+        "label": "macOS Safari app",
+        "path": "/Applications/Safari.app/Contents/MacOS/Safari",
+        "exists": false
+      },
+      {
+        "label": "macOS safaridriver",
+        "path": "/usr/bin/safaridriver",
+        "exists": false
+      },
+      {
+        "label": "Windows legacy Safari app",
+        "path": "C:\\Program Files\\Safari\\Safari.exe",
+        "exists": false
+      },
+      {
+        "label": "Windows legacy Safari x86 app",
+        "path": "C:\\Program Files (x86)\\Safari\\Safari.exe",
+        "exists": false
+      }
+    ],
+    "environmentVariables": [
+      {
+        "name": "SAFARI_PATH",
+        "value": null,
+        "exists": false
+      },
+      {
+        "name": "WEBKIT_PATH",
+        "value": null,
+        "exists": false
+      },
+      {
+        "name": "WEBKIT_BROWSER_PATH",
+        "value": null,
+        "exists": false
+      },
+      {
+        "name": "PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH",
+        "value": null,
+        "exists": false
+      }
+    ],
+    "harnessSupport": {
+      "chromiumCdp": true,
+      "firefoxBidi": true,
+      "firefoxBidiTextDecoder": true,
+      "safariWebDriver": false,
+      "webkitRemoteInspector": false,
+      "note": "Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented."
+    }
+  },
+  "summary": {
+    "hostIsMacOS": false,
+    "safariExecutableFound": false,
+    "safariExecutablePath": null,
+    "safaridriverFound": false,
+    "currentHarnessSupportsSafari": false,
+    "canRunSafariBrowserRows": false,
+    "openObligationRemains": true
+  },
+  "findings": [
+    {
+      "id": "local-host-platform",
+      "classification": "ENVIRONMENT_FACT_LIMIT",
+      "summary": "Current host is not macOS, so Apple Safari browser rows are not locally runnable through the normal Safari/safaridriver path."
+    },
+    {
+      "id": "local-safari-executable",
+      "classification": "OPEN",
+      "summary": "No local Safari/WebKit executable was found through PATH, common install paths, or explicit environment variables."
+    },
+    {
+      "id": "local-safaridriver",
+      "classification": "OPEN",
+      "summary": "No local safaridriver/WebKit driver path was found."
+    },
+    {
+      "id": "repo-harness-support",
+      "classification": "OPEN",
+      "summary": "Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented."
+    },
+    {
+      "id": "safari-row-obligation-remains",
+      "classification": "OPEN",
+      "summary": "Safari/WebKit browser rows remain unrecorded; this audit only explains the local gap and is not a substitute for same-contract rows."
+    }
+  ]
+}

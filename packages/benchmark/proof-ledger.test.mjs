@@ -24,6 +24,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Same-Contract Runtime Comparison/);
   assert.match(markdown, /## Current Evidence: Runtime Counterexample Scan/);
   assert.match(markdown, /## Current Evidence: Runtime Proof Coverage Audit/);
+  assert.match(markdown, /## Current Evidence: Safari\/WebKit Availability Audit/);
   assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
   assert.match(markdown, /## Current Evidence: Materialization Contract Audit/);
   assert.match(markdown, /## Current Evidence: Woodstox HotSpot Trace/);
@@ -126,10 +127,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 334\.63 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
   assert.match(markdown, /recognizes 514\s+measured rows/);
-  assert.match(markdown, /61 benchmark artifacts, 11 source artifacts, 5\s+trace\/profile artifacts, 12 allocation artifacts/);
-  assert.match(markdown, /three release corpus seeds: `books\.xml`, `large\.xml`, and\s+`treebank_e\.xml`/);
+  assert.match(markdown, /61 benchmark artifacts, 11 source artifacts, 5\s+trace\/profile artifacts, 12 allocation artifacts,\s+and 1 environment artifact/);
+  assert.match(markdown, /three release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /95 Chrome\/V8 browser rows, 78 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 78 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
+  assert.match(markdown, /safari-webkit-availability-audit\.md/);
+  assert.match(markdown, /Current harness supports Safari\/WebKit: no/);
+  assert.match(markdown, /not a benchmark row\s+and not evidence that Safari\/WebKit cannot be a counterexample/);
   assert.match(markdown, /1 open or partial obligations/);
   assert.match(markdown, /does not\s+turn missing evidence\s+into\s+evidence that optimization\s+is impossible/);
   assert.match(markdown, /same semantic fields/);

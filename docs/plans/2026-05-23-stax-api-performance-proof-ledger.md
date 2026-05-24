@@ -179,7 +179,7 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 84 primary release JSON artifacts and recognizes 514
+The current scan covers 85 primary release JSON artifacts and recognizes 514
 measured rows. It finds 277 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
@@ -207,11 +207,11 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 84 primary release artifacts and recognizes 514
+The current audit scans 85 primary release artifacts and recognizes 514
 measured rows. It records 61 benchmark artifacts, 11 source artifacts, 5
-trace/profile artifacts, 12 allocation artifacts, 277 JavaScript 1 GiB+
-full-string rows, and three release corpus seeds: `books.xml`, `large.xml`, and
-`treebank_e.xml`.
+trace/profile artifacts, 12 allocation artifacts, and 1 environment artifact,
+277 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+`books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
 coverage now includes 95 Chrome/V8 browser rows, 78 Firefox/SpiderMonkey
@@ -233,11 +233,30 @@ memory evidence, and the Firefox allocation profile must not be read as
 row-level JS heap proof.
 
 The audit reports 1 open or partial obligations after scanning the current
-release artifacts: Safari/browser JSC rows. This narrows
+release artifacts: Safari/browser JSC rows. The Safari/WebKit availability
+artifact records the local host and harness gap, but it is not a benchmark row
+and not evidence that Safari/WebKit cannot be a counterexample. This narrows
 the next counterexample search queue; it still does not turn missing evidence
 into evidence that optimization is impossible, and it does not turn newly
 covered codegen or corpus-count evidence into proof that optimization is
 exhausted.
+
+## Current Evidence: Safari/WebKit Availability Audit
+
+`packages/benchmark/results/release/safari-webkit-availability-audit.md` is an
+`ENVIRONMENT_FACT_LIMIT` artifact for the current host and repository harness.
+It records `win32-x64`, no local Safari executable, no `safaridriver`, and
+`Current harness supports Safari/WebKit: no`. The existing browser harness
+family supports Chrome/Edge through CDP and Firefox through built-in WebDriver
+BiDi; it has no Safari/WebKit harness path.
+
+This explains why the current local counterexample search still has zero
+Safari/WebKit browser benchmark rows. It does not close the
+`safari-jsc-source-and-browser-rows-open` obligation, does not benchmark
+Safari/WebKit, and does not prove Safari/WebKit cannot exceed any throughput
+threshold. A future Safari/WebKit row must still run on an appropriate host,
+pin the exact browser/WebKit build, preserve the same full-string contract, and
+flow through the runtime counterexample scanner.
 
 ## Current Evidence: Woodstox HotSpot Trace
 

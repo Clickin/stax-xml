@@ -113,6 +113,7 @@ function createReport(options) {
     sourceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('SOURCE_FACT')).length,
     traceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT')).length,
     allocationArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('ALLOCATION_FACT')).length,
+    environmentArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('ENVIRONMENT_FACT')).length,
     largeJsFullRowCount: coverage.largeJsFullRowCount,
     runtimeCount: coverage.runtimes.length,
     corpusSeedCount: coverage.corpusSeeds.length,
@@ -169,6 +170,7 @@ function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   const kinds = new Set();
   if (measuredRows.length > 0) kinds.add('BENCH_FACT');
   if (/source-pin-audit|shape-audit|materialization-contract-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
+  if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
   if (/trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
   if (root.objective === 'runtime-matrix' || root.objective === 'external-baseline') kinds.add('BENCH_FACT');
@@ -272,6 +274,9 @@ function createCoverage(artifacts, options) {
     allocationArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('ALLOCATION_FACT'))
       .map(artifact => summarizeArtifact(artifact)),
+    environmentArtifacts: artifacts
+      .filter(artifact => artifact.evidenceKinds.includes('ENVIRONMENT_FACT'))
+      .map(artifact => summarizeArtifact(artifact)),
   };
 }
 
@@ -312,6 +317,9 @@ function createObligationRows(coverage) {
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
   );
+  const hasSafariAvailabilityAudit = coverage.environmentArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'safari-webkit-availability-audit.json'
+  );
   const remainingCorpusSeeds = Math.max(0, 3 - corpusSeedCount);
 
   return [
@@ -330,8 +338,13 @@ function createObligationRows(coverage) {
       status: hasSafariRows ? 'covered' : 'open',
       evidence: hasSafariRows
         ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found.`
-        : 'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
-      nextExperiment: 'Pin the exact Safari/WebKit browser build and run same-contract browser rows separately from Bun/JSC.',
+        : [
+          'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
+          hasSafariAvailabilityAudit ? 'Local Safari/WebKit availability audit is present and records that the current host/harness cannot run Safari rows.' : 'No local Safari/WebKit availability audit was found.',
+        ].join(' '),
+      nextExperiment: hasSafariAvailabilityAudit
+        ? 'Run same-contract Safari/WebKit rows on a macOS host after adding a Safari/WebKit harness path.'
+        : 'Pin the exact Safari/WebKit browser build and run same-contract browser rows separately from Bun/JSC.',
     },
     {
       id: 'codegen-traces-open',
@@ -608,6 +621,7 @@ function renderMarkdown(report) {
     `- Source artifacts: ${report.summary.sourceArtifactCount}`,
     `- Trace/profile artifacts: ${report.summary.traceArtifactCount}`,
     `- Allocation artifacts: ${report.summary.allocationArtifactCount}`,
+    `- Environment artifacts: ${report.summary.environmentArtifactCount}`,
     `- 1 GiB+ JS full-string rows: ${report.summary.largeJsFullRowCount}`,
     `- Corpus seeds: ${report.summary.corpusSeedCount}`,
     `- Open or partial obligations: ${report.summary.openObligationCount}`,

@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 84);
+  assert.equal(report.summary.scannedArtifactCount, 85);
   assert.equal(report.summary.measuredRowCount, 514);
   assert.equal(report.summary.largeJsFullRowCount, 277);
   assert.equal(report.summary.corpusSeedCount, 3);
@@ -41,12 +41,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.sourceArtifactCount, 11);
   assert.equal(report.summary.traceArtifactCount, 5);
   assert.equal(report.summary.allocationArtifactCount, 12);
+  assert.equal(report.summary.environmentArtifactCount, 1);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
   assert.ok(runtimeIds.includes('node-v8'));
   assert.ok(runtimeIds.includes('bun-jsc'));
   assert.ok(runtimeIds.includes('chrome-v8-browser'));
   assert.ok(runtimeIds.includes('firefox-spidermonkey-browser'));
+  assert.ok(runtimeIds.includes('safari-jsc-browser'));
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
 
@@ -85,6 +87,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.runtimeId === 'firefox-spidermonkey-browser'
     && row.allocationArtifacts.includes('firefox-spidermonkey-allocation-profile.json')
   ));
+  assert.ok(report.coverage.environmentArtifacts.some(row =>
+    row.sourceArtifact === 'safari-webkit-availability-audit.json'
+    && row.runtimes.includes('safari-jsc-browser')
+  ));
 
   assertObligation(report, 'firefox-browser-rows-open', 'covered');
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');
@@ -100,11 +106,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /78 Firefox\/SpiderMonkey browser benchmark rows found/);
   assert.match(markdown, /Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present/);
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
+  assert.match(markdown, /Local Safari\/WebKit availability audit is present/);
+  assert.match(markdown, /Run same-contract Safari\/WebKit rows on a macOS host/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Bun\/JSC codegen\/IR evidence present/);
   assert.match(markdown, /Browser codegen trace evidence present/);
   assert.match(markdown, /12 allocation\/profile artifacts found/);
+  assert.match(markdown, /Environment artifacts: 1/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);
