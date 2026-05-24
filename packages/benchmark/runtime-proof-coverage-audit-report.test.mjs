@@ -42,6 +42,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 7);
   assert.equal(report.summary.allocationArtifactCount, 13);
   assert.equal(report.summary.environmentArtifactCount, 1);
+  assert.equal(report.summary.negativeArtifactCount, 2);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
   assert.ok(runtimeIds.includes('node-v8'));
@@ -94,7 +95,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'firefox-fetch-readable-stream-timeout-audit.json'
     && row.runtimes.includes('firefox-spidermonkey-browser')
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
     && row.measuredRowCount === 0
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'materialization-contract-audit.json'
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'deno-textdecoder-source-pin-audit.json'

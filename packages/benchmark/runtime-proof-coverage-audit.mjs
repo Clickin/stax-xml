@@ -114,6 +114,7 @@ function createReport(options) {
     traceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT')).length,
     allocationArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('ALLOCATION_FACT')).length,
     environmentArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('ENVIRONMENT_FACT')).length,
+    negativeArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT')).length,
     largeJsFullRowCount: coverage.largeJsFullRowCount,
     runtimeCount: coverage.runtimes.length,
     corpusSeedCount: coverage.corpusSeeds.length,
@@ -173,8 +174,14 @@ function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
   if (/trace|profiler-trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
+  if (hasFindingClassification(root, 'NEGATIVE_RESULT')) kinds.add('NEGATIVE_RESULT');
   if (root.objective === 'runtime-matrix' || root.objective === 'external-baseline') kinds.add('BENCH_FACT');
   return Array.from(kinds).sort();
+}
+
+function hasFindingClassification(root, classification) {
+  const findings = root?.findings;
+  return Array.isArray(findings) && findings.some(finding => finding?.classification === classification);
 }
 
 function extractMeasuredRows(sourceArtifact, root) {
@@ -636,6 +643,7 @@ function renderMarkdown(report) {
     `- Trace/profile artifacts: ${report.summary.traceArtifactCount}`,
     `- Allocation artifacts: ${report.summary.allocationArtifactCount}`,
     `- Environment artifacts: ${report.summary.environmentArtifactCount}`,
+    `- Negative-result artifacts: ${report.summary.negativeArtifactCount}`,
     `- 1 GiB+ JS full-string rows: ${report.summary.largeJsFullRowCount}`,
     `- Corpus seeds: ${report.summary.corpusSeedCount}`,
     `- Open or partial obligations: ${report.summary.openObligationCount}`,
