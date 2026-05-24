@@ -329,6 +329,11 @@ function createObligationRows(coverage) {
   const hasSpiderMonkeyDiagnosticNoDump = coverage.negativeArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-diagnostic-dump-audit.json'
   );
+  const hasSpiderMonkeyJsShellAvailabilityAudit = coverage.negativeArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
+  ) || coverage.environmentArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
+  );
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -375,6 +380,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyProfilerTrace ? 'Firefox/SpiderMonkey Gecko Profiler trace evidence present.' : 'Firefox/SpiderMonkey profiler trace evidence missing.',
         hasSpiderMonkeyJitSpewSourcePin ? 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR.' : 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence missing.',
         hasSpiderMonkeyDiagnosticNoDump ? 'Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build.' : 'Firefox/SpiderMonkey diagnostic dump availability audit missing.',
+        hasSpiderMonkeyJsShellAvailabilityAudit ? 'Firefox/SpiderMonkey local js-shell availability audit present; no emitted JIT IR is recorded by that audit.' : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',

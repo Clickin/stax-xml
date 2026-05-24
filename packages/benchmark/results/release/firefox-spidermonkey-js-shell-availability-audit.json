@@ -1,0 +1,129 @@
+{
+  "generatedAt": "2026-05-24T22:12:49.629Z",
+  "objective": "firefox-spidermonkey-js-shell-availability-audit",
+  "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
+  "note": "Checks whether a local SpiderMonkey JavaScript shell is available for follow-up JIT IR or optimized-code diagnostics. This is environment evidence only; absence of a shell is not proof that SpiderMonkey cannot emit codegen evidence elsewhere.",
+  "environment": {
+    "platform": "win32-x64",
+    "pathEntries": 81
+  },
+  "parameters": {
+    "candidates": [
+      "js",
+      "js.exe",
+      "jsshell",
+      "jsshell.exe",
+      "spidermonkey",
+      "spidermonkey.exe",
+      "mozjs",
+      "mozjs.exe"
+    ],
+    "envCandidates": [
+      "SPIDERMONKEY_JS_SHELL",
+      "JSSHELL",
+      "JS_SHELL"
+    ],
+    "selfTest": null
+  },
+  "outcome": {
+    "status": "not-found",
+    "foundCount": 0,
+    "foundCandidates": []
+  },
+  "probes": [
+    {
+      "source": "env:SPIDERMONKEY_JS_SHELL",
+      "candidate": null,
+      "status": "not-configured",
+      "resolvedPath": null
+    },
+    {
+      "source": "env:JSSHELL",
+      "candidate": null,
+      "status": "not-configured",
+      "resolvedPath": null
+    },
+    {
+      "source": "env:JS_SHELL",
+      "candidate": null,
+      "status": "not-configured",
+      "resolvedPath": null
+    },
+    {
+      "source": "PATH",
+      "candidate": "js",
+      "status": "missing",
+      "resolvedPath": "js",
+      "error": "spawnSync js ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "js.exe",
+      "status": "missing",
+      "resolvedPath": "js.exe",
+      "error": "spawnSync js.exe ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "jsshell",
+      "status": "missing",
+      "resolvedPath": "jsshell",
+      "error": "spawnSync jsshell ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "jsshell.exe",
+      "status": "missing",
+      "resolvedPath": "jsshell.exe",
+      "error": "spawnSync jsshell.exe ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "spidermonkey",
+      "status": "missing",
+      "resolvedPath": "spidermonkey",
+      "error": "spawnSync spidermonkey ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "spidermonkey.exe",
+      "status": "missing",
+      "resolvedPath": "spidermonkey.exe",
+      "error": "spawnSync spidermonkey.exe ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "mozjs",
+      "status": "missing",
+      "resolvedPath": "mozjs",
+      "error": "spawnSync mozjs ENOENT"
+    },
+    {
+      "source": "PATH",
+      "candidate": "mozjs.exe",
+      "status": "missing",
+      "resolvedPath": "mozjs.exe",
+      "error": "spawnSync mozjs.exe ENOENT"
+    }
+  ],
+  "findings": [
+    {
+      "id": "spidermonkey-js-shell-not-found",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "No local SpiderMonkey JavaScript shell candidate was found on PATH or in the configured environment variables.",
+      "evidence": [
+        "candidates=js, js.exe, jsshell, jsshell.exe, spidermonkey, spidermonkey.exe, mozjs, mozjs.exe",
+        "envCandidates=SPIDERMONKEY_JS_SHELL, JSSHELL, JS_SHELL",
+        "This blocks local js-shell JIT IR probing, but it is not evidence that SpiderMonkey has no codegen headroom."
+      ]
+    },
+    {
+      "id": "js-shell-availability-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This audit records local tool availability only; it is not emitted JIT IR, optimized-code, allocation, or throughput evidence.",
+      "evidence": [
+        "A future debug/nightly SpiderMonkey shell or macOS/browser host can still close the codegen proof obligation."
+      ]
+    }
+  ]
+}

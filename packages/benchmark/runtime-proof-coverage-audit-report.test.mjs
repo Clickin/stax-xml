@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 102);
+  assert.equal(report.summary.scannedArtifactCount, 103);
   assert.equal(report.summary.measuredRowCount, 624);
   assert.equal(report.summary.largeJsFullRowCount, 375);
   assert.equal(report.summary.corpusSeedCount, 3);
@@ -41,8 +41,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.sourceArtifactCount, 13);
   assert.equal(report.summary.traceArtifactCount, 7);
   assert.equal(report.summary.allocationArtifactCount, 13);
-  assert.equal(report.summary.environmentArtifactCount, 1);
-  assert.equal(report.summary.negativeArtifactCount, 3);
+  assert.equal(report.summary.environmentArtifactCount, 2);
+  assert.equal(report.summary.negativeArtifactCount, 4);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
   assert.ok(runtimeIds.includes('node-v8'));
@@ -108,6 +108,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('firefox-spidermonkey-browser')
     && row.evidenceKinds.includes('NEGATIVE_RESULT')
     && row.measuredRowCount === 1
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
+    && row.runtimes.includes('firefox-spidermonkey-browser')
+    && row.evidenceKinds.includes('ENVIRONMENT_FACT')
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'materialization-contract-audit.json'
@@ -186,9 +193,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey Gecko Profiler trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump/);
+  assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present; no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /13 allocation\/profile artifacts found/);
-  assert.match(markdown, /Environment artifacts: 1/);
+  assert.match(markdown, /Environment artifacts: 2/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);

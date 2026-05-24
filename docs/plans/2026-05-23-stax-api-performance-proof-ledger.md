@@ -689,6 +689,17 @@ SpiderMonkey has no codegen headroom. The coverage audit should therefore say
 the JitSpew source gate and diagnostic no-dump attempt are present, while the
 Firefox JIT IR / optimized-code dump remains missing.
 
+`packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.md`
+separates the next SpiderMonkey codegen path from the installed-browser path.
+It checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`
+environment variables plus common `PATH` candidates such as `js`, `jsshell`,
+`spidermonkey`, and `mozjs`. On this Windows host the audit found no local
+SpiderMonkey JavaScript shell. That is a local `NEGATIVE_RESULT` for immediate
+js-shell JIT IR probing, not a global SpiderMonkey limitation. It means the
+remaining Firefox/SpiderMonkey codegen obligation now requires either a
+diagnostic-capable Firefox build or a separate debug/nightly SpiderMonkey shell
+artifact.
+
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
 `packages/benchmark/results/release/candidate-headroom-large-stability.md` is a
