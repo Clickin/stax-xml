@@ -1218,6 +1218,14 @@ browser `ReadableStream` source gap for Chrome/V8 on this corpus, and records a
 negative result for the hypothesis that direct browser fetch streaming exposes
 hidden 200 MiB/s full-StAX headroom.
 
+`packages/benchmark/results/release/firefox-fetch-readable-stream-timeout-audit.md`
+then probes the same 1.00 GiB `books.xml` live fetch source shape on
+Firefox/SpiderMonkey. The focused `fetchReadableStreamFull` child did not
+complete within a 300.0 second timeout, giving an implied throughput upper bound
+of `3.41 MiB/s` for that run. This is a timeout negative result rather than a
+completed checksum row, but it is strong enough to reject this Firefox live
+fetch path as a plausible 200 MiB/s full-StAX counterexample.
+
 `packages/benchmark/results/release/firefox-bidi-candidate-headroom-cross-process-books-corpus.md`
 adds the Firefox/SpiderMonkey counterpart as fresh Firefox processes with
 `processRuns=3`, child `runs=1`, and `warmups=0`. The Firefox

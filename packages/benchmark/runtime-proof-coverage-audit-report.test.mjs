@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 99);
+  assert.equal(report.summary.scannedArtifactCount, 100);
   assert.equal(report.summary.measuredRowCount, 622);
   assert.equal(report.summary.largeJsFullRowCount, 374);
   assert.equal(report.summary.corpusSeedCount, 3);
@@ -90,6 +90,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'browser-fetch-readable-stream-books-corpus.json'
     && row.runtimes.includes('chrome-v8-browser')
     && row.measuredRowCount === 2
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'firefox-fetch-readable-stream-timeout-audit.json'
+    && row.runtimes.includes('firefox-spidermonkey-browser')
+    && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'deno-textdecoder-source-pin-audit.json'

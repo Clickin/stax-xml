@@ -228,6 +228,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /reports only `9\.18 MiB\/s` with max used JS heap\s+`20\.5 MiB`/);
   assert.match(markdown, /prepared `eventObjectFull` row in the same artifact\s+reports `67\.63 MiB\/s`/);
   assert.match(markdown, /negative result for the hypothesis that direct browser fetch streaming exposes\s+hidden 200 MiB\/s full-StAX headroom/);
+  assert.match(markdown, /firefox-fetch-readable-stream-timeout-audit\.md/);
+  assert.match(markdown, /did not\s+complete within a 300\.0 second timeout/);
+  assert.match(markdown, /implied throughput upper bound\s+of `3\.41 MiB\/s`/);
+  assert.match(markdown, /reject this Firefox live\s+fetch path as a plausible 200 MiB\/s full-StAX counterexample/);
   assert.match(markdown, /Firefox\s+fresh-browser-process books rerun averaged `62\.55 MiB\/s` for `stringFull`/);
   assert.match(markdown, /`49\.85 MiB\/s` for public `eventObjectFull`/);
   assert.match(markdown, /`63\.53 MiB\/s` for\s+`rawFrameNameId`/);

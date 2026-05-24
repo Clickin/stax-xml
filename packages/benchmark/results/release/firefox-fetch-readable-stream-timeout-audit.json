@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-05-24T20:20:13.066Z",
+  "objective": "firefox-fetch-readable-stream-timeout-audit",
+  "contract": "firefox-browser-fetch-readable-stream-full-event-object-timeout",
+  "note": "Timeout audit for Firefox/SpiderMonkey public EventReader over fetch Response.body on a 1 GiB corpus-cycle source.",
+  "parameters": {
+    "sizeGiB": 1,
+    "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "case": "fetchReadableStreamFull",
+    "childTimeoutMs": 300000,
+    "browserTimeoutMs": 1200000,
+    "childJsonOut": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\tmp\\firefox-fetch-readable-stream-timeout-child.json",
+    "childMdOut": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\tmp\\firefox-fetch-readable-stream-timeout-child.md"
+  },
+  "outcome": {
+    "status": "timeout",
+    "completedWithinTimeout": false,
+    "timeoutSeconds": 300,
+    "impliedThroughputUpperBoundMiBPerSec": 3.4133333333333336,
+    "exitCode": null,
+    "signal": "timeout",
+    "stdoutTail": "",
+    "stderrTail": ""
+  },
+  "findings": [
+    {
+      "id": "firefox-fetch-readable-stream-timeout",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Firefox/SpiderMonkey fetchReadableStreamFull did not complete 1.00 GiB within 300.0 seconds.",
+      "evidence": [
+        "impliedThroughputUpperBound=3.41 MiB/s",
+        "case=fetchReadableStreamFull",
+        "contract=public EventReader full event-object checksum if completed"
+      ]
+    }
+  ]
+}

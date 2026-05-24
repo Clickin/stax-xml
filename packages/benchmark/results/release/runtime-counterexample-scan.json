@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T19:41:25.958Z",
+  "generatedAt": "2026-05-24T20:20:42.492Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -79,6 +79,7 @@
     "firefox-bidi-textdecoder-span-cross-process.json",
     "firefox-bidi-textdecoder-span-variants-corpus.json",
     "firefox-bidi-textdecoder-span-variants.json",
+    "firefox-fetch-readable-stream-timeout-audit.json",
     "firefox-spidermonkey-allocation-profile.json",
     "firefox-spidermonkey-memory-api-source-pin-audit.json",
     "firefox-spidermonkey-profiler-trace.json",
@@ -118,7 +119,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 99,
+    "scannedArtifactCount": 100,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 622,
