@@ -11,7 +11,7 @@ const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'event-reader-byte-batch-report-test.json');
 const mdOut = join(tmpDir, 'event-reader-byte-batch-report-test.md');
 
-test('EventReader byte-batch report compares ReadableStream and async byte-batch sources', () => {
+test('EventReader byte-batch report compares ReadableStream, async byte-batch, and sync iterable byte-batch sources', () => {
   mkdirSync(tmpDir, { recursive: true });
   for (const filePath of [jsonOut, mdOut]) {
     if (existsSync(filePath)) rmSync(filePath);
@@ -54,17 +54,25 @@ test('EventReader byte-batch report compares ReadableStream and async byte-batch
     'readableStreamBatch1',
     'readableStreamBatch4',
     'asyncByteBatch4',
+    'syncIterableBatch1',
+    'syncIterableBatch4',
   ]);
 
   const readable = report.variants.find(row => row.id === 'readableStreamBatch4');
   const asyncBatch = report.variants.find(row => row.id === 'asyncByteBatch4');
+  const syncBatch = report.variants.find(row => row.id === 'syncIterableBatch4');
   assert.ok(readable);
   assert.ok(asyncBatch);
+  assert.ok(syncBatch);
   assert.equal(readable.fullStringParity, true);
   assert.equal(asyncBatch.fullStringParity, true);
+  assert.equal(syncBatch.fullStringParity, true);
   assert.equal(asyncBatch.eventCount, readable.eventCount);
   assert.equal(asyncBatch.checksum, readable.checksum);
+  assert.equal(syncBatch.eventCount, readable.eventCount);
+  assert.equal(syncBatch.checksum, readable.checksum);
   assert.ok(asyncBatch.sourceBatches < asyncBatch.sourceReads);
+  assert.ok(syncBatch.sourceBatches < syncBatch.sourceReads);
   assert.ok(report.findings.some(row => row.id === 'backpressure-preserved'));
   assert.ok(report.findings.some(row => row.id === 'async-byte-batch-headroom'));
 
@@ -72,8 +80,10 @@ test('EventReader byte-batch report compares ReadableStream and async byte-batch
   assert.match(markdown, /EventReader Byte Batch Benchmark/);
   assert.match(markdown, /ReadableStream/);
   assert.match(markdown, /AsyncIterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Runtime: Node\/V8 test/);
   assert.match(markdown, /asyncByteBatch4/);
+  assert.match(markdown, /syncIterableBatch4/);
 });
 
 test('EventReader byte-batch report supports a corpus-cycle fixture seed', () => {
@@ -127,11 +137,16 @@ test('EventReader byte-batch report supports a corpus-cycle fixture seed', () =>
 
   const readable = report.variants.find(row => row.id === 'readableStreamBatch4');
   const asyncBatch = report.variants.find(row => row.id === 'asyncByteBatch4');
+  const syncBatch = report.variants.find(row => row.id === 'syncIterableBatch4');
   assert.ok(readable);
   assert.ok(asyncBatch);
+  assert.ok(syncBatch);
   assert.equal(asyncBatch.eventCount, readable.eventCount);
   assert.equal(asyncBatch.checksum, readable.checksum);
+  assert.equal(syncBatch.eventCount, readable.eventCount);
+  assert.equal(syncBatch.checksum, readable.checksum);
   assert.ok(asyncBatch.sourceBatches < asyncBatch.sourceReads);
+  assert.ok(syncBatch.sourceBatches < syncBatch.sourceReads);
 
   const markdown = readFileSync(corpusMdOut, 'utf8');
   assert.match(markdown, /Fixture shape: corpus-cycle/);

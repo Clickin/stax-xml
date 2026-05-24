@@ -2,7 +2,13 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EventReader, XmlEventType, createEventReaderFromAsyncByteBatches } from 'stax-xml';
+import {
+  EventReader,
+  StreamEventType,
+  StreamReaderSync,
+  XmlEventType,
+  createEventReaderFromAsyncByteBatches,
+} from 'stax-xml';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
@@ -131,13 +137,20 @@ async function main() {
       implementation: `createEventReaderFromAsyncByteBatches with ${batchSize} chunks yielded per await`,
       run: () => consumeAsyncByteBatches(fixture, batchSize),
     })),
+    ...options.batchSizes.map(batchSize => ({
+      id: `syncIterableBatch${batchSize}`,
+      family: 'sync-iterable-byte-batch',
+      batchSize,
+      implementation: `StreamReaderSync over Iterable<Uint8Array[]> with ${batchSize} chunks yielded per batch, materialized as public event objects`,
+      run: () => consumeSyncByteBatches(fixture, batchSize),
+    })),
   ];
 
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'event-reader-byte-batch',
     contract: 'public-event-object-full-string-checksum',
-    note: 'Compares direct ReadableStream chunk consumption with an AsyncIterable<Uint8Array[]> source that yields already-grouped byte batches. Both sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.',
+    note: 'Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]> and Iterable<Uint8Array[]> sources that yield already-grouped byte batches. All sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.',
     environment: createEnvironment(options.runtimeLabel),
     options: {
       sizeGiB: options.sizeGiB,
@@ -239,6 +252,26 @@ async function consumeAsyncByteBatches(fixture, batchSize) {
   );
 }
 
+async function consumeSyncByteBatches(fixture, batchSize) {
+  const counters = { reads: 0, batches: 0 };
+  let eventCount = 0;
+  let checksum = 0;
+  for (const batch of new StreamReaderSync(createSyncByteBatchSource(fixture, batchSize, counters))) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const event = materializeStreamBatchEvent(batch, index);
+      eventCount++;
+      checksum = foldEvent(checksum, event);
+    }
+  }
+  return {
+    eventCount,
+    checksum,
+    sourceReads: counters.reads,
+    sourceBatches: counters.batches,
+  };
+}
+
 async function consumeEventReader(reader, counters) {
   let eventCount = 0;
   let checksum = 0;
@@ -290,6 +323,23 @@ async function* createAsyncByteBatchSource(fixture, batchSize, counters) {
   }
 }
 
+function* createSyncByteBatchSource(fixture, batchSize, counters) {
+  let emittedBytes = 0;
+  let rowIndex = 0;
+  while (emittedBytes < fixture.actualBytes) {
+    const batch = [];
+    for (let index = 0; index < batchSize && emittedBytes < fixture.actualBytes; index++) {
+      const row = fixture.rows[rowIndex % fixture.rows.length];
+      rowIndex++;
+      emittedBytes += row.byteLength;
+      counters.reads++;
+      batch.push(row);
+    }
+    counters.batches++;
+    yield batch;
+  }
+}
+
 function foldEvent(checksum, event) {
   checksum = mix(checksum, publicEventTypeCode(event.type));
   if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
@@ -307,6 +357,48 @@ function foldEvent(checksum, event) {
     }
   }
   return checksum;
+}
+
+function materializeStreamBatchEvent(batch, index) {
+  const type = batch.typeAt(index);
+  switch (type) {
+    case StreamEventType.START_DOCUMENT:
+      return { type: XmlEventType.START_DOCUMENT };
+    case StreamEventType.END_DOCUMENT:
+      return { type: XmlEventType.END_DOCUMENT };
+    case StreamEventType.START_ELEMENT: {
+      const attributes = {};
+      const attrCount = batch.attributeCountAt(index);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        const name = batch.attributeNameAt(index, attrIndex);
+        if (name !== undefined) {
+          attributes[name] = batch.attributeValueAt(index, attrIndex) ?? '';
+        }
+      }
+      return {
+        type: XmlEventType.START_ELEMENT,
+        name: batch.nameAt(index) ?? '',
+        attributes,
+      };
+    }
+    case StreamEventType.END_ELEMENT:
+      return {
+        type: XmlEventType.END_ELEMENT,
+        name: batch.nameAt(index) ?? '',
+      };
+    case StreamEventType.CHARACTERS:
+      return {
+        type: XmlEventType.CHARACTERS,
+        value: batch.textAt(index) ?? '',
+      };
+    case StreamEventType.CDATA:
+      return {
+        type: XmlEventType.CDATA,
+        value: batch.textAt(index) ?? '',
+      };
+    default:
+      throw new Error(`Unsupported StreamEventType: ${type}`);
+  }
 }
 
 function publicEventTypeCode(type) {
@@ -414,6 +506,7 @@ function createFindings(report) {
     batchSize > 1
     && report.variants.some(row => row.id === `readableStreamBatch${batchSize}`)
     && report.variants.some(row => row.id === `asyncByteBatch${batchSize}`)
+    && report.variants.some(row => row.id === `syncIterableBatch${batchSize}`)
   );
   const readable = comparedBatchSize
     ? report.variants.find(row => row.id === `readableStreamBatch${comparedBatchSize}`)
@@ -421,11 +514,14 @@ function createFindings(report) {
   const asyncBatch = comparedBatchSize
     ? report.variants.find(row => row.id === `asyncByteBatch${comparedBatchSize}`)
     : undefined;
+  const syncBatch = comparedBatchSize
+    ? report.variants.find(row => row.id === `syncIterableBatch${comparedBatchSize}`)
+    : undefined;
   return [
     {
       id: 'backpressure-preserved',
       classification: 'SOURCE_FACT',
-      summary: 'Both benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), and the async byte-batch source yields one batch only when next() is awaited.',
+      summary: 'All benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), the async byte-batch source yields one batch only when next() is awaited, and the sync iterable source yields one batch per parser pull.',
       evidence: report.variants.map(row => `${row.id}: sourceReads=${row.sourceReads}, sourceBatches=${row.sourceBatches}`),
     },
     readable && asyncBatch
@@ -436,6 +532,17 @@ function createFindings(report) {
           evidence: [
             `readableStreamBatch${comparedBatchSize}=${readable.mibPerSec.toFixed(2)} MiB/s`,
             `asyncByteBatch${comparedBatchSize}=${asyncBatch.mibPerSec.toFixed(2)} MiB/s`,
+          ],
+        }
+      : null,
+    readable && syncBatch
+      ? {
+          id: 'sync-iterable-byte-batch-headroom',
+          classification: 'BENCH_FACT',
+          summary: `At batch size ${comparedBatchSize}, sync iterable byte batches were ${(syncBatch.mibPerSec / readable.mibPerSec).toFixed(2)}x the ReadableStream row on this run.`,
+          evidence: [
+            `readableStreamBatch${comparedBatchSize}=${readable.mibPerSec.toFixed(2)} MiB/s`,
+            `syncIterableBatch${comparedBatchSize}=${syncBatch.mibPerSec.toFixed(2)} MiB/s`,
           ],
         }
       : null,
