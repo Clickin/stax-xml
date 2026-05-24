@@ -33,15 +33,21 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 67);
-  assert.equal(report.summary.measuredRowCount, 408);
-  assert.equal(report.summary.largeJsFullRowCount, 199);
-  assert.ok(report.summary.partialHeadroomRowCount >= 1);
-  assert.ok(report.summary.unboundedOrUnknownLargeFullRowCount >= 1);
+  assert.equal(report.summary.scannedArtifactCount, 71);
+  assert.equal(report.summary.measuredRowCount, 441);
+  assert.equal(report.summary.largeJsFullRowCount, 217);
+  assert.equal(report.summary.partialHeadroomRowCount, 12);
+  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 107);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
+  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
+  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.id, 'rawFrameNameId');
+  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 174.51);
   assert.ok(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec < 200);
   assert.equal(report.summary.fastestPartialHeadroomRow.fullStringParity, false);
+  assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
+  assert.equal(report.summary.fastestPartialHeadroomRow.id, 'scanAllNoDecode');
+  assert.equal(report.summary.fastestPartialHeadroomRow.mibPerSec, 334.63);
   assert.ok(report.summary.fastestPartialHeadroomRow.mibPerSec >= 200);
   assert.ok(report.ignoredArtifacts.includes('runtime-limit-proof-obligation-gate.json'));
   assert.ok(report.ignoredArtifacts.includes('same-contract-runtime-comparison.json'));
@@ -50,9 +56,17 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.id === 'scanAllNoDecode'
     && row.fullStringParity === false
   ));
+  assert.ok(report.partialHeadroomRows.some(row =>
+    row.sourceArtifact === 'browser-candidate-headroom-books-corpus.json'
+    && row.id === 'scanAllNoDecode'
+    && row.mibPerSec === 206.76
+    && row.fullStringParity === false
+  ));
   assert.ok(report.fastestLargeFullRows.some(row =>
-    row.hasMemoryProof === false
-    && row.boundedMemory === true
+    row.sourceArtifact === 'candidate-headroom-books-corpus.json'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 172.69
+    && row.hasMemoryProof === true
   ));
   assert.ok(report.unboundedOrUnknownLargeFullRows.some(row =>
     row.sourceArtifact === 'firefox-bidi-candidate-headroom-corpus.json'
@@ -109,7 +123,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
-  assert.match(markdown, /flag-only/);
+  assert.match(markdown, /bun-candidate-headroom-books-corpus\.json/);
   assert.match(markdown, /not full-string StAX counterexamples/);
   assert.match(markdown, /row-level memory evidence/);
   assert.match(markdown, /not an impossibility proof/);

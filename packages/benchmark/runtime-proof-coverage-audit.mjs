@@ -312,6 +312,7 @@ function createObligationRows(coverage) {
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
   );
+  const remainingCorpusSeeds = Math.max(0, 3 - corpusSeedCount);
 
   return [
     {
@@ -366,7 +367,9 @@ function createObligationRows(coverage) {
       id: 'independent-corpus-suite-open',
       status: corpusSeedCount >= 3 ? 'covered' : 'partial',
       evidence: `${corpusSeedCount} release corpus seed(s) found: ${coverage.corpusSeeds.join(', ') || 'none'}.`,
-      nextExperiment: 'Add at least two more independent real XML corpus seeds before treating corpus coverage as broad.',
+      nextExperiment: corpusSeedCount >= 3
+        ? 'Keep new corpus rows flowing through the counterexample scanner before broadening claims.'
+        : `Add at least ${remainingCorpusSeeds} more independent real XML corpus seed(s) before treating corpus coverage as broad.`,
     },
     {
       id: 'counterexample-rule-present',

@@ -1,21 +1,21 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-24T06:40:57.160Z
+Generated: 2026-05-24T07:02:28.038Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 67
+- Scanned artifacts: 71
 - Ignored derived artifacts: 5
-- Measured rows recognized: 408
-- 1 GiB+ JS full-string rows recognized: 199
+- Measured rows recognized: 441
+- 1 GiB+ JS full-string rows recognized: 217
 - Counterexamples found: 0
-- Partial/projection threshold rows: 1
-- Full-string rows without bounded-memory proof: 104
-- Fastest 1 GiB+ JS full-string row: Bun/JSC stringFull from candidate-headroom-cross-process-projection.json at 97.82 MiB/s (flag-only, not-recorded)
-- Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from bun-candidate-headroom-projection-large.json at 84.68 MiB/s (yes, process-rss)
-- Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from bun-candidate-headroom-projection-large.json at 245.41 MiB/s (yes, process-rss)
+- Partial/projection threshold rows: 12
+- Full-string rows without bounded-memory proof: 107
+- Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus.json at 174.51 MiB/s (yes, process-rss)
+- Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus.json at 174.51 MiB/s (yes, process-rss)
+- Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from bun-candidate-headroom-books-corpus.json at 334.63 MiB/s (yes, process-rss)
 
 ## Counterexamples
 
@@ -27,18 +27,18 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
-| `bun-candidate-headroom-projection-large.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 84.68 | yes | process-rss | 60416563 | 1441552024 |
-| `bun-candidate-headroom-projection-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 83.10 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-projection-large.json` | Node/V8 | `rawFrameNameId` | 1.00 | 82.91 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-projection-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 82.47 | yes | process-rss | 60416563 | 1441552024 |
-| `bun-candidate-headroom-projection-large.json` | Bun/JSC | `cursorAccessor` | 1.00 | 80.14 | yes | process-rss | 60416563 | 1441552024 |
-| `bun-candidate-headroom-projection-stability.json` | Bun/JSC | `cursorAccessor` | 1.00 | 77.98 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-projection-large.json` | Node/V8 | `cursorAccessor` | 1.00 | 77.29 | yes | process-rss | 60416563 | 1441552024 |
-| `bun-candidate-headroom-projection-large.json` | Bun/JSC | `stringFull` | 1.00 | 77.04 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 77.00 | yes | process-rss | 75206126 | -925527041 |
-| `bun-candidate-headroom-projection-stability.json` | Bun/JSC | `stringFull` | 1.00 | 76.77 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-projection-stability.json` | Node/V8 | `stringFull` | 1.00 | 75.94 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-projection-large.json` | Node/V8 | `rawFrameDirect` | 1.00 | 74.48 | yes | process-rss | 60416563 | 1441552024 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 174.51 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.69 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `cursorAccessor` | 1.00 | 164.74 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameDirect` | 1.00 | 161.05 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 159.70 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 155.37 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 136.14 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `eventObjectFull` | 1.00 | 133.43 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `eventObjectFull` | 1.00 | 131.98 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 123.06 | yes | process-rss | 57096514 | -540013997 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `rawFrameNameId` | 1.00 | 122.08 | yes | browser-js-heap | 57096514 | -540013997 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `stringFull` | 1.00 | 119.64 | yes | browser-js-heap | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -46,18 +46,18 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
-| `candidate-headroom-cross-process-projection.json` | Bun/JSC | `stringFull` | 1.00 | 97.82 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Bun/JSC | `stringFull` | 1.00 | 97.70 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Bun/JSC | `stringFull` | 1.00 | 97.48 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Node/V8 | `stringFull` | 1.00 | 95.52 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Node/V8 | `stringFull` | 1.00 | 94.87 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Deno/V8 | `stringFull` | 1.00 | 87.62 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Deno/V8 | `stringFull` | 1.00 | 87.37 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Deno/V8 | `stringFull` | 1.00 | 87.28 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 84.97 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `bun-candidate-headroom-projection-large.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 84.68 | yes | process-rss | 60416563 | 1441552024 |
-| `candidate-headroom-cross-process-projection.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 83.82 | flag-only | not-recorded | 60416563 | 1441552024 |
-| `bun-candidate-headroom-projection-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 83.10 | yes | process-rss | 60416563 | 1441552024 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 174.51 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.69 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `cursorAccessor` | 1.00 | 164.74 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameDirect` | 1.00 | 161.05 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 159.70 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 155.37 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 136.14 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `eventObjectFull` | 1.00 | 133.43 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `eventObjectFull` | 1.00 | 131.98 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 123.06 | yes | process-rss | 57096514 | -540013997 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `rawFrameNameId` | 1.00 | 122.08 | yes | browser-js-heap | 57096514 | -540013997 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `stringFull` | 1.00 | 119.64 | yes | browser-js-heap | 57096514 | -540013997 |
 
 ## Partial Or Projection Threshold Rows
 
@@ -65,13 +65,24 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Contract | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 334.63 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `attrNameStringOnly` | 1.00 | 288.27 | event-types-attribute-counts-and-attribute-names | 57096514 | 878766131 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `nameStringOnly` | 1.00 | 282.68 | event-types-attribute-counts-and-element-names | 57096514 | -929151437 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `scanAllNoDecode` | 1.00 | 279.08 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `attrValueStringOnly` | 1.00 | 276.86 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `attrNameStringOnly` | 1.00 | 271.08 | event-types-attribute-counts-and-attribute-names | 57096514 | 878766131 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `attrValueStringOnly` | 1.00 | 270.74 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
 | `bun-candidate-headroom-projection-large.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 245.41 | event-types-and-attribute-counts-only | 60416563 | 830926359 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `nameStringOnly` | 1.00 | 225.09 | event-types-attribute-counts-and-element-names | 57096514 | -929151437 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrNameStringOnly` | 1.00 | 209.12 | event-types-attribute-counts-and-attribute-names | 57096514 | 878766131 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `scanAllNoDecode` | 1.00 | 206.76 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
+| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrValueStringOnly` | 1.00 | 204.77 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
 
 ## Findings
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
-- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 1 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
-- unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 104 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
+- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 12 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
+- unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 107 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
 
 ## Limits
 

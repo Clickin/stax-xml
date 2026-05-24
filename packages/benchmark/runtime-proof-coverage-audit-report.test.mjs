@@ -32,10 +32,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 67);
-  assert.equal(report.summary.measuredRowCount, 408);
-  assert.equal(report.summary.largeJsFullRowCount, 199);
-  assert.equal(report.summary.corpusSeedCount, 1);
+  assert.equal(report.summary.scannedArtifactCount, 71);
+  assert.equal(report.summary.measuredRowCount, 441);
+  assert.equal(report.summary.largeJsFullRowCount, 217);
+  assert.equal(report.summary.corpusSeedCount, 2);
   assert.equal(report.summary.openObligationCount, 4);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
@@ -46,11 +46,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
 
-  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 73);
-  assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 66);
+  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 83);
+  assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 69);
   assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
-  assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 66);
-  assert.deepEqual(report.coverage.corpusSeeds, ['treebank_e.xml']);
+  assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 69);
+  assert.deepEqual(report.coverage.corpusSeeds, ['books.xml', 'treebank_e.xml']);
   assert.ok(report.coverage.sourcePins.some(pin =>
     pin.runtimeId === 'firefox-spidermonkey-browser'
     && pin.sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json'
@@ -67,12 +67,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Proof Coverage Audit/);
   assert.match(markdown, /not an impossibility proof/);
-  assert.match(markdown, /66 Firefox\/SpiderMonkey browser benchmark rows found/);
+  assert.match(markdown, /69 Firefox\/SpiderMonkey browser benchmark rows found/);
   assert.match(markdown, /Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present/);
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
-  assert.match(markdown, /Non-V8 browser benchmark rows: 66/);
-  assert.match(markdown, /Current release corpus seeds: `treebank_e\.xml`/);
+  assert.match(markdown, /Non-V8 browser benchmark rows: 69/);
+  assert.match(markdown, /Current release corpus seeds: `books\.xml`, `treebank_e\.xml`/);
   assert.match(markdown, /4 proof obligation\(s\) remain open or partial/);
   assert.match(markdown, /Missing evidence is not evidence that optimization is impossible/);
 });
