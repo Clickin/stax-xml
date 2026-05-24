@@ -1,0 +1,295 @@
+{
+  "generatedAt": "2026-05-24T17:30:35.152Z",
+  "objective": "deno-v8-codegen-trace",
+  "contract": "trace-fact-only",
+  "note": "Deno/V8 trace-opt and trace-deopt signals for selected stax-xml reader rows. This is runtime-specific TRACE_FACT evidence, not a throughput benchmark, allocation profile, or runtime ceiling proof.",
+  "environment": {
+    "denoVersion": "2.7.13 (stable, release, x86_64-pc-windows-msvc)",
+    "v8Version": "14.7.173.20-rusty",
+    "typescriptVersion": "5.9.2",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "source": "self-generated",
+    "elements": 128,
+    "byteLength": 8892
+  },
+  "options": {
+    "warmups": 24,
+    "iterations": 6,
+    "quick": false,
+    "cases": [
+      "public-accessor",
+      "raw-frame-direct-decode",
+      "raw-frame-name-id-cache"
+    ]
+  },
+  "rawArtifacts": {
+    "manifestPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\deno-v8-codegen\\trace-1779643834392\\manifest.json",
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\deno-v8-codegen\\trace-1779643834392",
+    "committed": false
+  },
+  "cases": [
+    {
+      "caseId": "public-accessor",
+      "status": "target-optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "public-accessor",
+        "warmups": 24,
+        "iterations": 6,
+        "elements": 128,
+        "eventCount": 2180,
+        "checksum": 1331061553,
+        "sink": 368977443
+      },
+      "optimizedFunctions": [
+        "addAttribute",
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "ae",
+        "assertActive",
+        "assertBranded",
+        "assertEventIndex",
+        "assertTextAllowedOutsideDocumentElement",
+        "assertValidCharacterData",
+        "assertValidName",
+        "attrCount",
+        "attrValueEnd",
+        "attrValueStart",
+        "attributeCountAt",
+        "attributeNameAt",
+        "attributeValueAt",
+        "b",
+        "consumePublicAccessor",
+        "copyAttrName",
+        "copyAttrValue",
+        "copyName",
+        "copyText",
+        "currentGeneration",
+        "decode",
+        "decodeSpan",
+        "ensureAttrCapacity",
+        "ensureElementCapacity",
+        "ensureEventCapacity",
+        "eventType",
+        "foldString",
+        "internName",
+        "isImplicitAttributeValue",
+        "isPathSeparator",
+        "isPosixPathSeparator",
+        "isSharedArrayBuffer",
+        "isTypedArray",
+        "lookupNameId",
+        "m",
+        "materializeName",
+        "mixChecksum",
+        "nameAt",
+        "ne",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "re",
+        "registerStartElement",
+        "textAt",
+        "typeAt",
+        "x"
+      ],
+      "targetOptimizedFunctions": [
+        "consumePublicAccessor",
+        "materializeName",
+        "decodeSpan",
+        "foldString",
+        "parseBuffer",
+        "parseTag",
+        "parseStartTag"
+      ],
+      "compilationTargets": [
+        "MAGLEV",
+        "TURBOFAN_JS"
+      ],
+      "deoptCount": 37,
+      "warmupDeoptCount": 37,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "logBytes": 66335,
+      "elapsedMs": 205
+    },
+    {
+      "caseId": "raw-frame-direct-decode",
+      "status": "target-optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "raw-frame-direct-decode",
+        "warmups": 24,
+        "iterations": 6,
+        "elements": 128,
+        "eventCount": 2180,
+        "checksum": 1331061553,
+        "sink": 368977443
+      },
+      "optimizedFunctions": [
+        "addAttribute",
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "ae",
+        "assertBranded",
+        "assertTextAllowedOutsideDocumentElement",
+        "assertValidCharacterData",
+        "assertValidName",
+        "b",
+        "consumeRawFrame",
+        "decode",
+        "decodeShortAsciiSpan",
+        "decodeSpan",
+        "ensureAttrCapacity",
+        "ensureElementCapacity",
+        "ensureEventCapacity",
+        "foldString",
+        "internName",
+        "isImplicitAttributeValue",
+        "isPathSeparator",
+        "isPosixPathSeparator",
+        "isSharedArrayBuffer",
+        "isTypedArray",
+        "lookupNameId",
+        "m",
+        "materializeName",
+        "mixChecksum",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "re",
+        "registerStartElement",
+        "x"
+      ],
+      "targetOptimizedFunctions": [
+        "consumeRawFrame",
+        "materializeName",
+        "decodeSpan",
+        "foldString",
+        "parseBuffer",
+        "parseTag",
+        "parseStartTag"
+      ],
+      "compilationTargets": [
+        "MAGLEV",
+        "TURBOFAN_JS"
+      ],
+      "deoptCount": 11,
+      "warmupDeoptCount": 11,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "logBytes": 41676,
+      "elapsedMs": 206
+    },
+    {
+      "caseId": "raw-frame-name-id-cache",
+      "status": "target-optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "raw-frame-name-id-cache",
+        "warmups": 24,
+        "iterations": 6,
+        "elements": 128,
+        "eventCount": 2180,
+        "checksum": 1331061553,
+        "sink": 368977443
+      },
+      "optimizedFunctions": [
+        "addAttribute",
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "ae",
+        "assertBranded",
+        "assertTextAllowedOutsideDocumentElement",
+        "assertValidCharacterData",
+        "assertValidName",
+        "b",
+        "consumeRawFrame",
+        "decode",
+        "decodeShortAsciiSpan",
+        "decodeSpan",
+        "ensureAttrCapacity",
+        "ensureElementCapacity",
+        "ensureEventCapacity",
+        "foldString",
+        "internName",
+        "isImplicitAttributeValue",
+        "isPathSeparator",
+        "isPosixPathSeparator",
+        "isSharedArrayBuffer",
+        "isTypedArray",
+        "lookupNameId",
+        "m",
+        "materializeName",
+        "mixChecksum",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "re",
+        "registerStartElement",
+        "x"
+      ],
+      "targetOptimizedFunctions": [
+        "consumeRawFrame",
+        "materializeName",
+        "decodeSpan",
+        "foldString",
+        "parseBuffer",
+        "parseTag",
+        "parseStartTag"
+      ],
+      "compilationTargets": [
+        "MAGLEV",
+        "TURBOFAN_JS"
+      ],
+      "deoptCount": 13,
+      "warmupDeoptCount": 13,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "logBytes": 45789,
+      "elapsedMs": 193
+    }
+  ],
+  "findings": [
+    {
+      "id": "deno-v8-optimization-seen",
+      "classification": "TRACE_FACT",
+      "summary": "Deno/V8 emitted trace-opt signals for selected stax-xml parser and reader functions in this small generated workload.",
+      "evidence": [
+        "public-accessor: targets=MAGLEV/TURBOFAN_JS, optimizedTargets=consumePublicAccessor,materializeName,decodeSpan,foldString,parseBuffer,parseTag,parseStartTag",
+        "raw-frame-direct-decode: targets=MAGLEV/TURBOFAN_JS, optimizedTargets=consumeRawFrame,materializeName,decodeSpan,foldString,parseBuffer,parseTag,parseStartTag",
+        "raw-frame-name-id-cache: targets=MAGLEV/TURBOFAN_JS, optimizedTargets=consumeRawFrame,materializeName,decodeSpan,foldString,parseBuffer,parseTag,parseStartTag"
+      ]
+    },
+    {
+      "id": "post-warmup-deopt-observed",
+      "classification": "TRACE_FACT",
+      "summary": "Records whether each case deoptimized after the warmup marker; this is a trace observation, not a ceiling proof.",
+      "evidence": [
+        "public-accessor: warmupDeopts=37, postWarmupDeopts=0",
+        "raw-frame-direct-decode: warmupDeopts=11, postWarmupDeopts=0",
+        "raw-frame-name-id-cache: warmupDeopts=13, postWarmupDeopts=0"
+      ]
+    },
+    {
+      "id": "scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This trace is a small selected-function Deno/V8 run, not a 1 GiB benchmark, allocation profile, browser trace, or impossibility proof.",
+      "evidence": [
+        "Deno trace flags used: --trace-opt,--trace-deopt,--trace-file-names"
+      ]
+    }
+  ]
+}

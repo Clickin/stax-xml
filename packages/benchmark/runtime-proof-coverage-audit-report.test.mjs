@@ -32,14 +32,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 94);
+  assert.equal(report.summary.scannedArtifactCount, 95);
   assert.equal(report.summary.measuredRowCount, 572);
   assert.equal(report.summary.largeJsFullRowCount, 327);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 1);
   assert.equal(report.summary.benchmarkArtifactCount, 69);
   assert.equal(report.summary.sourceArtifactCount, 12);
-  assert.equal(report.summary.traceArtifactCount, 5);
+  assert.equal(report.summary.traceArtifactCount, 6);
   assert.equal(report.summary.allocationArtifactCount, 12);
   assert.equal(report.summary.environmentArtifactCount, 1);
 
@@ -108,6 +108,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'chrome-v8-browser'
     && row.traceArtifacts.includes('browser-v8-codegen-trace.json')
+  ));
+  assert.ok(report.coverage.runtimes.some(row =>
+    row.runtimeId === 'deno-v8'
+    && row.traceArtifacts.includes('deno-v8-codegen-trace.json')
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'firefox-spidermonkey-browser'

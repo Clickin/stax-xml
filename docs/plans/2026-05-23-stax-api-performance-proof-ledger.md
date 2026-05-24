@@ -1811,6 +1811,29 @@ This source pin is narrower than a performance conclusion. It does not inspect
 optimized V8 code, does not count allocations, does not cover browser engines,
 and does not prove that Deno/V8 has no remaining headroom.
 
+## Current Evidence: Deno/V8 Codegen Trace
+
+`packages/benchmark/results/release/deno-v8-codegen-trace.md` is a small
+`TRACE_FACT` for the same local Deno 2.7.13 / V8 14.7.173.20-rusty boundary.
+It runs the selected monomorphic reader workload through Deno child processes
+with `--v8-flags=--trace-opt,--trace-deopt,--trace-file-names`, using 128
+generated elements, 24 warmups, and 6 measured iterations per row.
+
+The traced rows preserved the same event count and checksum across
+`public-accessor`, `raw-frame-direct-decode`, and `raw-frame-name-id-cache`:
+2,180 events and checksum `1331061553`. Deno/V8 emitted both Maglev and
+TurboFan trace signals. `public-accessor` optimized `consumePublicAccessor`,
+`decodeSpan`, `foldString`, `parseBuffer`, `parseTag`, and `parseStartTag`,
+but recorded one post-warmup deopt. `raw-frame-direct-decode` and
+`raw-frame-name-id-cache` optimized `consumeRawFrame`, `materializeName`,
+`decodeSpan`, `foldString`, `parseBuffer`, `parseTag`, and `parseStartTag`,
+with zero post-warmup deopts in this run.
+
+This narrows the previous Deno/V8 optimized-code evidence gap, but it remains a
+small selected-function trace. It is not a 1 GiB benchmark row, not an
+allocation profile, not TextDecoder-specific machine-code proof, not browser
+coverage, and not a JavaScript runtime ceiling proof.
+
 ## Current Evidence: Bun/JSC String Limit Audit
 
 `packages/benchmark/results/release/bun-jsc-string-limit-audit.md` is an
