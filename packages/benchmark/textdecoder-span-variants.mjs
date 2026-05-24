@@ -509,17 +509,23 @@ function createFindings(fixture, variants, fullStringParity) {
 }
 
 function createEnvironment() {
-  const runtimeName = typeof Bun !== 'undefined' ? 'bun' : 'node';
+  const runtimeName = typeof Bun !== 'undefined' ? 'bun' : globalThis.Deno ? 'deno' : 'node';
+  const denoVersion = globalThis.Deno?.version;
   return {
     runtimeName,
-    cpuName: cpus()[0]?.model ?? 'unknown',
+    cpuName: sanitizeEnvironmentString(cpus()[0]?.model),
     platform: `${process.platform}-${process.arch}`,
     node: process.version,
-    v8: process.versions.v8,
+    v8: denoVersion?.v8 ?? process.versions.v8,
+    denoVersion: denoVersion?.deno ?? null,
     bunVersion: typeof Bun !== 'undefined' ? Bun.version : null,
     webkitCommit: process.versions.webkit ?? null,
     gcStrategy: typeof globalThis.gc === 'function' ? 'globalThis.gc' : 'unavailable',
   };
+}
+
+function sanitizeEnvironmentString(value) {
+  return String(value ?? 'unknown').replace(/\0/g, '').trim() || 'unknown';
 }
 
 function createFixture(options) {
@@ -848,6 +854,9 @@ function writeOutput(path, content) {
 function formatRuntime(environment) {
   if (environment.runtimeName === 'bun') {
     return `Bun ${environment.bunVersion}, JavaScriptCore WebKit ${environment.webkitCommit}`;
+  }
+  if (environment.runtimeName === 'deno') {
+    return `Deno ${environment.denoVersion}, V8 ${environment.v8}`;
   }
   return `Node ${environment.node}, V8 ${environment.v8}`;
 }
