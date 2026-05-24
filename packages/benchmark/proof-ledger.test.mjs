@@ -90,8 +90,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /all 10 required claim guards are satisfied/);
   assert.match(markdown, /all 16 required artifact mentions\s+are present/);
   assert.match(markdown, /all 7 required open-obligation disclosures are present/);
+  assert.match(markdown, /all 7\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
-  assert.match(markdown, /If the broad runtime-limit claim is upgraded to\s+`CONCLUSION` while these open obligations remain, the gate fails/);
+  assert.match(markdown, /treating Woodstox or quick-xml as JavaScript object\s+shape parity/);
+  assert.match(markdown, /treating lazy getters as an untried default candidate/);
+  assert.match(markdown, /turning JavaScript string\/runtime invariants into a performance impossibility\s+claim/);
+  assert.match(markdown, /If the broad runtime-limit claim is\s+upgraded to `CONCLUSION` while these open obligations remain, the gate fails/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /materialization-contract-audit\.md/);
   assert.match(markdown, /same semantic fields/);

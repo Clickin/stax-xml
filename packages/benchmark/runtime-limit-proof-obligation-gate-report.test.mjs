@@ -45,8 +45,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.summary.satisfiedClaimGuards, report.summary.requiredClaimGuards);
   assert.equal(report.summary.presentArtifactMentions, report.summary.requiredArtifactMentions);
   assert.equal(report.summary.disclosedOpenObligations, report.summary.requiredOpenObligations);
+  assert.equal(report.summary.satisfiedProofRules, report.summary.requiredProofRules);
   assert.ok(report.openObligations.some(item => item.id === 'firefox-browser-rows-open' && item.disclosed));
   assert.ok(report.artifactMentions.some(item => item.file === 'firefox-spidermonkey-textdecoder-source-pin-audit.md' && item.present));
+  assert.ok(report.proofRules.some(item => item.id === 'target-contract-not-object-shape' && item.satisfied));
+  assert.ok(report.proofRules.some(item => item.id === 'lazy-getters-reopen-burden' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -54,6 +57,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Conclusion allowed: no/);
   assert.match(markdown, /runtime-limit-remains-hypothesis/);
   assert.match(markdown, /firefox-browser-rows-open/);
+  assert.match(markdown, /## Proof Rules/);
+  assert.match(markdown, /target-contract-not-object-shape/);
+  assert.match(markdown, /lazy-getters-reopen-burden/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
 });
 
@@ -104,8 +110,16 @@ function createLedgerFixture(runtimeStatus) {
   return [
     '# stax-api Performance Proof Ledger',
     '',
+    '## Proof Vocabulary',
+    '',
+    'Rules:',
+    '',
+    '- `ENGINE_INVARIANT` about JS strings is not by itself a performance impossibility proof.',
+    '- `NEGATIVE_RESULT` for lazy getters, Buffer lanes, or value caches does not prove that all JavaScript runtime headroom is exhausted.',
+    '',
     '## Runtime-Limit Conclusion Gate',
     '',
+    'Define the target shape as a full-string StAX-like reader contract, not as identical object shape across languages.',
     'Treat any 200 MiB/s+ bounded-memory full-string JavaScript row as a counterexample.',
     '',
     '## Current Claims',
@@ -113,9 +127,9 @@ function createLedgerFixture(runtimeStatus) {
     '| ID | Claim | Status | Current evidence | Missing proof or counterexample search |',
     '| --- | --- | --- | --- | --- |',
     `| \`CLAIM-JS-RUNTIME-LIMIT-200MIB\` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory. | ${runtimeStatus} | Current rows are slow. | Must expand Firefox/SpiderMonkey rows, Safari/JSC, non-V8 browser rows, codegen traces, allocation profiles, and additional independent corpus fixtures. |`,
-    '| `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape. | `COUNTEREXAMPLE` | materialization-contract-audit.md | Rejected. |',
-    '| `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape. | `COUNTEREXAMPLE` | quick-xml-shape-audit.md | Rejected. |',
-    '| `CLAIM-LAZY-GETTERS` | Lazy event getters are not a candidate. | `NEGATIVE_RESULT` | materialization-contract-audit.md | Needs new proof. |',
+    '| `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | materialization-contract-audit.md | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |',
+    '| `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | quick-xml-shape-audit.md | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |',
+    '| `CLAIM-LAZY-GETTERS` | Lazy event getters are not a candidate. | `NEGATIVE_RESULT` | materialization-contract-audit.md | This rejection can be revisited only with a benchmark that proves full-string or real StAX consumer improvement, bounded memory, and no cache-shape regression. |',
     '| `CLAIM-NODE-BUFFER-PRIMARY` | Node Buffer is not neutral primary. | `NEGATIVE_RESULT` | textdecoder-span-variants.md | Keep neutral browser lane. |',
     '| `CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY` | Node TextDecoder source boundary. | `SOURCE_FACT` | node-textdecoder-source-pin-audit.md | Not codegen. |',
     '| `CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY` | Chrome/Blink TextDecoder source boundary. | `SOURCE_FACT` | chrome-blink-textdecoder-source-pin-audit.md | Not codegen. |',

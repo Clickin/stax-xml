@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-24T01:08:12.759Z
+Generated: 2026-05-24T01:20:16.139Z
 
 ## Scope
 
@@ -63,6 +63,20 @@ These are intentionally open obligations. They must be disclosed while the broad
 | `independent-corpus-suite-open` | yes | More independent real/corpus fixtures remain required. |
 | `counterexample-rule-present` | yes | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
 
+## Proof Rules
+
+These checks keep known semantic distinctions from being collapsed into a stronger runtime-limit claim.
+
+| ID | Satisfied | Meaning |
+| --- | --- | --- |
+| `target-contract-not-object-shape` | yes | The target must be defined as the same full-string StAX contract, not identical runtime object shape. |
+| `woodstox-same-js-object-shape-rejected` | yes | Woodstox object-shape parity with JavaScript public events must stay rejected. |
+| `quickxml-same-js-object-shape-rejected` | yes | quick-xml object-shape parity with JavaScript public events must stay rejected. |
+| `engine-invariant-not-impossibility-proof` | yes | Language/runtime string invariants alone must not be promoted to performance impossibility. |
+| `negative-results-not-global-proof` | yes | Failed implementation families narrow search space but do not prove the whole runtime ceiling. |
+| `lazy-getters-reopen-burden` | yes | Lazy getters remain closed unless a full-string benchmark proves improvement without cache-shape regression. |
+| `bounded-full-string-counterexample-rule` | yes | A bounded 200 MiB/s full-string JavaScript row must remain a counterexample to the broad limit claim. |
+
 ## Interpretation
 
-A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, and broader corpus coverage. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.
+A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.

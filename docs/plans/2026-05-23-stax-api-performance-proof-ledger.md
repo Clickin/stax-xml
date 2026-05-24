@@ -116,8 +116,9 @@ and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 16 required artifact mentions
-are present, and all 7 required open-obligation disclosures are present. The
-important result is `conclusionAllowed: false`, not a proof of impossibility.
+are present, all 7 required open-obligation disclosures are present, and all 7
+proof-rule checks are satisfied. The important result is
+`conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
 Woodstox/quick-xml object-shape parity claims are rejected, lazy getters remain
 a negative result, Node `Buffer` is not a neutral/browser primary lane, and the
@@ -126,8 +127,12 @@ Node/Chrome/Bun/Firefox TextDecoder source-boundary claims are present.
 This is deliberately a conservative proof-language step: a passing gate means
 the ledger is not overclaiming. It does not run benchmark rows, inspect
 generated code, measure allocations, or prove that JavaScript runtimes have no
-remaining headroom. If the broad runtime-limit claim is upgraded to
-`CONCLUSION` while these open obligations remain, the gate fails.
+remaining headroom. The proof-rule checks also keep three known mistakes from
+reentering the analysis: treating Woodstox or quick-xml as JavaScript object
+shape parity, treating lazy getters as an untried default candidate, and
+turning JavaScript string/runtime invariants into a performance impossibility
+claim without counterexample searches. If the broad runtime-limit claim is
+upgraded to `CONCLUSION` while these open obligations remain, the gate fails.
 
 ## Current Evidence: Woodstox HotSpot Trace
 

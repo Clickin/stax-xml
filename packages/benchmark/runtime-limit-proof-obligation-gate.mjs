@@ -130,6 +130,44 @@ const openObligationDisclosures = [
   },
 ];
 
+const requiredProofRules = [
+  {
+    id: 'target-contract-not-object-shape',
+    pattern: /full-string StAX-like reader contract, not as\s+identical object shape across languages/i,
+    description: 'The target must be defined as the same full-string StAX contract, not identical runtime object shape.',
+  },
+  {
+    id: 'woodstox-same-js-object-shape-rejected',
+    pattern: /Future text must say "same high-level data\/checksum contract", not "same object shape"/i,
+    description: 'Woodstox object-shape parity with JavaScript public events must stay rejected.',
+  },
+  {
+    id: 'quickxml-same-js-object-shape-rejected',
+    pattern: /quick-xml creates the same object shape as the JavaScript public event path\.[^\n]*\| `COUNTEREXAMPLE`/i,
+    description: 'quick-xml object-shape parity with JavaScript public events must stay rejected.',
+  },
+  {
+    id: 'engine-invariant-not-impossibility-proof',
+    pattern: /`ENGINE_INVARIANT` about JS strings is not by itself a performance\s+impossibility proof/i,
+    description: 'Language/runtime string invariants alone must not be promoted to performance impossibility.',
+  },
+  {
+    id: 'negative-results-not-global-proof',
+    pattern: /`NEGATIVE_RESULT` for lazy getters, Buffer lanes, or value caches does not\s+prove that all JavaScript runtime headroom is exhausted/i,
+    description: 'Failed implementation families narrow search space but do not prove the whole runtime ceiling.',
+  },
+  {
+    id: 'lazy-getters-reopen-burden',
+    pattern: /This rejection can be revisited only with a benchmark that proves full-string or real StAX consumer improvement,\s+bounded memory, and no cache-shape regression/i,
+    description: 'Lazy getters remain closed unless a full-string benchmark proves improvement without cache-shape regression.',
+  },
+  {
+    id: 'bounded-full-string-counterexample-rule',
+    pattern: /Treat any 200 MiB\/s\+ bounded-memory full-string JavaScript row as a\s+counterexample/i,
+    description: 'A bounded 200 MiB/s full-string JavaScript row must remain a counterexample to the broad limit claim.',
+  },
+];
+
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     ledger: defaultLedgerPath,
@@ -194,6 +232,10 @@ function createReport({ options, ledgerMarkdown }) {
     ...obligation,
     disclosed: obligation.pattern.test(ledgerMarkdown),
   }));
+  const proofRules = requiredProofRules.map(rule => ({
+    ...rule,
+    satisfied: rule.pattern.test(ledgerMarkdown),
+  }));
 
   const runtimeClaim = claims[runtimeLimitClaimId] ?? null;
   const runtimeStatus = runtimeClaim?.status ?? null;
@@ -201,6 +243,7 @@ function createReport({ options, ledgerMarkdown }) {
   const missingClaimGuards = claimGuards.filter(item => !item.satisfied);
   const missingArtifactMentions = artifactMentions.filter(item => !item.present);
   const missingOpenDisclosures = openObligations.filter(item => !item.disclosed);
+  const missingProofRules = proofRules.filter(item => !item.satisfied);
   const errors = [];
 
   if (runtimeMarkedConclusion) {
@@ -214,6 +257,9 @@ function createReport({ options, ledgerMarkdown }) {
   }
   for (const item of missingOpenDisclosures) {
     errors.push(`Missing open-obligation disclosure: ${item.id}.`);
+  }
+  for (const item of missingProofRules) {
+    errors.push(`Missing proof rule: ${item.id}.`);
   }
 
   const pass = errors.length === 0;
@@ -240,6 +286,7 @@ function createReport({ options, ledgerMarkdown }) {
     claimGuards,
     artifactMentions,
     openObligations,
+    proofRules,
     summary: {
       satisfiedClaimGuards: claimGuards.filter(item => item.satisfied).length,
       requiredClaimGuards: claimGuards.length,
@@ -247,6 +294,8 @@ function createReport({ options, ledgerMarkdown }) {
       requiredArtifactMentions: artifactMentions.length,
       disclosedOpenObligations: openObligations.filter(item => item.disclosed).length,
       requiredOpenObligations: openObligations.length,
+      satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
+      requiredProofRules: proofRules.length,
     },
   };
 }
@@ -349,9 +398,22 @@ function renderMarkdown(report) {
 
   lines.push(
     '',
+    '## Proof Rules',
+    '',
+    'These checks keep known semantic distinctions from being collapsed into a stronger runtime-limit claim.',
+    '',
+    '| ID | Satisfied | Meaning |',
+    '| --- | --- | --- |',
+  );
+  for (const item of report.proofRules) {
+    lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
+  }
+
+  lines.push(
+    '',
     '## Interpretation',
     '',
-    'A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, and broader corpus coverage. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.',
+    'A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.',
   );
 
   return `${lines.join('\n')}\n`;
