@@ -1,0 +1,2132 @@
+{
+  "generatedAt": "2026-05-24T00:51:17.743Z",
+  "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
+  "contract": "gecko-exact-revision-textdecoder-source-lines",
+  "note": "Exact Gecko source-line pinning for the Firefox/SpiderMonkey TextDecoder host-API boundary. These source facts constrain the Gecko TextDecoder path at the pinned source revision; they are not Firefox benchmark evidence, not SpiderMonkey codegen evidence, and not a throughput proof.",
+  "environment": {
+    "firefoxVersion": "gecko-dev master snapshot"
+  },
+  "source": {
+    "repository": "mozilla/gecko-dev",
+    "revision": "5836a062726f715fda621338a17b51aff30d0a8c",
+    "files": [
+      "dom/encoding/TextDecoder.cpp",
+      "dom/encoding/TextDecoder.h",
+      "intl/Encoding.h"
+    ],
+    "fetchedAt": "2026-05-24T00:51:17.723Z"
+  },
+  "anchors": {
+    "textDecoderInit": {
+      "status": "found",
+      "label": "TextDecoder::Init",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 19,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L19",
+      "context": [
+        {
+          "lineNumber": 17,
+          "text": "namespace mozilla::dom {"
+        },
+        {
+          "lineNumber": 18,
+          "text": ""
+        },
+        {
+          "lineNumber": 19,
+          "text": "void TextDecoder::Init(const nsAString& aLabel,"
+        },
+        {
+          "lineNumber": 20,
+          "text": "                       const TextDecoderOptions& aOptions, ErrorResult& aRv) {"
+        },
+        {
+          "lineNumber": 21,
+          "text": "  // Let encoding be the result of getting an encoding from label."
+        }
+      ]
+    },
+    "textDecoderForLabelNoReplacement": {
+      "status": "found",
+      "label": "Encoding::ForLabelNoReplacement",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 24,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L24",
+      "context": [
+        {
+          "lineNumber": 22,
+          "text": "  // If encoding is failure or replacement, throw a RangeError"
+        },
+        {
+          "lineNumber": 23,
+          "text": "  // (https://encoding.spec.whatwg.org/#dom-textdecoder)."
+        },
+        {
+          "lineNumber": 24,
+          "text": "  const Encoding* encoding = Encoding::ForLabelNoReplacement(aLabel);"
+        },
+        {
+          "lineNumber": 25,
+          "text": "  if (!encoding) {"
+        },
+        {
+          "lineNumber": 26,
+          "text": "    NS_ConvertUTF16toUTF8 label(aLabel);"
+        }
+      ]
+    },
+    "initWithEncoding": {
+      "status": "found",
+      "label": "TextDecoder::InitWithEncoding",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 34,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L34",
+      "context": [
+        {
+          "lineNumber": 32,
+          "text": "}"
+        },
+        {
+          "lineNumber": 33,
+          "text": ""
+        },
+        {
+          "lineNumber": 34,
+          "text": "void TextDecoder::InitWithEncoding(NotNull<const Encoding*> aEncoding,"
+        },
+        {
+          "lineNumber": 35,
+          "text": "                                   const TextDecoderOptions& aOptions) {"
+        },
+        {
+          "lineNumber": 36,
+          "text": "  aEncoding->Name(mEncoding);"
+        }
+      ]
+    },
+    "encodingNameStored": {
+      "status": "found",
+      "label": "encoding name stored",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 36,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L36",
+      "context": [
+        {
+          "lineNumber": 34,
+          "text": "void TextDecoder::InitWithEncoding(NotNull<const Encoding*> aEncoding,"
+        },
+        {
+          "lineNumber": 35,
+          "text": "                                   const TextDecoderOptions& aOptions) {"
+        },
+        {
+          "lineNumber": 36,
+          "text": "  aEncoding->Name(mEncoding);"
+        },
+        {
+          "lineNumber": 37,
+          "text": "  // Store the flags passed via our options dictionary."
+        },
+        {
+          "lineNumber": 38,
+          "text": "  mFatal = aOptions.mFatal;"
+        }
+      ]
+    },
+    "fatalOptionStored": {
+      "status": "found",
+      "label": "fatal option stored",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 38,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L38",
+      "context": [
+        {
+          "lineNumber": 36,
+          "text": "  aEncoding->Name(mEncoding);"
+        },
+        {
+          "lineNumber": 37,
+          "text": "  // Store the flags passed via our options dictionary."
+        },
+        {
+          "lineNumber": 38,
+          "text": "  mFatal = aOptions.mFatal;"
+        },
+        {
+          "lineNumber": 39,
+          "text": "  mIgnoreBOM = aOptions.mIgnoreBOM;"
+        },
+        {
+          "lineNumber": 40,
+          "text": ""
+        }
+      ]
+    },
+    "decoderWithoutBom": {
+      "status": "found",
+      "label": "NewDecoderWithoutBOMHandling",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 43,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L43",
+      "context": [
+        {
+          "lineNumber": 41,
+          "text": "  // Create a decoder object for mEncoding."
+        },
+        {
+          "lineNumber": 42,
+          "text": "  if (mIgnoreBOM) {"
+        },
+        {
+          "lineNumber": 43,
+          "text": "    mDecoder = aEncoding->NewDecoderWithoutBOMHandling();"
+        },
+        {
+          "lineNumber": 44,
+          "text": "  } else {"
+        },
+        {
+          "lineNumber": 45,
+          "text": "    mDecoder = aEncoding->NewDecoderWithBOMRemoval();"
+        }
+      ]
+    },
+    "decoderWithBomRemoval": {
+      "status": "found",
+      "label": "NewDecoderWithBOMRemoval",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 45,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L45",
+      "context": [
+        {
+          "lineNumber": 43,
+          "text": "    mDecoder = aEncoding->NewDecoderWithoutBOMHandling();"
+        },
+        {
+          "lineNumber": 44,
+          "text": "  } else {"
+        },
+        {
+          "lineNumber": 45,
+          "text": "    mDecoder = aEncoding->NewDecoderWithBOMRemoval();"
+        },
+        {
+          "lineNumber": 46,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 47,
+          "text": "}"
+        }
+      ]
+    },
+    "decodeNative": {
+      "status": "found",
+      "label": "TextDecoderCommon::DecodeNative",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 49,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L49",
+      "context": [
+        {
+          "lineNumber": 47,
+          "text": "}"
+        },
+        {
+          "lineNumber": 48,
+          "text": ""
+        },
+        {
+          "lineNumber": 49,
+          "text": "void TextDecoderCommon::DecodeNative(Span<const uint8_t> aInput,"
+        },
+        {
+          "lineNumber": 50,
+          "text": "                                     const bool aStream,"
+        },
+        {
+          "lineNumber": 51,
+          "text": "                                     nsAString& aOutDecodedString,"
+        }
+      ]
+    },
+    "truncateOutput": {
+      "status": "found",
+      "label": "output string truncate",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 53,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L53",
+      "context": [
+        {
+          "lineNumber": 51,
+          "text": "                                     nsAString& aOutDecodedString,"
+        },
+        {
+          "lineNumber": 52,
+          "text": "                                     ErrorResult& aRv) {"
+        },
+        {
+          "lineNumber": 53,
+          "text": "  aOutDecodedString.Truncate();"
+        },
+        {
+          "lineNumber": 54,
+          "text": ""
+        },
+        {
+          "lineNumber": 55,
+          "text": "  CheckedInt<nsAString::size_type> needed ="
+        }
+      ]
+    },
+    "maxUtf16BufferLength": {
+      "status": "found",
+      "label": "MaxUTF16BufferLength",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 56,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L56",
+      "context": [
+        {
+          "lineNumber": 54,
+          "text": ""
+        },
+        {
+          "lineNumber": 55,
+          "text": "  CheckedInt<nsAString::size_type> needed ="
+        },
+        {
+          "lineNumber": 56,
+          "text": "      mDecoder->MaxUTF16BufferLength(aInput.Length());"
+        },
+        {
+          "lineNumber": 57,
+          "text": "  if (!needed.isValid()) {"
+        },
+        {
+          "lineNumber": 58,
+          "text": "    aRv.Throw(NS_ERROR_OUT_OF_MEMORY);"
+        }
+      ]
+    },
+    "mutableData": {
+      "status": "found",
+      "label": "GetMutableData",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 62,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L62",
+      "context": [
+        {
+          "lineNumber": 60,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 61,
+          "text": ""
+        },
+        {
+          "lineNumber": 62,
+          "text": "  auto output = aOutDecodedString.GetMutableData(needed.value(), fallible);"
+        },
+        {
+          "lineNumber": 63,
+          "text": "  if (!output) {"
+        },
+        {
+          "lineNumber": 64,
+          "text": "    aRv.Throw(NS_ERROR_OUT_OF_MEMORY);"
+        }
+      ]
+    },
+    "decodeToUtf16WithoutReplacement": {
+      "status": "found",
+      "label": "DecodeToUTF16WithoutReplacement",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 73,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L73",
+      "context": [
+        {
+          "lineNumber": 71,
+          "text": "  if (mFatal) {"
+        },
+        {
+          "lineNumber": 72,
+          "text": "    std::tie(result, read, written) ="
+        },
+        {
+          "lineNumber": 73,
+          "text": "        mDecoder->DecodeToUTF16WithoutReplacement(aInput, *output, !aStream);"
+        },
+        {
+          "lineNumber": 74,
+          "text": "    if (result != kInputEmpty) {"
+        },
+        {
+          "lineNumber": 75,
+          "text": "      aRv.ThrowTypeError<MSG_DOM_DECODING_FAILED>();"
+        }
+      ]
+    },
+    "decodeToUtf16": {
+      "status": "found",
+      "label": "DecodeToUTF16",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 80,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L80",
+      "context": [
+        {
+          "lineNumber": 78,
+          "text": "  } else {"
+        },
+        {
+          "lineNumber": 79,
+          "text": "    std::tie(result, read, written, std::ignore) ="
+        },
+        {
+          "lineNumber": 80,
+          "text": "        mDecoder->DecodeToUTF16(aInput, *output, !aStream);"
+        },
+        {
+          "lineNumber": 81,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 82,
+          "text": "  MOZ_ASSERT(result == kInputEmpty);"
+        }
+      ]
+    },
+    "setLength": {
+      "status": "found",
+      "label": "SetLength",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 86,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L86",
+      "context": [
+        {
+          "lineNumber": 84,
+          "text": "  MOZ_ASSERT(written <= aOutDecodedString.Length());"
+        },
+        {
+          "lineNumber": 85,
+          "text": ""
+        },
+        {
+          "lineNumber": 86,
+          "text": "  if (!aOutDecodedString.SetLength(written, fallible)) {"
+        },
+        {
+          "lineNumber": 87,
+          "text": "    aRv.Throw(NS_ERROR_OUT_OF_MEMORY);"
+        },
+        {
+          "lineNumber": 88,
+          "text": "    return;"
+        }
+      ]
+    },
+    "resetWithoutBom": {
+      "status": "found",
+      "label": "NewDecoderWithoutBOMHandlingInto reset",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 95,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L95",
+      "context": [
+        {
+          "lineNumber": 93,
+          "text": "  if (!aStream) {"
+        },
+        {
+          "lineNumber": 94,
+          "text": "    if (mIgnoreBOM) {"
+        },
+        {
+          "lineNumber": 95,
+          "text": "      mDecoder->Encoding()->NewDecoderWithoutBOMHandlingInto(*mDecoder);"
+        },
+        {
+          "lineNumber": 96,
+          "text": "    } else {"
+        },
+        {
+          "lineNumber": 97,
+          "text": "      mDecoder->Encoding()->NewDecoderWithBOMRemovalInto(*mDecoder);"
+        }
+      ]
+    },
+    "resetWithBomRemoval": {
+      "status": "found",
+      "label": "NewDecoderWithBOMRemovalInto reset",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 97,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L97",
+      "context": [
+        {
+          "lineNumber": 95,
+          "text": "      mDecoder->Encoding()->NewDecoderWithoutBOMHandlingInto(*mDecoder);"
+        },
+        {
+          "lineNumber": 96,
+          "text": "    } else {"
+        },
+        {
+          "lineNumber": 97,
+          "text": "      mDecoder->Encoding()->NewDecoderWithBOMRemovalInto(*mDecoder);"
+        },
+        {
+          "lineNumber": 98,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 99,
+          "text": "  }"
+        }
+      ]
+    },
+    "decodeMethod": {
+      "status": "found",
+      "label": "TextDecoder::Decode",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 102,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L102",
+      "context": [
+        {
+          "lineNumber": 100,
+          "text": "}"
+        },
+        {
+          "lineNumber": 101,
+          "text": ""
+        },
+        {
+          "lineNumber": 102,
+          "text": "void TextDecoder::Decode(const Optional<BufferSource>& aBuffer,"
+        },
+        {
+          "lineNumber": 103,
+          "text": "                         const TextDecodeOptions& aOptions,"
+        },
+        {
+          "lineNumber": 104,
+          "text": "                         nsAString& aOutDecodedString, ErrorResult& aRv) {"
+        }
+      ]
+    },
+    "decodeNullInput": {
+      "status": "found",
+      "label": "DecodeNative null input",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 106,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L106",
+      "context": [
+        {
+          "lineNumber": 104,
+          "text": "                         nsAString& aOutDecodedString, ErrorResult& aRv) {"
+        },
+        {
+          "lineNumber": 105,
+          "text": "  if (!aBuffer.WasPassed()) {"
+        },
+        {
+          "lineNumber": 106,
+          "text": "    DecodeNative(nullptr, aOptions.mStream, aOutDecodedString, aRv);"
+        },
+        {
+          "lineNumber": 107,
+          "text": "    return;"
+        },
+        {
+          "lineNumber": 108,
+          "text": "  }"
+        }
+      ]
+    },
+    "processTypedArrays": {
+      "status": "found",
+      "label": "ProcessTypedArrays",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 110,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L110",
+      "context": [
+        {
+          "lineNumber": 108,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 109,
+          "text": ""
+        },
+        {
+          "lineNumber": 110,
+          "text": "  ProcessTypedArrays(aBuffer.Value(), [&](const Span<uint8_t>& aData,"
+        },
+        {
+          "lineNumber": 111,
+          "text": "                                          JS::AutoCheckCannotGC&&) {"
+        },
+        {
+          "lineNumber": 112,
+          "text": "    DecodeNative(aData, aOptions.mStream, aOutDecodedString, aRv);"
+        }
+      ]
+    },
+    "decodeTypedArrayNative": {
+      "status": "found",
+      "label": "DecodeNative typed array",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 112,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L112",
+      "context": [
+        {
+          "lineNumber": 110,
+          "text": "  ProcessTypedArrays(aBuffer.Value(), [&](const Span<uint8_t>& aData,"
+        },
+        {
+          "lineNumber": 111,
+          "text": "                                          JS::AutoCheckCannotGC&&) {"
+        },
+        {
+          "lineNumber": 112,
+          "text": "    DecodeNative(aData, aOptions.mStream, aOutDecodedString, aRv);"
+        },
+        {
+          "lineNumber": 113,
+          "text": "  });"
+        },
+        {
+          "lineNumber": 114,
+          "text": "}"
+        }
+      ]
+    },
+    "getEncoding": {
+      "status": "found",
+      "label": "GetEncoding",
+      "file": "dom/encoding/TextDecoder.cpp",
+      "lineNumber": 116,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.cpp#L116",
+      "context": [
+        {
+          "lineNumber": 114,
+          "text": "}"
+        },
+        {
+          "lineNumber": 115,
+          "text": ""
+        },
+        {
+          "lineNumber": 116,
+          "text": "void TextDecoderCommon::GetEncoding(nsAString& aEncoding) {"
+        },
+        {
+          "lineNumber": 117,
+          "text": "  CopyASCIItoUTF16(mEncoding, aEncoding);"
+        },
+        {
+          "lineNumber": 118,
+          "text": "  nsContentUtils::ASCIIToLower(aEncoding);"
+        }
+      ]
+    },
+    "textDecoderBinding": {
+      "status": "found",
+      "label": "TextDecoderBinding include",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 12,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L12",
+      "context": [
+        {
+          "lineNumber": 10,
+          "text": "#include \"mozilla/dom/BufferSourceBindingFwd.h\""
+        },
+        {
+          "lineNumber": 11,
+          "text": "#include \"mozilla/dom/NonRefcountedDOMObject.h\""
+        },
+        {
+          "lineNumber": 12,
+          "text": "#include \"mozilla/dom/TextDecoderBinding.h\""
+        },
+        {
+          "lineNumber": 13,
+          "text": "#include \"mozilla/dom/TypedArray.h\""
+        },
+        {
+          "lineNumber": 14,
+          "text": "#include \"mozilla/Encoding.h\""
+        }
+      ]
+    },
+    "encodingHeaderInclude": {
+      "status": "found",
+      "label": "mozilla/Encoding.h include",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 14,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L14",
+      "context": [
+        {
+          "lineNumber": 12,
+          "text": "#include \"mozilla/dom/TextDecoderBinding.h\""
+        },
+        {
+          "lineNumber": 13,
+          "text": "#include \"mozilla/dom/TypedArray.h\""
+        },
+        {
+          "lineNumber": 14,
+          "text": "#include \"mozilla/Encoding.h\""
+        },
+        {
+          "lineNumber": 15,
+          "text": "#include \"mozilla/ErrorResult.h\""
+        },
+        {
+          "lineNumber": 16,
+          "text": "#include \"mozilla/UniquePtr.h\""
+        }
+      ]
+    },
+    "textDecoderCommonClass": {
+      "status": "found",
+      "label": "TextDecoderCommon class",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 20,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L20",
+      "context": [
+        {
+          "lineNumber": 18,
+          "text": "namespace mozilla::dom {"
+        },
+        {
+          "lineNumber": 19,
+          "text": ""
+        },
+        {
+          "lineNumber": 20,
+          "text": "class TextDecoderCommon {"
+        },
+        {
+          "lineNumber": 21,
+          "text": " public:"
+        },
+        {
+          "lineNumber": 22,
+          "text": "  /**"
+        }
+      ]
+    },
+    "decodeNativeDeclaration": {
+      "status": "found",
+      "label": "DecodeNative declaration",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 38,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L38",
+      "context": [
+        {
+          "lineNumber": 36,
+          "text": "   * @param      aRv, error result."
+        },
+        {
+          "lineNumber": 37,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 38,
+          "text": "  void DecodeNative(mozilla::Span<const uint8_t> aInput, const bool aStream,"
+        },
+        {
+          "lineNumber": 39,
+          "text": "                    nsAString& aOutDecodedString, ErrorResult& aRv);"
+        },
+        {
+          "lineNumber": 40,
+          "text": ""
+        }
+      ]
+    },
+    "decoderMember": {
+      "status": "found",
+      "label": "Decoder storage",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 53,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L53",
+      "context": [
+        {
+          "lineNumber": 51,
+          "text": ""
+        },
+        {
+          "lineNumber": 52,
+          "text": " protected:"
+        },
+        {
+          "lineNumber": 53,
+          "text": "  mozilla::UniquePtr<mozilla::Decoder> mDecoder;"
+        },
+        {
+          "lineNumber": 54,
+          "text": "  nsCString mEncoding;"
+        },
+        {
+          "lineNumber": 55,
+          "text": "  bool mFatal = false;"
+        }
+      ]
+    },
+    "encodingNameMember": {
+      "status": "found",
+      "label": "mEncoding storage",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 54,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L54",
+      "context": [
+        {
+          "lineNumber": 52,
+          "text": " protected:"
+        },
+        {
+          "lineNumber": 53,
+          "text": "  mozilla::UniquePtr<mozilla::Decoder> mDecoder;"
+        },
+        {
+          "lineNumber": 54,
+          "text": "  nsCString mEncoding;"
+        },
+        {
+          "lineNumber": 55,
+          "text": "  bool mFatal = false;"
+        },
+        {
+          "lineNumber": 56,
+          "text": "  bool mIgnoreBOM = false;"
+        }
+      ]
+    },
+    "textDecoderClass": {
+      "status": "found",
+      "label": "TextDecoder class",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 59,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L59",
+      "context": [
+        {
+          "lineNumber": 57,
+          "text": "};"
+        },
+        {
+          "lineNumber": 58,
+          "text": ""
+        },
+        {
+          "lineNumber": 59,
+          "text": "class TextDecoder final : public NonRefcountedDOMObject,"
+        },
+        {
+          "lineNumber": 60,
+          "text": "                          public TextDecoderCommon {"
+        },
+        {
+          "lineNumber": 61,
+          "text": " public:"
+        }
+      ]
+    },
+    "constructorDeclaration": {
+      "status": "found",
+      "label": "Constructor declaration",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 63,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L63",
+      "context": [
+        {
+          "lineNumber": 61,
+          "text": " public:"
+        },
+        {
+          "lineNumber": 62,
+          "text": "  // The WebIDL constructor."
+        },
+        {
+          "lineNumber": 63,
+          "text": "  static UniquePtr<TextDecoder> Constructor(const GlobalObject& aGlobal,"
+        },
+        {
+          "lineNumber": 64,
+          "text": "                                            const nsAString& aEncoding,"
+        },
+        {
+          "lineNumber": 65,
+          "text": "                                            const TextDecoderOptions& aOptions,"
+        }
+      ]
+    },
+    "bindingWrap": {
+      "status": "found",
+      "label": "TextDecoder_Binding::Wrap",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 81,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L81",
+      "context": [
+        {
+          "lineNumber": 79,
+          "text": "  bool WrapObject(JSContext* aCx, JS::Handle<JSObject*> aGivenProto,"
+        },
+        {
+          "lineNumber": 80,
+          "text": "                  JS::MutableHandle<JSObject*> aReflector) {"
+        },
+        {
+          "lineNumber": 81,
+          "text": "    return TextDecoder_Binding::Wrap(aCx, this, aGivenProto, aReflector);"
+        },
+        {
+          "lineNumber": 82,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 83,
+          "text": ""
+        }
+      ]
+    },
+    "initDeclaration": {
+      "status": "found",
+      "label": "Init declaration",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 91,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L91",
+      "context": [
+        {
+          "lineNumber": 89,
+          "text": "   * @return aRv         EncodingError exception else null."
+        },
+        {
+          "lineNumber": 90,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 91,
+          "text": "  void Init(const nsAString& aLabel, const TextDecoderOptions& aOptions,"
+        },
+        {
+          "lineNumber": 92,
+          "text": "            ErrorResult& aRv);"
+        },
+        {
+          "lineNumber": 93,
+          "text": ""
+        }
+      ]
+    },
+    "initWithEncodingDeclaration": {
+      "status": "found",
+      "label": "InitWithEncoding declaration",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 101,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L101",
+      "context": [
+        {
+          "lineNumber": 99,
+          "text": "   * @param aOptions     The TextDecoderOptions to use."
+        },
+        {
+          "lineNumber": 100,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 101,
+          "text": "  void InitWithEncoding(NotNull<const Encoding*> aEncoding,"
+        },
+        {
+          "lineNumber": 102,
+          "text": "                        const TextDecoderOptions& aOptions);"
+        },
+        {
+          "lineNumber": 103,
+          "text": ""
+        }
+      ]
+    },
+    "decodeDeclaration": {
+      "status": "found",
+      "label": "Decode declaration",
+      "file": "dom/encoding/TextDecoder.h",
+      "lineNumber": 104,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/dom/encoding/TextDecoder.h#L104",
+      "context": [
+        {
+          "lineNumber": 102,
+          "text": "                        const TextDecoderOptions& aOptions);"
+        },
+        {
+          "lineNumber": 103,
+          "text": ""
+        },
+        {
+          "lineNumber": 104,
+          "text": "  void Decode(const Optional<BufferSource>& aBuffer,"
+        },
+        {
+          "lineNumber": 105,
+          "text": "              const TextDecodeOptions& aOptions, nsAString& aOutDecodedString,"
+        },
+        {
+          "lineNumber": 106,
+          "text": "              ErrorResult& aRv);"
+        }
+      ]
+    },
+    "encodingRsComment": {
+      "status": "found",
+      "label": "encoding_rs source comment",
+      "file": "intl/Encoding.h",
+      "lineNumber": 10,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L10",
+      "context": [
+        {
+          "lineNumber": 8,
+          "text": "// except according to those terms."
+        },
+        {
+          "lineNumber": 9,
+          "text": ""
+        },
+        {
+          "lineNumber": 10,
+          "text": "// Adapted from third_party/rust/encoding_c/include/encoding_rs_cpp.h, so the"
+        },
+        {
+          "lineNumber": 11,
+          "text": "// \"top-level directory\" in the above notice refers to"
+        },
+        {
+          "lineNumber": 12,
+          "text": "// third_party/rust/encoding_c/."
+        }
+      ]
+    },
+    "encodingRsImplementationComment": {
+      "status": "found",
+      "label": "encoding_rs implementation comment",
+      "file": "intl/Encoding.h",
+      "lineNumber": 12,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L12",
+      "context": [
+        {
+          "lineNumber": 10,
+          "text": "// Adapted from third_party/rust/encoding_c/include/encoding_rs_cpp.h, so the"
+        },
+        {
+          "lineNumber": 11,
+          "text": "// \"top-level directory\" in the above notice refers to"
+        },
+        {
+          "lineNumber": 12,
+          "text": "// third_party/rust/encoding_c/."
+        },
+        {
+          "lineNumber": 13,
+          "text": ""
+        },
+        {
+          "lineNumber": 14,
+          "text": "#ifndef mozilla_Encoding_h"
+        }
+      ]
+    },
+    "ffiDecodeNsString": {
+      "status": "found",
+      "label": "mozilla_encoding_decode_to_nsstring",
+      "file": "intl/Encoding.h",
+      "lineNumber": 41,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L41",
+      "context": [
+        {
+          "lineNumber": 39,
+          "text": "extern \"C\" {"
+        },
+        {
+          "lineNumber": 40,
+          "text": ""
+        },
+        {
+          "lineNumber": 41,
+          "text": "nsresult mozilla_encoding_decode_to_nsstring(mozilla::Encoding const** encoding,"
+        },
+        {
+          "lineNumber": 42,
+          "text": "                                             uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 43,
+          "text": "                                             nsAString* dst);"
+        }
+      ]
+    },
+    "ffiDecodeNsStringWithBomRemoval": {
+      "status": "found",
+      "label": "mozilla_encoding_decode_to_nsstring_with_bom_removal",
+      "file": "intl/Encoding.h",
+      "lineNumber": 45,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L45",
+      "context": [
+        {
+          "lineNumber": 43,
+          "text": "                                             nsAString* dst);"
+        },
+        {
+          "lineNumber": 44,
+          "text": ""
+        },
+        {
+          "lineNumber": 45,
+          "text": "nsresult mozilla_encoding_decode_to_nsstring_with_bom_removal("
+        },
+        {
+          "lineNumber": 46,
+          "text": "    mozilla::Encoding const* encoding, uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 47,
+          "text": "    nsAString* dst);"
+        }
+      ]
+    },
+    "ffiDecodeNsStringWithoutBom": {
+      "status": "found",
+      "label": "mozilla_encoding_decode_to_nsstring_without_bom_handling",
+      "file": "intl/Encoding.h",
+      "lineNumber": 49,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L49",
+      "context": [
+        {
+          "lineNumber": 47,
+          "text": "    nsAString* dst);"
+        },
+        {
+          "lineNumber": 48,
+          "text": ""
+        },
+        {
+          "lineNumber": 49,
+          "text": "nsresult mozilla_encoding_decode_to_nsstring_without_bom_handling("
+        },
+        {
+          "lineNumber": 50,
+          "text": "    mozilla::Encoding const* encoding, uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 51,
+          "text": "    nsAString* dst);"
+        }
+      ]
+    },
+    "ffiDecodeNsStringWithoutReplacement": {
+      "status": "found",
+      "label": "mozilla_encoding_decode_to_nsstring_without_bom_handling_and_without_replacement",
+      "file": "intl/Encoding.h",
+      "lineNumber": 54,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L54",
+      "context": [
+        {
+          "lineNumber": 52,
+          "text": ""
+        },
+        {
+          "lineNumber": 53,
+          "text": "nsresult"
+        },
+        {
+          "lineNumber": 54,
+          "text": "mozilla_encoding_decode_to_nsstring_without_bom_handling_and_without_replacement("
+        },
+        {
+          "lineNumber": 55,
+          "text": "    mozilla::Encoding const* encoding, uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 56,
+          "text": "    nsAString* dst);"
+        }
+      ]
+    },
+    "encodingClass": {
+      "status": "found",
+      "label": "Encoding class",
+      "file": "intl/Encoding.h",
+      "lineNumber": 154,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L154",
+      "context": [
+        {
+          "lineNumber": 152,
+          "text": " * `*const encoding_rs::Encoding` is the corresponding Rust signature."
+        },
+        {
+          "lineNumber": 153,
+          "text": " */"
+        },
+        {
+          "lineNumber": 154,
+          "text": "class Encoding final {"
+        },
+        {
+          "lineNumber": 155,
+          "text": " public:"
+        },
+        {
+          "lineNumber": 156,
+          "text": "  /**"
+        }
+      ]
+    },
+    "forLabel": {
+      "status": "found",
+      "label": "Encoding::ForLabel",
+      "file": "intl/Encoding.h",
+      "lineNumber": 171,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L171",
+      "context": [
+        {
+          "lineNumber": 169,
+          "text": "   * `ForLabelNoReplacement()` is more appropriate."
+        },
+        {
+          "lineNumber": 170,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 171,
+          "text": "  static inline const Encoding* ForLabel(Span<const char> aLabel) {"
+        },
+        {
+          "lineNumber": 172,
+          "text": "    return encoding_for_label("
+        },
+        {
+          "lineNumber": 173,
+          "text": "        reinterpret_cast<const uint8_t*>(aLabel.Elements()), aLabel.Length());"
+        }
+      ]
+    },
+    "forLabelString": {
+      "status": "found",
+      "label": "Encoding::ForLabel string overload",
+      "file": "intl/Encoding.h",
+      "lineNumber": 179,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L179",
+      "context": [
+        {
+          "lineNumber": 177,
+          "text": "   * `nsAString` argument version. See above for docs."
+        },
+        {
+          "lineNumber": 178,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 179,
+          "text": "  static inline const Encoding* ForLabel(const nsAString& aLabel) {"
+        },
+        {
+          "lineNumber": 180,
+          "text": "    return Encoding::ForLabel(NS_ConvertUTF16toUTF8(aLabel));"
+        },
+        {
+          "lineNumber": 181,
+          "text": "  }"
+        }
+      ]
+    },
+    "forLabelNoReplacement": {
+      "status": "found",
+      "label": "Encoding::ForLabelNoReplacement",
+      "file": "intl/Encoding.h",
+      "lineNumber": 198,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L198",
+      "context": [
+        {
+          "lineNumber": 196,
+          "text": "   * `REPLACEMENT_ENCODING`."
+        },
+        {
+          "lineNumber": 197,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 198,
+          "text": "  static inline const Encoding* ForLabelNoReplacement(Span<const char> aLabel) {"
+        },
+        {
+          "lineNumber": 199,
+          "text": "    return encoding_for_label_no_replacement("
+        },
+        {
+          "lineNumber": 200,
+          "text": "        reinterpret_cast<const uint8_t*>(aLabel.Elements()), aLabel.Length());"
+        }
+      ]
+    },
+    "forLabelNoReplacementString": {
+      "status": "found",
+      "label": "Encoding::ForLabelNoReplacement string overload",
+      "file": "intl/Encoding.h",
+      "lineNumber": 206,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L206",
+      "context": [
+        {
+          "lineNumber": 204,
+          "text": "   * `nsAString` argument version. See above for docs."
+        },
+        {
+          "lineNumber": 205,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 206,
+          "text": "  static inline const Encoding* ForLabelNoReplacement(const nsAString& aLabel) {"
+        },
+        {
+          "lineNumber": 207,
+          "text": "    return Encoding::ForLabelNoReplacement(NS_ConvertUTF16toUTF8(aLabel));"
+        },
+        {
+          "lineNumber": 208,
+          "text": "  }"
+        }
+      ]
+    },
+    "encodingName": {
+      "status": "found",
+      "label": "Encoding::Name",
+      "file": "intl/Encoding.h",
+      "lineNumber": 235,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L235",
+      "context": [
+        {
+          "lineNumber": 233,
+          "text": "   * `document.characterSet` property."
+        },
+        {
+          "lineNumber": 234,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 235,
+          "text": "  inline void Name(nsACString& aName) const {"
+        },
+        {
+          "lineNumber": 236,
+          "text": "    aName.SetLength(ENCODING_NAME_MAX_LENGTH);"
+        },
+        {
+          "lineNumber": 237,
+          "text": "    size_t length ="
+        }
+      ]
+    },
+    "decodeWithBomRemoval": {
+      "status": "found",
+      "label": "DecodeWithBOMRemoval",
+      "file": "intl/Encoding.h",
+      "lineNumber": 413,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L413",
+      "context": [
+        {
+          "lineNumber": 411,
+          "text": "   * `NewDecoderWithBOMRemoval()` when decoding segmented input."
+        },
+        {
+          "lineNumber": 412,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 413,
+          "text": "  inline nsresult DecodeWithBOMRemoval(Span<const uint8_t> aBytes,"
+        },
+        {
+          "lineNumber": 414,
+          "text": "                                       nsAString& aOut) const {"
+        },
+        {
+          "lineNumber": 415,
+          "text": "    return mozilla_encoding_decode_to_nsstring_with_bom_removal("
+        }
+      ]
+    },
+    "decodeWithBomRemovalFfi": {
+      "status": "found",
+      "label": "DecodeWithBOMRemoval FFI",
+      "file": "intl/Encoding.h",
+      "lineNumber": 45,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L45",
+      "context": [
+        {
+          "lineNumber": 43,
+          "text": "                                             nsAString* dst);"
+        },
+        {
+          "lineNumber": 44,
+          "text": ""
+        },
+        {
+          "lineNumber": 45,
+          "text": "nsresult mozilla_encoding_decode_to_nsstring_with_bom_removal("
+        },
+        {
+          "lineNumber": 46,
+          "text": "    mozilla::Encoding const* encoding, uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 47,
+          "text": "    nsAString* dst);"
+        }
+      ]
+    },
+    "decodeWithoutBomHandling": {
+      "status": "found",
+      "label": "DecodeWithoutBOMHandling",
+      "file": "intl/Encoding.h",
+      "lineNumber": 475,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L475",
+      "context": [
+        {
+          "lineNumber": 473,
+          "text": "   * `NewDecoderWithoutBOMHandling()` when decoding segmented input."
+        },
+        {
+          "lineNumber": 474,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 475,
+          "text": "  inline nsresult DecodeWithoutBOMHandling(Span<const uint8_t> aBytes,"
+        },
+        {
+          "lineNumber": 476,
+          "text": "                                           nsAString& aOut) const {"
+        },
+        {
+          "lineNumber": 477,
+          "text": "    return mozilla_encoding_decode_to_nsstring_without_bom_handling("
+        }
+      ]
+    },
+    "decodeWithoutBomHandlingFfi": {
+      "status": "found",
+      "label": "DecodeWithoutBOMHandling FFI",
+      "file": "intl/Encoding.h",
+      "lineNumber": 49,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L49",
+      "context": [
+        {
+          "lineNumber": 47,
+          "text": "    nsAString* dst);"
+        },
+        {
+          "lineNumber": 48,
+          "text": ""
+        },
+        {
+          "lineNumber": 49,
+          "text": "nsresult mozilla_encoding_decode_to_nsstring_without_bom_handling("
+        },
+        {
+          "lineNumber": 50,
+          "text": "    mozilla::Encoding const* encoding, uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 51,
+          "text": "    nsAString* dst);"
+        }
+      ]
+    },
+    "decodeWithoutBomHandlingNoReplacement": {
+      "status": "found",
+      "label": "DecodeWithoutBOMHandlingAndWithoutReplacement",
+      "file": "intl/Encoding.h",
+      "lineNumber": 506,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L506",
+      "context": [
+        {
+          "lineNumber": 504,
+          "text": "   * `NewDecoderWithoutBOMHandling()` when decoding segmented input."
+        },
+        {
+          "lineNumber": 505,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 506,
+          "text": "  inline nsresult DecodeWithoutBOMHandlingAndWithoutReplacement("
+        },
+        {
+          "lineNumber": 507,
+          "text": "      const nsACString& aBytes, nsACString& aOut) const {"
+        },
+        {
+          "lineNumber": 508,
+          "text": "    const nsACString* bytes = &aBytes;"
+        }
+      ]
+    },
+    "decodeWithoutBomHandlingNoReplacementFfi": {
+      "status": "found",
+      "label": "DecodeWithoutBOMHandlingAndWithoutReplacement FFI",
+      "file": "intl/Encoding.h",
+      "lineNumber": 54,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L54",
+      "context": [
+        {
+          "lineNumber": 52,
+          "text": ""
+        },
+        {
+          "lineNumber": 53,
+          "text": "nsresult"
+        },
+        {
+          "lineNumber": 54,
+          "text": "mozilla_encoding_decode_to_nsstring_without_bom_handling_and_without_replacement("
+        },
+        {
+          "lineNumber": 55,
+          "text": "    mozilla::Encoding const* encoding, uint8_t const* src, size_t src_len,"
+        },
+        {
+          "lineNumber": 56,
+          "text": "    nsAString* dst);"
+        }
+      ]
+    },
+    "newDecoder": {
+      "status": "found",
+      "label": "NewDecoder",
+      "file": "intl/Encoding.h",
+      "lineNumber": 656,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L656",
+      "context": [
+        {
+          "lineNumber": 654,
+          "text": "   * for UTF-8, UTF-16LE or UTF-16BE instead of this encoding."
+        },
+        {
+          "lineNumber": 655,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 656,
+          "text": "  inline UniquePtr<Decoder> NewDecoder() const {"
+        },
+        {
+          "lineNumber": 657,
+          "text": "    UniquePtr<Decoder> decoder(encoding_new_decoder(this));"
+        },
+        {
+          "lineNumber": 658,
+          "text": "    return decoder;"
+        }
+      ]
+    },
+    "newDecoderFfi": {
+      "status": "found",
+      "label": "encoding_new_decoder",
+      "file": "intl/Encoding.h",
+      "lineNumber": 657,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L657",
+      "context": [
+        {
+          "lineNumber": 655,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 656,
+          "text": "  inline UniquePtr<Decoder> NewDecoder() const {"
+        },
+        {
+          "lineNumber": 657,
+          "text": "    UniquePtr<Decoder> decoder(encoding_new_decoder(this));"
+        },
+        {
+          "lineNumber": 658,
+          "text": "    return decoder;"
+        },
+        {
+          "lineNumber": 659,
+          "text": "  }"
+        }
+      ]
+    },
+    "newDecoderWithBomRemoval": {
+      "status": "found",
+      "label": "NewDecoderWithBOMRemoval",
+      "file": "intl/Encoding.h",
+      "lineNumber": 681,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L681",
+      "context": [
+        {
+          "lineNumber": 679,
+          "text": "   * encoding."
+        },
+        {
+          "lineNumber": 680,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 681,
+          "text": "  inline UniquePtr<Decoder> NewDecoderWithBOMRemoval() const {"
+        },
+        {
+          "lineNumber": 682,
+          "text": "    UniquePtr<Decoder> decoder(encoding_new_decoder_with_bom_removal(this));"
+        },
+        {
+          "lineNumber": 683,
+          "text": "    return decoder;"
+        }
+      ]
+    },
+    "newDecoderWithBomRemovalFfi": {
+      "status": "found",
+      "label": "encoding_new_decoder_with_bom_removal",
+      "file": "intl/Encoding.h",
+      "lineNumber": 682,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L682",
+      "context": [
+        {
+          "lineNumber": 680,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 681,
+          "text": "  inline UniquePtr<Decoder> NewDecoderWithBOMRemoval() const {"
+        },
+        {
+          "lineNumber": 682,
+          "text": "    UniquePtr<Decoder> decoder(encoding_new_decoder_with_bom_removal(this));"
+        },
+        {
+          "lineNumber": 683,
+          "text": "    return decoder;"
+        },
+        {
+          "lineNumber": 684,
+          "text": "  }"
+        }
+      ]
+    },
+    "newDecoderWithBomRemovalInto": {
+      "status": "found",
+      "label": "NewDecoderWithBOMRemovalInto",
+      "file": "intl/Encoding.h",
+      "lineNumber": 696,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L696",
+      "context": [
+        {
+          "lineNumber": 694,
+          "text": "   * encoding."
+        },
+        {
+          "lineNumber": 695,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 696,
+          "text": "  inline void NewDecoderWithBOMRemovalInto(Decoder& aDecoder) const {"
+        },
+        {
+          "lineNumber": 697,
+          "text": "    encoding_new_decoder_with_bom_removal_into(this, &aDecoder);"
+        },
+        {
+          "lineNumber": 698,
+          "text": "  }"
+        }
+      ]
+    },
+    "newDecoderWithBomRemovalIntoFfi": {
+      "status": "found",
+      "label": "encoding_new_decoder_with_bom_removal_into",
+      "file": "intl/Encoding.h",
+      "lineNumber": 697,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L697",
+      "context": [
+        {
+          "lineNumber": 695,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 696,
+          "text": "  inline void NewDecoderWithBOMRemovalInto(Decoder& aDecoder) const {"
+        },
+        {
+          "lineNumber": 697,
+          "text": "    encoding_new_decoder_with_bom_removal_into(this, &aDecoder);"
+        },
+        {
+          "lineNumber": 698,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 699,
+          "text": ""
+        }
+      ]
+    },
+    "newDecoderWithoutBomHandling": {
+      "status": "found",
+      "label": "NewDecoderWithoutBOMHandling",
+      "file": "intl/Encoding.h",
+      "lineNumber": 711,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L711",
+      "context": [
+        {
+          "lineNumber": 709,
+          "text": "   * instead of this method to cause the BOM to be removed."
+        },
+        {
+          "lineNumber": 710,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 711,
+          "text": "  inline UniquePtr<Decoder> NewDecoderWithoutBOMHandling() const {"
+        },
+        {
+          "lineNumber": 712,
+          "text": "    UniquePtr<Decoder> decoder(encoding_new_decoder_without_bom_handling(this));"
+        },
+        {
+          "lineNumber": 713,
+          "text": "    return decoder;"
+        }
+      ]
+    },
+    "newDecoderWithoutBomHandlingFfi": {
+      "status": "found",
+      "label": "encoding_new_decoder_without_bom_handling",
+      "file": "intl/Encoding.h",
+      "lineNumber": 712,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L712",
+      "context": [
+        {
+          "lineNumber": 710,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 711,
+          "text": "  inline UniquePtr<Decoder> NewDecoderWithoutBOMHandling() const {"
+        },
+        {
+          "lineNumber": 712,
+          "text": "    UniquePtr<Decoder> decoder(encoding_new_decoder_without_bom_handling(this));"
+        },
+        {
+          "lineNumber": 713,
+          "text": "    return decoder;"
+        },
+        {
+          "lineNumber": 714,
+          "text": "  }"
+        }
+      ]
+    },
+    "newDecoderWithoutBomHandlingInto": {
+      "status": "found",
+      "label": "NewDecoderWithoutBOMHandlingInto",
+      "file": "intl/Encoding.h",
+      "lineNumber": 728,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L728",
+      "context": [
+        {
+          "lineNumber": 726,
+          "text": "   * instead of this method to cause the BOM to be removed."
+        },
+        {
+          "lineNumber": 727,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 728,
+          "text": "  inline void NewDecoderWithoutBOMHandlingInto(Decoder& aDecoder) const {"
+        },
+        {
+          "lineNumber": 729,
+          "text": "    encoding_new_decoder_without_bom_handling_into(this, &aDecoder);"
+        },
+        {
+          "lineNumber": 730,
+          "text": "  }"
+        }
+      ]
+    },
+    "newDecoderWithoutBomHandlingIntoFfi": {
+      "status": "found",
+      "label": "encoding_new_decoder_without_bom_handling_into",
+      "file": "intl/Encoding.h",
+      "lineNumber": 729,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L729",
+      "context": [
+        {
+          "lineNumber": 727,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 728,
+          "text": "  inline void NewDecoderWithoutBOMHandlingInto(Decoder& aDecoder) const {"
+        },
+        {
+          "lineNumber": 729,
+          "text": "    encoding_new_decoder_without_bom_handling_into(this, &aDecoder);"
+        },
+        {
+          "lineNumber": 730,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 731,
+          "text": ""
+        }
+      ]
+    },
+    "decoderClass": {
+      "status": "found",
+      "label": "Decoder class",
+      "file": "intl/Encoding.h",
+      "lineNumber": 883,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L883",
+      "context": [
+        {
+          "lineNumber": 881,
+          "text": " * make the buffer fairly large (e.g. couple of kilobytes)."
+        },
+        {
+          "lineNumber": 882,
+          "text": " */"
+        },
+        {
+          "lineNumber": 883,
+          "text": "class Decoder final {"
+        },
+        {
+          "lineNumber": 884,
+          "text": " public:"
+        },
+        {
+          "lineNumber": 885,
+          "text": "  ~Decoder() = default;"
+        }
+      ]
+    },
+    "decoderEncoding": {
+      "status": "found",
+      "label": "Decoder::Encoding",
+      "file": "intl/Encoding.h",
+      "lineNumber": 896,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L896",
+      "context": [
+        {
+          "lineNumber": 894,
+          "text": "   * of the decoder."
+        },
+        {
+          "lineNumber": 895,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 896,
+          "text": "  inline NotNull<const mozilla::Encoding*> Encoding() const {"
+        },
+        {
+          "lineNumber": 897,
+          "text": "    return WrapNotNull(decoder_encoding(this));"
+        },
+        {
+          "lineNumber": 898,
+          "text": "  }"
+        }
+      ]
+    },
+    "decoderMaxUtf16BufferLength": {
+      "status": "found",
+      "label": "Decoder::MaxUTF16BufferLength",
+      "file": "intl/Encoding.h",
+      "lineNumber": 986,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L986",
+      "context": [
+        {
+          "lineNumber": 984,
+          "text": "   * `_without_replacement` case."
+        },
+        {
+          "lineNumber": 985,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 986,
+          "text": "  inline CheckedInt<size_t> MaxUTF16BufferLength(size_t aU16Length) const {"
+        },
+        {
+          "lineNumber": 987,
+          "text": "    CheckedInt<size_t> max(decoder_max_utf16_buffer_length(this, aU16Length));"
+        },
+        {
+          "lineNumber": 988,
+          "text": "    if (max.value() == std::numeric_limits<size_t>::max()) {"
+        }
+      ]
+    },
+    "decoderMaxUtf16BufferLengthFfi": {
+      "status": "found",
+      "label": "decoder_max_utf16_buffer_length",
+      "file": "intl/Encoding.h",
+      "lineNumber": 987,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L987",
+      "context": [
+        {
+          "lineNumber": 985,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 986,
+          "text": "  inline CheckedInt<size_t> MaxUTF16BufferLength(size_t aU16Length) const {"
+        },
+        {
+          "lineNumber": 987,
+          "text": "    CheckedInt<size_t> max(decoder_max_utf16_buffer_length(this, aU16Length));"
+        },
+        {
+          "lineNumber": 988,
+          "text": "    if (max.value() == std::numeric_limits<size_t>::max()) {"
+        },
+        {
+          "lineNumber": 989,
+          "text": "      // Mark invalid by overflowing"
+        }
+      ]
+    },
+    "decoderDecodeToUtf16": {
+      "status": "found",
+      "label": "Decoder::DecodeToUTF16",
+      "file": "intl/Encoding.h",
+      "lineNumber": 1003,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1003",
+      "context": [
+        {
+          "lineNumber": 1001,
+          "text": "   * methods collectively."
+        },
+        {
+          "lineNumber": 1002,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 1003,
+          "text": "  inline std::tuple<uint32_t, size_t, size_t, bool> DecodeToUTF16("
+        },
+        {
+          "lineNumber": 1004,
+          "text": "      Span<const uint8_t> aSrc, Span<char16_t> aDst, bool aLast) {"
+        },
+        {
+          "lineNumber": 1005,
+          "text": "    size_t srcRead = aSrc.Length();"
+        }
+      ]
+    },
+    "decoderDecodeToUtf16Ffi": {
+      "status": "found",
+      "label": "decoder_decode_to_utf16 FFI",
+      "file": "intl/Encoding.h",
+      "lineNumber": 1008,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1008",
+      "context": [
+        {
+          "lineNumber": 1006,
+          "text": "    size_t dstWritten = aDst.Length();"
+        },
+        {
+          "lineNumber": 1007,
+          "text": "    bool hadReplacements;"
+        },
+        {
+          "lineNumber": 1008,
+          "text": "    uint32_t result = decoder_decode_to_utf16(this, aSrc.Elements(), &srcRead,"
+        },
+        {
+          "lineNumber": 1009,
+          "text": "                                              aDst.Elements(), &dstWritten,"
+        },
+        {
+          "lineNumber": 1010,
+          "text": "                                              aLast, &hadReplacements);"
+        }
+      ]
+    },
+    "decoderDecodeToUtf16WithoutReplacement": {
+      "status": "found",
+      "label": "Decoder::DecodeToUTF16WithoutReplacement",
+      "file": "intl/Encoding.h",
+      "lineNumber": 1020,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1020",
+      "context": [
+        {
+          "lineNumber": 1018,
+          "text": "   * methods collectively."
+        },
+        {
+          "lineNumber": 1019,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 1020,
+          "text": "  inline std::tuple<uint32_t, size_t, size_t> DecodeToUTF16WithoutReplacement("
+        },
+        {
+          "lineNumber": 1021,
+          "text": "      Span<const uint8_t> aSrc, Span<char16_t> aDst, bool aLast) {"
+        },
+        {
+          "lineNumber": 1022,
+          "text": "    size_t srcRead = aSrc.Length();"
+        }
+      ]
+    },
+    "decoderDecodeToUtf16WithoutReplacementFfi": {
+      "status": "found",
+      "label": "decoder_decode_to_utf16_without_replacement FFI",
+      "file": "intl/Encoding.h",
+      "lineNumber": 1024,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1024",
+      "context": [
+        {
+          "lineNumber": 1022,
+          "text": "    size_t srcRead = aSrc.Length();"
+        },
+        {
+          "lineNumber": 1023,
+          "text": "    size_t dstWritten = aDst.Length();"
+        },
+        {
+          "lineNumber": 1024,
+          "text": "    uint32_t result = decoder_decode_to_utf16_without_replacement("
+        },
+        {
+          "lineNumber": 1025,
+          "text": "        this, aSrc.Elements(), &srcRead, aDst.Elements(), &dstWritten, aLast);"
+        },
+        {
+          "lineNumber": 1026,
+          "text": "    return {result, srcRead, dstWritten};"
+        }
+      ]
+    },
+    "latin1OptimizationComment": {
+      "status": "found",
+      "label": "SpiderMonkey-style string storage optimization warning",
+      "file": "intl/Encoding.h",
+      "lineNumber": 1044,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1044",
+      "context": [
+        {
+          "lineNumber": 1042,
+          "text": "   * Does not change the state of the decoder."
+        },
+        {
+          "lineNumber": 1043,
+          "text": "   *"
+        },
+        {
+          "lineNumber": 1044,
+          "text": "   * Do not use this unless you are supporting SpiderMonkey-style string"
+        },
+        {
+          "lineNumber": 1045,
+          "text": "   * storage optimizations."
+        },
+        {
+          "lineNumber": 1046,
+          "text": "   */"
+        }
+      ]
+    },
+    "latin1ByteCompatibleUpTo": {
+      "status": "found",
+      "label": "Latin1ByteCompatibleUpTo",
+      "file": "intl/Encoding.h",
+      "lineNumber": 1047,
+      "url": "https://github.com/mozilla/gecko-dev/blob/5836a062726f715fda621338a17b51aff30d0a8c/intl/Encoding.h#L1047",
+      "context": [
+        {
+          "lineNumber": 1045,
+          "text": "   * storage optimizations."
+        },
+        {
+          "lineNumber": 1046,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 1047,
+          "text": "  inline mozilla::Maybe<size_t> Latin1ByteCompatibleUpTo("
+        },
+        {
+          "lineNumber": 1048,
+          "text": "      Span<const uint8_t> aBuffer) const {"
+        },
+        {
+          "lineNumber": 1049,
+          "text": "    size_t upTo = decoder_latin1_byte_compatible_up_to(this, aBuffer.Elements(),"
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "gecko-textdecoder-host-api-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Gecko TextDecoder initializes the encoding label through mozilla::Encoding, stores a Decoder, and routes BufferSource input into DecodeNative.",
+      "evidence": [
+        "TextDecoder::Init line 19",
+        "Encoding::ForLabelNoReplacement line 24",
+        "NewDecoderWithoutBOMHandling line 43",
+        "NewDecoderWithBOMRemoval line 45",
+        "ProcessTypedArrays line 110"
+      ]
+    },
+    {
+      "id": "gecko-textdecoder-utf16-output-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned Gecko TextDecoder path materializes decoded output into an nsAString UTF-16 buffer through Decoder::DecodeToUTF16 or DecodeToUTF16WithoutReplacement.",
+      "evidence": [
+        "TextDecoderCommon::DecodeNative line 49",
+        "MaxUTF16BufferLength line 56",
+        "GetMutableData line 62",
+        "DecodeToUTF16WithoutReplacement line 73",
+        "DecodeToUTF16 line 80",
+        "SetLength line 86"
+      ]
+    },
+    {
+      "id": "gecko-encoding-rs-source-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "mozilla::Encoding is adapted from encoding_rs C++ bindings and its Decoder methods cross encoding_rs FFI wrappers for UTF-16 decoding.",
+      "evidence": [
+        "encoding_rs adaptation comment line 10",
+        "mozilla_encoding_decode_to_nsstring line 41",
+        "class Encoding final line 154",
+        "class Decoder final line 883",
+        "decoder_decode_to_utf16 line 1008",
+        "decoder_decode_to_utf16_without_replacement line 1024"
+      ]
+    },
+    {
+      "id": "gecko-spidermonkey-string-optimization-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "Encoding.h exposes a Latin1ByteCompatibleUpTo helper for SpiderMonkey-style string storage optimizations, but the pinned TextDecoder.cpp path audited here uses the nsAString UTF-16 DecodeNative path. This source fact is not a Firefox benchmark, codegen trace, or runtime-ceiling proof.",
+      "evidence": [
+        "SpiderMonkey-style string storage optimization warning line 1044",
+        "Latin1ByteCompatibleUpTo line 1047",
+        "The audit does not run a Firefox benchmark row.",
+        "The audit does not inspect SpiderMonkey-generated machine code.",
+        "Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis."
+      ]
+    }
+  ]
+}
