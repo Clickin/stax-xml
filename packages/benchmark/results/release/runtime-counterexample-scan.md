@@ -1,18 +1,18 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-24T07:24:38.788Z
+Generated: 2026-05-24T07:48:39.754Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 73
+- Scanned artifacts: 74
 - Ignored derived artifacts: 5
-- Measured rows recognized: 447
-- 1 GiB+ JS full-string rows recognized: 223
+- Measured rows recognized: 465
+- 1 GiB+ JS full-string rows recognized: 241
 - Counterexamples found: 0
 - Partial/projection threshold rows: 12
-- Full-string rows without bounded-memory proof: 107
+- Full-string rows without bounded-memory proof: 80
 - Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus-stability.json at 176.55 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus-stability.json at 176.55 MiB/s (yes, process-rss)
 - Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from bun-candidate-headroom-books-corpus.json at 334.63 MiB/s (yes, process-rss)
@@ -29,16 +29,16 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 176.55 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 174.51 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 173.63 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.69 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 171.65 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 171.57 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 171.25 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 170.10 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 168.25 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 166.06 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 165.85 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `cursorAccessor` | 1.00 | 164.74 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 161.45 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameDirect` | 1.00 | 161.05 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 159.70 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 155.37 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `stringFull` | 1.00 | 141.04 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 136.14 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `eventObjectFull` | 1.00 | 133.43 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -48,16 +48,16 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 176.55 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 174.51 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 173.63 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.69 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 171.65 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 171.57 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 171.25 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 170.10 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 168.25 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 166.06 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 165.85 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `cursorAccessor` | 1.00 | 164.74 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 161.45 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameDirect` | 1.00 | 161.05 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 159.70 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 155.37 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `stringFull` | 1.00 | 141.04 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 136.14 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `eventObjectFull` | 1.00 | 133.43 | yes | process-rss | 57096514 | -540013997 |
 
 ## Partial Or Projection Threshold Rows
 
@@ -82,7 +82,7 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 12 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
-- unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 107 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
+- unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 80 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
 
 ## Limits
 

@@ -33,11 +33,11 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 73);
-  assert.equal(report.summary.measuredRowCount, 447);
-  assert.equal(report.summary.largeJsFullRowCount, 223);
+  assert.equal(report.summary.scannedArtifactCount, 74);
+  assert.equal(report.summary.measuredRowCount, 465);
+  assert.equal(report.summary.largeJsFullRowCount, 241);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
-  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 107);
+  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 80);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'bun-candidate-headroom-books-corpus-stability.json');
@@ -67,6 +67,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.id === 'rawFrameNameId'
     && row.mibPerSec === 176.55
     && row.hasMemoryProof === true
+  ));
+  assert.ok(report.fastestLargeFullRows.some(row =>
+    row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 173.63
+    && row.hasMemoryProof === true
+    && row.memoryKind === 'process-rss'
   ));
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'candidate-headroom-books-corpus.json'

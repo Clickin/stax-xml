@@ -1,19 +1,19 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T07:24:39.365Z
+Generated: 2026-05-24T07:47:42.411Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 73
+- Scanned primary artifacts: 74
 - Ignored derived artifacts: 5
-- Measured rows recognized: 447
-- Benchmark artifacts: 53
+- Measured rows recognized: 465
+- Benchmark artifacts: 54
 - Source artifacts: 9
 - Trace/profile artifacts: 3
 - Allocation artifacts: 9
-- 1 GiB+ JS full-string rows: 223
+- 1 GiB+ JS full-string rows: 241
 - Corpus seeds: 2
 - Open or partial obligations: 4
 
@@ -21,8 +21,8 @@ This audit scans current release artifacts to show which proof obligations are c
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 27 | 120 | 52 | rawFrameNameId 172.69 MiB/s from candidate-headroom-books-corpus.json | 2 | 1 | 5 |
-| Bun/JSC | 17 | 110 | 57 | rawFrameNameId 176.55 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 1 | 0 |
+| Node/V8 | 28 | 129 | 61 | rawFrameNameId 172.69 MiB/s from candidate-headroom-books-corpus.json | 2 | 1 | 5 |
+| Bun/JSC | 18 | 119 | 66 | rawFrameNameId 176.55 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 1 | 0 |
 | Deno/V8 | 1 | 15 | 9 | stringFull 87.62 MiB/s from candidate-headroom-cross-process-projection.json | 0 | 0 | 0 |
 | Chrome/V8 browser | 12 | 83 | 44 | rawFrameNameId 122.08 MiB/s from browser-candidate-headroom-books-corpus.json | 2 | 0 | 1 |
 | Firefox/SpiderMonkey browser | 10 | 69 | 61 | rawFrameNameId 76.70 MiB/s from firefox-bidi-candidate-headroom-books-corpus.json | 1 | 0 | 0 |

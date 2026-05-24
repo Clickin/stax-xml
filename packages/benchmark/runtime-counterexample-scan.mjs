@@ -292,6 +292,7 @@ function inferRuntimeLabel(sourceArtifact, node, context) {
 
 function classifyMemoryKind(node) {
   const memory = node.memory;
+  if (typeof node.maxRssBytes === 'number') return 'process-rss';
   if (!memory || typeof memory !== 'object') return 'not-recorded';
   if (memory.scope === 'browser-js-heap' && typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
   if (typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';

@@ -116,14 +116,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest\s+selected and bounded row is Bun\/JSC projection-cycle `eventObjectFull` at\s+63\.29 MiB\/s/);
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 447\s+measured rows/);
-  assert.match(markdown, /223 JavaScript 1 GiB\+ full-string rows and zero\s+bounded-memory 200 MiB\/s\+ counterexamples/);
+  assert.match(markdown, /recognizes 465\s+measured rows/);
+  assert.match(markdown, /241 JavaScript 1 GiB\+ full-string rows and zero\s+bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` from\s+`bun-candidate-headroom-books-corpus-stability\.json` at 176\.55 MiB\/s/);
   assert.match(markdown, /remains below the 200 MiB\/s\s+counterexample threshold/);
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 334\.63 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
-  assert.match(markdown, /recognizes 447\s+measured rows/);
-  assert.match(markdown, /53 benchmark artifacts, 9 source artifacts, 3\s+trace\/profile artifacts, 9 allocation artifacts/);
+  assert.match(markdown, /recognizes 465\s+measured rows/);
+  assert.match(markdown, /54 benchmark artifacts, 9 source artifacts, 3\s+trace\/profile artifacts, 9 allocation artifacts/);
   assert.match(markdown, /two release corpus seeds: `books\.xml` and `treebank_e\.xml`/);
   assert.match(markdown, /83 Chrome\/V8 browser rows, 69 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 69 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
@@ -160,6 +160,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-candidate-headroom-books-corpus\.md/);
   assert.match(markdown, /candidate-headroom-books-corpus-stability\.md/);
   assert.match(markdown, /bun-candidate-headroom-books-corpus-stability\.md/);
+  assert.match(markdown, /candidate-headroom-cross-process-books-corpus\.md/);
   assert.match(markdown, /browser-candidate-headroom-books-corpus\.md/);
   assert.match(markdown, /firefox-bidi-candidate-headroom-books-corpus\.md/);
   assert.match(markdown, /browser-candidate-headroom-large\.md/);
@@ -183,6 +184,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /same-process\s+`runs=3` stability rerun repeated the selected Node\/V8 and Bun\/JSC full rows/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged\s+`171\.57 MiB\/s` with `6\.9%` spread/);
   assert.match(markdown, /Bun\/JSC\s+`rawFrameNameId` averaged `176\.55 MiB\/s` with `4\.7%` spread/);
+  assert.match(markdown, /fresh runtime processes repeated the same selected rows/);
+  assert.match(markdown, /Node\/V8 `rawFrameNameId`\s+averaged `166\.68 MiB\/s` with `3\.6%` spread/);
+  assert.match(markdown, /Bun\/JSC\s+`rawFrameNameId` averaged `171\.04 MiB\/s` with `3\.1%` spread/);
   assert.match(markdown, /Chrome\/V8 browser `rawFrameNameId` reported `122\.08 MiB\/s`/);
   assert.match(markdown, /Firefox\/SpiderMonkey `rawFrameNameId` reported\s+`76\.70 MiB\/s`/);
   assert.match(markdown, /57,096,514 events and checksum `-540013997`/);
