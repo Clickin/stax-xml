@@ -127,7 +127,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `attrNameStringOnly` at 293\.91 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
   assert.match(markdown, /recognizes 572\s+measured rows/);
-  assert.match(markdown, /69 benchmark artifacts, 11 source artifacts, 5\s+trace\/profile artifacts, 12 allocation artifacts,\s+and 1 environment artifact/);
+  assert.match(markdown, /69 benchmark artifacts, 12 source artifacts, 5\s+trace\/profile artifacts, 12 allocation artifacts,\s+and 1 environment artifact/);
   assert.match(markdown, /three release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /95 Chrome\/V8 browser rows, 78 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 78 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
@@ -306,6 +306,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-webkit-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-textdecoder-dispatch-source-pin-audit\.md/);
   assert.match(markdown, /node-textdecoder-source-pin-audit\.md/);
+  assert.match(markdown, /deno-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-source-pin-audit\.md/);
   assert.match(markdown, /bun-event-reader-string-large\.md/);
@@ -346,6 +347,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Deno\/V8 corpus artifact preserved the same event count and checksum/);
   assert.match(markdown, /Pure\s+`TextDecoder\.decode` rows reported 66\.28 MiB\/s for `subarraySharedDecoder`,\s+63\.44 MiB\/s for `viewSharedDecoder`/);
   assert.match(markdown, /shortAsciiSubarraySharedDecoder` row reported 90\.83 MiB\/s/);
+  assert.match(markdown, /Deno 2\.7\.13, V8 14\.7\.173\.20-rusty, and the\s+official `denoland\/deno` source tag `v2\.7\.13`/);
+  assert.match(markdown, /`TextDecoder` at line 50, the constructor at line\s+67, the UTF-8 label fast path at line 75/);
+  assert.match(markdown, /`op_encoding_decode_utf8\(input, this\.\#ignoreBOM\)` at line 185/);
+  assert.match(markdown, /takes `\#\[anybuffer\] zero_copy: &\[u8\]` at line 496/);
+  assert.match(markdown, /`v8::String::new_from_utf8` at line\s+520/);
+  assert.match(markdown, /does not inspect\s+optimized V8 code, does not count allocations, does not cover browser engines/);
   assert.match(markdown, /HeadlessChrome 148\.0\.0\.0 \/ browser V8/);
   assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 16\.63 MiB\/s for\s+`subarraySharedDecoder`/);
   assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 39\.42 MiB\/s/);

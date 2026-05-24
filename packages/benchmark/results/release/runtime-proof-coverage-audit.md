@@ -1,16 +1,16 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T16:34:42.416Z
+Generated: 2026-05-24T16:50:21.842Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 93
+- Scanned primary artifacts: 94
 - Ignored derived artifacts: 5
 - Measured rows recognized: 572
 - Benchmark artifacts: 69
-- Source artifacts: 11
+- Source artifacts: 12
 - Trace/profile artifacts: 5
 - Allocation artifacts: 12
 - Environment artifacts: 1
@@ -24,7 +24,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
 | Node/V8 | 30 | 157 | 85 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
 | Bun/JSC | 24 | 157 | 90 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 2 | 2 |
-| Deno/V8 | 5 | 35 | 29 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 0 | 0 | 0 |
+| Deno/V8 | 6 | 35 | 29 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 0 | 0 |
 | Chrome/V8 browser | 14 | 95 | 53 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 14 | 78 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 3 | 0 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |

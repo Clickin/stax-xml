@@ -463,6 +463,14 @@ function classifySourcePins(sourceArtifact, root) {
       limitation: 'Bun dispatch evidence; not WebKit TextDecoder default UTF-8 proof for Safari',
     }];
   }
+  if (sourceArtifact === 'deno-textdecoder-source-pin-audit.json') {
+    return [{
+      runtimeId: 'deno-v8',
+      kind: 'Deno TextDecoder source boundary',
+      revision: root.source?.revision ?? root.runtime?.denoVersion ?? null,
+      limitation: 'Deno/V8 source evidence only; not optimized-code or allocation evidence',
+    }];
+  }
   if (sourceArtifact === 'chrome-blink-textdecoder-source-pin-audit.json' || sourceArtifact === 'chrome-v8-source-pin-audit.json') {
     return [{
       runtimeId: 'chrome-v8-browser',
@@ -484,6 +492,7 @@ function classifySourcePins(sourceArtifact, root) {
 
 function classifyRuntimeFromArtifact(sourceArtifact, root) {
   if (sourceArtifact.startsWith('bun-')) return 'bun-jsc';
+  if (sourceArtifact.startsWith('deno-')) return 'deno-v8';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';

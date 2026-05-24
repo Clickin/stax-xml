@@ -1,0 +1,830 @@
+{
+  "generatedAt": "2026-05-24T16:49:30.963Z",
+  "objective": "deno-textdecoder-source-pin-audit",
+  "contract": "deno-exact-revision-textdecoder-string-boundary-source-lines",
+  "note": "Exact Deno source-line pinning for TextDecoder.decode in Deno 2.7.13. These source facts constrain the Deno TextDecoder host boundary for the Deno/V8 TextDecoder benchmark rows; they are not codegen evidence or a throughput proof.",
+  "runtime": {
+    "denoVersion": "2.7.13",
+    "v8Version": "14.7.173.20-rusty"
+  },
+  "source": {
+    "repository": "denoland/deno",
+    "revision": "v2.7.13",
+    "files": [
+      "ext/web/08_text_encoding.js",
+      "ext/web/lib.rs"
+    ],
+    "fetchedAt": "2026-05-24T16:49:30.950Z"
+  },
+  "anchors": {
+    "opImports": {
+      "status": "found",
+      "label": "TextDecoder encoding op imports",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 21,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L21",
+      "context": [
+        {
+          "lineNumber": 19,
+          "text": "  op_encoding_decode,"
+        },
+        {
+          "lineNumber": 20,
+          "text": "  op_encoding_decode_single,"
+        },
+        {
+          "lineNumber": 21,
+          "text": "  op_encoding_decode_utf8,"
+        },
+        {
+          "lineNumber": 22,
+          "text": "  op_encoding_encode_into,"
+        },
+        {
+          "lineNumber": 23,
+          "text": "  op_encoding_new_decoder,"
+        }
+      ]
+    },
+    "textDecoderClass": {
+      "status": "found",
+      "label": "TextDecoder class",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 50,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L50",
+      "context": [
+        {
+          "lineNumber": 48,
+          "text": "import { createFilteredInspectProxy } from \"./01_console.js\";"
+        },
+        {
+          "lineNumber": 49,
+          "text": ""
+        },
+        {
+          "lineNumber": 50,
+          "text": "class TextDecoder {"
+        },
+        {
+          "lineNumber": 51,
+          "text": "  /** @type {string} */"
+        },
+        {
+          "lineNumber": 52,
+          "text": "  #encoding;"
+        }
+      ]
+    },
+    "constructor": {
+      "status": "found",
+      "label": "TextDecoder constructor",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 67,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L67",
+      "context": [
+        {
+          "lineNumber": 65,
+          "text": "   * @param {TextDecoderOptions} options"
+        },
+        {
+          "lineNumber": 66,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 67,
+          "text": "  constructor(label = \"utf-8\", options = { __proto__: null }) {"
+        },
+        {
+          "lineNumber": 68,
+          "text": "    const prefix = \"Failed to construct 'TextDecoder'\";"
+        },
+        {
+          "lineNumber": 69,
+          "text": "    label = webidl.converters.DOMString(label, prefix, \"Argument 1\");"
+        }
+      ]
+    },
+    "utf8LabelFastPath": {
+      "status": "found",
+      "label": "UTF-8 label fast path",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 75,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L75",
+      "context": [
+        {
+          "lineNumber": 73,
+          "text": "      \"Argument 2\","
+        },
+        {
+          "lineNumber": 74,
+          "text": "    );"
+        },
+        {
+          "lineNumber": 75,
+          "text": "    // Fast path for common UTF-8 labels - avoid Rust op call"
+        },
+        {
+          "lineNumber": 76,
+          "text": "    let encoding;"
+        },
+        {
+          "lineNumber": 77,
+          "text": "    if ("
+        }
+      ]
+    },
+    "utf8SinglePassFlag": {
+      "status": "found",
+      "label": "UTF-8 single-pass flag",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 87,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L87",
+      "context": [
+        {
+          "lineNumber": 85,
+          "text": "    this.#fatal = options.fatal;"
+        },
+        {
+          "lineNumber": 86,
+          "text": "    this.#ignoreBOM = options.ignoreBOM;"
+        },
+        {
+          "lineNumber": 87,
+          "text": "    this.#utf8SinglePass = encoding === \"utf-8\" && !options.fatal;"
+        },
+        {
+          "lineNumber": 88,
+          "text": "    this[webidl.brand] = webidl.brand;"
+        },
+        {
+          "lineNumber": 89,
+          "text": "  }"
+        }
+      ]
+    },
+    "decodeMethod": {
+      "status": "found",
+      "label": "TextDecoder.decode method",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 113,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L113",
+      "context": [
+        {
+          "lineNumber": 111,
+          "text": "   * @param {TextDecodeOptions} options"
+        },
+        {
+          "lineNumber": 112,
+          "text": "   */"
+        },
+        {
+          "lineNumber": 113,
+          "text": "  decode(input = new Uint8Array(), options = undefined) {"
+        },
+        {
+          "lineNumber": 114,
+          "text": "    webidl.assertBranded(this, TextDecoderPrototype);"
+        },
+        {
+          "lineNumber": 115,
+          "text": "    if (input !== undefined) {"
+        }
+      ]
+    },
+    "uint8ArrayFastPath": {
+      "status": "found",
+      "label": "Uint8Array validation fast path",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 116,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L116",
+      "context": [
+        {
+          "lineNumber": 114,
+          "text": "    webidl.assertBranded(this, TextDecoderPrototype);"
+        },
+        {
+          "lineNumber": 115,
+          "text": "    if (input !== undefined) {"
+        },
+        {
+          "lineNumber": 116,
+          "text": "      // Fast path: skip full BufferSource validation for Uint8Array"
+        },
+        {
+          "lineNumber": 117,
+          "text": "      if ("
+        },
+        {
+          "lineNumber": 118,
+          "text": "        !(TypedArrayPrototypeGetSymbolToStringTag(input) === \"Uint8Array\") ||"
+        }
+      ]
+    },
+    "typedArrayBuffer": {
+      "status": "found",
+      "label": "TypedArray buffer extraction",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 146,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L146",
+      "context": [
+        {
+          "lineNumber": 144,
+          "text": "      let buffer = input;"
+        },
+        {
+          "lineNumber": 145,
+          "text": "      if (isTypedArray(input)) {"
+        },
+        {
+          "lineNumber": 146,
+          "text": "        buffer = TypedArrayPrototypeGetBuffer("
+        },
+        {
+          "lineNumber": 147,
+          "text": "          /** @type {Uint8Array} */ (input),"
+        },
+        {
+          "lineNumber": 148,
+          "text": "        );"
+        }
+      ]
+    },
+    "sharedArrayClone": {
+      "status": "found",
+      "label": "SharedArrayBuffer clone boundary",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 156,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L156",
+      "context": [
+        {
+          "lineNumber": 154,
+          "text": "      // When doing so they will have to make sure that changes to input do not affect future calls to decode()."
+        },
+        {
+          "lineNumber": 155,
+          "text": "      if (isSharedArrayBuffer(buffer)) {"
+        },
+        {
+          "lineNumber": 156,
+          "text": "        // We clone the data into a non-shared ArrayBuffer so we can pass it"
+        },
+        {
+          "lineNumber": 157,
+          "text": "        // to Rust."
+        },
+        {
+          "lineNumber": 158,
+          "text": "        // `input` is now a Uint8Array, and calling the TypedArray constructor"
+        }
+      ]
+    },
+    "singlePassFastPath": {
+      "status": "found",
+      "label": "single-pass decode fast path",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 181,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L181",
+      "context": [
+        {
+          "lineNumber": 179,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 180,
+          "text": ""
+        },
+        {
+          "lineNumber": 181,
+          "text": "      // Fast path for single pass encoding."
+        },
+        {
+          "lineNumber": 182,
+          "text": "      if (!stream && this.#handle === null) {"
+        },
+        {
+          "lineNumber": 183,
+          "text": "        // Fast path for utf8 single pass encoding."
+        }
+      ]
+    },
+    "utf8OpCall": {
+      "status": "found",
+      "label": "op_encoding_decode_utf8 call",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 185,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L185",
+      "context": [
+        {
+          "lineNumber": 183,
+          "text": "        // Fast path for utf8 single pass encoding."
+        },
+        {
+          "lineNumber": 184,
+          "text": "        if (this.#utf8SinglePass) {"
+        },
+        {
+          "lineNumber": 185,
+          "text": "          return op_encoding_decode_utf8(input, this.#ignoreBOM);"
+        },
+        {
+          "lineNumber": 186,
+          "text": "        }"
+        },
+        {
+          "lineNumber": 187,
+          "text": ""
+        }
+      ]
+    },
+    "singleOpCall": {
+      "status": "found",
+      "label": "op_encoding_decode_single call",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 188,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L188",
+      "context": [
+        {
+          "lineNumber": 186,
+          "text": "        }"
+        },
+        {
+          "lineNumber": 187,
+          "text": ""
+        },
+        {
+          "lineNumber": 188,
+          "text": "        return op_encoding_decode_single("
+        },
+        {
+          "lineNumber": 189,
+          "text": "          input,"
+        },
+        {
+          "lineNumber": 190,
+          "text": "          this.#encoding,"
+        }
+      ]
+    },
+    "newDecoderOpCall": {
+      "status": "found",
+      "label": "op_encoding_new_decoder call",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 197,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L197",
+      "context": [
+        {
+          "lineNumber": 195,
+          "text": ""
+        },
+        {
+          "lineNumber": 196,
+          "text": "      if (this.#handle === null) {"
+        },
+        {
+          "lineNumber": 197,
+          "text": "        this.#handle = op_encoding_new_decoder("
+        },
+        {
+          "lineNumber": 198,
+          "text": "          this.#encoding,"
+        },
+        {
+          "lineNumber": 199,
+          "text": "          this.#fatal,"
+        }
+      ]
+    },
+    "streamingOpCall": {
+      "status": "found",
+      "label": "op_encoding_decode streaming call",
+      "file": "ext/web/08_text_encoding.js",
+      "lineNumber": 203,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/08_text_encoding.js#L203",
+      "context": [
+        {
+          "lineNumber": 201,
+          "text": "        );"
+        },
+        {
+          "lineNumber": 202,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 203,
+          "text": "      return op_encoding_decode(input, this.#handle, stream);"
+        },
+        {
+          "lineNumber": 204,
+          "text": "    } finally {"
+        },
+        {
+          "lineNumber": 205,
+          "text": "      if (!stream && this.#handle !== null) {"
+        }
+      ]
+    },
+    "extensionOpRegistration": {
+      "status": "found",
+      "label": "deno_web extension op registration",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 71,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L71",
+      "context": [
+        {
+          "lineNumber": 69,
+          "text": "    op_encoding_normalize_label,"
+        },
+        {
+          "lineNumber": 70,
+          "text": "    op_encoding_decode_single,"
+        },
+        {
+          "lineNumber": 71,
+          "text": "    op_encoding_decode_utf8,"
+        },
+        {
+          "lineNumber": 72,
+          "text": "    op_encoding_new_decoder,"
+        },
+        {
+          "lineNumber": 73,
+          "text": "    op_encoding_decode,"
+        }
+      ]
+    },
+    "rustDecodeUtf8Function": {
+      "status": "found",
+      "label": "op_encoding_decode_utf8 function",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 494,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L494",
+      "context": [
+        {
+          "lineNumber": 492,
+          "text": ""
+        },
+        {
+          "lineNumber": 493,
+          "text": "#[op2]"
+        },
+        {
+          "lineNumber": 494,
+          "text": "fn op_encoding_decode_utf8<'a>("
+        },
+        {
+          "lineNumber": 495,
+          "text": "  scope: &mut v8::PinScope<'a, '_>,"
+        },
+        {
+          "lineNumber": 496,
+          "text": "  #[anybuffer] zero_copy: &[u8],"
+        }
+      ]
+    },
+    "rustAnybufferInput": {
+      "status": "found",
+      "label": "op_encoding_decode_utf8 anybuffer input",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 496,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L496",
+      "context": [
+        {
+          "lineNumber": 494,
+          "text": "fn op_encoding_decode_utf8<'a>("
+        },
+        {
+          "lineNumber": 495,
+          "text": "  scope: &mut v8::PinScope<'a, '_>,"
+        },
+        {
+          "lineNumber": 496,
+          "text": "  #[anybuffer] zero_copy: &[u8],"
+        },
+        {
+          "lineNumber": 497,
+          "text": "  ignore_bom: bool,"
+        },
+        {
+          "lineNumber": 498,
+          "text": ") -> Result<v8::Local<'a, v8::String>, WebError> {"
+        }
+      ]
+    },
+    "rustBomSkip": {
+      "status": "found",
+      "label": "UTF-8 BOM skip",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 503,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L503",
+      "context": [
+        {
+          "lineNumber": 501,
+          "text": "  let buf = if !ignore_bom"
+        },
+        {
+          "lineNumber": 502,
+          "text": "    && buf.len() >= 3"
+        },
+        {
+          "lineNumber": 503,
+          "text": "    && buf[0] == 0xef"
+        },
+        {
+          "lineNumber": 504,
+          "text": "    && buf[1] == 0xbb"
+        },
+        {
+          "lineNumber": 505,
+          "text": "    && buf[2] == 0xbf"
+        }
+      ]
+    },
+    "rustNewFromUtf8": {
+      "status": "found",
+      "label": "v8::String::new_from_utf8 return",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 520,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L520",
+      "context": [
+        {
+          "lineNumber": 518,
+          "text": "  // - https://github.com/denoland/deno/issues/6649"
+        },
+        {
+          "lineNumber": 519,
+          "text": "  // - https://github.com/v8/v8/blob/d68fb4733e39525f9ff0a9222107c02c28096e2a/include/v8.h#L3277-L3278"
+        },
+        {
+          "lineNumber": 520,
+          "text": "  match v8::String::new_from_utf8(scope, buf, v8::NewStringType::Normal) {"
+        },
+        {
+          "lineNumber": 521,
+          "text": "    Some(text) => Ok(text),"
+        },
+        {
+          "lineNumber": 522,
+          "text": "    None => Err(WebError::BufferTooLong),"
+        }
+      ]
+    },
+    "rustDecodeSingleFunction": {
+      "status": "found",
+      "label": "op_encoding_decode_single function",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 528,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L528",
+      "context": [
+        {
+          "lineNumber": 526,
+          "text": "#[op2]"
+        },
+        {
+          "lineNumber": 527,
+          "text": "#[serde]"
+        },
+        {
+          "lineNumber": 528,
+          "text": "fn op_encoding_decode_single("
+        },
+        {
+          "lineNumber": 529,
+          "text": "  #[anybuffer] data: &[u8],"
+        },
+        {
+          "lineNumber": 530,
+          "text": "  #[string] label: String,"
+        }
+      ]
+    },
+    "rustMaxUtf16Buffer": {
+      "status": "found",
+      "label": "encoding_rs max UTF-16 buffer length",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 544,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L544",
+      "context": [
+        {
+          "lineNumber": 542,
+          "text": ""
+        },
+        {
+          "lineNumber": 543,
+          "text": "  let max_buffer_length = decoder"
+        },
+        {
+          "lineNumber": 544,
+          "text": "    .max_utf16_buffer_length(data.len())"
+        },
+        {
+          "lineNumber": 545,
+          "text": "    .ok_or(WebError::ValueTooLarge)?;"
+        },
+        {
+          "lineNumber": 546,
+          "text": ""
+        }
+      ]
+    },
+    "rustUtf16OutputVec": {
+      "status": "found",
+      "label": "UTF-16 output Vec allocation",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 547,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L547",
+      "context": [
+        {
+          "lineNumber": 545,
+          "text": "    .ok_or(WebError::ValueTooLarge)?;"
+        },
+        {
+          "lineNumber": 546,
+          "text": ""
+        },
+        {
+          "lineNumber": 547,
+          "text": "  let mut output = vec![0; max_buffer_length];"
+        },
+        {
+          "lineNumber": 548,
+          "text": ""
+        },
+        {
+          "lineNumber": 549,
+          "text": "  if fatal {"
+        }
+      ]
+    },
+    "rustDecodeToUtf16": {
+      "status": "found",
+      "label": "encoding_rs decode_to_utf16",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 562,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L562",
+      "context": [
+        {
+          "lineNumber": 560,
+          "text": "  } else {"
+        },
+        {
+          "lineNumber": 561,
+          "text": "    let (result, _, written, _) ="
+        },
+        {
+          "lineNumber": 562,
+          "text": "      decoder.decode_to_utf16(data, &mut output, true);"
+        },
+        {
+          "lineNumber": 563,
+          "text": "    match result {"
+        },
+        {
+          "lineNumber": 564,
+          "text": "      CoderResult::InputEmpty => {"
+        }
+      ]
+    },
+    "rustU16StringReturn": {
+      "status": "found",
+      "label": "U16String return",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 555,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L555",
+      "context": [
+        {
+          "lineNumber": 553,
+          "text": "      DecoderResult::InputEmpty => {"
+        },
+        {
+          "lineNumber": 554,
+          "text": "        output.truncate(written);"
+        },
+        {
+          "lineNumber": 555,
+          "text": "        Ok(output.into())"
+        },
+        {
+          "lineNumber": 556,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 557,
+          "text": "      DecoderResult::OutputFull => Err(WebError::BufferTooSmall),"
+        }
+      ]
+    },
+    "rustStreamingFunction": {
+      "status": "found",
+      "label": "op_encoding_decode streaming function",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 597,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L597",
+      "context": [
+        {
+          "lineNumber": 595,
+          "text": "#[op2]"
+        },
+        {
+          "lineNumber": 596,
+          "text": "#[serde]"
+        },
+        {
+          "lineNumber": 597,
+          "text": "fn op_encoding_decode("
+        },
+        {
+          "lineNumber": 598,
+          "text": "  #[anybuffer] data: &[u8],"
+        },
+        {
+          "lineNumber": 599,
+          "text": "  #[cppgc] resource: &TextDecoderResource,"
+        }
+      ]
+    },
+    "rustTextDecoderResource": {
+      "status": "found",
+      "label": "TextDecoderResource decoder state",
+      "file": "ext/web/lib.rs",
+      "lineNumber": 635,
+      "url": "https://github.com/denoland/deno/blob/v2.7.13/ext/web/lib.rs#L635",
+      "context": [
+        {
+          "lineNumber": 633,
+          "text": "}"
+        },
+        {
+          "lineNumber": 634,
+          "text": ""
+        },
+        {
+          "lineNumber": 635,
+          "text": "struct TextDecoderResource {"
+        },
+        {
+          "lineNumber": 636,
+          "text": "  decoder: RefCell<Decoder>,"
+        },
+        {
+          "lineNumber": 637,
+          "text": "  fatal: bool,"
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "deno-textdecoder-js-dispatch-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Deno implements TextDecoder in ext/web/08_text_encoding.js and routes default non-fatal UTF-8 single-pass decode to op_encoding_decode_utf8.",
+      "evidence": [
+        "TextDecoder class line 50",
+        "decode method line 113",
+        "UTF-8 single-pass flag line 87",
+        "op_encoding_decode_utf8 call line 185"
+      ]
+    },
+    {
+      "id": "deno-textdecoder-input-boundary-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Deno skips full BufferSource validation for non-shared Uint8Array input, extracts ArrayBuffer storage for typed arrays, and clones SharedArrayBuffer-backed input before passing it to Rust.",
+      "evidence": [
+        "Uint8Array validation fast path line 116",
+        "TypedArray buffer extraction line 146",
+        "SharedArrayBuffer clone boundary line 156"
+      ]
+    },
+    {
+      "id": "deno-textdecoder-v8-string-creation-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Deno op_encoding_decode_utf8 takes a zero-copy anybuffer byte slice and creates the JavaScript result through v8::String::new_from_utf8.",
+      "evidence": [
+        "op_encoding_decode_utf8 function line 494",
+        "#[anybuffer] input line 496",
+        "v8::String::new_from_utf8 line 520"
+      ]
+    },
+    {
+      "id": "deno-textdecoder-non-utf8-streaming-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "For non-UTF-8 or streaming paths, Deno uses encoding_rs decoders, allocates a UTF-16 output Vec sized by max_utf16_buffer_length, and returns U16String.",
+      "evidence": [
+        "op_encoding_decode_single function line 528",
+        "max_utf16_buffer_length line 544",
+        "output Vec line 547",
+        "decode_to_utf16 line 562",
+        "U16String return line 555"
+      ]
+    },
+    {
+      "id": "deno-textdecoder-source-pin-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This pins Deno TextDecoder source boundaries only. It is not V8 optimized-code evidence, allocation census evidence, Safari/WebKit coverage, or an impossibility proof.",
+      "evidence": [
+        "Deno source revision v2.7.13",
+        "Deno 2.7.13",
+        "V8 14.7.173.20-rusty"
+      ]
+    }
+  ]
+}
