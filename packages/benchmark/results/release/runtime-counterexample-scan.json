@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T11:12:32.790Z",
+  "generatedAt": "2026-05-24T11:31:56.245Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -30,6 +30,7 @@
     "bun-candidate-headroom-projection-stability.json",
     "bun-candidate-headroom-wide.json",
     "bun-event-reader-string-large.json",
+    "bun-jsc-codegen-trace.json",
     "bun-jsc-cpu-profile.json",
     "bun-jsc-heap-allocation-profile.json",
     "bun-jsc-memory-allocation-profile.json",
@@ -101,10 +102,10 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 82,
+    "scannedArtifactCount": 83,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 511,
+    "measuredRowCount": 514,
     "largeJsFullRowCount": 277,
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 12,
