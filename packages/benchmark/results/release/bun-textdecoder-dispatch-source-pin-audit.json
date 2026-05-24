@@ -1,0 +1,799 @@
+{
+  "generatedAt": "2026-05-24T00:32:09.312Z",
+  "objective": "bun-textdecoder-dispatch-source-pin-audit",
+  "contract": "bun-exact-revision-textdecoder-dispatch-source-lines",
+  "note": "Exact Bun source-line pinning for TextDecoder dispatch in Bun 1.3.13. These source facts show Bun defines TextDecoder in Zig, handles UTF-8/Latin1/UTF-16 natively, and uses WebKit TextCodec only for other encodings. This is not codegen evidence or throughput proof.",
+  "runtime": {
+    "bunVersion": "1.3.13",
+    "bunRevision": "1.3.13+bf2e2cecf",
+    "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10"
+  },
+  "source": {
+    "repository": "oven-sh/bun",
+    "tag": "bun-v1.3.13",
+    "revision": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+    "files": [
+      "src/bun.js/webcore/TextDecoder.zig",
+      "src/bun.js/webcore/encoding.classes.ts",
+      "src/bun.js/bindings/TextEncodingRegistry.cpp",
+      "src/bun.js/bindings/TextEncoding.cpp"
+    ],
+    "fetchedAt": "2026-05-24T00:32:09.283Z"
+  },
+  "anchors": {
+    "classDefinition": {
+      "status": "found",
+      "label": "TextDecoder class definition",
+      "file": "src/bun.js/webcore/encoding.classes.ts",
+      "lineNumber": 5,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/encoding.classes.ts#L5",
+      "context": [
+        {
+          "lineNumber": 3,
+          "text": "export default ["
+        },
+        {
+          "lineNumber": 4,
+          "text": "  define({"
+        },
+        {
+          "lineNumber": 5,
+          "text": "    name: \"TextDecoder\","
+        },
+        {
+          "lineNumber": 6,
+          "text": "    construct: true,"
+        },
+        {
+          "lineNumber": 7,
+          "text": "    finalize: true,"
+        }
+      ]
+    },
+    "protoDecodeBinding": {
+      "status": "found",
+      "label": "decode binds to Zig decode",
+      "file": "src/bun.js/webcore/encoding.classes.ts",
+      "lineNumber": 24,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/encoding.classes.ts#L24",
+      "context": [
+        {
+          "lineNumber": 22,
+          "text": ""
+        },
+        {
+          "lineNumber": 23,
+          "text": "      decode: {"
+        },
+        {
+          "lineNumber": 24,
+          "text": "        fn: \"decode\","
+        },
+        {
+          "lineNumber": 25,
+          "text": "        length: 1,"
+        },
+        {
+          "lineNumber": 26,
+          "text": ""
+        }
+      ]
+    },
+    "domjitReturnsString": {
+      "status": "found",
+      "label": "DOMJIT returns JSString",
+      "file": "src/bun.js/webcore/encoding.classes.ts",
+      "lineNumber": 28,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/encoding.classes.ts#L28",
+      "context": [
+        {
+          "lineNumber": 26,
+          "text": ""
+        },
+        {
+          "lineNumber": 27,
+          "text": "        DOMJIT: {"
+        },
+        {
+          "lineNumber": 28,
+          "text": "          returns: \"JSString\","
+        },
+        {
+          "lineNumber": 29,
+          "text": "          args: [\"JSUint8Array\"],"
+        },
+        {
+          "lineNumber": 30,
+          "text": "        },"
+        }
+      ]
+    },
+    "domjitUint8ArrayArg": {
+      "status": "found",
+      "label": "DOMJIT JSUint8Array arg",
+      "file": "src/bun.js/webcore/encoding.classes.ts",
+      "lineNumber": 29,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/encoding.classes.ts#L29",
+      "context": [
+        {
+          "lineNumber": 27,
+          "text": "        DOMJIT: {"
+        },
+        {
+          "lineNumber": 28,
+          "text": "          returns: \"JSString\","
+        },
+        {
+          "lineNumber": 29,
+          "text": "          args: [\"JSUint8Array\"],"
+        },
+        {
+          "lineNumber": 30,
+          "text": "        },"
+        },
+        {
+          "lineNumber": 31,
+          "text": "      },"
+        }
+      ]
+    },
+    "zigCodegenClass": {
+      "status": "found",
+      "label": "JSTextDecoder codegen class",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 21,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L21",
+      "context": [
+        {
+          "lineNumber": 19,
+          "text": "encoding: EncodingLabel = EncodingLabel.@\"UTF-8\","
+        },
+        {
+          "lineNumber": 20,
+          "text": ""
+        },
+        {
+          "lineNumber": 21,
+          "text": "pub const js = jsc.Codegen.JSTextDecoder;"
+        },
+        {
+          "lineNumber": 22,
+          "text": "pub const toJS = js.toJS;"
+        },
+        {
+          "lineNumber": 23,
+          "text": "pub const fromJS = js.fromJS;"
+        }
+      ]
+    },
+    "defaultEncodingUtf8": {
+      "status": "found",
+      "label": "default UTF-8 encoding",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 19,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L19",
+      "context": [
+        {
+          "lineNumber": 17,
+          "text": "ignore_bom: bool = false,"
+        },
+        {
+          "lineNumber": 18,
+          "text": "fatal: bool = false,"
+        },
+        {
+          "lineNumber": 19,
+          "text": "encoding: EncodingLabel = EncodingLabel.@\"UTF-8\","
+        },
+        {
+          "lineNumber": 20,
+          "text": ""
+        },
+        {
+          "lineNumber": 21,
+          "text": "pub const js = jsc.Codegen.JSTextDecoder;"
+        }
+      ]
+    },
+    "decodeMethod": {
+      "status": "found",
+      "label": "TextDecoder.decode method",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 158,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L158",
+      "context": [
+        {
+          "lineNumber": 156,
+          "text": "}"
+        },
+        {
+          "lineNumber": 157,
+          "text": ""
+        },
+        {
+          "lineNumber": 158,
+          "text": "pub fn decode(this: *TextDecoder, globalThis: *jsc.JSGlobalObject, callframe: *jsc.CallFrame) bun.JSError!JSValue {"
+        },
+        {
+          "lineNumber": 159,
+          "text": "    const arguments = callframe.arguments_old(2).slice();"
+        },
+        {
+          "lineNumber": 160,
+          "text": ""
+        }
+      ]
+    },
+    "decodeWithoutTypeChecks": {
+      "status": "found",
+      "label": "decodeWithoutTypeChecks fast path",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 188,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L188",
+      "context": [
+        {
+          "lineNumber": 186,
+          "text": "}"
+        },
+        {
+          "lineNumber": 187,
+          "text": ""
+        },
+        {
+          "lineNumber": 188,
+          "text": "pub fn decodeWithoutTypeChecks(this: *TextDecoder, globalThis: *jsc.JSGlobalObject, uint8array: *jsc.JSUint8Array) bun.JSError!JSValue {"
+        },
+        {
+          "lineNumber": 189,
+          "text": "    return this.decodeSlice(globalThis, uint8array.slice(), false);"
+        },
+        {
+          "lineNumber": 190,
+          "text": "}"
+        }
+      ]
+    },
+    "decodeSlice": {
+      "status": "found",
+      "label": "decodeSlice implementation",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 192,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L192",
+      "context": [
+        {
+          "lineNumber": 190,
+          "text": "}"
+        },
+        {
+          "lineNumber": 191,
+          "text": ""
+        },
+        {
+          "lineNumber": 192,
+          "text": "fn decodeSlice(this: *TextDecoder, globalThis: *jsc.JSGlobalObject, buffer_slice: []const u8, comptime flush: bool) bun.JSError!JSValue {"
+        },
+        {
+          "lineNumber": 193,
+          "text": "    const TextCodec = @import(\"../bindings/TextCodec.zig\").TextCodec;"
+        },
+        {
+          "lineNumber": 194,
+          "text": ""
+        }
+      ]
+    },
+    "encodingSwitch": {
+      "status": "found",
+      "label": "encoding switch",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 195,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L195",
+      "context": [
+        {
+          "lineNumber": 193,
+          "text": "    const TextCodec = @import(\"../bindings/TextCodec.zig\").TextCodec;"
+        },
+        {
+          "lineNumber": 194,
+          "text": ""
+        },
+        {
+          "lineNumber": 195,
+          "text": "    switch (this.encoding) {"
+        },
+        {
+          "lineNumber": 196,
+          "text": "        EncodingLabel.latin1 => {"
+        },
+        {
+          "lineNumber": 197,
+          "text": "            if (strings.isAllASCII(buffer_slice)) {"
+        }
+      ]
+    },
+    "latin1Branch": {
+      "status": "found",
+      "label": "latin1 native branch",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 196,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L196",
+      "context": [
+        {
+          "lineNumber": 194,
+          "text": ""
+        },
+        {
+          "lineNumber": 195,
+          "text": "    switch (this.encoding) {"
+        },
+        {
+          "lineNumber": 196,
+          "text": "        EncodingLabel.latin1 => {"
+        },
+        {
+          "lineNumber": 197,
+          "text": "            if (strings.isAllASCII(buffer_slice)) {"
+        },
+        {
+          "lineNumber": 198,
+          "text": "                return ZigString.init(buffer_slice).toJS(globalThis);"
+        }
+      ]
+    },
+    "latin1AsciiToJs": {
+      "status": "found",
+      "label": "latin1 ASCII to JS",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 198,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L198",
+      "context": [
+        {
+          "lineNumber": 196,
+          "text": "        EncodingLabel.latin1 => {"
+        },
+        {
+          "lineNumber": 197,
+          "text": "            if (strings.isAllASCII(buffer_slice)) {"
+        },
+        {
+          "lineNumber": 198,
+          "text": "                return ZigString.init(buffer_slice).toJS(globalThis);"
+        },
+        {
+          "lineNumber": 199,
+          "text": "            }"
+        },
+        {
+          "lineNumber": 200,
+          "text": ""
+        }
+      ]
+    },
+    "latin1ExternalU16": {
+      "status": "found",
+      "label": "latin1 external UTF-16 string",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 209,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L209",
+      "context": [
+        {
+          "lineNumber": 207,
+          "text": ""
+        },
+        {
+          "lineNumber": 208,
+          "text": "            const out = strings.copyCP1252IntoUTF16(bytes, buffer_slice);"
+        },
+        {
+          "lineNumber": 209,
+          "text": "            return ZigString.toExternalU16(bytes.ptr, out.written, globalThis);"
+        },
+        {
+          "lineNumber": 210,
+          "text": "        },"
+        },
+        {
+          "lineNumber": 211,
+          "text": "        EncodingLabel.@\"UTF-8\" => {"
+        }
+      ]
+    },
+    "utf8Branch": {
+      "status": "found",
+      "label": "UTF-8 native branch",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 211,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L211",
+      "context": [
+        {
+          "lineNumber": 209,
+          "text": "            return ZigString.toExternalU16(bytes.ptr, out.written, globalThis);"
+        },
+        {
+          "lineNumber": 210,
+          "text": "        },"
+        },
+        {
+          "lineNumber": 211,
+          "text": "        EncodingLabel.@\"UTF-8\" => {"
+        },
+        {
+          "lineNumber": 212,
+          "text": "            const input, const deinit = input: {"
+        },
+        {
+          "lineNumber": 213,
+          "text": "                const maybe_without_bom = if (!this.ignore_bom and strings.hasPrefixComptime(buffer_slice, \"\\xef\\xbb\\xbf\"))"
+        }
+      ]
+    },
+    "utf8DecodeAlloc": {
+      "status": "found",
+      "label": "UTF-8 toUTF16AllocMaybeBuffered",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 230,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L230",
+      "context": [
+        {
+          "lineNumber": 228,
+          "text": ""
+        },
+        {
+          "lineNumber": 229,
+          "text": "            const maybe_decode_result = switch (this.fatal) {"
+        },
+        {
+          "lineNumber": 230,
+          "text": "                inline else => |fail_if_invalid| strings.toUTF16AllocMaybeBuffered(bun.default_allocator, input, fail_if_invalid, flush) catch |err| {"
+        },
+        {
+          "lineNumber": 231,
+          "text": "                    if (deinit) bun.default_allocator.free(input);"
+        },
+        {
+          "lineNumber": 232,
+          "text": "                    if (comptime fail_if_invalid) {"
+        }
+      ]
+    },
+    "utf8ExternalU16": {
+      "status": "found",
+      "label": "UTF-8 external UTF-16 string",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 253,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L253",
+      "context": [
+        {
+          "lineNumber": 251,
+          "text": "                    }"
+        },
+        {
+          "lineNumber": 252,
+          "text": "                }"
+        },
+        {
+          "lineNumber": 253,
+          "text": "                return ZigString.toExternalU16(decoded.ptr, decoded.len, globalThis);"
+        },
+        {
+          "lineNumber": 254,
+          "text": "            }"
+        },
+        {
+          "lineNumber": 255,
+          "text": ""
+        }
+      ]
+    },
+    "utf8AsciiToJs": {
+      "status": "found",
+      "label": "UTF-8 ASCII to JS",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 259,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L259",
+      "context": [
+        {
+          "lineNumber": 257,
+          "text": ""
+        },
+        {
+          "lineNumber": 258,
+          "text": "            // Experiment: using mimalloc directly is slightly slower"
+        },
+        {
+          "lineNumber": 259,
+          "text": "            return ZigString.init(input).toJS(globalThis);"
+        },
+        {
+          "lineNumber": 260,
+          "text": "        },"
+        },
+        {
+          "lineNumber": 261,
+          "text": ""
+        }
+      ]
+    },
+    "utf16Branch": {
+      "status": "found",
+      "label": "UTF-16 native branch",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 262,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L262",
+      "context": [
+        {
+          "lineNumber": 260,
+          "text": "        },"
+        },
+        {
+          "lineNumber": 261,
+          "text": ""
+        },
+        {
+          "lineNumber": 262,
+          "text": "        inline .@\"UTF-16LE\", .@\"UTF-16BE\" => |utf16_encoding| {"
+        },
+        {
+          "lineNumber": 263,
+          "text": "            const bom = if (comptime utf16_encoding == .@\"UTF-16LE\") \"\\xff\\xfe\" else \"\\xfe\\xff\";"
+        },
+        {
+          "lineNumber": 264,
+          "text": "            const input = if (!this.ignore_bom and strings.hasPrefixComptime(buffer_slice, bom))"
+        }
+      ]
+    },
+    "otherEncodingsWebKitComment": {
+      "status": "found",
+      "label": "other encodings use WebKit TextCodec",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 280,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L280",
+      "context": [
+        {
+          "lineNumber": 278,
+          "text": "        },"
+        },
+        {
+          "lineNumber": 279,
+          "text": ""
+        },
+        {
+          "lineNumber": 280,
+          "text": "        // Handle all other encodings using WebKit's TextCodec"
+        },
+        {
+          "lineNumber": 281,
+          "text": "        else => {"
+        },
+        {
+          "lineNumber": 282,
+          "text": "            const encoding_name = EncodingLabel.getLabel(this.encoding);"
+        }
+      ]
+    },
+    "otherEncodingsCreateCodec": {
+      "status": "found",
+      "label": "TextCodec.create for other encodings",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 286,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L286",
+      "context": [
+        {
+          "lineNumber": 284,
+          "text": "            // Create codec if we don't have one cached"
+        },
+        {
+          "lineNumber": 285,
+          "text": "            // Note: In production, we might want to cache these per-encoding"
+        },
+        {
+          "lineNumber": 286,
+          "text": "            const codec = TextCodec.create(encoding_name) orelse {"
+        },
+        {
+          "lineNumber": 287,
+          "text": "                // Fallback to empty string if codec creation fails"
+        },
+        {
+          "lineNumber": 288,
+          "text": "                return ZigString.init(\"\").toJS(globalThis);"
+        }
+      ]
+    },
+    "otherEncodingsDecode": {
+      "status": "found",
+      "label": "TextCodec.decode for other encodings",
+      "file": "src/bun.js/webcore/TextDecoder.zig",
+      "lineNumber": 298,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/webcore/TextDecoder.zig#L298",
+      "context": [
+        {
+          "lineNumber": 296,
+          "text": ""
+        },
+        {
+          "lineNumber": 297,
+          "text": "            // Decode the data"
+        },
+        {
+          "lineNumber": 298,
+          "text": "            const result = codec.decode(buffer_slice, flush, this.fatal);"
+        },
+        {
+          "lineNumber": 299,
+          "text": "            defer result.result.deref();"
+        },
+        {
+          "lineNumber": 300,
+          "text": ""
+        }
+      ]
+    },
+    "registryNativeFastPathComment": {
+      "status": "found",
+      "label": "native UTF encodings not registered in codec map",
+      "file": "src/bun.js/bindings/TextEncodingRegistry.cpp",
+      "lineNumber": 207,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/bindings/TextEncodingRegistry.cpp#L207",
+      "context": [
+        {
+          "lineNumber": 205,
+          "text": "    ASSERT(textEncodingNameMap().isEmpty());"
+        },
+        {
+          "lineNumber": 206,
+          "text": ""
+        },
+        {
+          "lineNumber": 207,
+          "text": "    // Native UTF-8, UTF-16, Latin1 support in Bun - not registering here"
+        },
+        {
+          "lineNumber": 208,
+          "text": ""
+        },
+        {
+          "lineNumber": 209,
+          "text": "    TextCodecUserDefined::registerEncodingNames(addToTextEncodingNameMap);"
+        }
+      ]
+    },
+    "registryUtfFallbackNull": {
+      "status": "found",
+      "label": "UTF-8 handled natively returns null codec",
+      "file": "src/bun.js/bindings/TextEncodingRegistry.cpp",
+      "lineNumber": 296,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/bindings/TextEncodingRegistry.cpp#L296",
+      "context": [
+        {
+          "lineNumber": 294,
+          "text": "    if (!encoding.isValid()) {"
+        },
+        {
+          "lineNumber": 295,
+          "text": "        RELEASE_LOG_ERROR(TextEncoding, \"Trying to create new text codec with invalid (null) encoding name. Will default to UTF-8.\");"
+        },
+        {
+          "lineNumber": 296,
+          "text": "        return nullptr; // UTF-8 handled natively in Bun"
+        },
+        {
+          "lineNumber": 297,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 298,
+          "text": "    auto result = textCodecMap.find(encoding.name());"
+        }
+      ]
+    },
+    "textEncodingDecode": {
+      "status": "found",
+      "label": "TextEncoding::decode uses newTextCodec",
+      "file": "src/bun.js/bindings/TextEncoding.cpp",
+      "lineNumber": 65,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/bindings/TextEncoding.cpp#L65",
+      "context": [
+        {
+          "lineNumber": 63,
+          "text": "}"
+        },
+        {
+          "lineNumber": 64,
+          "text": ""
+        },
+        {
+          "lineNumber": 65,
+          "text": "String TextEncoding::decode(std::span<const uint8_t> data, bool stopOnError, bool& sawError) const"
+        },
+        {
+          "lineNumber": 66,
+          "text": "{"
+        },
+        {
+          "lineNumber": 67,
+          "text": "    if (m_name.isNull())"
+        }
+      ]
+    },
+    "textEncodingDecodeNewCodec": {
+      "status": "found",
+      "label": "TextEncoding::decode newTextCodec call",
+      "file": "src/bun.js/bindings/TextEncoding.cpp",
+      "lineNumber": 70,
+      "url": "https://github.com/oven-sh/bun/blob/bf2e2cecf27e800962b1e7f03d66278f9d5d2e79/src/bun.js/bindings/TextEncoding.cpp#L70",
+      "context": [
+        {
+          "lineNumber": 68,
+          "text": "        return String();"
+        },
+        {
+          "lineNumber": 69,
+          "text": ""
+        },
+        {
+          "lineNumber": 70,
+          "text": "    return newTextCodec(*this)->decode(data, true, stopOnError, sawError);"
+        },
+        {
+          "lineNumber": 71,
+          "text": "}"
+        },
+        {
+          "lineNumber": 72,
+          "text": ""
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "bun-textdecoder-js-class-dispatches-to-zig",
+      "classification": "SOURCE_FACT",
+      "summary": "Bun defines the TextDecoder class through generated bindings whose decode prototype method maps to the Zig TextDecoder.decode implementation.",
+      "evidence": [
+        "TextDecoder class definition line 5",
+        "prototype decode binding line 24",
+        "DOMJIT JSString return line 28",
+        "JSTextDecoder codegen class line 21"
+      ]
+    },
+    {
+      "id": "bun-textdecoder-utf8-native-path",
+      "classification": "SOURCE_FACT",
+      "summary": "For the default UTF-8 TextDecoder used by the benchmark rows, Bun source routes through a Zig UTF-8 branch that decodes with bun.strings and returns ZigString JS values.",
+      "evidence": [
+        "default UTF-8 encoding line 19",
+        "TextDecoder.decode line 158",
+        "decodeSlice line 192",
+        "UTF-8 branch line 211",
+        "toUTF16AllocMaybeBuffered line 230",
+        "ZigString.toExternalU16 line 253",
+        "ZigString.init(input).toJS line 259"
+      ]
+    },
+    {
+      "id": "bun-textdecoder-webkit-only-other-encodings",
+      "classification": "COUNTEREXAMPLE",
+      "summary": "The pinned Bun source explicitly places WebKit TextCodec behind the all-other-encodings branch, so the default UTF-8 TextDecoder benchmark rows should not be described as dispatching through WebKit TextDecoder.cpp.",
+      "evidence": [
+        "other-encodings WebKit comment line 280",
+        "TextCodec.create line 286",
+        "TextCodec.decode line 298",
+        "native UTF encodings not registered line 207",
+        "UTF-8 handled natively null codec line 296"
+      ]
+    },
+    {
+      "id": "bun-textdecoder-dispatch-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This audit is source dispatch evidence for Bun 1.3.13. It is not machine-code evidence, not a benchmark row, and not proof that JavaScript runtimes have no remaining performance headroom.",
+      "evidence": [
+        "The audit does not inspect generated machine code.",
+        "The audit does not measure throughput or memory.",
+        "Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis."
+      ]
+    }
+  ]
+}

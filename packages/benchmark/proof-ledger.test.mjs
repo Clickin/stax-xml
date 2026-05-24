@@ -43,6 +43,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Chrome\/V8 Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/Blink TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit/);
+  assert.match(markdown, /## Current Evidence: Bun TextDecoder Dispatch Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Node TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC Source Pin Audit/);
@@ -72,6 +73,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-BUN-WEBKIT-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \+ `COUNTEREXAMPLE` \|/);
   assert.match(claimRow(markdown, 'CLAIM-PROJECTION'), /\| `BENCH_FACT` for current low-selectivity rows; `HYPOTHESIS` for broad workloads \|/);
 
   assert.match(markdown, /may not move from `HYPOTHESIS` to\s+`CONCLUSION` merely because current full-string benchmark rows are slow/);
@@ -160,6 +162,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /chrome-v8-source-pin-audit\.md/);
   assert.match(markdown, /chrome-blink-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-webkit-textdecoder-source-pin-audit\.md/);
+  assert.match(markdown, /bun-textdecoder-dispatch-source-pin-audit\.md/);
   assert.match(markdown, /node-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-source-pin-audit\.md/);
@@ -388,6 +391,30 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`appendCharacter` at line 465/);
   assert.match(markdown, /UTF-16 `String::adopt` at line 478/);
   assert.match(markdown, /does not prove that Bun runtime\s+dispatch reaches these exact functions/);
+  assert.match(markdown, /Bun TextDecoder Dispatch Source Pin Audit/);
+  assert.match(markdown, /source tag `bun-v1\.3\.13`/);
+  assert.match(markdown, /source commit `bf2e2cecf27e800962b1e7f03d66278f9d5d2e79`/);
+  assert.match(markdown, /local runtime\s+`1\.3\.13\+bf2e2cecf`/);
+  assert.match(markdown, /`TextDecoder` at line 5/);
+  assert.match(markdown, /prototype `decode` to `fn: "decode"` at line\s+24/);
+  assert.match(markdown, /DOMJIT `JSString` return plus `JSUint8Array` argument metadata\s+at lines 28-29/);
+  assert.match(markdown, /`JSTextDecoder` codegen at line\s+21/);
+  assert.match(markdown, /default UTF-8 encoding at line 19/);
+  assert.match(markdown, /`TextDecoder\.decode` at line 158/);
+  assert.match(markdown, /`decodeWithoutTypeChecks` at line 188/);
+  assert.match(markdown, /`decodeSlice` at line 192/);
+  assert.match(markdown, /encoding switch at line 195/);
+  assert.match(markdown, /Bun Zig UTF-8 branch at line 211/);
+  assert.match(markdown, /`strings\.toUTF16AllocMaybeBuffered` at line 230/);
+  assert.match(markdown, /`ZigString\.toExternalU16` at\s+line 253/);
+  assert.match(markdown, /ASCII `ZigString\.init\(input\)\.toJS` at line 259/);
+  assert.match(markdown, /all-other-encodings branch/);
+  assert.match(markdown, /source comment\s+is pinned at line 280/);
+  assert.match(markdown, /`TextCodec\.create` at line 286/);
+  assert.match(markdown, /`codec\.decode` at\s+line 298/);
+  assert.match(markdown, /native UTF-8,\s+UTF-16, and Latin1 support are not registered in the codec map at line 207/);
+  assert.match(markdown, /UTF-8 fallback returns null because UTF-8 is handled natively in Bun at\s+line 296/);
+  assert.match(markdown, /counterexample to citing the pinned WebKit `WebCore\/dom\/TextDecoder\.cpp`\s+path as the Bun 1\.3\.13 default UTF-8 TextDecoder benchmark path/);
   assert.match(markdown, /Node TextDecoder Source Pin Audit/);
   assert.match(markdown, /Node v24\.15\.0, V8 13\.6\.233\.17-node\.48/);
   assert.match(markdown, /`TextDecoder\.decode` at line 482/);
