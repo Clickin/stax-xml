@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T22:55:47.093Z",
+  "generatedAt": "2026-05-24T23:10:18.831Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1165,6 +1165,30 @@
       "measuredRowCount": 2
     },
     {
+      "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+      "objective": null,
+      "contract": null,
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8",
+        "woodstox-jvm",
+        "quick-xml-rust",
+        "unknown"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741644
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 3
+    },
+    {
       "sourceArtifact": "external-baseline.json",
       "objective": null,
       "contract": null,
@@ -2040,17 +2064,17 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 106,
+    "scannedArtifactCount": 107,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 642,
-    "benchmarkArtifactCount": 74,
+    "measuredRowCount": 645,
+    "benchmarkArtifactCount": 75,
     "sourceArtifactCount": 14,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 4,
-    "largeJsFullRowCount": 393,
+    "largeJsFullRowCount": 394,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2061,9 +2085,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 32,
-        "measuredRowCount": 181,
-        "largeFullStringRowCount": 109,
+        "artifactCount": 33,
+        "measuredRowCount": 182,
+        "largeFullStringRowCount": 110,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -2322,10 +2346,26 @@
       {
         "runtimeId": "woodstox-jvm",
         "runtimeLabel": "Java/Woodstox",
-        "artifactCount": 6,
-        "measuredRowCount": 3,
-        "largeFullStringRowCount": 0,
-        "fastestLargeFullStringRow": null,
+        "artifactCount": 7,
+        "measuredRowCount": 4,
+        "largeFullStringRowCount": 1,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+          "id": "woodstox",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "sizeGiB": 1,
+          "fixtureSource": null,
+          "fixtureShape": null,
+          "corpusSeed": null,
+          "mibPerSec": 260.93,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "not-recorded",
+          "eventCount": 61236571,
+          "checksum": -716099804,
+          "contractScope": "full-string-checksum"
+        },
         "sourcePins": [],
         "traceArtifacts": [
           "woodstox-hotspot-trace.json"
@@ -2338,10 +2378,26 @@
       {
         "runtimeId": "quick-xml-rust",
         "runtimeLabel": "Rust/quick-xml",
-        "artifactCount": 4,
-        "measuredRowCount": 3,
-        "largeFullStringRowCount": 0,
-        "fastestLargeFullStringRow": null,
+        "artifactCount": 5,
+        "measuredRowCount": 4,
+        "largeFullStringRowCount": 1,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+          "id": "quick-xml",
+          "runtimeId": "quick-xml-rust",
+          "runtimeLabel": "Rust/quick-xml",
+          "sizeGiB": 1,
+          "fixtureSource": null,
+          "fixtureShape": null,
+          "corpusSeed": null,
+          "mibPerSec": 286.29,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "not-recorded",
+          "eventCount": 61236571,
+          "checksum": -716099804,
+          "contractScope": "full-string-checksum"
+        },
         "sourcePins": [],
         "traceArtifacts": [],
         "allocationArtifacts": [
@@ -2351,7 +2407,7 @@
       {
         "runtimeId": "unknown",
         "runtimeLabel": "unknown",
-        "artifactCount": 8,
+        "artifactCount": 9,
         "measuredRowCount": 44,
         "largeFullStringRowCount": 0,
         "fastestLargeFullStringRow": null,
@@ -13383,7 +13439,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 393,
+    "largeJsFullRowCount": 394,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

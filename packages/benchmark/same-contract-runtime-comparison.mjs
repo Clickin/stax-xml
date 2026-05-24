@@ -11,6 +11,22 @@ const defaultMdOut = resolve(defaultReleaseDir, 'same-contract-runtime-compariso
 const candidateCases = ['stringFull', 'eventObjectFull', 'rawFrameNameId'];
 const textDecoderCases = ['subarraySharedDecoder', 'shortAsciiSubarraySharedDecoder'];
 
+const externalBaselineArtifacts = [
+  {
+    group: 'external-baseline-16mib',
+    file: 'external-baseline.json',
+    fixtureSource: 'generated-file',
+    fixtureShape: 'runtime-comparison-16mib',
+  },
+  {
+    group: 'external-baseline-1024mib-file-sync-batches',
+    file: 'external-baseline-1024mib-file-sync-batches.json',
+    fixtureSource: 'generated-file',
+    fixtureShape: 'node-string-return-1024mib',
+    optional: true,
+  },
+];
+
 const variantArtifacts = [
   {
     group: 'generated-1gib-candidate',
@@ -208,9 +224,15 @@ function main() {
 
 function createReport(options) {
   const readReleaseJson = file => readJson(resolve(options.releaseDir, file));
-  const externalBaseline = readReleaseJson('external-baseline.json');
+  const readOptionalReleaseJson = file => {
+    const path = resolve(options.releaseDir, file);
+    return existsSync(path) ? readJson(path) : null;
+  };
+  const externalReports = externalBaselineArtifacts
+    .map(spec => ({ spec, report: spec.optional ? readOptionalReleaseJson(spec.file) : readReleaseJson(spec.file) }))
+    .filter(item => item.report);
   const comparisonRows = [
-    ...extractExternalRows(externalBaseline),
+    ...externalReports.flatMap(item => extractExternalRows(item.report, item.spec)),
     ...variantArtifacts.flatMap(spec => extractVariantRows(readReleaseJson(spec.file), spec)),
   ];
   const allocationEvidence = allocationArtifacts.map(spec => extractAllocationEvidence(readReleaseJson(spec.file), spec));
@@ -223,7 +245,7 @@ function createReport(options) {
     metadata: {
       releaseDir: options.releaseDir,
       sourceArtifacts: [
-        'external-baseline.json',
+        ...externalReports.map(item => item.spec.file),
         ...variantArtifacts.map(spec => spec.file),
         ...allocationArtifacts.map(spec => spec.file),
       ],
@@ -235,15 +257,15 @@ function createReport(options) {
   };
 }
 
-function extractExternalRows(report) {
+function extractExternalRows(report, spec = externalBaselineArtifacts[0]) {
   const results = report.results ?? [];
   const byTool = new Map(results.map(row => [row.tool, row]));
   const reference = byTool.get('woodstox') ?? results.find(row => row.status === 'ok');
   return results
     .filter(row => row.status === 'ok')
     .map(row => ({
-      group: 'external-baseline-16mib',
-      sourceArtifact: 'external-baseline.json',
+      group: spec.group,
+      sourceArtifact: spec.file,
       runtimeId: externalRuntimeId(row.tool),
       runtimeLabel: externalRuntimeLabel(row.tool),
       languageFamily: externalLanguageFamily(row.tool),
@@ -252,8 +274,8 @@ function extractExternalRows(report) {
       implementation: row.implementation,
       contractScope: row.workload,
       fixture: {
-        source: 'generated-file',
-        shape: 'runtime-comparison-16mib',
+        source: spec.fixtureSource,
+        shape: spec.fixtureShape,
         sizeMiB: round(report.fixture?.sizeMiB),
         sizeGiB: round((report.fixture?.sizeMiB ?? 0) / 1024),
       },
@@ -264,7 +286,9 @@ function extractExternalRows(report) {
       boundedMemory: null,
       memory: {
         primaryKind: 'not-recorded',
-        note: 'external-baseline records throughput and checksum parity, not peak memory.',
+        note: report.options?.staxStreamSource === 'file-sync-batches' && row.tool === 'stax-stream'
+          ? 'external-baseline records throughput and checksum parity, not peak memory; this stax-stream row is demand-driven file-backed byte batches.'
+          : 'external-baseline records throughput and checksum parity, not peak memory.',
       },
       woodstoxRatio: round(row.woodstoxRatio),
       targetStatus: row.targetStatus ?? null,
@@ -383,6 +407,10 @@ function summarize(rows, allocationEvidence) {
   const externalRows = rows.filter(row => row.group === 'external-baseline-16mib');
   const woodstox = externalRows.find(row => row.runtimeId === 'woodstox-jvm');
   const quickXml = externalRows.find(row => row.runtimeId === 'quick-xml-rust');
+  const externalLargeRows = rows.filter(row => row.group === 'external-baseline-1024mib-file-sync-batches');
+  const largeWoodstox = externalLargeRows.find(row => row.runtimeId === 'woodstox-jvm');
+  const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');
+  const largeStaxStream = externalLargeRows.find(row => row.caseId === 'stax-stream');
 
   return {
     rowCount: rows.length,
@@ -399,6 +427,13 @@ function summarize(rows, allocationEvidence) {
       woodstoxMiBPerSec: round(woodstox?.mibPerSec),
       quickXmlMiBPerSec: round(quickXml?.mibPerSec),
       quickXmlWoodstoxRatio: round(quickXml?.woodstoxRatio),
+    },
+    externalBaseline1024MiBFileSyncBatches: {
+      staxStreamMiBPerSec: round(largeStaxStream?.mibPerSec),
+      staxStreamWoodstoxRatio: round(largeStaxStream?.woodstoxRatio),
+      woodstoxMiBPerSec: round(largeWoodstox?.mibPerSec),
+      quickXmlMiBPerSec: round(largeQuickXml?.mibPerSec),
+      quickXmlWoodstoxRatio: round(largeQuickXml?.woodstoxRatio),
     },
     memoryMetricKinds: Array.from(new Set(rows.map(row => row.memory?.primaryKind).filter(Boolean))).sort(),
     allocationEvidenceKinds: allocationEvidence.map(item => item.evidenceKind),
@@ -428,11 +463,15 @@ function createFindings(summary) {
     {
       id: 'external-target-remains-visible',
       status: 'BENCH_FACT',
-      summary: 'The 16 MiB external baseline keeps Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.',
+      summary: 'The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.',
       evidence: [
-        `woodstox=${formatNumber(summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
-        `quick-xml=${formatNumber(summary.externalBaseline16MiB.quickXmlMiBPerSec)} MiB/s`,
-        `quick-xml/Woodstox=${formatNumber(summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}`,
+        `16MiB woodstox=${formatNumber(summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
+        `16MiB quick-xml=${formatNumber(summary.externalBaseline16MiB.quickXmlMiBPerSec)} MiB/s`,
+        `16MiB quick-xml/Woodstox=${formatNumber(summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}`,
+        `1024MiB stax-stream=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec)} MiB/s`,
+        `1024MiB stax-stream/Woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio)}`,
+        `1024MiB woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
+        `1024MiB quick-xml=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s`,
       ],
     },
   ];
@@ -456,6 +495,9 @@ function renderMarkdown(report) {
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
     `- 16 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline16MiB.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}x Woodstox)`,
+    `- 1024 MiB file-backed stax-stream baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio)}x Woodstox)`,
+    `- 1024 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
+    `- 1024 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio)}x Woodstox)`,
     '',
     '## Fastest JS Rows By Group',
     '',

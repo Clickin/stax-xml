@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { closeSync, existsSync, mkdirSync, openSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,6 +32,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     allowMissing: false,
     skipBuild: false,
     fileExplicit: false,
+    staxStreamSource: 'preloaded',
+    chunkKiB: 64,
+    batchSize: 1,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -78,6 +81,15 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--md-out':
         options.mdOut = resolve(process.cwd(), readValue());
         break;
+      case '--stax-stream-source':
+        options.staxStreamSource = parseStaxStreamSource(readValue(), name);
+        break;
+      case '--chunk-kib':
+        options.chunkKiB = parsePositiveInteger(readValue(), name);
+        break;
+      case '--batch-size':
+        options.batchSize = parsePositiveInteger(readValue(), name);
+        break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
@@ -91,6 +103,13 @@ function parseArgs(argv = process.argv.slice(2)) {
   }
 
   return options;
+}
+
+function parseStaxStreamSource(value, flag) {
+  if (value === 'preloaded' || value === 'file-sync-batches') {
+    return value;
+  }
+  throw new Error(`${flag} must be one of preloaded, file-sync-batches.`);
 }
 
 function parseTools(value) {
@@ -258,6 +277,29 @@ function consumeStaxStream(bytes) {
   }
 
   return { eventCount, checksum };
+}
+
+function* createFileByteBatches(filePath, chunkBytes, batchSize) {
+  const fd = openSync(filePath, 'r');
+  try {
+    while (true) {
+      const batch = [];
+      for (let index = 0; index < batchSize; index++) {
+        const buffer = new Uint8Array(chunkBytes);
+        const bytesRead = readSync(fd, buffer, 0, chunkBytes, null);
+        if (bytesRead === 0) {
+          break;
+        }
+        batch.push(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead));
+      }
+      if (batch.length === 0) {
+        return;
+      }
+      yield batch;
+    }
+  } finally {
+    closeSync(fd);
+  }
 }
 
 function gcNow() {
@@ -527,11 +569,14 @@ function createMarkdown(report) {
   lines.push('## Contract');
   lines.push('');
   lines.push('- Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.');
-  lines.push('- `stax-stream` uses `stax-xml` `StreamReaderSync` byte batches and index accessors.');
+  lines.push(`- \`stax-stream\` uses \`stax-xml\` \`StreamReaderSync\` byte batches and index accessors; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
   lines.push('- `stax-event` uses `stax-xml` `EventReaderSync` public event objects.');
   lines.push('- `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.');
   lines.push('- `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.');
   lines.push('- Comparable rows should preserve event count and checksum. A mismatch means the row is not a valid speed comparison.');
+  if (report.options.staxStreamSource === 'file-sync-batches') {
+    lines.push('- In file-sync-batches mode, `stax-stream` reads the next chunk with `readSync` only when `StreamReaderSync` pulls the next `Uint8Array[]` batch; it does not pre-materialize the full XML file.');
+  }
 
   return `${lines.join('\n')}\n`;
 }
@@ -543,15 +588,24 @@ function formatStatus(result) {
 
 async function main() {
   const options = parseArgs();
-  const xml = await readTextFile(options.file);
-  const bytes = new TextEncoder().encode(xml);
+  const needsStaxEvent = options.tools.includes('stax-event');
+  const needsPreloadedStaxStream = options.tools.includes('stax-stream') && options.staxStreamSource === 'preloaded';
+  const xml = needsStaxEvent ? readTextFile(options.file) : null;
+  const bytes = needsPreloadedStaxStream ? readFileSync(options.file) : null;
   const fileSizeBytes = statSync(options.file).size;
   const fileSizeMiB = fileSizeBytes / 1024 / 1024;
+  const chunkBytes = options.chunkKiB * 1024;
 
   const results = [];
   for (const tool of options.tools) {
     if (tool === 'stax-stream') {
-      results.push(measureLocal('stax-stream', 'Node + stax-xml StreamReaderSync', () => consumeStaxStream(bytes), fileSizeMiB, options));
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml StreamReaderSync preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxStream(createFileByteBatches(options.file, chunkBytes, options.batchSize))
+        : () => consumeStaxStream(bytes);
+      results.push(measureLocal('stax-stream', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-event') {
       results.push(measureLocal('stax-event', 'Node + stax-xml EventReaderSync', () => consumeStaxEvent(xml), fileSizeMiB, options));
     } else if (tool === 'woodstox') {
@@ -578,6 +632,9 @@ async function main() {
       runs: options.runs,
       warmups: options.warmups,
       tools: options.tools,
+      staxStreamSource: options.staxStreamSource,
+      chunkKiB: options.chunkKiB,
+      batchSize: options.batchSize,
     },
     target: annotated.target,
     results: annotated.results,
@@ -590,8 +647,7 @@ async function main() {
   console.log(`Wrote ${options.mdOut}`);
 }
 
-async function readTextFile(filePath) {
-  const { readFileSync } = await import('node:fs');
+function readTextFile(filePath) {
   return readFileSync(filePath, 'utf8');
 }
 

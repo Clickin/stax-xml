@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T13:23:23.025Z",
+  "generatedAt": "2026-05-24T23:09:52.765Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -7,6 +7,7 @@
     "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
     "sourceArtifacts": [
       "external-baseline.json",
+      "external-baseline-1024mib-file-sync-batches.json",
       "candidate-headroom-large.json",
       "bun-candidate-headroom-large.json",
       "browser-candidate-headroom-large.json",
@@ -28,25 +29,21 @@
     ]
   },
   "summary": {
-    "rowCount": 46,
-    "jsLargeFullRowCount": 42,
+    "rowCount": 49,
+    "jsLargeFullRowCount": 43,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
-      "group": "projection-1gib-full",
-      "runtimeId": "bun-jsc",
-      "runtimeLabel": "Bun/JSC",
-      "caseId": "rawFrameNameId",
-      "mibPerSec": 84.68,
-      "boundedMemory": true,
+      "group": "external-baseline-1024mib-file-sync-batches",
+      "runtimeId": "node-v8-stax-stream",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "caseId": "stax-stream",
+      "mibPerSec": 93.4,
+      "boundedMemory": null,
       "memory": {
-        "primaryKind": "process-rss",
-        "maxMiB": 199.15,
-        "deltaMiB": -29.27,
-        "maxHeapUsedMiB": 34.1,
-        "maxExternalMiB": 31.32,
-        "maxArrayBuffersMiB": 30.54
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory; this stax-stream row is demand-driven file-backed byte batches."
       },
-      "sourceArtifact": "bun-candidate-headroom-projection-large.json"
+      "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json"
     },
     "fastestJsLargePublicEventRow": {
       "group": "projection-1gib-full",
@@ -83,6 +80,22 @@
       "sourceArtifact": "bun-candidate-headroom-projection-large.json"
     },
     "fastestRowsByGroup": [
+      {
+        "group": "external-baseline-1024mib-file-sync-batches",
+        "fastest": {
+          "group": "external-baseline-1024mib-file-sync-batches",
+          "runtimeId": "node-v8-stax-stream",
+          "runtimeLabel": "Node/V8 stax-stream",
+          "caseId": "stax-stream",
+          "mibPerSec": 93.4,
+          "boundedMemory": null,
+          "memory": {
+            "primaryKind": "not-recorded",
+            "note": "external-baseline records throughput and checksum parity, not peak memory; this stax-stream row is demand-driven file-backed byte batches."
+          },
+          "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json"
+        }
+      },
       {
         "group": "generated-1gib-candidate",
         "fastest": {
@@ -168,6 +181,13 @@
       "woodstoxMiBPerSec": 333.43,
       "quickXmlMiBPerSec": 309.82,
       "quickXmlWoodstoxRatio": 0.93
+    },
+    "externalBaseline1024MiBFileSyncBatches": {
+      "staxStreamMiBPerSec": 93.4,
+      "staxStreamWoodstoxRatio": 0.36,
+      "woodstoxMiBPerSec": 260.93,
+      "quickXmlMiBPerSec": 286.29,
+      "quickXmlWoodstoxRatio": 1.1
     },
     "memoryMetricKinds": [
       "browser-js-heap",
@@ -296,6 +316,93 @@
         "note": "external-baseline records throughput and checksum parity, not peak memory."
       },
       "woodstoxRatio": 0.93,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+      "runtimeId": "node-v8-stax-stream",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 93.4,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory; this stax-stream row is demand-driven file-backed byte batches."
+      },
+      "woodstoxRatio": 0.36,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "languageFamily": "java",
+      "jsRuntime": false,
+      "caseId": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 260.93,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory."
+      },
+      "woodstoxRatio": 1,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "languageFamily": "rust",
+      "jsRuntime": false,
+      "caseId": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 286.29,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "external-baseline records throughput and checksum parity, not peak memory."
+      },
+      "woodstoxRatio": 1.1,
       "targetStatus": "met",
       "runtimeLimitCounterexample": false
     },
@@ -2362,18 +2469,22 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=42",
+        "jsLargeFullRows=43",
         "counterexamples=0"
       ]
     },
     {
       "id": "external-target-remains-visible",
       "status": "BENCH_FACT",
-      "summary": "The 16 MiB external baseline keeps Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.",
+      "summary": "The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.",
       "evidence": [
-        "woodstox=333.43 MiB/s",
-        "quick-xml=309.82 MiB/s",
-        "quick-xml/Woodstox=0.93"
+        "16MiB woodstox=333.43 MiB/s",
+        "16MiB quick-xml=309.82 MiB/s",
+        "16MiB quick-xml/Woodstox=0.93",
+        "1024MiB stax-stream=93.40 MiB/s",
+        "1024MiB stax-stream/Woodstox=0.36",
+        "1024MiB woodstox=260.93 MiB/s",
+        "1024MiB quick-xml=286.29 MiB/s"
       ]
     }
   ]
