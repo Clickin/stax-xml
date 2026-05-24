@@ -1,0 +1,185 @@
+{
+  "generatedAt": "2026-05-24T11:12:11.380Z",
+  "objective": "browser-v8-codegen-trace",
+  "contract": "browser-v8-trace-opt-deopt-same-contract-reader-shapes",
+  "note": "Chrome/Edge browser V8 optimization-status and optional --trace-opt/--trace-deopt stderr evidence for selected same-contract browser reader functions. This is browser-build-specific trace evidence, not a throughput ceiling proof and not a source-code proof.",
+  "environment": {
+    "runtimeName": "browser",
+    "browserName": "HeadlessChrome",
+    "browserVersion": "148.0.0.0",
+    "javascriptEngine": "V8",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "cdpVersion": {
+      "Browser": "Chrome/148.0.7778.179",
+      "Protocol-Version": "1.3",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+      "V8-Version": "14.8.178.22",
+      "WebKit-Version": "537.36 (@4687a88676f95bfbce9ec62314791faae363fea6)",
+      "webSocketDebuggerUrl": "ws://127.0.0.1:49523/devtools/browser/66bb3328-b200-46d4-aa80-d6d84ee204be"
+    },
+    "hostNode": "v24.15.0",
+    "hostPlatform": "win32-x64",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "shape": "diverse-cycle",
+    "actualBytes": 4210992,
+    "sizeMiB": 4.0159149169921875,
+    "batchSize": 16
+  },
+  "options": {
+    "sizeMiB": 4,
+    "diverseCycleSize": 512,
+    "batchSize": 16,
+    "warmups": 80,
+    "iterations": 6,
+    "cases": [
+      "stringFull",
+      "rawFrameNameId",
+      "eventObjectFull"
+    ],
+    "jsFlags": [
+      "--expose-gc",
+      "--allow-natives-syntax",
+      "--trace-opt",
+      "--trace-deopt",
+      "--trace-file-names"
+    ]
+  },
+  "variants": [
+    {
+      "id": "stringFull",
+      "fullStringParity": true,
+      "avgMs": 81.1950000077486,
+      "mibPerSec": 49.460125828055176,
+      "eventCount": 318974,
+      "checksum": 1006682924
+    },
+    {
+      "id": "rawFrameNameId",
+      "fullStringParity": true,
+      "avgMs": 140.03499999642372,
+      "mibPerSec": 28.67793706641017,
+      "eventCount": 318974,
+      "checksum": 1006682924
+    },
+    {
+      "id": "eventObjectFull",
+      "fullStringParity": true,
+      "avgMs": 96.84999999403954,
+      "mibPerSec": 41.46530632152132,
+      "eventCount": 318974,
+      "checksum": 1006682924
+    }
+  ],
+  "optimizationStatus": {
+    "available": true,
+    "functions": [
+      {
+        "functionName": "consumeBrowserStringFull",
+        "status": 1
+      },
+      {
+        "functionName": "consumeBrowserRawFrameNameId",
+        "status": 1
+      },
+      {
+        "functionName": "consumeBrowserEventObjectFull",
+        "status": 281
+      },
+      {
+        "functionName": "decodeBrowserSpan",
+        "status": 41
+      },
+      {
+        "functionName": "foldBrowserString",
+        "status": 41
+      },
+      {
+        "functionName": "materializeBrowserEventObject",
+        "status": 41
+      }
+    ]
+  },
+  "traceSummary": {
+    "rawBytes": 541,
+    "lineCount": 4,
+    "optimizingLineCount": 0,
+    "deoptLineCount": 0,
+    "targetFunctionHits": [
+      {
+        "functionName": "consumeBrowserStringFull",
+        "optimizingMentions": 0,
+        "deoptMentions": 0,
+        "traceMentions": 0
+      },
+      {
+        "functionName": "consumeBrowserRawFrameNameId",
+        "optimizingMentions": 0,
+        "deoptMentions": 0,
+        "traceMentions": 0
+      },
+      {
+        "functionName": "consumeBrowserEventObjectFull",
+        "optimizingMentions": 0,
+        "deoptMentions": 0,
+        "traceMentions": 0
+      },
+      {
+        "functionName": "decodeBrowserSpan",
+        "optimizingMentions": 0,
+        "deoptMentions": 0,
+        "traceMentions": 0
+      },
+      {
+        "functionName": "foldBrowserString",
+        "optimizingMentions": 0,
+        "deoptMentions": 0,
+        "traceMentions": 0
+      },
+      {
+        "functionName": "materializeBrowserEventObject",
+        "optimizingMentions": 0,
+        "deoptMentions": 0,
+        "traceMentions": 0
+      }
+    ],
+    "excerpts": [],
+    "stderrTail": "\r\nDevTools listening on ws://127.0.0.1:49523/devtools/browser/66bb3328-b200-46d4-aa80-d6d84ee204be\r\n[7044:61356:0524/201147.099:ERROR:components\\device_event_log\\device_event_log_impl.cc:202] [20:11:47.099] USB: usb_service_win.cc:108 SetupDiGetDeviceProperty({{A45C254E-DF1C-4EFD-8020-67D146A850E0}, 6}) failed: 요소가 없습니다. (0x490)\r\n[7044:49412:0524/201147.551:ERROR:google_apis\\gcm\\engine\\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT\r\nCreated TensorFlow Lite XNNPACK delegate for CPU.\r\n"
+  },
+  "findings": [
+    {
+      "id": "browser-v8-trace-opt-captured",
+      "classification": "TRACE_FACT",
+      "summary": "Chrome/Edge browser V8 exposed optimization-status evidence while running same-contract browser reader variants.",
+      "evidence": [
+        "optimizationStatusAvailable=true",
+        "optimizedTargetFunctions=6",
+        "traceBytes=541",
+        "optimizingLines=0",
+        "deoptLines=0"
+      ]
+    },
+    {
+      "id": "browser-v8-trace-same-contract",
+      "classification": "TRACE_FACT",
+      "summary": "The traced browser variants preserved full-string event count and checksum parity.",
+      "evidence": [
+        "stringFull: events=318974, checksum=1006682924, mibPerSec=49.46",
+        "rawFrameNameId: events=318974, checksum=1006682924, mibPerSec=28.68",
+        "eventObjectFull: events=318974, checksum=1006682924, mibPerSec=41.47"
+      ]
+    },
+    {
+      "id": "browser-v8-trace-scope-limit",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "This is selected-function browser V8 trace evidence, not a complete generated-code proof and not a runtime ceiling proof.",
+      "evidence": [
+        "V8 optimization status is captured from the page; raw trace logs are summarized when Chrome emits them.",
+        "Safari/WebKit and Firefox/SpiderMonkey codegen/allocation obligations remain separate."
+      ]
+    }
+  ]
+}

@@ -32,13 +32,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 81);
-  assert.equal(report.summary.measuredRowCount, 508);
+  assert.equal(report.summary.scannedArtifactCount, 82);
+  assert.equal(report.summary.measuredRowCount, 511);
   assert.equal(report.summary.largeJsFullRowCount, 277);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 3);
-  assert.equal(report.summary.benchmarkArtifactCount, 59);
+  assert.equal(report.summary.benchmarkArtifactCount, 60);
   assert.equal(report.summary.sourceArtifactCount, 11);
+  assert.equal(report.summary.traceArtifactCount, 4);
   assert.equal(report.summary.allocationArtifactCount, 11);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
@@ -49,7 +50,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
 
-  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 92);
+  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 95);
   assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 78);
   assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
   assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 78);
@@ -72,6 +73,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.runtimeId === 'bun-jsc'
     && row.allocationArtifacts.includes('bun-jsc-memory-allocation-profile.json')
   ));
+  assert.ok(report.coverage.runtimes.some(row =>
+    row.runtimeId === 'chrome-v8-browser'
+    && row.traceArtifacts.includes('browser-v8-codegen-trace.json')
+  ));
 
   assertObligation(report, 'firefox-browser-rows-open', 'covered');
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');
@@ -89,6 +94,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
+  assert.match(markdown, /Browser codegen trace evidence present/);
   assert.match(markdown, /11 allocation\/profile artifacts found/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);
