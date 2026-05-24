@@ -32,11 +32,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 77);
-  assert.equal(report.summary.measuredRowCount, 487);
-  assert.equal(report.summary.largeJsFullRowCount, 259);
-  assert.equal(report.summary.corpusSeedCount, 2);
-  assert.equal(report.summary.openObligationCount, 4);
+  assert.equal(report.summary.scannedArtifactCount, 78);
+  assert.equal(report.summary.measuredRowCount, 505);
+  assert.equal(report.summary.largeJsFullRowCount, 277);
+  assert.equal(report.summary.corpusSeedCount, 3);
+  assert.equal(report.summary.openObligationCount, 3);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
   assert.ok(runtimeIds.includes('node-v8'));
@@ -50,7 +50,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 78);
   assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
   assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 78);
-  assert.deepEqual(report.coverage.corpusSeeds, ['books.xml', 'treebank_e.xml']);
+  assert.deepEqual(report.coverage.corpusSeeds, ['books.xml', 'large.xml', 'treebank_e.xml']);
   assert.ok(report.coverage.sourcePins.some(pin =>
     pin.runtimeId === 'firefox-spidermonkey-browser'
     && pin.sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json'
@@ -65,7 +65,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertObligation(report, 'codegen-traces-open', 'partial');
   assertObligation(report, 'allocation-profiles-open', 'partial');
   assertObligation(report, 'non-v8-browser-coverage-open', 'covered');
-  assertObligation(report, 'independent-corpus-suite-open', 'partial');
+  assertObligation(report, 'independent-corpus-suite-open', 'covered');
   assertObligation(report, 'counterexample-rule-present', 'covered');
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -77,8 +77,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);
-  assert.match(markdown, /Current release corpus seeds: `books\.xml`, `treebank_e\.xml`/);
-  assert.match(markdown, /4 proof obligation\(s\) remain open or partial/);
+  assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);
+  assert.match(markdown, /3 proof obligation\(s\) remain open or partial/);
   assert.match(markdown, /Missing evidence is not evidence that optimization is impossible/);
 });
 
