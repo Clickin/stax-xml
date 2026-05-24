@@ -9,6 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
 const browserHarnessPath = join(__dirname, 'browser-candidate-headroom.mjs');
 const firefoxBidiHarnessPath = join(__dirname, 'firefox-bidi-candidate-headroom.mjs');
+const firefoxBidiTextDecoderHarnessPath = join(__dirname, 'firefox-bidi-textdecoder-span-variants.mjs');
 const defaultJsonOut = join(__dirname, 'results', 'release', 'browser-candidate-headroom-cross-process-projection.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'browser-candidate-headroom-cross-process-projection.md');
 const defaultOutputDir = join(__dirname, 'results', 'cross-process', 'browser-candidate-headroom-projection');
@@ -19,6 +20,13 @@ const defaultCases = [
   'rawFrameNameId',
   'projectionLowSelectivity',
   'projectionHighSelectivity',
+];
+const textDecoderCases = [
+  'subarraySharedDecoder',
+  'viewSharedDecoder',
+  'sliceCopySharedDecoder',
+  'subarrayNewDecoder',
+  'shortAsciiSubarraySharedDecoder',
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -32,7 +40,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     corpusFile: defaultCorpusFile,
     batchSize: 16,
     boundedJsHeapMiB: 512,
-    cases: [...defaultCases],
+    cases: null,
     browserExecutable: null,
     browserTimeoutMs: 20 * 60 * 1000,
     collectHostProcessMemory: true,
@@ -110,16 +118,24 @@ function parseArgs(argv = process.argv.slice(2)) {
   if (!['repeated-person', 'diverse-cycle', 'corpus-cycle', 'projection-cycle'].includes(options.fixtureShape)) {
     throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle, corpus-cycle, projection-cycle.');
   }
-  if (!['browser', 'firefox-bidi'].includes(options.harness)) {
-    throw new Error('--harness must be one of browser, firefox-bidi.');
+  if (!['browser', 'firefox-bidi', 'firefox-bidi-textdecoder'].includes(options.harness)) {
+    throw new Error('--harness must be one of browser, firefox-bidi, firefox-bidi-textdecoder.');
+  }
+  if (options.cases === null) {
+    options.cases = options.harness === 'firefox-bidi-textdecoder'
+      ? [...textDecoderCases]
+      : [...defaultCases];
+  }
+  if (options.harness === 'firefox-bidi-textdecoder' && options.fixtureShape === 'projection-cycle') {
+    throw new Error('--fixture-shape projection-cycle is not supported by the Firefox TextDecoder span harness.');
   }
   if (!options.browserExecutable) {
-    options.browserExecutable = options.harness === 'firefox-bidi'
+    options.browserExecutable = options.harness.startsWith('firefox-bidi')
       ? process.env.FIREFOX_PATH || findFirefoxExecutable()
       : process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable();
   }
   if (!options.browserExecutable || !existsSync(options.browserExecutable)) {
-    const message = options.harness === 'firefox-bidi'
+    const message = options.harness.startsWith('firefox-bidi')
       ? 'Firefox executable was not found. Pass --browser-executable or set FIREFOX_PATH.'
       : 'Chrome or Edge executable was not found. Pass --browser-executable or set CHROME_PATH/EDGE_PATH.';
     throw new Error(message);
@@ -200,7 +216,11 @@ function runChildProcess(runIndex, options) {
 }
 
 function createChildArgs(options, jsonOut, mdOut) {
-  const harnessPath = options.harness === 'firefox-bidi' ? firefoxBidiHarnessPath : browserHarnessPath;
+  const harnessPath = options.harness === 'firefox-bidi'
+    ? firefoxBidiHarnessPath
+    : options.harness === 'firefox-bidi-textdecoder'
+      ? firefoxBidiTextDecoderHarnessPath
+      : browserHarnessPath;
   const args = [
     harnessPath,
     '--browser-executable',
@@ -223,13 +243,14 @@ function createChildArgs(options, jsonOut, mdOut) {
     '1',
     '--warmups',
     String(options.childWarmups),
-    '--cases',
-    options.cases.join(','),
     '--json-out',
     jsonOut,
     '--md-out',
     mdOut,
   ];
+  if (options.harness !== 'firefox-bidi-textdecoder') {
+    args.push('--cases', options.cases.join(','));
+  }
   if (!options.collectHostProcessMemory) {
     args.push('--no-host-process-memory');
   }
@@ -248,9 +269,15 @@ function createReport(options, samples) {
   const variants = options.cases.map(caseId => summarizeVariant(caseId, samples));
   const report = {
     generatedAt: new Date().toISOString(),
-    objective: 'browser-candidate-headroom-cross-process',
-    contract: 'independent-browser-process-candidate-headroom-stability',
-    note: 'Each sample invokes browser-candidate-headroom.mjs, which launches a fresh browser process with --runs=1. Variant memory is browser JS heap; host process-tree memory is summarized separately.',
+    objective: options.harness === 'firefox-bidi-textdecoder'
+      ? 'firefox-bidi-textdecoder-span-cross-process'
+      : 'browser-candidate-headroom-cross-process',
+    contract: options.harness === 'firefox-bidi-textdecoder'
+      ? 'independent-firefox-bidi-textdecoder-span-stability'
+      : 'independent-browser-process-candidate-headroom-stability',
+    note: options.harness === 'firefox-bidi-textdecoder'
+      ? 'Each sample invokes firefox-bidi-textdecoder-span-variants.mjs, which launches a fresh Firefox process with --runs=1. Firefox page JS heap is unavailable; host process-tree memory is summarized separately.'
+      : 'Each sample invokes browser-candidate-headroom.mjs, which launches a fresh browser process with --runs=1. Variant memory is browser JS heap; host process-tree memory is summarized separately.',
     environment: {
       ...first.environment,
       hostCpuName: cpus()[0]?.model ?? 'unknown',
@@ -403,7 +430,7 @@ function createFindings(report) {
     {
       id: 'independent-browser-process-rerun',
       classification: 'BENCH_FACT',
-      summary: `Each sample launched a fresh browser process through the ${report.options.harness} candidate harness.`,
+      summary: `Each sample launched a fresh browser process through the ${report.options.harness} harness.`,
       evidence: [`processRuns=${report.sampleCount}`, `browser=${report.environment.browserName} ${report.environment.browserVersion}`],
     },
     {
@@ -417,7 +444,9 @@ function createFindings(report) {
     {
       id: 'projection-contract-separated',
       classification: 'BENCH_FACT',
-      summary: 'Projection rows are selected-field projected-record workloads, not full StAX event-parity rows.',
+      summary: report.parity.projectionRowIds.length > 0
+        ? 'Projection rows are selected-field projected-record workloads, not full StAX event-parity rows.'
+        : 'No projection rows were selected; all reported variants are full-string StAX parity rows.',
       evidence: report.parity.projectionRowIds.length > 0 ? report.parity.projectionRowIds : ['projection rows not selected'],
     },
     {
@@ -445,9 +474,13 @@ function renderMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This report repeats selected browser candidate-headroom rows in fresh browser processes.',
+    report.options.harness === 'firefox-bidi-textdecoder'
+      ? 'This report repeats Firefox TextDecoder span rows in fresh Firefox browser processes.'
+      : 'This report repeats selected browser candidate-headroom rows in fresh browser processes.',
     'It is browser-runtime timing evidence for the recorded machine, not proof that JavaScript runtimes have no further headroom.',
-    'Projection rows report projected record counts and selected-field checksums; they are workload headroom rows, not full StAX parity rows.',
+    report.parity.projectionRowIds.length > 0
+      ? 'Projection rows report projected record counts and selected-field checksums; they are workload headroom rows, not full StAX parity rows.'
+      : 'All selected rows preserve full-string StAX parity; no projection rows are included.',
     report.environment.javascriptEngine === 'SpiderMonkey'
       ? 'Firefox does not expose Chromium performance.memory, so variant JS heap is unavailable. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.'
       : 'Variant memory is browser JS heap. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.',

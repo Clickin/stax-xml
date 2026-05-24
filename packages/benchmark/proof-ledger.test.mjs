@@ -116,16 +116,16 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest\s+selected and bounded row is Bun\/JSC projection-cycle `eventObjectFull` at\s+63\.29 MiB\/s/);
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 378\s+measured rows/);
-  assert.match(markdown, /169 JavaScript 1 GiB\+ full-string rows and zero\s+bounded-memory 200 MiB\/s\+ counterexamples/);
+  assert.match(markdown, /recognizes 393\s+measured rows/);
+  assert.match(markdown, /184 JavaScript 1 GiB\+ full-string rows and zero\s+bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /Bun\/JSC `stringFull` from the fresh-process projection artifact at\s+97\.82 MiB\/s/);
   assert.match(markdown, /only a derived bounded flag and no row-level\s+memory counter/);
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 245\.41 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than a runtime-limit counterexample/);
-  assert.match(markdown, /recognizes 378\s+measured rows/);
-  assert.match(markdown, /45 benchmark artifacts, 9 source artifacts, 3\s+trace\/profile artifacts, 9 allocation artifacts/);
+  assert.match(markdown, /recognizes 393\s+measured rows/);
+  assert.match(markdown, /46 benchmark artifacts, 9 source artifacts, 3\s+trace\/profile artifacts, 9 allocation artifacts/);
   assert.match(markdown, /one release corpus seed: `treebank_e\.xml`/);
-  assert.match(markdown, /73 Chrome\/V8 browser rows, 36 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 36 non-V8 browser benchmark\s+rows/);
+  assert.match(markdown, /73 Chrome\/V8 browser rows, 51 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 51 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
   assert.match(markdown, /4 open or partial obligations/);
   assert.match(markdown, /does not\s+turn missing evidence into evidence that optimization\s+is impossible/);
@@ -257,6 +257,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /browser-textdecoder-span-variants-corpus\.md/);
   assert.match(markdown, /firefox-bidi-textdecoder-span-variants\.md/);
   assert.match(markdown, /firefox-bidi-textdecoder-span-variants-corpus\.md/);
+  assert.match(markdown, /firefox-bidi-textdecoder-span-cross-process\.md/);
   assert.match(markdown, /subarraySharedDecoder` reported `40\.31 MiB\/s`/);
   assert.match(markdown, /HeadlessChrome 148\.0\.0\.0 \/ browser V8/);
   assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 16\.63 MiB\/s for\s+`subarraySharedDecoder`/);
@@ -434,6 +435,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /shortAsciiSubarraySharedDecoder` row\s+reported `46\.28 MiB\/s`/);
   assert.match(markdown, /Firefox\/SpiderMonkey corpus TextDecoder span artifact/);
   assert.match(markdown, /shortAsciiSubarraySharedDecoder` row\s+reported `68\.42 MiB\/s`/);
+  assert.match(markdown, /Firefox\/SpiderMonkey fresh-process TextDecoder span artifact/);
+  assert.match(markdown, /shortAsciiSubarraySharedDecoder` averaged `49\.96 MiB\/s`/);
   assert.match(markdown, /The 512 MiB row\s+succeeded at 74\.19 MiB\/s/);
   assert.match(markdown, /peak RSS 1\.07 GiB/);
   assert.match(markdown, /RangeError: Invalid string length/);

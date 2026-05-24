@@ -1,0 +1,963 @@
+{
+  "generatedAt": "2026-05-24T06:19:27.426Z",
+  "objective": "firefox-bidi-textdecoder-span-cross-process",
+  "contract": "independent-firefox-bidi-textdecoder-span-stability",
+  "note": "Each sample invokes firefox-bidi-textdecoder-span-variants.mjs, which launches a fresh Firefox process with --runs=1. Firefox page JS heap is unavailable; host process-tree memory is summarized separately.",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "SpiderMonkey",
+    "browserName": "Firefox",
+    "browserVersion": "143.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "unavailable",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    "hostCpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "sourceFile": null,
+    "shape": "diverse-cycle",
+    "rowXml": "<person0 id=\"item-0\" data0=\"value-0\" code0=\"group-0\" flag0=\"true\"><name0>Runtime Benchmark 0 ☃-0-🙂</name0><summary0 rank=\"0\">Full string checksum payload 0</summary0><group0 shard=\"0\" bucket=\"0\">Text 0 0</group0></person0>",
+    "rowPreviewTruncated": false,
+    "rowCycleSize": 4096,
+    "minRowBytes": 222,
+    "maxRowBytes": 284,
+    "averageRowBytes": 261.37109375,
+    "targetBytes": 1073741824,
+    "actualBytes": 1073742038,
+    "sizeGiB": 1.000000199303031,
+    "batchSize": 16
+  },
+  "options": {
+    "processRuns": 3,
+    "harness": "firefox-bidi-textdecoder",
+    "childWarmups": 0,
+    "sizeGiB": 1,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 4096,
+    "batchSize": 16,
+    "boundedJsHeapMiB": 512,
+    "cases": [
+      "subarraySharedDecoder",
+      "viewSharedDecoder",
+      "sliceCopySharedDecoder",
+      "subarrayNewDecoder",
+      "shortAsciiSubarraySharedDecoder"
+    ],
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    "browserTimeoutMs": 1200000,
+    "collectHostProcessMemory": true
+  },
+  "rawArtifacts": {
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release",
+    "committed": false
+  },
+  "sampleCount": 3,
+  "childReports": [
+    {
+      "runIndex": 1,
+      "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release\\browser-run-1.json",
+      "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release\\browser-run-1.md",
+      "environment": {
+        "runtimeName": "browser",
+        "javascriptEngine": "SpiderMonkey",
+        "browserName": "Firefox",
+        "browserVersion": "143.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+        "platform": "Win32",
+        "hardwareConcurrency": 20,
+        "gcStrategy": "unavailable",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "hostPlatform": "win32-x64",
+        "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+      },
+      "hostProcessMemory": {
+        "scope": "windows-process-tree",
+        "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+        "samples": [
+          {
+            "label": "browser-started",
+            "at": "2026-05-24T06:10:22.127Z",
+            "scope": "windows-process-tree",
+            "rootPid": 7300,
+            "processCount": 12,
+            "workingSetBytes": 772337664,
+            "privateBytes": 644399104
+          },
+          {
+            "label": "before-run",
+            "at": "2026-05-24T06:10:22.868Z",
+            "scope": "windows-process-tree",
+            "rootPid": 7300,
+            "processCount": 12,
+            "workingSetBytes": 767369216,
+            "privateBytes": 634511360
+          },
+          {
+            "label": "after-run",
+            "at": "2026-05-24T06:13:19.336Z",
+            "scope": "windows-process-tree",
+            "rootPid": 7300,
+            "processCount": 12,
+            "workingSetBytes": 1069834240,
+            "privateBytes": 890974208
+          }
+        ],
+        "maxWorkingSetBytes": 1069834240,
+        "maxPrivateBytes": 890974208,
+        "maxProcessCount": 12
+      },
+      "variants": [
+        {
+          "id": "subarraySharedDecoder",
+          "mibPerSec": 35.12874834943985,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "viewSharedDecoder",
+          "mibPerSec": 34.72416014638075,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "sliceCopySharedDecoder",
+          "mibPerSec": 29.902181459667208,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 102702850,
+            "copiedSpanBytes": 876552566,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "subarrayNewDecoder",
+          "mibPerSec": 18.635438556683813,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 102702850,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "shortAsciiSubarraySharedDecoder",
+          "mibPerSec": 50.238594226600746,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 12215015,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 90487835,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        }
+      ]
+    },
+    {
+      "runIndex": 2,
+      "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release\\browser-run-2.json",
+      "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release\\browser-run-2.md",
+      "environment": {
+        "runtimeName": "browser",
+        "javascriptEngine": "SpiderMonkey",
+        "browserName": "Firefox",
+        "browserVersion": "143.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+        "platform": "Win32",
+        "hardwareConcurrency": 20,
+        "gcStrategy": "unavailable",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "hostPlatform": "win32-x64",
+        "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+      },
+      "hostProcessMemory": {
+        "scope": "windows-process-tree",
+        "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+        "samples": [
+          {
+            "label": "browser-started",
+            "at": "2026-05-24T06:13:23.430Z",
+            "scope": "windows-process-tree",
+            "rootPid": 52576,
+            "processCount": 12,
+            "workingSetBytes": 711397376,
+            "privateBytes": 581378048
+          },
+          {
+            "label": "before-run",
+            "at": "2026-05-24T06:13:24.033Z",
+            "scope": "windows-process-tree",
+            "rootPid": 52576,
+            "processCount": 12,
+            "workingSetBytes": 771276800,
+            "privateBytes": 640368640
+          },
+          {
+            "label": "after-run",
+            "at": "2026-05-24T06:16:21.930Z",
+            "scope": "windows-process-tree",
+            "rootPid": 52576,
+            "processCount": 12,
+            "workingSetBytes": 1062727680,
+            "privateBytes": 886235136
+          }
+        ],
+        "maxWorkingSetBytes": 1062727680,
+        "maxPrivateBytes": 886235136,
+        "maxProcessCount": 12
+      },
+      "variants": [
+        {
+          "id": "subarraySharedDecoder",
+          "mibPerSec": 34.63340025806964,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "viewSharedDecoder",
+          "mibPerSec": 34.2129193867036,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "sliceCopySharedDecoder",
+          "mibPerSec": 29.3750517530449,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 102702850,
+            "copiedSpanBytes": 876552566,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "subarrayNewDecoder",
+          "mibPerSec": 18.624402693086342,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 102702850,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "shortAsciiSubarraySharedDecoder",
+          "mibPerSec": 49.76426149589708,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 12215015,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 90487835,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        }
+      ]
+    },
+    {
+      "runIndex": 3,
+      "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release\\browser-run-3.json",
+      "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\firefox-bidi-textdecoder-span-release\\browser-run-3.md",
+      "environment": {
+        "runtimeName": "browser",
+        "javascriptEngine": "SpiderMonkey",
+        "browserName": "Firefox",
+        "browserVersion": "143.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+        "platform": "Win32",
+        "hardwareConcurrency": 20,
+        "gcStrategy": "unavailable",
+        "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+        "hostPlatform": "win32-x64",
+        "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+      },
+      "hostProcessMemory": {
+        "scope": "windows-process-tree",
+        "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+        "samples": [
+          {
+            "label": "browser-started",
+            "at": "2026-05-24T06:16:25.947Z",
+            "scope": "windows-process-tree",
+            "rootPid": 36196,
+            "processCount": 12,
+            "workingSetBytes": 774111232,
+            "privateBytes": 642441216
+          },
+          {
+            "label": "before-run",
+            "at": "2026-05-24T06:16:26.614Z",
+            "scope": "windows-process-tree",
+            "rootPid": 36196,
+            "processCount": 12,
+            "workingSetBytes": 770650112,
+            "privateBytes": 638185472
+          },
+          {
+            "label": "after-run",
+            "at": "2026-05-24T06:19:24.716Z",
+            "scope": "windows-process-tree",
+            "rootPid": 36196,
+            "processCount": 12,
+            "workingSetBytes": 1060708352,
+            "privateBytes": 882610176
+          }
+        ],
+        "maxWorkingSetBytes": 1060708352,
+        "maxPrivateBytes": 882610176,
+        "maxProcessCount": 12
+      },
+      "variants": [
+        {
+          "id": "subarraySharedDecoder",
+          "mibPerSec": 34.6725913926089,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "viewSharedDecoder",
+          "mibPerSec": 34.36018608474159,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "sliceCopySharedDecoder",
+          "mibPerSec": 29.384796243059952,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 0,
+            "copiedSpans": 102702850,
+            "copiedSpanBytes": 876552566,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "subarrayNewDecoder",
+          "mibPerSec": 18.45213643057014,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 102702850,
+            "textDecoderInstances": 102702850,
+            "shortAsciiHits": 0,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        },
+        {
+          "id": "shortAsciiSubarraySharedDecoder",
+          "mibPerSec": 49.87634196490848,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "counterexampleStatus": "not-found",
+          "maxJsHeapUsedBytes": null,
+          "maxJsHeapTotalBytes": null,
+          "jsHeapSizeLimitBytes": null,
+          "materializationCounters": {
+            "stringFieldReads": 102702850,
+            "nameStringReads": 32864912,
+            "textStringReads": 12324342,
+            "attrNameStringReads": 28756798,
+            "attrValueStringReads": 28756798,
+            "rawSpanMaterializations": 102702850,
+            "rawNameSpanMaterializations": 32864912,
+            "rawTextSpanMaterializations": 12324342,
+            "rawAttrNameSpanMaterializations": 28756798,
+            "rawAttrValueSpanMaterializations": 28756798,
+            "decodeSpanCalls": 102702850,
+            "textDecoderCalls": 12215015,
+            "textDecoderInstances": 0,
+            "shortAsciiHits": 90487835,
+            "copiedSpans": 0,
+            "copiedSpanBytes": 0,
+            "implicitAttrValueReads": 0,
+            "attributePairs": 28756798
+          }
+        }
+      ]
+    }
+  ],
+  "parity": {
+    "streamAndFullRowsStable": true,
+    "projectionRowsStable": true,
+    "streamAndFullRowIds": [
+      "subarraySharedDecoder",
+      "viewSharedDecoder",
+      "sliceCopySharedDecoder",
+      "subarrayNewDecoder",
+      "shortAsciiSubarraySharedDecoder"
+    ],
+    "projectionRowIds": []
+  },
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Host process-tree memory is inherited from each child report and is process-level browser memory, not a portable per-variant JS heap measurement.",
+    "childRows": [
+      {
+        "runIndex": 1,
+        "scope": "windows-process-tree",
+        "maxWorkingSetBytes": 1069834240,
+        "maxPrivateBytes": 890974208,
+        "maxProcessCount": 12
+      },
+      {
+        "runIndex": 2,
+        "scope": "windows-process-tree",
+        "maxWorkingSetBytes": 1062727680,
+        "maxPrivateBytes": 886235136,
+        "maxProcessCount": 12
+      },
+      {
+        "runIndex": 3,
+        "scope": "windows-process-tree",
+        "maxWorkingSetBytes": 1060708352,
+        "maxPrivateBytes": 882610176,
+        "maxProcessCount": 12
+      }
+    ],
+    "maxWorkingSetBytes": 1069834240,
+    "maxPrivateBytes": 890974208,
+    "maxProcessCount": 12
+  },
+  "variants": [
+    {
+      "id": "subarraySharedDecoder",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 34.81158000003946,
+      "minMiBPerSec": 34.63340025806964,
+      "maxMiBPerSec": 35.12874834943985,
+      "spreadRatio": 0.014229405599218689,
+      "mibPerSecSamples": [
+        35.12874834943985,
+        34.63340025806964,
+        34.6725913926089
+      ],
+      "eventCounts": [
+        45189256
+      ],
+      "checksums": [
+        1421012805
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": false,
+      "maxJsHeapUsedBytes": null,
+      "maxJsHeapTotalBytes": null,
+      "jsHeapSizeLimitBytes": null,
+      "counterexampleFound": false
+    },
+    {
+      "id": "viewSharedDecoder",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 34.43242187260864,
+      "minMiBPerSec": 34.2129193867036,
+      "maxMiBPerSec": 34.72416014638075,
+      "spreadRatio": 0.01484765612969699,
+      "mibPerSecSamples": [
+        34.72416014638075,
+        34.2129193867036,
+        34.36018608474159
+      ],
+      "eventCounts": [
+        45189256
+      ],
+      "checksums": [
+        1421012805
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": false,
+      "maxJsHeapUsedBytes": null,
+      "maxJsHeapTotalBytes": null,
+      "jsHeapSizeLimitBytes": null,
+      "counterexampleFound": false
+    },
+    {
+      "id": "sliceCopySharedDecoder",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 29.554009818590686,
+      "minMiBPerSec": 29.3750517530449,
+      "maxMiBPerSec": 29.902181459667208,
+      "spreadRatio": 0.017836148456942095,
+      "mibPerSecSamples": [
+        29.902181459667208,
+        29.3750517530449,
+        29.384796243059952
+      ],
+      "eventCounts": [
+        45189256
+      ],
+      "checksums": [
+        1421012805
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": false,
+      "maxJsHeapUsedBytes": null,
+      "maxJsHeapTotalBytes": null,
+      "jsHeapSizeLimitBytes": null,
+      "counterexampleFound": false
+    },
+    {
+      "id": "subarrayNewDecoder",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 18.570659226780098,
+      "minMiBPerSec": 18.45213643057014,
+      "maxMiBPerSec": 18.635438556683813,
+      "spreadRatio": 0.009870523381816192,
+      "mibPerSecSamples": [
+        18.635438556683813,
+        18.624402693086342,
+        18.45213643057014
+      ],
+      "eventCounts": [
+        45189256
+      ],
+      "checksums": [
+        1421012805
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": false,
+      "maxJsHeapUsedBytes": null,
+      "maxJsHeapTotalBytes": null,
+      "jsHeapSizeLimitBytes": null,
+      "counterexampleFound": false
+    },
+    {
+      "id": "shortAsciiSubarraySharedDecoder",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sampleCount": 3,
+      "avgMiBPerSec": 49.959732562468766,
+      "minMiBPerSec": 49.76426149589708,
+      "maxMiBPerSec": 50.238594226600746,
+      "spreadRatio": 0.00949430083739075,
+      "mibPerSecSamples": [
+        50.238594226600746,
+        49.76426149589708,
+        49.87634196490848
+      ],
+      "eventCounts": [
+        45189256
+      ],
+      "checksums": [
+        1421012805
+      ],
+      "stableResult": true,
+      "boundedMemoryAll": false,
+      "maxJsHeapUsedBytes": null,
+      "maxJsHeapTotalBytes": null,
+      "jsHeapSizeLimitBytes": null,
+      "counterexampleFound": false
+    }
+  ],
+  "findings": [
+    {
+      "id": "independent-browser-process-rerun",
+      "classification": "BENCH_FACT",
+      "summary": "Each sample launched a fresh browser process through the firefox-bidi-textdecoder harness.",
+      "evidence": [
+        "processRuns=3",
+        "browser=Firefox 143.0"
+      ]
+    },
+    {
+      "id": "browser-memory-scope",
+      "classification": "BENCH_FACT",
+      "summary": "Firefox does not expose Chromium performance.memory, so variant JS heap is unavailable. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.",
+      "evidence": [
+        "subarraySharedDecoder: maxJsHeap=n/a",
+        "viewSharedDecoder: maxJsHeap=n/a",
+        "sliceCopySharedDecoder: maxJsHeap=n/a",
+        "subarrayNewDecoder: maxJsHeap=n/a",
+        "shortAsciiSubarraySharedDecoder: maxJsHeap=n/a"
+      ]
+    },
+    {
+      "id": "projection-contract-separated",
+      "classification": "BENCH_FACT",
+      "summary": "No projection rows were selected; all reported variants are full-string StAX parity rows.",
+      "evidence": [
+        "projection rows not selected"
+      ]
+    },
+    {
+      "id": "full-stax-counterexample-search",
+      "classification": "BENCH_FACT",
+      "summary": "No full-string row reported a 200 MiB/s bounded-memory browser counterexample in these fresh process samples.",
+      "evidence": [
+        "counterexample=not-found"
+      ]
+    },
+    {
+      "id": "browser-v8-scope",
+      "classification": "BENCH_FACT",
+      "summary": "This report is browser evidence for the recorded Firefox/SpiderMonkey build only; it is not Chromium/V8, Safari/JSC, codegen, or allocation evidence.",
+      "evidence": [
+        "engine=SpiderMonkey",
+        "userAgent=Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0"
+      ]
+    }
+  ]
+}
