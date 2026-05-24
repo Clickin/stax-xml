@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 66);
-  assert.equal(report.summary.measuredRowCount, 393);
-  assert.equal(report.summary.largeJsFullRowCount, 184);
+  assert.equal(report.summary.scannedArtifactCount, 67);
+  assert.equal(report.summary.measuredRowCount, 408);
+  assert.equal(report.summary.largeJsFullRowCount, 199);
   assert.ok(report.summary.partialHeadroomRowCount >= 1);
   assert.ok(report.summary.unboundedOrUnknownLargeFullRowCount >= 1);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
@@ -94,6 +94,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'firefox-bidi-textdecoder-span-cross-process.json'
     && row.id === 'shortAsciiSubarraySharedDecoder'
     && row.mibPerSec === 50.24
+    && row.memoryKind === 'not-recorded'
+    && row.boundedMemory === false
+  ));
+  assert.ok(report.unboundedOrUnknownLargeFullRows.some(row =>
+    row.sourceArtifact === 'firefox-bidi-textdecoder-span-cross-process-corpus.json'
+    && row.id === 'shortAsciiSubarraySharedDecoder'
+    && row.mibPerSec === 69.98
     && row.memoryKind === 'not-recorded'
     && row.boundedMemory === false
   ));
