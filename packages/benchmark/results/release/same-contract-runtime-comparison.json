@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T05:01:09.105Z",
+  "generatedAt": "2026-05-24T12:58:28.487Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -2285,7 +2285,7 @@
       "evidenceKind": "global-allocator-counters",
       "eventCount": 967967,
       "checksum": -746772258,
-      "mibPerSec": 279.42,
+      "mibPerSec": 243.53,
       "memory": {
         "primaryKind": "total-allocator-traffic",
         "totalAllocatedMiB": 27.13,
@@ -2296,6 +2296,11 @@
         "totalDecodeCount": 284695,
         "totalBorrowedCount": 284695,
         "totalOwnedCount": 0
+      },
+      "dominantPhase": {
+        "phase": "attribute-collection",
+        "allocationOperations": 170817,
+        "totalAllocatedMiB": 26.06
       },
       "limitation": "Global allocator traffic is not peak RSS and is not directly comparable to JavaScript heap or browser host process counters."
     },
@@ -2316,6 +2321,7 @@
         "consumeStackEventCount": 49
       },
       "shapeSummary": null,
+      "dominantPhase": null,
       "limitation": "JFR object allocation events are sampled counts/bytes, not a deterministic allocation census or peak RSS."
     },
     {
@@ -2335,6 +2341,7 @@
         "consumeStackEventCount": 10
       },
       "shapeSummary": null,
+      "dominantPhase": null,
       "limitation": "JFR object allocation events are sampled counts/bytes, not a deterministic allocation census or peak RSS."
     }
   ],

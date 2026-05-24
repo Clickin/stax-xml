@@ -10,6 +10,8 @@ use std::path::PathBuf;
 use std::process;
 #[cfg(feature = "count-allocations")]
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+#[cfg(feature = "count-allocations")]
+use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
 
 #[cfg(feature = "count-allocations")]
@@ -31,6 +33,31 @@ static REALLOC_COUNT: AtomicU64 = AtomicU64::new(0);
 static REALLOC_BYTES_IN: AtomicU64 = AtomicU64::new(0);
 #[cfg(feature = "count-allocations")]
 static REALLOC_BYTES_OUT: AtomicU64 = AtomicU64::new(0);
+#[cfg(feature = "count-allocations")]
+const ALLOCATION_PHASE_COUNT: usize = 10;
+#[cfg(feature = "count-allocations")]
+static CURRENT_ALLOCATION_PHASE: AtomicUsize = AtomicUsize::new(0);
+#[cfg(feature = "count-allocations")]
+static PHASE_ALLOC_COUNT: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
+#[cfg(feature = "count-allocations")]
+static PHASE_ALLOC_BYTES: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
+#[cfg(feature = "count-allocations")]
+static PHASE_DEALLOC_COUNT: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
+#[cfg(feature = "count-allocations")]
+static PHASE_DEALLOC_BYTES: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
+#[cfg(feature = "count-allocations")]
+static PHASE_REALLOC_COUNT: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
+#[cfg(feature = "count-allocations")]
+static PHASE_REALLOC_BYTES_IN: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
+#[cfg(feature = "count-allocations")]
+static PHASE_REALLOC_BYTES_OUT: [AtomicU64; ALLOCATION_PHASE_COUNT] =
+    [const { AtomicU64::new(0) }; ALLOCATION_PHASE_COUNT];
 
 #[cfg(feature = "count-allocations")]
 #[global_allocator]
@@ -43,6 +70,9 @@ unsafe impl GlobalAlloc for CountingAllocator {
         if TRACK_ALLOCATIONS.load(Ordering::Relaxed) && !ptr.is_null() {
             ALLOC_COUNT.fetch_add(1, Ordering::Relaxed);
             ALLOC_BYTES.fetch_add(layout.size() as u64, Ordering::Relaxed);
+            let phase = current_allocation_phase_index();
+            PHASE_ALLOC_COUNT[phase].fetch_add(1, Ordering::Relaxed);
+            PHASE_ALLOC_BYTES[phase].fetch_add(layout.size() as u64, Ordering::Relaxed);
         }
         ptr
     }
@@ -51,6 +81,9 @@ unsafe impl GlobalAlloc for CountingAllocator {
         if TRACK_ALLOCATIONS.load(Ordering::Relaxed) && !ptr.is_null() {
             DEALLOC_COUNT.fetch_add(1, Ordering::Relaxed);
             DEALLOC_BYTES.fetch_add(layout.size() as u64, Ordering::Relaxed);
+            let phase = current_allocation_phase_index();
+            PHASE_DEALLOC_COUNT[phase].fetch_add(1, Ordering::Relaxed);
+            PHASE_DEALLOC_BYTES[phase].fetch_add(layout.size() as u64, Ordering::Relaxed);
         }
         unsafe {
             System.dealloc(ptr, layout);
@@ -63,8 +96,49 @@ unsafe impl GlobalAlloc for CountingAllocator {
             REALLOC_COUNT.fetch_add(1, Ordering::Relaxed);
             REALLOC_BYTES_IN.fetch_add(layout.size() as u64, Ordering::Relaxed);
             REALLOC_BYTES_OUT.fetch_add(new_size as u64, Ordering::Relaxed);
+            let phase = current_allocation_phase_index();
+            PHASE_REALLOC_COUNT[phase].fetch_add(1, Ordering::Relaxed);
+            PHASE_REALLOC_BYTES_IN[phase].fetch_add(layout.size() as u64, Ordering::Relaxed);
+            PHASE_REALLOC_BYTES_OUT[phase].fetch_add(new_size as u64, Ordering::Relaxed);
         }
         next
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+#[repr(usize)]
+#[derive(Clone, Copy)]
+#[allow(dead_code)]
+enum AllocationPhase {
+    Unattributed = 0,
+    ReaderEvent = 1,
+    StartElement = 2,
+    AttributeCollection = 3,
+    EventNameFold = 4,
+    AttributeNameFold = 5,
+    AttributeValueFold = 6,
+    TextDecode = 7,
+    TextFold = 8,
+    CdataDecode = 9,
+}
+
+#[cfg(feature = "count-allocations")]
+struct AllocationPhaseGuard {
+    previous: usize,
+}
+
+#[cfg(feature = "count-allocations")]
+impl AllocationPhaseGuard {
+    fn new(phase: AllocationPhase) -> Self {
+        let previous = CURRENT_ALLOCATION_PHASE.swap(phase as usize, Ordering::Relaxed);
+        Self { previous }
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+impl Drop for AllocationPhaseGuard {
+    fn drop(&mut self) {
+        CURRENT_ALLOCATION_PHASE.store(self.previous, Ordering::Relaxed);
     }
 }
 
@@ -85,6 +159,19 @@ struct ConsumeResult {
 #[cfg(feature = "count-allocations")]
 #[derive(Clone, Copy)]
 struct AllocationStats {
+    alloc_count: u64,
+    alloc_bytes: u64,
+    dealloc_count: u64,
+    dealloc_bytes: u64,
+    realloc_count: u64,
+    realloc_bytes_in: u64,
+    realloc_bytes_out: u64,
+    phase_stats: [PhaseAllocationStats; ALLOCATION_PHASE_COUNT],
+}
+
+#[cfg(feature = "count-allocations")]
+#[derive(Clone, Copy)]
+struct PhaseAllocationStats {
     alloc_count: u64,
     alloc_bytes: u64,
     dealloc_count: u64,
@@ -187,6 +274,15 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         print!("],\"allocationSummary\":");
         print_allocation_sample(&sum_allocation_samples(&allocation_samples));
+        print!(",\"phaseAllocationSamples\":[");
+        for (index, sample) in allocation_samples.iter().enumerate() {
+            if index > 0 {
+                print!(",");
+            }
+            print_phase_allocation_samples(&sample.phase_stats);
+        }
+        print!("],\"phaseAllocationSummary\":");
+        print_phase_allocation_samples(&sum_phase_allocation_samples(&allocation_samples));
         print!(",\"shapeSamples\":[");
         for (index, sample) in shape_samples.iter().enumerate() {
             if index > 0 {
@@ -276,7 +372,15 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
     let mut shape_stats = ShapeStats::default();
 
     loop {
-        match reader.read_event_into(&mut buffer)? {
+        #[cfg(feature = "count-allocations")]
+        let event = {
+            let _phase = AllocationPhaseGuard::new(AllocationPhase::ReaderEvent);
+            reader.read_event_into(&mut buffer)?
+        };
+        #[cfg(not(feature = "count-allocations"))]
+        let event = reader.read_event_into(&mut buffer)?;
+
+        match event {
             Event::Start(event) => {
                 let folded = fold_start(checksum, &event)?;
                 checksum = folded;
@@ -286,22 +390,36 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
                 let folded = fold_start(checksum, &event)?;
                 event_count += 1;
                 checksum = mix_checksum(folded, 3);
+                #[cfg(feature = "count-allocations")]
+                let _phase = AllocationPhaseGuard::new(AllocationPhase::EventNameFold);
                 checksum = fold_bytes(checksum, event.name().as_ref())?;
                 event_count += 1;
             }
             Event::End(event) => {
                 checksum = mix_checksum(checksum, 3);
+                #[cfg(feature = "count-allocations")]
+                let _phase = AllocationPhaseGuard::new(AllocationPhase::EventNameFold);
                 checksum = fold_bytes(checksum, event.name().as_ref())?;
                 event_count += 1;
             }
             Event::Text(event) => {
+                #[cfg(feature = "count-allocations")]
+                let phase = AllocationPhaseGuard::new(AllocationPhase::TextDecode);
                 let text = event.decode()?;
                 #[cfg(feature = "count-allocations")]
+                drop(phase);
+                #[cfg(feature = "count-allocations")]
                 record_text_decode(&mut shape_stats, &text, false);
+                #[cfg(feature = "count-allocations")]
+                let _phase = AllocationPhaseGuard::new(AllocationPhase::TextFold);
                 checksum = fold_text_event(checksum, &text, 4, &mut event_count);
             }
             Event::CData(event) => {
+                #[cfg(feature = "count-allocations")]
+                let phase = AllocationPhaseGuard::new(AllocationPhase::CdataDecode);
                 let text = event.decode()?;
+                #[cfg(feature = "count-allocations")]
+                drop(phase);
                 #[cfg(feature = "count-allocations")]
                 record_text_decode(&mut shape_stats, &text, true);
                 checksum = fold_text_event(checksum, &text, 5, &mut event_count);
@@ -329,17 +447,31 @@ fn fold_start(
     event: &BytesStart<'_>,
 ) -> Result<i32, Box<dyn std::error::Error>> {
     checksum = mix_checksum(checksum, 2);
+    #[cfg(feature = "count-allocations")]
+    let phase = AllocationPhaseGuard::new(AllocationPhase::EventNameFold);
     checksum = fold_bytes(checksum, event.name().as_ref())?;
-    let mut attributes = event.attributes();
-    let attrs = attributes.with_checks(false);
-    let mut collected = Vec::new();
-    for attr in attrs {
-        collected.push(attr?);
-    }
-    checksum = mix_checksum(checksum, collected.len() as i32);
-    for attr in collected {
-        checksum = fold_bytes(checksum, attr.key.as_ref())?;
-        checksum = fold_bytes(checksum, attr.value.as_ref())?;
+    #[cfg(feature = "count-allocations")]
+    drop(phase);
+    {
+        #[cfg(feature = "count-allocations")]
+        let _phase = AllocationPhaseGuard::new(AllocationPhase::AttributeCollection);
+        let mut attributes = event.attributes();
+        let attrs = attributes.with_checks(false);
+        let mut collected = Vec::new();
+        for attr in attrs {
+            collected.push(attr?);
+        }
+        checksum = mix_checksum(checksum, collected.len() as i32);
+        for attr in collected {
+            #[cfg(feature = "count-allocations")]
+            let phase = AllocationPhaseGuard::new(AllocationPhase::AttributeNameFold);
+            checksum = fold_bytes(checksum, attr.key.as_ref())?;
+            #[cfg(feature = "count-allocations")]
+            drop(phase);
+            #[cfg(feature = "count-allocations")]
+            let _phase = AllocationPhaseGuard::new(AllocationPhase::AttributeValueFold);
+            checksum = fold_bytes(checksum, attr.value.as_ref())?;
+        }
     }
     Ok(checksum)
 }
@@ -407,6 +539,16 @@ fn reset_allocation_stats() {
     REALLOC_COUNT.store(0, Ordering::SeqCst);
     REALLOC_BYTES_IN.store(0, Ordering::SeqCst);
     REALLOC_BYTES_OUT.store(0, Ordering::SeqCst);
+    CURRENT_ALLOCATION_PHASE.store(0, Ordering::SeqCst);
+    for index in 0..ALLOCATION_PHASE_COUNT {
+        PHASE_ALLOC_COUNT[index].store(0, Ordering::SeqCst);
+        PHASE_ALLOC_BYTES[index].store(0, Ordering::SeqCst);
+        PHASE_DEALLOC_COUNT[index].store(0, Ordering::SeqCst);
+        PHASE_DEALLOC_BYTES[index].store(0, Ordering::SeqCst);
+        PHASE_REALLOC_COUNT[index].store(0, Ordering::SeqCst);
+        PHASE_REALLOC_BYTES_IN[index].store(0, Ordering::SeqCst);
+        PHASE_REALLOC_BYTES_OUT[index].store(0, Ordering::SeqCst);
+    }
 }
 
 #[cfg(feature = "count-allocations")]
@@ -419,6 +561,7 @@ fn snapshot_allocation_stats() -> AllocationStats {
         realloc_count: REALLOC_COUNT.load(Ordering::SeqCst),
         realloc_bytes_in: REALLOC_BYTES_IN.load(Ordering::SeqCst),
         realloc_bytes_out: REALLOC_BYTES_OUT.load(Ordering::SeqCst),
+        phase_stats: snapshot_phase_allocation_stats(),
     }
 }
 
@@ -432,6 +575,7 @@ fn sum_allocation_samples(samples: &[AllocationStats]) -> AllocationStats {
         realloc_count: 0,
         realloc_bytes_in: 0,
         realloc_bytes_out: 0,
+        phase_stats: [PhaseAllocationStats::empty(); ALLOCATION_PHASE_COUNT],
     };
     for sample in samples {
         total.alloc_count += sample.alloc_count;
@@ -441,8 +585,150 @@ fn sum_allocation_samples(samples: &[AllocationStats]) -> AllocationStats {
         total.realloc_count += sample.realloc_count;
         total.realloc_bytes_in += sample.realloc_bytes_in;
         total.realloc_bytes_out += sample.realloc_bytes_out;
+        for index in 0..ALLOCATION_PHASE_COUNT {
+            total.phase_stats[index].alloc_count += sample.phase_stats[index].alloc_count;
+            total.phase_stats[index].alloc_bytes += sample.phase_stats[index].alloc_bytes;
+            total.phase_stats[index].dealloc_count += sample.phase_stats[index].dealloc_count;
+            total.phase_stats[index].dealloc_bytes += sample.phase_stats[index].dealloc_bytes;
+            total.phase_stats[index].realloc_count += sample.phase_stats[index].realloc_count;
+            total.phase_stats[index].realloc_bytes_in += sample.phase_stats[index].realloc_bytes_in;
+            total.phase_stats[index].realloc_bytes_out += sample.phase_stats[index].realloc_bytes_out;
+        }
     }
     total
+}
+
+#[cfg(feature = "count-allocations")]
+impl PhaseAllocationStats {
+    const fn empty() -> Self {
+        Self {
+            alloc_count: 0,
+            alloc_bytes: 0,
+            dealloc_count: 0,
+            dealloc_bytes: 0,
+            realloc_count: 0,
+            realloc_bytes_in: 0,
+            realloc_bytes_out: 0,
+        }
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+struct PhaseAllocationRow {
+    label: &'static str,
+    stats: PhaseAllocationStats,
+}
+
+#[cfg(feature = "count-allocations")]
+fn current_allocation_phase_index() -> usize {
+    let value = CURRENT_ALLOCATION_PHASE.load(Ordering::Relaxed);
+    if value < ALLOCATION_PHASE_COUNT {
+        value
+    } else {
+        0
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+fn allocation_phase_label(index: usize) -> &'static str {
+    match index {
+        0 => "unattributed",
+        1 => "reader-event",
+        2 => "start-element",
+        3 => "attribute-collection",
+        4 => "event-name-fold",
+        5 => "attribute-name-fold",
+        6 => "attribute-value-fold",
+        7 => "text-decode",
+        8 => "text-fold",
+        9 => "cdata-decode",
+        _ => "unknown",
+    }
+}
+
+#[cfg(feature = "count-allocations")]
+fn snapshot_phase_allocation_stats() -> [PhaseAllocationStats; ALLOCATION_PHASE_COUNT] {
+    let mut rows = [PhaseAllocationStats::empty(); ALLOCATION_PHASE_COUNT];
+    for index in 0..ALLOCATION_PHASE_COUNT {
+        rows[index] = PhaseAllocationStats {
+            alloc_count: PHASE_ALLOC_COUNT[index].load(Ordering::SeqCst),
+            alloc_bytes: PHASE_ALLOC_BYTES[index].load(Ordering::SeqCst),
+            dealloc_count: PHASE_DEALLOC_COUNT[index].load(Ordering::SeqCst),
+            dealloc_bytes: PHASE_DEALLOC_BYTES[index].load(Ordering::SeqCst),
+            realloc_count: PHASE_REALLOC_COUNT[index].load(Ordering::SeqCst),
+            realloc_bytes_in: PHASE_REALLOC_BYTES_IN[index].load(Ordering::SeqCst),
+            realloc_bytes_out: PHASE_REALLOC_BYTES_OUT[index].load(Ordering::SeqCst),
+        };
+    }
+    rows
+}
+
+#[cfg(feature = "count-allocations")]
+fn sum_phase_allocation_samples(samples: &[AllocationStats]) -> [PhaseAllocationStats; ALLOCATION_PHASE_COUNT] {
+    let mut rows = [PhaseAllocationStats::empty(); ALLOCATION_PHASE_COUNT];
+    for sample in samples {
+        for index in 0..ALLOCATION_PHASE_COUNT {
+            rows[index].alloc_count += sample.phase_stats[index].alloc_count;
+            rows[index].alloc_bytes += sample.phase_stats[index].alloc_bytes;
+            rows[index].dealloc_count += sample.phase_stats[index].dealloc_count;
+            rows[index].dealloc_bytes += sample.phase_stats[index].dealloc_bytes;
+            rows[index].realloc_count += sample.phase_stats[index].realloc_count;
+            rows[index].realloc_bytes_in += sample.phase_stats[index].realloc_bytes_in;
+            rows[index].realloc_bytes_out += sample.phase_stats[index].realloc_bytes_out;
+        }
+    }
+    rows
+}
+
+#[cfg(feature = "count-allocations")]
+fn phase_allocation_rows(
+    samples: &[PhaseAllocationStats; ALLOCATION_PHASE_COUNT],
+) -> Vec<PhaseAllocationRow> {
+    let mut rows = Vec::new();
+    for (index, stats) in samples.iter().enumerate() {
+        if stats.alloc_count + stats.dealloc_count + stats.realloc_count == 0 {
+            continue;
+        }
+        rows.push(PhaseAllocationRow {
+            label: allocation_phase_label(index),
+            stats: *stats,
+        });
+    }
+    rows
+}
+
+#[cfg(feature = "count-allocations")]
+fn print_phase_allocation_samples(samples: &[PhaseAllocationStats; ALLOCATION_PHASE_COUNT]) {
+    print!("[");
+    for (index, row) in phase_allocation_rows(samples).iter().enumerate() {
+        if index > 0 {
+            print!(",");
+        }
+        print_phase_allocation_row(row);
+    }
+    print!("]");
+}
+
+#[cfg(feature = "count-allocations")]
+fn print_phase_allocation_row(row: &PhaseAllocationRow) {
+    let total_allocated_bytes = row.stats.alloc_bytes + row.stats.realloc_bytes_out;
+    let total_released_bytes = row.stats.dealloc_bytes + row.stats.realloc_bytes_in;
+    let net_alloc_bytes = total_allocated_bytes as i128 - total_released_bytes as i128;
+    print!(
+        "{{\"phase\":\"{}\",\"allocCount\":{},\"allocBytes\":{},\"deallocCount\":{},\"deallocBytes\":{},\"reallocCount\":{},\"reallocBytesIn\":{},\"reallocBytesOut\":{},\"allocationOperations\":{},\"totalAllocatedBytes\":{},\"totalReleasedBytes\":{},\"netAllocatedBytes\":{}}}",
+        row.label,
+        row.stats.alloc_count,
+        row.stats.alloc_bytes,
+        row.stats.dealloc_count,
+        row.stats.dealloc_bytes,
+        row.stats.realloc_count,
+        row.stats.realloc_bytes_in,
+        row.stats.realloc_bytes_out,
+        row.stats.alloc_count + row.stats.realloc_count,
+        total_allocated_bytes,
+        total_released_bytes,
+        net_alloc_bytes
+    );
 }
 
 #[cfg(feature = "count-allocations")]

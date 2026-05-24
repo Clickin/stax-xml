@@ -318,6 +318,7 @@ function extractAllocationEvidence(report, spec) {
   const allocation = report.allocation ?? {};
   const shapeSummary = allocation.shapeSummary ?? benchmark.shapeSummary ?? null;
   const allocationSummary = allocation.summary ?? benchmark.allocationSummary ?? null;
+  const dominantPhase = allocation.dominantPhase ?? findDominantPhase(allocation.phaseSummary ?? benchmark.phaseAllocationSummary ?? []);
   return {
     id: spec.id,
     sourceArtifact: spec.file,
@@ -344,10 +345,21 @@ function extractAllocationEvidence(report, spec) {
       totalBorrowedCount: shapeSummary.totalBorrowedCount,
       totalOwnedCount: shapeSummary.totalOwnedCount,
     } : null,
+    dominantPhase: dominantPhase ? {
+      phase: dominantPhase.phase,
+      allocationOperations: dominantPhase.allocationOperations,
+      totalAllocatedMiB: round(bytesToMiB(dominantPhase.totalAllocatedBytes)),
+    } : null,
     limitation: allocationSummary
       ? 'Global allocator traffic is not peak RSS and is not directly comparable to JavaScript heap or browser host process counters.'
       : 'JFR object allocation events are sampled counts/bytes, not a deterministic allocation census or peak RSS.',
   };
+}
+
+function findDominantPhase(rows) {
+  return rows
+    .filter(row => typeof row?.totalAllocatedBytes === 'number')
+    .sort((left, right) => right.totalAllocatedBytes - left.totalAllocatedBytes)[0] ?? null;
 }
 
 function summarize(rows, allocationEvidence) {
@@ -726,7 +738,10 @@ function formatAllocationMemory(item) {
     const shape = item.shapeSummary
       ? `; borrowed=${item.shapeSummary.totalBorrowedCount}, owned=${item.shapeSummary.totalOwnedCount}`
       : '';
-    return `allocated ${formatNumber(memory.totalAllocatedMiB)} MiB, net ${formatNumber(memory.netAllocatedMiB)} MiB${shape}`;
+    const phase = item.dominantPhase
+      ? `; dominantPhase=${item.dominantPhase.phase} ${formatNumber(item.dominantPhase.totalAllocatedMiB)} MiB`
+      : '';
+    return `allocated ${formatNumber(memory.totalAllocatedMiB)} MiB, net ${formatNumber(memory.netAllocatedMiB)} MiB${shape}${phase}`;
   }
   return `sampled ${formatBytesForSmallMemory(memory.sampledMiB)}; string-boundary samples=${memory.stringBoundaryEventCount ?? 'n/a'}`;
 }

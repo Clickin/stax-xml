@@ -93,6 +93,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     item.sourceArtifact === 'quick-xml-allocation-count.json'
     && item.memory.primaryKind === 'total-allocator-traffic'
     && item.shapeSummary.totalOwnedCount === 0
+    && item.dominantPhase.phase === 'attribute-collection'
   ));
   assert.ok(report.allocationEvidence.some(item =>
     item.sourceArtifact === 'woodstox-jfr-allocation.json'
@@ -106,6 +107,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
   assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);
   assert.match(markdown, /Woodstox JFR rows are sampled allocation evidence/);
+  assert.match(markdown, /dominantPhase=attribute-collection/);
   assert.match(markdown, /fresh-browser per-variant Windows host process-tree probes/);
   assert.match(markdown, /not proof that JavaScript runtimes have no remaining headroom/);
 });

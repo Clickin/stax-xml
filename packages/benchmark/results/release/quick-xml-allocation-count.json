@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-23T11:44:17.296Z",
+  "generatedAt": "2026-05-24T12:53:21.986Z",
   "objective": "quick-xml-allocation-count",
   "contract": "measured-consume-global-allocator-count",
-  "note": "Global allocator counters for Rust + quick-xml measured consume runs after warmup. This is allocation-call evidence for this binary, not stack attribution, type attribution, object-lifetime proof, or a speed baseline.",
+  "note": "Global allocator counters for Rust + quick-xml measured consume runs after warmup. This is allocation-call evidence for this binary with directly-instrumented phase attribution, not native stack unwinding, object-lifetime proof, or a speed baseline.",
   "environment": {
     "rustc": "rustc 1.94.1 (e408947bf 2026-03-25)",
     "cargo": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
@@ -34,18 +34,18 @@
       "4",
       "--count-allocations"
     ],
-    "elapsedMs": 316
+    "elapsedMs": 643
   },
   "benchmark": {
     "runtime": "1.0.0",
-    "avgMs": 57.260400000000004,
-    "minMs": 57.260400000000004,
-    "maxMs": 57.260400000000004,
-    "mibPerSec": 279.4222577203736,
+    "avgMs": 65.69850000000001,
+    "minMs": 65.69850000000001,
+    "maxMs": 65.69850000000001,
+    "mibPerSec": 243.53417880121583,
     "eventCount": 967967,
     "checksum": -746772258,
     "samplesMs": [
-      57.260400000000004
+      65.69850000000001
     ],
     "allocationSamples": [
       {
@@ -75,6 +75,96 @@
       "totalReleasedBytes": 28445084,
       "netAllocatedBytes": 0
     },
+    "phaseAllocationSamples": [
+      [
+        {
+          "phase": "unattributed",
+          "allocCount": 3,
+          "allocBytes": 1114276,
+          "deallocCount": 5,
+          "deallocBytes": 1114340,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 3,
+          "totalAllocatedBytes": 1114276,
+          "totalReleasedBytes": 1114340,
+          "netAllocatedBytes": -64
+        },
+        {
+          "phase": "reader-event",
+          "allocCount": 2,
+          "allocBytes": 40,
+          "deallocCount": 0,
+          "deallocBytes": 0,
+          "reallocCount": 2,
+          "reallocBytesIn": 24,
+          "reallocBytesOut": 48,
+          "allocationOperations": 4,
+          "totalAllocatedBytes": 88,
+          "totalReleasedBytes": 24,
+          "netAllocatedBytes": 64
+        },
+        {
+          "phase": "attribute-collection",
+          "allocCount": 170817,
+          "allocBytes": 27330720,
+          "deallocCount": 170817,
+          "deallocBytes": 27330720,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 170817,
+          "totalAllocatedBytes": 27330720,
+          "totalReleasedBytes": 27330720,
+          "netAllocatedBytes": 0
+        }
+      ]
+    ],
+    "phaseAllocationSummary": [
+      {
+        "phase": "unattributed",
+        "allocCount": 3,
+        "allocBytes": 1114276,
+        "deallocCount": 5,
+        "deallocBytes": 1114340,
+        "reallocCount": 0,
+        "reallocBytesIn": 0,
+        "reallocBytesOut": 0,
+        "allocationOperations": 3,
+        "totalAllocatedBytes": 1114276,
+        "totalReleasedBytes": 1114340,
+        "netAllocatedBytes": -64
+      },
+      {
+        "phase": "reader-event",
+        "allocCount": 2,
+        "allocBytes": 40,
+        "deallocCount": 0,
+        "deallocBytes": 0,
+        "reallocCount": 2,
+        "reallocBytesIn": 24,
+        "reallocBytesOut": 48,
+        "allocationOperations": 4,
+        "totalAllocatedBytes": 88,
+        "totalReleasedBytes": 24,
+        "netAllocatedBytes": 64
+      },
+      {
+        "phase": "attribute-collection",
+        "allocCount": 170817,
+        "allocBytes": 27330720,
+        "deallocCount": 170817,
+        "deallocBytes": 27330720,
+        "reallocCount": 0,
+        "reallocBytesIn": 0,
+        "reallocBytesOut": 0,
+        "allocationOperations": 170817,
+        "totalAllocatedBytes": 27330720,
+        "totalReleasedBytes": 27330720,
+        "netAllocatedBytes": 0
+      }
+    ],
     "shapeSamples": [
       {
         "textDecodeCount": 284695,
@@ -192,12 +282,160 @@
       "totalOwnedCount": 0,
       "totalNonEmptyCount": 284695
     },
+    "phaseSamples": [
+      [
+        {
+          "phase": "unattributed",
+          "allocCount": 3,
+          "allocBytes": 1114276,
+          "deallocCount": 5,
+          "deallocBytes": 1114340,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 3,
+          "totalAllocatedBytes": 1114276,
+          "totalReleasedBytes": 1114340,
+          "netAllocatedBytes": -64
+        },
+        {
+          "phase": "reader-event",
+          "allocCount": 2,
+          "allocBytes": 40,
+          "deallocCount": 0,
+          "deallocBytes": 0,
+          "reallocCount": 2,
+          "reallocBytesIn": 24,
+          "reallocBytesOut": 48,
+          "allocationOperations": 4,
+          "totalAllocatedBytes": 88,
+          "totalReleasedBytes": 24,
+          "netAllocatedBytes": 64
+        },
+        {
+          "phase": "attribute-collection",
+          "allocCount": 170817,
+          "allocBytes": 27330720,
+          "deallocCount": 170817,
+          "deallocBytes": 27330720,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 170817,
+          "totalAllocatedBytes": 27330720,
+          "totalReleasedBytes": 27330720,
+          "netAllocatedBytes": 0
+        }
+      ]
+    ],
+    "phaseSummary": [
+      {
+        "phase": "unattributed",
+        "allocCount": 3,
+        "allocBytes": 1114276,
+        "deallocCount": 5,
+        "deallocBytes": 1114340,
+        "reallocCount": 0,
+        "reallocBytesIn": 0,
+        "reallocBytesOut": 0,
+        "allocationOperations": 3,
+        "totalAllocatedBytes": 1114276,
+        "totalReleasedBytes": 1114340,
+        "netAllocatedBytes": -64
+      },
+      {
+        "phase": "reader-event",
+        "allocCount": 2,
+        "allocBytes": 40,
+        "deallocCount": 0,
+        "deallocBytes": 0,
+        "reallocCount": 2,
+        "reallocBytesIn": 24,
+        "reallocBytesOut": 48,
+        "allocationOperations": 4,
+        "totalAllocatedBytes": 88,
+        "totalReleasedBytes": 24,
+        "netAllocatedBytes": 64
+      },
+      {
+        "phase": "attribute-collection",
+        "allocCount": 170817,
+        "allocBytes": 27330720,
+        "deallocCount": 170817,
+        "deallocBytes": 27330720,
+        "reallocCount": 0,
+        "reallocBytesIn": 0,
+        "reallocBytesOut": 0,
+        "allocationOperations": 170817,
+        "totalAllocatedBytes": 27330720,
+        "totalReleasedBytes": 27330720,
+        "netAllocatedBytes": 0
+      }
+    ],
+    "phaseAveragePerRun": [
+      {
+        "phase": "unattributed",
+        "allocCount": 3,
+        "allocBytes": 1114276,
+        "deallocCount": 5,
+        "deallocBytes": 1114340,
+        "reallocCount": 0,
+        "reallocBytesIn": 0,
+        "reallocBytesOut": 0,
+        "allocationOperations": 3,
+        "totalAllocatedBytes": 1114276,
+        "totalReleasedBytes": 1114340,
+        "netAllocatedBytes": -64
+      },
+      {
+        "phase": "reader-event",
+        "allocCount": 2,
+        "allocBytes": 40,
+        "deallocCount": 0,
+        "deallocBytes": 0,
+        "reallocCount": 2,
+        "reallocBytesIn": 24,
+        "reallocBytesOut": 48,
+        "allocationOperations": 4,
+        "totalAllocatedBytes": 88,
+        "totalReleasedBytes": 24,
+        "netAllocatedBytes": 64
+      },
+      {
+        "phase": "attribute-collection",
+        "allocCount": 170817,
+        "allocBytes": 27330720,
+        "deallocCount": 170817,
+        "deallocBytes": 27330720,
+        "reallocCount": 0,
+        "reallocBytesIn": 0,
+        "reallocBytesOut": 0,
+        "allocationOperations": 170817,
+        "totalAllocatedBytes": 27330720,
+        "totalReleasedBytes": 27330720,
+        "netAllocatedBytes": 0
+      }
+    ],
+    "dominantPhase": {
+      "phase": "attribute-collection",
+      "allocCount": 170817,
+      "allocBytes": 27330720,
+      "deallocCount": 170817,
+      "deallocBytes": 27330720,
+      "reallocCount": 0,
+      "reallocBytesIn": 0,
+      "reallocBytesOut": 0,
+      "allocationOperations": 170817,
+      "totalAllocatedBytes": 27330720,
+      "totalReleasedBytes": 27330720,
+      "netAllocatedBytes": 0
+    },
     "operationsPerEvent": 0.17647709064461908,
     "totalAllocatedBytesPerMiB": 1777836.6121829133,
     "caveats": [
       "Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.",
       "The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.",
-      "The counter has no stack attribution, allocator object type attribution, or object lifetime information.",
+      "Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.",
       "Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.",
       "The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline."
     ]
@@ -228,14 +466,14 @@
       },
       "benchmark": {
         "runtime": "1.0.0",
-        "avgMs": 4.9465,
-        "minMs": 4.9465,
-        "maxMs": 4.9465,
-        "mibPerSec": 202.17625590892865,
+        "avgMs": 5.636,
+        "minMs": 5.636,
+        "maxMs": 5.636,
+        "mibPerSec": 177.442308348743,
         "eventCount": 78898,
         "checksum": 1840671295,
         "samplesMs": [
-          4.9465
+          5.636
         ],
         "allocationSamples": [
           {
@@ -265,6 +503,96 @@
           "totalReleasedBytes": 2516888,
           "netAllocatedBytes": 0
         },
+        "phaseAllocationSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114272,
+              "deallocCount": 5,
+              "deallocBytes": 1114320,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114272,
+              "totalReleasedBytes": 1114320,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 8766,
+              "allocBytes": 1402560,
+              "deallocCount": 8766,
+              "deallocBytes": 1402560,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 8766,
+              "totalAllocatedBytes": 1402560,
+              "totalReleasedBytes": 1402560,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseAllocationSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114272,
+            "deallocCount": 5,
+            "deallocBytes": 1114320,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114272,
+            "totalReleasedBytes": 1114320,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 8766,
+            "allocBytes": 1402560,
+            "deallocCount": 8766,
+            "deallocBytes": 1402560,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 8766,
+            "totalAllocatedBytes": 1402560,
+            "totalReleasedBytes": 1402560,
+            "netAllocatedBytes": 0
+          }
+        ],
         "shapeSamples": [
           {
             "textDecodeCount": 43830,
@@ -382,12 +710,160 @@
           "totalOwnedCount": 0,
           "totalNonEmptyCount": 43830
         },
+        "phaseSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114272,
+              "deallocCount": 5,
+              "deallocBytes": 1114320,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114272,
+              "totalReleasedBytes": 1114320,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 8766,
+              "allocBytes": 1402560,
+              "deallocCount": 8766,
+              "deallocBytes": 1402560,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 8766,
+              "totalAllocatedBytes": 1402560,
+              "totalReleasedBytes": 1402560,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114272,
+            "deallocCount": 5,
+            "deallocBytes": 1114320,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114272,
+            "totalReleasedBytes": 1114320,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 8766,
+            "allocBytes": 1402560,
+            "deallocCount": 8766,
+            "deallocBytes": 1402560,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 8766,
+            "totalAllocatedBytes": 1402560,
+            "totalReleasedBytes": 1402560,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "phaseAveragePerRun": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114272,
+            "deallocCount": 5,
+            "deallocBytes": 1114320,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114272,
+            "totalReleasedBytes": 1114320,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 8766,
+            "allocBytes": 1402560,
+            "deallocCount": 8766,
+            "deallocBytes": 1402560,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 8766,
+            "totalAllocatedBytes": 1402560,
+            "totalReleasedBytes": 1402560,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "dominantPhase": {
+          "phase": "attribute-collection",
+          "allocCount": 8766,
+          "allocBytes": 1402560,
+          "deallocCount": 8766,
+          "deallocBytes": 1402560,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 8766,
+          "totalAllocatedBytes": 1402560,
+          "totalReleasedBytes": 1402560,
+          "netAllocatedBytes": 0
+        },
         "operationsPerEvent": 0.11118152551395473,
         "totalAllocatedBytesPerMiB": 2516724.79076598,
         "caveats": [
           "Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.",
           "The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.",
-          "The counter has no stack attribution, allocator object type attribution, or object lifetime information.",
+          "Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.",
           "Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.",
           "The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline."
         ]
@@ -414,18 +890,18 @@
           "4",
           "--count-allocations"
         ],
-        "elapsedMs": 40
+        "elapsedMs": 31
       },
       "benchmark": {
         "runtime": "1.0.0",
-        "avgMs": 3.5763000000000003,
-        "minMs": 3.5763000000000003,
-        "maxMs": 3.5763000000000003,
-        "mibPerSec": 279.6298001625392,
+        "avgMs": 3.7901,
+        "minMs": 3.7901,
+        "maxMs": 3.7901,
+        "mibPerSec": 263.85584927080794,
         "eventCount": 46914,
         "checksum": -1045261330,
         "samplesMs": [
-          3.5763000000000003
+          3.7901
         ],
         "allocationSamples": [
           {
@@ -455,6 +931,96 @@
           "totalReleasedBytes": 2615450,
           "netAllocatedBytes": 0
         },
+        "phaseAllocationSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114274,
+              "deallocCount": 5,
+              "deallocBytes": 1114322,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114274,
+              "totalReleasedBytes": 1114322,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 9382,
+              "allocBytes": 1501120,
+              "deallocCount": 9382,
+              "deallocBytes": 1501120,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 9382,
+              "totalAllocatedBytes": 1501120,
+              "totalReleasedBytes": 1501120,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseAllocationSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114274,
+            "deallocCount": 5,
+            "deallocBytes": 1114322,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114274,
+            "totalReleasedBytes": 1114322,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 9382,
+            "allocBytes": 1501120,
+            "deallocCount": 9382,
+            "deallocBytes": 1501120,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 9382,
+            "totalAllocatedBytes": 1501120,
+            "totalReleasedBytes": 1501120,
+            "netAllocatedBytes": 0
+          }
+        ],
         "shapeSamples": [
           {
             "textDecodeCount": 9382,
@@ -572,12 +1138,160 @@
           "totalOwnedCount": 0,
           "totalNonEmptyCount": 9382
         },
+        "phaseSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114274,
+              "deallocCount": 5,
+              "deallocBytes": 1114322,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114274,
+              "totalReleasedBytes": 1114322,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 9382,
+              "allocBytes": 1501120,
+              "deallocCount": 9382,
+              "deallocBytes": 1501120,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 9382,
+              "totalAllocatedBytes": 1501120,
+              "totalReleasedBytes": 1501120,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114274,
+            "deallocCount": 5,
+            "deallocBytes": 1114322,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114274,
+            "totalReleasedBytes": 1114322,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 9382,
+            "allocBytes": 1501120,
+            "deallocCount": 9382,
+            "deallocBytes": 1501120,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 9382,
+            "totalAllocatedBytes": 1501120,
+            "totalReleasedBytes": 1501120,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "phaseAveragePerRun": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114274,
+            "deallocCount": 5,
+            "deallocBytes": 1114322,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114274,
+            "totalReleasedBytes": 1114322,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 9382,
+            "allocBytes": 1501120,
+            "deallocCount": 9382,
+            "deallocBytes": 1501120,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 9382,
+            "totalAllocatedBytes": 1501120,
+            "totalReleasedBytes": 1501120,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "dominantPhase": {
+          "phase": "attribute-collection",
+          "allocCount": 9382,
+          "allocBytes": 1501120,
+          "deallocCount": 9382,
+          "deallocBytes": 1501120,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 9382,
+          "totalAllocatedBytes": 1501120,
+          "totalReleasedBytes": 1501120,
+          "netAllocatedBytes": 0
+        },
         "operationsPerEvent": 0.20011084111352687,
         "totalAllocatedBytesPerMiB": 2615345.2441213103,
         "caveats": [
           "Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.",
           "The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.",
-          "The counter has no stack attribution, allocator object type attribution, or object lifetime information.",
+          "Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.",
           "Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.",
           "The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline."
         ]
@@ -604,18 +1318,18 @@
           "4",
           "--count-allocations"
         ],
-        "elapsedMs": 29
+        "elapsedMs": 28
       },
       "benchmark": {
         "runtime": "1.0.0",
-        "avgMs": 3.2583,
-        "minMs": 3.2583,
-        "maxMs": 3.2583,
-        "mibPerSec": 306.920803585087,
+        "avgMs": 3.1384,
+        "minMs": 3.1384,
+        "maxMs": 3.1384,
+        "mibPerSec": 318.6464613565158,
         "eventCount": 33466,
         "checksum": -1470519692,
         "samplesMs": [
-          3.2583
+          3.1384
         ],
         "allocationSamples": [
           {
@@ -645,6 +1359,96 @@
           "totalReleasedBytes": 2898964,
           "netAllocatedBytes": 0
         },
+        "phaseAllocationSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114268,
+              "deallocCount": 5,
+              "deallocBytes": 1114316,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114268,
+              "totalReleasedBytes": 1114316,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 11154,
+              "allocBytes": 1784640,
+              "deallocCount": 11154,
+              "deallocBytes": 1784640,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 11154,
+              "totalAllocatedBytes": 1784640,
+              "totalReleasedBytes": 1784640,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseAllocationSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114268,
+            "deallocCount": 5,
+            "deallocBytes": 1114316,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114268,
+            "totalReleasedBytes": 1114316,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 11154,
+            "allocBytes": 1784640,
+            "deallocCount": 11154,
+            "deallocBytes": 1784640,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 11154,
+            "totalAllocatedBytes": 1784640,
+            "totalReleasedBytes": 1784640,
+            "netAllocatedBytes": 0
+          }
+        ],
         "shapeSamples": [
           {
             "textDecodeCount": 0,
@@ -762,12 +1566,160 @@
           "totalOwnedCount": 0,
           "totalNonEmptyCount": 11154
         },
+        "phaseSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114268,
+              "deallocCount": 5,
+              "deallocBytes": 1114316,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114268,
+              "totalReleasedBytes": 1114316,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 11154,
+              "allocBytes": 1784640,
+              "deallocCount": 11154,
+              "deallocBytes": 1784640,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 11154,
+              "totalAllocatedBytes": 1784640,
+              "totalReleasedBytes": 1784640,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114268,
+            "deallocCount": 5,
+            "deallocBytes": 1114316,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114268,
+            "totalReleasedBytes": 1114316,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 11154,
+            "allocBytes": 1784640,
+            "deallocCount": 11154,
+            "deallocBytes": 1784640,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 11154,
+            "totalAllocatedBytes": 1784640,
+            "totalReleasedBytes": 1784640,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "phaseAveragePerRun": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114268,
+            "deallocCount": 5,
+            "deallocBytes": 1114316,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114268,
+            "totalReleasedBytes": 1114316,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 11154,
+            "allocBytes": 1784640,
+            "deallocCount": 11154,
+            "deallocBytes": 1784640,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 11154,
+            "totalAllocatedBytes": 1784640,
+            "totalReleasedBytes": 1784640,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "dominantPhase": {
+          "phase": "attribute-collection",
+          "allocCount": 11154,
+          "allocBytes": 1784640,
+          "deallocCount": 11154,
+          "deallocBytes": 1784640,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 11154,
+          "totalAllocatedBytes": 1784640,
+          "totalReleasedBytes": 1784640,
+          "netAllocatedBytes": 0
+        },
         "operationsPerEvent": 0.3334727783421981,
         "totalAllocatedBytesPerMiB": 2898847.8886153013,
         "caveats": [
           "Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.",
           "The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.",
-          "The counter has no stack attribution, allocator object type attribution, or object lifetime information.",
+          "Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.",
           "Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.",
           "The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline."
         ]
@@ -794,18 +1746,18 @@
           "4",
           "--count-allocations"
         ],
-        "elapsedMs": 35
+        "elapsedMs": 39
       },
       "benchmark": {
         "runtime": "1.0.0",
-        "avgMs": 4.3106,
-        "minMs": 4.3106,
-        "maxMs": 4.3106,
-        "mibPerSec": 231.99622218350999,
+        "avgMs": 4.8043000000000005,
+        "minMs": 4.8043000000000005,
+        "maxMs": 4.8043000000000005,
+        "mibPerSec": 208.15580112487527,
         "eventCount": 74364,
         "checksum": -631568628,
         "samplesMs": [
-          4.3106
+          4.8043000000000005
         ],
         "allocationSamples": [
           {
@@ -835,6 +1787,96 @@
           "totalReleasedBytes": 3493840,
           "netAllocatedBytes": 0
         },
+        "phaseAllocationSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114264,
+              "deallocCount": 5,
+              "deallocBytes": 1114312,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114264,
+              "totalReleasedBytes": 1114312,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 14872,
+              "allocBytes": 2379520,
+              "deallocCount": 14872,
+              "deallocBytes": 2379520,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 14872,
+              "totalAllocatedBytes": 2379520,
+              "totalReleasedBytes": 2379520,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseAllocationSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114264,
+            "deallocCount": 5,
+            "deallocBytes": 1114312,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114264,
+            "totalReleasedBytes": 1114312,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 14872,
+            "allocBytes": 2379520,
+            "deallocCount": 14872,
+            "deallocBytes": 2379520,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 14872,
+            "totalAllocatedBytes": 2379520,
+            "totalReleasedBytes": 2379520,
+            "netAllocatedBytes": 0
+          }
+        ],
         "shapeSamples": [
           {
             "textDecodeCount": 14872,
@@ -952,12 +1994,160 @@
           "totalOwnedCount": 0,
           "totalNonEmptyCount": 14872
         },
+        "phaseSamples": [
+          [
+            {
+              "phase": "unattributed",
+              "allocCount": 3,
+              "allocBytes": 1114264,
+              "deallocCount": 5,
+              "deallocBytes": 1114312,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 1114264,
+              "totalReleasedBytes": 1114312,
+              "netAllocatedBytes": -48
+            },
+            {
+              "phase": "reader-event",
+              "allocCount": 2,
+              "allocBytes": 40,
+              "deallocCount": 0,
+              "deallocBytes": 0,
+              "reallocCount": 1,
+              "reallocBytesIn": 8,
+              "reallocBytesOut": 16,
+              "allocationOperations": 3,
+              "totalAllocatedBytes": 56,
+              "totalReleasedBytes": 8,
+              "netAllocatedBytes": 48
+            },
+            {
+              "phase": "attribute-collection",
+              "allocCount": 14872,
+              "allocBytes": 2379520,
+              "deallocCount": 14872,
+              "deallocBytes": 2379520,
+              "reallocCount": 0,
+              "reallocBytesIn": 0,
+              "reallocBytesOut": 0,
+              "allocationOperations": 14872,
+              "totalAllocatedBytes": 2379520,
+              "totalReleasedBytes": 2379520,
+              "netAllocatedBytes": 0
+            }
+          ]
+        ],
+        "phaseSummary": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114264,
+            "deallocCount": 5,
+            "deallocBytes": 1114312,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114264,
+            "totalReleasedBytes": 1114312,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 14872,
+            "allocBytes": 2379520,
+            "deallocCount": 14872,
+            "deallocBytes": 2379520,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 14872,
+            "totalAllocatedBytes": 2379520,
+            "totalReleasedBytes": 2379520,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "phaseAveragePerRun": [
+          {
+            "phase": "unattributed",
+            "allocCount": 3,
+            "allocBytes": 1114264,
+            "deallocCount": 5,
+            "deallocBytes": 1114312,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 1114264,
+            "totalReleasedBytes": 1114312,
+            "netAllocatedBytes": -48
+          },
+          {
+            "phase": "reader-event",
+            "allocCount": 2,
+            "allocBytes": 40,
+            "deallocCount": 0,
+            "deallocBytes": 0,
+            "reallocCount": 1,
+            "reallocBytesIn": 8,
+            "reallocBytesOut": 16,
+            "allocationOperations": 3,
+            "totalAllocatedBytes": 56,
+            "totalReleasedBytes": 8,
+            "netAllocatedBytes": 48
+          },
+          {
+            "phase": "attribute-collection",
+            "allocCount": 14872,
+            "allocBytes": 2379520,
+            "deallocCount": 14872,
+            "deallocBytes": 2379520,
+            "reallocCount": 0,
+            "reallocBytesIn": 0,
+            "reallocBytesOut": 0,
+            "allocationOperations": 14872,
+            "totalAllocatedBytes": 2379520,
+            "totalReleasedBytes": 2379520,
+            "netAllocatedBytes": 0
+          }
+        ],
+        "dominantPhase": {
+          "phase": "attribute-collection",
+          "allocCount": 14872,
+          "allocBytes": 2379520,
+          "deallocCount": 14872,
+          "deallocBytes": 2379520,
+          "reallocCount": 0,
+          "reallocBytesIn": 0,
+          "reallocBytesOut": 0,
+          "allocationOperations": 14872,
+          "totalAllocatedBytes": 2379520,
+          "totalReleasedBytes": 2379520,
+          "netAllocatedBytes": 0
+        },
         "operationsPerEvent": 0.20006992630842882,
         "totalAllocatedBytesPerMiB": 3493690.067088109,
         "caveats": [
           "Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.",
           "The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.",
-          "The counter has no stack attribution, allocator object type attribution, or object lifetime information.",
+          "Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.",
           "Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.",
           "The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline."
         ]
@@ -972,7 +2162,7 @@
       "evidence": [
         "events=967967",
         "checksum=-746772258",
-        "instrumentedThroughput=279.4 MiB/s"
+        "instrumentedThroughput=243.5 MiB/s"
       ]
     },
     {
@@ -1001,10 +2191,20 @@
       "classification": "TRACE_FACT",
       "summary": "Generated UTF-8 fixture variants also counted quick-xml text and CDATA decode ownership at the Cow<str> boundary.",
       "evidence": [
-        "escaped-utf8: decode=43830, borrowed=43830, owned=0",
-        "nonascii-utf8: decode=9382, borrowed=9382, owned=0",
-        "cdata-utf8: decode=11154, borrowed=11154, owned=0",
-        "utf8-bom: decode=14872, borrowed=14872, owned=0"
+        "escaped-utf8: decode=43830, borrowed=43830, owned=0, dominantPhase=attribute-collection",
+        "nonascii-utf8: decode=9382, borrowed=9382, owned=0, dominantPhase=attribute-collection",
+        "cdata-utf8: decode=11154, borrowed=11154, owned=0, dominantPhase=attribute-collection",
+        "utf8-bom: decode=14872, borrowed=14872, owned=0, dominantPhase=attribute-collection"
+      ]
+    },
+    {
+      "id": "phase-allocation-attribution",
+      "classification": "TRACE_FACT",
+      "summary": "The measured run attributed allocator traffic to directly instrumented quick-xml comparator phases.",
+      "evidence": [
+        "unattributed: ops=3, allocated=1.06 MiB",
+        "reader-event: ops=4, allocated=88 B",
+        "attribute-collection: ops=170817, allocated=26.06 MiB"
       ]
     },
     {
@@ -1018,11 +2218,11 @@
     {
       "id": "not-stack-or-lifetime-proof",
       "classification": "LIMITATION",
-      "summary": "The counter does not prove allocation stacks, allocator object types, or object lifetimes.",
+      "summary": "The counter does not prove native allocation stacks, exact allocator object types, or object lifetimes.",
       "evidence": [
         "Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.",
         "The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.",
-        "The counter has no stack attribution, allocator object type attribution, or object lifetime information.",
+        "Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.",
         "Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.",
         "The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline."
       ]

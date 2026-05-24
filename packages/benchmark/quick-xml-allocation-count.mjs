@@ -126,6 +126,14 @@ function createSelfTestReport(options) {
         netAllocatedBytes: 768,
       },
     ],
+    phaseAllocationSamples: [[
+      createPhaseAllocationRow('attribute-collection', 6, 1142784, 6, 1142784, 2, 768, 1536),
+      createPhaseAllocationRow('text-decode', 2, 4096, 2, 4096, 0, 0, 0),
+    ]],
+    phaseAllocationSummary: [
+      createPhaseAllocationRow('attribute-collection', 6, 1142784, 6, 1142784, 2, 768, 1536),
+      createPhaseAllocationRow('text-decode', 2, 4096, 2, 4096, 0, 0, 0),
+    ],
     allocationSummary: {
       allocCount: 8,
       allocBytes: 1146880,
@@ -221,6 +229,8 @@ function createSelfTestVariant(id, eventCount, checksum, decodeCount, borrowedCo
         netAllocatedBytes: 0,
       },
     ],
+    phaseAllocationSamples: [[createPhaseAllocationRow('attribute-collection', 3, 1024, 3, 1024, 0, 0, 0)]],
+    phaseAllocationSummary: [createPhaseAllocationRow('attribute-collection', 3, 1024, 3, 1024, 0, 0, 0)],
     allocationSummary: {
       allocCount: 3,
       allocBytes: 1024,
@@ -281,6 +291,25 @@ function createSelfTestVariant(id, eventCount, checksum, decodeCount, borrowedCo
     },
     benchmark,
     allocation: analyzeAllocations(benchmark, { sizeMiB: 512 / MIB }),
+  };
+}
+
+function createPhaseAllocationRow(phase, allocCount, allocBytes, deallocCount, deallocBytes, reallocCount, reallocBytesIn, reallocBytesOut) {
+  const totalAllocatedBytes = allocBytes + reallocBytesOut;
+  const totalReleasedBytes = deallocBytes + reallocBytesIn;
+  return {
+    phase,
+    allocCount,
+    allocBytes,
+    deallocCount,
+    deallocBytes,
+    reallocCount,
+    reallocBytesIn,
+    reallocBytesOut,
+    allocationOperations: allocCount + reallocCount,
+    totalAllocatedBytes,
+    totalReleasedBytes,
+    netAllocatedBytes: totalAllocatedBytes - totalReleasedBytes,
   };
 }
 
@@ -364,7 +393,7 @@ function createReport({ options, environment, fixture, command, elapsedMs, bench
     generatedAt: new Date().toISOString(),
     objective: 'quick-xml-allocation-count',
     contract: 'measured-consume-global-allocator-count',
-    note: 'Global allocator counters for Rust + quick-xml measured consume runs after warmup. This is allocation-call evidence for this binary, not stack attribution, type attribution, object-lifetime proof, or a speed baseline.',
+    note: 'Global allocator counters for Rust + quick-xml measured consume runs after warmup. This is allocation-call evidence for this binary with directly-instrumented phase attribution, not native stack unwinding, object-lifetime proof, or a speed baseline.',
     environment,
     fixture,
     options: {
@@ -393,7 +422,7 @@ function validateBenchmark(benchmark, expectedRuns) {
   if (!Array.isArray(benchmark.allocationSamples) || benchmark.allocationSamples.length !== expectedRuns) {
     throw new Error(`quick-xml emitted ${benchmark.allocationSamples?.length ?? 0} allocation samples, expected ${expectedRuns}.`);
   }
-  for (const field of ['eventCount', 'checksum', 'mibPerSec', 'allocationSummary', 'shapeSummary']) {
+  for (const field of ['eventCount', 'checksum', 'mibPerSec', 'allocationSummary', 'shapeSummary', 'phaseAllocationSummary']) {
     if (benchmark[field] === undefined || benchmark[field] === null) {
       throw new Error(`quick-xml output is missing ${field}.`);
     }
@@ -414,12 +443,16 @@ function analyzeAllocations(benchmark, fixture) {
     shapeSamples: benchmark.shapeSamples,
     shapeSummary: benchmark.shapeSummary,
     shapeAveragePerRun: divideAllocationStats(benchmark.shapeSummary, samples.length),
+    phaseSamples: benchmark.phaseAllocationSamples,
+    phaseSummary: benchmark.phaseAllocationSummary,
+    phaseAveragePerRun: dividePhaseAllocationRows(benchmark.phaseAllocationSummary, samples.length),
+    dominantPhase: findDominantPhase(benchmark.phaseAllocationSummary),
     operationsPerEvent: average.allocationOperations / benchmark.eventCount,
     totalAllocatedBytesPerMiB: average.totalAllocatedBytes / fixture.sizeMiB,
     caveats: [
       'Counters start after warmup and immediately before the measured consume call, then stop immediately after consume returns.',
       'The counter is process-global inside this single-threaded comparator binary, so it counts allocator calls made by Rust/quick-xml during the measured window.',
-      'The counter has no stack attribution, allocator object type attribution, or object lifetime information.',
+      'Phase attribution uses explicit Rust guards around comparator operations; it is not native stack unwinding and does not prove complete object lifetime.',
       'Escaped XML text rows use the comparator decode boundary and do not unescape entities before checksum folding.',
       'The timed throughput row includes allocator counter overhead and must not replace the non-instrumented quick-xml speed baseline.',
     ],
@@ -432,6 +465,29 @@ function divideAllocationStats(stats, divisor) {
     copy[key] = typeof value === 'number' ? value / divisor : value;
   }
   return copy;
+}
+
+function dividePhaseAllocationRows(rows, divisor) {
+  return rows.map(row => ({
+    ...row,
+    allocCount: row.allocCount / divisor,
+    allocBytes: row.allocBytes / divisor,
+    deallocCount: row.deallocCount / divisor,
+    deallocBytes: row.deallocBytes / divisor,
+    reallocCount: row.reallocCount / divisor,
+    reallocBytesIn: row.reallocBytesIn / divisor,
+    reallocBytesOut: row.reallocBytesOut / divisor,
+    allocationOperations: row.allocationOperations / divisor,
+    totalAllocatedBytes: row.totalAllocatedBytes / divisor,
+    totalReleasedBytes: row.totalReleasedBytes / divisor,
+    netAllocatedBytes: row.netAllocatedBytes / divisor,
+  }));
+}
+
+function findDominantPhase(rows) {
+  return rows
+    .slice()
+    .sort((left, right) => right.totalAllocatedBytes - left.totalAllocatedBytes)[0] ?? null;
 }
 
 function createFindings(benchmark, allocation, variants) {
@@ -468,6 +524,14 @@ function createFindings(benchmark, allocation, variants) {
       ],
     },
     {
+      id: 'phase-allocation-attribution',
+      classification: 'TRACE_FACT',
+      summary: 'The measured run attributed allocator traffic to directly instrumented quick-xml comparator phases.',
+      evidence: allocation.phaseSummary.map(row => (
+        `${row.phase}: ops=${row.allocationOperations}, allocated=${formatBytes(row.totalAllocatedBytes)}`
+      )),
+    },
+    {
       id: 'not-js-object-shape',
       classification: 'SOURCE_FACT_LINK',
       summary: 'The measured binary still uses the Rust quick-xml comparator shape, not JavaScript public event objects.',
@@ -478,7 +542,7 @@ function createFindings(benchmark, allocation, variants) {
     {
       id: 'not-stack-or-lifetime-proof',
       classification: 'LIMITATION',
-      summary: 'The counter does not prove allocation stacks, allocator object types, or object lifetimes.',
+      summary: 'The counter does not prove native allocation stacks, exact allocator object types, or object lifetimes.',
       evidence: allocation.caveats,
     },
   ];
@@ -488,7 +552,7 @@ function createFindings(benchmark, allocation, variants) {
       classification: 'TRACE_FACT',
       summary: 'Generated UTF-8 fixture variants also counted quick-xml text and CDATA decode ownership at the Cow<str> boundary.',
       evidence: variants.map(variant => (
-        `${variant.id}: decode=${variant.allocation.shapeSummary.totalDecodeCount}, borrowed=${variant.allocation.shapeSummary.totalBorrowedCount}, owned=${variant.allocation.shapeSummary.totalOwnedCount}`
+        `${variant.id}: decode=${variant.allocation.shapeSummary.totalDecodeCount}, borrowed=${variant.allocation.shapeSummary.totalBorrowedCount}, owned=${variant.allocation.shapeSummary.totalOwnedCount}, dominantPhase=${variant.allocation.dominantPhase?.phase ?? 'none'}`
       )),
     });
   }
@@ -681,6 +745,14 @@ function renderMarkdown(report) {
     shapeRow('totalOwnedCount', report),
     shapeRow('totalNonEmptyCount', report),
     '',
+    '## Phase Allocation Attribution',
+    '',
+    'These rows are direct comparator phase guards, not native stack unwinding.',
+    '',
+    '| Phase | Allocation ops | Total allocated | Total released | Net allocated |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    ...report.allocation.phaseSummary.map(row => phaseAllocationRow(row)),
+    '',
     ...renderVariantSection(report),
     '## Caveats',
     '',
@@ -702,13 +774,13 @@ function renderVariantSection(report) {
   return [
     '## Generated Fixture Variants',
     '',
-    'These rows use the same quick-xml comparator contract on generated UTF-8 fixtures. They are counterchecks for the `Cow<str>` boundary, not replacements for the 16 MiB external baseline.',
+    'These rows use the same quick-xml comparator contract on generated UTF-8 fixtures. They are counterchecks for the `Cow<str>` and phase-allocation boundaries, not replacements for the 16 MiB external baseline.',
     '',
-    '| Variant | Fixture size | Instrumented throughput | Events | Checksum | Decode | Borrowed | Owned | Allocation ops | Notes |',
-    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+    '| Variant | Fixture size | Instrumented throughput | Events | Checksum | Decode | Borrowed | Owned | Allocation ops | Dominant phase | Notes |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |',
     ...report.variants.map(variant => {
       const shape = variant.allocation.shapeSummary;
-      return `| ${variant.id} | ${variant.fixture.sizeMiB.toFixed(2)} MiB | ${variant.benchmark.mibPerSec.toFixed(1)} MiB/s | ${variant.benchmark.eventCount} | ${variant.benchmark.checksum} | ${shape.totalDecodeCount} | ${shape.totalBorrowedCount} | ${shape.totalOwnedCount} | ${variant.allocation.summary.allocationOperations} | ${escapePipe(variant.description)} |`;
+      return `| ${variant.id} | ${variant.fixture.sizeMiB.toFixed(2)} MiB | ${variant.benchmark.mibPerSec.toFixed(1)} MiB/s | ${variant.benchmark.eventCount} | ${variant.benchmark.checksum} | ${shape.totalDecodeCount} | ${shape.totalBorrowedCount} | ${shape.totalOwnedCount} | ${variant.allocation.summary.allocationOperations} | ${variant.allocation.dominantPhase?.phase ?? 'none'} | ${escapePipe(variant.description)} |`;
     }),
     '',
   ];
@@ -720,6 +792,10 @@ function allocationRow(key, report, formatter = formatNumber) {
 
 function shapeRow(key, report) {
   return `| ${key} | ${formatNumber(report.allocation.shapeSummary[key])} | ${formatNumber(report.allocation.shapeAveragePerRun[key])} |`;
+}
+
+function phaseAllocationRow(row) {
+  return `| ${row.phase} | ${formatNumber(row.allocationOperations)} | ${formatBytes(row.totalAllocatedBytes)} | ${formatBytes(row.totalReleasedBytes)} | ${formatBytes(row.netAllocatedBytes)} |`;
 }
 
 function runCommandChecked(command, args, cwd) {

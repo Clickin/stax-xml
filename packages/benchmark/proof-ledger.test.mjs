@@ -638,6 +638,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /not an allocation profile or machine-code\s+trace/);
   assert.match(markdown, /Rust global allocator counter/);
   assert.match(markdown, /170,824\s+allocation operations/);
+  assert.match(markdown, /phase attribution/);
+  assert.match(markdown, /`attribute-collection` as the dominant measured allocator phase/);
+  assert.match(markdown, /not native stack unwinding/);
   assert.match(markdown, /284,695 borrowed and 0 owned/);
   assert.match(markdown, /escaped-utf8/);
   assert.match(markdown, /nonascii-utf8/);

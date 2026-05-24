@@ -84,7 +84,7 @@ prove that JavaScript runtimes have no further headroom.
 | --- | --- | --- | --- | --- |
 | `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox, quick-xml, `stax-stream`, and `stax-event` as sharing the same semantic fields and checksum. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. `packages/benchmark/results/release/woodstox-jfr-allocation.md` and `packages/benchmark/results/release/woodstox-measured-jfr-allocation.md` capture sampled JFR allocation stacks for the same comparator boundary. | More allocation and object-lifetime evidence is still needed before attributing Woodstox speed to a complete optimized representation. |
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox as `java-xmlstreamreader-cursor`, `stax-event` as `js-public-event-object`, and `stax-stream` as `js-stream-batch-index-accessors`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
-| `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml under the same semantic fields and checksum. `packages/benchmark/results/release/quick-xml-shape-audit.md` records source shape facts, and `packages/benchmark/results/release/quick-xml-allocation-count.md` records measured-window Rust global allocator counters plus `Cow<str>` borrowed/owned counts for the same checksum boundary and generated UTF-8 fixture variants. | More symbol/asm narrowing, allocation stack/type attribution, and non-UTF-8 encoding coverage are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
+| `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml under the same semantic fields and checksum. `packages/benchmark/results/release/quick-xml-shape-audit.md` records source shape facts, and `packages/benchmark/results/release/quick-xml-allocation-count.md` records measured-window Rust global allocator counters, directly instrumented phase-allocation attribution, plus `Cow<str>` borrowed/owned counts for the same checksum boundary and generated UTF-8 fixture variants. | More symbol/asm narrowing, native stack/type allocation attribution, object lifetime evidence, and non-UTF-8 encoding coverage are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml as `rust-enum-event-with-buffer-lifetime`, not `js-public-event-object`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary + `SOURCE_FACT` for current V8, Bun/JSC, and Firefox/SpiderMonkey builds | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. `packages/benchmark/results/release/v8-string-limit-audit.md` pins Node v24.15.0's vendored V8 source lines for `String::kMaxLength`, guarded string creation, and external one-byte string lifetime constraints. `packages/benchmark/results/release/chrome-v8-source-pin-audit.md` pins the browser V8 string boundary used by the Chrome artifacts. `packages/benchmark/results/release/bun-jsc-source-pin-audit.md` pins the Bun/JSC WebKit commit's `JSString`, `WTF::String`, and `StringImpl` source boundaries: `JSString` is a `JSCell`, stores a `WTF::String`, is created through `allocateCell<JSString>`, `WTF::String` wraps `RefPtr<StringImpl>`, and ordinary `StringImpl::createInternal` copies supplied character spans into engine-managed storage. `packages/benchmark/results/release/firefox-spidermonkey-string-source-pin-audit.md` pins the installed Firefox/SpiderMonkey source stamp's `JSString`, `JSLinearString`, `OwnedChars`, public `JS_New*StringCopy*`, `AllocChars`, and `PodCopy` boundaries. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned browser Safari/JSC source line references for the exact tested browser build. This does not prove no performance headroom exists in pure JS. |
 | `CLAIM-JS-STRING-MAX-LENGTH` | Current Node/V8 cannot represent a single JS string beyond `buffer.constants.MAX_STRING_LENGTH`, so complete-string XML input has a hard size ceiling before parsing. | `ENGINE_INVARIANT` + `SOURCE_FACT` + `TRACE_FACT` | `packages/benchmark/results/release/v8-string-limit-audit.md` records Node v24.15.0 / V8 13.6.233.17-node.48 exposing `MAX_STRING_LENGTH=536,870,888`, matching vendored V8's `(1 << 29) - 24` formula. It also records an over-limit `RangeError: Invalid string length` probe, the 512 MiB `EventReaderSync` string row's `748,090` code-unit headroom, the projected 1024 MiB fixture's `535,374,738` code-unit excess, and the release 1024 MiB `EventReaderSync` failure. | This proves only the complete-string input boundary for this Node/V8 build. It does not cover Bun/JSC or browser engines and is not a byte-batch runtime ceiling. |
@@ -371,12 +371,23 @@ starts the counter after four warmup runs and immediately before the measured
 
 The allocation-count row preserves the checksum contract: 967,967 events and
 checksum `-746772258`. With allocator counting enabled, the timed row reported
-279.4 MiB/s; this is an instrumented row and must not replace the
+243.5 MiB/s; this is an instrumented row and must not replace the
 non-instrumented quick-xml throughput baseline. The measured window counted
 170,822 allocation calls, 170,822 deallocation calls, 2 realloc calls, 170,824
 allocation operations, 27.13 MiB total allocated bytes, and 0 B net allocated
 bytes. It also counted 284,695 text/CDATA decode calls at the `Cow<str>`
 boundary: 284,695 borrowed and 0 owned for this fixture.
+
+The same measured window now includes direct comparator phase attribution for
+allocator traffic. It attributed 170,817 allocation operations and 26.06 MiB
+allocated/released bytes to `attribute-collection`, 4 operations and 88 B
+allocated to `reader-event`, and 3 operations with 1.06 MiB allocated to
+`unattributed` setup/teardown inside the measured window. This is a stronger
+allocation-shape fact than the previous global counter alone: for this
+comparator and fixture, measured allocator traffic is dominated by building and
+dropping the temporary attribute `Vec`, not by text or CDATA decode. It is still
+explicit phase instrumentation, not native stack unwinding or object lifetime
+proof.
 
 The same artifact now includes four generated 1 MiB UTF-8 countercheck
 fixtures: `escaped-utf8`, `nonascii-utf8`, `cdata-utf8`, and `utf8-bom`.
@@ -392,10 +403,12 @@ unescape API.
 
 This turns the previous "allocation-still-missing" gap into a narrower fact:
 quick-xml allocation calls are now counted for the measured comparator window,
-and this fixture family has text/CDATA decode ownership counters. The counter
-still has no allocation stack attribution, allocator object type attribution, or
-object lifetime proof, and the `Cow<str>` ownership result is not yet repeated
-on non-UTF-8 encoding fixtures. It is therefore allocation-call and Cow-boundary
+this fixture family has text/CDATA decode ownership counters, and the primary
+fixture has direct phase attribution showing attribute collection as the
+dominant allocator phase. The counter still has no native allocation stack
+unwinding, exact allocator object type attribution, or object lifetime proof,
+and the `Cow<str>` ownership result is not yet repeated on non-UTF-8 encoding
+fixtures. It is therefore allocation-call, phase-attribution, and Cow-boundary
 evidence, not proof that quick-xml's speed follows from one specific
 representation choice across all inputs.
 
@@ -2186,11 +2199,12 @@ Acceptance:
 1. Repeat Woodstox measured-iteration allocation capture with additional JFR
    samples or async-profiler so the current 10-sample measured window is not
    overread as total allocation volume.
-2. Add Rust stack/type allocation attribution for quick-xml reader, name decode,
-   text decode, and attribute decode paths, and repeat `Cow<str>` ownership
-   counters on non-UTF-8 encoding fixtures if that comparator feature is enabled
-   explicitly; the current global allocator counter has no stack/type
-   attribution.
+2. Extend the new Rust phase-allocation attribution for quick-xml with native
+   stack/type attribution or object-lifetime evidence, and repeat `Cow<str>`
+   ownership counters on non-UTF-8 encoding fixtures if that comparator feature
+   is enabled explicitly; the current counter now identifies
+   `attribute-collection` as the dominant measured allocator phase but still
+   does not provide native stack unwinding or exact allocated-object types.
 3. Extend the candidate headroom matrices beyond the current 16 MiB, 1 GiB
    Node/V8, 1 GiB Bun/JSC 4,096-row, 1 GiB Bun/JSC 65,536-row generated,
    1 GiB Chrome/V8 generated, 1 GiB Firefox/SpiderMonkey generated,
