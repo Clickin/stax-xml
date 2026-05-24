@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-24T14:04:28.147Z
+Generated: 2026-05-24T14:22:05.282Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -8,13 +8,13 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 
 - Scanned artifacts: 85
 - Ignored derived artifacts: 5
-- Measured rows recognized: 526
+- Measured rows recognized: 532
 - 1 GiB+ JS full-string rows recognized: 287
 - Counterexamples found: 0
 - Partial/projection threshold rows: 12
 - Full-string rows without bounded-memory proof: 89
-- Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 183.10 MiB/s (yes, process-rss)
-- Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 183.10 MiB/s (yes, process-rss)
+- Fastest 1 GiB+ JS full-string row: Node/V8 rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 180.08 MiB/s (yes, process-rss)
+- Fastest 1 GiB+ JS full-string row with memory proof: Node/V8 rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 180.08 MiB/s (yes, process-rss)
 - Fastest partial/projection threshold row: Bun/JSC attrNameStringOnly from bun-candidate-headroom-books-corpus.json at 293.91 MiB/s (yes, process-rss)
 
 ## Counterexamples
@@ -27,18 +27,18 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 183.10 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 181.61 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 179.81 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 180.08 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 178.52 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 177.18 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 176.61 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 176.47 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.23 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 174.66 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 173.46 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.82 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 172.48 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 171.73 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 173.15 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 170.51 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 169.34 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 166.27 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 165.92 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 163.24 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -46,18 +46,18 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 183.10 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 181.61 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 179.81 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 180.08 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 178.52 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 177.18 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 176.61 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 176.47 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.23 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 174.66 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 173.46 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.82 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 172.48 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 171.73 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 173.15 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 170.51 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 169.34 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 166.27 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 165.92 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 163.24 | yes | process-rss | 57096514 | -540013997 |
 
 ## Partial Or Projection Threshold Rows
 

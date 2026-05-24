@@ -34,7 +34,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 85);
-  assert.equal(report.summary.measuredRowCount, 526);
+  assert.equal(report.summary.measuredRowCount, 532);
   assert.equal(report.summary.largeJsFullRowCount, 287);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
@@ -42,7 +42,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'candidate-headroom-cross-process-books-corpus.json');
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.id, 'rawFrameNameId');
-  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 183.10);
+  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 180.08);
   assert.ok(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec < 200);
   assert.equal(report.summary.fastestPartialHeadroomRow.fullStringParity, false);
   assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
@@ -65,13 +65,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
     && row.id === 'rawFrameNameId'
-    && row.mibPerSec === 183.10
+    && row.mibPerSec === 180.08
     && row.hasMemoryProof === true
   ));
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
     && row.id === 'rawFrameNameId'
-    && row.mibPerSec === 175.23
+    && row.mibPerSec === 176.61
     && row.hasMemoryProof === true
     && row.memoryKind === 'process-rss'
   ));
