@@ -1,0 +1,756 @@
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const MIB = 1024 * 1024;
+const GIB = 1024 * MIB;
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const defaultReleaseDir = resolve(__dirname, 'results', 'release');
+const defaultJsonOut = resolve(defaultReleaseDir, 'runtime-proof-coverage-audit.json');
+const defaultMdOut = resolve(defaultReleaseDir, 'runtime-proof-coverage-audit.md');
+
+const ignoredArtifacts = new Set([
+  'latest-summary.json',
+  'runtime-limit-proof-obligation-gate.json',
+  'same-contract-runtime-comparison.json',
+  'runtime-counterexample-scan.json',
+  'runtime-proof-coverage-audit.json',
+]);
+
+const runtimeOrder = [
+  'node-v8',
+  'bun-jsc',
+  'deno-v8',
+  'chrome-v8-browser',
+  'firefox-spidermonkey-browser',
+  'safari-jsc-browser',
+  'woodstox-jvm',
+  'quick-xml-rust',
+  'unknown',
+];
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const options = {
+    releaseDir: defaultReleaseDir,
+    jsonOut: defaultJsonOut,
+    mdOut: defaultMdOut,
+    minLargeGiB: 0.999,
+  };
+
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+    if (!arg || arg === '--') continue;
+    const [name, inlineValue] = arg.includes('=') ? arg.split(/=(.*)/s, 2) : [arg, undefined];
+    const readValue = () => {
+      if (inlineValue !== undefined) return inlineValue;
+      const value = argv[index + 1];
+      if (value === undefined) throw new Error(`${arg} requires a value.`);
+      index++;
+      return value;
+    };
+
+    switch (name) {
+      case '--release-dir':
+        options.releaseDir = resolve(process.cwd(), readValue());
+        break;
+      case '--json-out':
+        options.jsonOut = resolve(process.cwd(), readValue());
+        break;
+      case '--md-out':
+        options.mdOut = resolve(process.cwd(), readValue());
+        break;
+      case '--min-large-gib':
+        options.minLargeGiB = parsePositiveNumber(readValue(), name);
+        break;
+      default:
+        throw new Error(`Unknown argument: ${arg}`);
+    }
+  }
+
+  if (!existsSync(options.releaseDir)) {
+    throw new Error(`--release-dir does not exist: ${options.releaseDir}`);
+  }
+  return options;
+}
+
+function main() {
+  const options = parseArgs();
+  const report = createReport(options);
+  writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
+  writeOutput(options.mdOut, renderMarkdown(report));
+  printSummary(report);
+}
+
+function createReport(options) {
+  const artifactFiles = readdirSync(options.releaseDir)
+    .filter(file => file.endsWith('.json'))
+    .sort();
+  const artifacts = [];
+  const ignored = [];
+  const parseErrors = [];
+
+  for (const file of artifactFiles) {
+    if (ignoredArtifacts.has(file)) {
+      ignored.push(file);
+      continue;
+    }
+    try {
+      const root = JSON.parse(readFileSync(join(options.releaseDir, file), 'utf8'));
+      artifacts.push(createArtifactRecord(file, root, options));
+    } catch (error) {
+      parseErrors.push({ file, message: error?.message ?? String(error) });
+    }
+  }
+
+  const coverage = createCoverage(artifacts, options);
+  const obligations = createObligationRows(coverage);
+  const summary = {
+    scannedArtifactCount: artifacts.length,
+    ignoredArtifactCount: ignored.length,
+    parseErrorCount: parseErrors.length,
+    measuredRowCount: sum(artifacts.map(artifact => artifact.measuredRows.length)),
+    benchmarkArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('BENCH_FACT')).length,
+    sourceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('SOURCE_FACT')).length,
+    traceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT')).length,
+    allocationArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('ALLOCATION_FACT')).length,
+    largeJsFullRowCount: coverage.largeJsFullRowCount,
+    runtimeCount: coverage.runtimes.length,
+    corpusSeedCount: coverage.corpusSeeds.length,
+    openObligationCount: obligations.filter(row => row.status !== 'covered').length,
+    conclusionAllowed: false,
+  };
+
+  return {
+    generatedAt: new Date().toISOString(),
+    objective: 'runtime-proof-coverage-audit',
+    contract: 'static-release-artifact-proof-coverage',
+    note: 'Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.',
+    parameters: {
+      releaseDir: options.releaseDir,
+      minLargeGiB: options.minLargeGiB,
+    },
+    scannedArtifacts: artifacts.map(artifact => summarizeArtifact(artifact)),
+    ignoredArtifacts: ignored,
+    parseErrors,
+    summary,
+    coverage,
+    obligations,
+    findings: createFindings(coverage, obligations),
+  };
+}
+
+function createArtifactRecord(sourceArtifact, root, options) {
+  const measuredRows = extractMeasuredRows(sourceArtifact, root);
+  const evidenceKinds = classifyEvidenceKinds(sourceArtifact, root, measuredRows);
+  const runtimes = Array.from(new Set([
+    classifyRuntimeFromArtifact(sourceArtifact, root),
+    ...measuredRows.map(row => row.runtimeId),
+  ].filter(Boolean))).sort(compareRuntimeIds);
+  const fixture = normalizeFixture(root.fixture);
+  const corpusSeed = fixture?.source === 'corpus-file' && fixture.sourceFile
+    ? normalizeCorpusSeed(fixture.sourceFile)
+    : null;
+
+  return {
+    sourceArtifact,
+    objective: root.objective ?? null,
+    contract: root.contract ?? null,
+    evidenceKinds,
+    runtimes,
+    environment: summarizeEnvironment(root.environment),
+    fixture,
+    corpusSeed,
+    measuredRows,
+    sourcePins: classifySourcePins(sourceArtifact, root),
+  };
+}
+
+function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
+  const kinds = new Set();
+  if (measuredRows.length > 0) kinds.add('BENCH_FACT');
+  if (/source-pin-audit|shape-audit|materialization-contract-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
+  if (/trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
+  if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
+  if (root.objective === 'runtime-matrix' || root.objective === 'external-baseline') kinds.add('BENCH_FACT');
+  return Array.from(kinds).sort();
+}
+
+function extractMeasuredRows(sourceArtifact, root) {
+  const rows = [];
+  visit(root, [], createInitialContext(sourceArtifact, root), (node, path, context) => {
+    if (typeof node.mibPerSec !== 'number' || !Number.isFinite(node.mibPerSec)) return;
+    const fixture = normalizeFixture(node.fixture) ?? context.fixture;
+    rows.push({
+      sourceArtifact,
+      jsonPath: path.join('.'),
+      id: String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row'),
+      runtimeId: classifyRuntime(sourceArtifact, node, context),
+      runtimeLabel: runtimeLabel(classifyRuntime(sourceArtifact, node, context)),
+      sizeGiB: fixture?.sizeGiB ?? null,
+      fixtureSource: fixture?.source ?? null,
+      fixtureShape: fixture?.shape ?? null,
+      corpusSeed: fixture?.source === 'corpus-file' && fixture.sourceFile ? normalizeCorpusSeed(fixture.sourceFile) : null,
+      mibPerSec: round(node.mibPerSec),
+      fullStringParity: classifyFullStringParity(node, context),
+      boundedMemory: typeof node.boundedMemory === 'boolean' ? node.boundedMemory : null,
+      memoryKind: classifyMemoryKind(node),
+      eventCount: node.eventCount ?? null,
+      checksum: node.checksum ?? null,
+      contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
+    });
+  });
+  return rows;
+}
+
+function visit(value, path, context, onNode) {
+  if (!value || typeof value !== 'object') return;
+  const nextContext = extendContext(value, context);
+  if (!Array.isArray(value)) {
+    onNode(value, path, nextContext);
+  }
+  for (const [key, child] of Object.entries(value)) {
+    if (child && typeof child === 'object') {
+      visit(child, path.concat(key), nextContext, onNode);
+    }
+  }
+}
+
+function createInitialContext(sourceArtifact, root) {
+  return extendContext(root, {
+    sourceArtifact,
+    fixture: null,
+    environment: null,
+    contract: root?.contract ?? null,
+  });
+}
+
+function extendContext(node, context) {
+  return {
+    ...context,
+    fixture: normalizeFixture(node.fixture) ?? context.fixture,
+    environment: node.environment ?? context.environment,
+    contract: node.contract ?? context.contract,
+  };
+}
+
+function createCoverage(artifacts, options) {
+  const allRows = artifacts.flatMap(artifact => artifact.measuredRows);
+  const largeJsFullRows = allRows.filter(row =>
+    isJsRuntime(row.runtimeId)
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minLargeGiB
+  );
+  const browserBenchmarkRows = allRows.filter(row => isBrowserRuntime(row.runtimeId));
+  const nonV8BrowserRows = browserBenchmarkRows.filter(row => !row.runtimeId.includes('v8'));
+  const corpusRows = allRows.filter(row => row.corpusSeed);
+  const corpusSeeds = Array.from(new Set(corpusRows.map(row => row.corpusSeed))).sort();
+
+  const evidenceByRuntime = runtimeOrder.map(runtimeId => createRuntimeCoverage(runtimeId, artifacts, allRows))
+    .filter(item => item.artifactCount > 0 || item.measuredRowCount > 0 || item.sourcePins.length > 0);
+
+  return {
+    runtimes: evidenceByRuntime,
+    browser: {
+      benchmarkRows: summarizeRows(browserBenchmarkRows),
+      nonV8BenchmarkRows: summarizeRows(nonV8BrowserRows),
+      firefoxBenchmarkRows: summarizeRows(browserBenchmarkRows.filter(row => row.runtimeId === 'firefox-spidermonkey-browser')),
+      safariBenchmarkRows: summarizeRows(browserBenchmarkRows.filter(row => row.runtimeId === 'safari-jsc-browser')),
+      chromeBenchmarkRows: summarizeRows(browserBenchmarkRows.filter(row => row.runtimeId === 'chrome-v8-browser')),
+    },
+    corpusSeeds,
+    corpusRows: summarizeRows(corpusRows),
+    largeJsFullRowCount: largeJsFullRows.length,
+    fastestLargeJsFullRows: summarizeRows(largeJsFullRows
+      .slice()
+      .sort((left, right) => right.mibPerSec - left.mibPerSec)
+      .slice(0, 12)),
+    sourcePins: artifacts.flatMap(artifact => artifact.sourcePins.map(pin => ({ ...pin, sourceArtifact: artifact.sourceArtifact }))),
+    codegenArtifacts: artifacts
+      .filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT'))
+      .map(artifact => summarizeArtifact(artifact)),
+    allocationArtifacts: artifacts
+      .filter(artifact => artifact.evidenceKinds.includes('ALLOCATION_FACT'))
+      .map(artifact => summarizeArtifact(artifact)),
+  };
+}
+
+function createRuntimeCoverage(runtimeId, artifacts, allRows) {
+  const runtimeArtifacts = artifacts.filter(artifact => artifact.runtimes.includes(runtimeId));
+  const runtimeRows = allRows.filter(row => row.runtimeId === runtimeId);
+  const runtimeSourcePins = artifacts
+    .flatMap(artifact => artifact.sourcePins.map(pin => ({ ...pin, sourceArtifact: artifact.sourceArtifact })))
+    .filter(pin => pin.runtimeId === runtimeId);
+  const runtimeTraceArtifacts = runtimeArtifacts.filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT'));
+  const runtimeAllocationArtifacts = runtimeArtifacts.filter(artifact => artifact.evidenceKinds.includes('ALLOCATION_FACT'));
+  return {
+    runtimeId,
+    runtimeLabel: runtimeLabel(runtimeId),
+    artifactCount: runtimeArtifacts.length,
+    measuredRowCount: runtimeRows.length,
+    largeFullStringRowCount: runtimeRows.filter(row => row.fullStringParity === true && (row.sizeGiB ?? 0) >= 0.999).length,
+    fastestLargeFullStringRow: summarizeRow(maxBy(
+      runtimeRows.filter(row => row.fullStringParity === true && (row.sizeGiB ?? 0) >= 0.999),
+      row => row.mibPerSec,
+    )),
+    sourcePins: runtimeSourcePins,
+    traceArtifacts: runtimeTraceArtifacts.map(artifact => artifact.sourceArtifact),
+    allocationArtifacts: runtimeAllocationArtifacts.map(artifact => artifact.sourceArtifact),
+  };
+}
+
+function createObligationRows(coverage) {
+  const hasFirefoxRows = coverage.browser.firefoxBenchmarkRows.length > 0;
+  const hasSafariRows = coverage.browser.safariBenchmarkRows.length > 0;
+  const hasNonV8BrowserRows = coverage.browser.nonV8BenchmarkRows.length > 0;
+  const corpusSeedCount = coverage.corpusSeeds.length;
+  const runtimeById = new Map(coverage.runtimes.map(row => [row.runtimeId, row]));
+  const hasNodeCodegen = (runtimeById.get('node-v8')?.traceArtifacts.length ?? 0) > 0;
+  const hasBunCodegen = (runtimeById.get('bun-jsc')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
+  const hasBrowserCodegen = coverage.codegenArtifacts.some(artifact => /browser/i.test(artifact.sourceArtifact) && /codegen|trace|ir|asm/i.test(artifact.sourceArtifact));
+  const hasBunAllocation = (runtimeById.get('bun-jsc')?.allocationArtifacts.length ?? 0) > 0;
+  const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
+    artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
+  );
+
+  return [
+    {
+      id: 'firefox-browser-rows-open',
+      status: hasFirefoxRows ? 'covered' : 'open',
+      evidence: hasFirefoxRows
+        ? `${coverage.browser.firefoxBenchmarkRows.length} Firefox/SpiderMonkey browser benchmark rows found.`
+        : 'Firefox/SpiderMonkey source pins exist only as source facts; no Firefox browser benchmark rows were found.',
+      nextExperiment: 'Wire a Firefox-capable browser harness row under the same full-string byte-batch contract.',
+    },
+    {
+      id: 'safari-jsc-source-and-browser-rows-open',
+      status: hasSafariRows ? 'covered' : 'open',
+      evidence: hasSafariRows
+        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found.`
+        : 'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
+      nextExperiment: 'Pin the exact Safari/WebKit browser build and run same-contract browser rows separately from Bun/JSC.',
+    },
+    {
+      id: 'codegen-traces-open',
+      status: hasNodeCodegen && hasBunCodegen && hasBrowserCodegen ? 'covered' : 'partial',
+      evidence: [
+        hasNodeCodegen ? 'Node/V8 trace evidence present.' : 'Node/V8 trace evidence missing.',
+        hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
+        hasBrowserCodegen ? 'Browser codegen trace evidence present.' : 'Browser codegen trace evidence missing.',
+      ].join(' '),
+      nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Bun/JSC and browser engines.',
+    },
+    {
+      id: 'allocation-profiles-open',
+      status: hasBunAllocation && hasNonV8BrowserAllocation ? 'covered' : 'partial',
+      evidence: [
+        `${coverage.allocationArtifacts.length} allocation/profile artifacts found.`,
+        hasBunAllocation ? 'Bun/JSC allocation evidence present.' : 'Bun/JSC allocation evidence missing.',
+        hasNonV8BrowserAllocation ? 'Non-V8 browser allocation evidence present.' : 'Non-V8 browser allocation evidence missing.',
+      ].join(' '),
+      nextExperiment: 'Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows.',
+    },
+    {
+      id: 'non-v8-browser-coverage-open',
+      status: hasNonV8BrowserRows ? 'covered' : 'open',
+      evidence: hasNonV8BrowserRows
+        ? `${coverage.browser.nonV8BenchmarkRows.length} non-V8 browser benchmark rows found.`
+        : 'Current browser benchmark rows are Chrome/V8 only; Firefox/SpiderMonkey and Safari/WebKit rows are absent.',
+      nextExperiment: 'Run same-contract 1 GiB+ browser rows on at least one non-V8 browser engine.',
+    },
+    {
+      id: 'independent-corpus-suite-open',
+      status: corpusSeedCount >= 3 ? 'covered' : 'partial',
+      evidence: `${corpusSeedCount} release corpus seed(s) found: ${coverage.corpusSeeds.join(', ') || 'none'}.`,
+      nextExperiment: 'Add at least two more independent real XML corpus seeds before treating corpus coverage as broad.',
+    },
+    {
+      id: 'counterexample-rule-present',
+      status: 'covered',
+      evidence: 'runtime-counterexample-scan.md is a required gate artifact and preserves the bounded full-string 200 MiB/s counterexample rule.',
+      nextExperiment: 'Keep new rows flowing through the counterexample scanner before broadening claims.',
+    },
+  ];
+}
+
+function createFindings(coverage, obligations) {
+  const open = obligations.filter(row => row.status !== 'covered');
+  return [
+    {
+      id: 'coverage-audit-is-not-runtime-limit-proof',
+      status: 'SCOPE_GUARD',
+      summary: 'Coverage auditing can prove which evidence families are absent or partial, but it cannot prove a JavaScript runtime ceiling.',
+    },
+    {
+      id: 'non-v8-browser-gap-remains',
+      status: coverage.browser.nonV8BenchmarkRows.length === 0 ? 'OPEN' : 'COVERED',
+      summary: coverage.browser.nonV8BenchmarkRows.length === 0
+        ? 'No Firefox/SpiderMonkey or Safari/WebKit browser benchmark rows are present in current release artifacts.'
+        : 'At least one non-V8 browser benchmark row is present.',
+    },
+    {
+      id: 'corpus-suite-gap-remains',
+      status: coverage.corpusSeeds.length >= 3 ? 'COVERED' : 'PARTIAL',
+      summary: `Current release artifacts cover ${coverage.corpusSeeds.length} corpus seed(s), so broad corpus coverage remains unproven.`,
+    },
+    {
+      id: 'open-obligations-ranked',
+      status: open.length === 0 ? 'COVERED' : 'OPEN',
+      summary: `${open.length} proof obligation(s) remain open or partial after scanning current release artifacts.`,
+      evidence: open.map(row => row.id),
+    },
+  ];
+}
+
+function classifySourcePins(sourceArtifact, root) {
+  if (sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json') {
+    return [{
+      runtimeId: 'firefox-spidermonkey-browser',
+      kind: 'TextDecoder source boundary',
+      revision: root.source?.revision ?? null,
+      limitation: 'source pin only; no benchmark row for the tested Firefox browser build',
+    }];
+  }
+  if (sourceArtifact === 'bun-webkit-textdecoder-source-pin-audit.json' || sourceArtifact === 'bun-jsc-source-pin-audit.json') {
+    return [{
+      runtimeId: 'bun-jsc',
+      kind: 'Bun-patched WebKit source boundary',
+      revision: root.source?.revision ?? root.runtime?.webkitCommit ?? null,
+      limitation: 'Bun/JSC source evidence; not Safari browser coverage',
+    }];
+  }
+  if (sourceArtifact === 'bun-textdecoder-dispatch-source-pin-audit.json') {
+    return [{
+      runtimeId: 'bun-jsc',
+      kind: 'Bun TextDecoder dispatch source boundary',
+      revision: root.source?.revision ?? root.runtime?.bunRevision ?? null,
+      limitation: 'Bun dispatch evidence; not WebKit TextDecoder default UTF-8 proof for Safari',
+    }];
+  }
+  if (sourceArtifact === 'chrome-blink-textdecoder-source-pin-audit.json' || sourceArtifact === 'chrome-v8-source-pin-audit.json') {
+    return [{
+      runtimeId: 'chrome-v8-browser',
+      kind: 'Chrome/Blink/V8 source boundary',
+      revision: root.source?.revision ?? root.runtime?.v8Version ?? null,
+      limitation: 'Chrome/V8 source evidence; not non-V8 browser coverage',
+    }];
+  }
+  if (sourceArtifact === 'node-textdecoder-source-pin-audit.json' || sourceArtifact === 'v8-string-limit-audit.json') {
+    return [{
+      runtimeId: 'node-v8',
+      kind: 'Node/V8 source boundary',
+      revision: root.source?.revision ?? root.runtime?.v8Version ?? null,
+      limitation: 'Node/V8 source evidence only',
+    }];
+  }
+  return [];
+}
+
+function classifyRuntimeFromArtifact(sourceArtifact, root) {
+  if (sourceArtifact.startsWith('bun-')) return 'bun-jsc';
+  if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
+  if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
+  if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
+  if (sourceArtifact.startsWith('quick-xml-')) return 'quick-xml-rust';
+  if (/v8|node|candidate-headroom|textdecoder-span|stream-reader|event-reader|monomorphic/.test(sourceArtifact)) return 'node-v8';
+  if (root.environment) return classifyRuntime(sourceArtifact, root, { environment: root.environment });
+  return null;
+}
+
+function classifyRuntime(sourceArtifact, node, context) {
+  if (node.tool === 'woodstox') return 'woodstox-jvm';
+  if (node.tool === 'quick-xml') return 'quick-xml-rust';
+  if (typeof node.tool === 'string' && node.tool.startsWith('stax-')) return 'node-v8';
+
+  const environment = node.environment ?? context.environment ?? {};
+  const runtimeName = environment.runtimeName;
+  const browserName = String(environment.browserName ?? '').toLowerCase();
+  const engine = String(environment.javascriptEngine ?? '').toLowerCase();
+
+  if (runtimeName === 'bun' || sourceArtifact.startsWith('bun-')) return 'bun-jsc';
+  if (runtimeName === 'deno') return 'deno-v8';
+  if (runtimeName === 'browser') {
+    if (browserName.includes('firefox') || engine.includes('spidermonkey')) return 'firefox-spidermonkey-browser';
+    if (browserName.includes('safari') || browserName.includes('webkit') || engine.includes('jsc') || engine.includes('javascriptcore')) return 'safari-jsc-browser';
+    return 'chrome-v8-browser';
+  }
+  if (runtimeName === 'node' || environment.v8) return 'node-v8';
+  if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
+  if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
+  return 'unknown';
+}
+
+function classifyFullStringParity(node, context) {
+  if (node.fullStringParity === true) return true;
+  if (node.fullStringParity === false) return false;
+  if (node.workload === 'full-string-checksum') return true;
+  if (typeof node.contractScope === 'string') {
+    if (/full-(string|event-object|stax)/i.test(node.contractScope)) return true;
+    if (/partial|projection|scan/i.test(node.contractScope)) return false;
+  }
+  if (typeof node.family === 'string') {
+    if (/partial|projection|scan/i.test(node.family)) return false;
+    if (/full-stax-js/i.test(node.family)) return true;
+  }
+  if (typeof context.contract === 'string' && /projection/i.test(context.contract)) return false;
+  return null;
+}
+
+function classifyMemoryKind(node) {
+  const memory = node.memory;
+  if (!memory || typeof memory !== 'object') return 'not-recorded';
+  if (memory.scope === 'browser-js-heap' || memory.maxJsHeapUsedBytes !== undefined) return 'browser-js-heap';
+  if (memory.maxRssBytes !== undefined) return 'process-rss';
+  return 'recorded-unknown-kind';
+}
+
+function normalizeFixture(fixture) {
+  if (!fixture || typeof fixture !== 'object') return null;
+  const actualBytes = numberOrNull(fixture.actualBytes ?? fixture.sizeBytes);
+  const sizeGiB = numberOrNull(fixture.sizeGiB) ?? (actualBytes !== null ? actualBytes / GIB : null);
+  const sizeMiB = numberOrNull(fixture.sizeMiB) ?? (actualBytes !== null ? actualBytes / MIB : null);
+  return {
+    source: fixture.source ?? null,
+    shape: fixture.shape ?? null,
+    sourceFile: fixture.sourceFile ?? null,
+    sizeGiB: round(sizeGiB),
+    sizeMiB: round(sizeMiB),
+    actualBytes,
+  };
+}
+
+function summarizeEnvironment(environment = {}) {
+  return {
+    runtimeName: environment.runtimeName ?? null,
+    browserName: environment.browserName ?? null,
+    browserVersion: environment.browserVersion ?? null,
+    javascriptEngine: environment.javascriptEngine ?? null,
+    v8: environment.v8 ?? null,
+    webkitCommit: environment.webkitCommit ?? null,
+  };
+}
+
+function summarizeArtifact(artifact) {
+  return {
+    sourceArtifact: artifact.sourceArtifact,
+    objective: artifact.objective,
+    contract: artifact.contract,
+    evidenceKinds: artifact.evidenceKinds,
+    runtimes: artifact.runtimes,
+    fixture: artifact.fixture,
+    corpusSeed: artifact.corpusSeed,
+    measuredRowCount: artifact.measuredRows.length,
+  };
+}
+
+function summarizeRows(rows) {
+  return rows.map(summarizeRow).filter(Boolean);
+}
+
+function summarizeRow(row) {
+  if (!row) return null;
+  return {
+    sourceArtifact: row.sourceArtifact,
+    id: row.id,
+    runtimeId: row.runtimeId,
+    runtimeLabel: row.runtimeLabel,
+    sizeGiB: row.sizeGiB,
+    fixtureSource: row.fixtureSource,
+    fixtureShape: row.fixtureShape,
+    corpusSeed: row.corpusSeed,
+    mibPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity,
+    boundedMemory: row.boundedMemory,
+    memoryKind: row.memoryKind,
+    eventCount: row.eventCount,
+    checksum: row.checksum,
+    contractScope: row.contractScope,
+  };
+}
+
+function renderMarkdown(report) {
+  const lines = [
+    '# Runtime Proof Coverage Audit',
+    '',
+    `Generated: ${report.generatedAt}`,
+    '',
+    'This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.',
+    '',
+    '## Summary',
+    '',
+    `- Scanned primary artifacts: ${report.summary.scannedArtifactCount}`,
+    `- Ignored derived artifacts: ${report.summary.ignoredArtifactCount}`,
+    `- Measured rows recognized: ${report.summary.measuredRowCount}`,
+    `- Benchmark artifacts: ${report.summary.benchmarkArtifactCount}`,
+    `- Source artifacts: ${report.summary.sourceArtifactCount}`,
+    `- Trace/profile artifacts: ${report.summary.traceArtifactCount}`,
+    `- Allocation artifacts: ${report.summary.allocationArtifactCount}`,
+    `- 1 GiB+ JS full-string rows: ${report.summary.largeJsFullRowCount}`,
+    `- Corpus seeds: ${report.summary.corpusSeedCount}`,
+    `- Open or partial obligations: ${report.summary.openObligationCount}`,
+    '',
+  ];
+
+  if (report.parseErrors.length > 0) {
+    lines.push('## Parse Errors', '');
+    for (const error of report.parseErrors) {
+      lines.push(`- ${error.file}: ${error.message}`);
+    }
+    lines.push('');
+  }
+
+  lines.push(
+    '## Runtime Coverage',
+    '',
+    '| Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |',
+    '| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |',
+  );
+  for (const row of report.coverage.runtimes) {
+    lines.push(`| ${row.runtimeLabel} | ${row.artifactCount} | ${row.measuredRowCount} | ${row.largeFullStringRowCount} | ${formatFastest(row.fastestLargeFullStringRow)} | ${row.sourcePins.length} | ${row.traceArtifacts.length} | ${row.allocationArtifacts.length} |`);
+  }
+
+  lines.push(
+    '',
+    '## Open Obligations',
+    '',
+    '| Obligation | Status | Evidence | Next experiment |',
+    '| --- | --- | --- | --- |',
+  );
+  for (const row of report.obligations) {
+    lines.push(`| \`${row.id}\` | ${row.status} | ${escapePipe(row.evidence)} | ${escapePipe(row.nextExperiment)} |`);
+  }
+
+  lines.push(
+    '',
+    '## Corpus Coverage',
+    '',
+    `Current release corpus seeds: ${report.coverage.corpusSeeds.length === 0 ? 'none' : report.coverage.corpusSeeds.map(seed => `\`${seed}\``).join(', ')}.`,
+    '',
+    '## Browser Coverage',
+    '',
+    `- Chrome/V8 browser benchmark rows: ${report.coverage.browser.chromeBenchmarkRows.length}`,
+    `- Firefox/SpiderMonkey browser benchmark rows: ${report.coverage.browser.firefoxBenchmarkRows.length}`,
+    `- Safari/WebKit browser benchmark rows: ${report.coverage.browser.safariBenchmarkRows.length}`,
+    `- Non-V8 browser benchmark rows: ${report.coverage.browser.nonV8BenchmarkRows.length}`,
+    '',
+    'Firefox source pin without benchmark rows and Safari/browser JSC not covered by Bun/JSC remain explicit gaps.',
+    '',
+    '## Findings',
+    '',
+  );
+  for (const finding of report.findings) {
+    lines.push(`- ${finding.id} (${finding.status}): ${finding.summary}`);
+    for (const evidence of finding.evidence ?? []) {
+      lines.push(`  - ${evidence}`);
+    }
+  }
+
+  lines.push(
+    '',
+    '## Limits',
+    '',
+    '- This audit only checks evidence coverage in current release artifacts. It does not measure new throughput or memory.',
+    '- Source pins without same-runtime benchmark rows are treated as source-only evidence.',
+    '- Bun/JSC evidence is not Safari/browser JSC evidence unless the tested browser build and rows are recorded separately.',
+    '- Missing evidence is not evidence that optimization is impossible; it is a queue for counterexample search.',
+  );
+
+  return `${lines.join('\n')}\n`;
+}
+
+function runtimeLabel(runtimeId) {
+  switch (runtimeId) {
+    case 'node-v8':
+      return 'Node/V8';
+    case 'bun-jsc':
+      return 'Bun/JSC';
+    case 'deno-v8':
+      return 'Deno/V8';
+    case 'chrome-v8-browser':
+      return 'Chrome/V8 browser';
+    case 'firefox-spidermonkey-browser':
+      return 'Firefox/SpiderMonkey browser';
+    case 'safari-jsc-browser':
+      return 'Safari/WebKit browser';
+    case 'woodstox-jvm':
+      return 'Java/Woodstox';
+    case 'quick-xml-rust':
+      return 'Rust/quick-xml';
+    default:
+      return runtimeId ?? 'unknown';
+  }
+}
+
+function isJsRuntime(runtimeId) {
+  return ['node-v8', 'bun-jsc', 'deno-v8', 'chrome-v8-browser', 'firefox-spidermonkey-browser', 'safari-jsc-browser'].includes(runtimeId);
+}
+
+function isBrowserRuntime(runtimeId) {
+  return ['chrome-v8-browser', 'firefox-spidermonkey-browser', 'safari-jsc-browser'].includes(runtimeId);
+}
+
+function normalizeCorpusSeed(sourceFile) {
+  return basename(String(sourceFile).replaceAll('\\', '/'));
+}
+
+function compareRuntimeIds(left, right) {
+  const leftIndex = runtimeOrder.indexOf(left);
+  const rightIndex = runtimeOrder.indexOf(right);
+  return (leftIndex === -1 ? 999 : leftIndex) - (rightIndex === -1 ? 999 : rightIndex)
+    || left.localeCompare(right);
+}
+
+function maxBy(items, valueFn) {
+  let best = null;
+  let bestValue = -Infinity;
+  for (const item of items) {
+    const value = valueFn(item);
+    if (typeof value === 'number' && Number.isFinite(value) && value > bestValue) {
+      best = item;
+      bestValue = value;
+    }
+  }
+  return best;
+}
+
+function sum(values) {
+  return values.reduce((total, value) => total + value, 0);
+}
+
+function parsePositiveNumber(value, flag) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) throw new Error(`${flag} must be a positive number.`);
+  return parsed;
+}
+
+function numberOrNull(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function round(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.round(value * 100) / 100 : null;
+}
+
+function formatFastest(row) {
+  if (!row) return 'none';
+  return `${row.id} ${formatNumber(row.mibPerSec)} MiB/s from ${row.sourceArtifact}`;
+}
+
+function formatNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function escapePipe(value) {
+  return String(value).replaceAll('|', '\\|');
+}
+
+function writeOutput(filePath, contents) {
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, contents);
+}
+
+function printSummary(report) {
+  console.log(`runtime-proof-coverage-audit: artifacts=${report.summary.scannedArtifactCount} open=${report.summary.openObligationCount}`);
+}
+
+main();

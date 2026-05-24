@@ -1,0 +1,94 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, '..', '..');
+const tmpDir = join(__dirname, 'results', 'tmp', 'runtime-proof-coverage-audit-report-test');
+const jsonOut = join(tmpDir, 'runtime-proof-coverage-audit.json');
+const mdOut = join(tmpDir, 'runtime-proof-coverage-audit.md');
+
+test('runtime proof coverage audit keeps open proof obligations explicit', () => {
+  resetTmp();
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.objective, 'runtime-proof-coverage-audit');
+  assert.equal(report.contract, 'static-release-artifact-proof-coverage');
+  assert.equal(report.summary.conclusionAllowed, false);
+  assert.equal(report.summary.parseErrorCount, 0);
+  assert.equal(report.summary.scannedArtifactCount, 59);
+  assert.equal(report.summary.measuredRowCount, 342);
+  assert.equal(report.summary.largeJsFullRowCount, 141);
+  assert.equal(report.summary.corpusSeedCount, 1);
+  assert.equal(report.summary.openObligationCount, 6);
+
+  const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
+  assert.ok(runtimeIds.includes('node-v8'));
+  assert.ok(runtimeIds.includes('bun-jsc'));
+  assert.ok(runtimeIds.includes('chrome-v8-browser'));
+  assert.ok(runtimeIds.includes('firefox-spidermonkey-browser'));
+  assert.ok(runtimeIds.includes('quick-xml-rust'));
+  assert.ok(runtimeIds.includes('woodstox-jvm'));
+
+  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 73);
+  assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 0);
+  assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
+  assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 0);
+  assert.deepEqual(report.coverage.corpusSeeds, ['treebank_e.xml']);
+  assert.ok(report.coverage.sourcePins.some(pin =>
+    pin.runtimeId === 'firefox-spidermonkey-browser'
+    && pin.sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json'
+  ));
+
+  assertObligation(report, 'firefox-browser-rows-open', 'open');
+  assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');
+  assertObligation(report, 'codegen-traces-open', 'partial');
+  assertObligation(report, 'allocation-profiles-open', 'partial');
+  assertObligation(report, 'non-v8-browser-coverage-open', 'open');
+  assertObligation(report, 'independent-corpus-suite-open', 'partial');
+  assertObligation(report, 'counterexample-rule-present', 'covered');
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /# Runtime Proof Coverage Audit/);
+  assert.match(markdown, /not an impossibility proof/);
+  assert.match(markdown, /Firefox\/SpiderMonkey source pins exist only as source facts/);
+  assert.match(markdown, /no Firefox browser benchmark rows were found/);
+  assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
+  assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
+  assert.match(markdown, /Non-V8 browser benchmark rows: 0/);
+  assert.match(markdown, /Current release corpus seeds: `treebank_e\.xml`/);
+  assert.match(markdown, /6 proof obligation\(s\) remain open or partial/);
+  assert.match(markdown, /Missing evidence is not evidence that optimization is impossible/);
+});
+
+function assertObligation(report, id, status) {
+  const row = report.obligations.find(item => item.id === id);
+  assert.ok(row, `missing obligation: ${id}`);
+  assert.equal(row.status, status);
+}
+
+function resetTmp() {
+  rmSync(tmpDir, { recursive: true, force: true });
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [jsonOut, mdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+}

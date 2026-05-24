@@ -115,7 +115,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 18 required artifact mentions
+all 10 required claim guards are satisfied, all 19 required artifact mentions
 are present, all 7 required open-obligation disclosures are present, and all 7
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -186,6 +186,36 @@ work but drops the full-string StAX contract, so it is headroom evidence rather
 than a runtime-limit counterexample. This scan is a mechanical guard over the
 current release artifacts; absence of a counterexample here is still not an
 impossibility proof.
+
+## Current Evidence: Runtime Proof Coverage Audit
+
+`packages/benchmark/results/release/runtime-proof-coverage-audit.md` scans
+current release artifacts for runtime, browser-engine, corpus, codegen/profile,
+and allocation coverage. It is a static coverage audit, not a benchmark run and
+not a runtime-limit proof.
+
+The current audit scans 59 primary release artifacts and recognizes 342
+measured rows. It records 39 benchmark artifacts, 9 source artifacts, 3
+trace/profile artifacts, 9 allocation artifacts, 141 JavaScript 1 GiB+
+full-string rows, and one release corpus seed: `treebank_e.xml`.
+
+The audit keeps the open proof obligations concrete. Current browser benchmark
+coverage is Chrome/V8 only: 73 Chrome/V8 browser rows, zero
+Firefox/SpiderMonkey browser rows, zero Safari/WebKit browser rows, and zero
+non-V8 browser benchmark rows. Firefox has a source pin but no matching browser
+benchmark rows; Bun/JSC and Bun-patched WebKit evidence is not Safari/browser
+JSC evidence. Codegen remains partial because Node/V8 trace evidence exists,
+but Bun/JSC has profiler/source evidence rather than codegen/IR evidence and
+browser codegen trace evidence is absent. Allocation evidence remains partial
+because current artifacts cover Node/V8, Chrome/V8 browser, Woodstox, and
+quick-xml styles, but Bun/JSC and non-V8 browser allocation evidence are
+missing.
+
+The audit reports 6 open or partial obligations after scanning the current
+release artifacts: Firefox browser rows, Safari/browser JSC rows, codegen
+traces, allocation profiles, non-V8 browser coverage, and broader independent
+corpus coverage. This narrows the next counterexample search queue; it does not
+turn missing evidence into evidence that optimization is impossible.
 
 ## Current Evidence: Woodstox HotSpot Trace
 

@@ -137,7 +137,7 @@ function createLedgerFixture(runtimeStatus) {
     '| `CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY` | Bun dispatch source boundary. | `SOURCE_FACT` + `COUNTEREXAMPLE` | bun-textdecoder-dispatch-source-pin-audit.md | Not throughput. |',
     '| `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | Firefox/Gecko source boundary. | `SOURCE_FACT` | firefox-spidermonkey-textdecoder-source-pin-audit.md | Not Firefox benchmark rows, not heap/allocation, not generated-code evidence. |',
     '',
-    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, quick-xml-allocation-count.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md.',
+    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md.',
     '',
     'Open work: Firefox benchmark rows, Safari/browser JSC source pins, non-V8 browser allocation evidence, codegen traces, and a broad corpus suite remain open.',
     '',

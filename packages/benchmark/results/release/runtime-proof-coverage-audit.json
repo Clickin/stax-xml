@@ -1,0 +1,5274 @@
+{
+  "generatedAt": "2026-05-24T02:07:31.743Z",
+  "objective": "runtime-proof-coverage-audit",
+  "contract": "static-release-artifact-proof-coverage",
+  "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
+  "parameters": {
+    "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
+    "minLargeGiB": 0.999
+  },
+  "scannedArtifacts": [
+    {
+      "sourceArtifact": "browser-candidate-headroom-corpus.json",
+      "objective": "browser-candidate-headroom",
+      "contract": "browser-corpus-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": "treebank_e.xml",
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+      "objective": "browser-candidate-headroom-cross-process",
+      "contract": "independent-browser-process-candidate-headroom-stability",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 15
+    },
+    {
+      "sourceArtifact": "browser-candidate-headroom-large.json",
+      "objective": "browser-candidate-headroom",
+      "contract": "browser-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+      "objective": "browser-candidate-headroom",
+      "contract": "browser-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+      "objective": "browser-candidate-headroom",
+      "contract": "browser-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "browser-string-limit-audit.json",
+      "objective": "browser-string-limit-audit",
+      "contract": "browser-v8-complete-js-string-input-boundary",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 1
+    },
+    {
+      "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+      "objective": "browser-textdecoder-span-variants",
+      "contract": "browser-full-string-textdecoder-span-variant-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": "treebank_e.xml",
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "browser-textdecoder-span-variants.json",
+      "objective": "browser-textdecoder-span-variants",
+      "contract": "browser-full-string-textdecoder-span-variant-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "browser-v8-allocation-sampling.json",
+      "objective": "browser-v8-allocation-sampling",
+      "contract": "browser-v8-heap-profiler-allocation-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT",
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777217
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 3
+    },
+    {
+      "sourceArtifact": "bun-candidate-headroom-corpus.json",
+      "objective": "candidate-headroom-large",
+      "contract": "byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": "treebank_e.xml",
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "bun-candidate-headroom-large-stability.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "bun-candidate-headroom-large.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "bun-candidate-headroom-projection-large.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "bun-candidate-headroom-projection-stability.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "bun-candidate-headroom-wide.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742042
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "bun-event-reader-string-large.json",
+      "objective": "bun-event-reader-string-large",
+      "contract": "bun-event-reader-sync-string-input-full-object-materialization",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 4
+    },
+    {
+      "sourceArtifact": "bun-jsc-cpu-profile.json",
+      "objective": "bun-jsc-cpu-profile",
+      "contract": "profiler-trace-fact-only",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 4
+    },
+    {
+      "sourceArtifact": "bun-jsc-source-pin-audit.json",
+      "objective": "bun-jsc-source-pin-audit",
+      "contract": "bun-jsc-exact-webkit-string-boundary-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "bun-jsc-string-limit-audit.json",
+      "objective": "bun-jsc-string-limit-audit",
+      "contract": "bun-jsc-complete-js-string-input-boundary",
+      "evidenceKinds": [],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "bun-textdecoder-dispatch-source-pin-audit.json",
+      "objective": "bun-textdecoder-dispatch-source-pin-audit",
+      "contract": "bun-exact-revision-textdecoder-dispatch-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
+      "objective": "textdecoder-span-variants",
+      "contract": "full-string-textdecoder-span-variant-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": "treebank_e.xml",
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "bun-textdecoder-span-variants.json",
+      "objective": "textdecoder-span-variants",
+      "contract": "full-string-textdecoder-span-variant-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "bun-webkit-textdecoder-source-pin-audit.json",
+      "objective": "bun-webkit-textdecoder-source-pin-audit",
+      "contract": "bun-patched-webkit-exact-revision-textdecoder-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "candidate-headroom-corpus.json",
+      "objective": "candidate-headroom-large",
+      "contract": "byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": "treebank_e.xml",
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+      "objective": "candidate-headroom-cross-process",
+      "contract": "independent-process-candidate-headroom-stability",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8",
+        "bun-jsc",
+        "deno-v8"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 45
+    },
+    {
+      "sourceArtifact": "candidate-headroom-large-stability.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "candidate-headroom-large.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "candidate-headroom-matrix.json",
+      "objective": "candidate-headroom-matrix",
+      "contract": "mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 16,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "candidate-headroom-projection-large.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "candidate-headroom-projection-stability.json",
+      "objective": "candidate-headroom-large",
+      "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742077
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 12
+    },
+    {
+      "sourceArtifact": "chrome-blink-textdecoder-source-pin-audit.json",
+      "objective": "chrome-blink-textdecoder-source-pin-audit",
+      "contract": "chrome-blink-exact-revision-textdecoder-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "chrome-v8-source-pin-audit.json",
+      "objective": "chrome-v8-source-pin-audit",
+      "contract": "chrome-v8-exact-revision-string-boundary-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "chrome-v8-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "converter-compiled-batch-plan.json",
+      "objective": null,
+      "contract": {
+        "parser": "pure JavaScript StreamReaderSync batch path",
+        "manual": "manual object projection over StreamReaderSync eventCount plus index accessors",
+        "converterAuto": "converter schema parseSync(bytes), auto-lowered to compiled dispatch batch plan",
+        "converterCompiled": "converter schema compile().parseSync(bytes), explicit compiled dispatch batch plan",
+        "maxEvents": 20000000,
+        "native": false,
+        "wasm": false
+      },
+      "evidenceKinds": [],
+      "runtimes": [],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": null,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "event-reader-string-large.json",
+      "objective": "event-reader-string-large",
+      "contract": "event-reader-sync-string-input-full-object-materialization",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 2
+    },
+    {
+      "sourceArtifact": "external-baseline.json",
+      "objective": null,
+      "contract": null,
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8",
+        "woodstox-jvm",
+        "quick-xml-rust",
+        "unknown"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 4
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json",
+      "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
+      "contract": "gecko-exact-revision-textdecoder-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "materialization-contract-audit.json",
+      "objective": "materialization-contract-audit",
+      "contract": "semantic-materialization-not-object-shape",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "node-v8",
+        "woodstox-jvm",
+        "quick-xml-rust"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 8
+    },
+    {
+      "sourceArtifact": "monomorphic-batch-access.json",
+      "objective": "monomorphic-batch-access",
+      "contract": "full-string-materialization",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 16,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 3
+    },
+    {
+      "sourceArtifact": "node-textdecoder-source-pin-audit.json",
+      "objective": "node-textdecoder-source-pin-audit",
+      "contract": "node-exact-revision-textdecoder-string-boundary-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "object-shape-parity.json",
+      "objective": "object-shape-parity",
+      "contract": "full-string-materialization",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 16,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "projection-benchmark.json",
+      "objective": null,
+      "contract": {
+        "parser": "pure JavaScript stax-xml/projection over StreamReaderSync byte batches",
+        "lowSelectivity": "select /root/book where @code=\"7\", capture @id and child title",
+        "highSelectivity": "select every /root/book, capture @id and child title",
+        "inMemoryComparison": "projection vs manual StreamReaderSync, EventReaderSync, sax, and saxes over the same generated XML string",
+        "generatedSizeComparison": "projection vs manual StreamReaderSync over generated Uint8Array batches without building the full input string",
+        "native": false,
+        "wasm": false
+      },
+      "evidenceKinds": [],
+      "runtimes": [
+        "unknown"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "quick-xml-allocation-count.json",
+      "objective": "quick-xml-allocation-count",
+      "contract": "measured-consume-global-allocator-count",
+      "evidenceKinds": [
+        "ALLOCATION_FACT",
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "quick-xml-rust",
+        "unknown"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "quick-xml-shape-audit.json",
+      "objective": "quick-xml-shape-audit",
+      "contract": "source-shape-audit",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "woodstox-jvm",
+        "quick-xml-rust"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 2
+    },
+    {
+      "sourceArtifact": "runtime-matrix.json",
+      "objective": null,
+      "contract": null,
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "unknown"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 36
+    },
+    {
+      "sourceArtifact": "stream-reader-1gb-allocation-diverse-shapes.json",
+      "objective": "stream-reader-large-shape-allocation",
+      "contract": "generated-byte-batch-full-string-allocation-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "stream-reader-1gb-allocation-shapes.json",
+      "objective": "stream-reader-large-shape-allocation",
+      "contract": "generated-byte-batch-full-string-allocation-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741880
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "stream-reader-1gb-diverse-shapes.json",
+      "objective": "stream-reader-large-shape",
+      "contract": "generated-byte-batch-full-string",
+      "evidenceKinds": [],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "stream-reader-1gb-shapes.json",
+      "objective": "stream-reader-large-shape",
+      "contract": "generated-byte-batch-full-string",
+      "evidenceKinds": [],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741880
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "stream-reader-4gb.json",
+      "objective": null,
+      "contract": null,
+      "evidenceKinds": [],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 4,
+        "sizeMiB": 4096,
+        "actualBytes": 4294967340
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "textdecoder-span-variants-corpus.json",
+      "objective": "textdecoder-span-variants",
+      "contract": "full-string-textdecoder-span-variant-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": "treebank_e.xml",
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "textdecoder-span-variants.json",
+      "objective": "textdecoder-span-variants",
+      "contract": "full-string-textdecoder-span-variant-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "v8-allocation-sampling-diverse.json",
+      "objective": "v8-allocation-sampling",
+      "contract": "inspector-heapprofiler-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse",
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 16,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "v8-allocation-sampling-projection.json",
+      "objective": "v8-allocation-sampling",
+      "contract": "inspector-heapprofiler-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "projection-cycle",
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 16,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "v8-allocation-sampling.json",
+      "objective": "v8-allocation-sampling",
+      "contract": "inspector-heapprofiler-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": "runtime-comparison",
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 16,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "v8-monomorphic-shape-trace.json",
+      "objective": "v8-monomorphic-shape-trace",
+      "contract": "trace-fact-only",
+      "evidenceKinds": [
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "self-generated",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": null,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "v8-string-limit-audit.json",
+      "objective": "v8-string-limit-audit",
+      "contract": "node-v8-complete-js-string-input-boundary",
+      "evidenceKinds": [],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "woodstox-hotspot-trace.json",
+      "objective": "woodstox-hotspot-trace",
+      "contract": "hotspot-printcompilation-printinlining",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "woodstox-jvm",
+        "unknown"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 1
+    },
+    {
+      "sourceArtifact": "woodstox-jfr-allocation.json",
+      "objective": "woodstox-jfr-allocation",
+      "contract": "jfr-allocation-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT",
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "woodstox-jvm",
+        "unknown"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 1
+    },
+    {
+      "sourceArtifact": "woodstox-measured-jfr-allocation.json",
+      "objective": "woodstox-measured-jfr-allocation",
+      "contract": "jfr-measured-allocation-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT",
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "woodstox-jvm",
+        "unknown"
+      ],
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 1
+    }
+  ],
+  "ignoredArtifacts": [
+    "latest-summary.json",
+    "runtime-counterexample-scan.json",
+    "runtime-limit-proof-obligation-gate.json",
+    "same-contract-runtime-comparison.json"
+  ],
+  "parseErrors": [],
+  "summary": {
+    "scannedArtifactCount": 59,
+    "ignoredArtifactCount": 4,
+    "parseErrorCount": 0,
+    "measuredRowCount": 342,
+    "benchmarkArtifactCount": 39,
+    "sourceArtifactCount": 9,
+    "traceArtifactCount": 3,
+    "allocationArtifactCount": 9,
+    "largeJsFullRowCount": 141,
+    "runtimeCount": 8,
+    "corpusSeedCount": 1,
+    "openObligationCount": 6,
+    "conclusionAllowed": false
+  },
+  "coverage": {
+    "runtimes": [
+      {
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "artifactCount": 25,
+        "measuredRowCount": 107,
+        "largeFullStringRowCount": 44,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 95.52,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-process-candidate-headroom-stability"
+        },
+        "sourcePins": [
+          {
+            "runtimeId": "node-v8",
+            "kind": "Node/V8 source boundary",
+            "revision": "v24.15.0",
+            "limitation": "Node/V8 source evidence only",
+            "sourceArtifact": "node-textdecoder-source-pin-audit.json"
+          },
+          {
+            "runtimeId": "node-v8",
+            "kind": "Node/V8 source boundary",
+            "revision": null,
+            "limitation": "Node/V8 source evidence only",
+            "sourceArtifact": "v8-string-limit-audit.json"
+          }
+        ],
+        "traceArtifacts": [
+          "v8-monomorphic-shape-trace.json"
+        ],
+        "allocationArtifacts": [
+          "stream-reader-1gb-allocation-diverse-shapes.json",
+          "stream-reader-1gb-allocation-shapes.json",
+          "v8-allocation-sampling-diverse.json",
+          "v8-allocation-sampling-projection.json",
+          "v8-allocation-sampling.json"
+        ]
+      },
+      {
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "artifactCount": 15,
+        "measuredRowCount": 97,
+        "largeFullStringRowCount": 49,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "bun-jsc",
+          "runtimeLabel": "Bun/JSC",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 97.82,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-process-candidate-headroom-stability"
+        },
+        "sourcePins": [
+          {
+            "runtimeId": "bun-jsc",
+            "kind": "Bun-patched WebKit source boundary",
+            "revision": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+            "limitation": "Bun/JSC source evidence; not Safari browser coverage",
+            "sourceArtifact": "bun-jsc-source-pin-audit.json"
+          },
+          {
+            "runtimeId": "bun-jsc",
+            "kind": "Bun TextDecoder dispatch source boundary",
+            "revision": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+            "limitation": "Bun dispatch evidence; not WebKit TextDecoder default UTF-8 proof for Safari",
+            "sourceArtifact": "bun-textdecoder-dispatch-source-pin-audit.json"
+          },
+          {
+            "runtimeId": "bun-jsc",
+            "kind": "Bun-patched WebKit source boundary",
+            "revision": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+            "limitation": "Bun/JSC source evidence; not Safari browser coverage",
+            "sourceArtifact": "bun-webkit-textdecoder-source-pin-audit.json"
+          }
+        ],
+        "traceArtifacts": [
+          "bun-jsc-cpu-profile.json"
+        ],
+        "allocationArtifacts": []
+      },
+      {
+        "runtimeId": "deno-v8",
+        "runtimeLabel": "Deno/V8",
+        "artifactCount": 1,
+        "measuredRowCount": 15,
+        "largeFullStringRowCount": 9,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "deno-v8",
+          "runtimeLabel": "Deno/V8",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 87.62,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-process-candidate-headroom-stability"
+        },
+        "sourcePins": [],
+        "traceArtifacts": [],
+        "allocationArtifacts": []
+      },
+      {
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "artifactCount": 11,
+        "measuredRowCount": 73,
+        "largeFullStringRowCount": 39,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 64.84,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        "sourcePins": [
+          {
+            "runtimeId": "chrome-v8-browser",
+            "kind": "Chrome/Blink/V8 source boundary",
+            "revision": "refs/tags/148.0.7778.179",
+            "limitation": "Chrome/V8 source evidence; not non-V8 browser coverage",
+            "sourceArtifact": "chrome-blink-textdecoder-source-pin-audit.json"
+          },
+          {
+            "runtimeId": "chrome-v8-browser",
+            "kind": "Chrome/Blink/V8 source boundary",
+            "revision": "refs/tags/14.8.178.22",
+            "limitation": "Chrome/V8 source evidence; not non-V8 browser coverage",
+            "sourceArtifact": "chrome-v8-source-pin-audit.json"
+          }
+        ],
+        "traceArtifacts": [],
+        "allocationArtifacts": [
+          "browser-v8-allocation-sampling.json"
+        ]
+      },
+      {
+        "runtimeId": "firefox-spidermonkey-browser",
+        "runtimeLabel": "Firefox/SpiderMonkey browser",
+        "artifactCount": 1,
+        "measuredRowCount": 0,
+        "largeFullStringRowCount": 0,
+        "fastestLargeFullStringRow": null,
+        "sourcePins": [
+          {
+            "runtimeId": "firefox-spidermonkey-browser",
+            "kind": "TextDecoder source boundary",
+            "revision": "5836a062726f715fda621338a17b51aff30d0a8c",
+            "limitation": "source pin only; no benchmark row for the tested Firefox browser build",
+            "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json"
+          }
+        ],
+        "traceArtifacts": [],
+        "allocationArtifacts": []
+      },
+      {
+        "runtimeId": "woodstox-jvm",
+        "runtimeLabel": "Java/Woodstox",
+        "artifactCount": 6,
+        "measuredRowCount": 3,
+        "largeFullStringRowCount": 0,
+        "fastestLargeFullStringRow": null,
+        "sourcePins": [],
+        "traceArtifacts": [
+          "woodstox-hotspot-trace.json"
+        ],
+        "allocationArtifacts": [
+          "woodstox-jfr-allocation.json",
+          "woodstox-measured-jfr-allocation.json"
+        ]
+      },
+      {
+        "runtimeId": "quick-xml-rust",
+        "runtimeLabel": "Rust/quick-xml",
+        "artifactCount": 4,
+        "measuredRowCount": 3,
+        "largeFullStringRowCount": 0,
+        "fastestLargeFullStringRow": null,
+        "sourcePins": [],
+        "traceArtifacts": [],
+        "allocationArtifacts": [
+          "quick-xml-allocation-count.json"
+        ]
+      },
+      {
+        "runtimeId": "unknown",
+        "runtimeLabel": "unknown",
+        "artifactCount": 7,
+        "measuredRowCount": 44,
+        "largeFullStringRowCount": 0,
+        "fastestLargeFullStringRow": null,
+        "sourcePins": [],
+        "traceArtifacts": [
+          "woodstox-hotspot-trace.json"
+        ],
+        "allocationArtifacts": [
+          "quick-xml-allocation-count.json",
+          "woodstox-jfr-allocation.json",
+          "woodstox-measured-jfr-allocation.json"
+        ]
+      }
+    ],
+    "browser": {
+      "benchmarkRows": [
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 95.8,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -1094942745,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 81.27,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -1903399745,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 33.09,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -198281981,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 89.94,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": 1179526435,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 91.71,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -360449985,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.38,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 28.92,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.07,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.29,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 29.05,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 63.17,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 47.69,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 59.67,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 104.81,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 71.78,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 62.87,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 48.72,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 60.22,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 103.81,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 70.07,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 64.84,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 48.57,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 61.12,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 105.3,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 70.51,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 96.64,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 773645869,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 76.78,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": -779910903,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 51.53,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": -1618348602,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 80.64,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 494150397,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 74.83,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 946031520,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 34.46,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 33.1,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 40.05,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 42.35,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 43.45,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 128.27,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 830926359,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 98.36,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -136145711,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 67.89,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1877738387,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 101.56,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1847060873,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 98.59,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1613934246,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.44,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 48.12,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.15,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 57.69,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 60.32,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 104.33,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "projected-records-low-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 69.37,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "projected-records-high-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 113.35,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 830926359,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 95.1,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -136145711,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 68.05,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1877738387,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 100.46,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1847060873,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 97.71,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1613934246,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.44,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 47.42,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.75,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 55.85,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 60.12,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 103.92,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "projected-records-low-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 72.07,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "projected-records-high-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-string-limit-audit.json",
+          "id": "0",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.06,
+          "fixtureSource": null,
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 81.08,
+          "fullStringParity": null,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 2824406,
+          "checksum": 288962256,
+          "contractScope": "browser-v8-complete-js-string-input-boundary"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "subarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 19.3,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "viewSharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 18.54,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "sliceCopySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 19.56,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "subarrayNewDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 9.67,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "shortAsciiSubarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.57,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "subarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 16.63,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "viewSharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 16.19,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "sliceCopySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 16.65,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "subarrayNewDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 6.8,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "shortAsciiSubarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 39.42,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-v8-allocation-sampling.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.02,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 67.61,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 706158,
+          "checksum": 1039217453,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-v8-allocation-sampling.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.02,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 51.44,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 706158,
+          "checksum": 1039217453,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-v8-allocation-sampling.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.02,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 65.85,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 706158,
+          "checksum": 1039217453,
+          "contractScope": "full-string-materialization"
+        }
+      ],
+      "nonV8BenchmarkRows": [],
+      "firefoxBenchmarkRows": [],
+      "safariBenchmarkRows": [],
+      "chromeBenchmarkRows": [
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 95.8,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -1094942745,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 81.27,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -1903399745,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 33.09,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -198281981,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 89.94,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": 1179526435,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 91.71,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -360449985,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.38,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 28.92,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.07,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.29,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-corpus.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 29.05,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 63.17,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 47.69,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 59.67,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 104.81,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 71.78,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 62.87,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 48.72,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 60.22,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 103.81,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 70.07,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 64.84,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 48.57,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 61.12,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 105.3,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 70.51,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "not-recorded",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "independent-browser-process-candidate-headroom-stability"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 96.64,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 773645869,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 76.78,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": -779910903,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 51.53,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": -1618348602,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 80.64,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 494150397,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 74.83,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 946031520,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 34.46,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 33.1,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 40.05,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 42.35,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-large.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 43.45,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 128.27,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 830926359,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 98.36,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -136145711,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 67.89,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1877738387,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 101.56,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1847060873,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 98.59,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1613934246,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.44,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 48.12,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.15,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 57.69,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 60.32,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 104.33,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "projected-records-low-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-large.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 69.37,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "projected-records-high-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "scanAllNoDecode",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 113.35,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 830926359,
+          "contractScope": "event-types-and-attribute-counts-only"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "nameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 95.1,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -136145711,
+          "contractScope": "event-types-attribute-counts-and-element-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "textStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 68.05,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1877738387,
+          "contractScope": "event-types-attribute-counts-and-text-cdata"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "attrNameStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 100.46,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1847060873,
+          "contractScope": "event-types-attribute-counts-and-attribute-names"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "attrValueStringOnly",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 97.71,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": -1613934246,
+          "contractScope": "event-types-attribute-counts-and-attribute-values"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.44,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 47.42,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "cursorAccessor",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 56.75,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "rawFrameDirect",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 55.85,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 60.12,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 60416563,
+          "checksum": 1441552024,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "projectionLowSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 103.92,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 33382,
+          "checksum": -403434369,
+          "contractScope": "projected-records-low-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-candidate-headroom-projection-stability.json",
+          "id": "projectionHighSelectivity",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "projection-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 72.07,
+          "fullStringParity": false,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 3179819,
+          "checksum": -2078190377,
+          "contractScope": "projected-records-high-selectivity"
+        },
+        {
+          "sourceArtifact": "browser-string-limit-audit.json",
+          "id": "0",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.06,
+          "fixtureSource": null,
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 81.08,
+          "fullStringParity": null,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 2824406,
+          "checksum": 288962256,
+          "contractScope": "browser-v8-complete-js-string-input-boundary"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "subarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 19.3,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "viewSharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 18.54,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "sliceCopySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 19.56,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "subarrayNewDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 9.67,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+          "id": "shortAsciiSubarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "corpus-file",
+          "fixtureShape": "corpus-cycle",
+          "corpusSeed": "treebank_e.xml",
+          "mibPerSec": 30.57,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 75206126,
+          "checksum": -925527041,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "subarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 16.63,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "viewSharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 16.19,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "sliceCopySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 16.65,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "subarrayNewDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 6.8,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-textdecoder-span-variants.json",
+          "id": "shortAsciiSubarraySharedDecoder",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 39.42,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-v8-allocation-sampling.json",
+          "id": "stringFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.02,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 67.61,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 706158,
+          "checksum": 1039217453,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "browser-v8-allocation-sampling.json",
+          "id": "eventObjectFull",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.02,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 51.44,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 706158,
+          "checksum": 1039217453,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "browser-v8-allocation-sampling.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "sizeGiB": 0.02,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 65.85,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 706158,
+          "checksum": 1039217453,
+          "contractScope": "full-string-materialization"
+        }
+      ]
+    },
+    "corpusSeeds": [
+      "treebank_e.xml"
+    ],
+    "corpusRows": [
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "scanAllNoDecode",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 95.8,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -1094942745,
+        "contractScope": "event-types-and-attribute-counts-only"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "nameStringOnly",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 81.27,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -1903399745,
+        "contractScope": "event-types-attribute-counts-and-element-names"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "textStringOnly",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 33.09,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -198281981,
+        "contractScope": "event-types-attribute-counts-and-text-cdata"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "attrNameStringOnly",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 89.94,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": 1179526435,
+        "contractScope": "event-types-attribute-counts-and-attribute-names"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "attrValueStringOnly",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 91.71,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -360449985,
+        "contractScope": "event-types-attribute-counts-and-attribute-values"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "stringFull",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 30.38,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "eventObjectFull",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 28.92,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-event-object-materialization"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "cursorAccessor",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 30.07,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "rawFrameDirect",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 30.29,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-candidate-headroom-corpus.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 29.05,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+        "id": "subarraySharedDecoder",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 19.3,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+        "id": "viewSharedDecoder",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 18.54,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+        "id": "sliceCopySharedDecoder",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 19.56,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+        "id": "subarrayNewDecoder",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 9.67,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "browser-textdecoder-span-variants-corpus.json",
+        "id": "shortAsciiSubarraySharedDecoder",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 30.57,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "browser-js-heap",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "scanAllNoDecode",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 177.78,
+        "fullStringParity": false,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -1094942745,
+        "contractScope": "event-types-and-attribute-counts-only"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "nameStringOnly",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 107.41,
+        "fullStringParity": false,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -1903399745,
+        "contractScope": "event-types-attribute-counts-and-element-names"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "textStringOnly",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 81.52,
+        "fullStringParity": false,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -198281981,
+        "contractScope": "event-types-attribute-counts-and-text-cdata"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "attrNameStringOnly",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 115.99,
+        "fullStringParity": false,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": 1179526435,
+        "contractScope": "event-types-attribute-counts-and-attribute-names"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "attrValueStringOnly",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 112.42,
+        "fullStringParity": false,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -360449985,
+        "contractScope": "event-types-attribute-counts-and-attribute-values"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "stringFull",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 56.23,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "eventObjectFull",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 62.08,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-event-object-materialization"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "cursorAccessor",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 71.78,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "rawFrameDirect",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 62.45,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-corpus.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 76.08,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
+        "id": "subarraySharedDecoder",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 56.18,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
+        "id": "viewSharedDecoder",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 47.35,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
+        "id": "sliceCopySharedDecoder",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 43.79,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
+        "id": "subarrayNewDecoder",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 31.31,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
+        "id": "shortAsciiSubarraySharedDecoder",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 63.93,
+        "fullStringParity": true,
+        "boundedMemory": false,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "scanAllNoDecode",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 138.76,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -1094942745,
+        "contractScope": "event-types-and-attribute-counts-only"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "nameStringOnly",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 92.47,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -1903399745,
+        "contractScope": "event-types-attribute-counts-and-element-names"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "textStringOnly",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 77.97,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -198281981,
+        "contractScope": "event-types-attribute-counts-and-text-cdata"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "attrNameStringOnly",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 108.28,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": 1179526435,
+        "contractScope": "event-types-attribute-counts-and-attribute-names"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "attrValueStringOnly",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 108.78,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -360449985,
+        "contractScope": "event-types-attribute-counts-and-attribute-values"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "stringFull",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 62.17,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "eventObjectFull",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 61.8,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-event-object-materialization"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "cursorAccessor",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 66.95,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "rawFrameDirect",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 71.51,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-corpus.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 77,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "textdecoder-span-variants-corpus.json",
+        "id": "subarraySharedDecoder",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 53.29,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "textdecoder-span-variants-corpus.json",
+        "id": "viewSharedDecoder",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 48.29,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "textdecoder-span-variants-corpus.json",
+        "id": "sliceCopySharedDecoder",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 42.88,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "textdecoder-span-variants-corpus.json",
+        "id": "subarrayNewDecoder",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 44.67,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "textdecoder-span-variants-corpus.json",
+        "id": "shortAsciiSubarraySharedDecoder",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "treebank_e.xml",
+        "mibPerSec": 69.16,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 75206126,
+        "checksum": -925527041,
+        "contractScope": "full-string-materialization"
+      }
+    ],
+    "largeJsFullRowCount": 141,
+    "fastestLargeJsFullRows": [
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 97.82,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 97.7,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 97.48,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 95.52,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 94.87,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "deno-v8",
+        "runtimeLabel": "Deno/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 87.62,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "deno-v8",
+        "runtimeLabel": "Deno/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 87.37,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "stringFull",
+        "runtimeId": "deno-v8",
+        "runtimeLabel": "Deno/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 87.28,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 84.97,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-projection-large.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 84.68,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "candidate-headroom-cross-process-projection.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 83.82,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "not-recorded",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "independent-process-candidate-headroom-stability"
+      },
+      {
+        "sourceArtifact": "bun-candidate-headroom-projection-stability.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "bun-jsc",
+        "runtimeLabel": "Bun/JSC",
+        "sizeGiB": 1,
+        "fixtureSource": "generated",
+        "fixtureShape": "projection-cycle",
+        "corpusSeed": null,
+        "mibPerSec": 83.1,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 60416563,
+        "checksum": 1441552024,
+        "contractScope": "full-string-materialization"
+      }
+    ],
+    "sourcePins": [
+      {
+        "runtimeId": "bun-jsc",
+        "kind": "Bun-patched WebKit source boundary",
+        "revision": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+        "limitation": "Bun/JSC source evidence; not Safari browser coverage",
+        "sourceArtifact": "bun-jsc-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "bun-jsc",
+        "kind": "Bun TextDecoder dispatch source boundary",
+        "revision": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+        "limitation": "Bun dispatch evidence; not WebKit TextDecoder default UTF-8 proof for Safari",
+        "sourceArtifact": "bun-textdecoder-dispatch-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "bun-jsc",
+        "kind": "Bun-patched WebKit source boundary",
+        "revision": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+        "limitation": "Bun/JSC source evidence; not Safari browser coverage",
+        "sourceArtifact": "bun-webkit-textdecoder-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "chrome-v8-browser",
+        "kind": "Chrome/Blink/V8 source boundary",
+        "revision": "refs/tags/148.0.7778.179",
+        "limitation": "Chrome/V8 source evidence; not non-V8 browser coverage",
+        "sourceArtifact": "chrome-blink-textdecoder-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "chrome-v8-browser",
+        "kind": "Chrome/Blink/V8 source boundary",
+        "revision": "refs/tags/14.8.178.22",
+        "limitation": "Chrome/V8 source evidence; not non-V8 browser coverage",
+        "sourceArtifact": "chrome-v8-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "firefox-spidermonkey-browser",
+        "kind": "TextDecoder source boundary",
+        "revision": "5836a062726f715fda621338a17b51aff30d0a8c",
+        "limitation": "source pin only; no benchmark row for the tested Firefox browser build",
+        "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "node-v8",
+        "kind": "Node/V8 source boundary",
+        "revision": "v24.15.0",
+        "limitation": "Node/V8 source evidence only",
+        "sourceArtifact": "node-textdecoder-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "node-v8",
+        "kind": "Node/V8 source boundary",
+        "revision": null,
+        "limitation": "Node/V8 source evidence only",
+        "sourceArtifact": "v8-string-limit-audit.json"
+      }
+    ],
+    "codegenArtifacts": [
+      {
+        "sourceArtifact": "bun-jsc-cpu-profile.json",
+        "objective": "bun-jsc-cpu-profile",
+        "contract": "profiler-trace-fact-only",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "bun-jsc"
+        ],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 4
+      },
+      {
+        "sourceArtifact": "v8-monomorphic-shape-trace.json",
+        "objective": "v8-monomorphic-shape-trace",
+        "contract": "trace-fact-only",
+        "evidenceKinds": [
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "fixture": {
+          "source": "self-generated",
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": null,
+          "sizeMiB": null,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "woodstox-hotspot-trace.json",
+        "objective": "woodstox-hotspot-trace",
+        "contract": "hotspot-printcompilation-printinlining",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "woodstox-jvm",
+          "unknown"
+        ],
+        "fixture": {
+          "source": "file",
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": 0.02,
+          "sizeMiB": 16,
+          "actualBytes": 16777038
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 1
+      }
+    ],
+    "allocationArtifacts": [
+      {
+        "sourceArtifact": "browser-v8-allocation-sampling.json",
+        "objective": "browser-v8-allocation-sampling",
+        "contract": "browser-v8-heap-profiler-allocation-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT",
+          "BENCH_FACT"
+        ],
+        "runtimes": [
+          "chrome-v8-browser"
+        ],
+        "fixture": {
+          "source": "generated",
+          "shape": "diverse-cycle",
+          "sourceFile": null,
+          "sizeGiB": 0.02,
+          "sizeMiB": 16,
+          "actualBytes": 16777217
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 3
+      },
+      {
+        "sourceArtifact": "quick-xml-allocation-count.json",
+        "objective": "quick-xml-allocation-count",
+        "contract": "measured-consume-global-allocator-count",
+        "evidenceKinds": [
+          "ALLOCATION_FACT",
+          "BENCH_FACT"
+        ],
+        "runtimes": [
+          "quick-xml-rust",
+          "unknown"
+        ],
+        "fixture": {
+          "source": "file",
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": 0.02,
+          "sizeMiB": 16,
+          "actualBytes": 16777038
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 5
+      },
+      {
+        "sourceArtifact": "stream-reader-1gb-allocation-diverse-shapes.json",
+        "objective": "stream-reader-large-shape-allocation",
+        "contract": "generated-byte-batch-full-string-allocation-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "fixture": {
+          "source": null,
+          "shape": "diverse-cycle",
+          "sourceFile": null,
+          "sizeGiB": 1,
+          "sizeMiB": 1024,
+          "actualBytes": 1073742038
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "stream-reader-1gb-allocation-shapes.json",
+        "objective": "stream-reader-large-shape-allocation",
+        "contract": "generated-byte-batch-full-string-allocation-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "fixture": {
+          "source": null,
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": 1,
+          "sizeMiB": 1024,
+          "actualBytes": 1073741880
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "v8-allocation-sampling-diverse.json",
+        "objective": "v8-allocation-sampling",
+        "contract": "inspector-heapprofiler-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "fixture": {
+          "source": "generated",
+          "shape": "diverse",
+          "sourceFile": null,
+          "sizeGiB": null,
+          "sizeMiB": 16,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "v8-allocation-sampling-projection.json",
+        "objective": "v8-allocation-sampling",
+        "contract": "inspector-heapprofiler-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "fixture": {
+          "source": "generated",
+          "shape": "projection-cycle",
+          "sourceFile": null,
+          "sizeGiB": null,
+          "sizeMiB": 16,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "v8-allocation-sampling.json",
+        "objective": "v8-allocation-sampling",
+        "contract": "inspector-heapprofiler-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "fixture": {
+          "source": "file",
+          "shape": "runtime-comparison",
+          "sourceFile": null,
+          "sizeGiB": null,
+          "sizeMiB": 16,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "woodstox-jfr-allocation.json",
+        "objective": "woodstox-jfr-allocation",
+        "contract": "jfr-allocation-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT",
+          "BENCH_FACT"
+        ],
+        "runtimes": [
+          "woodstox-jvm",
+          "unknown"
+        ],
+        "fixture": {
+          "source": "file",
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": 0.02,
+          "sizeMiB": 16,
+          "actualBytes": 16777038
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 1
+      },
+      {
+        "sourceArtifact": "woodstox-measured-jfr-allocation.json",
+        "objective": "woodstox-measured-jfr-allocation",
+        "contract": "jfr-measured-allocation-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT",
+          "BENCH_FACT"
+        ],
+        "runtimes": [
+          "woodstox-jvm",
+          "unknown"
+        ],
+        "fixture": {
+          "source": "file",
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": 0.02,
+          "sizeMiB": 16,
+          "actualBytes": 16777038
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 1
+      }
+    ]
+  },
+  "obligations": [
+    {
+      "id": "firefox-browser-rows-open",
+      "status": "open",
+      "evidence": "Firefox/SpiderMonkey source pins exist only as source facts; no Firefox browser benchmark rows were found.",
+      "nextExperiment": "Wire a Firefox-capable browser harness row under the same full-string byte-batch contract."
+    },
+    {
+      "id": "safari-jsc-source-and-browser-rows-open",
+      "status": "open",
+      "evidence": "Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.",
+      "nextExperiment": "Pin the exact Safari/WebKit browser build and run same-contract browser rows separately from Bun/JSC."
+    },
+    {
+      "id": "codegen-traces-open",
+      "status": "partial",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC has profiler/source evidence but no codegen/IR artifact. Browser codegen trace evidence missing.",
+      "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Bun/JSC and browser engines."
+    },
+    {
+      "id": "allocation-profiles-open",
+      "status": "partial",
+      "evidence": "9 allocation/profile artifacts found. Bun/JSC allocation evidence missing. Non-V8 browser allocation evidence missing.",
+      "nextExperiment": "Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows."
+    },
+    {
+      "id": "non-v8-browser-coverage-open",
+      "status": "open",
+      "evidence": "Current browser benchmark rows are Chrome/V8 only; Firefox/SpiderMonkey and Safari/WebKit rows are absent.",
+      "nextExperiment": "Run same-contract 1 GiB+ browser rows on at least one non-V8 browser engine."
+    },
+    {
+      "id": "independent-corpus-suite-open",
+      "status": "partial",
+      "evidence": "1 release corpus seed(s) found: treebank_e.xml.",
+      "nextExperiment": "Add at least two more independent real XML corpus seeds before treating corpus coverage as broad."
+    },
+    {
+      "id": "counterexample-rule-present",
+      "status": "covered",
+      "evidence": "runtime-counterexample-scan.md is a required gate artifact and preserves the bounded full-string 200 MiB/s counterexample rule.",
+      "nextExperiment": "Keep new rows flowing through the counterexample scanner before broadening claims."
+    }
+  ],
+  "findings": [
+    {
+      "id": "coverage-audit-is-not-runtime-limit-proof",
+      "status": "SCOPE_GUARD",
+      "summary": "Coverage auditing can prove which evidence families are absent or partial, but it cannot prove a JavaScript runtime ceiling."
+    },
+    {
+      "id": "non-v8-browser-gap-remains",
+      "status": "OPEN",
+      "summary": "No Firefox/SpiderMonkey or Safari/WebKit browser benchmark rows are present in current release artifacts."
+    },
+    {
+      "id": "corpus-suite-gap-remains",
+      "status": "PARTIAL",
+      "summary": "Current release artifacts cover 1 corpus seed(s), so broad corpus coverage remains unproven."
+    },
+    {
+      "id": "open-obligations-ranked",
+      "status": "OPEN",
+      "summary": "6 proof obligation(s) remain open or partial after scanning current release artifacts.",
+      "evidence": [
+        "firefox-browser-rows-open",
+        "safari-jsc-source-and-browser-rows-open",
+        "codegen-traces-open",
+        "allocation-profiles-open",
+        "non-v8-browser-coverage-open",
+        "independent-corpus-suite-open"
+      ]
+    }
+  ]
+}

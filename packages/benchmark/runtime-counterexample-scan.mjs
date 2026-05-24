@@ -14,6 +14,7 @@ const ignoredArtifacts = new Set([
   'runtime-limit-proof-obligation-gate.json',
   'same-contract-runtime-comparison.json',
   'runtime-counterexample-scan.json',
+  'runtime-proof-coverage-audit.json',
 ]);
 
 function parseArgs(argv = process.argv.slice(2)) {
