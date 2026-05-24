@@ -1,0 +1,617 @@
+{
+  "generatedAt": "2026-05-24T00:02:42.876Z",
+  "objective": "chrome-blink-textdecoder-source-pin-audit",
+  "contract": "chrome-blink-exact-revision-textdecoder-source-lines",
+  "note": "Exact Chromium/Blink source-line pinning for the Chrome TextDecoder host-API boundary. These source facts constrain the Chrome/Blink TextDecoder path; they are not codegen evidence and not a throughput proof.",
+  "environment": {
+    "browserVersion": "Chrome/148.0.7778.179",
+    "v8Version": "14.8.178.22"
+  },
+  "source": {
+    "repository": "chromium/src",
+    "revision": "refs/tags/148.0.7778.179",
+    "files": [
+      "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "third_party/blink/renderer/modules/encoding/text_decoder.h",
+      "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc"
+    ],
+    "fetchedAt": "2026-05-24T00:02:39.406Z"
+  },
+  "anchors": {
+    "textDecoderDecode": {
+      "status": "found",
+      "label": "TextDecoder::decode",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 81,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#81",
+      "context": [
+        {
+          "lineNumber": 79,
+          "text": "}"
+        },
+        {
+          "lineNumber": 80,
+          "text": ""
+        },
+        {
+          "lineNumber": 81,
+          "text": "String TextDecoder::decode(std::optional<base::span<const uint8_t>> input,"
+        },
+        {
+          "lineNumber": 82,
+          "text": "                           const TextDecodeOptions* options,"
+        },
+        {
+          "lineNumber": 83,
+          "text": "                           ExceptionState& exception_state) {"
+        }
+      ]
+    },
+    "textDecoderDelegatesDecode": {
+      "status": "found",
+      "label": "decode delegates to Decode",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 93,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#93",
+      "context": [
+        {
+          "lineNumber": 91,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 92,
+          "text": ""
+        },
+        {
+          "lineNumber": 93,
+          "text": "  return Decode(input_span, options, exception_state);"
+        },
+        {
+          "lineNumber": 94,
+          "text": "}"
+        },
+        {
+          "lineNumber": 95,
+          "text": ""
+        }
+      ]
+    },
+    "textDecoderPrivateDecode": {
+      "status": "found",
+      "label": "TextDecoder::Decode",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 96,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#96",
+      "context": [
+        {
+          "lineNumber": 94,
+          "text": "}"
+        },
+        {
+          "lineNumber": 95,
+          "text": ""
+        },
+        {
+          "lineNumber": 96,
+          "text": "String TextDecoder::Decode(base::span<const uint8_t> input,"
+        },
+        {
+          "lineNumber": 97,
+          "text": "                           const TextDecodeOptions* options,"
+        },
+        {
+          "lineNumber": 98,
+          "text": "                           ExceptionState& exception_state) {"
+        }
+      ]
+    },
+    "newTextCodec": {
+      "status": "found",
+      "label": "NewTextCodec",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 108,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#108",
+      "context": [
+        {
+          "lineNumber": 106,
+          "text": "      // behavior."
+        },
+        {
+          "lineNumber": 107,
+          "text": "      // https://encoding.spec.whatwg.org/#dom-textdecoder-decode"
+        },
+        {
+          "lineNumber": 108,
+          "text": "      codec_ = NewTextCodec(encoding_);"
+        },
+        {
+          "lineNumber": 109,
+          "text": "      CHECK(codec_) << encoding_.GetName();"
+        },
+        {
+          "lineNumber": 110,
+          "text": "    }"
+        }
+      ]
+    },
+    "streamFlushBehavior": {
+      "status": "found",
+      "label": "stream flush behavior",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 116,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#116",
+      "context": [
+        {
+          "lineNumber": 114,
+          "text": "  DCHECK(codec_);"
+        },
+        {
+          "lineNumber": 115,
+          "text": "  do_not_flush_ = options->stream();"
+        },
+        {
+          "lineNumber": 116,
+          "text": "  FlushBehavior flush ="
+        },
+        {
+          "lineNumber": 117,
+          "text": "      do_not_flush_ ? FlushBehavior::kDoNotFlush : FlushBehavior::kDataEOF;"
+        },
+        {
+          "lineNumber": 118,
+          "text": ""
+        }
+      ]
+    },
+    "codecDecodeCall": {
+      "status": "found",
+      "label": "TextCodec::Decode call",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 120,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#120",
+      "context": [
+        {
+          "lineNumber": 118,
+          "text": ""
+        },
+        {
+          "lineNumber": 119,
+          "text": "  bool saw_error = false;"
+        },
+        {
+          "lineNumber": 120,
+          "text": "  String s = codec_->Decode(input, flush, fatal_, saw_error);"
+        },
+        {
+          "lineNumber": 121,
+          "text": ""
+        },
+        {
+          "lineNumber": 122,
+          "text": "  if (fatal_ && saw_error) {"
+        }
+      ]
+    },
+    "fatalErrorHandling": {
+      "status": "found",
+      "label": "fatal decode error handling",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 127,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#127",
+      "context": [
+        {
+          "lineNumber": 125,
+          "text": "      codec_.reset();"
+        },
+        {
+          "lineNumber": 126,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 127,
+          "text": "    exception_state.ThrowTypeError(\"The encoded data was not valid.\");"
+        },
+        {
+          "lineNumber": 128,
+          "text": "    return String();"
+        },
+        {
+          "lineNumber": 129,
+          "text": "  }"
+        }
+      ]
+    },
+    "bomErase": {
+      "status": "found",
+      "label": "BOM erase",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.cc",
+      "lineNumber": 136,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.cc#136",
+      "context": [
+        {
+          "lineNumber": 134,
+          "text": "      const AtomicString& name = encoding_.GetName();"
+        },
+        {
+          "lineNumber": 135,
+          "text": "      if ((name == \"UTF-8\" || name == \"UTF-16LE\" || name == \"UTF-16BE\")) {"
+        },
+        {
+          "lineNumber": 136,
+          "text": "        s.erase(0, 1);"
+        },
+        {
+          "lineNumber": 137,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 138,
+          "text": "    }"
+        }
+      ]
+    },
+    "codecMember": {
+      "status": "found",
+      "label": "TextCodec member",
+      "file": "third_party/blink/renderer/modules/encoding/text_decoder.h",
+      "lineNumber": 75,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/modules/encoding/text_decoder.h#75",
+      "context": [
+        {
+          "lineNumber": 73,
+          "text": ""
+        },
+        {
+          "lineNumber": 74,
+          "text": "  TextEncoding encoding_;"
+        },
+        {
+          "lineNumber": 75,
+          "text": "  std::unique_ptr<TextCodec> codec_;"
+        },
+        {
+          "lineNumber": 76,
+          "text": "  bool do_not_flush_ = false;"
+        },
+        {
+          "lineNumber": 77,
+          "text": "  bool fatal_;"
+        }
+      ]
+    },
+    "textCodecUtf8Create": {
+      "status": "found",
+      "label": "TextCodecUtf8::Create",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 181,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#181",
+      "context": [
+        {
+          "lineNumber": 179,
+          "text": "}  // namespace"
+        },
+        {
+          "lineNumber": 180,
+          "text": ""
+        },
+        {
+          "lineNumber": 181,
+          "text": "std::unique_ptr<TextCodec> TextCodecUtf8::Create(const TextEncoding&) {"
+        },
+        {
+          "lineNumber": 182,
+          "text": "  return base::WrapUnique(new TextCodecUtf8());"
+        },
+        {
+          "lineNumber": 183,
+          "text": "}"
+        }
+      ]
+    },
+    "textCodecUtf8Decode": {
+      "status": "found",
+      "label": "TextCodecUtf8::Decode",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 356,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#356",
+      "context": [
+        {
+          "lineNumber": 354,
+          "text": "}"
+        },
+        {
+          "lineNumber": 355,
+          "text": ""
+        },
+        {
+          "lineNumber": 356,
+          "text": "String TextCodecUtf8::Decode(base::span<const uint8_t> bytes,"
+        },
+        {
+          "lineNumber": 357,
+          "text": "                             FlushBehavior flush,"
+        },
+        {
+          "lineNumber": 358,
+          "text": "                             bool stop_on_error,"
+        }
+      ]
+    },
+    "latin1Buffer": {
+      "status": "found",
+      "label": "LChar InlinedStringBuffer",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 365,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#365",
+      "context": [
+        {
+          "lineNumber": 363,
+          "text": "  // That includes all bytes in the partial-sequence buffer because"
+        },
+        {
+          "lineNumber": 364,
+          "text": "  // each byte in an invalid sequence will turn into a replacement character."
+        },
+        {
+          "lineNumber": 365,
+          "text": "  InlinedStringBuffer<LChar> buffer("
+        },
+        {
+          "lineNumber": 366,
+          "text": "      base::CheckAdd(partial_sequence_size_, bytes.size()).ValueOrDie());"
+        },
+        {
+          "lineNumber": 367,
+          "text": "  base::span<LChar> destination = buffer.Span();"
+        }
+      ]
+    },
+    "asciiFastPath": {
+      "status": "found",
+      "label": "ASCII fast path",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 394,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#394",
+      "context": [
+        {
+          "lineNumber": 392,
+          "text": "    while (!source.empty()) {"
+        },
+        {
+          "lineNumber": 393,
+          "text": "      if (IsAscii(source[0])) {"
+        },
+        {
+          "lineNumber": 394,
+          "text": "        // Fast path for ASCII. Most UTF-8 text will be ASCII."
+        },
+        {
+          "lineNumber": 395,
+          "text": "        if (IsAlignedToMachineWord(source.data())) {"
+        },
+        {
+          "lineNumber": 396,
+          "text": "          while (source.data() < aligned_end) {"
+        }
+      ]
+    },
+    "copyAsciiMachineWord": {
+      "status": "found",
+      "label": "CopyAsciiMachineWord",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 402,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#402",
+      "context": [
+        {
+          "lineNumber": 400,
+          "text": "              break;"
+        },
+        {
+          "lineNumber": 401,
+          "text": "            }"
+        },
+        {
+          "lineNumber": 402,
+          "text": "            CopyAsciiMachineWord("
+        },
+        {
+          "lineNumber": 403,
+          "text": "                chunk, destination.take_first<sizeof(MachineWord)>().data());"
+        },
+        {
+          "lineNumber": 404,
+          "text": "            source.take_first<sizeof(MachineWord)>();"
+        }
+      ]
+    },
+    "latin1ToString": {
+      "status": "found",
+      "label": "LChar buffer ToString",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 443,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#443",
+      "context": [
+        {
+          "lineNumber": 441,
+          "text": ""
+        },
+        {
+          "lineNumber": 442,
+          "text": "  characters_decoded = destination.data() - buffer.Span().data();"
+        },
+        {
+          "lineNumber": 443,
+          "text": "  return std::move(buffer).ToString(characters_decoded);"
+        },
+        {
+          "lineNumber": 444,
+          "text": ""
+        },
+        {
+          "lineNumber": 445,
+          "text": "upConvertTo16Bit:"
+        }
+      ]
+    },
+    "upConvertTo16Bit": {
+      "status": "found",
+      "label": "upConvertTo16Bit label",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 445,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#445",
+      "context": [
+        {
+          "lineNumber": 443,
+          "text": "  return std::move(buffer).ToString(characters_decoded);"
+        },
+        {
+          "lineNumber": 444,
+          "text": ""
+        },
+        {
+          "lineNumber": 445,
+          "text": "upConvertTo16Bit:"
+        },
+        {
+          "lineNumber": 446,
+          "text": "  InlinedStringBuffer<UChar> buffer16("
+        },
+        {
+          "lineNumber": 447,
+          "text": "      base::CheckAdd(partial_sequence_size_, bytes.size()).ValueOrDie());"
+        }
+      ]
+    },
+    "utf16Buffer": {
+      "status": "found",
+      "label": "UChar InlinedStringBuffer",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 446,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#446",
+      "context": [
+        {
+          "lineNumber": 444,
+          "text": ""
+        },
+        {
+          "lineNumber": 445,
+          "text": "upConvertTo16Bit:"
+        },
+        {
+          "lineNumber": 446,
+          "text": "  InlinedStringBuffer<UChar> buffer16("
+        },
+        {
+          "lineNumber": 447,
+          "text": "      base::CheckAdd(partial_sequence_size_, bytes.size()).ValueOrDie());"
+        },
+        {
+          "lineNumber": 448,
+          "text": "  base::span<UChar> destination16 = buffer16.Span();"
+        }
+      ]
+    },
+    "appendCharacter": {
+      "status": "found",
+      "label": "AppendCharacter",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 524,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#524",
+      "context": [
+        {
+          "lineNumber": 522,
+          "text": "      }"
+        },
+        {
+          "lineNumber": 523,
+          "text": "      source = source.subspan(count);"
+        },
+        {
+          "lineNumber": 524,
+          "text": "      destination16 = AppendCharacter(destination16, character);"
+        },
+        {
+          "lineNumber": 525,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 526,
+          "text": "  } while (partial_sequence_size_);"
+        }
+      ]
+    },
+    "utf16ToString": {
+      "status": "found",
+      "label": "UChar buffer ToString",
+      "file": "third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc",
+      "lineNumber": 529,
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/148.0.7778.179/third_party/blink/renderer/platform/wtf/text/text_codec_utf8.cc#529",
+      "context": [
+        {
+          "lineNumber": 527,
+          "text": ""
+        },
+        {
+          "lineNumber": 528,
+          "text": "  characters_decoded = destination16.data() - buffer16.Span().data();"
+        },
+        {
+          "lineNumber": 529,
+          "text": "  return std::move(buffer16).ToString(characters_decoded);"
+        },
+        {
+          "lineNumber": 530,
+          "text": "}"
+        },
+        {
+          "lineNumber": 531,
+          "text": ""
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "chrome-blink-textdecoder-host-api-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "Chrome/Blink TextDecoder.decode delegates byte spans to TextDecoder::Decode, creates or reuses a TextCodec, and calls TextCodec::Decode with stream/fatal options.",
+      "evidence": [
+        "TextDecoder::decode line 81",
+        "NewTextCodec line 108",
+        "codec_->Decode line 120"
+      ]
+    },
+    {
+      "id": "chrome-blink-utf8-codec-string-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned UTF-8 codec decodes into Blink string buffers and returns Blink String values through LChar or UChar ToString paths.",
+      "evidence": [
+        "TextCodecUtf8::Decode line 356",
+        "LChar buffer line 365",
+        "LChar ToString line 443",
+        "UChar buffer line 446",
+        "UChar ToString line 529"
+      ]
+    },
+    {
+      "id": "chrome-blink-utf8-ascii-fast-path-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned UTF-8 codec has an explicit ASCII fast path with machine-word copying before falling back to non-ASCII handling.",
+      "evidence": [
+        "ASCII fast path line 394",
+        "CopyAsciiMachineWord line 402",
+        "upConvertTo16Bit line 445"
+      ]
+    },
+    {
+      "id": "chrome-blink-source-pin-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This source pin explains Chrome/Blink TextDecoder boundaries only. It is not Safari/JSC, Firefox/SpiderMonkey, Node, or Bun TextDecoder evidence, and it is not codegen or a runtime-ceiling proof.",
+      "evidence": [
+        "The audit does not run a benchmark row.",
+        "The audit does not inspect generated machine code.",
+        "Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis."
+      ]
+    }
+  ]
+}
