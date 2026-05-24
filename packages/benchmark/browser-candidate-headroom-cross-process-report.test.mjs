@@ -11,6 +11,9 @@ const tmpDir = join(__dirname, 'results', 'tmp');
 const outputDir = join(tmpDir, 'browser-candidate-headroom-cross-process-report-test');
 const jsonOut = join(tmpDir, 'browser-candidate-headroom-cross-process-report-test.json');
 const mdOut = join(tmpDir, 'browser-candidate-headroom-cross-process-report-test.md');
+const firefoxOutputDir = join(tmpDir, 'firefox-bidi-candidate-headroom-cross-process-report-test');
+const firefoxJsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom-cross-process-report-test.json');
+const firefoxMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-cross-process-report-test.md');
 
 test('browser candidate headroom cross-process report summarizes fresh browser process rows', (t) => {
   const browserExecutable = findBrowserExecutable();
@@ -93,6 +96,76 @@ test('browser candidate headroom cross-process report summarizes fresh browser p
   assert.match(markdown, /browser-v8-scope/);
 });
 
+test('browser candidate headroom cross-process report can use the Firefox BiDi harness', (t) => {
+  const browserExecutable = findFirefoxExecutable();
+  if (!browserExecutable) {
+    t.skip('Firefox executable was not found.');
+    return;
+  }
+
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [firefoxOutputDir, firefoxJsonOut, firefoxMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath, { recursive: true, force: true });
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'browser-candidate-headroom-cross-process.mjs'),
+    '--harness',
+    'firefox-bidi',
+    '--browser-executable',
+    browserExecutable,
+    '--process-runs',
+    '1',
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'projection-cycle',
+    '--diverse-cycle-size',
+    '16',
+    '--child-warmups',
+    '0',
+    '--cases',
+    'stringFull,rawFrameNameId,projectionLowSelectivity',
+    '--no-host-process-memory',
+    '--output-dir',
+    firefoxOutputDir,
+    '--json-out',
+    firefoxJsonOut,
+    '--md-out',
+    firefoxMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 240_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(firefoxJsonOut, 'utf8'));
+  assert.equal(report.objective, 'browser-candidate-headroom-cross-process');
+  assert.equal(report.options.harness, 'firefox-bidi');
+  assert.equal(report.sampleCount, 1);
+  assert.equal(report.environment.browserName, 'Firefox');
+  assert.equal(report.environment.javascriptEngine, 'SpiderMonkey');
+  assert.equal(report.fixture.shape, 'projection-cycle');
+  assert.deepEqual(report.options.cases, ['stringFull', 'rawFrameNameId', 'projectionLowSelectivity']);
+  assert.equal(report.hostProcessMemory.scope, 'disabled');
+  assert.ok(report.variants.every(entry => entry.sampleCount === 1));
+  assert.ok(report.variants.every(entry => entry.maxJsHeapUsedBytes === null));
+  assert.ok(report.findings.some(entry =>
+    entry.id === 'browser-v8-scope'
+    && /Firefox\/SpiderMonkey/.test(entry.summary)
+  ));
+
+  const markdown = readFileSync(firefoxMdOut, 'utf8');
+  assert.match(markdown, /Harness: firefox-bidi/);
+  assert.match(markdown, /Firefox does not expose Chromium performance\.memory/);
+  assert.match(markdown, /browser-v8-scope/);
+});
+
 function findBrowserExecutable() {
   const candidates = [
     process.env.CHROME_PATH,
@@ -101,6 +174,15 @@ function findBrowserExecutable() {
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  ].filter(Boolean);
+  return candidates.find(candidate => existsSync(candidate));
+}
+
+function findFirefoxExecutable() {
+  const candidates = [
+    process.env.FIREFOX_PATH,
+    'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+    'C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
   ].filter(Boolean);
   return candidates.find(candidate => existsSync(candidate));
 }

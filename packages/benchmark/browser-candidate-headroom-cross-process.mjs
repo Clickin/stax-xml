@@ -8,6 +8,7 @@ const MIB = 1024 * 1024;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
 const browserHarnessPath = join(__dirname, 'browser-candidate-headroom.mjs');
+const firefoxBidiHarnessPath = join(__dirname, 'firefox-bidi-candidate-headroom.mjs');
 const defaultJsonOut = join(__dirname, 'results', 'release', 'browser-candidate-headroom-cross-process-projection.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'browser-candidate-headroom-cross-process-projection.md');
 const defaultOutputDir = join(__dirname, 'results', 'cross-process', 'browser-candidate-headroom-projection');
@@ -23,6 +24,7 @@ const defaultCases = [
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     processRuns: 3,
+    harness: 'browser',
     childWarmups: 0,
     sizeGiB: 1,
     fixtureShape: 'projection-cycle',
@@ -31,7 +33,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     batchSize: 16,
     boundedJsHeapMiB: 512,
     cases: [...defaultCases],
-    browserExecutable: process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable(),
+    browserExecutable: null,
     browserTimeoutMs: 20 * 60 * 1000,
     collectHostProcessMemory: true,
     outputDir: defaultOutputDir,
@@ -54,6 +56,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     switch (name) {
       case '--process-runs':
         options.processRuns = parsePositiveInteger(readValue(), '--process-runs');
+        break;
+      case '--harness':
+        options.harness = readValue();
         break;
       case '--child-warmups':
         options.childWarmups = parseNonNegativeInteger(readValue(), '--child-warmups');
@@ -105,8 +110,19 @@ function parseArgs(argv = process.argv.slice(2)) {
   if (!['repeated-person', 'diverse-cycle', 'corpus-cycle', 'projection-cycle'].includes(options.fixtureShape)) {
     throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle, corpus-cycle, projection-cycle.');
   }
+  if (!['browser', 'firefox-bidi'].includes(options.harness)) {
+    throw new Error('--harness must be one of browser, firefox-bidi.');
+  }
+  if (!options.browserExecutable) {
+    options.browserExecutable = options.harness === 'firefox-bidi'
+      ? process.env.FIREFOX_PATH || findFirefoxExecutable()
+      : process.env.CHROME_PATH || process.env.EDGE_PATH || findBrowserExecutable();
+  }
   if (!options.browserExecutable || !existsSync(options.browserExecutable)) {
-    throw new Error('Chrome or Edge executable was not found. Pass --browser-executable or set CHROME_PATH/EDGE_PATH.');
+    const message = options.harness === 'firefox-bidi'
+      ? 'Firefox executable was not found. Pass --browser-executable or set FIREFOX_PATH.'
+      : 'Chrome or Edge executable was not found. Pass --browser-executable or set CHROME_PATH/EDGE_PATH.';
+    throw new Error(message);
   }
   return options;
 }
@@ -184,8 +200,9 @@ function runChildProcess(runIndex, options) {
 }
 
 function createChildArgs(options, jsonOut, mdOut) {
+  const harnessPath = options.harness === 'firefox-bidi' ? firefoxBidiHarnessPath : browserHarnessPath;
   const args = [
-    browserHarnessPath,
+    harnessPath,
     '--browser-executable',
     options.browserExecutable,
     '--browser-timeout-ms',
@@ -242,6 +259,7 @@ function createReport(options, samples) {
     fixture: first.fixture,
     options: {
       processRuns: options.processRuns,
+      harness: options.harness,
       childWarmups: options.childWarmups,
       sizeGiB: options.sizeGiB,
       fixtureShape: options.fixtureShape,
@@ -317,10 +335,10 @@ function summarizeParity(samples) {
 function summarizeHostProcessMemory(samples) {
   const childRows = samples.map(sample => ({
     runIndex: sample.runIndex,
-    scope: sample.report.hostProcessMemory.scope,
-    maxWorkingSetBytes: sample.report.hostProcessMemory.maxWorkingSetBytes,
-    maxPrivateBytes: sample.report.hostProcessMemory.maxPrivateBytes,
-    maxProcessCount: sample.report.hostProcessMemory.maxProcessCount,
+    scope: sample.report.hostProcessMemory?.scope ?? 'disabled',
+    maxWorkingSetBytes: sample.report.hostProcessMemory?.maxWorkingSetBytes ?? null,
+    maxPrivateBytes: sample.report.hostProcessMemory?.maxPrivateBytes ?? null,
+    maxProcessCount: sample.report.hostProcessMemory?.maxProcessCount ?? null,
   }));
   const workingSetValues = childRows.map(row => row.maxWorkingSetBytes).filter(isFiniteNumber);
   const privateValues = childRows.map(row => row.maxPrivateBytes).filter(isFiniteNumber);
@@ -385,13 +403,15 @@ function createFindings(report) {
     {
       id: 'independent-browser-process-rerun',
       classification: 'BENCH_FACT',
-      summary: 'Each sample launched a fresh browser process through the browser candidate harness.',
+      summary: `Each sample launched a fresh browser process through the ${report.options.harness} candidate harness.`,
       evidence: [`processRuns=${report.sampleCount}`, `browser=${report.environment.browserName} ${report.environment.browserVersion}`],
     },
     {
       id: 'browser-memory-scope',
       classification: 'BENCH_FACT',
-      summary: 'Variant memory is browser JS heap. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.',
+      summary: report.environment.javascriptEngine === 'SpiderMonkey'
+        ? 'Firefox does not expose Chromium performance.memory, so variant JS heap is unavailable. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.'
+        : 'Variant memory is browser JS heap. Host process-tree memory is reported separately and is not mixed with Node/Bun RSS evidence.',
       evidence: report.variants.map(row => `${row.id}: maxJsHeap=${formatBytes(row.maxJsHeapUsedBytes)}`),
     },
     {
@@ -411,7 +431,9 @@ function createFindings(report) {
     {
       id: 'browser-v8-scope',
       classification: 'BENCH_FACT',
-      summary: 'This report is browser evidence for the recorded Chromium/V8 build only; it is not JSC/SpiderMonkey browser evidence.',
+      summary: report.environment.javascriptEngine === 'SpiderMonkey'
+        ? 'This report is browser evidence for the recorded Firefox/SpiderMonkey build only; it is not Chromium/V8, Safari/JSC, codegen, or allocation evidence.'
+        : 'This report is browser evidence for the recorded Chromium/V8 build only; it is not JSC/SpiderMonkey browser evidence.',
       evidence: [`engine=${report.environment.javascriptEngine}`, `userAgent=${report.environment.userAgent}`],
     },
   ];
@@ -426,11 +448,14 @@ function renderMarkdown(report) {
     'This report repeats selected browser candidate-headroom rows in fresh browser processes.',
     'It is browser-runtime timing evidence for the recorded machine, not proof that JavaScript runtimes have no further headroom.',
     'Projection rows report projected record counts and selected-field checksums; they are workload headroom rows, not full StAX parity rows.',
-    'Variant memory is browser JS heap. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.',
+    report.environment.javascriptEngine === 'SpiderMonkey'
+      ? 'Firefox does not expose Chromium performance.memory, so variant JS heap is unavailable. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.'
+      : 'Variant memory is browser JS heap. Host process-tree memory is summarized separately and must not be mixed with Node/Bun RSS rows as the same memory proof.',
     '',
     '## Options',
     '',
     `- Process runs: ${report.options.processRuns}`,
+    `- Harness: ${report.options.harness}`,
     `- Child warmups: ${report.options.childWarmups}`,
     `- Fixture shape: ${report.options.fixtureShape}`,
     `- Size GiB: ${report.options.sizeGiB}`,
@@ -583,6 +608,14 @@ function findBrowserExecutable() {
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  ];
+  return candidates.find(candidate => existsSync(candidate));
+}
+
+function findFirefoxExecutable() {
+  const candidates = [
+    'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+    'C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
   ];
   return candidates.find(candidate => existsSync(candidate));
 }
