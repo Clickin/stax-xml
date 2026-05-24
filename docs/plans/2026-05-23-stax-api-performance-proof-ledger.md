@@ -246,17 +246,18 @@ exhausted.
 `packages/benchmark/results/release/safari-webkit-availability-audit.md` is an
 `ENVIRONMENT_FACT_LIMIT` artifact for the current host and repository harness.
 It records `win32-x64`, no local Safari executable, no `safaridriver`, and
-`Current harness supports Safari/WebKit: no`. The existing browser harness
-family supports Chrome/Edge through CDP and Firefox through built-in WebDriver
-BiDi; it has no Safari/WebKit harness path.
+`Current harness supports Safari/WebKit: yes`. The existing browser harness
+family now supports Chrome/Edge through CDP, Firefox through built-in WebDriver
+BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when
+`safaridriver` is available.
 
 This explains why the current local counterexample search still has zero
 Safari/WebKit browser benchmark rows. It does not close the
 `safari-jsc-source-and-browser-rows-open` obligation, does not benchmark
 Safari/WebKit, and does not prove Safari/WebKit cannot exceed any throughput
-threshold. A future Safari/WebKit row must still run on an appropriate host,
-pin the exact browser/WebKit build, preserve the same full-string contract, and
-flow through the runtime counterexample scanner.
+threshold. The wrapper can now produce rows on an appropriate host, but a future
+Safari/WebKit row must still pin the exact browser/WebKit build, preserve the
+same full-string contract, and flow through the runtime counterexample scanner.
 
 ## Current Evidence: Woodstox HotSpot Trace
 

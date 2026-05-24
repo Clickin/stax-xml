@@ -38,7 +38,7 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.equal(report.environment.runtimeName, 'browser');
   assert.equal(report.environment.browserName, 'Safari/WebKit');
   assert.equal(report.environment.javascriptEngine, 'JavaScriptCore');
-  assert.equal(report.summary.currentHarnessSupportsSafari, false);
+  assert.equal(report.summary.currentHarnessSupportsSafari, true);
   assert.equal(report.summary.canRunSafariBrowserRows, false);
   assert.equal(report.summary.openObligationRemains, true);
   assert.ok(report.probes.commands.some(probe => probe.name === 'safaridriver'));
@@ -53,6 +53,6 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.match(markdown, /ENVIRONMENT_FACT_LIMIT/);
   assert.match(markdown, /not a benchmark row/);
   assert.match(markdown, /does not prove Safari\/WebKit cannot exceed/);
-  assert.match(markdown, /Current harness supports Safari\/WebKit: no/);
+  assert.match(markdown, /Current harness supports Safari\/WebKit: yes/);
   assert.match(markdown, /Open obligation remains: yes/);
 });

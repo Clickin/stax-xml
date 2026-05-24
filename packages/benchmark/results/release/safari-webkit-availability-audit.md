@@ -1,6 +1,6 @@
 # Safari/WebKit Availability Audit
 
-Generated: 2026-05-24T12:08:24.108Z
+Generated: 2026-05-24T12:22:43.215Z
 
 ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.
 
@@ -11,7 +11,7 @@ ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It 
 - Safari executable found: no
 - Safari executable path: none
 - safaridriver found: no
-- Current harness supports Safari/WebKit: no
+- Current harness supports Safari/WebKit: yes
 - Can run Safari browser rows now: no
 - Open obligation remains: yes
 
@@ -35,14 +35,14 @@ ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It 
 
 ## Harness Scope
 
-Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented.
+Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when safaridriver is available.
 
 ## Findings
 
 - local-host-platform (ENVIRONMENT_FACT_LIMIT): Current host is not macOS, so Apple Safari browser rows are not locally runnable through the normal Safari/safaridriver path.
 - local-safari-executable (OPEN): No local Safari/WebKit executable was found through PATH, common install paths, or explicit environment variables.
 - local-safaridriver (OPEN): No local safaridriver/WebKit driver path was found.
-- repo-harness-support (OPEN): Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented.
+- repo-harness-support (ENVIRONMENT_FACT_LIMIT): Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when safaridriver is available.
 - safari-row-obligation-remains (OPEN): Safari/WebKit browser rows remain unrecorded; this audit only explains the local gap and is not a substitute for same-contract rows.
 
 ## Scope Limits

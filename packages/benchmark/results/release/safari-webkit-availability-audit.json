@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T12:08:24.108Z",
+  "generatedAt": "2026-05-24T12:22:43.215Z",
   "objective": "safari-webkit-availability-audit",
   "contract": "local-safari-webkit-browser-row-availability",
   "note": "ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.",
@@ -82,9 +82,9 @@
       "chromiumCdp": true,
       "firefoxBidi": true,
       "firefoxBidiTextDecoder": true,
-      "safariWebDriver": false,
+      "safariWebDriver": true,
       "webkitRemoteInspector": false,
-      "note": "Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented."
+      "note": "Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when safaridriver is available."
     }
   },
   "summary": {
@@ -92,7 +92,7 @@
     "safariExecutableFound": false,
     "safariExecutablePath": null,
     "safaridriverFound": false,
-    "currentHarnessSupportsSafari": false,
+    "currentHarnessSupportsSafari": true,
     "canRunSafariBrowserRows": false,
     "openObligationRemains": true
   },
@@ -114,8 +114,8 @@
     },
     {
       "id": "repo-harness-support",
-      "classification": "OPEN",
-      "summary": "Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented."
+      "classification": "ENVIRONMENT_FACT_LIMIT",
+      "summary": "Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when safaridriver is available."
     },
     {
       "id": "safari-row-obligation-remains",

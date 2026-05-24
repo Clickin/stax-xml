@@ -80,9 +80,9 @@ function createReport() {
     chromiumCdp: true,
     firefoxBidi: true,
     firefoxBidiTextDecoder: true,
-    safariWebDriver: false,
+    safariWebDriver: true,
     webkitRemoteInspector: false,
-    note: 'Current benchmark browser harnesses support Chrome/Edge through CDP and Firefox through built-in WebDriver BiDi; no Safari/WebKit harness path is implemented.',
+    note: 'Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when safaridriver is available.',
   };
   const canRunSafariBrowserRows = isMac && Boolean(availableExecutable) && hasSafaridriver && harnessSupport.safariWebDriver;
 
