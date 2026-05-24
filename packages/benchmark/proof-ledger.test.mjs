@@ -49,6 +49,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/V8 Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/Blink TextDecoder Source Pin Audit/);
+  assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey String Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey Memory API Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit/);
@@ -124,7 +125,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 334\.63 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
   assert.match(markdown, /recognizes 508\s+measured rows/);
-  assert.match(markdown, /59 benchmark artifacts, 10 source artifacts, 3\s+trace\/profile artifacts, 11 allocation artifacts/);
+  assert.match(markdown, /59 benchmark artifacts, 11 source artifacts, 3\s+trace\/profile artifacts, 11 allocation artifacts/);
   assert.match(markdown, /three release corpus seeds: `books\.xml`, `large\.xml`, and\s+`treebank_e\.xml`/);
   assert.match(markdown, /92 Chrome\/V8 browser rows, 78 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 78 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
@@ -265,6 +266,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /browser-string-limit-audit\.md/);
   assert.match(markdown, /chrome-v8-source-pin-audit\.md/);
   assert.match(markdown, /chrome-blink-textdecoder-source-pin-audit\.md/);
+  assert.match(markdown, /firefox-spidermonkey-string-source-pin-audit\.md/);
+  assert.match(markdown, /`JSString` class at line 197/);
+  assert.match(markdown, /`PodCopy` at line 2159/);
   assert.match(markdown, /firefox-spidermonkey-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /firefox-spidermonkey-memory-api-source-pin-audit\.md/);
   assert.match(markdown, /performance\.memory: undefined/);

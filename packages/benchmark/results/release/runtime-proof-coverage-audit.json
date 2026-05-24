@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T10:31:42.906Z",
+  "generatedAt": "2026-05-24T10:49:11.388Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1093,6 +1093,20 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "firefox-spidermonkey-string-source-pin-audit.json",
+      "objective": "firefox-spidermonkey-string-source-pin-audit",
+      "contract": "spidermonkey-exact-revision-string-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json",
       "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
       "contract": "gecko-exact-revision-textdecoder-source-lines",
@@ -1575,12 +1589,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 80,
+    "scannedArtifactCount": 81,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 508,
     "benchmarkArtifactCount": 59,
-    "sourceArtifactCount": 10,
+    "sourceArtifactCount": 11,
     "traceArtifactCount": 3,
     "allocationArtifactCount": 11,
     "largeJsFullRowCount": 277,
@@ -1769,7 +1783,7 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "runtimeLabel": "Firefox/SpiderMonkey browser",
-        "artifactCount": 12,
+        "artifactCount": 13,
         "measuredRowCount": 78,
         "largeFullStringRowCount": 70,
         "fastestLargeFullStringRow": {
@@ -1796,6 +1810,13 @@
             "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
             "limitation": "negative page API capability evidence; not an allocation profile",
             "sourceArtifact": "firefox-spidermonkey-memory-api-source-pin-audit.json"
+          },
+          {
+            "runtimeId": "firefox-spidermonkey-browser",
+            "kind": "SpiderMonkey JS string source boundary",
+            "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+            "limitation": "source pin only; benchmark, codegen, and allocation evidence remain separate",
+            "sourceArtifact": "firefox-spidermonkey-string-source-pin-audit.json"
           },
           {
             "runtimeId": "firefox-spidermonkey-browser",
@@ -11965,6 +11986,13 @@
         "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
         "limitation": "negative page API capability evidence; not an allocation profile",
         "sourceArtifact": "firefox-spidermonkey-memory-api-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "firefox-spidermonkey-browser",
+        "kind": "SpiderMonkey JS string source boundary",
+        "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+        "limitation": "source pin only; benchmark, codegen, and allocation evidence remain separate",
+        "sourceArtifact": "firefox-spidermonkey-string-source-pin-audit.json"
       },
       {
         "runtimeId": "firefox-spidermonkey-browser",

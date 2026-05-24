@@ -1,16 +1,16 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T10:31:42.906Z
+Generated: 2026-05-24T10:49:11.388Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 80
+- Scanned primary artifacts: 81
 - Ignored derived artifacts: 5
 - Measured rows recognized: 508
 - Benchmark artifacts: 59
-- Source artifacts: 10
+- Source artifacts: 11
 - Trace/profile artifacts: 3
 - Allocation artifacts: 11
 - 1 GiB+ JS full-string rows: 277
@@ -25,7 +25,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | Bun/JSC | 21 | 135 | 75 | rawFrameNameId 176.55 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 1 | 2 |
 | Deno/V8 | 1 | 15 | 9 | stringFull 87.62 MiB/s from candidate-headroom-cross-process-projection.json | 0 | 0 | 0 |
 | Chrome/V8 browser | 13 | 92 | 53 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 0 | 1 |
-| Firefox/SpiderMonkey browser | 12 | 78 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 2 | 0 | 0 |
+| Firefox/SpiderMonkey browser | 13 | 78 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 3 | 0 | 0 |
 | Java/Woodstox | 6 | 3 | 0 | none | 0 | 1 | 2 |
 | Rust/quick-xml | 4 | 3 | 0 | none | 0 | 0 | 1 |
 | unknown | 7 | 44 | 0 | none | 0 | 1 | 3 |
@@ -53,7 +53,7 @@ Current release corpus seeds: `books.xml`, `large.xml`, `treebank_e.xml`.
 - Safari/WebKit browser benchmark rows: 0
 - Non-V8 browser benchmark rows: 78
 
-Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present, but Firefox codegen/allocation evidence remains a separate gap. Safari/browser JSC is still not covered by Bun/JSC.
+Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present, but Firefox codegen/allocation evidence remains a separate gap. Safari/browser JSC is still not covered by Bun/JSC.
 
 ## Findings
 

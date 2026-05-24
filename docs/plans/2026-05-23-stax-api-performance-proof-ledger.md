@@ -86,7 +86,7 @@ prove that JavaScript runtimes have no further headroom.
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox as `java-xmlstreamreader-cursor`, `stax-event` as `js-public-event-object`, and `stax-stream` as `js-stream-batch-index-accessors`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml under the same semantic fields and checksum. `packages/benchmark/results/release/quick-xml-shape-audit.md` records source shape facts, and `packages/benchmark/results/release/quick-xml-allocation-count.md` records measured-window Rust global allocator counters plus `Cow<str>` borrowed/owned counts for the same checksum boundary and generated UTF-8 fixture variants. | More symbol/asm narrowing, allocation stack/type attribution, and non-UTF-8 encoding coverage are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml as `rust-enum-event-with-buffer-lifetime`, not `js-public-event-object`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
-| `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary + `SOURCE_FACT` for current V8 and Bun/JSC builds | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. `packages/benchmark/results/release/v8-string-limit-audit.md` pins Node v24.15.0's vendored V8 source lines for `String::kMaxLength`, guarded string creation, and external one-byte string lifetime constraints. `packages/benchmark/results/release/chrome-v8-source-pin-audit.md` pins the browser V8 string boundary used by the Chrome artifacts. `packages/benchmark/results/release/bun-jsc-source-pin-audit.md` pins the Bun/JSC WebKit commit's `JSString`, `WTF::String`, and `StringImpl` source boundaries: `JSString` is a `JSCell`, stores a `WTF::String`, is created through `allocateCell<JSString>`, `WTF::String` wraps `RefPtr<StringImpl>`, and ordinary `StringImpl::createInternal` copies supplied character spans into engine-managed storage. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned browser Safari/JSC and Firefox/SpiderMonkey source line references for those exact tested browser builds. This does not prove no performance headroom exists in pure JS. |
+| `CLAIM-JS-STRING-ZERO-COPY` | Ordinary portable JavaScript cannot expose parser-owned XML byte spans as JS string primitives without creating engine-owned string values. | `ENGINE_INVARIANT` for the string-value boundary + `SOURCE_FACT` for current V8, Bun/JSC, and Firefox/SpiderMonkey builds | V8 public string APIs expose allocation paths such as `String::NewFromUtf8` and external-string APIs with lifetime ownership requirements. `packages/benchmark/results/release/v8-string-limit-audit.md` pins Node v24.15.0's vendored V8 source lines for `String::kMaxLength`, guarded string creation, and external one-byte string lifetime constraints. `packages/benchmark/results/release/chrome-v8-source-pin-audit.md` pins the browser V8 string boundary used by the Chrome artifacts. `packages/benchmark/results/release/bun-jsc-source-pin-audit.md` pins the Bun/JSC WebKit commit's `JSString`, `WTF::String`, and `StringImpl` source boundaries: `JSString` is a `JSCell`, stores a `WTF::String`, is created through `allocateCell<JSString>`, `WTF::String` wraps `RefPtr<StringImpl>`, and ordinary `StringImpl::createInternal` copies supplied character spans into engine-managed storage. `packages/benchmark/results/release/firefox-spidermonkey-string-source-pin-audit.md` pins the installed Firefox/SpiderMonkey source stamp's `JSString`, `JSLinearString`, `OwnedChars`, public `JS_New*StringCopy*`, `AllocChars`, and `PodCopy` boundaries. Existing docs record Node-API string-copy and external-string lifetime constraints. | Need pinned browser Safari/JSC source line references for the exact tested browser build. This does not prove no performance headroom exists in pure JS. |
 | `CLAIM-JS-STRING-MAX-LENGTH` | Current Node/V8 cannot represent a single JS string beyond `buffer.constants.MAX_STRING_LENGTH`, so complete-string XML input has a hard size ceiling before parsing. | `ENGINE_INVARIANT` + `SOURCE_FACT` + `TRACE_FACT` | `packages/benchmark/results/release/v8-string-limit-audit.md` records Node v24.15.0 / V8 13.6.233.17-node.48 exposing `MAX_STRING_LENGTH=536,870,888`, matching vendored V8's `(1 << 29) - 24` formula. It also records an over-limit `RangeError: Invalid string length` probe, the 512 MiB `EventReaderSync` string row's `748,090` code-unit headroom, the projected 1024 MiB fixture's `535,374,738` code-unit excess, and the release 1024 MiB `EventReaderSync` failure. | This proves only the complete-string input boundary for this Node/V8 build. It does not cover Bun/JSC or browser engines and is not a byte-batch runtime ceiling. |
 | `CLAIM-BUN-JSC-STRING-MAX-LENGTH` | The Node/V8 1024 MiB complete-string failure cannot be ported directly to Bun/JSC as a string-length failure. | `ENGINE_INVARIANT` + `SOURCE_FACT` + `TRACE_FACT` + `COUNTEREXAMPLE` | `packages/benchmark/results/release/bun-jsc-string-limit-audit.md` records local Bun 1.3.13+bf2e2cecf exposing `process.versions.webkit=4d5e75ebd84a14edbc7ae264245dcd77fe597c10`. That exact patched WebKit source defines `StringImpl::MaxLength` as `2,147,483,647` via `std::numeric_limits<int32_t>::max()`. The same 1024 MiB generated fixture projection is `1,072,245,626` code units, below the Bun/JSC source limit with `1,075,238,021` code units of headroom. `packages/benchmark/results/release/bun-event-reader-string-large.md` then parsed the 1 GiB complete-string row successfully in Bun/JSC, which is a runtime counterexample to treating the V8 size failure as a Bun/JSC size failure. | This is a counterexample to reusing the V8 complete-string limit for Bun/JSC, not a proof of acceptable memory. It does not cover Safari/browser rows. |
 | `CLAIM-BUN-JSC-COMPLETE-STRING-1GIB` | Bun/JSC can parse the generated 1 GiB complete-string `EventReaderSync` public-object row in the local release environment, but not with acceptable memory. | `BENCH_FACT` | `packages/benchmark/results/release/bun-event-reader-string-large.md` records Bun 1.3.13+bf2e2cecf parsing the 1.00 GiB `diverse-cycle` complete string with status `ok`, 45,189,256 public event objects, 102,702,850 string-field reads, checksum `1421012805`, throughput `47.88 MiB/s`, and peak RSS `13.45 GiB`. The related string-limit audit records that the 1024 MiB projected string length remains below `StringImpl::MaxLength`. | This is not a bounded-memory reader result, not a browser result, and not a counterexample to the 200 MiB/s bounded-memory target. It is evidence that the remaining Bun/JSC problem is memory/throughput/materialization, not maximum string length. |
@@ -179,7 +179,7 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 80 primary release JSON artifacts and recognizes 508
+The current scan covers 81 primary release JSON artifacts and recognizes 508
 measured rows. It finds 277 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
@@ -207,8 +207,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 80 primary release artifacts and recognizes 508
-measured rows. It records 59 benchmark artifacts, 10 source artifacts, 3
+The current audit scans 81 primary release artifacts and recognizes 508
+measured rows. It records 59 benchmark artifacts, 11 source artifacts, 3
 trace/profile artifacts, 11 allocation artifacts, 277 JavaScript 1 GiB+
 full-string rows, and three release corpus seeds: `books.xml`, `large.xml`, and
 `treebank_e.xml`.
@@ -217,8 +217,8 @@ The audit keeps the open proof obligations concrete. Current browser benchmark
 coverage now includes 92 Chrome/V8 browser rows, 78 Firefox/SpiderMonkey
 browser rows, zero Safari/WebKit browser rows, and 78 non-V8 browser benchmark
 rows.
-Firefox benchmark rows, exact tested-build TextDecoder source pinning, and a
-tested-build page memory API boundary pin are present, but Firefox
+Firefox benchmark rows, exact tested-build JS string and TextDecoder source
+pinning, and a tested-build page memory API boundary pin are present, but Firefox
 codegen/allocation evidence remains a separate gap. Bun/JSC and
 Bun-patched WebKit evidence is not Safari/browser JSC evidence. Codegen remains
 partial because Node/V8 trace evidence exists, but Bun/JSC has profiler/source
@@ -1409,6 +1409,29 @@ Blink `String` values through UTF-8 codec buffers.
 This source pin does not run a benchmark and does not inspect generated machine
 code. It does not cover Node, Bun/JSC, Safari/JSC, or Firefox/SpiderMonkey
 TextDecoder internals, and it is not a runtime-ceiling proof.
+
+## Current Evidence: Firefox/SpiderMonkey String Source Pin Audit
+
+`packages/benchmark/results/release/firefox-spidermonkey-string-source-pin-audit.md`
+is a `SOURCE_FACT` for the Firefox/SpiderMonkey JS string boundary at the
+installed Firefox 143.0.1 build's
+`https://hg.mozilla.org/releases/mozilla-release` source stamp
+`644b498d517849c3fb95679e2017e965fe62b77a`.
+
+The audit fetches and anchors four exact source files:
+`js/src/vm/StringType.h`, `js/src/vm/StringType.cpp`,
+`js/src/vm/StringType-inl.h`, and `js/public/String.h`. It records the
+SpiderMonkey string SMDOC and conceptual chars/length representation, the
+`JSString` class at line 197, `JSLinearString` at line 1068, `OwnedChars`
+malloc/StringBuffer ownership comments at lines 230 and 235, public
+`JS_New*StringCopy*` copy ownership at line 59, `NewStringCopyN` at line 1979,
+`AllocChars` at line 2151, and `PodCopy` at line 2159.
+
+This source pin narrows the Firefox/SpiderMonkey side of the ordinary
+engine-owned JS string boundary. It does not inspect SpiderMonkey generated
+code, measure heap/allocation behavior, or prove a runtime ceiling. Stronger
+Firefox claims still need profiler/codegen/allocation evidence for the same
+browser build.
 
 ## Current Evidence: Firefox/SpiderMonkey TextDecoder Source Pin Audit
 

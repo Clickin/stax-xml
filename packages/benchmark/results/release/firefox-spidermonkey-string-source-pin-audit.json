@@ -1,0 +1,635 @@
+{
+  "generatedAt": "2026-05-24T10:46:14.406Z",
+  "objective": "firefox-spidermonkey-string-source-pin-audit",
+  "contract": "spidermonkey-exact-revision-string-source-lines",
+  "note": "Exact Gecko/SpiderMonkey source-line pinning for JS string representation and public string-copy boundaries. These source facts constrain the pinned Firefox/SpiderMonkey build; they are not benchmark evidence, not codegen evidence, and not a throughput proof.",
+  "environment": {
+    "firefoxVersion": "143.0.1 build 20250918214338"
+  },
+  "source": {
+    "repository": "https://hg.mozilla.org/releases/mozilla-release",
+    "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+    "files": [
+      "js/src/vm/StringType.h",
+      "js/src/vm/StringType.cpp",
+      "js/src/vm/StringType-inl.h",
+      "js/public/String.h"
+    ],
+    "fetchedAt": "2026-05-24T10:46:10.790Z"
+  },
+  "anchors": {
+    "jsStringSmdoc": {
+      "status": "found",
+      "label": "JavaScript Strings SMDOC",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 83,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L83",
+      "context": [
+        {
+          "lineNumber": 81,
+          "text": "// clang-format off"
+        },
+        {
+          "lineNumber": 82,
+          "text": "/*"
+        },
+        {
+          "lineNumber": 83,
+          "text": " * [SMDOC] JavaScript Strings"
+        },
+        {
+          "lineNumber": 84,
+          "text": " *"
+        },
+        {
+          "lineNumber": 85,
+          "text": " * Conceptually, a JS string is just an array of chars and a length. This array"
+        }
+      ]
+    },
+    "conceptualChars": {
+      "status": "found",
+      "label": "conceptual chars and length",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 85,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L85",
+      "context": [
+        {
+          "lineNumber": 83,
+          "text": " * [SMDOC] JavaScript Strings"
+        },
+        {
+          "lineNumber": 84,
+          "text": " *"
+        },
+        {
+          "lineNumber": 85,
+          "text": " * Conceptually, a JS string is just an array of chars and a length. This array"
+        },
+        {
+          "lineNumber": 86,
+          "text": " * of chars may or may not be null-terminated and, if it is, the null character"
+        },
+        {
+          "lineNumber": 87,
+          "text": " * is not included in the length."
+        }
+      ]
+    },
+    "jsStringClass": {
+      "status": "found",
+      "label": "JSString cell class",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 197,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L197",
+      "context": [
+        {
+          "lineNumber": 195,
+          "text": "// clang-format on"
+        },
+        {
+          "lineNumber": 196,
+          "text": ""
+        },
+        {
+          "lineNumber": 197,
+          "text": "class JSString : public js::gc::CellWithLengthAndFlags {"
+        },
+        {
+          "lineNumber": 198,
+          "text": " protected:"
+        },
+        {
+          "lineNumber": 199,
+          "text": "  using Base = js::gc::CellWithLengthAndFlags;"
+        }
+      ]
+    },
+    "ownedCharsMalloc": {
+      "status": "found",
+      "label": "OwnedChars malloc ownership",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 230,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L230",
+      "context": [
+        {
+          "lineNumber": 228,
+          "text": "      Nursery,"
+        },
+        {
+          "lineNumber": 229,
+          "text": ""
+        },
+        {
+          "lineNumber": 230,
+          "text": "      // chars_ is a buffer allocated in the malloc heap. This pointer should be"
+        },
+        {
+          "lineNumber": 231,
+          "text": "      // passed to js_free() if OwnedChars dies while still possessing"
+        },
+        {
+          "lineNumber": 232,
+          "text": "      // ownership."
+        }
+      ]
+    },
+    "ownedCharsStringBuffer": {
+      "status": "found",
+      "label": "OwnedChars StringBuffer ownership",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 235,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L235",
+      "context": [
+        {
+          "lineNumber": 233,
+          "text": "      Malloc,"
+        },
+        {
+          "lineNumber": 234,
+          "text": ""
+        },
+        {
+          "lineNumber": 235,
+          "text": "      // chars_ is allocated as a refcounted StringBuffer. The reference must be"
+        },
+        {
+          "lineNumber": 236,
+          "text": "      // released if OwnedChars dies while still possessing ownership."
+        },
+        {
+          "lineNumber": 237,
+          "text": "      StringBuffer,"
+        }
+      ]
+    },
+    "jsLinearStringClass": {
+      "status": "found",
+      "label": "JSLinearString class",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 1068,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L1068",
+      "context": [
+        {
+          "lineNumber": 1066,
+          "text": " */"
+        },
+        {
+          "lineNumber": 1067,
+          "text": ""
+        },
+        {
+          "lineNumber": 1068,
+          "text": "class JSLinearString : public JSString {"
+        },
+        {
+          "lineNumber": 1069,
+          "text": "  friend class JSString;"
+        },
+        {
+          "lineNumber": 1070,
+          "text": "  friend class JS::AutoStableStringChars;"
+        }
+      ]
+    },
+    "promotionMayMallocCopy": {
+      "status": "found",
+      "label": "promotion may malloc and copy chars",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 1240,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L1240",
+      "context": [
+        {
+          "lineNumber": 1238,
+          "text": "  inline js::PropertyName* toPropertyName(JSContext* cx);"
+        },
+        {
+          "lineNumber": 1239,
+          "text": ""
+        },
+        {
+          "lineNumber": 1240,
+          "text": "  // Make sure chars are not in the nursery, mallocing and copying if necessary."
+        },
+        {
+          "lineNumber": 1241,
+          "text": "  // Should only be called during minor GC on a string that has been promoted"
+        },
+        {
+          "lineNumber": 1242,
+          "text": "  // to the tenured heap and may still point to nursery-allocated chars."
+        }
+      ]
+    },
+    "newStringCopyNDeclaration": {
+      "status": "found",
+      "label": "NewStringCopyN declaration",
+      "file": "js/src/vm/StringType.h",
+      "lineNumber": 1979,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.h#L1979",
+      "context": [
+        {
+          "lineNumber": 1977,
+          "text": "/* Copy a counted string and GC-allocate a descriptor for it. */"
+        },
+        {
+          "lineNumber": 1978,
+          "text": "template <js::AllowGC allowGC, typename CharT>"
+        },
+        {
+          "lineNumber": 1979,
+          "text": "extern JSLinearString* NewStringCopyN("
+        },
+        {
+          "lineNumber": 1980,
+          "text": "    JSContext* cx, const CharT* s, size_t n,"
+        },
+        {
+          "lineNumber": 1981,
+          "text": "    js::gc::Heap heap = js::gc::Heap::Default);"
+        }
+      ]
+    },
+    "inlineStringAllocation": {
+      "status": "found",
+      "label": "AllocateInlineString",
+      "file": "js/src/vm/StringType-inl.h",
+      "lineNumber": 31,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType-inl.h#L31",
+      "context": [
+        {
+          "lineNumber": 29,
+          "text": "// Allocate a thin inline string if possible, and a fat inline string if not."
+        },
+        {
+          "lineNumber": 30,
+          "text": "template <AllowGC allowGC, typename CharT>"
+        },
+        {
+          "lineNumber": 31,
+          "text": "static MOZ_ALWAYS_INLINE JSInlineString* AllocateInlineString("
+        },
+        {
+          "lineNumber": 32,
+          "text": "    JSContext* cx, size_t len, CharT** chars, js::gc::Heap heap) {"
+        },
+        {
+          "lineNumber": 33,
+          "text": "  MOZ_ASSERT(JSInlineString::lengthFits<CharT>(len));"
+        }
+      ]
+    },
+    "externalStringConstructor": {
+      "status": "found",
+      "label": "JSExternalString constructor",
+      "file": "js/src/vm/StringType-inl.h",
+      "lineNumber": 681,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType-inl.h#L681",
+      "context": [
+        {
+          "lineNumber": 679,
+          "text": "}"
+        },
+        {
+          "lineNumber": 680,
+          "text": ""
+        },
+        {
+          "lineNumber": 681,
+          "text": "inline JSExternalString::JSExternalString("
+        },
+        {
+          "lineNumber": 682,
+          "text": "    const char16_t* chars, size_t length,"
+        },
+        {
+          "lineNumber": 683,
+          "text": "    const JSExternalStringCallbacks* callbacks) {"
+        }
+      ]
+    },
+    "newStringCopyNImpl": {
+      "status": "found",
+      "label": "NewStringCopyN implementation",
+      "file": "js/src/vm/StringType.cpp",
+      "lineNumber": 2141,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.cpp#L2141",
+      "context": [
+        {
+          "lineNumber": 2139,
+          "text": ""
+        },
+        {
+          "lineNumber": 2140,
+          "text": "template <AllowGC allowGC, typename CharT>"
+        },
+        {
+          "lineNumber": 2141,
+          "text": "JSLinearString* NewStringCopyNDontDeflateNonStaticValidLength(JSContext* cx,"
+        },
+        {
+          "lineNumber": 2142,
+          "text": "                                                              const CharT* s,"
+        },
+        {
+          "lineNumber": 2143,
+          "text": "                                                              size_t n,"
+        }
+      ]
+    },
+    "allocChars": {
+      "status": "found",
+      "label": "AllocChars for copied string",
+      "file": "js/src/vm/StringType.cpp",
+      "lineNumber": 2151,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.cpp#L2151",
+      "context": [
+        {
+          "lineNumber": 2149,
+          "text": ""
+        },
+        {
+          "lineNumber": 2150,
+          "text": "  Rooted<JSString::OwnedChars<CharT>> news(cx,"
+        },
+        {
+          "lineNumber": 2151,
+          "text": "                                           ::AllocChars<CharT>(cx, n, heap));"
+        },
+        {
+          "lineNumber": 2152,
+          "text": "  if (!news) {"
+        },
+        {
+          "lineNumber": 2153,
+          "text": "    if (!allowGC) {"
+        }
+      ]
+    },
+    "podCopy": {
+      "status": "found",
+      "label": "PodCopy into owned chars",
+      "file": "js/src/vm/StringType.cpp",
+      "lineNumber": 2159,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.cpp#L2159",
+      "context": [
+        {
+          "lineNumber": 2157,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 2158,
+          "text": ""
+        },
+        {
+          "lineNumber": 2159,
+          "text": "  PodCopy(news.data(), s, n);"
+        },
+        {
+          "lineNumber": 2160,
+          "text": ""
+        },
+        {
+          "lineNumber": 2161,
+          "text": "  return JSLinearString::newValidLength<allowGC, CharT>(cx, &news, heap);"
+        }
+      ]
+    },
+    "deflateBranch": {
+      "status": "found",
+      "label": "NewStringCopyN deflate branch",
+      "file": "js/src/vm/StringType.cpp",
+      "lineNumber": 2034,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/vm/StringType.cpp#L2034",
+      "context": [
+        {
+          "lineNumber": 2032,
+          "text": "  }"
+        },
+        {
+          "lineNumber": 2033,
+          "text": ""
+        },
+        {
+          "lineNumber": 2034,
+          "text": "  MOZ_ASSERT(CanStoreCharsAsLatin1(s, n));"
+        },
+        {
+          "lineNumber": 2035,
+          "text": "  FillFromCompatible(news.data(), s, n);"
+        },
+        {
+          "lineNumber": 2036,
+          "text": ""
+        }
+      ]
+    },
+    "publicCopyComment": {
+      "status": "found",
+      "label": "public copy ownership comment",
+      "file": "js/public/String.h",
+      "lineNumber": 59,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/public/String.h#L59",
+      "context": [
+        {
+          "lineNumber": 57,
+          "text": " * but on error (signified by null return), it leaves chars owned by the"
+        },
+        {
+          "lineNumber": 58,
+          "text": " * caller. So the caller must free bytes in the error case, if it has no use"
+        },
+        {
+          "lineNumber": 59,
+          "text": " * for them. In contrast, all the JS_New*StringCopy* functions do not take"
+        },
+        {
+          "lineNumber": 60,
+          "text": " * ownership of the character memory passed to them -- they copy it."
+        },
+        {
+          "lineNumber": 61,
+          "text": " */"
+        }
+      ]
+    },
+    "publicNewStringCopyN": {
+      "status": "found",
+      "label": "JS_NewStringCopyN",
+      "file": "js/public/String.h",
+      "lineNumber": 63,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/public/String.h#L63",
+      "context": [
+        {
+          "lineNumber": 61,
+          "text": " */"
+        },
+        {
+          "lineNumber": 62,
+          "text": ""
+        },
+        {
+          "lineNumber": 63,
+          "text": "extern JS_PUBLIC_API JSString* JS_NewStringCopyN(JSContext* cx, const char* s,"
+        },
+        {
+          "lineNumber": 64,
+          "text": "                                                 size_t n);"
+        },
+        {
+          "lineNumber": 65,
+          "text": ""
+        }
+      ]
+    },
+    "publicNewStringCopyUtf8N": {
+      "status": "found",
+      "label": "JS_NewStringCopyUTF8N",
+      "file": "js/public/String.h",
+      "lineNumber": 71,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/public/String.h#L71",
+      "context": [
+        {
+          "lineNumber": 69,
+          "text": "    JSContext* cx, const JS::ConstUTF8CharsZ s);"
+        },
+        {
+          "lineNumber": 70,
+          "text": ""
+        },
+        {
+          "lineNumber": 71,
+          "text": "extern JS_PUBLIC_API JSString* JS_NewStringCopyUTF8N(JSContext* cx,"
+        },
+        {
+          "lineNumber": 72,
+          "text": "                                                     const JS::UTF8Chars& s);"
+        },
+        {
+          "lineNumber": 73,
+          "text": ""
+        }
+      ]
+    },
+    "publicGetChars": {
+      "status": "found",
+      "label": "JS_GetString chars accessors",
+      "file": "js/public/String.h",
+      "lineNumber": 239,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/public/String.h#L239",
+      "context": [
+        {
+          "lineNumber": 237,
+          "text": "extern JS_PUBLIC_API bool JS_StringIsLinear(JSString* str);"
+        },
+        {
+          "lineNumber": 238,
+          "text": ""
+        },
+        {
+          "lineNumber": 239,
+          "text": "extern JS_PUBLIC_API const JS::Latin1Char* JS_GetLatin1StringCharsAndLength("
+        },
+        {
+          "lineNumber": 240,
+          "text": "    JSContext* cx, const JS::AutoRequireNoGC& nogc, JSString* str,"
+        },
+        {
+          "lineNumber": 241,
+          "text": "    size_t* length);"
+        }
+      ]
+    },
+    "publicCopyStringChars": {
+      "status": "found",
+      "label": "JS_CopyStringChars",
+      "file": "js/public/String.h",
+      "lineNumber": 253,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/public/String.h#L253",
+      "context": [
+        {
+          "lineNumber": 251,
+          "text": "    JSString* str);"
+        },
+        {
+          "lineNumber": 252,
+          "text": ""
+        },
+        {
+          "lineNumber": 253,
+          "text": "extern JS_PUBLIC_API bool JS_CopyStringChars("
+        },
+        {
+          "lineNumber": 254,
+          "text": "    JSContext* cx, const mozilla::Range<char16_t>& dest, JSString* str);"
+        },
+        {
+          "lineNumber": 255,
+          "text": ""
+        }
+      ]
+    },
+    "publicStringBufferAccess": {
+      "status": "found",
+      "label": "StringBuffer-backed string access",
+      "file": "js/public/String.h",
+      "lineNumber": 493,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/public/String.h#L493",
+      "context": [
+        {
+          "lineNumber": 491,
+          "text": ""
+        },
+        {
+          "lineNumber": 492,
+          "text": "/**"
+        },
+        {
+          "lineNumber": 493,
+          "text": " * If the provided string is backed by a StringBuffer for latin-1 storage,"
+        },
+        {
+          "lineNumber": 494,
+          "text": " * return true and set |*buffer| to the string buffer."
+        },
+        {
+          "lineNumber": 495,
+          "text": " *"
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-jsstring-representation-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned SpiderMonkey source defines JS strings as engine GC cells with chars/length representation variants.",
+      "evidence": [
+        "JSString class line 197",
+        "JSLinearString class line 1068",
+        "OwnedChars malloc ownership line 230",
+        "OwnedChars StringBuffer ownership line 235"
+      ]
+    },
+    {
+      "id": "spidermonkey-string-copy-boundary-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned public API and internal NewStringCopyN path distinguish ownership-taking APIs from copy APIs and copy counted input into engine-owned chars.",
+      "evidence": [
+        "public JS_New*StringCopy comment line 59",
+        "NewStringCopyN declaration line 1979",
+        "AllocChars line 2151",
+        "PodCopy line 2159"
+      ]
+    },
+    {
+      "id": "spidermonkey-string-source-pin-scope-limit",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "This source pin constrains string ownership/copy boundaries, but it is not generated-code, profiler, allocation, or throughput evidence.",
+      "evidence": [
+        "It does not prove that Firefox/SpiderMonkey full-string rows have no remaining optimization headroom.",
+        "It does not replace SpiderMonkey allocation or codegen traces for the benchmark shapes."
+      ]
+    }
+  ]
+}

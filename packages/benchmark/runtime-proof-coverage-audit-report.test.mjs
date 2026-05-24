@@ -32,13 +32,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 80);
+  assert.equal(report.summary.scannedArtifactCount, 81);
   assert.equal(report.summary.measuredRowCount, 508);
   assert.equal(report.summary.largeJsFullRowCount, 277);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 3);
   assert.equal(report.summary.benchmarkArtifactCount, 59);
-  assert.equal(report.summary.sourceArtifactCount, 10);
+  assert.equal(report.summary.sourceArtifactCount, 11);
   assert.equal(report.summary.allocationArtifactCount, 11);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
@@ -57,6 +57,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.sourcePins.some(pin =>
     pin.runtimeId === 'firefox-spidermonkey-browser'
     && pin.sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json'
+  ));
+  assert.ok(report.coverage.sourcePins.some(pin =>
+    pin.runtimeId === 'firefox-spidermonkey-browser'
+    && pin.sourceArtifact === 'firefox-spidermonkey-string-source-pin-audit.json'
+    && pin.kind === 'SpiderMonkey JS string source boundary'
   ));
   assert.ok(report.coverage.sourcePins.some(pin =>
     pin.runtimeId === 'firefox-spidermonkey-browser'
@@ -80,7 +85,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /# Runtime Proof Coverage Audit/);
   assert.match(markdown, /not an impossibility proof/);
   assert.match(markdown, /78 Firefox\/SpiderMonkey browser benchmark rows found/);
-  assert.match(markdown, /Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present/);
+  assert.match(markdown, /Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present/);
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
