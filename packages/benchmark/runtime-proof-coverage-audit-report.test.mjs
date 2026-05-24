@@ -32,9 +32,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 74);
-  assert.equal(report.summary.measuredRowCount, 465);
-  assert.equal(report.summary.largeJsFullRowCount, 241);
+  assert.equal(report.summary.scannedArtifactCount, 75);
+  assert.equal(report.summary.measuredRowCount, 474);
+  assert.equal(report.summary.largeJsFullRowCount, 250);
   assert.equal(report.summary.corpusSeedCount, 2);
   assert.equal(report.summary.openObligationCount, 4);
 
@@ -46,7 +46,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
 
-  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 83);
+  assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 92);
   assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 69);
   assert.equal(report.coverage.browser.safariBenchmarkRows.length, 0);
   assert.equal(report.coverage.browser.nonV8BenchmarkRows.length, 69);

@@ -179,8 +179,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 74 primary release JSON artifacts and recognizes 465
-measured rows. It finds 241 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 75 primary release JSON artifacts and recognizes 474
+measured rows. It finds 250 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
 `bun-candidate-headroom-books-corpus-stability.json` at 176.55 MiB/s with
@@ -207,13 +207,13 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 74 primary release artifacts and recognizes 465
-measured rows. It records 54 benchmark artifacts, 9 source artifacts, 3
-trace/profile artifacts, 9 allocation artifacts, 241 JavaScript 1 GiB+
+The current audit scans 75 primary release artifacts and recognizes 474
+measured rows. It records 55 benchmark artifacts, 9 source artifacts, 3
+trace/profile artifacts, 9 allocation artifacts, 250 JavaScript 1 GiB+
 full-string rows, and two release corpus seeds: `books.xml` and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
-coverage now includes 83 Chrome/V8 browser rows, 69 Firefox/SpiderMonkey
+coverage now includes 92 Chrome/V8 browser rows, 69 Firefox/SpiderMonkey
 browser rows, zero Safari/WebKit browser rows, and 69 non-V8 browser benchmark
 rows.
 Firefox benchmark rows and exact tested-build TextDecoder source pinning are
@@ -975,12 +975,23 @@ and public `eventObjectFull` averaged `131.21 MiB/s` with `7.4%` spread. These
 fresh runtime processes repeated the same selected rows without finding a
 200 MiB/s full-string counterexample.
 
+`packages/benchmark/results/release/browser-candidate-headroom-cross-process-books-corpus.md`
+adds the Chrome/V8 browser counterpart as fresh browser processes with
+`processRuns=3`, child `runs=1`, and `warmups=0`. The Chrome/V8
+fresh-browser-process books rerun averaged `121.27 MiB/s` for `stringFull`,
+`104.90 MiB/s` for public `eventObjectFull`, and `129.02 MiB/s` for
+`rawFrameNameId` with `2.0%` spread. Variant memory remained browser JS heap,
+with max used JS heap `12.2 MiB`, `22.6 MiB`, and `32.2 MiB` for those rows;
+host process-tree counters peaked at `559.2 MiB` working set and `258.7 MiB`
+private bytes. This is browser V8 evidence only, not Safari/WebKit or
+SpiderMonkey evidence.
+
 This is the strongest current bounded-memory full-string JS row in the release
 artifacts, but it still does not prove a runtime ceiling. It repeats selected
-Node/Bun rows both in the same process and in fresh runtime processes, but not
-browser processes; the XML seed is still very small, Firefox memory remains
-host-counter only, and the best repeated row remains 11.7% below the 200 MiB/s
-counterexample threshold.
+Node/Bun rows both in the same process and in fresh runtime processes and adds
+Chrome/V8 fresh-browser-process evidence; the XML seed is still very small,
+Firefox memory remains host-counter only, Safari/WebKit is absent, and the best
+repeated row remains 11.7% below the 200 MiB/s counterexample threshold.
 
 ## Current Evidence: Browser Chrome/V8 1 GiB Candidate Headroom Matrix
 
@@ -1967,6 +1978,7 @@ Acceptance:
    treebank corpus-cycle, Node/Bun/Chrome-V8/Firefox-SpiderMonkey books
    corpus-cycle, Node/Bun books corpus-cycle same-process stability,
    Node/Bun books corpus-cycle fresh-process stability,
+   Chrome/V8 books corpus-cycle fresh-browser-process stability,
    Node/Bun TextDecoder span variants, Chrome/V8
    TextDecoder generated/corpus rows, Firefox/SpiderMonkey TextDecoder
    generated/corpus rows, and Chrome/V8 browser allocation-sampling artifacts:
