@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 90);
-  assert.equal(report.summary.measuredRowCount, 557);
-  assert.equal(report.summary.largeJsFullRowCount, 312);
+  assert.equal(report.summary.scannedArtifactCount, 93);
+  assert.equal(report.summary.measuredRowCount, 572);
+  assert.equal(report.summary.largeJsFullRowCount, 327);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 1);
-  assert.equal(report.summary.benchmarkArtifactCount, 66);
+  assert.equal(report.summary.benchmarkArtifactCount, 69);
   assert.equal(report.summary.sourceArtifactCount, 11);
   assert.equal(report.summary.traceArtifactCount, 5);
   assert.equal(report.summary.allocationArtifactCount, 12);
@@ -74,6 +74,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'deno-event-reader-byte-batch.json'
+    && row.runtimes.includes('deno-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'deno-event-reader-byte-batch-corpus.json'
     && row.runtimes.includes('deno-v8')
   ));
   assert.ok(report.scannedArtifacts.some(row =>

@@ -1,20 +1,20 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T16:07:55.595Z
+Generated: 2026-05-24T16:34:42.416Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 90
+- Scanned primary artifacts: 93
 - Ignored derived artifacts: 5
-- Measured rows recognized: 557
-- Benchmark artifacts: 66
+- Measured rows recognized: 572
+- Benchmark artifacts: 69
 - Source artifacts: 11
 - Trace/profile artifacts: 5
 - Allocation artifacts: 12
 - Environment artifacts: 1
-- 1 GiB+ JS full-string rows: 312
+- 1 GiB+ JS full-string rows: 327
 - Corpus seeds: 3
 - Open or partial obligations: 1
 
@@ -22,9 +22,9 @@ This audit scans current release artifacts to show which proof obligations are c
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 29 | 152 | 80 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
-| Bun/JSC | 23 | 152 | 85 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 2 | 2 |
-| Deno/V8 | 4 | 30 | 24 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 0 | 0 | 0 |
+| Node/V8 | 30 | 157 | 85 | rawFrameNameId 180.08 MiB/s from candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 5 |
+| Bun/JSC | 24 | 157 | 90 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 2 | 2 |
+| Deno/V8 | 5 | 35 | 29 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 0 | 0 | 0 |
 | Chrome/V8 browser | 14 | 95 | 53 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 14 | 78 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 3 | 0 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T16:07:55.595Z",
+  "generatedAt": "2026-05-24T16:34:42.416Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -422,6 +422,27 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "bun-event-reader-byte-batch-corpus.json",
+      "objective": "event-reader-byte-batch",
+      "contract": "public-event-object-full-string-checksum",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "corpus-cycle",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
     },
     {
       "sourceArtifact": "bun-event-reader-byte-batch.json",
@@ -896,6 +917,27 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "deno-event-reader-byte-batch-corpus.json",
+      "objective": "event-reader-byte-batch",
+      "contract": "public-event-object-full-string-checksum",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "deno-v8"
+      ],
+      "fixture": {
+        "source": "corpus-cycle",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
       "sourceArtifact": "deno-event-reader-byte-batch.json",
       "objective": "event-reader-byte-batch",
       "contract": "public-event-object-full-string-checksum",
@@ -954,6 +996,27 @@
         "sizeGiB": 1,
         "sizeMiB": 1024,
         "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "event-reader-byte-batch-corpus.json",
+      "objective": "event-reader-byte-batch",
+      "contract": "public-event-object-full-string-checksum",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "corpus-cycle",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1025,
+        "actualBytes": 1074787404
       },
       "corpusSeed": null,
       "measuredRowCount": 5
@@ -1766,16 +1829,16 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 90,
+    "scannedArtifactCount": 93,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 557,
-    "benchmarkArtifactCount": 66,
+    "measuredRowCount": 572,
+    "benchmarkArtifactCount": 69,
     "sourceArtifactCount": 11,
     "traceArtifactCount": 5,
     "allocationArtifactCount": 12,
     "environmentArtifactCount": 1,
-    "largeJsFullRowCount": 312,
+    "largeJsFullRowCount": 327,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 1,
@@ -1786,9 +1849,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 29,
-        "measuredRowCount": 152,
-        "largeFullStringRowCount": 80,
+        "artifactCount": 30,
+        "measuredRowCount": 157,
+        "largeFullStringRowCount": 85,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -1836,9 +1899,9 @@
       {
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
-        "artifactCount": 23,
-        "measuredRowCount": 152,
-        "largeFullStringRowCount": 85,
+        "artifactCount": 24,
+        "measuredRowCount": 157,
+        "largeFullStringRowCount": 90,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
           "id": "rawFrameNameId",
@@ -1891,9 +1954,9 @@
       {
         "runtimeId": "deno-v8",
         "runtimeLabel": "Deno/V8",
-        "artifactCount": 4,
-        "measuredRowCount": 30,
-        "largeFullStringRowCount": 24,
+        "artifactCount": 5,
+        "measuredRowCount": 35,
+        "largeFullStringRowCount": 29,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "deno-textdecoder-span-variants-corpus.json",
           "id": "shortAsciiSubarraySharedDecoder",
@@ -12424,7 +12487,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 312,
+    "largeJsFullRowCount": 327,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

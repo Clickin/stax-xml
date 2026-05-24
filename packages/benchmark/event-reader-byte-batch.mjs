@@ -17,6 +17,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     sizeGiB: 1,
     runs: 1,
     warmups: 0,
+    fixtureShape: 'diverse-cycle',
+    corpusFile: null,
+    corpusChunkKiB: 64,
     diverseCycleSize: 4096,
     batchSizes: [1, 16, 64],
     boundedRssMiB: 512,
@@ -46,6 +49,15 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--warmups':
         options.warmups = parseNonNegativeInteger(readValue(), name);
+        break;
+      case '--fixture-shape':
+        options.fixtureShape = parseFixtureShape(readValue(), name);
+        break;
+      case '--corpus-file':
+        options.corpusFile = resolve(process.cwd(), readValue());
+        break;
+      case '--corpus-chunk-kib':
+        options.corpusChunkKiB = parsePositiveInteger(readValue(), name);
         break;
       case '--diverse-cycle-size':
         options.diverseCycleSize = parsePositiveInteger(readValue(), name);
@@ -90,6 +102,11 @@ function parsePositiveNumber(value, flag) {
   return parsed;
 }
 
+function parseFixtureShape(value, flag) {
+  if (value === 'diverse-cycle' || value === 'corpus-cycle') return value;
+  throw new Error(`${flag} must be diverse-cycle or corpus-cycle.`);
+}
+
 function parsePositiveIntegerList(value, flag) {
   const parsed = value.split(',').map(entry => parsePositiveInteger(entry.trim(), flag));
   if (parsed.length === 0) throw new Error(`${flag} must contain at least one value.`);
@@ -126,15 +143,20 @@ async function main() {
       sizeGiB: options.sizeGiB,
       runs: options.runs,
       warmups: options.warmups,
+      fixtureShape: options.fixtureShape,
+      corpusFile: options.corpusFile,
+      corpusChunkKiB: options.corpusChunkKiB,
       diverseCycleSize: options.diverseCycleSize,
       batchSizes: options.batchSizes,
       boundedRssMiB: options.boundedRssMiB,
       runtimeLabel: options.runtimeLabel,
     },
     fixture: {
-      source: 'generated-diverse-cycle',
+      source: fixture.source,
       targetBytes: fixture.targetBytes,
       actualBytes: fixture.actualBytes,
+      sourceBytes: fixture.sourceBytes,
+      chunkBytes: fixture.chunkBytes,
       sizeGiB: fixture.actualBytes / GIB,
       rows: fixture.rows.length,
     },
@@ -238,7 +260,7 @@ function createBackpressuredReadableStream(fixture, counters) {
   return new ReadableStream({
     pull(controller) {
       counters.reads++;
-      if (emittedBytes >= fixture.targetBytes) {
+      if (emittedBytes >= fixture.actualBytes) {
         controller.close();
         return;
       }
@@ -254,9 +276,9 @@ function createBackpressuredReadableStream(fixture, counters) {
 async function* createAsyncByteBatchSource(fixture, batchSize, counters) {
   let emittedBytes = 0;
   let rowIndex = 0;
-  while (emittedBytes < fixture.targetBytes) {
+  while (emittedBytes < fixture.actualBytes) {
     const batch = [];
-    for (let index = 0; index < batchSize && emittedBytes < fixture.targetBytes; index++) {
+    for (let index = 0; index < batchSize && emittedBytes < fixture.actualBytes; index++) {
       const row = fixture.rows[rowIndex % fixture.rows.length];
       rowIndex++;
       emittedBytes += row.byteLength;
@@ -321,13 +343,39 @@ function mix(checksum, value) {
 
 function createFixture(options) {
   const targetBytes = Math.floor(options.sizeGiB * GIB);
-  const rows = Array.from({ length: options.diverseCycleSize }, (_, id) => encoder.encode(makeDiverseRow(id)));
+  const rows = options.fixtureShape === 'corpus-cycle'
+    ? createCorpusRows(options)
+    : Array.from({ length: options.diverseCycleSize }, (_, id) => encoder.encode(makeDiverseRow(id)));
   const cycleBytes = rows.reduce((sum, row) => sum + row.byteLength, 0);
-  let actualBytes = Math.floor(targetBytes / cycleBytes) * cycleBytes;
-  for (let index = 0; actualBytes < targetBytes; index++) {
-    actualBytes += rows[index % rows.length].byteLength;
+  let actualBytes;
+  if (options.fixtureShape === 'corpus-cycle') {
+    actualBytes = Math.ceil(targetBytes / cycleBytes) * cycleBytes;
+  } else {
+    actualBytes = Math.floor(targetBytes / cycleBytes) * cycleBytes;
+    for (let index = 0; actualBytes < targetBytes; index++) {
+      actualBytes += rows[index % rows.length].byteLength;
+    }
   }
-  return { rows, targetBytes, actualBytes };
+  return {
+    rows,
+    targetBytes,
+    actualBytes,
+    source: options.fixtureShape === 'corpus-cycle' ? 'corpus-cycle' : 'generated-diverse-cycle',
+    sourceBytes: cycleBytes,
+    chunkBytes: options.fixtureShape === 'corpus-cycle' ? options.corpusChunkKiB * 1024 : null,
+  };
+}
+
+function createCorpusRows(options) {
+  if (!options.corpusFile) throw new Error('--corpus-file is required for --fixture-shape=corpus-cycle.');
+  const corpus = readFileSync(options.corpusFile);
+  if (corpus.byteLength === 0) throw new Error(`Corpus file is empty: ${options.corpusFile}`);
+  const chunkBytes = options.corpusChunkKiB * 1024;
+  const rows = [];
+  for (let offset = 0; offset < corpus.byteLength; offset += chunkBytes) {
+    rows.push(new Uint8Array(corpus.subarray(offset, Math.min(offset + chunkBytes, corpus.byteLength))));
+  }
+  return rows;
 }
 
 function makeDiverseRow(id) {
@@ -408,7 +456,12 @@ function renderMarkdown(report) {
     `- Runs: ${report.options.runs}`,
     `- Warmups: ${report.options.warmups}`,
     `- Runtime: ${report.environment.runtimeLabel}`,
+    `- Fixture shape: ${report.options.fixtureShape}`,
+    report.options.corpusFile ? `- Corpus file: ${report.options.corpusFile}` : null,
+    report.options.fixtureShape === 'corpus-cycle' ? `- Corpus chunk KiB: ${report.options.corpusChunkKiB}` : null,
     `- Diverse cycle size: ${report.options.diverseCycleSize}`,
+    `- Fixture source bytes: ${formatMiB(report.fixture.sourceBytes)}`,
+    report.fixture.chunkBytes ? `- Fixture chunk bytes: ${report.fixture.chunkBytes}` : null,
     `- Batch sizes: ${report.options.batchSizes.join(', ')}`,
     `- Bounded RSS gate: ${formatMiB(report.options.boundedRssMiB * MIB)}`,
     '',
@@ -416,7 +469,7 @@ function renderMarkdown(report) {
     '',
     '| Variant | Family | Batch size | Throughput | Events | Checksum | Source reads | Source batches | Bounded | Max RSS |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |',
-  ];
+  ].filter(line => line !== null);
   for (const row of report.variants) {
     lines.push(`| ${row.id} | ${row.family} | ${row.batchSize} | ${row.mibPerSec.toFixed(2)} MiB/s | ${row.eventCount} | ${row.checksum} | ${row.sourceReads} | ${row.sourceBatches} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMiB(row.memory.maxRssBytes)} |`);
   }

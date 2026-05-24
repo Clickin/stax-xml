@@ -179,8 +179,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 90 primary release JSON artifacts and recognizes 557
-measured rows. It finds 312 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 93 primary release JSON artifacts and recognizes 572
+measured rows. It finds 327 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Node/V8 `rawFrameNameId` from
 `candidate-headroom-cross-process-books-corpus.json` at 180.08 MiB/s with
@@ -207,10 +207,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 90 primary release artifacts and recognizes 557
-measured rows. It records 66 benchmark artifacts, 11 source artifacts, 5
+The current audit scans 93 primary release artifacts and recognizes 572
+measured rows. It records 69 benchmark artifacts, 11 source artifacts, 5
 trace/profile artifacts, 12 allocation artifacts, and 1 environment artifact,
-312 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+327 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -575,8 +575,9 @@ the public asynchronous `EventReader` input boundary directly on a generated
 1.00 GiB `diverse-cycle` fixture. They compare demand-driven
 `ReadableStream<Uint8Array>` input against the new
 `AsyncIterable<Uint8Array[]>` input path, where each async yield carries an
-already grouped byte batch. Both artifacts preserve the public event-object
-full-string checksum contract: 46,195,346 events and checksum `-577171566`.
+already grouped byte batch. All generated artifacts preserve the public
+event-object full-string checksum contract: 46,195,346 events and checksum
+`-577171566`.
 On Node/V8, the ReadableStream rows reported 29.55 MiB/s at batch size 1,
 35.35 MiB/s at batch size 16, and 37.45 MiB/s at batch size 64; the async
 byte-batch rows reported 39.92 MiB/s at batch size 16 and 40.85 MiB/s at batch
@@ -589,6 +590,26 @@ On Deno/V8, the ReadableStream rows reported 20.17 MiB/s, 28.39 MiB/s, and
 This validates cross-runtime async-boundary headroom and preserves backpressure
 in the benchmark source, but it is not a 200 MiB/s counterexample for the
 public event-object contract.
+
+`packages/benchmark/results/release/event-reader-byte-batch-corpus.md`,
+`packages/benchmark/results/release/bun-event-reader-byte-batch-corpus.md`, and
+`packages/benchmark/results/release/deno-event-reader-byte-batch-corpus.md`
+repeat the same public `EventReader` source-boundary comparison on the 1.00 GiB
+`treebank_e.xml` corpus-cycle fixture. The corpus source is split into 64 KiB
+`Uint8Array` chunks and repeats only complete corpus cycles, so the
+`AsyncIterable<Uint8Array[]>` source still respects backpressure and avoids
+pre-materializing a whole 1 GiB ArrayBuffer or document. All corpus rows
+preserved 75,206,126 events and checksum `1421140645`. On Node/V8,
+`readableStreamBatch1` was fastest at `66.52 MiB/s`; async byte batches
+reported `44.50 MiB/s` at batch size 16 and `42.39 MiB/s` at batch size 64.
+On Bun/JSC, `readableStreamBatch1` reported `56.64 MiB/s`, while async byte
+batches reported `53.58 MiB/s` and `55.08 MiB/s`; only the batch-1
+ReadableStream row stayed under the 512 MiB RSS gate. On Deno/V8,
+`readableStreamBatch1` reported `56.70 MiB/s`, and async byte batches reported
+`42.62 MiB/s` and `38.90 MiB/s`; all Deno corpus rows stayed bounded. This
+turns the async-batch optimization into a scenario-dependent result: it helped
+the generated tiny-row fixture, but it did not reveal corpus-cycle headroom or a
+200 MiB/s counterexample.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
