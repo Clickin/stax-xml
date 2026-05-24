@@ -127,7 +127,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `attrNameStringOnly` at 293\.91 MiB\/s/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
   assert.match(markdown, /recognizes 642\s+measured rows/);
-  assert.match(markdown, /74 benchmark artifacts, 13 source artifacts, 7\s+trace\/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and\s+4 negative-result artifacts/);
+  assert.match(markdown, /74 benchmark artifacts, 14 source artifacts, 7\s+trace\/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and\s+4 negative-result artifacts/);
   assert.match(markdown, /three release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /98 Chrome\/V8 browser rows, 82 Firefox\/SpiderMonkey\s+browser rows, zero Safari\/WebKit browser rows, and 82 non-V8 browser benchmark\s+rows/);
   assert.match(markdown, /Bun\/JSC and\s+Bun-patched WebKit evidence is not Safari\/browser\s+JSC evidence/);
@@ -146,6 +146,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` averaged `92\.49 MiB\/s`/);
+  assert.match(markdown, /multi-chunk-batch-shape-audit\.md/);
+  assert.match(markdown, /single-buffer span\s+model/);
+  assert.match(markdown, /segmented-buffer abstraction/);
   assert.match(markdown, /does not\s+turn missing evidence\s+into\s+evidence that optimization\s+is impossible/);
   assert.match(markdown, /same semantic fields/);
   assert.match(markdown, /not the same object shape/);

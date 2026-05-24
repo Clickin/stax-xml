@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 105);
+  assert.equal(report.summary.scannedArtifactCount, 106);
   assert.equal(report.summary.measuredRowCount, 642);
   assert.equal(report.summary.largeJsFullRowCount, 393);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
@@ -63,6 +63,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-js-shell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('runtime-proof-gap-handoff.json'));
   assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-books-corpus-batch16.json'));
+  assert.ok(report.scannedArtifacts.includes('multi-chunk-batch-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('bun-event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch-corpus.json'));

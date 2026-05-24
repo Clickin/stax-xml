@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T22:47:56.080Z",
+  "generatedAt": "2026-05-24T22:55:47.093Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1574,6 +1574,18 @@
       "measuredRowCount": 3
     },
     {
+      "sourceArtifact": "multi-chunk-batch-shape-audit.json",
+      "objective": "multi-chunk-batch-shape-audit",
+      "contract": "sync-uint8array-byte-batch-buffer-shape",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "node-textdecoder-source-pin-audit.json",
       "objective": "node-textdecoder-source-pin-audit",
       "contract": "node-exact-revision-textdecoder-string-boundary-source-lines",
@@ -2028,12 +2040,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 105,
+    "scannedArtifactCount": 106,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 642,
     "benchmarkArtifactCount": 74,
-    "sourceArtifactCount": 13,
+    "sourceArtifactCount": 14,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,

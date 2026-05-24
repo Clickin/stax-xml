@@ -180,7 +180,7 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 105 primary release JSON artifacts and recognizes 642
+The current scan covers 106 primary release JSON artifacts and recognizes 642
 measured rows. It finds 393 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Node/V8 `rawFrameNameId` from
@@ -208,8 +208,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 105 primary release artifacts and recognizes 642
-measured rows. It records 74 benchmark artifacts, 13 source artifacts, 7
+The current audit scans 106 primary release artifacts and recognizes 642
+measured rows. It records 74 benchmark artifacts, 14 source artifacts, 7
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
 4 negative-result artifacts, 393 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
@@ -279,6 +279,17 @@ and bounded RSS, and none approached the 200 MiB/s counterexample threshold.
 This does not prove batching cannot be improved by changing the parser core to
 scan chunk arrays without concatenation, but it closes the current
 configuration as a counterexample candidate.
+
+`packages/benchmark/results/release/multi-chunk-batch-shape-audit.md` pins the
+source side of the same result. It checks both `IterableReader.ts` and
+`Uint8ArrayCurrentCursor.ts` and records three source facts: single-item
+batches without pending tail are direct `Uint8Array` views, multi-item batches
+are concatenated before scanning, and parser spans/materialization/raw-frame
+exposure are indexed into one `currentBuffer`. The audit classifies this as a
+`SCOPE_GUARD`: a true no-concat multi-chunk path is still a possible
+implementation direction, but it requires replacing the single-buffer span
+model or adding a segmented-buffer abstraction through scanning, span storage,
+decode, and raw-frame exposure.
 
 ## Current Evidence: Safari/WebKit Availability Audit
 
