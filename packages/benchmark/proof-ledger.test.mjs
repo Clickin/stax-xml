@@ -428,13 +428,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /validates cross-runtime async-boundary headroom and preserves backpressure/);
   assert.match(markdown, /repeat the same source-boundary comparison on the 1\.00 GiB `books\.xml`\s+corpus-cycle fixture/);
   assert.match(markdown, /corpus source is split into 64 KiB `Uint8Array`\s+chunks and repeats only complete corpus cycles/i);
-  assert.match(markdown, /All corpus rows preserved 57,096,514 events and checksum `45154785`/);
+  assert.match(markdown, /not an\s+OS, network, or browser fetch streaming proof/);
+  assert.match(markdown, /All corpus rows preserved\s+57,096,514 events and checksum `45154785`/);
   assert.match(markdown, /On Node\/V8, `readableStreamBatch16` reported `80\.41 MiB\/s`,\s+`asyncByteBatch16` reported `79\.89 MiB\/s`, and `syncIterableBatch16` reported\s+`128\.30 MiB\/s`/);
   assert.match(markdown, /On Bun\/JSC, the same rows reported\s+`59\.25 MiB\/s`, `59\.49 MiB\/s`, and `88\.79 MiB\/s`/);
   assert.match(markdown, /On\s+Deno\/V8, they reported `43\.31 MiB\/s`, `42\.37 MiB\/s`, and `68\.91 MiB\/s`/);
   assert.match(markdown, /best current 1 GiB corpus-cycle sync-iterable row is\s+Node\/V8 `syncIterableBatch1` at `132\.57 MiB\/s`/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
   assert.match(markdown, /three fresh processes per runtime on the\s+same 1\.00 GiB `books\.xml` corpus-cycle fixture/);
+  assert.match(markdown, /not proof that a JS runtime can synchronously\s+consume a live browser or OS stream without async handoff costs/);
   assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `74\.68 MiB\/s` with `2\.6%` spread/);
   assert.match(markdown, /Bun\/JSC\s+averaged `53\.38 MiB\/s` with `1\.4%` spread, and Deno\/V8 averaged `67\.76 MiB\/s`\s+with `0\.2%` spread/);
   assert.match(markdown, /firefox-spidermonkey-profiler-trace\.md/);

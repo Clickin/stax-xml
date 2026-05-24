@@ -65,6 +65,8 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   assert.equal(report.environment.javascriptEngine, 'V8');
   assert.match(report.environment.userAgent, /Chrome|Edg/);
   assert.equal(report.environment.gcStrategy, 'window.gc');
+  assert.match(report.sourceContract.parserInput, /Iterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.batchBackpressure, /per synchronous parser pull/);
   assert.equal(report.fixture.generated, true);
   assert.equal(report.fixture.shape, 'diverse-cycle');
   assert.equal(report.fixture.rowCycleSize, 16);
@@ -105,6 +107,8 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Browser Candidate Headroom Matrix/);
   assert.match(markdown, /browser `Uint8Array` batches/);
+  assert.match(markdown, /Source Contract/);
+  assert.match(markdown, /not a browser network\/file streaming proof/);
   assert.match(markdown, /Variant memory uses browser JS heap only/);
   assert.match(markdown, /Host Process Memory/);
   assert.match(markdown, /Full-string parity rows: ok/);
@@ -169,9 +173,12 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.equal(eventObjectFull.checksum, report.fullStringParity.checksum);
   assert.equal(report.hostProcessMemory.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
   assert.ok(report.findings.some(entry => entry.id === 'corpus-cycle-fixture'));
+  assert.ok(report.findings.some(entry => entry.id === 'browser-streaming-source-gap'));
+  assert.match(report.sourceContract.corpusScope, /arrayBuffer\(\)/);
 
   const markdown = readFileSync(corpusMdOut, 'utf8');
   assert.match(markdown, /corpus-backed browser `Uint8Array` batches/);
+  assert.match(markdown, /arrayBuffer\(\) as a seed/);
   assert.match(markdown, /Fixture source: corpus-file/);
   assert.match(markdown, /Source file: .*books\.xml/);
   assert.match(markdown, /corpus-cycle-fixture/);

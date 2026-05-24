@@ -599,7 +599,10 @@ repeat the same source-boundary comparison on the 1.00 GiB `books.xml`
 corpus-cycle fixture. The corpus source is split into 64 KiB `Uint8Array`
 chunks and repeats only complete corpus cycles, so the byte-batch sources still
 respect backpressure and avoid pre-materializing a whole 1 GiB ArrayBuffer or
-document. All corpus rows preserved 57,096,514 events and checksum `45154785`.
+document. The fixture source is still prepared before timing and replayed to the
+target byte count; these rows isolate parser/source API overhead and are not an
+OS, network, or browser fetch streaming proof. All corpus rows preserved
+57,096,514 events and checksum `45154785`.
 On Node/V8, `readableStreamBatch16` reported `80.41 MiB/s`,
 `asyncByteBatch16` reported `79.89 MiB/s`, and `syncIterableBatch16` reported
 `128.30 MiB/s` with `281.3 MiB` max RSS. On Bun/JSC, the same rows reported
@@ -626,6 +629,9 @@ then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`, and
 sync `Iterable<Uint8Array[]>` rows in three fresh processes per runtime on the
 same 1.00 GiB `books.xml` corpus-cycle fixture. All selected rows preserved
 57,096,514 events, checksum `45154785`, and bounded RSS under the 512 MiB gate.
+The same prepared-fixture limitation applies here: this is a demand-driven
+parser/source-boundary comparison, not proof that a JS runtime can synchronously
+consume a live browser or OS stream without async handoff costs.
 The fresh-process averages were lower than the single-run release artifacts:
 Node/V8 `syncIterableBatch16` averaged `74.68 MiB/s` with `2.6%` spread, Bun/JSC
 averaged `53.38 MiB/s` with `1.4%` spread, and Deno/V8 averaged `67.76 MiB/s`

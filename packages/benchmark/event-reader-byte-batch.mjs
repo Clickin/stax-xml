@@ -151,6 +151,12 @@ async function main() {
     objective: 'event-reader-byte-batch',
     contract: 'public-event-object-full-string-checksum',
     note: 'Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]> and Iterable<Uint8Array[]> sources that yield already-grouped byte batches. All sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.',
+    sourceContract: {
+      readableStream: 'ReadableStream<Uint8Array> enqueues one chunk from pull().',
+      asyncByteBatch: 'AsyncIterable<Uint8Array[]> yields one grouped batch only when next() is awaited.',
+      syncIterable: 'Iterable<Uint8Array[]> yields one grouped batch per synchronous parser pull.',
+      scope: 'The fixture rows are generated or corpus chunks prepared before timing and replayed to the target byte count. This isolates parser/source API overhead; it is not an OS, network, or browser fetch streaming proof.',
+    },
     environment: createEnvironment(options.runtimeLabel),
     options: {
       sizeGiB: options.sizeGiB,
@@ -524,6 +530,17 @@ function createFindings(report) {
       summary: 'All benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), the async byte-batch source yields one batch only when next() is awaited, and the sync iterable source yields one batch per parser pull.',
       evidence: report.variants.map(row => `${row.id}: sourceReads=${row.sourceReads}, sourceBatches=${row.sourceBatches}`),
     },
+    {
+      id: 'fixture-cycle-source-scope',
+      classification: 'SOURCE_FACT',
+      summary: 'The benchmark isolates parser/source API overhead by replaying prepared fixture rows, not by streaming the full target size from OS, network, or browser fetch.',
+      evidence: [
+        `fixtureSource=${report.fixture.source}`,
+        `fixtureRows=${report.fixture.rows}`,
+        `sourceBytes=${report.fixture.sourceBytes}`,
+        `actualBytes=${report.fixture.actualBytes}`,
+      ],
+    },
     readable && asyncBatch
       ? {
           id: 'async-byte-batch-headroom',
@@ -571,6 +588,13 @@ function renderMarkdown(report) {
     report.fixture.chunkBytes ? `- Fixture chunk bytes: ${report.fixture.chunkBytes}` : null,
     `- Batch sizes: ${report.options.batchSizes.join(', ')}`,
     `- Bounded RSS gate: ${formatMiB(report.options.boundedRssMiB * MIB)}`,
+    '',
+    '## Source Contract',
+    '',
+    `- ReadableStream: ${report.sourceContract.readableStream}`,
+    `- Async byte batch: ${report.sourceContract.asyncByteBatch}`,
+    `- Sync iterable: ${report.sourceContract.syncIterable}`,
+    `- Scope: ${report.sourceContract.scope}`,
     '',
     '## Results',
     '',

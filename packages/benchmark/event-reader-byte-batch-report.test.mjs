@@ -47,6 +47,8 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'event-reader-byte-batch');
   assert.equal(report.contract, 'public-event-object-full-string-checksum');
+  assert.match(report.sourceContract.syncIterable, /Iterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.scope, /not an OS, network, or browser fetch streaming proof/);
   assert.equal(report.options.runtimeLabel, 'Node/V8 test');
   assert.equal(report.environment.runtimeLabel, 'Node/V8 test');
   assert.deepEqual(report.options.batchSizes, [1, 4]);
@@ -74,6 +76,7 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.ok(asyncBatch.sourceBatches < asyncBatch.sourceReads);
   assert.ok(syncBatch.sourceBatches < syncBatch.sourceReads);
   assert.ok(report.findings.some(row => row.id === 'backpressure-preserved'));
+  assert.ok(report.findings.some(row => row.id === 'fixture-cycle-source-scope'));
   assert.ok(report.findings.some(row => row.id === 'async-byte-batch-headroom'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -81,6 +84,8 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.match(markdown, /ReadableStream/);
   assert.match(markdown, /AsyncIterable<Uint8Array\[\]>/);
   assert.match(markdown, /Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Source Contract/);
+  assert.match(markdown, /not an OS, network, or browser fetch streaming proof/);
   assert.match(markdown, /Runtime: Node\/V8 test/);
   assert.match(markdown, /asyncByteBatch4/);
   assert.match(markdown, /syncIterableBatch4/);
