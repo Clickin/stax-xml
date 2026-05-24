@@ -179,7 +179,7 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 79 primary release JSON artifacts and recognizes 508
+The current scan covers 80 primary release JSON artifacts and recognizes 508
 measured rows. It finds 277 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
@@ -207,8 +207,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 79 primary release artifacts and recognizes 508
-measured rows. It records 59 benchmark artifacts, 9 source artifacts, 3
+The current audit scans 80 primary release artifacts and recognizes 508
+measured rows. It records 59 benchmark artifacts, 10 source artifacts, 3
 trace/profile artifacts, 11 allocation artifacts, 277 JavaScript 1 GiB+
 full-string rows, and three release corpus seeds: `books.xml`, `large.xml`, and
 `treebank_e.xml`.
@@ -217,14 +217,17 @@ The audit keeps the open proof obligations concrete. Current browser benchmark
 coverage now includes 92 Chrome/V8 browser rows, 78 Firefox/SpiderMonkey
 browser rows, zero Safari/WebKit browser rows, and 78 non-V8 browser benchmark
 rows.
-Firefox benchmark rows and exact tested-build TextDecoder source pinning are
-present, but Firefox codegen/allocation evidence remains a separate gap. Bun/JSC and
+Firefox benchmark rows, exact tested-build TextDecoder source pinning, and a
+tested-build page memory API boundary pin are present, but Firefox
+codegen/allocation evidence remains a separate gap. Bun/JSC and
 Bun-patched WebKit evidence is not Safari/browser JSC evidence. Codegen remains
 partial because Node/V8 trace evidence exists, but Bun/JSC has profiler/source
 evidence rather than codegen/IR evidence and browser codegen trace evidence is
 absent. Allocation evidence remains partial because current artifacts cover
 Node/V8, Bun/JSC coarse memory endpoints, Chrome/V8 browser, Woodstox, and
-quick-xml styles, but non-V8 browser allocation evidence is missing.
+quick-xml styles, but non-V8 browser allocation evidence is missing. The
+Firefox page memory API boundary pin explains why current Firefox rows remain
+host process-tree memory evidence; it is not a SpiderMonkey allocation profile.
 
 The audit reports 3 open or partial obligations after scanning the current
 release artifacts: Safari/browser JSC rows, codegen traces, and allocation
@@ -1441,6 +1444,28 @@ the installed Firefox build used for the browser row. It still does not inspect
 SpiderMonkey generated code, measure heap/allocation behavior, or prove a
 runtime ceiling. Stronger Firefox claims still need profiler/codegen/allocation
 evidence for that browser build.
+
+## Current Evidence: Firefox/SpiderMonkey Memory API Source Pin Audit
+
+`packages/benchmark/results/release/firefox-spidermonkey-memory-api-source-pin-audit.md`
+is a `SOURCE_FACT` for the tested Firefox/SpiderMonkey page memory API boundary.
+It uses the same built-in Firefox WebDriver BiDi endpoint family as the Firefox
+browser benchmark rows and records the installed Firefox 143.0.1 build ID
+`20250918214338` at source stamp
+`644b498d517849c3fb95679e2017e965fe62b77a`.
+
+The page-context probe records `performance.memory: undefined`,
+`performance.measureUserAgentSpecificMemory: undefined`, `globalThis.gc:
+undefined`, `SpecialPowers: undefined`, `ChromeUtils: undefined`, `Cu:
+undefined`, `Components: object`, `Components keys: interfaces`,
+`Components.classes: undefined`, and
+`Components.interfaces.nsIMemoryReporterManager: undefined`.
+
+This audit explains the missing row-level JS heap proof; it does not replace a
+SpiderMonkey allocation profile. Current Firefox benchmark memory therefore
+remains host process-tree evidence unless a separate privileged/profiler path is
+added, and Firefox/SpiderMonkey rows must stay classified separately from
+bounded JS heap counterexamples.
 
 ## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit
 

@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-05-24T10:31:15.304Z",
+  "objective": "firefox-spidermonkey-memory-api-source-pin-audit",
+  "contract": "firefox-bidi-page-memory-api-boundary",
+  "note": "Runtime/source-boundary audit for Firefox/SpiderMonkey page memory and allocation APIs used by the browser benchmark rows. This is negative capability evidence, not an allocation profile and not a bounded-memory counterexample.",
+  "runtime": {
+    "runtimeName": "browser",
+    "browserName": "Firefox",
+    "javascriptEngine": "SpiderMonkey",
+    "executable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "platform": "Win32",
+    "application": {
+      "version": "143.0.1",
+      "buildId": "20250918214338",
+      "sourceRepository": "https://hg.mozilla.org/releases/mozilla-release",
+      "sourceStamp": "644b498d517849c3fb95679e2017e965fe62b77a"
+    }
+  },
+  "automation": {
+    "protocol": "WebDriver BiDi",
+    "endpoint": "ws://127.0.0.1:<port>/session",
+    "note": "Probe uses the same built-in Firefox BiDi endpoint as the Firefox benchmark rows."
+  },
+  "probes": {
+    "page": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+      "platform": "Win32",
+      "crossOriginIsolated": false,
+      "pageApis": {
+        "performanceMemory": "undefined",
+        "measureUserAgentSpecificMemory": "undefined",
+        "gc": "undefined",
+        "SpecialPowers": "undefined",
+        "ChromeUtils": "undefined",
+        "Cu": "undefined",
+        "Components": "object"
+      },
+      "components": {
+        "type": "object",
+        "keys": [
+          "interfaces"
+        ],
+        "classesType": "undefined",
+        "interfacesType": "object",
+        "memoryReporterManager": "undefined",
+        "nsIMemoryReporterManager": "undefined"
+      }
+    },
+    "browserStderrTail": "*** You are running in headless mode.\r\nDynamically enable window occlusion 0\r\nWebDriver BiDi listening on ws://127.0.0.1:54929\r\n"
+  },
+  "findings": [
+    {
+      "id": "firefox-page-heap-api-unavailable",
+      "classification": "SOURCE_FACT",
+      "summary": "The tested Firefox page context does not expose Chromium performance.memory or measureUserAgentSpecificMemory.",
+      "evidence": [
+        "performance.memory=undefined",
+        "performance.measureUserAgentSpecificMemory=undefined"
+      ]
+    },
+    {
+      "id": "firefox-privileged-memory-reporter-unavailable-to-page-bidi",
+      "classification": "SOURCE_FACT",
+      "summary": "The tested BiDi page context does not expose privileged memory reporter globals needed for a JS heap or allocation profile.",
+      "evidence": [
+        "SpecialPowers=undefined",
+        "ChromeUtils=undefined",
+        "Cu=undefined",
+        "Components.classes=undefined",
+        "Components.interfaces.nsIMemoryReporterManager=undefined"
+      ]
+    },
+    {
+      "id": "host-counter-boundary",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "Current Firefox benchmark memory remains host process-tree evidence unless a separate privileged/profiler path is added.",
+      "evidence": [
+        "This audit explains the missing row-level JS heap proof; it does not replace a SpiderMonkey allocation profile.",
+        "Firefox/SpiderMonkey benchmark rows must stay classified separately from bounded JS heap counterexamples."
+      ]
+    }
+  ]
+}

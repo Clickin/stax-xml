@@ -32,12 +32,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 79);
+  assert.equal(report.summary.scannedArtifactCount, 80);
   assert.equal(report.summary.measuredRowCount, 508);
   assert.equal(report.summary.largeJsFullRowCount, 277);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 3);
   assert.equal(report.summary.benchmarkArtifactCount, 59);
+  assert.equal(report.summary.sourceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 11);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
@@ -56,6 +57,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.sourcePins.some(pin =>
     pin.runtimeId === 'firefox-spidermonkey-browser'
     && pin.sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json'
+  ));
+  assert.ok(report.coverage.sourcePins.some(pin =>
+    pin.runtimeId === 'firefox-spidermonkey-browser'
+    && pin.sourceArtifact === 'firefox-spidermonkey-memory-api-source-pin-audit.json'
+    && pin.kind === 'Firefox page memory API boundary'
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'bun-jsc'

@@ -418,6 +418,14 @@ function classifySourcePins(sourceArtifact, root) {
       limitation: 'source pin only; benchmark, codegen, and allocation evidence remain separate',
     }];
   }
+  if (sourceArtifact === 'firefox-spidermonkey-memory-api-source-pin-audit.json') {
+    return [{
+      runtimeId: 'firefox-spidermonkey-browser',
+      kind: 'Firefox page memory API boundary',
+      revision: root.runtime?.application?.sourceStamp ?? null,
+      limitation: 'negative page API capability evidence; not an allocation profile',
+    }];
+  }
   if (sourceArtifact === 'bun-webkit-textdecoder-source-pin-audit.json' || sourceArtifact === 'bun-jsc-source-pin-audit.json') {
     return [{
       runtimeId: 'bun-jsc',
