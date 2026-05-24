@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T01:36:39.751Z",
+  "generatedAt": "2026-05-24T02:51:10.908Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -10,6 +10,7 @@
       "candidate-headroom-large.json",
       "bun-candidate-headroom-large.json",
       "browser-candidate-headroom-large.json",
+      "firefox-bidi-candidate-headroom.json",
       "candidate-headroom-corpus.json",
       "bun-candidate-headroom-corpus.json",
       "browser-candidate-headroom-corpus.json",
@@ -22,8 +23,8 @@
     ]
   },
   "summary": {
-    "rowCount": 28,
-    "jsLargeFullRowCount": 24,
+    "rowCount": 31,
+    "jsLargeFullRowCount": 27,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "corpus-1gib-candidate",
@@ -81,20 +82,16 @@
         "group": "generated-1gib-candidate",
         "fastest": {
           "group": "generated-1gib-candidate",
-          "runtimeId": "bun-jsc",
-          "runtimeLabel": "Bun/JSC",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
           "caseId": "rawFrameNameId",
-          "mibPerSec": 57.99,
-          "boundedMemory": true,
+          "mibPerSec": 58.74,
+          "boundedMemory": false,
           "memory": {
-            "primaryKind": "process-rss",
-            "maxMiB": 192.98,
-            "deltaMiB": -19.54,
-            "maxHeapUsedMiB": 45.72,
-            "maxExternalMiB": 9.01,
-            "maxArrayBuffersMiB": 8.18
+            "primaryKind": "browser-js-heap-unavailable",
+            "note": "this browser did not expose performance.memory heap counters to page JavaScript"
           },
-          "sourceArtifact": "bun-candidate-headroom-large.json"
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json"
         }
       },
       {
@@ -145,6 +142,7 @@
     },
     "memoryMetricKinds": [
       "browser-js-heap",
+      "browser-js-heap-unavailable",
       "not-recorded",
       "process-rss"
     ],
@@ -683,6 +681,129 @@
         "attributePairs": 28756798
       },
       "woodstoxRatio": 0.13,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+      "runtimeId": "firefox-spidermonkey-browser",
+      "runtimeLabel": "Firefox/SpiderMonkey browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": "143.0",
+      "caseId": "stringFull",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 54.71,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "browser-js-heap-unavailable",
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.16,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+      "runtimeId": "firefox-spidermonkey-browser",
+      "runtimeLabel": "Firefox/SpiderMonkey browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": "143.0",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 44,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "browser-js-heap-unavailable",
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 45189256,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.13,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "generated-1gib-candidate",
+      "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+      "runtimeId": "firefox-spidermonkey-browser",
+      "runtimeLabel": "Firefox/SpiderMonkey browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": "143.0",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038,
+        "batchSize": 16,
+        "rowCycleSize": 4096
+      },
+      "fullStringParity": true,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "mibPerSec": 58.74,
+      "boundedMemory": false,
+      "memory": {
+        "primaryKind": "browser-js-heap-unavailable",
+        "note": "this browser did not expose performance.memory heap counters to page JavaScript"
+      },
+      "materializationCounters": {
+        "stringFieldReads": 102702850,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 41087307,
+        "attributePairs": 28756798
+      },
+      "woodstoxRatio": 0.18,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -1452,6 +1573,7 @@
       "summary": "Rows are grouped by semantic checksum contract, while memory counters remain runtime-specific.",
       "evidence": [
         "browser-js-heap",
+        "browser-js-heap-unavailable",
         "not-recorded",
         "process-rss"
       ]
@@ -1461,7 +1583,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=24",
+        "jsLargeFullRows=27",
         "counterexamples=0"
       ]
     },

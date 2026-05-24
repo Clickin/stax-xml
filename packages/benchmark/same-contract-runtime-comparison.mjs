@@ -37,6 +37,14 @@ const variantArtifacts = [
     cases: candidateCases,
   },
   {
+    group: 'generated-1gib-candidate',
+    file: 'firefox-bidi-candidate-headroom.json',
+    runtimeId: 'firefox-spidermonkey-browser',
+    runtimeLabel: 'Firefox/SpiderMonkey browser',
+    jsRuntime: true,
+    cases: candidateCases,
+  },
+  {
     group: 'corpus-1gib-candidate',
     file: 'candidate-headroom-corpus.json',
     runtimeId: 'node-v8',
@@ -451,8 +459,9 @@ function renderMarkdown(report) {
     '## Limits',
     '',
     '- Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.',
+    '- Firefox browser rows currently lack page-exposed JS heap counters; their Windows host process-tree memory is report-level evidence, not row-level bounded-memory proof.',
     '- Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.',
-    '- This report aggregates existing artifacts only. It is not a Firefox/Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.',
+    '- This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.',
   );
 
   return `${lines.join('\n')}\n`;
@@ -475,6 +484,12 @@ function extractMemory(row, report) {
   const memory = row.memory ?? {};
   const host = report.hostProcessMemory ?? null;
   if (memory.scope === 'browser-js-heap' || memory.maxJsHeapUsedBytes !== undefined) {
+    if (typeof memory.maxJsHeapUsedBytes !== 'number') {
+      return {
+        primaryKind: 'browser-js-heap-unavailable',
+        note: 'this browser did not expose performance.memory heap counters to page JavaScript',
+      };
+    }
     return {
       primaryKind: 'browser-js-heap',
       maxMiB: round(bytesToMiB(memory.maxJsHeapUsedBytes)),

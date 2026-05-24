@@ -86,6 +86,7 @@ const requiredArtifactMentions = [
   'candidate-headroom-large.md',
   'bun-candidate-headroom-large.md',
   'browser-candidate-headroom-large.md',
+  'firefox-bidi-candidate-headroom.md',
   'textdecoder-span-variants.md',
   'bun-textdecoder-span-variants.md',
   'browser-textdecoder-span-variants.md',
@@ -96,11 +97,6 @@ const requiredArtifactMentions = [
 ];
 
 const openObligationDisclosures = [
-  {
-    id: 'firefox-browser-rows-open',
-    pattern: /Firefox\/SpiderMonkey rows|Firefox benchmark rows/i,
-    description: 'Firefox browser benchmark rows are still required before making Firefox runtime claims.',
-  },
   {
     id: 'safari-jsc-source-and-browser-rows-open',
     pattern: /Safari\/JSC|Safari\/browser/i,
@@ -115,11 +111,6 @@ const openObligationDisclosures = [
     id: 'allocation-profiles-open',
     pattern: /allocation profiles|allocation evidence|heap\/allocation/i,
     description: 'Allocation/heap evidence remains required for runtimes without adequate traces.',
-  },
-  {
-    id: 'non-v8-browser-coverage-open',
-    pattern: /non-V8 browser/i,
-    description: 'Non-V8 browser benchmark and profiling coverage remains open.',
   },
   {
     id: 'independent-corpus-suite-open',
@@ -416,7 +407,7 @@ function renderMarkdown(report) {
     '',
     '## Interpretation',
     '',
-    'A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.',
+    'A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Safari/browser JSC rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.',
   );
 
   return `${lines.join('\n')}\n`;

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T02:07:31.743Z",
+  "generatedAt": "2026-05-24T02:51:31.009Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -676,6 +676,27 @@
       "measuredRowCount": 4
     },
     {
+      "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+      "objective": "firefox-bidi-candidate-headroom",
+      "contract": "browser-byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073742038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 3
+    },
+    {
       "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json",
       "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
       "contract": "gecko-exact-revision-textdecoder-source-lines",
@@ -1153,22 +1174,23 @@
     "latest-summary.json",
     "runtime-counterexample-scan.json",
     "runtime-limit-proof-obligation-gate.json",
+    "runtime-proof-coverage-audit.json",
     "same-contract-runtime-comparison.json"
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 59,
-    "ignoredArtifactCount": 4,
+    "scannedArtifactCount": 60,
+    "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 342,
-    "benchmarkArtifactCount": 39,
+    "measuredRowCount": 345,
+    "benchmarkArtifactCount": 40,
     "sourceArtifactCount": 9,
     "traceArtifactCount": 3,
     "allocationArtifactCount": 9,
-    "largeJsFullRowCount": 141,
+    "largeJsFullRowCount": 144,
     "runtimeCount": 8,
     "corpusSeedCount": 1,
-    "openObligationCount": 6,
+    "openObligationCount": 4,
     "conclusionAllowed": false
   },
   "coverage": {
@@ -1348,10 +1370,26 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "runtimeLabel": "Firefox/SpiderMonkey browser",
-        "artifactCount": 1,
-        "measuredRowCount": 0,
-        "largeFullStringRowCount": 0,
-        "fastestLargeFullStringRow": null,
+        "artifactCount": 2,
+        "measuredRowCount": 3,
+        "largeFullStringRowCount": 3,
+        "fastestLargeFullStringRow": {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 58.74,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
         "sourcePins": [
           {
             "runtimeId": "firefox-spidermonkey-browser",
@@ -2653,10 +2691,165 @@
           "eventCount": 706158,
           "checksum": 1039217453,
           "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "stringFull",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 54.71,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "eventObjectFull",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 44,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 58.74,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
         }
       ],
-      "nonV8BenchmarkRows": [],
-      "firefoxBenchmarkRows": [],
+      "nonV8BenchmarkRows": [
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "stringFull",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 54.71,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "eventObjectFull",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 44,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 58.74,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        }
+      ],
+      "firefoxBenchmarkRows": [
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "stringFull",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 54.71,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "eventObjectFull",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 44,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-event-object-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-bidi-candidate-headroom.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": 1,
+          "fixtureSource": "generated",
+          "fixtureShape": "diverse-cycle",
+          "corpusSeed": null,
+          "mibPerSec": 58.74,
+          "fullStringParity": true,
+          "boundedMemory": false,
+          "memoryKind": "browser-js-heap",
+          "eventCount": 45189256,
+          "checksum": 1421012805,
+          "contractScope": "full-string-materialization"
+        }
+      ],
       "safariBenchmarkRows": [],
       "chromeBenchmarkRows": [
         {
@@ -4672,7 +4865,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 141,
+    "largeJsFullRowCount": 144,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -5200,9 +5393,9 @@
   "obligations": [
     {
       "id": "firefox-browser-rows-open",
-      "status": "open",
-      "evidence": "Firefox/SpiderMonkey source pins exist only as source facts; no Firefox browser benchmark rows were found.",
-      "nextExperiment": "Wire a Firefox-capable browser harness row under the same full-string byte-batch contract."
+      "status": "covered",
+      "evidence": "3 Firefox/SpiderMonkey browser benchmark rows found.",
+      "nextExperiment": "Broaden Firefox coverage with corpus/projection rows plus SpiderMonkey codegen and allocation evidence."
     },
     {
       "id": "safari-jsc-source-and-browser-rows-open",
@@ -5224,9 +5417,9 @@
     },
     {
       "id": "non-v8-browser-coverage-open",
-      "status": "open",
-      "evidence": "Current browser benchmark rows are Chrome/V8 only; Firefox/SpiderMonkey and Safari/WebKit rows are absent.",
-      "nextExperiment": "Run same-contract 1 GiB+ browser rows on at least one non-V8 browser engine."
+      "status": "covered",
+      "evidence": "3 non-V8 browser benchmark rows found.",
+      "nextExperiment": "Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence."
     },
     {
       "id": "independent-corpus-suite-open",
@@ -5249,8 +5442,8 @@
     },
     {
       "id": "non-v8-browser-gap-remains",
-      "status": "OPEN",
-      "summary": "No Firefox/SpiderMonkey or Safari/WebKit browser benchmark rows are present in current release artifacts."
+      "status": "COVERED",
+      "summary": "At least one non-V8 browser benchmark row is present."
     },
     {
       "id": "corpus-suite-gap-remains",
@@ -5260,13 +5453,11 @@
     {
       "id": "open-obligations-ranked",
       "status": "OPEN",
-      "summary": "6 proof obligation(s) remain open or partial after scanning current release artifacts.",
+      "summary": "4 proof obligation(s) remain open or partial after scanning current release artifacts.",
       "evidence": [
-        "firefox-browser-rows-open",
         "safari-jsc-source-and-browser-rows-open",
         "codegen-traces-open",
         "allocation-profiles-open",
-        "non-v8-browser-coverage-open",
         "independent-corpus-suite-open"
       ]
     }

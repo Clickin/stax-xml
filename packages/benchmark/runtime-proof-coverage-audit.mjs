@@ -320,7 +320,9 @@ function createObligationRows(coverage) {
       evidence: hasFirefoxRows
         ? `${coverage.browser.firefoxBenchmarkRows.length} Firefox/SpiderMonkey browser benchmark rows found.`
         : 'Firefox/SpiderMonkey source pins exist only as source facts; no Firefox browser benchmark rows were found.',
-      nextExperiment: 'Wire a Firefox-capable browser harness row under the same full-string byte-batch contract.',
+      nextExperiment: hasFirefoxRows
+        ? 'Broaden Firefox coverage with corpus/projection rows plus SpiderMonkey codegen and allocation evidence.'
+        : 'Wire a Firefox-capable browser harness row under the same full-string byte-batch contract.',
     },
     {
       id: 'safari-jsc-source-and-browser-rows-open',
@@ -356,7 +358,9 @@ function createObligationRows(coverage) {
       evidence: hasNonV8BrowserRows
         ? `${coverage.browser.nonV8BenchmarkRows.length} non-V8 browser benchmark rows found.`
         : 'Current browser benchmark rows are Chrome/V8 only; Firefox/SpiderMonkey and Safari/WebKit rows are absent.',
-      nextExperiment: 'Run same-contract 1 GiB+ browser rows on at least one non-V8 browser engine.',
+      nextExperiment: hasNonV8BrowserRows
+        ? 'Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence.'
+        : 'Run same-contract 1 GiB+ browser rows on at least one non-V8 browser engine.',
     },
     {
       id: 'independent-corpus-suite-open',
@@ -633,7 +637,9 @@ function renderMarkdown(report) {
     `- Safari/WebKit browser benchmark rows: ${report.coverage.browser.safariBenchmarkRows.length}`,
     `- Non-V8 browser benchmark rows: ${report.coverage.browser.nonV8BenchmarkRows.length}`,
     '',
-    'Firefox source pin without benchmark rows and Safari/browser JSC not covered by Bun/JSC remain explicit gaps.',
+    report.coverage.browser.firefoxBenchmarkRows.length > 0
+      ? 'Firefox benchmark rows are now present, but Firefox codegen/allocation evidence and exact tested-build source pinning remain separate gaps. Safari/browser JSC is still not covered by Bun/JSC.'
+      : 'Firefox source pin without benchmark rows and Safari/browser JSC not covered by Bun/JSC remain explicit gaps.',
     '',
     '## Findings',
     '',

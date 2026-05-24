@@ -7,7 +7,8 @@ import { spawn, spawnSync } from 'node:child_process';
 
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const repoRoot = resolve(__dirname, '..', '..');
 const packageVersion = JSON.parse(readFileSync(resolve(__dirname, '../stax-xml/package.json'), 'utf8')).version;
 const externalBaselinePath = resolve(__dirname, 'results', 'release', 'external-baseline.json');
@@ -697,7 +698,7 @@ function createOmittedRows(fixture) {
   }
   rows.push({
     id: 'processRss',
-    reason: 'Browsers do not expose a portable process RSS metric to page JavaScript; this report records variant JS heap via Chromium performance.memory and separate Windows process-tree counters when available.',
+    reason: 'Browsers do not expose a portable process RSS metric to page JavaScript; this report records page-exposed JS heap counters when available and separate Windows process-tree counters when available.',
   });
   return rows;
 }
@@ -865,7 +866,7 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Memory');
   lines.push('');
-  lines.push('Memory uses Chromium `performance.memory` before and after each measured run; max values are the maximum observed run endpoints.');
+  lines.push('Memory uses page-exposed browser JS heap counters before and after each measured run when the engine provides them; max values are the maximum observed run endpoints.');
   lines.push('');
   lines.push('| Variant | Avg used heap delta | Max used heap | Max total heap | JS heap limit |');
   lines.push('| --- | ---: | ---: | ---: | ---: |');
@@ -1380,7 +1381,7 @@ function createRuntimeEnvironment() {
   const browserVersion = parseBrowserVersion(userAgent);
   return {
     runtimeName: 'browser',
-    javascriptEngine: 'V8',
+    javascriptEngine: inferJavaScriptEngine(userAgent),
     browserName: browserVersion.name,
     browserVersion: browserVersion.version,
     userAgent,
@@ -1393,9 +1394,20 @@ function createRuntimeEnvironment() {
 function parseBrowserVersion(userAgent) {
   const edge = userAgent.match(/Edg\\/([^\\s]+)/);
   if (edge) return { name: 'Edge', version: edge[1] };
+  const firefox = userAgent.match(/Firefox\\/([^\\s]+)/);
+  if (firefox) return { name: 'Firefox', version: firefox[1] };
+  const safari = userAgent.match(/Version\\/([^\\s]+).*Safari\\//);
+  if (safari && !/Chrome|Chromium|Edg\\//.test(userAgent)) return { name: 'Safari', version: safari[1] };
   const chrome = userAgent.match(/Chrome\\/([^\\s]+)/);
   if (chrome) return { name: 'Chrome', version: chrome[1] };
   return { name: 'unknown', version: 'unknown' };
+}
+
+function inferJavaScriptEngine(userAgent) {
+  if (/Firefox\\//.test(userAgent)) return 'SpiderMonkey';
+  if (/Safari\\//.test(userAgent) && !/Chrome|Chromium|Edg\\//.test(userAgent)) return 'JavaScriptCore';
+  if (/Chrome|Chromium|Edg\\//.test(userAgent)) return 'V8';
+  return 'unknown';
 }
 
 function forceGc() {
@@ -2123,4 +2135,17 @@ function isFiniteNumber(value) {
 `;
 }
 
-await main();
+export {
+  collectHostProcessMemorySample,
+  createReport,
+  findBrowserExecutable,
+  printSummary,
+  renderMarkdown,
+  reservePort,
+  startBenchmarkServer,
+  summarizeHostProcessMemory,
+};
+
+if (process.argv[1] && resolve(process.argv[1]) === __filename) {
+  await main();
+}

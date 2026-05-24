@@ -46,8 +46,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.summary.presentArtifactMentions, report.summary.requiredArtifactMentions);
   assert.equal(report.summary.disclosedOpenObligations, report.summary.requiredOpenObligations);
   assert.equal(report.summary.satisfiedProofRules, report.summary.requiredProofRules);
-  assert.ok(report.openObligations.some(item => item.id === 'firefox-browser-rows-open' && item.disclosed));
+  assert.ok(report.openObligations.some(item => item.id === 'safari-jsc-source-and-browser-rows-open' && item.disclosed));
   assert.ok(report.artifactMentions.some(item => item.file === 'firefox-spidermonkey-textdecoder-source-pin-audit.md' && item.present));
+  assert.ok(report.artifactMentions.some(item => item.file === 'firefox-bidi-candidate-headroom.md' && item.present));
   assert.ok(report.proofRules.some(item => item.id === 'target-contract-not-object-shape' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'lazy-getters-reopen-burden' && item.satisfied));
 
@@ -56,7 +57,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Gate pass: yes/);
   assert.match(markdown, /Conclusion allowed: no/);
   assert.match(markdown, /runtime-limit-remains-hypothesis/);
-  assert.match(markdown, /firefox-browser-rows-open/);
+  assert.match(markdown, /safari-jsc-source-and-browser-rows-open/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);
@@ -126,7 +127,7 @@ function createLedgerFixture(runtimeStatus) {
     '',
     '| ID | Claim | Status | Current evidence | Missing proof or counterexample search |',
     '| --- | --- | --- | --- | --- |',
-    `| \`CLAIM-JS-RUNTIME-LIMIT-200MIB\` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory. | ${runtimeStatus} | Current rows are slow. | Must expand Firefox/SpiderMonkey rows, Safari/JSC, non-V8 browser rows, codegen traces, allocation profiles, and additional independent corpus fixtures. |`,
+    `| \`CLAIM-JS-RUNTIME-LIMIT-200MIB\` | A JS-runtime StAX reader cannot exceed 200 MiB/s with acceptable memory. | ${runtimeStatus} | Current rows are slow. | Must expand Safari/browser JSC rows, codegen traces, allocation profiles, and additional independent corpus fixtures. |`,
     '| `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | materialization-contract-audit.md | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |',
     '| `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | quick-xml-shape-audit.md | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |',
     '| `CLAIM-LAZY-GETTERS` | Lazy event getters are not a candidate. | `NEGATIVE_RESULT` | materialization-contract-audit.md | This rejection can be revisited only with a benchmark that proves full-string or real StAX consumer improvement, bounded memory, and no cache-shape regression. |',
@@ -135,11 +136,11 @@ function createLedgerFixture(runtimeStatus) {
     '| `CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY` | Chrome/Blink TextDecoder source boundary. | `SOURCE_FACT` | chrome-blink-textdecoder-source-pin-audit.md | Not codegen. |',
     '| `CLAIM-BUN-WEBKIT-TEXTDECODER-SOURCE-BOUNDARY` | Bun WebKit source boundary. | `SOURCE_FACT` | bun-webkit-textdecoder-source-pin-audit.md | Not dispatch proof. |',
     '| `CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY` | Bun dispatch source boundary. | `SOURCE_FACT` + `COUNTEREXAMPLE` | bun-textdecoder-dispatch-source-pin-audit.md | Not throughput. |',
-    '| `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | Firefox/Gecko source boundary. | `SOURCE_FACT` | firefox-spidermonkey-textdecoder-source-pin-audit.md | Not Firefox benchmark rows, not heap/allocation, not generated-code evidence. |',
+    '| `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | Firefox/Gecko source boundary. | `SOURCE_FACT` | firefox-spidermonkey-textdecoder-source-pin-audit.md | Not exact tested-build source pin, not heap/allocation, not generated-code evidence. |',
     '',
-    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md.',
+    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, firefox-bidi-candidate-headroom.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md.',
     '',
-    'Open work: Firefox benchmark rows, Safari/browser JSC source pins, non-V8 browser allocation evidence, codegen traces, and a broad corpus suite remain open.',
+    'Open work: Safari/browser JSC source pins and rows, Firefox/SpiderMonkey codegen/allocation evidence, broader allocation evidence, codegen traces, and a broad corpus suite remain open.',
     '',
   ].join('\n');
 }

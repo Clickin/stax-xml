@@ -32,13 +32,14 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.ok(report.summary.jsLargeFullRowCount >= 20);
+  assert.equal(report.summary.rowCount, 31);
+  assert.equal(report.summary.jsLargeFullRowCount, 27);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.caseId, 'eventObjectFull');
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory, true);
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
   assert.ok(report.summary.externalBaseline16MiB.woodstoxMiBPerSec > 300);
   assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
-  assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'not-recorded', 'process-rss']);
+  assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'not-recorded', 'process-rss']);
 
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'external-baseline.json'
@@ -50,6 +51,14 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.caseId === 'eventObjectFull'
     && row.memory.primaryKind === 'browser-js-heap'
     && row.memory.hostProcessTree
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.sourceArtifact === 'firefox-bidi-candidate-headroom.json'
+    && row.runtimeId === 'firefox-spidermonkey-browser'
+    && row.caseId === 'rawFrameNameId'
+    && row.mibPerSec === 58.74
+    && row.memory.primaryKind === 'browser-js-heap-unavailable'
+    && row.boundedMemory === false
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'bun-candidate-headroom-corpus.json'

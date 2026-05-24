@@ -293,7 +293,8 @@ function inferRuntimeLabel(sourceArtifact, node, context) {
 function classifyMemoryKind(node) {
   const memory = node.memory;
   if (!memory || typeof memory !== 'object') return 'not-recorded';
-  if (memory.scope === 'browser-js-heap' || memory.maxJsHeapUsedBytes !== undefined) return 'browser-js-heap';
+  if (memory.scope === 'browser-js-heap' && typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
+  if (typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
   if (memory.maxRssBytes !== undefined) return 'process-rss';
   return 'recorded-unknown-kind';
 }

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-24T02:09:39.984Z
+Generated: 2026-05-24T02:51:48.785Z
 
 ## Scope
 
@@ -44,6 +44,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `candidate-headroom-large.md` | yes |
 | `bun-candidate-headroom-large.md` | yes |
 | `browser-candidate-headroom-large.md` | yes |
+| `firefox-bidi-candidate-headroom.md` | yes |
 | `textdecoder-span-variants.md` | yes |
 | `bun-textdecoder-span-variants.md` | yes |
 | `browser-textdecoder-span-variants.md` | yes |
@@ -58,11 +59,9 @@ These are intentionally open obligations. They must be disclosed while the broad
 
 | ID | Disclosed | Meaning |
 | --- | --- | --- |
-| `firefox-browser-rows-open` | yes | Firefox browser benchmark rows are still required before making Firefox runtime claims. |
 | `safari-jsc-source-and-browser-rows-open` | yes | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
 | `codegen-traces-open` | yes | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
 | `allocation-profiles-open` | yes | Allocation/heap evidence remains required for runtimes without adequate traces. |
-| `non-v8-browser-coverage-open` | yes | Non-V8 browser benchmark and profiling coverage remains open. |
 | `independent-corpus-suite-open` | yes | More independent real/corpus fixtures remain required. |
 | `counterexample-rule-present` | yes | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
 
@@ -82,4 +81,4 @@ These checks keep known semantic distinctions from being collapsed into a strong
 
 ## Interpretation
 
-A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Firefox/Safari/non-V8 browser rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.
+A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Safari/browser JSC rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.

@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-24T01:36:39.751Z
+Generated: 2026-05-24T02:51:10.908Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 28
-- 1 GiB+ JavaScript full-string rows: 24
+- Aggregated rows: 31
+- 1 GiB+ JavaScript full-string rows: 27
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 77.00 MiB/s (process RSS max 419.31 MiB)
 - Fastest 1 GiB+ JS public event-object row: Bun/JSC eventObjectFull at 62.08 MiB/s (process RSS max 1476.53 MiB)
@@ -19,7 +19,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Group | Runtime | Case | MiB/s | Bounded | Memory |
 | --- | --- | --- | ---: | --- | --- |
-| `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 57.99 | yes | process RSS max 192.98 MiB |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 58.74 | no | browser-js-heap-unavailable |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB |
 
@@ -40,6 +40,9 @@ This report aggregates existing release artifacts. It compares rows only through
 | `generated-1gib-candidate` | Chrome/V8 browser | `stringFull` | 45189256 | 1421012805 | 34.46 | yes | JS heap max 14.66 MiB; host working set 522.09 MiB | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `eventObjectFull` | 45189256 | 1421012805 | 33.10 | yes | JS heap max 38.78 MiB; host working set 522.09 MiB | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `rawFrameNameId` | 45189256 | 1421012805 | 43.45 | yes | JS heap max 17.86 MiB; host working set 522.09 MiB | `browser-candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 45189256 | 1421012805 | 54.71 | no | browser-js-heap-unavailable | `firefox-bidi-candidate-headroom.json` |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 45189256 | 1421012805 | 44.00 | no | browser-js-heap-unavailable | `firefox-bidi-candidate-headroom.json` |
+| `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 45189256 | 1421012805 | 58.74 | no | browser-js-heap-unavailable | `firefox-bidi-candidate-headroom.json` |
 | `corpus-1gib-candidate` | Node/V8 | `stringFull` | 75206126 | -925527041 | 62.17 | yes | process RSS max 353.58 MiB | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Node/V8 | `eventObjectFull` | 75206126 | -925527041 | 61.80 | yes | process RSS max 419.02 MiB | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 75206126 | -925527041 | 77.00 | yes | process RSS max 419.31 MiB | `candidate-headroom-corpus.json` |
@@ -70,10 +73,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 
 - same-contract-not-same-memory-counter (SOURCE_AGGREGATION): Rows are grouped by semantic checksum contract, while memory counters remain runtime-specific.
   - browser-js-heap
+  - browser-js-heap-unavailable
   - not-recorded
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=24
+  - jsLargeFullRows=27
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The 16 MiB external baseline keeps Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - woodstox=333.43 MiB/s
@@ -83,5 +87,6 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 ## Limits
 
 - Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.
+- Firefox browser rows currently lack page-exposed JS heap counters; their Windows host process-tree memory is report-level evidence, not row-level bounded-memory proof.
 - Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.
-- This report aggregates existing artifacts only. It is not a Firefox/Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.
+- This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.
