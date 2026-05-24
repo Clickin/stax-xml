@@ -284,6 +284,9 @@ function createCoverage(artifacts, options) {
     environmentArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('ENVIRONMENT_FACT'))
       .map(artifact => summarizeArtifact(artifact)),
+    negativeArtifacts: artifacts
+      .filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT'))
+      .map(artifact => summarizeArtifact(artifact)),
   };
 }
 
@@ -323,6 +326,9 @@ function createObligationRows(coverage) {
   const spiderMonkeyTraceArtifacts = runtimeById.get('firefox-spidermonkey-browser')?.traceArtifacts ?? [];
   const hasSpiderMonkeyProfilerTrace = spiderMonkeyTraceArtifacts.some(file => /profiler-trace/i.test(file));
   const hasSpiderMonkeyCodegen = spiderMonkeyTraceArtifacts.some(file => /codegen|jit|optimized|optcode|asm/i.test(file));
+  const hasSpiderMonkeyDiagnosticNoDump = coverage.negativeArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-diagnostic-dump-audit.json'
+  );
   const hasBunAllocation = (runtimeById.get('bun-jsc')?.allocationArtifacts.length ?? 0) > 0;
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
@@ -364,6 +370,7 @@ function createObligationRows(coverage) {
         hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
         hasChromeCodegen ? 'Chrome/V8 browser codegen trace evidence present.' : 'Chrome/V8 browser codegen trace evidence missing.',
         hasSpiderMonkeyProfilerTrace ? 'Firefox/SpiderMonkey Gecko Profiler trace evidence present.' : 'Firefox/SpiderMonkey profiler trace evidence missing.',
+        hasSpiderMonkeyDiagnosticNoDump ? 'Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build.' : 'Firefox/SpiderMonkey diagnostic dump availability audit missing.',
         hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
