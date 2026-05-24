@@ -1,0 +1,787 @@
+{
+  "generatedAt": "2026-05-24T00:18:49.756Z",
+  "objective": "bun-webkit-textdecoder-source-pin-audit",
+  "contract": "bun-patched-webkit-exact-revision-textdecoder-source-lines",
+  "note": "Exact Bun-patched WebKit source-line pinning for WebKit TextDecoder and UTF-8 TextCodec boundaries. These source facts constrain the WebKit implementation at the Bun/JSC benchmark commit; they are not Bun runtime dispatch proof, codegen evidence, or throughput proof.",
+  "runtime": {
+    "bunVersion": "1.3.13",
+    "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10"
+  },
+  "source": {
+    "repository": "oven-sh/webkit",
+    "revision": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+    "files": [
+      "Source/WebCore/dom/TextDecoder.cpp",
+      "Source/WebCore/dom/TextDecoder.h",
+      "Source/WebCore/PAL/pal/text/TextCodec.h",
+      "Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp",
+      "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp"
+    ],
+    "fetchedAt": "2026-05-24T00:18:49.719Z"
+  },
+  "anchors": {
+    "textDecoderDecode": {
+      "status": "found",
+      "label": "TextDecoder::decode",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 55,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L55",
+      "context": [
+        {
+          "lineNumber": 53,
+          "text": "}"
+        },
+        {
+          "lineNumber": 54,
+          "text": ""
+        },
+        {
+          "lineNumber": 55,
+          "text": "ExceptionOr<String> TextDecoder::decode(std::optional<BufferSource::VariantType> input, DecodeOptions options)"
+        },
+        {
+          "lineNumber": 56,
+          "text": "{"
+        },
+        {
+          "lineNumber": 57,
+          "text": "    std::optional<BufferSource> inputBuffer;"
+        }
+      ]
+    },
+    "bufferSourceSpan": {
+      "status": "found",
+      "label": "BufferSource span extraction",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 61,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L61",
+      "context": [
+        {
+          "lineNumber": 59,
+          "text": "    if (input) {"
+        },
+        {
+          "lineNumber": 60,
+          "text": "        inputBuffer = BufferSource(WTF::move(input.value()));"
+        },
+        {
+          "lineNumber": 61,
+          "text": "        data = inputBuffer->span();"
+        },
+        {
+          "lineNumber": 62,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 63,
+          "text": ""
+        }
+      ]
+    },
+    "newTextCodec": {
+      "status": "found",
+      "label": "newTextCodec",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 65,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L65",
+      "context": [
+        {
+          "lineNumber": 63,
+          "text": ""
+        },
+        {
+          "lineNumber": 64,
+          "text": "    if (!m_codec) {"
+        },
+        {
+          "lineNumber": 65,
+          "text": "        m_codec = newTextCodec(m_textEncoding);"
+        },
+        {
+          "lineNumber": 66,
+          "text": "        if (!m_options.ignoreBOM)"
+        },
+        {
+          "lineNumber": 67,
+          "text": "            m_codec->stripByteOrderMark();"
+        }
+      ]
+    },
+    "stripByteOrderMark": {
+      "status": "found",
+      "label": "stripByteOrderMark",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 67,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L67",
+      "context": [
+        {
+          "lineNumber": 65,
+          "text": "        m_codec = newTextCodec(m_textEncoding);"
+        },
+        {
+          "lineNumber": 66,
+          "text": "        if (!m_options.ignoreBOM)"
+        },
+        {
+          "lineNumber": 67,
+          "text": "            m_codec->stripByteOrderMark();"
+        },
+        {
+          "lineNumber": 68,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 69,
+          "text": ""
+        }
+      ]
+    },
+    "codecDecodeCall": {
+      "status": "found",
+      "label": "TextCodec::decode call",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 71,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L71",
+      "context": [
+        {
+          "lineNumber": 69,
+          "text": ""
+        },
+        {
+          "lineNumber": 70,
+          "text": "    bool sawError = false;"
+        },
+        {
+          "lineNumber": 71,
+          "text": "    String result = m_codec->decode(data, !options.stream, m_options.fatal, sawError);"
+        },
+        {
+          "lineNumber": 72,
+          "text": ""
+        },
+        {
+          "lineNumber": 73,
+          "text": "    if (!options.stream && !m_options.ignoreBOM)"
+        }
+      ]
+    },
+    "fatalErrorHandling": {
+      "status": "found",
+      "label": "fatal decode error handling",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 77,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L77",
+      "context": [
+        {
+          "lineNumber": 75,
+          "text": ""
+        },
+        {
+          "lineNumber": 76,
+          "text": "    if (sawError && m_options.fatal)"
+        },
+        {
+          "lineNumber": 77,
+          "text": "        return Exception { ExceptionCode::TypeError };"
+        },
+        {
+          "lineNumber": 78,
+          "text": "    return result;"
+        },
+        {
+          "lineNumber": 79,
+          "text": "}"
+        }
+      ]
+    },
+    "resultReturn": {
+      "status": "found",
+      "label": "decoded String return",
+      "file": "Source/WebCore/dom/TextDecoder.cpp",
+      "lineNumber": 78,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.cpp#L78",
+      "context": [
+        {
+          "lineNumber": 76,
+          "text": "    if (sawError && m_options.fatal)"
+        },
+        {
+          "lineNumber": 77,
+          "text": "        return Exception { ExceptionCode::TypeError };"
+        },
+        {
+          "lineNumber": 78,
+          "text": "    return result;"
+        },
+        {
+          "lineNumber": 79,
+          "text": "}"
+        },
+        {
+          "lineNumber": 80,
+          "text": ""
+        }
+      ]
+    },
+    "codecMember": {
+      "status": "found",
+      "label": "TextCodec member",
+      "file": "Source/WebCore/dom/TextDecoder.h",
+      "lineNumber": 63,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/dom/TextDecoder.h#L63",
+      "context": [
+        {
+          "lineNumber": 61,
+          "text": "    const PAL::TextEncoding m_textEncoding;"
+        },
+        {
+          "lineNumber": 62,
+          "text": "    const Options m_options;"
+        },
+        {
+          "lineNumber": 63,
+          "text": "    std::unique_ptr<PAL::TextCodec> m_codec;"
+        },
+        {
+          "lineNumber": 64,
+          "text": "};"
+        },
+        {
+          "lineNumber": 65,
+          "text": ""
+        }
+      ]
+    },
+    "textCodecDecodeVirtual": {
+      "status": "found",
+      "label": "TextCodec decode virtual",
+      "file": "Source/WebCore/PAL/pal/text/TextCodec.h",
+      "lineNumber": 53,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodec.h#L53",
+      "context": [
+        {
+          "lineNumber": 51,
+          "text": ""
+        },
+        {
+          "lineNumber": 52,
+          "text": "    virtual void stripByteOrderMark() { }"
+        },
+        {
+          "lineNumber": 53,
+          "text": "    virtual String decode(std::span<const uint8_t> data, bool flush, bool stopOnError, bool& sawError) = 0;"
+        },
+        {
+          "lineNumber": 54,
+          "text": ""
+        },
+        {
+          "lineNumber": 55,
+          "text": "    virtual Vector<uint8_t> encode(StringView, UnencodableHandling) const = 0;"
+        }
+      ]
+    },
+    "textCodecUtf8RegisterNames": {
+      "status": "found",
+      "label": "TextCodecUTF8 registerEncodingNames",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 46,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L46",
+      "context": [
+        {
+          "lineNumber": 44,
+          "text": "const int nonCharacter = -1;"
+        },
+        {
+          "lineNumber": 45,
+          "text": ""
+        },
+        {
+          "lineNumber": 46,
+          "text": "void TextCodecUTF8::registerEncodingNames(EncodingNameRegistrar registrar)"
+        },
+        {
+          "lineNumber": 47,
+          "text": "{"
+        },
+        {
+          "lineNumber": 48,
+          "text": "    // From https://encoding.spec.whatwg.org."
+        }
+      ]
+    },
+    "textCodecUtf8RegisterUtf8Name": {
+      "status": "found",
+      "label": "UTF-8 encoding name",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 49,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L49",
+      "context": [
+        {
+          "lineNumber": 47,
+          "text": "{"
+        },
+        {
+          "lineNumber": 48,
+          "text": "    // From https://encoding.spec.whatwg.org."
+        },
+        {
+          "lineNumber": 49,
+          "text": "    registrar(\"UTF-8\"_s, \"UTF-8\"_s);"
+        },
+        {
+          "lineNumber": 50,
+          "text": "    registrar(\"utf8\"_s, \"UTF-8\"_s);"
+        },
+        {
+          "lineNumber": 51,
+          "text": "    registrar(\"unicode-1-1-utf-8\"_s, \"UTF-8\"_s);"
+        }
+      ]
+    },
+    "textCodecUtf8CodecFactory": {
+      "status": "found",
+      "label": "TextCodecUTF8::codec",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 62,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L62",
+      "context": [
+        {
+          "lineNumber": 60,
+          "text": "}"
+        },
+        {
+          "lineNumber": 61,
+          "text": ""
+        },
+        {
+          "lineNumber": 62,
+          "text": "std::unique_ptr<TextCodecUTF8> TextCodecUTF8::codec()"
+        },
+        {
+          "lineNumber": 63,
+          "text": "{"
+        },
+        {
+          "lineNumber": 64,
+          "text": "    return makeUnique<TextCodecUTF8>();"
+        }
+      ]
+    },
+    "textCodecUtf8RegisterCodecs": {
+      "status": "found",
+      "label": "TextCodecUTF8 registerCodecs",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 67,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L67",
+      "context": [
+        {
+          "lineNumber": 65,
+          "text": "}"
+        },
+        {
+          "lineNumber": 66,
+          "text": ""
+        },
+        {
+          "lineNumber": 67,
+          "text": "void TextCodecUTF8::registerCodecs(TextCodecRegistrar registrar)"
+        },
+        {
+          "lineNumber": 68,
+          "text": "{"
+        },
+        {
+          "lineNumber": 69,
+          "text": "    registrar(\"UTF-8\"_s, [] {"
+        }
+      ]
+    },
+    "registryRegistersUtf8": {
+      "status": "found",
+      "label": "registry registers TextCodecUTF8",
+      "file": "Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp",
+      "lineNumber": 211,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp#L211",
+      "context": [
+        {
+          "lineNumber": 209,
+          "text": ""
+        },
+        {
+          "lineNumber": 210,
+          "text": "    TextCodecUTF8::registerEncodingNames(addToTextEncodingNameMap);"
+        },
+        {
+          "lineNumber": 211,
+          "text": "    TextCodecUTF8::registerCodecs(addToTextCodecMap);"
+        },
+        {
+          "lineNumber": 212,
+          "text": ""
+        },
+        {
+          "lineNumber": 213,
+          "text": "    TextCodecUTF16::registerEncodingNames(addToTextEncodingNameMap);"
+        }
+      ]
+    },
+    "registryNewTextCodec": {
+      "status": "found",
+      "label": "newTextCodec registry lookup",
+      "file": "Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp",
+      "lineNumber": 292,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp#L292",
+      "context": [
+        {
+          "lineNumber": 290,
+          "text": "}"
+        },
+        {
+          "lineNumber": 291,
+          "text": ""
+        },
+        {
+          "lineNumber": 292,
+          "text": "std::unique_ptr<TextCodec> newTextCodec(const TextEncoding& encoding)"
+        },
+        {
+          "lineNumber": 293,
+          "text": "{"
+        },
+        {
+          "lineNumber": 294,
+          "text": "    Locker locker { encodingRegistryLock };"
+        }
+      ]
+    },
+    "registryFallbackUtf8": {
+      "status": "found",
+      "label": "newTextCodec UTF-8 fallback",
+      "file": "Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp",
+      "lineNumber": 300,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextEncodingRegistry.cpp#L300",
+      "context": [
+        {
+          "lineNumber": 298,
+          "text": "    if (!encoding.isValid()) {"
+        },
+        {
+          "lineNumber": 299,
+          "text": "        RELEASE_LOG_ERROR(TextEncoding, \"Trying to create new text codec with invalid (null) encoding name. Will default to UTF-8.\");"
+        },
+        {
+          "lineNumber": 300,
+          "text": "        return TextCodecUTF8::codec();"
+        },
+        {
+          "lineNumber": 301,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 302,
+          "text": "    auto result = textCodecMap.find(encoding.name());"
+        }
+      ]
+    },
+    "textCodecUtf8Decode": {
+      "status": "found",
+      "label": "TextCodecUTF8::decode",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 304,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L304",
+      "context": [
+        {
+          "lineNumber": 302,
+          "text": "}"
+        },
+        {
+          "lineNumber": 303,
+          "text": ""
+        },
+        {
+          "lineNumber": 304,
+          "text": "String TextCodecUTF8::decode(std::span<const uint8_t> bytes, bool flush, bool stopOnError, bool& sawError)"
+        },
+        {
+          "lineNumber": 305,
+          "text": "{"
+        },
+        {
+          "lineNumber": 306,
+          "text": "    // Each input byte might turn into a character."
+        }
+      ]
+    },
+    "latin1Buffer": {
+      "status": "found",
+      "label": "Latin1 StringBuffer",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 314,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L314",
+      "context": [
+        {
+          "lineNumber": 312,
+          "text": "        return { };"
+        },
+        {
+          "lineNumber": 313,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 314,
+          "text": "    StringBuffer<Latin1Character> buffer(bufferSize);"
+        },
+        {
+          "lineNumber": 315,
+          "text": ""
+        },
+        {
+          "lineNumber": 316,
+          "text": "    auto source = bytes;"
+        }
+      ]
+    },
+    "asciiFastPath": {
+      "status": "found",
+      "label": "ASCII fast path",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 336,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L336",
+      "context": [
+        {
+          "lineNumber": 334,
+          "text": "        while (!source.empty()) {"
+        },
+        {
+          "lineNumber": 335,
+          "text": "            if (isASCII(source[0])) {"
+        },
+        {
+          "lineNumber": 336,
+          "text": "                // Fast path for ASCII. Most UTF-8 text will be ASCII."
+        },
+        {
+          "lineNumber": 337,
+          "text": "                if (WTF::isAlignedToMachineWord(source.data())) {"
+        },
+        {
+          "lineNumber": 338,
+          "text": "                    while (source.data() < alignedEnd) {"
+        }
+      ]
+    },
+    "copyAsciiMachineWord": {
+      "status": "found",
+      "label": "copyASCIIMachineWord",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 342,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L342",
+      "context": [
+        {
+          "lineNumber": 340,
+          "text": "                        if (!WTF::containsOnlyASCII<Latin1Character>(chunk))"
+        },
+        {
+          "lineNumber": 341,
+          "text": "                            break;"
+        },
+        {
+          "lineNumber": 342,
+          "text": "                        copyASCIIMachineWord(destination, source);"
+        },
+        {
+          "lineNumber": 343,
+          "text": "                        skip(source, sizeof(WTF::MachineWord));"
+        },
+        {
+          "lineNumber": 344,
+          "text": "                        skip(destination, sizeof(WTF::MachineWord));"
+        }
+      ]
+    },
+    "latin1StringAdopt": {
+      "status": "found",
+      "label": "Latin1 String::adopt",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 393,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L393",
+      "context": [
+        {
+          "lineNumber": 391,
+          "text": "        return { };"
+        },
+        {
+          "lineNumber": 392,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 393,
+          "text": "    return String::adopt(WTF::move(buffer));"
+        },
+        {
+          "lineNumber": 394,
+          "text": ""
+        },
+        {
+          "lineNumber": 395,
+          "text": "upConvertTo16Bit:"
+        }
+      ]
+    },
+    "upConvertTo16Bit": {
+      "status": "found",
+      "label": "upConvertTo16Bit label",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 395,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L395",
+      "context": [
+        {
+          "lineNumber": 393,
+          "text": "    return String::adopt(WTF::move(buffer));"
+        },
+        {
+          "lineNumber": 394,
+          "text": ""
+        },
+        {
+          "lineNumber": 395,
+          "text": "upConvertTo16Bit:"
+        },
+        {
+          "lineNumber": 396,
+          "text": "    StringBuffer<char16_t> buffer16(bufferSize);"
+        },
+        {
+          "lineNumber": 397,
+          "text": ""
+        }
+      ]
+    },
+    "utf16Buffer": {
+      "status": "found",
+      "label": "UTF-16 StringBuffer",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 396,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L396",
+      "context": [
+        {
+          "lineNumber": 394,
+          "text": ""
+        },
+        {
+          "lineNumber": 395,
+          "text": "upConvertTo16Bit:"
+        },
+        {
+          "lineNumber": 396,
+          "text": "    StringBuffer<char16_t> buffer16(bufferSize);"
+        },
+        {
+          "lineNumber": 397,
+          "text": ""
+        },
+        {
+          "lineNumber": 398,
+          "text": "    auto destination16 = buffer16.span();"
+        }
+      ]
+    },
+    "appendCharacter": {
+      "status": "found",
+      "label": "appendCharacter",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 465,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L465",
+      "context": [
+        {
+          "lineNumber": 463,
+          "text": "            if (character == byteOrderMark && destination16.data() == buffer16.characters() && std::exchange(m_shouldStripByteOrderMark, false))"
+        },
+        {
+          "lineNumber": 464,
+          "text": "                continue;"
+        },
+        {
+          "lineNumber": 465,
+          "text": "            destination16 = appendCharacter(destination16, character);"
+        },
+        {
+          "lineNumber": 466,
+          "text": "        }"
+        },
+        {
+          "lineNumber": 467,
+          "text": "    } while (m_partialSequenceSize);"
+        }
+      ]
+    },
+    "utf16StringAdopt": {
+      "status": "found",
+      "label": "UTF-16 String::adopt",
+      "file": "Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp",
+      "lineNumber": 478,
+      "url": "https://github.com/oven-sh/webkit/blob/4d5e75ebd84a14edbc7ae264245dcd77fe597c10/Source/WebCore/PAL/pal/text/TextCodecUTF8.cpp#L478",
+      "context": [
+        {
+          "lineNumber": 476,
+          "text": "        return { };"
+        },
+        {
+          "lineNumber": 477,
+          "text": "    }"
+        },
+        {
+          "lineNumber": 478,
+          "text": "    return String::adopt(WTF::move(buffer16));"
+        },
+        {
+          "lineNumber": 479,
+          "text": "}"
+        },
+        {
+          "lineNumber": 480,
+          "text": ""
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "bun-patched-webkit-textdecoder-host-api-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned WebKit TextDecoder implementation extracts a BufferSource span, creates a TextCodec, and calls TextCodec::decode to return a WebKit String.",
+      "evidence": [
+        "TextDecoder::decode line 55",
+        "BufferSource span extraction line 61",
+        "newTextCodec line 65",
+        "TextCodec::decode call line 71",
+        "decoded String return line 78"
+      ]
+    },
+    {
+      "id": "bun-patched-webkit-utf8-codec-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned WebKit UTF-8 codec registers UTF-8, decodes bytes into StringBuffer storage, uses ASCII fast paths, and adopts Latin1 or UTF-16 buffers into WebKit String values.",
+      "evidence": [
+        "TextCodecUTF8::registerCodecs line 67",
+        "TextCodecUTF8::decode line 304",
+        "Latin1 StringBuffer line 314",
+        "copyASCIIMachineWord line 342",
+        "Latin1 String::adopt line 393",
+        "UTF-16 StringBuffer line 396",
+        "UTF-16 String::adopt line 478"
+      ]
+    },
+    {
+      "id": "bun-webkit-source-pin-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This source pin explains the WebKit TextDecoder implementation at the Bun-patched WebKit commit. It is not proof that Bun runtime dispatch reaches these exact functions, not Safari/browser coverage, not SpiderMonkey coverage, and not a runtime-ceiling proof.",
+      "evidence": [
+        "The audit does not run a benchmark row.",
+        "The audit does not inspect Bun native dispatch or generated machine code.",
+        "Any 200 MiB/s+ bounded-memory full-string row would still be a counterexample to the broad runtime-limit hypothesis."
+      ]
+    }
+  ]
+}

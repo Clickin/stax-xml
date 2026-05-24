@@ -42,6 +42,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Browser Chrome\/V8 String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/V8 Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Chrome\/Blink TextDecoder Source Pin Audit/);
+  assert.match(markdown, /## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Node TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC Source Pin Audit/);
@@ -70,6 +71,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(claimRow(markdown, 'CLAIM-TEXTDECODER-SPAN-VARIANTS'), /\| `BENCH_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-NODE-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-CHROME-BLINK-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
+  assert.match(claimRow(markdown, 'CLAIM-BUN-WEBKIT-TEXTDECODER-SOURCE-BOUNDARY'), /\| `SOURCE_FACT` \|/);
   assert.match(claimRow(markdown, 'CLAIM-PROJECTION'), /\| `BENCH_FACT` for current low-selectivity rows; `HYPOTHESIS` for broad workloads \|/);
 
   assert.match(markdown, /may not move from `HYPOTHESIS` to\s+`CONCLUSION` merely because current full-string benchmark rows are slow/);
@@ -157,6 +159,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /browser-string-limit-audit\.md/);
   assert.match(markdown, /chrome-v8-source-pin-audit\.md/);
   assert.match(markdown, /chrome-blink-textdecoder-source-pin-audit\.md/);
+  assert.match(markdown, /bun-webkit-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /node-textdecoder-source-pin-audit\.md/);
   assert.match(markdown, /bun-jsc-string-limit-audit\.md/);
   assert.match(markdown, /bun-jsc-source-pin-audit\.md/);
@@ -365,6 +368,26 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`InlinedStringBuffer<UChar>` at line 446/);
   assert.match(markdown, /UChar `ToString` at line 529/);
   assert.match(markdown, /does not cover Node, Bun\/JSC, Safari\/JSC, or Firefox\/SpiderMonkey\s+TextDecoder internals/);
+  assert.match(markdown, /Bun-Patched WebKit TextDecoder Source Pin Audit/);
+  assert.match(markdown, /Bun artifact runtime 1\.3\.13 and WebKit commit\s+`4d5e75ebd84a14edbc7ae264245dcd77fe597c10`/);
+  assert.match(markdown, /`TextDecoder::decode` at line 55/);
+  assert.match(markdown, /`BufferSource` span extraction at line 61/);
+  assert.match(markdown, /`newTextCodec` at line 65/);
+  assert.match(markdown, /`TextCodec::decode` call at line 71/);
+  assert.match(markdown, /decoded\s+`String` return at line 78/);
+  assert.match(markdown, /`TextCodec::decode` virtual\s+method at line 53/);
+  assert.match(markdown, /`TextCodecUTF8::registerCodecs` at line 67/);
+  assert.match(markdown, /`TextEncodingRegistry` UTF-8 registration at line 211/);
+  assert.match(markdown, /`newTextCodec` registry\s+lookup at line 292/);
+  assert.match(markdown, /`TextCodecUTF8::decode` at line 304/);
+  assert.match(markdown, /`StringBuffer<Latin1Character>` at line 314/);
+  assert.match(markdown, /ASCII fast path at line 336/);
+  assert.match(markdown, /`copyASCIIMachineWord` at line 342/);
+  assert.match(markdown, /Latin1 `String::adopt` at line 393/);
+  assert.match(markdown, /`StringBuffer<char16_t>` at line 396/);
+  assert.match(markdown, /`appendCharacter` at line 465/);
+  assert.match(markdown, /UTF-16 `String::adopt` at line 478/);
+  assert.match(markdown, /does not prove that Bun runtime\s+dispatch reaches these exact functions/);
   assert.match(markdown, /Node TextDecoder Source Pin Audit/);
   assert.match(markdown, /Node v24\.15\.0, V8 13\.6\.233\.17-node\.48/);
   assert.match(markdown, /`TextDecoder\.decode` at line 482/);
