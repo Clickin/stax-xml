@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-24T18:18:26.078Z
+Generated: 2026-05-24T18:25:23.592Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -16,7 +16,7 @@ This audit scans current release artifacts to show which proof obligations are c
 - Environment artifacts: 1
 - 1 GiB+ JS full-string rows: 363
 - Corpus seeds: 3
-- Open or partial obligations: 1
+- Open or partial obligations: 2
 
 ## Runtime Coverage
 
@@ -38,7 +38,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | --- | --- | --- | --- |
 | `firefox-browser-rows-open` | covered | 78 Firefox/SpiderMonkey browser benchmark rows found. | Broaden Firefox coverage with corpus/projection rows plus SpiderMonkey codegen and allocation evidence. |
 | `safari-jsc-source-and-browser-rows-open` | open | Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host/harness cannot run Safari rows. | Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner. |
-| `codegen-traces-open` | covered | Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Browser codegen trace evidence present. | Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Bun/JSC and browser engines. |
+| `codegen-traces-open` | partial | Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey codegen trace evidence missing. | Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows. |
 | `allocation-profiles-open` | covered | 13 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present. | Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows. |
 | `non-v8-browser-coverage-open` | covered | 78 non-V8 browser benchmark rows found. | Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence. |
 | `independent-corpus-suite-open` | covered | 3 release corpus seed(s) found: books.xml, large.xml, treebank_e.xml. | Keep new corpus rows flowing through the counterexample scanner before broadening claims. |
@@ -62,8 +62,9 @@ Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page m
 - coverage-audit-is-not-runtime-limit-proof (SCOPE_GUARD): Coverage auditing can prove which evidence families are absent or partial, but it cannot prove a JavaScript runtime ceiling.
 - non-v8-browser-gap-remains (COVERED): At least one non-V8 browser benchmark row is present.
 - corpus-suite-gap-remains (COVERED): Current release artifacts cover 3 corpus seed(s), so broad corpus coverage remains unproven.
-- open-obligations-ranked (OPEN): 1 proof obligation(s) remain open or partial after scanning current release artifacts.
+- open-obligations-ranked (OPEN): 2 proof obligation(s) remain open or partial after scanning current release artifacts.
   - safari-jsc-source-and-browser-rows-open
+  - codegen-traces-open
 
 ## Limits
 

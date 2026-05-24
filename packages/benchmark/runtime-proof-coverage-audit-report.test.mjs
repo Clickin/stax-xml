@@ -36,7 +36,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.measuredRowCount, 608);
   assert.equal(report.summary.largeJsFullRowCount, 363);
   assert.equal(report.summary.corpusSeedCount, 3);
-  assert.equal(report.summary.openObligationCount, 1);
+  assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 70);
   assert.equal(report.summary.sourceArtifactCount, 12);
   assert.equal(report.summary.traceArtifactCount, 6);
@@ -134,7 +134,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
 
   assertObligation(report, 'firefox-browser-rows-open', 'covered');
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');
-  assertObligation(report, 'codegen-traces-open', 'covered');
+  assertObligation(report, 'codegen-traces-open', 'partial');
   assertObligation(report, 'allocation-profiles-open', 'covered');
   assertObligation(report, 'non-v8-browser-coverage-open', 'covered');
   assertObligation(report, 'independent-corpus-suite-open', 'covered');
@@ -151,13 +151,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Bun\/JSC codegen\/IR evidence present/);
-  assert.match(markdown, /Browser codegen trace evidence present/);
+  assert.match(markdown, /Chrome\/V8 browser codegen trace evidence present/);
+  assert.match(markdown, /Firefox\/SpiderMonkey codegen trace evidence missing/);
   assert.match(markdown, /13 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 1/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);
-  assert.match(markdown, /1 proof obligation\(s\) remain open or partial/);
+  assert.match(markdown, /2 proof obligation\(s\) remain open or partial/);
   assert.match(markdown, /Missing evidence is not evidence that optimization is impossible/);
 });
 

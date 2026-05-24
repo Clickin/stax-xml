@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T18:18:26.078Z",
+  "generatedAt": "2026-05-24T18:25:23.592Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1913,7 +1913,7 @@
     "largeJsFullRowCount": 363,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
-    "openObligationCount": 1,
+    "openObligationCount": 2,
     "conclusionAllowed": false
   },
   "coverage": {
@@ -13285,9 +13285,9 @@
     },
     {
       "id": "codegen-traces-open",
-      "status": "covered",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Browser codegen trace evidence present.",
-      "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Bun/JSC and browser engines."
+      "status": "partial",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey codegen trace evidence missing.",
+      "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {
       "id": "allocation-profiles-open",
@@ -13333,9 +13333,10 @@
     {
       "id": "open-obligations-ranked",
       "status": "OPEN",
-      "summary": "1 proof obligation(s) remain open or partial after scanning current release artifacts.",
+      "summary": "2 proof obligation(s) remain open or partial after scanning current release artifacts.",
       "evidence": [
-        "safari-jsc-source-and-browser-rows-open"
+        "safari-jsc-source-and-browser-rows-open",
+        "codegen-traces-open"
       ]
     }
   ]

@@ -312,7 +312,8 @@ function createObligationRows(coverage) {
   const runtimeById = new Map(coverage.runtimes.map(row => [row.runtimeId, row]));
   const hasNodeCodegen = (runtimeById.get('node-v8')?.traceArtifacts.length ?? 0) > 0;
   const hasBunCodegen = (runtimeById.get('bun-jsc')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
-  const hasBrowserCodegen = coverage.codegenArtifacts.some(artifact => /browser/i.test(artifact.sourceArtifact) && /codegen|trace|ir|asm/i.test(artifact.sourceArtifact));
+  const hasChromeCodegen = (runtimeById.get('chrome-v8-browser')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
+  const hasSpiderMonkeyCodegen = (runtimeById.get('firefox-spidermonkey-browser')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
   const hasBunAllocation = (runtimeById.get('bun-jsc')?.allocationArtifacts.length ?? 0) > 0;
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
@@ -348,13 +349,14 @@ function createObligationRows(coverage) {
     },
     {
       id: 'codegen-traces-open',
-      status: hasNodeCodegen && hasBunCodegen && hasBrowserCodegen ? 'covered' : 'partial',
+      status: hasNodeCodegen && hasBunCodegen && hasChromeCodegen && hasSpiderMonkeyCodegen ? 'covered' : 'partial',
       evidence: [
         hasNodeCodegen ? 'Node/V8 trace evidence present.' : 'Node/V8 trace evidence missing.',
         hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
-        hasBrowserCodegen ? 'Browser codegen trace evidence present.' : 'Browser codegen trace evidence missing.',
+        hasChromeCodegen ? 'Chrome/V8 browser codegen trace evidence present.' : 'Chrome/V8 browser codegen trace evidence missing.',
+        hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey codegen trace evidence present.' : 'Firefox/SpiderMonkey codegen trace evidence missing.',
       ].join(' '),
-      nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Bun/JSC and browser engines.',
+      nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
     },
     {
       id: 'allocation-profiles-open',
