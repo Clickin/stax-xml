@@ -329,6 +329,9 @@ function createObligationRows(coverage) {
   const hasSpiderMonkeyDiagnosticNoDump = coverage.negativeArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-diagnostic-dump-audit.json'
   );
+  const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
+    pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
+  );
   const hasBunAllocation = (runtimeById.get('bun-jsc')?.allocationArtifacts.length ?? 0) > 0;
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
@@ -370,6 +373,7 @@ function createObligationRows(coverage) {
         hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
         hasChromeCodegen ? 'Chrome/V8 browser codegen trace evidence present.' : 'Chrome/V8 browser codegen trace evidence missing.',
         hasSpiderMonkeyProfilerTrace ? 'Firefox/SpiderMonkey Gecko Profiler trace evidence present.' : 'Firefox/SpiderMonkey profiler trace evidence missing.',
+        hasSpiderMonkeyJitSpewSourcePin ? 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR.' : 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence missing.',
         hasSpiderMonkeyDiagnosticNoDump ? 'Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build.' : 'Firefox/SpiderMonkey diagnostic dump availability audit missing.',
         hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
       ].join(' '),
@@ -464,6 +468,14 @@ function classifySourcePins(sourceArtifact, root) {
       kind: 'Firefox page memory API boundary',
       revision: root.runtime?.application?.sourceStamp ?? null,
       limitation: 'negative page API capability evidence; not an allocation profile',
+    }];
+  }
+  if (sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json') {
+    return [{
+      runtimeId: 'firefox-spidermonkey-browser',
+      kind: 'SpiderMonkey JitSpew source boundary',
+      revision: root.source?.revision ?? null,
+      limitation: 'source pin only; not emitted JIT IR or optimized-code proof',
     }];
   }
   if (sourceArtifact === 'bun-webkit-textdecoder-source-pin-audit.json' || sourceArtifact === 'bun-jsc-source-pin-audit.json') {
