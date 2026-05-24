@@ -1,20 +1,20 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-24T07:02:28.038Z
+Generated: 2026-05-24T07:24:38.788Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 71
+- Scanned artifacts: 73
 - Ignored derived artifacts: 5
-- Measured rows recognized: 441
-- 1 GiB+ JS full-string rows recognized: 217
+- Measured rows recognized: 447
+- 1 GiB+ JS full-string rows recognized: 223
 - Counterexamples found: 0
 - Partial/projection threshold rows: 12
 - Full-string rows without bounded-memory proof: 107
-- Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus.json at 174.51 MiB/s (yes, process-rss)
-- Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus.json at 174.51 MiB/s (yes, process-rss)
+- Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus-stability.json at 176.55 MiB/s (yes, process-rss)
+- Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from bun-candidate-headroom-books-corpus-stability.json at 176.55 MiB/s (yes, process-rss)
 - Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from bun-candidate-headroom-books-corpus.json at 334.63 MiB/s (yes, process-rss)
 
 ## Counterexamples
@@ -27,18 +27,18 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
+| `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 176.55 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 174.51 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.69 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 171.57 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `cursorAccessor` | 1.00 | 164.74 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 161.45 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameDirect` | 1.00 | 161.05 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 159.70 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 155.37 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `stringFull` | 1.00 | 141.04 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 136.14 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `eventObjectFull` | 1.00 | 133.43 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus.json` | Node/V8 | `eventObjectFull` | 1.00 | 131.98 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 123.06 | yes | process-rss | 57096514 | -540013997 |
-| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `rawFrameNameId` | 1.00 | 122.08 | yes | browser-js-heap | 57096514 | -540013997 |
-| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `stringFull` | 1.00 | 119.64 | yes | browser-js-heap | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -46,18 +46,18 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
+| `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 176.55 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 174.51 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.69 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 171.57 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `cursorAccessor` | 1.00 | 164.74 | yes | process-rss | 57096514 | -540013997 |
+| `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 161.45 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameDirect` | 1.00 | 161.05 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 159.70 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 155.37 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `stringFull` | 1.00 | 141.04 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 136.14 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `eventObjectFull` | 1.00 | 133.43 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus.json` | Node/V8 | `eventObjectFull` | 1.00 | 131.98 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 123.06 | yes | process-rss | 57096514 | -540013997 |
-| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `rawFrameNameId` | 1.00 | 122.08 | yes | browser-js-heap | 57096514 | -540013997 |
-| `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `stringFull` | 1.00 | 119.64 | yes | browser-js-heap | 57096514 | -540013997 |
 
 ## Partial Or Projection Threshold Rows
 

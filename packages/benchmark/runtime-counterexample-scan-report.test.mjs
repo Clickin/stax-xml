@@ -33,16 +33,16 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 71);
-  assert.equal(report.summary.measuredRowCount, 441);
-  assert.equal(report.summary.largeJsFullRowCount, 217);
+  assert.equal(report.summary.scannedArtifactCount, 73);
+  assert.equal(report.summary.measuredRowCount, 447);
+  assert.equal(report.summary.largeJsFullRowCount, 223);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 107);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
-  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
+  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'bun-candidate-headroom-books-corpus-stability.json');
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.id, 'rawFrameNameId');
-  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 174.51);
+  assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 176.55);
   assert.ok(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec < 200);
   assert.equal(report.summary.fastestPartialHeadroomRow.fullStringParity, false);
   assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
@@ -61,6 +61,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.id === 'scanAllNoDecode'
     && row.mibPerSec === 206.76
     && row.fullStringParity === false
+  ));
+  assert.ok(report.fastestLargeFullRows.some(row =>
+    row.sourceArtifact === 'bun-candidate-headroom-books-corpus-stability.json'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 176.55
+    && row.hasMemoryProof === true
   ));
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'candidate-headroom-books-corpus.json'
