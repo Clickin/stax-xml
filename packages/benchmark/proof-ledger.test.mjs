@@ -435,10 +435,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /On\s+Deno\/V8, they reported `43\.31 MiB\/s`, `42\.37 MiB\/s`, and `68\.91 MiB\/s`/);
   assert.match(markdown, /best current 1 GiB corpus-cycle sync-iterable row is\s+Node\/V8 `syncIterableBatch1` at `132\.57 MiB\/s`/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
-  assert.match(markdown, /three fresh processes per runtime on the\s+same 1\.00 GiB `books\.xml` corpus-cycle fixture/);
-  assert.match(markdown, /not proof that a JS runtime can synchronously\s+consume a live browser or OS stream without async handoff costs/);
-  assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `74\.68 MiB\/s` with `2\.6%` spread/);
-  assert.match(markdown, /Bun\/JSC\s+averaged `53\.38 MiB\/s` with `1\.4%` spread, and Deno\/V8 averaged `67\.76 MiB\/s`\s+with `0\.2%` spread/);
+  assert.match(markdown, /file-backed sync\s+`Iterable<Uint8Array\[\]>` rows in three fresh processes per runtime on the same\s+1\.00 GiB `books\.xml` corpus-cycle fixture/);
+  assert.match(markdown, /read corpus chunks from the OS file source with `readSync`/);
+  assert.match(markdown, /not browser\s+fetch streaming proof/);
+  assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `77\.67 MiB\/s` with `2\.5%` spread\s+and `syncFileIterableBatch16` averaged `68\.92 MiB\/s` with `1\.2%` spread/);
+  assert.match(markdown, /Bun\/JSC\s+averaged `51\.46 MiB\/s` and `49\.41 MiB\/s`; Deno\/V8 averaged `67\.09 MiB\/s` and\s+`61\.75 MiB\/s`/);
   assert.match(markdown, /firefox-spidermonkey-profiler-trace\.md/);
   assert.match(markdown, /Gecko Profiler startup\/shutdown evidence/);
   assert.match(markdown, /7 threads, 9,054 samples, and 9,640 frames/);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T18:43:20.038Z",
+  "generatedAt": "2026-05-24T19:26:54.957Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1091,7 +1091,7 @@
       ],
       "fixture": null,
       "corpusSeed": null,
-      "measuredRowCount": 27
+      "measuredRowCount": 36
     },
     {
       "sourceArtifact": "event-reader-byte-batch.json",
@@ -1926,13 +1926,13 @@
     "scannedArtifactCount": 98,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 611,
+    "measuredRowCount": 620,
     "benchmarkArtifactCount": 71,
     "sourceArtifactCount": 12,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 1,
-    "largeJsFullRowCount": 363,
+    "largeJsFullRowCount": 372,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -1944,8 +1944,8 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 31,
-        "measuredRowCount": 169,
-        "largeFullStringRowCount": 97,
+        "measuredRowCount": 172,
+        "largeFullStringRowCount": 100,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -1994,8 +1994,8 @@
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
         "artifactCount": 25,
-        "measuredRowCount": 169,
-        "largeFullStringRowCount": 102,
+        "measuredRowCount": 172,
+        "largeFullStringRowCount": 105,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
           "id": "rawFrameNameId",
@@ -2049,8 +2049,8 @@
         "runtimeId": "deno-v8",
         "runtimeLabel": "Deno/V8",
         "artifactCount": 9,
-        "measuredRowCount": 47,
-        "largeFullStringRowCount": 41,
+        "measuredRowCount": 50,
+        "largeFullStringRowCount": 44,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "deno-textdecoder-span-variants-corpus.json",
           "id": "shortAsciiSubarraySharedDecoder",
@@ -12748,7 +12748,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 363,
+    "largeJsFullRowCount": 372,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

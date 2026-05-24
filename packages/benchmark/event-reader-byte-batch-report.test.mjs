@@ -48,6 +48,7 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.equal(report.objective, 'event-reader-byte-batch');
   assert.equal(report.contract, 'public-event-object-full-string-checksum');
   assert.match(report.sourceContract.syncIterable, /Iterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.syncFileIterable, /available only for corpus-cycle/);
   assert.match(report.sourceContract.scope, /not an OS, network, or browser fetch streaming proof/);
   assert.equal(report.options.runtimeLabel, 'Node/V8 test');
   assert.equal(report.environment.runtimeLabel, 'Node/V8 test');
@@ -139,22 +140,31 @@ test('EventReader byte-batch report supports a corpus-cycle fixture seed', () =>
   assert.ok(report.fixture.rows > 1);
   assert.ok(report.fixture.sourceBytes > 0);
   assert.equal(report.fixture.chunkBytes, 1024);
+  assert.match(report.sourceContract.syncFileIterable, /readSync/);
+  assert.match(report.sourceContract.scope, /synchronous file-source benchmark/);
 
   const readable = report.variants.find(row => row.id === 'readableStreamBatch4');
   const asyncBatch = report.variants.find(row => row.id === 'asyncByteBatch4');
   const syncBatch = report.variants.find(row => row.id === 'syncIterableBatch4');
+  const syncFileBatch = report.variants.find(row => row.id === 'syncFileIterableBatch4');
   assert.ok(readable);
   assert.ok(asyncBatch);
   assert.ok(syncBatch);
+  assert.ok(syncFileBatch);
   assert.equal(asyncBatch.eventCount, readable.eventCount);
   assert.equal(asyncBatch.checksum, readable.checksum);
   assert.equal(syncBatch.eventCount, readable.eventCount);
   assert.equal(syncBatch.checksum, readable.checksum);
+  assert.equal(syncFileBatch.eventCount, readable.eventCount);
+  assert.equal(syncFileBatch.checksum, readable.checksum);
   assert.ok(asyncBatch.sourceBatches < asyncBatch.sourceReads);
   assert.ok(syncBatch.sourceBatches < syncBatch.sourceReads);
+  assert.ok(syncFileBatch.sourceBatches < syncFileBatch.sourceReads);
 
   const markdown = readFileSync(corpusMdOut, 'utf8');
   assert.match(markdown, /Fixture shape: corpus-cycle/);
   assert.match(markdown, /Corpus file:/);
   assert.match(markdown, /Corpus chunk KiB: 1/);
+  assert.match(markdown, /Sync file iterable:/);
+  assert.match(markdown, /syncFileIterableBatch4/);
 });

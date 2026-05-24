@@ -33,7 +33,7 @@ test('EventReader byte-batch cross-process report repeats full checksum rows', (
     '--batch-size',
     '4',
     '--variants',
-    'readableStreamBatch4,syncIterableBatch4',
+    'readableStreamBatch4,syncIterableBatch4,syncFileIterableBatch4',
     '--output-dir',
     outputDir,
     '--json-out',
@@ -52,7 +52,7 @@ test('EventReader byte-batch cross-process report repeats full checksum rows', (
   assert.equal(report.objective, 'event-reader-byte-batch-cross-process');
   assert.equal(report.contract, 'independent-process-public-event-object-full-string-checksum');
   assert.deepEqual(report.options.runtimes, ['node', 'deno']);
-  assert.deepEqual(report.options.variants, ['readableStreamBatch4', 'syncIterableBatch4']);
+  assert.deepEqual(report.options.variants, ['readableStreamBatch4', 'syncIterableBatch4', 'syncFileIterableBatch4']);
   assert.equal(report.runtimes.length, 2);
 
   const nodeRuntime = report.runtimes.find(entry => entry.runtime === 'node');
@@ -65,7 +65,7 @@ test('EventReader byte-batch cross-process report repeats full checksum rows', (
 
   for (const runtime of [nodeRuntime, denoRuntime]) {
     assert.equal(runtime.parity.fullRowsStable, true);
-    assert.deepEqual(runtime.parity.rowIds, ['readableStreamBatch4', 'syncIterableBatch4']);
+    assert.deepEqual(runtime.parity.rowIds, ['readableStreamBatch4', 'syncIterableBatch4', 'syncFileIterableBatch4']);
     for (const row of runtime.variants) {
       assert.equal(row.fullStringParity, true);
       assert.equal(row.sampleCount, 2);
@@ -81,4 +81,6 @@ test('EventReader byte-batch cross-process report repeats full checksum rows', (
   assert.match(markdown, /Deno:/);
   assert.match(markdown, /Full rows stable across processes: yes/);
   assert.match(markdown, /sync-iterable-source-headroom/);
+  assert.match(markdown, /file-backed-sync-source/);
+  assert.match(markdown, /syncFileIterableBatch4/);
 });

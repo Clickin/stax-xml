@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync, readFileSync, readSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -144,6 +144,13 @@ async function main() {
       implementation: `StreamReaderSync over Iterable<Uint8Array[]> with ${batchSize} chunks yielded per batch, materialized as public event objects`,
       run: () => consumeSyncByteBatches(fixture, batchSize),
     })),
+    ...(fixture.corpusFile ? options.batchSizes.map(batchSize => ({
+      id: `syncFileIterableBatch${batchSize}`,
+      family: 'sync-file-iterable-byte-batch',
+      batchSize,
+      implementation: `StreamReaderSync over file-backed Iterable<Uint8Array[]> with ${batchSize} chunks read per batch, materialized as public event objects`,
+      run: () => consumeSyncFileByteBatches(fixture, batchSize),
+    })) : []),
   ];
 
   const report = {
@@ -155,7 +162,12 @@ async function main() {
       readableStream: 'ReadableStream<Uint8Array> enqueues one chunk from pull().',
       asyncByteBatch: 'AsyncIterable<Uint8Array[]> yields one grouped batch only when next() is awaited.',
       syncIterable: 'Iterable<Uint8Array[]> yields one grouped batch per synchronous parser pull.',
-      scope: 'The fixture rows are generated or corpus chunks prepared before timing and replayed to the target byte count. This isolates parser/source API overhead; it is not an OS, network, or browser fetch streaming proof.',
+      syncFileIterable: fixture.corpusFile
+        ? 'File-backed Iterable<Uint8Array[]> reads corpus chunks with readSync only when the parser pulls the next batch.'
+        : 'File-backed Iterable<Uint8Array[]> rows are available only for corpus-cycle fixtures.',
+      scope: fixture.corpusFile
+        ? 'Prepared rows replay generated or pre-chunked corpus bytes. File-backed rows read corpus chunks with readSync on demand and replay complete corpus cycles to the target byte count; this is still a synchronous file-source benchmark, not a browser fetch streaming proof.'
+        : 'The fixture rows are generated before timing and replayed to the target byte count. This isolates parser/source API overhead; it is not an OS, network, or browser fetch streaming proof.',
     },
     environment: createEnvironment(options.runtimeLabel),
     options: {
@@ -176,6 +188,7 @@ async function main() {
       actualBytes: fixture.actualBytes,
       sourceBytes: fixture.sourceBytes,
       chunkBytes: fixture.chunkBytes,
+      corpusFile: fixture.corpusFile,
       sizeGiB: fixture.actualBytes / GIB,
       rows: fixture.rows.length,
     },
@@ -278,6 +291,26 @@ async function consumeSyncByteBatches(fixture, batchSize) {
   };
 }
 
+async function consumeSyncFileByteBatches(fixture, batchSize) {
+  const counters = { reads: 0, batches: 0 };
+  let eventCount = 0;
+  let checksum = 0;
+  for (const batch of new StreamReaderSync(createSyncFileByteBatchSource(fixture, batchSize, counters))) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const event = materializeStreamBatchEvent(batch, index);
+      eventCount++;
+      checksum = foldEvent(checksum, event);
+    }
+  }
+  return {
+    eventCount,
+    checksum,
+    sourceReads: counters.reads,
+    sourceBatches: counters.batches,
+  };
+}
+
 async function consumeEventReader(reader, counters) {
   let eventCount = 0;
   let checksum = 0;
@@ -343,6 +376,41 @@ function* createSyncByteBatchSource(fixture, batchSize, counters) {
     }
     counters.batches++;
     yield batch;
+  }
+}
+
+function* createSyncFileByteBatchSource(fixture, batchSize, counters) {
+  if (!fixture.corpusFile) {
+    throw new Error('sync file byte batches require a corpus-cycle fixture.');
+  }
+  const fd = openSync(fixture.corpusFile, 'r');
+  let emittedBytes = 0;
+  let offset = 0;
+  try {
+    while (emittedBytes < fixture.actualBytes) {
+      const batch = [];
+      for (let index = 0; index < batchSize && emittedBytes < fixture.actualBytes; index++) {
+        const remainingInCycle = fixture.sourceBytes - offset;
+        const remainingTarget = fixture.actualBytes - emittedBytes;
+        const bytesToRead = Math.min(fixture.chunkBytes, remainingInCycle, remainingTarget);
+        const buffer = new Uint8Array(bytesToRead);
+        const bytesRead = readSync(fd, buffer, 0, bytesToRead, offset);
+        if (bytesRead !== bytesToRead) {
+          throw new Error(`Expected to read ${bytesToRead} bytes from ${fixture.corpusFile}, read ${bytesRead}.`);
+        }
+        batch.push(buffer);
+        offset += bytesRead;
+        emittedBytes += bytesRead;
+        counters.reads++;
+        if (offset >= fixture.sourceBytes) {
+          offset = 0;
+        }
+      }
+      counters.batches++;
+      yield batch;
+    }
+  } finally {
+    closeSync(fd);
   }
 }
 
@@ -461,6 +529,7 @@ function createFixture(options) {
     source: options.fixtureShape === 'corpus-cycle' ? 'corpus-cycle' : 'generated-diverse-cycle',
     sourceBytes: cycleBytes,
     chunkBytes: options.fixtureShape === 'corpus-cycle' ? options.corpusChunkKiB * 1024 : null,
+    corpusFile: options.fixtureShape === 'corpus-cycle' ? options.corpusFile : null,
   };
 }
 
@@ -533,12 +602,15 @@ function createFindings(report) {
     {
       id: 'fixture-cycle-source-scope',
       classification: 'SOURCE_FACT',
-      summary: 'The benchmark isolates parser/source API overhead by replaying prepared fixture rows, not by streaming the full target size from OS, network, or browser fetch.',
+      summary: report.fixture.corpusFile
+        ? 'Prepared rows replay fixture chunks; file-backed rows read corpus chunks from the OS file source on demand while preserving the same parser/checksum contract.'
+        : 'The benchmark isolates parser/source API overhead by replaying prepared fixture rows, not by streaming the full target size from OS, network, or browser fetch.',
       evidence: [
         `fixtureSource=${report.fixture.source}`,
         `fixtureRows=${report.fixture.rows}`,
         `sourceBytes=${report.fixture.sourceBytes}`,
         `actualBytes=${report.fixture.actualBytes}`,
+        `fileBackedRows=${report.variants.filter(row => row.family === 'sync-file-iterable-byte-batch').map(row => row.id).join(', ') || 'none'}`,
       ],
     },
     readable && asyncBatch
@@ -594,6 +666,7 @@ function renderMarkdown(report) {
     `- ReadableStream: ${report.sourceContract.readableStream}`,
     `- Async byte batch: ${report.sourceContract.asyncByteBatch}`,
     `- Sync iterable: ${report.sourceContract.syncIterable}`,
+    `- Sync file iterable: ${report.sourceContract.syncFileIterable}`,
     `- Scope: ${report.sourceContract.scope}`,
     '',
     '## Results',

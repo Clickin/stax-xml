@@ -11,7 +11,7 @@ const defaultJsonOut = join(__dirname, 'results', 'release', 'event-reader-byte-
 const defaultMdOut = join(__dirname, 'results', 'release', 'event-reader-byte-batch-cross-process-corpus.md');
 const defaultOutputDir = join(__dirname, 'results', 'cross-process', 'event-reader-byte-batch-corpus');
 const defaultCorpusFile = join(__dirname, 'assets', 'books.xml');
-const defaultVariants = ['readableStreamBatch16', 'asyncByteBatch16', 'syncIterableBatch16'];
+const defaultVariants = ['readableStreamBatch16', 'asyncByteBatch16', 'syncIterableBatch16', 'syncFileIterableBatch16'];
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -355,7 +355,7 @@ function findVariant(sample, variantId) {
 function createFindings(runtimeReports) {
   const syncRows = runtimeReports.flatMap(report =>
     report.variants
-      .filter(row => row.id.startsWith('syncIterableBatch'))
+      .filter(row => row.id.startsWith('syncIterableBatch') || row.id.startsWith('syncFileIterableBatch'))
       .map(row => `${report.runtime}: ${row.id} avg=${formatRate(row.avgMiBPerSec)} spread=${formatPercent(row.spreadRatio)}`),
   );
   const foundCounterexamples = runtimeReports.flatMap(report =>
@@ -373,8 +373,14 @@ function createFindings(runtimeReports) {
     {
       id: 'sync-iterable-source-headroom',
       classification: 'BENCH_FACT',
-      summary: 'Sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.',
+      summary: 'Prepared and file-backed sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.',
       evidence: syncRows,
+    },
+    {
+      id: 'file-backed-sync-source',
+      classification: 'BENCH_FACT',
+      summary: 'syncFileIterableBatch rows read corpus chunks from the OS file source on demand in each fresh process.',
+      evidence: syncRows.filter(row => row.includes('syncFileIterableBatch')),
     },
     {
       id: 'full-stax-counterexample-search',
@@ -395,6 +401,7 @@ function renderMarkdown(report) {
     '',
     'This report repeats selected EventReader byte-batch source rows in fresh runtime processes.',
     'All selected rows preserve the public event-object full-string checksum contract and demand-driven source consumption.',
+    'syncFileIterableBatch rows keep the synchronous parser pull shape but read corpus chunks from the OS file source on demand.',
     'It is cross-process timing evidence for the recorded machine, not a proof that JavaScript runtimes have no further headroom.',
     '',
     '## Options',

@@ -625,17 +625,19 @@ Node/V8 `syncIterableBatch1` at `132.57 MiB/s`, and no runtime crosses the
 `evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit `6120711`.
 
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
-then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`, and
-sync `Iterable<Uint8Array[]>` rows in three fresh processes per runtime on the
-same 1.00 GiB `books.xml` corpus-cycle fixture. All selected rows preserved
+then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`,
+prepared sync `Iterable<Uint8Array[]>`, and file-backed sync
+`Iterable<Uint8Array[]>` rows in three fresh processes per runtime on the same
+1.00 GiB `books.xml` corpus-cycle fixture. All selected rows preserved
 57,096,514 events, checksum `45154785`, and bounded RSS under the 512 MiB gate.
-The same prepared-fixture limitation applies here: this is a demand-driven
-parser/source-boundary comparison, not proof that a JS runtime can synchronously
-consume a live browser or OS stream without async handoff costs.
-The fresh-process averages were lower than the single-run release artifacts:
-Node/V8 `syncIterableBatch16` averaged `74.68 MiB/s` with `2.6%` spread, Bun/JSC
-averaged `53.38 MiB/s` with `1.4%` spread, and Deno/V8 averaged `67.76 MiB/s`
-with `0.2%` spread. This strengthens the stability evidence for the
+The file-backed rows read corpus chunks from the OS file source with `readSync`
+when the synchronous parser pulls the next batch. This closes the prepared
+fixture replay gap for Node/Bun/Deno file input, but it is still not browser
+fetch streaming proof. The fresh-process averages remain below the 200 MiB/s
+target: Node/V8 `syncIterableBatch16` averaged `77.67 MiB/s` with `2.5%` spread
+and `syncFileIterableBatch16` averaged `68.92 MiB/s` with `1.2%` spread; Bun/JSC
+averaged `51.46 MiB/s` and `49.41 MiB/s`; Deno/V8 averaged `67.09 MiB/s` and
+`61.75 MiB/s`. This strengthens the stability evidence for the
 source-boundary comparison, but it also reinforces that the current sync
 iterable path is headroom evidence, not a 200 MiB/s full-StAX counterexample.
 

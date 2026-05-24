@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T18:18:06.233Z",
+  "generatedAt": "2026-05-24T19:25:41.916Z",
   "objective": "event-reader-byte-batch-cross-process",
   "contract": "independent-process-public-event-object-full-string-checksum",
   "note": "Each sample invokes event-reader-byte-batch.mjs in a fresh process with --runs=1. All selected rows preserve the public event-object full-string checksum contract and demand-driven source consumption.",
@@ -21,7 +21,8 @@
     "variants": [
       "readableStreamBatch16",
       "asyncByteBatch16",
-      "syncIterableBatch16"
+      "syncIterableBatch16",
+      "syncFileIterableBatch16"
     ]
   },
   "rawArtifacts": {
@@ -50,6 +51,7 @@
         "actualBytes": 1073744736,
         "sourceBytes": 4551,
         "chunkBytes": 65536,
+        "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
         "sizeGiB": 1.0000027120113373,
         "rows": 1
       },
@@ -74,41 +76,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 52.197862633796454,
+              "mibPerSec": 52.805543278824224,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 207216640,
-              "maxHeapUsedBytes": 60916032
+              "maxRssBytes": 206675968,
+              "maxHeapUsedBytes": 39252160
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 46.997848550789676,
+              "mibPerSec": 49.93616342519064,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206745600,
-              "maxHeapUsedBytes": 45053472
+              "maxRssBytes": 206204928,
+              "maxHeapUsedBytes": 39748104
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 75.93039185475017,
+              "mibPerSec": 78.43147532196778,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206221312,
-              "maxHeapUsedBytes": 9825032
+              "maxRssBytes": 214216704,
+              "maxHeapUsedBytes": 9791336
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 68.74542537691619,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 227188736,
+              "maxHeapUsedBytes": 59990384
             }
           ]
         },
@@ -132,41 +147,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 52.661468268702826,
+              "mibPerSec": 53.84357857647687,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206200832,
-              "maxHeapUsedBytes": 40590016
+              "maxRssBytes": 205455360,
+              "maxHeapUsedBytes": 9912952
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 47.25047452450553,
+              "mibPerSec": 48.65135286025513,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206487552,
-              "maxHeapUsedBytes": 39817552
+              "maxRssBytes": 207007744,
+              "maxHeapUsedBytes": 39709080
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 73.99299293312541,
+              "mibPerSec": 78.13030066965413,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 215699456,
-              "maxHeapUsedBytes": 10345864
+              "maxRssBytes": 214814720,
+              "maxHeapUsedBytes": 9997720
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 69.42002627551777,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 227762176,
+              "maxHeapUsedBytes": 59883440
             }
           ]
         },
@@ -190,41 +218,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 52.5013953899721,
+              "mibPerSec": 54.04935806187558,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206979072,
-              "maxHeapUsedBytes": 39767872
+              "maxRssBytes": 206249984,
+              "maxHeapUsedBytes": 72794272
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 48.08458135216949,
+              "mibPerSec": 47.26666337614694,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 205656064,
-              "maxHeapUsedBytes": 39706328
+              "maxRssBytes": 206536704,
+              "maxHeapUsedBytes": 38102392
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 74.11295695215644,
+              "mibPerSec": 76.46246421139708,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 210247680,
-              "maxHeapUsedBytes": 10003288
+              "maxRssBytes": 214368256,
+              "maxHeapUsedBytes": 10227312
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 68.60499393019028,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 228335616,
+              "maxHeapUsedBytes": 59937488
             }
           ]
         }
@@ -234,7 +275,8 @@
         "rowIds": [
           "readableStreamBatch16",
           "asyncByteBatch16",
-          "syncIterableBatch16"
+          "syncIterableBatch16",
+          "syncFileIterableBatch16"
         ]
       },
       "variants": [
@@ -244,14 +286,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 52.4535754308238,
-          "minMiBPerSec": 52.197862633796454,
-          "maxMiBPerSec": 52.661468268702826,
-          "spreadRatio": 0.008838399119575348,
+          "avgMiBPerSec": 53.56615997239223,
+          "minMiBPerSec": 52.805543278824224,
+          "maxMiBPerSec": 54.04935806187558,
+          "spreadRatio": 0.023220159587553274,
           "mibPerSecSamples": [
-            52.197862633796454,
-            52.661468268702826,
-            52.5013953899721
+            52.805543278824224,
+            53.84357857647687,
+            54.04935806187558
           ],
           "eventCounts": [
             57096514
@@ -267,8 +309,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 207216640,
-          "maxHeapUsedBytes": 60916032,
+          "maxRssBytes": 206675968,
+          "maxHeapUsedBytes": 72794272,
           "counterexampleFound": false
         },
         {
@@ -277,14 +319,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 47.44430147582156,
-          "minMiBPerSec": 46.997848550789676,
-          "maxMiBPerSec": 48.08458135216949,
-          "spreadRatio": 0.022905444227767333,
+          "avgMiBPerSec": 48.61805988719757,
+          "minMiBPerSec": 47.26666337614694,
+          "maxMiBPerSec": 49.93616342519064,
+          "spreadRatio": 0.05490758074751263,
           "mibPerSecSamples": [
-            46.997848550789676,
-            47.25047452450553,
-            48.08458135216949
+            49.93616342519064,
+            48.65135286025513,
+            47.26666337614694
           ],
           "eventCounts": [
             57096514
@@ -300,8 +342,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 206745600,
-          "maxHeapUsedBytes": 45053472,
+          "maxRssBytes": 207007744,
+          "maxHeapUsedBytes": 39748104,
           "counterexampleFound": false
         },
         {
@@ -310,14 +352,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 74.67878058001067,
-          "minMiBPerSec": 73.99299293312541,
-          "maxMiBPerSec": 75.93039185475017,
-          "spreadRatio": 0.025943097980142268,
+          "avgMiBPerSec": 77.67474673433966,
+          "minMiBPerSec": 76.46246421139708,
+          "maxMiBPerSec": 78.43147532196778,
+          "spreadRatio": 0.025349437151112247,
           "mibPerSecSamples": [
-            75.93039185475017,
-            73.99299293312541,
-            74.11295695215644
+            78.43147532196778,
+            78.13030066965413,
+            76.46246421139708
           ],
           "eventCounts": [
             57096514
@@ -333,8 +375,41 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 215699456,
-          "maxHeapUsedBytes": 10345864,
+          "maxRssBytes": 214814720,
+          "maxHeapUsedBytes": 10227312,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncFileIterableBatch16",
+          "family": "sync-file-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 68.92348186087474,
+          "minMiBPerSec": 68.60499393019028,
+          "maxMiBPerSec": 69.42002627551777,
+          "spreadRatio": 0.011825176606322294,
+          "mibPerSecSamples": [
+            68.74542537691619,
+            69.42002627551777,
+            68.60499393019028
+          ],
+          "eventCounts": [
+            57096514
+          ],
+          "checksums": [
+            45154785
+          ],
+          "sourceReads": [
+            235936
+          ],
+          "sourceBatches": [
+            14746
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 228335616,
+          "maxHeapUsedBytes": 59990384,
           "counterexampleFound": false
         }
       ]
@@ -360,6 +435,7 @@
         "actualBytes": 1073744736,
         "sourceBytes": 4551,
         "chunkBytes": 65536,
+        "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
         "sizeGiB": 1.0000027120113373,
         "rows": 1
       },
@@ -384,41 +460,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 39.07681358785998,
+              "mibPerSec": 39.83350949498013,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 212119552,
-              "maxHeapUsedBytes": 38860641
+              "maxRssBytes": 213000192,
+              "maxHeapUsedBytes": 44792465
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 36.33692308157142,
+              "mibPerSec": 37.26447517598272,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 213544960,
-              "maxHeapUsedBytes": 45556659
+              "maxRssBytes": 219062272,
+              "maxHeapUsedBytes": 53106784
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 52.939605379822325,
+              "mibPerSec": 52.97364675304443,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 214130688,
-              "maxHeapUsedBytes": 46034280
+              "maxRssBytes": 217870336,
+              "maxHeapUsedBytes": 54712937
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 49.59655213355335,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 218804224,
+              "maxHeapUsedBytes": 53028089
             }
           ]
         },
@@ -442,41 +531,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 38.90202733717102,
+              "mibPerSec": 38.79313494525934,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 211795968,
-              "maxHeapUsedBytes": 15061918
+              "maxRssBytes": 213471232,
+              "maxHeapUsedBytes": 51143466
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 37.011599103691715,
+              "mibPerSec": 37.181182017928144,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 215248896,
-              "maxHeapUsedBytes": 49931560
+              "maxRssBytes": 211406848,
+              "maxHeapUsedBytes": 9266548
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 53.69038030280253,
+              "mibPerSec": 48.52485927720501,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 218664960,
-              "maxHeapUsedBytes": 50330631
+              "maxRssBytes": 211685376,
+              "maxHeapUsedBytes": 11319185
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 48.8496472187085,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 209465344,
+              "maxHeapUsedBytes": 56308942
             }
           ]
         },
@@ -500,41 +602,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 39.96086082733366,
+              "mibPerSec": 38.13371303309578,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 210505728,
-              "maxHeapUsedBytes": 34634164
+              "maxRssBytes": 210370560,
+              "maxHeapUsedBytes": 9136030
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 36.95889498789403,
+              "mibPerSec": 36.91890791078977,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 214032384,
-              "maxHeapUsedBytes": 43873346
+              "maxRssBytes": 218816512,
+              "maxHeapUsedBytes": 18974174
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 53.50936548785346,
+              "mibPerSec": 52.891244909095114,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 219529216,
-              "maxHeapUsedBytes": 46037063
+              "maxRssBytes": 216727552,
+              "maxHeapUsedBytes": 19989794
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 49.77397340763705,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 212115456,
+              "maxHeapUsedBytes": 14043288
             }
           ]
         }
@@ -544,7 +659,8 @@
         "rowIds": [
           "readableStreamBatch16",
           "asyncByteBatch16",
-          "syncIterableBatch16"
+          "syncIterableBatch16",
+          "syncFileIterableBatch16"
         ]
       },
       "variants": [
@@ -554,14 +670,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 39.31323391745489,
-          "minMiBPerSec": 38.90202733717102,
-          "maxMiBPerSec": 39.96086082733366,
-          "spreadRatio": 0.026933258464206987,
+          "avgMiBPerSec": 38.92011915777841,
+          "minMiBPerSec": 38.13371303309578,
+          "maxMiBPerSec": 39.83350949498013,
+          "spreadRatio": 0.04367397887435894,
           "mibPerSecSamples": [
-            39.07681358785998,
-            38.90202733717102,
-            39.96086082733366
+            39.83350949498013,
+            38.79313494525934,
+            38.13371303309578
           ],
           "eventCounts": [
             57096514
@@ -577,8 +693,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 212119552,
-          "maxHeapUsedBytes": 38860641,
+          "maxRssBytes": 213471232,
+          "maxHeapUsedBytes": 51143466,
           "counterexampleFound": false
         },
         {
@@ -587,14 +703,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 36.76913905771905,
-          "minMiBPerSec": 36.33692308157142,
-          "maxMiBPerSec": 37.011599103691715,
-          "spreadRatio": 0.018348975238751425,
+          "avgMiBPerSec": 37.12152170156688,
+          "minMiBPerSec": 36.91890791078977,
+          "maxMiBPerSec": 37.26447517598272,
+          "spreadRatio": 0.009309081345616319,
           "mibPerSecSamples": [
-            36.33692308157142,
-            37.011599103691715,
-            36.95889498789403
+            37.26447517598272,
+            37.181182017928144,
+            36.91890791078977
           ],
           "eventCounts": [
             57096514
@@ -610,8 +726,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 215248896,
-          "maxHeapUsedBytes": 49931560,
+          "maxRssBytes": 219062272,
+          "maxHeapUsedBytes": 53106784,
           "counterexampleFound": false
         },
         {
@@ -620,14 +736,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 53.37978372349278,
-          "minMiBPerSec": 52.939605379822325,
-          "maxMiBPerSec": 53.69038030280253,
-          "spreadRatio": 0.014064780158518798,
+          "avgMiBPerSec": 51.463250313114855,
+          "minMiBPerSec": 48.52485927720501,
+          "maxMiBPerSec": 52.97364675304443,
+          "spreadRatio": 0.08644590943579969,
           "mibPerSecSamples": [
-            52.939605379822325,
-            53.69038030280253,
-            53.50936548785346
+            52.97364675304443,
+            48.52485927720501,
+            52.891244909095114
           ],
           "eventCounts": [
             57096514
@@ -643,8 +759,41 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 219529216,
-          "maxHeapUsedBytes": 50330631,
+          "maxRssBytes": 217870336,
+          "maxHeapUsedBytes": 54712937,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncFileIterableBatch16",
+          "family": "sync-file-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 49.406724253299636,
+          "minMiBPerSec": 48.8496472187085,
+          "maxMiBPerSec": 49.77397340763705,
+          "spreadRatio": 0.01870850988196859,
+          "mibPerSecSamples": [
+            49.59655213355335,
+            48.8496472187085,
+            49.77397340763705
+          ],
+          "eventCounts": [
+            57096514
+          ],
+          "checksums": [
+            45154785
+          ],
+          "sourceReads": [
+            235936
+          ],
+          "sourceBatches": [
+            14746
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 218804224,
+          "maxHeapUsedBytes": 56308942,
           "counterexampleFound": false
         }
       ]
@@ -670,6 +819,7 @@
         "actualBytes": 1073744736,
         "sourceBytes": 4551,
         "chunkBytes": 65536,
+        "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
         "sizeGiB": 1.0000027120113373,
         "rows": 1
       },
@@ -694,41 +844,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 48.379513553040304,
+              "mibPerSec": 47.221920598640686,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136306688,
-              "maxHeapUsedBytes": 17883768
+              "maxRssBytes": 136220672,
+              "maxHeapUsedBytes": 25791112
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 44.10082336916661,
+              "mibPerSec": 43.20470872580814,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 137302016,
-              "maxHeapUsedBytes": 35736984
+              "maxRssBytes": 136695808,
+              "maxHeapUsedBytes": 44648880
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 67.8105424605261,
+              "mibPerSec": 65.91309857199977,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 142241792,
-              "maxHeapUsedBytes": 46177768
+              "maxRssBytes": 137748480,
+              "maxHeapUsedBytes": 21290168
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 59.959728432797945,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 148930560,
+              "maxHeapUsedBytes": 14026480
             }
           ]
         },
@@ -752,7 +915,7 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 48.49949836544153,
+              "mibPerSec": 48.031221386537965,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
@@ -760,33 +923,46 @@
               "fullStringParity": true,
               "boundedMemory": true,
               "maxRssBytes": 135733248,
-              "maxHeapUsedBytes": 22054472
+              "maxHeapUsedBytes": 16681064
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 44.1071696345604,
+              "mibPerSec": 44.0202459179902,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136445952,
-              "maxHeapUsedBytes": 40860920
+              "maxRssBytes": 136589312,
+              "maxHeapUsedBytes": 16998064
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 67.78563839633523,
+              "mibPerSec": 66.83928106347388,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 141180928,
-              "maxHeapUsedBytes": 17587048
+              "maxRssBytes": 141451264,
+              "maxHeapUsedBytes": 27468464
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 62.037441523939414,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 148221952,
+              "maxHeapUsedBytes": 14031776
             }
           ]
         },
@@ -810,41 +986,54 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 48.61667984573653,
+              "mibPerSec": 47.76806745629631,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 135315456,
-              "maxHeapUsedBytes": 36934864
+              "maxRssBytes": 135925760,
+              "maxHeapUsedBytes": 22165544
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 43.52929153110086,
+              "mibPerSec": 44.12033794275907,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136638464,
-              "maxHeapUsedBytes": 30298072
+              "maxRssBytes": 136437760,
+              "maxHeapUsedBytes": 43118648
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 67.69104559890536,
+              "mibPerSec": 68.5166310121054,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 140972032,
-              "maxHeapUsedBytes": 40616592
+              "maxRssBytes": 141172736,
+              "maxHeapUsedBytes": 19962984
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 63.26291194227551,
+              "eventCount": 57096514,
+              "checksum": 45154785,
+              "sourceReads": 235936,
+              "sourceBatches": 14746,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 148742144,
+              "maxHeapUsedBytes": 13989960
             }
           ]
         }
@@ -854,7 +1043,8 @@
         "rowIds": [
           "readableStreamBatch16",
           "asyncByteBatch16",
-          "syncIterableBatch16"
+          "syncIterableBatch16",
+          "syncFileIterableBatch16"
         ]
       },
       "variants": [
@@ -864,14 +1054,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 48.49856392140612,
-          "minMiBPerSec": 48.379513553040304,
-          "maxMiBPerSec": 48.61667984573653,
-          "spreadRatio": 0.004890171450861114,
+          "avgMiBPerSec": 47.67373648049165,
+          "minMiBPerSec": 47.221920598640686,
+          "maxMiBPerSec": 48.031221386537965,
+          "spreadRatio": 0.01697582039176746,
           "mibPerSecSamples": [
-            48.379513553040304,
-            48.49949836544153,
-            48.61667984573653
+            47.221920598640686,
+            48.031221386537965,
+            47.76806745629631
           ],
           "eventCounts": [
             57096514
@@ -887,8 +1077,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 136306688,
-          "maxHeapUsedBytes": 36934864,
+          "maxRssBytes": 136220672,
+          "maxHeapUsedBytes": 25791112,
           "counterexampleFound": false
         },
         {
@@ -897,14 +1087,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 43.91242817827595,
-          "minMiBPerSec": 43.52929153110086,
-          "maxMiBPerSec": 44.1071696345604,
-          "spreadRatio": 0.013159784767844459,
+          "avgMiBPerSec": 43.78176419551914,
+          "minMiBPerSec": 43.20470872580814,
+          "maxMiBPerSec": 44.12033794275907,
+          "spreadRatio": 0.02091348381627443,
           "mibPerSecSamples": [
-            44.10082336916661,
-            44.1071696345604,
-            43.52929153110086
+            43.20470872580814,
+            44.0202459179902,
+            44.12033794275907
           ],
           "eventCounts": [
             57096514
@@ -920,8 +1110,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 137302016,
-          "maxHeapUsedBytes": 40860920,
+          "maxRssBytes": 136695808,
+          "maxHeapUsedBytes": 44648880,
           "counterexampleFound": false
         },
         {
@@ -930,14 +1120,14 @@
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 67.7624088185889,
-          "minMiBPerSec": 67.69104559890536,
-          "maxMiBPerSec": 67.8105424605261,
-          "spreadRatio": 0.001763468325641207,
+          "avgMiBPerSec": 67.08967021585967,
+          "minMiBPerSec": 65.91309857199977,
+          "maxMiBPerSec": 68.5166310121054,
+          "spreadRatio": 0.03880675567086297,
           "mibPerSecSamples": [
-            67.8105424605261,
-            67.78563839633523,
-            67.69104559890536
+            65.91309857199977,
+            66.83928106347388,
+            68.5166310121054
           ],
           "eventCounts": [
             57096514
@@ -953,8 +1143,41 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 142241792,
-          "maxHeapUsedBytes": 46177768,
+          "maxRssBytes": 141451264,
+          "maxHeapUsedBytes": 27468464,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncFileIterableBatch16",
+          "family": "sync-file-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 61.75336063300429,
+          "minMiBPerSec": 59.959728432797945,
+          "maxMiBPerSec": 63.26291194227551,
+          "spreadRatio": 0.0534899392618993,
+          "mibPerSecSamples": [
+            59.959728432797945,
+            62.037441523939414,
+            63.26291194227551
+          ],
+          "eventCounts": [
+            57096514
+          ],
+          "checksums": [
+            45154785
+          ],
+          "sourceReads": [
+            235936
+          ],
+          "sourceBatches": [
+            14746
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 148930560,
+          "maxHeapUsedBytes": 14031776,
           "counterexampleFound": false
         }
       ]
@@ -974,11 +1197,24 @@
     {
       "id": "sync-iterable-source-headroom",
       "classification": "BENCH_FACT",
-      "summary": "Sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.",
+      "summary": "Prepared and file-backed sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.",
       "evidence": [
-        "node: syncIterableBatch16 avg=74.68 MiB/s spread=2.6%",
-        "bun: syncIterableBatch16 avg=53.38 MiB/s spread=1.4%",
-        "deno: syncIterableBatch16 avg=67.76 MiB/s spread=0.2%"
+        "node: syncIterableBatch16 avg=77.67 MiB/s spread=2.5%",
+        "node: syncFileIterableBatch16 avg=68.92 MiB/s spread=1.2%",
+        "bun: syncIterableBatch16 avg=51.46 MiB/s spread=8.6%",
+        "bun: syncFileIterableBatch16 avg=49.41 MiB/s spread=1.9%",
+        "deno: syncIterableBatch16 avg=67.09 MiB/s spread=3.9%",
+        "deno: syncFileIterableBatch16 avg=61.75 MiB/s spread=5.3%"
+      ]
+    },
+    {
+      "id": "file-backed-sync-source",
+      "classification": "BENCH_FACT",
+      "summary": "syncFileIterableBatch rows read corpus chunks from the OS file source on demand in each fresh process.",
+      "evidence": [
+        "node: syncFileIterableBatch16 avg=68.92 MiB/s spread=1.2%",
+        "bun: syncFileIterableBatch16 avg=49.41 MiB/s spread=1.9%",
+        "deno: syncFileIterableBatch16 avg=61.75 MiB/s spread=5.3%"
       ]
     },
     {
