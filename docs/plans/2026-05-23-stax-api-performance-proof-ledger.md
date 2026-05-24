@@ -179,8 +179,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 75 primary release JSON artifacts and recognizes 474
-measured rows. It finds 250 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 76 primary release JSON artifacts and recognizes 483
+measured rows. It finds 259 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
 `bun-candidate-headroom-books-corpus-stability.json` at 176.55 MiB/s with
@@ -195,7 +195,7 @@ event-count style work but drop the full-string StAX contract, so they are
 headroom evidence rather than runtime-limit counterexamples. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
-satisfy the bounded-memory counterexample rule. The scan reports 107 full-string
+satisfy the bounded-memory counterexample rule. The scan reports 80 full-string
 rows without bounded-memory proof. This scan is a mechanical guard over the
 current release artifacts; absence of a counterexample here is still not an
 impossibility proof.
@@ -207,14 +207,14 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 75 primary release artifacts and recognizes 474
-measured rows. It records 55 benchmark artifacts, 9 source artifacts, 3
-trace/profile artifacts, 9 allocation artifacts, 250 JavaScript 1 GiB+
+The current audit scans 76 primary release artifacts and recognizes 483
+measured rows. It records 56 benchmark artifacts, 9 source artifacts, 3
+trace/profile artifacts, 9 allocation artifacts, 259 JavaScript 1 GiB+
 full-string rows, and two release corpus seeds: `books.xml` and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
-coverage now includes 92 Chrome/V8 browser rows, 69 Firefox/SpiderMonkey
-browser rows, zero Safari/WebKit browser rows, and 69 non-V8 browser benchmark
+coverage now includes 92 Chrome/V8 browser rows, 78 Firefox/SpiderMonkey
+browser rows, zero Safari/WebKit browser rows, and 78 non-V8 browser benchmark
 rows.
 Firefox benchmark rows and exact tested-build TextDecoder source pinning are
 present, but Firefox codegen/allocation evidence remains a separate gap. Bun/JSC and
@@ -986,10 +986,21 @@ host process-tree counters peaked at `559.2 MiB` working set and `258.7 MiB`
 private bytes. This is browser V8 evidence only, not Safari/WebKit or
 SpiderMonkey evidence.
 
+`packages/benchmark/results/release/firefox-bidi-candidate-headroom-cross-process-books-corpus.md`
+adds the Firefox/SpiderMonkey counterpart as fresh Firefox processes with
+`processRuns=3`, child `runs=1`, and `warmups=0`. The Firefox
+fresh-browser-process books rerun averaged `62.55 MiB/s` for `stringFull`,
+`49.85 MiB/s` for public `eventObjectFull`, and `63.53 MiB/s` for
+`rawFrameNameId`. The timing spread was high: `25.8%`, `28.6%`, and `33.7%`
+respectively, so this is volatility evidence as well as a non-counterexample
+row. Firefox still exposes no Chromium-compatible row-level JS heap counter;
+the artifact records separate Windows host process-tree peaks of `839.8 MiB`
+working set and `678.3 MiB` private bytes.
+
 This is the strongest current bounded-memory full-string JS row in the release
 artifacts, but it still does not prove a runtime ceiling. It repeats selected
 Node/Bun rows both in the same process and in fresh runtime processes and adds
-Chrome/V8 fresh-browser-process evidence; the XML seed is still very small,
+Chrome/V8 and Firefox/SpiderMonkey fresh-browser-process evidence; the XML seed is still very small,
 Firefox memory remains host-counter only, Safari/WebKit is absent, and the best
 repeated row remains 11.7% below the 200 MiB/s counterexample threshold.
 
@@ -1978,7 +1989,7 @@ Acceptance:
    treebank corpus-cycle, Node/Bun/Chrome-V8/Firefox-SpiderMonkey books
    corpus-cycle, Node/Bun books corpus-cycle same-process stability,
    Node/Bun books corpus-cycle fresh-process stability,
-   Chrome/V8 books corpus-cycle fresh-browser-process stability,
+   Chrome/V8 and Firefox/SpiderMonkey books corpus-cycle fresh-browser-process stability,
    Node/Bun TextDecoder span variants, Chrome/V8
    TextDecoder generated/corpus rows, Firefox/SpiderMonkey TextDecoder
    generated/corpus rows, and Chrome/V8 browser allocation-sampling artifacts:
