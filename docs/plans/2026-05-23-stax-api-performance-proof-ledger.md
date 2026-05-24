@@ -624,6 +624,19 @@ Node/V8 `syncIterableBatch1` at `132.57 MiB/s`, and no runtime crosses the
 `books.xml` probe reports are preserved off-mainline on evidence branch
 `evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit `6120711`.
 
+Commit `4282219` tightens the report vocabulary for this exact hypothesis.
+`asyncByteBatch*` is now described as a row that avoids direct
+`ReadableStream` consumption but still crosses an `AsyncIterator` source
+boundary. `syncIterableBatch*` and `syncFileIterableBatch*` are the rows that
+remove both the `ReadableStream` and `AsyncIterator` source boundary while
+preserving demand-driven pulls. The same commit adds a top-level `parity`
+object to `event-reader-byte-batch` reports so every source-consumption row must
+match the same event count and checksum before throughput ratios are compared.
+This matters for proof classification: the source-boundary artifacts are
+headroom evidence against blaming all remaining cost on the JS parser core, but
+they are not runtime-ceiling proof and not a 200 MiB/s counterexample unless a
+bounded full-string row crosses the threshold.
+
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
 then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`,
 prepared sync `Iterable<Uint8Array[]>`, and file-backed sync

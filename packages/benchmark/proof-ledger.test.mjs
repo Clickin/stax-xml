@@ -444,6 +444,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /On Bun\/JSC, the same rows reported\s+`59\.25 MiB\/s`, `59\.49 MiB\/s`, and `88\.79 MiB\/s`/);
   assert.match(markdown, /On\s+Deno\/V8, they reported `43\.31 MiB\/s`, `42\.37 MiB\/s`, and `68\.91 MiB\/s`/);
   assert.match(markdown, /best current 1 GiB corpus-cycle sync-iterable row is\s+Node\/V8 `syncIterableBatch1` at `132\.57 MiB\/s`/);
+  assert.match(markdown, /Commit `4282219` tightens the report vocabulary for this exact hypothesis/);
+  assert.match(markdown, /`asyncByteBatch\*` is now described as a row that avoids direct\s+`ReadableStream` consumption but still crosses an `AsyncIterator` source\s+boundary/);
+  assert.match(markdown, /`syncIterableBatch\*` and `syncFileIterableBatch\*` are the rows that\s+remove both the `ReadableStream` and `AsyncIterator` source boundary/);
+  assert.match(markdown, /adds a top-level `parity`\s+object to `event-reader-byte-batch` reports/);
+  assert.match(markdown, /headroom evidence against blaming all remaining cost on the JS parser core/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
   assert.match(markdown, /file-backed sync\s+`Iterable<Uint8Array\[\]>` rows in three fresh processes per runtime on the same\s+1\.00 GiB `books\.xml` corpus-cycle fixture/);
   assert.match(markdown, /read corpus chunks from the OS file source with `readSync`/);
