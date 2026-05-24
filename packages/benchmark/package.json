@@ -163,6 +163,7 @@
     "bench:v8-string-limit-audit": "node ./v8-string-limit-audit.mjs --sizes-mib=512,1024 --fixture-shape=diverse-cycle --diverse-cycle-size=4096 --json-out=results/release/v8-string-limit-audit.json --md-out=results/release/v8-string-limit-audit.md",
     "bench:bun-jsc-string-limit-audit": "node ./bun-jsc-string-limit-audit.mjs --sizes-mib=512,1024 --fixture-shape=diverse-cycle --diverse-cycle-size=4096 --json-out=results/release/bun-jsc-string-limit-audit.json --md-out=results/release/bun-jsc-string-limit-audit.md",
     "bench:bun-jsc-source-pin-audit": "node ./bun-jsc-source-pin-audit.mjs --json-out=results/release/bun-jsc-source-pin-audit.json --md-out=results/release/bun-jsc-source-pin-audit.md",
+    "bench:bun-jsc-memory-allocation-profile": "node ./bun-jsc-memory-allocation-profile.mjs --size-gib=0.0625 --fixture-shape=diverse-cycle --diverse-cycle-size=4096 --cases=scanAllNoDecode,stringFull,eventObjectFull,rawFrameNameId --runs=3 --warmups=0 --output-dir=results/bun-jsc-memory-allocation-profile/bun-jsc-memory-allocation-profile-release --json-out=results/release/bun-jsc-memory-allocation-profile.json --md-out=results/release/bun-jsc-memory-allocation-profile.md",
     "bench:async:fast-path:poc": "node --expose-gc ./async-fast-path-poc.mjs",
     "bench:async:writer": "node --expose-gc ./async-writer.mjs",
     "bench:runtime-matrix": "node --expose-gc ./runtime-matrix.mjs",

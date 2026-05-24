@@ -33,8 +33,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 76);
-  assert.equal(report.summary.measuredRowCount, 483);
+  assert.equal(report.summary.scannedArtifactCount, 77);
+  assert.equal(report.summary.measuredRowCount, 487);
   assert.equal(report.summary.largeJsFullRowCount, 259);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 80);

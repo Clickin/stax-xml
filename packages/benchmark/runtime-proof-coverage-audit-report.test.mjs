@@ -32,8 +32,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 76);
-  assert.equal(report.summary.measuredRowCount, 483);
+  assert.equal(report.summary.scannedArtifactCount, 77);
+  assert.equal(report.summary.measuredRowCount, 487);
   assert.equal(report.summary.largeJsFullRowCount, 259);
   assert.equal(report.summary.corpusSeedCount, 2);
   assert.equal(report.summary.openObligationCount, 4);
@@ -55,6 +55,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     pin.runtimeId === 'firefox-spidermonkey-browser'
     && pin.sourceArtifact === 'firefox-spidermonkey-textdecoder-source-pin-audit.json'
   ));
+  assert.ok(report.coverage.runtimes.some(row =>
+    row.runtimeId === 'bun-jsc'
+    && row.allocationArtifacts.includes('bun-jsc-memory-allocation-profile.json')
+  ));
 
   assertObligation(report, 'firefox-browser-rows-open', 'covered');
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');
@@ -71,6 +75,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox benchmark rows and exact tested-build TextDecoder source pinning are now present/);
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
+  assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 78/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `treebank_e\.xml`/);
   assert.match(markdown, /4 proof obligation\(s\) remain open or partial/);

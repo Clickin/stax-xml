@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T08:32:52.244Z",
+  "generatedAt": "2026-05-24T09:03:03.049Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -427,6 +427,28 @@
         "bun-jsc"
       ],
       "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 4
+    },
+    {
+      "sourceArtifact": "bun-jsc-memory-allocation-profile.json",
+      "objective": "bun-jsc-memory-allocation-profile",
+      "contract": "process-memory-usage-endpoint-profile",
+      "evidenceKinds": [
+        "ALLOCATION_FACT",
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 0.06,
+        "sizeMiB": 64,
+        "actualBytes": 67109030
+      },
       "corpusSeed": null,
       "measuredRowCount": 4
     },
@@ -1509,14 +1531,14 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 76,
+    "scannedArtifactCount": 77,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 483,
-    "benchmarkArtifactCount": 56,
+    "measuredRowCount": 487,
+    "benchmarkArtifactCount": 57,
     "sourceArtifactCount": 9,
     "traceArtifactCount": 3,
-    "allocationArtifactCount": 9,
+    "allocationArtifactCount": 10,
     "largeJsFullRowCount": 259,
     "runtimeCount": 8,
     "corpusSeedCount": 2,
@@ -1578,8 +1600,8 @@
       {
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
-        "artifactCount": 18,
-        "measuredRowCount": 119,
+        "artifactCount": 19,
+        "measuredRowCount": 123,
         "largeFullStringRowCount": 66,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
@@ -1624,7 +1646,9 @@
         "traceArtifacts": [
           "bun-jsc-cpu-profile.json"
         ],
-        "allocationArtifacts": []
+        "allocationArtifacts": [
+          "bun-jsc-memory-allocation-profile.json"
+        ]
       },
       {
         "runtimeId": "deno-v8",
@@ -11683,6 +11707,28 @@
         "measuredRowCount": 3
       },
       {
+        "sourceArtifact": "bun-jsc-memory-allocation-profile.json",
+        "objective": "bun-jsc-memory-allocation-profile",
+        "contract": "process-memory-usage-endpoint-profile",
+        "evidenceKinds": [
+          "ALLOCATION_FACT",
+          "BENCH_FACT"
+        ],
+        "runtimes": [
+          "bun-jsc"
+        ],
+        "fixture": {
+          "source": "generated",
+          "shape": "diverse-cycle",
+          "sourceFile": null,
+          "sizeGiB": 0.06,
+          "sizeMiB": 64,
+          "actualBytes": 67109030
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 4
+      },
+      {
         "sourceArtifact": "quick-xml-allocation-count.json",
         "objective": "quick-xml-allocation-count",
         "contract": "measured-consume-global-allocator-count",
@@ -11880,7 +11926,7 @@
     {
       "id": "allocation-profiles-open",
       "status": "partial",
-      "evidence": "9 allocation/profile artifacts found. Bun/JSC allocation evidence missing. Non-V8 browser allocation evidence missing.",
+      "evidence": "10 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence missing.",
       "nextExperiment": "Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows."
     },
     {
