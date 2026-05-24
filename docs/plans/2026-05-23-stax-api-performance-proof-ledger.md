@@ -612,6 +612,22 @@ turns the async-batch optimization into a scenario-dependent result: it helped
 the generated tiny-row fixture, but it did not reveal corpus-cycle headroom or a
 200 MiB/s counterexample.
 
+Commit `a9bf6de` extends the same source-boundary benchmark with
+`syncIterableBatch*` rows. These rows consume a backpressure-preserving
+`Iterable<Uint8Array[]>` through `StreamReaderSync`, then materialize the same
+public event-object shape before folding the same full-string checksum. The raw
+1 GiB `books.xml` corpus-cycle probe reports are preserved off-mainline on
+evidence branch `evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit
+`6120711`. They show that the previous async-byte-batch comparison did not
+fully isolate source overhead: Node/V8 `syncIterableBatch16` reported
+`131.07 MiB/s` with `294.3 MiB` max RSS versus `readableStreamBatch16` at
+`84.27 MiB/s`; Deno/V8 reported `114.30 MiB/s` with `162.7 MiB` max RSS versus
+`68.62 MiB/s`; Bun/JSC reported `85.79 MiB/s` with `221.9 MiB` max RSS versus
+`57.79 MiB/s`. All three stayed under the 512 MiB RSS gate. This is material
+headroom evidence and invalidates using pure `ReadableStream` or
+`AsyncIterable` overhead as a runtime-ceiling argument, but it is still a
+single-run local probe and remains below the 200 MiB/s full-StAX target.
+
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
 `packages/benchmark/results/release/candidate-headroom-large-stability.md` is a
