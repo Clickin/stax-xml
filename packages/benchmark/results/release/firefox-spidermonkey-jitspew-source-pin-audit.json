@@ -1,0 +1,562 @@
+{
+  "generatedAt": "2026-05-24T22:04:15.143Z",
+  "objective": "firefox-spidermonkey-jitspew-source-pin-audit",
+  "contract": "spidermonkey-exact-revision-jitspew-source-lines",
+  "note": "Exact Gecko/SpiderMonkey source-line pinning for the JitSpew/IONFLAGS diagnostic path. This explains the diagnostic dump surface and compile-time gates; it is source evidence, not emitted JIT IR or optimized-code proof.",
+  "environment": {
+    "firefoxVersion": "143.0.1 build 20250918214338"
+  },
+  "source": {
+    "repository": "https://hg.mozilla.org/releases/mozilla-release",
+    "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+    "files": [
+      "js/src/jit/JitSpewer.h",
+      "js/src/jit/JitSpewer.cpp",
+      "js/moz.configure",
+      "js/src/moz.build"
+    ],
+    "fetchedAt": "2026-05-24T22:04:08.918Z"
+  },
+  "anchors": {
+    "debugAvailabilityComment": {
+      "status": "found",
+      "label": "JitSpewer availability comment",
+      "file": "js/src/jit/JitSpewer.h",
+      "lineNumber": 144,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.h#L144",
+      "context": [
+        {
+          "lineNumber": 142,
+          "text": "const char* ValTypeToString(JSValueType type);"
+        },
+        {
+          "lineNumber": 143,
+          "text": ""
+        },
+        {
+          "lineNumber": 144,
+          "text": "// The JitSpewer is only available on debug builds."
+        },
+        {
+          "lineNumber": 145,
+          "text": "// None of the global functions have effect on non-debug builds."
+        },
+        {
+          "lineNumber": 146,
+          "text": "#ifdef JS_JITSPEW"
+        }
+      ]
+    },
+    "jsJitSpewHeaderIfdef": {
+      "status": "found",
+      "label": "JitSpewer.h JS_JITSPEW guard",
+      "file": "js/src/jit/JitSpewer.h",
+      "lineNumber": 146,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.h#L146",
+      "context": [
+        {
+          "lineNumber": 144,
+          "text": "// The JitSpewer is only available on debug builds."
+        },
+        {
+          "lineNumber": 145,
+          "text": "// None of the global functions have effect on non-debug builds."
+        },
+        {
+          "lineNumber": 146,
+          "text": "#ifdef JS_JITSPEW"
+        },
+        {
+          "lineNumber": 147,
+          "text": ""
+        },
+        {
+          "lineNumber": 148,
+          "text": "// Class made to hold the MIR and LIR graphs of an Wasm / Ion compilation."
+        }
+      ]
+    },
+    "emptyGraphSpewerBackend": {
+      "status": "found",
+      "label": "non-JS_JITSPEW GraphSpewer backend",
+      "file": "js/src/jit/JitSpewer.h",
+      "lineNumber": 245,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.h#L245",
+      "context": [
+        {
+          "lineNumber": 243,
+          "text": "                       const wasm::CodeMetadata* wasmCodeMeta = nullptr) {}"
+        },
+        {
+          "lineNumber": 244,
+          "text": ""
+        },
+        {
+          "lineNumber": 245,
+          "text": "  bool isSpewing() { return false; }"
+        },
+        {
+          "lineNumber": 246,
+          "text": "  void init(MIRGraph* graph, JSScript* function) {}"
+        },
+        {
+          "lineNumber": 247,
+          "text": "  void beginFunction(JSScript* function) {}"
+        }
+      ]
+    },
+    "emptyJitSpewEnabled": {
+      "status": "found",
+      "label": "non-JS_JITSPEW JitSpewEnabled backend",
+      "file": "js/src/jit/JitSpewer.h",
+      "lineNumber": 296,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.h#L296",
+      "context": [
+        {
+          "lineNumber": 294,
+          "text": ""
+        },
+        {
+          "lineNumber": 295,
+          "text": "static inline void JitSpewHeader(JitSpewChannel channel) {}"
+        },
+        {
+          "lineNumber": 296,
+          "text": "static inline bool JitSpewEnabled(JitSpewChannel channel) { return false; }"
+        },
+        {
+          "lineNumber": 297,
+          "text": "static inline MOZ_FORMAT_PRINTF(2, 0) void JitSpewVA(JitSpewChannel channel,"
+        },
+        {
+          "lineNumber": 298,
+          "text": "                                                     const char* fmt,"
+        }
+      ]
+    },
+    "jitSpewerCppIfdef": {
+      "status": "found",
+      "label": "JitSpewer.cpp JS_JITSPEW guard",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 7,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L7",
+      "context": [
+        {
+          "lineNumber": 5,
+          "text": " * file, You can obtain one at http://mozilla.org/MPL/2.0/. */"
+        },
+        {
+          "lineNumber": 6,
+          "text": ""
+        },
+        {
+          "lineNumber": 7,
+          "text": "#ifdef JS_JITSPEW"
+        },
+        {
+          "lineNumber": 8,
+          "text": ""
+        },
+        {
+          "lineNumber": 9,
+          "text": "#  include \"jit/JitSpewer.h\""
+        }
+      ]
+    },
+    "jitSpewDir": {
+      "status": "found",
+      "label": "JIT_SPEW_DIR output directory",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 21,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L21",
+      "context": [
+        {
+          "lineNumber": 19,
+          "text": "#  include \"vm/MutexIDs.h\""
+        },
+        {
+          "lineNumber": 20,
+          "text": ""
+        },
+        {
+          "lineNumber": 21,
+          "text": "#  ifndef JIT_SPEW_DIR"
+        },
+        {
+          "lineNumber": 22,
+          "text": "#    if defined(_WIN32)"
+        },
+        {
+          "lineNumber": 23,
+          "text": "#      define JIT_SPEW_DIR \".\""
+        }
+      ]
+    },
+    "ionFlagsUsage": {
+      "status": "found",
+      "label": "IONFLAGS usage text",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 341,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L341",
+      "context": [
+        {
+          "lineNumber": 339,
+          "text": "  printf("
+        },
+        {
+          "lineNumber": 340,
+          "text": "      \"\\n\""
+        },
+        {
+          "lineNumber": 341,
+          "text": "      \"usage: IONFLAGS=option,option,option,... where options can be:\\n\""
+        },
+        {
+          "lineNumber": 342,
+          "text": "      \"\\n\""
+        },
+        {
+          "lineNumber": 343,
+          "text": "      \"  aborts        Compilation abort messages\\n\""
+        }
+      ]
+    },
+    "ionFlagsEnv": {
+      "status": "found",
+      "label": "IONFLAGS environment read",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 410,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L410",
+      "context": [
+        {
+          "lineNumber": 408,
+          "text": "  LoggingChecked = true;"
+        },
+        {
+          "lineNumber": 409,
+          "text": ""
+        },
+        {
+          "lineNumber": 410,
+          "text": "  char* env = getenv(\"IONFLAGS\");"
+        },
+        {
+          "lineNumber": 411,
+          "text": "  if (!env) {"
+        },
+        {
+          "lineNumber": 412,
+          "text": "    return;"
+        }
+      ]
+    },
+    "ionSpewFilename": {
+      "status": "found",
+      "label": "ION_SPEW_FILENAME environment read",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 534,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L534",
+      "context": [
+        {
+          "lineNumber": 532,
+          "text": ""
+        },
+        {
+          "lineNumber": 533,
+          "text": "  FILE* spewfh = stderr;"
+        },
+        {
+          "lineNumber": 534,
+          "text": "  const char* filename = getenv(\"ION_SPEW_FILENAME\");"
+        },
+        {
+          "lineNumber": 535,
+          "text": "  if (filename && *filename) {"
+        },
+        {
+          "lineNumber": 536,
+          "text": "    char actual_filename[2048] = {0};"
+        }
+      ]
+    },
+    "codegenChannel": {
+      "status": "found",
+      "label": "codegen channel enable",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 459,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L459",
+      "context": [
+        {
+          "lineNumber": 457,
+          "text": "      EnableChannel(JitSpew_IonSnapshots);"
+        },
+        {
+          "lineNumber": 458,
+          "text": "    } else if (IsFlag(found, \"codegen\")) {"
+        },
+        {
+          "lineNumber": 459,
+          "text": "      EnableChannel(JitSpew_Codegen);"
+        },
+        {
+          "lineNumber": 460,
+          "text": "    } else if (IsFlag(found, \"bailouts\")) {"
+        },
+        {
+          "lineNumber": 461,
+          "text": "      EnableChannel(JitSpew_IonBailouts);"
+        }
+      ]
+    },
+    "cppEndIfdef": {
+      "status": "found",
+      "label": "JitSpewer.cpp JS_JITSPEW endif",
+      "file": "js/src/jit/JitSpewer.cpp",
+      "lineNumber": 659,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/jit/JitSpewer.cpp#L659",
+      "context": [
+        {
+          "lineNumber": 657,
+          "text": "}"
+        },
+        {
+          "lineNumber": 658,
+          "text": ""
+        },
+        {
+          "lineNumber": 659,
+          "text": "#endif /* JS_JITSPEW */"
+        },
+        {
+          "lineNumber": 660,
+          "text": ""
+        },
+        {
+          "lineNumber": 661,
+          "text": "#if defined(JS_JITSPEW) || defined(ENABLE_JS_AOT_ICS)"
+        }
+      ]
+    },
+    "configureEnableJitSpew": {
+      "status": "found",
+      "label": "--enable-jitspew option",
+      "file": "js/moz.configure",
+      "lineNumber": 521,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/moz.configure#L521",
+      "context": [
+        {
+          "lineNumber": 519,
+          "text": ""
+        },
+        {
+          "lineNumber": 520,
+          "text": "option("
+        },
+        {
+          "lineNumber": 521,
+          "text": "    \"--enable-jitspew\","
+        },
+        {
+          "lineNumber": 522,
+          "text": "    default=depends(when=moz_debug)(lambda: True),"
+        },
+        {
+          "lineNumber": 523,
+          "text": "    help=\"{Enable|Disable} the Jit spew and IONFLAGS environment \" \"variable\","
+        }
+      ]
+    },
+    "configureIonFlagsHelp": {
+      "status": "found",
+      "label": "IONFLAGS configure help",
+      "file": "js/moz.configure",
+      "lineNumber": 523,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/moz.configure#L523",
+      "context": [
+        {
+          "lineNumber": 521,
+          "text": "    \"--enable-jitspew\","
+        },
+        {
+          "lineNumber": 522,
+          "text": "    default=depends(when=moz_debug)(lambda: True),"
+        },
+        {
+          "lineNumber": 523,
+          "text": "    help=\"{Enable|Disable} the Jit spew and IONFLAGS environment \" \"variable\","
+        },
+        {
+          "lineNumber": 524,
+          "text": ")"
+        },
+        {
+          "lineNumber": 525,
+          "text": ""
+        }
+      ]
+    },
+    "configureDefineJsJitSpew": {
+      "status": "found",
+      "label": "JS_JITSPEW define",
+      "file": "js/moz.configure",
+      "lineNumber": 526,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/moz.configure#L526",
+      "context": [
+        {
+          "lineNumber": 524,
+          "text": ")"
+        },
+        {
+          "lineNumber": 525,
+          "text": ""
+        },
+        {
+          "lineNumber": 526,
+          "text": "set_define(\"JS_JITSPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        },
+        {
+          "lineNumber": 527,
+          "text": "set_config(\"JS_JITSPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        },
+        {
+          "lineNumber": 528,
+          "text": ""
+        }
+      ]
+    },
+    "configureConfigJsJitSpew": {
+      "status": "found",
+      "label": "JS_JITSPEW config",
+      "file": "js/moz.configure",
+      "lineNumber": 527,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/moz.configure#L527",
+      "context": [
+        {
+          "lineNumber": 525,
+          "text": ""
+        },
+        {
+          "lineNumber": 526,
+          "text": "set_define(\"JS_JITSPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        },
+        {
+          "lineNumber": 527,
+          "text": "set_config(\"JS_JITSPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        },
+        {
+          "lineNumber": 528,
+          "text": ""
+        },
+        {
+          "lineNumber": 529,
+          "text": "# Also enable the structured spewer"
+        }
+      ]
+    },
+    "configureStructuredSpew": {
+      "status": "found",
+      "label": "structured spew enabled with jitspew",
+      "file": "js/moz.configure",
+      "lineNumber": 529,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/moz.configure#L529",
+      "context": [
+        {
+          "lineNumber": 527,
+          "text": "set_config(\"JS_JITSPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        },
+        {
+          "lineNumber": 528,
+          "text": ""
+        },
+        {
+          "lineNumber": 529,
+          "text": "# Also enable the structured spewer"
+        },
+        {
+          "lineNumber": 530,
+          "text": "set_define(\"JS_STRUCTURED_SPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        },
+        {
+          "lineNumber": 531,
+          "text": "set_config(\"JS_STRUCTURED_SPEW\", depends_if(\"--enable-jitspew\")(lambda _: True))"
+        }
+      ]
+    },
+    "mozBuildJsJitSpew": {
+      "status": "found",
+      "label": "js/src moz.build JS_JITSPEW gate",
+      "file": "js/src/moz.build",
+      "lineNumber": 576,
+      "url": "https://hg.mozilla.org/releases/mozilla-release/file/644b498d517849c3fb95679e2017e965fe62b77a/js/src/moz.build#L576",
+      "context": [
+        {
+          "lineNumber": 574,
+          "text": "    DIRS += [\"intgemm\"]"
+        },
+        {
+          "lineNumber": 575,
+          "text": ""
+        },
+        {
+          "lineNumber": 576,
+          "text": "if CONFIG[\"JS_JITSPEW\"]:"
+        },
+        {
+          "lineNumber": 577,
+          "text": "    DIRS += [\"zydis\"]"
+        },
+        {
+          "lineNumber": 578,
+          "text": ""
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-jitspew-compile-gate-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned SpiderMonkey JitSpew implementation is guarded by JS_JITSPEW, and the non-JS_JITSPEW backend reports no active spewing.",
+      "evidence": [
+        "JitSpewer.h JS_JITSPEW guard: js/src/jit/JitSpewer.h:146",
+        "non-JS_JITSPEW GraphSpewer backend: js/src/jit/JitSpewer.h:245",
+        "non-JS_JITSPEW JitSpewEnabled backend: js/src/jit/JitSpewer.h:296",
+        "JitSpewer.cpp JS_JITSPEW guard: js/src/jit/JitSpewer.cpp:7"
+      ]
+    },
+    {
+      "id": "spidermonkey-ionflags-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "IONFLAGS, ION_SPEW_FILENAME, JIT_SPEW_DIR, and the codegen channel are implemented inside the guarded JitSpewer source path.",
+      "evidence": [
+        "IONFLAGS usage text: js/src/jit/JitSpewer.cpp:341",
+        "IONFLAGS environment read: js/src/jit/JitSpewer.cpp:410",
+        "ION_SPEW_FILENAME environment read: js/src/jit/JitSpewer.cpp:534",
+        "JIT_SPEW_DIR output directory: js/src/jit/JitSpewer.cpp:21",
+        "codegen channel enable: js/src/jit/JitSpewer.cpp:459"
+      ]
+    },
+    {
+      "id": "spidermonkey-enable-jitspew-build-option-source-pin",
+      "classification": "SOURCE_FACT",
+      "summary": "The pinned Gecko configure logic exposes --enable-jitspew and maps it to JS_JITSPEW and JS_STRUCTURED_SPEW.",
+      "evidence": [
+        "--enable-jitspew option: js/moz.configure:521",
+        "IONFLAGS configure help: js/moz.configure:523",
+        "JS_JITSPEW define: js/moz.configure:526",
+        "JS_JITSPEW config: js/moz.configure:527",
+        "structured spew enabled with jitspew: js/moz.configure:529",
+        "js/src moz.build JS_JITSPEW gate: js/src/moz.build:576"
+      ]
+    },
+    {
+      "id": "spidermonkey-jitspew-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This source pin does not prove the installed Firefox binary build flags and does not close the Firefox/SpiderMonkey JIT IR or optimized-code proof obligation.",
+      "evidence": [
+        "Pair this with a diagnostic dump run or a build configuration artifact before claiming emitted codegen evidence.",
+        "A no-dump browser result remains a scoped negative result, not proof that SpiderMonkey has no codegen headroom."
+      ]
+    }
+  ]
+}

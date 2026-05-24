@@ -459,6 +459,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Gecko Profiler startup\/shutdown evidence/);
   assert.match(markdown, /7 threads, 9,054 samples, and 9,640 frames/);
   assert.match(markdown, /not JIT IR, not a deterministic\s+optimized-code dump/);
+  assert.match(markdown, /firefox-spidermonkey-jitspew-source-pin-audit\.md/);
+  assert.match(markdown, /pins\s+Gecko revision `644b498d517849c3fb95679e2017e965fe62b77a`/);
+  assert.match(markdown, /records the\s+`JS_JITSPEW` guard in `JitSpewer\.h` and `JitSpewer\.cpp`/);
+  assert.match(markdown, /`--enable-jitspew` configure option/);
+  assert.match(markdown, /firefox-spidermonkey-diagnostic-dump-audit\.md/);
+  assert.match(markdown, /`IONFLAGS=logs,codegen,mir,lir,aborts,scripts`/);
+  assert.match(markdown, /preserving full parity for 4,985 events and\s+checksum `1856142966`/);
+  assert.match(markdown, /emitted no dump files and no recognizable diagnostic\s+stream output/);
+  assert.match(markdown, /JitSpew source gate and diagnostic no-dump attempt are present/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);

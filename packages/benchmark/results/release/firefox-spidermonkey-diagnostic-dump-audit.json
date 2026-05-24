@@ -1,0 +1,98 @@
+{
+  "generatedAt": "2026-05-24T22:04:38.390Z",
+  "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+  "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+  "note": "Attempts to collect SpiderMonkey JIT diagnostic dump output from the installed Firefox browser while running the same browser reader harness. This is an availability audit; if no dump is emitted, it is not JIT IR evidence and must not be counted as optimized-code proof.",
+  "parameters": {
+    "sizeGiB": 0.0001,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 16,
+    "batchSize": 16,
+    "cases": [
+      "rawFrameNameId"
+    ],
+    "browserTimeoutMs": 180000,
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-diagnostic-dump-audit",
+    "diagnosticEnv": {
+      "IONFLAGS": "logs,codegen,mir,lir,aborts,scripts",
+      "JIT_SPEW_DIR": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-diagnostic-dump-audit",
+      "JS_JITSPEW": "logs,codegen,mir,lir,aborts,scripts"
+    }
+  },
+  "outcome": {
+    "status": "no-dump-emitted",
+    "completed": true,
+    "emittedDump": false,
+    "dumpFileCount": 0,
+    "dumpBytes": 0,
+    "stderrDiagnosticHits": 0,
+    "stdoutDiagnosticHits": 0,
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "error": null,
+    "stdoutTail": "Wrote firefox-bidi-candidate-headroom: 107600 bytes\nFastest partial: n/a\nFastest full: rawFrameNameId 26.04 MiB/s\n",
+    "stderrTail": "",
+    "dumpFiles": []
+  },
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "SpiderMonkey",
+    "browserName": "Firefox",
+    "browserVersion": "143.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "unavailable",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+  },
+  "variants": [
+    {
+      "id": "rawFrameNameId",
+      "mibPerSec": 26.044506712007887,
+      "eventCount": 4985,
+      "checksum": 1856142966,
+      "fullStringParity": true
+    }
+  ],
+  "parity": {
+    "status": "ok",
+    "rowIds": [
+      "rawFrameNameId"
+    ],
+    "eventCount": 4985,
+    "checksum": 1856142966
+  },
+  "findings": [
+    {
+      "id": "same-harness-diagnostic-run-completed",
+      "classification": "BENCH_FACT",
+      "summary": "The Firefox browser reader harness completed while SpiderMonkey diagnostic dump environment variables were set.",
+      "evidence": [
+        "rawFrameNameId: events=4985, checksum=1856142966, throughput=26.04 MiB/s"
+      ]
+    },
+    {
+      "id": "spidermonkey-diagnostic-dump-not-emitted",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The installed Firefox run completed but did not emit SpiderMonkey JIT diagnostic dump files or recognizable diagnostic stream output.",
+      "evidence": [
+        "IONFLAGS=logs,codegen,mir,lir,aborts,scripts",
+        "JS_JITSPEW=logs,codegen,mir,lir,aborts,scripts",
+        "JIT_SPEW_DIR was set to the audit output directory",
+        "This is not JIT IR evidence; keep the codegen proof obligation open."
+      ]
+    },
+    {
+      "id": "diagnostic-dump-audit-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This artifact is an availability audit for diagnostic dump output, not a proof that SpiderMonkey has no optimized-code headroom.",
+      "evidence": [
+        "A no-dump result may mean the installed release build does not expose this diagnostic surface.",
+        "A future debug/nightly/js-shell run can still provide SpiderMonkey JIT IR or optimized-code evidence."
+      ]
+    }
+  ]
+}

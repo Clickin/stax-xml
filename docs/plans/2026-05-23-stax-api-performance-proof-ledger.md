@@ -667,6 +667,28 @@ counts and checksums while recording a Gecko profile with `js`, `stackwalk`, and
 SpiderMonkey runtime profile evidence, but it is not JIT IR, not a deterministic
 optimized-code dump, not a 1 GiB profile, and not a runtime ceiling proof.
 
+`packages/benchmark/results/release/firefox-spidermonkey-jitspew-source-pin-audit.md`
+narrows the SpiderMonkey codegen gap to a source-gated diagnostic path. It pins
+Gecko revision `644b498d517849c3fb95679e2017e965fe62b77a` and records the
+`JS_JITSPEW` guard in `JitSpewer.h` and `JitSpewer.cpp`, the non-`JS_JITSPEW`
+backend that reports no active spewing, the `IONFLAGS` and `ION_SPEW_FILENAME`
+environment reads, `JIT_SPEW_DIR`, the `JitSpew_Codegen` channel, and the
+`--enable-jitspew` configure option. This is stronger than a vague "Firefox
+does not dump IR" statement because it identifies the compile-time gate and the
+source locations for the requested diagnostic surface.
+
+`packages/benchmark/results/release/firefox-spidermonkey-diagnostic-dump-audit.md`
+then attempts the same installed Firefox browser reader harness with
+`IONFLAGS=logs,codegen,mir,lir,aborts,scripts`, `JS_JITSPEW` set to the same
+channels, and `JIT_SPEW_DIR` pointed at the audit output directory. The run
+completed for `rawFrameNameId`, preserving full parity for 4,985 events and
+checksum `1856142966`, but emitted no dump files and no recognizable diagnostic
+stream output. This is a scoped `NEGATIVE_RESULT` for the installed Firefox
+build's diagnostic surface, not SpiderMonkey JIT IR evidence and not proof that
+SpiderMonkey has no codegen headroom. The coverage audit should therefore say
+the JitSpew source gate and diagnostic no-dump attempt are present, while the
+Firefox JIT IR / optimized-code dump remains missing.
+
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
 `packages/benchmark/results/release/candidate-headroom-large-stability.md` is a
