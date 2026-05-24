@@ -621,6 +621,18 @@ Node/V8 `syncIterableBatch1` at `132.57 MiB/s`, and no runtime crosses the
 `books.xml` probe reports are preserved off-mainline on evidence branch
 `evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit `6120711`.
 
+`packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
+then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`, and
+sync `Iterable<Uint8Array[]>` rows in three fresh processes per runtime on the
+same 1.00 GiB `books.xml` corpus-cycle fixture. All selected rows preserved
+57,096,514 events, checksum `45154785`, and bounded RSS under the 512 MiB gate.
+The fresh-process averages were lower than the single-run release artifacts:
+Node/V8 `syncIterableBatch16` averaged `74.68 MiB/s` with `2.6%` spread, Bun/JSC
+averaged `53.38 MiB/s` with `1.4%` spread, and Deno/V8 averaged `67.76 MiB/s`
+with `0.2%` spread. This strengthens the stability evidence for the
+source-boundary comparison, but it also reinforces that the current sync
+iterable path is headroom evidence, not a 200 MiB/s full-StAX counterexample.
+
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
 `packages/benchmark/results/release/candidate-headroom-large-stability.md` is a

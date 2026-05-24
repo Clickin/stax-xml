@@ -433,6 +433,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /On Bun\/JSC, the same rows reported\s+`59\.25 MiB\/s`, `59\.49 MiB\/s`, and `88\.79 MiB\/s`/);
   assert.match(markdown, /On\s+Deno\/V8, they reported `43\.31 MiB\/s`, `42\.37 MiB\/s`, and `68\.91 MiB\/s`/);
   assert.match(markdown, /best current 1 GiB corpus-cycle sync-iterable row is\s+Node\/V8 `syncIterableBatch1` at `132\.57 MiB\/s`/);
+  assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
+  assert.match(markdown, /three fresh processes per runtime on the\s+same 1\.00 GiB `books\.xml` corpus-cycle fixture/);
+  assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `74\.68 MiB\/s` with `2\.6%` spread/);
+  assert.match(markdown, /Bun\/JSC\s+averaged `53\.38 MiB\/s` with `1\.4%` spread, and Deno\/V8 averaged `67\.76 MiB\/s`\s+with `0\.2%` spread/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);
