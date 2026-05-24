@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 103);
+  assert.equal(report.summary.scannedArtifactCount, 104);
   assert.equal(report.summary.measuredRowCount, 624);
   assert.equal(report.summary.largeJsFullRowCount, 375);
   assert.equal(report.summary.corpusSeedCount, 3);

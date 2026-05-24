@@ -180,7 +180,7 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 100 primary release JSON artifacts and recognizes 623
+The current scan covers 104 primary release JSON artifacts and recognizes 624
 measured rows. It finds 375 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Node/V8 `rawFrameNameId` from
@@ -208,15 +208,15 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 100 primary release artifacts and recognizes 623
-measured rows. It records 72 benchmark artifacts, 12 source artifacts, 7
-trace/profile artifacts, 13 allocation artifacts, 1 environment artifact, and 2
-negative-result artifacts, 375 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+The current audit scans 104 primary release artifacts and recognizes 624
+measured rows. It records 73 benchmark artifacts, 13 source artifacts, 7
+trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
+4 negative-result artifacts, 375 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
-coverage now includes 98 Chrome/V8 browser rows, 81 Firefox/SpiderMonkey
-browser rows, zero Safari/WebKit browser rows, and 81 non-V8 browser benchmark
+coverage now includes 98 Chrome/V8 browser rows, 82 Firefox/SpiderMonkey
+browser rows, zero Safari/WebKit browser rows, and 82 non-V8 browser benchmark
 rows.
 Firefox benchmark rows, exact tested-build JS string and TextDecoder source
 pinning, a tested-build page memory API boundary pin, and Firefox host
@@ -233,14 +233,31 @@ API boundary pin explains why current Firefox rows remain host process-tree
 memory evidence, and the Firefox allocation profile must not be read as
 row-level JS heap proof.
 
-The audit reports 1 open or partial obligations after scanning the current
-release artifacts: Safari/browser JSC rows. The Safari/WebKit availability
-artifact records the local host and harness gap, but it is not a benchmark row
-and not evidence that Safari/WebKit cannot be a counterexample. This narrows
-the next counterexample search queue; it still does not turn missing evidence
-into evidence that optimization is impossible, and it does not turn newly
-covered codegen or corpus-count evidence into proof that optimization is
-exhausted.
+The audit reports 2 open or partial obligations after scanning the current
+release artifacts: Safari/browser JSC rows and Firefox/SpiderMonkey emitted JIT
+IR or optimized-code dumps. The Safari/WebKit availability artifact records the
+local host and harness gap, but it is not a benchmark row and not evidence that
+Safari/WebKit cannot be a counterexample. The Firefox/SpiderMonkey source pin,
+diagnostic no-dump attempt, and local js-shell availability audit narrow the
+codegen route, but they are not emitted JIT IR. This narrows the next
+counterexample search queue; it still does not turn missing evidence into
+evidence that optimization is impossible, and it does not turn newly covered
+codegen or corpus-count evidence into proof that optimization is exhausted.
+
+## Current Evidence: Runtime Proof Gap Handoff
+
+`packages/benchmark/results/release/runtime-proof-gap-handoff.md` converts the
+current open coverage obligations into concrete external-run handoffs. It is a
+runbook artifact, not benchmark evidence and not a runtime-limit conclusion.
+The handoff currently covers both active obligations with no unhandled gaps:
+`safari-webkit-browser-row-handoff` maps the Safari/WebKit browser-row
+obligation to the existing `safari-webdriver-candidate-headroom.mjs` and
+`browser-candidate-headroom-cross-process.mjs --harness safari-webdriver`
+commands on macOS; `spidermonkey-codegen-handoff` maps the Firefox/SpiderMonkey
+codegen obligation to the existing diagnostic dump audit and js-shell
+availability path. Both handoffs require rerunning the coverage audit and
+counterexample scan after external evidence is produced, and both preserve the
+guard that missing local tools are environment facts only.
 
 ## Current Evidence: Safari/WebKit Availability Audit
 

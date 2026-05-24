@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T20:49:06.731Z",
+  "generatedAt": "2026-05-24T22:27:58.906Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1412,6 +1412,50 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+      "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+      "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "NEGATIVE_RESULT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 1
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-jitspew-source-pin-audit.json",
+      "objective": "firefox-spidermonkey-jitspew-source-pin-audit",
+      "contract": "spidermonkey-exact-revision-jitspew-source-lines",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
+      "objective": "firefox-spidermonkey-js-shell-availability-audit",
+      "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
+      "evidenceKinds": [
+        "ENVIRONMENT_FACT",
+        "NEGATIVE_RESULT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "firefox-spidermonkey-memory-api-source-pin-audit.json",
       "objective": "firefox-spidermonkey-memory-api-source-pin-audit",
       "contract": "firefox-bidi-page-memory-api-boundary",
@@ -1628,6 +1672,16 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 36
+    },
+    {
+      "sourceArtifact": "runtime-proof-gap-handoff.json",
+      "objective": "runtime-proof-gap-handoff",
+      "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
+      "evidenceKinds": [],
+      "runtimes": [],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
     },
     {
       "sourceArtifact": "safari-webkit-availability-audit.json",
@@ -1959,16 +2013,16 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 100,
+    "scannedArtifactCount": 104,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 623,
-    "benchmarkArtifactCount": 72,
-    "sourceArtifactCount": 12,
+    "measuredRowCount": 624,
+    "benchmarkArtifactCount": 73,
+    "sourceArtifactCount": 13,
     "traceArtifactCount": 7,
     "allocationArtifactCount": 13,
-    "environmentArtifactCount": 1,
-    "negativeArtifactCount": 2,
+    "environmentArtifactCount": 2,
+    "negativeArtifactCount": 4,
     "largeJsFullRowCount": 375,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
@@ -2170,8 +2224,8 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "runtimeLabel": "Firefox/SpiderMonkey browser",
-        "artifactCount": 16,
-        "measuredRowCount": 81,
+        "artifactCount": 19,
+        "measuredRowCount": 82,
         "largeFullStringRowCount": 70,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -2191,6 +2245,13 @@
           "contractScope": "independent-browser-process-candidate-headroom-stability"
         },
         "sourcePins": [
+          {
+            "runtimeId": "firefox-spidermonkey-browser",
+            "kind": "SpiderMonkey JitSpew source boundary",
+            "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+            "limitation": "source pin only; not emitted JIT IR or optimized-code proof",
+            "sourceArtifact": "firefox-spidermonkey-jitspew-source-pin-audit.json"
+          },
           {
             "runtimeId": "firefox-spidermonkey-browser",
             "kind": "Firefox page memory API boundary",
@@ -5273,6 +5334,23 @@
           "contractScope": "full-string-materialization"
         },
         {
+          "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": null,
+          "fixtureSource": null,
+          "fixtureShape": null,
+          "corpusSeed": null,
+          "mibPerSec": 26.04,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "not-recorded",
+          "eventCount": 4985,
+          "checksum": 1856142966,
+          "contractScope": "firefox-browser-spidermonkey-diagnostic-dump-availability"
+        },
+        {
           "sourceArtifact": "firefox-spidermonkey-profiler-trace.json",
           "id": "stringFull",
           "runtimeId": "firefox-spidermonkey-browser",
@@ -6652,6 +6730,23 @@
           "contractScope": "full-string-materialization"
         },
         {
+          "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": null,
+          "fixtureSource": null,
+          "fixtureShape": null,
+          "corpusSeed": null,
+          "mibPerSec": 26.04,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "not-recorded",
+          "eventCount": 4985,
+          "checksum": 1856142966,
+          "contractScope": "firefox-browser-spidermonkey-diagnostic-dump-availability"
+        },
+        {
           "sourceArtifact": "firefox-spidermonkey-profiler-trace.json",
           "id": "stringFull",
           "runtimeId": "firefox-spidermonkey-browser",
@@ -8029,6 +8124,23 @@
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
+        },
+        {
+          "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+          "id": "rawFrameNameId",
+          "runtimeId": "firefox-spidermonkey-browser",
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "sizeGiB": null,
+          "fixtureSource": null,
+          "fixtureShape": null,
+          "corpusSeed": null,
+          "mibPerSec": 26.04,
+          "fullStringParity": true,
+          "boundedMemory": null,
+          "memoryKind": "not-recorded",
+          "eventCount": 4985,
+          "checksum": 1856142966,
+          "contractScope": "firefox-browser-spidermonkey-diagnostic-dump-availability"
         },
         {
           "sourceArtifact": "firefox-spidermonkey-profiler-trace.json",
@@ -13190,6 +13302,13 @@
       },
       {
         "runtimeId": "firefox-spidermonkey-browser",
+        "kind": "SpiderMonkey JitSpew source boundary",
+        "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+        "limitation": "source pin only; not emitted JIT IR or optimized-code proof",
+        "sourceArtifact": "firefox-spidermonkey-jitspew-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "firefox-spidermonkey-browser",
         "kind": "Firefox page memory API boundary",
         "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
         "limitation": "negative page API capability evidence; not an allocation profile",
@@ -13644,6 +13763,21 @@
     ],
     "environmentArtifacts": [
       {
+        "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
+        "objective": "firefox-spidermonkey-js-shell-availability-audit",
+        "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
+        "evidenceKinds": [
+          "ENVIRONMENT_FACT",
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "safari-webkit-availability-audit.json",
         "objective": "safari-webkit-availability-audit",
         "contract": "local-safari-webkit-browser-row-availability",
@@ -13657,13 +13791,77 @@
         "corpusSeed": null,
         "measuredRowCount": 0
       }
+    ],
+    "negativeArtifacts": [
+      {
+        "sourceArtifact": "firefox-fetch-readable-stream-timeout-audit.json",
+        "objective": "firefox-fetch-readable-stream-timeout-audit",
+        "contract": "firefox-browser-fetch-readable-stream-full-event-object-timeout",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+        "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+        "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 1
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
+        "objective": "firefox-spidermonkey-js-shell-availability-audit",
+        "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
+        "evidenceKinds": [
+          "ENVIRONMENT_FACT",
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "materialization-contract-audit.json",
+        "objective": "materialization-contract-audit",
+        "contract": "semantic-materialization-not-object-shape",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "NEGATIVE_RESULT",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8",
+          "woodstox-jvm",
+          "quick-xml-rust"
+        ],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 8
+      }
     ]
   },
   "obligations": [
     {
       "id": "firefox-browser-rows-open",
       "status": "covered",
-      "evidence": "81 Firefox/SpiderMonkey browser benchmark rows found.",
+      "evidence": "82 Firefox/SpiderMonkey browser benchmark rows found.",
       "nextExperiment": "Broaden Firefox coverage with corpus/projection rows plus SpiderMonkey codegen and allocation evidence."
     },
     {
@@ -13675,7 +13873,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build. Firefox/SpiderMonkey local js-shell availability audit present; no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {
@@ -13687,7 +13885,7 @@
     {
       "id": "non-v8-browser-coverage-open",
       "status": "covered",
-      "evidence": "81 non-V8 browser benchmark rows found.",
+      "evidence": "82 non-V8 browser benchmark rows found.",
       "nextExperiment": "Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence."
     },
     {
