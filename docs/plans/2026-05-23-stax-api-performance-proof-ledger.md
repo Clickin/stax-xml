@@ -180,8 +180,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 104 primary release JSON artifacts and recognizes 624
-measured rows. It finds 375 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 105 primary release JSON artifacts and recognizes 642
+measured rows. It finds 393 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Node/V8 `rawFrameNameId` from
 `candidate-headroom-cross-process-books-corpus.json` at 180.08 MiB/s with
@@ -208,10 +208,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 104 primary release artifacts and recognizes 624
-measured rows. It records 73 benchmark artifacts, 13 source artifacts, 7
+The current audit scans 105 primary release artifacts and recognizes 642
+measured rows. It records 74 benchmark artifacts, 13 source artifacts, 7
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-4 negative-result artifacts, 375 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+4 negative-result artifacts, 393 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -258,6 +258,27 @@ codegen obligation to the existing diagnostic dump audit and js-shell
 availability path. Both handoffs require rerunning the coverage audit and
 counterexample scan after external evidence is produced, and both preserve the
 guard that missing local tools are environment facts only.
+
+## Current Evidence: Multi-Chunk Byte Batch Probe
+
+`packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus-batch16.md`
+tests the remaining `Iterable<Uint8Array[]>` batch-size hypothesis on the
+1.00 GiB `books.xml` corpus under the same selected full-string checksum
+contract. The prior fastest corpus-cycle rows used `batchSize=1`; this probe
+uses `batchSize=16` in fresh Node/V8 and Bun/JSC processes for `stringFull`,
+`eventObjectFull`, and `rawFrameNameId`.
+
+This is a negative result for "larger byte-batch grouping is free headroom" in
+the current sync cursor. The report records the source fact that a single-item
+batch can be scanned as a `Uint8Array` view, but a multi-item batch is
+concatenated into one parser buffer before scanning. With that source-copy path
+active, Node/V8 `rawFrameNameId` averaged `99.83 MiB/s`, Node/V8 `stringFull`
+averaged `119.66 MiB/s`, Bun/JSC `rawFrameNameId` averaged `92.49 MiB/s`, and
+Bun/JSC `stringFull` averaged `123.45 MiB/s`; all rows preserved full parity
+and bounded RSS, and none approached the 200 MiB/s counterexample threshold.
+This does not prove batching cannot be improved by changing the parser core to
+scan chunk arrays without concatenation, but it closes the current
+configuration as a counterexample candidate.
 
 ## Current Evidence: Safari/WebKit Availability Audit
 

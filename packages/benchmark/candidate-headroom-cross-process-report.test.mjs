@@ -53,6 +53,9 @@ test('candidate headroom cross-process report separates projection rows from ful
   assert.equal(report.contract, 'independent-process-candidate-headroom-stability');
   assert.deepEqual(report.options.runtimes, ['node', 'deno']);
   assert.equal(report.options.processRuns, 2);
+  assert.match(report.sourceContract.multiChunkBatchCost, /batchSize=1 can scan a single Uint8Array view/);
+  assert.match(report.sourceContract.multiChunkBatchCost, /batchSize>1 groups chunks/);
+  assert.match(report.sourceContract.childSourceContract.multiChunkBatchCost, /concatenated into one parser buffer/);
   assert.deepEqual(report.options.cases, [
     'stringFull',
     'rawFrameNameId',
@@ -95,6 +98,8 @@ test('candidate headroom cross-process report separates projection rows from ful
   assert.match(markdown, /fresh runtime processes/);
   assert.match(markdown, /not a proof that JavaScript runtimes have no further headroom/);
   assert.match(markdown, /Projection rows report projected record counts/);
+  assert.match(markdown, /## Source Contract/);
+  assert.match(markdown, /Multi-chunk batch cost:/);
   assert.match(markdown, /Runtime: deno/);
   assert.match(markdown, /Deno:/);
   assert.match(markdown, /Stream\/full rows stable across processes: yes/);

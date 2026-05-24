@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 104);
-  assert.equal(report.summary.measuredRowCount, 624);
-  assert.equal(report.summary.largeJsFullRowCount, 375);
+  assert.equal(report.summary.scannedArtifactCount, 105);
+  assert.equal(report.summary.measuredRowCount, 642);
+  assert.equal(report.summary.largeJsFullRowCount, 393);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 73);
+  assert.equal(report.summary.benchmarkArtifactCount, 74);
   assert.equal(report.summary.sourceArtifactCount, 13);
   assert.equal(report.summary.traceArtifactCount, 7);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -91,6 +91,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('node-v8')
     && row.runtimes.includes('bun-jsc')
     && row.runtimes.includes('deno-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-batch16.json'
+    && row.runtimes.includes('node-v8')
+    && row.runtimes.includes('bun-jsc')
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'browser-fetch-readable-stream-books-corpus.json'

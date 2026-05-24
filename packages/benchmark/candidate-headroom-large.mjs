@@ -425,6 +425,7 @@ function createReport(fixture, options, variants) {
         ? 'The corpus file is read once as a seed buffer and sliced into Uint8Array views; measured rows consume synchronous Iterable<Uint8Array[]> parser pulls, not a pure ReadableStream and not one full 1 GiB ArrayBuffer parser input.'
         : 'The generated row cycle is encoded into Uint8Array fixtures; measured rows consume synchronous Iterable<Uint8Array[]> parser pulls, not a pure ReadableStream and not one full 1 GiB ArrayBuffer parser input.',
       batchBackpressure: 'byteBatches(fixture) yields one grouped Uint8Array[] batch per synchronous parser pull and does not prebuild the repeated 1 GiB+ stream.',
+      multiChunkBatchCost: 'The current sync cursor can use a single Uint8Array batch item as a view, but a batch containing multiple Uint8Array chunks is concatenated into one parser buffer before scanning.',
       readableStreamScope: 'This Node/Bun large matrix does not consume a pure ReadableStream directly; browser fetch streaming rows are measured in browser-candidate-headroom.',
       corpusScope: corpusBacked
         ? 'corpus-cycle loads one corpus seed with readFileSync, wraps it in Uint8Array, and replays that seed as byte batches to the target size.'
@@ -644,6 +645,17 @@ function createFindings(variants, fixture) {
         ? 'Rows consume corpus-backed Uint8Array batches and do not load a full XML string.'
         : 'Rows consume generated Uint8Array batches and do not load a full XML string.',
       evidence: fullRows.map((entry) => `${entry.id}: maxRSS=${formatBytes(entry.memory.maxRssBytes)}`),
+    },
+    {
+      id: 'multi-chunk-batch-cost',
+      summary: fixture.batchSize > 1
+        ? 'This run groups multiple Uint8Array chunks per parser pull; the current sync cursor concatenates multi-chunk batches before scanning, so larger batch size is a source-copy hypothesis rather than a free async-overhead reduction.'
+        : 'This run uses one Uint8Array chunk per parser pull when possible, which avoids the sync cursor multi-chunk concatenation path except for pending tail repair.',
+      evidence: [
+        `batchSize=${fixture.batchSize}`,
+        'singleChunk=direct Uint8Array view',
+        'multiChunk=concat into parser buffer',
+      ],
     },
     {
       id: 'contract-separation',
@@ -1684,6 +1696,7 @@ function renderMarkdown(report) {
     `- Parser input: ${report.sourceContract.parserInput}`,
     `- ArrayBuffer consumption: ${report.sourceContract.arrayBufferConsumption}`,
     `- Batch/backpressure: ${report.sourceContract.batchBackpressure}`,
+    `- Multi-chunk batch cost: ${report.sourceContract.multiChunkBatchCost}`,
     `- ReadableStream scope: ${report.sourceContract.readableStreamScope}`,
     `- Corpus scope: ${report.sourceContract.corpusScope}`,
     '',

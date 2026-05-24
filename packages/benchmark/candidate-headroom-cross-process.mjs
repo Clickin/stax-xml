@@ -238,6 +238,10 @@ function trimSpawnOutput(result) {
 }
 
 function createReport(options, samples) {
+  const firstSampleReport = samples[0]?.report;
+  if (!firstSampleReport) {
+    throw new Error('No candidate headroom samples were recorded.');
+  }
   const grouped = groupBy(samples, sample => sample.runtime);
   const runtimeReports = [...grouped.entries()].map(([runtime, runtimeSamples]) => {
     const first = runtimeSamples[0].report;
@@ -272,8 +276,12 @@ function createReport(options, samples) {
       outputDir: options.outputDir,
       committed: false,
     },
+    sourceContract: {
+      childSourceContract: firstSampleReport.sourceContract ?? null,
+      multiChunkBatchCost: 'Each child process invokes candidate-headroom-large.mjs. With the current sync cursor, batchSize=1 can scan a single Uint8Array view, while batchSize>1 groups chunks and triggers multi-chunk concatenation before parser scanning.',
+    },
     runtimes: runtimeReports,
-    findings: createFindings(runtimeReports),
+    findings: createFindings(runtimeReports, options),
   };
 }
 
@@ -358,7 +366,7 @@ function summarizeVariant(caseId, samples) {
   };
 }
 
-function createFindings(runtimeReports) {
+function createFindings(runtimeReports, options) {
   const findings = [
     {
       id: 'independent-process-rerun',
@@ -387,6 +395,18 @@ function createFindings(runtimeReports) {
       : 'No full-string row reported a 200 MiB/s bounded-memory counterexample in these independent process samples.',
     evidence: foundCounterexamples.length > 0 ? foundCounterexamples : ['counterexample=not-found'],
   });
+  if (options.batchSize > 1) {
+    findings.push({
+      id: 'multi-chunk-batch-copy-path',
+      classification: 'SOURCE_FACT',
+      summary: 'This cross-process run intentionally exercises grouped Uint8Array[] batches; current candidate-headroom children concatenate multi-chunk batches before parser scanning.',
+      evidence: [
+        `batchSize=${options.batchSize}`,
+        'childHarness=candidate-headroom-large.mjs',
+        'singleChunk=direct view, multiChunk=concat',
+      ],
+    });
+  }
 
   return findings;
 }
@@ -412,6 +432,13 @@ function renderMarkdown(report) {
     `- Batch size: ${report.options.batchSize}`,
     `- Bounded RSS gate: ${report.options.boundedRssMiB.toFixed(1)} MiB`,
     `- Cases: ${report.options.cases.join(', ')}`,
+    '',
+    '## Source Contract',
+    '',
+    `- Multi-chunk batch cost: ${report.sourceContract.multiChunkBatchCost}`,
+    ...(report.sourceContract.childSourceContract?.multiChunkBatchCost
+      ? [`- Child source contract: ${report.sourceContract.childSourceContract.multiChunkBatchCost}`]
+      : []),
     '',
     '## Raw Artifacts',
     '',

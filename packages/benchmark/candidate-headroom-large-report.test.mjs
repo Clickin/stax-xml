@@ -61,6 +61,8 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.match(report.sourceContract.arrayBufferConsumption, /synchronous Iterable<Uint8Array\[\]>/);
   assert.match(report.sourceContract.arrayBufferConsumption, /not one full 1 GiB ArrayBuffer parser input/);
   assert.match(report.sourceContract.batchBackpressure, /one grouped Uint8Array\[\] batch per synchronous parser pull/);
+  assert.match(report.sourceContract.multiChunkBatchCost, /single Uint8Array batch item as a view/);
+  assert.match(report.sourceContract.multiChunkBatchCost, /concatenated into one parser buffer/);
   assert.match(report.sourceContract.readableStreamScope, /does not consume a pure ReadableStream directly/);
   assert.match(report.sourceContract.corpusScope, /generated fixtures/);
   assert.equal(report.eventCountParity.status, 'ok');
@@ -122,6 +124,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.ok(rawStringCache.materializationCounters.rawValueCacheHits > 0);
   assert.ok(rawStringCache.materializationCounters.rawSpanMaterializations <= rawNameId.materializationCounters.rawSpanMaterializations);
   assert.ok(report.findings.some(entry => entry.id === 'source-consumption-contract'));
+  assert.ok(report.findings.some(entry => entry.id === 'multi-chunk-batch-cost'));
   assert.ok(report.findings.some(entry => entry.id === 'fold-trim-text-checksum-candidate'));
   assert.ok(!report.omittedRows.some(entry => entry.id === 'eventObjectFull'));
   assert.ok(report.omittedRows.some(entry => entry.id === 'projectionLowSelectivity'));
@@ -142,6 +145,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.match(markdown, /generated `Uint8Array` batches/);
   assert.match(markdown, /## Source Consumption/);
   assert.match(markdown, /ArrayBuffer consumption:/);
+  assert.match(markdown, /Multi-chunk batch cost:/);
   assert.match(markdown, /synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /does not consume a pure ReadableStream directly/);
   assert.match(markdown, /Partial rows intentionally skip/);
