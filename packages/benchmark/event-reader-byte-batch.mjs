@@ -199,6 +199,7 @@ async function main() {
   for (const variant of variants) {
     report.variants.push(await measureVariant(variant, fixture, options));
   }
+  report.parity = computeParity(report.variants);
   report.findings = createFindings(report);
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
@@ -592,7 +593,20 @@ function createFindings(report) {
   const syncBatch = comparedBatchSize
     ? report.variants.find(row => row.id === `syncIterableBatch${comparedBatchSize}`)
     : undefined;
+  const asyncRatio = readable && asyncBatch ? asyncBatch.mibPerSec / readable.mibPerSec : undefined;
+  const syncRatio = readable && syncBatch ? syncBatch.mibPerSec / readable.mibPerSec : undefined;
   return [
+    {
+      id: 'full-string-parity',
+      classification: 'CONTRACT_FACT',
+      summary: 'All selected source-consumption rows preserve the same public event-object full-string checksum contract.',
+      evidence: [
+        `status=${report.parity.status}`,
+        `events=${report.parity.eventCount}`,
+        `checksum=${report.parity.checksum}`,
+        `rows=${report.parity.rowIds.join(', ')}`,
+      ],
+    },
     {
       id: 'backpressure-preserved',
       classification: 'SOURCE_FACT',
@@ -617,7 +631,7 @@ function createFindings(report) {
       ? {
           id: 'async-byte-batch-headroom',
           classification: 'BENCH_FACT',
-          summary: `At batch size ${comparedBatchSize}, async byte batches were ${(asyncBatch.mibPerSec / readable.mibPerSec).toFixed(2)}x the ReadableStream row on this run.`,
+          summary: `At batch size ${comparedBatchSize}, async byte batches were ${asyncRatio.toFixed(2)}x the ReadableStream row on this run; this row avoids direct ReadableStream consumption but still crosses an AsyncIterator source boundary.`,
           evidence: [
             `readableStreamBatch${comparedBatchSize}=${readable.mibPerSec.toFixed(2)} MiB/s`,
             `asyncByteBatch${comparedBatchSize}=${asyncBatch.mibPerSec.toFixed(2)} MiB/s`,
@@ -628,7 +642,7 @@ function createFindings(report) {
       ? {
           id: 'sync-iterable-byte-batch-headroom',
           classification: 'BENCH_FACT',
-          summary: `At batch size ${comparedBatchSize}, sync iterable byte batches were ${(syncBatch.mibPerSec / readable.mibPerSec).toFixed(2)}x the ReadableStream row on this run.`,
+          summary: `At batch size ${comparedBatchSize}, sync iterable byte batches were ${syncRatio.toFixed(2)}x the ReadableStream row on this run; this is the row that removes the ReadableStream and AsyncIterator source boundary while preserving demand-driven pulls.`,
           evidence: [
             `readableStreamBatch${comparedBatchSize}=${readable.mibPerSec.toFixed(2)} MiB/s`,
             `syncIterableBatch${comparedBatchSize}=${syncBatch.mibPerSec.toFixed(2)} MiB/s`,
@@ -636,6 +650,28 @@ function createFindings(report) {
         }
       : null,
   ].filter(Boolean);
+}
+
+function computeParity(variants) {
+  if (variants.length === 0) {
+    return {
+      status: 'not-applicable',
+      eventCount: null,
+      checksum: null,
+      rowIds: [],
+    };
+  }
+  const first = variants[0];
+  const mismatch = variants.find(row => row.eventCount !== first.eventCount || row.checksum !== first.checksum);
+  if (mismatch) {
+    throw new Error(`${mismatch.id} does not preserve event count/checksum parity with ${first.id}.`);
+  }
+  return {
+    status: 'ok',
+    eventCount: first.eventCount,
+    checksum: first.checksum,
+    rowIds: variants.map(row => row.id),
+  };
 }
 
 function renderMarkdown(report) {
@@ -668,6 +704,13 @@ function renderMarkdown(report) {
     `- Sync iterable: ${report.sourceContract.syncIterable}`,
     `- Sync file iterable: ${report.sourceContract.syncFileIterable}`,
     `- Scope: ${report.sourceContract.scope}`,
+    '',
+    '## Parity',
+    '',
+    `- Full-string parity: ${report.parity.status}`,
+    `- Events: ${report.parity.eventCount}`,
+    `- Checksum: ${report.parity.checksum}`,
+    `- Rows: ${report.parity.rowIds.join(', ')}`,
     '',
     '## Results',
     '',

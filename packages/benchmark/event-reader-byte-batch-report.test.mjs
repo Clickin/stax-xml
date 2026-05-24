@@ -53,6 +53,7 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.equal(report.options.runtimeLabel, 'Node/V8 test');
   assert.equal(report.environment.runtimeLabel, 'Node/V8 test');
   assert.deepEqual(report.options.batchSizes, [1, 4]);
+  assert.equal(report.parity.status, 'ok');
   assert.deepEqual(report.variants.map(row => row.id), [
     'readableStreamBatch1',
     'readableStreamBatch4',
@@ -74,11 +75,17 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.equal(asyncBatch.checksum, readable.checksum);
   assert.equal(syncBatch.eventCount, readable.eventCount);
   assert.equal(syncBatch.checksum, readable.checksum);
+  assert.equal(report.parity.eventCount, readable.eventCount);
+  assert.equal(report.parity.checksum, readable.checksum);
+  assert.deepEqual(report.parity.rowIds, report.variants.map(row => row.id));
   assert.ok(asyncBatch.sourceBatches < asyncBatch.sourceReads);
   assert.ok(syncBatch.sourceBatches < syncBatch.sourceReads);
+  assert.ok(report.findings.some(row => row.id === 'full-string-parity'));
   assert.ok(report.findings.some(row => row.id === 'backpressure-preserved'));
   assert.ok(report.findings.some(row => row.id === 'fixture-cycle-source-scope'));
   assert.ok(report.findings.some(row => row.id === 'async-byte-batch-headroom'));
+  assert.match(report.findings.find(row => row.id === 'async-byte-batch-headroom').summary, /AsyncIterator source boundary/);
+  assert.match(report.findings.find(row => row.id === 'sync-iterable-byte-batch-headroom').summary, /removes the ReadableStream and AsyncIterator source boundary/);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /EventReader Byte Batch Benchmark/);
@@ -86,6 +93,7 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.match(markdown, /AsyncIterable<Uint8Array\[\]>/);
   assert.match(markdown, /Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Source Contract/);
+  assert.match(markdown, /Full-string parity: ok/);
   assert.match(markdown, /not an OS, network, or browser fetch streaming proof/);
   assert.match(markdown, /Runtime: Node\/V8 test/);
   assert.match(markdown, /asyncByteBatch4/);
@@ -137,6 +145,7 @@ test('EventReader byte-batch report supports a corpus-cycle fixture seed', () =>
   assert.equal(report.options.fixtureShape, 'corpus-cycle');
   assert.equal(report.options.corpusFile, corpusFile);
   assert.equal(report.options.corpusChunkKiB, 1);
+  assert.equal(report.parity.status, 'ok');
   assert.ok(report.fixture.rows > 1);
   assert.ok(report.fixture.sourceBytes > 0);
   assert.equal(report.fixture.chunkBytes, 1024);
