@@ -12,6 +12,8 @@ const jsonOut = join(tmpDir, 'browser-textdecoder-span-variants-report-test.json
 const mdOut = join(tmpDir, 'browser-textdecoder-span-variants-report-test.md');
 const corpusJsonOut = join(tmpDir, 'browser-textdecoder-span-variants-corpus-report-test.json');
 const corpusMdOut = join(tmpDir, 'browser-textdecoder-span-variants-corpus-report-test.md');
+const firefoxJsonOut = join(tmpDir, 'firefox-bidi-textdecoder-span-variants-report-test.json');
+const firefoxMdOut = join(tmpDir, 'firefox-bidi-textdecoder-span-variants-report-test.md');
 
 test('browser TextDecoder span variants stay on the same full-string contract', (t) => {
   const browserExecutable = findBrowserExecutable();
@@ -172,6 +174,94 @@ test('browser TextDecoder span variants support a corpus-cycle fixture seed', (t
   assert.match(markdown, /corpus-cycle-fixture/);
 });
 
+test('Firefox BiDi TextDecoder span variants record SpiderMonkey rows without JS heap proof', (t) => {
+  const browserExecutable = findFirefoxExecutable();
+  if (!browserExecutable) {
+    t.skip('Firefox executable was not found.');
+    return;
+  }
+
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [firefoxJsonOut, firefoxMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-bidi-textdecoder-span-variants.mjs'),
+    '--browser-executable',
+    browserExecutable,
+    '--size-gib',
+    '0.0001',
+    '--fixture-shape',
+    'diverse-cycle',
+    '--diverse-cycle-size',
+    '16',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--json-out',
+    firefoxJsonOut,
+    '--md-out',
+    firefoxMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 120_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(firefoxJsonOut, 'utf8'));
+  assert.equal(report.objective, 'firefox-bidi-textdecoder-span-variants');
+  assert.equal(report.contract, 'firefox-bidi-full-string-textdecoder-span-variant-headroom');
+  assert.equal(report.automation.protocol, 'WebDriver BiDi');
+  assert.equal(report.environment.runtimeName, 'browser');
+  assert.equal(report.environment.browserName, 'Firefox');
+  assert.equal(report.environment.javascriptEngine, 'SpiderMonkey');
+  assert.match(report.environment.userAgent, /Firefox/);
+  assert.equal(report.fixture.generated, true);
+  assert.equal(report.fixture.shape, 'diverse-cycle');
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.equal(report.eventCountParity.status, 'ok');
+  assert.deepEqual(report.variants.map(entry => entry.id), [
+    'subarraySharedDecoder',
+    'viewSharedDecoder',
+    'sliceCopySharedDecoder',
+    'subarrayNewDecoder',
+    'shortAsciiSubarraySharedDecoder',
+  ]);
+
+  for (const entry of report.variants) {
+    assert.equal(entry.fullStringParity, true);
+    assert.equal(entry.decodeStrategy.usesTextDecoder, true);
+    assert.equal(entry.decodeStrategy.nodeBufferSpecific, false);
+    assert.equal(entry.decodeStrategy.nativeAddon, false);
+    assert.equal(entry.decodeStrategy.lazyGetter, false);
+    assert.equal(entry.memory.scope, 'browser-js-heap-unavailable');
+    assert.equal(entry.memory.maxJsHeapUsedBytes, null);
+    assert.equal(entry.boundedMemory, false);
+    assert.equal(entry.runtimeLimitCounterexampleEligible, false);
+  }
+
+  assert.equal(report.hostProcessMemory.scope, process.platform === 'win32' ? 'windows-process-tree' : 'unsupported');
+  assert.ok(report.findings.some(entry =>
+    entry.id === 'browser-memory-scope'
+    && /browser JS heap unavailable/.test(entry.summary)
+  ));
+
+  const markdown = readFileSync(firefoxMdOut, 'utf8');
+  assert.match(markdown, /# Browser TextDecoder Span Variant Matrix/);
+  assert.match(markdown, /Firefox BiDi Notes/);
+  assert.match(markdown, /SpiderMonkey/);
+  assert.match(markdown, /does not expose compatible `performance\.memory`/);
+  assert.match(markdown, /does not use Playwright, Selenium, CDP, Node `Buffer\.toString\(\)`, native addons, or lazy getters/);
+  assert.match(markdown, /not a proof that JavaScript runtimes have no further headroom/);
+});
+
 function findBrowserExecutable() {
   const candidates = [
     process.env.CHROME_PATH,
@@ -180,6 +270,15 @@ function findBrowserExecutable() {
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  ].filter(Boolean);
+  return candidates.find(candidate => existsSync(candidate));
+}
+
+function findFirefoxExecutable() {
+  const candidates = [
+    process.env.FIREFOX_PATH,
+    'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+    'C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
   ].filter(Boolean);
   return candidates.find(candidate => existsSync(candidate));
 }

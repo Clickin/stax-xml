@@ -438,4 +438,15 @@ function delay(ms) {
   return new Promise(resolveDelay => setTimeout(resolveDelay, ms));
 }
 
-await main();
+export {
+  FirefoxBidiClient,
+  evaluateRunner,
+  findFirefoxExecutable,
+  launchFirefox,
+  safeRemoveDir,
+  terminateBrowser,
+};
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main();
+}

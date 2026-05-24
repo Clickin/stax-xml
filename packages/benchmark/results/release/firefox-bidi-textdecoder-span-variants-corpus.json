@@ -1,0 +1,535 @@
+{
+  "generatedAt": "2026-05-24T05:53:20.861Z",
+  "objective": "firefox-bidi-textdecoder-span-variants",
+  "contract": "firefox-bidi-full-string-textdecoder-span-variant-headroom",
+  "note": "Firefox/SpiderMonkey TextDecoder span materialization variants under the same full-string checksum contract. Firefox page JS heap counters are unavailable, so host process-tree memory is separate evidence.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "SpiderMonkey",
+    "browserName": "Firefox",
+    "browserVersion": "143.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "unavailable",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+  },
+  "fixture": {
+    "generated": false,
+    "source": "corpus-file",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+    "shape": "corpus-cycle",
+    "rowXml": "<FILE name=\"head.cmb\" >\r\n <EMPTY>\r\n  <S>\r\n   <NP>\r\n    <JJ>Vz+gjytHnSqmoW8pTex59B==</JJ>\r\n    <NN>l333Xdexuj+rLngvm5JwYa==</NN>\r\n    <NNS>0fKDQZ+3ZRIjAo11SUyMQx==</NNS>\r\n   </NP>\r\n   <VBP>ItAvafJCEinspfoHNn8VbR==</VBP>\r\n   <VP>\r\n    <VBN>wtLif6joihOeW/VvC+lIW6==</VBN>\r\n    <NP>\r\n     <NN>CRtAgTzGVllR050ybz8wLM==</NN>\r\n    </NP>\r\n    <S>\r\n     <NP>\r\n      <_NONE_>O9Dgkfn4JDLYMry5bfJG39==</_NONE_>\r\n     </NP>\r\n     <TO>l7qHDSm13CMOXnY+jkrZ6t==</TO>\r\n     <VP>\r\n      <VB>OrwbtC5iVeBNpJFWBVdiLK==</VB>\r\n      <N",
+    "rowPreviewTruncated": true,
+    "rowCycleSize": 1,
+    "minRowBytes": 89565617,
+    "maxRowBytes": 89565617,
+    "averageRowBytes": 89565617,
+    "targetBytes": 1073741824,
+    "actualBytes": 1074787404,
+    "sizeGiB": 1.0009737722575665,
+    "batchSize": 1
+  },
+  "options": {
+    "sizeGiB": 1,
+    "runs": 1,
+    "warmups": 0,
+    "boundedJsHeapMiB": 512
+  },
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+    "samples": [
+      {
+        "label": "browser-started",
+        "at": "2026-05-24T05:51:16.591Z",
+        "scope": "windows-process-tree",
+        "rootPid": 42188,
+        "processCount": 12,
+        "workingSetBytes": 773210112,
+        "privateBytes": 641142784
+      },
+      {
+        "label": "before-run",
+        "at": "2026-05-24T05:51:17.349Z",
+        "scope": "windows-process-tree",
+        "rootPid": 42188,
+        "processCount": 12,
+        "workingSetBytes": 769105920,
+        "privateBytes": 635707392
+      },
+      {
+        "label": "after-run",
+        "at": "2026-05-24T05:53:20.264Z",
+        "scope": "windows-process-tree",
+        "rootPid": 42188,
+        "processCount": 12,
+        "workingSetBytes": 9817239552,
+        "privateBytes": 9823809536
+      }
+    ],
+    "maxWorkingSetBytes": 9817239552,
+    "maxPrivateBytes": 9823809536,
+    "maxProcessCount": 12
+  },
+  "eventCountParity": {
+    "status": "ok",
+    "eventCount": 75206126,
+    "rowIds": [
+      "subarraySharedDecoder",
+      "viewSharedDecoder",
+      "sliceCopySharedDecoder",
+      "subarrayNewDecoder",
+      "shortAsciiSubarraySharedDecoder"
+    ]
+  },
+  "fullStringParity": {
+    "status": "ok",
+    "rowIds": [
+      "subarraySharedDecoder",
+      "viewSharedDecoder",
+      "sliceCopySharedDecoder",
+      "subarrayNewDecoder",
+      "shortAsciiSubarraySharedDecoder"
+    ],
+    "eventCount": 75206126,
+    "checksum": -925527041
+  },
+  "variants": [
+    {
+      "id": "subarraySharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "avgMs": 20305.92,
+      "minMs": 20305.92,
+      "maxMs": 20305.92,
+      "mibPerSec": 50.477749483487976,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "samplesMs": [
+        20305.92
+      ],
+      "memory": {
+        "scope": "browser-js-heap-unavailable",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 0,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "viewSharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "shared TextDecoder over new Uint8Array(buffer, offset, length)",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "decodeStrategy": {
+        "spanView": "Uint8Array constructor view",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "avgMs": 20660.699999999997,
+      "minMs": 20660.699999999997,
+      "maxMs": 20660.699999999997,
+      "mibPerSec": 49.610959105536026,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "samplesMs": [
+        20660.699999999997
+      ],
+      "memory": {
+        "scope": "browser-js-heap-unavailable",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 0,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "sliceCopySharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "shared TextDecoder over copied Uint8Array span",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "decodeStrategy": {
+        "spanView": "Uint8Array copy",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": true,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "avgMs": 24009.120000000003,
+      "minMs": 24009.120000000003,
+      "maxMs": 24009.120000000003,
+      "mibPerSec": 42.69199132628551,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "samplesMs": [
+        24009.120000000003
+      ],
+      "memory": {
+        "scope": "browser-js-heap-unavailable",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 0,
+        "copiedSpans": 75206148,
+        "copiedSpanBytes": 566857080,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "subarrayNewDecoder",
+      "family": "full-stax-js",
+      "implementation": "new TextDecoder for each buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-span-new",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "avgMs": 39408.58,
+      "minMs": 39408.58,
+      "maxMs": 39408.58,
+      "mibPerSec": 26.00949191246546,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "samplesMs": [
+        39408.58
+      ],
+      "memory": {
+        "scope": "browser-js-heap-unavailable",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 75206148,
+        "textDecoderInstances": 75206148,
+        "shortAsciiHits": 0,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    },
+    {
+      "id": "shortAsciiSubarraySharedDecoder",
+      "family": "full-stax-js",
+      "implementation": "short ASCII fast path, then shared TextDecoder over buffer.subarray(start, end)",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": true,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      },
+      "avgMs": 14981,
+      "minMs": 14981,
+      "maxMs": 14981,
+      "mibPerSec": 68.41980794284414,
+      "eventCount": 75206126,
+      "checksum": -925527041,
+      "samplesMs": [
+        14981
+      ],
+      "memory": {
+        "scope": "browser-js-heap-unavailable",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap-unavailable",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 75206148,
+        "nameStringReads": 58503984,
+        "textStringReads": 16702140,
+        "attrNameStringReads": 12,
+        "attrValueStringReads": 12,
+        "rawSpanMaterializations": 75206148,
+        "rawNameSpanMaterializations": 58503984,
+        "rawTextSpanMaterializations": 16702140,
+        "rawAttrNameSpanMaterializations": 12,
+        "rawAttrValueSpanMaterializations": 12,
+        "decodeSpanCalls": 75206148,
+        "textDecoderCalls": 16870380,
+        "textDecoderInstances": 0,
+        "shortAsciiHits": 58335768,
+        "copiedSpans": 0,
+        "copiedSpanBytes": 0,
+        "implicitAttrValueReads": 0,
+        "attributePairs": 12
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found"
+    }
+  ],
+  "findings": [
+    {
+      "id": "same-full-string-contract",
+      "status": "BENCH_FACT",
+      "summary": "All browser TextDecoder variants fold event type, names, text/CDATA, attribute names, and attribute values into the same checksum."
+    },
+    {
+      "id": "browser-textdecoder-variants-are-headroom-search",
+      "status": "BENCH_FACT",
+      "summary": "Fastest browser row in this run was shortAsciiSubarraySharedDecoder at 68.42 MiB/s; this is a decode-span headroom search, not an impossibility proof."
+    },
+    {
+      "id": "browser-memory-scope",
+      "status": "BENCH_FACT",
+      "summary": "Variant memory scope is browser JS heap unavailable; host process memory is separate (windows-process-tree)."
+    },
+    {
+      "id": "runtime-limit-still-unproven",
+      "status": "HYPOTHESIS",
+      "summary": "No 200 MiB/s+ bounded-memory 1 GiB+ full-string browser row was found in this matrix, but absence in this matrix is not a proof that JavaScript runtimes have no further headroom."
+    },
+    {
+      "id": "no-buffer-native-or-lazy-getter-path",
+      "status": "SOURCE_FACT",
+      "summary": "Rows use browser Uint8Array plus TextDecoder only; they do not use Node Buffer.toString(), native addons, or lazy getters."
+    },
+    {
+      "id": "fixture-scope",
+      "status": "BENCH_FACT",
+      "summary": "Fixture is corpus-backed 1.00 GiB corpus-cycle; broaden browser engines and corpus coverage before drawing global conclusions."
+    },
+    {
+      "id": "corpus-cycle-fixture",
+      "status": "BENCH_FACT",
+      "summary": "The browser fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows."
+    }
+  ],
+  "automation": {
+    "protocol": "WebDriver BiDi",
+    "endpoint": "ws://127.0.0.1:<port>/session",
+    "note": "Firefox is driven through its built-in WebDriver BiDi endpoint without Playwright or Selenium."
+  }
+}

@@ -585,6 +585,9 @@ function createReport(browserResult, options, hostProcessMemory) {
 function createFindings(fixture, variants, hostProcessMemory) {
   const fastest = maxBy(variants, entry => entry.mibPerSec);
   const counterexamples = variants.filter(entry => entry.runtimeLimitCounterexampleEligible);
+  const memoryScope = variants.some(entry => entry.memory.scope === 'browser-js-heap')
+    ? 'browser JS heap'
+    : 'browser JS heap unavailable';
   const findings = [
     {
       id: 'same-full-string-contract',
@@ -599,7 +602,7 @@ function createFindings(fixture, variants, hostProcessMemory) {
     {
       id: 'browser-memory-scope',
       status: 'BENCH_FACT',
-      summary: `Variant memory is browser JS heap only; host process memory is separate (${hostProcessMemory.scope}).`,
+      summary: `Variant memory scope is ${memoryScope}; host process memory is separate (${hostProcessMemory.scope}).`,
     },
     {
       id: 'runtime-limit-still-unproven',
@@ -642,7 +645,9 @@ function renderMarkdown(report) {
       : 'This experiment compares browser-compatible `Uint8Array` + `TextDecoder` span materialization variants under the same full-string checksum contract.',
     'Every row folds event type, element names, text/CDATA, attribute names, and attribute values.',
     'It does not use Node `Buffer.toString()`, does not use native addons, and does not use lazy getters.',
-    'Variant memory uses browser JS heap. Host process-tree memory is reported separately when available.',
+    report.variants.some(entry => entry.memory.scope === 'browser-js-heap')
+      ? 'Variant memory uses browser JS heap. Host process-tree memory is reported separately when available.'
+      : 'Variant browser JS heap counters are unavailable in this engine. Host process-tree memory is reported separately when available.',
     'It is a counterexample search, not a proof that JavaScript runtimes have no further headroom.',
     '',
     '## Fixture',
@@ -682,7 +687,9 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Memory');
   lines.push('');
-  lines.push('Memory uses Chromium `performance.memory` before and after each measured run; max values are the maximum observed run endpoints.');
+  lines.push(report.variants.some(entry => entry.memory.scope === 'browser-js-heap')
+    ? 'Memory uses Chromium `performance.memory` before and after each measured run; max values are the maximum observed run endpoints.'
+    : 'This browser does not expose compatible `performance.memory` JS heap counters to the page. Memory values below are `n/a`; host process-tree memory is reported separately.');
   lines.push('');
   lines.push('| Variant | Avg used heap delta | Max used heap | Max total heap | JS heap limit |');
   lines.push('| --- | ---: | ---: | ---: | ---: |');
@@ -760,6 +767,7 @@ globalThis.__staxBrowserTextDecoderResult = runBenchmark().catch(error => ({
     stack: error?.stack ?? null,
   },
 }));
+globalThis.__staxBrowserBenchmarkResult = globalThis.__staxBrowserTextDecoderResult;
 
 async function runBenchmark() {
   const fixture = await createFixture(config);
@@ -1100,8 +1108,13 @@ function* byteBatches(fixture) {
 
 function takeMemorySnapshot() {
   const memory = performance.memory;
+  const hasMemory = memory && (
+    typeof memory.jsHeapSizeLimit === 'number'
+    || typeof memory.totalJSHeapSize === 'number'
+    || typeof memory.usedJSHeapSize === 'number'
+  );
   return {
-    scope: 'browser-js-heap',
+    scope: hasMemory ? 'browser-js-heap' : 'browser-js-heap-unavailable',
     jsHeapSizeLimitBytes: typeof memory?.jsHeapSizeLimit === 'number' ? memory.jsHeapSizeLimit : null,
     jsHeapTotalBytes: typeof memory?.totalJSHeapSize === 'number' ? memory.totalJSHeapSize : null,
     jsHeapUsedBytes: typeof memory?.usedJSHeapSize === 'number' ? memory.usedJSHeapSize : null,
@@ -1128,7 +1141,9 @@ function summarizeMemorySamples(samples) {
   const heapTotalValues = samples.flatMap(sample => [sample.before.jsHeapTotalBytes, sample.after.jsHeapTotalBytes]).filter(isFiniteNumber);
   const heapLimitValues = samples.flatMap(sample => [sample.before.jsHeapSizeLimitBytes, sample.after.jsHeapSizeLimitBytes]).filter(isFiniteNumber);
   return {
-    scope: 'browser-js-heap',
+    scope: heapUsedValues.length > 0 || heapTotalValues.length > 0 || heapLimitValues.length > 0
+      ? 'browser-js-heap'
+      : 'browser-js-heap-unavailable',
     avgJsHeapUsedDeltaBytes: averageNullable(samples.map(sample => sample.delta.jsHeapUsedBytes)),
     avgJsHeapTotalDeltaBytes: averageNullable(samples.map(sample => sample.delta.jsHeapTotalBytes)),
     maxJsHeapUsedBytes: heapUsedValues.length > 0 ? Math.max(...heapUsedValues) : null,
@@ -1143,7 +1158,7 @@ function createRuntimeEnvironment() {
   const browserVersion = parseBrowserVersion(userAgent);
   return {
     runtimeName: 'browser',
-    javascriptEngine: 'V8',
+    javascriptEngine: browserVersion.engine,
     browserName: browserVersion.name,
     browserVersion: browserVersion.version,
     userAgent,
@@ -1155,10 +1170,12 @@ function createRuntimeEnvironment() {
 
 function parseBrowserVersion(userAgent) {
   const edge = userAgent.match(/Edg\\/([^\\s]+)/);
-  if (edge) return { name: 'Edge', version: edge[1] };
+  if (edge) return { name: 'Edge', version: edge[1], engine: 'V8' };
   const chrome = userAgent.match(/Chrome\\/([^\\s]+)/);
-  if (chrome) return { name: 'Chrome', version: chrome[1] };
-  return { name: 'unknown', version: 'unknown' };
+  if (chrome) return { name: 'Chrome', version: chrome[1], engine: 'V8' };
+  const firefox = userAgent.match(/Firefox\\/([^\\s]+)/);
+  if (firefox) return { name: 'Firefox', version: firefox[1], engine: 'SpiderMonkey' };
+  return { name: 'unknown', version: 'unknown', engine: 'unknown' };
 }
 
 function forceGc() {
@@ -1317,4 +1334,15 @@ function formatSignedBytes(value) {
   return `${value > 0 ? '+' : ''}${formatBytes(value)}`;
 }
 
-main();
+export {
+  collectHostProcessMemorySample,
+  createReport,
+  printSummary,
+  renderMarkdown,
+  startBenchmarkServer,
+  summarizeHostProcessMemory,
+};
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main();
+}
