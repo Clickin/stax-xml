@@ -30,6 +30,8 @@ test('EventReader byte-batch report compares ReadableStream and async byte-batch
     '16',
     '--batch-sizes',
     '1,4',
+    '--runtime-label',
+    'Node/V8 test',
     '--json-out',
     jsonOut,
     '--md-out',
@@ -45,6 +47,8 @@ test('EventReader byte-batch report compares ReadableStream and async byte-batch
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'event-reader-byte-batch');
   assert.equal(report.contract, 'public-event-object-full-string-checksum');
+  assert.equal(report.options.runtimeLabel, 'Node/V8 test');
+  assert.equal(report.environment.runtimeLabel, 'Node/V8 test');
   assert.deepEqual(report.options.batchSizes, [1, 4]);
   assert.deepEqual(report.variants.map(row => row.id), [
     'readableStreamBatch1',
@@ -68,5 +72,6 @@ test('EventReader byte-batch report compares ReadableStream and async byte-batch
   assert.match(markdown, /EventReader Byte Batch Benchmark/);
   assert.match(markdown, /ReadableStream/);
   assert.match(markdown, /AsyncIterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Runtime: Node\/V8 test/);
   assert.match(markdown, /asyncByteBatch4/);
 });

@@ -1,0 +1,182 @@
+{
+  "generatedAt": "2026-05-24T15:16:16.197Z",
+  "objective": "event-reader-byte-batch",
+  "contract": "public-event-object-full-string-checksum",
+  "note": "Compares direct ReadableStream chunk consumption with an AsyncIterable<Uint8Array[]> source that yields already-grouped byte batches. Both sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.",
+  "environment": {
+    "packageVersion": "1.0.0",
+    "runtimeName": "bun",
+    "runtimeLabel": "Bun/JSC",
+    "nodeVersion": "v24.3.0",
+    "bunVersion": "1.3.13",
+    "v8Version": "13.6.233.10-node.18",
+    "webkitVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+    "platform": "win32-x64",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "options": {
+    "sizeGiB": 1,
+    "runs": 1,
+    "warmups": 0,
+    "diverseCycleSize": 4096,
+    "batchSizes": [
+      1,
+      16,
+      64
+    ],
+    "boundedRssMiB": 512,
+    "runtimeLabel": "Bun/JSC"
+  },
+  "fixture": {
+    "source": "generated-diverse-cycle",
+    "targetBytes": 1073741824,
+    "actualBytes": 1073741863,
+    "sizeGiB": 1.0000000363215804,
+    "rows": 4096
+  },
+  "variants": [
+    {
+      "id": "readableStreamBatch1",
+      "family": "readable-stream",
+      "implementation": "EventReader over ReadableStream with internal byte batch size 1",
+      "batchSize": 1,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 37444.9914,
+      "minMs": 37444.9914,
+      "maxMs": 37444.9914,
+      "mibPerSec": 27.34678254441523,
+      "samplesMs": [
+        37444.9914
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774419,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 235663360,
+        "maxHeapUsedBytes": 9347734
+      }
+    },
+    {
+      "id": "readableStreamBatch16",
+      "family": "readable-stream",
+      "implementation": "EventReader over ReadableStream with internal byte batch size 16",
+      "batchSize": 16,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 34251.9367,
+      "minMs": 34251.9367,
+      "maxMs": 34251.9367,
+      "mibPerSec": 29.896120799303542,
+      "samplesMs": [
+        34251.9367
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774419,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 198955008,
+        "maxHeapUsedBytes": 27922341
+      }
+    },
+    {
+      "id": "readableStreamBatch64",
+      "family": "readable-stream",
+      "implementation": "EventReader over ReadableStream with internal byte batch size 64",
+      "batchSize": 64,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 28514.7846,
+      "minMs": 28514.7846,
+      "maxMs": 28514.7846,
+      "mibPerSec": 35.91119664966006,
+      "samplesMs": [
+        28514.7846
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774419,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 199974912,
+        "maxHeapUsedBytes": 16084200
+      }
+    },
+    {
+      "id": "asyncByteBatch16",
+      "family": "async-byte-batch",
+      "implementation": "createEventReaderFromAsyncByteBatches with 16 chunks yielded per await",
+      "batchSize": 16,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 26732.27040000001,
+      "minMs": 26732.27040000001,
+      "maxMs": 26732.27040000001,
+      "mibPerSec": 38.30576385286369,
+      "samplesMs": [
+        26732.27040000001
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 360902,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 200171520,
+        "maxHeapUsedBytes": 33363509
+      }
+    },
+    {
+      "id": "asyncByteBatch64",
+      "family": "async-byte-batch",
+      "implementation": "createEventReaderFromAsyncByteBatches with 64 chunks yielded per await",
+      "batchSize": 64,
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 26336.239000000016,
+      "minMs": 26336.239000000016,
+      "maxMs": 26336.239000000016,
+      "mibPerSec": 38.88178707648034,
+      "samplesMs": [
+        26336.239000000016
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 90226,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 200929280,
+        "maxHeapUsedBytes": 47024677
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "backpressure-preserved",
+      "classification": "SOURCE_FACT",
+      "summary": "Both benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), and the async byte-batch source yields one batch only when next() is awaited.",
+      "evidence": [
+        "readableStreamBatch1: sourceReads=5774419, sourceBatches=5774418",
+        "readableStreamBatch16: sourceReads=5774419, sourceBatches=5774418",
+        "readableStreamBatch64: sourceReads=5774419, sourceBatches=5774418",
+        "asyncByteBatch16: sourceReads=5774418, sourceBatches=360902",
+        "asyncByteBatch64: sourceReads=5774418, sourceBatches=90226"
+      ]
+    },
+    {
+      "id": "async-byte-batch-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "At batch size 16, async byte batches were 1.28x the ReadableStream row on this run.",
+      "evidence": [
+        "readableStreamBatch16=29.90 MiB/s",
+        "asyncByteBatch16=38.31 MiB/s"
+      ]
+    }
+  ]
+}

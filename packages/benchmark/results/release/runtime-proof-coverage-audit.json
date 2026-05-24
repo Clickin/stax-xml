@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T14:56:50.255Z",
+  "generatedAt": "2026-05-24T15:19:24.391Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -422,6 +422,27 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 10
+    },
+    {
+      "sourceArtifact": "bun-event-reader-byte-batch.json",
+      "objective": "event-reader-byte-batch",
+      "contract": "public-event-object-full-string-checksum",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "fixture": {
+        "source": "generated-diverse-cycle",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741863
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
     },
     {
       "sourceArtifact": "bun-event-reader-string-large.json",
@@ -1682,16 +1703,16 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 86,
+    "scannedArtifactCount": 87,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 537,
-    "benchmarkArtifactCount": 62,
+    "measuredRowCount": 542,
+    "benchmarkArtifactCount": 63,
     "sourceArtifactCount": 11,
     "traceArtifactCount": 5,
     "allocationArtifactCount": 12,
     "environmentArtifactCount": 1,
-    "largeJsFullRowCount": 292,
+    "largeJsFullRowCount": 297,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 1,
@@ -1752,9 +1773,9 @@
       {
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
-        "artifactCount": 22,
-        "measuredRowCount": 147,
-        "largeFullStringRowCount": 80,
+        "artifactCount": 23,
+        "measuredRowCount": 152,
+        "largeFullStringRowCount": 85,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
           "id": "rawFrameNameId",
@@ -12255,7 +12276,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 292,
+    "largeJsFullRowCount": 297,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",

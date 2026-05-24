@@ -20,6 +20,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     diverseCycleSize: 4096,
     batchSizes: [1, 16, 64],
     boundedRssMiB: 512,
+    runtimeLabel: null,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -54,6 +55,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--bounded-rss-mib':
         options.boundedRssMiB = parsePositiveNumber(readValue(), name);
+        break;
+      case '--runtime-label':
+        options.runtimeLabel = readValue();
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -117,7 +121,7 @@ async function main() {
     objective: 'event-reader-byte-batch',
     contract: 'public-event-object-full-string-checksum',
     note: 'Compares direct ReadableStream chunk consumption with an AsyncIterable<Uint8Array[]> source that yields already-grouped byte batches. Both sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.',
-    environment: createEnvironment(),
+    environment: createEnvironment(options.runtimeLabel),
     options: {
       sizeGiB: options.sizeGiB,
       runs: options.runs,
@@ -125,6 +129,7 @@ async function main() {
       diverseCycleSize: options.diverseCycleSize,
       batchSizes: options.batchSizes,
       boundedRssMiB: options.boundedRssMiB,
+      runtimeLabel: options.runtimeLabel,
     },
     fixture: {
       source: 'generated-diverse-cycle',
@@ -339,10 +344,12 @@ function makeDiverseRow(id) {
     + `</${rootName}>`;
 }
 
-function createEnvironment() {
+function createEnvironment(runtimeLabel) {
+  const runtimeName = typeof Bun !== 'undefined' ? 'bun' : 'node';
   return {
     packageVersion,
-    runtimeName: typeof Bun !== 'undefined' ? 'bun' : 'node',
+    runtimeName,
+    runtimeLabel: runtimeLabel ?? (runtimeName === 'bun' ? 'Bun/JSC' : 'Node/V8'),
     nodeVersion: process.version,
     bunVersion: typeof Bun !== 'undefined' ? Bun.version : null,
     v8Version: process.versions.v8 ?? null,
@@ -398,6 +405,7 @@ function renderMarkdown(report) {
     `- Size GiB: ${report.options.sizeGiB}`,
     `- Runs: ${report.options.runs}`,
     `- Warmups: ${report.options.warmups}`,
+    `- Runtime: ${report.environment.runtimeLabel}`,
     `- Diverse cycle size: ${report.options.diverseCycleSize}`,
     `- Batch sizes: ${report.options.batchSizes.join(', ')}`,
     `- Bounded RSS gate: ${formatMiB(report.options.boundedRssMiB * MIB)}`,
