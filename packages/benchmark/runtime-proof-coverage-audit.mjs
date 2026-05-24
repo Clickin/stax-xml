@@ -171,7 +171,7 @@ function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   if (measuredRows.length > 0) kinds.add('BENCH_FACT');
   if (/source-pin-audit|shape-audit|materialization-contract-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
   if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
-  if (/trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
+  if (/trace|profiler-trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
   if (root.objective === 'runtime-matrix' || root.objective === 'external-baseline') kinds.add('BENCH_FACT');
   return Array.from(kinds).sort();
@@ -313,7 +313,9 @@ function createObligationRows(coverage) {
   const hasNodeCodegen = (runtimeById.get('node-v8')?.traceArtifacts.length ?? 0) > 0;
   const hasBunCodegen = (runtimeById.get('bun-jsc')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
   const hasChromeCodegen = (runtimeById.get('chrome-v8-browser')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
-  const hasSpiderMonkeyCodegen = (runtimeById.get('firefox-spidermonkey-browser')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
+  const spiderMonkeyTraceArtifacts = runtimeById.get('firefox-spidermonkey-browser')?.traceArtifacts ?? [];
+  const hasSpiderMonkeyProfilerTrace = spiderMonkeyTraceArtifacts.some(file => /profiler-trace/i.test(file));
+  const hasSpiderMonkeyCodegen = spiderMonkeyTraceArtifacts.some(file => /codegen|jit|optimized|optcode|asm/i.test(file));
   const hasBunAllocation = (runtimeById.get('bun-jsc')?.allocationArtifacts.length ?? 0) > 0;
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
@@ -354,7 +356,8 @@ function createObligationRows(coverage) {
         hasNodeCodegen ? 'Node/V8 trace evidence present.' : 'Node/V8 trace evidence missing.',
         hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
         hasChromeCodegen ? 'Chrome/V8 browser codegen trace evidence present.' : 'Chrome/V8 browser codegen trace evidence missing.',
-        hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey codegen trace evidence present.' : 'Firefox/SpiderMonkey codegen trace evidence missing.',
+        hasSpiderMonkeyProfilerTrace ? 'Firefox/SpiderMonkey Gecko Profiler trace evidence present.' : 'Firefox/SpiderMonkey profiler trace evidence missing.',
+        hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
     },

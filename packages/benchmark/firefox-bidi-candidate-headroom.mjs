@@ -34,6 +34,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     browserExecutable: process.env.FIREFOX_PATH || findFirefoxExecutable(),
     browserTimeoutMs: 120_000,
     collectHostProcessMemory: true,
+    gracefulBrowserClose: false,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -88,6 +89,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--no-host-process-memory':
         options.collectHostProcessMemory = false;
         break;
+      case '--graceful-browser-close':
+        options.gracefulBrowserClose = true;
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -139,12 +143,9 @@ async function main() {
       throw new Error(`${browserResult.error.name}: ${browserResult.error.message}\n${browserResult.error.stack ?? ''}`);
     }
 
-    await client?.send('browsingContext.close', { context: contextId }).catch(() => {});
+    await closeFirefoxBrowser({ client, browser, contextId, graceful: options.gracefulBrowserClose });
     contextId = null;
-    await client?.send('session.end', {}).catch(() => {});
-    await client?.close().catch(() => {});
     client = null;
-    await terminateBrowser(browser);
     browser = null;
 
     await collectVariantHostProcessMemoryProbes(browserResult, options);
@@ -362,6 +363,24 @@ async function terminateBrowser(browser) {
     new Promise(resolveExit => browser.once('exit', resolveExit)),
     delay(2000),
   ]);
+}
+
+async function closeFirefoxBrowser({ client, browser, contextId, graceful }) {
+  if (graceful && client && browser && browser.exitCode === null) {
+    await client.send('browser.close', {}).catch(() => {});
+    await Promise.race([
+      new Promise(resolveExit => browser.once('exit', resolveExit)),
+      delay(10_000),
+    ]);
+    await client.close().catch(() => {});
+    if (browser.exitCode !== null) return;
+  }
+  if (contextId) {
+    await client?.send('browsingContext.close', { context: contextId }).catch(() => {});
+  }
+  await client?.send('session.end', {}).catch(() => {});
+  await client?.close().catch(() => {});
+  await terminateBrowser(browser);
 }
 
 function safeRemoveDir(dirPath) {

@@ -633,6 +633,19 @@ with `0.2%` spread. This strengthens the stability evidence for the
 source-boundary comparison, but it also reinforces that the current sync
 iterable path is headroom evidence, not a 200 MiB/s full-StAX counterexample.
 
+`packages/benchmark/results/release/firefox-spidermonkey-profiler-trace.md`
+adds Firefox/SpiderMonkey Gecko Profiler startup/shutdown evidence for selected
+browser reader rows. The harness now has an explicit `--graceful-browser-close`
+path because Firefox only wrote the profiler JSON when the WebDriver BiDi
+session closed the browser with `browser.close`; the previous kill-based cleanup
+does not flush shutdown profiles. The release run uses a 0.01 GiB
+`diverse-cycle` fixture and selected full-string rows (`stringFull`,
+`eventObjectFull`, and `rawFrameNameId`). It preserved same-contract event
+counts and checksums while recording a Gecko profile with `js`, `stackwalk`, and
+`cpu` features, 7 threads, 9,054 samples, and 9,640 frames. This is useful
+SpiderMonkey runtime profile evidence, but it is not JIT IR, not a deterministic
+optimized-code dump, not a 1 GiB profile, and not a runtime ceiling proof.
+
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
 `packages/benchmark/results/release/candidate-headroom-large-stability.md` is a

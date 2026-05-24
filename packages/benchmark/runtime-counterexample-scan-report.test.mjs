@@ -33,8 +33,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 97);
-  assert.equal(report.summary.measuredRowCount, 608);
+  assert.equal(report.summary.scannedArtifactCount, 98);
+  assert.equal(report.summary.measuredRowCount, 611);
   assert.equal(report.summary.largeJsFullRowCount, 363);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
@@ -57,6 +57,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-source-pin-audit.json'));
   assert.ok(report.scannedArtifacts.includes('deno-v8-codegen-trace.json'));
   assert.ok(report.scannedArtifacts.includes('deno-v8-allocation-sampling.json'));
+  assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-profiler-trace.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('bun-event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch-corpus.json'));

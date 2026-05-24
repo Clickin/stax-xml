@@ -437,6 +437,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /three fresh processes per runtime on the\s+same 1\.00 GiB `books\.xml` corpus-cycle fixture/);
   assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `74\.68 MiB\/s` with `2\.6%` spread/);
   assert.match(markdown, /Bun\/JSC\s+averaged `53\.38 MiB\/s` with `1\.4%` spread, and Deno\/V8 averaged `67\.76 MiB\/s`\s+with `0\.2%` spread/);
+  assert.match(markdown, /firefox-spidermonkey-profiler-trace\.md/);
+  assert.match(markdown, /Gecko Profiler startup\/shutdown evidence/);
+  assert.match(markdown, /7 threads, 9,054 samples, and 9,640 frames/);
+  assert.match(markdown, /not JIT IR, not a deterministic\s+optimized-code dump/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);

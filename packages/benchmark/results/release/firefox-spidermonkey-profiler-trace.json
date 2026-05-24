@@ -1,0 +1,838 @@
+{
+  "generatedAt": "2026-05-24T18:41:37.688Z",
+  "objective": "firefox-spidermonkey-profiler-trace",
+  "contract": "gecko-profiler-same-contract-browser-reader-shapes",
+  "note": "Firefox/SpiderMonkey Gecko Profiler startup/shutdown profile around the Firefox BiDi same-contract browser reader harness. This is sampled profiler evidence, not JIT IR, not a deterministic codegen dump, and not a runtime ceiling proof.",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "SpiderMonkey",
+    "browserName": "Firefox",
+    "browserVersion": "143.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "unavailable",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+  },
+  "options": {
+    "sizeGiB": 0.01,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 512,
+    "corpusFile": null,
+    "batchSize": 16,
+    "cases": [
+      "stringFull",
+      "eventObjectFull",
+      "rawFrameNameId"
+    ],
+    "profilerFeatures": "js,stackwalk,cpu"
+  },
+  "rawArtifacts": {
+    "profilePath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-profiler-trace\\firefox-spidermonkey-profiler-trace-release\\firefox-spidermonkey-profile.json",
+    "benchmarkJsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-profiler-trace\\firefox-spidermonkey-profiler-trace-release\\firefox-spidermonkey-profile-benchmark.json",
+    "benchmarkMdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-profiler-trace\\firefox-spidermonkey-profiler-trace-release\\firefox-spidermonkey-profile-benchmark.md",
+    "committed": false
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "sourceFile": null,
+    "shape": "diverse-cycle",
+    "rowXml": "<person0 id=\"item-0\" data0=\"value-0\" code0=\"group-0\" flag0=\"true\"><name0>Runtime Benchmark 0 ☃-0-🙂</name0><summary0 rank=\"0\">Full string checksum payload 0</summary0><group0 shard=\"0\" bucket=\"0\">Text 0 0</group0></person0>",
+    "rowPreviewTruncated": false,
+    "rowCycleSize": 512,
+    "minRowBytes": 222,
+    "maxRowBytes": 279,
+    "averageRowBytes": 256.68359375,
+    "targetBytes": 10737418,
+    "actualBytes": 10737611,
+    "sizeGiB": 0.010000179521739483,
+    "batchSize": 16
+  },
+  "variants": [
+    {
+      "id": "stringFull",
+      "family": "full-stax-js",
+      "mibPerSec": 46.852964084284544,
+      "eventCount": 460176,
+      "checksum": -1469723734,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "memoryKind": null
+    },
+    {
+      "id": "eventObjectFull",
+      "family": "full-stax-js",
+      "mibPerSec": 38.90647351922959,
+      "eventCount": 460176,
+      "checksum": -1469723734,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "memoryKind": null
+    },
+    {
+      "id": "rawFrameNameId",
+      "family": "full-stax-js",
+      "mibPerSec": 51.702432748971155,
+      "eventCount": 460176,
+      "checksum": -1469723734,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "memoryKind": null
+    }
+  ],
+  "profile": {
+    "formatVersion": 31,
+    "interval": 1,
+    "stackwalk": 1,
+    "processType": 0,
+    "profilingStartTime": 38.2339,
+    "profilingEndTime": 2864.2482,
+    "features": [
+      "js",
+      "stackwalk",
+      "cpu"
+    ],
+    "threadCount": 7,
+    "totalSamples": 9054,
+    "totalFrames": 9640,
+    "totalJsRelevantFrames": 300,
+    "targetTermHits": [
+      {
+        "term": "consumeRawFrame",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      },
+      {
+        "term": "consumePublicAccessor",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      },
+      {
+        "term": "consumeEventObject",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      },
+      {
+        "term": "materialize",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      },
+      {
+        "term": "decode",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      },
+      {
+        "term": "TextDecoder",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      },
+      {
+        "term": "foldString",
+        "frameLocationHits": 0,
+        "sampleStackHits": 0
+      }
+    ],
+    "threads": [
+      {
+        "name": "GeckoMain",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1425,
+        "frameCount": 8904,
+        "stackCount": 26044,
+        "jsRelevantFrameCount": 284,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "js::RunScript",
+            "sampleHits": 1958
+          },
+          {
+            "location": "(root)",
+            "sampleHits": 1425
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1418
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1418
+          },
+          {
+            "location": "0x7ff7010b8858",
+            "sampleHits": 1418
+          },
+          {
+            "location": "XREMain::XRE_main",
+            "sampleHits": 1409
+          },
+          {
+            "location": "0x7ff701083181",
+            "sampleHits": 1403
+          },
+          {
+            "location": "0x7ffa14dd6a6a",
+            "sampleHits": 1403
+          },
+          {
+            "location": "0x7ffa14dd6de7",
+            "sampleHits": 1305
+          },
+          {
+            "location": "0x7ffa14e48d96",
+            "sampleHits": 1190
+          },
+          {
+            "location": "0x7ffa17c1cbb0",
+            "sampleHits": 1190
+          },
+          {
+            "location": "0x7ffa126dc797",
+            "sampleHits": 1190
+          }
+        ]
+      },
+      {
+        "name": "Renderer",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1325,
+        "frameCount": 172,
+        "stackCount": 216,
+        "jsRelevantFrameCount": 0,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "(root)",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffaaab09c49",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffb6a5a37b0",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa80586381",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa80586045",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa125e0cd8",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa125c192f",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa13df4594",
+            "sampleHits": 1324
+          },
+          {
+            "location": "ThreadEventQueue::GetEvent::Wait",
+            "sampleHits": 1279
+          },
+          {
+            "location": "0x7ffa13df4d0c",
+            "sampleHits": 1278
+          }
+        ]
+      },
+      {
+        "name": "WinCompositor",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1325,
+        "frameCount": 13,
+        "stackCount": 13,
+        "jsRelevantFrameCount": 0,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "(root)",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffaaab09c49",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa125c7f51",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa125c80fd",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa125c192f",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa125c93b5",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa1288f722",
+            "sampleHits": 1325
+          },
+          {
+            "location": "MessagePumpForUI::WaitForWork",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa1288f816",
+            "sampleHits": 1325
+          },
+          {
+            "location": "0x7ffa12889e3b",
+            "sampleHits": 1325
+          }
+        ]
+      },
+      {
+        "name": "Compositor",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1328,
+        "frameCount": 122,
+        "stackCount": 142,
+        "jsRelevantFrameCount": 0,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "(root)",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffaaab09c49",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffb6a5a37b0",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffa80586381",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffa80586045",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffa125e0cd8",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffa125c192f",
+            "sampleHits": 1328
+          },
+          {
+            "location": "0x7ffa13df4594",
+            "sampleHits": 1320
+          },
+          {
+            "location": "ThreadEventQueue::GetEvent::Wait",
+            "sampleHits": 1315
+          },
+          {
+            "location": "0x7ffa13df4d0c",
+            "sampleHits": 1315
+          }
+        ]
+      },
+      {
+        "name": "CanvasRenderer",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1323,
+        "frameCount": 19,
+        "stackCount": 19,
+        "jsRelevantFrameCount": 0,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "(root)",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffaaab09c49",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffb6a5a37b0",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffa80586381",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffa80586045",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffa125e0cd8",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffa125c192f",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffa13df4594",
+            "sampleHits": 1323
+          },
+          {
+            "location": "ThreadEventQueue::GetEvent::Wait",
+            "sampleHits": 1323
+          },
+          {
+            "location": "0x7ffa13df4d0c",
+            "sampleHits": 1323
+          }
+        ]
+      },
+      {
+        "name": "DOM Worker",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1265,
+        "frameCount": 328,
+        "stackCount": 618,
+        "jsRelevantFrameCount": 12,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "0x7ffa13df61ec",
+            "sampleHits": 1358
+          },
+          {
+            "location": "(root)",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffaaab09c49",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffb6a5a37b0",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffa80586381",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffa80586045",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffa125e0cd8",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffa125c192f",
+            "sampleHits": 1265
+          },
+          {
+            "location": "0x7ffa13df44e0",
+            "sampleHits": 1265
+          },
+          {
+            "location": "WorkerThreadPrimaryRunnable::Run resource://services-settings/RemoteSettings.worker.mjs",
+            "sampleHits": 1265
+          }
+        ]
+      },
+      {
+        "name": "DOM Worker",
+        "processType": "default",
+        "processName": "Parent Process",
+        "sampleCount": 1063,
+        "frameCount": 82,
+        "stackCount": 127,
+        "jsRelevantFrameCount": 4,
+        "targetTermHits": {
+          "consumeRawFrame": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumePublicAccessor": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "consumeEventObject": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "materialize": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "decode": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "TextDecoder": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          },
+          "foldString": {
+            "frameLocationHits": 0,
+            "sampleStackHits": 0
+          }
+        },
+        "topLocations": [
+          {
+            "location": "0x7ffa13df61ec",
+            "sampleHits": 1133
+          },
+          {
+            "location": "(root)",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffb6d4e427c",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffaaab09c49",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffb6bcce957",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffb6a5a37b0",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffa80586381",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffa80586045",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffa125e0cd8",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffa125c192f",
+            "sampleHits": 1063
+          },
+          {
+            "location": "0x7ffa13df44e0",
+            "sampleHits": 1061
+          },
+          {
+            "location": "WorkerThreadPrimaryRunnable::Run resource://gre/modules/PageThumbs.worker.js",
+            "sampleHits": 1061
+          }
+        ]
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "gecko-profiler-profile-captured",
+      "classification": "TRACE_FACT",
+      "summary": "Firefox wrote a Gecko Profiler JSON profile for the same browser reader harness through graceful BiDi browser.close shutdown.",
+      "evidence": [
+        "threads=7",
+        "samples=9054",
+        "frames=9640",
+        "features=js,stackwalk,cpu"
+      ]
+    },
+    {
+      "id": "same-contract-profiled-run",
+      "classification": "BENCH_FACT",
+      "summary": "The profiled Firefox run preserved same-contract event count and checksum parity for selected full-string rows.",
+      "evidence": [
+        "stringFull: events=460176, checksum=-1469723734, throughput=46.85 MiB/s",
+        "eventObjectFull: events=460176, checksum=-1469723734, throughput=38.91 MiB/s",
+        "rawFrameNameId: events=460176, checksum=-1469723734, throughput=51.70 MiB/s"
+      ]
+    },
+    {
+      "id": "spidermonkey-profiler-target-frame-evidence",
+      "classification": "LIMITED_EVIDENCE",
+      "summary": "The sampled profile was captured, but benchmark-specific JavaScript frame names were not visible in the summarized frame table.",
+      "evidence": [
+        "targetFrameHits=0"
+      ]
+    },
+    {
+      "id": "not-jit-ir-or-runtime-ceiling-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "Gecko Profiler samples are not SpiderMonkey JIT IR, not a deterministic optimized-code dump, and not a proof that no faster JavaScript implementation exists.",
+      "evidence": [
+        "Use this as runtime-specific profile evidence only.",
+        "Safari/WebKit browser rows remain separate."
+      ]
+    }
+  ],
+  "child": {
+    "command": "C:\\Program Files\\nodejs\\node.exe",
+    "args": [
+      "G:\\programming\\stax-xml\\packages\\benchmark\\firefox-bidi-candidate-headroom.mjs",
+      "--size-gib",
+      "0.01",
+      "--fixture-shape",
+      "diverse-cycle",
+      "--diverse-cycle-size",
+      "512",
+      "--corpus-file",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+      "--batch-size",
+      "16",
+      "--runs",
+      "1",
+      "--warmups",
+      "0",
+      "--cases",
+      "stringFull,eventObjectFull,rawFrameNameId",
+      "--no-host-process-memory",
+      "--graceful-browser-close",
+      "--browser-timeout-ms",
+      "180000",
+      "--json-out",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-profiler-trace\\firefox-spidermonkey-profiler-trace-release\\firefox-spidermonkey-profile-benchmark.json",
+      "--md-out",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-profiler-trace\\firefox-spidermonkey-profiler-trace-release\\firefox-spidermonkey-profile-benchmark.md"
+    ],
+    "status": 0,
+    "stdout": "Wrote firefox-bidi-candidate-headroom: 10737611 bytes\nFastest partial: n/a\nFastest full: rawFrameNameId 51.70 MiB/s",
+    "stderr": ""
+  }
+}
