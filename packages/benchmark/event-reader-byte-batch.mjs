@@ -159,6 +159,9 @@ async function main() {
     contract: 'public-event-object-full-string-checksum',
     note: 'Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]> and Iterable<Uint8Array[]> sources that yield already-grouped byte batches. All sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.',
     sourceContract: {
+      arrayBufferConsumption: fixture.corpusFile
+        ? 'The corpus seed is split into Uint8Array chunks; measured parser rows consume ReadableStream pulls, AsyncIterable<Uint8Array[]> batches, synchronous Iterable<Uint8Array[]> batches, or readSync-backed Uint8Array batches rather than a pure full-ArrayBuffer parser input.'
+        : 'Generated fixture rows are Uint8Array chunks; measured parser rows consume ReadableStream pulls, AsyncIterable<Uint8Array[]> batches, or synchronous Iterable<Uint8Array[]> batches rather than a pure full-ArrayBuffer parser input.',
       readableStream: 'ReadableStream<Uint8Array> enqueues one chunk from pull().',
       asyncByteBatch: 'AsyncIterable<Uint8Array[]> yields one grouped batch only when next() is awaited.',
       syncIterable: 'Iterable<Uint8Array[]> yields one grouped batch per synchronous parser pull.',
@@ -610,7 +613,7 @@ function createFindings(report) {
     {
       id: 'backpressure-preserved',
       classification: 'SOURCE_FACT',
-      summary: 'All benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), the async byte-batch source yields one batch only when next() is awaited, and the sync iterable source yields one batch per parser pull.',
+      summary: 'All benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), the async byte-batch source yields one batch only when next() is awaited, and the sync iterable source yields one batch per parser pull; no row preconsumes the whole target XML as one parser input.',
       evidence: report.variants.map(row => `${row.id}: sourceReads=${row.sourceReads}, sourceBatches=${row.sourceBatches}`),
     },
     {
@@ -699,6 +702,7 @@ function renderMarkdown(report) {
     '',
     '## Source Contract',
     '',
+    `- ArrayBuffer consumption: ${report.sourceContract.arrayBufferConsumption}`,
     `- ReadableStream: ${report.sourceContract.readableStream}`,
     `- Async byte batch: ${report.sourceContract.asyncByteBatch}`,
     `- Sync iterable: ${report.sourceContract.syncIterable}`,

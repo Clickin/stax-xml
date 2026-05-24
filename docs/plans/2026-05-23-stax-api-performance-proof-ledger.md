@@ -637,6 +637,21 @@ headroom evidence against blaming all remaining cost on the JS parser core, but
 they are not runtime-ceiling proof and not a 200 MiB/s counterexample unless a
 bounded full-string row crosses the threshold.
 
+The ArrayBuffer/source-boundary wording is now pinned in both large matrix
+report families. `candidate-headroom-large` rows may prepare a generated or
+corpus seed buffer, but the measured parser input is
+`StreamReaderSync(byteBatches(fixture))`, a synchronous
+`Iterable<Uint8Array[]>` that yields one grouped batch per parser pull and does
+not prebuild one repeated 1 GiB ArrayBuffer parser input. The
+`event-reader-byte-batch` family separately compares direct
+`ReadableStream<Uint8Array>` pulls, `AsyncIterable<Uint8Array[]>` batches,
+prepared synchronous `Iterable<Uint8Array[]>` batches, and corpus
+`readSync`-backed batches under the same public event-object checksum. This is
+the controlled answer to the source-consumption hypothesis: pure
+`ReadableStream` overhead is measured as its own row, while the full large
+headroom rows use the synchronous byte-batch path and still preserve
+backpressure by pulling at most the next batch on demand.
+
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
 then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`,
 prepared sync `Iterable<Uint8Array[]>`, and file-backed sync

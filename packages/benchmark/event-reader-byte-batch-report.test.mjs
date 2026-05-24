@@ -47,6 +47,8 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'event-reader-byte-batch');
   assert.equal(report.contract, 'public-event-object-full-string-checksum');
+  assert.match(report.sourceContract.arrayBufferConsumption, /synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.arrayBufferConsumption, /rather than a pure full-ArrayBuffer parser input/);
   assert.match(report.sourceContract.syncIterable, /Iterable<Uint8Array\[\]>/);
   assert.match(report.sourceContract.syncFileIterable, /available only for corpus-cycle/);
   assert.match(report.sourceContract.scope, /not an OS, network, or browser fetch streaming proof/);
@@ -86,9 +88,11 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.ok(report.findings.some(row => row.id === 'async-byte-batch-headroom'));
   assert.match(report.findings.find(row => row.id === 'async-byte-batch-headroom').summary, /AsyncIterator source boundary/);
   assert.match(report.findings.find(row => row.id === 'sync-iterable-byte-batch-headroom').summary, /removes the ReadableStream and AsyncIterator source boundary/);
+  assert.match(report.findings.find(row => row.id === 'backpressure-preserved').summary, /no row preconsumes the whole target XML/);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /EventReader Byte Batch Benchmark/);
+  assert.match(markdown, /ArrayBuffer consumption:/);
   assert.match(markdown, /ReadableStream/);
   assert.match(markdown, /AsyncIterable<Uint8Array\[\]>/);
   assert.match(markdown, /Iterable<Uint8Array\[\]>/);
@@ -149,6 +153,8 @@ test('EventReader byte-batch report supports a corpus-cycle fixture seed', () =>
   assert.ok(report.fixture.rows > 1);
   assert.ok(report.fixture.sourceBytes > 0);
   assert.equal(report.fixture.chunkBytes, 1024);
+  assert.match(report.sourceContract.arrayBufferConsumption, /readSync-backed Uint8Array batches/);
+  assert.match(report.sourceContract.arrayBufferConsumption, /rather than a pure full-ArrayBuffer parser input/);
   assert.match(report.sourceContract.syncFileIterable, /readSync/);
   assert.match(report.sourceContract.scope, /synchronous file-source benchmark/);
 
