@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 61);
-  assert.equal(report.summary.measuredRowCount, 348);
-  assert.equal(report.summary.largeJsFullRowCount, 147);
+  assert.equal(report.summary.scannedArtifactCount, 62);
+  assert.equal(report.summary.measuredRowCount, 353);
+  assert.equal(report.summary.largeJsFullRowCount, 150);
   assert.ok(report.summary.partialHeadroomRowCount >= 1);
   assert.ok(report.summary.unboundedOrUnknownLargeFullRowCount >= 1);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
@@ -58,6 +58,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'firefox-bidi-candidate-headroom-corpus.json'
     && row.id === 'rawFrameNameId'
     && row.mibPerSec === 48.15
+    && row.memoryKind === 'recorded-unknown-kind'
+    && row.boundedMemory === false
+  ));
+  assert.ok(report.unboundedOrUnknownLargeFullRows.some(row =>
+    row.sourceArtifact === 'firefox-bidi-candidate-headroom-projection.json'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 64.24
     && row.memoryKind === 'recorded-unknown-kind'
     && row.boundedMemory === false
   ));

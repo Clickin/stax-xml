@@ -10,6 +10,8 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp', 'firefox-bidi-candidate-headroom-report-test');
 const jsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom.json');
 const mdOut = join(tmpDir, 'firefox-bidi-candidate-headroom.md');
+const projectionJsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom-projection.json');
+const projectionMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-projection.md');
 const corpusJsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom-corpus.json');
 const corpusMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-corpus.md');
 
@@ -82,6 +84,78 @@ test('Firefox BiDi candidate headroom records same-contract SpiderMonkey rows', 
   assert.match(markdown, /per-variant host process-tree probes are Windows host evidence/);
   assert.match(markdown, /Per-Variant Host Process Memory Probes/);
   assert.match(markdown, /Full rows preserve/);
+});
+
+test('Firefox BiDi candidate headroom supports projection-cycle rows', (t) => {
+  const firefox = findFirefoxExecutable();
+  if (!firefox) {
+    t.skip('Firefox executable was not found.');
+    return;
+  }
+
+  resetTmp();
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-bidi-candidate-headroom.mjs'),
+    '--browser-executable',
+    firefox,
+    '--size-gib',
+    '0.001',
+    '--fixture-shape',
+    'projection-cycle',
+    '--diverse-cycle-size',
+    '64',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--cases',
+    'stringFull,eventObjectFull,rawFrameNameId,projectionLowSelectivity,projectionHighSelectivity',
+    '--no-host-process-memory',
+    '--json-out',
+    projectionJsonOut,
+    '--md-out',
+    projectionMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 180_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(projectionJsonOut, 'utf8'));
+  assert.equal(report.objective, 'firefox-bidi-candidate-headroom');
+  assert.equal(report.environment.browserName, 'Firefox');
+  assert.equal(report.environment.javascriptEngine, 'SpiderMonkey');
+  assert.equal(report.fixture.shape, 'projection-cycle');
+  assert.equal(report.fullStringParity.status, 'ok');
+  assert.deepEqual(report.variants.map(entry => entry.id), [
+    'stringFull',
+    'eventObjectFull',
+    'rawFrameNameId',
+    'projectionLowSelectivity',
+    'projectionHighSelectivity',
+  ]);
+  assert.equal(report.hostProcessMemory?.enabled, undefined);
+  assert.ok(report.variants.some(row =>
+    row.id === 'projectionLowSelectivity'
+    && row.fullStringParity === false
+    && row.family === 'projection-js'
+    && row.contractScope === 'projected-records-low-selectivity'
+  ));
+  assert.ok(report.variants.some(row =>
+    row.id === 'projectionHighSelectivity'
+    && row.fullStringParity === false
+    && row.family === 'projection-js'
+    && row.contractScope === 'projected-records-high-selectivity'
+  ));
+
+  const markdown = readFileSync(projectionMdOut, 'utf8');
+  assert.match(markdown, /Fixture shape: projection-cycle/);
+  assert.match(markdown, /projectionLowSelectivity/);
+  assert.match(markdown, /projectionHighSelectivity/);
+  assert.match(markdown, /Firefox BiDi Notes/);
 });
 
 test('Firefox BiDi candidate headroom supports a corpus-cycle fixture seed', (t) => {
@@ -157,7 +231,7 @@ function findFirefoxExecutable() {
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
-  for (const filePath of [jsonOut, mdOut, corpusJsonOut, corpusMdOut]) {
+  for (const filePath of [jsonOut, mdOut, projectionJsonOut, projectionMdOut, corpusJsonOut, corpusMdOut]) {
     if (existsSync(filePath)) {
       rmSync(filePath);
     }

@@ -1,0 +1,1808 @@
+{
+  "generatedAt": "2026-05-24T04:48:53.831Z",
+  "objective": "firefox-bidi-candidate-headroom",
+  "contract": "browser-byte-batch-mixed-materialization-headroom-matrix",
+  "note": "Firefox/SpiderMonkey same-contract browser counterexample search over Uint8Array batches. Variant memory is available only when the browser exposes page heap counters; host process-tree memory is reported separately.",
+  "packageVersion": "1.0.0",
+  "environment": {
+    "runtimeName": "browser",
+    "javascriptEngine": "SpiderMonkey",
+    "browserName": "Firefox",
+    "browserVersion": "143.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "platform": "Win32",
+    "hardwareConcurrency": 20,
+    "gcStrategy": "unavailable",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "hostPlatform": "win32-x64",
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "sourceFile": null,
+    "shape": "projection-cycle",
+    "rowXml": "<root><book id=\"book-0\" lang=\"en\" code=\"0\"><title>Projection Benchmark 0</title><author>Author 0</author><description>Repeated projection benchmark payload 0 with stable ASCII text. The projection row ignores this field.</description><chapter number=\"1\">Intro 0</chapter><chapter number=\"2\">Body 0</chapter></book></root>",
+    "rowPreviewTruncated": false,
+    "rowCycleSize": 4096,
+    "minRowBytes": 321,
+    "maxRowBytes": 340,
+    "averageRowBytes": 337.675048828125,
+    "targetBytes": 1073741824,
+    "actualBytes": 1073742077,
+    "sizeGiB": 1.0000002356246114,
+    "batchSize": 16
+  },
+  "options": {
+    "runs": 1,
+    "warmups": 0,
+    "boundedJsHeapMiB": 512,
+    "cases": [
+      "stringFull",
+      "eventObjectFull",
+      "rawFrameNameId",
+      "projectionLowSelectivity",
+      "projectionHighSelectivity"
+    ]
+  },
+  "hostProcessMemory": {
+    "scope": "windows-process-tree",
+    "note": "Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.",
+    "samples": [
+      {
+        "label": "browser-started",
+        "at": "2026-05-24T04:45:45.611Z",
+        "scope": "windows-process-tree",
+        "rootPid": 27516,
+        "processCount": 12,
+        "workingSetBytes": 710803456,
+        "privateBytes": 581758976,
+        "processes": [
+          {
+            "pid": 27516,
+            "parentPid": 46712,
+            "name": "firefox.exe",
+            "workingSetBytes": 9875456,
+            "privateBytes": 2453504
+          },
+          {
+            "pid": 57232,
+            "parentPid": 27516,
+            "name": "firefox.exe",
+            "workingSetBytes": 368627712,
+            "privateBytes": 379334656
+          },
+          {
+            "pid": 54920,
+            "parentPid": 57232,
+            "name": "crashhelper.exe",
+            "workingSetBytes": 10760192,
+            "privateBytes": 2498560
+          },
+          {
+            "pid": 55148,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 18571264,
+            "privateBytes": 6893568
+          },
+          {
+            "pid": 39860,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 24162304,
+            "privateBytes": 25235456
+          },
+          {
+            "pid": 28388,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 69337088,
+            "privateBytes": 49745920
+          },
+          {
+            "pid": 44168,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 46436352,
+            "privateBytes": 23257088
+          },
+          {
+            "pid": 41656,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 17899520,
+            "privateBytes": 24219648
+          },
+          {
+            "pid": 5088,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 45936640,
+            "privateBytes": 21000192
+          },
+          {
+            "pid": 5796,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33005568,
+            "privateBytes": 15683584
+          },
+          {
+            "pid": 48568,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33099776,
+            "privateBytes": 15728640
+          },
+          {
+            "pid": 24368,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33091584,
+            "privateBytes": 15708160
+          }
+        ]
+      },
+      {
+        "label": "before-run",
+        "at": "2026-05-24T04:45:46.262Z",
+        "scope": "windows-process-tree",
+        "rootPid": 27516,
+        "processCount": 12,
+        "workingSetBytes": 777416704,
+        "privateBytes": 645062656,
+        "processes": [
+          {
+            "pid": 27516,
+            "parentPid": 46712,
+            "name": "firefox.exe",
+            "workingSetBytes": 9875456,
+            "privateBytes": 2453504
+          },
+          {
+            "pid": 57232,
+            "parentPid": 27516,
+            "name": "firefox.exe",
+            "workingSetBytes": 436006912,
+            "privateBytes": 443654144
+          },
+          {
+            "pid": 54920,
+            "parentPid": 57232,
+            "name": "crashhelper.exe",
+            "workingSetBytes": 10760192,
+            "privateBytes": 2498560
+          },
+          {
+            "pid": 55148,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 18571264,
+            "privateBytes": 6893568
+          },
+          {
+            "pid": 39860,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 24162304,
+            "privateBytes": 25235456
+          },
+          {
+            "pid": 28388,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 68624384,
+            "privateBytes": 48803840
+          },
+          {
+            "pid": 44168,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 46424064,
+            "privateBytes": 23232512
+          },
+          {
+            "pid": 41656,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 17899520,
+            "privateBytes": 24219648
+          },
+          {
+            "pid": 5088,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 45932544,
+            "privateBytes": 20963328
+          },
+          {
+            "pid": 5796,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 32993280,
+            "privateBytes": 15679488
+          },
+          {
+            "pid": 48568,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33087488,
+            "privateBytes": 15724544
+          },
+          {
+            "pid": 24368,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33079296,
+            "privateBytes": 15704064
+          }
+        ]
+      },
+      {
+        "label": "after-run",
+        "at": "2026-05-24T04:47:00.691Z",
+        "scope": "windows-process-tree",
+        "rootPid": 27516,
+        "processCount": 12,
+        "workingSetBytes": 907051008,
+        "privateBytes": 733790208,
+        "processes": [
+          {
+            "pid": 27516,
+            "parentPid": 46712,
+            "name": "firefox.exe",
+            "workingSetBytes": 10674176,
+            "privateBytes": 3072000
+          },
+          {
+            "pid": 57232,
+            "parentPid": 27516,
+            "name": "firefox.exe",
+            "workingSetBytes": 359575552,
+            "privateBytes": 350486528
+          },
+          {
+            "pid": 54920,
+            "parentPid": 57232,
+            "name": "crashhelper.exe",
+            "workingSetBytes": 10694656,
+            "privateBytes": 2383872
+          },
+          {
+            "pid": 55148,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 19021824,
+            "privateBytes": 7041024
+          },
+          {
+            "pid": 39860,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 24670208,
+            "privateBytes": 25354240
+          },
+          {
+            "pid": 28388,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 60477440,
+            "privateBytes": 32411648
+          },
+          {
+            "pid": 44168,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 46526464,
+            "privateBytes": 19415040
+          },
+          {
+            "pid": 41656,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 18345984,
+            "privateBytes": 24367104
+          },
+          {
+            "pid": 5796,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 256692224,
+            "privateBytes": 221929472
+          },
+          {
+            "pid": 48568,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33435648,
+            "privateBytes": 15728640
+          },
+          {
+            "pid": 24368,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33619968,
+            "privateBytes": 15937536
+          },
+          {
+            "pid": 11436,
+            "parentPid": 57232,
+            "name": "firefox.exe",
+            "workingSetBytes": 33316864,
+            "privateBytes": 15663104
+          }
+        ]
+      }
+    ],
+    "maxWorkingSetBytes": 907051008,
+    "maxPrivateBytes": 733790208,
+    "maxProcessCount": 12
+  },
+  "woodstoxTarget": {
+    "status": "ok",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json",
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 300.08892774117845,
+    "woodstoxMiBPerSec": 333.43214193464274
+  },
+  "omittedRows": [
+    {
+      "id": "processRss",
+      "reason": "Browsers do not expose a portable process RSS metric to page JavaScript; this report records page-exposed JS heap counters when available and separate Windows process-tree counters when available."
+    }
+  ],
+  "eventCountParity": {
+    "status": "ok",
+    "eventCount": 60416563,
+    "rowIds": [
+      "stringFull",
+      "eventObjectFull",
+      "rawFrameNameId"
+    ]
+  },
+  "fullStringParity": {
+    "status": "ok",
+    "rowIds": [
+      "stringFull",
+      "eventObjectFull",
+      "rawFrameNameId"
+    ],
+    "eventCount": 60416563,
+    "checksum": 1441552024
+  },
+  "projectionParity": {
+    "status": "ok",
+    "rowIds": [
+      "projectionLowSelectivity",
+      "projectionHighSelectivity"
+    ]
+  },
+  "variants": [
+    {
+      "id": "stringFull",
+      "family": "full-stax-js",
+      "implementation": "StreamBatch index accessors over browser byte batches",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 16577.74,
+      "minMs": 16577.74,
+      "maxMs": 16577.74,
+      "mibPerSec": 61.76959231352416,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        16577.74
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "hostProcessMemoryProbe": {
+        "scope": "windows-process-tree",
+        "note": "Separate fresh-browser per-case Firefox probe pass bracketing this variant with Windows host process-tree counters. This is not portable browser RSS, not JS heap proof, and not the timing sample used for throughput.",
+        "samples": [
+          {
+            "label": "probe-before-stringFull",
+            "at": "2026-05-24T04:47:02.578Z",
+            "scope": "windows-process-tree",
+            "rootPid": 52960,
+            "processCount": 12,
+            "workingSetBytes": 706318336,
+            "privateBytes": 576389120,
+            "processes": [
+              {
+                "pid": 52960,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 9973760,
+                "privateBytes": 2445312
+              },
+              {
+                "pid": 39888,
+                "parentPid": 52960,
+                "name": "firefox.exe",
+                "workingSetBytes": 364077056,
+                "privateBytes": 372744192
+              },
+              {
+                "pid": 40652,
+                "parentPid": 39888,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10731520,
+                "privateBytes": 2457600
+              },
+              {
+                "pid": 50356,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 18436096,
+                "privateBytes": 6774784
+              },
+              {
+                "pid": 42328,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 24223744,
+                "privateBytes": 25235456
+              },
+              {
+                "pid": 55404,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 69775360,
+                "privateBytes": 51421184
+              },
+              {
+                "pid": 56216,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 46743552,
+                "privateBytes": 23310336
+              },
+              {
+                "pid": 54904,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 17317888,
+                "privateBytes": 23949312
+              },
+              {
+                "pid": 11500,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 45998080,
+                "privateBytes": 21053440
+              },
+              {
+                "pid": 56648,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 32956416,
+                "privateBytes": 15650816
+              },
+              {
+                "pid": 33880,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 32993280,
+                "privateBytes": 15642624
+              },
+              {
+                "pid": 38936,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 33091584,
+                "privateBytes": 15704064
+              }
+            ]
+          },
+          {
+            "label": "probe-after-stringFull",
+            "at": "2026-05-24T04:47:25.892Z",
+            "scope": "windows-process-tree",
+            "rootPid": 52960,
+            "processCount": 12,
+            "workingSetBytes": 705880064,
+            "privateBytes": 539025408,
+            "processes": [
+              {
+                "pid": 52960,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 10776576,
+                "privateBytes": 3063808
+              },
+              {
+                "pid": 39888,
+                "parentPid": 52960,
+                "name": "firefox.exe",
+                "workingSetBytes": 321970176,
+                "privateBytes": 319655936
+              },
+              {
+                "pid": 40652,
+                "parentPid": 39888,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10731520,
+                "privateBytes": 2457600
+              },
+              {
+                "pid": 50356,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 18837504,
+                "privateBytes": 6819840
+              },
+              {
+                "pid": 42328,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 24694784,
+                "privateBytes": 25305088
+              },
+              {
+                "pid": 55404,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 60923904,
+                "privateBytes": 34557952
+              },
+              {
+                "pid": 56216,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 46665728,
+                "privateBytes": 19439616
+              },
+              {
+                "pid": 54904,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 17764352,
+                "privateBytes": 23994368
+              },
+              {
+                "pid": 56648,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 93659136,
+                "privateBytes": 56954880
+              },
+              {
+                "pid": 33880,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 33263616,
+                "privateBytes": 15572992
+              },
+              {
+                "pid": 38936,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 33361920,
+                "privateBytes": 15630336
+              },
+              {
+                "pid": 54092,
+                "parentPid": 39888,
+                "name": "firefox.exe",
+                "workingSetBytes": 33230848,
+                "privateBytes": 15572992
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 706318336,
+        "maxPrivateBytes": 576389120,
+        "maxProcessCount": 12,
+        "probeMibPerSec": 60.048029104498916,
+        "probeEventCount": 60416563,
+        "probeChecksum": 1441552024
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1,
+      "woodstoxRatio": 0.18525386291532697,
+      "targetStatus": "below"
+    },
+    {
+      "id": "eventObjectFull",
+      "family": "full-stax-js",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 19491.600000000002,
+      "minMs": 19491.600000000002,
+      "maxMs": 19491.600000000002,
+      "mibPerSec": 52.535463547353835,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        19491.600000000002
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 60416563,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "hostProcessMemoryProbe": {
+        "scope": "windows-process-tree",
+        "note": "Separate fresh-browser per-case Firefox probe pass bracketing this variant with Windows host process-tree counters. This is not portable browser RSS, not JS heap proof, and not the timing sample used for throughput.",
+        "samples": [
+          {
+            "label": "probe-before-eventObjectFull",
+            "at": "2026-05-24T04:47:27.677Z",
+            "scope": "windows-process-tree",
+            "rootPid": 42376,
+            "processCount": 12,
+            "workingSetBytes": 708808704,
+            "privateBytes": 578961408,
+            "processes": [
+              {
+                "pid": 42376,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 10014720,
+                "privateBytes": 2453504
+              },
+              {
+                "pid": 28560,
+                "parentPid": 42376,
+                "name": "firefox.exe",
+                "workingSetBytes": 365948928,
+                "privateBytes": 375922688
+              },
+              {
+                "pid": 55236,
+                "parentPid": 28560,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10764288,
+                "privateBytes": 2506752
+              },
+              {
+                "pid": 49624,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 18472960,
+                "privateBytes": 6819840
+              },
+              {
+                "pid": 16192,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 24190976,
+                "privateBytes": 25202688
+              },
+              {
+                "pid": 55112,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 69705728,
+                "privateBytes": 50233344
+              },
+              {
+                "pid": 4580,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 46682112,
+                "privateBytes": 23441408
+              },
+              {
+                "pid": 48472,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 17874944,
+                "privateBytes": 24178688
+              },
+              {
+                "pid": 11676,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 46018560,
+                "privateBytes": 20975616
+              },
+              {
+                "pid": 28732,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 33001472,
+                "privateBytes": 15708160
+              },
+              {
+                "pid": 30216,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 33071104,
+                "privateBytes": 15757312
+              },
+              {
+                "pid": 37236,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 33062912,
+                "privateBytes": 15761408
+              }
+            ]
+          },
+          {
+            "label": "probe-after-eventObjectFull",
+            "at": "2026-05-24T04:47:53.242Z",
+            "scope": "windows-process-tree",
+            "rootPid": 42376,
+            "processCount": 12,
+            "workingSetBytes": 759324672,
+            "privateBytes": 594083840,
+            "processes": [
+              {
+                "pid": 42376,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 10817536,
+                "privateBytes": 3072000
+              },
+              {
+                "pid": 28560,
+                "parentPid": 42376,
+                "name": "firefox.exe",
+                "workingSetBytes": 347217920,
+                "privateBytes": 346030080
+              },
+              {
+                "pid": 55236,
+                "parentPid": 28560,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10764288,
+                "privateBytes": 2506752
+              },
+              {
+                "pid": 49624,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 18866176,
+                "privateBytes": 6860800
+              },
+              {
+                "pid": 16192,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 24645632,
+                "privateBytes": 25272320
+              },
+              {
+                "pid": 55112,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 60882944,
+                "privateBytes": 33259520
+              },
+              {
+                "pid": 4580,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 46616576,
+                "privateBytes": 19566592
+              },
+              {
+                "pid": 48472,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 18247680,
+                "privateBytes": 24223744
+              },
+              {
+                "pid": 28732,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 121282560,
+                "privateBytes": 86343680
+              },
+              {
+                "pid": 30216,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 33345536,
+                "privateBytes": 15687680
+              },
+              {
+                "pid": 37236,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 33337344,
+                "privateBytes": 15687680
+              },
+              {
+                "pid": 51180,
+                "parentPid": 28560,
+                "name": "firefox.exe",
+                "workingSetBytes": 33300480,
+                "privateBytes": 15572992
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 759324672,
+        "maxPrivateBytes": 594083840,
+        "maxProcessCount": 12,
+        "probeMibPerSec": 53.09029190734098,
+        "probeEventCount": 60416563,
+        "probeChecksum": 1441552024
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 0.8505068850171357,
+      "woodstoxRatio": 0.15755968588550623,
+      "targetStatus": "below"
+    },
+    {
+      "id": "rawFrameNameId",
+      "family": "full-stax-js",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "avgMs": 15940.32,
+      "minMs": 15940.32,
+      "maxMs": 15940.32,
+      "mibPerSec": 64.2396288957563,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "samplesMs": [
+        15940.32
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 92214751,
+        "nameStringReads": 44517466,
+        "textStringReads": 15899095,
+        "attrNameStringReads": 15899095,
+        "attrValueStringReads": 15899095,
+        "rawSpanMaterializations": 31798200,
+        "rawNameSpanMaterializations": 6,
+        "rawTextSpanMaterializations": 15899095,
+        "rawAttrNameSpanMaterializations": 4,
+        "rawAttrValueSpanMaterializations": 15899095,
+        "rawNameCacheHits": 60416551,
+        "rawNameCacheMisses": 10,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 0,
+        "projectionFieldReads": 0,
+        "attributePairs": 15899095
+      },
+      "hostProcessMemoryProbe": {
+        "scope": "windows-process-tree",
+        "note": "Separate fresh-browser per-case Firefox probe pass bracketing this variant with Windows host process-tree counters. This is not portable browser RSS, not JS heap proof, and not the timing sample used for throughput.",
+        "samples": [
+          {
+            "label": "probe-before-rawFrameNameId",
+            "at": "2026-05-24T04:47:55.096Z",
+            "scope": "windows-process-tree",
+            "rootPid": 49240,
+            "processCount": 12,
+            "workingSetBytes": 721899520,
+            "privateBytes": 591732736,
+            "processes": [
+              {
+                "pid": 49240,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 9977856,
+                "privateBytes": 2449408
+              },
+              {
+                "pid": 41144,
+                "parentPid": 49240,
+                "name": "firefox.exe",
+                "workingSetBytes": 380952576,
+                "privateBytes": 389345280
+              },
+              {
+                "pid": 56392,
+                "parentPid": 41144,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10760192,
+                "privateBytes": 2498560
+              },
+              {
+                "pid": 9320,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 18436096,
+                "privateBytes": 6795264
+              },
+              {
+                "pid": 49516,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 24207360,
+                "privateBytes": 25251840
+              },
+              {
+                "pid": 33240,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 68939776,
+                "privateBytes": 50044928
+              },
+              {
+                "pid": 45612,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 46448640,
+                "privateBytes": 23142400
+              },
+              {
+                "pid": 40900,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 17305600,
+                "privateBytes": 24100864
+              },
+              {
+                "pid": 55168,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 45764608,
+                "privateBytes": 20914176
+              },
+              {
+                "pid": 39232,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 33034240,
+                "privateBytes": 15740928
+              },
+              {
+                "pid": 41460,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 32993280,
+                "privateBytes": 15691776
+              },
+              {
+                "pid": 23924,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 33079296,
+                "privateBytes": 15757312
+              }
+            ]
+          },
+          {
+            "label": "probe-after-rawFrameNameId",
+            "at": "2026-05-24T04:48:16.672Z",
+            "scope": "windows-process-tree",
+            "rootPid": 49240,
+            "processCount": 12,
+            "workingSetBytes": 736690176,
+            "privateBytes": 571088896,
+            "processes": [
+              {
+                "pid": 49240,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 10776576,
+                "privateBytes": 3067904
+              },
+              {
+                "pid": 41144,
+                "parentPid": 49240,
+                "name": "firefox.exe",
+                "workingSetBytes": 357707776,
+                "privateBytes": 355819520
+              },
+              {
+                "pid": 56392,
+                "parentPid": 41144,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10760192,
+                "privateBytes": 2498560
+              },
+              {
+                "pid": 9320,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 18837504,
+                "privateBytes": 6840320
+              },
+              {
+                "pid": 49516,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 24674304,
+                "privateBytes": 25317376
+              },
+              {
+                "pid": 33240,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 60805120,
+                "privateBytes": 34013184
+              },
+              {
+                "pid": 45612,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 46379008,
+                "privateBytes": 19279872
+              },
+              {
+                "pid": 40900,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 17743872,
+                "privateBytes": 24141824
+              },
+              {
+                "pid": 39232,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 89063424,
+                "privateBytes": 53260288
+              },
+              {
+                "pid": 41460,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 33333248,
+                "privateBytes": 15622144
+              },
+              {
+                "pid": 23924,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 33370112,
+                "privateBytes": 15687680
+              },
+              {
+                "pid": 56144,
+                "parentPid": 41144,
+                "name": "firefox.exe",
+                "workingSetBytes": 33239040,
+                "privateBytes": 15540224
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 736690176,
+        "maxPrivateBytes": 591732736,
+        "maxProcessCount": 12,
+        "probeMibPerSec": 67.27566732187734,
+        "probeEventCount": 60416563,
+        "probeChecksum": 1441552024
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.0399879048852219,
+      "woodstoxRatio": 0.19266177676520502,
+      "targetStatus": "below"
+    },
+    {
+      "id": "projectionLowSelectivity",
+      "family": "projection-js",
+      "implementation": "stax-xml/projection over browser byte batches",
+      "contractScope": "projected-records-low-selectivity",
+      "eventCountKind": "projected-records",
+      "fullStringParity": false,
+      "avgMs": 8881.199999999997,
+      "minMs": 8881.199999999997,
+      "maxMs": 8881.199999999997,
+      "mibPerSec": 115.2997614375988,
+      "eventCount": 33382,
+      "checksum": -403434369,
+      "samplesMs": [
+        8881.199999999997
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 66764,
+        "nameStringReads": 0,
+        "textStringReads": 33382,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 33382,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 33382,
+        "projectionFieldReads": 66764,
+        "attributePairs": 0
+      },
+      "hostProcessMemoryProbe": {
+        "scope": "windows-process-tree",
+        "note": "Separate fresh-browser per-case Firefox probe pass bracketing this variant with Windows host process-tree counters. This is not portable browser RSS, not JS heap proof, and not the timing sample used for throughput.",
+        "samples": [
+          {
+            "label": "probe-before-projectionLowSelectivity",
+            "at": "2026-05-24T04:48:18.521Z",
+            "scope": "windows-process-tree",
+            "rootPid": 35976,
+            "processCount": 12,
+            "workingSetBytes": 708882432,
+            "privateBytes": 578539520,
+            "processes": [
+              {
+                "pid": 35976,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 9986048,
+                "privateBytes": 2461696
+              },
+              {
+                "pid": 51592,
+                "parentPid": 35976,
+                "name": "firefox.exe",
+                "workingSetBytes": 366637056,
+                "privateBytes": 376381440
+              },
+              {
+                "pid": 13544,
+                "parentPid": 51592,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10772480,
+                "privateBytes": 2519040
+              },
+              {
+                "pid": 54176,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 18493440,
+                "privateBytes": 6823936
+              },
+              {
+                "pid": 8912,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 24174592,
+                "privateBytes": 25223168
+              },
+              {
+                "pid": 53812,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 69529600,
+                "privateBytes": 49754112
+              },
+              {
+                "pid": 53824,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 46342144,
+                "privateBytes": 23220224
+              },
+              {
+                "pid": 36776,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 17915904,
+                "privateBytes": 24211456
+              },
+              {
+                "pid": 44128,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 45875200,
+                "privateBytes": 20877312
+              },
+              {
+                "pid": 13116,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 33087488,
+                "privateBytes": 15761408
+              },
+              {
+                "pid": 47456,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 33079296,
+                "privateBytes": 15679488
+              },
+              {
+                "pid": 46924,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 32989184,
+                "privateBytes": 15626240
+              }
+            ]
+          },
+          {
+            "label": "probe-after-projectionLowSelectivity",
+            "at": "2026-05-24T04:48:33.361Z",
+            "scope": "windows-process-tree",
+            "rootPid": 35976,
+            "processCount": 12,
+            "workingSetBytes": 699396096,
+            "privateBytes": 534470656,
+            "processes": [
+              {
+                "pid": 35976,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 10784768,
+                "privateBytes": 3080192
+              },
+              {
+                "pid": 51592,
+                "parentPid": 35976,
+                "name": "firefox.exe",
+                "workingSetBytes": 321564672,
+                "privateBytes": 322052096
+              },
+              {
+                "pid": 13544,
+                "parentPid": 51592,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10772480,
+                "privateBytes": 2519040
+              },
+              {
+                "pid": 54176,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 18886656,
+                "privateBytes": 6868992
+              },
+              {
+                "pid": 8912,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 24645632,
+                "privateBytes": 25288704
+              },
+              {
+                "pid": 53812,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 60829696,
+                "privateBytes": 32927744
+              },
+              {
+                "pid": 53824,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 46272512,
+                "privateBytes": 19591168
+              },
+              {
+                "pid": 36776,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 18284544,
+                "privateBytes": 24252416
+              },
+              {
+                "pid": 13116,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 87277568,
+                "privateBytes": 50917376
+              },
+              {
+                "pid": 47456,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 33538048,
+                "privateBytes": 15839232
+              },
+              {
+                "pid": 46924,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 33280000,
+                "privateBytes": 15552512
+              },
+              {
+                "pid": 12592,
+                "parentPid": 51592,
+                "name": "firefox.exe",
+                "workingSetBytes": 33259520,
+                "privateBytes": 15581184
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 708882432,
+        "maxPrivateBytes": 578539520,
+        "maxProcessCount": 12,
+        "probeMibPerSec": 118.30302680990904,
+        "probeEventCount": 33382,
+        "probeChecksum": -403434369
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.8666103679682935,
+      "woodstoxRatio": 0.3457967812239263,
+      "targetStatus": "not-applicable"
+    },
+    {
+      "id": "projectionHighSelectivity",
+      "family": "projection-js",
+      "implementation": "stax-xml/projection over browser byte batches",
+      "contractScope": "projected-records-high-selectivity",
+      "eventCountKind": "projected-records",
+      "fullStringParity": false,
+      "avgMs": 12401.079999999994,
+      "minMs": 12401.079999999994,
+      "maxMs": 12401.079999999994,
+      "mibPerSec": 82.5734727362135,
+      "eventCount": 3179819,
+      "checksum": -2078190377,
+      "samplesMs": [
+        12401.079999999994
+      ],
+      "memory": {
+        "scope": "browser-js-heap",
+        "avgJsHeapUsedDeltaBytes": null,
+        "avgJsHeapTotalDeltaBytes": null,
+        "maxJsHeapUsedBytes": null,
+        "maxJsHeapTotalBytes": null,
+        "jsHeapSizeLimitBytes": null,
+        "samples": [
+          {
+            "before": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "after": {
+              "scope": "browser-js-heap",
+              "jsHeapSizeLimitBytes": null,
+              "jsHeapTotalBytes": null,
+              "jsHeapUsedBytes": null
+            },
+            "delta": {
+              "jsHeapUsedBytes": null,
+              "jsHeapTotalBytes": null
+            }
+          }
+        ]
+      },
+      "materializationCounters": {
+        "stringFieldReads": 6359638,
+        "nameStringReads": 0,
+        "textStringReads": 3179819,
+        "attrNameStringReads": 0,
+        "attrValueStringReads": 3179819,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0,
+        "projectedRecords": 3179819,
+        "projectionFieldReads": 6359638,
+        "attributePairs": 0
+      },
+      "hostProcessMemoryProbe": {
+        "scope": "windows-process-tree",
+        "note": "Separate fresh-browser per-case Firefox probe pass bracketing this variant with Windows host process-tree counters. This is not portable browser RSS, not JS heap proof, and not the timing sample used for throughput.",
+        "samples": [
+          {
+            "label": "probe-before-projectionHighSelectivity",
+            "at": "2026-05-24T04:48:35.140Z",
+            "scope": "windows-process-tree",
+            "rootPid": 34380,
+            "processCount": 12,
+            "workingSetBytes": 710770688,
+            "privateBytes": 580182016,
+            "processes": [
+              {
+                "pid": 34380,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 9990144,
+                "privateBytes": 2449408
+              },
+              {
+                "pid": 55788,
+                "parentPid": 34380,
+                "name": "firefox.exe",
+                "workingSetBytes": 368517120,
+                "privateBytes": 377872384
+              },
+              {
+                "pid": 46420,
+                "parentPid": 55788,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10723328,
+                "privateBytes": 2441216
+              },
+              {
+                "pid": 32232,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 18481152,
+                "privateBytes": 6819840
+              },
+              {
+                "pid": 27844,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 24186880,
+                "privateBytes": 25231360
+              },
+              {
+                "pid": 29360,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 69431296,
+                "privateBytes": 49815552
+              },
+              {
+                "pid": 49192,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 46510080,
+                "privateBytes": 23248896
+              },
+              {
+                "pid": 53316,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 17850368,
+                "privateBytes": 24166400
+              },
+              {
+                "pid": 496,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 46043136,
+                "privateBytes": 21102592
+              },
+              {
+                "pid": 45916,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 32960512,
+                "privateBytes": 15609856
+              },
+              {
+                "pid": 45228,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 32976896,
+                "privateBytes": 15712256
+              },
+              {
+                "pid": 51692,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 33099776,
+                "privateBytes": 15712256
+              }
+            ]
+          },
+          {
+            "label": "probe-after-projectionHighSelectivity",
+            "at": "2026-05-24T04:48:53.139Z",
+            "scope": "windows-process-tree",
+            "rootPid": 34380,
+            "processCount": 12,
+            "workingSetBytes": 725204992,
+            "privateBytes": 561827840,
+            "processes": [
+              {
+                "pid": 34380,
+                "parentPid": 46712,
+                "name": "firefox.exe",
+                "workingSetBytes": 10788864,
+                "privateBytes": 3067904
+              },
+              {
+                "pid": 55788,
+                "parentPid": 34380,
+                "name": "firefox.exe",
+                "workingSetBytes": 323735552,
+                "privateBytes": 324153344
+              },
+              {
+                "pid": 46420,
+                "parentPid": 55788,
+                "name": "crashhelper.exe",
+                "workingSetBytes": 10723328,
+                "privateBytes": 2441216
+              },
+              {
+                "pid": 32232,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 18894848,
+                "privateBytes": 6868992
+              },
+              {
+                "pid": 27844,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 24649728,
+                "privateBytes": 25296896
+              },
+              {
+                "pid": 29360,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 60772352,
+                "privateBytes": 32968704
+              },
+              {
+                "pid": 49192,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 46424064,
+                "privateBytes": 19623936
+              },
+              {
+                "pid": 53316,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 18235392,
+                "privateBytes": 24219648
+              },
+              {
+                "pid": 45916,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 110874624,
+                "privateBytes": 76034048
+              },
+              {
+                "pid": 45228,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 33247232,
+                "privateBytes": 15642624
+              },
+              {
+                "pid": 51692,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 33562624,
+                "privateBytes": 15872000
+              },
+              {
+                "pid": 45888,
+                "parentPid": 55788,
+                "name": "firefox.exe",
+                "workingSetBytes": 33296384,
+                "privateBytes": 15638528
+              }
+            ]
+          }
+        ],
+        "maxWorkingSetBytes": 725204992,
+        "maxPrivateBytes": 580182016,
+        "maxProcessCount": 12,
+        "probeMibPerSec": 86.7499806235494,
+        "probeEventCount": 3179819,
+        "probeChecksum": -2078190377
+      },
+      "boundedMemory": false,
+      "runtimeLimitCounterexampleEligible": false,
+      "counterexampleStatus": "not-found",
+      "relativeToStringFull": 1.3367980853280528,
+      "woodstoxRatio": 0.24764700924483468,
+      "targetStatus": "not-applicable"
+    }
+  ],
+  "findings": [
+    {
+      "id": "browser-byte-batch-contract",
+      "summary": "Rows consume generated browser Uint8Array batches and do not load a full XML string.",
+      "evidence": [
+        "stringFull: maxJsHeap=n/a",
+        "eventObjectFull: maxJsHeap=n/a",
+        "rawFrameNameId: maxJsHeap=n/a"
+      ]
+    },
+    {
+      "id": "browser-memory-scope",
+      "summary": "Variant memory is browser JS heap only; it is not a process RSS replacement.",
+      "evidence": [
+        "stringFull: jsHeapLimit=n/a",
+        "eventObjectFull: jsHeapLimit=n/a",
+        "rawFrameNameId: jsHeapLimit=n/a"
+      ]
+    },
+    {
+      "id": "browser-host-process-memory",
+      "summary": "Host process-tree memory is recorded separately from variant JS heap when the host supports it.",
+      "evidence": [
+        "maxWorkingSet=865.0 MiB",
+        "maxPrivateBytes=699.8 MiB",
+        "maxProcessCount=12"
+      ]
+    },
+    {
+      "id": "contract-separation",
+      "summary": "Partial rows deliberately drop one or more string fields and are not StAX parity rows.",
+      "evidence": []
+    },
+    {
+      "id": "full-string-parity",
+      "summary": "Full rows fold element names, text/CDATA, attribute names, and attribute values into the same checksum.",
+      "evidence": [
+        "stringFull: events=60416563, checksum=1441552024",
+        "eventObjectFull: events=60416563, checksum=1441552024",
+        "rawFrameNameId: events=60416563, checksum=1441552024"
+      ]
+    },
+    {
+      "id": "headroom-search",
+      "summary": "The fastest row in each family is a browser headroom signal, not a runtime-limit conclusion.",
+      "evidence": [
+        "partial=missing",
+        "full=rawFrameNameId 64.24 MiB/s"
+      ]
+    },
+    {
+      "id": "projection-contract",
+      "summary": "Projection rows report projected record counts and selected-field checksums, not full StAX event parity.",
+      "evidence": [
+        "projectionLowSelectivity: records=33382, checksum=-403434369, strings=66764",
+        "projectionHighSelectivity: records=3179819, checksum=-2078190377, strings=6359638"
+      ]
+    }
+  ],
+  "automation": {
+    "protocol": "WebDriver BiDi",
+    "endpoint": "ws://127.0.0.1:<port>/session",
+    "note": "Firefox is driven through its built-in WebDriver BiDi endpoint without Playwright or Selenium."
+  }
+}

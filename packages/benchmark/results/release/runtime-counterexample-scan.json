@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T04:14:11.732Z",
+  "generatedAt": "2026-05-24T04:49:37.527Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -45,6 +45,7 @@
     "event-reader-string-large.json",
     "external-baseline.json",
     "firefox-bidi-candidate-headroom-corpus.json",
+    "firefox-bidi-candidate-headroom-projection.json",
     "firefox-bidi-candidate-headroom.json",
     "firefox-spidermonkey-textdecoder-source-pin-audit.json",
     "materialization-contract-audit.json",
@@ -80,14 +81,14 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 61,
+    "scannedArtifactCount": 62,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 348,
-    "largeJsFullRowCount": 147,
+    "measuredRowCount": 353,
+    "largeJsFullRowCount": 150,
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 1,
-    "unboundedOrUnknownLargeFullRowCount": 52,
+    "unboundedOrUnknownLargeFullRowCount": 55,
     "fastestLargeFullRow": {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
       "runtimeLabel": "Bun/JSC",
@@ -1538,6 +1539,63 @@
       "hasMemoryProof": true
     },
     {
+      "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
+      "jsonPath": "variants.0",
+      "id": "stringFull",
+      "runtimeLabel": "Firefox/SpiderMonkey",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 61.77,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "contractScope": "full-string-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "recorded-unknown-kind",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
+      "jsonPath": "variants.1",
+      "id": "eventObjectFull",
+      "runtimeLabel": "Firefox/SpiderMonkey",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 52.54,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "contractScope": "full-event-object-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "recorded-unknown-kind",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
+      "jsonPath": "variants.2",
+      "id": "rawFrameNameId",
+      "runtimeLabel": "Firefox/SpiderMonkey",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 64.24,
+      "eventCount": 60416563,
+      "checksum": 1441552024,
+      "contractScope": "full-string-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "recorded-unknown-kind",
+      "hasMemoryProof": true
+    },
+    {
       "sourceArtifact": "firefox-bidi-candidate-headroom.json",
       "jsonPath": "variants.0",
       "id": "stringFull",
@@ -1609,7 +1667,7 @@
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "52 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
+      "summary": "55 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
     }
   ]
 }
