@@ -1,0 +1,258 @@
+{
+  "generatedAt": "2026-05-24T23:31:05.334Z",
+  "objective": "file-backed-source-sweep",
+  "contract": "same-full-string-checksum-file-backed-byte-batches",
+  "note": "Sweeps file-backed StreamReaderSync chunk size with demand-driven Iterable<Uint8Array[]> batches. This isolates source chunk sizing from Woodstox/quick-xml external parser comparisons; it is not an OS-cache-neutral disk benchmark.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "chunkKiBs": [
+      16,
+      64,
+      256,
+      1024
+    ],
+    "batchSize": 1,
+    "tools": [
+      "stax-stream"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "stax-stream-chunk-16kib",
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "family": "file-backed-source-sweep",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 16,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 90.9874384390682,
+      "avgMs": 11254.2989,
+      "minMs": 11254.2989,
+      "maxMs": 11254.2989,
+      "samplesMs": [
+        11254.2989
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71331840,
+        "maxHeapUsedBytes": 7055520,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64135168,
+              "heapUsedBytes": 4917368,
+              "externalBytes": 2159879,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 71331840,
+              "heapUsedBytes": 7055520,
+              "externalBytes": 3068598,
+              "arrayBuffersBytes": 986647
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "stax-stream-chunk-64kib",
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "family": "file-backed-source-sweep",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 92.3094686578312,
+      "avgMs": 11093.117999999999,
+      "minMs": 11093.117999999999,
+      "maxMs": 11093.117999999999,
+      "samplesMs": [
+        11093.117999999999
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71233536,
+        "maxHeapUsedBytes": 6550928,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64110592,
+              "heapUsedBytes": 4917368,
+              "externalBytes": 2159879,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 71233536,
+              "heapUsedBytes": 6550928,
+              "externalBytes": 3047864,
+              "arrayBuffersBytes": 965913
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "stax-stream-chunk-256kib",
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "family": "file-backed-source-sweep",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 96.61767580467705,
+      "avgMs": 10598.473,
+      "minMs": 10598.473,
+      "maxMs": 10598.473,
+      "samplesMs": [
+        10598.473
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 72564736,
+        "maxHeapUsedBytes": 6019896,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64114688,
+              "heapUsedBytes": 4917368,
+              "externalBytes": 2159879,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 72564736,
+              "heapUsedBytes": 6019896,
+              "externalBytes": 3854683,
+              "arrayBuffersBytes": 1772732
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "stax-stream-chunk-1024kib",
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "family": "file-backed-source-sweep",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 1024,
+      "batchSize": 1,
+      "sourceMode": "file-sync-batches",
+      "mibPerSec": 94.71307619943177,
+      "avgMs": 10811.5993,
+      "minMs": 10811.5993,
+      "maxMs": 10811.5993,
+      "samplesMs": [
+        10811.5993
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 142114816,
+        "maxHeapUsedBytes": 6430688,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64188416,
+              "heapUsedBytes": 4917376,
+              "externalBytes": 2159879,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 142114816,
+              "heapUsedBytes": 6430688,
+              "externalBytes": 73927382,
+              "arrayBuffersBytes": 71847985
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 4,
+    "fastest": {
+      "id": "stax-stream-chunk-256kib",
+      "tool": "stax-stream",
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "throughputMiBPerSec": 96.62,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "maxRssMiB": 69.2
+    },
+    "slowest": {
+      "id": "stax-stream-chunk-16kib",
+      "tool": "stax-stream",
+      "chunkKiB": 16,
+      "batchSize": 1,
+      "throughputMiBPerSec": 90.99,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "maxRssMiB": 68.03
+    },
+    "fastestSlowestRatio": 1.0618792820437435,
+    "counterexamples200MiB": 0
+  },
+  "findings": [
+    {
+      "id": "same-contract-preserved",
+      "classification": "CONTRACT_FACT",
+      "summary": "All sweep rows preserve a full-string checksum contract.",
+      "evidence": [
+        "61236571:-716099804"
+      ]
+    },
+    {
+      "id": "chunk-size-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "The fastest chunk size in this sweep was 256 KiB at 96.62 MiB/s; the slowest was 16 KiB at 90.99 MiB/s.",
+      "evidence": [
+        "stax-stream-chunk-16kib=90.99 MiB/s rss=68.03 MiB",
+        "stax-stream-chunk-64kib=92.31 MiB/s rss=67.93 MiB",
+        "stax-stream-chunk-256kib=96.62 MiB/s rss=69.20 MiB",
+        "stax-stream-chunk-1024kib=94.71 MiB/s rss=135.53 MiB"
+      ]
+    },
+    {
+      "id": "bounded-counterexample-search",
+      "classification": "COUNTEREXAMPLE_NOT_FOUND",
+      "summary": "The file-backed source chunk sweep applies the same 200 MiB/s bounded full-string counterexample rule to its rows.",
+      "evidence": [
+        "stax-stream-chunk-16kib: bounded=true, mibPerSec=90.99",
+        "stax-stream-chunk-64kib: bounded=true, mibPerSec=92.31",
+        "stax-stream-chunk-256kib: bounded=true, mibPerSec=96.62",
+        "stax-stream-chunk-1024kib: bounded=true, mibPerSec=94.71"
+      ]
+    }
+  ]
+}
