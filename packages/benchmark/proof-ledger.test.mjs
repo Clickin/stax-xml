@@ -186,6 +186,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /woodstox-measured-jfr-allocation\.md/);
   assert.match(markdown, /quick-xml-shape-audit\.md/);
   assert.match(markdown, /quick-xml-allocation-count\.md/);
+  assert.match(markdown, /quick-xml-allocation-count-stability\.md/);
   assert.match(markdown, /quick-xml-encoding-surface-audit\.md/);
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /candidate-headroom-matrix\.md/);
@@ -813,11 +814,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`attribute-collection` as the dominant measured allocator phase/);
   assert.match(markdown, /not native stack unwinding/);
   assert.match(markdown, /284,695 borrowed and 0 owned/);
+  assert.match(markdown, /repeats the same measured-window allocator counter with `runs=3`/);
+  assert.match(markdown, /every sample reported 170,824 allocation operations,\s+27\.13 MiB total\s+allocated bytes, 0 B net allocation/);
+  assert.match(markdown, /Summed across the three runs,\s+`attribute-collection` still dominated with 512,451 allocation operations/);
+  assert.match(markdown, /`cdata-utf8` 33,462 \/ 0/);
   assert.match(markdown, /escaped-utf8/);
   assert.match(markdown, /nonascii-utf8/);
   assert.match(markdown, /cdata-utf8/);
   assert.match(markdown, /utf8-bom/);
-  assert.match(markdown, /quick-xml encoding surface audit records\s+that the comparator has no active `encoding` feature and rejects a UTF-16\s+probe/);
+  assert.match(markdown, /quick-xml encoding surface audit records[\s\S]*comparator has no active `encoding` feature and rejects a UTF-16\s+probe/);
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
   assert.match(markdown, /sampled JFR allocation stacks/);
   assert.match(markdown, /TextBuffer\.contentsAsString/);

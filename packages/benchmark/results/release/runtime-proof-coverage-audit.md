@@ -1,24 +1,24 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T10:52:16.080Z
+Generated: 2026-05-25T11:08:35.423Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 134
+- Scanned primary artifacts: 135
 - Ignored derived artifacts: 5
-- Measured rows recognized: 729
+- Measured rows recognized: 734
 - Rows with unknown full-string parity: 0
-- Rows with unknown bounded-memory flag: 71
+- Rows with unknown bounded-memory flag: 76
   - Unknown bounded-memory JS rows: 55
-  - Unknown bounded-memory full-string rows: 56
+  - Unknown bounded-memory full-string rows: 61
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 24
-- Benchmark artifacts: 94
+- Benchmark artifacts: 95
 - Source artifacts: 16
 - Trace/profile artifacts: 8
-- Allocation artifacts: 13
+- Allocation artifacts: 14
 - Environment artifacts: 2
 - Negative-result artifacts: 10
 - 1 GiB+ JS full-string rows: 460
@@ -36,7 +36,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
 | Java/Woodstox | 7 | 7 | 1 | woodstox 320.16 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 2 |
-| Rust/quick-xml | 6 | 9 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 1 |
+| Rust/quick-xml | 7 | 14 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
 | unknown | 2 | 0 | 0 | none | 0 | 0 | 0 |
 
 ## Open Obligations
@@ -46,7 +46,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | `firefox-browser-rows-open` | covered | 82 Firefox/SpiderMonkey browser benchmark rows found. | Broaden Firefox coverage with corpus/projection rows plus SpiderMonkey codegen and allocation evidence. |
 | `safari-jsc-source-and-browser-rows-open` | open | Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available. | Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner. |
 | `codegen-traces-open` | partial | Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing. | Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows. |
-| `allocation-profiles-open` | covered | 13 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present. | Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows. |
+| `allocation-profiles-open` | covered | 14 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present. | Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows. |
 | `non-v8-browser-coverage-open` | covered | 82 non-V8 browser benchmark rows found. | Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence. |
 | `independent-corpus-suite-open` | covered | 3 release corpus seed(s) found: books.xml, large.xml, treebank_e.xml. | Keep new corpus rows flowing through the counterexample scanner before broadening claims. |
 | `counterexample-rule-present` | covered | runtime-counterexample-scan.md is a required gate artifact and preserves the bounded full-string 200 MiB/s counterexample rule. | Keep new rows flowing through the counterexample scanner before broadening claims. |

@@ -33,8 +33,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 134);
-  assert.equal(report.summary.measuredRowCount, 729);
+  assert.equal(report.summary.scannedArtifactCount, 135);
+  assert.equal(report.summary.measuredRowCount, 734);
   assert.equal(report.summary.aggregateRowCount, 89);
   assert.equal(report.summary.largeJsFullRowCount, 460);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
@@ -43,7 +43,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.partialHeadroomRowCount, 21);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 2);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 71);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 76);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 91);
   assert.deepEqual(report.summary.largeFullMemoryRejectionBreakdown, {
     total: 91,
@@ -53,9 +53,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     missingRowMemoryProof: 48,
   });
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
-    total: 71,
+    total: 76,
     jsRows: 55,
-    fullStringRows: 56,
+    fullStringRows: 61,
     jsFullStringRows: 40,
     largeJsFullStringRows: 0,
     rowsWithMemoryCounter: 24,
@@ -322,6 +322,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-memory-api-source-pin-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-string-source-pin-audit.json'));
   assert.ok(report.scannedArtifacts.includes('safari-webkit-availability-audit.json'));
+  assert.ok(report.scannedArtifacts.includes('quick-xml-allocation-count-stability.json'));
   assert.ok(report.unboundedOrUnknownLargeFullRows.some(row =>
     row.sourceArtifact === 'firefox-bidi-candidate-headroom-corpus.json'
     && row.id === 'rawFrameNameId'

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T10:52:16.671Z",
+  "generatedAt": "2026-05-25T11:08:34.052Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -115,6 +115,7 @@
     "node-textdecoder-source-pin-audit.json",
     "object-shape-parity.json",
     "projection-benchmark.json",
+    "quick-xml-allocation-count-stability.json",
     "quick-xml-allocation-count.json",
     "quick-xml-encoding-surface-audit.json",
     "quick-xml-shape-audit.json",
@@ -153,10 +154,10 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 134,
+    "scannedArtifactCount": 135,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 729,
+    "measuredRowCount": 734,
     "aggregateRowCount": 89,
     "largeJsFullRowCount": 460,
     "largeJsFullAggregateRowCount": 69,
@@ -491,14 +492,14 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 729,
+      "measuredRows": 734,
       "unknownFullStringParityRows": 0,
-      "unknownBoundedMemoryRows": 71
+      "unknownBoundedMemoryRows": 76
     },
     "unknownBoundedMemoryBreakdown": {
-      "total": 71,
+      "total": 76,
       "jsRows": 55,
-      "fullStringRows": 56,
+      "fullStringRows": 61,
       "jsFullStringRows": 40,
       "largeJsFullStringRows": 0,
       "rowsWithMemoryCounter": 24
@@ -7433,7 +7434,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "729 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 71 have unknown boundedMemory."
+      "summary": "734 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 76 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",

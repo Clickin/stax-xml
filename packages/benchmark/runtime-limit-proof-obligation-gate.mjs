@@ -80,6 +80,7 @@ const requiredArtifactMentions = [
   'runtime-proof-coverage-audit.md',
   'quick-xml-shape-audit.md',
   'quick-xml-allocation-count.md',
+  'quick-xml-allocation-count-stability.md',
   'woodstox-hotspot-trace.md',
   'woodstox-jfr-allocation.md',
   'woodstox-measured-jfr-allocation.md',

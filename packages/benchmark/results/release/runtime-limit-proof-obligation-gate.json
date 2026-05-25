@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T10:53:23.202Z",
+  "generatedAt": "2026-05-25T11:08:48.179Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -150,6 +150,11 @@
     {
       "id": "quick-xml-allocation-count.md",
       "file": "quick-xml-allocation-count.md",
+      "present": true
+    },
+    {
+      "id": "quick-xml-allocation-count-stability.md",
+      "file": "quick-xml-allocation-count-stability.md",
       "present": true
     },
     {
@@ -307,8 +312,8 @@
   "summary": {
     "satisfiedClaimGuards": 10,
     "requiredClaimGuards": 10,
-    "presentArtifactMentions": 21,
-    "requiredArtifactMentions": 21,
+    "presentArtifactMentions": 22,
+    "requiredArtifactMentions": 22,
     "disclosedOpenObligations": 5,
     "requiredOpenObligations": 5,
     "satisfiedProofRules": 7,
