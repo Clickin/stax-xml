@@ -33,6 +33,13 @@ const externalBaselineArtifacts = [
     fixtureShape: 'node-string-return-1024mib',
     optional: true,
   },
+  {
+    group: 'file-backed-trim-boundary-check-candidate',
+    file: 'file-backed-trim-boundary-check-candidate.json',
+    fixtureSource: 'generated-file',
+    fixtureShape: 'node-string-return-1024mib',
+    optional: true,
+  },
 ];
 
 const variantArtifacts = [
@@ -701,6 +708,7 @@ function summarize(rows, allocationEvidence) {
     || row.group === 'file-backed-batch-size-sweep'
     || row.group === 'file-backed-source-sweep'
     || row.group === 'file-backed-short-attr-value-cache-candidate'
+    || row.group === 'file-backed-trim-boundary-check-candidate'
   );
   const largeWoodstox = externalLargeRows.find(row => row.runtimeId === 'woodstox-jvm');
   const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');

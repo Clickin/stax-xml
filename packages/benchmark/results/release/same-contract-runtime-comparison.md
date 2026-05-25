@@ -1,18 +1,18 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T23:03:36.469Z
+Generated: 2026-05-25T23:16:46.628Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 120
-- 1 GiB+ JavaScript full-string rows: 107
+- Aggregated rows: 124
+- 1 GiB+ JavaScript full-string rows: 109
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 178.52 MiB/s (process RSS max 189.37 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.89x, 21.48 MiB/s remaining
 - Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.94x Woodstox, -6.87 MiB/s below 0.9x reference target
-- Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0.45x Woodstox, 152.63 MiB/s below 0.9x target
+- Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0.43x Woodstox, 164.70 MiB/s below 0.9x target
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - 16 MiB Woodstox baseline: 303.10 MiB/s
@@ -29,6 +29,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | --- | --- | --- | ---: | --- | --- | --- |
 | `external-baseline-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 76.13 | yes | process RSS max 77.80 MiB | `file-backed-sync-iterable-byte-batches` |
 | `file-backed-short-attr-value-cache-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 147.05 | yes | process RSS max 61.14 MiB | `file-backed-sync-iterable-byte-batches` |
+| `file-backed-trim-boundary-check-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 143.35 | yes | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` |
 | `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 57.99 | yes | process RSS max 192.98 MiB | n/a |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB | n/a |
 | `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 84.68 | yes | process RSS max 199.15 MiB | n/a |
@@ -65,6 +66,10 @@ This report aggregates existing release artifacts. It compares rows only through
 | `file-backed-short-attr-value-cache-candidate` | stax-raw-frame-short-attr-value-cache | `stax-raw-frame-short-attr-value-cache` | 61236571 | -716099804 | 140.15 | yes | process RSS max 67.01 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-short-attr-value-cache-candidate.json` |
 | `file-backed-short-attr-value-cache-candidate` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 338.14 | yes | process RSS max 318.52 MiB | n/a | `file-backed-short-attr-value-cache-candidate.json` |
 | `file-backed-short-attr-value-cache-candidate` | Rust/quick-xml | `quick-xml` | 61236571 | -716099804 | 274.63 | yes | process RSS max 4.78 MiB | n/a | `file-backed-short-attr-value-cache-candidate.json` |
+| `file-backed-trim-boundary-check-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 61236571 | -716099804 | 143.35 | yes | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-trim-boundary-check-candidate.json` |
+| `file-backed-trim-boundary-check-candidate` | stax-raw-frame-name-id-trim-boundary-check | `stax-raw-frame-name-id-trim-boundary-check` | 61236571 | -716099804 | 130.27 | yes | process RSS max 67.22 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-trim-boundary-check-candidate.json` |
+| `file-backed-trim-boundary-check-candidate` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 351.56 | yes | process RSS max 312.71 MiB | n/a | `file-backed-trim-boundary-check-candidate.json` |
+| `file-backed-trim-boundary-check-candidate` | Rust/quick-xml | `quick-xml` | 61236571 | -716099804 | 273.74 | yes | process RSS max 4.78 MiB | n/a | `file-backed-trim-boundary-check-candidate.json` |
 | `generated-1gib-candidate` | Node/V8 | `stringFull` | 45189256 | 1421012805 | 49.01 | yes | process RSS max 85.56 MiB | n/a | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Node/V8 | `eventObjectFull` | 45189256 | 1421012805 | 39.45 | yes | process RSS max 137.52 MiB | n/a | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Node/V8 | `rawFrameNameId` | 45189256 | 1421012805 | 55.85 | yes | process RSS max 144.54 MiB | n/a | `candidate-headroom-large.json` |
@@ -186,7 +191,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=107
+  - jsLargeFullRows=109
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - 16MiB woodstox=303.10 MiB/s
@@ -199,7 +204,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - 1024MiB woodstox=190.72 MiB/s
   - 1024MiB quick-xml=150.24 MiB/s
   - same-fixture-fastest-js=stax-raw-frame-name-id-chunk-32kib
-  - same-fixture-fastest-js/Woodstox=0.45
+  - same-fixture-fastest-js/Woodstox=0.43
   - same-fixture-0.9x-target-met=false
 
 ## Limits

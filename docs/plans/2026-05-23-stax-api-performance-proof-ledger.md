@@ -158,7 +158,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 120 aggregated rows and 107 JavaScript 1 GiB+
+The current aggregate has 124 aggregated rows and 109 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
@@ -176,11 +176,13 @@ metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s targe
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
 pass. The same-fixture 1024 MiB JS row vs Woodstox target now includes the
-file-backed source, batch-size sweep, and short attr-value cache candidate rows:
+file-backed source, batch-size sweep, short attr-value cache, and trim-boundary
+candidate rows:
 `stax-raw-frame-name-id-chunk-32kib` is fastest at 151.70 MiB/s. Against the
 fastest same-fixture Woodstox row now present in release artifacts
-(`file-backed-short-attr-value-cache-candidate.json`, 338.14 MiB/s), that is
-0.45x Woodstox and 152.63 MiB/s below the 0.9x target. For the
+(`file-backed-trim-boundary-check-candidate.json`, 351.56 MiB/s), that is
+0.43x Woodstox and 164.70 MiB/s below the 0.9x target. This remains below the
+0.9x target. For the
 public event-object shape, the fastest bounded row is
 Node/V8 `eventObjectFull` from
 `candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process
@@ -214,8 +216,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 140 primary release JSON artifacts, recognizes 771
-sample throughput rows and 89 aggregate rows, and finds 478 JavaScript 1 GiB+
+The current scan covers 141 primary release JSON artifacts, recognizes 775
+sample throughput rows and 89 aggregate rows, and finds 480 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -228,7 +230,7 @@ individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 148 JavaScript 1 GiB+
+or their source contract carry it. It now finds 150 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -282,10 +284,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 140 primary release artifacts and recognizes 771
-measured rows. It records 100 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 141 primary release artifacts and recognizes 775
+measured rows. It records 101 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-10 negative-result artifacts, 478 JavaScript 1 GiB+ full-string rows, and three
+10 negative-result artifacts, 480 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving
@@ -896,6 +898,15 @@ unique attribute values. The `runs=3` release row still rejects it:
 `Iterable<Uint8Array[]>` source contract. The same artifact records same-fixture
 Woodstox at 338.14 MiB/s and quick-xml at 274.63 MiB/s, so the narrowed cache
 does not move the JS row toward the 0.9x Woodstox target.
+`file-backed-trim-boundary-check-candidate.md` tests whether the checksum
+consumer can skip `value.trim()` when the materialized text string has no
+leading or trailing XML whitespace. The `runs=3` release row rejects that path:
+`stax-raw-frame-name-id` averaged 143.35 MiB/s with max RSS 61.40 MiB, while
+`stax-raw-frame-name-id-trim-boundary-check` averaged 130.27 MiB/s with max RSS
+67.22 MiB under the same checksum, event count, and file-backed
+`Iterable<Uint8Array[]>` source contract. The same artifact records same-fixture
+Woodstox at 351.56 MiB/s and quick-xml at 273.74 MiB/s, so conditional trim
+avoidance is not a path toward 0.9x Woodstox.
 
 `packages/benchmark/results/release/firefox-spidermonkey-profiler-trace.md`
 adds Firefox/SpiderMonkey Gecko Profiler startup/shutdown evidence for selected

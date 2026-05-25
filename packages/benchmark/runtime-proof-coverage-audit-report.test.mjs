@@ -32,9 +32,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 140);
-  assert.equal(report.summary.measuredRowCount, 771);
-  assert.equal(report.summary.largeJsFullRowCount, 478);
+  assert.equal(report.summary.scannedArtifactCount, 141);
+  assert.equal(report.summary.measuredRowCount, 775);
+  assert.equal(report.summary.largeJsFullRowCount, 480);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -59,7 +59,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'browser-v8-codegen-trace.json', 'stringFull');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'woodstox');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'quick-xml');
-  assertKnownBoundedMemoryRow(report, 'file-backed-short-attr-value-cache-candidate.json', 'woodstox');
+  assertKnownBoundedMemoryRow(report, 'file-backed-trim-boundary-check-candidate.json', 'woodstox');
   assertKnownBoundedMemoryRow(report, 'file-backed-short-attr-value-cache-candidate.json', 'quick-xml');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'stax-stream');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'woodstox');
@@ -69,7 +69,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 100);
+  assert.equal(report.summary.benchmarkArtifactCount, 101);
   assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
@@ -233,8 +233,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 303
-    && row.largeFullStringRowCount === 184
+    && row.measuredRowCount === 305
+    && row.largeFullStringRowCount === 186
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'file-backed-short-attr-value-cache-candidate.json'
@@ -244,6 +244,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.measuredRowCount === 4
   ));
   assert.ok(!report.coverage.runtimes.some(row => row.runtimeId === 'unknown'));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'file-backed-trim-boundary-check-candidate.json'
+    && row.runtimes.includes('node-v8')
+    && row.runtimes.includes('woodstox-jvm')
+    && row.runtimes.includes('quick-xml-rust')
+    && row.measuredRowCount === 4
+  ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-partial.json'
     && row.runtimes.includes('node-v8')
@@ -431,9 +438,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 60 \| 303 \| 184 \|/);
-  assert.match(markdown, /\| Java\/Woodstox \| 9 \| 10 \| 2 \|/);
-  assert.match(markdown, /\| Rust\/quick-xml \| 8 \| 16 \| 2 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 61 \| 305 \| 186 \|/);
+  assert.match(markdown, /\| Java\/Woodstox \| 10 \| 11 \| 3 \|/);
+  assert.match(markdown, /\| Rust\/quick-xml \| 9 \| 17 \| 3 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);

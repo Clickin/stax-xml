@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T23:03:36.469Z",
+  "generatedAt": "2026-05-25T23:16:46.628Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -9,6 +9,7 @@
       "external-baseline.json",
       "external-baseline-1024mib-file-sync-batches.json",
       "file-backed-short-attr-value-cache-candidate.json",
+      "file-backed-trim-boundary-check-candidate.json",
       "candidate-headroom-large.json",
       "bun-candidate-headroom-large.json",
       "browser-candidate-headroom-large.json",
@@ -41,8 +42,8 @@
     ]
   },
   "summary": {
-    "rowCount": 120,
-    "jsLargeFullRowCount": 107,
+    "rowCount": 124,
+    "jsLargeFullRowCount": 109,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "books-corpus-stability",
@@ -81,11 +82,11 @@
       "sourceArtifact": "file-backed-source-sweep.json",
       "fastestJsCaseId": "stax-raw-frame-name-id-chunk-32kib",
       "fastestJsMiBPerSec": 151.7,
-      "woodstoxSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
-      "woodstoxMiBPerSec": 338.14,
-      "target90MiBPerSec": 304.33,
-      "fastestJsWoodstoxRatio": 0.45,
-      "remainingTo90PercentMiBPerSec": 152.63,
+      "woodstoxSourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "woodstoxMiBPerSec": 351.56,
+      "target90MiBPerSec": 316.4,
+      "fastestJsWoodstoxRatio": 0.43,
+      "remainingTo90PercentMiBPerSec": 164.7,
       "targetMet": false
     },
     "fastestJsLargePublicEventRow": {
@@ -177,6 +178,31 @@
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        }
+      },
+      {
+        "group": "file-backed-trim-boundary-check-candidate",
+        "fastest": {
+          "group": "file-backed-trim-boundary-check-candidate",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 143.35,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 61.4,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 7.2,
+            "maxExternalMiB": 3.61,
+            "maxArrayBuffersMiB": 1.62
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
           "sampleMaxMiBPerSec": null,
@@ -1133,6 +1159,142 @@
         "maxArrayBuffersMiB": null
       },
       "woodstoxRatio": 0.81,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-trim-boundary-check-candidate",
+      "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "runtimeId": "node-v8-stax-raw-frame-name-id",
+      "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 143.35,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 61.4,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 7.2,
+        "maxExternalMiB": 3.61,
+        "maxArrayBuffersMiB": 1.62
+      },
+      "woodstoxRatio": 0.41,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-trim-boundary-check-candidate",
+      "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "runtimeId": "stax-raw-frame-name-id-trim-boundary-check",
+      "runtimeLabel": "stax-raw-frame-name-id-trim-boundary-check",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-name-id-trim-boundary-check",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache trim boundary check file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 130.27,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 67.22,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 9.24,
+        "maxExternalMiB": 2.73,
+        "maxArrayBuffersMiB": 0.74
+      },
+      "woodstoxRatio": 0.37,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-trim-boundary-check-candidate",
+      "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "languageFamily": "java",
+      "jsRuntime": false,
+      "caseId": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 351.56,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 312.71,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "woodstoxRatio": 1,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-trim-boundary-check-candidate",
+      "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "languageFamily": "rust",
+      "jsRuntime": false,
+      "caseId": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 273.74,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 4.78,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "woodstoxRatio": 0.78,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -6180,7 +6342,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=107",
+        "jsLargeFullRows=109",
         "counterexamples=0"
       ]
     },
@@ -6199,7 +6361,7 @@
         "1024MiB woodstox=190.72 MiB/s",
         "1024MiB quick-xml=150.24 MiB/s",
         "same-fixture-fastest-js=stax-raw-frame-name-id-chunk-32kib",
-        "same-fixture-fastest-js/Woodstox=0.45",
+        "same-fixture-fastest-js/Woodstox=0.43",
         "same-fixture-0.9x-target-met=false"
       ]
     }

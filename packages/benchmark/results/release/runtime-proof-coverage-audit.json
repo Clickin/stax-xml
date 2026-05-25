@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T23:01:40.888Z",
+  "generatedAt": "2026-05-25T23:17:02.202Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1590,6 +1590,30 @@
       "measuredRowCount": 2
     },
     {
+      "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "objective": null,
+      "contract": null,
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8",
+        "woodstox-jvm",
+        "quick-xml-rust"
+      ],
+      "outcome": null,
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741644
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 4
+    },
+    {
       "sourceArtifact": "file-backed-v8-codegen-trace.json",
       "objective": "file-backed-v8-codegen-trace",
       "contract": "node-v8-trace-opt-deopt-file-backed-reader-shapes",
@@ -2850,12 +2874,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 140,
+    "scannedArtifactCount": 141,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 771,
+    "measuredRowCount": 775,
     "rowClassificationCompleteness": {
-      "measuredRows": 771,
+      "measuredRows": 775,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -2867,13 +2891,13 @@
       "largeJsFullStringRows": 0,
       "rowsWithMemoryCounter": 10
     },
-    "benchmarkArtifactCount": 100,
+    "benchmarkArtifactCount": 101,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 10,
-    "largeJsFullRowCount": 478,
+    "largeJsFullRowCount": 480,
     "runtimeCount": 8,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2884,9 +2908,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 60,
-        "measuredRowCount": 303,
-        "largeFullStringRowCount": 184,
+        "artifactCount": 61,
+        "measuredRowCount": 305,
+        "largeFullStringRowCount": 186,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
           "id": "rawFrameNameId",
@@ -3148,11 +3172,11 @@
       {
         "runtimeId": "woodstox-jvm",
         "runtimeLabel": "Java/Woodstox",
-        "artifactCount": 9,
-        "measuredRowCount": 10,
-        "largeFullStringRowCount": 2,
+        "artifactCount": 10,
+        "measuredRowCount": 11,
+        "largeFullStringRowCount": 3,
         "fastestLargeFullStringRow": {
-          "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+          "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
           "id": "woodstox",
           "runtimeId": "woodstox-jvm",
           "runtimeLabel": "Java/Woodstox",
@@ -3160,7 +3184,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 338.14,
+          "mibPerSec": 351.56,
           "fullStringParity": true,
           "boundedMemory": true,
           "memoryKind": "process-rss",
@@ -3181,9 +3205,9 @@
       {
         "runtimeId": "quick-xml-rust",
         "runtimeLabel": "Rust/quick-xml",
-        "artifactCount": 8,
-        "measuredRowCount": 16,
-        "largeFullStringRowCount": 2,
+        "artifactCount": 9,
+        "measuredRowCount": 17,
+        "largeFullStringRowCount": 3,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
           "id": "quick-xml",
@@ -15518,7 +15542,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 478,
+    "largeJsFullRowCount": 480,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "access-shape-candidate-cross-process.json",

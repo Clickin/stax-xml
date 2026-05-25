@@ -1,0 +1,250 @@
+{
+  "generatedAt": "2026-05-25T23:16:20.327Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 0,
+    "tools": [
+      "stax-raw-frame-name-id",
+      "stax-raw-frame-name-id-trim-boundary-check",
+      "woodstox",
+      "quick-xml"
+    ],
+    "staxStreamSource": "file-sync-batches",
+    "chunkKiB": 32,
+    "batchSize": 4,
+    "boundedRssMiB": 512
+  },
+  "target": {
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": 316.40438044294706
+  },
+  "results": [
+    {
+      "tool": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "respectsBackpressure": null,
+      "sourceConsumption": {
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+        "chunkBytes": 32768,
+        "batchSize": 4,
+        "preMaterializesFullXml": false,
+        "directReadableStream": false
+      },
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 7143.194033333333,
+      "minMs": 6676.0614,
+      "maxMs": 8012.863399999999,
+      "mibPerSec": 143.35321476081745,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        8012.863399999999,
+        6676.0614,
+        6740.657299999999
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 64380928,
+        "maxHeapUsedBytes": 7548152,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 56315904,
+              "heapUsedBytes": 4955952,
+              "externalBytes": 2180237,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 63586304,
+              "heapUsedBytes": 7548152,
+              "externalBytes": 3780126,
+              "arrayBuffersBytes": 1698175
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63148032,
+              "heapUsedBytes": 5340256,
+              "externalBytes": 3780126,
+              "arrayBuffersBytes": 473455
+            },
+            "after": {
+              "rssBytes": 63737856,
+              "heapUsedBytes": 7244904,
+              "externalBytes": 3649054,
+              "arrayBuffersBytes": 1567103
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 62967808,
+              "heapUsedBytes": 5328288,
+              "externalBytes": 3649054,
+              "arrayBuffersBytes": 334191
+            },
+            "after": {
+              "rssBytes": 64380928,
+              "heapUsedBytes": 7091968,
+              "externalBytes": 3649054,
+              "arrayBuffersBytes": 1567103
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.40776266467650807,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-raw-frame-name-id-trim-boundary-check",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache trim boundary check file-backed Iterable<Uint8Array[]>",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "respectsBackpressure": null,
+      "sourceConsumption": {
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+        "chunkBytes": 32768,
+        "batchSize": 4,
+        "preMaterializesFullXml": false,
+        "directReadableStream": false
+      },
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 7860.712833333335,
+      "minMs": 7791.465199999999,
+      "maxMs": 7927.832500000004,
+      "mibPerSec": 130.26806220376784,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        7862.840800000002,
+        7927.832500000004,
+        7791.465199999999
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 70488064,
+        "maxHeapUsedBytes": 9693576,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 63574016,
+              "heapUsedBytes": 5327384,
+              "externalBytes": 3649054,
+              "arrayBuffersBytes": 518511
+            },
+            "after": {
+              "rssBytes": 70488064,
+              "heapUsedBytes": 5941424,
+              "externalBytes": 2862480,
+              "arrayBuffersBytes": 780529
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 70053888,
+              "heapUsedBytes": 5378608,
+              "externalBytes": 2862480,
+              "arrayBuffersBytes": 342383
+            },
+            "after": {
+              "rssBytes": 70316032,
+              "heapUsedBytes": 9018328,
+              "externalBytes": 4828824,
+              "arrayBuffersBytes": 2746873
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 70209536,
+              "heapUsedBytes": 5346840,
+              "externalBytes": 4828824,
+              "arrayBuffersBytes": 235887
+            },
+            "after": {
+              "rssBytes": 70373376,
+              "heapUsedBytes": 9693576,
+              "externalBytes": 5353118,
+              "arrayBuffersBytes": 3271167
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.37054245525697327,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "runtime": "1.8.0_472",
+      "avgMs": 2912.727833333333,
+      "minMs": 2858.6243,
+      "maxMs": 3013.641,
+      "mibPerSec": 351.5604227143856,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        3013.641,
+        2858.6243,
+        2865.9182
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "scope": "process-rss",
+        "maxRssBytes": 327905280,
+        "sampler": {
+          "source": "powershell-get-process",
+          "intervalMs": 100
+        }
+      },
+      "woodstoxRatio": 1,
+      "targetStatus": "met"
+    },
+    {
+      "tool": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "runtime": "1.0.0",
+      "avgMs": 3740.8423666666663,
+      "minMs": 3728.0486,
+      "maxMs": 3747.9655,
+      "mibPerSec": 273.7350917170759,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        3747.9655,
+        3746.5130000000004,
+        3728.0486
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "scope": "process-rss",
+        "maxRssBytes": 5013504,
+        "sampler": {
+          "source": "powershell-get-process",
+          "intervalMs": 100
+        }
+      },
+      "woodstoxRatio": 0.778628861586799,
+      "targetStatus": "below"
+    }
+  ]
+}

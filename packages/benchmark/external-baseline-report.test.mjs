@@ -115,6 +115,63 @@ test('external baseline reports raw-frame fold-trim as a same-checksum candidate
   assert.match(markdown, /file-sync-batches mode/);
 });
 
+test('external baseline reports trim-boundary check as a same-checksum candidate', () => {
+  const trimJsonOut = join(tmpDir, 'external-baseline-trim-boundary-check-test.json');
+  const trimMdOut = join(tmpDir, 'external-baseline-trim-boundary-check-test.md');
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [trimJsonOut, trimMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'external-baseline.mjs'),
+    '--file',
+    join(__dirname, 'test-data', 'runtime-comparison-16mib.xml'),
+    '--tools',
+    'stax-raw-frame-name-id,stax-raw-frame-name-id-trim-boundary-check',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--skip-build',
+    '--stax-stream-source',
+    'file-sync-batches',
+    '--json-out',
+    trimJsonOut,
+    '--md-out',
+    trimMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(trimJsonOut, 'utf8'));
+  assert.deepEqual(report.results.map(row => row.tool), [
+    'stax-raw-frame-name-id',
+    'stax-raw-frame-name-id-trim-boundary-check',
+  ]);
+  for (const row of report.results) {
+    assert.equal(row.workload, 'full-string-checksum');
+    assert.equal(row.eventCount, 967967);
+    assert.equal(row.checksum, -746772258);
+    assert.equal(row.boundedMemory, true);
+    assert.equal(row.sourceMode, 'file-backed-sync-iterable-byte-batches');
+    assert.equal(row.sourceConsumption.parserInput, 'synchronous Iterable<Uint8Array[]>');
+    assert.equal(row.sourceConsumption.preMaterializesFullXml, false);
+    assert.equal(row.sourceConsumption.directReadableStream, false);
+  }
+
+  const markdown = readFileSync(trimMdOut, 'utf8');
+  assert.match(markdown, /stax-raw-frame-name-id-trim-boundary-check/);
+  assert.match(markdown, /file-sync-batches mode/);
+});
+
 test('external baseline reports bounded value-cache as a same-checksum candidate', () => {
   const cacheJsonOut = join(tmpDir, 'external-baseline-string-cache-test.json');
   const cacheMdOut = join(tmpDir, 'external-baseline-string-cache-test.md');

@@ -25,6 +25,7 @@ const allTools = [
   'stax-stream',
   'stax-raw-frame-name-id',
   'stax-raw-frame-name-id-fold-trim',
+  'stax-raw-frame-name-id-trim-boundary-check',
   'stax-raw-frame-string-cache',
   'stax-raw-frame-short-attr-value-cache',
   'stax-event',
@@ -463,7 +464,7 @@ function consumeStaxRawFrameNameId(bytes, options = {}) {
         const start = textStarts[index];
         if (start >= 0) {
           const value = materializeValue(buffer, start, textEnds[index], decoder, valueCache);
-          checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
+          checksum = foldTextValue(checksum, value, options);
         }
       }
       if (type === StreamEventType.START_ELEMENT) {
@@ -641,6 +642,27 @@ function foldTrimmedString(seed, value) {
     next = ((next << 5) - next + value.charCodeAt(index)) | 0;
   }
   return next;
+}
+
+function foldTextValue(seed, value, options) {
+  if (options.foldTrimmedText) {
+    return foldTrimmedString(seed, value);
+  }
+  if (options.trimBoundaryCheck) {
+    return foldString(seed, trimOnlyWhenBoundaryWhitespace(value));
+  }
+  return foldString(seed, value.trim());
+}
+
+function trimOnlyWhenBoundaryWhitespace(value) {
+  if (!value) {
+    return value;
+  }
+  const first = value.charCodeAt(0);
+  const last = value.charCodeAt(value.length - 1);
+  return isXmlWhitespaceCodeUnit(first) || isXmlWhitespaceCodeUnit(last)
+    ? value.trim()
+    : value;
 }
 
 function isXmlWhitespaceCodeUnit(value) {
@@ -1325,7 +1347,7 @@ function createMarkdown(report) {
   lines.push('- Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.');
   lines.push('- `stax-scan-all-no-decode` is a partial row: event types plus start-element attribute counts only.');
   lines.push('- `stax-raw-frame-semantic-checksum` is a same-fields checksum row that avoids JavaScript string materialization on ASCII spans; it is not a full-string materialization row.');
-  lines.push(`- \`stax-stream\`, \`stax-raw-frame-name-id\`, \`stax-raw-frame-name-id-fold-trim\`, \`stax-raw-frame-string-cache\`, and \`stax-raw-frame-short-attr-value-cache\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
+  lines.push(`- \`stax-stream\`, \`stax-raw-frame-name-id\`, \`stax-raw-frame-name-id-fold-trim\`, \`stax-raw-frame-name-id-trim-boundary-check\`, \`stax-raw-frame-string-cache\`, and \`stax-raw-frame-short-attr-value-cache\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
   lines.push('- `stax-event` uses `stax-xml` `EventReaderSync` public event objects.');
   lines.push('- `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.');
   lines.push('- `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.');
@@ -1352,6 +1374,7 @@ async function main() {
     || options.tools.includes('stax-stream')
     || options.tools.includes('stax-raw-frame-name-id')
     || options.tools.includes('stax-raw-frame-name-id-fold-trim')
+    || options.tools.includes('stax-raw-frame-name-id-trim-boundary-check')
     || options.tools.includes('stax-raw-frame-string-cache')
   ) && options.staxStreamSource === 'preloaded';
   const xml = needsStaxEvent ? readTextFile(options.file) : null;
@@ -1410,6 +1433,14 @@ async function main() {
         ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { foldTrimmedText: true })
         : () => consumeStaxRawFrameNameId(bytes, { foldTrimmedText: true });
       results.push(measureLocal('stax-raw-frame-name-id-fold-trim', implementation, run, fileSizeMiB, options));
+    } else if (tool === 'stax-raw-frame-name-id-trim-boundary-check') {
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml nextRawBatch name-id cache trim boundary check file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml nextRawBatch name-id cache trim boundary check preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { trimBoundaryCheck: true })
+        : () => consumeStaxRawFrameNameId(bytes, { trimBoundaryCheck: true });
+      results.push(measureLocal('stax-raw-frame-name-id-trim-boundary-check', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-string-cache') {
       const implementation = options.staxStreamSource === 'file-sync-batches'
         ? 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache file-backed Iterable<Uint8Array[]>'
