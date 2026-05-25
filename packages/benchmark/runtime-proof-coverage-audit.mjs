@@ -229,6 +229,7 @@ function createInitialContext(sourceArtifact, root) {
     sourceArtifact,
     fixture: null,
     environment: null,
+    runtime: null,
     contract: root?.contract ?? null,
   });
 }
@@ -238,6 +239,7 @@ function extendContext(node, context) {
     ...context,
     fixture: normalizeFixture(node.fixture) ?? context.fixture,
     environment: node.environment ?? context.environment,
+    runtime: node.runtime ?? context.runtime,
     contract: node.contract ?? context.contract,
   };
 }
@@ -546,6 +548,7 @@ function classifyRuntime(sourceArtifact, node, context) {
 
   const environment = node.environment ?? context.environment ?? {};
   const runtimeName = environment.runtimeName;
+  const runtime = node.runtime ?? context.runtime ?? {};
   const browserName = String(environment.browserName ?? '').toLowerCase();
   const engine = String(environment.javascriptEngine ?? '').toLowerCase();
 
@@ -557,6 +560,9 @@ function classifyRuntime(sourceArtifact, node, context) {
     return 'chrome-v8-browser';
   }
   if (runtimeName === 'node' || environment.v8) return 'node-v8';
+  if (runtime.id === 'node' || runtime.v8) return 'node-v8';
+  if (runtime.id === 'bun') return 'bun-jsc';
+  if (runtime.id === 'deno') return 'deno-v8';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   return 'unknown';

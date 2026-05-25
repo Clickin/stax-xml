@@ -239,6 +239,7 @@ function createInitialContext(sourceArtifact, root) {
     sourceArtifact,
     fixture: null,
     environment: null,
+    runtime: null,
     objective: root?.objective ?? null,
     contract: root?.contract ?? null,
   });
@@ -247,10 +248,12 @@ function createInitialContext(sourceArtifact, root) {
 function extendContext(node, context) {
   const fixture = normalizeFixture(node.fixture) ?? context.fixture;
   const environment = node.environment ?? context.environment;
+  const runtime = node.runtime ?? context.runtime;
   return {
     ...context,
     fixture,
     environment,
+    runtime,
     objective: node.objective ?? context.objective,
     contract: node.contract ?? context.contract,
   };
@@ -393,6 +396,7 @@ function classifyJsRuntime(sourceArtifact, node, context) {
   if (typeof node.tool === 'string' && node.tool.startsWith('stax-')) return true;
   const runtimeName = context.environment?.runtimeName;
   if (['node', 'bun', 'browser', 'deno'].includes(runtimeName)) return true;
+  if (['node', 'bun', 'browser', 'deno'].includes(context.runtime?.id)) return true;
   if (context.environment?.v8 || context.environment?.node) return true;
   if (/^(candidate-headroom|bun-candidate-headroom|browser-candidate-headroom|textdecoder-span|bun-textdecoder-span|browser-textdecoder-span|stream-reader|event-reader|bun-event-reader|browser-string-limit|runtime-matrix|projection-benchmark)/.test(sourceArtifact)) {
     return !/quick-xml|woodstox/.test(sourceArtifact);
@@ -415,6 +419,9 @@ function inferRuntimeLabel(sourceArtifact, node, context) {
   }
   if (environment.runtimeName === 'deno') return 'Deno/V8';
   if (environment.runtimeName === 'node' || environment.v8) return 'Node/V8';
+  if (context.runtime?.id === 'node' || context.runtime?.v8) return 'Node/V8';
+  if (context.runtime?.id === 'bun') return 'Bun/JSC';
+  if (context.runtime?.id === 'deno') return 'Deno/V8';
   if (sourceArtifact.startsWith('bun-')) return 'Bun/JSC';
   if (sourceArtifact.startsWith('browser-')) return 'Chrome/V8 browser';
   return 'unknown';

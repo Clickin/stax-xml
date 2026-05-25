@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T07:38:50.120Z",
+  "generatedAt": "2026-05-25T08:19:37.098Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2079,6 +2079,9 @@
         "BENCH_FACT"
       ],
       "runtimes": [
+        "node-v8",
+        "bun-jsc",
+        "deno-v8",
         "unknown"
       ],
       "fixture": {
@@ -2218,8 +2221,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "node-v8",
-        "unknown"
+        "node-v8"
       ],
       "fixture": {
         "source": null,
@@ -2541,7 +2543,7 @@
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 9,
-    "largeJsFullRowCount": 454,
+    "largeJsFullRowCount": 457,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2552,9 +2554,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 54,
-        "measuredRowCount": 258,
-        "largeFullStringRowCount": 161,
+        "artifactCount": 55,
+        "measuredRowCount": 267,
+        "largeFullStringRowCount": 164,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
           "id": "rawFrameNameId",
@@ -2603,8 +2605,8 @@
       {
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
-        "artifactCount": 28,
-        "measuredRowCount": 202,
+        "artifactCount": 29,
+        "measuredRowCount": 208,
         "largeFullStringRowCount": 123,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -2658,8 +2660,8 @@
       {
         "runtimeId": "deno-v8",
         "runtimeLabel": "Deno/V8",
-        "artifactCount": 9,
-        "measuredRowCount": 50,
+        "artifactCount": 10,
+        "measuredRowCount": 56,
         "largeFullStringRowCount": 44,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "deno-textdecoder-span-variants-corpus.json",
@@ -2875,26 +2877,10 @@
       {
         "runtimeId": "unknown",
         "runtimeLabel": "unknown",
-        "artifactCount": 12,
-        "measuredRowCount": 47,
-        "largeFullStringRowCount": 3,
-        "fastestLargeFullStringRow": {
-          "sourceArtifact": "stream-reader-4gb-shapes.json",
-          "id": "0",
-          "runtimeId": "unknown",
-          "runtimeLabel": "unknown",
-          "sizeGiB": 4,
-          "fixtureSource": null,
-          "fixtureShape": "repeated-person",
-          "corpusSeed": null,
-          "mibPerSec": 90.16,
-          "fullStringParity": true,
-          "boundedMemory": true,
-          "memoryKind": "process-rss",
-          "eventCount": null,
-          "checksum": -1788666544,
-          "contractScope": "full-string-materialization"
-        },
+        "artifactCount": 11,
+        "measuredRowCount": 26,
+        "largeFullStringRowCount": 0,
+        "fastestLargeFullStringRow": null,
         "sourcePins": [],
         "traceArtifacts": [
           "woodstox-hotspot-trace.json"
@@ -15079,7 +15065,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 454,
+    "largeJsFullRowCount": 457,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "access-shape-candidate-cross-process.json",
