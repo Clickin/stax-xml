@@ -1,6 +1,6 @@
 # Materialization Contract Audit
 
-Generated: 2026-05-23T14:27:31.679Z
+Generated: 2026-05-25T01:51:51.147Z
 
 This audit separates same semantic fields from same runtime object shape.
 The external baseline rows are comparable through event count, checksum, and field materialization parity; they are not the same object shape.
@@ -10,6 +10,10 @@ It does not prove a JavaScript runtime ceiling.
 
 Parity status: same-semantic-fields
 Not same object shape: yes
+External baseline artifact: G:\programming\stax-xml\packages\benchmark\results\release\external-baseline-1024mib-file-sync-batches.json
+External baseline generated: 2026-05-24T23:20:58.552Z
+External baseline fixture: G:\programming\stax-xml\packages\benchmark\test-data\node-string-return-1024mib.xml
+External baseline fixture size: 1024.00 MiB
 
 Shared full-string checksum fields:
 - event type
@@ -25,10 +29,10 @@ Shared full-string checksum fields:
 
 | Consumer | Runtime shape | Per-event public object | Source check | Events | Checksum |
 | --- | --- | --- | --- | ---: | ---: |
-| woodstox | java-xmlstreamreader-cursor | no | yes | 967967 | -746772258 |
-| quick-xml | rust-enum-event-with-buffer-lifetime | no | yes | 967967 | -746772258 |
-| stax-stream | js-stream-batch-index-accessors | no | yes | 967967 | -746772258 |
-| stax-event | js-public-event-object | yes | yes | 967967 | -746772258 |
+| woodstox | java-xmlstreamreader-cursor | no | yes | 61236571 | -716099804 |
+| quick-xml | rust-enum-event-with-buffer-lifetime | no | yes | 61236571 | -716099804 |
+| stax-stream | js-stream-batch-index-accessors | no | yes | 61236571 | -716099804 |
+| stax-event | js-public-event-object | yes | yes | n/a | n/a |
 
 ## Shape Boundary
 
@@ -51,10 +55,9 @@ Shared full-string checksum fields:
 
 - same-semantic-materialization-contract (SOURCE_FACT + BENCH_FACT): The external and JavaScript rows consume the same semantic fields when their event count and checksum match.
   - semantic fields: event type, element local name, attribute count, attribute local name, attribute value, trimmed non-empty text, trimmed non-empty CDATA, UTF-16-code-unit checksum
-  - woodstox: events=967967, checksum=-746772258
-  - quick-xml: events=967967, checksum=-746772258
-  - stax-stream: events=967967, checksum=-746772258
-  - stax-event: events=967967, checksum=-746772258
+  - woodstox: events=61236571, checksum=-716099804
+  - quick-xml: events=61236571, checksum=-716099804
+  - stax-stream: events=61236571, checksum=-716099804
 - not-same-object-shape (COUNTEREXAMPLE): The same semantic fields are not the same object shape across Java, Rust, and JavaScript runtimes.
   - woodstox: java-xmlstreamreader-cursor, perEventPublicObject=false
   - quick-xml: rust-enum-event-with-buffer-lifetime, perEventPublicObject=false

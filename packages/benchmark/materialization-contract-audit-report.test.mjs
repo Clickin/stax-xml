@@ -10,6 +10,9 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'materialization-contract-audit-report-test.json');
 const mdOut = join(tmpDir, 'materialization-contract-audit-report-test.md');
+const releaseJsonOut = join(tmpDir, 'materialization-contract-audit-release-report-test.json');
+const releaseMdOut = join(tmpDir, 'materialization-contract-audit-release-report-test.md');
+const largeExternalBaseline = join(__dirname, 'results', 'release', 'external-baseline-1024mib-file-sync-batches.json');
 
 test('materialization contract audit separates semantic parity from object-shape parity', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -64,4 +67,43 @@ test('materialization contract audit separates semantic parity from object-shape
   assert.match(markdown, /`EventReaderSync` public event objects/);
   assert.match(markdown, /Lazy getters remain a recorded negative result/);
   assert.match(markdown, /does not prove a JavaScript runtime ceiling/);
+});
+
+test('materialization contract audit can bind to the 1 GiB external baseline artifact', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [releaseJsonOut, releaseMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'materialization-contract-audit.mjs'),
+    '--external-baseline',
+    largeExternalBaseline,
+    '--json-out',
+    releaseJsonOut,
+    '--md-out',
+    releaseMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(releaseJsonOut, 'utf8'));
+  assert.equal(report.metadata.externalBaselineReport, largeExternalBaseline);
+  assert.equal(report.parity.status, 'same-semantic-fields');
+  assert.equal(report.parity.notSameObjectShape, true);
+  assert.deepEqual(report.parity.baselineRows.map(row => row.id), ['woodstox', 'quick-xml', 'stax-stream']);
+  assert.ok(report.parity.baselineRows.every(row => row.eventCount === 61236571));
+  assert.ok(report.parity.baselineRows.every(row => row.checksum === -716099804));
+  assert.ok(report.consumers.some(entry => entry.id === 'stax-event' && entry.baseline === null));
+
+  const markdown = readFileSync(releaseMdOut, 'utf8');
+  assert.match(markdown, /external-baseline-1024mib-file-sync-batches\.json/);
+  assert.match(markdown, /External baseline fixture size: 1024\.00 MiB/);
+  assert.match(markdown, /\| stax-event .* n\/a \| n\/a \|/);
 });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-23T14:27:31.679Z",
+  "generatedAt": "2026-05-25T01:51:51.147Z",
   "objective": "materialization-contract-audit",
   "contract": "semantic-materialization-not-object-shape",
   "note": "Audits the comparator boundary: rows share semantic fields and checksum parity, but not language/runtime object shape.",
@@ -14,7 +14,30 @@
     "quickXmlSource": "G:\\programming\\stax-xml\\packages\\benchmark\\external\\quick-xml\\src\\main.rs",
     "externalBaselineSource": "G:\\programming\\stax-xml\\packages\\benchmark\\external-baseline.mjs",
     "proofLedgerSource": "G:\\programming\\stax-xml\\docs\\plans\\2026-05-23-stax-api-performance-proof-ledger.md",
-    "externalBaselineReport": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline.json"
+    "externalBaselineReport": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline-1024mib-file-sync-batches.json"
+  },
+  "baseline": {
+    "source": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline-1024mib-file-sync-batches.json",
+    "generatedAt": "2026-05-24T23:20:58.552Z",
+    "fixture": {
+      "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+      "sizeBytes": 1073741644,
+      "sizeMiB": 1023.999828338623
+    },
+    "options": {
+      "runs": 1,
+      "warmups": 0,
+      "tools": [
+        "stax-stream",
+        "stax-raw-frame-name-id",
+        "woodstox",
+        "quick-xml"
+      ],
+      "staxStreamSource": "file-sync-batches",
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "boundedRssMiB": 512
+    }
   },
   "semanticFields": [
     "event type",
@@ -89,27 +112,21 @@
     "baselineRows": [
       {
         "id": "woodstox",
-        "eventCount": 967967,
-        "checksum": -746772258,
-        "mibPerSec": 333.43214193464274
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "mibPerSec": 324.53086372655906
       },
       {
         "id": "quick-xml",
-        "eventCount": 967967,
-        "checksum": -746772258,
-        "mibPerSec": 309.8224487975214
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "mibPerSec": 290.91595966035413
       },
       {
         "id": "stax-stream",
-        "eventCount": 967967,
-        "checksum": -746772258,
-        "mibPerSec": 105.29785621801416
-      },
-      {
-        "id": "stax-event",
-        "eventCount": 967967,
-        "checksum": -746772258,
-        "mibPerSec": 95.93811833355923
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "mibPerSec": 93.80606151773442
       }
     ],
     "notSameObjectShape": true,
@@ -141,16 +158,14 @@
         "workload": "full-string-checksum",
         "status": "ok",
         "runtime": "1.8.0_472",
-        "avgMs": 47.98526666666667,
-        "minMs": 44.2581,
-        "maxMs": 55.3941,
-        "mibPerSec": 333.43214193464274,
-        "eventCount": 967967,
-        "checksum": -746772258,
+        "avgMs": 3155.3234,
+        "minMs": 3155.3234,
+        "maxMs": 3155.3234,
+        "mibPerSec": 324.53086372655906,
+        "eventCount": 61236571,
+        "checksum": -716099804,
         "samplesMs": [
-          55.3941,
-          44.2581,
-          44.3036
+          3155.3234
         ],
         "woodstoxRatio": 1,
         "targetStatus": "met"
@@ -181,19 +196,17 @@
         "workload": "full-string-checksum",
         "status": "ok",
         "runtime": "1.0.0",
-        "avgMs": 51.64193333333333,
-        "minMs": 51.348,
-        "maxMs": 52.065,
-        "mibPerSec": 309.8224487975214,
-        "eventCount": 967967,
-        "checksum": -746772258,
+        "avgMs": 3519.9163000000003,
+        "minMs": 3519.9163000000003,
+        "maxMs": 3519.9163000000003,
+        "mibPerSec": 290.91595966035413,
+        "eventCount": 61236571,
+        "checksum": -716099804,
         "samplesMs": [
-          52.065,
-          51.348,
-          51.5128
+          3519.9163000000003
         ],
-        "woodstoxRatio": 0.9291919099336585,
-        "targetStatus": "met"
+        "woodstoxRatio": 0.8964200086235005,
+        "targetStatus": "below"
       }
     },
     {
@@ -217,21 +230,40 @@
       "sourceSupported": true,
       "baseline": {
         "tool": "stax-stream",
-        "implementation": "Node + stax-xml StreamReaderSync",
+        "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
         "workload": "full-string-checksum",
         "status": "ok",
-        "avgMs": 151.9483,
-        "minMs": 150.5749,
-        "maxMs": 152.75979999999998,
-        "mibPerSec": 105.29785621801416,
-        "eventCount": 967967,
-        "checksum": -746772258,
+        "avgMs": 10916.1371,
+        "minMs": 10916.1371,
+        "maxMs": 10916.1371,
+        "mibPerSec": 93.80606151773442,
+        "eventCount": 61236571,
+        "checksum": -716099804,
         "samplesMs": [
-          152.5102,
-          152.75979999999998,
-          150.5749
+          10916.1371
         ],
-        "woodstoxRatio": 0.3157999573977903,
+        "boundedMemory": true,
+        "memory": {
+          "maxRssBytes": 71270400,
+          "maxHeapUsedBytes": 7193216,
+          "samples": [
+            {
+              "before": {
+                "rssBytes": 64028672,
+                "heapUsedBytes": 4917256,
+                "externalBytes": 2159879,
+                "arrayBuffersBytes": 22895
+              },
+              "after": {
+                "rssBytes": 71270400,
+                "heapUsedBytes": 7193216,
+                "externalBytes": 3441157,
+                "arrayBuffersBytes": 1359206
+              }
+            }
+          ]
+        },
+        "woodstoxRatio": 0.2890512798707887,
         "targetStatus": "below"
       }
     },
@@ -254,25 +286,7 @@
         "UTF-16-code-unit checksum"
       ],
       "sourceSupported": true,
-      "baseline": {
-        "tool": "stax-event",
-        "implementation": "Node + stax-xml EventReaderSync",
-        "workload": "full-string-checksum",
-        "status": "ok",
-        "avgMs": 166.77240000000006,
-        "minMs": 163.37900000000013,
-        "maxMs": 171.01970000000006,
-        "mibPerSec": 95.93811833355923,
-        "eventCount": 967967,
-        "checksum": -746772258,
-        "samplesMs": [
-          171.01970000000006,
-          165.9185,
-          163.37900000000013
-        ],
-        "woodstoxRatio": 0.287729064681366,
-        "targetStatus": "below"
-      }
+      "baseline": null
     }
   ],
   "findings": [
@@ -282,10 +296,9 @@
       "summary": "The external and JavaScript rows consume the same semantic fields when their event count and checksum match.",
       "evidence": [
         "semantic fields: event type, element local name, attribute count, attribute local name, attribute value, trimmed non-empty text, trimmed non-empty CDATA, UTF-16-code-unit checksum",
-        "woodstox: events=967967, checksum=-746772258",
-        "quick-xml: events=967967, checksum=-746772258",
-        "stax-stream: events=967967, checksum=-746772258",
-        "stax-event: events=967967, checksum=-746772258"
+        "woodstox: events=61236571, checksum=-716099804",
+        "quick-xml: events=61236571, checksum=-716099804",
+        "stax-stream: events=61236571, checksum=-716099804"
       ]
     },
     {

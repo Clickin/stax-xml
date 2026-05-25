@@ -170,6 +170,12 @@ function buildReport({ generatedAt, environment, sources, baseline, metadata }) 
     note: 'Audits the comparator boundary: rows share semantic fields and checksum parity, but not language/runtime object shape.',
     environment,
     metadata,
+    baseline: {
+      source: baseline.source,
+      generatedAt: baseline.generatedAt,
+      fixture: baseline.fixture,
+      options: baseline.options,
+    },
     semanticFields,
     sourceChecks,
     parity,
@@ -431,9 +437,19 @@ function renderMarkdown(report) {
     '',
     `Parity status: ${report.parity.status}`,
     `Not same object shape: ${report.parity.notSameObjectShape ? 'yes' : 'no'}`,
-    '',
-    'Shared full-string checksum fields:',
   ];
+
+  lines.push(`External baseline artifact: ${report.metadata.externalBaselineReport}`);
+  lines.push(`External baseline generated: ${report.baseline.generatedAt ?? 'n/a'}`);
+  if (report.baseline.fixture) {
+    lines.push(`External baseline fixture: ${report.baseline.fixture.path ?? 'n/a'}`);
+    if (report.baseline.fixture.sizeMiB !== undefined) {
+      lines.push(`External baseline fixture size: ${formatNumber(report.baseline.fixture.sizeMiB)} MiB`);
+    }
+  }
+
+  lines.push('');
+  lines.push('Shared full-string checksum fields:');
 
   for (const field of report.semanticFields) {
     lines.push(`- ${field}`);
@@ -489,6 +505,10 @@ function renderMarkdown(report) {
 
 function escapePipe(value) {
   return String(value ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
+}
+
+function formatNumber(value) {
+  return Number.isFinite(value) ? value.toFixed(2) : 'n/a';
 }
 
 function readRequiredFile(path) {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T01:41:38.689Z",
+  "generatedAt": "2026-05-25T01:52:44.514Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1744,7 +1744,7 @@
       ],
       "fixture": null,
       "corpusSeed": null,
-      "measuredRowCount": 8
+      "measuredRowCount": 6
     },
     {
       "sourceArtifact": "monomorphic-batch-access.json",
@@ -2294,7 +2294,7 @@
     "scannedArtifactCount": 118,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 680,
+    "measuredRowCount": 678,
     "benchmarkArtifactCount": 84,
     "sourceArtifactCount": 15,
     "traceArtifactCount": 8,
@@ -2313,7 +2313,7 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 44,
-        "measuredRowCount": 217,
+        "measuredRowCount": 215,
         "largeFullStringRowCount": 135,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -14746,7 +14746,7 @@
         ],
         "fixture": null,
         "corpusSeed": null,
-        "measuredRowCount": 8
+        "measuredRowCount": 6
       },
       {
         "sourceArtifact": "raw-batch-kind-shape-audit.json",
