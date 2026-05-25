@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T03:51:54.813Z",
+  "generatedAt": "2026-05-25T04:04:46.557Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1813,6 +1813,18 @@
       "measuredRowCount": 6
     },
     {
+      "sourceArtifact": "medium-ascii-decode-candidate.json",
+      "objective": "medium-ascii-decode-candidate",
+      "contract": "file-backed-full-string-medium-ascii-decode-candidate",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT"
+      ],
+      "runtimes": [],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "monomorphic-batch-access.json",
       "objective": "monomorphic-batch-access",
       "contract": "full-string-materialization",
@@ -2393,7 +2405,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 124,
+    "scannedArtifactCount": 125,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 692,
@@ -2402,7 +2414,7 @@
     "traceArtifactCount": 8,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
-    "negativeArtifactCount": 7,
+    "negativeArtifactCount": 8,
     "largeJsFullRowCount": 426,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
@@ -14889,6 +14901,18 @@
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 6
+      },
+      {
+        "sourceArtifact": "medium-ascii-decode-candidate.json",
+        "objective": "medium-ascii-decode-candidate",
+        "contract": "file-backed-full-string-medium-ascii-decode-candidate",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [],
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
       },
       {
         "sourceArtifact": "raw-batch-kind-shape-audit.json",

@@ -1,0 +1,109 @@
+{
+  "generatedAt": "2026-05-25T04:00:18.623Z",
+  "objective": "medium-ascii-decode-candidate",
+  "contract": "file-backed-full-string-medium-ascii-decode-candidate",
+  "note": "Records a rejected parser materialization probe: extending the existing short ASCII string fast path beyond 12 bytes for StreamReaderSync decodeSpan(). The candidates preserved the same 1 GiB file-backed full-string checksum, but they regressed the public StreamBatch stax-stream row, so the implementation was reverted.",
+  "candidateChange": {
+    "files": [
+      "packages/stax-xml/src/IterableReader.ts"
+    ],
+    "api": "no public API change",
+    "purpose": "avoid TextDecoder.decode() for medium-length ASCII spans while keeping Uint8Array/TextDecoder inputs and excluding Node Buffer",
+    "retainedInSource": false
+  },
+  "sourceContract": {
+    "fixture": "packages/benchmark/test-data/node-string-return-1024mib.xml",
+    "sourceMode": "file-backed-sync-iterable-byte-batches",
+    "chunkKiB": 16,
+    "batchSize": 1,
+    "fullStringParity": true,
+    "boundedRssMiB": 512
+  },
+  "baseline": {
+    "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+    "staxStreamThroughputMiBPerSec": 135.78,
+    "rawFrameNameIdThroughputMiBPerSec": 136.71,
+    "eventCount": 61236571,
+    "checksum": -716099804
+  },
+  "candidateMeasurement": {
+    "rows": [
+      {
+        "id": "medium-ascii-concat-stax-stream",
+        "implementation": "decode ASCII spans up to 64 bytes with repeated String.fromCharCode concatenation",
+        "throughputMiBPerSec": 129.65,
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "boundedMemory": true
+      },
+      {
+        "id": "medium-ascii-concat-raw-frame-name-id",
+        "implementation": "decode ASCII spans up to 64 bytes with repeated String.fromCharCode concatenation",
+        "throughputMiBPerSec": 140.59,
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "boundedMemory": true
+      },
+      {
+        "id": "medium-ascii-spread-stax-stream",
+        "implementation": "ASCII-check then String.fromCharCode(...buffer.subarray(start, end)) for spans up to 64 bytes",
+        "throughputMiBPerSec": 105.40,
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "boundedMemory": true
+      },
+      {
+        "id": "medium-ascii-spread-raw-frame-name-id",
+        "implementation": "ASCII-check then String.fromCharCode(...buffer.subarray(start, end)) for spans up to 64 bytes",
+        "throughputMiBPerSec": 136.51,
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "boundedMemory": true
+      }
+    ]
+  },
+  "summary": {
+    "classification": "NEGATIVE_RESULT",
+    "candidateRetained": false,
+    "candidateCounterexamples200MiB": 0,
+    "publicBaselineThroughputMiBPerSec": 135.78,
+    "bestPublicCandidateThroughputMiBPerSec": 129.65,
+    "bestPublicCandidateDeltaMiBPerSec": -6.13,
+    "bestRawFrameCandidateThroughputMiBPerSec": 140.59,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "medium-ascii-decode-regresses-public-stream",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Extending the ASCII fast path beyond short names did not improve the public StreamBatch full-string row; the best public candidate was slower than the current TextDecoder-backed path.",
+      "evidence": [
+        "baseline stax-stream=135.78 MiB/s",
+        "medium-ascii-concat stax-stream=129.65 MiB/s",
+        "medium-ascii-spread stax-stream=105.40 MiB/s",
+        "event count and checksum preserved"
+      ]
+    },
+    {
+      "id": "raw-frame-noise-not-api-headroom",
+      "classification": "SCOPE_GUARD",
+      "summary": "The concat probe's raw-frame row was faster in a single run, but that path does not exercise StreamBatch textAt()/attributeValueAt() materialization in the same way and did not justify keeping a public-path regression.",
+      "evidence": [
+        "baseline rawFrameNameId=136.71 MiB/s",
+        "medium-ascii-concat rawFrameNameId=140.59 MiB/s",
+        "medium-ascii-spread rawFrameNameId=136.51 MiB/s",
+        "candidate retained in source: false"
+      ]
+    },
+    {
+      "id": "not-runtime-ceiling-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This rejects one JavaScript string materialization tactic only; it is not evidence that TextDecoder or JS runtimes have no remaining optimization headroom.",
+      "evidence": [
+        "single-run file-backed candidate probe",
+        "no Node Buffer path introduced",
+        "no 200 MiB/s bounded full-string counterexample found"
+      ]
+    }
+  ]
+}
