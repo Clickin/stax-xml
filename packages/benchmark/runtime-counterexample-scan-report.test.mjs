@@ -33,11 +33,11 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 113);
-  assert.equal(report.summary.measuredRowCount, 663);
-  assert.equal(report.summary.largeJsFullRowCount, 403);
+  assert.equal(report.summary.scannedArtifactCount, 114);
+  assert.equal(report.summary.measuredRowCount, 665);
+  assert.equal(report.summary.largeJsFullRowCount, 405);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
-  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
+  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'candidate-headroom-cross-process-books-corpus.json');
@@ -66,6 +66,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('multi-chunk-batch-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-fold-trim-candidate.json'));
+  assert.ok(report.scannedArtifacts.includes('file-backed-string-cache-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-source-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-core-decomposition.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-public-consumer-shape-sweep.json'));

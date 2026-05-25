@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T00:36:38.244Z",
+  "generatedAt": "2026-05-25T00:45:49.764Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -75,6 +75,7 @@
     "file-backed-fold-trim-candidate.json",
     "file-backed-public-consumer-shape-sweep.json",
     "file-backed-source-sweep.json",
+    "file-backed-string-cache-candidate.json",
     "file-backed-v8-codegen-trace.json",
     "firefox-bidi-candidate-headroom-books-corpus.json",
     "firefox-bidi-candidate-headroom-corpus.json",
@@ -132,14 +133,14 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 113,
+    "scannedArtifactCount": 114,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 663,
-    "largeJsFullRowCount": 403,
+    "measuredRowCount": 665,
+    "largeJsFullRowCount": 405,
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 12,
-    "unboundedOrUnknownLargeFullRowCount": 89,
+    "unboundedOrUnknownLargeFullRowCount": 90,
     "fastestLargeFullRow": {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
       "runtimeLabel": "Node/V8",
@@ -1225,6 +1226,25 @@
       "contractScope": "independent-process-candidate-headroom-stability",
       "family": null,
       "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "file-backed-string-cache-candidate.json",
+      "jsonPath": "results.1",
+      "id": "stax-raw-frame-string-cache",
+      "runtimeLabel": "unknown",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": false,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 28.89,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": null,
+      "counterexampleStatus": null,
       "memoryKind": "process-rss",
       "hasMemoryProof": true
     },
@@ -2573,7 +2593,7 @@
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "89 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
+      "summary": "90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
     }
   ]
 }

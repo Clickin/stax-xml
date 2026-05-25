@@ -25,6 +25,7 @@ const allTools = [
   'stax-stream',
   'stax-raw-frame-name-id',
   'stax-raw-frame-name-id-fold-trim',
+  'stax-raw-frame-string-cache',
   'stax-event',
   'woodstox',
   'quick-xml',
@@ -420,6 +421,7 @@ function consumeStaxRawFrameNameId(bytes, options = {}) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const parser = new StreamReaderSync(bytes);
   const nameCache = [];
+  const valueCache = options.valueCache === true ? new SpanStringCache() : undefined;
   let eventCount = 0;
   let checksum = 0;
   let frame;
@@ -458,7 +460,7 @@ function consumeStaxRawFrameNameId(bytes, options = {}) {
       if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
         const start = textStarts[index];
         if (start >= 0) {
-          const value = decodeSpan(buffer, start, textEnds[index], decoder);
+          const value = materializeValue(buffer, start, textEnds[index], decoder, valueCache);
           checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
         }
       }
@@ -479,16 +481,89 @@ function consumeStaxRawFrameNameId(bytes, options = {}) {
               nameCache,
             ),
           );
-          checksum = foldString(
-            checksum,
-            decodeSpan(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder),
-          );
+          checksum = foldString(checksum, materializeValue(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, valueCache));
         }
       }
     }
   }
 
   return { eventCount, checksum };
+}
+
+function materializeValue(buffer, start, end, decoder, valueCache) {
+  if (!valueCache) {
+    return decodeSpan(buffer, start, end, decoder);
+  }
+  const cached = valueCache.get(buffer, start, end);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const value = decodeSpan(buffer, start, end, decoder);
+  valueCache.set(buffer, start, end, value);
+  return value;
+}
+
+class SpanStringCache {
+  constructor(maxStoredBytes = 4 * 1024 * 1024) {
+    this.maxStoredBytes = maxStoredBytes;
+  }
+
+  buckets = new Map();
+  maxStoredBytes;
+  storedBytes = 0;
+
+  get(buffer, start, end) {
+    const length = end - start;
+    const hash = hashSpan(buffer, start, end);
+    const bucket = this.buckets.get(`${length}:${hash}`);
+    if (bucket === undefined) {
+      return undefined;
+    }
+    for (const entry of bucket) {
+      if (spanEquals(buffer, start, end, entry.bytes)) {
+        return entry.value;
+      }
+    }
+    return undefined;
+  }
+
+  set(buffer, start, end, value) {
+    const length = end - start;
+    if (this.storedBytes + length > this.maxStoredBytes) {
+      return;
+    }
+    const hash = hashSpan(buffer, start, end);
+    const key = `${length}:${hash}`;
+    const bytes = buffer.slice(start, end);
+    this.storedBytes += bytes.byteLength;
+    const bucket = this.buckets.get(key);
+    if (bucket === undefined) {
+      this.buckets.set(key, [{ bytes, value }]);
+      return;
+    }
+    bucket.push({ bytes, value });
+  }
+}
+
+function hashSpan(buffer, start, end) {
+  let hash = 2166136261;
+  for (let index = start; index < end; index++) {
+    hash = Math.imul((hash ^ buffer[index]) >>> 0, 16777619) >>> 0;
+  }
+  return hash;
+}
+
+function spanEquals(buffer, start, end, bytes) {
+  const length = end - start;
+  if (bytes.byteLength !== length) {
+    return false;
+  }
+  for (let index = 0; index < length; index++) {
+    if (buffer[start + index] !== bytes[index]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function foldTrimmedString(seed, value) {
@@ -982,7 +1057,7 @@ function createMarkdown(report) {
   lines.push('- Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.');
   lines.push('- `stax-scan-all-no-decode` is a partial row: event types plus start-element attribute counts only.');
   lines.push('- `stax-raw-frame-semantic-checksum` is a same-fields checksum row that avoids JavaScript string materialization on ASCII spans; it is not a full-string materialization row.');
-  lines.push(`- \`stax-stream\`, \`stax-raw-frame-name-id\`, and \`stax-raw-frame-name-id-fold-trim\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
+  lines.push(`- \`stax-stream\`, \`stax-raw-frame-name-id\`, \`stax-raw-frame-name-id-fold-trim\`, and \`stax-raw-frame-string-cache\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
   lines.push('- `stax-event` uses `stax-xml` `EventReaderSync` public event objects.');
   lines.push('- `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.');
   lines.push('- `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.');
@@ -1008,6 +1083,7 @@ async function main() {
     || options.tools.includes('stax-stream')
     || options.tools.includes('stax-raw-frame-name-id')
     || options.tools.includes('stax-raw-frame-name-id-fold-trim')
+    || options.tools.includes('stax-raw-frame-string-cache')
   ) && options.staxStreamSource === 'preloaded';
   const xml = needsStaxEvent ? readTextFile(options.file) : null;
   const bytes = needsPreloadedStaxStream ? readFileSync(options.file) : null;
@@ -1065,6 +1141,14 @@ async function main() {
         ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { foldTrimmedText: true })
         : () => consumeStaxRawFrameNameId(bytes, { foldTrimmedText: true });
       results.push(measureLocal('stax-raw-frame-name-id-fold-trim', implementation, run, fileSizeMiB, options));
+    } else if (tool === 'stax-raw-frame-string-cache') {
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { valueCache: true })
+        : () => consumeStaxRawFrameNameId(bytes, { valueCache: true });
+      results.push(measureLocal('stax-raw-frame-string-cache', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-event') {
       results.push(measureLocal('stax-event', 'Node + stax-xml EventReaderSync', () => consumeStaxEvent(xml), fileSizeMiB, options));
     } else if (tool === 'woodstox') {
