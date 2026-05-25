@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-05-25T04:10:31.876Z",
+  "objective": "attribute-value-public-fast-path-candidate",
+  "contract": "file-backed-full-string-public-attribute-value-fast-path-candidate",
+  "note": "Records a rejected internal hot-path probe: keeping the public StreamBatch API unchanged while adding a source-level copyAttrValueForPublic(eventIndex, attrIndex) method to combine implicit-attribute handling and value materialization. The candidate preserved the 1 GiB file-backed full-string checksum but regressed both public StreamBatch and raw-frame rows, so the source change was reverted.",
+  "candidateChange": {
+    "files": [
+      "packages/stax-xml/src/stream-reader-core.ts",
+      "packages/stax-xml/src/IterableReader.ts"
+    ],
+    "api": "no public API change",
+    "purpose": "avoid duplicate attr bounds, offset, and implicit-value checks inside StreamBatch.attributeValueAt(eventIndex, number)",
+    "retainedInSource": false
+  },
+  "sourceContract": {
+    "fixture": "packages/benchmark/test-data/node-string-return-1024mib.xml",
+    "sourceMode": "file-backed-sync-iterable-byte-batches",
+    "chunkKiB": 16,
+    "batchSize": 1,
+    "fullStringParity": true,
+    "boundedRssMiB": 512
+  },
+  "baseline": {
+    "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+    "staxStreamThroughputMiBPerSec": 135.78,
+    "rawFrameNameIdThroughputMiBPerSec": 136.71,
+    "eventCount": 61236571,
+    "checksum": -716099804
+  },
+  "candidateMeasurement": {
+    "rows": [
+      {
+        "id": "stax-stream",
+        "implementation": "StreamBatch.attributeValueAt numeric path calls combined copyAttrValueForPublic",
+        "throughputMiBPerSec": 118.15,
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "boundedMemory": true
+      },
+      {
+        "id": "stax-raw-frame-name-id",
+        "implementation": "same dist build as candidate, raw-frame name-id checksum row",
+        "throughputMiBPerSec": 126.96,
+        "eventCount": 61236571,
+        "checksum": -716099804,
+        "boundedMemory": true
+      }
+    ]
+  },
+  "summary": {
+    "classification": "NEGATIVE_RESULT",
+    "candidateRetained": false,
+    "candidateCounterexamples200MiB": 0,
+    "publicBaselineThroughputMiBPerSec": 135.78,
+    "publicCandidateThroughputMiBPerSec": 118.15,
+    "publicCandidateDeltaMiBPerSec": -17.63,
+    "rawFrameBaselineThroughputMiBPerSec": 136.71,
+    "rawFrameCandidateThroughputMiBPerSec": 126.96,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "combined-attribute-value-path-regresses",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Combining implicit-attribute handling and value materialization behind a new internal source method made the file-backed public full-string path slower.",
+      "evidence": [
+        "baseline stax-stream=135.78 MiB/s",
+        "candidate stax-stream=118.15 MiB/s",
+        "baseline rawFrameNameId=136.71 MiB/s",
+        "candidate rawFrameNameId=126.96 MiB/s",
+        "event count and checksum preserved"
+      ]
+    },
+    {
+      "id": "not-public-api-headroom",
+      "classification": "SCOPE_GUARD",
+      "summary": "This rejects one internal dispatch shape only; it does not prove that StreamBatch attribute access has no remaining optimization headroom.",
+      "evidence": [
+        "no public API change was retained",
+        "single-run 1 GiB file-backed probe",
+        "no 200 MiB/s bounded full-string counterexample found"
+      ]
+    }
+  ]
+}
