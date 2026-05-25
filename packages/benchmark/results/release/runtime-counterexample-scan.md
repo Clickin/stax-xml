@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T07:38:29.197Z
+Generated: 2026-05-25T07:50:16.511Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -9,13 +9,16 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - Scanned artifacts: 132
 - Ignored derived artifacts: 5
 - Measured rows recognized: 745
+- Aggregate rows recognized: 89
 - 1 GiB+ JS full-string rows recognized: 450
+- 1 GiB+ JS full-string aggregate rows recognized: 69
 - Counterexamples found: 0
 - Partial/projection threshold rows: 20
 - Text/CDATA materialization headroom rows: 1
 - Full-string rows without bounded-memory proof: 90
 - Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at 179.70 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at 179.70 MiB/s (yes, process-rss)
+- Fastest 1 GiB+ JS full-string aggregate row with memory proof: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at avg 177.34 MiB/s (yes, process-rss, samples 3, spread 3.23%)
 - Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from candidate-headroom-cross-process-books-corpus-partial.json at 326.65 MiB/s (yes, process-rss)
 - Fastest text/CDATA materialization headroom row: Node/V8 withoutTextStrings from long-ascii-text-materialization-candidate-stability.json at 207.70 MiB/s (yes, process-rss)
 
@@ -61,6 +64,25 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
 | `access-shape-candidate-cross-process.json` | Bun/JSC | `cursorAccessor` | 1.00 | 170.78 | yes | process-rss | 57096514 | -540013997 |
 
+## Fastest 1 GiB+ Full-String JS Cross-Process Aggregate Rows With Memory Proof
+
+Rows in this table are averages or aggregate summaries from cross-process artifacts. They are shown separately from individual child samples.
+
+| Artifact | Runtime | Row | Size GiB | Avg MiB/s | Min | Max | Spread | Samples | Bounded | Memory | Events | Checksum |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | ---: |
+| `access-shape-candidate-cross-process.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 177.34 | 173.98 | 179.70 | 3.23% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-cross-process.json` | Bun/JSC | `cursorAccessor` | 1.00 | 167.04 | 162.90 | 170.78 | 4.71% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-cross-process.json` | Node/V8 | `cursorAccessor` | 1.00 | 161.48 | 158.69 | 166.29 | 4.70% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 147.13 | 93.16 | 174.93 | 55.58% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-large-asset-corpus.json` | Node/V8 | `rawFrameNameId` | 1.08 | 146.11 | 135.93 | 158.52 | 15.46% | 3 | yes | process-rss | 83635224 | -2136498212 |
+| `access-shape-candidate-cross-process.json` | Bun/JSC | `rawFrameDirect` | 1.00 | 139.83 | 139.17 | 140.29 | 0.80% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameDirect` | 1.00 | 136.98 | 107.58 | 153.09 | 33.23% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-large-asset-corpus.json` | Node/V8 | `stringFull` | 1.08 | 130.10 | 118.78 | 139.02 | 15.56% | 3 | yes | process-rss | 83635224 | -2136498212 |
+| `browser-candidate-headroom-cross-process-books-corpus.json` | Chrome/V8 | `rawFrameNameId` | 1.00 | 129.02 | 127.74 | 130.32 | 2.00% | 3 | yes | browser-js-heap | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus-batch16.json` | Bun/JSC | `stringFull` | 1.00 | 123.45 | 122.87 | 123.76 | 0.72% | 3 | yes | process-rss | 57096514 | -540013997 |
+| `browser-candidate-headroom-cross-process-books-corpus.json` | Chrome/V8 | `stringFull` | 1.00 | 121.27 | 120.26 | 123.09 | 2.33% | 3 | yes | browser-js-heap | 57096514 | -540013997 |
+| `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 120.18 | 119.61 | 120.69 | 0.91% | 3 | yes | process-rss | 57096514 | -540013997 |
+
 ## Partial Or Projection Threshold Rows
 
 These rows may show runtime/parser headroom, but they do not preserve the full-string StAX contract and therefore are not runtime-limit counterexamples.
@@ -102,6 +124,7 @@ These near-full rows still materialize element names and attributes, but omit te
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 20 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 1 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
+- cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
 
 ## Limits
 

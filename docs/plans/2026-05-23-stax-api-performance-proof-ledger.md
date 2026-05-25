@@ -183,12 +183,18 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 132 primary release JSON artifacts and recognizes 745
-measured rows. It finds 450 JavaScript 1 GiB+ full-string rows and zero
-bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
-is a Bun/JSC `rawFrameNameId` fresh-process sample from
-`access-shape-candidate-cross-process.json` at 179.70 MiB/s with process RSS
-evidence. It remains below the 200 MiB/s counterexample threshold.
+The current scan covers 132 primary release JSON artifacts, recognizes 745
+sample throughput rows and 89 aggregate rows, and finds 450 JavaScript 1 GiB+
+full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
+It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
+full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
+sample from `access-shape-candidate-cross-process.json` at 179.70 MiB/s with
+process RSS evidence. The fastest cross-process aggregate full-string row with
+memory proof is the same Bun/JSC `rawFrameNameId` family at 177.34 MiB/s average
+over 3 samples with 3.23% spread. Both remain below the 200 MiB/s
+counterexample threshold. The scan now reports aggregate rows separately from
+individual child samples so fastest-row triage does not blur single-sample and
+average-throughput evidence.
 
 The scan also records 20 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from

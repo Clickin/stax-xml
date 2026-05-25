@@ -35,7 +35,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 132);
   assert.equal(report.summary.measuredRowCount, 745);
+  assert.equal(report.summary.aggregateRowCount, 89);
   assert.equal(report.summary.largeJsFullRowCount, 450);
+  assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
   assert.equal(report.summary.partialHeadroomRowCount, 20);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
@@ -45,6 +47,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.id, 'rawFrameNameId');
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 179.7);
   assert.ok(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec < 200);
+  assert.equal(report.summary.fastestLargeFullAggregateRowWithMemoryProof.sourceArtifact, 'access-shape-candidate-cross-process.json');
+  assert.equal(report.summary.fastestLargeFullAggregateRowWithMemoryProof.runtimeLabel, 'Bun/JSC');
+  assert.equal(report.summary.fastestLargeFullAggregateRowWithMemoryProof.id, 'rawFrameNameId');
+  assert.equal(report.summary.fastestLargeFullAggregateRowWithMemoryProof.mibPerSec, 177.34);
+  assert.equal(report.summary.fastestLargeFullAggregateRowWithMemoryProof.sampleCount, 3);
+  assert.equal(report.summary.fastestLargeFullAggregateRowWithMemoryProof.spreadPercent, 3.23);
   assert.equal(report.summary.fastestPartialHeadroomRow.fullStringParity, false);
   assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'candidate-headroom-cross-process-books-corpus-partial.json');
   assert.equal(report.summary.fastestPartialHeadroomRow.id, 'scanAllNoDecode');
@@ -167,6 +175,16 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.hasMemoryProof === true
     && row.fullStringParity === true
   ));
+  assert.ok(report.fastestLargeFullAggregateRowsWithMemoryProof.some(row =>
+    row.sourceArtifact === 'access-shape-candidate-cross-process.json'
+    && row.runtimeLabel === 'Bun/JSC'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 177.34
+    && row.minMibPerSec === 173.98
+    && row.maxMibPerSec === 179.7
+    && row.sampleCount === 3
+    && row.fullStringParity === true
+  ));
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'bun-candidate-headroom-books-corpus-stability.json'
     && row.id === 'rawFrameNameId'
@@ -273,13 +291,18 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
+  assert.match(markdown, /Aggregate rows recognized: 89/);
+  assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
+  assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
+  assert.match(markdown, /Fastest 1 GiB\+ JS full-string aggregate row with memory proof: Bun\/JSC rawFrameNameId from access-shape-candidate-cross-process\.json at avg 177\.34 MiB\/s/);
   assert.match(markdown, /Text\/CDATA Materialization Headroom Rows/);
   assert.match(markdown, /Fastest text\/CDATA materialization headroom row: Node\/V8 withoutTextStrings from long-ascii-text-materialization-candidate-stability\.json at 207\.70 MiB\/s/);
   assert.match(markdown, /bun-candidate-headroom-books-corpus\.json/);
   assert.match(markdown, /not full-string StAX counterexamples/);
   assert.match(markdown, /row-level memory evidence/);
   assert.match(markdown, /not an impossibility proof/);
+  assert.match(markdown, /Cross-process aggregate rows are reported separately from individual sample rows/);
 });
 
 function resetTmp() {

@@ -83,6 +83,7 @@ function createReport(options) {
   const scannedArtifacts = [];
   const ignored = [];
   const measuredRows = [];
+  const aggregateRows = [];
   const parseErrors = [];
 
   for (const file of artifactFiles) {
@@ -95,6 +96,7 @@ function createReport(options) {
       const root = JSON.parse(readFileSync(filePath, 'utf8'));
       scannedArtifacts.push(file);
       measuredRows.push(...extractMeasuredRows(file, root));
+      aggregateRows.push(...extractAggregateRows(file, root));
     } catch (error) {
       parseErrors.push({ file, message: error?.message ?? String(error) });
     }
@@ -132,6 +134,17 @@ function createReport(options) {
     .slice()
     .sort((left, right) => right.mibPerSec - left.mibPerSec)
     .slice(0, 12);
+  const largeJsFullAggregateRows = aggregateRows.filter(row =>
+    row.jsRuntime
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minSizeGiB
+  );
+  const fastestLargeFullAggregateRowsWithMemoryProof = largeJsFullAggregateRows
+    .filter(row => row.boundedMemory === true && row.hasMemoryProof)
+    .slice()
+    .sort((left, right) => right.mibPerSec - left.mibPerSec)
+    .slice(0, 12);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -151,12 +164,15 @@ function createReport(options) {
       ignoredArtifactCount: ignored.length,
       parseErrorCount: parseErrors.length,
       measuredRowCount: measuredRows.length,
+      aggregateRowCount: aggregateRows.length,
       largeJsFullRowCount: largeJsFullRows.length,
+      largeJsFullAggregateRowCount: largeJsFullAggregateRows.length,
       counterexampleCount: counterexamples.length,
       partialHeadroomRowCount: partialHeadroomRows.length,
       unboundedOrUnknownLargeFullRowCount: unboundedOrUnknownLargeFullRows.length,
       fastestLargeFullRow: summarizeRow(fastestLargeFullRows[0]),
       fastestLargeFullRowWithMemoryProof: summarizeRow(fastestLargeFullRowsWithMemoryProof[0]),
+      fastestLargeFullAggregateRowWithMemoryProof: summarizeRow(fastestLargeFullAggregateRowsWithMemoryProof[0]),
       fastestPartialHeadroomRow: summarizeRow(partialHeadroomRows.slice().sort((left, right) => right.mibPerSec - left.mibPerSec)[0]),
       textMaterializationHeadroomRowCount: textMaterializationHeadroomRows.length,
       fastestTextMaterializationHeadroomRow: summarizeRow(textMaterializationHeadroomRows[0]),
@@ -165,12 +181,14 @@ function createReport(options) {
     counterexamples,
     fastestLargeFullRows,
     fastestLargeFullRowsWithMemoryProof,
+    fastestLargeFullAggregateRowsWithMemoryProof,
     partialHeadroomRows: partialHeadroomRows
       .slice()
       .sort((left, right) => right.mibPerSec - left.mibPerSec),
     textMaterializationHeadroomRows,
     unboundedOrUnknownLargeFullRows,
-    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows),
+    aggregateRows,
+    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof),
   };
 }
 
@@ -179,6 +197,16 @@ function extractMeasuredRows(sourceArtifact, root) {
   visit(root, [], createInitialContext(sourceArtifact, root), (node, path, context) => {
     if (!isMeasuredNode(node)) return;
     const row = createMeasuredRow(sourceArtifact, node, path, context);
+    if (row) rows.push(row);
+  });
+  return rows;
+}
+
+function extractAggregateRows(sourceArtifact, root) {
+  const rows = [];
+  visit(root, [], createInitialContext(sourceArtifact, root), (node, path, context) => {
+    if (!isAggregateMeasuredNode(node)) return;
+    const row = createAggregateRow(sourceArtifact, node, path, context);
     if (row) rows.push(row);
   });
   return rows;
@@ -223,6 +251,10 @@ function isMeasuredNode(node) {
   return typeof node.mibPerSec === 'number' && Number.isFinite(node.mibPerSec);
 }
 
+function isAggregateMeasuredNode(node) {
+  return typeof node.avgMiBPerSec === 'number' && Number.isFinite(node.avgMiBPerSec);
+}
+
 function createMeasuredRow(sourceArtifact, node, path, context) {
   const fixture = normalizeFixture(node.fixture) ?? context.fixture;
   const sizeGiB = fixture?.sizeGiB ?? null;
@@ -247,6 +279,41 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
     family: node.family ?? null,
     counterexampleStatus: node.counterexampleStatus ?? null,
+    memoryKind,
+    hasMemoryProof: memoryKind !== 'not-recorded',
+  };
+}
+
+function createAggregateRow(sourceArtifact, node, path, context) {
+  const fixture = normalizeFixture(node.fixture) ?? context.fixture;
+  const sizeGiB = fixture?.sizeGiB ?? null;
+  const fullStringParity = classifyFullStringParity(node, context);
+  const boundedMemory = typeof node.boundedMemoryAll === 'boolean'
+    ? node.boundedMemoryAll
+    : (typeof node.boundedMemory === 'boolean' ? node.boundedMemory : null);
+  const jsRuntime = classifyJsRuntime(sourceArtifact, node, context);
+  const id = String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row');
+  const memoryKind = classifyMemoryKind(node);
+  return {
+    sourceArtifact,
+    jsonPath: path.join('.'),
+    id,
+    runtimeLabel: inferRuntimeLabel(sourceArtifact, node, context),
+    jsRuntime,
+    fullStringParity,
+    boundedMemory,
+    sizeGiB,
+    sizeMiB: fixture?.sizeMiB ?? null,
+    mibPerSec: round(node.avgMiBPerSec),
+    minMibPerSec: round(node.minMiBPerSec),
+    maxMibPerSec: round(node.maxMiBPerSec),
+    spreadPercent: round(typeof node.spreadRatio === 'number' ? node.spreadRatio * 100 : null),
+    sampleCount: node.sampleCount ?? null,
+    eventCount: Array.isArray(node.eventCounts) && node.eventCounts.length === 1 ? node.eventCounts[0] : null,
+    checksum: Array.isArray(node.checksums) && node.checksums.length === 1 ? node.checksums[0] : null,
+    contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
+    family: node.family ?? null,
+    counterexampleStatus: node.counterexampleFound === true ? 'found' : (node.counterexampleStatus ?? 'not-found'),
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
   };
@@ -324,7 +391,7 @@ function normalizeFixture(fixture) {
   };
 }
 
-function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows) {
+function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof) {
   return [
     {
       id: 'bounded-full-string-counterexample-search',
@@ -348,6 +415,13 @@ function createFindings(counterexamples, partialHeadroomRows, textMaterializatio
       status: unboundedOrUnknownLargeFullRows.length > 0 ? 'LIMITED_EVIDENCE_PRESENT' : 'NONE',
       summary: `${unboundedOrUnknownLargeFullRows.length} recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.`,
     },
+    {
+      id: 'cross-process-aggregate-rows-separated',
+      status: fastestLargeFullAggregateRowsWithMemoryProof.length > 0 ? 'AGGREGATE_EVIDENCE_PRESENT' : 'NOT_FOUND',
+      summary: fastestLargeFullAggregateRowsWithMemoryProof.length > 0
+        ? 'Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.'
+        : 'No cross-process aggregate full-string rows with memory proof were recognized.',
+    },
   ];
 }
 
@@ -364,13 +438,16 @@ function renderMarkdown(report) {
     `- Scanned artifacts: ${report.summary.scannedArtifactCount}`,
     `- Ignored derived artifacts: ${report.summary.ignoredArtifactCount}`,
     `- Measured rows recognized: ${report.summary.measuredRowCount}`,
+    `- Aggregate rows recognized: ${report.summary.aggregateRowCount}`,
     `- 1 GiB+ JS full-string rows recognized: ${report.summary.largeJsFullRowCount}`,
+    `- 1 GiB+ JS full-string aggregate rows recognized: ${report.summary.largeJsFullAggregateRowCount}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
     `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,
     `- Full-string rows without bounded-memory proof: ${report.summary.unboundedOrUnknownLargeFullRowCount}`,
     `- Fastest 1 GiB+ JS full-string row: ${formatRowSummary(report.summary.fastestLargeFullRow)}`,
     `- Fastest 1 GiB+ JS full-string row with memory proof: ${formatRowSummary(report.summary.fastestLargeFullRowWithMemoryProof)}`,
+    `- Fastest 1 GiB+ JS full-string aggregate row with memory proof: ${formatAggregateRowSummary(report.summary.fastestLargeFullAggregateRowWithMemoryProof)}`,
     `- Fastest partial/projection threshold row: ${formatRowSummary(report.summary.fastestPartialHeadroomRow)}`,
     `- Fastest text/CDATA materialization headroom row: ${formatRowSummary(report.summary.fastestTextMaterializationHeadroomRow)}`,
     '',
@@ -418,6 +495,23 @@ function renderMarkdown(report) {
   );
   for (const row of report.fastestLargeFullRows) {
     lines.push(renderRow(row, true));
+  }
+
+  lines.push(
+    '',
+    '## Fastest 1 GiB+ Full-String JS Cross-Process Aggregate Rows With Memory Proof',
+    '',
+    'Rows in this table are averages or aggregate summaries from cross-process artifacts. They are shown separately from individual child samples.',
+    '',
+    '| Artifact | Runtime | Row | Size GiB | Avg MiB/s | Min | Max | Spread | Samples | Bounded | Memory | Events | Checksum |',
+    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | ---: |',
+  );
+  if (report.fastestLargeFullAggregateRowsWithMemoryProof.length === 0) {
+    lines.push('| none | | | | | | | | | | | | |');
+  } else {
+    for (const row of report.fastestLargeFullAggregateRowsWithMemoryProof) {
+      lines.push(renderAggregateRow(row));
+    }
   }
 
   lines.push(
@@ -481,6 +575,10 @@ function renderRow(row, includeBounded = false) {
   return `| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatNumber(row.mibPerSec)}${bounded} | ${row.memoryKind} | ${row.eventCount ?? ''} | ${row.checksum ?? ''} |`;
 }
 
+function renderAggregateRow(row) {
+  return `| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatNumber(row.mibPerSec)} | ${formatNumber(row.minMibPerSec)} | ${formatNumber(row.maxMibPerSec)} | ${formatNumber(row.spreadPercent)}% | ${row.sampleCount ?? ''} | ${formatBounded(row)} | ${row.memoryKind} | ${row.eventCount ?? ''} | ${row.checksum ?? ''} |`;
+}
+
 function summarizeRow(row) {
   if (!row) return null;
   return {
@@ -489,11 +587,23 @@ function summarizeRow(row) {
     id: row.id,
     sizeGiB: row.sizeGiB,
     mibPerSec: row.mibPerSec,
+    minMibPerSec: row.minMibPerSec,
+    maxMibPerSec: row.maxMibPerSec,
+    spreadPercent: row.spreadPercent,
+    sampleCount: row.sampleCount,
     boundedMemory: row.boundedMemory,
     fullStringParity: row.fullStringParity,
     memoryKind: row.memoryKind,
     hasMemoryProof: row.hasMemoryProof,
   };
+}
+
+function formatAggregateRowSummary(row) {
+  if (!row) return 'none';
+  const bounded = formatBounded(row);
+  const spread = typeof row.spreadPercent === 'number' ? `, spread ${formatNumber(row.spreadPercent)}%` : '';
+  const samples = row.sampleCount !== null && row.sampleCount !== undefined ? `, samples ${row.sampleCount}` : '';
+  return `${row.runtimeLabel} ${row.id} from ${row.sourceArtifact} at avg ${formatNumber(row.mibPerSec)} MiB/s (${bounded}, ${row.memoryKind}${samples}${spread})`;
 }
 
 function formatRowSummary(row) {
