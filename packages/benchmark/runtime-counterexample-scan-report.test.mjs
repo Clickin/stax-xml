@@ -33,11 +33,11 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 127);
-  assert.equal(report.summary.measuredRowCount, 716);
-  assert.equal(report.summary.largeJsFullRowCount, 422);
-  assert.equal(report.summary.partialHeadroomRowCount, 19);
-  assert.equal(report.summary.textMaterializationHeadroomRowCount, 0);
+  assert.equal(report.summary.scannedArtifactCount, 128);
+  assert.equal(report.summary.measuredRowCount, 720);
+  assert.equal(report.summary.largeJsFullRowCount, 425);
+  assert.equal(report.summary.partialHeadroomRowCount, 20);
+  assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
@@ -50,7 +50,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.fastestPartialHeadroomRow.id, 'scanAllNoDecode');
   assert.equal(report.summary.fastestPartialHeadroomRow.mibPerSec, 326.65);
   assert.ok(report.summary.fastestPartialHeadroomRow.mibPerSec >= 200);
-  assert.equal(report.summary.fastestTextMaterializationHeadroomRow, null);
+  assert.equal(report.summary.fastestTextMaterializationHeadroomRow.sourceArtifact, 'long-ascii-text-materialization-candidate-stability.json');
+  assert.equal(report.summary.fastestTextMaterializationHeadroomRow.id, 'withoutTextStrings');
+  assert.equal(report.summary.fastestTextMaterializationHeadroomRow.mibPerSec, 207.7);
+  assert.equal(report.summary.fastestTextMaterializationHeadroomRow.fullStringParity, false);
   assert.ok(report.ignoredArtifacts.includes('runtime-limit-proof-obligation-gate.json'));
   assert.ok(report.ignoredArtifacts.includes('same-contract-runtime-comparison.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch.json'));
@@ -74,6 +77,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('raw-batch-kind-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('materialization-category-drop-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate.json'));
+  assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('text-cache-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('stax-event-public-object-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
@@ -134,7 +138,15 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'text-cache-materialization-candidate.json'
     && row.id === 'withoutTextStrings'
   ));
-  assert.equal(report.textMaterializationHeadroomRows.length, 0);
+  assert.equal(report.textMaterializationHeadroomRows.length, 1);
+  assert.ok(report.textMaterializationHeadroomRows.some(row =>
+    row.sourceArtifact === 'long-ascii-text-materialization-candidate-stability.json'
+    && row.id === 'withoutTextStrings'
+    && row.mibPerSec === 207.7
+    && row.fullStringParity === false
+    && row.contractScope === 'full-materialization-minus-text-cdata'
+    && row.checksum === 1372281363
+  ));
   assert.ok(!report.textMaterializationHeadroomRows.some(row =>
     row.sourceArtifact === 'materialization-category-drop-sweep.json'
     && row.id === 'withoutTextStrings'
@@ -155,6 +167,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.mibPerSec === 176.47
     && row.hasMemoryProof === true
     && row.memoryKind === 'process-rss'
+  ));
+  assert.ok(report.fastestLargeFullRows.some(row =>
+    row.sourceArtifact === 'long-ascii-text-materialization-candidate-stability.json'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 172.85
+    && row.hasMemoryProof === true
+    && row.fullStringParity === true
   ));
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'bun-candidate-headroom-books-corpus-stability.json'
@@ -237,7 +256,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Text\/CDATA Materialization Headroom Rows/);
-  assert.match(markdown, /Fastest text\/CDATA materialization headroom row: none/);
+  assert.match(markdown, /Fastest text\/CDATA materialization headroom row: Node\/V8 withoutTextStrings from long-ascii-text-materialization-candidate-stability\.json at 207\.70 MiB\/s/);
   assert.match(markdown, /bun-candidate-headroom-books-corpus\.json/);
   assert.match(markdown, /not full-string StAX counterexamples/);
   assert.match(markdown, /row-level memory evidence/);

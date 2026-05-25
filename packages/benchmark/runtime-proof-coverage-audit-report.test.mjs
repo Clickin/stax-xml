@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 127);
-  assert.equal(report.summary.measuredRowCount, 716);
-  assert.equal(report.summary.largeJsFullRowCount, 426);
+  assert.equal(report.summary.scannedArtifactCount, 128);
+  assert.equal(report.summary.measuredRowCount, 720);
+  assert.equal(report.summary.largeJsFullRowCount, 429);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 88);
+  assert.equal(report.summary.benchmarkArtifactCount, 89);
   assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -203,6 +203,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'long-ascii-text-materialization-candidate.json'
+    && row.runtimes.includes('node-v8')
+    && row.measuredRowCount === 4
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'long-ascii-text-materialization-candidate-stability.json'
     && row.runtimes.includes('node-v8')
     && row.measuredRowCount === 4
   ));

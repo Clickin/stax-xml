@@ -183,22 +183,27 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 127 primary release JSON artifacts and recognizes 716
-measured rows. It finds 422 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 128 primary release JSON artifacts and recognizes 720
+measured rows. It finds 425 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
 `bun-candidate-headroom-books-corpus-stability.json` at 178.52 MiB/s with
 process RSS evidence. It remains below the 200 MiB/s counterexample threshold.
 
-The scan also records 19 threshold-crossing partial/projection rows. The
+The scan also records 20 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json`; Node/V8 and
 Chrome/V8 also cross 200 MiB/s on partial `books.xml` corpus-cycle rows. These
 rows preserve event-count style work but drop the full-string StAX contract, so
-they are headroom evidence rather than runtime-limit counterexamples. The
+they are headroom evidence rather than runtime-limit counterexamples. One
+near-full text/CDATA materialization headroom row is now recorded separately:
+Node/V8 `withoutTextStrings` from
+`long-ascii-text-materialization-candidate-stability.json` reached
+207.70 MiB/s but omitted 16,987,392 text/CDATA string fields and changed the
+checksum to `1372281363`, so it is not full-string StAX parity. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
-satisfy the bounded-memory counterexample rule. The scan reports 89 full-string
+satisfy the bounded-memory counterexample rule. The scan reports 90 full-string
 rows without bounded-memory proof. This scan is a mechanical guard over the
 current release artifacts; absence of a counterexample here is still not an
 impossibility proof.
@@ -210,10 +215,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 127 primary release artifacts and recognizes 716
-measured rows. It records 88 benchmark artifacts, 16 source artifacts, 8
+The current audit scans 128 primary release artifacts and recognizes 720
+measured rows. It records 89 benchmark artifacts, 16 source artifacts, 8
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 426 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+9 negative-result artifacts, 429 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -1301,6 +1306,21 @@ Node/V8 `rawFrameNameId` averaged
 public `eventObjectFull` averaged `136.44 MiB/s` with `0.7%` spread, and
 `rawFrameStringCache` averaged `143.20 MiB/s` with `2.6%` spread. The rerun
 preserved the same 57,096,514 events and checksum `-540013997`.
+
+`packages/benchmark/results/release/long-ascii-text-materialization-candidate-stability.md`
+then repeats the long ASCII text materialization probe on the same `books.xml`
+corpus-cycle fixture with same-process `runs=3`, `warmups=0`, synchronous
+`Iterable<Uint8Array[]>` byte batches, and no `Buffer.toString()` or native
+addon boundary. Node/V8 `rawFrameNameId` averaged `172.85 MiB/s` with `0.8%`
+spread, max RSS `78.0 MiB`, 57,096,514 events, and checksum `-540013997`.
+Node/V8 `stringFull` averaged `148.17 MiB/s` with `30.4%` spread, and
+`rawFrameNameIdLongAsciiText` averaged only `71.21 MiB/s` even though it hit
+6,370,272 long ASCII text spans with zero fallbacks and preserved the same
+checksum. The near-full `withoutTextStrings` row averaged `207.70 MiB/s` with
+`26.3%` spread and max RSS `121.4 MiB`, but it omitted all text/CDATA strings:
+its string-field counter dropped from 62,758,976 to 45,771,584, its text counter
+was 0 instead of 16,987,392, and its checksum changed to `1372281363`. This is
+text/CDATA materialization headroom, not a full-StAX counterexample.
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus.md`
 then repeats the same selected rows in fresh runtime processes with
