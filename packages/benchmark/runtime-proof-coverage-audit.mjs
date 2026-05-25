@@ -203,7 +203,7 @@ function extractMeasuredRows(sourceArtifact, root) {
       fullStringParity: classifyFullStringParity(node, context),
       boundedMemory: typeof node.boundedMemory === 'boolean' ? node.boundedMemory : null,
       memoryKind: classifyMemoryKind(node),
-      eventCount: node.eventCount ?? null,
+      eventCount: normalizeEventCount(node),
       checksum: node.checksum ?? null,
       contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
     });
@@ -539,6 +539,10 @@ function classifyRuntimeFromArtifact(sourceArtifact, root) {
   if (root.environment) return classifyRuntime(sourceArtifact, root, { environment: root.environment });
   if (/v8|node|candidate-headroom|textdecoder-span|stream-reader|event-reader|monomorphic/.test(sourceArtifact)) return 'node-v8';
   return null;
+}
+
+function normalizeEventCount(node) {
+  return node.eventCount ?? node.events ?? null;
 }
 
 function classifyRuntime(sourceArtifact, node, context) {

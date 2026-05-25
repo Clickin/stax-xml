@@ -219,6 +219,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && entry.rowCount === 3
     && entry.fastestRow.sourceArtifact === 'stream-reader-4gb-shapes.json'
     && entry.fastestRow.runtimeLabel === 'Node/V8'
+    && entry.fastestRow.id === '0'
+    && entry.fastestRow.eventCount === 572662314
+    && entry.fastestRow.checksum === -1788666544
     && entry.fastestMiBPerSec === 90.16
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>

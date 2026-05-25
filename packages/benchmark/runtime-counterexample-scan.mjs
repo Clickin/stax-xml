@@ -286,7 +286,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     sizeGiB,
     sizeMiB: fixture?.sizeMiB ?? null,
     mibPerSec: round(node.mibPerSec),
-    eventCount: node.eventCount ?? null,
+    eventCount: normalizeEventCount(node),
     checksum: node.checksum ?? null,
     contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
     family: node.family ?? null,
@@ -325,7 +325,7 @@ function createAggregateRow(sourceArtifact, node, path, context) {
     maxMibPerSec: round(node.maxMiBPerSec),
     spreadPercent: round(typeof node.spreadRatio === 'number' ? node.spreadRatio * 100 : null),
     sampleCount: node.sampleCount ?? null,
-    eventCount: Array.isArray(node.eventCounts) && node.eventCounts.length === 1 ? node.eventCounts[0] : null,
+    eventCount: Array.isArray(node.eventCounts) && node.eventCounts.length === 1 ? node.eventCounts[0] : normalizeEventCount(node),
     checksum: Array.isArray(node.checksums) && node.checksums.length === 1 ? node.checksums[0] : null,
     contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
     family: node.family ?? null,
@@ -389,6 +389,10 @@ function classifyFullStringParity(node, context) {
   }
   if (typeof context.contract === 'string' && /projection/i.test(context.contract)) return false;
   return null;
+}
+
+function normalizeEventCount(node) {
+  return node.eventCount ?? node.events ?? null;
 }
 
 function classifyJsRuntime(sourceArtifact, node, context) {
@@ -692,6 +696,8 @@ function summarizeRow(row) {
     fullStringParity: row.fullStringParity,
     memoryKind: row.memoryKind,
     hasMemoryProof: row.hasMemoryProof,
+    eventCount: row.eventCount,
+    checksum: row.checksum,
     sourceMode: row.sourceMode,
     batchSize: row.batchSize,
     chunkKiB: row.chunkKiB,
