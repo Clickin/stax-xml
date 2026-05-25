@@ -1,17 +1,17 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T04:19:52.448Z
+Generated: 2026-05-25T05:03:34.109Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 50
-- 1 GiB+ JavaScript full-string rows: 44
+- Aggregated rows: 68
+- 1 GiB+ JavaScript full-string rows: 62
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
-- Fastest aggregated 1 GiB+ JS full-string row: Node/V8 stax-raw-frame-name-id stax-raw-frame-name-id at 134.39 MiB/s (process RSS max 77.18 MiB)
-- Fastest 1 GiB+ JS public event-object row: Bun/JSC eventObjectFull at 63.29 MiB/s (process RSS max 182.34 MiB)
-- Fastest bounded 1 GiB+ JS public event-object row: Bun/JSC eventObjectFull at 63.29 MiB/s (process RSS max 182.34 MiB)
+- Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 173.22 MiB/s (process RSS max 189.86 MiB)
+- Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 128.12 MiB/s (process RSS max 132.72 MiB)
+- Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 128.12 MiB/s (process RSS max 132.72 MiB)
 - 16 MiB Woodstox baseline: 333.43 MiB/s
 - 16 MiB quick-xml baseline: 309.82 MiB/s (0.93x Woodstox)
 - 1024 MiB file-backed stax-stream baseline: 108.23 MiB/s (0.34x Woodstox)
@@ -28,6 +28,9 @@ This report aggregates existing release artifacts. It compares rows only through
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB |
 | `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 84.68 | yes | process RSS max 199.15 MiB |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB |
+| `cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 173.22 | yes | process RSS max 189.86 MiB |
+| `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB |
+| `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB |
 
 ## Selected Comparison Rows
 
@@ -83,6 +86,24 @@ This report aggregates existing release artifacts. It compares rows only through
 | `generated-1gib-textdecoder` | Bun/JSC | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 47.67 | yes | process RSS max 215.22 MiB | `bun-textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Chrome/V8 browser | `subarraySharedDecoder` | 45189256 | 1421012805 | 16.63 | yes | JS heap max 9.77 MiB; host working set 479.99 MiB | `browser-textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Chrome/V8 browser | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 39.42 | yes | JS heap max 10.04 MiB; host working set 479.99 MiB | `browser-textdecoder-span-variants.json` |
+| `cross-process-books-corpus` | Node/V8 | `stringFull` | 57096514 | -540013997 | 161.07 | yes | process RSS max 66.08 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 128.12 | yes | process RSS max 132.72 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 170.81 | yes | process RSS max 142.29 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Bun/JSC | `stringFull` | 57096514 | -540013997 | 156.83 | yes | process RSS max 188.75 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Bun/JSC | `eventObjectFull` | 57096514 | -540013997 | 127.91 | yes | process RSS max 189.62 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 57096514 | -540013997 | 173.22 | yes | process RSS max 189.86 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus-batch16` | Node/V8 | `stringFull` | 57096514 | -540013997 | 119.66 | yes | process RSS max 67.73 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
+| `cross-process-books-corpus-batch16` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 78.90 | yes | process RSS max 132.04 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
+| `cross-process-books-corpus-batch16` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 99.83 | yes | process RSS max 137.17 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
+| `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 57096514 | -540013997 | 123.45 | yes | process RSS max 199.61 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
+| `cross-process-books-corpus-batch16` | Bun/JSC | `eventObjectFull` | 57096514 | -540013997 | 76.71 | yes | process RSS max 198.94 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
+| `cross-process-books-corpus-batch16` | Bun/JSC | `rawFrameNameId` | 57096514 | -540013997 | 92.49 | yes | process RSS max 179.29 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
+| `cross-process-large-asset-corpus` | Node/V8 | `stringFull` | 83635224 | -2136498212 | 130.10 | yes | process RSS max 399.21 MiB | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Node/V8 | `eventObjectFull` | 83635224 | -2136498212 | 105.86 | yes | process RSS max 495.34 MiB | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 83635224 | -2136498212 | 146.11 | yes | process RSS max 495.31 MiB | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Bun/JSC | `stringFull` | 83635224 | -2136498212 | 99.71 | no | process RSS max 1956.69 MiB | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Bun/JSC | `eventObjectFull` | 83635224 | -2136498212 | 62.79 | no | process RSS max 1849.16 MiB | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Bun/JSC | `rawFrameNameId` | 83635224 | -2136498212 | 82.95 | no | process RSS max 1849.75 MiB | `candidate-headroom-cross-process-large-asset-corpus.json` |
 
 ## Allocation Evidence
 
@@ -102,7 +123,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - not-recorded
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=44
+  - jsLargeFullRows=62
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - 16MiB woodstox=333.43 MiB/s

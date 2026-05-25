@@ -32,10 +32,16 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 50);
-  assert.equal(report.summary.jsLargeFullRowCount, 44);
+  assert.equal(report.summary.rowCount, 68);
+  assert.equal(report.summary.jsLargeFullRowCount, 62);
+  assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'candidate-headroom-cross-process-books-corpus.json');
+  assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'bun-jsc');
+  assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
+  assert.equal(report.summary.fastestJsLargeFullRow.mibPerSec, 173.22);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.caseId, 'eventObjectFull');
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory, true);
+  assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.sourceArtifact, 'candidate-headroom-cross-process-books-corpus.json');
+  assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec, 128.12);
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
   assert.ok(report.summary.externalBaseline16MiB.woodstoxMiBPerSec > 300);
   assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
@@ -59,6 +65,38 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.fullStringParity === true
     && row.boundedMemory === true
     && row.memory.primaryKind === 'process-rss'
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'cross-process-books-corpus'
+    && row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
+    && row.runtimeId === 'bun-jsc'
+    && row.caseId === 'rawFrameNameId'
+    && row.mibPerSec === 173.22
+    && row.eventCount === 57096514
+    && row.checksum === -540013997
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.sampleCount === 3
+    && row.sampleMaxMiBPerSec === 177.18
+    && row.memory.primaryKind === 'process-rss'
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'cross-process-books-corpus-batch16'
+    && row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-batch16.json'
+    && row.runtimeId === 'node-v8'
+    && row.caseId === 'rawFrameNameId'
+    && row.mibPerSec === 99.83
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'cross-process-large-asset-corpus'
+    && row.sourceArtifact === 'candidate-headroom-cross-process-large-asset-corpus.json'
+    && row.runtimeId === 'node-v8'
+    && row.caseId === 'rawFrameNameId'
+    && row.mibPerSec === 146.11
+    && row.fullStringParity === true
+    && row.boundedMemory === true
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'external-baseline-1024mib-file-sync-batches.json'
@@ -126,6 +164,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /# Same-Contract Runtime Comparison/);
   assert.match(markdown, /does not assert identical object shape/);
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
+  assert.match(markdown, /cross-process-books-corpus/);
   assert.match(markdown, /1024 MiB file-backed stax-stream baseline/);
   assert.match(markdown, /1024 MiB file-backed rawFrameNameId baseline/);
   assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);

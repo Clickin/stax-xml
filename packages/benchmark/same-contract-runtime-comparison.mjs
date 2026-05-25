@@ -150,6 +150,24 @@ const variantArtifacts = [
   },
 ];
 
+const crossProcessArtifacts = [
+  {
+    group: 'cross-process-books-corpus',
+    file: 'candidate-headroom-cross-process-books-corpus.json',
+    cases: candidateCases,
+  },
+  {
+    group: 'cross-process-books-corpus-batch16',
+    file: 'candidate-headroom-cross-process-books-corpus-batch16.json',
+    cases: candidateCases,
+  },
+  {
+    group: 'cross-process-large-asset-corpus',
+    file: 'candidate-headroom-cross-process-large-asset-corpus.json',
+    cases: candidateCases,
+  },
+];
+
 const allocationArtifacts = [
   {
     file: 'quick-xml-allocation-count.json',
@@ -234,6 +252,7 @@ function createReport(options) {
   const comparisonRows = [
     ...externalReports.flatMap(item => extractExternalRows(item.report, item.spec)),
     ...variantArtifacts.flatMap(spec => extractVariantRows(readReleaseJson(spec.file), spec)),
+    ...crossProcessArtifacts.flatMap(spec => extractCrossProcessRows(readReleaseJson(spec.file), spec)),
   ];
   const allocationEvidence = allocationArtifacts.map(spec => extractAllocationEvidence(readReleaseJson(spec.file), spec));
   const summary = summarize(comparisonRows, allocationEvidence);
@@ -247,6 +266,7 @@ function createReport(options) {
       sourceArtifacts: [
         ...externalReports.map(item => item.spec.file),
         ...variantArtifacts.map(spec => spec.file),
+        ...crossProcessArtifacts.map(spec => spec.file),
         ...allocationArtifacts.map(spec => spec.file),
       ],
     },
@@ -332,6 +352,55 @@ function extractVariantRows(report, spec) {
   });
 }
 
+function extractCrossProcessRows(report, spec) {
+  return (report.runtimes ?? []).flatMap(runtimeReport => {
+    const runtime = normalizeCrossProcessRuntime(runtimeReport);
+    const fixture = extractFixture(runtimeReport.fixture);
+    return (runtimeReport.variants ?? [])
+      .filter(row => spec.cases.includes(row.id))
+      .map(row => {
+        const isLarge = (fixture.sizeGiB ?? 0) >= 0.999;
+        const mibPerSec = round(row.avgMiBPerSec);
+        const boundedMemory = row.boundedMemoryAll === true;
+        const fullStringParity = row.fullStringParity === true && row.stableResult === true;
+        return {
+          group: spec.group,
+          sourceArtifact: spec.file,
+          runtimeId: runtime.id,
+          runtimeLabel: runtime.label,
+          languageFamily: 'javascript',
+          jsRuntime: true,
+          engine: runtimeReport.environment?.javascriptEngine ?? inferEngine(runtimeReport.environment),
+          engineVersion: engineVersion(runtimeReport.environment),
+          caseId: row.id,
+          implementation: `${runtime.label} cross-process ${row.id}`,
+          contractScope: row.contractScope,
+          fixture,
+          fullStringParity,
+          eventCount: firstSingleton(row.eventCounts),
+          checksum: firstSingleton(row.checksums),
+          mibPerSec,
+          boundedMemory,
+          memory: extractCrossProcessMemory(row),
+          materializationCounters: null,
+          sampleCount: row.sampleCount ?? runtimeReport.sampleCount ?? null,
+          sampleMinMiBPerSec: round(row.minMiBPerSec),
+          sampleMaxMiBPerSec: round(row.maxMiBPerSec),
+          sampleSpreadRatio: round(row.spreadRatio),
+          woodstoxRatio: null,
+          targetStatus: null,
+          runtimeLimitCounterexample: Boolean(
+            fullStringParity
+            && boundedMemory
+            && isLarge
+            && typeof mibPerSec === 'number'
+            && mibPerSec >= 200
+          ),
+        };
+      });
+  });
+}
+
 function extractExternalMemory(row, report) {
   if (row.memory?.maxRssBytes !== undefined) {
     return extractMemory(row, report);
@@ -342,6 +411,33 @@ function extractExternalMemory(row, report) {
       ? 'external-baseline records throughput and checksum parity; this stax row is demand-driven file-backed byte batches.'
       : 'external-baseline records throughput and checksum parity, not peak memory.',
   };
+}
+
+function normalizeCrossProcessRuntime(runtimeReport) {
+  switch (runtimeReport.runtime) {
+    case 'node':
+      return { id: 'node-v8', label: 'Node/V8' };
+    case 'bun':
+      return { id: 'bun-jsc', label: 'Bun/JSC' };
+    default:
+      return {
+        id: runtimeReport.runtime ?? 'unknown',
+        label: runtimeReport.runtime ?? 'unknown',
+      };
+  }
+}
+
+function extractCrossProcessMemory(row) {
+  return {
+    primaryKind: 'process-rss',
+    maxMiB: round(bytesToMiB(row.maxRssBytes)),
+    maxHeapUsedMiB: round(bytesToMiB(row.maxHeapUsedBytes)),
+    note: 'max across independent child processes',
+  };
+}
+
+function firstSingleton(values) {
+  return Array.isArray(values) && values.length === 1 ? values[0] : null;
 }
 
 function extractAllocationEvidence(report, spec) {
