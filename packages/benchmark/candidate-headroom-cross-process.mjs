@@ -260,7 +260,7 @@ function createReport(options, samples) {
     generatedAt: new Date().toISOString(),
     objective: 'candidate-headroom-cross-process',
     contract: 'independent-process-candidate-headroom-stability',
-    note: 'Each sample invokes candidate-headroom-large.mjs in a fresh process with --runs=1. Projection rows report projected records, not full StAX parity.',
+    note: 'Each sample invokes candidate-headroom-large.mjs in a fresh process with --runs=1. Partial rows and projection rows are not full StAX parity rows.',
     options: {
       runtimes: options.runtimes,
       processRuns: options.processRuns,
@@ -293,6 +293,8 @@ function createChildSummary(sample) {
     environment: sample.report.environment,
     variants: sample.report.variants.map(entry => ({
       id: entry.id,
+      family: entry.family,
+      contractScope: entry.contractScope,
       mibPerSec: entry.mibPerSec,
       eventCount: entry.eventCount,
       checksum: entry.checksum,
@@ -308,23 +310,36 @@ function createChildSummary(sample) {
 }
 
 function summarizeParity(samples) {
-  const fullRows = new Map();
+  const fullStringRows = new Map();
+  const partialStreamRows = new Map();
   const projectionRows = new Map();
 
   for (const sample of samples) {
     for (const variant of sample.report.variants) {
-      const target = variant.eventCountKind === 'projected-records' ? projectionRows : fullRows;
+      const target = variant.eventCountKind === 'projected-records'
+        ? projectionRows
+        : variant.fullStringParity === true
+          ? fullStringRows
+          : partialStreamRows;
       const values = target.get(variant.id) ?? [];
       values.push({ eventCount: variant.eventCount, checksum: variant.checksum });
       target.set(variant.id, values);
     }
   }
 
+  const fullStringRowIds = [...fullStringRows.keys()];
+  const partialStreamRowIds = [...partialStreamRows.keys()];
+  const streamAndFullRowIds = [...fullStringRowIds, ...partialStreamRowIds];
   return {
-    streamAndFullRowsStable: [...fullRows.values()].every(values => uniquePairs(values).length === 1),
+    fullStringRowsStable: [...fullStringRows.values()].every(values => uniquePairs(values).length === 1),
+    partialStreamRowsStable: [...partialStreamRows.values()].every(values => uniquePairs(values).length === 1),
     projectionRowsStable: [...projectionRows.values()].every(values => uniquePairs(values).length === 1),
-    streamAndFullRowIds: [...fullRows.keys()],
+    fullStringRowIds,
+    partialStreamRowIds,
     projectionRowIds: [...projectionRows.keys()],
+    streamAndFullRowsStable: [...fullStringRows.values(), ...partialStreamRows.values()]
+      .every(values => uniquePairs(values).length === 1),
+    streamAndFullRowIds,
   };
 }
 
@@ -381,6 +396,17 @@ function createFindings(runtimeReports, options) {
       evidence: runtimeReports.flatMap(report => report.parity.projectionRowIds.map(id => `${report.runtime}: ${id}`)),
     },
   ];
+  const partialRows = runtimeReports.flatMap(report =>
+    report.parity.partialStreamRowIds.map(id => `${report.runtime}: ${id}`),
+  );
+  findings.push({
+    id: 'partial-contract-separated',
+    classification: partialRows.length > 0 ? 'BENCH_FACT' : 'NOT_APPLICABLE',
+    summary: partialRows.length > 0
+      ? 'Partial stream rows report selected parser work and are not full StAX event-parity rows.'
+      : 'No partial stream rows were selected in this run.',
+    evidence: partialRows.length > 0 ? partialRows : ['partial=none'],
+  });
 
   const foundCounterexamples = runtimeReports.flatMap(report =>
     report.variants
@@ -419,7 +445,7 @@ function renderMarkdown(report) {
     '',
     'This report repeats the selected candidate-headroom rows in fresh runtime processes.',
     'It is cross-process timing evidence for the recorded machine, not a proof that JavaScript runtimes have no further headroom.',
-    'Projection rows report projected record counts and selected-field checksums; they are not full StAX parity rows.',
+    'Partial rows preserve only selected fields; projection rows report projected record counts. Neither is a full StAX parity row.',
     '',
     '## Options',
     '',
@@ -472,8 +498,10 @@ function renderMarkdown(report) {
     lines.push('');
     lines.push('### Parity');
     lines.push('');
-    lines.push(`- Stream/full rows stable across processes: ${runtime.parity.streamAndFullRowsStable ? 'yes' : 'no'}`);
-    lines.push(`- Stream/full rows: ${runtime.parity.streamAndFullRowIds.join(', ') || 'n/a'}`);
+    lines.push(`- Full-string stream rows stable across processes: ${runtime.parity.fullStringRowsStable ? 'yes' : 'no'}`);
+    lines.push(`- Full-string stream rows: ${runtime.parity.fullStringRowIds.join(', ') || 'n/a'}`);
+    lines.push(`- Partial stream rows stable across processes: ${runtime.parity.partialStreamRowsStable ? 'yes' : 'no'}`);
+    lines.push(`- Partial stream rows: ${runtime.parity.partialStreamRowIds.join(', ') || 'n/a'}`);
     lines.push(`- Projection rows stable across processes: ${runtime.parity.projectionRowsStable ? 'yes' : 'no'}`);
     lines.push(`- Projection rows: ${runtime.parity.projectionRowIds.join(', ') || 'n/a'}`);
     lines.push('');

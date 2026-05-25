@@ -74,13 +74,18 @@ test('candidate headroom cross-process report separates projection rows from ful
   assert.equal(denoRuntime.environment.runtimeName, 'deno');
   assert.equal(typeof denoRuntime.environment.denoVersion, 'string');
   for (const runtime of [nodeRuntime, denoRuntime]) {
+    assert.deepEqual(runtime.parity.fullStringRowIds, ['stringFull', 'rawFrameNameId']);
+    assert.deepEqual(runtime.parity.partialStreamRowIds, []);
     assert.deepEqual(runtime.parity.streamAndFullRowIds, ['stringFull', 'rawFrameNameId']);
     assert.deepEqual(runtime.parity.projectionRowIds, ['projectionLowSelectivity', 'projectionHighSelectivity']);
+    assert.equal(runtime.parity.fullStringRowsStable, true);
+    assert.equal(runtime.parity.partialStreamRowsStable, true);
     assert.equal(runtime.parity.streamAndFullRowsStable, true);
     assert.equal(runtime.parity.projectionRowsStable, true);
   }
   assert.ok(report.findings.some(entry => entry.id === 'independent-process-rerun'));
   assert.ok(report.findings.some(entry => entry.id === 'projection-contract-separated'));
+  assert.ok(report.findings.some(entry => entry.id === 'partial-contract-separated'));
 
   for (const runtime of [nodeRuntime, denoRuntime]) {
     const full = runtime.variants.find(entry => entry.id === 'rawFrameNameId');
@@ -97,11 +102,12 @@ test('candidate headroom cross-process report separates projection rows from ful
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /fresh runtime processes/);
   assert.match(markdown, /not a proof that JavaScript runtimes have no further headroom/);
-  assert.match(markdown, /Projection rows report projected record counts/);
+  assert.match(markdown, /Partial rows preserve only selected fields/);
   assert.match(markdown, /## Source Contract/);
   assert.match(markdown, /Multi-chunk batch cost:/);
   assert.match(markdown, /Runtime: deno/);
   assert.match(markdown, /Deno:/);
-  assert.match(markdown, /Stream\/full rows stable across processes: yes/);
+  assert.match(markdown, /Full-string stream rows stable across processes: yes/);
+  assert.match(markdown, /Partial stream rows: n\/a/);
   assert.match(markdown, /Projection rows stable across processes: yes/);
 });

@@ -33,10 +33,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 126);
-  assert.equal(report.summary.measuredRowCount, 692);
+  assert.equal(report.summary.scannedArtifactCount, 127);
+  assert.equal(report.summary.measuredRowCount, 716);
   assert.equal(report.summary.largeJsFullRowCount, 422);
-  assert.equal(report.summary.partialHeadroomRowCount, 13);
+  assert.equal(report.summary.partialHeadroomRowCount, 19);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 0);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
@@ -46,9 +46,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec, 180.08);
   assert.ok(report.summary.fastestLargeFullRowWithMemoryProof.mibPerSec < 200);
   assert.equal(report.summary.fastestPartialHeadroomRow.fullStringParity, false);
-  assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'bun-candidate-headroom-books-corpus.json');
-  assert.equal(report.summary.fastestPartialHeadroomRow.id, 'attrNameStringOnly');
-  assert.equal(report.summary.fastestPartialHeadroomRow.mibPerSec, 293.91);
+  assert.equal(report.summary.fastestPartialHeadroomRow.sourceArtifact, 'candidate-headroom-cross-process-books-corpus-partial.json');
+  assert.equal(report.summary.fastestPartialHeadroomRow.id, 'scanAllNoDecode');
+  assert.equal(report.summary.fastestPartialHeadroomRow.mibPerSec, 326.65);
   assert.ok(report.summary.fastestPartialHeadroomRow.mibPerSec >= 200);
   assert.equal(report.summary.fastestTextMaterializationHeadroomRow, null);
   assert.ok(report.ignoredArtifacts.includes('runtime-limit-proof-obligation-gate.json'));
@@ -69,6 +69,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-js-shell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('runtime-proof-gap-handoff.json'));
   assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-books-corpus-batch16.json'));
+  assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-books-corpus-partial.json'));
   assert.ok(report.scannedArtifacts.includes('multi-chunk-batch-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('raw-batch-kind-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('materialization-category-drop-sweep.json'));
@@ -94,6 +95,19 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('firefox-fetch-readable-stream-timeout-audit.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-span-variants.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-span-variants-corpus.json'));
+  assert.ok(report.partialHeadroomRows.some(row =>
+    row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-partial.json'
+    && row.runtimeLabel === 'Bun/JSC'
+    && row.id === 'scanAllNoDecode'
+    && row.mibPerSec === 326.65
+    && row.fullStringParity === false
+    && row.contractScope === 'event-types-and-attribute-counts-only'
+  ));
+  assert.ok(!report.partialHeadroomRows.some(row =>
+    row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-partial.json'
+    && row.id === 'attrNameStringOnly'
+    && row.mibPerSec >= 200
+  ));
   assert.ok(report.partialHeadroomRows.some(row =>
     row.sourceArtifact === 'bun-candidate-headroom-projection-large.json'
     && row.id === 'scanAllNoDecode'
