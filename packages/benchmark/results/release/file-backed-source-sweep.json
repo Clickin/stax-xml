@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:31:05.334Z",
+  "generatedAt": "2026-05-25T02:54:58.771Z",
   "objective": "file-backed-source-sweep",
   "contract": "same-full-string-checksum-file-backed-byte-batches",
   "note": "Sweeps file-backed StreamReaderSync chunk size with demand-driven Iterable<Uint8Array[]> batches. This isolates source chunk sizing from Woodstox/quick-xml external parser comparisons; it is not an OS-cache-neutral disk benchmark.",
@@ -41,32 +41,32 @@
       "chunkKiB": 16,
       "batchSize": 1,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 90.9874384390682,
-      "avgMs": 11254.2989,
-      "minMs": 11254.2989,
-      "maxMs": 11254.2989,
+      "mibPerSec": 129.20973863788143,
+      "avgMs": 7925.0979,
+      "minMs": 7925.0979,
+      "maxMs": 7925.0979,
       "samplesMs": [
-        11254.2989
+        7925.0979
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71331840,
-        "maxHeapUsedBytes": 7055520,
+        "maxRssBytes": 74301440,
+        "maxHeapUsedBytes": 6190688,
         "samples": [
           {
             "before": {
-              "rssBytes": 64135168,
-              "heapUsedBytes": 4917368,
-              "externalBytes": 2159879,
+              "rssBytes": 67211264,
+              "heapUsedBytes": 4937688,
+              "externalBytes": 2170591,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 71331840,
-              "heapUsedBytes": 7055520,
-              "externalBytes": 3068598,
-              "arrayBuffersBytes": 986647
+              "rssBytes": 74301440,
+              "heapUsedBytes": 6190688,
+              "externalBytes": 2511332,
+              "arrayBuffersBytes": 429381
             }
           }
         ]
@@ -82,30 +82,30 @@
       "chunkKiB": 64,
       "batchSize": 1,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 92.3094686578312,
-      "avgMs": 11093.117999999999,
-      "minMs": 11093.117999999999,
-      "maxMs": 11093.117999999999,
+      "mibPerSec": 120.04930654908856,
+      "avgMs": 8529.8271,
+      "minMs": 8529.8271,
+      "maxMs": 8529.8271,
       "samplesMs": [
-        11093.117999999999
+        8529.8271
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71233536,
-        "maxHeapUsedBytes": 6550928,
+        "maxRssBytes": 74735616,
+        "maxHeapUsedBytes": 6545976,
         "samples": [
           {
             "before": {
-              "rssBytes": 64110592,
-              "heapUsedBytes": 4917368,
-              "externalBytes": 2159879,
+              "rssBytes": 67182592,
+              "heapUsedBytes": 4937672,
+              "externalBytes": 2170591,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 71233536,
-              "heapUsedBytes": 6550928,
+              "rssBytes": 74735616,
+              "heapUsedBytes": 6545976,
               "externalBytes": 3047864,
               "arrayBuffersBytes": 965913
             }
@@ -123,30 +123,30 @@
       "chunkKiB": 256,
       "batchSize": 1,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 96.61767580467705,
-      "avgMs": 10598.473,
-      "minMs": 10598.473,
-      "maxMs": 10598.473,
+      "mibPerSec": 105.81035424533668,
+      "avgMs": 9677.6902,
+      "minMs": 9677.6902,
+      "maxMs": 9677.6902,
       "samplesMs": [
-        10598.473
+        9677.6902
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 72564736,
-        "maxHeapUsedBytes": 6019896,
+        "maxRssBytes": 74649600,
+        "maxHeapUsedBytes": 6402784,
         "samples": [
           {
             "before": {
-              "rssBytes": 64114688,
-              "heapUsedBytes": 4917368,
-              "externalBytes": 2159879,
+              "rssBytes": 67239936,
+              "heapUsedBytes": 4937688,
+              "externalBytes": 2170591,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 72564736,
-              "heapUsedBytes": 6019896,
+              "rssBytes": 74649600,
+              "heapUsedBytes": 6402784,
               "externalBytes": 3854683,
               "arrayBuffersBytes": 1772732
             }
@@ -164,32 +164,32 @@
       "chunkKiB": 1024,
       "batchSize": 1,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 94.71307619943177,
-      "avgMs": 10811.5993,
-      "minMs": 10811.5993,
-      "maxMs": 10811.5993,
+      "mibPerSec": 125.2228488127824,
+      "avgMs": 8177.419999999999,
+      "minMs": 8177.419999999999,
+      "maxMs": 8177.419999999999,
       "samplesMs": [
-        10811.5993
+        8177.419999999999
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 142114816,
-        "maxHeapUsedBytes": 6430688,
+        "maxRssBytes": 129523712,
+        "maxHeapUsedBytes": 5147808,
         "samples": [
           {
             "before": {
-              "rssBytes": 64188416,
-              "heapUsedBytes": 4917376,
-              "externalBytes": 2159879,
+              "rssBytes": 67117056,
+              "heapUsedBytes": 4937680,
+              "externalBytes": 2170591,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 142114816,
-              "heapUsedBytes": 6430688,
-              "externalBytes": 73927382,
-              "arrayBuffersBytes": 71847985
+              "rssBytes": 129523712,
+              "heapUsedBytes": 5147808,
+              "externalBytes": 59247105,
+              "arrayBuffersBytes": 57167708
             }
           }
         ]
@@ -199,28 +199,28 @@
   "summary": {
     "rowCount": 4,
     "fastest": {
-      "id": "stax-stream-chunk-256kib",
-      "tool": "stax-stream",
-      "chunkKiB": 256,
-      "batchSize": 1,
-      "throughputMiBPerSec": 96.62,
-      "eventCount": 61236571,
-      "checksum": -716099804,
-      "boundedMemory": true,
-      "maxRssMiB": 69.2
-    },
-    "slowest": {
       "id": "stax-stream-chunk-16kib",
       "tool": "stax-stream",
       "chunkKiB": 16,
       "batchSize": 1,
-      "throughputMiBPerSec": 90.99,
+      "throughputMiBPerSec": 129.21,
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
-      "maxRssMiB": 68.03
+      "maxRssMiB": 70.86
     },
-    "fastestSlowestRatio": 1.0618792820437435,
+    "slowest": {
+      "id": "stax-stream-chunk-256kib",
+      "tool": "stax-stream",
+      "chunkKiB": 256,
+      "batchSize": 1,
+      "throughputMiBPerSec": 105.81,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "maxRssMiB": 71.19
+    },
+    "fastestSlowestRatio": 1.2211445615075616,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -235,12 +235,12 @@
     {
       "id": "chunk-size-headroom",
       "classification": "BENCH_FACT",
-      "summary": "The fastest chunk size in this sweep was 256 KiB at 96.62 MiB/s; the slowest was 16 KiB at 90.99 MiB/s.",
+      "summary": "The fastest chunk size in this sweep was 16 KiB at 129.21 MiB/s; the slowest was 256 KiB at 105.81 MiB/s.",
       "evidence": [
-        "stax-stream-chunk-16kib=90.99 MiB/s rss=68.03 MiB",
-        "stax-stream-chunk-64kib=92.31 MiB/s rss=67.93 MiB",
-        "stax-stream-chunk-256kib=96.62 MiB/s rss=69.20 MiB",
-        "stax-stream-chunk-1024kib=94.71 MiB/s rss=135.53 MiB"
+        "stax-stream-chunk-16kib=129.21 MiB/s rss=70.86 MiB",
+        "stax-stream-chunk-64kib=120.05 MiB/s rss=71.27 MiB",
+        "stax-stream-chunk-256kib=105.81 MiB/s rss=71.19 MiB",
+        "stax-stream-chunk-1024kib=125.22 MiB/s rss=123.52 MiB"
       ]
     },
     {
@@ -248,10 +248,10 @@
       "classification": "COUNTEREXAMPLE_NOT_FOUND",
       "summary": "The file-backed source chunk sweep applies the same 200 MiB/s bounded full-string counterexample rule to its rows.",
       "evidence": [
-        "stax-stream-chunk-16kib: bounded=true, mibPerSec=90.99",
-        "stax-stream-chunk-64kib: bounded=true, mibPerSec=92.31",
-        "stax-stream-chunk-256kib: bounded=true, mibPerSec=96.62",
-        "stax-stream-chunk-1024kib: bounded=true, mibPerSec=94.71"
+        "stax-stream-chunk-16kib: bounded=true, mibPerSec=129.21",
+        "stax-stream-chunk-64kib: bounded=true, mibPerSec=120.05",
+        "stax-stream-chunk-256kib: bounded=true, mibPerSec=105.81",
+        "stax-stream-chunk-1024kib: bounded=true, mibPerSec=125.22"
       ]
     }
   ]

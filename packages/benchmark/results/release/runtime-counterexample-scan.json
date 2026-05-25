@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T02:49:49.513Z",
+  "generatedAt": "2026-05-25T02:55:18.059Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -145,7 +145,7 @@
     "measuredRowCount": 684,
     "largeJsFullRowCount": 419,
     "counterexampleCount": 0,
-    "partialHeadroomRowCount": 14,
+    "partialHeadroomRowCount": 15,
     "unboundedOrUnknownLargeFullRowCount": 90,
     "fastestLargeFullRow": {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -850,6 +850,25 @@
       "contractScope": "full-materialization-minus-text-cdata",
       "family": "near-full-upper-bound",
       "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.0",
+      "id": "stax-scan-all-no-decode",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 214.79,
+      "eventCount": 61236571,
+      "checksum": -1830981171,
+      "contractScope": "partial-scan-no-string-materialization",
+      "family": "partial-scan",
+      "counterexampleStatus": null,
       "memoryKind": "process-rss",
       "hasMemoryProof": true
     },
@@ -2632,7 +2651,7 @@
     {
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "14 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+      "summary": "15 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
     },
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",

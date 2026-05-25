@@ -1,6 +1,6 @@
 # File-Backed Source Sweep
 
-Generated: 2026-05-24T23:31:05.334Z
+Generated: 2026-05-25T02:54:58.771Z
 
 Sweeps file-backed StreamReaderSync chunk size with demand-driven Iterable<Uint8Array[]> batches. This isolates source chunk sizing from Woodstox/quick-xml external parser comparisons; it is not an OS-cache-neutral disk benchmark.
 
@@ -11,34 +11,34 @@ Sweeps file-backed StreamReaderSync chunk size with demand-driven Iterable<Uint8
 - Chunk sizes: 16, 64, 256, 1024 KiB
 - Batch size: 1
 - Rows: 4
-- Fastest: stax-stream-chunk-256kib 96.62 MiB/s, RSS 69.20 MiB
-- Slowest: stax-stream-chunk-16kib 90.99 MiB/s, RSS 68.03 MiB
-- Fastest/slowest ratio: 1.06x
+- Fastest: stax-stream-chunk-16kib 129.21 MiB/s, RSS 70.86 MiB
+- Slowest: stax-stream-chunk-256kib 105.81 MiB/s, RSS 71.19 MiB
+- Fastest/slowest ratio: 1.22x
 - 200 MiB/s bounded counterexamples: 0
 
 ## Rows
 
 | Row | Tool | Chunk KiB | MiB/s | Bounded | Max RSS | Events | Checksum |
 | --- | --- | ---: | ---: | --- | ---: | ---: | ---: |
-| `stax-stream-chunk-16kib` | stax-stream | 16 | 90.99 | yes | 68.03 MiB | 61236571 | -716099804 |
-| `stax-stream-chunk-64kib` | stax-stream | 64 | 92.31 | yes | 67.93 MiB | 61236571 | -716099804 |
-| `stax-stream-chunk-256kib` | stax-stream | 256 | 96.62 | yes | 69.20 MiB | 61236571 | -716099804 |
-| `stax-stream-chunk-1024kib` | stax-stream | 1024 | 94.71 | yes | 135.53 MiB | 61236571 | -716099804 |
+| `stax-stream-chunk-16kib` | stax-stream | 16 | 129.21 | yes | 70.86 MiB | 61236571 | -716099804 |
+| `stax-stream-chunk-64kib` | stax-stream | 64 | 120.05 | yes | 71.27 MiB | 61236571 | -716099804 |
+| `stax-stream-chunk-256kib` | stax-stream | 256 | 105.81 | yes | 71.19 MiB | 61236571 | -716099804 |
+| `stax-stream-chunk-1024kib` | stax-stream | 1024 | 125.22 | yes | 123.52 MiB | 61236571 | -716099804 |
 
 ## Findings
 
 - same-contract-preserved (CONTRACT_FACT): All sweep rows preserve a full-string checksum contract.
   - 61236571:-716099804
-- chunk-size-headroom (BENCH_FACT): The fastest chunk size in this sweep was 256 KiB at 96.62 MiB/s; the slowest was 16 KiB at 90.99 MiB/s.
-  - stax-stream-chunk-16kib=90.99 MiB/s rss=68.03 MiB
-  - stax-stream-chunk-64kib=92.31 MiB/s rss=67.93 MiB
-  - stax-stream-chunk-256kib=96.62 MiB/s rss=69.20 MiB
-  - stax-stream-chunk-1024kib=94.71 MiB/s rss=135.53 MiB
+- chunk-size-headroom (BENCH_FACT): The fastest chunk size in this sweep was 16 KiB at 129.21 MiB/s; the slowest was 256 KiB at 105.81 MiB/s.
+  - stax-stream-chunk-16kib=129.21 MiB/s rss=70.86 MiB
+  - stax-stream-chunk-64kib=120.05 MiB/s rss=71.27 MiB
+  - stax-stream-chunk-256kib=105.81 MiB/s rss=71.19 MiB
+  - stax-stream-chunk-1024kib=125.22 MiB/s rss=123.52 MiB
 - bounded-counterexample-search (COUNTEREXAMPLE_NOT_FOUND): The file-backed source chunk sweep applies the same 200 MiB/s bounded full-string counterexample rule to its rows.
-  - stax-stream-chunk-16kib: bounded=true, mibPerSec=90.99
-  - stax-stream-chunk-64kib: bounded=true, mibPerSec=92.31
-  - stax-stream-chunk-256kib: bounded=true, mibPerSec=96.62
-  - stax-stream-chunk-1024kib: bounded=true, mibPerSec=94.71
+  - stax-stream-chunk-16kib: bounded=true, mibPerSec=129.21
+  - stax-stream-chunk-64kib: bounded=true, mibPerSec=120.05
+  - stax-stream-chunk-256kib: bounded=true, mibPerSec=105.81
+  - stax-stream-chunk-1024kib: bounded=true, mibPerSec=125.22
 
 ## Limits
 

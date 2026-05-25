@@ -36,7 +36,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.scannedArtifactCount, 120);
   assert.equal(report.summary.measuredRowCount, 684);
   assert.equal(report.summary.largeJsFullRowCount, 419);
-  assert.equal(report.summary.partialHeadroomRowCount, 14);
+  assert.equal(report.summary.partialHeadroomRowCount, 15);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
@@ -103,6 +103,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.mibPerSec === 225.67
     && row.fullStringParity === false
     && row.contractScope === 'full-materialization-minus-text-cdata'
+  ));
+  assert.ok(report.partialHeadroomRows.some(row =>
+    row.sourceArtifact === 'file-backed-core-decomposition.json'
+    && row.id === 'stax-scan-all-no-decode'
+    && row.mibPerSec === 214.79
+    && row.fullStringParity === false
+    && row.contractScope === 'partial-scan-no-string-materialization'
   ));
   assert.ok(report.partialHeadroomRows.some(row =>
     row.sourceArtifact === 'text-cache-materialization-candidate.json'
