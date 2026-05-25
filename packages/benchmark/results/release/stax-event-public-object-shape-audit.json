@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-05-25T02:02:08.539Z",
+  "objective": "stax-event-public-object-shape-audit",
+  "contract": "source-public-object-row-vs-file-backed-low-memory-scope",
+  "note": "Audits why the JavaScript public event object consumer is not a 1 GiB file-backed external-baseline comparator row.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "sourceFiles": {
+    "externalBaseline": "G:\\programming\\stax-xml\\packages\\benchmark\\external-baseline.mjs",
+    "materializationContractAudit": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\materialization-contract-audit.json"
+  },
+  "sourceFacts": {
+    "staxEventToolDeclared": true,
+    "staxEventUsesFullUtf8StringInput": true,
+    "staxEventUsesEventReaderSyncPublicObjects": true,
+    "fileBackedStreamRowsUseByteBatches": true
+  },
+  "materializationAudit": {
+    "externalBaselineReport": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline-1024mib-file-sync-batches.json",
+    "staxEventRuntimeShape": "js-public-event-object",
+    "staxEventPerEventPublicObject": true,
+    "staxEventBaselinePresent": false
+  },
+  "summary": {
+    "sourcePublicObjectPathPresent": true,
+    "releaseOneGiBRowPresent": false,
+    "releaseOneGiBRowOmittedForLowMemoryComparison": true,
+    "conclusion": "public-object-source-path-present-but-not-a-file-backed-low-memory-comparator-row"
+  },
+  "findings": [
+    {
+      "id": "public-object-source-path-present",
+      "classification": "SOURCE_FACT",
+      "summary": "external-baseline.mjs contains a JavaScript public event object consumer using EventReaderSync.",
+      "evidence": [
+        "staxEventToolDeclared=true",
+        "usesFullUtf8StringInput=true",
+        "usesEventReaderSyncPublicObjects=true"
+      ]
+    },
+    {
+      "id": "not-file-backed-low-memory-row",
+      "classification": "SCOPE_GUARD",
+      "summary": "The public object consumer requires preloading the whole XML as a UTF-8 JavaScript string in this harness, while file-backed rows use byte batches.",
+      "evidence": [
+        "fileBackedStreamRowsUseByteBatches=true",
+        "oneGiBMaterializationAuditBaselinePresent=false"
+      ]
+    },
+    {
+      "id": "shape-boundary-preserved",
+      "classification": "SOURCE_FACT",
+      "summary": "The materialization contract audit keeps stax-event as the JS public-object shape, separate from Woodstox and quick-xml comparator shapes.",
+      "evidence": [
+        "staxEventRuntimeShape=js-public-event-object",
+        "staxEventPerEventPublicObject=true"
+      ]
+    }
+  ]
+}

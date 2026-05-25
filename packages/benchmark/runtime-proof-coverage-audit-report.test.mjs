@@ -32,13 +32,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 118);
+  assert.equal(report.summary.scannedArtifactCount, 119);
   assert.equal(report.summary.measuredRowCount, 678);
   assert.equal(report.summary.largeJsFullRowCount, 419);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 84);
-  assert.equal(report.summary.sourceArtifactCount, 15);
+  assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
   assert.equal(report.summary.environmentArtifactCount, 2);
@@ -147,6 +147,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'raw-batch-kind-shape-audit.json'
     && row.evidenceKinds.includes('SOURCE_FACT')
     && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && row.measuredRowCount === 0
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'stax-event-public-object-shape-audit.json'
+    && row.evidenceKinds.includes('SOURCE_FACT')
     && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>

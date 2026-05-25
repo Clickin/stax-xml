@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T01:52:44.514Z",
+  "generatedAt": "2026-05-25T02:02:57.753Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1934,6 +1934,20 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "stax-event-public-object-shape-audit.json",
+      "objective": "stax-event-public-object-shape-audit",
+      "contract": "source-public-object-row-vs-file-backed-low-memory-scope",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "stream-reader-1gb-allocation-diverse-shapes.json",
       "objective": "stream-reader-large-shape-allocation",
       "contract": "generated-byte-batch-full-string-allocation-sampling",
@@ -2291,12 +2305,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 118,
+    "scannedArtifactCount": 119,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 678,
     "benchmarkArtifactCount": 84,
-    "sourceArtifactCount": 15,
+    "sourceArtifactCount": 16,
     "traceArtifactCount": 8,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
@@ -2312,7 +2326,7 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 44,
+        "artifactCount": 45,
         "measuredRowCount": 215,
         "largeFullStringRowCount": 135,
         "fastestLargeFullStringRow": {

@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 118);
+  assert.equal(report.summary.scannedArtifactCount, 119);
   assert.equal(report.summary.measuredRowCount, 678);
   assert.equal(report.summary.largeJsFullRowCount, 414);
   assert.equal(report.summary.partialHeadroomRowCount, 14);
@@ -68,6 +68,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('materialization-category-drop-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('text-cache-materialization-candidate.json'));
+  assert.ok(report.scannedArtifacts.includes('stax-event-public-object-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-fold-trim-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-string-cache-candidate.json'));
