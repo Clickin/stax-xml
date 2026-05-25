@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T09:04:10.946Z",
+  "generatedAt": "2026-05-25T09:20:35.880Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -156,7 +156,7 @@
     "parseErrorCount": 0,
     "measuredRowCount": 725,
     "aggregateRowCount": 89,
-    "largeJsFullRowCount": 457,
+    "largeJsFullRowCount": 458,
     "largeJsFullAggregateRowCount": 69,
     "sourceModeRowCount": 27,
     "largeJsFullSourceModeRowCount": 21,
@@ -414,14 +414,19 @@
         "backpressureRows": 1
       }
     ],
+    "rowClassificationCompleteness": {
+      "measuredRows": 725,
+      "unknownFullStringParityRows": 0,
+      "unknownBoundedMemoryRows": 75
+    },
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 20,
-    "unboundedOrUnknownLargeFullRowCount": 90,
+    "unboundedOrUnknownLargeFullRowCount": 91,
     "largeFullMemoryRejectionBreakdown": {
-      "total": 90,
+      "total": 91,
       "explicitNotBounded": 90,
       "boundedFlagWithoutRowMemoryProof": 0,
-      "unknownBoundedFlag": 0,
+      "unknownBoundedFlag": 1,
       "missingRowMemoryProof": 48
     },
     "fastestLargeFullRow": {
@@ -1995,6 +2000,29 @@
       "contractScope": "full-string-materialization",
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "bun-event-reader-string-large.json",
+      "jsonPath": "rows.3",
+      "id": "3",
+      "runtimeLabel": "Bun/JSC",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": null,
+      "sizeGiB": 1,
+      "sizeMiB": null,
+      "mibPerSec": 47.88,
+      "eventCount": 45189256,
+      "checksum": 1421012805,
+      "contractScope": "bun-event-reader-sync-string-input-full-object-materialization",
+      "family": null,
+      "counterexampleStatus": null,
       "memoryKind": "process-rss",
       "hasMemoryProof": true,
       "sourceMode": null,
@@ -7005,7 +7033,12 @@
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "90 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 90 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag."
+      "summary": "91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 90 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 1 unknown bounded flag."
+    },
+    {
+      "id": "measured-row-classification-complete",
+      "status": "LIMITED_EVIDENCE_PRESENT",
+      "summary": "725 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 75 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",

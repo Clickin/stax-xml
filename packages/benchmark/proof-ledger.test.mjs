@@ -122,11 +122,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
   assert.match(markdown, /recognizes 725\s+sample throughput rows and 89 aggregate rows/);
-  assert.match(markdown, /457 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
+  assert.match(markdown, /458 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
-  assert.match(markdown, /90 full-string\s+rows failing the bounded-memory counterexample criterion/);
-  assert.match(markdown, /all 90 carry explicit\s+`boundedMemory=false`/);
-  assert.match(markdown, /48 also lack row-level memory proof/);
+  assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 75 rows with unknown bounded-memory\s+flags/);
+  assert.match(markdown, /reports 91 full-string rows failing the bounded-memory counterexample\s+criterion/);
+  assert.match(markdown, /90 carry explicit `boundedMemory=false`/);
+  assert.match(markdown, /1 has an unknown bounded-memory flag/);
+  assert.match(markdown, /48\s+also lack row-level memory proof/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with\s+memory proof is the same Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average\s+over 3 samples with 3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);

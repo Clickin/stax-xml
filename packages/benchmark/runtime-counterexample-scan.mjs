@@ -150,6 +150,7 @@ function createReport(options) {
   const largeJsFullSourceModeRows = largeJsFullRows.filter(row => row.sourceMode !== null);
   const sourceModeBreakdown = summarizeSourceModes(sourceModeRows);
   const largeJsFullSourceModeBreakdown = summarizeSourceModes(largeJsFullSourceModeRows);
+  const rowClassificationCompleteness = summarizeRowClassificationCompleteness(measuredRows);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -176,6 +177,7 @@ function createReport(options) {
       largeJsFullSourceModeRowCount: largeJsFullSourceModeRows.length,
       sourceModeBreakdown,
       largeJsFullSourceModeBreakdown,
+      rowClassificationCompleteness,
       counterexampleCount: counterexamples.length,
       partialHeadroomRowCount: partialHeadroomRows.length,
       unboundedOrUnknownLargeFullRowCount: unboundedOrUnknownLargeFullRows.length,
@@ -199,7 +201,7 @@ function createReport(options) {
     unboundedOrUnknownLargeFullRows,
     aggregateRows,
     sourceModeRows,
-    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown),
+    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, rowClassificationCompleteness, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown),
   };
 }
 
@@ -392,10 +394,22 @@ function summarizeMemoryRejection(rows) {
   };
 }
 
+function summarizeRowClassificationCompleteness(rows) {
+  return {
+    measuredRows: rows.length,
+    unknownFullStringParityRows: rows.filter(row => row.fullStringParity === null).length,
+    unknownBoundedMemoryRows: rows.filter(row => row.boundedMemory === null).length,
+  };
+}
+
 function classifyFullStringParity(node, context) {
   if (node.fullStringParity === true) return true;
   if (node.fullStringParity === false) return false;
   if (node.workload === 'full-string-checksum') return true;
+  if (/^(woodstox-|quick-xml-)|^materialization-contract-audit\.json$/.test(context.sourceArtifact ?? '')) return true;
+  const id = typeof node.id === 'string' ? node.id : '';
+  if (/projection|event-count-only|scan-all-no-decode|scanAllNoDecode|semantic-checksum|SemanticChecksum/i.test(id)) return false;
+  if (/full-string|event-full-string|full-string|raw-frame|rawFrame|cursor|public-accessor|event-reader-object|stream-(batch|event)/i.test(id)) return true;
   if (typeof node.contractScope === 'string') {
     if (/full-(string|event-object|stax)/i.test(node.contractScope)) return true;
     if (/partial|projection|scan/i.test(node.contractScope)) return false;
@@ -404,7 +418,10 @@ function classifyFullStringParity(node, context) {
     if (/partial|projection|scan/i.test(node.family)) return false;
     if (/full-stax-js/i.test(node.family)) return true;
   }
-  if (typeof context.contract === 'string' && /projection/i.test(context.contract)) return false;
+  if (typeof context.contract === 'string') {
+    if (/full-string|full-object|full-event|full-materialization|complete-js-string/i.test(context.contract)) return true;
+    if (/projection/i.test(context.contract)) return false;
+  }
   return null;
 }
 
@@ -474,9 +491,10 @@ function normalizeFixture(fixture) {
   };
 }
 
-function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown) {
+function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, rowClassificationCompleteness, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown) {
   const sourceModes = largeJsFullSourceModeBreakdown.map(entry => `${entry.sourceMode}:${entry.rowCount}`);
   const memoryRejectionSummary = `${largeFullMemoryRejectionBreakdown.total} recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: ${largeFullMemoryRejectionBreakdown.explicitNotBounded} explicit boundedMemory=false, ${largeFullMemoryRejectionBreakdown.boundedFlagWithoutRowMemoryProof} bounded flag without row-level memory proof, ${largeFullMemoryRejectionBreakdown.unknownBoundedFlag} unknown bounded flag.`;
+  const incompleteClassificationRows = rowClassificationCompleteness.unknownFullStringParityRows + rowClassificationCompleteness.unknownBoundedMemoryRows;
   return [
     {
       id: 'bounded-full-string-counterexample-search',
@@ -499,6 +517,11 @@ function createFindings(counterexamples, partialHeadroomRows, textMaterializatio
       id: 'unbounded-or-unknown-full-rows-not-counterexamples',
       status: largeFullMemoryRejectionBreakdown.total > 0 ? 'LIMITED_EVIDENCE_PRESENT' : 'NONE',
       summary: memoryRejectionSummary,
+    },
+    {
+      id: 'measured-row-classification-complete',
+      status: incompleteClassificationRows === 0 ? 'CONTRACT_FACT' : 'LIMITED_EVIDENCE_PRESENT',
+      summary: `${rowClassificationCompleteness.measuredRows} recognized measured row(s) include fullStringParity and boundedMemory classifications; ${rowClassificationCompleteness.unknownFullStringParityRows} have unknown fullStringParity and ${rowClassificationCompleteness.unknownBoundedMemoryRows} have unknown boundedMemory.`,
     },
     {
       id: 'cross-process-aggregate-rows-separated',
@@ -535,6 +558,8 @@ function renderMarkdown(report) {
     `- 1 GiB+ JS full-string aggregate rows recognized: ${report.summary.largeJsFullAggregateRowCount}`,
     `- Rows with explicit source mode: ${report.summary.sourceModeRowCount}`,
     `- 1 GiB+ JS full-string rows with explicit source mode: ${report.summary.largeJsFullSourceModeRowCount}`,
+    `- Rows with unknown full-string parity: ${report.summary.rowClassificationCompleteness.unknownFullStringParityRows}`,
+    `- Rows with unknown bounded-memory flag: ${report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
     `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,

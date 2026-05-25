@@ -185,7 +185,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 circular evidence.
 
 The current scan covers 132 primary release JSON artifacts, recognizes 725
-sample throughput rows and 89 aggregate rows, and finds 457 JavaScript 1 GiB+
+sample throughput rows and 89 aggregate rows, and finds 458 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -223,10 +223,12 @@ Node/V8 `withoutTextStrings` from
 checksum to `1372281363`, so it is not full-string StAX parity. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
-satisfy the bounded-memory counterexample rule. The scan reports 90 full-string
-rows failing the bounded-memory counterexample criterion: all 90 carry explicit
-`boundedMemory=false`, 0 are only bounded flags without row-level memory proof,
-0 have an unknown bounded-memory flag, and 48 also lack row-level memory proof.
+satisfy the bounded-memory counterexample rule. The scan now has zero measured
+rows with unknown full-string parity and 75 rows with unknown bounded-memory
+flags. It reports 91 full-string rows failing the bounded-memory counterexample
+criterion: 90 carry explicit `boundedMemory=false`, 0 are only bounded flags
+without row-level memory proof, 1 has an unknown bounded-memory flag, and 48
+also lack row-level memory proof.
 This scan is a mechanical guard over the current release artifacts; absence of
 a counterexample here is still not an impossibility proof.
 
@@ -240,7 +242,7 @@ not a runtime-limit proof.
 The current audit scans 132 primary release artifacts and recognizes 725
 measured rows. It records 93 benchmark artifacts, 16 source artifacts, 8
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 457 JavaScript 1 GiB+ full-string rows, and three
+9 negative-result artifacts, 458 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving

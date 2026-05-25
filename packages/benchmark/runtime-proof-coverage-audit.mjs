@@ -109,6 +109,7 @@ function createReport(options) {
     ignoredArtifactCount: ignored.length,
     parseErrorCount: parseErrors.length,
     measuredRowCount: sum(artifacts.map(artifact => artifact.measuredRows.length)),
+    rowClassificationCompleteness: summarizeRowClassificationCompleteness(artifacts.flatMap(artifact => artifact.measuredRows)),
     benchmarkArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('BENCH_FACT')).length,
     sourceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('SOURCE_FACT')).length,
     traceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT')).length,
@@ -294,6 +295,14 @@ function createCoverage(artifacts, options) {
     negativeArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT'))
       .map(artifact => summarizeArtifact(artifact)),
+  };
+}
+
+function summarizeRowClassificationCompleteness(rows) {
+  return {
+    measuredRows: rows.length,
+    unknownFullStringParityRows: rows.filter(row => row.fullStringParity === null).length,
+    unknownBoundedMemoryRows: rows.filter(row => row.boundedMemory === null).length,
   };
 }
 
@@ -587,6 +596,10 @@ function classifyFullStringParity(node, context) {
   if (node.fullStringParity === true) return true;
   if (node.fullStringParity === false) return false;
   if (node.workload === 'full-string-checksum') return true;
+  if (/^(woodstox-|quick-xml-)|^materialization-contract-audit\.json$/.test(context.sourceArtifact ?? '')) return true;
+  const id = typeof node.id === 'string' ? node.id : '';
+  if (/projection|event-count-only|scan-all-no-decode|scanAllNoDecode|semantic-checksum|SemanticChecksum/i.test(id)) return false;
+  if (/full-string|event-full-string|raw-frame|rawFrame|cursor|public-accessor|event-reader-object|stream-(batch|event)/i.test(id)) return true;
   if (typeof node.contractScope === 'string') {
     if (/full-(string|event-object|stax)/i.test(node.contractScope)) return true;
     if (/partial|projection|scan/i.test(node.contractScope)) return false;
@@ -595,7 +608,10 @@ function classifyFullStringParity(node, context) {
     if (/partial|projection|scan/i.test(node.family)) return false;
     if (/full-stax-js/i.test(node.family)) return true;
   }
-  if (typeof context.contract === 'string' && /projection/i.test(context.contract)) return false;
+  if (typeof context.contract === 'string') {
+    if (/full-string|full-object|full-event|full-materialization|complete-js-string/i.test(context.contract)) return true;
+    if (/projection/i.test(context.contract)) return false;
+  }
   return null;
 }
 
@@ -684,6 +700,8 @@ function renderMarkdown(report) {
     `- Scanned primary artifacts: ${report.summary.scannedArtifactCount}`,
     `- Ignored derived artifacts: ${report.summary.ignoredArtifactCount}`,
     `- Measured rows recognized: ${report.summary.measuredRowCount}`,
+    `- Rows with unknown full-string parity: ${report.summary.rowClassificationCompleteness.unknownFullStringParityRows}`,
+    `- Rows with unknown bounded-memory flag: ${report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows}`,
     `- Benchmark artifacts: ${report.summary.benchmarkArtifactCount}`,
     `- Source artifacts: ${report.summary.sourceArtifactCount}`,
     `- Trace/profile artifacts: ${report.summary.traceArtifactCount}`,
