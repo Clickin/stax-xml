@@ -141,13 +141,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with\s+memory proof is the same Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average\s+over 3 samples with 3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
-  assert.match(markdown, /22 JavaScript 1 GiB\+ full-string rows with source mode\s+metadata/);
+  assert.match(markdown, /111 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
+  assert.match(markdown, /fastest source-mode-classified row is\s+Bun\/JSC `rawFrameNameId` from `access-shape-candidate-cross-process\.json` at\s+179\.70 MiB\/s/);
   assert.match(markdown, /`complete-js-string`/);
   assert.match(markdown, /`sync-iterable-byte-batches` at 124\.49 MiB\/s/);
   assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 110\.32 MiB\/s/);
-  assert.match(markdown, /separates parser-demand-driven source rows from Web Stream\s+backpressure rows/);
+  assert.match(markdown, /separates parser-demand-driven source rows from Web Stream backpressure\s+rows/);
   assert.match(markdown, /fixes the previous scanner blind\s+spot/);
-  assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but not\s+counted as JavaScript runtime rows/);
+  assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but not counted\s+as JavaScript runtime rows/);
   assert.match(markdown, /remain below the 200 MiB\/s\s+counterexample threshold/);
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 326\.65 MiB\/s from\s+`candidate-headroom-cross-process-books-corpus-partial\.json`/);
   assert.match(markdown, /The fastest is Node\/V8 `withoutTextStrings` from\s+`long-text-cache-materialization-candidate\.json` at 229\.15 MiB\/s/);

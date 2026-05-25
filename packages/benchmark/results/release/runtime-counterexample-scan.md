@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T12:57:41.072Z
+Generated: 2026-05-25T13:25:32.770Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -12,8 +12,8 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - Aggregate rows recognized: 89
 - 1 GiB+ JS full-string rows recognized: 463
 - 1 GiB+ JS full-string aggregate rows recognized: 69
-- Rows with explicit source mode: 31
-- 1 GiB+ JS full-string rows with explicit source mode: 22
+- Rows with recognized source mode: 162
+- 1 GiB+ JS full-string rows with recognized source mode: 111
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 77
   - Unknown bounded-memory JS rows: 55
@@ -97,13 +97,13 @@ Rows in this table are averages or aggregate summaries from cross-process artifa
 
 ## Source Mode Breakdown For 1 GiB+ Full-String JS Rows
 
-This table records input-consumption metadata when release rows expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.
+This table records input-consumption metadata when release rows or their source contracts expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.
 
 | Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows |
 | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `file-sync-batches` | 11 | 11 | 11 | 135.13 | Node/V8 stax-stream stax-stream-batch-2 from file-backed-batch-size-sweep.json | 11 | 0 |
+| `generated-sync-iterable-byte-batches` | 90 | 90 | 90 | 179.70 | Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json | 90 | 0 |
+| `file-sync-batches` | 13 | 13 | 13 | 135.13 | Node/V8 stax-stream stax-stream-batch-2 from file-backed-batch-size-sweep.json | 13 | 0 |
 | `file-backed-sync-iterable-byte-batches` | 5 | 5 | 5 | 127.32 | Node/V8 stringFull from file-backed-materialization-category-drop-sweep.json | 5 | 0 |
-| `generated-sync-iterable-byte-batches` | 3 | 3 | 3 | 90.16 | Node/V8 0 from stream-reader-4gb-shapes.json | 3 | 0 |
 | `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 |
 | `sync-iterable-byte-batches` | 1 | 1 | 1 | 124.49 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 1 | 0 |
 | `web-readable-stream-pull` | 1 | 1 | 1 | 110.32 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 | 1 |
@@ -155,7 +155,7 @@ These near-full rows still materialize element names and attributes, but omit te
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
 - measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 749 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 77 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
-- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for file-sync-batches:11, file-backed-sync-iterable-byte-batches:5, generated-sync-iterable-byte-batches:3, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
+- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:90, file-sync-batches:13, file-backed-sync-iterable-byte-batches:5, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
 
 ## Limits
 

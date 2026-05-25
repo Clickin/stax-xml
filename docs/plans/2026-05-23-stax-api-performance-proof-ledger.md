@@ -198,20 +198,23 @@ counterexample threshold. The scan now reports aggregate rows separately from
 individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
-The scan also preserves explicit source-consumption metadata when release rows
-carry it. It now finds 22 JavaScript 1 GiB+ full-string rows with source mode
-metadata, including `file-sync-batches`, `file-backed-sync-iterable-byte-batches`,
-`generated-sync-iterable-byte-batches`, `complete-js-string`,
-`sync-iterable-byte-batches`, and `web-readable-stream-pull`. The
-source-consumption comparison rows from
-`stream-source-consumption-shapes.json` are therefore included in the JavaScript
+The scan also preserves or infers source-consumption metadata when release rows
+or their source contract carry it. It now finds 111 JavaScript 1 GiB+
+full-string rows with source mode metadata, including `file-sync-batches`,
+`file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
+`complete-js-string`, `sync-iterable-byte-batches`, and
+`web-readable-stream-pull`. The generated sync byte-batch bucket now includes
+the fastest access-shape rows, so the fastest source-mode-classified row is
+Bun/JSC `rawFrameNameId` from `access-shape-candidate-cross-process.json` at
+179.70 MiB/s. The source-consumption comparison rows from
+`stream-source-consumption-shapes.json` remain included in the JavaScript
 full-string scan: `sync-iterable-byte-batches` at 124.49 MiB/s and the
 backpressure-respecting `web-readable-stream-pull` row at 110.32 MiB/s. The
-scan now separates parser-demand-driven source rows from Web Stream
-backpressure rows, so direct ReadableStream overhead evidence stays distinct
-from synchronous byte-batch rows. This also fixes the previous scanner blind
-spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
-counted as JavaScript runtime rows.
+scan separates parser-demand-driven source rows from Web Stream backpressure
+rows, so direct ReadableStream overhead evidence stays distinct from
+synchronous byte-batch rows. This also fixes the previous scanner blind spot
+where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not counted
+as JavaScript runtime rows.
 
 The scan also records 22 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from

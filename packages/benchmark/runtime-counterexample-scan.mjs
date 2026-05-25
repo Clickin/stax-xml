@@ -249,6 +249,7 @@ function createInitialContext(sourceArtifact, root) {
     runtime: null,
     objective: root?.objective ?? null,
     contract: root?.contract ?? null,
+    sourceContract: root?.sourceContract ?? null,
   });
 }
 
@@ -263,6 +264,7 @@ function extendContext(node, context) {
     runtime,
     objective: node.objective ?? context.objective,
     contract: node.contract ?? context.contract,
+    sourceContract: node.sourceContract ?? context.sourceContract,
   };
 }
 
@@ -286,6 +288,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
   const jsRuntime = classifyJsRuntime(sourceArtifact, node, context);
   const id = String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row');
   const memoryKind = classifyMemoryKind(node);
+  const sourceMode = classifySourceMode(sourceArtifact, node, context);
   return {
     sourceArtifact,
     jsonPath: path.join('.'),
@@ -304,10 +307,10 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     counterexampleStatus: node.counterexampleStatus ?? null,
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
-    sourceMode: node.sourceMode ?? null,
+    sourceMode,
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
-    demandDrivenSource: classifyDemandDrivenSource(node),
+    demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
     respectsBackpressure: typeof node.respectsBackpressure === 'boolean' ? node.respectsBackpressure : null,
   };
 }
@@ -322,6 +325,7 @@ function createAggregateRow(sourceArtifact, node, path, context) {
   const jsRuntime = classifyJsRuntime(sourceArtifact, node, context);
   const id = String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row');
   const memoryKind = classifyMemoryKind(node);
+  const sourceMode = classifySourceMode(sourceArtifact, node, context);
   return {
     sourceArtifact,
     jsonPath: path.join('.'),
@@ -344,9 +348,10 @@ function createAggregateRow(sourceArtifact, node, path, context) {
     counterexampleStatus: node.counterexampleFound === true ? 'found' : (node.counterexampleStatus ?? 'not-found'),
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
-    sourceMode: node.sourceMode ?? null,
+    sourceMode,
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
+    demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
     respectsBackpressure: typeof node.respectsBackpressure === 'boolean' ? node.respectsBackpressure : null,
   };
 }
@@ -466,11 +471,27 @@ function classifyJsRuntime(sourceArtifact, node, context) {
   return false;
 }
 
-function classifyDemandDrivenSource(node) {
+function classifySourceMode(sourceArtifact, node, context) {
+  if (typeof node.sourceMode === 'string') return node.sourceMode;
+
+  const sourceContract = context.sourceContract?.childSourceContract ?? context.sourceContract;
+  const parserInput = sourceContract?.parserInput;
+  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption;
+  const combined = `${parserInput ?? ''} ${arrayBufferConsumption ?? ''}`;
+  if (/StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/.test(combined)
+    && /byteBatches\(fixture\)/.test(combined)) {
+    return 'generated-sync-iterable-byte-batches';
+  }
+
+  if (/file-sync-batches/.test(sourceArtifact)) return 'file-sync-batches';
+  return null;
+}
+
+function classifyDemandDrivenSource(node, sourceMode = null) {
   if (typeof node.demandDrivenSource === 'boolean') return node.demandDrivenSource;
-  const sourceMode = typeof node.sourceMode === 'string' ? node.sourceMode : '';
-  if (sourceMode === 'complete-js-string') return false;
-  return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull|file-sync-batches/.test(sourceMode);
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (mode === 'complete-js-string') return false;
+  return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull|file-sync-batches/.test(mode);
 }
 
 function inferRuntimeLabel(sourceArtifact, node, context) {
@@ -587,8 +608,8 @@ function renderMarkdown(report) {
     `- Aggregate rows recognized: ${report.summary.aggregateRowCount}`,
     `- 1 GiB+ JS full-string rows recognized: ${report.summary.largeJsFullRowCount}`,
     `- 1 GiB+ JS full-string aggregate rows recognized: ${report.summary.largeJsFullAggregateRowCount}`,
-    `- Rows with explicit source mode: ${report.summary.sourceModeRowCount}`,
-    `- 1 GiB+ JS full-string rows with explicit source mode: ${report.summary.largeJsFullSourceModeRowCount}`,
+    `- Rows with recognized source mode: ${report.summary.sourceModeRowCount}`,
+    `- 1 GiB+ JS full-string rows with recognized source mode: ${report.summary.largeJsFullSourceModeRowCount}`,
     `- Rows with unknown full-string parity: ${report.summary.rowClassificationCompleteness.unknownFullStringParityRows}`,
     `- Rows with unknown bounded-memory flag: ${report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows}`,
     `  - Unknown bounded-memory JS rows: ${report.summary.unknownBoundedMemoryBreakdown.jsRows}`,
@@ -676,7 +697,7 @@ function renderMarkdown(report) {
     '',
     '## Source Mode Breakdown For 1 GiB+ Full-String JS Rows',
     '',
-    'This table records input-consumption metadata when release rows expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.',
+    'This table records input-consumption metadata when release rows or their source contracts expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.',
     '',
     '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows |',
     '| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |',
