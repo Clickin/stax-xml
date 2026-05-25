@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 122);
+  assert.equal(report.summary.scannedArtifactCount, 123);
   assert.equal(report.summary.measuredRowCount, 689);
   assert.equal(report.summary.largeJsFullRowCount, 419);
   assert.equal(report.summary.partialHeadroomRowCount, 15);
@@ -53,6 +53,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.ignoredArtifacts.includes('same-contract-runtime-comparison.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch.json'));
   assert.ok(report.scannedArtifacts.includes('attribute-value-branch-order-candidate.json'));
+  assert.ok(report.scannedArtifacts.includes('attribute-value-index-accessor-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('bun-event-reader-byte-batch.json'));
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-source-pin-audit.json'));

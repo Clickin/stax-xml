@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-05-25T03:20:39.152Z",
+  "objective": "attribute-value-index-accessor-candidate",
+  "contract": "file-backed-public-consumer-numeric-only-attribute-value-accessor-candidate",
+  "note": "Records a rejected public API probe: adding StreamBatch.attributeValueAtIndex(eventIndex, attrIndex) as a numeric-only accessor while keeping attributeValueAt(eventIndex, number|string). The candidate preserved behavior but did not improve the 1 GiB file-backed full-string public consumer path, so the API addition was reverted.",
+  "candidateChange": {
+    "files": [
+      "packages/stax-xml/src/stream-reader-core.ts",
+      "packages/benchmark/file-backed-public-consumer-shape-sweep.mjs"
+    ],
+    "api": "StreamBatch.attributeValueAtIndex(eventIndex, attrIndex)",
+    "purpose": "avoid the number|string overload branch in numeric attribute-value hot paths",
+    "retainedInSource": false
+  },
+  "sourceContract": {
+    "fixture": "packages/benchmark/test-data/node-string-return-1024mib.xml",
+    "sourceMode": "file-backed-sync-iterable-byte-batches",
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "fullStringParity": true,
+    "boundedRssMiB": 512
+  },
+  "candidateMeasurement": {
+    "generatedAt": "2026-05-25T03:20:39.152Z",
+    "rows": [
+      {
+        "id": "public-baseline",
+        "throughputMiBPerSec": 132.56,
+        "maxRssMiB": 70.79,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-attribute-value-index",
+        "throughputMiBPerSec": 131.83,
+        "maxRssMiB": 70.07,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-no-optional-text",
+        "throughputMiBPerSec": 134.87,
+        "maxRssMiB": 70.75,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-switch-dispatch",
+        "throughputMiBPerSec": 113.19,
+        "maxRssMiB": 71.29,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-event-object",
+        "throughputMiBPerSec": 94.74,
+        "maxRssMiB": 137.62,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      }
+    ]
+  },
+  "summary": {
+    "classification": "NEGATIVE_RESULT",
+    "candidateRetained": false,
+    "candidateCounterexamples200MiB": 0,
+    "publicBaselineThroughputMiBPerSec": 132.56,
+    "candidateThroughputMiBPerSec": 131.83,
+    "fastestProbeRow": "public-no-optional-text",
+    "fastestProbeThroughputMiBPerSec": 134.87,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "numeric-only-accessor-not-headroom",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The numeric-only attributeValueAtIndex accessor did not improve the file-backed full-string public consumer hot path in this probe.",
+      "evidence": [
+        "public-baseline=132.56 MiB/s",
+        "public-attribute-value-index=131.83 MiB/s",
+        "public-no-optional-text=134.87 MiB/s",
+        "candidate retained in source: false"
+      ]
+    },
+    {
+      "id": "not-runtime-ceiling-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This rejects one API/accessor shape only; it does not prove public StreamBatch access has no remaining optimization headroom.",
+      "evidence": [
+        "single implementation probe",
+        "same event count and checksum preserved",
+        "no 200 MiB/s bounded full-string counterexample found"
+      ]
+    }
+  ]
+}
