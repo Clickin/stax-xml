@@ -32,7 +32,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 141);
+  assert.equal(report.summary.scannedArtifactCount, 142);
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'file-backed-materialization-profile.json'
+    && artifact.objective === 'file-backed-materialization-profile'
+  ));
   assert.equal(report.summary.measuredRowCount, 775);
   assert.equal(report.summary.largeJsFullRowCount, 480);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
@@ -438,7 +442,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 61 \| 305 \| 186 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 62 \| 305 \| 186 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 10 \| 11 \| 3 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 9 \| 17 \| 3 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

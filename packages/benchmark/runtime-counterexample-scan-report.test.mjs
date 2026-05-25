@@ -33,7 +33,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 141);
+  assert.equal(report.summary.scannedArtifactCount, 142);
+  assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.equal(report.summary.measuredRowCount, 775);
   assert.equal(report.summary.aggregateRowCount, 89);
   assert.equal(report.summary.largeJsFullRowCount, 480);

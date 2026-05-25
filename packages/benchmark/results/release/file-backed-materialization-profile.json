@@ -1,0 +1,144 @@
+{
+  "generatedAt": "2026-05-25T23:49:53.725Z",
+  "objective": "file-backed-materialization-profile",
+  "contract": "same-file-backed-raw-frame-name-id-full-string-checksum",
+  "note": "Counts the string materialization work performed by the current file-backed raw-frame name-id full-string checksum path. This is deterministic counter evidence for where full-string work remains; it is not a throughput run and not a runtime ceiling proof.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623
+  },
+  "sourceContract": {
+    "parserInput": "StreamReaderSync over a synchronous Iterable<Uint8Array[]>",
+    "sourceMode": "file-backed-sync-iterable-byte-batches",
+    "fileRead": "readSync is called only while the iterator is pulled for the next parser batch",
+    "chunkBytes": 32768,
+    "batchSize": 4,
+    "preMaterializesFullXml": false,
+    "directReadableStream": false,
+    "nativeAddon": false,
+    "nodeBufferStringDecode": false
+  },
+  "result": {
+    "eventCount": 61236571,
+    "checksum": -716099804,
+    "fullStringParity": true
+  },
+  "eventShape": {
+    "startElements": 21612907,
+    "endElements": 21612907,
+    "textEvents": 18010755,
+    "cdataEvents": 0,
+    "attributePairs": 18010755
+  },
+  "materialization": {
+    "frames": 8193,
+    "decodeSpanCalls": {
+      "total": 36021520,
+      "byKind": {
+        "name": 10,
+        "text": 18010755,
+        "attrValue": 18010755
+      }
+    },
+    "textDecoderCalls": {
+      "total": 9806453,
+      "byKind": {
+        "name": 0,
+        "text": 9806453,
+        "attrValue": 0
+      },
+      "nonNameTotal": 9806453,
+      "nonNameShare": 1
+    },
+    "shortAsciiHits": {
+      "total": 26215067,
+      "byKind": {
+        "name": 10,
+        "text": 8204302,
+        "attrValue": 18010755
+      },
+      "hitRate": 0.7277612660431875
+    },
+    "bytes": {
+      "decodedSpanBytes": 515408238,
+      "textDecoderBytes": 359401484,
+      "shortAsciiBytes": 156006754,
+      "byKind": {
+        "name": {
+          "spanBytes": 53,
+          "textDecoderBytes": 0,
+          "shortAsciiBytes": 53
+        },
+        "text": {
+          "spanBytes": 452051937,
+          "textDecoderBytes": 359401484,
+          "shortAsciiBytes": 92650453
+        },
+        "attrValue": {
+          "spanBytes": 63356248,
+          "textDecoderBytes": 0,
+          "shortAsciiBytes": 63356248
+        }
+      }
+    },
+    "nameCache": {
+      "hits": 61236559,
+      "misses": 10,
+      "uniqueNames": 10,
+      "hitRate": 0.9999998366988849
+    },
+    "textTrim": {
+      "calls": 18010755,
+      "boundaryWhitespace": 0,
+      "emptyAfterTrim": 0
+    },
+    "nonNameDecodeCalls": 36021510
+  },
+  "findings": [
+    {
+      "id": "same-contract-file-backed-profile",
+      "classification": "TRACE_FACT",
+      "summary": "The profile replays the current raw-frame name-id full-string checksum over demand-driven file-backed byte batches.",
+      "evidence": [
+        "frames=8193",
+        "startElements=21612907",
+        "attributePairs=18010755"
+      ]
+    },
+    {
+      "id": "name-cache-removes-repeated-name-decodes",
+      "classification": "TRACE_FACT",
+      "summary": "Name-id caching leaves 10 unique name decodes and serves repeated names at 100.00% hit rate.",
+      "evidence": [
+        "hits=61236559",
+        "misses=10",
+        "uniqueNames=10"
+      ]
+    },
+    {
+      "id": "non-name-strings-dominate-decoder-work",
+      "classification": "HEADROOM_EVIDENCE",
+      "summary": "Text and attribute values account for 100.00% of TextDecoder calls that remain after name caching.",
+      "evidence": [
+        "textDecoderCalls=9806453",
+        "nonNameTextDecoderCalls=9806453",
+        "decodeSpanCalls=36021520"
+      ]
+    },
+    {
+      "id": "not-runtime-ceiling-proof",
+      "classification": "TRACE_FACT_LIMIT",
+      "summary": "This is deterministic materialization-count evidence for one source shape and fixture; it does not prove JavaScript runtimes have no remaining headroom.",
+      "evidence": [
+        "Use it to rank next hypotheses, not to conclude impossibility."
+      ]
+    }
+  ]
+}
