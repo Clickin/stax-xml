@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-25T22:38:25.014Z
+Generated: 2026-05-25T22:46:34.633Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-25T22:38:09.635Z
+- Audit generated: 2026-05-25T22:46:21.582Z
 - Active obligations: 2
 
 ## Active Obligations

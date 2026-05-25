@@ -876,6 +876,16 @@ optimized file-backed parser scan has 200 MiB/s+ partial headroom, while the
 full-string rows in the same source shape remain below the counterexample
 threshold and below the same-fixture Woodstox target.
 
+The same current file-backed source shape also refreshes two older value-path
+negative checks. `file-backed-fold-trim-candidate.md` records
+`stax-raw-frame-name-id` at 138.13 MiB/s and
+`stax-raw-frame-name-id-fold-trim` at 113.11 MiB/s with the same full checksum,
+so avoiding `value.trim()` allocation by folding trimmed text directly is still
+slower in this path. `file-backed-string-cache-candidate.md` records
+`stax-raw-frame-name-id` at 137.51 MiB/s and `stax-raw-frame-string-cache` at
+49.64 MiB/s with max RSS 616.98 MiB, so the bounded value-cache variant is both
+slower and outside the 512 MiB RSS gate under the current source contract.
+
 `packages/benchmark/results/release/firefox-spidermonkey-profiler-trace.md`
 adds Firefox/SpiderMonkey Gecko Profiler startup/shutdown evidence for selected
 browser reader rows. The harness now has an explicit `--graceful-browser-close`

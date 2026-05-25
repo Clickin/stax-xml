@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T00:35:03.291Z",
+  "generatedAt": "2026-05-25T22:45:56.079Z",
   "environment": {
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
     "platform": "win32-x64",
@@ -18,8 +18,8 @@
       "stax-raw-frame-name-id-fold-trim"
     ],
     "staxStreamSource": "file-sync-batches",
-    "chunkKiB": 64,
-    "batchSize": 1,
+    "chunkKiB": 32,
+    "batchSize": 4,
     "boundedRssMiB": 512
   },
   "target": {
@@ -31,34 +31,45 @@
     {
       "tool": "stax-raw-frame-name-id",
       "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "respectsBackpressure": null,
+      "sourceConsumption": {
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+        "chunkBytes": 32768,
+        "batchSize": 4,
+        "preMaterializesFullXml": false,
+        "directReadableStream": false
+      },
       "workload": "full-string-checksum",
       "status": "ok",
-      "avgMs": 11684.6898,
-      "minMs": 11684.6898,
-      "maxMs": 11684.6898,
-      "mibPerSec": 87.63603021268251,
+      "avgMs": 7413.154399999999,
+      "minMs": 7413.154399999999,
+      "maxMs": 7413.154399999999,
+      "mibPerSec": 138.13280731595486,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        11684.6898
+        7413.154399999999
       ],
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 69767168,
-        "maxHeapUsedBytes": 5781824,
+        "maxRssBytes": 63516672,
+        "maxHeapUsedBytes": 7575832,
         "samples": [
           {
             "before": {
-              "rssBytes": 64327680,
-              "heapUsedBytes": 4930136,
-              "externalBytes": 2167701,
+              "rssBytes": 56139776,
+              "heapUsedBytes": 4945968,
+              "externalBytes": 2176397,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 69767168,
-              "heapUsedBytes": 5781824,
-              "externalBytes": 2538872,
-              "arrayBuffersBytes": 456921
+              "rssBytes": 63516672,
+              "heapUsedBytes": 7575832,
+              "externalBytes": 3911253,
+              "arrayBuffersBytes": 1829302
             }
           }
         ]
@@ -69,34 +80,45 @@
     {
       "tool": "stax-raw-frame-name-id-fold-trim",
       "implementation": "Node + stax-xml nextRawBatch name-id cache fold-trim file-backed Iterable<Uint8Array[]>",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "respectsBackpressure": null,
+      "sourceConsumption": {
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+        "chunkBytes": 32768,
+        "batchSize": 4,
+        "preMaterializesFullXml": false,
+        "directReadableStream": false
+      },
       "workload": "full-string-checksum",
       "status": "ok",
-      "avgMs": 14091.9486,
-      "minMs": 14091.9486,
-      "maxMs": 14091.9486,
-      "mibPerSec": 72.66559490137674,
+      "avgMs": 9053.338,
+      "minMs": 9053.338,
+      "maxMs": 9053.338,
+      "mibPerSec": 113.10743378173035,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        14091.9486
+        9053.338
       ],
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71544832,
-        "maxHeapUsedBytes": 7184864,
+        "maxRssBytes": 64151552,
+        "maxHeapUsedBytes": 7310760,
         "samples": [
           {
             "before": {
-              "rssBytes": 69853184,
-              "heapUsedBytes": 5308352,
-              "externalBytes": 2538872,
-              "arrayBuffersBytes": 182639
+              "rssBytes": 63438848,
+              "heapUsedBytes": 5327136,
+              "externalBytes": 3911253,
+              "arrayBuffersBytes": 485743
             },
             "after": {
-              "rssBytes": 71544832,
-              "heapUsedBytes": 7184864,
-              "externalBytes": 3390981,
-              "arrayBuffersBytes": 1309030
+              "rssBytes": 64151552,
+              "heapUsedBytes": 7310760,
+              "externalBytes": 3780126,
+              "arrayBuffersBytes": 1698175
             }
           }
         ]

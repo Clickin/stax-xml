@@ -38,8 +38,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.aggregateRowCount, 89);
   assert.equal(report.summary.largeJsFullRowCount, 476);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
-  assert.equal(report.summary.sourceModeRowCount, 192);
-  assert.equal(report.summary.largeJsFullSourceModeRowCount, 142);
+  assert.equal(report.summary.sourceModeRowCount, 196);
+  assert.equal(report.summary.largeJsFullSourceModeRowCount, 146);
   assert.equal(report.summary.partialHeadroomRowCount, 22);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 3);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
@@ -292,12 +292,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'file-backed-sync-iterable-byte-batches'
-    && entry.rowCount === 31
-    && entry.boundedFullStringRowCount === 31
+    && entry.rowCount === 35
+    && entry.boundedFullStringRowCount === 34
     && entry.fastestRow.sourceArtifact === 'file-backed-source-sweep.json'
     && entry.fastestRow.id === 'stax-raw-frame-name-id-chunk-32kib'
     && entry.fastestMiBPerSec === 151.7
-    && entry.demandDrivenRows === 31
+    && entry.demandDrivenRows === 35
     && entry.backpressureRows === 0
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
@@ -417,8 +417,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
-  assert.match(markdown, /Rows with recognized source mode: 192/);
-  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 142/);
+  assert.match(markdown, /Rows with recognized source mode: 196/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 146/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
   assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);
