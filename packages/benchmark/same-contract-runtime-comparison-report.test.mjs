@@ -32,7 +32,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 89);
+  assert.equal(report.summary.rowCount, 94);
   assert.equal(report.summary.jsLargeFullRowCount, 83);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'bun-candidate-headroom-books-corpus-stability.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'bun-jsc');
@@ -53,8 +53,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.sampleCount, 3);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.sourceMode, 'sync-iterable-byte-batches');
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
-  assert.ok(report.summary.externalBaseline16MiB.woodstoxMiBPerSec > 300);
-  assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
+  assert.equal(report.summary.externalBaseline16MiB.woodstoxMiBPerSec, 303.1);
+  assert.equal(report.summary.externalBaseline16MiB.quickXmlMiBPerSec, 243.43);
+  assert.equal(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio, 0.8);
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec, 91.23);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio > 0.3);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio < 0.4);
@@ -64,7 +65,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec, 250.09);
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec, 231.15);
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio, 0.92);
-  assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'not-recorded', 'process-rss']);
+  assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
 
   assert.ok(report.comparisonRows.some(row =>

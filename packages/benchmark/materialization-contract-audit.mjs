@@ -326,6 +326,8 @@ function createParity(consumers) {
       eventCount: consumer.baseline.eventCount,
       checksum: consumer.baseline.checksum,
       mibPerSec: consumer.baseline.mibPerSec,
+      boundedMemory: consumer.baseline.boundedMemory,
+      memory: consumer.baseline.memory,
     })),
     notSameObjectShape: consumers.some(consumer => consumer.runtimeShape !== 'js-public-event-object'),
     explanation: 'The parity boundary is event/checksum/field equality, not identical language object representation.',

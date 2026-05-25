@@ -149,7 +149,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 89 aggregated rows and 83 JavaScript 1 GiB+
+The current aggregate has 94 aggregated rows and 83 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
@@ -176,9 +176,10 @@ full row is `rawFrameNameId` at 64.24 MiB/s. Firefox's memory kind is
 `browser-js-heap-unavailable`, so these rows are not bounded-memory
 counterexamples.
 
-The same report keeps the external target visible: the 16 MiB Woodstox row is
-333.43 MiB/s and the 16 MiB quick-xml row is 309.82 MiB/s, or 0.93x Woodstox,
-under the same event/checksum contract. Its memory section is intentionally
+The same report keeps the external target visible: the regenerated 16 MiB
+Woodstox row is 303.10 MiB/s with process RSS max 121.57 MiB, and the 16 MiB
+quick-xml row is 243.43 MiB/s with process RSS max 4.79 MiB, or 0.80x
+Woodstox, under the same event/checksum contract. Its memory section is intentionally
 non-normalizing: Node/Bun rows use process RSS, Chrome browser rows use
 variant-level JS heap plus separate Windows process-tree host counters, Firefox
 browser rows currently lack page-exposed JS heap counters but include
@@ -487,8 +488,8 @@ than a total allocation census or complete object-lifetime proof.
 repository plus local `quick-xml` 0.40.1 crate source.
 
 The current external baseline anchors the comparator to the same 16 MiB
-full-string checksum contract: quick-xml reported 309.8 MiB/s, 967,967 events,
-checksum `-746772258`, and 0.93x of the Woodstox row in
+full-string checksum contract: quick-xml reported 243.43 MiB/s, 967,967 events,
+checksum `-746772258`, 4.79 MiB peak RSS, and 0.80x of the Woodstox row in
 `packages/benchmark/results/release/external-baseline.md`.
 
 The source audit records that the comparator uses `read_event_into(&mut

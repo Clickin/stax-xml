@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-23T09:13:56.492Z",
+  "generatedAt": "2026-05-25T15:28:25.674Z",
   "environment": {
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
     "platform": "win32-x64",
@@ -14,35 +14,437 @@
     "runs": 3,
     "warmups": 1,
     "tools": [
+      "stax-scan-all-no-decode",
+      "stax-raw-frame-semantic-checksum",
       "stax-stream",
+      "stax-raw-frame-name-id",
+      "stax-raw-frame-name-id-fold-trim",
+      "stax-raw-frame-string-cache",
       "stax-event",
       "woodstox",
       "quick-xml"
-    ]
+    ],
+    "staxStreamSource": "preloaded",
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "boundedRssMiB": 512
   },
   "target": {
     "baselineTool": "woodstox",
     "goalRatio": 0.9,
-    "targetThroughputMiB": 300.08892774117845
+    "targetThroughputMiB": 272.79171603674604
   },
   "results": [
     {
-      "tool": "stax-stream",
-      "implementation": "Node + stax-xml StreamReaderSync",
-      "workload": "full-string-checksum",
+      "tool": "stax-scan-all-no-decode",
+      "implementation": "Node + stax-xml StreamReaderSync scan-only preloaded Uint8Array",
+      "workload": "event-types-and-attribute-counts-only",
+      "fullStringParity": false,
+      "contractScope": "partial-scan-no-string-materialization",
       "status": "ok",
-      "avgMs": 151.9483,
-      "minMs": 150.5749,
-      "maxMs": 152.75979999999998,
-      "mibPerSec": 105.29785621801416,
+      "avgMs": 95.28890000000001,
+      "minMs": 87.61070000000001,
+      "maxMs": 106.6235,
+      "mibPerSec": 167.90864671511244,
+      "eventCount": 967967,
+      "checksum": -141941271,
+      "samplesMs": [
+        106.6235,
+        91.6325,
+        87.61070000000001
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 140677120,
+        "maxHeapUsedBytes": 22339896,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 159936512,
+              "heapUsedBytes": 21903448,
+              "externalBytes": 82865341,
+              "arrayBuffersBytes": 72436925
+            },
+            "after": {
+              "rssBytes": 140394496,
+              "heapUsedBytes": 22339896,
+              "externalBytes": 65081692,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139309056,
+              "heapUsedBytes": 21935800,
+              "externalBytes": 59838812,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 140677120,
+              "heapUsedBytes": 21377576,
+              "externalBytes": 65080427,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139558912,
+              "heapUsedBytes": 21014176,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 53562557
+            },
+            "after": {
+              "rssBytes": 140279808,
+              "heapUsedBytes": 21339504,
+              "externalBytes": 65079138,
+              "arrayBuffersBytes": 57756861
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.5539676359645946,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-raw-frame-semantic-checksum",
+      "implementation": "Node + stax-xml nextRawBatch semantic byte-fold preloaded Uint8Array",
+      "workload": "same-fields-checksum-no-string-materialization",
+      "fullStringParity": false,
+      "contractScope": "same-fields-checksum-no-string-materialization",
+      "status": "ok",
+      "avgMs": 151.6823333333333,
+      "minMs": 149.1725,
+      "maxMs": 153.72209999999995,
+      "mibPerSec": 105.48249024367823,
       "eventCount": 967967,
       "checksum": -746772258,
       "samplesMs": [
-        152.5102,
-        152.75979999999998,
-        150.5749
+        152.15239999999994,
+        149.1725,
+        153.72209999999995
       ],
-      "woodstoxRatio": 0.3157999573977903,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 140853248,
+        "maxHeapUsedBytes": 21383376,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 138530816,
+              "heapUsedBytes": 21057544,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 53562557
+            },
+            "after": {
+              "rssBytes": 140853248,
+              "heapUsedBytes": 21357640,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139358208,
+              "heapUsedBytes": 21041720,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 53562557
+            },
+            "after": {
+              "rssBytes": 140746752,
+              "heapUsedBytes": 21273744,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140804096,
+              "heapUsedBytes": 21055776,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 140754944,
+              "heapUsedBytes": 21383376,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.34800998578168857,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync preloaded Uint8Array",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 161.17049999999995,
+      "minMs": 159.62419999999997,
+      "maxMs": 163.6033,
+      "mibPerSec": 99.27269721178308,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        163.6033,
+        159.62419999999997,
+        160.28399999999988
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 141484032,
+        "maxHeapUsedBytes": 21412480,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 139948032,
+              "heapUsedBytes": 21198816,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141262848,
+              "heapUsedBytes": 21412480,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140115968,
+              "heapUsedBytes": 21195576,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141484032,
+              "heapUsedBytes": 21377248,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140328960,
+              "heapUsedBytes": 21183112,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141455360,
+              "heapUsedBytes": 21302656,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.3275225098058683,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache preloaded Uint8Array",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 134.39426666666668,
+      "minMs": 131.2883999999999,
+      "maxMs": 136.65779999999995,
+      "mibPerSec": 119.05143457983583,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        136.65779999999995,
+        135.23660000000018,
+        131.2883999999999
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 141524992,
+        "maxHeapUsedBytes": 23432088,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 139956224,
+              "heapUsedBytes": 21239240,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141524992,
+              "heapUsedBytes": 23432088,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140427264,
+              "heapUsedBytes": 21207296,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141172736,
+              "heapUsedBytes": 23399104,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140111872,
+              "heapUsedBytes": 21218912,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141185024,
+              "heapUsedBytes": 23305328,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.39277692401560776,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-raw-frame-name-id-fold-trim",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache fold-trim preloaded Uint8Array",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 145.718,
+      "minMs": 143.38760000000002,
+      "maxMs": 147.39539999999988,
+      "mibPerSec": 109.79995776754883,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        146.3710000000001,
+        147.39539999999988,
+        143.38760000000002
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 141688832,
+        "maxHeapUsedBytes": 23348504,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 140455936,
+              "heapUsedBytes": 21236216,
+              "externalBytes": 59786082,
+              "arrayBuffersBytes": 53512381
+            },
+            "after": {
+              "rssBytes": 141541376,
+              "heapUsedBytes": 23312688,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140419072,
+              "heapUsedBytes": 21223520,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141479936,
+              "heapUsedBytes": 23322472,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 140406784,
+              "heapUsedBytes": 21237360,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 55659709
+            },
+            "after": {
+              "rssBytes": 141688832,
+              "heapUsedBytes": 23348504,
+              "externalBytes": 59836258,
+              "arrayBuffersBytes": 57756861
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.3622542627998372,
+      "targetStatus": "below"
+    },
+    {
+      "tool": "stax-raw-frame-string-cache",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache plus bounded value string cache preloaded Uint8Array",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 544.2312999999999,
+      "minMs": 516.7977999999998,
+      "maxMs": 572.4687000000004,
+      "mibPerSec": 29.39895269891989,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "samplesMs": [
+        516.7977999999998,
+        543.4273999999996,
+        572.4687000000004
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 376262656,
+        "maxHeapUsedBytes": 134125328,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 290775040,
+              "heapUsedBytes": 21287152,
+              "externalBytes": 62149162,
+              "arrayBuffersBytes": 59723335
+            },
+            "after": {
+              "rssBytes": 355753984,
+              "heapUsedBytes": 132528816,
+              "externalBytes": 67442218,
+              "arrayBuffersBytes": 60069765
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 348348416,
+              "heapUsedBytes": 21279856,
+              "externalBytes": 62149162,
+              "arrayBuffersBytes": 59830575
+            },
+            "after": {
+              "rssBytes": 374947840,
+              "heapUsedBytes": 132570104,
+              "externalBytes": 67442218,
+              "arrayBuffersBytes": 60069765
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 367546368,
+              "heapUsedBytes": 21279656,
+              "externalBytes": 62149162,
+              "arrayBuffersBytes": 59811045
+            },
+            "after": {
+              "rssBytes": 376262656,
+              "heapUsedBytes": 134125328,
+              "externalBytes": 62149162,
+              "arrayBuffersBytes": 60069765
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.09699362507571077,
       "targetStatus": "below"
     },
     {
@@ -50,18 +452,67 @@
       "implementation": "Node + stax-xml EventReaderSync",
       "workload": "full-string-checksum",
       "status": "ok",
-      "avgMs": 166.77240000000006,
-      "minMs": 163.37900000000013,
-      "maxMs": 171.01970000000006,
-      "mibPerSec": 95.93811833355923,
+      "avgMs": 188.5782999999998,
+      "minMs": 176.53710000000046,
+      "maxMs": 208.92159999999967,
+      "mibPerSec": 84.84449295582628,
       "eventCount": 967967,
       "checksum": -746772258,
       "samplesMs": [
-        171.01970000000006,
-        165.9185,
-        163.37900000000013
+        180.27619999999933,
+        176.53710000000046,
+        208.92159999999967
       ],
-      "woodstoxRatio": 0.287729064681366,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 327675904,
+        "maxHeapUsedBytes": 66992008,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 366862336,
+              "heapUsedBytes": 21385680,
+              "externalBytes": 62149162,
+              "arrayBuffersBytes": 59919195
+            },
+            "after": {
+              "rssBytes": 323104768,
+              "heapUsedBytes": 66329400,
+              "externalBytes": 18879330,
+              "arrayBuffersBytes": 16799933
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 323166208,
+              "heapUsedBytes": 21313232,
+              "externalBytes": 18879330,
+              "arrayBuffersBytes": 16799933
+            },
+            "after": {
+              "rssBytes": 322777088,
+              "heapUsedBytes": 65690592,
+              "externalBytes": 18879330,
+              "arrayBuffersBytes": 16799933
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 322781184,
+              "heapUsedBytes": 21315984,
+              "externalBytes": 18879330,
+              "arrayBuffersBytes": 16799933
+            },
+            "after": {
+              "rssBytes": 327675904,
+              "heapUsedBytes": 66992008,
+              "externalBytes": 18879330,
+              "arrayBuffersBytes": 16799933
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": 0.2799206836983191,
       "targetStatus": "below"
     },
     {
@@ -70,17 +521,26 @@
       "workload": "full-string-checksum",
       "status": "ok",
       "runtime": "1.8.0_472",
-      "avgMs": 47.98526666666667,
-      "minMs": 44.2581,
-      "maxMs": 55.3941,
-      "mibPerSec": 333.43214193464274,
+      "avgMs": 52.78696666666667,
+      "minMs": 48.64,
+      "maxMs": 58.5024,
+      "mibPerSec": 303.1019067074956,
       "eventCount": 967967,
       "checksum": -746772258,
       "samplesMs": [
-        55.3941,
-        44.2581,
-        44.3036
+        58.5024,
+        51.2185,
+        48.64
       ],
+      "boundedMemory": true,
+      "memory": {
+        "scope": "process-rss",
+        "maxRssBytes": 127479808,
+        "sampler": {
+          "source": "powershell-get-process",
+          "intervalMs": 100
+        }
+      },
       "woodstoxRatio": 1,
       "targetStatus": "met"
     },
@@ -90,19 +550,28 @@
       "workload": "full-string-checksum",
       "status": "ok",
       "runtime": "1.0.0",
-      "avgMs": 51.64193333333333,
-      "minMs": 51.348,
-      "maxMs": 52.065,
-      "mibPerSec": 309.8224487975214,
+      "avgMs": 65.7273,
+      "minMs": 62.1103,
+      "maxMs": 68.0554,
+      "mibPerSec": 243.42746843353794,
       "eventCount": 967967,
       "checksum": -746772258,
       "samplesMs": [
-        52.065,
-        51.348,
-        51.5128
+        62.1103,
+        67.0162,
+        68.0554
       ],
-      "woodstoxRatio": 0.9291919099336585,
-      "targetStatus": "met"
+      "boundedMemory": true,
+      "memory": {
+        "scope": "process-rss",
+        "maxRssBytes": 5017600,
+        "sampler": {
+          "source": "powershell-get-process",
+          "intervalMs": 100
+        }
+      },
+      "woodstoxRatio": 0.8031208746847454,
+      "targetStatus": "below"
     }
   ]
 }

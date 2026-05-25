@@ -1,6 +1,6 @@
 # Materialization Contract Audit
 
-Generated: 2026-05-25T15:11:16.778Z
+Generated: 2026-05-25T15:28:42.984Z
 
 This audit separates same semantic fields from same runtime object shape.
 The external baseline rows are comparable through event count, checksum, and field materialization parity; they are not the same object shape.

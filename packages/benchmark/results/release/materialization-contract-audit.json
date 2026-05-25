@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T15:11:16.778Z",
+  "generatedAt": "2026-05-25T15:28:42.984Z",
   "objective": "materialization-contract-audit",
   "contract": "semantic-materialization-not-object-shape",
   "note": "Audits the comparator boundary: rows share semantic fields and checksum parity, but not language/runtime object shape.",
@@ -114,19 +114,86 @@
         "id": "woodstox",
         "eventCount": 61236571,
         "checksum": -716099804,
-        "mibPerSec": 250.09026371459936
+        "mibPerSec": 250.09026371459936,
+        "boundedMemory": true,
+        "memory": {
+          "scope": "process-rss",
+          "maxRssBytes": 327024640,
+          "sampler": {
+            "source": "powershell-get-process",
+            "intervalMs": 100
+          }
+        }
       },
       {
         "id": "quick-xml",
         "eventCount": 61236571,
         "checksum": -716099804,
-        "mibPerSec": 231.14886868605655
+        "mibPerSec": 231.14886868605655,
+        "boundedMemory": true,
+        "memory": {
+          "scope": "process-rss",
+          "maxRssBytes": 5017600,
+          "sampler": {
+            "source": "powershell-get-process",
+            "intervalMs": 100
+          }
+        }
       },
       {
         "id": "stax-stream",
         "eventCount": 61236571,
         "checksum": -716099804,
-        "mibPerSec": 91.23125574958932
+        "mibPerSec": 91.23125574958932,
+        "boundedMemory": true,
+        "memory": {
+          "maxRssBytes": 74887168,
+          "maxHeapUsedBytes": 6663864,
+          "samples": [
+            {
+              "before": {
+                "rssBytes": 67784704,
+                "heapUsedBytes": 4944784,
+                "externalBytes": 2175677,
+                "arrayBuffersBytes": 22895
+              },
+              "after": {
+                "rssBytes": 74579968,
+                "heapUsedBytes": 6663864,
+                "externalBytes": 2822708,
+                "arrayBuffersBytes": 740757
+              }
+            },
+            {
+              "before": {
+                "rssBytes": 74457088,
+                "heapUsedBytes": 5338120,
+                "externalBytes": 2822708,
+                "arrayBuffersBytes": 22895
+              },
+              "after": {
+                "rssBytes": 74887168,
+                "heapUsedBytes": 5983336,
+                "externalBytes": 2347416,
+                "arrayBuffersBytes": 265465
+              }
+            },
+            {
+              "before": {
+                "rssBytes": 74895360,
+                "heapUsedBytes": 5331976,
+                "externalBytes": 2347416,
+                "arrayBuffersBytes": 22895
+              },
+              "after": {
+                "rssBytes": 74887168,
+                "heapUsedBytes": 5634920,
+                "externalBytes": 2216286,
+                "arrayBuffersBytes": 134335
+              }
+            }
+          ]
+        }
       }
     ],
     "notSameObjectShape": true,

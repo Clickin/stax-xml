@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T15:11:54.565Z
+Generated: 2026-05-25T15:29:28.564Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -8,11 +8,11 @@ This audit scans current release artifacts to show which proof obligations are c
 
 - Scanned primary artifacts: 139
 - Ignored derived artifacts: 5
-- Measured rows recognized: 749
+- Measured rows recognized: 754
 - Rows with unknown full-string parity: 0
-- Rows with unknown bounded-memory flag: 27
-  - Unknown bounded-memory JS rows: 7
-  - Unknown bounded-memory full-string rows: 27
+- Rows with unknown bounded-memory flag: 20
+  - Unknown bounded-memory JS rows: 4
+  - Unknown bounded-memory full-string rows: 20
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 0
 - Benchmark artifacts: 99
@@ -34,14 +34,7 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `stringFull` | 0.00 | not-recorded | yes | 49.46 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `rawFrameNameId` | 0.00 | not-recorded | yes | 28.68 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `eventObjectFull` | 0.00 | not-recorded | yes | 41.47 |
-| `external-baseline.json` | Node/V8 | `stax-stream` | 0.02 | not-recorded | yes | 105.30 |
-| `external-baseline.json` | Node/V8 | `stax-event` | 0.02 | not-recorded | yes | 95.94 |
-| `external-baseline.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
-| `external-baseline.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey browser | `rawFrameNameId` | n/a | not-recorded | yes | 22.80 |
-| `materialization-contract-audit.json` | Java/Woodstox | `woodstox` | n/a | not-recorded | yes | 250.09 |
-| `materialization-contract-audit.json` | Rust/quick-xml | `quick-xml` | n/a | not-recorded | yes | 231.15 |
-| `materialization-contract-audit.json` | Node/V8 | `stax-stream` | n/a | not-recorded | yes | 91.23 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.02 | not-recorded | yes | 220.90 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 183.58 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 259.32 |
@@ -63,7 +56,7 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 59 | 283 | 169 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
+| Node/V8 | 59 | 288 | 169 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
 | Bun/JSC | 30 | 212 | 124 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |

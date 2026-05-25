@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T15:11:28.944Z",
+  "generatedAt": "2026-05-25T15:29:12.518Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -38,7 +38,7 @@
     ]
   },
   "summary": {
-    "rowCount": 89,
+    "rowCount": 94,
     "jsLargeFullRowCount": 83,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
@@ -436,9 +436,9 @@
       }
     ],
     "externalBaseline16MiB": {
-      "woodstoxMiBPerSec": 333.43,
-      "quickXmlMiBPerSec": 309.82,
-      "quickXmlWoodstoxRatio": 0.93
+      "woodstoxMiBPerSec": 303.1,
+      "quickXmlMiBPerSec": 243.43,
+      "quickXmlWoodstoxRatio": 0.8
     },
     "externalBaseline1024MiBFileSyncBatches": {
       "staxStreamMiBPerSec": 91.23,
@@ -453,7 +453,6 @@
     "memoryMetricKinds": [
       "browser-js-heap",
       "browser-js-heap-unavailable",
-      "not-recorded",
       "process-rss"
     ],
     "sourceModes": [
@@ -471,12 +470,80 @@
     {
       "group": "external-baseline-16mib",
       "sourceArtifact": "external-baseline.json",
+      "runtimeId": "stax-scan-all-no-decode",
+      "runtimeLabel": "stax-scan-all-no-decode",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-scan-all-no-decode",
+      "implementation": "Node + stax-xml StreamReaderSync scan-only preloaded Uint8Array",
+      "contractScope": "event-types-and-attribute-counts-only",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": false,
+      "eventCount": 967967,
+      "checksum": -141941271,
+      "mibPerSec": 167.91,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 134.16,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 21.3,
+        "maxExternalMiB": 62.07,
+        "maxArrayBuffersMiB": 55.08
+      },
+      "woodstoxRatio": 0.55,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "stax-raw-frame-semantic-checksum",
+      "runtimeLabel": "stax-raw-frame-semantic-checksum",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-semantic-checksum",
+      "implementation": "Node + stax-xml nextRawBatch semantic byte-fold preloaded Uint8Array",
+      "contractScope": "same-fields-checksum-no-string-materialization",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 105.48,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 134.33,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 20.39,
+        "maxExternalMiB": 57.06,
+        "maxArrayBuffersMiB": 55.08
+      },
+      "woodstoxRatio": 0.35,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
       "runtimeId": "node-v8-stax-stream",
       "runtimeLabel": "Node/V8 stax-stream",
       "languageFamily": "javascript",
       "jsRuntime": true,
       "caseId": "stax-stream",
-      "implementation": "Node + stax-xml StreamReaderSync",
+      "implementation": "Node + stax-xml StreamReaderSync preloaded Uint8Array",
       "contractScope": "full-string-checksum",
       "fixture": {
         "source": "generated-file",
@@ -487,14 +554,120 @@
       "fullStringParity": true,
       "eventCount": 967967,
       "checksum": -746772258,
-      "mibPerSec": 105.3,
-      "boundedMemory": null,
+      "mibPerSec": 99.27,
+      "boundedMemory": true,
       "sourceMode": null,
       "memory": {
-        "primaryKind": "not-recorded",
-        "note": "external-baseline records throughput and checksum parity, not peak memory."
+        "primaryKind": "process-rss",
+        "maxMiB": 134.93,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 20.42,
+        "maxExternalMiB": 57.06,
+        "maxArrayBuffersMiB": 55.08
       },
-      "woodstoxRatio": 0.32,
+      "woodstoxRatio": 0.33,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "node-v8-stax-raw-frame-name-id",
+      "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache preloaded Uint8Array",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 119.05,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 134.97,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 22.35,
+        "maxExternalMiB": 57.06,
+        "maxArrayBuffersMiB": 55.08
+      },
+      "woodstoxRatio": 0.39,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "stax-raw-frame-name-id-fold-trim",
+      "runtimeLabel": "stax-raw-frame-name-id-fold-trim",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-name-id-fold-trim",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache fold-trim preloaded Uint8Array",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 109.8,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 135.13,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 22.27,
+        "maxExternalMiB": 57.06,
+        "maxArrayBuffersMiB": 55.08
+      },
+      "woodstoxRatio": 0.36,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-16mib",
+      "sourceArtifact": "external-baseline.json",
+      "runtimeId": "stax-raw-frame-string-cache",
+      "runtimeLabel": "stax-raw-frame-string-cache",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-string-cache",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache plus bounded value string cache preloaded Uint8Array",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "runtime-comparison-16mib",
+        "sizeMiB": 16,
+        "sizeGiB": 0.02
+      },
+      "fullStringParity": true,
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 29.4,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 358.83,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 127.91,
+        "maxExternalMiB": 64.32,
+        "maxArrayBuffersMiB": 57.29
+      },
+      "woodstoxRatio": 0.1,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -517,14 +690,18 @@
       "fullStringParity": true,
       "eventCount": 967967,
       "checksum": -746772258,
-      "mibPerSec": 95.94,
-      "boundedMemory": null,
+      "mibPerSec": 84.84,
+      "boundedMemory": true,
       "sourceMode": null,
       "memory": {
-        "primaryKind": "not-recorded",
-        "note": "external-baseline records throughput and checksum parity, not peak memory."
+        "primaryKind": "process-rss",
+        "maxMiB": 312.5,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 63.89,
+        "maxExternalMiB": 18,
+        "maxArrayBuffersMiB": 16.02
       },
-      "woodstoxRatio": 0.29,
+      "woodstoxRatio": 0.28,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -547,12 +724,16 @@
       "fullStringParity": true,
       "eventCount": 967967,
       "checksum": -746772258,
-      "mibPerSec": 333.43,
-      "boundedMemory": null,
+      "mibPerSec": 303.1,
+      "boundedMemory": true,
       "sourceMode": null,
       "memory": {
-        "primaryKind": "not-recorded",
-        "note": "external-baseline records throughput and checksum parity, not peak memory."
+        "primaryKind": "process-rss",
+        "maxMiB": 121.57,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
       },
       "woodstoxRatio": 1,
       "targetStatus": "met",
@@ -577,15 +758,19 @@
       "fullStringParity": true,
       "eventCount": 967967,
       "checksum": -746772258,
-      "mibPerSec": 309.82,
-      "boundedMemory": null,
+      "mibPerSec": 243.43,
+      "boundedMemory": true,
       "sourceMode": null,
       "memory": {
-        "primaryKind": "not-recorded",
-        "note": "external-baseline records throughput and checksum parity, not peak memory."
+        "primaryKind": "process-rss",
+        "maxMiB": 4.79,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
       },
-      "woodstoxRatio": 0.93,
-      "targetStatus": "met",
+      "woodstoxRatio": 0.8,
+      "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
     {
@@ -4770,7 +4955,6 @@
       "evidence": [
         "browser-js-heap",
         "browser-js-heap-unavailable",
-        "not-recorded",
         "process-rss"
       ]
     },
@@ -4788,9 +4972,9 @@
       "status": "BENCH_FACT",
       "summary": "The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.",
       "evidence": [
-        "16MiB woodstox=333.43 MiB/s",
-        "16MiB quick-xml=309.82 MiB/s",
-        "16MiB quick-xml/Woodstox=0.93",
+        "16MiB woodstox=303.10 MiB/s",
+        "16MiB quick-xml=243.43 MiB/s",
+        "16MiB quick-xml/Woodstox=0.80",
         "1024MiB stax-stream=91.23 MiB/s",
         "1024MiB stax-stream/Woodstox=0.36",
         "1024MiB rawFrameNameId=106.67 MiB/s",

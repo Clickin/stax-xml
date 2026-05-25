@@ -33,19 +33,19 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 139);
-  assert.equal(report.summary.measuredRowCount, 749);
+  assert.equal(report.summary.measuredRowCount, 754);
   assert.equal(report.summary.largeJsFullRowCount, 463);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 27);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
-    total: 27,
-    jsRows: 7,
-    fullStringRows: 27,
-    jsFullStringRows: 7,
+    total: 20,
+    jsRows: 4,
+    fullStringRows: 20,
+    jsFullStringRows: 4,
     largeJsFullStringRows: 0,
     rowsWithMemoryCounter: 0,
   });
-  assert.equal(report.unknownBoundedMemoryRows.length, 27);
+  assert.equal(report.unknownBoundedMemoryRows.length, 20);
   assert.ok(report.unknownBoundedMemoryRows.every(row => row.memoryKind === 'not-recorded'));
   assert.ok(!report.unknownBoundedMemoryRows.some(row =>
     isJsRuntime(row.runtimeId)
@@ -56,6 +56,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'browser-v8-codegen-trace.json', 'stringFull');
   assertKnownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'woodstox');
   assertKnownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'quick-xml');
+  assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'stax-stream');
+  assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'woodstox');
+  assertNoUnknownBoundedMemoryRow(report, 'materialization-contract-audit.json', 'stax-stream');
   assertUnknownBoundedMemoryRow(report, 'quick-xml-allocation-count-stability.json', 'benchmark');
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 3);
@@ -224,7 +227,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 283
+    && row.measuredRowCount === 288
     && row.largeFullStringRowCount === 169
   ));
   assert.ok(!report.coverage.runtimes.some(row => row.runtimeId === 'unknown'));
@@ -415,7 +418,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 59 \| 283 \| 169 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 59 \| 288 \| 169 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 8 \| 9 \| 1 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 7 \| 15 \| 1 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);
@@ -446,6 +449,13 @@ function assertKnownBoundedMemoryRow(report, sourceArtifact, id) {
     && runtime.fastestLargeFullStringRow?.boundedMemory === true
     && runtime.fastestLargeFullStringRow?.memoryKind === 'process-rss'
   ), `missing known bounded-memory row: ${sourceArtifact}/${id}`);
+}
+
+function assertNoUnknownBoundedMemoryRow(report, sourceArtifact, id) {
+  assert.ok(!report.unknownBoundedMemoryRows.some(row =>
+    row.sourceArtifact === sourceArtifact
+    && row.id === id
+  ), `unexpected unknown bounded-memory row: ${sourceArtifact}/${id}`);
 }
 
 function isJsRuntime(runtimeId) {

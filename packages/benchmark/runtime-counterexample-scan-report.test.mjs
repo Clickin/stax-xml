@@ -34,7 +34,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 139);
-  assert.equal(report.summary.measuredRowCount, 749);
+  assert.equal(report.summary.measuredRowCount, 754);
   assert.equal(report.summary.aggregateRowCount, 89);
   assert.equal(report.summary.largeJsFullRowCount, 463);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
@@ -43,7 +43,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.partialHeadroomRowCount, 22);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 3);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 27);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 91);
   assert.deepEqual(report.summary.largeFullMemoryRejectionBreakdown, {
     total: 91,
@@ -53,10 +53,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     missingRowMemoryProof: 48,
   });
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
-    total: 27,
-    jsRows: 9,
-    fullStringRows: 27,
-    jsFullStringRows: 9,
+    total: 20,
+    jsRows: 4,
+    fullStringRows: 20,
+    jsFullStringRows: 4,
     largeJsFullStringRows: 0,
     rowsWithMemoryCounter: 0,
   });

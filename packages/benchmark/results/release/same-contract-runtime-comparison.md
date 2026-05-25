@@ -1,12 +1,12 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T15:11:28.944Z
+Generated: 2026-05-25T15:29:12.518Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 89
+- Aggregated rows: 94
 - 1 GiB+ JavaScript full-string rows: 83
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 178.52 MiB/s (process RSS max 189.37 MiB)
@@ -14,8 +14,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.71x Woodstox, 46.56 MiB/s below 0.9x reference target
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
-- 16 MiB Woodstox baseline: 333.43 MiB/s
-- 16 MiB quick-xml baseline: 309.82 MiB/s (0.93x Woodstox)
+- 16 MiB Woodstox baseline: 303.10 MiB/s
+- 16 MiB quick-xml baseline: 243.43 MiB/s (0.80x Woodstox)
 - 1024 MiB file-backed stax-stream baseline: 91.23 MiB/s (0.36x Woodstox)
 - 1024 MiB file-backed rawFrameNameId baseline: 106.67 MiB/s (0.43x Woodstox)
 - 1024 MiB Woodstox baseline: 250.09 MiB/s
@@ -44,10 +44,15 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Source mode | Artifact |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- |
-| `external-baseline-16mib` | Node/V8 stax-stream | `stax-stream` | 967967 | -746772258 | 105.30 | n/a | not-recorded | n/a | `external-baseline.json` |
-| `external-baseline-16mib` | Node/V8 stax-event | `stax-event` | 967967 | -746772258 | 95.94 | n/a | not-recorded | n/a | `external-baseline.json` |
-| `external-baseline-16mib` | Java/Woodstox | `woodstox` | 967967 | -746772258 | 333.43 | n/a | not-recorded | n/a | `external-baseline.json` |
-| `external-baseline-16mib` | Rust/quick-xml | `quick-xml` | 967967 | -746772258 | 309.82 | n/a | not-recorded | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | stax-scan-all-no-decode | `stax-scan-all-no-decode` | 967967 | -141941271 | 167.91 | yes | process RSS max 134.16 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | stax-raw-frame-semantic-checksum | `stax-raw-frame-semantic-checksum` | 967967 | -746772258 | 105.48 | yes | process RSS max 134.33 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | Node/V8 stax-stream | `stax-stream` | 967967 | -746772258 | 99.27 | yes | process RSS max 134.93 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 967967 | -746772258 | 119.05 | yes | process RSS max 134.97 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | stax-raw-frame-name-id-fold-trim | `stax-raw-frame-name-id-fold-trim` | 967967 | -746772258 | 109.80 | yes | process RSS max 135.13 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | stax-raw-frame-string-cache | `stax-raw-frame-string-cache` | 967967 | -746772258 | 29.40 | yes | process RSS max 358.83 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | Node/V8 stax-event | `stax-event` | 967967 | -746772258 | 84.84 | yes | process RSS max 312.50 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | Java/Woodstox | `woodstox` | 967967 | -746772258 | 303.10 | yes | process RSS max 121.57 MiB | n/a | `external-baseline.json` |
+| `external-baseline-16mib` | Rust/quick-xml | `quick-xml` | 967967 | -746772258 | 243.43 | yes | process RSS max 4.79 MiB | n/a | `external-baseline.json` |
 | `external-baseline-1024mib-file-sync-batches` | Node/V8 stax-stream | `stax-stream` | 61236571 | -716099804 | 91.23 | yes | process RSS max 71.42 MiB | `file-backed-sync-iterable-byte-batches` | `external-baseline-1024mib-file-sync-batches.json` |
 | `external-baseline-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 61236571 | -716099804 | 106.67 | yes | process RSS max 77.88 MiB | `file-backed-sync-iterable-byte-batches` | `external-baseline-1024mib-file-sync-batches.json` |
 | `external-baseline-1024mib-file-sync-batches` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 250.09 | yes | process RSS max 311.88 MiB | n/a | `external-baseline-1024mib-file-sync-batches.json` |
@@ -149,15 +154,14 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 - same-contract-not-same-memory-counter (SOURCE_AGGREGATION): Rows are grouped by semantic checksum contract, while memory counters remain runtime-specific.
   - browser-js-heap
   - browser-js-heap-unavailable
-  - not-recorded
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
   - jsLargeFullRows=83
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
-  - 16MiB woodstox=333.43 MiB/s
-  - 16MiB quick-xml=309.82 MiB/s
-  - 16MiB quick-xml/Woodstox=0.93
+  - 16MiB woodstox=303.10 MiB/s
+  - 16MiB quick-xml=243.43 MiB/s
+  - 16MiB quick-xml/Woodstox=0.80
   - 1024MiB stax-stream=91.23 MiB/s
   - 1024MiB stax-stream/Woodstox=0.36
   - 1024MiB rawFrameNameId=106.67 MiB/s
