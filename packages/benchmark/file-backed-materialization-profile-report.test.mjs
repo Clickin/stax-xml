@@ -59,11 +59,19 @@ test('file-backed materialization profile records deterministic full-string work
   assert.equal(report.materialization.textDecoderCalls.byKind.attrValue, 0);
   assert.equal(report.materialization.textDecoderCalls.byKind.text, 113878);
   assert.equal(report.materialization.textDecoderCalls.nonNameShare, 1);
+  assert.equal(report.materialization.textDecoderCalls.asciiFallback.total, 113878);
+  assert.equal(report.materialization.textDecoderCalls.asciiFallback.byKind.text, 113878);
+  assert.equal(report.materialization.textDecoderCalls.asciiFallback.bytes, 5273107);
+  assert.equal(report.materialization.textDecoderCalls.asciiFallback.share, 1);
+  assert.equal(report.materialization.textDecoderCalls.nonAscii.total, 0);
+  assert.equal(report.materialization.textDecoderCalls.nonAscii.bytes, 0);
+  assert.equal(report.materialization.textDecoderCalls.nonAscii.share, 0);
   assert.equal(report.materialization.nameCache.misses, 10);
   assert.equal(report.materialization.nameCache.uniqueNames, 10);
   assert.equal(report.materialization.nameCache.hits, 967955);
   assert.equal(report.materialization.textTrim.calls, 284695);
   assert.ok(report.findings.some(finding => finding.id === 'non-name-strings-dominate-decoder-work'));
+  assert.ok(report.findings.some(finding => finding.id === 'long-ascii-text-drives-decoder-fallback'));
   assert.ok(report.findings.some(finding => finding.id === 'not-runtime-ceiling-proof'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -71,7 +79,10 @@ test('file-backed materialization profile records deterministic full-string work
   assert.match(markdown, /Parser input: StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Node Buffer string decode: no/);
   assert.match(markdown, /Non-name TextDecoder share: 100\.00%/);
+  assert.match(markdown, /ASCII TextDecoder fallback share: 100\.00%/);
+  assert.match(markdown, /Non-ASCII TextDecoder share: 0\.00%/);
   assert.match(markdown, /non-name-strings-dominate-decoder-work \(HEADROOM_EVIDENCE\)/);
+  assert.match(markdown, /long-ascii-text-drives-decoder-fallback \(HEADROOM_EVIDENCE\)/);
   assert.match(markdown, /not-runtime-ceiling-proof \(TRACE_FACT_LIMIT\)/);
 });
 

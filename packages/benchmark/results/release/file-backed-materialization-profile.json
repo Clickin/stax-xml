@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T23:49:53.725Z",
+  "generatedAt": "2026-05-25T23:53:31.834Z",
   "objective": "file-backed-materialization-profile",
   "contract": "same-file-backed-raw-frame-name-id-full-string-checksum",
   "note": "Counts the string materialization work performed by the current file-backed raw-frame name-id full-string checksum path. This is deterministic counter evidence for where full-string work remains; it is not a throughput run and not a runtime ceiling proof.",
@@ -55,7 +55,27 @@
         "attrValue": 0
       },
       "nonNameTotal": 9806453,
-      "nonNameShare": 1
+      "nonNameShare": 1,
+      "asciiFallback": {
+        "total": 9806453,
+        "byKind": {
+          "name": 0,
+          "text": 9806453,
+          "attrValue": 0
+        },
+        "bytes": 359401484,
+        "share": 1
+      },
+      "nonAscii": {
+        "total": 0,
+        "byKind": {
+          "name": 0,
+          "text": 0,
+          "attrValue": 0
+        },
+        "bytes": 0,
+        "share": 0
+      }
     },
     "shortAsciiHits": {
       "total": 26215067,
@@ -130,6 +150,16 @@
         "textDecoderCalls=9806453",
         "nonNameTextDecoderCalls=9806453",
         "decodeSpanCalls=36021520"
+      ]
+    },
+    {
+      "id": "long-ascii-text-drives-decoder-fallback",
+      "classification": "HEADROOM_EVIDENCE",
+      "summary": "100.00% of TextDecoder calls are ASCII spans longer than the short ASCII fast path, not non-ASCII UTF-8 spans.",
+      "evidence": [
+        "asciiTextDecoderCalls=9806453",
+        "nonAsciiTextDecoderCalls=0",
+        "asciiTextDecoderBytes=359401484"
       ]
     },
     {

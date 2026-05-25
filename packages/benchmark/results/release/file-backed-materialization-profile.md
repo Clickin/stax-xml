@@ -1,6 +1,6 @@
 # File-Backed Materialization Profile
 
-Generated: 2026-05-25T23:49:53.725Z
+Generated: 2026-05-25T23:53:31.834Z
 
 Counts the string materialization work performed by the current file-backed raw-frame name-id full-string checksum path. This is deterministic counter evidence for where full-string work remains; it is not a throughput run and not a runtime ceiling proof.
 
@@ -43,6 +43,10 @@ Counts the string materialization work performed by the current file-backed raw-
 - Total decodeSpan calls: 36,021,520
 - Total TextDecoder calls: 9,806,453
 - Non-name TextDecoder share: 100.00%
+- ASCII TextDecoder fallback share: 100.00%
+- Non-ASCII TextDecoder share: 0.00%
+- ASCII TextDecoder fallback bytes: 359,401,484
+- Non-ASCII TextDecoder bytes: 0
 - Short ASCII hit rate: 72.78%
 - Name cache hits/misses: 61,236,559 / 10 (100.00%)
 - Unique names: 10
@@ -64,5 +68,9 @@ Counts the string materialization work performed by the current file-backed raw-
   - textDecoderCalls=9806453
   - nonNameTextDecoderCalls=9806453
   - decodeSpanCalls=36021520
+- long-ascii-text-drives-decoder-fallback (HEADROOM_EVIDENCE): 100.00% of TextDecoder calls are ASCII spans longer than the short ASCII fast path, not non-ASCII UTF-8 spans.
+  - asciiTextDecoderCalls=9806453
+  - nonAsciiTextDecoderCalls=0
+  - asciiTextDecoderBytes=359401484
 - not-runtime-ceiling-proof (TRACE_FACT_LIMIT): This is deterministic materialization-count evidence for one source shape and fixture; it does not prove JavaScript runtimes have no remaining headroom.
   - Use it to rank next hypotheses, not to conclude impossibility.

@@ -247,6 +247,10 @@ function createSpanCounters() {
     shortAsciiBytes: 0,
     textDecoderCalls: 0,
     textDecoderBytes: 0,
+    asciiTextDecoderCalls: 0,
+    asciiTextDecoderBytes: 0,
+    nonAsciiTextDecoderCalls: 0,
+    nonAsciiTextDecoderBytes: 0,
   };
 }
 
@@ -285,6 +289,13 @@ function decodeSpan(buffer, start, end, decoder, counters, kind) {
   }
   span.textDecoderCalls++;
   span.textDecoderBytes += length;
+  if (isAsciiSpan(buffer, start, end)) {
+    span.asciiTextDecoderCalls++;
+    span.asciiTextDecoderBytes += length;
+  } else {
+    span.nonAsciiTextDecoderCalls++;
+    span.nonAsciiTextDecoderBytes += length;
+  }
   return decoder.decode(buffer.subarray(start, end));
 }
 
@@ -301,6 +312,15 @@ function decodeShortAsciiSpan(buffer, start, end) {
     codes.push(byte);
   }
   return asciiMask <= 0x7f ? String.fromCharCode(...codes) : undefined;
+}
+
+function isAsciiSpan(buffer, start, end) {
+  for (let index = start; index < end; index++) {
+    if (buffer[index] > 0x7f) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function countTextTrim(counters, value) {
@@ -339,6 +359,18 @@ function summarizeMaterialization(counters) {
       byKind: mapSpanValue(spans, 'textDecoderCalls'),
       nonNameTotal: nonNameDecoderCalls,
       nonNameShare: ratio(nonNameDecoderCalls, totals.textDecoderCalls),
+      asciiFallback: {
+        total: totals.asciiTextDecoderCalls,
+        byKind: mapSpanValue(spans, 'asciiTextDecoderCalls'),
+        bytes: totals.asciiTextDecoderBytes,
+        share: ratio(totals.asciiTextDecoderCalls, totals.textDecoderCalls),
+      },
+      nonAscii: {
+        total: totals.nonAsciiTextDecoderCalls,
+        byKind: mapSpanValue(spans, 'nonAsciiTextDecoderCalls'),
+        bytes: totals.nonAsciiTextDecoderBytes,
+        share: ratio(totals.nonAsciiTextDecoderCalls, totals.textDecoderCalls),
+      },
     },
     shortAsciiHits: {
       total: totals.shortAsciiHits,
@@ -372,6 +404,10 @@ function sumSpanCounters(entries) {
     shortAsciiBytes: sum.shortAsciiBytes + entry.shortAsciiBytes,
     textDecoderCalls: sum.textDecoderCalls + entry.textDecoderCalls,
     textDecoderBytes: sum.textDecoderBytes + entry.textDecoderBytes,
+    asciiTextDecoderCalls: sum.asciiTextDecoderCalls + entry.asciiTextDecoderCalls,
+    asciiTextDecoderBytes: sum.asciiTextDecoderBytes + entry.asciiTextDecoderBytes,
+    nonAsciiTextDecoderCalls: sum.nonAsciiTextDecoderCalls + entry.nonAsciiTextDecoderCalls,
+    nonAsciiTextDecoderBytes: sum.nonAsciiTextDecoderBytes + entry.nonAsciiTextDecoderBytes,
   }), createSpanCounters());
 }
 
@@ -421,6 +457,16 @@ function createFindings(materialization, counters) {
         `textDecoderCalls=${materialization.textDecoderCalls.total}`,
         `nonNameTextDecoderCalls=${materialization.textDecoderCalls.nonNameTotal}`,
         `decodeSpanCalls=${materialization.decodeSpanCalls.total}`,
+      ],
+    },
+    {
+      id: 'long-ascii-text-drives-decoder-fallback',
+      classification: 'HEADROOM_EVIDENCE',
+      summary: `${formatPercent(materialization.textDecoderCalls.asciiFallback.share)} of TextDecoder calls are ASCII spans longer than the short ASCII fast path, not non-ASCII UTF-8 spans.`,
+      evidence: [
+        `asciiTextDecoderCalls=${materialization.textDecoderCalls.asciiFallback.total}`,
+        `nonAsciiTextDecoderCalls=${materialization.textDecoderCalls.nonAscii.total}`,
+        `asciiTextDecoderBytes=${materialization.textDecoderCalls.asciiFallback.bytes}`,
       ],
     },
     {
@@ -528,6 +574,10 @@ function renderMarkdown(report) {
   lines.push(`- Total decodeSpan calls: ${formatCount(report.materialization.decodeSpanCalls.total)}`);
   lines.push(`- Total TextDecoder calls: ${formatCount(report.materialization.textDecoderCalls.total)}`);
   lines.push(`- Non-name TextDecoder share: ${formatPercent(report.materialization.textDecoderCalls.nonNameShare)}`);
+  lines.push(`- ASCII TextDecoder fallback share: ${formatPercent(report.materialization.textDecoderCalls.asciiFallback.share)}`);
+  lines.push(`- Non-ASCII TextDecoder share: ${formatPercent(report.materialization.textDecoderCalls.nonAscii.share)}`);
+  lines.push(`- ASCII TextDecoder fallback bytes: ${formatCount(report.materialization.textDecoderCalls.asciiFallback.bytes)}`);
+  lines.push(`- Non-ASCII TextDecoder bytes: ${formatCount(report.materialization.textDecoderCalls.nonAscii.bytes)}`);
   lines.push(`- Short ASCII hit rate: ${formatPercent(report.materialization.shortAsciiHits.hitRate)}`);
   lines.push(`- Name cache hits/misses: ${formatCount(report.materialization.nameCache.hits)} / ${formatCount(report.materialization.nameCache.misses)} (${formatPercent(report.materialization.nameCache.hitRate)})`);
   lines.push(`- Unique names: ${formatCount(report.materialization.nameCache.uniqueNames)}`);

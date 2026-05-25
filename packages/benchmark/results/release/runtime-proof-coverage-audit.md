@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T23:44:18.185Z
+Generated: 2026-05-25T23:53:49.763Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
