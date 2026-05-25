@@ -1,0 +1,212 @@
+{
+  "generatedAt": "2026-05-25T00:25:08.081Z",
+  "objective": "file-backed-public-consumer-shape-sweep",
+  "contract": "same-full-string-checksum-public-streambatch-consumer-shapes",
+  "note": "Runs public StreamBatch full-string checksum consumer variants in separate Node processes over the same file-backed Iterable<Uint8Array[]> source. This tests whether small JavaScript consumer-shape changes expose headroom without changing the StAX API or checksum contract.",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "source": "file-backed",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "variants": [
+      "public-baseline",
+      "public-no-optional-text",
+      "public-switch-dispatch"
+    ],
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "runs": 1,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "public-baseline",
+      "tool": "public-baseline",
+      "implementation": "public StreamBatch accessor loop matching external-baseline stax-stream",
+      "family": "public-streambatch-consumer-shape",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 96.21664695778162,
+      "avgMs": 10642.6472,
+      "minMs": 10642.6472,
+      "maxMs": 10642.6472,
+      "samplesMs": [
+        10642.6472
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71462912,
+        "maxHeapUsedBytes": 6054344,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64081920,
+              "heapUsedBytes": 4896808,
+              "externalBytes": 2149003,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 71462912,
+              "heapUsedBytes": 6054344,
+              "externalBytes": 2654637,
+              "arrayBuffersBytes": 572686
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-no-optional-text",
+      "tool": "public-no-optional-text",
+      "implementation": "public StreamBatch accessor loop with explicit text undefined check instead of optional chaining",
+      "family": "public-streambatch-consumer-shape",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 93.87328206145753,
+      "avgMs": 10908.3203,
+      "minMs": 10908.3203,
+      "maxMs": 10908.3203,
+      "samplesMs": [
+        10908.3203
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71012352,
+        "maxHeapUsedBytes": 6447224,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64036864,
+              "heapUsedBytes": 4896816,
+              "externalBytes": 2149003,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 71012352,
+              "heapUsedBytes": 6447224,
+              "externalBytes": 2916790,
+              "arrayBuffersBytes": 834839
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-switch-dispatch",
+      "tool": "public-switch-dispatch",
+      "implementation": "public StreamBatch accessor loop using switch dispatch and explicit text undefined check",
+      "family": "public-streambatch-consumer-shape",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 84.99849931460594,
+      "avgMs": 12047.2695,
+      "minMs": 12047.2695,
+      "maxMs": 12047.2695,
+      "samplesMs": [
+        12047.2695
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71618560,
+        "maxHeapUsedBytes": 7177504,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 63975424,
+              "heapUsedBytes": 4896808,
+              "externalBytes": 2149003,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 71618560,
+              "heapUsedBytes": 7177504,
+              "externalBytes": 3441157,
+              "arrayBuffersBytes": 1359206
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 3,
+    "fastest": {
+      "id": "public-baseline",
+      "throughputMiBPerSec": 96.21664695778162,
+      "maxRssBytes": 71462912,
+      "eventCount": 61236571,
+      "checksum": -716099804
+    },
+    "baseline": {
+      "id": "public-baseline",
+      "throughputMiBPerSec": 96.21664695778162,
+      "maxRssBytes": 71462912,
+      "eventCount": 61236571,
+      "checksum": -716099804
+    },
+    "fastestBaselineRatio": 1,
+    "counterexamples200MiB": 0,
+    "checksumSet": [
+      -716099804
+    ],
+    "eventCountSet": [
+      61236571
+    ]
+  },
+  "findings": [
+    {
+      "id": "same-contract-preserved",
+      "classification": "CONTRACT_FACT",
+      "summary": "All public consumer-shape rows preserve the same full-string checksum contract.",
+      "evidence": [
+        "eventCounts=61236571",
+        "checksums=-716099804"
+      ]
+    },
+    {
+      "id": "consumer-shape-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "Fastest public consumer shape was public-baseline at 96.22 MiB/s (1.00x baseline).",
+      "evidence": [
+        "public-baseline=96.22 MiB/s rss=68.15 MiB",
+        "public-no-optional-text=93.87 MiB/s rss=67.72 MiB",
+        "public-switch-dispatch=85.00 MiB/s rss=68.30 MiB"
+      ]
+    },
+    {
+      "id": "bounded-counterexample-search",
+      "classification": "COUNTEREXAMPLE_NOT_FOUND",
+      "summary": "The consumer-shape sweep applies the same 200 MiB/s bounded full-string counterexample rule.",
+      "evidence": [
+        "public-baseline: bounded=true, mibPerSec=96.22",
+        "public-no-optional-text: bounded=true, mibPerSec=93.87",
+        "public-switch-dispatch: bounded=true, mibPerSec=85.00"
+      ]
+    }
+  ]
+}

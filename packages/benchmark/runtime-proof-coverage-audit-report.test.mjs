@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 111);
-  assert.equal(report.summary.measuredRowCount, 658);
-  assert.equal(report.summary.largeJsFullRowCount, 403);
+  assert.equal(report.summary.scannedArtifactCount, 112);
+  assert.equal(report.summary.measuredRowCount, 661);
+  assert.equal(report.summary.largeJsFullRowCount, 406);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 78);
+  assert.equal(report.summary.benchmarkArtifactCount, 79);
   assert.equal(report.summary.sourceArtifactCount, 14);
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -107,6 +107,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'file-backed-core-decomposition.json'
     && row.runtimes.includes('node-v8')
     && row.measuredRowCount === 4
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'file-backed-public-consumer-shape-sweep.json'
+    && row.runtimes.includes('node-v8')
+    && row.measuredRowCount === 3
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'file-backed-v8-codegen-trace.json'
