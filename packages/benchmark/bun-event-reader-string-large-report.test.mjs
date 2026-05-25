@@ -60,6 +60,7 @@ test('bun event reader string-input large report records complete-string parse m
   assert.equal(report.options.fixtureShape, 'diverse-cycle');
   assert.equal(report.options.diverseCycleSize, 64);
   assert.deepEqual(report.options.sizesMiB, [1]);
+  assert.equal(report.options.boundedRssMiB, 512);
   assert.equal(report.rows.length, 1);
 
   const row = report.rows[0];
@@ -72,6 +73,9 @@ test('bun event reader string-input large report records complete-string parse m
   assert.ok(row.fixture.stringCodeUnits > 0);
   assert.ok(row.generation.delta.rssBytes > 0);
   assert.ok(row.eventCount > 0);
+  assert.equal(row.fullStringParity, true);
+  assert.equal(typeof row.boundedMemory, 'boolean');
+  assert.equal(row.sourceMode, 'complete-js-string');
   assert.equal(row.materializationCounters.eventObjects, row.eventCount);
   assert.ok(row.materializationCounters.stringFieldReads > 0);
   assert.ok(row.materializationCounters.attributePairs > 0);
@@ -88,6 +92,8 @@ test('bun event reader string-input large report records complete-string parse m
   assert.match(markdown, /complete XML string/);
   assert.match(markdown, /public event objects/);
   assert.match(markdown, /not a byte-batch runtime ceiling/);
+  assert.match(markdown, /Bounded RSS gate/);
+  assert.match(markdown, /Bounded memory/);
   assert.match(markdown, /## Generation Memory/);
   assert.match(markdown, /## Parse Memory/);
   assert.match(markdown, /bun-complete-string-parse-row/);

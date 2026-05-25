@@ -24,6 +24,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     fixtureShape: 'diverse-cycle',
     diverseCycleSize: 4096,
     sampleEveryEvents: 250_000,
+    boundedRssMiB: 512,
     timeoutMs: 10 * 60 * 1000,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
@@ -67,6 +68,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--sample-every-events':
         options.sampleEveryEvents = parsePositiveInteger(readValue(), '--sample-every-events');
+        break;
+      case '--bounded-rss-mib':
+        options.boundedRssMiB = parsePositiveNumber(readValue(), '--bounded-rss-mib');
         break;
       case '--timeout-ms':
         options.timeoutMs = parsePositiveInteger(readValue(), '--timeout-ms');
@@ -282,6 +286,9 @@ function runMeasuredChild(options) {
       eventCount: first.eventCount,
       checksum: first.checksum,
       samplesMs,
+      fullStringParity: true,
+      boundedMemory: peak.maxRssBytes <= options.boundedRssMiB * MIB,
+      sourceMode: 'complete-js-string',
       memory: {
         ...summarizeMemorySamples(memorySamples),
         peakRssBytes: peak.maxRssBytes,
@@ -321,6 +328,7 @@ function createReport(options, runtime, rows) {
       fixtureShape: options.fixtureShape,
       diverseCycleSize: options.diverseCycleSize,
       sampleEveryEvents: options.sampleEveryEvents,
+      boundedRssMiB: options.boundedRssMiB,
       timeoutMs: options.timeoutMs,
       stringLimitPath: options.stringLimitPath,
     },
@@ -366,7 +374,7 @@ function createFindings(report) {
     {
       id: 'bun-complete-string-parse-row',
       summary: 'Bun/JSC rows measure the same EventReaderSync complete-string public event-object path, not a projected or byte-batch path.',
-      evidence: successful.map((entry) => `${formatBytes(entry.fixture.actualUtf8Bytes)}: ${formatRate(entry.mibPerSec)}, peakRSS=${formatBytes(entry.memory.peakRssBytes)}, events=${formatCount(entry.eventCount)}`),
+      evidence: successful.map((entry) => `${formatBytes(entry.fixture.actualUtf8Bytes)}: ${formatRate(entry.mibPerSec)}, bounded=${entry.boundedMemory ? 'yes' : 'no'}, peakRSS=${formatBytes(entry.memory.peakRssBytes)}, events=${formatCount(entry.eventCount)}`),
     },
     {
       id: 'public-event-object-materialization',
@@ -666,6 +674,7 @@ function renderMarkdown(report) {
     `- Fixture shape: ${report.options.fixtureShape}`,
     `- Row cycle size: ${report.options.diverseCycleSize}`,
     `- Runs: warmups=${report.options.warmups}, runs=${report.options.runs}`,
+    `- Bounded RSS gate: ${formatBytes(report.options.boundedRssMiB * MIB)}`,
     `- Child timeout: ${report.options.timeoutMs} ms`,
     '',
     '## Related String-Limit Audit',
@@ -674,18 +683,18 @@ function renderMarkdown(report) {
     '',
     '## Results',
     '',
-    '| Size | Status | Throughput | Average | Events | Checksum | Event objects | String fields | Peak RSS | Peak heap used | Estimated UTF-16 input |',
-    '| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+    '| Size | Status | Throughput | Average | Bounded memory | Events | Checksum | Event objects | String fields | Peak RSS | Peak heap used | Estimated UTF-16 input |',
+    '| ---: | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ];
 
   for (const row of report.rows) {
     if (row.status !== 'ok') {
-      lines.push(`| ${row.sizeMiB} MiB | ${row.status} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |`);
+      lines.push(`| ${row.sizeMiB} MiB | ${row.status} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |`);
       continue;
     }
     lines.push(
       `| ${formatBytes(row.fixture.actualUtf8Bytes)} | ok | ${formatRate(row.mibPerSec)} | ${formatMs(row.avgMs)} | `
-      + `${formatCount(row.eventCount)} | ${row.checksum} | ${formatCount(row.materializationCounters.eventObjects)} | `
+      + `${row.boundedMemory ? 'yes' : 'no'} | ${formatCount(row.eventCount)} | ${row.checksum} | ${formatCount(row.materializationCounters.eventObjects)} | `
       + `${formatCount(row.materializationCounters.stringFieldReads)} | ${formatBytes(row.memory.peakRssBytes)} | `
       + `${formatBytes(row.memory.peakHeapUsedBytes)} | ${formatBytes(row.fixture.estimatedUtf16Bytes)} |`,
     );

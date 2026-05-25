@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T09:30:44.168Z
+Generated: 2026-05-25T09:43:46.355Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -12,21 +12,21 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - Aggregate rows recognized: 89
 - 1 GiB+ JS full-string rows recognized: 458
 - 1 GiB+ JS full-string aggregate rows recognized: 69
-- Rows with explicit source mode: 27
-- 1 GiB+ JS full-string rows with explicit source mode: 21
+- Rows with explicit source mode: 31
+- 1 GiB+ JS full-string rows with explicit source mode: 22
 - Rows with unknown full-string parity: 0
-- Rows with unknown bounded-memory flag: 75
-  - Unknown bounded-memory JS rows: 59
-  - Unknown bounded-memory full-string rows: 60
-  - Unknown bounded-memory 1 GiB+ JS full-string rows: 1
-  - Unknown bounded-memory rows with memory counters: 28
+- Rows with unknown bounded-memory flag: 71
+  - Unknown bounded-memory JS rows: 55
+  - Unknown bounded-memory full-string rows: 56
+  - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
+  - Unknown bounded-memory rows with memory counters: 24
 - Counterexamples found: 0
 - Partial/projection threshold rows: 20
 - Text/CDATA materialization headroom rows: 1
 - Full-string rows failing bounded-memory criterion: 91
-  - Explicit boundedMemory=false rows: 90
+  - Explicit boundedMemory=false rows: 91
   - Bounded flag without row-level memory proof: 0
-  - Unknown bounded-memory flag rows: 1
+  - Unknown bounded-memory flag rows: 0
   - Rows missing row-level memory proof: 48
 - Fastest 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at 179.70 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at 179.70 MiB/s (yes, process-rss)
@@ -104,6 +104,7 @@ This table records input-consumption metadata when release rows expose it. It ke
 | `file-sync-batches` | 11 | 11 | 11 | 135.13 | Node/V8 stax-stream stax-stream-batch-2 from file-backed-batch-size-sweep.json | 0 |
 | `file-backed-sync-iterable-byte-batches` | 5 | 5 | 5 | 127.32 | Node/V8 stringFull from file-backed-materialization-category-drop-sweep.json | 0 |
 | `generated-sync-iterable-byte-batches` | 3 | 3 | 3 | 90.16 | Node/V8 0 from stream-reader-4gb-shapes.json | 0 |
+| `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 |
 | `sync-iterable-byte-batches` | 1 | 1 | 1 | 134.33 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 0 |
 | `web-readable-stream-pull` | 1 | 1 | 1 | 117.69 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 |
 
@@ -147,10 +148,10 @@ These near-full rows still materialize element names and attributes, but omit te
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 20 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 1 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
-- unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 90 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 1 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 725 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 75 have unknown boundedMemory.
+- unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 725 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 71 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
-- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for file-sync-batches:11, file-backed-sync-iterable-byte-batches:5, generated-sync-iterable-byte-batches:3, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
+- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for file-sync-batches:11, file-backed-sync-iterable-byte-batches:5, generated-sync-iterable-byte-batches:3, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
 
 ## Limits
 
