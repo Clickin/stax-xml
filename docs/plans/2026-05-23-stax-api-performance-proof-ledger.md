@@ -204,8 +204,8 @@ metadata, including `file-sync-batches`, `file-backed-sync-iterable-byte-batches
 `sync-iterable-byte-batches`, and `web-readable-stream-pull`. The
 source-consumption comparison rows from
 `stream-source-consumption-shapes.json` are therefore included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 122.26 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 112.08 MiB/s. The
+full-string scan: `sync-iterable-byte-batches` at 124.49 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 110.32 MiB/s. The
 scan now separates parser-demand-driven source rows from Web Stream
 backpressure rows, so direct ReadableStream overhead evidence stays distinct
 from synchronous byte-batch rows. This also fixes the previous scanner blind
@@ -794,8 +794,14 @@ checksum artifact. Its machine-readable `sourceContract` records that
 `Iterable<Uint8Array[]>` with one grouped batch per parser pull, while
 `web-readable-stream-pull` uses `StreamReader` over a Web
 `ReadableStream<Uint8Array>` pull source that reads one file chunk only inside
-`pull()`. The release row reports `122.26 MiB/s` for the sync iterable path and
-`112.08 MiB/s` for the backpressure-respecting ReadableStream path. Both rows
+`pull()`. Its `sourceFacts` section now also pins the implementation evidence:
+the sync row feeds `StreamReaderSync` from demand-driven `Iterable<Uint8Array[]>`
+batches, direct `Uint8Array` input is wrapped as a single-item byte batch, the
+public `StreamReader` path pushes each stream read as a single-item byte batch,
+and the public `EventReader` adapter converts stream reads into
+`AsyncIterable<Uint8Array[]>` batches. The release row reports `124.49 MiB/s`
+for the sync iterable path and `110.32 MiB/s` for the backpressure-respecting
+ReadableStream path. Both rows
 are parser-demand-driven, while only the Web ReadableStream row carries stream
 backpressure metadata, so this artifact is direct source-shape evidence rather
 than an assumption that the large matrices consume a pure ReadableStream.

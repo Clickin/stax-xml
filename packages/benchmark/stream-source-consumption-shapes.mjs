@@ -1,4 +1,4 @@
-import { closeSync, existsSync, mkdirSync, openSync, readSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, statSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultFile = join(__dirname, 'test-data', 'node-string-return-1024mib.xml');
 const defaultJsonOut = join(__dirname, 'results', 'release', 'stream-source-consumption-shapes.json');
 const defaultMdOut = join(__dirname, 'results', 'release', 'stream-source-consumption-shapes.md');
+const staxSrcDir = join(__dirname, '..', 'stax-xml', 'src');
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
 
@@ -153,6 +154,7 @@ async function runComparison(options) {
     contract: 'same-full-string-checksum-source-consumption-shapes',
     note: 'Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.',
     sourceContract: createSourceContract(options),
+    sourceFacts: createSourceFacts(),
     environment: {
       cpuName: cpus()[0]?.model ?? 'unknown',
       platform: `${process.platform}-${process.arch}`,
@@ -195,6 +197,124 @@ function createSourceContract(options) {
     chunkBytes: options.chunkKiB * 1024,
     syncBatchSize: options.batchSize,
   };
+}
+
+function createSourceFacts() {
+  const files = [
+    readSourceFile('packages/benchmark/stream-source-consumption-shapes.mjs', resolve(__dirname, 'stream-source-consumption-shapes.mjs')),
+    readSourceFile('packages/stax-xml/src/StreamReaderSync.ts', join(staxSrcDir, 'StreamReaderSync.ts')),
+    readSourceFile('packages/stax-xml/src/StreamReader.ts', join(staxSrcDir, 'StreamReader.ts')),
+    readSourceFile('packages/stax-xml/src/IterableEventBackend.ts', join(staxSrcDir, 'IterableEventBackend.ts')),
+  ];
+  const facts = [
+    sourceFact(files, {
+      id: 'sync-iterable-byte-batches',
+      classification: 'SOURCE_FACT',
+      summary: 'The sync comparison row feeds StreamReaderSync with demand-driven Iterable<Uint8Array[]> batches, not a full-file string or full-file ArrayBuffer.',
+      patterns: [
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'for (const batch of new StreamReaderSync(byteBatches))' },
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'function* createFileByteBatches(filePath, chunkBytes, batchSize)' },
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'yield batch' },
+      ],
+    }),
+    sourceFact(files, {
+      id: 'single-arraybuffer-direct-batch',
+      classification: 'SOURCE_FACT',
+      summary: 'A direct Uint8Array StreamReaderSync input is wrapped as one single-item byte batch.',
+      patterns: [
+        { file: 'packages/stax-xml/src/StreamReaderSync.ts', text: 'const batches = source instanceof Uint8Array ? singleByteBatch(source) : source' },
+        { file: 'packages/stax-xml/src/StreamReaderSync.ts', text: 'yield [source]' },
+      ],
+    }),
+    sourceFact(files, {
+      id: 'stream-reader-single-chunk-push',
+      classification: 'SOURCE_FACT',
+      summary: 'The public StreamReader ReadableStream path pushes each read chunk as one single-item byte batch into the parser core.',
+      patterns: [
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'readResult = await this.reader.read()' },
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'this.streamingBatches.pushByteBatch([readResult.value], false)' },
+      ],
+    }),
+    sourceFact(files, {
+      id: 'event-reader-async-byte-batches',
+      classification: 'SOURCE_FACT',
+      summary: 'The public EventReader ReadableStream adapter converts stream chunks into AsyncIterable<Uint8Array[]> batches before materializing events.',
+      patterns: [
+        { file: 'packages/stax-xml/src/IterableEventBackend.ts', text: 'yield* toAsyncByteBatches(readReadableStreamChunksIncrementally(stream, options.maxChunkBytes)' },
+        { file: 'packages/stax-xml/src/IterableEventBackend.ts', text: 'const result = await reader.read()' },
+        { file: 'packages/stax-xml/src/IterableEventBackend.ts', text: 'yield chunk' },
+      ],
+    }),
+    sourceFact(files, {
+      id: 'benchmark-readable-stream-backpressure',
+      classification: 'SOURCE_FACT',
+      summary: 'The direct ReadableStream benchmark source reads exactly one file chunk inside pull(), so it respects Web Stream backpressure.',
+      patterns: [
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'pull(controller)' },
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'const bytesRead = readSync(fd, buffer, 0, chunkBytes, null)' },
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'controller.enqueue(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead))' },
+      ],
+    }),
+  ];
+  return {
+    status: facts.every(fact => fact.missingPatterns.length === 0) ? 'source-facts-confirmed' : 'source-facts-incomplete',
+    files: files.map(file => ({
+      path: file.label,
+      lineCount: file.lines.length,
+    })),
+    facts,
+  };
+}
+
+function readSourceFile(label, path) {
+  const text = readFileSync(path, 'utf8');
+  return {
+    label,
+    path,
+    text,
+    lines: text.split(/\r?\n/),
+  };
+}
+
+function sourceFact(files, options) {
+  const evidence = [];
+  const missingPatterns = [];
+  for (const pattern of options.patterns) {
+    const text = typeof pattern === 'string' ? pattern : pattern.text;
+    const candidateFiles = typeof pattern === 'string'
+      ? files
+      : files.filter(file => file.label === pattern.file);
+    const matches = candidateFiles.flatMap(file => findPattern(file, text));
+    if (matches.length === 0) {
+      missingPatterns.push(typeof pattern === 'string' ? pattern : `${pattern.file}: ${pattern.text}`);
+      continue;
+    }
+    evidence.push(...matches.map(match => `${match.label}:${match.line}: ${text}`));
+  }
+  return {
+    id: options.id,
+    classification: options.classification,
+    summary: options.summary,
+    evidence,
+    missingPatterns,
+  };
+}
+
+function findPattern(file, pattern) {
+  const matches = [];
+  for (let index = 0; index < file.lines.length; index++) {
+    const trimmed = file.lines[index].trimStart();
+    if (trimmed.startsWith("'") || trimmed.startsWith('"') || trimmed.startsWith('`')) {
+      continue;
+    }
+    if (trimmed.includes(' text: ') || trimmed.startsWith('patterns:')) {
+      continue;
+    }
+    if (file.lines[index].includes(pattern)) {
+      matches.push({ label: file.label, line: index + 1 });
+    }
+  }
+  return matches;
 }
 
 function consumeSyncStreamReader(byteBatches) {
@@ -434,6 +554,23 @@ function renderMarkdown(report) {
   lines.push(`- ArrayBuffer consumption: ${report.sourceContract.arrayBufferConsumption}`);
   lines.push(`- Chunk bytes: ${report.sourceContract.chunkBytes}`);
   lines.push(`- Sync batch size: ${report.sourceContract.syncBatchSize}`);
+  lines.push('');
+  lines.push('## Source Facts');
+  lines.push('');
+  lines.push(`- Status: ${report.sourceFacts.status}`);
+  lines.push('- Files:');
+  for (const file of report.sourceFacts.files) {
+    lines.push(`  - ${file.path} (${file.lineCount} lines)`);
+  }
+  for (const fact of report.sourceFacts.facts) {
+    lines.push(`- ${fact.id} (${fact.classification}): ${fact.summary}`);
+    for (const evidence of fact.evidence) {
+      lines.push(`  - ${evidence}`);
+    }
+    for (const missing of fact.missingPatterns) {
+      lines.push(`  - missing: ${missing}`);
+    }
+  }
   lines.push('');
   lines.push('## Summary');
   lines.push('');

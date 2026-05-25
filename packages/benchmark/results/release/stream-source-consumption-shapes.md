@@ -1,6 +1,6 @@
 # Stream Source Consumption Shapes
 
-Generated: 2026-05-25T09:59:49.105Z
+Generated: 2026-05-25T12:38:04.850Z
 
 Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.
 
@@ -14,32 +14,62 @@ Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web R
 - Chunk bytes: 65536
 - Sync batch size: 1
 
+## Source Facts
+
+- Status: source-facts-confirmed
+- Files:
+  - packages/benchmark/stream-source-consumption-shapes.mjs (700 lines)
+  - packages/stax-xml/src/StreamReaderSync.ts (135 lines)
+  - packages/stax-xml/src/StreamReader.ts (152 lines)
+  - packages/stax-xml/src/IterableEventBackend.ts (659 lines)
+- sync-iterable-byte-batches (SOURCE_FACT): The sync comparison row feeds StreamReaderSync with demand-driven Iterable<Uint8Array[]> batches, not a full-file string or full-file ArrayBuffer.
+  - packages/benchmark/stream-source-consumption-shapes.mjs:323: for (const batch of new StreamReaderSync(byteBatches))
+  - packages/benchmark/stream-source-consumption-shapes.mjs:367: function* createFileByteBatches(filePath, chunkBytes, batchSize)
+  - packages/benchmark/stream-source-consumption-shapes.mjs:379: yield batch
+- single-arraybuffer-direct-batch (SOURCE_FACT): A direct Uint8Array StreamReaderSync input is wrapped as one single-item byte batch.
+  - packages/stax-xml/src/StreamReaderSync.ts:52: const batches = source instanceof Uint8Array ? singleByteBatch(source) : source
+  - packages/stax-xml/src/StreamReaderSync.ts:133: yield [source]
+- stream-reader-single-chunk-push (SOURCE_FACT): The public StreamReader ReadableStream path pushes each read chunk as one single-item byte batch into the parser core.
+  - packages/stax-xml/src/StreamReader.ts:117: readResult = await this.reader.read()
+  - packages/stax-xml/src/StreamReader.ts:135: this.streamingBatches.pushByteBatch([readResult.value], false)
+- event-reader-async-byte-batches (SOURCE_FACT): The public EventReader ReadableStream adapter converts stream chunks into AsyncIterable<Uint8Array[]> batches before materializing events.
+  - packages/stax-xml/src/IterableEventBackend.ts:247: yield* toAsyncByteBatches(readReadableStreamChunksIncrementally(stream, options.maxChunkBytes)
+  - packages/stax-xml/src/IterableEventBackend.ts:259: const result = await reader.read()
+  - packages/stax-xml/src/IterableEventBackend.ts:282: const result = await reader.read()
+  - packages/stax-xml/src/IterableEventBackend.ts:265: yield chunk
+  - packages/stax-xml/src/IterableEventBackend.ts:269: yield chunk
+- benchmark-readable-stream-backpressure (SOURCE_FACT): The direct ReadableStream benchmark source reads exactly one file chunk inside pull(), so it respects Web Stream backpressure.
+  - packages/benchmark/stream-source-consumption-shapes.mjs:399: pull(controller)
+  - packages/benchmark/stream-source-consumption-shapes.mjs:374: const bytesRead = readSync(fd, buffer, 0, chunkBytes, null)
+  - packages/benchmark/stream-source-consumption-shapes.mjs:401: const bytesRead = readSync(fd, buffer, 0, chunkBytes, null)
+  - packages/benchmark/stream-source-consumption-shapes.mjs:407: controller.enqueue(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead))
+
 ## Summary
 
 - Fixture: G:\programming\stax-xml\packages\benchmark\test-data\node-string-return-1024mib.xml
 - Fixture size: 1024.00 MiB
 - Chunk KiB: 64
 - Sync Iterable batch size: 1
-- Fastest row: sync-iterable-byte-batches 122.26 MiB/s, RSS 70.70 MiB
-- ReadableStream / sync Iterable ratio: 0.92x
+- Fastest row: sync-iterable-byte-batches 124.49 MiB/s, RSS 70.39 MiB
+- ReadableStream / sync Iterable ratio: 0.89x
 - 200 MiB/s bounded full-string counterexamples: 0
 
 ## Rows
 
 | Row | Source shape | MiB/s | Bounded | Max RSS | Events | Checksum | Demand-driven | Stream backpressure |
 | --- | --- | ---: | --- | ---: | ---: | ---: | --- | --- |
-| `sync-iterable-byte-batches` | Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches | 122.26 | yes | 70.70 MiB | 61236571 | -716099804 | yes | n/a |
-| `web-readable-stream-pull` | Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source | 112.08 | yes | 77.24 MiB | 61236571 | -716099804 | yes | yes |
+| `sync-iterable-byte-batches` | Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches | 124.49 | yes | 70.39 MiB | 61236571 | -716099804 | yes | n/a |
+| `web-readable-stream-pull` | Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source | 110.32 | yes | 77.63 MiB | 61236571 | -716099804 | yes | yes |
 
 ## Findings
 
 - same-contract-preserved (CONTRACT_FACT): All source-shape rows preserve the same full-string checksum contract.
   - 61236571:-716099804
 - current-release-source-shape (CONTRACT_FACT): The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption.
-  - sync-iterable-byte-batches: 122.26 MiB/s
-- readable-stream-overhead (HEADROOM_EVIDENCE): Direct ReadableStream consumption reached 112.08 MiB/s (0.92x of sync Iterable<Uint8Array[]>).
-  - sync-iterable-byte-batches=122.26 MiB/s rss=70.70 MiB
-  - web-readable-stream-pull=112.08 MiB/s rss=77.24 MiB
+  - sync-iterable-byte-batches: 124.49 MiB/s
+- readable-stream-overhead (HEADROOM_EVIDENCE): Direct ReadableStream consumption reached 110.32 MiB/s (0.89x of sync Iterable<Uint8Array[]>).
+  - sync-iterable-byte-batches=124.49 MiB/s rss=70.39 MiB
+  - web-readable-stream-pull=110.32 MiB/s rss=77.63 MiB
 - backpressure-respected (CONTRACT_FACT): The ReadableStream row reads from the file only in pull(), so production is demand-driven by StreamReader.read().
   - web-readable-stream-pull: demandDrivenSource=true, respectsBackpressure=true
 

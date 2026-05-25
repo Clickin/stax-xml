@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T12:13:46.900Z
+Generated: 2026-05-25T12:38:30.179Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -105,8 +105,8 @@ This table records input-consumption metadata when release rows expose it. It ke
 | `file-backed-sync-iterable-byte-batches` | 5 | 5 | 5 | 127.32 | Node/V8 stringFull from file-backed-materialization-category-drop-sweep.json | 5 | 0 |
 | `generated-sync-iterable-byte-batches` | 3 | 3 | 3 | 90.16 | Node/V8 0 from stream-reader-4gb-shapes.json | 3 | 0 |
 | `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 |
-| `sync-iterable-byte-batches` | 1 | 1 | 1 | 122.26 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 1 | 0 |
-| `web-readable-stream-pull` | 1 | 1 | 1 | 112.08 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 | 1 |
+| `sync-iterable-byte-batches` | 1 | 1 | 1 | 124.49 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 1 | 0 |
+| `web-readable-stream-pull` | 1 | 1 | 1 | 110.32 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 | 1 |
 
 ## Partial Or Projection Threshold Rows
 

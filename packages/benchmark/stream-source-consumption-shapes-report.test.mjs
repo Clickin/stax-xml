@@ -50,6 +50,10 @@ test('stream source consumption shapes report separates sync batches from Readab
   assert.match(report.sourceContract.arrayBufferConsumption, /one repeated 1 GiB ArrayBuffer parser input/);
   assert.equal(report.sourceContract.chunkBytes, 64 * 1024);
   assert.equal(report.sourceContract.syncBatchSize, 1);
+  assert.equal(report.sourceFacts.status, 'source-facts-confirmed');
+  assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'sync-iterable-byte-batches'));
+  assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-single-chunk-push'));
+  assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'benchmark-readable-stream-backpressure'));
   assert.equal(report.summary.rowCount, 2);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.readableStreamRatioToSyncIterable, 'number');
@@ -71,7 +75,12 @@ test('stream source consumption shapes report separates sync batches from Readab
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Stream Source Consumption Shapes/);
   assert.match(markdown, /## Source Contract/);
+  assert.match(markdown, /## Source Facts/);
+  assert.match(markdown, /source-facts-confirmed/);
   assert.match(markdown, /Sync Iterable input: sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /sync-iterable-byte-batches \(SOURCE_FACT\)/);
+  assert.match(markdown, /stream-reader-single-chunk-push \(SOURCE_FACT\)/);
+  assert.match(markdown, /benchmark-readable-stream-backpressure \(SOURCE_FACT\)/);
   assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads one file chunk only inside pull\(\)/);
   assert.match(markdown, /Demand-driven/);
   assert.match(markdown, /Stream backpressure/);

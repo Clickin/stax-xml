@@ -143,8 +143,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
   assert.match(markdown, /22 JavaScript 1 GiB\+ full-string rows with source mode\s+metadata/);
   assert.match(markdown, /`complete-js-string`/);
-  assert.match(markdown, /`sync-iterable-byte-batches` at 122\.26 MiB\/s/);
-  assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 112\.08 MiB\/s/);
+  assert.match(markdown, /`sync-iterable-byte-batches` at 124\.49 MiB\/s/);
+  assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 110\.32 MiB\/s/);
   assert.match(markdown, /separates parser-demand-driven source rows from Web Stream\s+backpressure rows/);
   assert.match(markdown, /fixes the previous scanner blind\s+spot/);
   assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but not\s+counted as JavaScript runtime rows/);
@@ -542,7 +542,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /stream-source-consumption-shapes\.md/);
   assert.match(markdown, /machine-readable `sourceContract` records that\s+`sync-iterable-byte-batches` uses `StreamReaderSync` over a synchronous\s+`Iterable<Uint8Array\[\]>`/);
   assert.match(markdown, /`web-readable-stream-pull` uses `StreamReader` over a Web\s+`ReadableStream<Uint8Array>` pull source/);
-  assert.match(markdown, /`122\.26 MiB\/s` for the sync iterable path and\s+`112\.08 MiB\/s` for the backpressure-respecting ReadableStream path/);
+  assert.match(markdown, /`124\.49 MiB\/s`\s+for the sync iterable path and `110\.32 MiB\/s` for the backpressure-respecting\s+ReadableStream path/);
+  assert.match(markdown, /Its `sourceFacts` section now also pins the implementation evidence/);
   assert.match(markdown, /Both rows\s+are parser-demand-driven, while only the Web ReadableStream row carries stream\s+backpressure metadata/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
   assert.match(markdown, /file-backed sync\s+`Iterable<Uint8Array\[\]>` rows in three fresh processes per runtime on the same\s+1\.00 GiB `books\.xml` corpus-cycle fixture/);
