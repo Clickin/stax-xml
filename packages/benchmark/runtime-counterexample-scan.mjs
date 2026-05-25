@@ -474,7 +474,7 @@ function classifyJsRuntime(sourceArtifact, node, context) {
 }
 
 function classifySourceMode(sourceArtifact, node, context) {
-  if (typeof node.sourceMode === 'string') return node.sourceMode;
+  if (typeof node.sourceMode === 'string') return normalizeSourceMode(node.sourceMode);
 
   const sourceContract = context.sourceContract?.childSourceContract ?? context.sourceContract;
   const parserInput = sourceContract?.parserInput;
@@ -490,15 +490,25 @@ function classifySourceMode(sourceArtifact, node, context) {
     return 'generated-sync-iterable-byte-batches';
   }
 
-  if (/file-sync-batches/.test(sourceArtifact)) return 'file-sync-batches';
+  if (/file-sync-batches/.test(sourceArtifact)) {
+    return typeof node.tool === 'string' && !node.tool.startsWith('stax-')
+      ? null
+      : 'file-backed-sync-iterable-byte-batches';
+  }
   return null;
+}
+
+function normalizeSourceMode(sourceMode) {
+  return sourceMode === 'file-sync-batches'
+    ? 'file-backed-sync-iterable-byte-batches'
+    : sourceMode;
 }
 
 function classifyDemandDrivenSource(node, sourceMode = null) {
   if (typeof node.demandDrivenSource === 'boolean') return node.demandDrivenSource;
   const mode = typeof sourceMode === 'string' ? sourceMode : '';
   if (mode === 'complete-js-string') return false;
-  return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull|file-sync-batches/.test(mode);
+  return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull/.test(mode);
 }
 
 function inferRuntimeLabel(sourceArtifact, node, context) {
