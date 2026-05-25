@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T10:19:16.730Z",
+  "generatedAt": "2026-05-25T10:37:09.492Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2164,6 +2164,21 @@
       "measuredRowCount": 5
     },
     {
+      "sourceArtifact": "quick-xml-encoding-surface-audit.json",
+      "objective": "quick-xml-encoding-surface-audit",
+      "contract": "rust-quick-xml-comparator-encoding-surface",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT"
+      ],
+      "runtimes": [
+        "quick-xml-rust"
+      ],
+      "outcome": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "quick-xml-shape-audit.json",
       "objective": "quick-xml-shape-audit",
       "contract": "source-shape-audit",
@@ -2675,7 +2690,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 132,
+    "scannedArtifactCount": 133,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 725,
@@ -2697,7 +2712,7 @@
     "traceArtifactCount": 8,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
-    "negativeArtifactCount": 9,
+    "negativeArtifactCount": 10,
     "largeJsFullRowCount": 458,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
@@ -3003,7 +3018,7 @@
       {
         "runtimeId": "quick-xml-rust",
         "runtimeLabel": "Rust/quick-xml",
-        "artifactCount": 5,
+        "artifactCount": 6,
         "measuredRowCount": 9,
         "largeFullStringRowCount": 1,
         "fastestLargeFullStringRow": {
@@ -16138,6 +16153,21 @@
           "NEGATIVE_RESULT"
         ],
         "runtimes": [],
+        "outcome": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "quick-xml-encoding-surface-audit.json",
+        "objective": "quick-xml-encoding-surface-audit",
+        "contract": "rust-quick-xml-comparator-encoding-surface",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [
+          "quick-xml-rust"
+        ],
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,

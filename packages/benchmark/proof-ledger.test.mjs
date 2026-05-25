@@ -186,6 +186,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /woodstox-measured-jfr-allocation\.md/);
   assert.match(markdown, /quick-xml-shape-audit\.md/);
   assert.match(markdown, /quick-xml-allocation-count\.md/);
+  assert.match(markdown, /quick-xml-encoding-surface-audit\.md/);
   assert.match(markdown, /monomorphic-batch-access\.md/);
   assert.match(markdown, /candidate-headroom-matrix\.md/);
   assert.match(markdown, /candidate-headroom-large\.md/);
@@ -810,7 +811,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /nonascii-utf8/);
   assert.match(markdown, /cdata-utf8/);
   assert.match(markdown, /utf8-bom/);
-  assert.match(markdown, /non-UTF-8 encoding fixtures/);
+  assert.match(markdown, /quick-xml encoding surface audit records\s+that the comparator has no active `encoding` feature and rejects a UTF-16\s+probe/);
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
   assert.match(markdown, /sampled JFR allocation stacks/);
   assert.match(markdown, /TextBuffer\.contentsAsString/);

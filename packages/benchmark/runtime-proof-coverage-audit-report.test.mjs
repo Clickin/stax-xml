@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 132);
+  assert.equal(report.summary.scannedArtifactCount, 133);
   assert.equal(report.summary.measuredRowCount, 725);
   assert.equal(report.summary.largeJsFullRowCount, 458);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
@@ -52,7 +52,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
   assert.equal(report.summary.environmentArtifactCount, 2);
-  assert.equal(report.summary.negativeArtifactCount, 9);
+  assert.equal(report.summary.negativeArtifactCount, 10);
 
   const runtimeIds = report.coverage.runtimes.map(row => row.runtimeId);
   assert.ok(runtimeIds.includes('node-v8'));
@@ -127,6 +127,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('node-v8')
     && row.runtimes.includes('woodstox-jvm')
     && row.runtimes.includes('quick-xml-rust')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'quick-xml-encoding-surface-audit.json'
+    && row.runtimes.includes('quick-xml-rust')
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'file-backed-fold-trim-candidate.json'
@@ -373,7 +379,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Environment artifacts: 2/);
   assert.match(markdown, /\| Node\/V8 \| 55 \| 277 \| 164 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 7 \| 7 \| 1 \|/);
-  assert.match(markdown, /\| Rust\/quick-xml \| 5 \| 9 \| 1 \|/);
+  assert.match(markdown, /\| Rust\/quick-xml \| 6 \| 9 \| 1 \|/);
   assert.match(markdown, /\| unknown \| 2 \| 0 \| 0 \| none \|/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);

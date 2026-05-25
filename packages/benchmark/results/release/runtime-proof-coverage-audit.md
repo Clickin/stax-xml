@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T10:19:16.730Z
+Generated: 2026-05-25T10:37:09.492Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 132
+- Scanned primary artifacts: 133
 - Ignored derived artifacts: 5
 - Measured rows recognized: 725
 - Rows with unknown full-string parity: 0
@@ -20,7 +20,7 @@ This audit scans current release artifacts to show which proof obligations are c
 - Trace/profile artifacts: 8
 - Allocation artifacts: 13
 - Environment artifacts: 2
-- Negative-result artifacts: 9
+- Negative-result artifacts: 10
 - 1 GiB+ JS full-string rows: 458
 - Corpus seeds: 3
 - Open or partial obligations: 2
@@ -36,7 +36,7 @@ This audit scans current release artifacts to show which proof obligations are c
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
 | Java/Woodstox | 7 | 7 | 1 | woodstox 320.16 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 2 |
-| Rust/quick-xml | 5 | 9 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 1 |
+| Rust/quick-xml | 6 | 9 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 1 |
 | unknown | 2 | 0 | 0 | none | 0 | 0 | 0 |
 
 ## Open Obligations
