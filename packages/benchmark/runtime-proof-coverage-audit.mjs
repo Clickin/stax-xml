@@ -639,11 +639,30 @@ function classifyFullStringParity(node, context) {
 
 function classifyMemoryKind(node) {
   const memory = node.memory;
-  if (typeof node.maxRssBytes === 'number' || typeof node.peakRssBytes === 'number') return 'process-rss';
-  if (typeof node.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
+  if (
+    typeof node.maxRssBytes === 'number'
+    || typeof node.peakRssBytes === 'number'
+    || typeof node.maxRssMiB === 'number'
+    || typeof node.peakRssMiB === 'number'
+  ) return 'process-rss';
+  if (
+    typeof node.maxJsHeapUsedBytes === 'number'
+    || typeof node.maxJsHeapUsedMiB === 'number'
+    || typeof node.peakJsHeapUsedMiB === 'number'
+  ) return 'browser-js-heap';
   if (!memory || typeof memory !== 'object') return 'not-recorded';
-  if (memory.scope === 'browser-js-heap' || memory.maxJsHeapUsedBytes !== undefined) return 'browser-js-heap';
-  if (memory.maxRssBytes !== undefined || memory.peakRssBytes !== undefined) return 'process-rss';
+  if (
+    memory.scope === 'browser-js-heap'
+    || memory.maxJsHeapUsedBytes !== undefined
+    || memory.maxJsHeapUsedMiB !== undefined
+    || memory.peakJsHeapUsedMiB !== undefined
+  ) return 'browser-js-heap';
+  if (
+    memory.maxRssBytes !== undefined
+    || memory.peakRssBytes !== undefined
+    || memory.maxRssMiB !== undefined
+    || memory.peakRssMiB !== undefined
+  ) return 'process-rss';
   return 'recorded-unknown-kind';
 }
 
@@ -658,12 +677,20 @@ function extractPeakMemoryBytes(node, memoryKind) {
   if (memoryKind === 'process-rss') {
     if (typeof node.maxRssBytes === 'number') return node.maxRssBytes;
     if (typeof node.peakRssBytes === 'number') return node.peakRssBytes;
+    if (typeof node.maxRssMiB === 'number') return node.maxRssMiB * MIB;
+    if (typeof node.peakRssMiB === 'number') return node.peakRssMiB * MIB;
     if (typeof node.memory?.maxRssBytes === 'number') return node.memory.maxRssBytes;
     if (typeof node.memory?.peakRssBytes === 'number') return node.memory.peakRssBytes;
+    if (typeof node.memory?.maxRssMiB === 'number') return node.memory.maxRssMiB * MIB;
+    if (typeof node.memory?.peakRssMiB === 'number') return node.memory.peakRssMiB * MIB;
   }
   if (memoryKind === 'browser-js-heap') {
     if (typeof node.maxJsHeapUsedBytes === 'number') return node.maxJsHeapUsedBytes;
+    if (typeof node.maxJsHeapUsedMiB === 'number') return node.maxJsHeapUsedMiB * MIB;
+    if (typeof node.peakJsHeapUsedMiB === 'number') return node.peakJsHeapUsedMiB * MIB;
     if (typeof node.memory?.maxJsHeapUsedBytes === 'number') return node.memory.maxJsHeapUsedBytes;
+    if (typeof node.memory?.maxJsHeapUsedMiB === 'number') return node.memory.maxJsHeapUsedMiB * MIB;
+    if (typeof node.memory?.peakJsHeapUsedMiB === 'number') return node.memory.peakJsHeapUsedMiB * MIB;
   }
   return null;
 }

@@ -36,12 +36,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.measuredRowCount, 749);
   assert.equal(report.summary.largeJsFullRowCount, 463);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 35);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 31);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
-    total: 35,
-    jsRows: 13,
-    fullStringRows: 34,
-    jsFullStringRows: 12,
+    total: 31,
+    jsRows: 9,
+    fullStringRows: 31,
+    jsFullStringRows: 9,
     largeJsFullStringRows: 0,
     rowsWithMemoryCounter: 0,
   });
