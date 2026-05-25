@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-05-25T00:35:03.291Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623
+  },
+  "options": {
+    "runs": 1,
+    "warmups": 0,
+    "tools": [
+      "stax-raw-frame-name-id",
+      "stax-raw-frame-name-id-fold-trim"
+    ],
+    "staxStreamSource": "file-sync-batches",
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "boundedRssMiB": 512
+  },
+  "target": {
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": null
+  },
+  "results": [
+    {
+      "tool": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 11684.6898,
+      "minMs": 11684.6898,
+      "maxMs": 11684.6898,
+      "mibPerSec": 87.63603021268251,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        11684.6898
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 69767168,
+        "maxHeapUsedBytes": 5781824,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 64327680,
+              "heapUsedBytes": 4930136,
+              "externalBytes": 2167701,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 69767168,
+              "heapUsedBytes": 5781824,
+              "externalBytes": 2538872,
+              "arrayBuffersBytes": 456921
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": null,
+      "targetStatus": "unknown"
+    },
+    {
+      "tool": "stax-raw-frame-name-id-fold-trim",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache fold-trim file-backed Iterable<Uint8Array[]>",
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 14091.9486,
+      "minMs": 14091.9486,
+      "maxMs": 14091.9486,
+      "mibPerSec": 72.66559490137674,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        14091.9486
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 71544832,
+        "maxHeapUsedBytes": 7184864,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 69853184,
+              "heapUsedBytes": 5308352,
+              "externalBytes": 2538872,
+              "arrayBuffersBytes": 182639
+            },
+            "after": {
+              "rssBytes": 71544832,
+              "heapUsedBytes": 7184864,
+              "externalBytes": 3390981,
+              "arrayBuffersBytes": 1309030
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": null,
+      "targetStatus": "unknown"
+    }
+  ]
+}

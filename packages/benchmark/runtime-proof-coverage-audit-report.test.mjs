@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 112);
-  assert.equal(report.summary.measuredRowCount, 661);
-  assert.equal(report.summary.largeJsFullRowCount, 406);
+  assert.equal(report.summary.scannedArtifactCount, 113);
+  assert.equal(report.summary.measuredRowCount, 663);
+  assert.equal(report.summary.largeJsFullRowCount, 408);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 79);
+  assert.equal(report.summary.benchmarkArtifactCount, 80);
   assert.equal(report.summary.sourceArtifactCount, 14);
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -97,6 +97,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('node-v8')
     && row.runtimes.includes('woodstox-jvm')
     && row.runtimes.includes('quick-xml-rust')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'file-backed-fold-trim-candidate.json'
+    && row.runtimes.includes('node-v8')
+    && row.measuredRowCount === 2
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'file-backed-source-sweep.json'

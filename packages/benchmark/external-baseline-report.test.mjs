@@ -53,3 +53,56 @@ test('external baseline report keeps the Woodstox target visible', () => {
   assert.match(markdown, /## Woodstox Target/);
   assert.match(markdown, /\| Tool \| Implementation \| Throughput \| Woodstox ratio \| 0\.9x target \| Average \| Events \| Checksum \| Status \|/);
 });
+
+test('external baseline reports raw-frame fold-trim as a same-checksum candidate', () => {
+  const foldJsonOut = join(tmpDir, 'external-baseline-fold-trim-test.json');
+  const foldMdOut = join(tmpDir, 'external-baseline-fold-trim-test.md');
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [foldJsonOut, foldMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'external-baseline.mjs'),
+    '--file',
+    join(__dirname, 'test-data', 'runtime-comparison-16mib.xml'),
+    '--tools',
+    'stax-raw-frame-name-id,stax-raw-frame-name-id-fold-trim',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--skip-build',
+    '--stax-stream-source',
+    'file-sync-batches',
+    '--json-out',
+    foldJsonOut,
+    '--md-out',
+    foldMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(foldJsonOut, 'utf8'));
+  assert.deepEqual(report.results.map(row => row.tool), [
+    'stax-raw-frame-name-id',
+    'stax-raw-frame-name-id-fold-trim',
+  ]);
+  for (const row of report.results) {
+    assert.equal(row.workload, 'full-string-checksum');
+    assert.equal(row.eventCount, 967967);
+    assert.equal(row.checksum, -746772258);
+    assert.equal(row.boundedMemory, true);
+  }
+
+  const markdown = readFileSync(foldMdOut, 'utf8');
+  assert.match(markdown, /stax-raw-frame-name-id-fold-trim/);
+  assert.match(markdown, /file-sync-batches mode/);
+});
