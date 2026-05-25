@@ -162,6 +162,7 @@ function createArtifactRecord(sourceArtifact, root, options) {
     evidenceKinds,
     runtimes,
     environment: summarizeEnvironment(root.environment),
+    outcome: summarizeOutcome(root.outcome),
     fixture,
     corpusSeed,
     measuredRows,
@@ -360,14 +361,16 @@ function createObligationRows(coverage) {
   const spiderMonkeyTraceArtifacts = runtimeById.get('firefox-spidermonkey-browser')?.traceArtifacts ?? [];
   const hasSpiderMonkeyProfilerTrace = spiderMonkeyTraceArtifacts.some(file => /profiler-trace/i.test(file));
   const hasSpiderMonkeyCodegen = spiderMonkeyTraceArtifacts.some(file => /codegen|jit|optimized|optcode|asm/i.test(file));
-  const hasSpiderMonkeyDiagnosticNoDump = coverage.negativeArtifacts.some(artifact =>
+  const spiderMonkeyDiagnosticDumpAudit = coverage.negativeArtifacts.find(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-diagnostic-dump-audit.json'
   );
-  const hasSpiderMonkeyJsShellAvailabilityAudit = coverage.negativeArtifacts.some(artifact =>
+  const hasSpiderMonkeyDiagnosticNoDump = spiderMonkeyDiagnosticDumpAudit?.outcome?.status === 'no-dump-emitted';
+  const spiderMonkeyJsShellAvailabilityAudit = coverage.negativeArtifacts.find(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
-  ) || coverage.environmentArtifacts.some(artifact =>
+  ) ?? coverage.environmentArtifacts.find(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
   );
+  const hasSpiderMonkeyJsShellAvailabilityAudit = Boolean(spiderMonkeyJsShellAvailabilityAudit);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -413,8 +416,8 @@ function createObligationRows(coverage) {
         hasChromeCodegen ? 'Chrome/V8 browser codegen trace evidence present.' : 'Chrome/V8 browser codegen trace evidence missing.',
         hasSpiderMonkeyProfilerTrace ? 'Firefox/SpiderMonkey Gecko Profiler trace evidence present.' : 'Firefox/SpiderMonkey profiler trace evidence missing.',
         hasSpiderMonkeyJitSpewSourcePin ? 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR.' : 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence missing.',
-        hasSpiderMonkeyDiagnosticNoDump ? 'Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build.' : 'Firefox/SpiderMonkey diagnostic dump availability audit missing.',
-        hasSpiderMonkeyJsShellAvailabilityAudit ? 'Firefox/SpiderMonkey local js-shell availability audit present; no emitted JIT IR is recorded by that audit.' : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
+        hasSpiderMonkeyDiagnosticNoDump ? `Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=${spiderMonkeyDiagnosticDumpAudit.outcome.status}, dumpFiles=${spiderMonkeyDiagnosticDumpAudit.outcome.dumpFileCount ?? 'unknown'}).` : 'Firefox/SpiderMonkey diagnostic dump availability audit missing or did not complete as a no-dump result.',
+        hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
@@ -667,6 +670,19 @@ function summarizeEnvironment(environment = {}) {
   };
 }
 
+function summarizeOutcome(outcome = {}) {
+  if (!outcome || typeof outcome !== 'object') return null;
+  const summary = {
+    status: outcome.status ?? null,
+    completed: typeof outcome.completed === 'boolean' ? outcome.completed : null,
+    emittedDump: typeof outcome.emittedDump === 'boolean' ? outcome.emittedDump : null,
+    dumpFileCount: typeof outcome.dumpFileCount === 'number' ? outcome.dumpFileCount : null,
+    foundCount: typeof outcome.foundCount === 'number' ? outcome.foundCount : null,
+    foundCandidates: Array.isArray(outcome.foundCandidates) ? outcome.foundCandidates : null,
+  };
+  return Object.values(summary).some(value => value !== null) ? summary : null;
+}
+
 function summarizeArtifact(artifact) {
   return {
     sourceArtifact: artifact.sourceArtifact,
@@ -674,6 +690,7 @@ function summarizeArtifact(artifact) {
     contract: artifact.contract,
     evidenceKinds: artifact.evidenceKinds,
     runtimes: artifact.runtimes,
+    outcome: artifact.outcome,
     fixture: artifact.fixture,
     corpusSeed: artifact.corpusSeed,
     measuredRowCount: artifact.measuredRows.length,

@@ -274,6 +274,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('firefox-spidermonkey-browser')
     && row.evidenceKinds.includes('NEGATIVE_RESULT')
     && row.measuredRowCount === 1
+    && row.outcome.status === 'no-dump-emitted'
+    && row.outcome.dumpFileCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
@@ -281,6 +283,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.evidenceKinds.includes('ENVIRONMENT_FACT')
     && row.evidenceKinds.includes('NEGATIVE_RESULT')
     && row.measuredRowCount === 0
+    && row.outcome.status === 'not-found'
+    && row.outcome.foundCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'materialization-contract-audit.json'
@@ -362,8 +366,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Chrome\/V8 browser codegen trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey Gecko Profiler trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
-  assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump/);
-  assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present; no emitted JIT IR is recorded by that audit/);
+  assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
+  assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=not-found, found=0\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /13 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);

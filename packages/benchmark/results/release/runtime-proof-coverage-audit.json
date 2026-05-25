@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T10:00:05.245Z",
+  "generatedAt": "2026-05-25T10:19:16.730Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -19,6 +19,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 18
@@ -33,6 +34,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -52,6 +54,7 @@
         "NEGATIVE_RESULT"
       ],
       "runtimes": [],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -64,6 +67,7 @@
         "NEGATIVE_RESULT"
       ],
       "runtimes": [],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -76,6 +80,7 @@
         "NEGATIVE_RESULT"
       ],
       "runtimes": [],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -90,6 +95,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -111,6 +117,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -132,6 +139,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -153,6 +161,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -174,6 +183,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -195,6 +205,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -216,6 +227,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -237,6 +249,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -258,6 +271,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 1
@@ -272,6 +286,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -293,6 +308,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -315,6 +331,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -337,6 +354,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -358,6 +376,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -379,6 +398,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -400,6 +420,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -421,6 +442,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -442,6 +464,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -463,6 +486,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -484,6 +508,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -505,6 +530,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -526,6 +552,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-cycle",
         "shape": null,
@@ -547,6 +574,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated-diverse-cycle",
         "shape": null,
@@ -568,6 +596,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 4
@@ -583,6 +612,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -605,6 +635,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 4
@@ -620,6 +651,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 3
@@ -635,6 +667,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -656,6 +689,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -668,6 +702,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -682,6 +717,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -696,6 +732,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -717,6 +754,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -738,6 +776,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -752,6 +791,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -773,6 +813,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -794,6 +835,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -816,6 +858,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 18
@@ -831,6 +874,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 24
@@ -846,6 +890,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 30
@@ -861,6 +906,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 18
@@ -877,6 +923,7 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 45
@@ -891,6 +938,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -912,6 +960,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -933,6 +982,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -954,6 +1004,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -975,6 +1026,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -996,6 +1048,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1010,6 +1063,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1028,6 +1082,7 @@
       },
       "evidenceKinds": [],
       "runtimes": [],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1049,6 +1104,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-cycle",
         "shape": null,
@@ -1070,6 +1126,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated-diverse-cycle",
         "shape": null,
@@ -1091,6 +1148,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1105,6 +1163,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1126,6 +1185,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -1147,6 +1207,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse",
@@ -1168,6 +1229,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "self-generated",
         "shape": null,
@@ -1189,6 +1251,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-cycle",
         "shape": null,
@@ -1212,6 +1275,7 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 36
@@ -1226,6 +1290,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated-diverse-cycle",
         "shape": null,
@@ -1247,6 +1312,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 2
@@ -1263,6 +1329,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1286,6 +1353,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1307,6 +1375,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1328,6 +1397,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1349,6 +1419,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1370,6 +1441,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file-backed",
         "shape": null,
@@ -1391,6 +1463,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file-backed",
         "shape": null,
@@ -1412,6 +1485,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1433,6 +1507,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -1454,6 +1529,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file-backed",
         "shape": null,
@@ -1475,6 +1551,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1496,6 +1573,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1517,6 +1595,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1538,6 +1617,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -1559,6 +1639,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -1580,6 +1661,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -1601,6 +1683,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1622,6 +1705,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -1643,6 +1727,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1664,6 +1749,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -1685,6 +1771,14 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": {
+        "status": "timeout",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": null,
+        "foundCandidates": null
+      },
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1699,6 +1793,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1714,6 +1809,14 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": {
+        "status": "no-dump-emitted",
+        "completed": true,
+        "emittedDump": false,
+        "dumpFileCount": 0,
+        "foundCount": null,
+        "foundCandidates": null
+      },
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 1
@@ -1728,6 +1831,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1743,6 +1847,14 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": {
+        "status": "not-found",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": 0,
+        "foundCandidates": []
+      },
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1757,6 +1869,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1772,6 +1885,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -1793,6 +1907,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1807,6 +1922,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1821,6 +1937,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1842,6 +1959,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1863,6 +1981,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1884,6 +2003,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -1909,6 +2029,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 6
@@ -1921,6 +2042,7 @@
         "NEGATIVE_RESULT"
       ],
       "runtimes": [],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1935,6 +2057,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -1954,6 +2077,7 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1968,6 +2092,7 @@
       "runtimes": [
         "unknown"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -1982,6 +2107,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -2009,6 +2135,7 @@
       "runtimes": [
         "unknown"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -2024,6 +2151,7 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -2047,6 +2175,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 2
@@ -2062,6 +2191,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -2076,6 +2206,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -2093,6 +2224,7 @@
       "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
       "evidenceKinds": [],
       "runtimes": [],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -2107,6 +2239,7 @@
       "runtimes": [
         "safari-jsc-browser"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -2121,6 +2254,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -2135,6 +2269,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": "diverse-cycle",
@@ -2156,6 +2291,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -2175,6 +2311,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": "diverse-cycle",
@@ -2194,6 +2331,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -2215,6 +2353,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": "repeated-person",
@@ -2234,6 +2373,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -2255,6 +2395,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": null,
         "shape": null,
@@ -2276,6 +2417,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -2297,6 +2439,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -2318,6 +2461,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "corpus-file",
         "shape": "corpus-cycle",
@@ -2339,6 +2483,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse-cycle",
@@ -2360,6 +2505,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "diverse",
@@ -2381,6 +2527,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "generated",
         "shape": "projection-cycle",
@@ -2402,6 +2549,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": "runtime-comparison",
@@ -2423,6 +2571,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": {
         "source": "self-generated",
         "shape": null,
@@ -2442,6 +2591,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "outcome": null,
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -2457,6 +2607,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -2479,6 +2630,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -2501,6 +2653,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "outcome": null,
       "fixture": {
         "source": "file",
         "shape": null,
@@ -5891,7 +6044,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 25.03,
+          "mibPerSec": 22.8,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -7287,7 +7440,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 25.03,
+          "mibPerSec": 22.8,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -8683,7 +8836,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 25.03,
+          "mibPerSec": 22.8,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -15366,6 +15519,7 @@
         "runtimes": [
           "chrome-v8-browser"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse-cycle",
@@ -15388,6 +15542,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse-cycle",
@@ -15410,6 +15565,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 4
@@ -15424,6 +15580,7 @@
         "runtimes": [
           "deno-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "self-generated",
           "shape": null,
@@ -15445,6 +15602,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "file-backed",
           "shape": null,
@@ -15467,6 +15625,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse-cycle",
@@ -15488,6 +15647,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "self-generated",
           "shape": null,
@@ -15510,6 +15670,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "outcome": null,
         "fixture": {
           "source": "file",
           "shape": null,
@@ -15534,6 +15695,7 @@
         "runtimes": [
           "chrome-v8-browser"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse-cycle",
@@ -15556,6 +15718,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 3
@@ -15571,6 +15734,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse-cycle",
@@ -15592,6 +15756,7 @@
         "runtimes": [
           "deno-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse",
@@ -15613,6 +15778,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15628,6 +15794,7 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "outcome": null,
         "fixture": {
           "source": "file",
           "shape": null,
@@ -15649,6 +15816,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": null,
           "shape": "diverse-cycle",
@@ -15670,6 +15838,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": null,
           "shape": null,
@@ -15691,6 +15860,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "diverse",
@@ -15712,6 +15882,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "generated",
           "shape": "projection-cycle",
@@ -15733,6 +15904,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": {
           "source": "file",
           "shape": "runtime-comparison",
@@ -15755,6 +15927,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "outcome": null,
         "fixture": {
           "source": "file",
           "shape": null,
@@ -15777,6 +15950,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "outcome": null,
         "fixture": {
           "source": "file",
           "shape": null,
@@ -15801,6 +15975,14 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "outcome": {
+          "status": "not-found",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": 0,
+          "foundCandidates": []
+        },
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15815,6 +15997,7 @@
         "runtimes": [
           "safari-jsc-browser"
         ],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15829,6 +16012,7 @@
           "NEGATIVE_RESULT"
         ],
         "runtimes": [],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15841,6 +16025,7 @@
           "NEGATIVE_RESULT"
         ],
         "runtimes": [],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15853,6 +16038,7 @@
           "NEGATIVE_RESULT"
         ],
         "runtimes": [],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15867,6 +16053,14 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "outcome": {
+          "status": "timeout",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null
+        },
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15882,6 +16076,14 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "outcome": {
+          "status": "no-dump-emitted",
+          "completed": true,
+          "emittedDump": false,
+          "dumpFileCount": 0,
+          "foundCount": null,
+          "foundCandidates": null
+        },
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 1
@@ -15897,6 +16099,14 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "outcome": {
+          "status": "not-found",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": 0,
+          "foundCandidates": []
+        },
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15915,6 +16125,7 @@
           "woodstox-jvm",
           "quick-xml-rust"
         ],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 6
@@ -15927,6 +16138,7 @@
           "NEGATIVE_RESULT"
         ],
         "runtimes": [],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15942,6 +16154,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -15964,7 +16177,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build. Firefox/SpiderMonkey local js-shell availability audit present; no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

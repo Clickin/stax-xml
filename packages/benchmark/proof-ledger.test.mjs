@@ -545,11 +545,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`IONFLAGS=logs,codegen,mir,lir,aborts,scripts`/);
   assert.match(markdown, /preserving full parity for 4,985 events and\s+checksum `1856142966`/);
   assert.match(markdown, /emitted no dump files and no recognizable diagnostic\s+stream output/);
-  assert.match(markdown, /JitSpew source gate and diagnostic no-dump attempt are present/);
+  assert.match(markdown, /`status=no-dump-emitted`, `dumpFiles=0`/);
+  assert.match(markdown, /JitSpew source gate and\s+diagnostic no-dump attempt are present/);
+  assert.match(markdown, /with the no-dump outcome preserved/);
   assert.match(markdown, /firefox-spidermonkey-js-shell-availability-audit\.md/);
   assert.match(markdown, /checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`/);
   assert.match(markdown, /found no local\s+SpiderMonkey JavaScript shell/);
-  assert.match(markdown, /requires either a\s+diagnostic-capable Firefox build or a separate debug\/nightly SpiderMonkey shell/);
+  assert.match(markdown, /`status=not-found`, `found=0`/);
+  assert.match(markdown, /requires either a\s+diagnostic-capable Firefox build or a separate\s+debug\/nightly SpiderMonkey shell/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);

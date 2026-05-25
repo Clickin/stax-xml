@@ -286,7 +286,9 @@ safaridriver harness when safaridriver is available; it is not a benchmark row
 and not evidence that Safari/WebKit cannot be a counterexample. The
 Firefox/SpiderMonkey source pin,
 diagnostic no-dump attempt, and local js-shell availability audit narrow the
-codegen route, but they are not emitted JIT IR. This narrows the next
+codegen route. The regenerated coverage audit now preserves the exact local
+outcomes (`status=no-dump-emitted`, `dumpFiles=0`, `status=not-found`,
+`found=0`), but they are still not emitted JIT IR. This narrows the next
 counterexample search queue; it still does not turn missing evidence into
 evidence that optimization is impossible, and it does not turn newly covered
 codegen or corpus-count evidence into proof that optimization is exhausted.
@@ -807,22 +809,23 @@ then attempts the same installed Firefox browser reader harness with
 channels, and `JIT_SPEW_DIR` pointed at the audit output directory. The run
 completed for `rawFrameNameId`, preserving full parity for 4,985 events and
 checksum `1856142966`, but emitted no dump files and no recognizable diagnostic
-stream output. This is a scoped `NEGATIVE_RESULT` for the installed Firefox
-build's diagnostic surface, not SpiderMonkey JIT IR evidence and not proof that
-SpiderMonkey has no codegen headroom. The coverage audit should therefore say
-the JitSpew source gate and diagnostic no-dump attempt are present, while the
-Firefox JIT IR / optimized-code dump remains missing.
+stream output (`status=no-dump-emitted`, `dumpFiles=0`). This is a scoped
+`NEGATIVE_RESULT` for the installed Firefox build's diagnostic surface, not
+SpiderMonkey JIT IR evidence and not proof that SpiderMonkey has no codegen
+headroom. The coverage audit should therefore say the JitSpew source gate and
+diagnostic no-dump attempt are present, with the no-dump outcome preserved,
+while the Firefox JIT IR / optimized-code dump remains missing.
 
 `packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.md`
 separates the next SpiderMonkey codegen path from the installed-browser path.
 It checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`
 environment variables plus common `PATH` candidates such as `js`, `jsshell`,
 `spidermonkey`, and `mozjs`. On this Windows host the audit found no local
-SpiderMonkey JavaScript shell. That is a local `NEGATIVE_RESULT` for immediate
-js-shell JIT IR probing, not a global SpiderMonkey limitation. It means the
-remaining Firefox/SpiderMonkey codegen obligation now requires either a
-diagnostic-capable Firefox build or a separate debug/nightly SpiderMonkey shell
-artifact.
+SpiderMonkey JavaScript shell (`status=not-found`, `found=0`). That is a local
+`NEGATIVE_RESULT` for immediate js-shell JIT IR probing, not a global
+SpiderMonkey limitation. It means the remaining Firefox/SpiderMonkey codegen
+obligation now requires either a diagnostic-capable Firefox build or a separate
+debug/nightly SpiderMonkey shell artifact.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 

@@ -1,6 +1,6 @@
 # Firefox/SpiderMonkey JS Shell Availability Audit
 
-Generated: 2026-05-25T04:52:15.810Z
+Generated: 2026-05-25T10:14:57.422Z
 
 Checks whether a local SpiderMonkey JavaScript shell is available for follow-up JIT IR or optimized-code diagnostics. This is environment evidence only; absence of a shell is not proof that SpiderMonkey cannot emit codegen evidence elsewhere.
 
