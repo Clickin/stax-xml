@@ -145,25 +145,30 @@ aggregates existing release artifacts under the same full-string checksum
 contract without normalizing object shapes or memory models. It includes the
 16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows, 1
 GiB projection-cycle full-string rows, 1 GiB TextDecoder span rows, access-shape
-cross-process rows, quick-xml global allocator counters, and Woodstox JFR
+cross-process rows, books-corpus stability rows, selected text/fold/cache
+negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 74 aggregated rows and 68 JavaScript 1 GiB+
+The current aggregate has 89 aggregated rows and 83 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
-`access-shape-candidate-cross-process.json` at 177.34 MiB/s
-with process RSS max 189.37 MiB. The comparison report now preserves recorded
-source modes where artifacts expose them or where `candidate-headroom-cross-process`
-options identify the same `corpus-cycle` child runner: the fastest aggregate row is
-`sync-iterable-byte-batches`, the fastest public event-object row is also
+`bun-candidate-headroom-books-corpus-stability.json` at 178.52 MiB/s
+with process RSS max 189.37 MiB across 3 same-process samples ranging from
+177.26 to 180.10 MiB/s. The comparison report now preserves recorded source
+modes where artifacts expose them, where selected stability artifacts are known
+StreamReaderSync byte-batch rows, or where `candidate-headroom-cross-process`
+options identify the same `corpus-cycle` child runner: the fastest aggregate
+row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s target and
-0.55x of the 1024 MiB Woodstox reference, leaving 110.80 MiB/s to reach the
+0.56x of the 1024 MiB Woodstox reference, leaving 109.62 MiB/s to reach the
 0.9x Woodstox target. For the public event-object shape, the fastest bounded
-row is Node/V8 `eventObjectFull` from the same large-asset corpus artifact at
-105.86 MiB/s with process RSS max 495.34 MiB. The generated, corpus, and
+row is Node/V8 `eventObjectFull` from
+`candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process
+RSS max 203.27 MiB across 3 samples ranging from 141.06 to 142.03 MiB/s. The
+generated, corpus, and
 projection groups now include Firefox/SpiderMonkey rows; the fastest Firefox
 generated row is `rawFrameNameId` at 35.02 MiB/s, the fastest Firefox corpus row
 is `rawFrameNameId` at 48.15 MiB/s, and the fastest Firefox projection-cycle
@@ -206,7 +211,7 @@ average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
 or their source contract carry it. It now finds 129 JavaScript 1 GiB+
-full-string rows with source mode metadata, including `file-sync-batches`,
+full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
 `web-readable-stream-pull`. The generated sync byte-batch bucket now includes
