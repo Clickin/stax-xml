@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T09:20:31.640Z",
+  "generatedAt": "2026-05-25T09:30:39.265Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2530,6 +2530,14 @@
       "measuredRows": 725,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 75
+    },
+    "unknownBoundedMemoryBreakdown": {
+      "total": 75,
+      "jsRows": 59,
+      "fullStringRows": 60,
+      "jsFullStringRows": 44,
+      "largeJsFullStringRows": 1,
+      "rowsWithMemoryCounter": 28
     },
     "benchmarkArtifactCount": 93,
     "sourceArtifactCount": 16,

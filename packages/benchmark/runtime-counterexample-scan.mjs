@@ -151,6 +151,7 @@ function createReport(options) {
   const sourceModeBreakdown = summarizeSourceModes(sourceModeRows);
   const largeJsFullSourceModeBreakdown = summarizeSourceModes(largeJsFullSourceModeRows);
   const rowClassificationCompleteness = summarizeRowClassificationCompleteness(measuredRows);
+  const unknownBoundedMemoryBreakdown = summarizeUnknownBoundedMemoryRows(measuredRows, options);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -178,6 +179,7 @@ function createReport(options) {
       sourceModeBreakdown,
       largeJsFullSourceModeBreakdown,
       rowClassificationCompleteness,
+      unknownBoundedMemoryBreakdown,
       counterexampleCount: counterexamples.length,
       partialHeadroomRowCount: partialHeadroomRows.length,
       unboundedOrUnknownLargeFullRowCount: unboundedOrUnknownLargeFullRows.length,
@@ -402,6 +404,23 @@ function summarizeRowClassificationCompleteness(rows) {
   };
 }
 
+function summarizeUnknownBoundedMemoryRows(rows, options) {
+  const unknownRows = rows.filter(row => row.boundedMemory === null);
+  return {
+    total: unknownRows.length,
+    jsRows: unknownRows.filter(row => row.jsRuntime).length,
+    fullStringRows: unknownRows.filter(row => row.fullStringParity === true).length,
+    jsFullStringRows: unknownRows.filter(row => row.jsRuntime && row.fullStringParity === true).length,
+    largeJsFullStringRows: unknownRows.filter(row =>
+      row.jsRuntime
+      && row.fullStringParity === true
+      && row.sizeGiB !== null
+      && row.sizeGiB >= options.minSizeGiB
+    ).length,
+    rowsWithMemoryCounter: unknownRows.filter(row => row.hasMemoryProof).length,
+  };
+}
+
 function classifyFullStringParity(node, context) {
   if (node.fullStringParity === true) return true;
   if (node.fullStringParity === false) return false;
@@ -560,6 +579,10 @@ function renderMarkdown(report) {
     `- 1 GiB+ JS full-string rows with explicit source mode: ${report.summary.largeJsFullSourceModeRowCount}`,
     `- Rows with unknown full-string parity: ${report.summary.rowClassificationCompleteness.unknownFullStringParityRows}`,
     `- Rows with unknown bounded-memory flag: ${report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows}`,
+    `  - Unknown bounded-memory JS rows: ${report.summary.unknownBoundedMemoryBreakdown.jsRows}`,
+    `  - Unknown bounded-memory full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.fullStringRows}`,
+    `  - Unknown bounded-memory 1 GiB+ JS full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.largeJsFullStringRows}`,
+    `  - Unknown bounded-memory rows with memory counters: ${report.summary.unknownBoundedMemoryBreakdown.rowsWithMemoryCounter}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
     `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,

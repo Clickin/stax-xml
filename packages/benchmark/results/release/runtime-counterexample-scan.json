@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T09:20:35.880Z",
+  "generatedAt": "2026-05-25T09:30:44.168Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -418,6 +418,14 @@
       "measuredRows": 725,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 75
+    },
+    "unknownBoundedMemoryBreakdown": {
+      "total": 75,
+      "jsRows": 59,
+      "fullStringRows": 60,
+      "jsFullStringRows": 44,
+      "largeJsFullStringRows": 1,
+      "rowsWithMemoryCounter": 28
     },
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 20,

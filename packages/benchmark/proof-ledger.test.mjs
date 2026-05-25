@@ -125,8 +125,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /458 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 75 rows with unknown bounded-memory\s+flags/);
-  assert.match(markdown, /reports 91 full-string rows failing the bounded-memory counterexample\s+criterion/);
-  assert.match(markdown, /90 carry explicit `boundedMemory=false`/);
+  assert.match(markdown, /unknown bounded-memory set contains 59 JavaScript rows, 60\s+full-string rows, 44 JavaScript full-string rows, 1 JavaScript 1 GiB\+\s+full-string row, and 28 rows that have raw memory counters/);
+  assert.match(markdown, /reports 91 full-string rows failing the\s+bounded-memory counterexample criterion/);
+  assert.match(markdown, /90 carry explicit\s+`boundedMemory=false`/);
   assert.match(markdown, /1 has an unknown bounded-memory flag/);
   assert.match(markdown, /48\s+also lack row-level memory proof/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
