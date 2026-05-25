@@ -193,6 +193,7 @@ function extractMeasuredRows(sourceArtifact, root) {
     if (isDerivedProjectionPath(path)) return;
     if (typeof node.mibPerSec !== 'number' || !Number.isFinite(node.mibPerSec)) return;
     const fixture = normalizeFixture(node.fixture) ?? context.fixture;
+    const memoryKind = classifyMemoryKind(node);
     rows.push({
       sourceArtifact,
       jsonPath: path.join('.'),
@@ -205,8 +206,8 @@ function extractMeasuredRows(sourceArtifact, root) {
       corpusSeed: fixture?.source === 'corpus-file' && fixture.sourceFile ? normalizeCorpusSeed(fixture.sourceFile) : null,
       mibPerSec: round(node.mibPerSec),
       fullStringParity: classifyFullStringParity(node, context),
-      boundedMemory: typeof node.boundedMemory === 'boolean' ? node.boundedMemory : null,
-      memoryKind: classifyMemoryKind(node),
+      boundedMemory: classifyBoundedMemory(node, memoryKind),
+      memoryKind,
       eventCount: normalizeEventCount(node),
       checksum: node.checksum ?? null,
       contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
@@ -638,10 +639,33 @@ function classifyFullStringParity(node, context) {
 
 function classifyMemoryKind(node) {
   const memory = node.memory;
+  if (typeof node.maxRssBytes === 'number' || typeof node.peakRssBytes === 'number') return 'process-rss';
+  if (typeof node.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
   if (!memory || typeof memory !== 'object') return 'not-recorded';
   if (memory.scope === 'browser-js-heap' || memory.maxJsHeapUsedBytes !== undefined) return 'browser-js-heap';
-  if (memory.maxRssBytes !== undefined) return 'process-rss';
+  if (memory.maxRssBytes !== undefined || memory.peakRssBytes !== undefined) return 'process-rss';
   return 'recorded-unknown-kind';
+}
+
+function classifyBoundedMemory(node, memoryKind) {
+  if (typeof node.boundedMemory === 'boolean') return node.boundedMemory;
+  const peakBytes = extractPeakMemoryBytes(node, memoryKind);
+  if (typeof peakBytes !== 'number') return null;
+  return peakBytes <= 512 * MIB;
+}
+
+function extractPeakMemoryBytes(node, memoryKind) {
+  if (memoryKind === 'process-rss') {
+    if (typeof node.maxRssBytes === 'number') return node.maxRssBytes;
+    if (typeof node.peakRssBytes === 'number') return node.peakRssBytes;
+    if (typeof node.memory?.maxRssBytes === 'number') return node.memory.maxRssBytes;
+    if (typeof node.memory?.peakRssBytes === 'number') return node.memory.peakRssBytes;
+  }
+  if (memoryKind === 'browser-js-heap') {
+    if (typeof node.maxJsHeapUsedBytes === 'number') return node.maxJsHeapUsedBytes;
+    if (typeof node.memory?.maxJsHeapUsedBytes === 'number') return node.memory.maxJsHeapUsedBytes;
+  }
+  return null;
 }
 
 function normalizeFixture(fixture) {

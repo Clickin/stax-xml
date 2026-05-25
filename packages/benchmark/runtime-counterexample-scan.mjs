@@ -284,10 +284,10 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
   const fixture = normalizeFixture(node.fixture) ?? context.fixture;
   const sizeGiB = fixture?.sizeGiB ?? null;
   const fullStringParity = classifyFullStringParity(node, context);
-  const boundedMemory = typeof node.boundedMemory === 'boolean' ? node.boundedMemory : null;
   const jsRuntime = classifyJsRuntime(sourceArtifact, node, context);
   const id = String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row');
   const memoryKind = classifyMemoryKind(node);
+  const boundedMemory = classifyBoundedMemory(node, memoryKind);
   const sourceMode = classifySourceMode(sourceArtifact, node, context);
   return {
     sourceArtifact,
@@ -526,6 +526,27 @@ function classifyMemoryKind(node) {
   if (typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
   if (memory.maxRssBytes !== undefined) return 'process-rss';
   return 'recorded-unknown-kind';
+}
+
+function classifyBoundedMemory(node, memoryKind) {
+  if (typeof node.boundedMemory === 'boolean') return node.boundedMemory;
+  const peakBytes = extractPeakMemoryBytes(node, memoryKind);
+  if (typeof peakBytes !== 'number') return null;
+  return peakBytes <= 512 * MIB;
+}
+
+function extractPeakMemoryBytes(node, memoryKind) {
+  if (memoryKind === 'process-rss') {
+    if (typeof node.maxRssBytes === 'number') return node.maxRssBytes;
+    if (typeof node.peakRssBytes === 'number') return node.peakRssBytes;
+    if (typeof node.memory?.maxRssBytes === 'number') return node.memory.maxRssBytes;
+    if (typeof node.memory?.peakRssBytes === 'number') return node.memory.peakRssBytes;
+  }
+  if (memoryKind === 'browser-js-heap') {
+    if (typeof node.maxJsHeapUsedBytes === 'number') return node.maxJsHeapUsedBytes;
+    if (typeof node.memory?.maxJsHeapUsedBytes === 'number') return node.memory.maxJsHeapUsedBytes;
+  }
+  return null;
 }
 
 function normalizeFixture(fixture) {

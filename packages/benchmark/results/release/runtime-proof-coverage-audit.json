@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T12:58:26.296Z",
+  "generatedAt": "2026-05-25T13:33:20.816Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2833,15 +2833,15 @@
     "rowClassificationCompleteness": {
       "measuredRows": 749,
       "unknownFullStringParityRows": 0,
-      "unknownBoundedMemoryRows": 77
+      "unknownBoundedMemoryRows": 35
     },
     "unknownBoundedMemoryBreakdown": {
-      "total": 77,
-      "jsRows": 55,
-      "fullStringRows": 62,
-      "jsFullStringRows": 40,
+      "total": 35,
+      "jsRows": 13,
+      "fullStringRows": 34,
+      "jsFullStringRows": 12,
       "largeJsFullStringRows": 0,
-      "rowsWithMemoryCounter": 24
+      "rowsWithMemoryCounter": 0
     },
     "benchmarkArtifactCount": 99,
     "sourceArtifactCount": 16,
@@ -2926,7 +2926,7 @@
           "mibPerSec": 179.7,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "process-rss",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -3022,7 +3022,7 @@
           "mibPerSec": 130.32,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3550,7 +3550,7 @@
           "mibPerSec": 120.46,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3567,7 +3567,7 @@
           "mibPerSec": 100.98,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3584,7 +3584,7 @@
           "mibPerSec": 127.74,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3601,7 +3601,7 @@
           "mibPerSec": 123.09,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3618,7 +3618,7 @@
           "mibPerSec": 106.7,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3635,7 +3635,7 @@
           "mibPerSec": 128.99,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3652,7 +3652,7 @@
           "mibPerSec": 120.26,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3669,7 +3669,7 @@
           "mibPerSec": 107,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3686,7 +3686,7 @@
           "mibPerSec": 130.32,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3703,7 +3703,7 @@
           "mibPerSec": 63.17,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3720,7 +3720,7 @@
           "mibPerSec": 47.69,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3737,7 +3737,7 @@
           "mibPerSec": 59.67,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3754,7 +3754,7 @@
           "mibPerSec": 104.81,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3771,7 +3771,7 @@
           "mibPerSec": 71.78,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3788,7 +3788,7 @@
           "mibPerSec": 62.87,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3805,7 +3805,7 @@
           "mibPerSec": 48.72,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3822,7 +3822,7 @@
           "mibPerSec": 60.22,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3839,7 +3839,7 @@
           "mibPerSec": 103.81,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3856,7 +3856,7 @@
           "mibPerSec": 70.07,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3873,7 +3873,7 @@
           "mibPerSec": 64.84,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3890,7 +3890,7 @@
           "mibPerSec": 48.57,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3907,7 +3907,7 @@
           "mibPerSec": 61.12,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3924,7 +3924,7 @@
           "mibPerSec": 105.3,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -3941,7 +3941,7 @@
           "mibPerSec": 70.51,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -4586,7 +4586,7 @@
           "corpusSeed": null,
           "mibPerSec": 81.08,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 2824406,
           "checksum": 288962256,
@@ -4773,7 +4773,7 @@
           "corpusSeed": null,
           "mibPerSec": 67.61,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 706158,
           "checksum": 1039217453,
@@ -4790,7 +4790,7 @@
           "corpusSeed": null,
           "mibPerSec": 51.44,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 706158,
           "checksum": 1039217453,
@@ -4807,7 +4807,7 @@
           "corpusSeed": null,
           "mibPerSec": 65.85,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 706158,
           "checksum": 1039217453,
@@ -9405,7 +9405,7 @@
           "mibPerSec": 120.46,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9422,7 +9422,7 @@
           "mibPerSec": 100.98,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9439,7 +9439,7 @@
           "mibPerSec": 127.74,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9456,7 +9456,7 @@
           "mibPerSec": 123.09,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9473,7 +9473,7 @@
           "mibPerSec": 106.7,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9490,7 +9490,7 @@
           "mibPerSec": 128.99,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9507,7 +9507,7 @@
           "mibPerSec": 120.26,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9524,7 +9524,7 @@
           "mibPerSec": 107,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9541,7 +9541,7 @@
           "mibPerSec": 130.32,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9558,7 +9558,7 @@
           "mibPerSec": 63.17,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9575,7 +9575,7 @@
           "mibPerSec": 47.69,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9592,7 +9592,7 @@
           "mibPerSec": 59.67,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9609,7 +9609,7 @@
           "mibPerSec": 104.81,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9626,7 +9626,7 @@
           "mibPerSec": 71.78,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9643,7 +9643,7 @@
           "mibPerSec": 62.87,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9660,7 +9660,7 @@
           "mibPerSec": 48.72,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9677,7 +9677,7 @@
           "mibPerSec": 60.22,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9694,7 +9694,7 @@
           "mibPerSec": 103.81,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9711,7 +9711,7 @@
           "mibPerSec": 70.07,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9728,7 +9728,7 @@
           "mibPerSec": 64.84,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9745,7 +9745,7 @@
           "mibPerSec": 48.57,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9762,7 +9762,7 @@
           "mibPerSec": 61.12,
           "fullStringParity": true,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9779,7 +9779,7 @@
           "mibPerSec": 105.3,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -9796,7 +9796,7 @@
           "mibPerSec": 70.51,
           "fullStringParity": false,
           "boundedMemory": true,
-          "memoryKind": "not-recorded",
+          "memoryKind": "browser-js-heap",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -10441,7 +10441,7 @@
           "corpusSeed": null,
           "mibPerSec": 81.08,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 2824406,
           "checksum": 288962256,
@@ -10628,7 +10628,7 @@
           "corpusSeed": null,
           "mibPerSec": 67.61,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 706158,
           "checksum": 1039217453,
@@ -10645,7 +10645,7 @@
           "corpusSeed": null,
           "mibPerSec": 51.44,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 706158,
           "checksum": 1039217453,
@@ -10662,7 +10662,7 @@
           "corpusSeed": null,
           "mibPerSec": 65.85,
           "fullStringParity": true,
-          "boundedMemory": null,
+          "boundedMemory": true,
           "memoryKind": "browser-js-heap",
           "eventCount": 706158,
           "checksum": 1039217453,
@@ -10739,7 +10739,7 @@
         "mibPerSec": 166.29,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10756,7 +10756,7 @@
         "mibPerSec": 107.58,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10773,7 +10773,7 @@
         "mibPerSec": 93.16,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10790,7 +10790,7 @@
         "mibPerSec": 158.69,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10807,7 +10807,7 @@
         "mibPerSec": 153.09,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10824,7 +10824,7 @@
         "mibPerSec": 174.93,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10841,7 +10841,7 @@
         "mibPerSec": 159.47,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10858,7 +10858,7 @@
         "mibPerSec": 150.28,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10875,7 +10875,7 @@
         "mibPerSec": 173.31,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10892,7 +10892,7 @@
         "mibPerSec": 167.44,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10909,7 +10909,7 @@
         "mibPerSec": 140.04,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10926,7 +10926,7 @@
         "mibPerSec": 173.98,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10943,7 +10943,7 @@
         "mibPerSec": 162.9,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10960,7 +10960,7 @@
         "mibPerSec": 140.29,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10977,7 +10977,7 @@
         "mibPerSec": 178.34,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -10994,7 +10994,7 @@
         "mibPerSec": 170.78,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -11011,7 +11011,7 @@
         "mibPerSec": 139.17,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -11028,7 +11028,7 @@
         "mibPerSec": 179.7,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -11436,7 +11436,7 @@
         "mibPerSec": 120.46,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11453,7 +11453,7 @@
         "mibPerSec": 100.98,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11470,7 +11470,7 @@
         "mibPerSec": 127.74,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11487,7 +11487,7 @@
         "mibPerSec": 123.09,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11504,7 +11504,7 @@
         "mibPerSec": 106.7,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11521,7 +11521,7 @@
         "mibPerSec": 128.99,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11538,7 +11538,7 @@
         "mibPerSec": 120.26,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11555,7 +11555,7 @@
         "mibPerSec": 107,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -11572,7 +11572,7 @@
         "mibPerSec": 130.32,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "browser-js-heap",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-browser-process-candidate-headroom-stability"
@@ -12694,7 +12694,7 @@
         "mibPerSec": 120.36,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12711,7 +12711,7 @@
         "mibPerSec": 79.14,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12728,7 +12728,7 @@
         "mibPerSec": 99.72,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12745,7 +12745,7 @@
         "mibPerSec": 120.3,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12762,7 +12762,7 @@
         "mibPerSec": 80.96,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12779,7 +12779,7 @@
         "mibPerSec": 100.35,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12796,7 +12796,7 @@
         "mibPerSec": 118.32,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12813,7 +12813,7 @@
         "mibPerSec": 76.6,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12830,7 +12830,7 @@
         "mibPerSec": 99.43,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12847,7 +12847,7 @@
         "mibPerSec": 123.72,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12864,7 +12864,7 @@
         "mibPerSec": 77.68,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12881,7 +12881,7 @@
         "mibPerSec": 82.87,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12898,7 +12898,7 @@
         "mibPerSec": 123.76,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12915,7 +12915,7 @@
         "mibPerSec": 74.71,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12932,7 +12932,7 @@
         "mibPerSec": 95.29,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12949,7 +12949,7 @@
         "mibPerSec": 122.87,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12966,7 +12966,7 @@
         "mibPerSec": 77.74,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -12983,7 +12983,7 @@
         "mibPerSec": 99.3,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -13000,7 +13000,7 @@
         "mibPerSec": 233.2,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -239086029,
         "contractScope": "event-types-and-attribute-counts-only"
@@ -13017,7 +13017,7 @@
         "mibPerSec": 155.49,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": 878766131,
         "contractScope": "event-types-attribute-counts-and-attribute-names"
@@ -13034,7 +13034,7 @@
         "mibPerSec": 156.88,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -923412077,
         "contractScope": "event-types-attribute-counts-and-attribute-values"
@@ -13051,7 +13051,7 @@
         "mibPerSec": 130.06,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -929151437,
         "contractScope": "event-types-attribute-counts-and-element-names"
@@ -13068,7 +13068,7 @@
         "mibPerSec": 274.91,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -239086029,
         "contractScope": "event-types-and-attribute-counts-only"
@@ -13085,7 +13085,7 @@
         "mibPerSec": 150.19,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": 878766131,
         "contractScope": "event-types-attribute-counts-and-attribute-names"
@@ -13102,7 +13102,7 @@
         "mibPerSec": 152.47,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -923412077,
         "contractScope": "event-types-attribute-counts-and-attribute-values"
@@ -13119,7 +13119,7 @@
         "mibPerSec": 134.7,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -929151437,
         "contractScope": "event-types-attribute-counts-and-element-names"
@@ -13136,7 +13136,7 @@
         "mibPerSec": 227.08,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -239086029,
         "contractScope": "event-types-and-attribute-counts-only"
@@ -13153,7 +13153,7 @@
         "mibPerSec": 158.15,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": 878766131,
         "contractScope": "event-types-attribute-counts-and-attribute-names"
@@ -13170,7 +13170,7 @@
         "mibPerSec": 154.18,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -923412077,
         "contractScope": "event-types-attribute-counts-and-attribute-values"
@@ -13187,7 +13187,7 @@
         "mibPerSec": 135.26,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -929151437,
         "contractScope": "event-types-attribute-counts-and-element-names"
@@ -13204,7 +13204,7 @@
         "mibPerSec": 300.9,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -239086029,
         "contractScope": "event-types-and-attribute-counts-only"
@@ -13221,7 +13221,7 @@
         "mibPerSec": 173.07,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": 878766131,
         "contractScope": "event-types-attribute-counts-and-attribute-names"
@@ -13238,7 +13238,7 @@
         "mibPerSec": 164.78,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -923412077,
         "contractScope": "event-types-attribute-counts-and-attribute-values"
@@ -13255,7 +13255,7 @@
         "mibPerSec": 147.14,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -929151437,
         "contractScope": "event-types-attribute-counts-and-element-names"
@@ -13272,7 +13272,7 @@
         "mibPerSec": 326.65,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -239086029,
         "contractScope": "event-types-and-attribute-counts-only"
@@ -13289,7 +13289,7 @@
         "mibPerSec": 175.46,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": 878766131,
         "contractScope": "event-types-attribute-counts-and-attribute-names"
@@ -13306,7 +13306,7 @@
         "mibPerSec": 169.41,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -923412077,
         "contractScope": "event-types-attribute-counts-and-attribute-values"
@@ -13323,7 +13323,7 @@
         "mibPerSec": 151.37,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -929151437,
         "contractScope": "event-types-attribute-counts-and-element-names"
@@ -13340,7 +13340,7 @@
         "mibPerSec": 315.97,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -239086029,
         "contractScope": "event-types-and-attribute-counts-only"
@@ -13357,7 +13357,7 @@
         "mibPerSec": 172.15,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": 878766131,
         "contractScope": "event-types-attribute-counts-and-attribute-names"
@@ -13374,7 +13374,7 @@
         "mibPerSec": 165.27,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -923412077,
         "contractScope": "event-types-attribute-counts-and-attribute-values"
@@ -13391,7 +13391,7 @@
         "mibPerSec": 150.76,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -929151437,
         "contractScope": "event-types-attribute-counts-and-element-names"
@@ -13408,7 +13408,7 @@
         "mibPerSec": 114.44,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13425,7 +13425,7 @@
         "mibPerSec": 71.89,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -13442,7 +13442,7 @@
         "mibPerSec": 95.45,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13459,7 +13459,7 @@
         "mibPerSec": 99.95,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "same-fields-checksum-no-string-materialization"
@@ -13476,7 +13476,7 @@
         "mibPerSec": 69.67,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13493,7 +13493,7 @@
         "mibPerSec": 114.44,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13510,7 +13510,7 @@
         "mibPerSec": 73.05,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -13527,7 +13527,7 @@
         "mibPerSec": 95.16,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13544,7 +13544,7 @@
         "mibPerSec": 96.5,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "same-fields-checksum-no-string-materialization"
@@ -13561,7 +13561,7 @@
         "mibPerSec": 66.56,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13578,7 +13578,7 @@
         "mibPerSec": 112.49,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13595,7 +13595,7 @@
         "mibPerSec": 73.34,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -13612,7 +13612,7 @@
         "mibPerSec": 94.34,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13629,7 +13629,7 @@
         "mibPerSec": 98.34,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "same-fields-checksum-no-string-materialization"
@@ -13646,7 +13646,7 @@
         "mibPerSec": 68.74,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13663,7 +13663,7 @@
         "mibPerSec": 120.23,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13680,7 +13680,7 @@
         "mibPerSec": 75.66,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -13697,7 +13697,7 @@
         "mibPerSec": 95.3,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13714,7 +13714,7 @@
         "mibPerSec": 45.25,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "same-fields-checksum-no-string-materialization"
@@ -13731,7 +13731,7 @@
         "mibPerSec": 80.54,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13748,7 +13748,7 @@
         "mibPerSec": 119.61,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13765,7 +13765,7 @@
         "mibPerSec": 77.12,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -13782,7 +13782,7 @@
         "mibPerSec": 98.76,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13799,7 +13799,7 @@
         "mibPerSec": 45.51,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "same-fields-checksum-no-string-materialization"
@@ -13816,7 +13816,7 @@
         "mibPerSec": 79.53,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13833,7 +13833,7 @@
         "mibPerSec": 120.69,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13850,7 +13850,7 @@
         "mibPerSec": 77.73,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -13867,7 +13867,7 @@
         "mibPerSec": 99.46,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13884,7 +13884,7 @@
         "mibPerSec": 45.51,
         "fullStringParity": false,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "same-fields-checksum-no-string-materialization"
@@ -13901,7 +13901,7 @@
         "mibPerSec": 80.81,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -13918,7 +13918,7 @@
         "mibPerSec": 132.51,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -13935,7 +13935,7 @@
         "mibPerSec": 96.67,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -13952,7 +13952,7 @@
         "mibPerSec": 135.93,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -13969,7 +13969,7 @@
         "mibPerSec": 118.78,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -13986,7 +13986,7 @@
         "mibPerSec": 103.44,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14003,7 +14003,7 @@
         "mibPerSec": 143.87,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14020,7 +14020,7 @@
         "mibPerSec": 139.02,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14037,7 +14037,7 @@
         "mibPerSec": 117.47,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14054,7 +14054,7 @@
         "mibPerSec": 158.52,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14071,7 +14071,7 @@
         "mibPerSec": 109.9,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14088,7 +14088,7 @@
         "mibPerSec": 61.97,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14105,7 +14105,7 @@
         "mibPerSec": 81.59,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14122,7 +14122,7 @@
         "mibPerSec": 93.15,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14139,7 +14139,7 @@
         "mibPerSec": 62.07,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14156,7 +14156,7 @@
         "mibPerSec": 82.65,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14173,7 +14173,7 @@
         "mibPerSec": 96.07,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14190,7 +14190,7 @@
         "mibPerSec": 64.34,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -14207,7 +14207,7 @@
         "mibPerSec": 84.61,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 83635224,
         "checksum": -2136498212,
         "contractScope": "independent-process-candidate-headroom-stability"
@@ -15519,7 +15519,7 @@
         "mibPerSec": 179.7,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -15553,7 +15553,7 @@
         "mibPerSec": 178.34,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -15621,7 +15621,7 @@
         "mibPerSec": 174.93,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -15638,7 +15638,7 @@
         "mibPerSec": 173.98,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -15655,7 +15655,7 @@
         "mibPerSec": 173.31,
         "fullStringParity": true,
         "boundedMemory": true,
-        "memoryKind": "not-recorded",
+        "memoryKind": "process-rss",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"

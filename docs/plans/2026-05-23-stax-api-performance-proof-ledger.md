@@ -233,11 +233,11 @@ values remains a negative result. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured
-rows with unknown full-string parity and 77 rows with unknown bounded-memory
-flags. The unknown bounded-memory set contains 55 JavaScript rows, 62
-full-string rows, 40 JavaScript full-string rows, 0 JavaScript 1 GiB+
-full-string rows, and 24 rows that have raw memory counters but no recorded
-bounded-memory verdict. The scan reports 91 full-string rows failing the
+rows with unknown full-string parity and 53 rows with unknown bounded-memory
+flags. The unknown bounded-memory set contains 31 JavaScript rows, 43
+full-string rows, 21 JavaScript full-string rows, 0 JavaScript 1 GiB+
+full-string rows, and 0 rows that have raw memory counters but no recorded or
+inferred bounded-memory verdict. The scan reports 91 full-string rows failing the
 bounded-memory counterexample criterion: 91 carry explicit
 `boundedMemory=false`, 0 are only bounded flags without row-level memory proof,
 0 have an unknown bounded-memory flag, and 48 also lack row-level memory proof.
