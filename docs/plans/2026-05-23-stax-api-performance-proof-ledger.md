@@ -158,7 +158,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 116 aggregated rows and 105 JavaScript 1 GiB+
+The current aggregate has 120 aggregated rows and 107 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
@@ -176,9 +176,11 @@ metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s targe
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
 pass. The same-fixture 1024 MiB JS row vs Woodstox target now includes the
-file-backed source and batch-size sweep rows: `stax-raw-frame-name-id-chunk-32kib`
-is fastest at 151.70 MiB/s, 0.80x Woodstox, and 19.95 MiB/s below the 0.9x
-target. For the
+file-backed source, batch-size sweep, and short attr-value cache candidate rows:
+`stax-raw-frame-name-id-chunk-32kib` is fastest at 151.70 MiB/s. Against the
+fastest same-fixture Woodstox row now present in release artifacts
+(`file-backed-short-attr-value-cache-candidate.json`, 338.14 MiB/s), that is
+0.45x Woodstox and 152.63 MiB/s below the 0.9x target. For the
 public event-object shape, the fastest bounded row is
 Node/V8 `eventObjectFull` from
 `candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process
@@ -212,8 +214,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 139 primary release JSON artifacts, recognizes 767
-sample throughput rows and 89 aggregate rows, and finds 476 JavaScript 1 GiB+
+The current scan covers 140 primary release JSON artifacts, recognizes 771
+sample throughput rows and 89 aggregate rows, and finds 478 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -226,7 +228,7 @@ individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 142 JavaScript 1 GiB+
+or their source contract carry it. It now finds 148 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -262,11 +264,11 @@ values remains a negative result. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured
-rows with unknown full-string parity and 31 rows with unknown bounded-memory
-flags. The unknown bounded-memory set contains 9 JavaScript rows, 31
-full-string rows, 9 JavaScript full-string rows, 0 JavaScript 1 GiB+
-full-string rows, and 0 rows that have raw memory counters but no recorded or
-inferred bounded-memory verdict. The scan reports 91 full-string rows failing the
+rows with unknown full-string parity and 20 rows with unknown bounded-memory
+flags. The unknown bounded-memory set contains 4 JavaScript rows, 20
+full-string rows, 0 JavaScript 1 GiB+ full-string rows, and 10 rows that have
+raw memory counters but no recorded or inferred bounded-memory verdict. The
+scan reports 91 full-string rows failing the
 bounded-memory counterexample criterion: 91 carry explicit
 `boundedMemory=false`, 0 are only bounded flags without row-level memory proof,
 0 have an unknown bounded-memory flag, and 48 also lack row-level memory proof.
@@ -280,10 +282,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 139 primary release artifacts and recognizes 767
-measured rows. It records 99 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 140 primary release artifacts and recognizes 771
+measured rows. It records 100 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-10 negative-result artifacts, 476 JavaScript 1 GiB+ full-string rows, and three
+10 negative-result artifacts, 478 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving
@@ -885,6 +887,15 @@ slower in this path. `file-backed-string-cache-candidate.md` records
 `stax-raw-frame-name-id` at 137.51 MiB/s and `stax-raw-frame-string-cache` at
 49.64 MiB/s with max RSS 616.98 MiB, so the bounded value-cache variant is both
 slower and outside the 512 MiB RSS gate under the current source contract.
+`file-backed-short-attr-value-cache-candidate.md` narrows the cache idea to
+attribute values with byte length at most four, avoiding text strings and long
+unique attribute values. The `runs=3` release row still rejects it:
+`stax-raw-frame-name-id` averaged 147.05 MiB/s with max RSS 61.14 MiB, while
+`stax-raw-frame-short-attr-value-cache` averaged 140.15 MiB/s with max RSS
+67.01 MiB under the same checksum, event count, and file-backed
+`Iterable<Uint8Array[]>` source contract. The same artifact records same-fixture
+Woodstox at 338.14 MiB/s and quick-xml at 274.63 MiB/s, so the narrowed cache
+does not move the JS row toward the 0.9x Woodstox target.
 
 `packages/benchmark/results/release/firefox-spidermonkey-profiler-trace.md`
 adds Firefox/SpiderMonkey Gecko Profiler startup/shutdown evidence for selected

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T22:38:09.333Z",
+  "generatedAt": "2026-05-25T23:03:36.469Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -8,6 +8,7 @@
     "sourceArtifacts": [
       "external-baseline.json",
       "external-baseline-1024mib-file-sync-batches.json",
+      "file-backed-short-attr-value-cache-candidate.json",
       "candidate-headroom-large.json",
       "bun-candidate-headroom-large.json",
       "browser-candidate-headroom-large.json",
@@ -40,8 +41,8 @@
     ]
   },
   "summary": {
-    "rowCount": 116,
-    "jsLargeFullRowCount": 105,
+    "rowCount": 120,
+    "jsLargeFullRowCount": 107,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "books-corpus-stability",
@@ -80,10 +81,11 @@
       "sourceArtifact": "file-backed-source-sweep.json",
       "fastestJsCaseId": "stax-raw-frame-name-id-chunk-32kib",
       "fastestJsMiBPerSec": 151.7,
-      "woodstoxMiBPerSec": 190.72,
-      "target90MiBPerSec": 171.65,
-      "fastestJsWoodstoxRatio": 0.8,
-      "remainingTo90PercentMiBPerSec": 19.95,
+      "woodstoxSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "woodstoxMiBPerSec": 338.14,
+      "target90MiBPerSec": 304.33,
+      "fastestJsWoodstoxRatio": 0.45,
+      "remainingTo90PercentMiBPerSec": 152.63,
       "targetMet": false
     },
     "fastestJsLargePublicEventRow": {
@@ -150,6 +152,31 @@
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        }
+      },
+      {
+        "group": "file-backed-short-attr-value-cache-candidate",
+        "fastest": {
+          "group": "file-backed-short-attr-value-cache-candidate",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 147.05,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 61.14,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 7.44,
+            "maxExternalMiB": 3.73,
+            "maxArrayBuffersMiB": 1.74
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
           "sampleMaxMiBPerSec": null,
@@ -970,6 +997,142 @@
         "maxArrayBuffersMiB": null
       },
       "woodstoxRatio": 0.79,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-short-attr-value-cache-candidate",
+      "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "runtimeId": "node-v8-stax-raw-frame-name-id",
+      "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 147.05,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 61.14,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 7.44,
+        "maxExternalMiB": 3.73,
+        "maxArrayBuffersMiB": 1.74
+      },
+      "woodstoxRatio": 0.43,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-short-attr-value-cache-candidate",
+      "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "runtimeId": "stax-raw-frame-short-attr-value-cache",
+      "runtimeLabel": "stax-raw-frame-short-attr-value-cache",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-short-attr-value-cache",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache plus short attr-value cache file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 140.15,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 67.01,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 9.33,
+        "maxExternalMiB": 5.23,
+        "maxArrayBuffersMiB": 3.24
+      },
+      "woodstoxRatio": 0.41,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-short-attr-value-cache-candidate",
+      "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "languageFamily": "java",
+      "jsRuntime": false,
+      "caseId": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 338.14,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 318.52,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "woodstoxRatio": 1,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "file-backed-short-attr-value-cache-candidate",
+      "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "languageFamily": "rust",
+      "jsRuntime": false,
+      "caseId": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "generated-file",
+        "shape": "node-string-return-1024mib",
+        "sizeMiB": 1024,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "mibPerSec": 274.63,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 4.78,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "woodstoxRatio": 0.81,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -6017,7 +6180,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=105",
+        "jsLargeFullRows=107",
         "counterexamples=0"
       ]
     },
@@ -6036,7 +6199,7 @@
         "1024MiB woodstox=190.72 MiB/s",
         "1024MiB quick-xml=150.24 MiB/s",
         "same-fixture-fastest-js=stax-raw-frame-name-id-chunk-32kib",
-        "same-fixture-fastest-js/Woodstox=0.80",
+        "same-fixture-fastest-js/Woodstox=0.45",
         "same-fixture-0.9x-target-met=false"
       ]
     }

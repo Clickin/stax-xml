@@ -171,3 +171,60 @@ test('external baseline reports bounded value-cache as a same-checksum candidate
   assert.match(markdown, /stax-raw-frame-string-cache/);
   assert.match(markdown, /file-sync-batches mode/);
 });
+
+test('external baseline reports short attr-value cache as a same-checksum candidate', () => {
+  const cacheJsonOut = join(tmpDir, 'external-baseline-short-attr-value-cache-test.json');
+  const cacheMdOut = join(tmpDir, 'external-baseline-short-attr-value-cache-test.md');
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [cacheJsonOut, cacheMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'external-baseline.mjs'),
+    '--file',
+    join(__dirname, 'test-data', 'runtime-comparison-16mib.xml'),
+    '--tools',
+    'stax-raw-frame-name-id,stax-raw-frame-short-attr-value-cache',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--skip-build',
+    '--stax-stream-source',
+    'file-sync-batches',
+    '--json-out',
+    cacheJsonOut,
+    '--md-out',
+    cacheMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(cacheJsonOut, 'utf8'));
+  assert.deepEqual(report.results.map(row => row.tool), [
+    'stax-raw-frame-name-id',
+    'stax-raw-frame-short-attr-value-cache',
+  ]);
+  for (const row of report.results) {
+    assert.equal(row.workload, 'full-string-checksum');
+    assert.equal(row.eventCount, 967967);
+    assert.equal(row.checksum, -746772258);
+    assert.equal(row.boundedMemory, true);
+    assert.equal(row.sourceMode, 'file-backed-sync-iterable-byte-batches');
+    assert.equal(row.sourceConsumption.parserInput, 'synchronous Iterable<Uint8Array[]>');
+    assert.equal(row.sourceConsumption.preMaterializesFullXml, false);
+    assert.equal(row.sourceConsumption.directReadableStream, false);
+  }
+
+  const markdown = readFileSync(cacheMdOut, 'utf8');
+  assert.match(markdown, /stax-raw-frame-short-attr-value-cache/);
+  assert.match(markdown, /file-sync-batches mode/);
+});

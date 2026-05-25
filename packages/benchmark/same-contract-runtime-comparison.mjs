@@ -26,6 +26,13 @@ const externalBaselineArtifacts = [
     fixtureShape: 'node-string-return-1024mib',
     optional: true,
   },
+  {
+    group: 'file-backed-short-attr-value-cache-candidate',
+    file: 'file-backed-short-attr-value-cache-candidate.json',
+    fixtureSource: 'generated-file',
+    fixtureShape: 'node-string-return-1024mib',
+    optional: true,
+  },
 ];
 
 const variantArtifacts = [
@@ -693,19 +700,28 @@ function summarize(rows, allocationEvidence) {
     row.group === 'external-baseline-1024mib-file-sync-batches'
     || row.group === 'file-backed-batch-size-sweep'
     || row.group === 'file-backed-source-sweep'
+    || row.group === 'file-backed-short-attr-value-cache-candidate'
   );
   const largeWoodstox = externalLargeRows.find(row => row.runtimeId === 'woodstox-jvm');
   const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');
   const largeStaxStream = externalLargeRows.find(row => row.caseId === 'stax-stream');
   const largeRawFrameNameId = externalLargeRows.find(row => row.caseId === 'stax-raw-frame-name-id');
+  const sameFixtureWoodstox = maxBy(
+    sameFixture1024MiBRows.filter(row => row.runtimeId === 'woodstox-jvm'),
+    row => row.mibPerSec,
+  );
   const fastestSameFixtureLargeJsRow = maxBy(
     sameFixture1024MiBRows.filter(row => row.jsRuntime && row.fullStringParity),
     row => row.mibPerSec,
   );
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
   const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
+  const sameFixtureWoodstoxMibPerSec = sameFixtureWoodstox?.mibPerSec ?? null;
   const targetWoodstox90MiBPerSec = typeof largeWoodstoxMibPerSec === 'number'
     ? round(largeWoodstoxMibPerSec * 0.9)
+    : null;
+  const sameFixtureTargetWoodstox90MiBPerSec = typeof sameFixtureWoodstoxMibPerSec === 'number'
+    ? round(sameFixtureWoodstoxMibPerSec * 0.9)
     : null;
   const fastestSameFixtureLargeJsMibPerSec = fastestSameFixtureLargeJsRow?.mibPerSec ?? null;
 
@@ -733,16 +749,17 @@ function summarize(rows, allocationEvidence) {
       sourceArtifact: fastestSameFixtureLargeJsRow?.sourceArtifact ?? null,
       fastestJsCaseId: fastestSameFixtureLargeJsRow?.caseId ?? null,
       fastestJsMiBPerSec: round(fastestSameFixtureLargeJsMibPerSec),
-      woodstoxMiBPerSec: round(largeWoodstoxMibPerSec),
-      target90MiBPerSec: targetWoodstox90MiBPerSec,
-      fastestJsWoodstoxRatio: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof largeWoodstoxMibPerSec === 'number'
-        ? round(fastestSameFixtureLargeJsMibPerSec / largeWoodstoxMibPerSec)
+      woodstoxSourceArtifact: sameFixtureWoodstox?.sourceArtifact ?? null,
+      woodstoxMiBPerSec: round(sameFixtureWoodstoxMibPerSec),
+      target90MiBPerSec: sameFixtureTargetWoodstox90MiBPerSec,
+      fastestJsWoodstoxRatio: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureWoodstoxMibPerSec === 'number'
+        ? round(fastestSameFixtureLargeJsMibPerSec / sameFixtureWoodstoxMibPerSec)
         : null,
-      remainingTo90PercentMiBPerSec: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
-        ? round(targetWoodstox90MiBPerSec - fastestSameFixtureLargeJsMibPerSec)
+      remainingTo90PercentMiBPerSec: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureTargetWoodstox90MiBPerSec === 'number'
+        ? round(sameFixtureTargetWoodstox90MiBPerSec - fastestSameFixtureLargeJsMibPerSec)
         : null,
-      targetMet: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
-        ? fastestSameFixtureLargeJsMibPerSec >= targetWoodstox90MiBPerSec
+      targetMet: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureTargetWoodstox90MiBPerSec === 'number'
+        ? fastestSameFixtureLargeJsMibPerSec >= sameFixtureTargetWoodstox90MiBPerSec
         : null,
     },
     fastestJsLargePublicEventRow: summarizeRow(fastestJsLargePublicEventRow),
