@@ -33,10 +33,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 117);
-  assert.equal(report.summary.measuredRowCount, 675);
-  assert.equal(report.summary.largeJsFullRowCount, 410);
-  assert.equal(report.summary.partialHeadroomRowCount, 13);
+  assert.equal(report.summary.scannedArtifactCount, 118);
+  assert.equal(report.summary.measuredRowCount, 680);
+  assert.equal(report.summary.largeJsFullRowCount, 414);
+  assert.equal(report.summary.partialHeadroomRowCount, 14);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
@@ -67,6 +67,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('raw-batch-kind-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('materialization-category-drop-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate.json'));
+  assert.ok(report.scannedArtifacts.includes('text-cache-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-fold-trim-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-string-cache-candidate.json'));
@@ -98,6 +99,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'materialization-category-drop-sweep.json'
     && row.id === 'withoutTextStrings'
     && row.mibPerSec === 225.67
+    && row.fullStringParity === false
+    && row.contractScope === 'full-materialization-minus-text-cdata'
+  ));
+  assert.ok(report.partialHeadroomRows.some(row =>
+    row.sourceArtifact === 'text-cache-materialization-candidate.json'
+    && row.id === 'withoutTextStrings'
+    && row.mibPerSec === 220.30
     && row.fullStringParity === false
     && row.contractScope === 'full-materialization-minus-text-cdata'
   ));

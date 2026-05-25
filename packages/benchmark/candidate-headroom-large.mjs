@@ -300,6 +300,14 @@ function createVariants(fixture) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { longAsciiText: true }),
     },
     {
+      id: 'rawFrameNameIdTextCache',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded text/CDATA span string cache',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { textCache: new SpanStringCache() }),
+    },
+    {
       id: 'rawFrameNameIdFoldTrim',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache and direct trimmed text checksum folding',
@@ -782,6 +790,21 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const textCache = variants.find((entry) => entry.id === 'rawFrameNameIdTextCache');
+  if (rawNameId && textCache) {
+    findings.push({
+      id: 'text-only-cache-candidate',
+      summary: 'rawFrameNameIdTextCache keeps the full-string checksum while caching only text/CDATA span strings; attribute values still use direct TextDecoder materialization.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdTextCache=${formatRate(textCache.mibPerSec)}`,
+        `sameChecksum=${textCache.checksum === rawNameId.checksum}`,
+        `valueCacheHits=${textCache.materializationCounters.rawValueCacheHits}`,
+        `valueCacheMisses=${textCache.materializationCounters.rawValueCacheMisses}`,
+        `maxRSS=${formatBytes(textCache.memory.maxRssBytes)}`,
+      ],
+    });
+  }
   if (fixture.source === 'corpus-file') {
     findings.push({
       id: 'corpus-cycle-fixture',
@@ -1116,9 +1139,10 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
       const start = textStarts[index];
       if (start >= 0) {
         countStringField(materializationCounters, 'text');
+          const textCache = options.textCache ?? valueCache;
           const value = options.longAsciiText
-            ? materializeTextValue(buffer, start, textEnds[index], decoder, valueCache, materializationCounters)
-            : materializeValue(buffer, start, textEnds[index], decoder, valueCache, materializationCounters, 'text');
+            ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
+            : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text');
           checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
         }
       }
