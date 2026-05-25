@@ -187,7 +187,7 @@ function hasFindingClassification(root, classification) {
 function extractMeasuredRows(sourceArtifact, root) {
   const rows = [];
   visit(root, [], createInitialContext(sourceArtifact, root), (node, path, context) => {
-    if (isDerivedSummaryPath(path)) return;
+    if (isDerivedProjectionPath(path)) return;
     if (typeof node.mibPerSec !== 'number' || !Number.isFinite(node.mibPerSec)) return;
     const fixture = normalizeFixture(node.fixture) ?? context.fixture;
     rows.push({
@@ -212,8 +212,8 @@ function extractMeasuredRows(sourceArtifact, root) {
   return rows;
 }
 
-function isDerivedSummaryPath(path) {
-  return path.includes('summary');
+function isDerivedProjectionPath(path) {
+  return path.includes('summary') || path.includes('comparisons');
 }
 
 function visit(value, path, context, onNode) {
@@ -554,6 +554,8 @@ function classifyRuntime(sourceArtifact, node, context) {
   if (node.tool === 'woodstox') return 'woodstox-jvm';
   if (node.tool === 'quick-xml') return 'quick-xml-rust';
   if (typeof node.tool === 'string' && node.tool.startsWith('stax-')) return 'node-v8';
+  if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
+  if (sourceArtifact.startsWith('quick-xml-')) return 'quick-xml-rust';
 
   const environment = node.environment ?? context.environment ?? {};
   const runtimeName = environment.runtimeName;
@@ -569,9 +571,13 @@ function classifyRuntime(sourceArtifact, node, context) {
     return 'chrome-v8-browser';
   }
   if (runtimeName === 'node' || environment.v8) return 'node-v8';
+  if (environment.node) return 'node-v8';
   if (runtime.id === 'node' || runtime.v8) return 'node-v8';
   if (runtime.id === 'bun') return 'bun-jsc';
   if (runtime.id === 'deno') return 'deno-v8';
+  if (runtime === 'node') return 'node-v8';
+  if (runtime === 'bun') return 'bun-jsc';
+  if (runtime === 'deno') return 'deno-v8';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   return 'unknown';

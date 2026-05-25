@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T08:54:46.560Z",
+  "generatedAt": "2026-05-25T09:04:15.488Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1261,8 +1261,7 @@
       "runtimes": [
         "node-v8",
         "woodstox-jvm",
-        "quick-xml-rust",
-        "unknown"
+        "quick-xml-rust"
       ],
       "fixture": {
         "source": null,
@@ -1285,8 +1284,7 @@
       "runtimes": [
         "node-v8",
         "woodstox-jvm",
-        "quick-xml-rust",
-        "unknown"
+        "quick-xml-rust"
       ],
       "fixture": {
         "source": null,
@@ -1349,8 +1347,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "node-v8",
-        "unknown"
+        "node-v8"
       ],
       "fixture": {
         "source": null,
@@ -1434,8 +1431,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "node-v8",
-        "unknown"
+        "node-v8"
       ],
       "fixture": {
         "source": null,
@@ -2026,8 +2022,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "quick-xml-rust",
-        "unknown"
+        "quick-xml-rust"
       ],
       "fixture": {
         "source": "file",
@@ -2079,10 +2074,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "node-v8",
-        "bun-jsc",
-        "deno-v8",
-        "unknown"
+        "node-v8"
       ],
       "fixture": {
         "source": null,
@@ -2093,7 +2085,7 @@
         "actualBytes": 16777038
       },
       "corpusSeed": null,
-      "measuredRowCount": 36
+      "measuredRowCount": 18
     },
     {
       "sourceArtifact": "runtime-proof-gap-handoff.json",
@@ -2463,8 +2455,7 @@
         "TRACE_FACT"
       ],
       "runtimes": [
-        "woodstox-jvm",
-        "unknown"
+        "woodstox-jvm"
       ],
       "fixture": {
         "source": "file",
@@ -2486,8 +2477,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "woodstox-jvm",
-        "unknown"
+        "woodstox-jvm"
       ],
       "fixture": {
         "source": "file",
@@ -2509,8 +2499,7 @@
         "BENCH_FACT"
       ],
       "runtimes": [
-        "woodstox-jvm",
-        "unknown"
+        "woodstox-jvm"
       ],
       "fixture": {
         "source": "file",
@@ -2536,7 +2525,7 @@
     "scannedArtifactCount": 132,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 743,
+    "measuredRowCount": 725,
     "benchmarkArtifactCount": 93,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 8,
@@ -2555,7 +2544,7 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 55,
-        "measuredRowCount": 265,
+        "measuredRowCount": 277,
         "largeFullStringRowCount": 164,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
@@ -2605,8 +2594,8 @@
       {
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
-        "artifactCount": 29,
-        "measuredRowCount": 208,
+        "artifactCount": 28,
+        "measuredRowCount": 202,
         "largeFullStringRowCount": 123,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -2660,8 +2649,8 @@
       {
         "runtimeId": "deno-v8",
         "runtimeLabel": "Deno/V8",
-        "artifactCount": 10,
-        "measuredRowCount": 56,
+        "artifactCount": 9,
+        "measuredRowCount": 50,
         "largeFullStringRowCount": 44,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "deno-textdecoder-span-variants-corpus.json",
@@ -2817,7 +2806,7 @@
         "runtimeId": "woodstox-jvm",
         "runtimeLabel": "Java/Woodstox",
         "artifactCount": 7,
-        "measuredRowCount": 4,
+        "measuredRowCount": 7,
         "largeFullStringRowCount": 1,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
@@ -2849,7 +2838,7 @@
         "runtimeId": "quick-xml-rust",
         "runtimeLabel": "Rust/quick-xml",
         "artifactCount": 5,
-        "measuredRowCount": 4,
+        "measuredRowCount": 9,
         "largeFullStringRowCount": 1,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
@@ -2877,19 +2866,13 @@
       {
         "runtimeId": "unknown",
         "runtimeLabel": "unknown",
-        "artifactCount": 11,
-        "measuredRowCount": 26,
+        "artifactCount": 2,
+        "measuredRowCount": 0,
         "largeFullStringRowCount": 0,
         "fastestLargeFullStringRow": null,
         "sourcePins": [],
-        "traceArtifacts": [
-          "woodstox-hotspot-trace.json"
-        ],
-        "allocationArtifacts": [
-          "quick-xml-allocation-count.json",
-          "woodstox-jfr-allocation.json",
-          "woodstox-measured-jfr-allocation.json"
-        ]
+        "traceArtifacts": [],
+        "allocationArtifacts": []
       }
     ],
     "browser": {
@@ -15512,8 +15495,7 @@
           "TRACE_FACT"
         ],
         "runtimes": [
-          "woodstox-jvm",
-          "unknown"
+          "woodstox-jvm"
         ],
         "fixture": {
           "source": "file",
@@ -15631,8 +15613,7 @@
           "BENCH_FACT"
         ],
         "runtimes": [
-          "quick-xml-rust",
-          "unknown"
+          "quick-xml-rust"
         ],
         "fixture": {
           "source": "file",
@@ -15759,8 +15740,7 @@
           "BENCH_FACT"
         ],
         "runtimes": [
-          "woodstox-jvm",
-          "unknown"
+          "woodstox-jvm"
         ],
         "fixture": {
           "source": "file",
@@ -15782,8 +15762,7 @@
           "BENCH_FACT"
         ],
         "runtimes": [
-          "woodstox-jvm",
-          "unknown"
+          "woodstox-jvm"
         ],
         "fixture": {
           "source": "file",

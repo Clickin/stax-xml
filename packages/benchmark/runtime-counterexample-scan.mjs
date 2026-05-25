@@ -206,7 +206,7 @@ function createReport(options) {
 function extractMeasuredRows(sourceArtifact, root) {
   const rows = [];
   visit(root, [], createInitialContext(sourceArtifact, root), (node, path, context) => {
-    if (isDerivedSummaryPath(path)) return;
+    if (isDerivedProjectionPath(path)) return;
     if (!isMeasuredNode(node)) return;
     const row = createMeasuredRow(sourceArtifact, node, path, context);
     if (row) rows.push(row);
@@ -266,8 +266,8 @@ function isMeasuredNode(node) {
   return typeof node.mibPerSec === 'number' && Number.isFinite(node.mibPerSec);
 }
 
-function isDerivedSummaryPath(path) {
-  return path.includes('summary');
+function isDerivedProjectionPath(path) {
+  return path.includes('summary') || path.includes('comparisons');
 }
 
 function isAggregateMeasuredNode(node) {
