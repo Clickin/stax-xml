@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:59:38.032Z",
+  "generatedAt": "2026-05-25T00:12:47.175Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -73,6 +73,7 @@
     "external-baseline.json",
     "file-backed-core-decomposition.json",
     "file-backed-source-sweep.json",
+    "file-backed-v8-codegen-trace.json",
     "firefox-bidi-candidate-headroom-books-corpus.json",
     "firefox-bidi-candidate-headroom-corpus.json",
     "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -129,7 +130,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 110,
+    "scannedArtifactCount": 111,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 658,

@@ -1,0 +1,221 @@
+{
+  "generatedAt": "2026-05-25T00:12:13.217Z",
+  "objective": "file-backed-v8-codegen-trace",
+  "contract": "node-v8-trace-opt-deopt-file-backed-reader-shapes",
+  "note": "Node/V8 trace-opt and trace-deopt evidence for file-backed StreamReaderSync reader shapes. This is trace evidence for the source consumption and wrapper functions only; it is not a throughput ceiling proof and does not replace the 1 GiB benchmark rows.",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "source": "file-backed",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "sizeBytes": 16777038,
+    "sizeMiB": 15.99983024597168,
+    "sizeGiB": 0.015624834224581718
+  },
+  "options": {
+    "cases": [
+      "scan-all-no-decode",
+      "stream-full-string",
+      "raw-frame-name-id"
+    ],
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "warmups": 64,
+    "iterations": 4
+  },
+  "rawArtifacts": {
+    "manifestPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\file-backed-release\\manifest.json",
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\v8-codegen\\file-backed-release",
+    "committed": false
+  },
+  "cases": [
+    {
+      "caseId": "scan-all-no-decode",
+      "status": "optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "scan-all-no-decode",
+        "eventCount": 967967,
+        "checksum": -141941271
+      },
+      "optimizedFunctions": [
+        "<node:internal/fs/utils>",
+        "<node:internal/validators>",
+        "Ee",
+        "addAttribute",
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "ae",
+        "assertTextAllowedOutsideDocumentElement",
+        "consumeScanAllNoDecode",
+        "createFileByteBatches",
+        "nextBatch",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "prepareBuffer",
+        "readSync"
+      ],
+      "functionMentions": {
+        "consumeScanAllNoDecode": 25,
+        "createFileByteBatches": 7
+      },
+      "deoptCount": 25,
+      "warmupDeoptCount": 25,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "traceLogBytes": 71499
+    },
+    {
+      "caseId": "stream-full-string",
+      "status": "deopt-after-warmup",
+      "result": {
+        "caseId": "stream-full-string",
+        "eventCount": 967967,
+        "checksum": -746772258
+      },
+      "optimizedFunctions": [
+        "<node:internal/fs/utils>",
+        "<node:internal/validators>",
+        "Ee",
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "ae",
+        "assertActive",
+        "assertTextAllowedOutsideDocumentElement",
+        "attributeCountAt",
+        "attributeNameAt",
+        "attributeValueAt",
+        "consumeStreamFullString",
+        "copyAttrName",
+        "createFileByteBatches",
+        "decode",
+        "decodeSpan",
+        "foldString",
+        "materializeName",
+        "mixChecksum",
+        "nameAt",
+        "ne",
+        "nextBatch",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "prepareBuffer",
+        "readSync",
+        "textAt",
+        "typeAt"
+      ],
+      "functionMentions": {
+        "consumeStreamFullString": 120,
+        "createFileByteBatches": 7,
+        "foldString": 7
+      },
+      "deoptCount": 119,
+      "warmupDeoptCount": 109,
+      "postWarmupDeoptCount": 10,
+      "postWarmupDeoptSamples": [
+        "c29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 000003561668BDC1)>, 0x006d0aa66d11 <Code TURBOFAN_JS>, opt id 85, bytecode offset 428, deopt exit 124, FP to SP delta 360, call",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000",
+        "[bailout (kind: deopt-eager, reason: Insufficient type feedback for generic named access): begin. deoptimizing 0x02527bf7fc29 <JSFunction consumeStreamFullString <file:///G:/programming/stax-xml/packages/benchmark/file-backed-v8-codegen-trace.mjs> (sfi = 00000"
+      ],
+      "traceLogBytes": 136298
+    },
+    {
+      "caseId": "raw-frame-name-id",
+      "status": "optimized-no-post-warmup-deopt",
+      "result": {
+        "caseId": "raw-frame-name-id",
+        "eventCount": 967967,
+        "checksum": -746772258
+      },
+      "optimizedFunctions": [
+        "<node:internal/fs/utils>",
+        "<node:internal/validators>",
+        "addEvent",
+        "addText",
+        "addTextEvent",
+        "ae",
+        "assertTextAllowedOutsideDocumentElement",
+        "consumeRawFrameNameIdFrame",
+        "createFileByteBatches",
+        "decode",
+        "decodeShortAsciiSpan",
+        "foldString",
+        "mixChecksum",
+        "nextRawBatch",
+        "p",
+        "parseAttributes",
+        "parseBuffer",
+        "parseEndTag",
+        "parseStartTag",
+        "parseTag",
+        "prepareBuffer",
+        "readSync",
+        "refreshFrame"
+      ],
+      "functionMentions": {
+        "consumeRawFrameNameId": 31,
+        "createFileByteBatches": 7,
+        "foldString": 7
+      },
+      "deoptCount": 24,
+      "warmupDeoptCount": 24,
+      "postWarmupDeoptCount": 0,
+      "postWarmupDeoptSamples": [],
+      "traceLogBytes": 75821
+    }
+  ],
+  "summary": {
+    "caseCount": 3,
+    "optimizedCaseCount": 3,
+    "postWarmupDeoptCaseCount": 1,
+    "sameChecksum": false,
+    "sameEventCount": true
+  },
+  "findings": [
+    {
+      "id": "file-backed-source-shape-traced",
+      "classification": "TRACE_FACT",
+      "summary": "All cases use StreamReaderSync over demand-driven file-backed Iterable<Uint8Array[]> batches.",
+      "evidence": [
+        "scan-all-no-decode: events=967967, checksum=-141941271",
+        "stream-full-string: events=967967, checksum=-746772258",
+        "raw-frame-name-id: events=967967, checksum=-746772258"
+      ]
+    },
+    {
+      "id": "post-warmup-deopt-gate",
+      "classification": "TRACE_FACT",
+      "summary": "Records whether each file-backed reader shape deoptimized after the warmup marker in this Node/V8 run.",
+      "evidence": [
+        "scan-all-no-decode: status=optimized-no-post-warmup-deopt, postWarmupDeopts=0",
+        "stream-full-string: status=deopt-after-warmup, postWarmupDeopts=10",
+        "raw-frame-name-id: status=optimized-no-post-warmup-deopt, postWarmupDeopts=0"
+      ]
+    },
+    {
+      "id": "trace-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This narrows Node/V8 file-backed source-shape evidence but does not prove a JS runtime ceiling or cover SpiderMonkey/Safari JIT IR.",
+      "evidence": [
+        "No throughput ceiling conclusion is allowed from this trace artifact."
+      ]
+    }
+  ]
+}

@@ -32,14 +32,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 110);
+  assert.equal(report.summary.scannedArtifactCount, 111);
   assert.equal(report.summary.measuredRowCount, 658);
   assert.equal(report.summary.largeJsFullRowCount, 403);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 78);
   assert.equal(report.summary.sourceArtifactCount, 14);
-  assert.equal(report.summary.traceArtifactCount, 7);
+  assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
   assert.equal(report.summary.environmentArtifactCount, 2);
   assert.equal(report.summary.negativeArtifactCount, 4);
@@ -107,6 +107,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'file-backed-core-decomposition.json'
     && row.runtimes.includes('node-v8')
     && row.measuredRowCount === 4
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'file-backed-v8-codegen-trace.json'
+    && row.runtimes.includes('node-v8')
+    && row.evidenceKinds.includes('TRACE_FACT')
+    && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'stream-source-consumption-shapes.json'
@@ -186,6 +192,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'deno-v8'
     && row.allocationArtifacts.includes('deno-v8-allocation-sampling.json')
+  ));
+  assert.ok(report.coverage.runtimes.some(row =>
+    row.runtimeId === 'node-v8'
+    && row.traceArtifacts.includes('file-backed-v8-codegen-trace.json')
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'firefox-spidermonkey-browser'
