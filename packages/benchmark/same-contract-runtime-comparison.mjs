@@ -9,6 +9,7 @@ const defaultJsonOut = resolve(defaultReleaseDir, 'same-contract-runtime-compari
 const defaultMdOut = resolve(defaultReleaseDir, 'same-contract-runtime-comparison.md');
 
 const candidateCases = ['stringFull', 'eventObjectFull', 'rawFrameNameId'];
+const candidateStabilityCases = ['stringFull', 'eventObjectFull', 'rawFrameNameId', 'rawFrameStringCache'];
 const textDecoderCases = ['subarraySharedDecoder', 'shortAsciiSubarraySharedDecoder'];
 
 const externalBaselineArtifacts = [
@@ -147,6 +148,51 @@ const variantArtifacts = [
     runtimeLabel: 'Chrome/V8 browser',
     jsRuntime: true,
     cases: textDecoderCases,
+  },
+  {
+    group: 'books-corpus-stability',
+    file: 'candidate-headroom-books-corpus-stability.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: candidateStabilityCases,
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
+    group: 'books-corpus-stability',
+    file: 'bun-candidate-headroom-books-corpus-stability.json',
+    runtimeId: 'bun-jsc',
+    runtimeLabel: 'Bun/JSC',
+    jsRuntime: true,
+    cases: candidateStabilityCases,
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
+    group: 'text-cache-negative-stability',
+    file: 'text-cache-materialization-candidate-stability.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['rawFrameNameId', 'rawFrameNameIdTextCache'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
+    group: 'long-ascii-text-negative-stability',
+    file: 'long-ascii-text-materialization-candidate-stability.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['stringFull', 'rawFrameNameId', 'rawFrameNameIdLongAsciiText'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
+    group: 'fold-trimmed-text-negative-stability',
+    file: 'fold-trimmed-text-candidate-stability.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['rawFrameNameId', 'rawFrameNameIdFoldTrim'],
+    sourceMode: 'sync-iterable-byte-batches',
   },
 ];
 
@@ -323,6 +369,7 @@ function extractVariantRows(report, spec) {
   return selected.map(row => {
     const fixture = extractFixture(report.fixture);
     const memory = extractMemory(row, report);
+    const samples = summarizeSamples(row, fixture);
     const isLarge = (fixture.sizeGiB ?? 0) >= 0.999;
     const counterexample = Boolean(
       spec.jsRuntime
@@ -349,14 +396,48 @@ function extractVariantRows(report, spec) {
       checksum: row.checksum,
       mibPerSec: round(row.mibPerSec),
       boundedMemory: row.boundedMemory === true,
-      sourceMode: classifyArtifactSourceMode(row, report),
+      sourceMode: spec.sourceMode ?? classifyArtifactSourceMode(row, report),
       memory,
       materializationCounters: pickMaterializationCounters(row.materializationCounters),
+      sampleCount: samples.sampleCount,
+      sampleMinMiBPerSec: samples.sampleMinMiBPerSec,
+      sampleMaxMiBPerSec: samples.sampleMaxMiBPerSec,
+      sampleSpreadRatio: samples.sampleSpreadRatio,
       woodstoxRatio: round(row.woodstoxRatio),
       targetStatus: row.targetStatus ?? null,
       runtimeLimitCounterexample: counterexample,
     };
   });
+}
+
+function summarizeSamples(row, fixture) {
+  if (!Array.isArray(row.samplesMs) || row.samplesMs.length === 0 || typeof fixture.sizeMiB !== 'number') {
+    return {
+      sampleCount: Array.isArray(row.samplesMs) ? row.samplesMs.length : null,
+      sampleMinMiBPerSec: null,
+      sampleMaxMiBPerSec: null,
+      sampleSpreadRatio: null,
+    };
+  }
+  const throughputs = row.samplesMs
+    .filter(value => typeof value === 'number' && Number.isFinite(value) && value > 0)
+    .map(value => fixture.sizeMiB / (value / 1000));
+  if (throughputs.length === 0) {
+    return {
+      sampleCount: row.samplesMs.length,
+      sampleMinMiBPerSec: null,
+      sampleMaxMiBPerSec: null,
+      sampleSpreadRatio: null,
+    };
+  }
+  const min = Math.min(...throughputs);
+  const max = Math.max(...throughputs);
+  return {
+    sampleCount: row.samplesMs.length,
+    sampleMinMiBPerSec: round(min),
+    sampleMaxMiBPerSec: round(max),
+    sampleSpreadRatio: min > 0 ? round((max - min) / min) : null,
+  };
 }
 
 function extractCrossProcessRows(report, spec) {
@@ -862,6 +943,10 @@ function summarizeRow(row) {
     memory: row.memory,
     sourceMode: row.sourceMode,
     sourceArtifact: row.sourceArtifact,
+    sampleCount: row.sampleCount ?? null,
+    sampleMinMiBPerSec: row.sampleMinMiBPerSec ?? null,
+    sampleMaxMiBPerSec: row.sampleMaxMiBPerSec ?? null,
+    sampleSpreadRatio: row.sampleSpreadRatio ?? null,
   };
 }
 
