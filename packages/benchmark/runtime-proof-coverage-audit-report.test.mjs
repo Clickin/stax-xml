@@ -33,8 +33,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 139);
-  assert.equal(report.summary.measuredRowCount, 754);
-  assert.equal(report.summary.largeJsFullRowCount, 463);
+  assert.equal(report.summary.measuredRowCount, 759);
+  assert.equal(report.summary.largeJsFullRowCount, 468);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -199,7 +199,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'file-backed-batch-size-sweep.json'
     && row.runtimes.includes('node-v8')
-    && row.measuredRowCount === 5
+    && row.measuredRowCount === 10
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'file-backed-materialization-category-drop-sweep.json'
@@ -231,8 +231,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 288
-    && row.largeFullStringRowCount === 169
+    && row.measuredRowCount === 293
+    && row.largeFullStringRowCount === 174
   ));
   assert.ok(!report.coverage.runtimes.some(row => row.runtimeId === 'unknown'));
   assert.ok(report.scannedArtifacts.some(row =>
@@ -422,7 +422,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 59 \| 288 \| 169 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 59 \| 293 \| 174 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 8 \| 9 \| 1 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 7 \| 15 \| 1 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

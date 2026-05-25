@@ -21,8 +21,6 @@ test('file-backed batch-size sweep preserves checksum while varying Uint8Array a
     '64',
     '--batch-sizes',
     '1,4',
-    '--tools',
-    'stax-stream',
     '--runs',
     '1',
     '--warmups',
@@ -42,9 +40,15 @@ test('file-backed batch-size sweep preserves checksum while varying Uint8Array a
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'file-backed-batch-size-sweep');
   assert.equal(report.contract, 'same-full-string-checksum-file-backed-byte-batch-size');
-  assert.equal(report.summary.rowCount, 2);
+  assert.equal(report.summary.rowCount, 4);
   assert.equal(report.summary.counterexamples200MiB, 0);
-  assert.deepEqual(report.rows.map(row => row.batchSize), [1, 4]);
+  assert.deepEqual(report.options.tools, ['stax-stream', 'stax-raw-frame-name-id']);
+  assert.deepEqual(report.rows.map(row => row.id), [
+    'stax-stream-batch-1',
+    'stax-raw-frame-name-id-batch-1',
+    'stax-stream-batch-4',
+    'stax-raw-frame-name-id-batch-4',
+  ]);
   for (const row of report.rows) {
     assert.equal(row.fullStringParity, true);
     assert.equal(row.sourceMode, 'file-sync-batches');

@@ -189,7 +189,7 @@ const requiredProofRules = [
   },
   {
     id: 'same-fixture-woodstox-target-unmet',
-    pattern: /same-fixture 1024 MiB JS row vs Woodstox target[\s\S]+?0\.71x Woodstox[\s\S]+?0\.9x target/i,
+    pattern: /same-fixture 1024 MiB JS row vs Woodstox target[\s\S]+?0\.77x Woodstox[\s\S]+?0\.9x target/i,
     description: 'The current same-fixture 1024 MiB JS row must stay recorded as below the 0.9x Woodstox target.',
   },
 ];

@@ -18,7 +18,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     file: defaultFile,
     chunkKiB: 64,
     batchSizes: [1, 2, 4, 8, 16],
-    tools: ['stax-stream'],
+    tools: ['stax-stream', 'stax-raw-frame-name-id'],
     runs: 1,
     warmups: 0,
     boundedRssMiB: 512,
