@@ -1,0 +1,242 @@
+{
+  "generatedAt": "2026-05-25T11:52:04.269Z",
+  "objective": "bun-jsc-codegen-trace",
+  "contract": "jsc-bytecode-dfg-disassembly-trace",
+  "note": "Bun/JSC codegen trace over selected stax-xml reader rows. Full-string and partial/headroom rows are classified separately. This is runtime-specific TRACE_FACT evidence, not a runtime ceiling proof and not Safari/browser evidence.",
+  "environment": {
+    "runtime": {
+      "runtimeName": "bun",
+      "javascriptEngine": "JavaScriptCore",
+      "bunVersion": "1.3.13",
+      "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "processVersions": {
+        "node": "24.3.0",
+        "bun": "1.3.13",
+        "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+        "openssl": "1.1.0",
+        "llhttp": "9.3.0",
+        "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+        "mimalloc": "57029fb1f193e633462e76af745599e1dbfd4b58",
+        "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+        "uwebsockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+        "webkit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+        "zig": "365343af4fc5a1a632e6b54aadd0b87be30edd81",
+        "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+        "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+        "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+        "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+        "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+        "usockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+        "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+        "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "v8": "13.6.233.10-node.18",
+        "uv": "1.51.1-dev",
+        "napi": "10",
+        "icu": "73.2",
+        "unicode": "15.0",
+        "modules": "137"
+      },
+      "bunRevision": "1.3.13+bf2e2cecf"
+    },
+    "hostNode": "v24.15.0",
+    "platform": "win32-x64",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "parameters": {
+    "sizeGiB": 0.001,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 64,
+    "cases": [
+      "scanAllNoDecode",
+      "nameStringOnly",
+      "textStringOnly",
+      "attrNameStringOnly",
+      "attrValueStringOnly"
+    ],
+    "jscTraceEnv": {
+      "JSC_dumpBytecodeAtDFGTime": "true",
+      "JSC_dumpDFGDisassembly": "true"
+    },
+    "maxBufferMiB": 192
+  },
+  "fixture": {
+    "generated": true,
+    "source": "generated",
+    "sourceFile": null,
+    "shape": "diverse-cycle",
+    "rowXml": "<person0 id=\"item-0\" data0=\"value-0\" code0=\"group-0\" flag0=\"true\"><name0>Runtime Benchmark 0 ☃-0-🙂</name0><summary0 rank=\"0\">Full string checksum payload 0</summary0><group0 shard=\"0\" bucket=\"0\">Text 0 0</group0></person0>",
+    "rowPreviewTruncated": false,
+    "rowCycleSize": 64,
+    "minRowBytes": 222,
+    "maxRowBytes": 265,
+    "averageRowBytes": 247.375,
+    "targetBytes": 1073741,
+    "actualBytes": 1073814,
+    "sizeGiB": 0.0010000672191381454,
+    "batchSize": 16
+  },
+  "rawArtifacts": {
+    "committed": false,
+    "benchmarkJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-codegen\\partial-trace-2026-05-25\\benchmark.json",
+    "benchmarkMd": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-codegen\\partial-trace-2026-05-25\\benchmark.md",
+    "traceLog": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-codegen\\partial-trace-2026-05-25\\jsc-codegen.log",
+    "runLog": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-codegen\\partial-trace-2026-05-25\\run.log"
+  },
+  "elapsedMs": 769,
+  "cases": [
+    {
+      "id": "scanAllNoDecode",
+      "family": "partial-upper-bound",
+      "fullStringParity": false,
+      "contractScope": "event-types-and-attribute-counts-only",
+      "mibPerSec": 25.82,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -530226764,
+      "eventObjects": 0,
+      "maxRssBytes": null
+    },
+    {
+      "id": "nameStringOnly",
+      "family": "partial-upper-bound",
+      "fullStringParity": false,
+      "contractScope": "event-types-attribute-counts-and-element-names",
+      "mibPerSec": 7.48,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": 69593332,
+      "eventObjects": 0,
+      "maxRssBytes": null
+    },
+    {
+      "id": "textStringOnly",
+      "family": "partial-upper-bound",
+      "fullStringParity": false,
+      "contractScope": "event-types-attribute-counts-and-text-cdata",
+      "mibPerSec": 28.32,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1491329952,
+      "eventObjects": 0,
+      "maxRssBytes": null
+    },
+    {
+      "id": "attrNameStringOnly",
+      "family": "partial-upper-bound",
+      "fullStringParity": false,
+      "contractScope": "event-types-attribute-counts-and-attribute-names",
+      "mibPerSec": 23.05,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1372808567,
+      "eventObjects": 0,
+      "maxRssBytes": null
+    },
+    {
+      "id": "attrValueStringOnly",
+      "family": "partial-upper-bound",
+      "fullStringParity": false,
+      "contractScope": "event-types-attribute-counts-and-attribute-values",
+      "mibPerSec": 15.59,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1595127389,
+      "eventObjects": 0,
+      "maxRssBytes": null
+    }
+  ],
+  "fullStringParity": {
+    "status": "not-applicable",
+    "eventCount": null,
+    "checksum": null,
+    "fullRowCount": 0
+  },
+  "trace": {
+    "byteLength": 614101,
+    "lineCount": 7740,
+    "parsingLineCount": 18,
+    "generatedJitLineCount": 12,
+    "generatedDfgLineCount": 11,
+    "blockLineCount": 43,
+    "dfgNodeLineCount": 1214,
+    "bytecodeLineCount": 386,
+    "targetMentions": {
+      "consumeStreamSelective": 0,
+      "consumeEventObjectFull": 0,
+      "consumeRawFrameStyle": 0,
+      "consumeRawFrame": 0,
+      "materializePublicEventObject": 0,
+      "materializeName": 4,
+      "decodeSpan": 4,
+      "decodeShortAsciiSpan": 0,
+      "copyName": 4,
+      "nameAt": 2,
+      "currentGeneration": 3
+    },
+    "totalTargetMentions": 17,
+    "excerpts": {
+      "parsing": [
+        "Parsing p#EdQppc:[0x000002250FCDECC0->0x000002250FCDDDE0->0x000002250FC35150, NoneFunctionCall, 40 (StrictMode)]",
+        "Parsing re#DttTtN:[0x000002250FCDEDA0->0x000002250FCDE080->0x000002250FC35660, NoneFunctionCall, 121 (StrictMode)]",
+        "Parsing ae#Dfj28s:[0x000002250FCDEE80->0x000002250FCDDD00->0x000002250FC35930, NoneFunctionCall, 95 (StrictMode)]",
+        "Parsing internName#DKeZqP:[0x000002250FCDEF60->0x000002250FCDDFA0->0x000002250FC78C40, NoneFunctionCall, 140 (StrictMode)]",
+        "Parsing addEvent#D2kSE0:[0x000002250FCDF040->0x000002250FCDD6E0->0x000002250FC78E80, NoneFunctionCall, 261 (StrictMode)]"
+      ],
+      "generatedDfg": [
+        "Generated DFG JIT code for p#EdQppc:[0x000002250FCDECC0->0x000002250FCDDDE0->0x000002250FC35150, DFGFunctionCall, 40 (StrictMode)], instructions size = 40:",
+        "Generated DFG JIT code for re#DttTtN:[0x000002250FCDEDA0->0x000002250FCDE080->0x000002250FC35660, DFGFunctionCall, 121 (StrictMode)], instructions size = 121:",
+        "Generated DFG JIT code for ae#Dfj28s:[0x000002250FCDEE80->0x000002250FCDDD00->0x000002250FC35930, DFGFunctionCall, 95 (StrictMode)], instructions size = 95:",
+        "Generated DFG JIT code for internName#DKeZqP:[0x000002250FCDEF60->0x000002250FCDDFA0->0x000002250FC78C40, DFGFunctionCall, 140 (StrictMode)], instructions size = 140:",
+        "Generated DFG JIT code for addEvent#D2kSE0:[0x000002250FCDF040->0x000002250FCDD6E0->0x000002250FC78E80, DFGFunctionCall, 261 (StrictMode)], instructions size = 261:",
+        "Generated DFG JIT code for currentGeneration#Epb9Ba:[0x000002250FCDFC80->0x000002250FCDF660->0x000002250FC7BD30, DFGFunctionCall, 14 (StrictMode)], instructions size = 14:",
+        "Generated DFG JIT code for mixChecksum#CNY0vh:[0x000002250FCDFD60->0x000002250FCDF9E0->0x000002250FC6FB80, DFGFunctionCall, 53 (StrictMode)], instructions size = 53:",
+        "Generated DFG JIT code for typeAt#BhCAuR:[0x000002250FCDFE40->0x000002250FCDF740->0x000002250FC7B0D0, DFGFunctionCall, 66 (StrictMode)], instructions size = 66:"
+      ],
+      "targetFunctions": [
+        "Parsing currentGeneration#Epb9Ba:[0x000002250FCDFC80->0x000002250FCDF660->0x000002250FC7BD30, NoneFunctionCall, 14 (StrictMode)]",
+        "currentGeneration#Epb9Ba:[0x000002250FCDF660->0x000002250FC7BD30, BaselineFunctionCall, 14 (StrictMode)]: 4 instructions (0 16-bit instructions, 0 32-bit instructions, 2 instructions with metadata); 114 bytes (100 metadata bytes); 1 parameter(s); 6 callee register(s); 5 variable(s); scope at loc4",
+        "     D@110:<!0:->\tFilterGetByStatus(Check:Untyped:D@107, MustGen, (Simple, <id='uid:(ensureEventCapacity)', [0x000002260102BCF0:[0x000000000102BCF0/16956656, Object, (6/6, 31/32){iterator:0, decoder:1, incompleteFinalMarkupMessage:2, emitStartDocumentBatchImmediately:3, documentMode:4, currentBuffer:5, pendingTail:64, started:65, pendingStartDocument:66, sourceDone:67, finished:68, eventTypes:69, nameStarts:70, nameEnds:71, nameIdsForEvents:72, textStarts:73, textEnds:74, attrStarts:75, attrCounts:76, eventCursor:77, attrNameStarts:78, attrNameEnds:79, attrNameIds:80, attrValueStarts:81, attrValueEnds:82, attrCursor:83, elementNameIds:84, elementNameBuffers:85, elementNameStarts:86, elementNameEnds:87, elementDepth:88, rootElementCount:89, hasDoctype:90, declaredEntities:91, nameIds:92, nameStrings:93, frame:94}, NonArray, PropertyAddition, Proto:0x000002250F089640, Leaf (Watched)]], [<Object: 0x000002250F089640 with butterfly 0x000002250F0B19A8(base=0x000002250F0B17A0) (Structure 0x000002260100BF20:[0x000000000100BF20/16826144, Object, (2/2, 51/64){constructor:0, nextBatch:1, nextBatchFrame:64, pushByteBatch:65, eventCount:66, batchFrame:67, buffer:68, eventType:69, nameStart:70, nameEnd:71, textStart:72, textEnd:73, attrCount:74, attrNameStart:75, attrNameEnd:76, attrValueStart:77, attrValueEnd:78, decodeSpan:79, copyName:80, copyText:81, copyAttrName:82, copyAttrValue:83, copyAttrValueByName:84, isImplicitAttributeValue:85, copyAttributesObject:86, resetFrames:87, refreshFrame:88, prepareBuffer:89, finish:90, parseBuffer:91, parseTag:92, parseBangTag:93, parseProcessingInstruction:94, parseEndTag:95, parseStartTag:96, parseAttributes:97, addText:98, assertValidName:99, assertValidAttributeValue:100, assertValidCharacterData:101, assertValidXmlCharactersOnly:102, recordEntityDeclarations:103, registerStartElement:104, assertTextAllowedOutsideDocumentElement:105, internName:106, materializeName:107, lookupNameId:108, addTextEvent:109, addEvent:110, addAttribute:111, ensureEventCapacity:112, ensureAttrCapacity:113, ensureElementCapacity:114}, NonArray, BecomePrototype, Proto:0x000002250C064208, Leaf (Watched)]), StructureID: 16826144: Presence of ensureEventCapacity at 112 with attributes 4>], viaGlobalProxy = false, offset = 112>, seenInJIT = true), W:SideState, bc#106, ExitValid)",
+        "Generated DFG JIT code for currentGeneration#Epb9Ba:[0x000002250FCDFC80->0x000002250FCDF660->0x000002250FC7BD30, DFGFunctionCall, 14 (StrictMode)], instructions size = 14:",
+        "      D@24:<!0:->\tFilterGetByStatus(Check:Untyped:D@20, MustGen, (Simple, <id='uid:(assertActive)', [0x000002260102C410:[0x000000000102C410/16958480, Object, (5/6, 0/0){events:0, eventCountValue:1, source:2, generation:3, generations:4}, NonArray, PropertyAddition, Proto:0x000002250F0896A0, Leaf]], [<Object: 0x000002250F0896A0 with butterfly 0x000002250F095C48(base=0x000002250F095BC0) (Structure 0x000002260102C170:[0x000000000102C170/16957808, Object, (2/2, 10/16){constructor:0, eventCount:1, event:64, typeAt:65, nameAt:66, textAt:67, attributeCountAt:68, attributeNameAt:69, attributeValueAt:70, Symbol.iterator:71, assertActive:72, assertEventIndex:73}, NonArray, BecomePrototype, Proto:0x000002250C064208, Leaf (Watched)]), StructureID: 16957808: Presence of assertActive at 72 with attributes 4>], viaGlobalProxy = false, offset = 72>, seenInJIT = true), W:SideState, bc#9, ExitValid)",
+        "      D@36:<!0:->\tFilterGetByStatus(Check:Untyped:D@20, MustGen, (Simple, <id='uid:(assertEventIndex)', [0x000002260102C410:[0x000000000102C410/16958480, Object, (5/6, 0/0){events:0, eventCountValue:1, source:2, generation:3, generations:4}, NonArray, PropertyAddition, Proto:0x000002250F0896A0, Leaf]], [<Object: 0x000002250F0896A0 with butterfly 0x000002250F095C48(base=0x000002250F095BC0) (Structure 0x000002260102C170:[0x000000000102C170/16957808, Object, (2/2, 10/16){constructor:0, eventCount:1, event:64, typeAt:65, nameAt:66, textAt:67, attributeCountAt:68, attributeNameAt:69, attributeValueAt:70, Symbol.iterator:71, assertActive:72, assertEventIndex:73}, NonArray, BecomePrototype, Proto:0x000002250C064208, Leaf (Watched)]), StructureID: 16957808: Presence of assertEventIndex at 73 with attributes 4>], viaGlobalProxy = false, offset = 73>, seenInJIT = true), W:SideState, bc#23, ExitValid)",
+        "      D@56:<!0:->\tFilterGetByStatus(Check:Untyped:D@53, MustGen, (Simple, <id='uid:(eventType)', [0x000002260102BCF0:[0x000000000102BCF0/16956656, Object, (6/6, 31/32){iterator:0, decoder:1, incompleteFinalMarkupMessage:2, emitStartDocumentBatchImmediately:3, documentMode:4, currentBuffer:5, pendingTail:64, started:65, pendingStartDocument:66, sourceDone:67, finished:68, eventTypes:69, nameStarts:70, nameEnds:71, nameIdsForEvents:72, textStarts:73, textEnds:74, attrStarts:75, attrCounts:76, eventCursor:77, attrNameStarts:78, attrNameEnds:79, attrNameIds:80, attrValueStarts:81, attrValueEnds:82, attrCursor:83, elementNameIds:84, elementNameBuffers:85, elementNameStarts:86, elementNameEnds:87, elementDepth:88, rootElementCount:89, hasDoctype:90, declaredEntities:91, nameIds:92, nameStrings:93, frame:94}, NonArray, PropertyAddition, Proto:0x000002250F089640, Leaf (Watched)]], [<Object: 0x000002250F089640 with butterfly 0x000002250F0B19A8(base=0x000002250F0B17A0) (Structure 0x000002260100BF20:[0x000000000100BF20/16826144, Object, (2/2, 51/64){constructor:0, nextBatch:1, nextBatchFrame:64, pushByteBatch:65, eventCount:66, batchFrame:67, buffer:68, eventType:69, nameStart:70, nameEnd:71, textStart:72, textEnd:73, attrCount:74, attrNameStart:75, attrNameEnd:76, attrValueStart:77, attrValueEnd:78, decodeSpan:79, copyName:80, copyText:81, copyAttrName:82, copyAttrValue:83, copyAttrValueByName:84, isImplicitAttributeValue:85, copyAttributesObject:86, resetFrames:87, refreshFrame:88, prepareBuffer:89, finish:90, parseBuffer:91, parseTag:92, parseBangTag:93, parseProcessingInstruction:94, parseEndTag:95, parseStartTag:96, parseAttributes:97, addText:98, assertValidName:99, assertValidAttributeValue:100, assertValidCharacterData:101, assertValidXmlCharactersOnly:102, recordEntityDeclarations:103, registerStartElement:104, assertTextAllowedOutsideDocumentElement:105, internName:106, materializeName:107, lookupNameId:108, addTextEvent:109, addEvent:110, addAttribute:111, ensureEventCapacity:112, ensureAttrCapacity:113, ensureElementCapacity:114}, NonArray, BecomePrototype, Proto:0x000002250C064208, Leaf (Watched)]), StructureID: 16826144: Presence of eventType at 69 with attributes 4>], viaGlobalProxy = false, offset = 69>, seenInJIT = true), W:SideState, bc#46, ExitValid)",
+        "      D@30:<!0:->\tFilterGetByStatus(Check:Untyped:D@23, MustGen, (Simple, <id='uid:(ensureAttrCapacity)', [0x000002260102BCF0:[0x000000000102BCF0/16956656, Object, (6/6, 31/32){frame:94, nameStrings:93, nameIds:92, declaredEntities:91, hasDoctype:90, rootElementCount:89, elementDepth:88, elementNameEnds:87, elementNameStarts:86, elementNameBuffers:85, elementNameIds:84, attrCursor:83, attrValueEnds:82, attrValueStarts:81, attrNameIds:80, iterator:0, decoder:1, incompleteFinalMarkupMessage:2, emitStartDocumentBatchImmediately:3, documentMode:4, currentBuffer:5, pendingTail:64, started:65, pendingStartDocument:66, sourceDone:67, finished:68, eventTypes:69, nameStarts:70, nameEnds:71, nameIdsForEvents:72, textStarts:73, textEnds:74, attrStarts:75, attrCounts:76, eventCursor:77, attrNameStarts:78, attrNameEnds:79}, NonArray, PropertyAddition, Proto:0x000002250F089640, Leaf (Watched)]], [<Object: 0x000002250F089640 with butterfly 0x000002250F0B19A8(base=0x000002250F0B17A0) (Structure 0x000002260100BF20:[0x000000000100BF20/16826144, Object, (2/2, 51/64){constructor:0, nextBatch:1, nextBatchFrame:64, pushByteBatch:65, eventCount:66, batchFrame:67, buffer:68, eventType:69, nameStart:70, nameEnd:71, textStart:72, textEnd:73, attrCount:74, attrNameStart:75, attrNameEnd:76, attrValueStart:77, attrValueEnd:78, decodeSpan:79, copyName:80, copyText:81, copyAttrName:82, copyAttrValue:83, copyAttrValueByName:84, isImplicitAttributeValue:85, copyAttributesObject:86, resetFrames:87, refreshFrame:88, prepareBuffer:89, finish:90, parseBuffer:91, parseTag:92, parseBangTag:93, parseProcessingInstruction:94, parseEndTag:95, parseStartTag:96, parseAttributes:97, addText:98, assertValidName:99, assertValidAttributeValue:100, assertValidCharacterData:101, assertValidXmlCharactersOnly:102, recordEntityDeclarations:103, registerStartElement:104, assertTextAllowedOutsideDocumentElement:105, internName:106, materializeName:107, lookupNameId:108, addTextEvent:109, addEvent:110, addAttribute:111, ensureEventCapacity:112, ensureAttrCapacity:113, ensureElementCapacity:114}, NonArray, BecomePrototype, Proto:0x000002250C064208, Leaf (Watched)]), StructureID: 16826144: Presence of ensureAttrCapacity at 113 with attributes 4>], viaGlobalProxy = false, offset = 113>, seenInJIT = true), W:SideState, bc#12, ExitValid)",
+        "     D@103:<!0:->\tFilterGetByStatus(Check:Untyped:D@23, MustGen, (Simple, <id='uid:(internName)', [0x000002260102BCF0:[0x000000000102BCF0/16956656, Object, (6/6, 31/32){iterator:0, decoder:1, incompleteFinalMarkupMessage:2, emitStartDocumentBatchImmediately:3, documentMode:4, currentBuffer:5, pendingTail:64, started:65, pendingStartDocument:66, sourceDone:67, finished:68, eventTypes:69, nameStarts:70, nameEnds:71, nameIdsForEvents:72, textStarts:73, textEnds:74, attrStarts:75, attrCounts:76, eventCursor:77, attrNameStarts:78, attrNameEnds:79, attrNameIds:80, attrValueStarts:81, attrValueEnds:82, attrCursor:83, elementNameIds:84, elementNameBuffers:85, elementNameStarts:86, elementNameEnds:87, elementDepth:88, rootElementCount:89, hasDoctype:90, declaredEntities:91, nameIds:92, nameStrings:93, frame:94}, NonArray, PropertyAddition, Proto:0x000002250F089640, Leaf (Watched)]], [<Object: 0x000002250F089640 with butterfly 0x000002250F0B19A8(base=0x000002250F0B17A0) (Structure 0x000002260100BF20:[0x000000000100BF20/16826144, Object, (2/2, 51/64){constructor:0, nextBatch:1, nextBatchFrame:64, pushByteBatch:65, eventCount:66, batchFrame:67, buffer:68, eventType:69, nameStart:70, nameEnd:71, textStart:72, textEnd:73, attrCount:74, attrNameStart:75, attrNameEnd:76, attrValueStart:77, attrValueEnd:78, decodeSpan:79, copyName:80, copyText:81, copyAttrName:82, copyAttrValue:83, copyAttrValueByName:84, isImplicitAttributeValue:85, copyAttributesObject:86, resetFrames:87, refreshFrame:88, prepareBuffer:89, finish:90, parseBuffer:91, parseTag:92, parseBangTag:93, parseProcessingInstruction:94, parseEndTag:95, parseStartTag:96, parseAttributes:97, addText:98, assertValidName:99, assertValidAttributeValue:100, assertValidCharacterData:101, assertValidXmlCharactersOnly:102, recordEntityDeclarations:103, registerStartElement:104, assertTextAllowedOutsideDocumentElement:105, internName:106, materializeName:107, lookupNameId:108, addTextEvent:109, addEvent:110, addAttribute:111, ensureEventCapacity:112, ensureAttrCapacity:113, ensureElementCapacity:114}, NonArray, BecomePrototype, Proto:0x000002250C064208, Leaf (Watched)]), StructureID: 16826144: Presence of internName at 106 with attributes 4>], viaGlobalProxy = false, offset = 106>, seenInJIT = true), W:SideState, bc#102, ExitValid)"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "bun-jsc-bytecode-dfg-trace-visible",
+      "classification": "TRACE_FACT",
+      "summary": "Bun/JSC emitted JavaScriptCore bytecode and DFG JIT disassembly for the selected stax-xml benchmark run.",
+      "evidence": [
+        "generatedDfgLineCount=11",
+        "bytecodeLineCount=386",
+        "dfgNodeLineCount=1214",
+        "totalTargetMentions=17"
+      ]
+    },
+    {
+      "id": "bun-jsc-trace-partial-contract",
+      "classification": "SCOPE_GUARD",
+      "summary": "The traced Bun/JSC rows are partial/headroom rows only and do not preserve the full-string StAX contract.",
+      "evidence": [
+        "scanAllNoDecode: fullStringParity=false, contractScope=event-types-and-attribute-counts-only, checksum=-530226764, mibPerSec=25.82",
+        "nameStringOnly: fullStringParity=false, contractScope=event-types-attribute-counts-and-element-names, checksum=69593332, mibPerSec=7.48",
+        "textStringOnly: fullStringParity=false, contractScope=event-types-attribute-counts-and-text-cdata, checksum=-1491329952, mibPerSec=28.32",
+        "attrNameStringOnly: fullStringParity=false, contractScope=event-types-attribute-counts-and-attribute-names, checksum=-1372808567, mibPerSec=23.05",
+        "attrValueStringOnly: fullStringParity=false, contractScope=event-types-attribute-counts-and-attribute-values, checksum=-1595127389, mibPerSec=15.59"
+      ]
+    },
+    {
+      "id": "not-safari-or-runtime-ceiling-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This is Bun/JSC runtime codegen evidence, not Safari/WebKit browser evidence and not a 200 MiB/s runtime ceiling proof.",
+      "evidence": [
+        "Bun uses a patched JavaScriptCore build exposed by process.versions.webkit.",
+        "Safari/WebKit browser rows remain a separate proof obligation."
+      ]
+    }
+  ]
+}

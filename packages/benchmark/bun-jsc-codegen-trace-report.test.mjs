@@ -57,3 +57,44 @@ test('Bun/JSC codegen trace report records bytecode and DFG facts without claimi
   assert.match(markdown, /not Safari\/browser evidence/);
   assert.match(markdown, /not a runtime ceiling proof/);
 });
+
+test('Bun/JSC codegen trace report does not treat partial-only rows as full parity evidence', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  const partialJsonOut = join(tmpDir, 'bun-jsc-codegen-partial-trace-report-test.json');
+  const partialMdOut = join(tmpDir, 'bun-jsc-codegen-partial-trace-report-test.md');
+  for (const filePath of [partialJsonOut, partialMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath, { recursive: true, force: true });
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'bun-jsc-codegen-trace.mjs'),
+    '--self-test',
+    '--cases',
+    'scanAllNoDecode,nameStringOnly,textStringOnly,attrNameStringOnly,attrValueStringOnly',
+    '--json-out',
+    partialJsonOut,
+    '--md-out',
+    partialMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 30_000,
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(partialJsonOut, 'utf8'));
+  assert.equal(report.fullStringParity.status, 'not-applicable');
+  assert.equal(report.fullStringParity.fullRowCount, 0);
+  assert.ok(report.cases.every(row => row.fullStringParity === false));
+  assert.equal(report.findings.find(finding => finding.id === 'bun-jsc-trace-partial-contract').classification, 'SCOPE_GUARD');
+  assert.equal(report.findings.some(finding => finding.id === 'bun-jsc-trace-same-contract'), false);
+
+  const markdown = readFileSync(partialMdOut, 'utf8');
+  assert.match(markdown, /Full-string parity status: not-applicable/);
+  assert.match(markdown, /bun-jsc-trace-partial-contract/);
+  assert.doesNotMatch(markdown, /traced full-string Bun\/JSC rows preserved/);
+});

@@ -32,8 +32,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 136);
-  assert.equal(report.summary.measuredRowCount, 735);
+  assert.equal(report.summary.scannedArtifactCount, 137);
+  assert.equal(report.summary.measuredRowCount, 740);
   assert.equal(report.summary.largeJsFullRowCount, 460);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 77);
@@ -47,9 +47,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   });
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 96);
+  assert.equal(report.summary.benchmarkArtifactCount, 97);
   assert.equal(report.summary.sourceArtifactCount, 16);
-  assert.equal(report.summary.traceArtifactCount, 8);
+  assert.equal(report.summary.traceArtifactCount, 9);
   assert.equal(report.summary.allocationArtifactCount, 15);
   assert.equal(report.summary.environmentArtifactCount, 2);
   assert.equal(report.summary.negativeArtifactCount, 10);

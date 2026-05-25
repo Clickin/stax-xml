@@ -119,7 +119,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 20 required artifact mentions
+all 10 required claim guards are satisfied, all 21 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, and all 7
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -184,8 +184,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 132 primary release JSON artifacts, recognizes 725
-sample throughput rows and 89 aggregate rows, and finds 458 JavaScript 1 GiB+
+The current scan covers 137 primary release JSON artifacts, recognizes 740
+sample throughput rows and 89 aggregate rows, and finds 460 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -212,7 +212,7 @@ from synchronous byte-batch rows. This also fixes the previous scanner blind
 spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
 counted as JavaScript runtime rows.
 
-The scan also records 20 threshold-crossing partial/projection rows. The
+The scan also records 21 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json`; Node/V8 and
 Chrome/V8 also cross 200 MiB/s on partial `books.xml` corpus-cycle rows. These
@@ -220,14 +220,14 @@ rows preserve event-count style work but drop the full-string StAX contract, so
 they are headroom evidence rather than runtime-limit counterexamples. One
 near-full text/CDATA materialization headroom row is now recorded separately:
 Node/V8 `withoutTextStrings` from
-`long-ascii-text-materialization-candidate-stability.json` reached
-207.70 MiB/s but omitted 16,987,392 text/CDATA string fields and changed the
-checksum to `1372281363`, so it is not full-string StAX parity. The
+`text-cdata-cost-decomposition.json` reached 219.85 MiB/s but omitted all
+text/CDATA string fields and changed the checksum to `1372281363`, so it is
+not full-string StAX parity. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured
-rows with unknown full-string parity and 71 rows with unknown bounded-memory
-flags. The unknown bounded-memory set contains 55 JavaScript rows, 56
+rows with unknown full-string parity and 77 rows with unknown bounded-memory
+flags. The unknown bounded-memory set contains 55 JavaScript rows, 62
 full-string rows, 40 JavaScript full-string rows, 0 JavaScript 1 GiB+
 full-string rows, and 24 rows that have raw memory counters but no recorded
 bounded-memory verdict. The scan reports 91 full-string rows failing the
@@ -244,10 +244,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 132 primary release artifacts and recognizes 725
-measured rows. It records 93 benchmark artifacts, 16 source artifacts, 8
-trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 458 JavaScript 1 GiB+ full-string rows, and three
+The current audit scans 137 primary release artifacts and recognizes 740
+measured rows. It records 97 benchmark artifacts, 16 source artifacts, 9
+trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
+10 negative-result artifacts, 460 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving
@@ -985,7 +985,7 @@ full StAX counterexample. The fastest full row, `rawFrameNameId`, remains below
 
 `packages/benchmark/results/release/bun-jsc-codegen-trace.md` is a smaller
 `TRACE_FACT` for Bun 1.3.13 / JavaScriptCore WebKit
-`4d5e75ebd84a14edbc7ae264245dcd77fe597c10`. It runs the selected same-contract
+`4d5e75ebd84a14edbc7ae264245dcd77fe597c10`. It runs the selected full-string
 `diverse-cycle` byte-batch rows with `JSC_dumpBytecodeAtDFGTime=true` and
 `JSC_dumpDFGDisassembly=true`, then writes the raw JavaScriptCore bytecode/DFG
 dump to a local raw artifact directory while committing only the curated release
@@ -1004,6 +1004,18 @@ This covers the missing Bun/JSC codegen/IR evidence family for the current
 proof ledger, but only as a small selected-function trace. It is not a 1 GiB
 trace, not an allocation profile, not Safari/WebKit browser evidence, and not a
 runtime ceiling proof.
+
+`packages/benchmark/results/release/bun-jsc-partial-codegen-trace.md` repeats
+the same Bun/JSC bytecode/DFG trace route for partial/headroom rows only:
+`scanAllNoDecode`, `nameStringOnly`, `textStringOnly`, `attrNameStringOnly`, and
+`attrValueStringOnly`. The report explicitly records full-string parity as
+`not-applicable`, with zero full rows, because all five rows change the checksum
+and preserve only partial contracts. The final trace summary records 11
+generated DFG JIT lines, 386 bytecode lines, 1,214 DFG node lines, and 17 target
+function mentions around `materializeName`, `decodeSpan`, `copyName`, `nameAt`,
+and `currentGeneration`. This is useful headroom/codegen evidence for individual
+materialization paths, but it is not a full StAX counterexample and not evidence
+that partial rows preserve the same checksum contract.
 
 ### Bun/JSC Memory Allocation Profile
 

@@ -273,11 +273,24 @@ function createReport({ options, runtime, elapsedMs, rawFiles, benchmark, cases,
   const fullRows = cases.filter(entry => entry.fullStringParity);
   const uniqueFullChecksums = new Set(fullRows.map(entry => entry.checksum));
   const uniqueFullEvents = new Set(fullRows.map(entry => entry.eventCount));
+  const fullStringParity = fullRows.length === 0
+    ? {
+      status: 'not-applicable',
+      eventCount: null,
+      checksum: null,
+      fullRowCount: 0,
+    }
+    : {
+      status: uniqueFullChecksums.size === 1 && uniqueFullEvents.size === 1 ? 'ok' : 'mismatch',
+      eventCount: uniqueFullEvents.size === 1 ? fullRows[0]?.eventCount ?? null : null,
+      checksum: uniqueFullChecksums.size === 1 ? fullRows[0]?.checksum ?? null : null,
+      fullRowCount: fullRows.length,
+    };
   return {
     generatedAt: new Date().toISOString(),
     objective: 'bun-jsc-codegen-trace',
     contract: 'jsc-bytecode-dfg-disassembly-trace',
-    note: 'Bun/JSC codegen trace over selected same-contract stax-xml reader rows. This is runtime-specific TRACE_FACT evidence, not a runtime ceiling proof and not Safari/browser evidence.',
+    note: 'Bun/JSC codegen trace over selected stax-xml reader rows. Full-string and partial/headroom rows are classified separately. This is runtime-specific TRACE_FACT evidence, not a runtime ceiling proof and not Safari/browser evidence.',
     environment: {
       runtime,
       hostNode: process.version,
@@ -299,18 +312,26 @@ function createReport({ options, runtime, elapsedMs, rawFiles, benchmark, cases,
     },
     elapsedMs,
     cases,
-    fullStringParity: {
-      status: uniqueFullChecksums.size === 1 && uniqueFullEvents.size === 1 ? 'ok' : 'mismatch',
-      eventCount: uniqueFullEvents.size === 1 ? fullRows[0]?.eventCount ?? null : null,
-      checksum: uniqueFullChecksums.size === 1 ? fullRows[0]?.checksum ?? null : null,
-      fullRowCount: fullRows.length,
-    },
+    fullStringParity,
     trace,
-    findings: createFindings(trace, fullRows),
+    findings: createFindings(trace, fullRows, cases),
   };
 }
 
-function createFindings(trace, fullRows) {
+function createFindings(trace, fullRows, cases) {
+  const parityFinding = fullRows.length === 0
+    ? {
+      id: 'bun-jsc-trace-partial-contract',
+      classification: 'SCOPE_GUARD',
+      summary: 'The traced Bun/JSC rows are partial/headroom rows only and do not preserve the full-string StAX contract.',
+      evidence: cases.map(row => `${row.id}: fullStringParity=${row.fullStringParity}, contractScope=${row.contractScope}, checksum=${row.checksum}, mibPerSec=${row.mibPerSec}`),
+    }
+    : {
+      id: 'bun-jsc-trace-same-contract',
+      classification: 'TRACE_FACT',
+      summary: 'The traced full-string Bun/JSC rows preserved event count and checksum parity.',
+      evidence: fullRows.map(row => `${row.id}: events=${row.eventCount}, checksum=${row.checksum}, mibPerSec=${row.mibPerSec}`),
+    };
   return [
     {
       id: 'bun-jsc-bytecode-dfg-trace-visible',
@@ -323,12 +344,7 @@ function createFindings(trace, fullRows) {
         `totalTargetMentions=${trace.totalTargetMentions}`,
       ],
     },
-    {
-      id: 'bun-jsc-trace-same-contract',
-      classification: 'TRACE_FACT',
-      summary: 'The traced full-string Bun/JSC rows preserved event count and checksum parity.',
-      evidence: fullRows.map(row => `${row.id}: events=${row.eventCount}, checksum=${row.checksum}, mibPerSec=${row.mibPerSec}`),
-    },
+    parityFinding,
     {
       id: 'not-safari-or-runtime-ceiling-proof',
       classification: 'SCOPE_GUARD',
@@ -358,9 +374,9 @@ function createSelfTestReport(options) {
   };
   const cases = options.cases.map((caseId, index) => ({
     id: caseId,
-    family: 'full-stax-js',
-    fullStringParity: true,
-    contractScope: caseId === 'eventObjectFull' ? 'full-event-object-materialization' : 'full-string-materialization',
+    family: inferSelfTestFamily(caseId),
+    fullStringParity: inferSelfTestFullStringParity(caseId),
+    contractScope: inferSelfTestContractScope(caseId),
     mibPerSec: round(70 - index * 5),
     boundedMemory: true,
     eventCount: 12345,
@@ -393,13 +409,30 @@ function createSelfTestReport(options) {
   });
 }
 
+function inferSelfTestFamily(caseId) {
+  return inferSelfTestFullStringParity(caseId) ? 'full-stax-js' : 'partial-stax-js';
+}
+
+function inferSelfTestFullStringParity(caseId) {
+  return !/^(?:scanAllNoDecode|nameStringOnly|textStringOnly|attrNameStringOnly|attrValueStringOnly|rawFrameSemanticChecksum|withoutTextStrings)$/.test(caseId);
+}
+
+function inferSelfTestContractScope(caseId) {
+  if (caseId === 'eventObjectFull') return 'full-event-object-materialization';
+  if (caseId === 'scanAllNoDecode') return 'partial-no-decode-scan';
+  if (caseId === 'rawFrameSemanticChecksum') return 'partial-semantic-checksum-no-strings';
+  if (caseId === 'withoutTextStrings') return 'partial-text-cdata-omitted';
+  if (/StringOnly$/.test(caseId)) return 'partial-single-field-string-materialization';
+  return 'full-string-materialization';
+}
+
 function renderMarkdown(report) {
   const lines = [
     '# Bun/JSC Codegen Trace',
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This report is a TRACE_FACT for one Bun/JavaScriptCore build and selected same-contract stax-xml reader functions.',
+    'This report is a TRACE_FACT for one Bun/JavaScriptCore build and selected stax-xml reader functions.',
     'It uses JavaScriptCore bytecode and DFG JIT dump options. It is not Safari/browser evidence and not a runtime ceiling proof.',
     '',
     '## Environment',
@@ -417,11 +450,14 @@ function renderMarkdown(report) {
     '',
     '## Variant Parity',
     '',
-    '| Case | MiB/s | Events | Checksum | Bounded memory |',
-    '| --- | ---: | ---: | ---: | --- |',
+    `- Full-string parity status: ${report.fullStringParity.status}`,
+    `- Full-string rows: ${report.fullStringParity.fullRowCount}`,
+    '',
+    '| Case | MiB/s | Events | Checksum | Full string parity | Bounded memory |',
+    '| --- | ---: | ---: | ---: | --- | --- |',
   ];
   for (const row of report.cases) {
-    lines.push(`| ${row.id} | ${row.mibPerSec.toFixed(2)} | ${row.eventCount} | ${row.checksum} | ${row.boundedMemory ? 'yes' : 'no'} |`);
+    lines.push(`| ${row.id} | ${row.mibPerSec.toFixed(2)} | ${row.eventCount} | ${row.checksum} | ${row.fullStringParity ? 'yes' : 'no'} | ${row.boundedMemory ? 'yes' : 'no'} |`);
   }
   lines.push(
     '',

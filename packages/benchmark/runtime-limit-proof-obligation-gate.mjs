@@ -97,6 +97,7 @@ const requiredArtifactMentions = [
   'chrome-blink-textdecoder-source-pin-audit.md',
   'bun-textdecoder-dispatch-source-pin-audit.md',
   'firefox-spidermonkey-textdecoder-source-pin-audit.md',
+  'bun-jsc-partial-codegen-trace.md',
 ];
 
 const openObligationDisclosures = [

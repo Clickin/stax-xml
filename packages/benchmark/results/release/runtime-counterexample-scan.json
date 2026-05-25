@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T11:18:48.470Z",
+  "generatedAt": "2026-05-25T11:53:51.448Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -42,6 +42,7 @@
     "bun-jsc-cpu-profile.json",
     "bun-jsc-heap-allocation-profile.json",
     "bun-jsc-memory-allocation-profile.json",
+    "bun-jsc-partial-codegen-trace.json",
     "bun-jsc-source-pin-audit.json",
     "bun-jsc-string-limit-audit.json",
     "bun-textdecoder-dispatch-source-pin-audit.json",
@@ -155,10 +156,10 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 136,
+    "scannedArtifactCount": 137,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 735,
+    "measuredRowCount": 740,
     "aggregateRowCount": 89,
     "largeJsFullRowCount": 460,
     "largeJsFullAggregateRowCount": 69,
@@ -493,7 +494,7 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 735,
+      "measuredRows": 740,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 77
     },
@@ -7435,7 +7436,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "735 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 77 have unknown boundedMemory."
+      "summary": "740 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 77 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",
