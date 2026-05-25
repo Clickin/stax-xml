@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T13:51:52.976Z",
+  "generatedAt": "2026-05-25T14:07:50.154Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2158,7 +2158,7 @@
         "SOURCE_FACT"
       ],
       "runtimes": [
-        "unknown"
+        "node-v8"
       ],
       "outcome": null,
       "fixture": null,
@@ -2201,7 +2201,7 @@
       },
       "evidenceKinds": [],
       "runtimes": [
-        "unknown"
+        "node-v8"
       ],
       "outcome": null,
       "fixture": null,
@@ -2850,7 +2850,7 @@
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 10,
     "largeJsFullRowCount": 463,
-    "runtimeCount": 9,
+    "runtimeCount": 8,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
     "conclusionAllowed": false
@@ -2860,7 +2860,7 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 57,
+        "artifactCount": 59,
         "measuredRowCount": 285,
         "largeFullStringRowCount": 169,
         "fastestLargeFullStringRow": {
@@ -3183,17 +3183,6 @@
           "quick-xml-allocation-count-stability.json",
           "quick-xml-allocation-count.json"
         ]
-      },
-      {
-        "runtimeId": "unknown",
-        "runtimeLabel": "unknown",
-        "artifactCount": 2,
-        "measuredRowCount": 0,
-        "largeFullStringRowCount": 0,
-        "fastestLargeFullStringRow": null,
-        "sourcePins": [],
-        "traceArtifacts": [],
-        "allocationArtifacts": []
       }
     ],
     "browser": {

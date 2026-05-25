@@ -566,6 +566,7 @@ function classifySourcePins(sourceArtifact, root) {
 }
 
 function classifyRuntimeFromArtifact(sourceArtifact, root) {
+  if (sourceArtifact.startsWith('node-')) return 'node-v8';
   if (sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (sourceArtifact.startsWith('deno-')) return 'deno-v8';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
@@ -589,7 +590,7 @@ function classifyRuntime(sourceArtifact, node, context) {
   if (sourceArtifact.startsWith('quick-xml-')) return 'quick-xml-rust';
 
   const environment = node.environment ?? context.environment ?? {};
-  const runtimeName = environment.runtimeName;
+  const runtimeName = environment.runtimeName ?? environment.runtime;
   const runtime = node.runtime ?? context.runtime ?? {};
   const browserName = String(environment.browserName ?? '').toLowerCase();
   const engine = String(environment.javascriptEngine ?? '').toLowerCase();
@@ -602,7 +603,7 @@ function classifyRuntime(sourceArtifact, node, context) {
     return 'chrome-v8-browser';
   }
   if (runtimeName === 'node' || environment.v8) return 'node-v8';
-  if (environment.node) return 'node-v8';
+  if (environment.node || environment.nodeVersion) return 'node-v8';
   if (runtime.id === 'node' || runtime.v8) return 'node-v8';
   if (runtime.id === 'bun') return 'bun-jsc';
   if (runtime.id === 'deno') return 'deno-v8';

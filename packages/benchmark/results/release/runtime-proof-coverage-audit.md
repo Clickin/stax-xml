@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T13:51:52.976Z
+Generated: 2026-05-25T14:07:50.154Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -29,7 +29,7 @@ This audit scans current release artifacts to show which proof obligations are c
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 57 | 285 | 169 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
+| Node/V8 | 59 | 285 | 169 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
 | Bun/JSC | 30 | 212 | 124 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
@@ -37,7 +37,6 @@ This audit scans current release artifacts to show which proof obligations are c
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
 | Java/Woodstox | 8 | 8 | 1 | woodstox 320.16 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
 | Rust/quick-xml | 7 | 14 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
-| unknown | 2 | 0 | 0 | none | 0 | 0 | 0 |
 
 ## Open Obligations
 

@@ -63,6 +63,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(runtimeIds.includes('safari-jsc-browser'));
   assert.ok(runtimeIds.includes('quick-xml-rust'));
   assert.ok(runtimeIds.includes('woodstox-jvm'));
+  assert.ok(!runtimeIds.includes('unknown'));
+  assert.ok(report.coverage.runtimes.find(row => row.runtimeId === 'node-v8').artifactCount >= 59);
 
   assert.equal(report.coverage.browser.chromeBenchmarkRows.length, 98);
   assert.equal(report.coverage.browser.firefoxBenchmarkRows.length, 82);
@@ -91,6 +93,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'deno-event-reader-byte-batch.json'
     && row.runtimes.includes('deno-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'node-textdecoder-source-pin-audit.json'
+    && row.runtimes.includes('node-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'projection-benchmark.json'
+    && row.runtimes.includes('node-v8')
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'attribute-value-branch-order-candidate.json'
@@ -204,11 +214,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.measuredRowCount === 285
     && row.largeFullStringRowCount === 169
   ));
-  assert.ok(report.coverage.runtimes.some(row =>
-    row.runtimeId === 'unknown'
-    && row.measuredRowCount === 0
-    && row.largeFullStringRowCount === 0
-  ));
+  assert.ok(!report.coverage.runtimes.some(row => row.runtimeId === 'unknown'));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-partial.json'
     && row.runtimes.includes('node-v8')
@@ -394,10 +400,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 57 \| 285 \| 169 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 59 \| 285 \| 169 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 8 \| 8 \| 1 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 7 \| 14 \| 1 \|/);
-  assert.match(markdown, /\| unknown \| 2 \| 0 \| 0 \| none \|/);
+  assert.doesNotMatch(markdown, /\| unknown \|/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `treebank_e\.xml`/);
