@@ -24,9 +24,13 @@ const allocationSamplingInterval = Number.parseInt(readOption('--allocation-samp
 const allocationOutputDir = readOption('--allocation-output-dir') ?? 'results/v8-allocation/stream-reader-large-shape';
 const fixtureShape = readOption('--fixture-shape') ?? 'repeated-person';
 const diverseCycleSize = Number.parseInt(readOption('--diverse-cycle-size') ?? '4096', 10);
+const boundedRssMiB = Number.parseFloat(readOption('--bounded-rss-mib') ?? '512');
 
 if (!Number.isInteger(allocationSamplingInterval) || allocationSamplingInterval <= 0) {
   throw new Error('--allocation-sampling-interval must be a positive integer.');
+}
+if (!Number.isFinite(boundedRssMiB) || boundedRssMiB <= 0) {
+  throw new Error('--bounded-rss-mib must be a positive number.');
 }
 if (!['repeated-person', 'diverse-cycle'].includes(fixtureShape)) {
   throw new Error('--fixture-shape must be one of repeated-person, diverse-cycle.');
@@ -99,6 +103,7 @@ const report = {
     warmups,
     runs,
     style,
+    boundedRssMiB,
   },
   allocationSampling: {
     enabled: allocationSampling,
@@ -161,13 +166,20 @@ async function measure(candidate) {
     }
 
     const avgMs = average(times);
+    const avgMiBs = (expectedBytes / MIB) / (avgMs / 1000);
+    const memory = summarizeMemorySamples(memorySamples);
     return {
       ...last,
       avgMs,
       minMs: Math.min(...times),
       maxMs: Math.max(...times),
-      avgMiBs: (expectedBytes / MIB) / (avgMs / 1000),
-      memory: summarizeMemorySamples(memorySamples),
+      avgMiBs,
+      mibPerSec: avgMiBs,
+      fullStringParity: true,
+      contractScope: 'full-string-materialization',
+      sourceMode: 'generated-sync-iterable-byte-batches',
+      boundedMemory: memory.maxRssBytes <= boundedRssMiB * MIB,
+      memory,
       allocation,
     };
   } finally {

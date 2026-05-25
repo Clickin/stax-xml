@@ -61,6 +61,11 @@ test('large stream-reader shape report records parity, memory, and materializati
   ]);
   assert.ok(report.results.every(entry => entry.events === report.parity.events));
   assert.ok(report.results.every(entry => entry.checksum === report.parity.checksum));
+  assert.ok(report.results.every(entry => entry.mibPerSec === entry.avgMiBs));
+  assert.ok(report.results.every(entry => entry.fullStringParity === true));
+  assert.ok(report.results.every(entry => entry.contractScope === 'full-string-materialization'));
+  assert.ok(report.results.every(entry => entry.sourceMode === 'generated-sync-iterable-byte-batches'));
+  assert.ok(report.results.every(entry => typeof entry.boundedMemory === 'boolean'));
   assert.ok(report.results.every(entry => entry.materialization.stringFieldReads > 0));
   assert.ok(report.results.every(entry => entry.materialization.eventObjects === 0));
   assert.equal(report.results.find(entry => entry.style === 'index-for').materialization.rawSpanMaterializations, 0);

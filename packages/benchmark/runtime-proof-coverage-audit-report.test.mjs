@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 123);
-  assert.equal(report.summary.measuredRowCount, 689);
+  assert.equal(report.summary.scannedArtifactCount, 124);
+  assert.equal(report.summary.measuredRowCount, 692);
   assert.equal(report.summary.largeJsFullRowCount, 426);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 86);
+  assert.equal(report.summary.benchmarkArtifactCount, 87);
   assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -153,6 +153,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'stream-source-consumption-shapes.json'
     && row.runtimes.includes('node-v8')
     && row.measuredRowCount === 4
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'stream-reader-4gb-shapes.json'
+    && row.runtimes.includes('node-v8')
+    && row.evidenceKinds.includes('BENCH_FACT')
+    && row.measuredRowCount === 3
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'candidate-headroom-cross-process-books-corpus-batch16.json'

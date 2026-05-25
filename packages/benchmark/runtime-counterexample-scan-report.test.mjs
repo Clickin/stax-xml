@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 123);
-  assert.equal(report.summary.measuredRowCount, 689);
-  assert.equal(report.summary.largeJsFullRowCount, 419);
+  assert.equal(report.summary.scannedArtifactCount, 124);
+  assert.equal(report.summary.measuredRowCount, 692);
+  assert.equal(report.summary.largeJsFullRowCount, 422);
   assert.equal(report.summary.partialHeadroomRowCount, 15);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
@@ -80,6 +80,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-category-drop-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-public-consumer-shape-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-v8-codegen-trace.json'));
+  assert.ok(report.scannedArtifacts.includes('stream-reader-4gb-shapes.json'));
   assert.ok(report.scannedArtifacts.includes('stream-source-consumption-shapes.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('bun-event-reader-byte-batch-corpus.json'));
