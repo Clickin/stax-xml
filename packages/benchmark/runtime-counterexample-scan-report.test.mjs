@@ -33,8 +33,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 109);
-  assert.equal(report.summary.measuredRowCount, 654);
+  assert.equal(report.summary.scannedArtifactCount, 110);
+  assert.equal(report.summary.measuredRowCount, 658);
   assert.equal(report.summary.largeJsFullRowCount, 401);
   assert.equal(report.summary.partialHeadroomRowCount, 12);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 89);
@@ -67,6 +67,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-source-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-core-decomposition.json'));
+  assert.ok(report.scannedArtifacts.includes('stream-source-consumption-shapes.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('bun-event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch-corpus.json'));
