@@ -1,6 +1,6 @@
 # Large Candidate Headroom Matrix
 
-Generated: 2026-05-25T01:41:16.193Z
+Generated: 2026-05-25T05:35:37.372Z
 
 This experiment is a 1 GiB+ bounded-memory counterexample search over corpus-backed `Uint8Array` batches.
 Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.
@@ -28,7 +28,7 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 - Row bytes: min=4551, max=4551, avg=4551.0
 - Batch size: 1
 - Cases: stringFull, rawFrameNameId, rawFrameNameIdTextCache, rawFrameNameIdLongAsciiText, withoutTextStrings
-- Runs: warmups=0, runs=1
+- Runs: warmups=0, runs=3
 - Bounded RSS reporting gate: 512.0 MiB
 
 ## Woodstox Target
@@ -42,11 +42,23 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 
 | Variant | Family | Contract scope | Count kind | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded memory | Counterexample | Events | Checksum | Full parity |
 | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |
-| stringFull | full-stax-js | full-string-materialization | stream-events | 169.43 MiB/s | 1.00x | 0.51x | below | yes | not-found | 57096514 | -540013997 | yes |
-| rawFrameNameId | full-stax-js | full-string-materialization | stream-events | 129.59 MiB/s | 0.76x | 0.39x | below | yes | not-found | 57096514 | -540013997 | yes |
-| rawFrameNameIdTextCache | full-stax-js | full-string-materialization | stream-events | 119.88 MiB/s | 0.71x | 0.36x | below | yes | not-found | 57096514 | -540013997 | yes |
-| rawFrameNameIdLongAsciiText | full-stax-js | full-string-materialization | stream-events | 74.84 MiB/s | 0.44x | 0.22x | below | yes | not-found | 57096514 | -540013997 | yes |
-| withoutTextStrings | near-full-upper-bound | full-materialization-minus-text-cdata | stream-events | 220.30 MiB/s | 1.30x | 0.66x | not-applicable | yes | not-found | 57096514 | 1372281363 | no |
+| stringFull | full-stax-js | full-string-materialization | stream-events | 86.03 MiB/s | 1.00x | 0.26x | below | yes | not-found | 57096514 | -540013997 | yes |
+| rawFrameNameId | full-stax-js | full-string-materialization | stream-events | 93.95 MiB/s | 1.09x | 0.28x | below | yes | not-found | 57096514 | -540013997 | yes |
+| rawFrameNameIdTextCache | full-stax-js | full-string-materialization | stream-events | 67.24 MiB/s | 0.78x | 0.20x | below | yes | not-found | 57096514 | -540013997 | yes |
+| rawFrameNameIdLongAsciiText | full-stax-js | full-string-materialization | stream-events | 40.45 MiB/s | 0.47x | 0.12x | below | yes | not-found | 57096514 | -540013997 | yes |
+| withoutTextStrings | near-full-upper-bound | full-materialization-minus-text-cdata | stream-events | 124.24 MiB/s | 1.44x | 0.37x | not-applicable | yes | not-found | 57096514 | 1372281363 | no |
+
+## Timing Stability
+
+Rows with `runs > 1` report same-process timing spread; this is variance evidence for the recorded machine, not a cross-process statistical proof.
+
+| Variant | Runs | Avg ms | Min ms | Max ms | Spread | Samples ms |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| stringFull | 3 | 11903.19 | 9047.26 | 13471.79 | 37.2% | 9047.26, 13190.51, 13471.79 |
+| rawFrameNameId | 3 | 10898.96 | 10875.15 | 10934.25 | 0.5% | 10887.49, 10934.25, 10875.15 |
+| rawFrameNameIdTextCache | 3 | 15228.36 | 15041.42 | 15353.83 | 2.1% | 15353.83, 15041.42, 15289.83 |
+| rawFrameNameIdLongAsciiText | 3 | 25312.15 | 25237.67 | 25445.07 | 0.8% | 25445.07, 25253.72, 25237.67 |
+| withoutTextStrings | 3 | 8241.98 | 8054.76 | 8610.65 | 6.7% | 8610.65, 8054.76, 8060.53 |
 
 ## Memory
 
@@ -54,11 +66,11 @@ Memory uses `process.memoryUsage()` before and after each measured run; max valu
 
 | Variant | Avg heap delta | Avg RSS delta | Max heap used | Max RSS |
 | --- | ---: | ---: | ---: | ---: |
-| stringFull | +2.6 MiB | +5.9 MiB | 7.3 MiB | 69.9 MiB |
-| rawFrameNameId | +1.9 MiB | +784.0 KiB | 7.0 MiB | 70.4 MiB |
-| rawFrameNameIdTextCache | +1.2 MiB | +1.4 MiB | 6.4 MiB | 71.2 MiB |
-| rawFrameNameIdLongAsciiText | +7.7 MiB | +11.9 MiB | 12.9 MiB | 83.2 MiB |
-| withoutTextStrings | +6.1 MiB | +7.4 MiB | 11.4 MiB | 90.7 MiB |
+| stringFull | +2.2 MiB | +2.4 MiB | 7.4 MiB | 71.9 MiB |
+| rawFrameNameId | +880.5 KiB | +2.1 MiB | 6.8 MiB | 77.8 MiB |
+| rawFrameNameIdTextCache | +1023.4 KiB | +56.0 KiB | 7.0 MiB | 78.6 MiB |
+| rawFrameNameIdLongAsciiText | +6.6 MiB | +8.4 MiB | 15.0 MiB | 102.5 MiB |
+| withoutTextStrings | +6.0 MiB | +7.2 MiB | 11.3 MiB | 122.8 MiB |
 
 ## Materialization Counters
 
@@ -89,10 +101,10 @@ Full-string parity rows: ok, events=57096514, checksum=-540013997, rows=stringFu
   - byteBatches(fixture) yields one grouped batch per parser pull.
   - Direct browser ReadableStream and async byte-batch fetch rows live in browser-candidate-headroom.
 - bounded-memory-contract: Rows consume corpus-backed Uint8Array batches and do not load a full XML string.
-  - stringFull: maxRSS=69.9 MiB
-  - rawFrameNameId: maxRSS=70.4 MiB
-  - rawFrameNameIdTextCache: maxRSS=71.2 MiB
-  - rawFrameNameIdLongAsciiText: maxRSS=83.2 MiB
+  - stringFull: maxRSS=71.9 MiB
+  - rawFrameNameId: maxRSS=77.8 MiB
+  - rawFrameNameIdTextCache: maxRSS=78.6 MiB
+  - rawFrameNameIdLongAsciiText: maxRSS=102.5 MiB
 - multi-chunk-batch-cost: This run uses one Uint8Array chunk per parser pull when possible, which avoids the sync cursor multi-chunk concatenation path except for pending tail repair.
   - batchSize=1
   - singleChunk=direct Uint8Array view
@@ -109,21 +121,21 @@ Full-string parity rows: ok, events=57096514, checksum=-540013997, rows=stringFu
   - rawFrameNameIdTextCache: events=57096514, checksum=-540013997
   - rawFrameNameIdLongAsciiText: events=57096514, checksum=-540013997
 - headroom-search: The fastest row in each family is a headroom signal, not a runtime-limit conclusion.
-  - partial=withoutTextStrings 220.30 MiB/s
-  - full=stringFull 169.43 MiB/s
+  - partial=withoutTextStrings 124.24 MiB/s
+  - full=rawFrameNameId 93.95 MiB/s
 - long-ascii-text-materialization-candidate: rawFrameNameIdLongAsciiText keeps the full-string checksum while replacing TextDecoder on ASCII text/CDATA spans longer than the short-span fast path.
-  - rawFrameNameId=129.59 MiB/s
-  - rawFrameNameIdLongAsciiText=74.84 MiB/s
+  - rawFrameNameId=93.95 MiB/s
+  - rawFrameNameIdLongAsciiText=40.45 MiB/s
   - sameChecksum=true
   - longAsciiTextHits=6370272
   - longAsciiTextFallbacks=0
 - text-only-cache-candidate: rawFrameNameIdTextCache keeps the full-string checksum while caching only text/CDATA span strings; attribute values still use direct TextDecoder materialization.
-  - rawFrameNameId=129.59 MiB/s
-  - rawFrameNameIdTextCache=119.88 MiB/s
+  - rawFrameNameId=93.95 MiB/s
+  - rawFrameNameIdTextCache=67.24 MiB/s
   - sameChecksum=true
   - valueCacheHits=16987337
   - valueCacheMisses=55
-  - maxRSS=71.2 MiB
+  - maxRSS=78.6 MiB
 - corpus-cycle-fixture: The fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows.
   - sourceFile=G:\programming\stax-xml\packages\benchmark\assets\books.xml
   - sourceBytes=4551
