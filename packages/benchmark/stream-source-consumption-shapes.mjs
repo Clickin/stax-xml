@@ -152,6 +152,7 @@ async function runComparison(options) {
     objective: 'stream-source-consumption-shapes',
     contract: 'same-full-string-checksum-source-consumption-shapes',
     note: 'Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.',
+    sourceContract: createSourceContract(options),
     environment: {
       cpuName: cpus()[0]?.model ?? 'unknown',
       platform: `${process.platform}-${process.arch}`,
@@ -181,6 +182,18 @@ async function runComparison(options) {
       counterexamples200MiB: rows.filter(row => row.fullStringParity && row.boundedMemory && row.mibPerSec >= 200).length,
     },
     findings: createFindings(rows, syncRow, readableRow),
+  };
+}
+
+function createSourceContract(options) {
+  return {
+    fullChecksumConsumer: 'Both rows execute the same StreamBatch full-string checksum consumer and must preserve event count plus checksum parity before throughput is compared.',
+    syncIterableInput: 'sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array[]> and yields one grouped batch per parser pull.',
+    readableStreamInput: 'web-readable-stream-pull uses StreamReader over a Web ReadableStream<Uint8Array> pull source.',
+    readableStreamBackpressure: 'The ReadableStream source reads one file chunk only inside pull(), so production is demand-driven by StreamReader.read().',
+    arrayBufferConsumption: 'Neither measured row constructs one full XML string or one repeated 1 GiB ArrayBuffer parser input; file chunks are read on demand for the selected source shape.',
+    chunkBytes: options.chunkKiB * 1024,
+    syncBatchSize: options.batchSize,
   };
 }
 
@@ -410,6 +423,16 @@ function renderMarkdown(report) {
   lines.push(`Generated: ${report.generatedAt}`);
   lines.push('');
   lines.push(report.note);
+  lines.push('');
+  lines.push('## Source Contract');
+  lines.push('');
+  lines.push(`- Full checksum consumer: ${report.sourceContract.fullChecksumConsumer}`);
+  lines.push(`- Sync Iterable input: ${report.sourceContract.syncIterableInput}`);
+  lines.push(`- ReadableStream input: ${report.sourceContract.readableStreamInput}`);
+  lines.push(`- ReadableStream backpressure: ${report.sourceContract.readableStreamBackpressure}`);
+  lines.push(`- ArrayBuffer consumption: ${report.sourceContract.arrayBufferConsumption}`);
+  lines.push(`- Chunk bytes: ${report.sourceContract.chunkBytes}`);
+  lines.push(`- Sync batch size: ${report.sourceContract.syncBatchSize}`);
   lines.push('');
   lines.push('## Summary');
   lines.push('');

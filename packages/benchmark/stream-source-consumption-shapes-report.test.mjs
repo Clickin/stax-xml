@@ -41,6 +41,15 @@ test('stream source consumption shapes report separates sync batches from Readab
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'stream-source-consumption-shapes');
   assert.equal(report.contract, 'same-full-string-checksum-source-consumption-shapes');
+  assert.match(report.sourceContract.fullChecksumConsumer, /same StreamBatch full-string checksum consumer/);
+  assert.match(report.sourceContract.syncIterableInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.syncIterableInput, /one grouped batch per parser pull/);
+  assert.match(report.sourceContract.readableStreamInput, /ReadableStream<Uint8Array>/);
+  assert.match(report.sourceContract.readableStreamBackpressure, /reads one file chunk only inside pull\(\)/);
+  assert.match(report.sourceContract.arrayBufferConsumption, /Neither measured row constructs one full XML string/);
+  assert.match(report.sourceContract.arrayBufferConsumption, /one repeated 1 GiB ArrayBuffer parser input/);
+  assert.equal(report.sourceContract.chunkBytes, 64 * 1024);
+  assert.equal(report.sourceContract.syncBatchSize, 1);
   assert.equal(report.summary.rowCount, 2);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.readableStreamRatioToSyncIterable, 'number');
@@ -60,6 +69,9 @@ test('stream source consumption shapes report separates sync batches from Readab
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Stream Source Consumption Shapes/);
+  assert.match(markdown, /## Source Contract/);
+  assert.match(markdown, /Sync Iterable input: sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads one file chunk only inside pull\(\)/);
   assert.match(markdown, /current-release-source-shape/);
   assert.match(markdown, /backpressure-respected/);
   assert.match(markdown, /not as a JavaScript runtime ceiling proof/);

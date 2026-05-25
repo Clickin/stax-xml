@@ -466,6 +466,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`syncIterableBatch\*` and `syncFileIterableBatch\*` are the rows that\s+remove both the `ReadableStream` and `AsyncIterator` source boundary/);
   assert.match(markdown, /adds a top-level `parity`\s+object to `event-reader-byte-batch` reports/);
   assert.match(markdown, /headroom evidence against blaming all remaining cost on the JS parser core/);
+  assert.match(markdown, /stream-source-consumption-shapes\.md/);
+  assert.match(markdown, /machine-readable `sourceContract` records that\s+`sync-iterable-byte-batches` uses `StreamReaderSync` over a synchronous\s+`Iterable<Uint8Array\[\]>`/);
+  assert.match(markdown, /`web-readable-stream-pull` uses `StreamReader` over a Web\s+`ReadableStream<Uint8Array>` pull source/);
+  assert.match(markdown, /`134\.33 MiB\/s` for the sync iterable path and\s+`117\.69 MiB\/s` for the backpressure-respecting ReadableStream path/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
   assert.match(markdown, /file-backed sync\s+`Iterable<Uint8Array\[\]>` rows in three fresh processes per runtime on the same\s+1\.00 GiB `books\.xml` corpus-cycle fixture/);
   assert.match(markdown, /read corpus chunks from the OS file source with `readSync`/);

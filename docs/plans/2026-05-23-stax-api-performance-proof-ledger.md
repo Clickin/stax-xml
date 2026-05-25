@@ -703,6 +703,18 @@ the controlled answer to the source-consumption hypothesis: pure
 headroom rows use the synchronous byte-batch path and still preserve
 backpressure by pulling at most the next batch on demand.
 
+`packages/benchmark/results/release/stream-source-consumption-shapes.md` pins
+the same source-consumption distinction as a focused Node/V8 full-string
+checksum artifact. Its machine-readable `sourceContract` records that
+`sync-iterable-byte-batches` uses `StreamReaderSync` over a synchronous
+`Iterable<Uint8Array[]>` with one grouped batch per parser pull, while
+`web-readable-stream-pull` uses `StreamReader` over a Web
+`ReadableStream<Uint8Array>` pull source that reads one file chunk only inside
+`pull()`. The release row reports `134.33 MiB/s` for the sync iterable path and
+`117.69 MiB/s` for the backpressure-respecting ReadableStream path, so this
+artifact is direct source-shape evidence rather than an assumption that the
+large matrices consume a pure ReadableStream.
+
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
 then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`,
 prepared sync `Iterable<Uint8Array[]>`, and file-backed sync
