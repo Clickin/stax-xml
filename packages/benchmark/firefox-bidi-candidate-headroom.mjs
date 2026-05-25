@@ -177,7 +177,10 @@ async function collectVariantHostProcessMemoryProbes(browserResult, options) {
     return;
   }
   for (const variant of browserResult.variants) {
-    variant.hostProcessMemoryProbe = await collectSingleVariantHostProcessMemoryProbe(variant.id, options);
+    variant.hostProcessMemoryProbe = await withDiscardedBrowsingContextRetry(
+      () => collectSingleVariantHostProcessMemoryProbe(variant.id, options),
+      { label: `Firefox host-memory probe ${variant.id}`, maxAttempts: 2 },
+    );
   }
 }
 
@@ -453,6 +456,30 @@ function withTimeout(promise, timeoutMs, message) {
   ]).finally(() => clearTimeout(timeout));
 }
 
+async function withDiscardedBrowsingContextRetry(operation, options = {}) {
+  const maxAttempts = options.maxAttempts ?? 2;
+  const label = options.label ?? 'Firefox BiDi operation';
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await operation(attempt);
+    } catch (error) {
+      lastError = error;
+      if (!isDiscardedBrowsingContextError(error) || attempt >= maxAttempts) {
+        throw error;
+      }
+      await delay(250 * attempt);
+    }
+  }
+  throw new Error(`${label} failed after ${maxAttempts} attempts: ${lastError?.message ?? lastError}`);
+}
+
+function isDiscardedBrowsingContextError(error) {
+  const message = String(error?.message ?? error);
+  return message.includes('DiscardedBrowsingContextError')
+    || /no such frame/i.test(message);
+}
+
 function delay(ms) {
   return new Promise(resolveDelay => setTimeout(resolveDelay, ms));
 }
@@ -461,9 +488,11 @@ export {
   FirefoxBidiClient,
   evaluateRunner,
   findFirefoxExecutable,
+  isDiscardedBrowsingContextError,
   launchFirefox,
   safeRemoveDir,
   terminateBrowser,
+  withDiscardedBrowsingContextRetry,
 };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

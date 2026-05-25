@@ -4,6 +4,10 @@ import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import {
+  isDiscardedBrowsingContextError,
+  withDiscardedBrowsingContextRetry,
+} from './firefox-bidi-candidate-headroom.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
@@ -14,6 +18,31 @@ const projectionJsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom-projecti
 const projectionMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-projection.md');
 const corpusJsonOut = join(tmpDir, 'firefox-bidi-candidate-headroom-corpus.json');
 const corpusMdOut = join(tmpDir, 'firefox-bidi-candidate-headroom-corpus.md');
+
+test('Firefox BiDi retry helper retries discarded browsing contexts only', async () => {
+  let attempts = 0;
+  const result = await withDiscardedBrowsingContextRetry(async () => {
+    attempts++;
+    if (attempts === 1) {
+      throw new Error('no such frame: DiscardedBrowsingContextError: BrowsingContext does no longer exist');
+    }
+    return 'ok';
+  }, { label: 'test probe', maxAttempts: 2 });
+
+  assert.equal(result, 'ok');
+  assert.equal(attempts, 2);
+  assert.equal(isDiscardedBrowsingContextError(new Error('no such frame: DiscardedBrowsingContextError: BrowsingContext does no longer exist')), true);
+
+  let nonRetryAttempts = 0;
+  await assert.rejects(
+    withDiscardedBrowsingContextRetry(async () => {
+      nonRetryAttempts++;
+      throw new Error('checksum mismatch');
+    }, { label: 'test probe', maxAttempts: 2 }),
+    /checksum mismatch/,
+  );
+  assert.equal(nonRetryAttempts, 1);
+});
 
 test('Firefox BiDi candidate headroom records same-contract SpiderMonkey rows', (t) => {
   const firefox = findFirefoxExecutable();
