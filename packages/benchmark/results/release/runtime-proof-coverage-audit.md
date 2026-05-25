@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T03:02:12.780Z
+Generated: 2026-05-25T03:12:11.327Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 121
+- Scanned primary artifacts: 122
 - Ignored derived artifacts: 5
 - Measured rows recognized: 689
 - Benchmark artifacts: 86
@@ -14,7 +14,7 @@ This audit scans current release artifacts to show which proof obligations are c
 - Trace/profile artifacts: 8
 - Allocation artifacts: 13
 - Environment artifacts: 2
-- Negative-result artifacts: 5
+- Negative-result artifacts: 6
 - 1 GiB+ JS full-string rows: 426
 - Corpus seeds: 3
 - Open or partial obligations: 2

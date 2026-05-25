@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-05-25T03:08:41.147Z",
+  "objective": "attribute-value-branch-order-candidate",
+  "contract": "file-backed-public-consumer-hot-path-branch-order-candidate",
+  "note": "Records a rejected implementation probe: moving the numeric attributeValueAt overload branch ahead of the string-name overload in StreamBatchView. The candidate was measured over the same 1 GiB file-backed public consumer sweep and then reverted because it did not produce headroom.",
+  "candidateChange": {
+    "file": "packages/stax-xml/src/stream-reader-core.ts",
+    "method": "StreamBatchView.attributeValueAt(eventIndex, attrIndexOrName)",
+    "changedBranchOrder": "number-first instead of string-first",
+    "retainedInSource": false
+  },
+  "sourceContract": {
+    "fixture": "packages/benchmark/test-data/node-string-return-1024mib.xml",
+    "sourceMode": "file-backed-sync-iterable-byte-batches",
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "fullStringParity": true,
+    "boundedRssMiB": 512
+  },
+  "baselineArtifactBeforeCandidate": {
+    "sourceArtifact": "file-backed-public-consumer-shape-sweep.json",
+    "generatedAt": "2026-05-25T02:38:48.697Z",
+    "rows": [
+      {
+        "id": "public-baseline",
+        "throughputMiBPerSec": 130.37,
+        "maxRssMiB": 70.68,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-no-optional-text",
+        "throughputMiBPerSec": 133.67,
+        "maxRssMiB": 70.91,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      }
+    ]
+  },
+  "candidateMeasurement": {
+    "generatedAt": "2026-05-25T03:08:41.147Z",
+    "rows": [
+      {
+        "id": "public-baseline",
+        "throughputMiBPerSec": 125.95,
+        "maxRssMiB": 70.94,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-no-optional-text",
+        "throughputMiBPerSec": 114.80,
+        "maxRssMiB": 70.90,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-switch-dispatch",
+        "throughputMiBPerSec": 112.72,
+        "maxRssMiB": 70.70,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      {
+        "id": "public-event-object",
+        "throughputMiBPerSec": 94.76,
+        "maxRssMiB": 138.17,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      }
+    ]
+  },
+  "summary": {
+    "classification": "NEGATIVE_RESULT",
+    "candidateRetained": false,
+    "candidateCounterexamples200MiB": 0,
+    "baselinePublicBaselineMiBPerSec": 130.37,
+    "candidatePublicBaselineMiBPerSec": 125.95,
+    "baselinePublicNoOptionalTextMiBPerSec": 133.67,
+    "candidatePublicNoOptionalTextMiBPerSec": 114.80,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "branch-order-not-headroom",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Putting the numeric attributeValueAt branch first did not expose file-backed full-string public consumer headroom in this probe.",
+      "evidence": [
+        "public-baseline: 130.37 MiB/s before candidate, 125.95 MiB/s with candidate",
+        "public-no-optional-text: 133.67 MiB/s before candidate, 114.80 MiB/s with candidate",
+        "candidate retained in source: false"
+      ]
+    },
+    {
+      "id": "not-runtime-ceiling-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This negative result rejects one small branch-order candidate only; it is not evidence that public StreamBatch access cannot be improved.",
+      "evidence": [
+        "single implementation probe",
+        "same event count and checksum preserved",
+        "no 200 MiB/s bounded full-string counterexample found"
+      ]
+    }
+  ]
+}
