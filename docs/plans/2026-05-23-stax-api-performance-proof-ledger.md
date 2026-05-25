@@ -183,8 +183,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 128 primary release JSON artifacts and recognizes 720
-measured rows. It finds 425 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 129 primary release JSON artifacts and recognizes 722
+measured rows. It finds 427 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
 `bun-candidate-headroom-books-corpus-stability.json` at 178.52 MiB/s with
@@ -215,10 +215,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 128 primary release artifacts and recognizes 720
-measured rows. It records 89 benchmark artifacts, 16 source artifacts, 8
+The current audit scans 129 primary release artifacts and recognizes 722
+measured rows. It records 90 benchmark artifacts, 16 source artifacts, 8
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 429 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+9 negative-result artifacts, 431 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -1321,6 +1321,17 @@ checksum. The near-full `withoutTextStrings` row averaged `207.70 MiB/s` with
 its string-field counter dropped from 62,758,976 to 45,771,584, its text counter
 was 0 instead of 16,987,392, and its checksum changed to `1372281363`. This is
 text/CDATA materialization headroom, not a full-StAX counterexample.
+
+`packages/benchmark/results/release/text-cache-materialization-candidate-stability.md`
+rechecks the bounded text/CDATA span cache under the same `books.xml`
+corpus-cycle fixture and same-process `runs=3`, `warmups=0` source contract.
+The control `rawFrameNameId` averaged `175.02 MiB/s` with `5.1%` spread, max RSS
+`71.2 MiB`, 57,096,514 events, and checksum `-540013997`. The full-parity
+`rawFrameNameIdTextCache` row averaged only `129.31 MiB/s` with `3.1%` spread
+and max RSS `77.4 MiB` despite 16,987,337 text-cache hits and 55 misses. It
+preserved all 62,758,976 string fields, including 16,987,392 text/CDATA fields,
+and the same checksum, so this is a negative result for text/CDATA span caching
+as a path to the 200 MiB/s full-StAX target.
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus.md`
 then repeats the same selected rows in fresh runtime processes with

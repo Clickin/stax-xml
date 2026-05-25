@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 128);
-  assert.equal(report.summary.measuredRowCount, 720);
-  assert.equal(report.summary.largeJsFullRowCount, 425);
+  assert.equal(report.summary.scannedArtifactCount, 129);
+  assert.equal(report.summary.measuredRowCount, 722);
+  assert.equal(report.summary.largeJsFullRowCount, 427);
   assert.equal(report.summary.partialHeadroomRowCount, 20);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
@@ -79,6 +79,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('text-cache-materialization-candidate.json'));
+  assert.ok(report.scannedArtifacts.includes('text-cache-materialization-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('stax-event-public-object-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-fold-trim-candidate.json'));
@@ -172,6 +173,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'long-ascii-text-materialization-candidate-stability.json'
     && row.id === 'rawFrameNameId'
     && row.mibPerSec === 172.85
+    && row.hasMemoryProof === true
+    && row.fullStringParity === true
+  ));
+  assert.ok(report.fastestLargeFullRows.some(row =>
+    row.sourceArtifact === 'text-cache-materialization-candidate-stability.json'
+    && row.id === 'rawFrameNameId'
+    && row.mibPerSec === 175.02
     && row.hasMemoryProof === true
     && row.fullStringParity === true
   ));
