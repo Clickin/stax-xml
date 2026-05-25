@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T06:13:06.302Z",
+  "generatedAt": "2026-05-25T13:14:09.466Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -23,6 +23,7 @@
       "textdecoder-span-variants.json",
       "bun-textdecoder-span-variants.json",
       "browser-textdecoder-span-variants.json",
+      "access-shape-candidate-cross-process.json",
       "candidate-headroom-cross-process-books-corpus.json",
       "candidate-headroom-cross-process-books-corpus-batch16.json",
       "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -32,31 +33,31 @@
     ]
   },
   "summary": {
-    "rowCount": 68,
-    "jsLargeFullRowCount": 62,
+    "rowCount": 74,
+    "jsLargeFullRowCount": 68,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
-      "group": "cross-process-large-asset-corpus",
-      "runtimeId": "node-v8",
-      "runtimeLabel": "Node/V8",
+      "group": "access-shape-cross-process-books-corpus",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
       "caseId": "rawFrameNameId",
-      "mibPerSec": 146.11,
+      "mibPerSec": 177.34,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 495.31,
-        "maxHeapUsedMiB": 27.28,
+        "maxMiB": 189.37,
+        "maxHeapUsedMiB": 46.29,
         "note": "max across independent child processes"
       },
-      "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
+      "sourceArtifact": "access-shape-candidate-cross-process.json"
     },
     "fastestJsLargeFullRowTo200MiBPerSec": {
-      "ratio": 0.73,
-      "remainingMiBPerSec": 53.89
+      "ratio": 0.89,
+      "remainingMiBPerSec": 22.66
     },
     "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
-      "ratio": 0.46,
-      "remainingTo90PercentMiBPerSec": 142.03,
+      "ratio": 0.55,
+      "remainingTo90PercentMiBPerSec": 110.8,
       "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
     },
     "fastestJsLargePublicEventRow": {
@@ -188,6 +189,24 @@
             "maxArrayBuffersMiB": null
           },
           "sourceArtifact": "textdecoder-span-variants.json"
+        }
+      },
+      {
+        "group": "access-shape-cross-process-books-corpus",
+        "fastest": {
+          "group": "access-shape-cross-process-books-corpus",
+          "runtimeId": "bun-jsc",
+          "runtimeLabel": "Bun/JSC",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 177.34,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 189.37,
+            "maxHeapUsedMiB": 46.29,
+            "note": "max across independent child processes"
+          },
+          "sourceArtifact": "access-shape-candidate-cross-process.json"
         }
       },
       {
@@ -2491,6 +2510,258 @@
       "runtimeLimitCounterexample": false
     },
     {
+      "group": "access-shape-cross-process-books-corpus",
+      "sourceArtifact": "access-shape-candidate-cross-process.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "cursorAccessor",
+      "implementation": "Node/V8 cross-process cursorAccessor",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 161.48,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 70.7,
+        "maxHeapUsedMiB": 6.89,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 158.69,
+      "sampleMaxMiBPerSec": 166.29,
+      "sampleSpreadRatio": 0.05,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "access-shape-cross-process-books-corpus",
+      "sourceArtifact": "access-shape-candidate-cross-process.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameDirect",
+      "implementation": "Node/V8 cross-process rawFrameDirect",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 136.98,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 71.11,
+        "maxHeapUsedMiB": 7.49,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 107.58,
+      "sampleMaxMiBPerSec": 153.09,
+      "sampleSpreadRatio": 0.33,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "access-shape-cross-process-books-corpus",
+      "sourceArtifact": "access-shape-candidate-cross-process.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "Node/V8 cross-process rawFrameNameId",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 147.13,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 71.84,
+        "maxHeapUsedMiB": 6.98,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 93.16,
+      "sampleMaxMiBPerSec": 174.93,
+      "sampleSpreadRatio": 0.56,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "access-shape-cross-process-books-corpus",
+      "sourceArtifact": "access-shape-candidate-cross-process.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "cursorAccessor",
+      "implementation": "Bun/JSC cross-process cursorAccessor",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 167.04,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 195.59,
+        "maxHeapUsedMiB": 46.58,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 162.9,
+      "sampleMaxMiBPerSec": 170.78,
+      "sampleSpreadRatio": 0.05,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "access-shape-cross-process-books-corpus",
+      "sourceArtifact": "access-shape-candidate-cross-process.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "rawFrameDirect",
+      "implementation": "Bun/JSC cross-process rawFrameDirect",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 139.83,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 195.54,
+        "maxHeapUsedMiB": 46.58,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 139.17,
+      "sampleMaxMiBPerSec": 140.29,
+      "sampleSpreadRatio": 0.01,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "access-shape-cross-process-books-corpus",
+      "sourceArtifact": "access-shape-candidate-cross-process.json",
+      "runtimeId": "bun-jsc",
+      "runtimeLabel": "Bun/JSC",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "JavaScriptCore",
+      "engineVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "caseId": "rawFrameNameId",
+      "implementation": "Bun/JSC cross-process rawFrameNameId",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 177.34,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 189.37,
+        "maxHeapUsedMiB": 46.29,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 173.98,
+      "sampleMaxMiBPerSec": 179.7,
+      "sampleSpreadRatio": 0.03,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
       "group": "cross-process-books-corpus",
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
       "runtimeId": "node-v8",
@@ -3333,7 +3604,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=62",
+        "jsLargeFullRows=68",
         "counterexamples=0"
       ]
     },

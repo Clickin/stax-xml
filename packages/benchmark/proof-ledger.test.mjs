@@ -122,10 +122,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /The traced rows preserved the full-string contract across\s+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,\s+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`/);
   assert.match(markdown, /18\s+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target\s+mentions/);
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
-  assert.match(markdown, /68 aggregated rows and 62 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /74 aggregated rows and 68 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
-  assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`candidate-headroom-cross-process-large-asset-corpus\.json` at 146\.11 MiB\/s/);
-  assert.match(markdown, /0\.73x of the 200 MiB\/s target and\s+0\.46x of the 1024 MiB Woodstox reference/);
+  assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Bun\/JSC `rawFrameNameId` from\s+`access-shape-candidate-cross-process\.json` at 177\.34 MiB\/s/);
+  assert.match(markdown, /0\.89x of the 200 MiB\/s target and\s+0\.55x of the 1024 MiB Woodstox reference/);
   assert.match(markdown, /fastest bounded\s+row is Node\/V8 `eventObjectFull` from the same large-asset corpus artifact at\s+105\.86 MiB\/s/);
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);

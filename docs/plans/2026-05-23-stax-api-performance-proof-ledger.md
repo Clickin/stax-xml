@@ -144,16 +144,17 @@ upgraded to `CONCLUSION` while these open obligations remain, the gate fails.
 aggregates existing release artifacts under the same full-string checksum
 contract without normalizing object shapes or memory models. It includes the
 16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows, 1
-GiB projection-cycle full-string rows, 1 GiB TextDecoder span rows, quick-xml
-global allocator counters, and Woodstox JFR sampled allocation artifacts.
+GiB projection-cycle full-string rows, 1 GiB TextDecoder span rows, access-shape
+cross-process rows, quick-xml global allocator counters, and Woodstox JFR
+sampled allocation artifacts.
 
-The current aggregate has 68 aggregated rows and 62 JavaScript 1 GiB+
+The current aggregate has 74 aggregated rows and 68 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
-full-string row is Node/V8 `rawFrameNameId` from
-`candidate-headroom-cross-process-large-asset-corpus.json` at 146.11 MiB/s
-with process RSS max 495.31 MiB. That is 0.73x of the 200 MiB/s target and
-0.46x of the 1024 MiB Woodstox reference, leaving 142.03 MiB/s to reach the
+full-string row is Bun/JSC `rawFrameNameId` from
+`access-shape-candidate-cross-process.json` at 177.34 MiB/s
+with process RSS max 189.37 MiB. That is 0.89x of the 200 MiB/s target and
+0.55x of the 1024 MiB Woodstox reference, leaving 110.80 MiB/s to reach the
 0.9x Woodstox target. For the public event-object shape, the fastest bounded
 row is Node/V8 `eventObjectFull` from the same large-asset corpus artifact at
 105.86 MiB/s with process RSS max 495.34 MiB. The generated, corpus, and
