@@ -87,6 +87,7 @@ const requiredArtifactMentions = [
   'bun-candidate-headroom-large.md',
   'browser-candidate-headroom-large.md',
   'firefox-bidi-candidate-headroom.md',
+  'text-cdata-cost-decomposition.md',
   'textdecoder-span-variants.md',
   'bun-textdecoder-span-variants.md',
   'browser-textdecoder-span-variants.md',

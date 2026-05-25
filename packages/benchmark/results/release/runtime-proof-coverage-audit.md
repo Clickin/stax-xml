@@ -1,27 +1,27 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T10:37:09.492Z
+Generated: 2026-05-25T10:52:16.080Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 133
+- Scanned primary artifacts: 134
 - Ignored derived artifacts: 5
-- Measured rows recognized: 725
+- Measured rows recognized: 729
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 71
   - Unknown bounded-memory JS rows: 55
   - Unknown bounded-memory full-string rows: 56
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 24
-- Benchmark artifacts: 93
+- Benchmark artifacts: 94
 - Source artifacts: 16
 - Trace/profile artifacts: 8
 - Allocation artifacts: 13
 - Environment artifacts: 2
 - Negative-result artifacts: 10
-- 1 GiB+ JS full-string rows: 458
+- 1 GiB+ JS full-string rows: 460
 - Corpus seeds: 3
 - Open or partial obligations: 2
 
@@ -29,7 +29,7 @@ This audit scans current release artifacts to show which proof obligations are c
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 55 | 277 | 164 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
+| Node/V8 | 56 | 281 | 166 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
 | Bun/JSC | 28 | 202 | 124 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 2 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |

@@ -271,6 +271,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`rawFrameNameIdFoldTrim` row averaged only `103\.26 MiB\/s` with `8\.4%` spread/);
   assert.match(markdown, /same 62,758,976 string-field reads,\s+19,818,633 raw span materializations/);
   assert.match(markdown, /avoiding the\s+trim-result allocation is a recorded negative result/);
+  assert.match(markdown, /text-cdata-cost-decomposition\.md/);
+  assert.match(markdown, /full-parity `rawFrameNameId` control averaged `170\.95 MiB\/s` with `6\.7%` spread/);
+  assert.match(markdown, /`rawFrameSemanticChecksum` row folded all 62,758,976\s+semantic byte fields with zero fallback decodes/);
+  assert.match(markdown, /still averaged only `152\.09 MiB\/s` with `12\.3%` spread/);
+  assert.match(markdown, /`withoutTextStrings` at\s+`219\.85 MiB\/s` with `6\.2%` spread/);
+  assert.match(markdown, /string-contract\s+removal signal, not a hidden checksum-folding or trim-allocation optimization/);
   assert.match(markdown, /access-shape-candidate-stability\.md/);
   assert.match(markdown, /`cursorAccessor` row averaged `138\.00 MiB\/s` with `20\.1%` spread/);
   assert.match(markdown, /`rawFrameDirect`, which decodes every string span directly without\s+name-id caching, averaged `159\.16 MiB\/s`/);

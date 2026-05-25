@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-24T20:53:08.912Z
+Generated: 2026-05-25T10:53:23.202Z
 
 ## Scope
 
@@ -45,6 +45,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `bun-candidate-headroom-large.md` | yes |
 | `browser-candidate-headroom-large.md` | yes |
 | `firefox-bidi-candidate-headroom.md` | yes |
+| `text-cdata-cost-decomposition.md` | yes |
 | `textdecoder-span-variants.md` | yes |
 | `bun-textdecoder-span-variants.md` | yes |
 | `browser-textdecoder-span-variants.md` | yes |

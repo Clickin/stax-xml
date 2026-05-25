@@ -1,16 +1,16 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T10:36:59.512Z
+Generated: 2026-05-25T10:52:16.671Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 133
+- Scanned artifacts: 134
 - Ignored derived artifacts: 5
-- Measured rows recognized: 725
+- Measured rows recognized: 729
 - Aggregate rows recognized: 89
-- 1 GiB+ JS full-string rows recognized: 458
+- 1 GiB+ JS full-string rows recognized: 460
 - 1 GiB+ JS full-string aggregate rows recognized: 69
 - Rows with explicit source mode: 31
 - 1 GiB+ JS full-string rows with explicit source mode: 22
@@ -21,8 +21,8 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 24
 - Counterexamples found: 0
-- Partial/projection threshold rows: 20
-- Text/CDATA materialization headroom rows: 1
+- Partial/projection threshold rows: 21
+- Text/CDATA materialization headroom rows: 2
 - Full-string rows failing bounded-memory criterion: 91
   - Explicit boundedMemory=false rows: 91
   - Bounded flag without row-level memory proof: 0
@@ -32,7 +32,7 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - Fastest 1 GiB+ JS full-string row with memory proof: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at 179.70 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string aggregate row with memory proof: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at avg 177.34 MiB/s (yes, process-rss, samples 3, spread 3.23%)
 - Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from candidate-headroom-cross-process-books-corpus-partial.json at 326.65 MiB/s (yes, process-rss)
-- Fastest text/CDATA materialization headroom row: Node/V8 withoutTextStrings from long-ascii-text-materialization-candidate-stability.json at 207.70 MiB/s (yes, process-rss)
+- Fastest text/CDATA materialization headroom row: Node/V8 withoutTextStrings from text-cdata-cost-decomposition.json at 219.85 MiB/s (yes, process-rss)
 
 ## Counterexamples
 
@@ -55,7 +55,7 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 | `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 173.31 | yes | process-rss | 57096514 | -540013997 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.85 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
-| `access-shape-candidate-cross-process.json` | Bun/JSC | `cursorAccessor` | 1.00 | 170.78 | yes | process-rss | 57096514 | -540013997 |
+| `text-cdata-cost-decomposition.json` | Node/V8 | `rawFrameNameId` | 1.00 | 170.95 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -74,7 +74,7 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 173.31 | yes | process-rss | 57096514 | -540013997 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.85 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
-| `access-shape-candidate-cross-process.json` | Bun/JSC | `cursorAccessor` | 1.00 | 170.78 | yes | process-rss | 57096514 | -540013997 |
+| `text-cdata-cost-decomposition.json` | Node/V8 | `rawFrameNameId` | 1.00 | 170.95 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Cross-Process Aggregate Rows With Memory Proof
 
@@ -129,6 +129,7 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 | `candidate-headroom-books-corpus.json` | Node/V8 | `nameStringOnly` | 1.00 | 239.05 | event-types-attribute-counts-and-element-names | 57096514 | -929151437 |
 | `candidate-headroom-cross-process-books-corpus-partial.json` | Node/V8 | `scanAllNoDecode` | 1.00 | 233.20 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `candidate-headroom-cross-process-books-corpus-partial.json` | Node/V8 | `scanAllNoDecode` | 1.00 | 227.08 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
+| `text-cdata-cost-decomposition.json` | Node/V8 | `withoutTextStrings` | 1.00 | 219.85 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `file-backed-core-decomposition.json` | Node/V8 | `stax-scan-all-no-decode` | 1.00 | 214.79 | partial-scan-no-string-materialization | 61236571 | -1830981171 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrNameStringOnly` | 1.00 | 209.12 | event-types-attribute-counts-and-attribute-names | 57096514 | 878766131 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `withoutTextStrings` | 1.00 | 207.70 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
@@ -141,15 +142,16 @@ These near-full rows still materialize element names and attributes, but omit te
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Contract | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
+| `text-cdata-cost-decomposition.json` | Node/V8 | `withoutTextStrings` | 1.00 | 219.85 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `withoutTextStrings` | 1.00 | 207.70 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 
 ## Findings
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
-- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 20 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
-- text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 1 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
+- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 21 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
+- text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 2 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 725 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 71 have unknown boundedMemory.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 729 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 71 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
 - source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for file-sync-batches:11, file-backed-sync-iterable-byte-batches:5, generated-sync-iterable-byte-batches:3, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
 

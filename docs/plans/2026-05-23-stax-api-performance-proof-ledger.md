@@ -1388,6 +1388,24 @@ and max RSS `77.8 MiB`. It preserved the same 62,758,976 string-field reads,
 19,818,633 raw span materializations, events, and checksum, so avoiding the
 trim-result allocation is a recorded negative result for this corpus shape.
 
+`packages/benchmark/results/release/text-cdata-cost-decomposition.md` places the
+same text/CDATA cost probes in one 1 GiB `books.xml` corpus-cycle run with
+same-process `runs=3`, `warmups=0`, synchronous `Iterable<Uint8Array[]>` byte
+batches, and the neutral `Uint8Array` plus `TextDecoder` boundary. The
+full-parity `rawFrameNameId` control averaged `170.95 MiB/s` with `6.7%` spread
+and max RSS `71.2 MiB`. The full-parity `rawFrameNameIdFoldTrim` row averaged
+`139.69 MiB/s` with `2.0%` spread and preserved the same 62,758,976 string-field
+reads, 19,818,633 raw span materializations, 57,096,514 events, and checksum
+`-540013997`. The partial `rawFrameSemanticChecksum` row folded all 62,758,976
+semantic byte fields with zero fallback decodes and preserved the same checksum,
+but still averaged only `152.09 MiB/s` with `12.3%` spread. The only row in this
+focused decomposition that crossed 200 MiB/s was `withoutTextStrings` at
+`219.85 MiB/s` with `6.2%` spread and max RSS `81.1 MiB`; it omitted all
+16,987,392 text/CDATA string reads and changed the checksum to `1372281363`.
+Thus the current 1 GiB text/CDATA headroom is specifically a string-contract
+removal signal, not a hidden checksum-folding or trim-allocation optimization
+that preserves full StAX string materialization.
+
 `packages/benchmark/results/release/access-shape-candidate-stability.md`
 rechecks the remaining full-parity access-shape variants on the same `books.xml`
 corpus-cycle fixture with same-process `runs=3`, `warmups=0`. The mutable

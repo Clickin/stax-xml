@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T10:36:59.512Z",
+  "generatedAt": "2026-05-25T10:52:16.671Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -132,6 +132,7 @@
     "stream-source-consumption-shapes.json",
     "text-cache-materialization-candidate-stability.json",
     "text-cache-materialization-candidate.json",
+    "text-cdata-cost-decomposition.json",
     "textdecoder-span-variants-corpus.json",
     "textdecoder-span-variants.json",
     "v8-allocation-sampling-diverse.json",
@@ -152,12 +153,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 133,
+    "scannedArtifactCount": 134,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 725,
+    "measuredRowCount": 729,
     "aggregateRowCount": 89,
-    "largeJsFullRowCount": 458,
+    "largeJsFullRowCount": 460,
     "largeJsFullAggregateRowCount": 69,
     "sourceModeRowCount": 31,
     "largeJsFullSourceModeRowCount": 22,
@@ -490,7 +491,7 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 725,
+      "measuredRows": 729,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 71
     },
@@ -503,7 +504,7 @@
       "rowsWithMemoryCounter": 24
     },
     "counterexampleCount": 0,
-    "partialHeadroomRowCount": 20,
+    "partialHeadroomRowCount": 21,
     "unboundedOrUnknownLargeFullRowCount": 91,
     "largeFullMemoryRejectionBreakdown": {
       "total": 91,
@@ -587,13 +588,13 @@
       "demandDrivenSource": false,
       "respectsBackpressure": null
     },
-    "textMaterializationHeadroomRowCount": 1,
+    "textMaterializationHeadroomRowCount": 2,
     "fastestTextMaterializationHeadroomRow": {
-      "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
+      "sourceArtifact": "text-cdata-cost-decomposition.json",
       "runtimeLabel": "Node/V8",
       "id": "withoutTextStrings",
       "sizeGiB": 1,
-      "mibPerSec": 207.7,
+      "mibPerSec": 219.85,
       "boundedMemory": true,
       "fullStringParity": false,
       "memoryKind": "process-rss",
@@ -875,16 +876,16 @@
       "respectsBackpressure": null
     },
     {
-      "sourceArtifact": "access-shape-candidate-cross-process.json",
-      "jsonPath": "runtimes.1.childReports.2.variants.0",
-      "id": "cursorAccessor",
-      "runtimeLabel": "Bun/JSC",
+      "sourceArtifact": "text-cdata-cost-decomposition.json",
+      "jsonPath": "variants.0",
+      "id": "rawFrameNameId",
+      "runtimeLabel": "Node/V8",
       "jsRuntime": true,
       "fullStringParity": true,
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 170.78,
+      "mibPerSec": 170.95,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-string-materialization",
@@ -1165,16 +1166,16 @@
       "respectsBackpressure": null
     },
     {
-      "sourceArtifact": "access-shape-candidate-cross-process.json",
-      "jsonPath": "runtimes.1.childReports.2.variants.0",
-      "id": "cursorAccessor",
-      "runtimeLabel": "Bun/JSC",
+      "sourceArtifact": "text-cdata-cost-decomposition.json",
+      "jsonPath": "variants.0",
+      "id": "rawFrameNameId",
+      "runtimeLabel": "Node/V8",
       "jsRuntime": true,
       "fullStringParity": true,
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 170.78,
+      "mibPerSec": 170.95,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-string-materialization",
@@ -1877,6 +1878,30 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "text-cdata-cost-decomposition.json",
+      "jsonPath": "variants.3",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 219.85,
+      "eventCount": 57096514,
+      "checksum": 1372281363,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": false,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "file-backed-core-decomposition.json",
       "jsonPath": "rows.0",
       "id": "stax-scan-all-no-decode",
@@ -1998,6 +2023,30 @@
     }
   ],
   "textMaterializationHeadroomRows": [
+    {
+      "sourceArtifact": "text-cdata-cost-decomposition.json",
+      "jsonPath": "variants.3",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 219.85,
+      "eventCount": 57096514,
+      "checksum": 1372281363,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": false,
+      "respectsBackpressure": null
+    },
     {
       "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
       "jsonPath": "variants.3",
@@ -7369,12 +7418,12 @@
     {
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "20 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+      "summary": "21 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
     },
     {
       "id": "text-materialization-headroom",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "1 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
+      "summary": "2 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
     },
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
@@ -7384,7 +7433,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "725 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 71 have unknown boundedMemory."
+      "summary": "729 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 71 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",
