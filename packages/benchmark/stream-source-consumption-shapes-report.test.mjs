@@ -62,6 +62,7 @@ test('stream source consumption shapes report separates sync batches from Readab
     assert.equal(row.eventCount, 967967);
     assert.equal(row.checksum, -746772258);
     assert.equal(row.boundedMemory, true);
+    assert.equal(row.demandDrivenSource, true);
     assert.equal(row.memory.maxRssBytes > 0, true);
   }
   const readableRow = report.rows.find(row => row.id === 'web-readable-stream-pull');
@@ -72,6 +73,8 @@ test('stream source consumption shapes report separates sync batches from Readab
   assert.match(markdown, /## Source Contract/);
   assert.match(markdown, /Sync Iterable input: sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads one file chunk only inside pull\(\)/);
+  assert.match(markdown, /Demand-driven/);
+  assert.match(markdown, /Stream backpressure/);
   assert.match(markdown, /current-release-source-shape/);
   assert.match(markdown, /backpressure-respected/);
   assert.match(markdown, /not as a JavaScript runtime ceiling proof/);

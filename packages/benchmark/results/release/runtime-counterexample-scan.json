@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T09:43:46.355Z",
+  "generatedAt": "2026-05-25T10:00:08.895Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -182,8 +182,10 @@
           "sourceMode": "file-sync-batches",
           "batchSize": 1,
           "chunkKiB": 256,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 13,
         "backpressureRows": 0
       },
       {
@@ -207,8 +209,10 @@
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "batchSize": 1,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 9,
         "backpressureRows": 0
       },
       {
@@ -232,8 +236,10 @@
           "sourceMode": "complete-js-string",
           "batchSize": null,
           "chunkKiB": null,
+          "demandDrivenSource": false,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 0,
         "backpressureRows": 0
       },
       {
@@ -257,8 +263,10 @@
           "sourceMode": "generated-sync-iterable-byte-batches",
           "batchSize": null,
           "chunkKiB": null,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 3,
         "backpressureRows": 0
       },
       {
@@ -266,13 +274,13 @@
         "rowCount": 1,
         "fullStringRowCount": 1,
         "boundedFullStringRowCount": 1,
-        "fastestMiBPerSec": 134.33,
+        "fastestMiBPerSec": 122.26,
         "fastestRow": {
           "sourceArtifact": "stream-source-consumption-shapes.json",
           "runtimeLabel": "Node/V8",
           "id": "sync-iterable-byte-batches",
           "sizeGiB": 1,
-          "mibPerSec": 134.33,
+          "mibPerSec": 122.26,
           "boundedMemory": true,
           "fullStringParity": true,
           "memoryKind": "process-rss",
@@ -282,8 +290,10 @@
           "sourceMode": "sync-iterable-byte-batches",
           "batchSize": 1,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 1,
         "backpressureRows": 0
       },
       {
@@ -291,13 +301,13 @@
         "rowCount": 1,
         "fullStringRowCount": 1,
         "boundedFullStringRowCount": 1,
-        "fastestMiBPerSec": 117.69,
+        "fastestMiBPerSec": 112.08,
         "fastestRow": {
           "sourceArtifact": "stream-source-consumption-shapes.json",
           "runtimeLabel": "Node/V8",
           "id": "web-readable-stream-pull",
           "sizeGiB": 1,
-          "mibPerSec": 117.69,
+          "mibPerSec": 112.08,
           "boundedMemory": true,
           "fullStringParity": true,
           "memoryKind": "process-rss",
@@ -307,8 +317,10 @@
           "sourceMode": "web-readable-stream-pull",
           "batchSize": null,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": true
         },
+        "demandDrivenRows": 1,
         "backpressureRows": 1
       }
     ],
@@ -334,8 +346,10 @@
           "sourceMode": "file-sync-batches",
           "batchSize": 2,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 11,
         "backpressureRows": 0
       },
       {
@@ -359,8 +373,10 @@
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "batchSize": 1,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 5,
         "backpressureRows": 0
       },
       {
@@ -384,8 +400,10 @@
           "sourceMode": "generated-sync-iterable-byte-batches",
           "batchSize": null,
           "chunkKiB": null,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 3,
         "backpressureRows": 0
       },
       {
@@ -409,8 +427,10 @@
           "sourceMode": "complete-js-string",
           "batchSize": null,
           "chunkKiB": null,
+          "demandDrivenSource": false,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 0,
         "backpressureRows": 0
       },
       {
@@ -418,13 +438,13 @@
         "rowCount": 1,
         "fullStringRowCount": 1,
         "boundedFullStringRowCount": 1,
-        "fastestMiBPerSec": 134.33,
+        "fastestMiBPerSec": 122.26,
         "fastestRow": {
           "sourceArtifact": "stream-source-consumption-shapes.json",
           "runtimeLabel": "Node/V8",
           "id": "sync-iterable-byte-batches",
           "sizeGiB": 1,
-          "mibPerSec": 134.33,
+          "mibPerSec": 122.26,
           "boundedMemory": true,
           "fullStringParity": true,
           "memoryKind": "process-rss",
@@ -434,8 +454,10 @@
           "sourceMode": "sync-iterable-byte-batches",
           "batchSize": 1,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": null
         },
+        "demandDrivenRows": 1,
         "backpressureRows": 0
       },
       {
@@ -443,13 +465,13 @@
         "rowCount": 1,
         "fullStringRowCount": 1,
         "boundedFullStringRowCount": 1,
-        "fastestMiBPerSec": 117.69,
+        "fastestMiBPerSec": 112.08,
         "fastestRow": {
           "sourceArtifact": "stream-source-consumption-shapes.json",
           "runtimeLabel": "Node/V8",
           "id": "web-readable-stream-pull",
           "sizeGiB": 1,
-          "mibPerSec": 117.69,
+          "mibPerSec": 112.08,
           "boundedMemory": true,
           "fullStringParity": true,
           "memoryKind": "process-rss",
@@ -459,8 +481,10 @@
           "sourceMode": "web-readable-stream-pull",
           "batchSize": null,
           "chunkKiB": 64,
+          "demandDrivenSource": true,
           "respectsBackpressure": true
         },
+        "demandDrivenRows": 1,
         "backpressureRows": 1
       }
     ],
@@ -502,6 +526,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     "fastestLargeFullRowWithMemoryProof": {
@@ -519,6 +544,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     "fastestLargeFullAggregateRowWithMemoryProof": {
@@ -557,6 +583,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     "textMaterializationHeadroomRowCount": 1,
@@ -575,6 +602,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     "conclusionAllowed": false
@@ -602,6 +630,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -625,6 +654,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -648,6 +678,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -671,6 +702,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -694,6 +726,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -717,6 +750,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -740,6 +774,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -763,6 +798,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -786,6 +822,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -809,6 +846,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -832,6 +870,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -855,6 +894,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     }
   ],
@@ -880,6 +920,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -903,6 +944,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -926,6 +968,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -949,6 +992,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -972,6 +1016,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -995,6 +1040,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1018,6 +1064,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1041,6 +1088,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1064,6 +1112,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1087,6 +1136,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1110,6 +1160,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1133,6 +1184,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     }
   ],
@@ -1484,6 +1536,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1507,6 +1560,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1530,6 +1584,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1553,6 +1608,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1576,6 +1632,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1599,6 +1656,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1622,6 +1680,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1645,6 +1704,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1668,6 +1728,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1691,6 +1752,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1714,6 +1776,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1737,6 +1800,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1760,6 +1824,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1783,6 +1848,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1806,6 +1872,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1829,6 +1896,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 256,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -1852,6 +1920,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1875,6 +1944,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1898,6 +1968,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1921,6 +1992,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     }
   ],
@@ -1946,6 +2018,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     }
   ],
@@ -1971,6 +2044,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -1994,6 +2068,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2017,6 +2092,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2040,6 +2116,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2063,6 +2140,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2086,6 +2164,7 @@
       "sourceMode": "complete-js-string",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2109,6 +2188,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2132,6 +2212,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2155,6 +2236,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2178,6 +2260,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2201,6 +2284,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2224,6 +2308,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2247,6 +2332,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2270,6 +2356,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2293,6 +2380,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2316,6 +2404,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2339,6 +2428,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2362,6 +2452,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2385,6 +2476,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2408,6 +2500,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2431,6 +2524,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2454,6 +2548,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2477,6 +2572,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2500,6 +2596,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2523,6 +2620,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2546,6 +2644,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2569,6 +2668,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2592,6 +2692,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2615,6 +2716,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2638,6 +2740,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2661,6 +2764,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2684,6 +2788,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2707,6 +2812,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2730,6 +2836,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2753,6 +2860,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2776,6 +2884,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2799,6 +2908,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2822,6 +2932,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2845,6 +2956,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2868,6 +2980,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2891,6 +3004,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2914,6 +3028,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2937,6 +3052,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2960,6 +3076,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -2983,6 +3100,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3006,6 +3124,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3029,6 +3148,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3052,6 +3172,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3075,6 +3196,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3098,6 +3220,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3121,6 +3244,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3144,6 +3268,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3167,6 +3292,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3190,6 +3316,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3213,6 +3340,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3236,6 +3364,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3259,6 +3388,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3282,6 +3412,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3305,6 +3436,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3328,6 +3460,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3351,6 +3484,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3374,6 +3508,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3397,6 +3532,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3420,6 +3556,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3443,6 +3580,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3466,6 +3604,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3489,6 +3628,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3512,6 +3652,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3535,6 +3676,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3558,6 +3700,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3581,6 +3724,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3604,6 +3748,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3627,6 +3772,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3650,6 +3796,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3673,6 +3820,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3696,6 +3844,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3719,6 +3868,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3742,6 +3892,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3765,6 +3916,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3788,6 +3940,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3811,6 +3964,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3834,6 +3988,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3857,6 +4012,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3880,6 +4036,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3903,6 +4060,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3926,6 +4084,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3949,6 +4108,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3972,6 +4132,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -3995,6 +4156,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -4018,6 +4180,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -4041,6 +4204,7 @@
       "sourceMode": null,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     }
   ],
@@ -6471,6 +6635,7 @@
       "sourceMode": "complete-js-string",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -6494,6 +6659,7 @@
       "sourceMode": "complete-js-string",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -6517,6 +6683,7 @@
       "sourceMode": "complete-js-string",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -6540,6 +6707,7 @@
       "sourceMode": "complete-js-string",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": false,
       "respectsBackpressure": null
     },
     {
@@ -6563,6 +6731,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6586,6 +6755,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 2,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6609,6 +6779,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 4,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6632,6 +6803,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 8,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6655,6 +6827,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 16,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6678,6 +6851,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 256,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6701,6 +6875,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 256,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6724,6 +6899,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 256,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6747,6 +6923,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 256,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6770,6 +6947,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6793,6 +6971,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6816,6 +6995,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6839,6 +7019,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6862,6 +7043,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6885,6 +7067,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 16,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6908,6 +7091,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 16,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6931,6 +7115,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 16,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6954,6 +7139,7 @@
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 16,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -6977,6 +7163,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 16,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7000,6 +7187,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7023,6 +7211,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 256,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7046,6 +7235,7 @@
       "sourceMode": "file-sync-batches",
       "batchSize": 1,
       "chunkKiB": 1024,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7069,6 +7259,7 @@
       "sourceMode": "generated-sync-iterable-byte-batches",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7092,6 +7283,7 @@
       "sourceMode": "generated-sync-iterable-byte-batches",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7115,6 +7307,7 @@
       "sourceMode": "generated-sync-iterable-byte-batches",
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7127,7 +7320,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 134.33,
+      "mibPerSec": 122.26,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "full-string-checksum",
@@ -7138,6 +7331,7 @@
       "sourceMode": "sync-iterable-byte-batches",
       "batchSize": 1,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -7150,7 +7344,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 117.69,
+      "mibPerSec": 112.08,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "full-string-checksum",
@@ -7161,6 +7355,7 @@
       "sourceMode": "web-readable-stream-pull",
       "batchSize": null,
       "chunkKiB": 64,
+      "demandDrivenSource": true,
       "respectsBackpressure": true
     }
   ],

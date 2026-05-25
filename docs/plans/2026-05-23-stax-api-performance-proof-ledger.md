@@ -204,12 +204,13 @@ metadata, including `file-sync-batches`, `file-backed-sync-iterable-byte-batches
 `sync-iterable-byte-batches`, and `web-readable-stream-pull`. The
 source-consumption comparison rows from
 `stream-source-consumption-shapes.json` are therefore included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 134.33 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 117.69 MiB/s. This
-keeps direct ReadableStream overhead evidence separate from the synchronous
-byte-batch rows and fixes the previous scanner blind spot where non-`stax-*`
-Node/V8 row tools could be labeled `Node/V8` but not counted as JavaScript
-runtime rows.
+full-string scan: `sync-iterable-byte-batches` at 122.26 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 112.08 MiB/s. The
+scan now separates parser-demand-driven source rows from Web Stream
+backpressure rows, so direct ReadableStream overhead evidence stays distinct
+from synchronous byte-batch rows. This also fixes the previous scanner blind
+spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
+counted as JavaScript runtime rows.
 
 The scan also records 20 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
@@ -754,10 +755,11 @@ checksum artifact. Its machine-readable `sourceContract` records that
 `Iterable<Uint8Array[]>` with one grouped batch per parser pull, while
 `web-readable-stream-pull` uses `StreamReader` over a Web
 `ReadableStream<Uint8Array>` pull source that reads one file chunk only inside
-`pull()`. The release row reports `134.33 MiB/s` for the sync iterable path and
-`117.69 MiB/s` for the backpressure-respecting ReadableStream path, so this
-artifact is direct source-shape evidence rather than an assumption that the
-large matrices consume a pure ReadableStream.
+`pull()`. The release row reports `122.26 MiB/s` for the sync iterable path and
+`112.08 MiB/s` for the backpressure-respecting ReadableStream path. Both rows
+are parser-demand-driven, while only the Web ReadableStream row carries stream
+backpressure metadata, so this artifact is direct source-shape evidence rather
+than an assumption that the large matrices consume a pure ReadableStream.
 
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
 then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`,

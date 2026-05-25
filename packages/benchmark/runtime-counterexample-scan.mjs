@@ -307,6 +307,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     sourceMode: node.sourceMode ?? null,
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
+    demandDrivenSource: classifyDemandDrivenSource(node),
     respectsBackpressure: typeof node.respectsBackpressure === 'boolean' ? node.respectsBackpressure : null,
   };
 }
@@ -361,6 +362,7 @@ function summarizeSourceModes(rows) {
       boundedFullStringRowCount: 0,
       fastestMiBPerSec: null,
       fastestRow: null,
+      demandDrivenRows: 0,
       backpressureRows: 0,
     };
     current.rowCount++;
@@ -369,6 +371,9 @@ function summarizeSourceModes(rows) {
       if (row.boundedMemory === true && row.hasMemoryProof) {
         current.boundedFullStringRowCount++;
       }
+    }
+    if (row.demandDrivenSource === true) {
+      current.demandDrivenRows++;
     }
     if (row.respectsBackpressure === true) {
       current.backpressureRows++;
@@ -459,6 +464,13 @@ function classifyJsRuntime(sourceArtifact, node, context) {
     return !/quick-xml|woodstox/.test(sourceArtifact);
   }
   return false;
+}
+
+function classifyDemandDrivenSource(node) {
+  if (typeof node.demandDrivenSource === 'boolean') return node.demandDrivenSource;
+  const sourceMode = typeof node.sourceMode === 'string' ? node.sourceMode : '';
+  if (sourceMode === 'complete-js-string') return false;
+  return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull|file-sync-batches/.test(sourceMode);
 }
 
 function inferRuntimeLabel(sourceArtifact, node, context) {
@@ -664,13 +676,13 @@ function renderMarkdown(report) {
     '',
     '## Source Mode Breakdown For 1 GiB+ Full-String JS Rows',
     '',
-    'This table records input-consumption metadata when release rows expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows.',
+    'This table records input-consumption metadata when release rows expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.',
     '',
-    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Backpressure rows |',
-    '| --- | ---: | ---: | ---: | ---: | --- | ---: |',
+    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows |',
+    '| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |',
   );
   if (report.summary.largeJsFullSourceModeBreakdown.length === 0) {
-    lines.push('| none | | | | | | |');
+    lines.push('| none | | | | | | | |');
   } else {
     for (const entry of report.summary.largeJsFullSourceModeBreakdown) {
       lines.push(renderSourceModeBreakdownRow(entry));
@@ -747,7 +759,7 @@ function renderSourceModeBreakdownRow(entry) {
   const fastest = row
     ? `${row.runtimeLabel} ${row.id} from ${row.sourceArtifact}`
     : 'none';
-  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.backpressureRows} |`;
+  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.demandDrivenRows} | ${entry.backpressureRows} |`;
 }
 
 function summarizeRow(row) {
@@ -771,6 +783,7 @@ function summarizeRow(row) {
     sourceMode: row.sourceMode,
     batchSize: row.batchSize,
     chunkKiB: row.chunkKiB,
+    demandDrivenSource: row.demandDrivenSource,
     respectsBackpressure: row.respectsBackpressure,
   };
 }

@@ -356,6 +356,7 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
     fullStringParity: true,
     chunkKiB: options.chunkKiB,
     batchSize: id === 'sync-iterable-byte-batches' ? options.batchSize : null,
+    demandDrivenSource: true,
     respectsBackpressure: id === 'web-readable-stream-pull' ? true : null,
     mibPerSec: fileSizeMiB / (avgMs / 1000),
     avgMs,
@@ -411,7 +412,7 @@ function createFindings(rows, syncRow, readableRow) {
       id: 'backpressure-respected',
       classification: 'CONTRACT_FACT',
       summary: 'The ReadableStream row reads from the file only in pull(), so production is demand-driven by StreamReader.read().',
-      evidence: readableRow ? [`${readableRow.id}: respectsBackpressure=${readableRow.respectsBackpressure}`] : [],
+      evidence: readableRow ? [`${readableRow.id}: demandDrivenSource=${readableRow.demandDrivenSource}, respectsBackpressure=${readableRow.respectsBackpressure}`] : [],
     },
   ];
 }
@@ -446,10 +447,10 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Rows');
   lines.push('');
-  lines.push('| Row | Source shape | MiB/s | Bounded | Max RSS | Events | Checksum | Backpressure |');
-  lines.push('| --- | --- | ---: | --- | ---: | ---: | ---: | --- |');
+  lines.push('| Row | Source shape | MiB/s | Bounded | Max RSS | Events | Checksum | Demand-driven | Stream backpressure |');
+  lines.push('| --- | --- | ---: | --- | ---: | ---: | ---: | --- | --- |');
   for (const row of report.rows) {
-    lines.push(`| \`${row.id}\` | ${row.implementation} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory?.maxRssBytes)} | ${row.eventCount} | ${row.checksum} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} |`);
+    lines.push(`| \`${row.id}\` | ${row.implementation} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory?.maxRssBytes)} | ${row.eventCount} | ${row.checksum} | ${row.demandDrivenSource ? 'yes' : 'no'} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} |`);
   }
   lines.push('');
   lines.push('## Findings');

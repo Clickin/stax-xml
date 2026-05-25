@@ -210,6 +210,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.sourceMode === 'complete-js-string'
     && row.fullStringParity === true
     && row.boundedMemory === false
+    && row.demandDrivenSource === false
   ));
   assert.ok(report.sourceModeRows.some(row =>
     row.sourceArtifact === 'stream-source-consumption-shapes.json'
@@ -217,9 +218,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.runtimeLabel === 'Node/V8'
     && row.jsRuntime === true
     && row.sourceMode === 'sync-iterable-byte-batches'
-    && row.mibPerSec === 134.33
+    && row.mibPerSec === 122.26
     && row.fullStringParity === true
     && row.boundedMemory === true
+    && row.demandDrivenSource === true
   ));
   assert.ok(report.sourceModeRows.some(row =>
     row.sourceArtifact === 'stream-source-consumption-shapes.json'
@@ -227,8 +229,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.runtimeLabel === 'Node/V8'
     && row.jsRuntime === true
     && row.sourceMode === 'web-readable-stream-pull'
+    && row.demandDrivenSource === true
     && row.respectsBackpressure === true
-    && row.mibPerSec === 117.69
+    && row.mibPerSec === 112.08
     && row.fullStringParity === true
     && row.boundedMemory === true
   ));
@@ -236,12 +239,15 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     entry.sourceMode === 'complete-js-string'
     && entry.rowCount === 1
     && entry.boundedFullStringRowCount === 0
+    && entry.demandDrivenRows === 0
+    && entry.backpressureRows === 0
     && entry.fastestRow.sourceArtifact === 'bun-event-reader-string-large.json'
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'sync-iterable-byte-batches'
     && entry.rowCount === 1
-    && entry.fastestMiBPerSec === 134.33
+    && entry.fastestMiBPerSec === 122.26
+    && entry.demandDrivenRows === 1
     && entry.backpressureRows === 0
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
@@ -253,11 +259,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && entry.fastestRow.eventCount === 572662314
     && entry.fastestRow.checksum === -1788666544
     && entry.fastestMiBPerSec === 90.16
+    && entry.demandDrivenRows === 3
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'web-readable-stream-pull'
     && entry.rowCount === 1
-    && entry.fastestMiBPerSec === 117.69
+    && entry.fastestMiBPerSec === 112.08
+    && entry.demandDrivenRows === 1
     && entry.backpressureRows === 1
   ));
   assert.ok(report.fastestLargeFullRows.some(row =>
@@ -373,10 +381,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
   assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);
-  assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 3 \| 3 \| 3 \| 90\.16 \| Node\/V8 0 from stream-reader-4gb-shapes\.json \| 0 \|/);
-  assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| \d+\.\d{2} \| Bun\/JSC 3 from bun-event-reader-string-large\.json \| 0 \|/);
-  assert.match(markdown, /\| `sync-iterable-byte-batches` \| 1 \| 1 \| 1 \| 134\.33 \| Node\/V8 sync-iterable-byte-batches from stream-source-consumption-shapes\.json \| 0 \|/);
-  assert.match(markdown, /\| `web-readable-stream-pull` \| 1 \| 1 \| 1 \| 117\.69 \| Node\/V8 web-readable-stream-pull from stream-source-consumption-shapes\.json \| 1 \|/);
+  assert.match(markdown, /Demand-driven rows/);
+  assert.match(markdown, /Stream backpressure rows/);
+  assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 3 \| 3 \| 3 \| 90\.16 \| Node\/V8 0 from stream-reader-4gb-shapes\.json \| 3 \| 0 \|/);
+  assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| \d+\.\d{2} \| Bun\/JSC 3 from bun-event-reader-string-large\.json \| 0 \| 0 \|/);
+  assert.match(markdown, /\| `sync-iterable-byte-batches` \| 1 \| 1 \| 1 \| 122\.26 \| Node\/V8 sync-iterable-byte-batches from stream-source-consumption-shapes\.json \| 1 \| 0 \|/);
+  assert.match(markdown, /\| `web-readable-stream-pull` \| 1 \| 1 \| 1 \| 112\.08 \| Node\/V8 web-readable-stream-pull from stream-source-consumption-shapes\.json \| 1 \| 1 \|/);
   assert.match(markdown, /Fastest 1 GiB\+ JS full-string aggregate row with memory proof: Bun\/JSC rawFrameNameId from access-shape-candidate-cross-process\.json at avg 177\.34 MiB\/s/);
   assert.match(markdown, /Text\/CDATA Materialization Headroom Rows/);
   assert.match(markdown, /Fastest text\/CDATA materialization headroom row: Node\/V8 withoutTextStrings from long-ascii-text-materialization-candidate-stability\.json at 207\.70 MiB\/s/);
