@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T05:03:56.644Z
+Generated: 2026-05-25T05:16:36.701Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -12,10 +12,12 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - 1 GiB+ JS full-string rows recognized: 422
 - Counterexamples found: 0
 - Partial/projection threshold rows: 15
+- Text/CDATA materialization headroom rows: 2
 - Full-string rows without bounded-memory proof: 90
 - Fastest 1 GiB+ JS full-string row: Node/V8 rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 180.08 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Node/V8 rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 180.08 MiB/s (yes, process-rss)
 - Fastest partial/projection threshold row: Bun/JSC attrNameStringOnly from bun-candidate-headroom-books-corpus.json at 293.91 MiB/s (yes, process-rss)
+- Fastest text/CDATA materialization headroom row: Node/V8 withoutTextStrings from materialization-category-drop-sweep.json at 225.67 MiB/s (yes, process-rss)
 
 ## Counterexamples
 
@@ -81,10 +83,20 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `scanAllNoDecode` | 1.00 | 206.76 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrValueStringOnly` | 1.00 | 204.77 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
 
+## Text/CDATA Materialization Headroom Rows
+
+These near-full rows still materialize element names and attributes, but omit text/CDATA strings. They identify a current headroom axis without satisfying full-string StAX parity.
+
+| Artifact | Runtime | Row | Size GiB | MiB/s | Contract | Events | Checksum |
+| --- | --- | --- | ---: | ---: | --- | ---: | ---: |
+| `materialization-category-drop-sweep.json` | Node/V8 | `withoutTextStrings` | 1.00 | 225.67 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
+| `text-cache-materialization-candidate.json` | Node/V8 | `withoutTextStrings` | 1.00 | 220.30 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
+
 ## Findings
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 15 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
+- text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 2 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
 
 ## Limits

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T05:03:56.644Z",
+  "generatedAt": "2026-05-25T05:16:36.701Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -181,6 +181,18 @@
       "id": "attrNameStringOnly",
       "sizeGiB": 1,
       "mibPerSec": 293.91,
+      "boundedMemory": true,
+      "fullStringParity": false,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true
+    },
+    "textMaterializationHeadroomRowCount": 2,
+    "fastestTextMaterializationHeadroomRow": {
+      "sourceArtifact": "materialization-category-drop-sweep.json",
+      "runtimeLabel": "Node/V8",
+      "id": "withoutTextStrings",
+      "sizeGiB": 1,
+      "mibPerSec": 225.67,
       "boundedMemory": true,
       "fullStringParity": false,
       "memoryKind": "process-rss",
@@ -933,6 +945,46 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
+      "hasMemoryProof": true
+    }
+  ],
+  "textMaterializationHeadroomRows": [
+    {
+      "sourceArtifact": "materialization-category-drop-sweep.json",
+      "jsonPath": "variants.3",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 225.67,
+      "eventCount": 57096514,
+      "checksum": 1372281363,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "text-cache-materialization-candidate.json",
+      "jsonPath": "variants.4",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 220.3,
+      "eventCount": 57096514,
+      "checksum": 1372281363,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
       "hasMemoryProof": true
     }
   ],
@@ -2658,6 +2710,11 @@
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
       "summary": "15 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+    },
+    {
+      "id": "text-materialization-headroom",
+      "status": "HEADROOM_EVIDENCE_PRESENT",
+      "summary": "2 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
     },
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",

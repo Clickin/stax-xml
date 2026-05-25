@@ -118,6 +118,10 @@ function createReport(options) {
     && row.sizeGiB >= options.minSizeGiB
     && row.mibPerSec >= options.thresholdMiBPerSec
   );
+  const textMaterializationHeadroomRows = partialHeadroomRows
+    .filter(row => row.contractScope === 'full-materialization-minus-text-cdata')
+    .slice()
+    .sort((left, right) => right.mibPerSec - left.mibPerSec);
   const unboundedOrUnknownLargeFullRows = largeJsFullRows.filter(row => row.boundedMemory !== true || !row.hasMemoryProof);
   const fastestLargeFullRows = largeJsFullRows
     .slice()
@@ -154,6 +158,8 @@ function createReport(options) {
       fastestLargeFullRow: summarizeRow(fastestLargeFullRows[0]),
       fastestLargeFullRowWithMemoryProof: summarizeRow(fastestLargeFullRowsWithMemoryProof[0]),
       fastestPartialHeadroomRow: summarizeRow(partialHeadroomRows.slice().sort((left, right) => right.mibPerSec - left.mibPerSec)[0]),
+      textMaterializationHeadroomRowCount: textMaterializationHeadroomRows.length,
+      fastestTextMaterializationHeadroomRow: summarizeRow(textMaterializationHeadroomRows[0]),
       conclusionAllowed: false,
     },
     counterexamples,
@@ -162,8 +168,9 @@ function createReport(options) {
     partialHeadroomRows: partialHeadroomRows
       .slice()
       .sort((left, right) => right.mibPerSec - left.mibPerSec),
+    textMaterializationHeadroomRows,
     unboundedOrUnknownLargeFullRows,
-    findings: createFindings(counterexamples, partialHeadroomRows, unboundedOrUnknownLargeFullRows),
+    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows),
   };
 }
 
@@ -317,7 +324,7 @@ function normalizeFixture(fixture) {
   };
 }
 
-function createFindings(counterexamples, partialHeadroomRows, unboundedOrUnknownLargeFullRows) {
+function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows) {
   return [
     {
       id: 'bounded-full-string-counterexample-search',
@@ -330,6 +337,11 @@ function createFindings(counterexamples, partialHeadroomRows, unboundedOrUnknown
       id: 'partial-headroom-not-stax-counterexample',
       status: partialHeadroomRows.length > 0 ? 'HEADROOM_EVIDENCE_PRESENT' : 'NOT_FOUND',
       summary: `${partialHeadroomRows.length} recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.`,
+    },
+    {
+      id: 'text-materialization-headroom',
+      status: textMaterializationHeadroomRows.length > 0 ? 'HEADROOM_EVIDENCE_PRESENT' : 'NOT_FOUND',
+      summary: `${textMaterializationHeadroomRows.length} recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.`,
     },
     {
       id: 'unbounded-or-unknown-full-rows-not-counterexamples',
@@ -355,10 +367,12 @@ function renderMarkdown(report) {
     `- 1 GiB+ JS full-string rows recognized: ${report.summary.largeJsFullRowCount}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
+    `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,
     `- Full-string rows without bounded-memory proof: ${report.summary.unboundedOrUnknownLargeFullRowCount}`,
     `- Fastest 1 GiB+ JS full-string row: ${formatRowSummary(report.summary.fastestLargeFullRow)}`,
     `- Fastest 1 GiB+ JS full-string row with memory proof: ${formatRowSummary(report.summary.fastestLargeFullRowWithMemoryProof)}`,
     `- Fastest partial/projection threshold row: ${formatRowSummary(report.summary.fastestPartialHeadroomRow)}`,
+    `- Fastest text/CDATA materialization headroom row: ${formatRowSummary(report.summary.fastestTextMaterializationHeadroomRow)}`,
     '',
   ];
 
@@ -419,6 +433,23 @@ function renderMarkdown(report) {
     lines.push('| none | | | | | | | |');
   } else {
     for (const row of report.partialHeadroomRows) {
+      lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatNumber(row.mibPerSec)} | ${escapePipe(row.contractScope ?? row.family ?? 'partial')} | ${row.eventCount ?? ''} | ${row.checksum ?? ''} |`);
+    }
+  }
+
+  lines.push(
+    '',
+    '## Text/CDATA Materialization Headroom Rows',
+    '',
+    'These near-full rows still materialize element names and attributes, but omit text/CDATA strings. They identify a current headroom axis without satisfying full-string StAX parity.',
+    '',
+    '| Artifact | Runtime | Row | Size GiB | MiB/s | Contract | Events | Checksum |',
+    '| --- | --- | --- | ---: | ---: | --- | ---: | ---: |',
+  );
+  if (report.textMaterializationHeadroomRows.length === 0) {
+    lines.push('| none | | | | | | | |');
+  } else {
+    for (const row of report.textMaterializationHeadroomRows) {
       lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatNumber(row.mibPerSec)} | ${escapePipe(row.contractScope ?? row.family ?? 'partial')} | ${row.eventCount ?? ''} | ${row.checksum ?? ''} |`);
     }
   }
