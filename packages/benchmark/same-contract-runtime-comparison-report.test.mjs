@@ -39,10 +39,12 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
   assert.ok(report.summary.externalBaseline16MiB.woodstoxMiBPerSec > 300);
   assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec > 90);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio < 0.4);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec > 70);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio < 0.3);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec > 130);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio > 0.4);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio < 0.5);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec > 130);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio > 0.4);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio < 0.5);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio > 0.89);
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'not-recorded', 'process-rss']);
 
