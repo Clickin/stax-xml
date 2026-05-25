@@ -158,7 +158,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 108 aggregated rows and 97 JavaScript 1 GiB+
+The current aggregate has 116 aggregated rows and 105 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
@@ -176,8 +176,8 @@ metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s targe
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
 pass. The same-fixture 1024 MiB JS row vs Woodstox target now includes the
-file-backed source and batch-size sweep rows: `stax-raw-frame-name-id-batch-4`
-is fastest at 146.08 MiB/s, 0.77x Woodstox, and 25.57 MiB/s below the 0.9x
+file-backed source and batch-size sweep rows: `stax-raw-frame-name-id-chunk-32kib`
+is fastest at 151.70 MiB/s, 0.80x Woodstox, and 19.95 MiB/s below the 0.9x
 target. For the
 public event-object shape, the fastest bounded row is
 Node/V8 `eventObjectFull` from
@@ -212,8 +212,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 139 primary release JSON artifacts, recognizes 759
-sample throughput rows and 89 aggregate rows, and finds 468 JavaScript 1 GiB+
+The current scan covers 139 primary release JSON artifacts, recognizes 767
+sample throughput rows and 89 aggregate rows, and finds 476 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -226,7 +226,7 @@ individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 134 JavaScript 1 GiB+
+or their source contract carry it. It now finds 142 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -280,10 +280,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 139 primary release artifacts and recognizes 759
+The current audit scans 139 primary release artifacts and recognizes 767
 measured rows. It records 99 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-10 negative-result artifacts, 468 JavaScript 1 GiB+ full-string rows, and three
+10 negative-result artifacts, 476 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving

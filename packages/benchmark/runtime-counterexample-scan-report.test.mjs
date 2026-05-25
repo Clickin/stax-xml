@@ -34,12 +34,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 139);
-  assert.equal(report.summary.measuredRowCount, 759);
+  assert.equal(report.summary.measuredRowCount, 767);
   assert.equal(report.summary.aggregateRowCount, 89);
-  assert.equal(report.summary.largeJsFullRowCount, 468);
+  assert.equal(report.summary.largeJsFullRowCount, 476);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
-  assert.equal(report.summary.sourceModeRowCount, 184);
-  assert.equal(report.summary.largeJsFullSourceModeRowCount, 134);
+  assert.equal(report.summary.sourceModeRowCount, 192);
+  assert.equal(report.summary.largeJsFullSourceModeRowCount, 142);
   assert.equal(report.summary.partialHeadroomRowCount, 22);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 3);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
@@ -292,12 +292,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'file-backed-sync-iterable-byte-batches'
-    && entry.rowCount === 23
-    && entry.boundedFullStringRowCount === 23
-    && entry.fastestRow.sourceArtifact === 'file-backed-batch-size-sweep.json'
-    && entry.fastestRow.id === 'stax-raw-frame-name-id-batch-4'
-    && entry.fastestMiBPerSec === 146.08
-    && entry.demandDrivenRows === 23
+    && entry.rowCount === 31
+    && entry.boundedFullStringRowCount === 31
+    && entry.fastestRow.sourceArtifact === 'file-backed-source-sweep.json'
+    && entry.fastestRow.id === 'stax-raw-frame-name-id-chunk-32kib'
+    && entry.fastestMiBPerSec === 151.7
+    && entry.demandDrivenRows === 31
     && entry.backpressureRows === 0
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
@@ -417,8 +417,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
-  assert.match(markdown, /Rows with recognized source mode: 184/);
-  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 134/);
+  assert.match(markdown, /Rows with recognized source mode: 192/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 142/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
   assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);

@@ -17,8 +17,8 @@ function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     file: defaultFile,
     chunkKiBs: [16, 64, 256, 1024],
-    batchSize: 1,
-    tools: ['stax-stream'],
+    batchSize: 4,
+    tools: ['stax-stream', 'stax-raw-frame-name-id'],
     runs: 1,
     warmups: 0,
     boundedRssMiB: 512,
@@ -195,7 +195,7 @@ function runSweep(options) {
     generatedAt: new Date().toISOString(),
     objective: 'file-backed-source-sweep',
     contract: 'same-full-string-checksum-file-backed-byte-batches',
-    note: 'Sweeps file-backed StreamReaderSync chunk size with demand-driven Iterable<Uint8Array[]> batches. This isolates source chunk sizing from Woodstox/quick-xml external parser comparisons; it is not an OS-cache-neutral disk benchmark.',
+    note: 'Sweeps file-backed StreamReaderSync chunk size with demand-driven Iterable<Uint8Array[]> batches at a fixed batch size. This isolates chunk sizing inside the same JavaScript source contract from Woodstox/quick-xml external parser comparisons; it is not an OS-cache-neutral disk benchmark.',
     environment: {
       cpuName: cpus()[0]?.model ?? 'unknown',
       platform: `${process.platform}-${process.arch}`,
@@ -313,7 +313,7 @@ function renderMarkdown(report) {
     '## Limits',
     '',
     '- Rows are demand-driven file-backed byte-batch parser inputs, but this is not an OS-cache-neutral disk benchmark.',
-    '- `batchSize > 1` still triggers the current parser multi-chunk concat boundary; use batch size 1 to isolate chunk length.',
+    '- `batchSize > 1` intentionally keeps the parser on its current multi-chunk concat boundary while chunk length varies.',
     '- A missing counterexample in this sweep is not a JavaScript runtime ceiling proof.',
   );
   return `${lines.join('\n')}\n`;

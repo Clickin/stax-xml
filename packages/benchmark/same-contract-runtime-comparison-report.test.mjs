@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 108);
-  assert.equal(report.summary.jsLargeFullRowCount, 97);
+  assert.equal(report.summary.rowCount, 116);
+  assert.equal(report.summary.jsLargeFullRowCount, 105);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'bun-candidate-headroom-books-corpus-stability.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'bun-jsc');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -65,14 +65,14 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec, 190.72);
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec, 150.24);
   assert.equal(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio, 0.79);
-  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.group, 'file-backed-batch-size-sweep');
-  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.sourceArtifact, 'file-backed-batch-size-sweep.json');
-  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId, 'stax-raw-frame-name-id-batch-4');
-  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsMiBPerSec, 146.08);
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.group, 'file-backed-source-sweep');
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.sourceArtifact, 'file-backed-source-sweep.json');
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId, 'stax-raw-frame-name-id-chunk-32kib');
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsMiBPerSec, 151.7);
   assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.woodstoxMiBPerSec, 190.72);
   assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.target90MiBPerSec, 171.65);
-  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio, 0.77);
-  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec, 25.57);
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio, 0.8);
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec, 19.95);
   assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.targetMet, false);
   assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.comparableFixture, false);
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
@@ -194,8 +194,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     row.group === 'file-backed-source-sweep'
     && row.sourceArtifact === 'file-backed-source-sweep.json'
     && row.runtimeId === 'node-v8'
-    && row.caseId === 'stax-stream-chunk-16kib'
-    && row.mibPerSec === 129.21
+    && row.caseId === 'stax-raw-frame-name-id-chunk-32kib'
+    && row.mibPerSec === 151.7
     && row.fullStringParity === true
     && row.boundedMemory === true
     && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
@@ -303,7 +303,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
   assert.match(markdown, /Fastest JS full-string row vs 200 MiB\/s: 0\.89x, 21\.48 MiB\/s remaining/);
   assert.match(markdown, /Fastest JS full-string row vs 1024 MiB Woodstox reference: 0\.94x Woodstox, -6\.87 MiB\/s below 0\.9x reference target/);
-  assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-4 at 0\.77x Woodstox, 25\.57 MiB\/s below 0\.9x target/);
+  assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0\.80x Woodstox, 19\.95 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
