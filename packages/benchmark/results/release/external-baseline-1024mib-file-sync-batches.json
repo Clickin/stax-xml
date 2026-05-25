@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T03:51:16.615Z",
+  "generatedAt": "2026-05-25T04:19:00.688Z",
   "environment": {
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
     "platform": "win32-x64",
@@ -11,7 +11,7 @@
     "sizeMiB": 1023.999828338623
   },
   "options": {
-    "runs": 1,
+    "runs": 3,
     "warmups": 0,
     "tools": [
       "stax-stream",
@@ -27,7 +27,7 @@
   "target": {
     "baselineTool": "woodstox",
     "goalRatio": 0.9,
-    "targetThroughputMiB": 283.34118511921133
+    "targetThroughputMiB": 288.14519190451966
   },
   "results": [
     {
@@ -35,37 +35,67 @@
       "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
       "workload": "full-string-checksum",
       "status": "ok",
-      "avgMs": 7541.6528,
-      "minMs": 7541.6528,
-      "maxMs": 7541.6528,
-      "mibPerSec": 135.77923241688123,
+      "avgMs": 9461.437833333333,
+      "minMs": 8512.5059,
+      "maxMs": 10479.119700000001,
+      "mibPerSec": 108.22877520063571,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        7541.6528
+        8512.5059,
+        10479.119700000001,
+        9392.6879
       ],
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 73662464,
-        "maxHeapUsedBytes": 7290728,
+        "maxRssBytes": 74289152,
+        "maxHeapUsedBytes": 7774016,
         "samples": [
           {
             "before": {
-              "rssBytes": 67198976,
-              "heapUsedBytes": 4937560,
+              "rssBytes": 67317760,
+              "heapUsedBytes": 4937576,
               "externalBytes": 2170591,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 73662464,
-              "heapUsedBytes": 7290728,
-              "externalBytes": 3199746,
-              "arrayBuffersBytes": 1117795
+              "rssBytes": 74129408,
+              "heapUsedBytes": 5757456,
+              "externalBytes": 2232670,
+              "arrayBuffersBytes": 150719
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 74129408,
+              "heapUsedBytes": 5330896,
+              "externalBytes": 2232670,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74289152,
+              "heapUsedBytes": 7774016,
+              "externalBytes": 3527583,
+              "arrayBuffersBytes": 1445632
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 74350592,
+              "heapUsedBytes": 5326120,
+              "externalBytes": 3527583,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74268672,
+              "heapUsedBytes": 7003088,
+              "externalBytes": 3101418,
+              "arrayBuffersBytes": 1019467
             }
           }
         ]
       },
-      "woodstoxRatio": 0.4312867863659807,
+      "woodstoxRatio": 0.33804450123481067,
       "targetStatus": "below"
     },
     {
@@ -73,37 +103,67 @@
       "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
       "workload": "full-string-checksum",
       "status": "ok",
-      "avgMs": 7490.4175,
-      "minMs": 7490.4175,
-      "maxMs": 7490.4175,
-      "mibPerSec": 136.70797767128775,
+      "avgMs": 7619.751300000003,
+      "minMs": 7296.608600000003,
+      "maxMs": 7834.329500000007,
+      "mibPerSec": 134.38756568585416,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        7490.4175
+        7296.608600000003,
+        7728.315799999997,
+        7834.329500000007
       ],
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 74366976,
-        "maxHeapUsedBytes": 6616072,
+        "maxRssBytes": 80928768,
+        "maxHeapUsedBytes": 9205152,
         "samples": [
           {
             "before": {
-              "rssBytes": 73465856,
-              "heapUsedBytes": 5333704,
-              "externalBytes": 3199746,
+              "rssBytes": 74317824,
+              "heapUsedBytes": 5305776,
+              "externalBytes": 3101418,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 74366976,
-              "heapUsedBytes": 6616072,
-              "externalBytes": 2724359,
-              "arrayBuffersBytes": 642408
+              "rssBytes": 80699392,
+              "heapUsedBytes": 6440928,
+              "externalBytes": 2658821,
+              "arrayBuffersBytes": 576870
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 80760832,
+              "heapUsedBytes": 5358072,
+              "externalBytes": 2658821,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 80347136,
+              "heapUsedBytes": 8285816,
+              "externalBytes": 3921007,
+              "arrayBuffersBytes": 1839056
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 80396288,
+              "heapUsedBytes": 5360296,
+              "externalBytes": 3921007,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 80928768,
+              "heapUsedBytes": 9205152,
+              "externalBytes": 4511128,
+              "arrayBuffersBytes": 2429177
             }
           }
         ]
       },
-      "woodstoxRatio": 0.43423683659822704,
+      "woodstoxRatio": 0.4197495308453614,
       "targetStatus": "below"
     },
     {
@@ -112,14 +172,16 @@
       "workload": "full-string-checksum",
       "status": "ok",
       "runtime": "1.8.0_472",
-      "avgMs": 3252.6152,
-      "minMs": 3252.6152,
-      "maxMs": 3252.6152,
-      "mibPerSec": 314.82353902134594,
+      "avgMs": 3198.387033333334,
+      "minMs": 3102.3962,
+      "maxMs": 3384.1678,
+      "mibPerSec": 320.16132433835514,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        3252.6152
+        3108.5971,
+        3102.3962,
+        3384.1678
       ],
       "woodstoxRatio": 1,
       "targetStatus": "met"
@@ -130,17 +192,19 @@
       "workload": "full-string-checksum",
       "status": "ok",
       "runtime": "1.0.0",
-      "avgMs": 3379.6164000000003,
-      "minMs": 3379.6164000000003,
-      "maxMs": 3379.6164000000003,
-      "mibPerSec": 302.9929161009584,
+      "avgMs": 3563.0781666666667,
+      "minMs": 3384.7005,
+      "maxMs": 3829.9376,
+      "mibPerSec": 287.3919067839581,
       "eventCount": 61236571,
       "checksum": -716099804,
       "samplesMs": [
-        3379.6164000000003
+        3384.7005,
+        3829.9376,
+        3474.5964
       ],
-      "woodstoxRatio": 0.9624214156375854,
-      "targetStatus": "met"
+      "woodstoxRatio": 0.8976471701504913,
+      "targetStatus": "below"
     }
   ]
 }

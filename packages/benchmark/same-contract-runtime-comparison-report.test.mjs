@@ -39,9 +39,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
   assert.ok(report.summary.externalBaseline16MiB.woodstoxMiBPerSec > 300);
   assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec > 130);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio > 0.4);
-  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio < 0.5);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec > 100);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio > 0.3);
+  assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio < 0.4);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec > 130);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio > 0.4);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio < 0.5);

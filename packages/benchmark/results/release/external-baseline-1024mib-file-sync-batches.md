@@ -1,6 +1,6 @@
 # External Parser Baseline Matrix
 
-Generated: 2026-05-25T03:51:16.615Z
+Generated: 2026-05-25T04:19:00.688Z
 
 This benchmark compares full string-return checksum consumers against external parser baselines.
 Rows are comparable only because they share the same generated XML fixture and checksum contract.
@@ -10,20 +10,20 @@ Rows are comparable only because they share the same generated XML fixture and c
 - CPU: 13th Gen Intel(R) Core(TM) i5-13600K
 - Fixture: G:\programming\stax-xml\packages\benchmark\test-data\node-string-return-1024mib.xml
 - Fixture size: 1024.00 MiB
-- Runs: warmups=0, runs=1
+- Runs: warmups=0, runs=3
 - Bounded RSS gate: 512.0 MiB
 
 ## Woodstox Target
 
 Target: reach at least 0.9x Woodstox throughput on the same full-string checksum workload.
-Current target throughput: 283.3 MiB/s.
+Current target throughput: 288.1 MiB/s.
 
 | Tool | Implementation | Throughput | Woodstox ratio | 0.9x target | Average | Events | Checksum | Status |
 | --- | --- | ---: | ---: | --- | ---: | ---: | ---: | --- |
-| stax-stream | Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> | 135.8 MiB/s | 0.43x | below | 7541.65 ms | 61236571 | -716099804 | ok |
-| stax-raw-frame-name-id | Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> | 136.7 MiB/s | 0.43x | below | 7490.42 ms | 61236571 | -716099804 | ok |
-| woodstox | Java + Woodstox 7.2.0 | 314.8 MiB/s | 1.00x | met | 3252.62 ms | 61236571 | -716099804 | ok |
-| quick-xml | Rust + quick-xml 0.40.1 | 303.0 MiB/s | 0.96x | met | 3379.62 ms | 61236571 | -716099804 | ok |
+| stax-stream | Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> | 108.2 MiB/s | 0.34x | below | 9461.44 ms | 61236571 | -716099804 | ok |
+| stax-raw-frame-name-id | Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> | 134.4 MiB/s | 0.42x | below | 7619.75 ms | 61236571 | -716099804 | ok |
+| woodstox | Java + Woodstox 7.2.0 | 320.2 MiB/s | 1.00x | met | 3198.39 ms | 61236571 | -716099804 | ok |
+| quick-xml | Rust + quick-xml 0.40.1 | 287.4 MiB/s | 0.90x | below | 3563.08 ms | 61236571 | -716099804 | ok |
 
 ## Contract
 
