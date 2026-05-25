@@ -184,8 +184,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 138 primary release JSON artifacts, recognizes 745
-sample throughput rows and 89 aggregate rows, and finds 460 JavaScript 1 GiB+
+The current scan covers 139 primary release JSON artifacts, recognizes 749
+sample throughput rows and 89 aggregate rows, and finds 463 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -212,17 +212,20 @@ from synchronous byte-batch rows. This also fixes the previous scanner blind
 spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
 counted as JavaScript runtime rows.
 
-The scan also records 21 threshold-crossing partial/projection rows. The
+The scan also records 22 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json`; Node/V8 and
 Chrome/V8 also cross 200 MiB/s on partial `books.xml` corpus-cycle rows. These
 rows preserve event-count style work but drop the full-string StAX contract, so
 they are headroom evidence rather than runtime-limit counterexamples. One
-near-full text/CDATA materialization headroom row is now recorded separately:
-Node/V8 `withoutTextStrings` from
-`text-cdata-cost-decomposition.json` reached 219.85 MiB/s but omitted all
+near-full text/CDATA materialization headroom rows are now recorded separately.
+The fastest is Node/V8 `withoutTextStrings` from
+`long-text-cache-materialization-candidate.json` at 229.15 MiB/s; it omitted all
 text/CDATA string fields and changed the checksum to `1372281363`, so it is
-not full-string StAX parity. The
+not full-string StAX parity. The same artifact also records a full-parity
+`rawFrameNameIdLongTextCache` row at 141.85 MiB/s despite 4,482,765 cache hits
+and only 19 misses, so restricting span-string caching to longer text/CDATA
+values remains a negative result. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured
@@ -244,10 +247,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 138 primary release artifacts and recognizes 745
-measured rows. It records 98 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 139 primary release artifacts and recognizes 749
+measured rows. It records 99 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-10 negative-result artifacts, 460 JavaScript 1 GiB+ full-string rows, and three
+10 negative-result artifacts, 463 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving
@@ -1431,6 +1434,21 @@ and max RSS `77.4 MiB` despite 16,987,337 text-cache hits and 55 misses. It
 preserved all 62,758,976 string fields, including 16,987,392 text/CDATA fields,
 and the same checksum, so this is a negative result for text/CDATA span caching
 as a path to the 200 MiB/s full-StAX target.
+
+`packages/benchmark/results/release/long-text-cache-materialization-candidate.md`
+narrows that cache failure by caching only text/CDATA spans with length at
+least 16 bytes. Under the same `books.xml` corpus-cycle fixture and same-process
+`runs=3`, `warmups=0` source contract, the full-parity `rawFrameNameId` control
+averaged `170.13 MiB/s` with `2.7%` spread and max RSS `71.8 MiB`. The
+full-parity all-text cache row averaged `125.04 MiB/s`; the new
+`rawFrameNameIdLongTextCache` row improved to `141.85 MiB/s` but still stayed
+below the uncached control while preserving the same 57,096,514 events,
+checksum `-540013997`, and 62,758,976 string-field reads. Its counters recorded
+4,482,765 cache hits and 19 misses, with raw span materializations reduced from
+19,818,633 to 15,335,868. The near-full `withoutTextStrings` row reached
+`229.15 MiB/s`, but changed the checksum to `1372281363`; this keeps text/CDATA
+materialization as a headroom axis while rejecting long-text span caching as the
+missing full-StAX counterexample for this corpus shape.
 
 `packages/benchmark/results/release/fold-trimmed-text-candidate-stability.md`
 checks whether keeping the text string but avoiding a separate `value.trim()`

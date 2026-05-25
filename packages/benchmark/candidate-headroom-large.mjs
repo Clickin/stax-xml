@@ -308,6 +308,14 @@ function createVariants(fixture) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { textCache: new SpanStringCache() }),
     },
     {
+      id: 'rawFrameNameIdLongTextCache',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded long text/CDATA span string cache',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { textCache: new SpanStringCache(), textCacheMinLength: 16 }),
+    },
+    {
       id: 'rawFrameNameIdFoldTrim',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache and direct trimmed text checksum folding',
@@ -805,6 +813,22 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const longTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdLongTextCache');
+  if (rawNameId && longTextCache) {
+    findings.push({
+      id: 'long-text-cache-candidate',
+      summary: 'rawFrameNameIdLongTextCache keeps the full-string checksum while caching only text/CDATA spans with length >= 16 bytes.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdLongTextCache=${formatRate(longTextCache.mibPerSec)}`,
+        `sameChecksum=${longTextCache.checksum === rawNameId.checksum}`,
+        `valueCacheHits=${longTextCache.materializationCounters.rawValueCacheHits}`,
+        `valueCacheMisses=${longTextCache.materializationCounters.rawValueCacheMisses}`,
+        `textStringReads=${longTextCache.materializationCounters.textStringReads}`,
+        `maxRSS=${formatBytes(longTextCache.memory.maxRssBytes)}`,
+      ],
+    });
+  }
   if (fixture.source === 'corpus-file') {
     findings.push({
       id: 'corpus-cycle-fixture',
@@ -1139,7 +1163,9 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
       const start = textStarts[index];
       if (start >= 0) {
         countStringField(materializationCounters, 'text');
-          const textCache = options.textCache ?? valueCache;
+          const textLength = textEnds[index] - start;
+          const minTextCacheLength = options.textCacheMinLength ?? 0;
+          const textCache = textLength >= minTextCacheLength ? (options.textCache ?? valueCache) : undefined;
           const value = options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text');

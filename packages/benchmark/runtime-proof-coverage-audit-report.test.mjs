@@ -32,9 +32,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 138);
-  assert.equal(report.summary.measuredRowCount, 745);
-  assert.equal(report.summary.largeJsFullRowCount, 460);
+  assert.equal(report.summary.scannedArtifactCount, 139);
+  assert.equal(report.summary.measuredRowCount, 749);
+  assert.equal(report.summary.largeJsFullRowCount, 463);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 77);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -47,7 +47,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   });
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 98);
+  assert.equal(report.summary.benchmarkArtifactCount, 99);
   assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
@@ -201,8 +201,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 281
-    && row.largeFullStringRowCount === 166
+    && row.measuredRowCount === 285
+    && row.largeFullStringRowCount === 169
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'unknown'
@@ -394,7 +394,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 56 \| 281 \| 166 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 57 \| 285 \| 169 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 8 \| 8 \| 1 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 7 \| 14 \| 1 \|/);
   assert.match(markdown, /\| unknown \| 2 \| 0 \| 0 \| none \|/);
