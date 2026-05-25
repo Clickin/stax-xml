@@ -1,6 +1,6 @@
 # External Parser Baseline Matrix
 
-Generated: 2026-05-25T15:09:55.076Z
+Generated: 2026-05-25T16:03:08.044Z
 
 This benchmark compares full string-return checksum consumers against external parser baselines.
 Rows are comparable only because they share the same generated XML fixture and checksum contract.
@@ -16,14 +16,14 @@ Rows are comparable only because they share the same generated XML fixture and c
 ## Woodstox Target
 
 Target: reach at least 0.9x Woodstox throughput on the same full-string checksum workload.
-Current target throughput: 225.1 MiB/s.
+Current target throughput: 171.7 MiB/s.
 
 | Tool | Implementation | Throughput | Peak RSS | Woodstox ratio | 0.9x target | Average | Events | Checksum | Status |
 | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | --- |
-| stax-stream | Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> | 91.2 MiB/s | 71.4 MiB | 0.36x | below | 11224.22 ms | 61236571 | -716099804 | ok |
-| stax-raw-frame-name-id | Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> | 106.7 MiB/s | 77.9 MiB | 0.43x | below | 9600.12 ms | 61236571 | -716099804 | ok |
-| woodstox | Java + Woodstox 7.2.0 | 250.1 MiB/s | 311.9 MiB | 1.00x | met | 4094.52 ms | 61236571 | -716099804 | ok |
-| quick-xml | Rust + quick-xml 0.40.1 | 231.1 MiB/s | 4.8 MiB | 0.92x | met | 4430.04 ms | 61236571 | -716099804 | ok |
+| stax-stream | Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> | 72.7 MiB/s | 71.8 MiB | 0.38x | below | 14081.42 ms | 61236571 | -716099804 | ok |
+| stax-raw-frame-name-id | Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> | 76.1 MiB/s | 77.8 MiB | 0.40x | below | 13450.84 ms | 61236571 | -716099804 | ok |
+| woodstox | Java + Woodstox 7.2.0 | 190.7 MiB/s | 308.7 MiB | 1.00x | met | 5368.99 ms | 61236571 | -716099804 | ok |
+| quick-xml | Rust + quick-xml 0.40.1 | 150.2 MiB/s | 4.8 MiB | 0.79x | below | 6815.67 ms | 61236571 | -716099804 | ok |
 
 ## Contract
 

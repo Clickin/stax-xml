@@ -801,6 +801,7 @@ function measureLocal(tool, implementation, run, fileSizeMiB, options, rowOption
   return {
     tool,
     implementation,
+    ...sourceMetadataForLocalTool(tool, options),
     workload: rowOptions.workload ?? 'full-string-checksum',
     fullStringParity: rowOptions.fullStringParity,
     contractScope: rowOptions.contractScope,
@@ -817,6 +818,28 @@ function measureLocal(tool, implementation, run, fileSizeMiB, options, rowOption
       maxRssBytes,
       maxHeapUsedBytes,
       samples: memorySamples,
+    },
+  };
+}
+
+function sourceMetadataForLocalTool(tool, options) {
+  if (!String(tool).startsWith('stax-')) {
+    return {};
+  }
+  if (options.staxStreamSource !== 'file-sync-batches') {
+    return {};
+  }
+  return {
+    sourceMode: 'file-backed-sync-iterable-byte-batches',
+    demandDrivenSource: true,
+    respectsBackpressure: null,
+    sourceConsumption: {
+      parserInput: 'synchronous Iterable<Uint8Array[]>',
+      fileRead: 'readSync inside iterator next() only when StreamReaderSync pulls the next batch',
+      chunkBytes: options.chunkKiB * 1024,
+      batchSize: options.batchSize,
+      preMaterializesFullXml: false,
+      directReadableStream: false,
     },
   };
 }

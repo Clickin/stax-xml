@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T15:28:42.984Z",
+  "generatedAt": "2026-05-25T16:09:30.967Z",
   "objective": "materialization-contract-audit",
   "contract": "semantic-materialization-not-object-shape",
   "note": "Audits the comparator boundary: rows share semantic fields and checksum parity, but not language/runtime object shape.",
@@ -18,7 +18,7 @@
   },
   "baseline": {
     "source": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\external-baseline-1024mib-file-sync-batches.json",
-    "generatedAt": "2026-05-25T15:09:55.076Z",
+    "generatedAt": "2026-05-25T16:03:08.044Z",
     "fixture": {
       "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
       "sizeBytes": 1073741644,
@@ -114,11 +114,11 @@
         "id": "woodstox",
         "eventCount": 61236571,
         "checksum": -716099804,
-        "mibPerSec": 250.09026371459936,
+        "mibPerSec": 190.7248967805855,
         "boundedMemory": true,
         "memory": {
           "scope": "process-rss",
-          "maxRssBytes": 327024640,
+          "maxRssBytes": 323694592,
           "sampler": {
             "source": "powershell-get-process",
             "intervalMs": 100
@@ -129,11 +129,11 @@
         "id": "quick-xml",
         "eventCount": 61236571,
         "checksum": -716099804,
-        "mibPerSec": 231.14886868605655,
+        "mibPerSec": 150.24196492147223,
         "boundedMemory": true,
         "memory": {
           "scope": "process-rss",
-          "maxRssBytes": 5017600,
+          "maxRssBytes": 5013504,
           "sampler": {
             "source": "powershell-get-process",
             "intervalMs": 100
@@ -144,52 +144,52 @@
         "id": "stax-stream",
         "eventCount": 61236571,
         "checksum": -716099804,
-        "mibPerSec": 91.23125574958932,
+        "mibPerSec": 72.71991296636646,
         "boundedMemory": true,
         "memory": {
-          "maxRssBytes": 74887168,
-          "maxHeapUsedBytes": 6663864,
+          "maxRssBytes": 75268096,
+          "maxHeapUsedBytes": 7685088,
           "samples": [
             {
               "before": {
-                "rssBytes": 67784704,
-                "heapUsedBytes": 4944784,
-                "externalBytes": 2175677,
+                "rssBytes": 68050944,
+                "heapUsedBytes": 4945704,
+                "externalBytes": 2176397,
                 "arrayBuffersBytes": 22895
               },
               "after": {
-                "rssBytes": 74579968,
-                "heapUsedBytes": 6663864,
-                "externalBytes": 2822708,
-                "arrayBuffersBytes": 740757
+                "rssBytes": 75268096,
+                "heapUsedBytes": 7341736,
+                "externalBytes": 3232528,
+                "arrayBuffersBytes": 1150577
               }
             },
             {
               "before": {
-                "rssBytes": 74457088,
-                "heapUsedBytes": 5338120,
-                "externalBytes": 2822708,
+                "rssBytes": 75288576,
+                "heapUsedBytes": 5339040,
+                "externalBytes": 3232528,
                 "arrayBuffersBytes": 22895
               },
               "after": {
-                "rssBytes": 74887168,
-                "heapUsedBytes": 5983336,
-                "externalBytes": 2347416,
-                "arrayBuffersBytes": 265465
+                "rssBytes": 74924032,
+                "heapUsedBytes": 7685088,
+                "externalBytes": 3462043,
+                "arrayBuffersBytes": 1380092
               }
             },
             {
               "before": {
-                "rssBytes": 74895360,
-                "heapUsedBytes": 5331976,
-                "externalBytes": 2347416,
+                "rssBytes": 74964992,
+                "heapUsedBytes": 5336752,
+                "externalBytes": 3462043,
                 "arrayBuffersBytes": 22895
               },
               "after": {
-                "rssBytes": 74887168,
-                "heapUsedBytes": 5634920,
-                "externalBytes": 2216286,
-                "arrayBuffersBytes": 134335
+                "rssBytes": 74747904,
+                "heapUsedBytes": 7518288,
+                "externalBytes": 3429206,
+                "arrayBuffersBytes": 1347255
               }
             }
           ]
@@ -225,21 +225,21 @@
         "workload": "full-string-checksum",
         "status": "ok",
         "runtime": "1.8.0_472",
-        "avgMs": 4094.520966666667,
-        "minMs": 4011.7883,
-        "maxMs": 4177.8396,
-        "mibPerSec": 250.09026371459936,
+        "avgMs": 5368.988766666666,
+        "minMs": 3441.5621,
+        "maxMs": 6394.2114,
+        "mibPerSec": 190.7248967805855,
         "eventCount": 61236571,
         "checksum": -716099804,
         "samplesMs": [
-          4011.7883,
-          4093.935,
-          4177.8396
+          3441.5621,
+          6394.2114,
+          6271.1928
         ],
         "boundedMemory": true,
         "memory": {
           "scope": "process-rss",
-          "maxRssBytes": 327024640,
+          "maxRssBytes": 323694592,
           "sampler": {
             "source": "powershell-get-process",
             "intervalMs": 100
@@ -274,28 +274,28 @@
         "workload": "full-string-checksum",
         "status": "ok",
         "runtime": "1.0.0",
-        "avgMs": 4430.044733333333,
-        "minMs": 4155.3523,
-        "maxMs": 4666.3469,
-        "mibPerSec": 231.14886868605655,
+        "avgMs": 6815.671166666667,
+        "minMs": 4763.1173,
+        "maxMs": 7879.1983,
+        "mibPerSec": 150.24196492147223,
         "eventCount": 61236571,
         "checksum": -716099804,
         "samplesMs": [
-          4155.3523,
-          4666.3469,
-          4468.435
+          4763.1173,
+          7879.1983,
+          7804.6979
         ],
         "boundedMemory": true,
         "memory": {
           "scope": "process-rss",
-          "maxRssBytes": 5017600,
+          "maxRssBytes": 5013504,
           "sampler": {
             "source": "powershell-get-process",
             "intervalMs": 100
           }
         },
-        "woodstoxRatio": 0.9242617655433457,
-        "targetStatus": "met"
+        "woodstoxRatio": 0.7877417550489708,
+        "targetStatus": "below"
       }
     },
     {
@@ -320,69 +320,80 @@
       "baseline": {
         "tool": "stax-stream",
         "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+        "sourceMode": "file-backed-sync-iterable-byte-batches",
+        "demandDrivenSource": true,
+        "respectsBackpressure": null,
+        "sourceConsumption": {
+          "parserInput": "synchronous Iterable<Uint8Array[]>",
+          "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+          "chunkBytes": 16384,
+          "batchSize": 1,
+          "preMaterializesFullXml": false,
+          "directReadableStream": false
+        },
         "workload": "full-string-checksum",
         "status": "ok",
-        "avgMs": 11224.221566666669,
-        "minMs": 9674.607899999999,
-        "maxMs": 12624.440400000003,
-        "mibPerSec": 91.23125574958932,
+        "avgMs": 14081.422633333335,
+        "minMs": 11275.7726,
+        "maxMs": 15607.926600000003,
+        "mibPerSec": 72.71991296636646,
         "eventCount": 61236571,
         "checksum": -716099804,
         "samplesMs": [
-          9674.607899999999,
-          11373.6164,
-          12624.440400000003
+          11275.7726,
+          15360.5687,
+          15607.926600000003
         ],
         "boundedMemory": true,
         "memory": {
-          "maxRssBytes": 74887168,
-          "maxHeapUsedBytes": 6663864,
+          "maxRssBytes": 75268096,
+          "maxHeapUsedBytes": 7685088,
           "samples": [
             {
               "before": {
-                "rssBytes": 67784704,
-                "heapUsedBytes": 4944784,
-                "externalBytes": 2175677,
+                "rssBytes": 68050944,
+                "heapUsedBytes": 4945704,
+                "externalBytes": 2176397,
                 "arrayBuffersBytes": 22895
               },
               "after": {
-                "rssBytes": 74579968,
-                "heapUsedBytes": 6663864,
-                "externalBytes": 2822708,
-                "arrayBuffersBytes": 740757
+                "rssBytes": 75268096,
+                "heapUsedBytes": 7341736,
+                "externalBytes": 3232528,
+                "arrayBuffersBytes": 1150577
               }
             },
             {
               "before": {
-                "rssBytes": 74457088,
-                "heapUsedBytes": 5338120,
-                "externalBytes": 2822708,
+                "rssBytes": 75288576,
+                "heapUsedBytes": 5339040,
+                "externalBytes": 3232528,
                 "arrayBuffersBytes": 22895
               },
               "after": {
-                "rssBytes": 74887168,
-                "heapUsedBytes": 5983336,
-                "externalBytes": 2347416,
-                "arrayBuffersBytes": 265465
+                "rssBytes": 74924032,
+                "heapUsedBytes": 7685088,
+                "externalBytes": 3462043,
+                "arrayBuffersBytes": 1380092
               }
             },
             {
               "before": {
-                "rssBytes": 74895360,
-                "heapUsedBytes": 5331976,
-                "externalBytes": 2347416,
+                "rssBytes": 74964992,
+                "heapUsedBytes": 5336752,
+                "externalBytes": 3462043,
                 "arrayBuffersBytes": 22895
               },
               "after": {
-                "rssBytes": 74887168,
-                "heapUsedBytes": 5634920,
-                "externalBytes": 2216286,
-                "arrayBuffersBytes": 134335
+                "rssBytes": 74747904,
+                "heapUsedBytes": 7518288,
+                "externalBytes": 3429206,
+                "arrayBuffersBytes": 1347255
               }
             }
           ]
         },
-        "woodstoxRatio": 0.364793312600532,
+        "woodstoxRatio": 0.3812817004694736,
         "targetStatus": "below"
       }
     },

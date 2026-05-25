@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T15:47:37.103Z",
+  "generatedAt": "2026-05-25T16:10:50.715Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -165,7 +165,7 @@
     "aggregateRowCount": 89,
     "largeJsFullRowCount": 463,
     "largeJsFullAggregateRowCount": 69,
-    "sourceModeRowCount": 178,
+    "sourceModeRowCount": 179,
     "largeJsFullSourceModeRowCount": 129,
     "sourceModeBreakdown": [
       {
@@ -197,9 +197,9 @@
       },
       {
         "sourceMode": "file-backed-sync-iterable-byte-batches",
-        "rowCount": 24,
-        "fullStringRowCount": 18,
-        "boundedFullStringRowCount": 18,
+        "rowCount": 25,
+        "fullStringRowCount": 19,
+        "boundedFullStringRowCount": 19,
         "fastestMiBPerSec": 214.79,
         "fastestRow": {
           "sourceArtifact": "file-backed-core-decomposition.json",
@@ -219,7 +219,7 @@
           "demandDrivenSource": true,
           "respectsBackpressure": null
         },
-        "demandDrivenRows": 24,
+        "demandDrivenRows": 25,
         "backpressureRows": 0
       },
       {
@@ -9607,7 +9607,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 91.23,
+      "mibPerSec": 72.72,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "full-string-checksum",
@@ -9631,7 +9631,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 106.67,
+      "mibPerSec": 76.13,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "full-string-checksum",
@@ -10648,6 +10648,30 @@
       "memoryKind": "process-rss",
       "hasMemoryProof": true,
       "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "materialization-contract-audit.json",
+      "jsonPath": "consumers.2.baseline",
+      "id": "stax-stream",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": null,
+      "sizeMiB": null,
+      "mibPerSec": 72.72,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": null,
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
       "batchSize": null,
       "chunkKiB": null,
       "demandDrivenSource": true,

@@ -1,6 +1,6 @@
 # StAX Event Public Object Shape Audit
 
-Generated: 2026-05-25T02:02:08.539Z
+Generated: 2026-05-25T16:10:29.722Z
 
 Audits why the JavaScript public event object consumer is not a 1 GiB file-backed external-baseline comparator row.
 

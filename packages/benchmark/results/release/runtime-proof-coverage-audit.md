@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T15:47:39.809Z
+Generated: 2026-05-25T16:10:49.157Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -62,8 +62,8 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
-| Java/Woodstox | 8 | 9 | 1 | woodstox 250.09 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
-| Rust/quick-xml | 7 | 15 | 1 | quick-xml 231.15 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
+| Java/Woodstox | 8 | 9 | 1 | woodstox 190.72 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
+| Rust/quick-xml | 7 | 15 | 1 | quick-xml 150.24 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
 
 ## Open Obligations
 

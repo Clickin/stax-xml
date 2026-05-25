@@ -100,6 +100,14 @@ test('external baseline reports raw-frame fold-trim as a same-checksum candidate
     assert.equal(row.eventCount, 967967);
     assert.equal(row.checksum, -746772258);
     assert.equal(row.boundedMemory, true);
+    assert.equal(row.sourceMode, 'file-backed-sync-iterable-byte-batches');
+    assert.equal(row.demandDrivenSource, true);
+    assert.equal(row.respectsBackpressure, null);
+    assert.equal(row.sourceConsumption.parserInput, 'synchronous Iterable<Uint8Array[]>');
+    assert.equal(row.sourceConsumption.preMaterializesFullXml, false);
+    assert.equal(row.sourceConsumption.directReadableStream, false);
+    assert.equal(row.sourceConsumption.chunkBytes, 64 * 1024);
+    assert.equal(row.sourceConsumption.batchSize, 1);
   }
 
   const markdown = readFileSync(foldMdOut, 'utf8');
@@ -153,6 +161,10 @@ test('external baseline reports bounded value-cache as a same-checksum candidate
     assert.equal(row.eventCount, 967967);
     assert.equal(row.checksum, -746772258);
     assert.equal(row.boundedMemory, true);
+    assert.equal(row.sourceMode, 'file-backed-sync-iterable-byte-batches');
+    assert.equal(row.sourceConsumption.parserInput, 'synchronous Iterable<Uint8Array[]>');
+    assert.equal(row.sourceConsumption.preMaterializesFullXml, false);
+    assert.equal(row.sourceConsumption.directReadableStream, false);
   }
 
   const markdown = readFileSync(cacheMdOut, 'utf8');
