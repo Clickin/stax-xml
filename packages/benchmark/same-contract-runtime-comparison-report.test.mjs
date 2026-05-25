@@ -58,6 +58,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio < 0.5);
   assert.ok(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio > 0.89);
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'not-recorded', 'process-rss']);
+  assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
 
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'external-baseline.json'
@@ -70,6 +71,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.fullStringParity === true
     && row.boundedMemory === true
     && row.memory.primaryKind === 'process-rss'
+    && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'access-shape-cross-process-books-corpus'
@@ -85,6 +87,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.boundedMemory === true
     && row.sampleCount === 3
     && row.memory.primaryKind === 'process-rss'
+    && row.sourceMode === 'sync-iterable-byte-batches'
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'access-shape-cross-process-books-corpus'
@@ -195,8 +198,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
   assert.match(markdown, /Fastest JS full-string row vs 200 MiB\/s: 0\.89x, 22\.66 MiB\/s remaining/);
   assert.match(markdown, /Fastest JS full-string row vs 1024 MiB Woodstox reference: 0\.55x Woodstox, 110\.80 MiB\/s below 0\.9x reference target/);
+  assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
+  assert.match(markdown, /`sync-iterable-byte-batches`/);
   assert.match(markdown, /cross-process-books-corpus/);
   assert.match(markdown, /1024 MiB file-backed stax-stream baseline/);
   assert.match(markdown, /1024 MiB file-backed rawFrameNameId baseline/);

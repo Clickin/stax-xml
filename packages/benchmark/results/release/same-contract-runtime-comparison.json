@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T13:14:09.466Z",
+  "generatedAt": "2026-05-25T13:59:30.767Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -49,6 +49,7 @@
         "maxHeapUsedMiB": 46.29,
         "note": "max across independent child processes"
       },
+      "sourceMode": "sync-iterable-byte-batches",
       "sourceArtifact": "access-shape-candidate-cross-process.json"
     },
     "fastestJsLargeFullRowTo200MiBPerSec": {
@@ -73,6 +74,7 @@
         "maxHeapUsedMiB": 32.44,
         "note": "max across independent child processes"
       },
+      "sourceMode": null,
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestBoundedJsLargePublicEventRow": {
@@ -88,6 +90,7 @@
         "maxHeapUsedMiB": 32.44,
         "note": "max across independent child processes"
       },
+      "sourceMode": null,
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestRowsByGroup": [
@@ -108,6 +111,7 @@
             "maxExternalMiB": 2.54,
             "maxArrayBuffersMiB": 0.55
           },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json"
         }
       },
@@ -128,6 +132,7 @@
             "maxExternalMiB": 9.01,
             "maxArrayBuffersMiB": 8.18
           },
+          "sourceMode": null,
           "sourceArtifact": "bun-candidate-headroom-large.json"
         }
       },
@@ -148,6 +153,7 @@
             "maxExternalMiB": 351.31,
             "maxArrayBuffersMiB": 349.5
           },
+          "sourceMode": null,
           "sourceArtifact": "candidate-headroom-corpus.json"
         }
       },
@@ -168,6 +174,7 @@
             "maxExternalMiB": 31.32,
             "maxArrayBuffersMiB": 30.54
           },
+          "sourceMode": null,
           "sourceArtifact": "bun-candidate-headroom-projection-large.json"
         }
       },
@@ -188,6 +195,7 @@
             "maxExternalMiB": null,
             "maxArrayBuffersMiB": null
           },
+          "sourceMode": null,
           "sourceArtifact": "textdecoder-span-variants.json"
         }
       },
@@ -206,6 +214,7 @@
             "maxHeapUsedMiB": 46.29,
             "note": "max across independent child processes"
           },
+          "sourceMode": "sync-iterable-byte-batches",
           "sourceArtifact": "access-shape-candidate-cross-process.json"
         }
       },
@@ -224,6 +233,7 @@
             "maxHeapUsedMiB": 46.58,
             "note": "max across independent child processes"
           },
+          "sourceMode": "sync-iterable-byte-batches",
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json"
         }
       },
@@ -242,6 +252,7 @@
             "maxHeapUsedMiB": 13.09,
             "note": "max across independent child processes"
           },
+          "sourceMode": "sync-iterable-byte-batches",
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json"
         }
       },
@@ -260,6 +271,7 @@
             "maxHeapUsedMiB": 27.28,
             "note": "max across independent child processes"
           },
+          "sourceMode": null,
           "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
         }
       }
@@ -284,6 +296,10 @@
       "browser-js-heap-unavailable",
       "not-recorded",
       "process-rss"
+    ],
+    "sourceModes": [
+      "file-backed-sync-iterable-byte-batches",
+      "sync-iterable-byte-batches"
     ],
     "allocationEvidenceKinds": [
       "global-allocator-counters",
@@ -314,6 +330,7 @@
       "checksum": -746772258,
       "mibPerSec": 105.3,
       "boundedMemory": null,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "not-recorded",
         "note": "external-baseline records throughput and checksum parity, not peak memory."
@@ -343,6 +360,7 @@
       "checksum": -746772258,
       "mibPerSec": 95.94,
       "boundedMemory": null,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "not-recorded",
         "note": "external-baseline records throughput and checksum parity, not peak memory."
@@ -372,6 +390,7 @@
       "checksum": -746772258,
       "mibPerSec": 333.43,
       "boundedMemory": null,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "not-recorded",
         "note": "external-baseline records throughput and checksum parity, not peak memory."
@@ -401,6 +420,7 @@
       "checksum": -746772258,
       "mibPerSec": 309.82,
       "boundedMemory": null,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "not-recorded",
         "note": "external-baseline records throughput and checksum parity, not peak memory."
@@ -430,6 +450,7 @@
       "checksum": -716099804,
       "mibPerSec": 108.23,
       "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 70.85,
@@ -463,6 +484,7 @@
       "checksum": -716099804,
       "mibPerSec": 134.39,
       "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 77.18,
@@ -496,6 +518,7 @@
       "checksum": -716099804,
       "mibPerSec": 320.16,
       "boundedMemory": null,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "not-recorded",
         "note": "external-baseline records throughput and checksum parity, not peak memory."
@@ -525,6 +548,7 @@
       "checksum": -716099804,
       "mibPerSec": 287.39,
       "boundedMemory": null,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "not-recorded",
         "note": "external-baseline records throughput and checksum parity, not peak memory."
@@ -560,6 +584,7 @@
       "checksum": 1421012805,
       "mibPerSec": 49.01,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 85.56,
@@ -605,6 +630,7 @@
       "checksum": 1421012805,
       "mibPerSec": 39.45,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 137.52,
@@ -650,6 +676,7 @@
       "checksum": 1421012805,
       "mibPerSec": 55.85,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 144.54,
@@ -695,6 +722,7 @@
       "checksum": 1421012805,
       "mibPerSec": 52.93,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 188.56,
@@ -740,6 +768,7 @@
       "checksum": 1421012805,
       "mibPerSec": 37.27,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 177,
@@ -785,6 +814,7 @@
       "checksum": 1421012805,
       "mibPerSec": 57.99,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 192.98,
@@ -830,6 +860,7 @@
       "checksum": 1421012805,
       "mibPerSec": 34.46,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 14.66,
@@ -879,6 +910,7 @@
       "checksum": 1421012805,
       "mibPerSec": 33.1,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 38.78,
@@ -928,6 +960,7 @@
       "checksum": 1421012805,
       "mibPerSec": 43.45,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 17.86,
@@ -977,6 +1010,7 @@
       "checksum": 1421012805,
       "mibPerSec": 33.02,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -1026,6 +1060,7 @@
       "checksum": 1421012805,
       "mibPerSec": 23.31,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -1075,6 +1110,7 @@
       "checksum": 1421012805,
       "mibPerSec": 35.02,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -1124,6 +1160,7 @@
       "checksum": -925527041,
       "mibPerSec": 62.17,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 353.58,
@@ -1169,6 +1206,7 @@
       "checksum": -925527041,
       "mibPerSec": 61.8,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 419.02,
@@ -1214,6 +1252,7 @@
       "checksum": -925527041,
       "mibPerSec": 77,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 419.31,
@@ -1259,6 +1298,7 @@
       "checksum": -925527041,
       "mibPerSec": 56.23,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1470.83,
@@ -1304,6 +1344,7 @@
       "checksum": -925527041,
       "mibPerSec": 62.08,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1476.53,
@@ -1349,6 +1390,7 @@
       "checksum": -925527041,
       "mibPerSec": 76.08,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1751.13,
@@ -1394,6 +1436,7 @@
       "checksum": -925527041,
       "mibPerSec": 30.38,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 349.79,
@@ -1443,6 +1486,7 @@
       "checksum": -925527041,
       "mibPerSec": 28.92,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 358.37,
@@ -1492,6 +1536,7 @@
       "checksum": -925527041,
       "mibPerSec": 29.05,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 345.78,
@@ -1541,6 +1586,7 @@
       "checksum": -925527041,
       "mibPerSec": 44.92,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -1590,6 +1636,7 @@
       "checksum": -925527041,
       "mibPerSec": 36.27,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -1639,6 +1686,7 @@
       "checksum": -925527041,
       "mibPerSec": 48.15,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -1688,6 +1736,7 @@
       "checksum": 1441552024,
       "mibPerSec": 67.04,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 78.53,
@@ -1733,6 +1782,7 @@
       "checksum": 1441552024,
       "mibPerSec": 57.67,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 135.87,
@@ -1778,6 +1828,7 @@
       "checksum": 1441552024,
       "mibPerSec": 82.91,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 145.97,
@@ -1823,6 +1874,7 @@
       "checksum": 1441552024,
       "mibPerSec": 77.04,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 214.97,
@@ -1868,6 +1920,7 @@
       "checksum": 1441552024,
       "mibPerSec": 63.29,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 182.34,
@@ -1913,6 +1966,7 @@
       "checksum": 1441552024,
       "mibPerSec": 84.68,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 199.15,
@@ -1958,6 +2012,7 @@
       "checksum": 1441552024,
       "mibPerSec": 56.44,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 13.82,
@@ -2007,6 +2062,7 @@
       "checksum": 1441552024,
       "mibPerSec": 48.12,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 15.88,
@@ -2056,6 +2112,7 @@
       "checksum": 1441552024,
       "mibPerSec": 60.32,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 30.03,
@@ -2105,6 +2162,7 @@
       "checksum": 1441552024,
       "mibPerSec": 61.77,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2154,6 +2212,7 @@
       "checksum": 1441552024,
       "mibPerSec": 52.54,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2203,6 +2262,7 @@
       "checksum": 1441552024,
       "mibPerSec": 64.24,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2252,6 +2312,7 @@
       "checksum": 1421012805,
       "mibPerSec": 37.33,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 72.16,
@@ -2298,6 +2359,7 @@
       "checksum": 1421012805,
       "mibPerSec": 51.6,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 83.91,
@@ -2344,6 +2406,7 @@
       "checksum": 1421012805,
       "mibPerSec": 40.31,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 186.27,
@@ -2390,6 +2453,7 @@
       "checksum": 1421012805,
       "mibPerSec": 47.67,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 215.22,
@@ -2436,6 +2500,7 @@
       "checksum": 1421012805,
       "mibPerSec": 16.63,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 9.77,
@@ -2486,6 +2551,7 @@
       "checksum": 1421012805,
       "mibPerSec": 39.42,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 10.04,
@@ -2536,6 +2602,7 @@
       "checksum": -540013997,
       "mibPerSec": 161.48,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 70.7,
@@ -2578,6 +2645,7 @@
       "checksum": -540013997,
       "mibPerSec": 136.98,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.11,
@@ -2620,6 +2688,7 @@
       "checksum": -540013997,
       "mibPerSec": 147.13,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.84,
@@ -2662,6 +2731,7 @@
       "checksum": -540013997,
       "mibPerSec": 167.04,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 195.59,
@@ -2704,6 +2774,7 @@
       "checksum": -540013997,
       "mibPerSec": 139.83,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 195.54,
@@ -2746,6 +2817,7 @@
       "checksum": -540013997,
       "mibPerSec": 177.34,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 189.37,
@@ -2788,6 +2860,7 @@
       "checksum": -540013997,
       "mibPerSec": 113.79,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 70.73,
@@ -2830,6 +2903,7 @@
       "checksum": -540013997,
       "mibPerSec": 72.76,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 136.9,
@@ -2872,6 +2946,7 @@
       "checksum": -540013997,
       "mibPerSec": 94.98,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 147.6,
@@ -2914,6 +2989,7 @@
       "checksum": -540013997,
       "mibPerSec": 120.18,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 190.2,
@@ -2956,6 +3032,7 @@
       "checksum": -540013997,
       "mibPerSec": 76.84,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 190.21,
@@ -2998,6 +3075,7 @@
       "checksum": -540013997,
       "mibPerSec": 97.84,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 176.32,
@@ -3040,6 +3118,7 @@
       "checksum": -540013997,
       "mibPerSec": 119.66,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 67.73,
@@ -3082,6 +3161,7 @@
       "checksum": -540013997,
       "mibPerSec": 78.9,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 132.04,
@@ -3124,6 +3204,7 @@
       "checksum": -540013997,
       "mibPerSec": 99.83,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 137.17,
@@ -3166,6 +3247,7 @@
       "checksum": -540013997,
       "mibPerSec": 123.45,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 199.61,
@@ -3208,6 +3290,7 @@
       "checksum": -540013997,
       "mibPerSec": 76.71,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 198.94,
@@ -3250,6 +3333,7 @@
       "checksum": -540013997,
       "mibPerSec": 92.49,
       "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 179.29,
@@ -3292,6 +3376,7 @@
       "checksum": -2136498212,
       "mibPerSec": 130.1,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 399.21,
@@ -3334,6 +3419,7 @@
       "checksum": -2136498212,
       "mibPerSec": 105.86,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 495.34,
@@ -3376,6 +3462,7 @@
       "checksum": -2136498212,
       "mibPerSec": 146.11,
       "boundedMemory": true,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 495.31,
@@ -3418,6 +3505,7 @@
       "checksum": -2136498212,
       "mibPerSec": 99.71,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1956.69,
@@ -3460,6 +3548,7 @@
       "checksum": -2136498212,
       "mibPerSec": 62.79,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1849.16,
@@ -3502,6 +3591,7 @@
       "checksum": -2136498212,
       "mibPerSec": 82.95,
       "boundedMemory": false,
+      "sourceMode": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1849.75,

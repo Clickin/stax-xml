@@ -153,7 +153,11 @@ full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
 `access-shape-candidate-cross-process.json` at 177.34 MiB/s
-with process RSS max 189.37 MiB. That is 0.89x of the 200 MiB/s target and
+with process RSS max 189.37 MiB. The comparison report now preserves recorded
+source modes where artifacts expose them: the fastest aggregate row is
+`sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
+`file-backed-sync-iterable-byte-batches`; older artifacts without source
+metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s target and
 0.55x of the 1024 MiB Woodstox reference, leaving 110.80 MiB/s to reach the
 0.9x Woodstox target. For the public event-object shape, the fastest bounded
 row is Node/V8 `eventObjectFull` from the same large-asset corpus artifact at

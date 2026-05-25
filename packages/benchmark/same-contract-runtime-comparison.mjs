@@ -309,6 +309,7 @@ function extractExternalRows(report, spec = externalBaselineArtifacts[0]) {
       checksum: row.checksum,
       mibPerSec: round(row.mibPerSec),
       boundedMemory: typeof row.boundedMemory === 'boolean' ? row.boundedMemory : null,
+      sourceMode: classifyExternalSourceMode(row, report),
       memory: extractExternalMemory(row, report),
       woodstoxRatio: round(row.woodstoxRatio),
       targetStatus: row.targetStatus ?? null,
@@ -348,6 +349,7 @@ function extractVariantRows(report, spec) {
       checksum: row.checksum,
       mibPerSec: round(row.mibPerSec),
       boundedMemory: row.boundedMemory === true,
+      sourceMode: classifyArtifactSourceMode(row, report),
       memory,
       materializationCounters: pickMaterializationCounters(row.materializationCounters),
       woodstoxRatio: round(row.woodstoxRatio),
@@ -386,6 +388,7 @@ function extractCrossProcessRows(report, spec) {
           checksum: firstSingleton(row.checksums),
           mibPerSec,
           boundedMemory,
+          sourceMode: classifyArtifactSourceMode(row, report),
           memory: extractCrossProcessMemory(row),
           materializationCounters: null,
           sampleCount: row.sampleCount ?? runtimeReport.sampleCount ?? null,
@@ -404,6 +407,24 @@ function extractCrossProcessRows(report, spec) {
         };
       });
   });
+}
+
+function classifyExternalSourceMode(row, report) {
+  if (typeof row.sourceMode === 'string') return row.sourceMode;
+  if (report.options?.staxStreamSource === 'file-sync-batches' && String(row.tool ?? '').startsWith('stax-')) {
+    return 'file-backed-sync-iterable-byte-batches';
+  }
+  return null;
+}
+
+function classifyArtifactSourceMode(row, report) {
+  if (typeof row.sourceMode === 'string') return row.sourceMode;
+  if (typeof report.sourceContract?.sourceMode === 'string') return report.sourceContract.sourceMode;
+  const parserInput = report.sourceContract?.childSourceContract?.parserInput;
+  if (typeof parserInput === 'string' && /synchronous Iterable<Uint8Array\[]>/.test(parserInput)) {
+    return 'sync-iterable-byte-batches';
+  }
+  return null;
 }
 
 function extractExternalMemory(row, report) {
@@ -566,6 +587,7 @@ function summarize(rows, allocationEvidence) {
       target90MiBPerSec: targetWoodstox90MiBPerSec,
     },
     memoryMetricKinds: Array.from(new Set(rows.map(row => row.memory?.primaryKind).filter(Boolean))).sort(),
+    sourceModes: Array.from(new Set(rows.map(row => row.sourceMode).filter(Boolean))).sort(),
     allocationEvidenceKinds: allocationEvidence.map(item => item.evidenceKind),
     conclusionAllowed: false,
   };
@@ -633,28 +655,29 @@ function renderMarkdown(report) {
     `- 1024 MiB file-backed rawFrameNameId baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio)}x Woodstox)`,
     `- 1024 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
     `- 1024 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio)}x Woodstox)`,
+    `- Recognized JS source modes: ${report.summary.sourceModes.length > 0 ? report.summary.sourceModes.join(', ') : 'none recorded'}`,
     '',
     '## Fastest JS Rows By Group',
     '',
-    '| Group | Runtime | Case | MiB/s | Bounded | Memory |',
-    '| --- | --- | --- | ---: | --- | --- |',
+    '| Group | Runtime | Case | MiB/s | Bounded | Memory | Source mode |',
+    '| --- | --- | --- | ---: | --- | --- | --- |',
   ];
 
   for (const item of report.summary.fastestRowsByGroup) {
     const row = item.fastest;
-    lines.push(`| \`${item.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} |`);
+    lines.push(`| \`${item.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} |`);
   }
 
   lines.push(
     '',
     '## Selected Comparison Rows',
     '',
-    '| Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Artifact |',
-    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |',
+    '| Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Source mode | Artifact |',
+    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- |',
   );
 
   for (const row of report.comparisonRows) {
-    lines.push(`| \`${row.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${row.eventCount ?? ''} | ${row.checksum ?? ''} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory === null ? 'n/a' : row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | \`${row.sourceArtifact}\` |`);
+    lines.push(`| \`${row.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${row.eventCount ?? ''} | ${row.checksum ?? ''} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory === null ? 'n/a' : row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | \`${row.sourceArtifact}\` |`);
   }
 
   lines.push(
@@ -689,6 +712,7 @@ function renderMarkdown(report) {
     '',
     '- Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.',
     '- Firefox browser rows currently lack page-exposed JS heap counters; their fresh-browser per-variant Windows host process-tree probes are row-level host evidence, not portable browser RSS or bounded JS heap proof.',
+    '- Source-mode values are preserved only when the input artifact records them or an explicit benchmark option identifies the file-backed byte-batch path; older artifacts without source metadata remain `n/a`.',
     '- Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.',
     '- The fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures; the ratio is a target-distance reference, not an identical-input speed comparison.',
     '- This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.',
@@ -832,6 +856,7 @@ function summarizeRow(row) {
     mibPerSec: row.mibPerSec,
     boundedMemory: row.boundedMemory,
     memory: row.memory,
+    sourceMode: row.sourceMode,
     sourceArtifact: row.sourceArtifact,
   };
 }
@@ -912,6 +937,10 @@ function formatMemory(memory) {
     return `browser-js-heap-unavailable; fresh host probe ${formatNumber(memory.hostProcessTreeProbe.maxWorkingSetMiB)} MiB`;
   }
   return memory.primaryKind ?? 'n/a';
+}
+
+function formatSourceMode(sourceMode) {
+  return sourceMode ? `\`${sourceMode}\`` : 'n/a';
 }
 
 function formatAllocationMemory(item) {
