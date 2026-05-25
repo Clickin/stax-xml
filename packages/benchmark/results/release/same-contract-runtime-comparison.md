@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T05:03:34.109Z
+Generated: 2026-05-25T05:10:02.748Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -10,6 +10,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1 GiB+ JavaScript full-string rows: 62
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 173.22 MiB/s (process RSS max 189.86 MiB)
+- Fastest JS full-string row vs 200 MiB/s: 0.87x, 26.78 MiB/s remaining
+- Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.54x Woodstox, 114.92 MiB/s below 0.9x reference target
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 128.12 MiB/s (process RSS max 132.72 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 128.12 MiB/s (process RSS max 132.72 MiB)
 - 16 MiB Woodstox baseline: 333.43 MiB/s
@@ -141,4 +143,5 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 - Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.
 - Firefox browser rows currently lack page-exposed JS heap counters; their fresh-browser per-variant Windows host process-tree probes are row-level host evidence, not portable browser RSS or bounded JS heap proof.
 - Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.
+- The fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures; the ratio is a target-distance reference, not an identical-input speed comparison.
 - This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.

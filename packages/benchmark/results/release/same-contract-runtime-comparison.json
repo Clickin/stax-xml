@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T05:03:34.109Z",
+  "generatedAt": "2026-05-25T05:10:02.748Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -49,6 +49,15 @@
         "note": "max across independent child processes"
       },
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json"
+    },
+    "fastestJsLargeFullRowTo200MiBPerSec": {
+      "ratio": 0.87,
+      "remainingMiBPerSec": 26.78
+    },
+    "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
+      "ratio": 0.54,
+      "remainingTo90PercentMiBPerSec": 114.92,
+      "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
     },
     "fastestJsLargePublicEventRow": {
       "group": "cross-process-books-corpus",
@@ -248,7 +257,8 @@
       "rawFrameNameIdWoodstoxRatio": 0.42,
       "woodstoxMiBPerSec": 320.16,
       "quickXmlMiBPerSec": 287.39,
-      "quickXmlWoodstoxRatio": 0.9
+      "quickXmlWoodstoxRatio": 0.9,
+      "target90MiBPerSec": 288.14
     },
     "memoryMetricKinds": [
       "browser-js-heap",

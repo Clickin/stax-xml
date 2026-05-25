@@ -38,6 +38,11 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'bun-jsc');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
   assert.equal(report.summary.fastestJsLargeFullRow.mibPerSec, 173.22);
+  assert.equal(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio, 0.87);
+  assert.equal(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec, 26.78);
+  assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio, 0.54);
+  assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec, 114.92);
+  assert.match(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.caveat, /different corpus fixture/);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.caseId, 'eventObjectFull');
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory, true);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.sourceArtifact, 'candidate-headroom-cross-process-books-corpus.json');
@@ -164,6 +169,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /# Same-Contract Runtime Comparison/);
   assert.match(markdown, /does not assert identical object shape/);
   assert.match(markdown, /Fastest bounded 1 GiB\+ JS public event-object row/);
+  assert.match(markdown, /Fastest JS full-string row vs 200 MiB\/s: 0\.87x, 26\.78 MiB\/s remaining/);
+  assert.match(markdown, /Fastest JS full-string row vs 1024 MiB Woodstox reference: 0\.54x Woodstox, 114\.92 MiB\/s below 0\.9x reference target/);
+  assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /cross-process-books-corpus/);
   assert.match(markdown, /1024 MiB file-backed stax-stream baseline/);
   assert.match(markdown, /1024 MiB file-backed rawFrameNameId baseline/);

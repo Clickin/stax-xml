@@ -515,12 +515,30 @@ function summarize(rows, allocationEvidence) {
   const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');
   const largeStaxStream = externalLargeRows.find(row => row.caseId === 'stax-stream');
   const largeRawFrameNameId = externalLargeRows.find(row => row.caseId === 'stax-raw-frame-name-id');
+  const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
+  const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
+  const targetWoodstox90MiBPerSec = typeof largeWoodstoxMibPerSec === 'number'
+    ? round(largeWoodstoxMibPerSec * 0.9)
+    : null;
 
   return {
     rowCount: rows.length,
     jsLargeFullRowCount: jsLargeFullRows.length,
     jsRuntimeCounterexamples200MiB: jsCounterexamples.length,
     fastestJsLargeFullRow: summarizeRow(fastestJsLargeFullRow),
+    fastestJsLargeFullRowTo200MiBPerSec: {
+      ratio: typeof fastestJsLargeFullRowMibPerSec === 'number' ? round(fastestJsLargeFullRowMibPerSec / 200) : null,
+      remainingMiBPerSec: typeof fastestJsLargeFullRowMibPerSec === 'number' ? round(200 - fastestJsLargeFullRowMibPerSec) : null,
+    },
+    fastestJsLargeFullRowTo1024MiBWoodstoxReference: {
+      ratio: typeof fastestJsLargeFullRowMibPerSec === 'number' && typeof largeWoodstoxMibPerSec === 'number'
+        ? round(fastestJsLargeFullRowMibPerSec / largeWoodstoxMibPerSec)
+        : null,
+      remainingTo90PercentMiBPerSec: typeof fastestJsLargeFullRowMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
+        ? round(targetWoodstox90MiBPerSec - fastestJsLargeFullRowMibPerSec)
+        : null,
+      caveat: 'ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture.',
+    },
     fastestJsLargePublicEventRow: summarizeRow(fastestJsLargePublicEventRow),
     fastestBoundedJsLargePublicEventRow: summarizeRow(fastestBoundedJsLargePublicEventRow),
     fastestRowsByGroup: fastestRowsByGroup.map(item => ({
@@ -540,6 +558,7 @@ function summarize(rows, allocationEvidence) {
       woodstoxMiBPerSec: round(largeWoodstox?.mibPerSec),
       quickXmlMiBPerSec: round(largeQuickXml?.mibPerSec),
       quickXmlWoodstoxRatio: round(largeQuickXml?.woodstoxRatio),
+      target90MiBPerSec: targetWoodstox90MiBPerSec,
     },
     memoryMetricKinds: Array.from(new Set(rows.map(row => row.memory?.primaryKind).filter(Boolean))).sort(),
     allocationEvidenceKinds: allocationEvidence.map(item => item.evidenceKind),
@@ -599,6 +618,8 @@ function renderMarkdown(report) {
     `- 1 GiB+ JavaScript full-string rows: ${report.summary.jsLargeFullRowCount}`,
     `- 200 MiB/s+ bounded-memory JavaScript counterexamples found: ${report.summary.jsRuntimeCounterexamples200MiB}`,
     `- Fastest aggregated 1 GiB+ JS full-string row: ${formatSummaryRow(report.summary.fastestJsLargeFullRow)}`,
+    `- Fastest JS full-string row vs 200 MiB/s: ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
+    `- Fastest JS full-string row vs 1024 MiB Woodstox reference: ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio)}x Woodstox, ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x reference target`,
     `- Fastest 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestJsLargePublicEventRow)}`,
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
@@ -664,6 +685,7 @@ function renderMarkdown(report) {
     '- Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.',
     '- Firefox browser rows currently lack page-exposed JS heap counters; their fresh-browser per-variant Windows host process-tree probes are row-level host evidence, not portable browser RSS or bounded JS heap proof.',
     '- Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.',
+    '- The fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures; the ratio is a target-distance reference, not an identical-input speed comparison.',
     '- This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.',
   );
 
