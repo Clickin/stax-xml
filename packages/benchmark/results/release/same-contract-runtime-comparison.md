@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T13:59:30.767Z
+Generated: 2026-05-25T14:18:23.107Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -34,7 +34,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `access-shape-cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 177.34 | yes | process RSS max 189.37 MiB | `sync-iterable-byte-batches` |
 | `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB | `sync-iterable-byte-batches` |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` |
-| `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB | n/a |
+| `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB | `sync-iterable-byte-batches` |
 
 ## Selected Comparison Rows
 
@@ -108,12 +108,12 @@ This report aggregates existing release artifacts. It compares rows only through
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 57096514 | -540013997 | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-books-corpus-batch16.json` |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `eventObjectFull` | 57096514 | -540013997 | 76.71 | yes | process RSS max 198.94 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-books-corpus-batch16.json` |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `rawFrameNameId` | 57096514 | -540013997 | 92.49 | yes | process RSS max 179.29 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-books-corpus-batch16.json` |
-| `cross-process-large-asset-corpus` | Node/V8 | `stringFull` | 83635224 | -2136498212 | 130.10 | yes | process RSS max 399.21 MiB | n/a | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `cross-process-large-asset-corpus` | Node/V8 | `eventObjectFull` | 83635224 | -2136498212 | 105.86 | yes | process RSS max 495.34 MiB | n/a | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 83635224 | -2136498212 | 146.11 | yes | process RSS max 495.31 MiB | n/a | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `cross-process-large-asset-corpus` | Bun/JSC | `stringFull` | 83635224 | -2136498212 | 99.71 | no | process RSS max 1956.69 MiB | n/a | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `cross-process-large-asset-corpus` | Bun/JSC | `eventObjectFull` | 83635224 | -2136498212 | 62.79 | no | process RSS max 1849.16 MiB | n/a | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `cross-process-large-asset-corpus` | Bun/JSC | `rawFrameNameId` | 83635224 | -2136498212 | 82.95 | no | process RSS max 1849.75 MiB | n/a | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Node/V8 | `stringFull` | 83635224 | -2136498212 | 130.10 | yes | process RSS max 399.21 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Node/V8 | `eventObjectFull` | 83635224 | -2136498212 | 105.86 | yes | process RSS max 495.34 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 83635224 | -2136498212 | 146.11 | yes | process RSS max 495.31 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Bun/JSC | `stringFull` | 83635224 | -2136498212 | 99.71 | no | process RSS max 1956.69 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Bun/JSC | `eventObjectFull` | 83635224 | -2136498212 | 62.79 | no | process RSS max 1849.16 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
+| `cross-process-large-asset-corpus` | Bun/JSC | `rawFrameNameId` | 83635224 | -2136498212 | 82.95 | no | process RSS max 1849.75 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
 
 ## Allocation Evidence
 

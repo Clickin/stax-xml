@@ -250,6 +250,7 @@ function createInitialContext(sourceArtifact, root) {
     objective: root?.objective ?? null,
     contract: root?.contract ?? null,
     sourceContract: root?.sourceContract ?? null,
+    options: root?.options ?? null,
   });
 }
 
@@ -265,6 +266,7 @@ function extendContext(node, context) {
     objective: node.objective ?? context.objective,
     contract: node.contract ?? context.contract,
     sourceContract: node.sourceContract ?? context.sourceContract,
+    options: node.options ?? context.options,
   };
 }
 
@@ -480,6 +482,11 @@ function classifySourceMode(sourceArtifact, node, context) {
   const combined = `${parserInput ?? ''} ${arrayBufferConsumption ?? ''}`;
   if (/StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/.test(combined)
     && /byteBatches\(fixture\)/.test(combined)) {
+    return 'generated-sync-iterable-byte-batches';
+  }
+
+  if (context.objective === 'candidate-headroom-cross-process'
+    && context.options?.fixtureShape === 'corpus-cycle') {
     return 'generated-sync-iterable-byte-batches';
   }
 

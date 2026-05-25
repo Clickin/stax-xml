@@ -154,7 +154,9 @@ counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
 `access-shape-candidate-cross-process.json` at 177.34 MiB/s
 with process RSS max 189.37 MiB. The comparison report now preserves recorded
-source modes where artifacts expose them: the fastest aggregate row is
+source modes where artifacts expose them or where `candidate-headroom-cross-process`
+options identify the same `corpus-cycle` child runner: the fastest aggregate row is
+`sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s target and
@@ -203,13 +205,15 @@ individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 111 JavaScript 1 GiB+
+or their source contract carry it. It now finds 129 JavaScript 1 GiB+
 full-string rows with source mode metadata, including `file-sync-batches`,
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
 `web-readable-stream-pull`. The generated sync byte-batch bucket now includes
-the fastest access-shape rows, so the fastest source-mode-classified row is
-Bun/JSC `rawFrameNameId` from `access-shape-candidate-cross-process.json` at
+the fastest access-shape rows plus the local `large.xml` fresh-process corpus
+rows; the generated-sync bucket now has 108 JavaScript 1 GiB+ full-string rows,
+99 of them bounded. The fastest source-mode-classified row is Bun/JSC
+`rawFrameNameId` from `access-shape-candidate-cross-process.json` at
 179.70 MiB/s. The source-consumption comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
 full-string scan: `sync-iterable-byte-batches` at 124.49 MiB/s and the

@@ -424,6 +424,10 @@ function classifyArtifactSourceMode(row, report) {
   if (typeof parserInput === 'string' && /synchronous Iterable<Uint8Array\[]>/.test(parserInput)) {
     return 'sync-iterable-byte-batches';
   }
+  if (report.objective === 'candidate-headroom-cross-process'
+    && report.options?.fixtureShape === 'corpus-cycle') {
+    return 'sync-iterable-byte-batches';
+  }
   return null;
 }
 

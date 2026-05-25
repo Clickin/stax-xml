@@ -47,6 +47,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory, true);
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.sourceArtifact, 'candidate-headroom-cross-process-large-asset-corpus.json');
   assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec, 105.86);
+  assert.equal(report.summary.fastestBoundedJsLargePublicEventRow.sourceMode, 'sync-iterable-byte-batches');
   assert.ok(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec < 200);
   assert.ok(report.summary.externalBaseline16MiB.woodstoxMiBPerSec > 300);
   assert.ok(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio > 0.9);
@@ -129,6 +130,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.mibPerSec === 146.11
     && row.fullStringParity === true
     && row.boundedMemory === true
+    && row.sourceMode === 'sync-iterable-byte-batches'
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'external-baseline-1024mib-file-sync-batches.json'

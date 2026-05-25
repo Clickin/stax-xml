@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T13:59:30.767Z",
+  "generatedAt": "2026-05-25T14:18:23.107Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -74,7 +74,7 @@
         "maxHeapUsedMiB": 32.44,
         "note": "max across independent child processes"
       },
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestBoundedJsLargePublicEventRow": {
@@ -90,7 +90,7 @@
         "maxHeapUsedMiB": 32.44,
         "note": "max across independent child processes"
       },
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestRowsByGroup": [
@@ -271,7 +271,7 @@
             "maxHeapUsedMiB": 27.28,
             "note": "max across independent child processes"
           },
-          "sourceMode": null,
+          "sourceMode": "sync-iterable-byte-batches",
           "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
         }
       }
@@ -3376,7 +3376,7 @@
       "checksum": -2136498212,
       "mibPerSec": 130.1,
       "boundedMemory": true,
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 399.21,
@@ -3419,7 +3419,7 @@
       "checksum": -2136498212,
       "mibPerSec": 105.86,
       "boundedMemory": true,
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 495.34,
@@ -3462,7 +3462,7 @@
       "checksum": -2136498212,
       "mibPerSec": 146.11,
       "boundedMemory": true,
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 495.31,
@@ -3505,7 +3505,7 @@
       "checksum": -2136498212,
       "mibPerSec": 99.71,
       "boundedMemory": false,
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1956.69,
@@ -3548,7 +3548,7 @@
       "checksum": -2136498212,
       "mibPerSec": 62.79,
       "boundedMemory": false,
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1849.16,
@@ -3591,7 +3591,7 @@
       "checksum": -2136498212,
       "mibPerSec": 82.95,
       "boundedMemory": false,
-      "sourceMode": null,
+      "sourceMode": "sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1849.75,

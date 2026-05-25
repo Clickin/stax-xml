@@ -126,6 +126,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Bun\/JSC `rawFrameNameId` from\s+`access-shape-candidate-cross-process\.json` at 177\.34 MiB\/s/);
   assert.match(markdown, /fastest aggregate row is\s+`sync-iterable-byte-batches`/);
+  assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
   assert.match(markdown, /0\.89x of the 200 MiB\/s target and\s+0\.55x of the 1024 MiB Woodstox reference/);
   assert.match(markdown, /fastest bounded\s+row is Node\/V8 `eventObjectFull` from the same large-asset corpus artifact at\s+105\.86 MiB\/s/);
@@ -143,8 +144,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with\s+memory proof is the same Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average\s+over 3 samples with 3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
-  assert.match(markdown, /111 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
-  assert.match(markdown, /fastest source-mode-classified row is\s+Bun\/JSC `rawFrameNameId` from `access-shape-candidate-cross-process\.json` at\s+179\.70 MiB\/s/);
+  assert.match(markdown, /129 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
+  assert.match(markdown, /generated-sync bucket now has 108 JavaScript 1 GiB\+ full-string rows,\s+99 of them bounded/);
+  assert.match(markdown, /[Tt]he fastest source-mode-classified row is\s+Bun\/JSC\s+`rawFrameNameId` from `access-shape-candidate-cross-process\.json` at\s+179\.70 MiB\/s/);
   assert.match(markdown, /`complete-js-string`/);
   assert.match(markdown, /`sync-iterable-byte-batches` at 124\.49 MiB\/s/);
   assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 110\.32 MiB\/s/);
