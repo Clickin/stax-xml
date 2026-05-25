@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T00:25:08.081Z",
+  "generatedAt": "2026-05-25T02:38:48.697Z",
   "objective": "file-backed-public-consumer-shape-sweep",
   "contract": "same-full-string-checksum-public-streambatch-consumer-shapes",
   "note": "Runs public StreamBatch full-string checksum consumer variants in separate Node processes over the same file-backed Iterable<Uint8Array[]> source. This tests whether small JavaScript consumer-shape changes expose headroom without changing the StAX API or checksum contract.",
@@ -20,7 +20,8 @@
     "variants": [
       "public-baseline",
       "public-no-optional-text",
-      "public-switch-dispatch"
+      "public-switch-dispatch",
+      "public-event-object"
     ],
     "chunkKiB": 64,
     "batchSize": 1,
@@ -39,32 +40,33 @@
       "fullStringParity": true,
       "chunkKiB": 64,
       "batchSize": 1,
-      "mibPerSec": 96.21664695778162,
-      "avgMs": 10642.6472,
-      "minMs": 10642.6472,
-      "maxMs": 10642.6472,
+      "mibPerSec": 130.37002907858445,
+      "avgMs": 7854.5647,
+      "minMs": 7854.5647,
+      "maxMs": 7854.5647,
       "samplesMs": [
-        10642.6472
+        7854.5647
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
+      "materializationCounters": null,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71462912,
-        "maxHeapUsedBytes": 6054344,
+        "maxRssBytes": 74117120,
+        "maxHeapUsedBytes": 6568008,
         "samples": [
           {
             "before": {
-              "rssBytes": 64081920,
-              "heapUsedBytes": 4896808,
-              "externalBytes": 2149003,
+              "rssBytes": 66879488,
+              "heapUsedBytes": 4902984,
+              "externalBytes": 2153861,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 71462912,
-              "heapUsedBytes": 6054344,
-              "externalBytes": 2654637,
-              "arrayBuffersBytes": 572686
+              "rssBytes": 74117120,
+              "heapUsedBytes": 6568008,
+              "externalBytes": 3047864,
+              "arrayBuffersBytes": 965913
             }
           }
         ]
@@ -80,32 +82,33 @@
       "fullStringParity": true,
       "chunkKiB": 64,
       "batchSize": 1,
-      "mibPerSec": 93.87328206145753,
-      "avgMs": 10908.3203,
-      "minMs": 10908.3203,
-      "maxMs": 10908.3203,
+      "mibPerSec": 133.6705994989836,
+      "avgMs": 7660.6212,
+      "minMs": 7660.6212,
+      "maxMs": 7660.6212,
       "samplesMs": [
-        10908.3203
+        7660.6212
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
+      "materializationCounters": null,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71012352,
-        "maxHeapUsedBytes": 6447224,
+        "maxRssBytes": 74358784,
+        "maxHeapUsedBytes": 7754832,
         "samples": [
           {
             "before": {
-              "rssBytes": 64036864,
-              "heapUsedBytes": 4896816,
-              "externalBytes": 2149003,
+              "rssBytes": 66928640,
+              "heapUsedBytes": 4902992,
+              "externalBytes": 2153861,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 71012352,
-              "heapUsedBytes": 6447224,
-              "externalBytes": 2916790,
-              "arrayBuffersBytes": 834839
+              "rssBytes": 74358784,
+              "heapUsedBytes": 7754832,
+              "externalBytes": 3834473,
+              "arrayBuffersBytes": 1752522
             }
           }
         ]
@@ -121,32 +124,82 @@
       "fullStringParity": true,
       "chunkKiB": 64,
       "batchSize": 1,
-      "mibPerSec": 84.99849931460594,
-      "avgMs": 12047.2695,
-      "minMs": 12047.2695,
-      "maxMs": 12047.2695,
+      "mibPerSec": 114.2235809556668,
+      "avgMs": 8964.8724,
+      "minMs": 8964.8724,
+      "maxMs": 8964.8724,
       "samplesMs": [
-        12047.2695
+        8964.8724
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
+      "materializationCounters": null,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71618560,
-        "maxHeapUsedBytes": 7177504,
+        "maxRssBytes": 74473472,
+        "maxHeapUsedBytes": 6554064,
         "samples": [
           {
             "before": {
-              "rssBytes": 63975424,
-              "heapUsedBytes": 4896808,
-              "externalBytes": 2149003,
+              "rssBytes": 66883584,
+              "heapUsedBytes": 4902984,
+              "externalBytes": 2153861,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 71618560,
-              "heapUsedBytes": 7177504,
-              "externalBytes": 3441157,
-              "arrayBuffersBytes": 1359206
+              "rssBytes": 74473472,
+              "heapUsedBytes": 6554064,
+              "externalBytes": 3047864,
+              "arrayBuffersBytes": 965913
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-event-object",
+      "tool": "public-event-object",
+      "implementation": "public event objects materialized from file-backed StreamBatch rows",
+      "family": "public-streambatch-consumer-shape",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 95.34573695345358,
+      "avgMs": 10739.8596,
+      "minMs": 10739.8596,
+      "maxMs": 10739.8596,
+      "samplesMs": [
+        10739.8596
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "materializationCounters": {
+        "eventObjects": 61236571,
+        "nameStrings": 43225814,
+        "textStrings": 18010755,
+        "attributeNameStrings": 18010755,
+        "attributeValueStrings": 18010755,
+        "attributePairs": 18010755
+      },
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 144625664,
+        "maxHeapUsedBytes": 38750416,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 66912256,
+              "heapUsedBytes": 4902984,
+              "externalBytes": 2153861,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 144625664,
+              "heapUsedBytes": 38750416,
+              "externalBytes": 9995619,
+              "arrayBuffersBytes": 7913668
             }
           }
         ]
@@ -154,22 +207,22 @@
     }
   ],
   "summary": {
-    "rowCount": 3,
+    "rowCount": 4,
     "fastest": {
-      "id": "public-baseline",
-      "throughputMiBPerSec": 96.21664695778162,
-      "maxRssBytes": 71462912,
+      "id": "public-no-optional-text",
+      "throughputMiBPerSec": 133.6705994989836,
+      "maxRssBytes": 74358784,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "baseline": {
       "id": "public-baseline",
-      "throughputMiBPerSec": 96.21664695778162,
-      "maxRssBytes": 71462912,
+      "throughputMiBPerSec": 130.37002907858445,
+      "maxRssBytes": 74117120,
       "eventCount": 61236571,
       "checksum": -716099804
     },
-    "fastestBaselineRatio": 1,
+    "fastestBaselineRatio": 1.0253169416600316,
     "counterexamples200MiB": 0,
     "checksumSet": [
       -716099804
@@ -190,12 +243,21 @@
     },
     {
       "id": "consumer-shape-headroom",
-      "classification": "BENCH_FACT",
-      "summary": "Fastest public consumer shape was public-baseline at 96.22 MiB/s (1.00x baseline).",
+      "classification": "HEADROOM_EVIDENCE",
+      "summary": "Fastest public consumer shape was public-no-optional-text at 133.67 MiB/s (1.03x baseline).",
       "evidence": [
-        "public-baseline=96.22 MiB/s rss=68.15 MiB",
-        "public-no-optional-text=93.87 MiB/s rss=67.72 MiB",
-        "public-switch-dispatch=85.00 MiB/s rss=68.30 MiB"
+        "public-baseline=130.37 MiB/s rss=70.68 MiB",
+        "public-no-optional-text=133.67 MiB/s rss=70.91 MiB",
+        "public-switch-dispatch=114.22 MiB/s rss=71.02 MiB",
+        "public-event-object=95.35 MiB/s rss=137.93 MiB"
+      ]
+    },
+    {
+      "id": "streaming-public-object-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "The public-event-object row materializes per-event JavaScript objects from file-backed StreamBatch data without full XML string preload.",
+      "evidence": [
+        "events=61236571, objects=61236571, source=file-backed-sync-iterable-byte-batches"
       ]
     },
     {
@@ -203,9 +265,10 @@
       "classification": "COUNTEREXAMPLE_NOT_FOUND",
       "summary": "The consumer-shape sweep applies the same 200 MiB/s bounded full-string counterexample rule.",
       "evidence": [
-        "public-baseline: bounded=true, mibPerSec=96.22",
-        "public-no-optional-text: bounded=true, mibPerSec=93.87",
-        "public-switch-dispatch: bounded=true, mibPerSec=85.00"
+        "public-baseline: bounded=true, mibPerSec=130.37",
+        "public-no-optional-text: bounded=true, mibPerSec=133.67",
+        "public-switch-dispatch: bounded=true, mibPerSec=114.22",
+        "public-event-object: bounded=true, mibPerSec=95.35"
       ]
     }
   ]

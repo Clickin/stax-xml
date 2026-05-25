@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   StreamReaderSync,
+  XmlEventType,
 } from '../stax-xml/dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,6 +17,8 @@ const defaultTmpDir = join(__dirname, 'results', 'tmp', 'file-backed-public-cons
 const MIB = 1024 * 1024;
 const GIB = 1024 * MIB;
 
+const START_DOCUMENT = 0;
+const END_DOCUMENT = 1;
 const START_ELEMENT = 2;
 const END_ELEMENT = 3;
 const CHARACTERS = 4;
@@ -25,6 +28,7 @@ const variants = [
   'public-baseline',
   'public-no-optional-text',
   'public-switch-dispatch',
+  'public-event-object',
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -227,6 +231,7 @@ function runVariantProcess(options) {
   const memorySamples = [];
   let eventCount = 0;
   let checksum = 0;
+  let materializationCounters = null;
   for (let index = 0; index < options.runs; index++) {
     gcNow();
     const before = takeMemorySnapshot();
@@ -239,6 +244,7 @@ function runVariantProcess(options) {
     }
     eventCount = result.eventCount;
     checksum = result.checksum;
+    materializationCounters = result.materializationCounters ?? null;
     samplesMs.push(elapsedMs);
     memorySamples.push({ before, after });
   }
@@ -262,6 +268,7 @@ function runVariantProcess(options) {
     samplesMs,
     eventCount,
     checksum,
+    materializationCounters,
     boundedMemory: maxRssBytes <= options.boundedRssMiB * 1024 * 1024,
     memory: {
       maxRssBytes,
@@ -280,6 +287,8 @@ function runVariant(variant, options) {
       return consumePublicNoOptionalText(batches);
     case 'public-switch-dispatch':
       return consumePublicSwitchDispatch(batches);
+    case 'public-event-object':
+      return consumePublicEventObject(batches);
     default:
       throw new Error(`Unknown variant: ${variant}`);
   }
@@ -377,6 +386,117 @@ function consumePublicSwitchDispatch(bytes) {
   return { eventCount, checksum };
 }
 
+function consumePublicEventObject(bytes) {
+  const materializationCounters = {
+    eventObjects: 0,
+    nameStrings: 0,
+    textStrings: 0,
+    attributeNameStrings: 0,
+    attributeValueStrings: 0,
+    attributePairs: 0,
+  };
+  const objectSink = new Array(1024);
+  let objectSinkIndex = 0;
+  let eventCount = 0;
+  let checksum = 0;
+  for (const batch of new StreamReaderSync(bytes)) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const event = materializePublicEventObject(batch, index, materializationCounters);
+      objectSink[objectSinkIndex & (objectSink.length - 1)] = event;
+      objectSinkIndex++;
+
+      eventCount++;
+      checksum = mixChecksum(checksum, publicEventTypeCode(event.type));
+      if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+        checksum = foldString(checksum, event.name);
+      }
+      if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+        checksum = foldString(checksum, event.value?.trim());
+      }
+      if (event.type === XmlEventType.START_ELEMENT) {
+        const entries = Object.entries(event.attributes);
+        materializationCounters.attributePairs += entries.length;
+        checksum = mixChecksum(checksum, entries.length);
+        for (const [name, value] of entries) {
+          checksum = foldString(checksum, name);
+          checksum = foldString(checksum, value);
+        }
+      }
+    }
+  }
+
+  globalThis.__staxFileBackedPublicEventObjectSink = objectSink[(objectSinkIndex - 1) & (objectSink.length - 1)];
+  return { eventCount, checksum, materializationCounters };
+}
+
+function materializePublicEventObject(batch, index, materializationCounters) {
+  const type = batch.typeAt(index);
+  materializationCounters.eventObjects++;
+  switch (type) {
+    case START_DOCUMENT:
+      return { type: XmlEventType.START_DOCUMENT };
+    case END_DOCUMENT:
+      return { type: XmlEventType.END_DOCUMENT };
+    case START_ELEMENT: {
+      materializationCounters.nameStrings++;
+      const name = batch.nameAt(index);
+      const attrCount = batch.attributeCountAt(index);
+      const attributes = {};
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        materializationCounters.attributeNameStrings++;
+        const attrName = batch.attributeNameAt(index, attrIndex);
+        materializationCounters.attributeValueStrings++;
+        attributes[attrName] = batch.attributeValueAt(index, attrIndex);
+      }
+      return {
+        type: XmlEventType.START_ELEMENT,
+        name,
+        attributes,
+      };
+    }
+    case END_ELEMENT:
+      materializationCounters.nameStrings++;
+      return {
+        type: XmlEventType.END_ELEMENT,
+        name: batch.nameAt(index),
+      };
+    case CHARACTERS:
+      materializationCounters.textStrings++;
+      return {
+        type: XmlEventType.CHARACTERS,
+        value: batch.textAt(index),
+      };
+    case CDATA:
+      materializationCounters.textStrings++;
+      return {
+        type: XmlEventType.CDATA,
+        value: batch.textAt(index),
+      };
+    default:
+      throw new Error(`Unsupported stream event type: ${type}`);
+  }
+}
+
+function publicEventTypeCode(type) {
+  switch (type) {
+    case XmlEventType.START_ELEMENT:
+      return START_ELEMENT;
+    case XmlEventType.END_ELEMENT:
+      return END_ELEMENT;
+    case XmlEventType.CHARACTERS:
+      return CHARACTERS;
+    case XmlEventType.CDATA:
+      return CDATA;
+    case XmlEventType.START_DOCUMENT:
+      return START_DOCUMENT;
+    case XmlEventType.END_DOCUMENT:
+      return END_DOCUMENT;
+    default:
+      throw new Error(`Unsupported public event type: ${type}`);
+  }
+}
+
 function* createFileByteBatches(filePath, chunkBytes, batchSize) {
   const fd = openSync(filePath, 'r');
   try {
@@ -413,6 +533,14 @@ function createFindings(rows, baseline, fastest) {
         ? `Fastest public consumer shape was ${fastest.id} at ${formatNumber(fastest.mibPerSec)} MiB/s (${formatNumber(fastest.mibPerSec / baseline.mibPerSec)}x baseline).`
         : 'No baseline comparison available.',
       evidence: rows.map(row => `${row.id}=${formatNumber(row.mibPerSec)} MiB/s rss=${formatBytes(row.memory?.maxRssBytes)}`),
+    },
+    {
+      id: 'streaming-public-object-contract',
+      classification: rows.some(row => row.id === 'public-event-object') ? 'CONTRACT_FACT' : 'MISSING_EVIDENCE',
+      summary: 'The public-event-object row materializes per-event JavaScript objects from file-backed StreamBatch data without full XML string preload.',
+      evidence: rows
+        .filter(row => row.id === 'public-event-object')
+        .map(row => `events=${row.eventCount}, objects=${row.materializationCounters?.eventObjects ?? 'n/a'}, source=${row.sourceMode}`),
     },
     {
       id: 'bounded-counterexample-search',
@@ -464,6 +592,7 @@ function renderMarkdown(report) {
   lines.push('## Limits');
   lines.push('');
   lines.push('- This changes only JavaScript consumer shape over the public StreamBatch API; it does not change parser internals.');
+  lines.push('- `public-event-object` creates public JavaScript event objects from file-backed `StreamBatch` rows; it is not the full-string `EventReaderSync(readFileSync(..., "utf8"))` path.');
   lines.push('- A missing counterexample in this artifact is not a JavaScript runtime ceiling proof.');
   lines.push('- This should be read together with `file-backed-v8-codegen-trace.md` because throughput and deopt behavior are separate evidence types.');
   lines.push('');
@@ -478,6 +607,8 @@ function describeVariant(variant) {
       return 'public StreamBatch accessor loop with explicit text undefined check instead of optional chaining';
     case 'public-switch-dispatch':
       return 'public StreamBatch accessor loop using switch dispatch and explicit text undefined check';
+    case 'public-event-object':
+      return 'public event objects materialized from file-backed StreamBatch rows';
     default:
       return variant;
   }

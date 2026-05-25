@@ -18,7 +18,7 @@ test('file-backed public consumer shape sweep preserves full-string checksum con
     '--file',
     join(__dirname, 'test-data', 'runtime-comparison-16mib.xml'),
     '--variants',
-    'public-baseline,public-no-optional-text,public-switch-dispatch',
+    'public-baseline,public-no-optional-text,public-switch-dispatch,public-event-object',
     '--runs',
     '1',
     '--warmups',
@@ -38,7 +38,7 @@ test('file-backed public consumer shape sweep preserves full-string checksum con
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'file-backed-public-consumer-shape-sweep');
   assert.equal(report.contract, 'same-full-string-checksum-public-streambatch-consumer-shapes');
-  assert.equal(report.summary.rowCount, 3);
+  assert.equal(report.summary.rowCount, 4);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.deepEqual(report.summary.eventCountSet, [967967]);
   assert.deepEqual(report.summary.checksumSet, [-746772258]);
@@ -46,6 +46,7 @@ test('file-backed public consumer shape sweep preserves full-string checksum con
     'public-baseline',
     'public-no-optional-text',
     'public-switch-dispatch',
+    'public-event-object',
   ]);
   for (const row of report.rows) {
     assert.equal(row.fullStringParity, true);
@@ -54,10 +55,14 @@ test('file-backed public consumer shape sweep preserves full-string checksum con
     assert.equal(row.boundedMemory, true);
     assert.equal(row.memory.maxRssBytes > 0, true);
   }
+  const eventObjectRow = report.rows.find(row => row.id === 'public-event-object');
+  assert.equal(eventObjectRow.materializationCounters.eventObjects, 967967);
+  assert.equal(eventObjectRow.sourceMode, 'file-backed-sync-iterable-byte-batches');
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# File-Backed Public Consumer Shape Sweep/);
   assert.match(markdown, /consumer-shape-headroom/);
+  assert.match(markdown, /streaming-public-object-contract/);
   assert.match(markdown, /200 MiB\/s bounded full-string counterexamples: 0/);
   assert.match(markdown, /not a JavaScript runtime ceiling proof/);
 });
