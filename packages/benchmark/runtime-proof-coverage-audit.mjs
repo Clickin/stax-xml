@@ -371,7 +371,7 @@ function createObligationRows(coverage) {
         ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found.`
         : [
           'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
-          hasSafariAvailabilityAudit ? 'Local Safari/WebKit availability audit is present and records that the current host/harness cannot run Safari rows.' : 'No local Safari/WebKit availability audit was found.',
+          hasSafariAvailabilityAudit ? 'Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available.' : 'No local Safari/WebKit availability audit was found.',
         ].join(' '),
       nextExperiment: hasSafariAvailabilityAudit
         ? 'Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner.'

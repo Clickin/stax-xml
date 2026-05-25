@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-25T08:37:03.361Z",
+  "generatedAt": "2026-05-25T08:55:07.291Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "auditGeneratedAt": "2026-05-25T08:36:52.270Z",
+    "auditGeneratedAt": "2026-05-25T08:54:46.560Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -17,7 +17,7 @@
       {
         "id": "safari-jsc-source-and-browser-rows-open",
         "status": "open",
-        "evidence": "Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host/harness cannot run Safari rows.",
+        "evidence": "Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available.",
         "nextExperiment": "Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner."
       },
       {

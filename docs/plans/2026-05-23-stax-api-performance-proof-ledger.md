@@ -272,8 +272,10 @@ row-level JS heap proof.
 The audit reports 2 open or partial obligations after scanning the current
 release artifacts: Safari/browser JSC rows and Firefox/SpiderMonkey emitted JIT
 IR or optimized-code dumps. The Safari/WebKit availability artifact records the
-local host and harness gap, but it is not a benchmark row and not evidence that
-Safari/WebKit cannot be a counterexample. The Firefox/SpiderMonkey source pin,
+local host availability gap while preserving that the repository has a
+safaridriver harness when safaridriver is available; it is not a benchmark row
+and not evidence that Safari/WebKit cannot be a counterexample. The
+Firefox/SpiderMonkey source pin,
 diagnostic no-dump attempt, and local js-shell availability audit narrow the
 codegen route, but they are not emitted JIT IR. This narrows the next
 counterexample search queue; it still does not turn missing evidence into
