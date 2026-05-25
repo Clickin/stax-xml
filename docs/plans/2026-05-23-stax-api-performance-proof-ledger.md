@@ -183,12 +183,12 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 131 primary release JSON artifacts and recognizes 727
-measured rows. It finds 432 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 132 primary release JSON artifacts and recognizes 745
+measured rows. It finds 450 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
-is Bun/JSC `rawFrameNameId` from
-`bun-candidate-headroom-books-corpus-stability.json` at 178.52 MiB/s with
-process RSS evidence. It remains below the 200 MiB/s counterexample threshold.
+is a Bun/JSC `rawFrameNameId` fresh-process sample from
+`access-shape-candidate-cross-process.json` at 179.70 MiB/s with process RSS
+evidence. It remains below the 200 MiB/s counterexample threshold.
 
 The scan also records 20 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
@@ -215,10 +215,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 131 primary release artifacts and recognizes 727
-measured rows. It records 92 benchmark artifacts, 16 source artifacts, 8
+The current audit scans 132 primary release artifacts and recognizes 745
+measured rows. It records 93 benchmark artifacts, 16 source artifacts, 8
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 436 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+9 negative-result artifacts, 454 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -1355,6 +1355,20 @@ spread and max RSS `77.9 MiB`. All three rows preserved 57,096,514 events,
 checksum `-540013997`, and 62,758,976 string-field reads. This records the
 cursor and direct raw-frame access shapes as slower than the current name-id
 raw-frame path, not hidden 200 MiB/s full-StAX counterexamples.
+
+`packages/benchmark/results/release/access-shape-candidate-cross-process.md`
+then repeats the access-shape variants as fresh Node/V8 and Bun/JSC runtime
+processes with `processRuns=3`, child `runs=1`, and `warmups=0`. Node/V8
+reported `cursorAccessor` at `161.48 MiB/s` with `4.7%` spread,
+`rawFrameDirect` at `136.98 MiB/s` with `33.2%` spread, and `rawFrameNameId` at
+`147.13 MiB/s` with high `55.6%` spread. Bun/JSC reported `cursorAccessor` at
+`167.04 MiB/s` with `4.7%` spread, `rawFrameDirect` at `139.83 MiB/s` with
+`0.8%` spread, and `rawFrameNameId` at `177.34 MiB/s` with `3.2%` spread. All
+six aggregate rows were bounded, preserved full-string parity, and stayed below
+the 200 MiB/s counterexample threshold. The counterexample scan also sees the
+fastest individual Bun/JSC `rawFrameNameId` sample at `179.70 MiB/s`; that
+single sample is still below threshold and should not be read as the aggregate
+cross-process average.
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus.md`
 then repeats the same selected rows in fresh runtime processes with

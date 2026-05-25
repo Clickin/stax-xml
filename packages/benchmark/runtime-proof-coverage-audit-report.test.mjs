@@ -32,12 +32,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 131);
-  assert.equal(report.summary.measuredRowCount, 727);
-  assert.equal(report.summary.largeJsFullRowCount, 436);
+  assert.equal(report.summary.scannedArtifactCount, 132);
+  assert.equal(report.summary.measuredRowCount, 745);
+  assert.equal(report.summary.largeJsFullRowCount, 454);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 92);
+  assert.equal(report.summary.benchmarkArtifactCount, 93);
   assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 8);
   assert.equal(report.summary.allocationArtifactCount, 13);
@@ -185,6 +185,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'access-shape-candidate-stability.json'
     && row.runtimes.includes('node-v8')
     && row.measuredRowCount === 3
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'access-shape-candidate-cross-process.json'
+    && row.runtimes.includes('node-v8')
+    && row.runtimes.includes('bun-jsc')
+    && row.measuredRowCount === 18
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'multi-chunk-batch-shape-audit.json'
