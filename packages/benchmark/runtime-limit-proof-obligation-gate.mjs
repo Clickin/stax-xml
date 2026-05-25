@@ -182,6 +182,16 @@ const requiredProofRules = [
     pattern: /preserve\s+backpressure by pulling at most the next batch on demand/i,
     description: 'Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream.',
   },
+  {
+    id: 'woodstox-reference-not-identical-input',
+    pattern: /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/i,
+    description: 'Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.',
+  },
+  {
+    id: 'same-fixture-woodstox-target-unmet',
+    pattern: /same-fixture 1024 MiB JS row vs Woodstox target(?: is|:)[\s\S]+?0\.40x Woodstox[\s\S]+?0\.9x target/i,
+    description: 'The current same-fixture 1024 MiB JS row must stay recorded as below the 0.9x Woodstox target.',
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {

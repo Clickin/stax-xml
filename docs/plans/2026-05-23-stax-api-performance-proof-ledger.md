@@ -120,7 +120,7 @@ and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 27 required artifact mentions
-are present, all 5 required open-obligation disclosures are present, and all 10
+are present, all 5 required open-obligation disclosures are present, and all 12
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
@@ -131,7 +131,9 @@ also requires source-consumption shape evidence: direct `ReadableStream`
 overhead rows must remain distinct from synchronous byte-batch parser rows,
 large byte-batch matrices must not be described as one prebuilt 1 GiB
 `ArrayBuffer` parser input, and byte-batch rows must preserve demand-driven
-pulls.
+pulls. It also requires the Woodstox target distinction: cross-fixture ratios
+remain target-distance references, while the current same-fixture 1024 MiB JS
+row is still below the 0.9x Woodstox target.
 
 This is deliberately a conservative proof-language step: a passing gate means
 the ledger is not overclaiming. It does not run benchmark rows, inspect
@@ -169,9 +171,13 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s target and
-0.71x of the 1024 MiB Woodstox reference, leaving 46.56 MiB/s to reach the
-0.9x Woodstox target. For the public event-object shape, the fastest bounded
-row is Node/V8 `eventObjectFull` from
+0.94x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
+and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
+that ratio is a target-distance reference rather than an identical-input target
+pass. The same-fixture 1024 MiB JS row vs Woodstox target is
+`stax-raw-frame-name-id` at 76.13 MiB/s, 0.40x Woodstox, and 95.52 MiB/s below
+the 0.9x target. For the public event-object shape, the fastest bounded row is
+Node/V8 `eventObjectFull` from
 `candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process
 RSS max 203.27 MiB across 3 samples ranging from 141.06 to 142.03 MiB/s. The
 generated, corpus, and

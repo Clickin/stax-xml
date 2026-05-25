@@ -104,7 +104,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /all 10 required claim guards are satisfied/);
   assert.match(markdown, /all 27 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
-  assert.match(markdown, /all 10\s+proof-rule checks are satisfied/);
+  assert.match(markdown, /all 12\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
   assert.match(markdown, /treating Woodstox or quick-xml as JavaScript object\s+shape parity/);
   assert.match(markdown, /treating lazy getters as an untried default candidate/);
@@ -112,6 +112,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /direct `ReadableStream`\s+overhead rows must remain distinct from synchronous byte-batch parser rows/);
   assert.match(markdown, /large byte-batch matrices must not be described as one prebuilt 1 GiB\s+`ArrayBuffer` parser input/);
   assert.match(markdown, /byte-batch rows must preserve demand-driven\s+pulls/);
+  assert.match(markdown, /cross-fixture ratios\s+remain target-distance references/);
+  assert.match(markdown, /same-fixture 1024 MiB JS\s+row is still below the 0\.9x Woodstox target/);
   assert.match(markdown, /If the broad\s+runtime-limit claim is upgraded to `CONCLUSION` while these open obligations\s+remain, the gate fails/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /materialization-contract-audit\.md/);
@@ -132,8 +134,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
   assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
-  assert.match(markdown, /0\.89x of the 200 MiB\/s target and\s+0\.71x of the 1024 MiB Woodstox reference/);
-  assert.match(markdown, /fastest bounded\s+row is Node\/V8 `eventObjectFull` from\s+`candidate-headroom-books-corpus-stability\.json` at 141\.62 MiB\/s/);
+  assert.match(markdown, /0\.89x of the 200 MiB\/s target and\s+0\.94x of the 1024 MiB Woodstox reference/);
+  assert.match(markdown, /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/);
+  assert.match(markdown, /same-fixture 1024 MiB JS row vs Woodstox target is\s+`stax-raw-frame-name-id` at 76\.13 MiB\/s, 0\.40x Woodstox, and 95\.52 MiB\/s below\s+the 0\.9x target/);
+  assert.match(markdown, /For the public event-object shape, the fastest bounded row is\s+Node\/V8 `eventObjectFull` from\s+`candidate-headroom-books-corpus-stability\.json` at 141\.62 MiB\/s/);
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);

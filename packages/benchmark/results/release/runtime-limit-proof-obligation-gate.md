@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-25T17:01:17.512Z
+Generated: 2026-05-25T17:17:09.997Z
 
 ## Scope
 
@@ -88,6 +88,8 @@ These checks keep known semantic distinctions from being collapsed into a strong
 | `source-shapes-separated` | yes | Direct ReadableStream source-overhead rows must remain separate from synchronous byte-batch parser rows. |
 | `byte-batches-not-full-arraybuffer` | yes | Large byte-batch rows must not be treated as one prebuilt full-XML ArrayBuffer parser input. |
 | `byte-batch-backpressure-preserved` | yes | Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream. |
+| `woodstox-reference-not-identical-input` | yes | Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes. |
+| `same-fixture-woodstox-target-unmet` | yes | The current same-fixture 1024 MiB JS row must stay recorded as below the 0.9x Woodstox target. |
 
 ## Interpretation
 
