@@ -187,6 +187,7 @@ function hasFindingClassification(root, classification) {
 function extractMeasuredRows(sourceArtifact, root) {
   const rows = [];
   visit(root, [], createInitialContext(sourceArtifact, root), (node, path, context) => {
+    if (isDerivedSummaryPath(path)) return;
     if (typeof node.mibPerSec !== 'number' || !Number.isFinite(node.mibPerSec)) return;
     const fixture = normalizeFixture(node.fixture) ?? context.fixture;
     rows.push({
@@ -209,6 +210,10 @@ function extractMeasuredRows(sourceArtifact, root) {
     });
   });
   return rows;
+}
+
+function isDerivedSummaryPath(path) {
+  return path.includes('summary');
 }
 
 function visit(value, path, context, onNode) {

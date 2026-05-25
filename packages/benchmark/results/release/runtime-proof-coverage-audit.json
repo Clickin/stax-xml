@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T08:27:44.053Z",
+  "generatedAt": "2026-05-25T08:36:52.270Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2272,7 +2272,7 @@
         "actualBytes": 1073741644
       },
       "corpusSeed": null,
-      "measuredRowCount": 4
+      "measuredRowCount": 2
     },
     {
       "sourceArtifact": "text-cache-materialization-candidate-stability.json",
@@ -2536,7 +2536,7 @@
     "scannedArtifactCount": 132,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 745,
+    "measuredRowCount": 743,
     "benchmarkArtifactCount": 93,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 8,
@@ -2555,7 +2555,7 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 55,
-        "measuredRowCount": 267,
+        "measuredRowCount": 265,
         "largeFullStringRowCount": 164,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-books-corpus-stability.json",

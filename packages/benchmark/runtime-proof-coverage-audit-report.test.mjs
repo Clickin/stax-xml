@@ -33,7 +33,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
   assert.equal(report.summary.scannedArtifactCount, 132);
-  assert.equal(report.summary.measuredRowCount, 745);
+  assert.equal(report.summary.measuredRowCount, 743);
   assert.equal(report.summary.largeJsFullRowCount, 457);
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
@@ -162,7 +162,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'stream-source-consumption-shapes.json'
     && row.runtimes.includes('node-v8')
-    && row.measuredRowCount === 4
+    && row.measuredRowCount === 2
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'stream-reader-4gb-shapes.json'
@@ -173,7 +173,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 267
+    && row.measuredRowCount === 265
     && row.largeFullStringRowCount === 164
   ));
   assert.ok(report.coverage.runtimes.some(row =>
@@ -357,7 +357,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /13 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 55 \| 267 \| 164 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 55 \| 265 \| 164 \|/);
   assert.match(markdown, /\| unknown \| 11 \| 26 \| 0 \| none \|/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);
