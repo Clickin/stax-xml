@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-05-25T01:03:34.683Z",
+  "objective": "raw-batch-kind-shape-audit",
+  "contract": "runtime-and-source-raw-batch-kind-shape",
+  "note": "Audits which StreamReaderSyncRawBatch discriminant kinds are declared in public types versus actually returned by the current StreamReaderSync.nextRawBatch implementation. This is source/runtime shape evidence, not a throughput benchmark.",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "sourceFiles": {
+    "streamReaderCore": "G:\\programming\\stax-xml\\packages\\stax-xml\\src\\stream-reader-core.ts",
+    "streamReaderSync": "G:\\programming\\stax-xml\\packages\\stax-xml\\src\\StreamReaderSync.ts"
+  },
+  "declaredKinds": [
+    "frame",
+    "soa-string-arena",
+    "word-table"
+  ],
+  "observedKinds": [
+    "frame"
+  ],
+  "returnedKindLiterals": [
+    "frame"
+  ],
+  "summary": {
+    "declaredKindCount": 3,
+    "observedKindCount": 1,
+    "unavailableDeclaredKinds": [
+      "soa-string-arena",
+      "word-table"
+    ],
+    "wordTableAvailable": false,
+    "soaStringArenaAvailable": false
+  },
+  "findings": [
+    {
+      "id": "raw-batch-declared-kinds",
+      "classification": "SOURCE_FACT",
+      "summary": "StreamReaderSyncRawBatch currently declares multiple discriminant kinds in public types.",
+      "evidence": [
+        "frame",
+        "soa-string-arena",
+        "word-table"
+      ]
+    },
+    {
+      "id": "raw-batch-runtime-kinds",
+      "classification": "SOURCE_FACT",
+      "summary": "The current StreamReaderSync.nextRawBatch implementation returns only the kinds observed by this runtime audit.",
+      "evidence": [
+        "frame: observed",
+        "frame: source return literal"
+      ]
+    },
+    {
+      "id": "word-table-string-arena-unavailable",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Declared raw-batch kinds are not all implemented by the current runtime path.",
+      "evidence": [
+        "soa-string-arena: declared but not observed",
+        "word-table: declared but not observed"
+      ]
+    },
+    {
+      "id": "shape-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "Unavailable raw-batch kinds are implementation opportunities, not measured performance counterexamples or runtime ceiling proof.",
+      "evidence": [
+        "No throughput conclusion is allowed from this shape audit."
+      ]
+    }
+  ]
+}
