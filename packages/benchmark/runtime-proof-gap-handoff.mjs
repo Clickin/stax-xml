@@ -91,7 +91,7 @@ function createReport(audit, options) {
     },
     auditSummary: {
       artifactCount: audit.scannedArtifacts?.length ?? null,
-      measuredRows: audit.summary?.measuredRows ?? audit.rowCount ?? null,
+      measuredRows: audit.summary?.measuredRowCount ?? audit.summary?.measuredRows ?? audit.rowCount ?? null,
       counterexamples: audit.summary?.counterexamples ?? null,
       activeObligations: activeObligations.map(obligation => ({
         id: obligation.id,

@@ -52,6 +52,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   const activeObligations = audit.obligations.filter(obligation => obligation.status !== 'covered');
   assert.equal(report.objective, 'runtime-proof-gap-handoff');
   assert.equal(report.contract, 'external-proof-gap-runbook-linked-to-coverage-audit');
+  assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
+  assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
   assert.deepEqual(
     report.auditSummary.activeObligations.map(obligation => obligation.id),
     activeObligations.map(obligation => obligation.id),
@@ -73,6 +75,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.commands.some(command => /firefox-spidermonkey-diagnostic-dump-audit\.mjs/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /FIREFOX_PATH=/.test(command.command)));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
+  assert.ok(spiderMonkey.scopeGuards.some(item => /no-dump diagnostic audit is a negative result for the installed browser build only/.test(item)));
+  assert.ok(spiderMonkey.scopeGuards.some(item => /JS shell availability is environment evidence only/.test(item)));
   assert.match(report.note, /not benchmark evidence/);
   assert.match(report.note, /not a runtime-limit conclusion/);
 
@@ -82,5 +86,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /spidermonkey-codegen-handoff/);
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /firefox-spidermonkey-diagnostic-dump-audit/);
+  assert.match(markdown, /negative result for the installed browser build only/);
+  assert.match(markdown, /environment evidence only until a dump or IR artifact is captured/);
   assert.match(markdown, /not itself benchmark, allocation, or codegen evidence/);
 });
