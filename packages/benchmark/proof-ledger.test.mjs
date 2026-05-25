@@ -122,11 +122,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
   assert.match(markdown, /recognizes 745\s+sample throughput rows and 89 aggregate rows/);
-  assert.match(markdown, /450 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
+  assert.match(markdown, /457 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with\s+memory proof is the same Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average\s+over 3 samples with 3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
+  assert.match(markdown, /21 JavaScript 1 GiB\+ full-string rows with source mode\s+metadata/);
+  assert.match(markdown, /`sync-iterable-byte-batches` at 134\.33 MiB\/s/);
+  assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 117\.69 MiB\/s/);
+  assert.match(markdown, /fixes the previous scanner blind spot where non-`stax-\*`\s+Node\/V8 row tools could be labeled `Node\/V8` but not counted as JavaScript\s+runtime rows/);
   assert.match(markdown, /remain below the 200 MiB\/s\s+counterexample threshold/);
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 326\.65 MiB\/s from\s+`candidate-headroom-cross-process-books-corpus-partial\.json`/);
   assert.match(markdown, /Node\/V8 `withoutTextStrings` from\s+`long-ascii-text-materialization-candidate-stability\.json` reached\s+207\.70 MiB\/s/);

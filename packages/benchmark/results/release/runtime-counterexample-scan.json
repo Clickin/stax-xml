@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T07:50:16.511Z",
+  "generatedAt": "2026-05-25T08:11:36.836Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -156,8 +156,244 @@
     "parseErrorCount": 0,
     "measuredRowCount": 745,
     "aggregateRowCount": 89,
-    "largeJsFullRowCount": 450,
+    "largeJsFullRowCount": 457,
     "largeJsFullAggregateRowCount": 69,
+    "sourceModeRowCount": 27,
+    "largeJsFullSourceModeRowCount": 21,
+    "sourceModeBreakdown": [
+      {
+        "sourceMode": "file-sync-batches",
+        "rowCount": 13,
+        "fullStringRowCount": 11,
+        "boundedFullStringRowCount": 11,
+        "fastestMiBPerSec": 214.79,
+        "fastestRow": {
+          "sourceArtifact": "file-backed-core-decomposition.json",
+          "runtimeLabel": "Node/V8",
+          "id": "stax-scan-all-no-decode",
+          "sizeGiB": 1,
+          "mibPerSec": 214.79,
+          "boundedMemory": true,
+          "fullStringParity": false,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "file-sync-batches",
+          "batchSize": 1,
+          "chunkKiB": 256,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "file-backed-sync-iterable-byte-batches",
+        "rowCount": 9,
+        "fullStringRowCount": 5,
+        "boundedFullStringRowCount": 5,
+        "fastestMiBPerSec": 173.6,
+        "fastestRow": {
+          "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+          "runtimeLabel": "Node/V8",
+          "id": "withoutTextStrings",
+          "sizeGiB": 1,
+          "mibPerSec": 173.6,
+          "boundedMemory": true,
+          "fullStringParity": false,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "batchSize": 1,
+          "chunkKiB": 64,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "generated-sync-iterable-byte-batches",
+        "rowCount": 3,
+        "fullStringRowCount": 3,
+        "boundedFullStringRowCount": 3,
+        "fastestMiBPerSec": 90.16,
+        "fastestRow": {
+          "sourceArtifact": "stream-reader-4gb-shapes.json",
+          "runtimeLabel": "unknown",
+          "id": "0",
+          "sizeGiB": 4,
+          "mibPerSec": 90.16,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "generated-sync-iterable-byte-batches",
+          "batchSize": null,
+          "chunkKiB": null,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "sync-iterable-byte-batches",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 134.33,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-shapes.json",
+          "runtimeLabel": "Node/V8",
+          "id": "sync-iterable-byte-batches",
+          "sizeGiB": 1,
+          "mibPerSec": 134.33,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "sync-iterable-byte-batches",
+          "batchSize": 1,
+          "chunkKiB": 64,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "web-readable-stream-pull",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 117.69,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-shapes.json",
+          "runtimeLabel": "Node/V8",
+          "id": "web-readable-stream-pull",
+          "sizeGiB": 1,
+          "mibPerSec": 117.69,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "web-readable-stream-pull",
+          "batchSize": null,
+          "chunkKiB": 64,
+          "respectsBackpressure": true
+        },
+        "backpressureRows": 1
+      }
+    ],
+    "largeJsFullSourceModeBreakdown": [
+      {
+        "sourceMode": "file-sync-batches",
+        "rowCount": 11,
+        "fullStringRowCount": 11,
+        "boundedFullStringRowCount": 11,
+        "fastestMiBPerSec": 135.13,
+        "fastestRow": {
+          "sourceArtifact": "file-backed-batch-size-sweep.json",
+          "runtimeLabel": "Node/V8 stax-stream",
+          "id": "stax-stream-batch-2",
+          "sizeGiB": 1,
+          "mibPerSec": 135.13,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "file-sync-batches",
+          "batchSize": 2,
+          "chunkKiB": 64,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "file-backed-sync-iterable-byte-batches",
+        "rowCount": 5,
+        "fullStringRowCount": 5,
+        "boundedFullStringRowCount": 5,
+        "fastestMiBPerSec": 127.32,
+        "fastestRow": {
+          "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+          "runtimeLabel": "Node/V8",
+          "id": "stringFull",
+          "sizeGiB": 1,
+          "mibPerSec": 127.32,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "batchSize": 1,
+          "chunkKiB": 64,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "generated-sync-iterable-byte-batches",
+        "rowCount": 3,
+        "fullStringRowCount": 3,
+        "boundedFullStringRowCount": 3,
+        "fastestMiBPerSec": 90.16,
+        "fastestRow": {
+          "sourceArtifact": "stream-reader-4gb-shapes.json",
+          "runtimeLabel": "unknown",
+          "id": "0",
+          "sizeGiB": 4,
+          "mibPerSec": 90.16,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "generated-sync-iterable-byte-batches",
+          "batchSize": null,
+          "chunkKiB": null,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "sync-iterable-byte-batches",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 134.33,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-shapes.json",
+          "runtimeLabel": "Node/V8",
+          "id": "sync-iterable-byte-batches",
+          "sizeGiB": 1,
+          "mibPerSec": 134.33,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "sync-iterable-byte-batches",
+          "batchSize": 1,
+          "chunkKiB": 64,
+          "respectsBackpressure": null
+        },
+        "backpressureRows": 0
+      },
+      {
+        "sourceMode": "web-readable-stream-pull",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 117.69,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-shapes.json",
+          "runtimeLabel": "Node/V8",
+          "id": "web-readable-stream-pull",
+          "sizeGiB": 1,
+          "mibPerSec": 117.69,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "process-rss",
+          "hasMemoryProof": true,
+          "sourceMode": "web-readable-stream-pull",
+          "batchSize": null,
+          "chunkKiB": 64,
+          "respectsBackpressure": true
+        },
+        "backpressureRows": 1
+      }
+    ],
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 20,
     "unboundedOrUnknownLargeFullRowCount": 90,
@@ -170,7 +406,11 @@
       "boundedMemory": true,
       "fullStringParity": true,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     "fastestLargeFullRowWithMemoryProof": {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -181,7 +421,11 @@
       "boundedMemory": true,
       "fullStringParity": true,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     "fastestLargeFullAggregateRowWithMemoryProof": {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -196,7 +440,11 @@
       "boundedMemory": true,
       "fullStringParity": true,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     "fastestPartialHeadroomRow": {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -207,7 +455,11 @@
       "boundedMemory": true,
       "fullStringParity": false,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     "textMaterializationHeadroomRowCount": 1,
     "fastestTextMaterializationHeadroomRow": {
@@ -219,7 +471,11 @@
       "boundedMemory": true,
       "fullStringParity": false,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     "conclusionAllowed": false
   },
@@ -242,7 +498,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
@@ -261,7 +521,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -280,7 +544,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
@@ -299,7 +567,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-stability.json",
@@ -318,7 +590,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "text-cache-materialization-candidate-stability.json",
@@ -337,7 +613,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -356,7 +636,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -375,7 +659,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -394,7 +682,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
@@ -413,7 +705,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
@@ -432,7 +728,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -451,7 +751,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     }
   ],
   "fastestLargeFullRowsWithMemoryProof": [
@@ -472,7 +776,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
@@ -491,7 +799,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -510,7 +822,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
@@ -529,7 +845,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-stability.json",
@@ -548,7 +868,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "text-cache-materialization-candidate-stability.json",
@@ -567,7 +891,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -586,7 +914,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -605,7 +937,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -624,7 +960,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
@@ -643,7 +983,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
@@ -662,7 +1006,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -681,7 +1029,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     }
   ],
   "fastestLargeFullAggregateRowsWithMemoryProof": [
@@ -706,7 +1058,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -729,7 +1085,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -752,7 +1112,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -775,7 +1139,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -798,7 +1166,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -821,7 +1193,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -844,7 +1220,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -867,7 +1247,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-books-corpus.json",
@@ -890,7 +1274,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -913,7 +1301,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-books-corpus.json",
@@ -936,7 +1328,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -959,7 +1355,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     }
   ],
   "partialHeadroomRows": [
@@ -980,7 +1380,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -999,7 +1403,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -1018,7 +1426,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus.json",
@@ -1037,7 +1449,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus.json",
@@ -1056,7 +1472,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus.json",
@@ -1075,7 +1495,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -1094,7 +1518,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-books-corpus.json",
@@ -1113,7 +1541,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-books-corpus.json",
@@ -1132,7 +1564,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-books-corpus.json",
@@ -1151,7 +1587,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-books-corpus.json",
@@ -1170,7 +1610,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-projection-large.json",
@@ -1189,7 +1633,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-books-corpus.json",
@@ -1208,7 +1656,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -1227,7 +1679,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -1246,7 +1702,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "file-backed-core-decomposition.json",
@@ -1265,7 +1725,11 @@
       "family": "partial-scan",
       "counterexampleStatus": null,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 256,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-books-corpus.json",
@@ -1284,7 +1748,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
@@ -1303,7 +1771,11 @@
       "family": "near-full-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-books-corpus.json",
@@ -1322,7 +1794,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-books-corpus.json",
@@ -1341,7 +1817,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     }
   ],
   "textMaterializationHeadroomRows": [
@@ -1362,7 +1842,11 @@
       "family": "near-full-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     }
   ],
   "unboundedOrUnknownLargeFullRows": [
@@ -1383,7 +1867,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-corpus.json",
@@ -1402,7 +1890,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-corpus.json",
@@ -1421,7 +1913,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-corpus.json",
@@ -1440,7 +1936,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-candidate-headroom-corpus.json",
@@ -1459,7 +1959,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
@@ -1478,7 +1982,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
@@ -1497,7 +2005,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
@@ -1516,7 +2028,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
@@ -1535,7 +2051,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "bun-textdecoder-span-variants-corpus.json",
@@ -1554,7 +2074,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1573,7 +2097,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1592,7 +2120,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1611,7 +2143,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1630,7 +2166,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1649,7 +2189,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1668,7 +2212,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1687,7 +2235,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1706,7 +2258,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -1725,7 +2281,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "file-backed-string-cache-candidate.json",
@@ -1744,7 +2304,11 @@
       "family": null,
       "counterexampleStatus": null,
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-books-corpus.json",
@@ -1763,7 +2327,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-books-corpus.json",
@@ -1782,7 +2350,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-books-corpus.json",
@@ -1801,7 +2373,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-corpus.json",
@@ -1820,7 +2396,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-corpus.json",
@@ -1839,7 +2419,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-corpus.json",
@@ -1858,7 +2442,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1877,7 +2465,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1896,7 +2488,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1915,7 +2511,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1934,7 +2534,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1953,7 +2557,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1972,7 +2580,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -1991,7 +2603,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -2010,7 +2626,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -2029,7 +2649,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2048,7 +2672,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2067,7 +2695,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2086,7 +2718,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2105,7 +2741,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2124,7 +2764,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2143,7 +2787,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2162,7 +2810,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2181,7 +2833,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -2200,7 +2856,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
@@ -2219,7 +2879,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
@@ -2238,7 +2902,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
@@ -2257,7 +2925,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom.json",
@@ -2276,7 +2948,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom.json",
@@ -2295,7 +2971,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom.json",
@@ -2314,7 +2994,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2333,7 +3017,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2352,7 +3040,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2371,7 +3063,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2390,7 +3086,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2409,7 +3109,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2428,7 +3132,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2447,7 +3155,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2466,7 +3178,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2485,7 +3201,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2504,7 +3224,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2523,7 +3247,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2542,7 +3270,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2561,7 +3293,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2580,7 +3316,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -2599,7 +3339,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2618,7 +3362,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2637,7 +3385,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2656,7 +3408,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2675,7 +3431,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2694,7 +3454,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2713,7 +3477,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2732,7 +3500,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2751,7 +3523,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2770,7 +3546,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2789,7 +3569,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2808,7 +3592,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2827,7 +3615,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2846,7 +3638,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2865,7 +3661,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -2884,7 +3684,11 @@
       "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants-corpus.json",
@@ -2903,7 +3707,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants-corpus.json",
@@ -2922,7 +3730,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants-corpus.json",
@@ -2941,7 +3753,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants-corpus.json",
@@ -2960,7 +3776,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants-corpus.json",
@@ -2979,7 +3799,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants.json",
@@ -2998,7 +3822,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants.json",
@@ -3017,7 +3845,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants.json",
@@ -3036,7 +3868,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants.json",
@@ -3055,7 +3891,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-variants.json",
@@ -3074,7 +3914,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "recorded-unknown-kind",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     }
   ],
   "aggregateRows": [
@@ -3099,7 +3943,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -3122,7 +3970,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -3145,7 +3997,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -3168,7 +4024,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -3191,7 +4051,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -3214,7 +4078,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-books-corpus.json",
@@ -3237,7 +4105,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-books-corpus.json",
@@ -3260,7 +4132,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-books-corpus.json",
@@ -3283,7 +4159,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
@@ -3306,7 +4186,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
@@ -3329,7 +4213,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
@@ -3352,7 +4240,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
@@ -3375,7 +4267,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "browser-candidate-headroom-cross-process-projection.json",
@@ -3398,7 +4294,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -3421,7 +4321,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -3444,7 +4348,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -3467,7 +4375,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -3490,7 +4402,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -3513,7 +4429,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -3536,7 +4456,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3559,7 +4483,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3582,7 +4510,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3605,7 +4537,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3628,7 +4564,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3651,7 +4591,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3674,7 +4618,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3697,7 +4645,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -3720,7 +4672,11 @@
       "family": "partial-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3743,7 +4699,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3766,7 +4726,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3789,7 +4753,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3812,7 +4780,11 @@
       "family": "semantic-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3835,7 +4807,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3858,7 +4834,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3881,7 +4861,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3904,7 +4888,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3927,7 +4915,11 @@
       "family": "semantic-upper-bound",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -3950,7 +4942,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -3973,7 +4969,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -3996,7 +4996,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -4019,7 +5023,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -4042,7 +5050,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -4065,7 +5077,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
@@ -4088,7 +5104,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4111,7 +5131,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4134,7 +5158,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4157,7 +5185,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4180,7 +5212,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4203,7 +5239,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4226,7 +5266,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4249,7 +5293,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4272,7 +5320,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4295,7 +5347,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4318,7 +5374,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4341,7 +5401,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4364,7 +5428,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4387,7 +5455,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4410,7 +5482,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "candidate-headroom-cross-process-projection.json",
@@ -4433,7 +5509,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4456,7 +5536,11 @@
       "family": "readable-stream",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4479,7 +5563,11 @@
       "family": "async-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4502,7 +5590,11 @@
       "family": "sync-iterable-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4525,7 +5617,11 @@
       "family": "sync-file-iterable-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4548,7 +5644,11 @@
       "family": "readable-stream",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4571,7 +5671,11 @@
       "family": "async-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4594,7 +5698,11 @@
       "family": "sync-iterable-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4617,7 +5725,11 @@
       "family": "sync-file-iterable-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4640,7 +5752,11 @@
       "family": "readable-stream",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4663,7 +5779,11 @@
       "family": "async-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4686,7 +5806,11 @@
       "family": "sync-iterable-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "event-reader-byte-batch-cross-process-corpus.json",
@@ -4709,7 +5833,11 @@
       "family": "sync-file-iterable-byte-batch",
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
-      "hasMemoryProof": true
+      "hasMemoryProof": true,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -4732,7 +5860,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -4755,7 +5887,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-books-corpus.json",
@@ -4778,7 +5914,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -4801,7 +5941,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -4824,7 +5968,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -4847,7 +5995,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -4870,7 +6022,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-candidate-headroom-cross-process-projection.json",
@@ -4893,7 +6049,11 @@
       "family": "projection-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -4916,7 +6076,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -4939,7 +6103,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -4962,7 +6130,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -4985,7 +6157,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process-corpus.json",
@@ -5008,7 +6184,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -5031,7 +6211,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -5054,7 +6238,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -5077,7 +6265,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -5100,7 +6292,11 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
     },
     {
       "sourceArtifact": "firefox-bidi-textdecoder-span-cross-process.json",
@@ -5123,7 +6319,634 @@
       "family": "full-stax-js",
       "counterexampleStatus": "not-found",
       "memoryKind": "not-recorded",
-      "hasMemoryProof": false
+      "hasMemoryProof": false,
+      "sourceMode": null,
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
+    }
+  ],
+  "sourceModeRows": [
+    {
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "jsonPath": "rows.0",
+      "id": "stax-stream-batch-1",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 134.15,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-batch-size-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "jsonPath": "rows.1",
+      "id": "stax-stream-batch-2",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 135.13,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-batch-size-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 2,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "jsonPath": "rows.2",
+      "id": "stax-stream-batch-4",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 133.1,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-batch-size-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 4,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "jsonPath": "rows.3",
+      "id": "stax-stream-batch-8",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 131.36,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-batch-size-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 8,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "jsonPath": "rows.4",
+      "id": "stax-stream-batch-16",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 132.76,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-batch-size-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 16,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.0",
+      "id": "stax-scan-all-no-decode",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 214.79,
+      "eventCount": 61236571,
+      "checksum": -1830981171,
+      "contractScope": "partial-scan-no-string-materialization",
+      "family": "partial-scan",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 256,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.1",
+      "id": "stax-raw-frame-semantic-checksum",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 135.44,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "same-fields-checksum-no-string-materialization",
+      "family": "same-fields-no-string-materialization",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 256,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.2",
+      "id": "stax-stream",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 108.97,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "full-string-materialization",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 256,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.3",
+      "id": "stax-raw-frame-name-id",
+      "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 127.4,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "full-string-materialization",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 256,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+      "jsonPath": "rows.0",
+      "id": "stringFull",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 127.32,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+      "jsonPath": "rows.1",
+      "id": "withoutElementNameStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 138.57,
+      "eventCount": 61236571,
+      "checksum": 296957194,
+      "contractScope": "full-materialization-minus-element-names",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+      "jsonPath": "rows.2",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 173.6,
+      "eventCount": 61236571,
+      "checksum": -413060314,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+      "jsonPath": "rows.3",
+      "id": "withoutAttributeNameStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 135.46,
+      "eventCount": 61236571,
+      "checksum": 615320352,
+      "contractScope": "full-materialization-minus-attribute-names",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-materialization-category-drop-sweep.json",
+      "jsonPath": "rows.4",
+      "id": "withoutAttributeValueStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 137.51,
+      "eventCount": 61236571,
+      "checksum": 396015339,
+      "contractScope": "full-materialization-minus-attribute-values",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-public-consumer-shape-sweep.json",
+      "jsonPath": "rows.0",
+      "id": "public-baseline",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 117.64,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "public-streambatch-consumer-shape",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 16,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-public-consumer-shape-sweep.json",
+      "jsonPath": "rows.1",
+      "id": "public-no-optional-text",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 112.46,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "public-streambatch-consumer-shape",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 16,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-public-consumer-shape-sweep.json",
+      "jsonPath": "rows.2",
+      "id": "public-switch-dispatch",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 108.27,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "public-streambatch-consumer-shape",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 16,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-public-consumer-shape-sweep.json",
+      "jsonPath": "rows.3",
+      "id": "public-event-object",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 92.49,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "public-streambatch-consumer-shape",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 16,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-source-sweep.json",
+      "jsonPath": "rows.0",
+      "id": "stax-stream-chunk-16kib",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 129.21,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-source-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 16,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-source-sweep.json",
+      "jsonPath": "rows.1",
+      "id": "stax-stream-chunk-64kib",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 120.05,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-source-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-source-sweep.json",
+      "jsonPath": "rows.2",
+      "id": "stax-stream-chunk-256kib",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 105.81,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-source-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 256,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-source-sweep.json",
+      "jsonPath": "rows.3",
+      "id": "stax-stream-chunk-1024kib",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 125.22,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "file-backed-source-sweep",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-sync-batches",
+      "batchSize": 1,
+      "chunkKiB": 1024,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "stream-reader-4gb-shapes.json",
+      "jsonPath": "results.0",
+      "id": "0",
+      "runtimeLabel": "unknown",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 4,
+      "sizeMiB": 4096,
+      "mibPerSec": 90.16,
+      "eventCount": null,
+      "checksum": -1788666544,
+      "contractScope": "full-string-materialization",
+      "family": null,
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "stream-reader-4gb-shapes.json",
+      "jsonPath": "results.1",
+      "id": "1",
+      "runtimeLabel": "unknown",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 4,
+      "sizeMiB": 4096,
+      "mibPerSec": 76.09,
+      "eventCount": null,
+      "checksum": -1788666544,
+      "contractScope": "full-string-materialization",
+      "family": null,
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "stream-reader-4gb-shapes.json",
+      "jsonPath": "results.2",
+      "id": "2",
+      "runtimeLabel": "unknown",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 4,
+      "sizeMiB": 4096,
+      "mibPerSec": 81.39,
+      "eventCount": null,
+      "checksum": -1788666544,
+      "contractScope": "full-string-materialization",
+      "family": null,
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "stream-source-consumption-shapes.json",
+      "jsonPath": "rows.0",
+      "id": "sync-iterable-byte-batches",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 134.33,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "source-consumption-shape",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "batchSize": 1,
+      "chunkKiB": 64,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "stream-source-consumption-shapes.json",
+      "jsonPath": "rows.1",
+      "id": "web-readable-stream-pull",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 117.69,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "contractScope": "full-string-checksum",
+      "family": "source-consumption-shape",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "web-readable-stream-pull",
+      "batchSize": null,
+      "chunkKiB": 64,
+      "respectsBackpressure": true
     }
   ],
   "findings": [
@@ -5151,6 +6974,11 @@
       "id": "cross-process-aggregate-rows-separated",
       "status": "AGGREGATE_EVIDENCE_PRESENT",
       "summary": "Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence."
+    },
+    {
+      "id": "source-consumption-modes-separated",
+      "status": "SOURCE_MODE_EVIDENCE_PRESENT",
+      "summary": "Recognized 1 GiB+ full-string rows expose source-mode metadata for file-sync-batches:11, file-backed-sync-iterable-byte-batches:5, generated-sync-iterable-byte-batches:3, sync-iterable-byte-batches:1, web-readable-stream-pull:1."
     }
   ]
 }

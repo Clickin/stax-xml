@@ -184,7 +184,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
 The current scan covers 132 primary release JSON artifacts, recognizes 745
-sample throughput rows and 89 aggregate rows, and finds 450 JavaScript 1 GiB+
+sample throughput rows and 89 aggregate rows, and finds 457 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -195,6 +195,19 @@ over 3 samples with 3.23% spread. Both remain below the 200 MiB/s
 counterexample threshold. The scan now reports aggregate rows separately from
 individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
+
+The scan also preserves explicit source-consumption metadata when release rows
+carry it. It now finds 21 JavaScript 1 GiB+ full-string rows with source mode
+metadata, including `file-sync-batches`, `file-backed-sync-iterable-byte-batches`,
+`generated-sync-iterable-byte-batches`, `sync-iterable-byte-batches`, and
+`web-readable-stream-pull`. The source-consumption comparison rows from
+`stream-source-consumption-shapes.json` are therefore included in the JavaScript
+full-string scan: `sync-iterable-byte-batches` at 134.33 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 117.69 MiB/s. This
+keeps direct ReadableStream overhead evidence separate from the synchronous
+byte-batch rows and fixes the previous scanner blind spot where non-`stax-*`
+Node/V8 row tools could be labeled `Node/V8` but not counted as JavaScript
+runtime rows.
 
 The scan also records 20 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from

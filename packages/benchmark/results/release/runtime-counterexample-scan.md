@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T07:50:16.511Z
+Generated: 2026-05-25T08:11:36.836Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -10,8 +10,10 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - Ignored derived artifacts: 5
 - Measured rows recognized: 745
 - Aggregate rows recognized: 89
-- 1 GiB+ JS full-string rows recognized: 450
+- 1 GiB+ JS full-string rows recognized: 457
 - 1 GiB+ JS full-string aggregate rows recognized: 69
+- Rows with explicit source mode: 27
+- 1 GiB+ JS full-string rows with explicit source mode: 21
 - Counterexamples found: 0
 - Partial/projection threshold rows: 20
 - Text/CDATA materialization headroom rows: 1
@@ -83,6 +85,18 @@ Rows in this table are averages or aggregate summaries from cross-process artifa
 | `browser-candidate-headroom-cross-process-books-corpus.json` | Chrome/V8 | `stringFull` | 1.00 | 121.27 | 120.26 | 123.09 | 2.33% | 3 | yes | browser-js-heap | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 120.18 | 119.61 | 120.69 | 0.91% | 3 | yes | process-rss | 57096514 | -540013997 |
 
+## Source Mode Breakdown For 1 GiB+ Full-String JS Rows
+
+This table records input-consumption metadata when release rows expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows.
+
+| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Backpressure rows |
+| --- | ---: | ---: | ---: | ---: | --- | ---: |
+| `file-sync-batches` | 11 | 11 | 11 | 135.13 | Node/V8 stax-stream stax-stream-batch-2 from file-backed-batch-size-sweep.json | 0 |
+| `file-backed-sync-iterable-byte-batches` | 5 | 5 | 5 | 127.32 | Node/V8 stringFull from file-backed-materialization-category-drop-sweep.json | 0 |
+| `generated-sync-iterable-byte-batches` | 3 | 3 | 3 | 90.16 | unknown 0 from stream-reader-4gb-shapes.json | 0 |
+| `sync-iterable-byte-batches` | 1 | 1 | 1 | 134.33 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 0 |
+| `web-readable-stream-pull` | 1 | 1 | 1 | 117.69 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 |
+
 ## Partial Or Projection Threshold Rows
 
 These rows may show runtime/parser headroom, but they do not preserve the full-string StAX contract and therefore are not runtime-limit counterexamples.
@@ -125,6 +139,7 @@ These near-full rows still materialize element names and attributes, but omit te
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 1 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
+- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for file-sync-batches:11, file-backed-sync-iterable-byte-batches:5, generated-sync-iterable-byte-batches:3, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
 
 ## Limits
 

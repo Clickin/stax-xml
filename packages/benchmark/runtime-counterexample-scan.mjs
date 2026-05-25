@@ -145,6 +145,10 @@ function createReport(options) {
     .slice()
     .sort((left, right) => right.mibPerSec - left.mibPerSec)
     .slice(0, 12);
+  const sourceModeRows = measuredRows.filter(row => row.sourceMode !== null);
+  const largeJsFullSourceModeRows = largeJsFullRows.filter(row => row.sourceMode !== null);
+  const sourceModeBreakdown = summarizeSourceModes(sourceModeRows);
+  const largeJsFullSourceModeBreakdown = summarizeSourceModes(largeJsFullSourceModeRows);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -167,6 +171,10 @@ function createReport(options) {
       aggregateRowCount: aggregateRows.length,
       largeJsFullRowCount: largeJsFullRows.length,
       largeJsFullAggregateRowCount: largeJsFullAggregateRows.length,
+      sourceModeRowCount: sourceModeRows.length,
+      largeJsFullSourceModeRowCount: largeJsFullSourceModeRows.length,
+      sourceModeBreakdown,
+      largeJsFullSourceModeBreakdown,
       counterexampleCount: counterexamples.length,
       partialHeadroomRowCount: partialHeadroomRows.length,
       unboundedOrUnknownLargeFullRowCount: unboundedOrUnknownLargeFullRows.length,
@@ -188,7 +196,8 @@ function createReport(options) {
     textMaterializationHeadroomRows,
     unboundedOrUnknownLargeFullRows,
     aggregateRows,
-    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof),
+    sourceModeRows,
+    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown),
   };
 }
 
@@ -281,6 +290,10 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     counterexampleStatus: node.counterexampleStatus ?? null,
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
+    sourceMode: node.sourceMode ?? null,
+    batchSize: node.batchSize ?? null,
+    chunkKiB: node.chunkKiB ?? null,
+    respectsBackpressure: typeof node.respectsBackpressure === 'boolean' ? node.respectsBackpressure : null,
   };
 }
 
@@ -316,7 +329,47 @@ function createAggregateRow(sourceArtifact, node, path, context) {
     counterexampleStatus: node.counterexampleFound === true ? 'found' : (node.counterexampleStatus ?? 'not-found'),
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
+    sourceMode: node.sourceMode ?? null,
+    batchSize: node.batchSize ?? null,
+    chunkKiB: node.chunkKiB ?? null,
+    respectsBackpressure: typeof node.respectsBackpressure === 'boolean' ? node.respectsBackpressure : null,
   };
+}
+
+function summarizeSourceModes(rows) {
+  const byMode = new Map();
+  for (const row of rows) {
+    const mode = row.sourceMode ?? 'unknown';
+    const current = byMode.get(mode) ?? {
+      sourceMode: mode,
+      rowCount: 0,
+      fullStringRowCount: 0,
+      boundedFullStringRowCount: 0,
+      fastestMiBPerSec: null,
+      fastestRow: null,
+      backpressureRows: 0,
+    };
+    current.rowCount++;
+    if (row.fullStringParity === true) {
+      current.fullStringRowCount++;
+      if (row.boundedMemory === true && row.hasMemoryProof) {
+        current.boundedFullStringRowCount++;
+      }
+    }
+    if (row.respectsBackpressure === true) {
+      current.backpressureRows++;
+    }
+    if (current.fastestMiBPerSec === null || row.mibPerSec > current.fastestMiBPerSec) {
+      current.fastestMiBPerSec = row.mibPerSec;
+      current.fastestRow = summarizeRow(row);
+    }
+    byMode.set(mode, current);
+  }
+  return Array.from(byMode.values())
+    .sort((left, right) => {
+      if (right.rowCount !== left.rowCount) return right.rowCount - left.rowCount;
+      return left.sourceMode.localeCompare(right.sourceMode);
+    });
 }
 
 function classifyFullStringParity(node, context) {
@@ -336,9 +389,11 @@ function classifyFullStringParity(node, context) {
 }
 
 function classifyJsRuntime(sourceArtifact, node, context) {
-  if (typeof node.tool === 'string') return node.tool.startsWith('stax-');
+  if (node.tool === 'woodstox' || node.tool === 'quick-xml') return false;
+  if (typeof node.tool === 'string' && node.tool.startsWith('stax-')) return true;
   const runtimeName = context.environment?.runtimeName;
   if (['node', 'bun', 'browser', 'deno'].includes(runtimeName)) return true;
+  if (context.environment?.v8 || context.environment?.node) return true;
   if (/^(candidate-headroom|bun-candidate-headroom|browser-candidate-headroom|textdecoder-span|bun-textdecoder-span|browser-textdecoder-span|stream-reader|event-reader|bun-event-reader|browser-string-limit|runtime-matrix|projection-benchmark)/.test(sourceArtifact)) {
     return !/quick-xml|woodstox/.test(sourceArtifact);
   }
@@ -391,7 +446,8 @@ function normalizeFixture(fixture) {
   };
 }
 
-function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof) {
+function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown) {
+  const sourceModes = largeJsFullSourceModeBreakdown.map(entry => `${entry.sourceMode}:${entry.rowCount}`);
   return [
     {
       id: 'bounded-full-string-counterexample-search',
@@ -422,6 +478,13 @@ function createFindings(counterexamples, partialHeadroomRows, textMaterializatio
         ? 'Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.'
         : 'No cross-process aggregate full-string rows with memory proof were recognized.',
     },
+    {
+      id: 'source-consumption-modes-separated',
+      status: sourceModes.length > 0 ? 'SOURCE_MODE_EVIDENCE_PRESENT' : 'NOT_FOUND',
+      summary: sourceModes.length > 0
+        ? `Recognized 1 GiB+ full-string rows expose source-mode metadata for ${sourceModes.join(', ')}.`
+        : 'No recognized 1 GiB+ full-string rows expose source-mode metadata.',
+    },
   ];
 }
 
@@ -441,6 +504,8 @@ function renderMarkdown(report) {
     `- Aggregate rows recognized: ${report.summary.aggregateRowCount}`,
     `- 1 GiB+ JS full-string rows recognized: ${report.summary.largeJsFullRowCount}`,
     `- 1 GiB+ JS full-string aggregate rows recognized: ${report.summary.largeJsFullAggregateRowCount}`,
+    `- Rows with explicit source mode: ${report.summary.sourceModeRowCount}`,
+    `- 1 GiB+ JS full-string rows with explicit source mode: ${report.summary.largeJsFullSourceModeRowCount}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
     `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,
@@ -516,6 +581,23 @@ function renderMarkdown(report) {
 
   lines.push(
     '',
+    '## Source Mode Breakdown For 1 GiB+ Full-String JS Rows',
+    '',
+    'This table records input-consumption metadata when release rows expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows.',
+    '',
+    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Backpressure rows |',
+    '| --- | ---: | ---: | ---: | ---: | --- | ---: |',
+  );
+  if (report.summary.largeJsFullSourceModeBreakdown.length === 0) {
+    lines.push('| none | | | | | | |');
+  } else {
+    for (const entry of report.summary.largeJsFullSourceModeBreakdown) {
+      lines.push(renderSourceModeBreakdownRow(entry));
+    }
+  }
+
+  lines.push(
+    '',
     '## Partial Or Projection Threshold Rows',
     '',
     'These rows may show runtime/parser headroom, but they do not preserve the full-string StAX contract and therefore are not runtime-limit counterexamples.',
@@ -579,6 +661,14 @@ function renderAggregateRow(row) {
   return `| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatNumber(row.mibPerSec)} | ${formatNumber(row.minMibPerSec)} | ${formatNumber(row.maxMibPerSec)} | ${formatNumber(row.spreadPercent)}% | ${row.sampleCount ?? ''} | ${formatBounded(row)} | ${row.memoryKind} | ${row.eventCount ?? ''} | ${row.checksum ?? ''} |`;
 }
 
+function renderSourceModeBreakdownRow(entry) {
+  const row = entry.fastestRow;
+  const fastest = row
+    ? `${row.runtimeLabel} ${row.id} from ${row.sourceArtifact}`
+    : 'none';
+  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.backpressureRows} |`;
+}
+
 function summarizeRow(row) {
   if (!row) return null;
   return {
@@ -595,6 +685,10 @@ function summarizeRow(row) {
     fullStringParity: row.fullStringParity,
     memoryKind: row.memoryKind,
     hasMemoryProof: row.hasMemoryProof,
+    sourceMode: row.sourceMode,
+    batchSize: row.batchSize,
+    chunkKiB: row.chunkKiB,
+    respectsBackpressure: row.respectsBackpressure,
   };
 }
 

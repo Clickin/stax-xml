@@ -36,8 +36,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.scannedArtifactCount, 132);
   assert.equal(report.summary.measuredRowCount, 745);
   assert.equal(report.summary.aggregateRowCount, 89);
-  assert.equal(report.summary.largeJsFullRowCount, 450);
+  assert.equal(report.summary.largeJsFullRowCount, 457);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
+  assert.equal(report.summary.sourceModeRowCount, 27);
+  assert.equal(report.summary.largeJsFullSourceModeRowCount, 21);
   assert.equal(report.summary.partialHeadroomRowCount, 20);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
@@ -185,6 +187,39 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.sampleCount === 3
     && row.fullStringParity === true
   ));
+  assert.ok(report.sourceModeRows.some(row =>
+    row.sourceArtifact === 'stream-source-consumption-shapes.json'
+    && row.id === 'sync-iterable-byte-batches'
+    && row.runtimeLabel === 'Node/V8'
+    && row.jsRuntime === true
+    && row.sourceMode === 'sync-iterable-byte-batches'
+    && row.mibPerSec === 134.33
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+  ));
+  assert.ok(report.sourceModeRows.some(row =>
+    row.sourceArtifact === 'stream-source-consumption-shapes.json'
+    && row.id === 'web-readable-stream-pull'
+    && row.runtimeLabel === 'Node/V8'
+    && row.jsRuntime === true
+    && row.sourceMode === 'web-readable-stream-pull'
+    && row.respectsBackpressure === true
+    && row.mibPerSec === 117.69
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+  ));
+  assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'sync-iterable-byte-batches'
+    && entry.rowCount === 1
+    && entry.fastestMiBPerSec === 134.33
+    && entry.backpressureRows === 0
+  ));
+  assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'web-readable-stream-pull'
+    && entry.rowCount === 1
+    && entry.fastestMiBPerSec === 117.69
+    && entry.backpressureRows === 1
+  ));
   assert.ok(report.fastestLargeFullRows.some(row =>
     row.sourceArtifact === 'bun-candidate-headroom-books-corpus-stability.json'
     && row.id === 'rawFrameNameId'
@@ -293,8 +328,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
+  assert.match(markdown, /Rows with explicit source mode: 27/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows with explicit source mode: 21/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
+  assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);
+  assert.match(markdown, /\| `sync-iterable-byte-batches` \| 1 \| 1 \| 1 \| 134\.33 \| Node\/V8 sync-iterable-byte-batches from stream-source-consumption-shapes\.json \| 0 \|/);
+  assert.match(markdown, /\| `web-readable-stream-pull` \| 1 \| 1 \| 1 \| 117\.69 \| Node\/V8 web-readable-stream-pull from stream-source-consumption-shapes\.json \| 1 \|/);
   assert.match(markdown, /Fastest 1 GiB\+ JS full-string aggregate row with memory proof: Bun\/JSC rawFrameNameId from access-shape-candidate-cross-process\.json at avg 177\.34 MiB\/s/);
   assert.match(markdown, /Text\/CDATA Materialization Headroom Rows/);
   assert.match(markdown, /Fastest text\/CDATA materialization headroom row: Node\/V8 withoutTextStrings from long-ascii-text-materialization-candidate-stability\.json at 207\.70 MiB\/s/);
@@ -303,6 +343,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /row-level memory evidence/);
   assert.match(markdown, /not an impossibility proof/);
   assert.match(markdown, /Cross-process aggregate rows are reported separately from individual sample rows/);
+  assert.match(markdown, /source-consumption-modes-separated/);
+  assert.match(markdown, /web-readable-stream-pull:1/);
 });
 
 function resetTmp() {
