@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T05:10:02.748Z",
+  "generatedAt": "2026-05-25T06:13:06.302Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -36,58 +36,58 @@
     "jsLargeFullRowCount": 62,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
-      "group": "cross-process-books-corpus",
-      "runtimeId": "bun-jsc",
-      "runtimeLabel": "Bun/JSC",
+      "group": "cross-process-large-asset-corpus",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
       "caseId": "rawFrameNameId",
-      "mibPerSec": 173.22,
+      "mibPerSec": 146.11,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 189.86,
-        "maxHeapUsedMiB": 46.28,
+        "maxMiB": 495.31,
+        "maxHeapUsedMiB": 27.28,
         "note": "max across independent child processes"
       },
-      "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json"
+      "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestJsLargeFullRowTo200MiBPerSec": {
-      "ratio": 0.87,
-      "remainingMiBPerSec": 26.78
+      "ratio": 0.73,
+      "remainingMiBPerSec": 53.89
     },
     "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
-      "ratio": 0.54,
-      "remainingTo90PercentMiBPerSec": 114.92,
+      "ratio": 0.46,
+      "remainingTo90PercentMiBPerSec": 142.03,
       "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
     },
     "fastestJsLargePublicEventRow": {
-      "group": "cross-process-books-corpus",
+      "group": "cross-process-large-asset-corpus",
       "runtimeId": "node-v8",
       "runtimeLabel": "Node/V8",
       "caseId": "eventObjectFull",
-      "mibPerSec": 128.12,
+      "mibPerSec": 105.86,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 132.72,
-        "maxHeapUsedMiB": 11.93,
+        "maxMiB": 495.34,
+        "maxHeapUsedMiB": 32.44,
         "note": "max across independent child processes"
       },
-      "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json"
+      "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestBoundedJsLargePublicEventRow": {
-      "group": "cross-process-books-corpus",
+      "group": "cross-process-large-asset-corpus",
       "runtimeId": "node-v8",
       "runtimeLabel": "Node/V8",
       "caseId": "eventObjectFull",
-      "mibPerSec": 128.12,
+      "mibPerSec": 105.86,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 132.72,
-        "maxHeapUsedMiB": 11.93,
+        "maxMiB": 495.34,
+        "maxHeapUsedMiB": 32.44,
         "note": "max across independent child processes"
       },
-      "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json"
+      "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json"
     },
     "fastestRowsByGroup": [
       {
@@ -196,13 +196,13 @@
           "group": "cross-process-books-corpus",
           "runtimeId": "bun-jsc",
           "runtimeLabel": "Bun/JSC",
-          "caseId": "rawFrameNameId",
-          "mibPerSec": 173.22,
+          "caseId": "stringFull",
+          "mibPerSec": 120.18,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
-            "maxMiB": 189.86,
-            "maxHeapUsedMiB": 46.28,
+            "maxMiB": 190.2,
+            "maxHeapUsedMiB": 46.58,
             "note": "max across independent child processes"
           },
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json"
@@ -2515,19 +2515,19 @@
       "fullStringParity": true,
       "eventCount": 57096514,
       "checksum": -540013997,
-      "mibPerSec": 161.07,
+      "mibPerSec": 113.79,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 66.08,
-        "maxHeapUsedMiB": 7.4,
+        "maxMiB": 70.73,
+        "maxHeapUsedMiB": 6.61,
         "note": "max across independent child processes"
       },
       "materializationCounters": null,
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 156.5,
-      "sampleMaxMiBPerSec": 165.92,
-      "sampleSpreadRatio": 0.06,
+      "sampleMinMiBPerSec": 112.49,
+      "sampleMaxMiBPerSec": 114.44,
+      "sampleSpreadRatio": 0.02,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false
@@ -2557,19 +2557,19 @@
       "fullStringParity": true,
       "eventCount": 57096514,
       "checksum": -540013997,
-      "mibPerSec": 128.12,
+      "mibPerSec": 72.76,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 132.72,
-        "maxHeapUsedMiB": 11.93,
+        "maxMiB": 136.9,
+        "maxHeapUsedMiB": 36.86,
         "note": "max across independent child processes"
       },
       "materializationCounters": null,
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 122.52,
-      "sampleMaxMiBPerSec": 131.17,
-      "sampleSpreadRatio": 0.07,
+      "sampleMinMiBPerSec": 71.89,
+      "sampleMaxMiBPerSec": 73.34,
+      "sampleSpreadRatio": 0.02,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false
@@ -2599,19 +2599,19 @@
       "fullStringParity": true,
       "eventCount": 57096514,
       "checksum": -540013997,
-      "mibPerSec": 170.81,
+      "mibPerSec": 94.98,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 142.29,
-        "maxHeapUsedMiB": 6.31,
+        "maxMiB": 147.6,
+        "maxHeapUsedMiB": 6.38,
         "note": "max across independent child processes"
       },
       "materializationCounters": null,
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 155.73,
-      "sampleMaxMiBPerSec": 180.08,
-      "sampleSpreadRatio": 0.14,
+      "sampleMinMiBPerSec": 94.34,
+      "sampleMaxMiBPerSec": 95.45,
+      "sampleSpreadRatio": 0.01,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false
@@ -2641,19 +2641,19 @@
       "fullStringParity": true,
       "eventCount": 57096514,
       "checksum": -540013997,
-      "mibPerSec": 156.83,
+      "mibPerSec": 120.18,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 188.75,
-        "maxHeapUsedMiB": 46.57,
+        "maxMiB": 190.2,
+        "maxHeapUsedMiB": 46.58,
         "note": "max across independent child processes"
       },
       "materializationCounters": null,
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 143.75,
-      "sampleMaxMiBPerSec": 170.51,
-      "sampleSpreadRatio": 0.17,
+      "sampleMinMiBPerSec": 119.61,
+      "sampleMaxMiBPerSec": 120.69,
+      "sampleSpreadRatio": 0.01,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false
@@ -2683,19 +2683,19 @@
       "fullStringParity": true,
       "eventCount": 57096514,
       "checksum": -540013997,
-      "mibPerSec": 127.91,
+      "mibPerSec": 76.84,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 189.62,
-        "maxHeapUsedMiB": 46.57,
+        "maxMiB": 190.21,
+        "maxHeapUsedMiB": 46.58,
         "note": "max across independent child processes"
       },
       "materializationCounters": null,
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 120.74,
-      "sampleMaxMiBPerSec": 134.56,
-      "sampleSpreadRatio": 0.11,
+      "sampleMinMiBPerSec": 75.66,
+      "sampleMaxMiBPerSec": 77.73,
+      "sampleSpreadRatio": 0.03,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false
@@ -2725,19 +2725,19 @@
       "fullStringParity": true,
       "eventCount": 57096514,
       "checksum": -540013997,
-      "mibPerSec": 173.22,
+      "mibPerSec": 97.84,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 189.86,
-        "maxHeapUsedMiB": 46.28,
+        "maxMiB": 176.32,
+        "maxHeapUsedMiB": 46.26,
         "note": "max across independent child processes"
       },
       "materializationCounters": null,
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 169.34,
-      "sampleMaxMiBPerSec": 177.18,
-      "sampleSpreadRatio": 0.05,
+      "sampleMinMiBPerSec": 95.3,
+      "sampleMaxMiBPerSec": 99.46,
+      "sampleSpreadRatio": 0.04,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false

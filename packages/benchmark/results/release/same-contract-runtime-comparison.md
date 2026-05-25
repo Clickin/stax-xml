@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T05:10:02.748Z
+Generated: 2026-05-25T06:13:06.302Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -9,11 +9,11 @@ This report aggregates existing release artifacts. It compares rows only through
 - Aggregated rows: 68
 - 1 GiB+ JavaScript full-string rows: 62
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
-- Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 173.22 MiB/s (process RSS max 189.86 MiB)
-- Fastest JS full-string row vs 200 MiB/s: 0.87x, 26.78 MiB/s remaining
-- Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.54x Woodstox, 114.92 MiB/s below 0.9x reference target
-- Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 128.12 MiB/s (process RSS max 132.72 MiB)
-- Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 128.12 MiB/s (process RSS max 132.72 MiB)
+- Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 146.11 MiB/s (process RSS max 495.31 MiB)
+- Fastest JS full-string row vs 200 MiB/s: 0.73x, 53.89 MiB/s remaining
+- Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.46x Woodstox, 142.03 MiB/s below 0.9x reference target
+- Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 105.86 MiB/s (process RSS max 495.34 MiB)
+- Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 105.86 MiB/s (process RSS max 495.34 MiB)
 - 16 MiB Woodstox baseline: 333.43 MiB/s
 - 16 MiB quick-xml baseline: 309.82 MiB/s (0.93x Woodstox)
 - 1024 MiB file-backed stax-stream baseline: 108.23 MiB/s (0.34x Woodstox)
@@ -30,7 +30,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB |
 | `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 84.68 | yes | process RSS max 199.15 MiB |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB |
-| `cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 173.22 | yes | process RSS max 189.86 MiB |
+| `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB |
 | `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB |
 
@@ -88,12 +88,12 @@ This report aggregates existing release artifacts. It compares rows only through
 | `generated-1gib-textdecoder` | Bun/JSC | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 47.67 | yes | process RSS max 215.22 MiB | `bun-textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Chrome/V8 browser | `subarraySharedDecoder` | 45189256 | 1421012805 | 16.63 | yes | JS heap max 9.77 MiB; host working set 479.99 MiB | `browser-textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Chrome/V8 browser | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 39.42 | yes | JS heap max 10.04 MiB; host working set 479.99 MiB | `browser-textdecoder-span-variants.json` |
-| `cross-process-books-corpus` | Node/V8 | `stringFull` | 57096514 | -540013997 | 161.07 | yes | process RSS max 66.08 MiB | `candidate-headroom-cross-process-books-corpus.json` |
-| `cross-process-books-corpus` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 128.12 | yes | process RSS max 132.72 MiB | `candidate-headroom-cross-process-books-corpus.json` |
-| `cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 170.81 | yes | process RSS max 142.29 MiB | `candidate-headroom-cross-process-books-corpus.json` |
-| `cross-process-books-corpus` | Bun/JSC | `stringFull` | 57096514 | -540013997 | 156.83 | yes | process RSS max 188.75 MiB | `candidate-headroom-cross-process-books-corpus.json` |
-| `cross-process-books-corpus` | Bun/JSC | `eventObjectFull` | 57096514 | -540013997 | 127.91 | yes | process RSS max 189.62 MiB | `candidate-headroom-cross-process-books-corpus.json` |
-| `cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 57096514 | -540013997 | 173.22 | yes | process RSS max 189.86 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Node/V8 | `stringFull` | 57096514 | -540013997 | 113.79 | yes | process RSS max 70.73 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 72.76 | yes | process RSS max 136.90 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 94.98 | yes | process RSS max 147.60 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Bun/JSC | `stringFull` | 57096514 | -540013997 | 120.18 | yes | process RSS max 190.20 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Bun/JSC | `eventObjectFull` | 57096514 | -540013997 | 76.84 | yes | process RSS max 190.21 MiB | `candidate-headroom-cross-process-books-corpus.json` |
+| `cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 57096514 | -540013997 | 97.84 | yes | process RSS max 176.32 MiB | `candidate-headroom-cross-process-books-corpus.json` |
 | `cross-process-books-corpus-batch16` | Node/V8 | `stringFull` | 57096514 | -540013997 | 119.66 | yes | process RSS max 67.73 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
 | `cross-process-books-corpus-batch16` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 78.90 | yes | process RSS max 132.04 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
 | `cross-process-books-corpus-batch16` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 99.83 | yes | process RSS max 137.17 MiB | `candidate-headroom-cross-process-books-corpus-batch16.json` |
