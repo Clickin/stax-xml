@@ -39,12 +39,24 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 31);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
     total: 31,
-    jsRows: 9,
+    jsRows: 7,
     fullStringRows: 31,
-    jsFullStringRows: 9,
+    jsFullStringRows: 7,
     largeJsFullStringRows: 0,
     rowsWithMemoryCounter: 0,
   });
+  assert.equal(report.unknownBoundedMemoryRows.length, 31);
+  assert.ok(report.unknownBoundedMemoryRows.every(row => row.memoryKind === 'not-recorded'));
+  assert.ok(!report.unknownBoundedMemoryRows.some(row =>
+    isJsRuntime(row.runtimeId)
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= 0.999
+  ));
+  assertUnknownBoundedMemoryRow(report, 'browser-v8-codegen-trace.json', 'stringFull');
+  assertUnknownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'woodstox');
+  assertUnknownBoundedMemoryRow(report, 'quick-xml-allocation-count-stability.json', 'benchmark');
+  assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 99);
@@ -211,7 +223,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 285
+    && row.measuredRowCount === 283
     && row.largeFullStringRowCount === 169
   ));
   assert.ok(!report.coverage.runtimes.some(row => row.runtimeId === 'unknown'));
@@ -383,6 +395,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Proof Coverage Audit/);
+  assert.match(markdown, /## Unknown Bounded-Memory Rows/);
+  assert.match(markdown, /remaining unknowns are auditable/);
   assert.match(markdown, /not an impossibility proof/);
   assert.match(markdown, /82 Firefox\/SpiderMonkey browser benchmark rows found/);
   assert.match(markdown, /Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present/);
@@ -400,9 +414,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 59 \| 285 \| 169 \|/);
-  assert.match(markdown, /\| Java\/Woodstox \| 8 \| 8 \| 1 \|/);
-  assert.match(markdown, /\| Rust\/quick-xml \| 7 \| 14 \| 1 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 59 \| 283 \| 169 \|/);
+  assert.match(markdown, /\| Java\/Woodstox \| 8 \| 9 \| 1 \|/);
+  assert.match(markdown, /\| Rust\/quick-xml \| 7 \| 15 \| 1 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);
@@ -415,6 +429,24 @@ function assertObligation(report, id, status) {
   const row = report.obligations.find(item => item.id === id);
   assert.ok(row, `missing obligation: ${id}`);
   assert.equal(row.status, status);
+}
+
+function assertUnknownBoundedMemoryRow(report, sourceArtifact, id) {
+  assert.ok(report.unknownBoundedMemoryRows.some(row =>
+    row.sourceArtifact === sourceArtifact
+    && row.id === id
+  ), `missing unknown bounded-memory row: ${sourceArtifact}/${id}`);
+}
+
+function isJsRuntime(runtimeId) {
+  return [
+    'node-v8',
+    'bun-jsc',
+    'deno-v8',
+    'chrome-v8-browser',
+    'firefox-spidermonkey-browser',
+    'safari-jsc-browser',
+  ].includes(runtimeId);
 }
 
 function resetTmp() {

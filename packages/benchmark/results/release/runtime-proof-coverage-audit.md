@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T14:07:50.154Z
+Generated: 2026-05-25T14:58:48.792Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -11,7 +11,7 @@ This audit scans current release artifacts to show which proof obligations are c
 - Measured rows recognized: 749
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 31
-  - Unknown bounded-memory JS rows: 9
+  - Unknown bounded-memory JS rows: 7
   - Unknown bounded-memory full-string rows: 31
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 0
@@ -25,18 +25,56 @@ This audit scans current release artifacts to show which proof obligations are c
 - Corpus seeds: 3
 - Open or partial obligations: 2
 
+## Unknown Bounded-Memory Rows
+
+These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted.
+
+| Artifact | Runtime | Row | Size GiB | Memory | Full string | MiB/s |
+| --- | --- | --- | ---: | --- | --- | ---: |
+| `browser-v8-codegen-trace.json` | Chrome/V8 browser | `stringFull` | 0.00 | not-recorded | yes | 49.46 |
+| `browser-v8-codegen-trace.json` | Chrome/V8 browser | `rawFrameNameId` | 0.00 | not-recorded | yes | 28.68 |
+| `browser-v8-codegen-trace.json` | Chrome/V8 browser | `eventObjectFull` | 0.00 | not-recorded | yes | 41.47 |
+| `external-baseline-1024mib-file-sync-batches.json` | Java/Woodstox | `woodstox` | 1.00 | not-recorded | yes | 320.16 |
+| `external-baseline-1024mib-file-sync-batches.json` | Rust/quick-xml | `quick-xml` | 1.00 | not-recorded | yes | 287.39 |
+| `external-baseline.json` | Node/V8 | `stax-stream` | 0.02 | not-recorded | yes | 105.30 |
+| `external-baseline.json` | Node/V8 | `stax-event` | 0.02 | not-recorded | yes | 95.94 |
+| `external-baseline.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
+| `external-baseline.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
+| `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey browser | `rawFrameNameId` | n/a | not-recorded | yes | 22.80 |
+| `materialization-contract-audit.json` | Java/Woodstox | `woodstox` | n/a | not-recorded | yes | 324.53 |
+| `materialization-contract-audit.json` | Rust/quick-xml | `quick-xml` | n/a | not-recorded | yes | 290.92 |
+| `materialization-contract-audit.json` | Node/V8 | `stax-stream` | n/a | not-recorded | yes | 93.81 |
+| `materialization-contract-audit.json` | Java/Woodstox | `woodstox` | n/a | not-recorded | yes | 324.53 |
+| `materialization-contract-audit.json` | Rust/quick-xml | `quick-xml` | n/a | not-recorded | yes | 290.92 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.02 | not-recorded | yes | 220.90 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 183.58 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 259.32 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 303.17 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 205.74 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.02 | not-recorded | yes | 243.53 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 177.44 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 263.86 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 318.65 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 208.16 |
+| `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
+| `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
+| `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 324.67 |
+| `woodstox-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 320.27 |
+| `woodstox-measured-jfr-allocation-rerun.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 136.56 |
+| `woodstox-measured-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 201.11 |
+
 ## Runtime Coverage
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 59 | 285 | 169 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
+| Node/V8 | 59 | 283 | 169 | rawFrameNameId 176.47 MiB/s from candidate-headroom-books-corpus-stability.json | 2 | 2 | 5 |
 | Bun/JSC | 30 | 212 | 124 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
-| Java/Woodstox | 8 | 8 | 1 | woodstox 320.16 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
-| Rust/quick-xml | 7 | 14 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
+| Java/Woodstox | 8 | 9 | 1 | woodstox 320.16 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
+| Rust/quick-xml | 7 | 15 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
 
 ## Open Obligations
 

@@ -104,6 +104,10 @@ function createReport(options) {
 
   const coverage = createCoverage(artifacts, options);
   const obligations = createObligationRows(coverage);
+  const unknownBoundedMemoryRows = artifacts
+    .flatMap(artifact => artifact.measuredRows)
+    .filter(row => row.boundedMemory === null)
+    .map(summarizeUnknownBoundedMemoryRow);
   const summary = {
     scannedArtifactCount: artifacts.length,
     ignoredArtifactCount: ignored.length,
@@ -139,6 +143,7 @@ function createReport(options) {
     summary,
     coverage,
     obligations,
+    unknownBoundedMemoryRows,
     findings: createFindings(coverage, obligations),
   };
 }
@@ -323,6 +328,26 @@ function summarizeUnknownBoundedMemoryRows(rows, options) {
       && row.sizeGiB >= options.minLargeGiB
     ).length,
     rowsWithMemoryCounter: unknownRows.filter(row => row.memoryKind !== 'not-recorded').length,
+  };
+}
+
+function summarizeUnknownBoundedMemoryRow(row) {
+  return {
+    sourceArtifact: row.sourceArtifact,
+    jsonPath: row.jsonPath,
+    id: row.id,
+    runtimeId: row.runtimeId,
+    runtimeLabel: row.runtimeLabel,
+    sizeGiB: row.sizeGiB,
+    fixtureSource: row.fixtureSource,
+    fixtureShape: row.fixtureShape,
+    corpusSeed: row.corpusSeed,
+    mibPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity,
+    memoryKind: row.memoryKind,
+    eventCount: row.eventCount,
+    checksum: row.checksum,
+    contractScope: row.contractScope,
   };
 }
 
@@ -586,6 +611,9 @@ function classifyRuntime(sourceArtifact, node, context) {
   if (node.tool === 'woodstox') return 'woodstox-jvm';
   if (node.tool === 'quick-xml') return 'quick-xml-rust';
   if (typeof node.tool === 'string' && node.tool.startsWith('stax-')) return 'node-v8';
+  if (node.id === 'woodstox') return 'woodstox-jvm';
+  if (node.id === 'quick-xml') return 'quick-xml-rust';
+  if (typeof node.id === 'string' && node.id.startsWith('stax-')) return 'node-v8';
   if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
   if (sourceArtifact.startsWith('quick-xml-')) return 'quick-xml-rust';
 
@@ -814,6 +842,23 @@ function renderMarkdown(report) {
   }
 
   lines.push(
+    '## Unknown Bounded-Memory Rows',
+    '',
+    'These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted.',
+    '',
+    '| Artifact | Runtime | Row | Size GiB | Memory | Full string | MiB/s |',
+    '| --- | --- | --- | ---: | --- | --- | ---: |',
+  );
+  if (report.unknownBoundedMemoryRows.length === 0) {
+    lines.push('| none | | | | | | |');
+  } else {
+    for (const row of report.unknownBoundedMemoryRows) {
+      lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${row.memoryKind} | ${formatBoolean(row.fullStringParity)} | ${formatNumber(row.mibPerSec)} |`);
+    }
+  }
+  lines.push('');
+
+  lines.push(
     '## Runtime Coverage',
     '',
     '| Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |',
@@ -954,6 +999,12 @@ function formatFastest(row) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function formatBoolean(value) {
+  if (value === true) return 'yes';
+  if (value === false) return 'no';
+  return 'unknown';
 }
 
 function escapePipe(value) {
