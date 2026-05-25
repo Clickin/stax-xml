@@ -1,0 +1,347 @@
+{
+  "generatedAt": "2026-05-25T03:01:52.162Z",
+  "objective": "file-backed-materialization-category-drop-sweep",
+  "contract": "file-backed-full-materialization-category-drop-headroom",
+  "note": "Measures the cost of each string materialization category over the same file-backed synchronous Iterable<Uint8Array[]> source. Near-full rows intentionally omit one category and are headroom evidence, not full StAX counterexamples.",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "source": "file-backed",
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "variants": [
+      "stringFull",
+      "withoutElementNameStrings",
+      "withoutTextStrings",
+      "withoutAttributeNameStrings",
+      "withoutAttributeValueStrings"
+    ],
+    "chunkKiB": 64,
+    "batchSize": 1,
+    "runs": 1,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "stringFull",
+      "tool": "stringFull",
+      "implementation": "public StreamBatch full string materialization from file-backed byte batches",
+      "family": "full-stax-js",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-string-materialization",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 127.32404700777536,
+      "avgMs": 8042.47,
+      "minMs": 8042.47,
+      "maxMs": 8042.47,
+      "samplesMs": [
+        8042.47
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "materializationCounters": {
+        "stringFieldReads": 97258079,
+        "nameStrings": 43225814,
+        "textStrings": 18010755,
+        "attributeNameStrings": 18010755,
+        "attributeValueStrings": 18010755,
+        "attributePairs": 18010755
+      },
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 74706944,
+        "maxHeapUsedBytes": 6410032,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 67018752,
+              "heapUsedBytes": 4898504,
+              "externalBytes": 2149397,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74706944,
+              "heapUsedBytes": 6410032,
+              "externalBytes": 2916790,
+              "arrayBuffersBytes": 834839
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "withoutElementNameStrings",
+      "tool": "withoutElementNameStrings",
+      "implementation": "file-backed full materialization minus element name string reads",
+      "family": "near-full-upper-bound",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-materialization-minus-element-names",
+      "fullStringParity": false,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 138.5727146488155,
+      "avgMs": 7389.6209,
+      "minMs": 7389.6209,
+      "maxMs": 7389.6209,
+      "samplesMs": [
+        7389.6209
+      ],
+      "eventCount": 61236571,
+      "checksum": 296957194,
+      "materializationCounters": {
+        "stringFieldReads": 54032265,
+        "nameStrings": 0,
+        "textStrings": 18010755,
+        "attributeNameStrings": 18010755,
+        "attributeValueStrings": 18010755,
+        "attributePairs": 18010755
+      },
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 74641408,
+        "maxHeapUsedBytes": 6495480,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 66924544,
+              "heapUsedBytes": 4898520,
+              "externalBytes": 2149397,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74641408,
+              "heapUsedBytes": 6495480,
+              "externalBytes": 2916790,
+              "arrayBuffersBytes": 834839
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "withoutTextStrings",
+      "tool": "withoutTextStrings",
+      "implementation": "file-backed full materialization minus text/CDATA string reads",
+      "family": "near-full-upper-bound",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-materialization-minus-text-cdata",
+      "fullStringParity": false,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 173.60021256851562,
+      "avgMs": 5898.609299999999,
+      "minMs": 5898.609299999999,
+      "maxMs": 5898.609299999999,
+      "samplesMs": [
+        5898.609299999999
+      ],
+      "eventCount": 61236571,
+      "checksum": -413060314,
+      "materializationCounters": {
+        "stringFieldReads": 79247324,
+        "nameStrings": 43225814,
+        "textStrings": 0,
+        "attributeNameStrings": 18010755,
+        "attributeValueStrings": 18010755,
+        "attributePairs": 18010755
+      },
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 72671232,
+        "maxHeapUsedBytes": 6561032,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 66932736,
+              "heapUsedBytes": 4898584,
+              "externalBytes": 2149397,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 72671232,
+              "heapUsedBytes": 6561032,
+              "externalBytes": 3834473,
+              "arrayBuffersBytes": 1752522
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "withoutAttributeNameStrings",
+      "tool": "withoutAttributeNameStrings",
+      "implementation": "file-backed full materialization minus attribute name string reads",
+      "family": "near-full-upper-bound",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-materialization-minus-attribute-names",
+      "fullStringParity": false,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 135.4563708896886,
+      "avgMs": 7559.6284,
+      "minMs": 7559.6284,
+      "maxMs": 7559.6284,
+      "samplesMs": [
+        7559.6284
+      ],
+      "eventCount": 61236571,
+      "checksum": 615320352,
+      "materializationCounters": {
+        "stringFieldReads": 79247324,
+        "nameStrings": 43225814,
+        "textStrings": 18010755,
+        "attributeNameStrings": 0,
+        "attributeValueStrings": 18010755,
+        "attributePairs": 18010755
+      },
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 74252288,
+        "maxHeapUsedBytes": 6614136,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 66891776,
+              "heapUsedBytes": 4898592,
+              "externalBytes": 2149397,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74252288,
+              "heapUsedBytes": 6614136,
+              "externalBytes": 3047864,
+              "arrayBuffersBytes": 965913
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "withoutAttributeValueStrings",
+      "tool": "withoutAttributeValueStrings",
+      "implementation": "file-backed full materialization minus attribute value string reads",
+      "family": "near-full-upper-bound",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "contractScope": "full-materialization-minus-attribute-values",
+      "fullStringParity": false,
+      "chunkKiB": 64,
+      "batchSize": 1,
+      "mibPerSec": 137.51470337786435,
+      "avgMs": 7446.4752,
+      "minMs": 7446.4752,
+      "maxMs": 7446.4752,
+      "samplesMs": [
+        7446.4752
+      ],
+      "eventCount": 61236571,
+      "checksum": 396015339,
+      "materializationCounters": {
+        "stringFieldReads": 79247324,
+        "nameStrings": 43225814,
+        "textStrings": 18010755,
+        "attributeNameStrings": 18010755,
+        "attributeValueStrings": 0,
+        "attributePairs": 18010755
+      },
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 74223616,
+        "maxHeapUsedBytes": 5995128,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 66953216,
+              "heapUsedBytes": 4898520,
+              "externalBytes": 2149397,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74223616,
+              "heapUsedBytes": 5995128,
+              "externalBytes": 2654637,
+              "arrayBuffersBytes": 572686
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 5,
+    "fastest": {
+      "id": "withoutTextStrings",
+      "throughputMiBPerSec": 173.60021256851562,
+      "maxRssBytes": 72671232,
+      "eventCount": 61236571,
+      "checksum": -413060314,
+      "fullStringParity": false,
+      "contractScope": "full-materialization-minus-text-cdata"
+    },
+    "fastestFullString": {
+      "id": "stringFull",
+      "throughputMiBPerSec": 127.32404700777536,
+      "maxRssBytes": 74706944,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization"
+    },
+    "counterexamples200MiB": 0,
+    "partialThresholdRows": [],
+    "checksumSet": [
+      -716099804,
+      296957194,
+      -413060314,
+      615320352,
+      396015339
+    ],
+    "eventCountSet": [
+      61236571
+    ]
+  },
+  "findings": [
+    {
+      "id": "same-source-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "All rows consume the same file-backed synchronous Iterable<Uint8Array[]> source shape.",
+      "evidence": [
+        "file-backed-sync-iterable-byte-batches chunk=64KiB batch=1"
+      ]
+    },
+    {
+      "id": "category-drop-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "Fastest category row was withoutTextStrings at 173.60 MiB/s; fastest full-string row was stringFull at 127.32 MiB/s.",
+      "evidence": [
+        "stringFull=127.32 MiB/s fullString=true strings=97258079",
+        "withoutElementNameStrings=138.57 MiB/s fullString=false strings=54032265",
+        "withoutTextStrings=173.60 MiB/s fullString=false strings=79247324",
+        "withoutAttributeNameStrings=135.46 MiB/s fullString=false strings=79247324",
+        "withoutAttributeValueStrings=137.51 MiB/s fullString=false strings=79247324"
+      ]
+    },
+    {
+      "id": "bounded-counterexample-search",
+      "classification": "COUNTEREXAMPLE_NOT_FOUND",
+      "summary": "The file-backed category-drop sweep applies the same 200 MiB/s bounded full-string counterexample rule.",
+      "evidence": [
+        "stringFull: bounded=true, mibPerSec=127.32",
+        "withoutElementNameStrings: bounded=true, mibPerSec=138.57",
+        "withoutTextStrings: bounded=true, mibPerSec=173.60",
+        "withoutAttributeNameStrings: bounded=true, mibPerSec=135.46",
+        "withoutAttributeValueStrings: bounded=true, mibPerSec=137.51"
+      ]
+    }
+  ]
+}
