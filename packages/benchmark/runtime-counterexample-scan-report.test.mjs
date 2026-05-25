@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 130);
-  assert.equal(report.summary.measuredRowCount, 724);
-  assert.equal(report.summary.largeJsFullRowCount, 429);
+  assert.equal(report.summary.scannedArtifactCount, 131);
+  assert.equal(report.summary.measuredRowCount, 727);
+  assert.equal(report.summary.largeJsFullRowCount, 432);
   assert.equal(report.summary.partialHeadroomRowCount, 20);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
@@ -98,6 +98,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-cross-process-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('browser-fetch-readable-stream-books-corpus.json'));
+  assert.ok(report.scannedArtifacts.includes('access-shape-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-fetch-readable-stream-timeout-audit.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-span-variants.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-span-variants-corpus.json'));

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T07:17:54.779Z",
+  "generatedAt": "2026-05-25T07:26:43.695Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -8,6 +8,27 @@
     "minLargeGiB": 0.999
   },
   "scannedArtifacts": [
+    {
+      "sourceArtifact": "access-shape-candidate-stability.json",
+      "objective": "candidate-headroom-large",
+      "contract": "byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736
+      },
+      "corpusSeed": "books.xml",
+      "measuredRowCount": 3
+    },
     {
       "sourceArtifact": "attribute-value-branch-order-candidate.json",
       "objective": "attribute-value-branch-order-candidate",
@@ -2495,17 +2516,17 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 130,
+    "scannedArtifactCount": 131,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 724,
-    "benchmarkArtifactCount": 91,
+    "measuredRowCount": 727,
+    "benchmarkArtifactCount": 92,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 8,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 9,
-    "largeJsFullRowCount": 433,
+    "largeJsFullRowCount": 436,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2516,9 +2537,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 52,
-        "measuredRowCount": 246,
-        "largeFullStringRowCount": 149,
+        "artifactCount": 53,
+        "measuredRowCount": 249,
+        "largeFullStringRowCount": 152,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
           "id": "rawFrameNameId",
@@ -10402,6 +10423,57 @@
     ],
     "corpusRows": [
       {
+        "sourceArtifact": "access-shape-candidate-stability.json",
+        "id": "cursorAccessor",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 138,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "access-shape-candidate-stability.json",
+        "id": "rawFrameDirect",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 159.16,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "access-shape-candidate-stability.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 175.4,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
         "sourceArtifact": "browser-candidate-headroom-books-corpus.json",
         "id": "scanAllNoDecode",
         "runtimeId": "chrome-v8-browser",
@@ -14686,7 +14758,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 433,
+    "largeJsFullRowCount": 436,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
@@ -14715,6 +14787,23 @@
         "fixtureShape": "corpus-cycle",
         "corpusSeed": "books.xml",
         "mibPerSec": 176.47,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "access-shape-candidate-stability.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 175.4,
         "fullStringParity": true,
         "boundedMemory": true,
         "memoryKind": "process-rss",
@@ -14825,6 +14914,23 @@
         "contractScope": "full-string-materialization"
       },
       {
+        "sourceArtifact": "access-shape-candidate-stability.json",
+        "id": "rawFrameDirect",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 159.16,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
         "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
         "id": "rawFrameNameId",
         "runtimeId": "node-v8",
@@ -14851,40 +14957,6 @@
         "fixtureShape": "corpus-cycle",
         "corpusSeed": "books.xml",
         "mibPerSec": 156.15,
-        "fullStringParity": true,
-        "boundedMemory": true,
-        "memoryKind": "process-rss",
-        "eventCount": 57096514,
-        "checksum": -540013997,
-        "contractScope": "full-string-materialization"
-      },
-      {
-        "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
-        "id": "stringFull",
-        "runtimeId": "node-v8",
-        "runtimeLabel": "Node/V8",
-        "sizeGiB": 1,
-        "fixtureSource": "corpus-file",
-        "fixtureShape": "corpus-cycle",
-        "corpusSeed": "books.xml",
-        "mibPerSec": 154.29,
-        "fullStringParity": true,
-        "boundedMemory": true,
-        "memoryKind": "process-rss",
-        "eventCount": 57096514,
-        "checksum": -540013997,
-        "contractScope": "full-string-materialization"
-      },
-      {
-        "sourceArtifact": "bun-candidate-headroom-books-corpus.json",
-        "id": "stringFull",
-        "runtimeId": "bun-jsc",
-        "runtimeLabel": "Bun/JSC",
-        "sizeGiB": 1,
-        "fixtureSource": "corpus-file",
-        "fixtureShape": "corpus-cycle",
-        "corpusSeed": "books.xml",
-        "mibPerSec": 152.89,
         "fullStringParity": true,
         "boundedMemory": true,
         "memoryKind": "process-rss",

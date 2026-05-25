@@ -183,8 +183,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 130 primary release JSON artifacts and recognizes 724
-measured rows. It finds 429 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 131 primary release JSON artifacts and recognizes 727
+measured rows. It finds 432 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
 `bun-candidate-headroom-books-corpus-stability.json` at 178.52 MiB/s with
@@ -215,10 +215,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 130 primary release artifacts and recognizes 724
-measured rows. It records 91 benchmark artifacts, 16 source artifacts, 8
+The current audit scans 131 primary release artifacts and recognizes 727
+measured rows. It records 92 benchmark artifacts, 16 source artifacts, 8
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 433 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+9 negative-result artifacts, 436 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -1343,6 +1343,18 @@ fixture and same-process `runs=3`, `warmups=0` source contract, the control
 and max RSS `77.8 MiB`. It preserved the same 62,758,976 string-field reads,
 19,818,633 raw span materializations, events, and checksum, so avoiding the
 trim-result allocation is a recorded negative result for this corpus shape.
+
+`packages/benchmark/results/release/access-shape-candidate-stability.md`
+rechecks the remaining full-parity access-shape variants on the same `books.xml`
+corpus-cycle fixture with same-process `runs=3`, `warmups=0`. The mutable
+`cursorAccessor` row averaged `138.00 MiB/s` with `20.1%` spread and max RSS
+`71.6 MiB`. `rawFrameDirect`, which decodes every string span directly without
+name-id caching, averaged `159.16 MiB/s` with `1.6%` spread and max RSS
+`77.5 MiB`. The control `rawFrameNameId` averaged `175.40 MiB/s` with `6.0%`
+spread and max RSS `77.9 MiB`. All three rows preserved 57,096,514 events,
+checksum `-540013997`, and 62,758,976 string-field reads. This records the
+cursor and direct raw-frame access shapes as slower than the current name-id
+raw-frame path, not hidden 200 MiB/s full-StAX counterexamples.
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus.md`
 then repeats the same selected rows in fresh runtime processes with

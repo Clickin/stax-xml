@@ -1,15 +1,15 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T07:18:01.166Z
+Generated: 2026-05-25T07:26:44.599Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 130
+- Scanned artifacts: 131
 - Ignored derived artifacts: 5
-- Measured rows recognized: 724
-- 1 GiB+ JS full-string rows recognized: 429
+- Measured rows recognized: 727
+- 1 GiB+ JS full-string rows recognized: 432
 - Counterexamples found: 0
 - Partial/projection threshold rows: 20
 - Text/CDATA materialization headroom rows: 1
@@ -31,16 +31,16 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 178.52 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 176.47 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.40 | yes | process-rss | 57096514 | -540013997 |
 | `text-cache-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.02 | yes | process-rss | 57096514 | -540013997 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.85 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 166.27 | yes | process-rss | 57096514 | -540013997 |
 | `long-ascii-text-materialization-candidate.json` | Node/V8 | `stringFull` | 1.00 | 165.91 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 163.24 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-stability.json` | Node/V8 | `rawFrameDirect` | 1.00 | 159.16 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-large-asset-corpus.json` | Node/V8 | `rawFrameNameId` | 1.08 | 158.52 | yes | process-rss | 83635224 | -2136498212 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 156.15 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `stringFull` | 1.00 | 154.29 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 152.89 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -50,16 +50,16 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 178.52 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 176.47 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.40 | yes | process-rss | 57096514 | -540013997 |
 | `text-cache-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.02 | yes | process-rss | 57096514 | -540013997 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 172.85 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 166.27 | yes | process-rss | 57096514 | -540013997 |
 | `long-ascii-text-materialization-candidate.json` | Node/V8 | `stringFull` | 1.00 | 165.91 | yes | process-rss | 57096514 | -540013997 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 163.24 | yes | process-rss | 57096514 | -540013997 |
+| `access-shape-candidate-stability.json` | Node/V8 | `rawFrameDirect` | 1.00 | 159.16 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-large-asset-corpus.json` | Node/V8 | `rawFrameNameId` | 1.08 | 158.52 | yes | process-rss | 83635224 | -2136498212 |
 | `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `cursorAccessor` | 1.00 | 156.15 | yes | process-rss | 57096514 | -540013997 |
-| `candidate-headroom-books-corpus-stability.json` | Node/V8 | `stringFull` | 1.00 | 154.29 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 152.89 | yes | process-rss | 57096514 | -540013997 |
 
 ## Partial Or Projection Threshold Rows
 
