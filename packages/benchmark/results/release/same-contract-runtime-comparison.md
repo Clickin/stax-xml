@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T16:10:51.400Z
+Generated: 2026-05-25T16:34:31.212Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -12,6 +12,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 178.52 MiB/s (process RSS max 189.37 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.89x, 21.48 MiB/s remaining
 - Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.94x Woodstox, -6.87 MiB/s below 0.9x reference target
+- Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id at 0.40x Woodstox, 95.52 MiB/s below 0.9x target
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - 16 MiB Woodstox baseline: 303.10 MiB/s
@@ -168,6 +169,9 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - 1024MiB rawFrameNameId/Woodstox=0.40
   - 1024MiB woodstox=190.72 MiB/s
   - 1024MiB quick-xml=150.24 MiB/s
+  - same-fixture-fastest-js=stax-raw-frame-name-id
+  - same-fixture-fastest-js/Woodstox=0.40
+  - same-fixture-0.9x-target-met=false
 
 ## Limits
 

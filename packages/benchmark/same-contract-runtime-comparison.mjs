@@ -626,11 +626,16 @@ function summarize(rows, allocationEvidence) {
   const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');
   const largeStaxStream = externalLargeRows.find(row => row.caseId === 'stax-stream');
   const largeRawFrameNameId = externalLargeRows.find(row => row.caseId === 'stax-raw-frame-name-id');
+  const fastestSameFixtureLargeJsRow = maxBy(
+    externalLargeRows.filter(row => row.jsRuntime && row.fullStringParity),
+    row => row.mibPerSec,
+  );
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
   const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
   const targetWoodstox90MiBPerSec = typeof largeWoodstoxMibPerSec === 'number'
     ? round(largeWoodstoxMibPerSec * 0.9)
     : null;
+  const fastestSameFixtureLargeJsMibPerSec = fastestSameFixtureLargeJsRow?.mibPerSec ?? null;
 
   return {
     rowCount: rows.length,
@@ -648,7 +653,24 @@ function summarize(rows, allocationEvidence) {
       remainingTo90PercentMiBPerSec: typeof fastestJsLargeFullRowMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
         ? round(targetWoodstox90MiBPerSec - fastestJsLargeFullRowMibPerSec)
         : null,
+      comparableFixture: false,
       caveat: 'ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture.',
+    },
+    sameFixture1024MiBWoodstoxTarget: {
+      group: 'external-baseline-1024mib-file-sync-batches',
+      fastestJsCaseId: fastestSameFixtureLargeJsRow?.caseId ?? null,
+      fastestJsMiBPerSec: round(fastestSameFixtureLargeJsMibPerSec),
+      woodstoxMiBPerSec: round(largeWoodstoxMibPerSec),
+      target90MiBPerSec: targetWoodstox90MiBPerSec,
+      fastestJsWoodstoxRatio: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof largeWoodstoxMibPerSec === 'number'
+        ? round(fastestSameFixtureLargeJsMibPerSec / largeWoodstoxMibPerSec)
+        : null,
+      remainingTo90PercentMiBPerSec: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
+        ? round(targetWoodstox90MiBPerSec - fastestSameFixtureLargeJsMibPerSec)
+        : null,
+      targetMet: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
+        ? fastestSameFixtureLargeJsMibPerSec >= targetWoodstox90MiBPerSec
+        : null,
     },
     fastestJsLargePublicEventRow: summarizeRow(fastestJsLargePublicEventRow),
     fastestBoundedJsLargePublicEventRow: summarizeRow(fastestBoundedJsLargePublicEventRow),
@@ -711,6 +733,9 @@ function createFindings(summary) {
         `1024MiB rawFrameNameId/Woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.rawFrameNameIdWoodstoxRatio)}`,
         `1024MiB woodstox=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
         `1024MiB quick-xml=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s`,
+        `same-fixture-fastest-js=${summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId}`,
+        `same-fixture-fastest-js/Woodstox=${formatNumber(summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}`,
+        `same-fixture-0.9x-target-met=${summary.sameFixture1024MiBWoodstoxTarget.targetMet}`,
       ],
     },
   ];
@@ -732,6 +757,7 @@ function renderMarkdown(report) {
     `- Fastest aggregated 1 GiB+ JS full-string row: ${formatSummaryRow(report.summary.fastestJsLargeFullRow)}`,
     `- Fastest JS full-string row vs 200 MiB/s: ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
     `- Fastest JS full-string row vs 1024 MiB Woodstox reference: ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio)}x Woodstox, ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x reference target`,
+    `- Same-fixture 1024 MiB JS row vs Woodstox target: ${report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId ?? 'n/a'} at ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}x Woodstox, ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
     `- Fastest 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestJsLargePublicEventRow)}`,
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,

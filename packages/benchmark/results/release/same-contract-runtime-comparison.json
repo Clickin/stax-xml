@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T16:10:51.400Z",
+  "generatedAt": "2026-05-25T16:34:31.212Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -70,7 +70,18 @@
     "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
       "ratio": 0.94,
       "remainingTo90PercentMiBPerSec": -6.87,
+      "comparableFixture": false,
       "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
+    },
+    "sameFixture1024MiBWoodstoxTarget": {
+      "group": "external-baseline-1024mib-file-sync-batches",
+      "fastestJsCaseId": "stax-raw-frame-name-id",
+      "fastestJsMiBPerSec": 76.13,
+      "woodstoxMiBPerSec": 190.72,
+      "target90MiBPerSec": 171.65,
+      "fastestJsWoodstoxRatio": 0.4,
+      "remainingTo90PercentMiBPerSec": 95.52,
+      "targetMet": false
     },
     "fastestJsLargePublicEventRow": {
       "group": "books-corpus-stability",
@@ -4980,7 +4991,10 @@
         "1024MiB rawFrameNameId=76.13 MiB/s",
         "1024MiB rawFrameNameId/Woodstox=0.40",
         "1024MiB woodstox=190.72 MiB/s",
-        "1024MiB quick-xml=150.24 MiB/s"
+        "1024MiB quick-xml=150.24 MiB/s",
+        "same-fixture-fastest-js=stax-raw-frame-name-id",
+        "same-fixture-fastest-js/Woodstox=0.40",
+        "same-fixture-0.9x-target-met=false"
       ]
     }
   ]
