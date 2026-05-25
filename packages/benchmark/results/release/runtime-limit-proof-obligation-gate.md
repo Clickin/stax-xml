@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-25T11:08:48.179Z
+Generated: 2026-05-25T11:19:05.183Z
 
 ## Scope
 
@@ -42,6 +42,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `woodstox-hotspot-trace.md` | yes |
 | `woodstox-jfr-allocation.md` | yes |
 | `woodstox-measured-jfr-allocation.md` | yes |
+| `woodstox-measured-jfr-allocation-rerun.md` | yes |
 | `candidate-headroom-large.md` | yes |
 | `bun-candidate-headroom-large.md` | yes |
 | `browser-candidate-headroom-large.md` | yes |

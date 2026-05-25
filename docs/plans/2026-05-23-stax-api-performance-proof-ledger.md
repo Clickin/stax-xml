@@ -82,7 +82,7 @@ prove that JavaScript runtimes have no further headroom.
 
 | ID | Claim | Status | Current evidence | Missing proof or counterexample search |
 | --- | --- | --- | --- | --- |
-| `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox, quick-xml, `stax-stream`, and `stax-event` as sharing the same semantic fields and checksum. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. `packages/benchmark/results/release/woodstox-jfr-allocation.md` and `packages/benchmark/results/release/woodstox-measured-jfr-allocation.md` capture sampled JFR allocation stacks for the same comparator boundary. | More allocation and object-lifetime evidence is still needed before attributing Woodstox speed to a complete optimized representation. |
+| `CLAIM-WOODSTOX-SAME-DATA` | The Woodstox comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` calls `getLocalName()`, `getAttributeLocalName(int)`, `getAttributeValue(int)`, and `getText().trim()` before folding strings. `packages/benchmark/external-baseline.mjs` defines the shared full-string checksum contract. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox, quick-xml, `stax-stream`, and `stax-event` as sharing the same semantic fields and checksum. `packages/benchmark/results/release/woodstox-hotspot-trace.md` captures HotSpot compilation/inlining for the comparator run. `packages/benchmark/results/release/woodstox-jfr-allocation.md`, `packages/benchmark/results/release/woodstox-measured-jfr-allocation.md`, and `packages/benchmark/results/release/woodstox-measured-jfr-allocation-rerun.md` capture sampled JFR allocation stacks for the same comparator boundary; both measured-window captures preserve checksum parity and show 10 consume-stack allocation samples with 9 string-boundary samples. | More allocation and object-lifetime evidence is still needed before attributing Woodstox speed to a complete optimized representation. |
 | `CLAIM-WOODSTOX-SAME-JS-OBJECTS` | Woodstox creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | Woodstox uses `XMLStreamReader` cursor/accessor calls. `packages/benchmark/results/release/materialization-contract-audit.md` records Woodstox as `java-xmlstreamreader-cursor`, `stax-event` as `js-public-event-object`, and `stax-stream` as `js-stream-batch-index-accessors`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
 | `CLAIM-QUICKXML-SAME-DATA` | The quick-xml comparator consumes the same high-level event data used by the JS checksum contract. | `SOURCE_FACT` + `BENCH_FACT` + partial `TRACE_FACT` | `packages/benchmark/external/quick-xml/src/main.rs` folds event types, element names, trimmed text/CDATA, attribute names, and attribute values into the same UTF-16-code-unit checksum. `packages/benchmark/results/release/external-baseline.md` reports the quick-xml row with the same 967,967 events and checksum `-746772258`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml under the same semantic fields and checksum. `packages/benchmark/results/release/quick-xml-shape-audit.md` records source shape facts, and `packages/benchmark/results/release/quick-xml-allocation-count.md` records measured-window Rust global allocator counters, directly instrumented phase-allocation attribution, plus `Cow<str>` borrowed/owned counts for the same checksum boundary and generated UTF-8 fixture variants. `packages/benchmark/results/release/quick-xml-allocation-count-stability.md` repeats the same allocation counter with `runs=3`: each primary sample reported 170,824 allocation operations, 27.13 MiB allocated, 0 B net allocation, 284,695 borrowed text decodes, and 0 owned text decodes, with `attribute-collection` remaining the dominant phase. `packages/benchmark/results/release/quick-xml-encoding-surface-audit.md` records that the current comparator uses the quick-xml default feature surface without the `encoding` feature and rejects a UTF-16 probe before producing a same-contract row. | More symbol/asm narrowing, native stack/type allocation attribution, and object-lifetime evidence are still needed before attributing quick-xml speed to borrowed views, SIMD/memchr scanning, or allocation shape. Non-UTF-8 quick-xml coverage remains out of scope until the comparator explicitly enables and verifies that feature surface. |
 | `CLAIM-QUICKXML-SAME-JS-OBJECTS` | quick-xml creates the same object shape as the JavaScript public event path. | `COUNTEREXAMPLE` | `packages/benchmark/results/release/quick-xml-shape-audit.md` records Rust `Event<'b>` values tied to a caller buffer, `Cow<[u8]>` event storage, byte-view name/attribute folding, `Cow<str>` text decode, and one comparator-local attribute `Vec`. `packages/benchmark/results/release/materialization-contract-audit.md` records quick-xml as `rust-enum-event-with-buffer-lifetime`, not `js-public-event-object`. | None; this claim is rejected. Future text must say "same high-level data/checksum contract", not "same object shape". |
@@ -437,6 +437,23 @@ This strengthens the counterexample to "Woodstox avoids Java string/char
 materialization entirely" because it no longer depends on startup or warmup
 samples. It still remains sampled evidence, not a total allocation census or
 proof of every object lifetime.
+
+`packages/benchmark/results/release/woodstox-measured-jfr-allocation-rerun.md`
+repeats the measured-window JFR capture under the same Java/HotSpot build,
+fixture, `warmups=4`, `runs=1`, JFR `profile` settings, and stack depth. It
+again preserves the full-string checksum contract: 967,967 events and checksum
+`-746772258`. The timed row reported `136.6 MiB/s`, which reinforces that
+measured JFR rows are allocation-path evidence and not the Woodstox speed
+baseline. The rerun again emitted 10 measured-window allocation samples, all on
+the main thread under `WoodstoxBench.consume` and Woodstox stacks, with 9
+string-boundary samples. The sampled classes were `char[]` with 6 samples /
+368 B, `java.lang.String` with 3 samples / 72 B, and
+`com.ctc.wstx.sr.Attribute` with 1 sample / 32 B. The observed stacks again
+crossed `TextBuffer.contentsAsString`, `TextBuilder.getAllValues`,
+`AttributeCollector.getValue`, `BasicStreamReader.getText`, and
+`BasicStreamReader.getAttributeValue`. This adds a second measured-window sample
+with the same allocation-path shape; it still remains sampled evidence rather
+than a total allocation census or complete object-lifetime proof.
 
 ## Current Evidence: Rust quick-xml Shape Audit
 
@@ -2707,9 +2724,12 @@ Acceptance:
 
 ## Current Next Experiments
 
-1. Repeat Woodstox measured-iteration allocation capture with additional JFR
-   samples or async-profiler so the current 10-sample measured window is not
-   overread as total allocation volume.
+1. Extend Woodstox measured-iteration allocation capture with async-profiler or
+   another stack/type attribution source. The current measured-window JFR
+   evidence now has two same-boundary samples that both show 10 consume-stack
+   allocation samples and 9 string-boundary samples, but JFR allocation events
+   remain sampled evidence and must not be overread as total allocation volume
+   or complete object-lifetime proof.
 2. Extend the Rust phase-allocation attribution for quick-xml with native
    stack/type attribution or object-lifetime evidence. The current counters now
    identify `attribute-collection` as the dominant measured allocator phase and

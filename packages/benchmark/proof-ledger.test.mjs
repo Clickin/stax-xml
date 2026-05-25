@@ -184,6 +184,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /woodstox-hotspot-trace\.md/);
   assert.match(markdown, /woodstox-jfr-allocation\.md/);
   assert.match(markdown, /woodstox-measured-jfr-allocation\.md/);
+  assert.match(markdown, /woodstox-measured-jfr-allocation-rerun\.md/);
   assert.match(markdown, /quick-xml-shape-audit\.md/);
   assert.match(markdown, /quick-xml-allocation-count\.md/);
   assert.match(markdown, /quick-xml-allocation-count-stability\.md/);
@@ -826,6 +827,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
   assert.match(markdown, /sampled JFR allocation stacks/);
   assert.match(markdown, /TextBuffer\.contentsAsString/);
+  assert.match(markdown, /repeats the measured-window JFR capture/);
+  assert.match(markdown, /again emitted 10 measured-window allocation samples/);
+  assert.match(markdown, /with 9\s+string-boundary samples/);
+  assert.match(markdown, /second measured-window sample\s+with the same allocation-path shape/);
   assert.match(markdown, /after warmups and after the pre-run\s+`System\.gc\(\)`/);
   assert.match(markdown, /It is allocation-path evidence, not a\s+speed baseline/);
   assert.match(markdown, /not a deterministic allocation census/);

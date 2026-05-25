@@ -84,6 +84,7 @@ const requiredArtifactMentions = [
   'woodstox-hotspot-trace.md',
   'woodstox-jfr-allocation.md',
   'woodstox-measured-jfr-allocation.md',
+  'woodstox-measured-jfr-allocation-rerun.md',
   'candidate-headroom-large.md',
   'bun-candidate-headroom-large.md',
   'browser-candidate-headroom-large.md',

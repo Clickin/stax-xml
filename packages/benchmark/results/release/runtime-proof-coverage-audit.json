@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T11:08:35.423Z",
+  "generatedAt": "2026-05-25T11:18:54.665Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2703,6 +2703,29 @@
       "measuredRowCount": 1
     },
     {
+      "sourceArtifact": "woodstox-measured-jfr-allocation-rerun.json",
+      "objective": "woodstox-measured-jfr-allocation",
+      "contract": "jfr-measured-allocation-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT",
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "woodstox-jvm"
+      ],
+      "outcome": null,
+      "fixture": {
+        "source": "file",
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 0.02,
+        "sizeMiB": 16,
+        "actualBytes": 16777038
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 1
+    },
+    {
       "sourceArtifact": "woodstox-measured-jfr-allocation.json",
       "objective": "woodstox-measured-jfr-allocation",
       "contract": "jfr-measured-allocation-sampling",
@@ -2735,27 +2758,27 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 135,
+    "scannedArtifactCount": 136,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 734,
+    "measuredRowCount": 735,
     "rowClassificationCompleteness": {
-      "measuredRows": 734,
+      "measuredRows": 735,
       "unknownFullStringParityRows": 0,
-      "unknownBoundedMemoryRows": 76
+      "unknownBoundedMemoryRows": 77
     },
     "unknownBoundedMemoryBreakdown": {
-      "total": 76,
+      "total": 77,
       "jsRows": 55,
-      "fullStringRows": 61,
+      "fullStringRows": 62,
       "jsFullStringRows": 40,
       "largeJsFullStringRows": 0,
       "rowsWithMemoryCounter": 24
     },
-    "benchmarkArtifactCount": 95,
+    "benchmarkArtifactCount": 96,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 8,
-    "allocationArtifactCount": 14,
+    "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 10,
     "largeJsFullRowCount": 460,
@@ -3031,8 +3054,8 @@
       {
         "runtimeId": "woodstox-jvm",
         "runtimeLabel": "Java/Woodstox",
-        "artifactCount": 7,
-        "measuredRowCount": 7,
+        "artifactCount": 8,
+        "measuredRowCount": 8,
         "largeFullStringRowCount": 1,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
@@ -3057,6 +3080,7 @@
         ],
         "allocationArtifacts": [
           "woodstox-jfr-allocation.json",
+          "woodstox-measured-jfr-allocation-rerun.json",
           "woodstox-measured-jfr-allocation.json"
         ]
       },
@@ -16092,6 +16116,29 @@
         "measuredRowCount": 1
       },
       {
+        "sourceArtifact": "woodstox-measured-jfr-allocation-rerun.json",
+        "objective": "woodstox-measured-jfr-allocation",
+        "contract": "jfr-measured-allocation-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT",
+          "BENCH_FACT"
+        ],
+        "runtimes": [
+          "woodstox-jvm"
+        ],
+        "outcome": null,
+        "fixture": {
+          "source": "file",
+          "shape": null,
+          "sourceFile": null,
+          "sizeGiB": 0.02,
+          "sizeMiB": 16,
+          "actualBytes": 16777038
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 1
+      },
+      {
         "sourceArtifact": "woodstox-measured-jfr-allocation.json",
         "objective": "woodstox-measured-jfr-allocation",
         "contract": "jfr-measured-allocation-sampling",
@@ -16350,7 +16397,7 @@
     {
       "id": "allocation-profiles-open",
       "status": "covered",
-      "evidence": "14 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present.",
+      "evidence": "15 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present.",
       "nextExperiment": "Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows."
     },
     {
