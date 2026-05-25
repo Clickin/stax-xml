@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T23:59:04.453Z",
+  "generatedAt": "2026-05-25T04:47:09.193Z",
   "objective": "stream-source-consumption-shapes",
   "contract": "same-full-string-checksum-source-consumption-shapes",
   "note": "Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.",
@@ -20,9 +20,9 @@
       "sync-iterable-byte-batches",
       "web-readable-stream-pull"
     ],
-    "chunkKiB": 64,
+    "chunkKiB": 16,
     "batchSize": 1,
-    "runs": 1,
+    "runs": 3,
     "warmups": 0,
     "boundedRssMiB": 512
   },
@@ -35,35 +35,65 @@
       "sourceMode": "sync-iterable-byte-batches",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 16,
       "batchSize": 1,
       "respectsBackpressure": null,
-      "mibPerSec": 92.28667301888288,
-      "avgMs": 11095.8581,
-      "minMs": 11095.8581,
-      "maxMs": 11095.8581,
+      "mibPerSec": 97.5395437987097,
+      "avgMs": 10498.304466666666,
+      "minMs": 9409.145999999999,
+      "maxMs": 11165.7254,
       "samplesMs": [
-        11095.8581
+        10920.042000000001,
+        9409.145999999999,
+        11165.7254
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 71102464,
-        "maxHeapUsedBytes": 5872168,
+        "maxRssBytes": 74838016,
+        "maxHeapUsedBytes": 7495912,
         "samples": [
           {
             "before": {
-              "rssBytes": 63574016,
-              "heapUsedBytes": 4659760,
+              "rssBytes": 67072000,
+              "heapUsedBytes": 4661736,
               "externalBytes": 1946476,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 71102464,
-              "heapUsedBytes": 5872168,
-              "externalBytes": 2473959,
-              "arrayBuffersBytes": 572686
+              "rssBytes": 73891840,
+              "heapUsedBytes": 7176536,
+              "externalBytes": 3117408,
+              "arrayBuffersBytes": 1216135
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 73986048,
+              "heapUsedBytes": 5102824,
+              "externalBytes": 3117408,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74215424,
+              "heapUsedBytes": 7495912,
+              "externalBytes": 3314135,
+              "arrayBuffersBytes": 1412862
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 74240000,
+              "heapUsedBytes": 5083536,
+              "externalBytes": 3314135,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 74838016,
+              "heapUsedBytes": 5569744,
+              "externalBytes": 2133953,
+              "arrayBuffersBytes": 232680
             }
           }
         ]
@@ -77,35 +107,65 @@
       "sourceMode": "web-readable-stream-pull",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 16,
       "batchSize": null,
       "respectsBackpressure": true,
-      "mibPerSec": 72.20567453763579,
-      "avgMs": 14181.7085,
-      "minMs": 14181.7085,
-      "maxMs": 14181.7085,
+      "mibPerSec": 92.49905593484098,
+      "avgMs": 11070.381399999998,
+      "minMs": 8071.534700000004,
+      "maxMs": 13716.118899999998,
       "samplesMs": [
-        14181.7085
+        13716.118899999998,
+        11423.490599999997,
+        8071.534700000004
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 77553664,
-        "maxHeapUsedBytes": 9933560,
+        "maxRssBytes": 81866752,
+        "maxHeapUsedBytes": 9940688,
         "samples": [
           {
             "before": {
-              "rssBytes": 70840320,
-              "heapUsedBytes": 5152336,
-              "externalBytes": 2473959,
+              "rssBytes": 74866688,
+              "heapUsedBytes": 5094944,
+              "externalBytes": 2133953,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 77553664,
-              "heapUsedBytes": 9933560,
-              "externalBytes": 5065317,
-              "arrayBuffersBytes": 2997872
+              "rssBytes": 81432576,
+              "heapUsedBytes": 9940688,
+              "externalBytes": 4742550,
+              "arrayBuffersBytes": 2675105
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 81485824,
+              "heapUsedBytes": 5411608,
+              "externalBytes": 4742550,
+              "arrayBuffersBytes": 117951
+            },
+            "after": {
+              "rssBytes": 81072128,
+              "heapUsedBytes": 6573112,
+              "externalBytes": 2677084,
+              "arrayBuffersBytes": 609639
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 81088512,
+              "heapUsedBytes": 5427912,
+              "externalBytes": 2677084,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 81866752,
+              "heapUsedBytes": 6515280,
+              "externalBytes": 2644315,
+              "arrayBuffersBytes": 576870
             }
           }
         ]
@@ -116,19 +176,19 @@
     "rowCount": 2,
     "fastest": {
       "id": "sync-iterable-byte-batches",
-      "mibPerSec": 92.28667301888288,
-      "maxRssBytes": 71102464,
+      "mibPerSec": 97.5395437987097,
+      "maxRssBytes": 74838016,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "slowest": {
       "id": "web-readable-stream-pull",
-      "mibPerSec": 72.20567453763579,
-      "maxRssBytes": 77553664,
+      "mibPerSec": 92.49905593484098,
+      "maxRssBytes": 81866752,
       "eventCount": 61236571,
       "checksum": -716099804
     },
-    "readableStreamRatioToSyncIterable": 0.7824063017513017,
+    "readableStreamRatioToSyncIterable": 0.9483236473376309,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -145,16 +205,16 @@
       "classification": "CONTRACT_FACT",
       "summary": "The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption.",
       "evidence": [
-        "sync-iterable-byte-batches: 92.29 MiB/s"
+        "sync-iterable-byte-batches: 97.54 MiB/s"
       ]
     },
     {
       "id": "readable-stream-overhead",
       "classification": "HEADROOM_EVIDENCE",
-      "summary": "Direct ReadableStream consumption reached 72.21 MiB/s (0.78x of sync Iterable<Uint8Array[]>).",
+      "summary": "Direct ReadableStream consumption reached 92.50 MiB/s (0.95x of sync Iterable<Uint8Array[]>).",
       "evidence": [
-        "sync-iterable-byte-batches=92.29 MiB/s rss=67.81 MiB",
-        "web-readable-stream-pull=72.21 MiB/s rss=73.96 MiB"
+        "sync-iterable-byte-batches=97.54 MiB/s rss=71.37 MiB",
+        "web-readable-stream-pull=92.50 MiB/s rss=78.07 MiB"
       ]
     },
     {
