@@ -151,7 +151,7 @@ function createLedgerFixture(runtimeStatus) {
     '',
     'Source-shape rules: direct ReadableStream overhead evidence stays distinct from synchronous byte-batch rows. The current large matrix does not prebuild one repeated 1 GiB ArrayBuffer parser input. The byte-batch rows preserve backpressure by pulling at most the next batch on demand.',
     '',
-    'Woodstox target rules: the fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures. Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id at 0.40x Woodstox, 95.52 MiB/s below 0.9x target.',
+    'Woodstox target rules: the fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures. Same-fixture 1024 MiB JS row vs Woodstox target: stax-stream-batch-2 at 0.71x Woodstox, 36.52 MiB/s below 0.9x target.',
     '',
     'Open work: Safari/browser JSC source pins and rows, Firefox/SpiderMonkey codegen/allocation evidence, broader allocation evidence, codegen traces, and a broad corpus suite remain open.',
     '',

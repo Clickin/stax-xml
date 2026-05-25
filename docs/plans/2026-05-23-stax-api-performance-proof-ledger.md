@@ -133,7 +133,8 @@ large byte-batch matrices must not be described as one prebuilt 1 GiB
 `ArrayBuffer` parser input, and byte-batch rows must preserve demand-driven
 pulls. It also requires the Woodstox target distinction: cross-fixture ratios
 remain target-distance references, while the current same-fixture 1024 MiB JS
-row is still below the 0.9x Woodstox target.
+row is still below the 0.9x Woodstox target even after the file-backed source
+and batch-size sweep rows are included.
 
 This is deliberately a conservative proof-language step: a passing gate means
 the ledger is not overclaiming. It does not run benchmark rows, inspect
@@ -157,7 +158,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 94 aggregated rows and 83 JavaScript 1 GiB+
+The current aggregate has 103 aggregated rows and 92 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
@@ -174,9 +175,10 @@ metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s targe
 0.94x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
-pass. The same-fixture 1024 MiB JS row vs Woodstox target is
-`stax-raw-frame-name-id` at 76.13 MiB/s, 0.40x Woodstox, and 95.52 MiB/s below
-the 0.9x target. For the public event-object shape, the fastest bounded row is
+pass. The same-fixture 1024 MiB JS row vs Woodstox target now includes the
+file-backed source and batch-size sweep rows: `stax-stream-batch-2` is fastest
+at 135.13 MiB/s, 0.71x Woodstox, and 36.52 MiB/s below the 0.9x target. For the
+public event-object shape, the fastest bounded row is
 Node/V8 `eventObjectFull` from
 `candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process
 RSS max 203.27 MiB across 3 samples ranging from 141.06 to 142.03 MiB/s. The

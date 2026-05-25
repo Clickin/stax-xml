@@ -219,6 +219,17 @@ const crossProcessArtifacts = [
   },
 ];
 
+const fileBackedSweepArtifacts = [
+  {
+    group: 'file-backed-batch-size-sweep',
+    file: 'file-backed-batch-size-sweep.json',
+  },
+  {
+    group: 'file-backed-source-sweep',
+    file: 'file-backed-source-sweep.json',
+  },
+];
+
 const allocationArtifacts = [
   {
     file: 'quick-xml-allocation-count.json',
@@ -304,6 +315,7 @@ function createReport(options) {
     ...externalReports.flatMap(item => extractExternalRows(item.report, item.spec)),
     ...variantArtifacts.flatMap(spec => extractVariantRows(readReleaseJson(spec.file), spec)),
     ...crossProcessArtifacts.flatMap(spec => extractCrossProcessRows(readReleaseJson(spec.file), spec)),
+    ...fileBackedSweepArtifacts.flatMap(spec => extractFileBackedSweepRows(readReleaseJson(spec.file), spec)),
   ];
   const allocationEvidence = allocationArtifacts.map(spec => extractAllocationEvidence(readReleaseJson(spec.file), spec));
   const summary = summarize(comparisonRows, allocationEvidence);
@@ -318,6 +330,7 @@ function createReport(options) {
         ...externalReports.map(item => item.spec.file),
         ...variantArtifacts.map(spec => spec.file),
         ...crossProcessArtifacts.map(spec => spec.file),
+        ...fileBackedSweepArtifacts.map(spec => spec.file),
         ...allocationArtifacts.map(spec => spec.file),
       ],
     },
@@ -490,6 +503,60 @@ function extractCrossProcessRows(report, spec) {
   });
 }
 
+function extractFileBackedSweepRows(report, spec) {
+  const fixture = {
+    source: 'generated-file',
+    shape: 'node-string-return-1024mib',
+    sourceFile: report.fixture?.path ?? null,
+    sizeGiB: round(report.fixture?.sizeGiB),
+    sizeMiB: round(report.fixture?.sizeMiB),
+    actualBytes: null,
+    batchSize: null,
+    rowCycleSize: null,
+  };
+  return (report.rows ?? []).map(row => {
+    const isLarge = (fixture.sizeGiB ?? 0) >= 0.999;
+    const mibPerSec = round(row.mibPerSec);
+    const boundedMemory = row.boundedMemory === true;
+    const fullStringParity = row.fullStringParity === true;
+    return {
+      group: spec.group,
+      sourceArtifact: spec.file,
+      runtimeId: 'node-v8',
+      runtimeLabel: 'Node/V8',
+      languageFamily: 'javascript',
+      jsRuntime: true,
+      engine: report.environment?.v8 ? 'V8' : null,
+      engineVersion: report.environment?.v8 ?? null,
+      caseId: row.id,
+      implementation: row.implementation,
+      contractScope: row.contractScope,
+      fixture,
+      fullStringParity,
+      eventCount: row.eventCount,
+      checksum: row.checksum,
+      mibPerSec,
+      boundedMemory,
+      sourceMode: 'file-backed-sync-iterable-byte-batches',
+      memory: extractMemory(row, report),
+      materializationCounters: null,
+      sampleCount: Array.isArray(row.samplesMs) ? row.samplesMs.length : null,
+      sampleMinMiBPerSec: null,
+      sampleMaxMiBPerSec: null,
+      sampleSpreadRatio: null,
+      woodstoxRatio: null,
+      targetStatus: null,
+      runtimeLimitCounterexample: Boolean(
+        fullStringParity
+        && boundedMemory
+        && isLarge
+        && typeof mibPerSec === 'number'
+        && mibPerSec >= 200
+      ),
+    };
+  });
+}
+
 function classifyExternalSourceMode(row, report) {
   if (typeof row.sourceMode === 'string') return row.sourceMode;
   if (report.options?.staxStreamSource === 'file-sync-batches' && String(row.tool ?? '').startsWith('stax-')) {
@@ -622,12 +689,17 @@ function summarize(rows, allocationEvidence) {
   const woodstox = externalRows.find(row => row.runtimeId === 'woodstox-jvm');
   const quickXml = externalRows.find(row => row.runtimeId === 'quick-xml-rust');
   const externalLargeRows = rows.filter(row => row.group === 'external-baseline-1024mib-file-sync-batches');
+  const sameFixture1024MiBRows = rows.filter(row =>
+    row.group === 'external-baseline-1024mib-file-sync-batches'
+    || row.group === 'file-backed-batch-size-sweep'
+    || row.group === 'file-backed-source-sweep'
+  );
   const largeWoodstox = externalLargeRows.find(row => row.runtimeId === 'woodstox-jvm');
   const largeQuickXml = externalLargeRows.find(row => row.runtimeId === 'quick-xml-rust');
   const largeStaxStream = externalLargeRows.find(row => row.caseId === 'stax-stream');
   const largeRawFrameNameId = externalLargeRows.find(row => row.caseId === 'stax-raw-frame-name-id');
   const fastestSameFixtureLargeJsRow = maxBy(
-    externalLargeRows.filter(row => row.jsRuntime && row.fullStringParity),
+    sameFixture1024MiBRows.filter(row => row.jsRuntime && row.fullStringParity),
     row => row.mibPerSec,
   );
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
@@ -657,7 +729,8 @@ function summarize(rows, allocationEvidence) {
       caveat: 'ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture.',
     },
     sameFixture1024MiBWoodstoxTarget: {
-      group: 'external-baseline-1024mib-file-sync-batches',
+      group: fastestSameFixtureLargeJsRow?.group ?? null,
+      sourceArtifact: fastestSameFixtureLargeJsRow?.sourceArtifact ?? null,
       fastestJsCaseId: fastestSameFixtureLargeJsRow?.caseId ?? null,
       fastestJsMiBPerSec: round(fastestSameFixtureLargeJsMibPerSec),
       woodstoxMiBPerSec: round(largeWoodstoxMibPerSec),
