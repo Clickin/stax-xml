@@ -183,8 +183,8 @@ counterexample rule: JavaScript runtime, 1 GiB+ fixture, full-string parity,
 bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary artifacts are ignored to avoid circular evidence.
 
-The current scan covers 129 primary release JSON artifacts and recognizes 722
-measured rows. It finds 427 JavaScript 1 GiB+ full-string rows and zero
+The current scan covers 130 primary release JSON artifacts and recognizes 724
+measured rows. It finds 429 JavaScript 1 GiB+ full-string rows and zero
 bounded-memory 200 MiB/s+ counterexamples. The fastest full-string row overall
 is Bun/JSC `rawFrameNameId` from
 `bun-candidate-headroom-books-corpus-stability.json` at 178.52 MiB/s with
@@ -215,10 +215,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 129 primary release artifacts and recognizes 722
-measured rows. It records 90 benchmark artifacts, 16 source artifacts, 8
+The current audit scans 130 primary release artifacts and recognizes 724
+measured rows. It records 91 benchmark artifacts, 16 source artifacts, 8
 trace/profile artifacts, 13 allocation artifacts, 2 environment artifacts, and
-9 negative-result artifacts, 431 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
+9 negative-result artifacts, 433 JavaScript 1 GiB+ full-string rows, and three release corpus seeds:
 `books.xml`, `large.xml`, and `treebank_e.xml`.
 
 The audit keeps the open proof obligations concrete. Current browser benchmark
@@ -1332,6 +1332,17 @@ and max RSS `77.4 MiB` despite 16,987,337 text-cache hits and 55 misses. It
 preserved all 62,758,976 string fields, including 16,987,392 text/CDATA fields,
 and the same checksum, so this is a negative result for text/CDATA span caching
 as a path to the 200 MiB/s full-StAX target.
+
+`packages/benchmark/results/release/fold-trimmed-text-candidate-stability.md`
+checks whether keeping the text string but avoiding a separate `value.trim()`
+result string exposes hidden headroom. Under the same `books.xml` corpus-cycle
+fixture and same-process `runs=3`, `warmups=0` source contract, the control
+`rawFrameNameId` averaged `122.32 MiB/s` with `25.4%` spread, max RSS
+`71.2 MiB`, 57,096,514 events, and checksum `-540013997`. The full-parity
+`rawFrameNameIdFoldTrim` row averaged only `103.26 MiB/s` with `8.4%` spread
+and max RSS `77.8 MiB`. It preserved the same 62,758,976 string-field reads,
+19,818,633 raw span materializations, events, and checksum, so avoiding the
+trim-result allocation is a recorded negative result for this corpus shape.
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus.md`
 then repeats the same selected rows in fresh runtime processes with

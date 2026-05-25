@@ -33,9 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 129);
-  assert.equal(report.summary.measuredRowCount, 722);
-  assert.equal(report.summary.largeJsFullRowCount, 427);
+  assert.equal(report.summary.scannedArtifactCount, 130);
+  assert.equal(report.summary.measuredRowCount, 724);
+  assert.equal(report.summary.largeJsFullRowCount, 429);
   assert.equal(report.summary.partialHeadroomRowCount, 20);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
@@ -76,6 +76,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('multi-chunk-batch-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('raw-batch-kind-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('materialization-category-drop-sweep.json'));
+  assert.ok(report.scannedArtifacts.includes('fold-trimmed-text-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('text-cache-materialization-candidate.json'));
