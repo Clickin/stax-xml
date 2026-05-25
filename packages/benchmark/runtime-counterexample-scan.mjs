@@ -125,6 +125,7 @@ function createReport(options) {
     .slice()
     .sort((left, right) => right.mibPerSec - left.mibPerSec);
   const unboundedOrUnknownLargeFullRows = largeJsFullRows.filter(row => row.boundedMemory !== true || !row.hasMemoryProof);
+  const largeFullMemoryRejectionBreakdown = summarizeMemoryRejection(unboundedOrUnknownLargeFullRows);
   const fastestLargeFullRows = largeJsFullRows
     .slice()
     .sort((left, right) => right.mibPerSec - left.mibPerSec)
@@ -178,6 +179,7 @@ function createReport(options) {
       counterexampleCount: counterexamples.length,
       partialHeadroomRowCount: partialHeadroomRows.length,
       unboundedOrUnknownLargeFullRowCount: unboundedOrUnknownLargeFullRows.length,
+      largeFullMemoryRejectionBreakdown,
       fastestLargeFullRow: summarizeRow(fastestLargeFullRows[0]),
       fastestLargeFullRowWithMemoryProof: summarizeRow(fastestLargeFullRowsWithMemoryProof[0]),
       fastestLargeFullAggregateRowWithMemoryProof: summarizeRow(fastestLargeFullAggregateRowsWithMemoryProof[0]),
@@ -197,7 +199,7 @@ function createReport(options) {
     unboundedOrUnknownLargeFullRows,
     aggregateRows,
     sourceModeRows,
-    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown),
+    findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown),
   };
 }
 
@@ -380,6 +382,16 @@ function summarizeSourceModes(rows) {
     });
 }
 
+function summarizeMemoryRejection(rows) {
+  return {
+    total: rows.length,
+    explicitNotBounded: rows.filter(row => row.boundedMemory === false).length,
+    boundedFlagWithoutRowMemoryProof: rows.filter(row => row.boundedMemory === true && !row.hasMemoryProof).length,
+    unknownBoundedFlag: rows.filter(row => row.boundedMemory === null).length,
+    missingRowMemoryProof: rows.filter(row => !row.hasMemoryProof).length,
+  };
+}
+
 function classifyFullStringParity(node, context) {
   if (node.fullStringParity === true) return true;
   if (node.fullStringParity === false) return false;
@@ -462,8 +474,9 @@ function normalizeFixture(fixture) {
   };
 }
 
-function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, unboundedOrUnknownLargeFullRows, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown) {
+function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown) {
   const sourceModes = largeJsFullSourceModeBreakdown.map(entry => `${entry.sourceMode}:${entry.rowCount}`);
+  const memoryRejectionSummary = `${largeFullMemoryRejectionBreakdown.total} recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: ${largeFullMemoryRejectionBreakdown.explicitNotBounded} explicit boundedMemory=false, ${largeFullMemoryRejectionBreakdown.boundedFlagWithoutRowMemoryProof} bounded flag without row-level memory proof, ${largeFullMemoryRejectionBreakdown.unknownBoundedFlag} unknown bounded flag.`;
   return [
     {
       id: 'bounded-full-string-counterexample-search',
@@ -484,8 +497,8 @@ function createFindings(counterexamples, partialHeadroomRows, textMaterializatio
     },
     {
       id: 'unbounded-or-unknown-full-rows-not-counterexamples',
-      status: unboundedOrUnknownLargeFullRows.length > 0 ? 'LIMITED_EVIDENCE_PRESENT' : 'NONE',
-      summary: `${unboundedOrUnknownLargeFullRows.length} recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.`,
+      status: largeFullMemoryRejectionBreakdown.total > 0 ? 'LIMITED_EVIDENCE_PRESENT' : 'NONE',
+      summary: memoryRejectionSummary,
     },
     {
       id: 'cross-process-aggregate-rows-separated',
@@ -525,7 +538,11 @@ function renderMarkdown(report) {
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
     `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,
-    `- Full-string rows without bounded-memory proof: ${report.summary.unboundedOrUnknownLargeFullRowCount}`,
+    `- Full-string rows failing bounded-memory criterion: ${report.summary.unboundedOrUnknownLargeFullRowCount}`,
+    `  - Explicit boundedMemory=false rows: ${report.summary.largeFullMemoryRejectionBreakdown.explicitNotBounded}`,
+    `  - Bounded flag without row-level memory proof: ${report.summary.largeFullMemoryRejectionBreakdown.boundedFlagWithoutRowMemoryProof}`,
+    `  - Unknown bounded-memory flag rows: ${report.summary.largeFullMemoryRejectionBreakdown.unknownBoundedFlag}`,
+    `  - Rows missing row-level memory proof: ${report.summary.largeFullMemoryRejectionBreakdown.missingRowMemoryProof}`,
     `- Fastest 1 GiB+ JS full-string row: ${formatRowSummary(report.summary.fastestLargeFullRow)}`,
     `- Fastest 1 GiB+ JS full-string row with memory proof: ${formatRowSummary(report.summary.fastestLargeFullRowWithMemoryProof)}`,
     `- Fastest 1 GiB+ JS full-string aggregate row with memory proof: ${formatAggregateRowSummary(report.summary.fastestLargeFullAggregateRowWithMemoryProof)}`,

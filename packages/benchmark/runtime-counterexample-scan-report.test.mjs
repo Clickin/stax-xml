@@ -43,6 +43,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.partialHeadroomRowCount, 20);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 1);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 90);
+  assert.deepEqual(report.summary.largeFullMemoryRejectionBreakdown, {
+    total: 90,
+    explicitNotBounded: 90,
+    boundedFlagWithoutRowMemoryProof: 0,
+    unknownBoundedFlag: 0,
+    missingRowMemoryProof: 48,
+  });
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'access-shape-candidate-cross-process.json');

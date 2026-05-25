@@ -223,9 +223,11 @@ checksum to `1372281363`, so it is not full-string StAX parity. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan reports 90 full-string
-rows without bounded-memory proof. This scan is a mechanical guard over the
-current release artifacts; absence of a counterexample here is still not an
-impossibility proof.
+rows failing the bounded-memory counterexample criterion: all 90 carry explicit
+`boundedMemory=false`, 0 are only bounded flags without row-level memory proof,
+0 have an unknown bounded-memory flag, and 48 also lack row-level memory proof.
+This scan is a mechanical guard over the current release artifacts; absence of
+a counterexample here is still not an impossibility proof.
 
 ## Current Evidence: Runtime Proof Coverage Audit
 

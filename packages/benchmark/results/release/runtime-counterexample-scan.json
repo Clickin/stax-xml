@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T08:36:50.889Z",
+  "generatedAt": "2026-05-25T08:48:16.934Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -417,6 +417,13 @@
     "counterexampleCount": 0,
     "partialHeadroomRowCount": 20,
     "unboundedOrUnknownLargeFullRowCount": 90,
+    "largeFullMemoryRejectionBreakdown": {
+      "total": 90,
+      "explicitNotBounded": 90,
+      "boundedFlagWithoutRowMemoryProof": 0,
+      "unknownBoundedFlag": 0,
+      "missingRowMemoryProof": 48
+    },
     "fastestLargeFullRow": {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
       "runtimeLabel": "Bun/JSC",
@@ -6998,7 +7005,7 @@
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule."
+      "summary": "90 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 90 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag."
     },
     {
       "id": "cross-process-aggregate-rows-separated",
