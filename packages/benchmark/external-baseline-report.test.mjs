@@ -51,7 +51,7 @@ test('external baseline report keeps the Woodstox target visible', () => {
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /## Woodstox Target/);
-  assert.match(markdown, /\| Tool \| Implementation \| Throughput \| Woodstox ratio \| 0\.9x target \| Average \| Events \| Checksum \| Status \|/);
+  assert.match(markdown, /\| Tool \| Implementation \| Throughput \| Peak RSS \| Woodstox ratio \| 0\.9x target \| Average \| Events \| Checksum \| Status \|/);
 });
 
 test('external baseline reports raw-frame fold-trim as a same-checksum candidate', () => {

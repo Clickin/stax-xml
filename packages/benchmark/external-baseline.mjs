@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -846,6 +846,183 @@ function runCommand(command, args, cwd) {
   });
 }
 
+function runMeasuredCommand(command, args, cwd) {
+  const commandSpec = normalizeCommand(command, args);
+  return new Promise((resolve) => {
+    let stdout = '';
+    let stderr = '';
+    const child = spawn(commandSpec.command, commandSpec.args, {
+      cwd,
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const sampler = startPeakRssSampler(child.pid);
+
+    child.stdout?.setEncoding('utf8');
+    child.stderr?.setEncoding('utf8');
+    child.stdout?.on('data', chunk => {
+      stdout += chunk;
+    });
+    child.stderr?.on('data', chunk => {
+      stderr += chunk;
+    });
+    child.on('error', async (error) => {
+      resolve({
+        error,
+        stdout,
+        stderr,
+        memory: await sampler.stop(),
+      });
+    });
+    child.on('close', async (status, signal) => {
+      resolve({
+        status,
+        signal,
+        stdout,
+        stderr,
+        memory: await sampler.stop(),
+      });
+    });
+  });
+}
+
+function normalizeCommand(command, args) {
+  if (process.platform === 'win32' && (command === 'mvn' || command === 'cargo')) {
+    return {
+      command: 'cmd.exe',
+      args: ['/d', '/s', '/c', formatWindowsCommand(command, args)],
+    };
+  }
+  return { command, args };
+}
+
+function startPeakRssSampler(pid, intervalMs = 100) {
+  if (!pid) {
+    return { stop: async () => null };
+  }
+  if (process.platform === 'win32') {
+    return startWindowsPeakRssSampler(pid, intervalMs);
+  }
+
+  let stopped = false;
+  let timer = null;
+  let maxRssBytes = null;
+  const sample = () => {
+    const rssBytes = readProcessRssBytes(pid);
+    if (typeof rssBytes === 'number') {
+      maxRssBytes = Math.max(maxRssBytes ?? 0, rssBytes);
+    }
+    if (!stopped) {
+      timer = setTimeout(sample, intervalMs);
+      timer.unref?.();
+    }
+  };
+  sample();
+
+  return {
+    stop: async () => {
+      stopped = true;
+      if (timer) {
+        clearTimeout(timer);
+      }
+      const rssBytes = readProcessRssBytes(pid);
+      if (typeof rssBytes === 'number') {
+        maxRssBytes = Math.max(maxRssBytes ?? 0, rssBytes);
+      }
+      return typeof maxRssBytes === 'number'
+        ? {
+          scope: 'process-rss',
+          maxRssBytes,
+          sampler: {
+            source: process.platform === 'linux' ? 'procfs' : 'ps',
+            intervalMs,
+          },
+        }
+        : null;
+    },
+  };
+}
+
+function startWindowsPeakRssSampler(pid, intervalMs) {
+  const script = [
+    `$pidToWatch = ${pid}`,
+    '$max = 0',
+    'while ($true) {',
+    '  $p = Get-Process -Id $pidToWatch -ErrorAction SilentlyContinue',
+    '  if ($null -eq $p) { break }',
+    '  if ($p.WorkingSet64 -gt $max) { $max = $p.WorkingSet64 }',
+    `  Start-Sleep -Milliseconds ${intervalMs}`,
+    '}',
+    '[Console]::Out.Write($max)',
+  ].join('; ');
+  const sampler = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], {
+    windowsHide: true,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  let stdout = '';
+  let samplerError = null;
+  const closed = new Promise(resolve => {
+    sampler.stdout?.setEncoding('utf8');
+    sampler.stdout?.on('data', chunk => {
+      stdout += chunk;
+    });
+    sampler.on('error', error => {
+      samplerError = error;
+      resolve();
+    });
+    sampler.on('close', () => resolve());
+  });
+
+  return {
+    stop: async () => {
+      await closed;
+      if (samplerError) {
+        return null;
+      }
+      const maxRssBytes = Number(stdout.trim());
+      return Number.isFinite(maxRssBytes) && maxRssBytes > 0
+        ? {
+          scope: 'process-rss',
+          maxRssBytes,
+          sampler: {
+            source: 'powershell-get-process',
+            intervalMs,
+          },
+        }
+        : null;
+    },
+  };
+}
+
+function readProcessRssBytes(pid) {
+  if (process.platform === 'linux') {
+    return readLinuxProcessRssBytes(pid);
+  }
+  return readPsProcessRssBytes(pid);
+}
+
+function readLinuxProcessRssBytes(pid) {
+  try {
+    const status = readFileSync(`/proc/${pid}/status`, 'utf8');
+    const match = /^VmRSS:\s+(\d+)\s+kB$/m.exec(status);
+    return match ? Number(match[1]) * 1024 : null;
+  } catch {
+    return null;
+  }
+}
+
+function readPsProcessRssBytes(pid) {
+  const result = spawnSync('ps', ['-o', 'rss=', '-p', String(pid)], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  if (result.status !== 0) {
+    return null;
+  }
+  const kib = Number(String(result.stdout).trim());
+  return Number.isFinite(kib) && kib > 0 ? kib * 1024 : null;
+}
+
 function formatWindowsCommand(command, args) {
   return [command, ...args].map(quoteWindowsArg).join(' ');
 }
@@ -899,8 +1076,8 @@ function buildQuickXml(options) {
   return trimSpawnOutput(result) || `cargo build failed with exit ${result.status}`;
 }
 
-function runExternalTool(tool, implementation, command, args, options) {
-  const result = runCommand(command, args, repoRoot);
+async function runExternalTool(tool, implementation, command, args, options) {
+  const result = await runMeasuredCommand(command, args, repoRoot);
   if (result.error) {
     if (options.allowMissing) {
       return skipped(tool, implementation, result.error.message);
@@ -915,19 +1092,25 @@ function runExternalTool(tool, implementation, command, args, options) {
     throw new Error(`${tool} failed: ${reason}`);
   }
   try {
+    const row = JSON.parse(result.stdout);
+    const memory = result.memory;
     return {
       tool,
       implementation,
       workload: 'full-string-checksum',
       status: 'ok',
-      ...JSON.parse(result.stdout),
+      ...row,
+      ...(memory ? {
+        boundedMemory: memory.maxRssBytes <= options.boundedRssMiB * 1024 * 1024,
+        memory,
+      } : {}),
     };
   } catch (error) {
     throw new Error(`${tool} emitted invalid JSON: ${error.message}\n${result.stdout}`);
   }
 }
 
-function runWoodstox(options) {
+async function runWoodstox(options) {
   const implementation = 'Java + Woodstox 7.2.0';
   const buildError = buildWoodstox(options);
   if (buildError) {
@@ -948,7 +1131,7 @@ function runWoodstox(options) {
   ], options);
 }
 
-function runQuickXml(options) {
+async function runQuickXml(options) {
   const implementation = 'Rust + quick-xml 0.40.1';
   const buildError = buildQuickXml(options);
   if (buildError) {
@@ -1007,6 +1190,10 @@ function formatRatio(value) {
   return Number.isFinite(value) ? `${value.toFixed(2)}x` : 'n/a';
 }
 
+function formatMemory(value) {
+  return Number.isFinite(value) ? `${(value / 1024 / 1024).toFixed(1)} MiB` : 'n/a';
+}
+
 function escapePipe(value) {
   return String(value ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
 }
@@ -1040,13 +1227,13 @@ function createMarkdown(report) {
   }
 
   lines.push('');
-  lines.push('| Tool | Implementation | Throughput | Woodstox ratio | 0.9x target | Average | Events | Checksum | Status |');
-  lines.push('| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | --- |');
+  lines.push('| Tool | Implementation | Throughput | Peak RSS | Woodstox ratio | 0.9x target | Average | Events | Checksum | Status |');
+  lines.push('| --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | --- |');
 
   for (const result of report.results) {
     lines.push(
       `| ${result.tool} | ${escapePipe(result.implementation)} | ${formatRate(result.mibPerSec)} | ` +
-      `${formatRatio(result.woodstoxRatio)} | ${result.targetStatus} | ${formatMs(result.avgMs)} | ` +
+      `${formatMemory(result.memory?.maxRssBytes)} | ${formatRatio(result.woodstoxRatio)} | ${result.targetStatus} | ${formatMs(result.avgMs)} | ` +
       `${result.eventCount ?? 'n/a'} | ${result.checksum ?? 'n/a'} | ${formatStatus(result)} |`,
     );
   }
@@ -1062,6 +1249,7 @@ function createMarkdown(report) {
   lines.push('- `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.');
   lines.push('- `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.');
   lines.push('- Comparable rows should preserve event count and checksum. A mismatch means the row is not a valid speed comparison.');
+  lines.push('- External parser rows record child-process peak RSS when the platform sampler can observe the process for long enough; missing RSS is not bounded-memory evidence.');
   if (report.options.staxStreamSource === 'file-sync-batches') {
     lines.push('- In file-sync-batches mode, `stax-stream` reads the next chunk with `readSync` only when `StreamReaderSync` pulls the next `Uint8Array[]` batch; it does not pre-materialize the full XML file.');
   }
@@ -1152,9 +1340,9 @@ async function main() {
     } else if (tool === 'stax-event') {
       results.push(measureLocal('stax-event', 'Node + stax-xml EventReaderSync', () => consumeStaxEvent(xml), fileSizeMiB, options));
     } else if (tool === 'woodstox') {
-      results.push(runWoodstox(options));
+      results.push(await runWoodstox(options));
     } else if (tool === 'quick-xml') {
-      results.push(runQuickXml(options));
+      results.push(await runQuickXml(options));
     }
   }
 

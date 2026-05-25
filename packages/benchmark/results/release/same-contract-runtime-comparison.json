@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T14:42:02.946Z",
+  "generatedAt": "2026-05-25T15:11:28.944Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -68,8 +68,8 @@
       "remainingMiBPerSec": 21.48
     },
     "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
-      "ratio": 0.56,
-      "remainingTo90PercentMiBPerSec": 109.62,
+      "ratio": 0.71,
+      "remainingTo90PercentMiBPerSec": 46.56,
       "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
     },
     "fastestJsLargePublicEventRow": {
@@ -124,15 +124,15 @@
           "runtimeId": "node-v8-stax-raw-frame-name-id",
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
-          "mibPerSec": 134.39,
+          "mibPerSec": 106.67,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
-            "maxMiB": 77.18,
+            "maxMiB": 77.88,
             "deltaMiB": null,
-            "maxHeapUsedMiB": 8.78,
-            "maxExternalMiB": 2.54,
-            "maxArrayBuffersMiB": 0.55
+            "maxHeapUsedMiB": 8.6,
+            "maxExternalMiB": 4.11,
+            "maxArrayBuffersMiB": 2.13
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
@@ -441,14 +441,14 @@
       "quickXmlWoodstoxRatio": 0.93
     },
     "externalBaseline1024MiBFileSyncBatches": {
-      "staxStreamMiBPerSec": 108.23,
-      "staxStreamWoodstoxRatio": 0.34,
-      "rawFrameNameIdMiBPerSec": 134.39,
-      "rawFrameNameIdWoodstoxRatio": 0.42,
-      "woodstoxMiBPerSec": 320.16,
-      "quickXmlMiBPerSec": 287.39,
-      "quickXmlWoodstoxRatio": 0.9,
-      "target90MiBPerSec": 288.14
+      "staxStreamMiBPerSec": 91.23,
+      "staxStreamWoodstoxRatio": 0.36,
+      "rawFrameNameIdMiBPerSec": 106.67,
+      "rawFrameNameIdWoodstoxRatio": 0.43,
+      "woodstoxMiBPerSec": 250.09,
+      "quickXmlMiBPerSec": 231.15,
+      "quickXmlWoodstoxRatio": 0.92,
+      "target90MiBPerSec": 225.08
     },
     "memoryMetricKinds": [
       "browser-js-heap",
@@ -607,18 +607,18 @@
       "fullStringParity": true,
       "eventCount": 61236571,
       "checksum": -716099804,
-      "mibPerSec": 108.23,
+      "mibPerSec": 91.23,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 70.85,
+        "maxMiB": 71.42,
         "deltaMiB": null,
-        "maxHeapUsedMiB": 7.41,
-        "maxExternalMiB": 2.13,
-        "maxArrayBuffersMiB": 0.14
+        "maxHeapUsedMiB": 6.36,
+        "maxExternalMiB": 2.69,
+        "maxArrayBuffersMiB": 0.71
       },
-      "woodstoxRatio": 0.34,
+      "woodstoxRatio": 0.36,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -641,18 +641,18 @@
       "fullStringParity": true,
       "eventCount": 61236571,
       "checksum": -716099804,
-      "mibPerSec": 134.39,
+      "mibPerSec": 106.67,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 77.18,
+        "maxMiB": 77.88,
         "deltaMiB": null,
-        "maxHeapUsedMiB": 8.78,
-        "maxExternalMiB": 2.54,
-        "maxArrayBuffersMiB": 0.55
+        "maxHeapUsedMiB": 8.6,
+        "maxExternalMiB": 4.11,
+        "maxArrayBuffersMiB": 2.13
       },
-      "woodstoxRatio": 0.42,
+      "woodstoxRatio": 0.43,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -675,12 +675,16 @@
       "fullStringParity": true,
       "eventCount": 61236571,
       "checksum": -716099804,
-      "mibPerSec": 320.16,
-      "boundedMemory": null,
+      "mibPerSec": 250.09,
+      "boundedMemory": true,
       "sourceMode": null,
       "memory": {
-        "primaryKind": "not-recorded",
-        "note": "external-baseline records throughput and checksum parity, not peak memory."
+        "primaryKind": "process-rss",
+        "maxMiB": 311.88,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
       },
       "woodstoxRatio": 1,
       "targetStatus": "met",
@@ -705,15 +709,19 @@
       "fullStringParity": true,
       "eventCount": 61236571,
       "checksum": -716099804,
-      "mibPerSec": 287.39,
-      "boundedMemory": null,
+      "mibPerSec": 231.15,
+      "boundedMemory": true,
       "sourceMode": null,
       "memory": {
-        "primaryKind": "not-recorded",
-        "note": "external-baseline records throughput and checksum parity, not peak memory."
+        "primaryKind": "process-rss",
+        "maxMiB": 4.79,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
       },
-      "woodstoxRatio": 0.9,
-      "targetStatus": "below",
+      "woodstoxRatio": 0.92,
+      "targetStatus": "met",
       "runtimeLimitCounterexample": false
     },
     {
@@ -4783,12 +4791,12 @@
         "16MiB woodstox=333.43 MiB/s",
         "16MiB quick-xml=309.82 MiB/s",
         "16MiB quick-xml/Woodstox=0.93",
-        "1024MiB stax-stream=108.23 MiB/s",
-        "1024MiB stax-stream/Woodstox=0.34",
-        "1024MiB rawFrameNameId=134.39 MiB/s",
-        "1024MiB rawFrameNameId/Woodstox=0.42",
-        "1024MiB woodstox=320.16 MiB/s",
-        "1024MiB quick-xml=287.39 MiB/s"
+        "1024MiB stax-stream=91.23 MiB/s",
+        "1024MiB stax-stream/Woodstox=0.36",
+        "1024MiB rawFrameNameId=106.67 MiB/s",
+        "1024MiB rawFrameNameId/Woodstox=0.43",
+        "1024MiB woodstox=250.09 MiB/s",
+        "1024MiB quick-xml=231.15 MiB/s"
       ]
     }
   ]

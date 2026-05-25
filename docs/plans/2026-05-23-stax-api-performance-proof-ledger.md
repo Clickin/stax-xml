@@ -163,7 +163,7 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. That is 0.89x of the 200 MiB/s target and
-0.56x of the 1024 MiB Woodstox reference, leaving 109.62 MiB/s to reach the
+0.71x of the 1024 MiB Woodstox reference, leaving 46.56 MiB/s to reach the
 0.9x Woodstox target. For the public event-object shape, the fastest bounded
 row is Node/V8 `eventObjectFull` from
 `candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process

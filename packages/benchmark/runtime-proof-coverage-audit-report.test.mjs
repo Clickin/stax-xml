@@ -36,16 +36,16 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.measuredRowCount, 749);
   assert.equal(report.summary.largeJsFullRowCount, 463);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 31);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 27);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
-    total: 31,
+    total: 27,
     jsRows: 7,
-    fullStringRows: 31,
+    fullStringRows: 27,
     jsFullStringRows: 7,
     largeJsFullStringRows: 0,
     rowsWithMemoryCounter: 0,
   });
-  assert.equal(report.unknownBoundedMemoryRows.length, 31);
+  assert.equal(report.unknownBoundedMemoryRows.length, 27);
   assert.ok(report.unknownBoundedMemoryRows.every(row => row.memoryKind === 'not-recorded'));
   assert.ok(!report.unknownBoundedMemoryRows.some(row =>
     isJsRuntime(row.runtimeId)
@@ -54,7 +54,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.sizeGiB >= 0.999
   ));
   assertUnknownBoundedMemoryRow(report, 'browser-v8-codegen-trace.json', 'stringFull');
-  assertUnknownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'woodstox');
+  assertKnownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'woodstox');
+  assertKnownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'quick-xml');
   assertUnknownBoundedMemoryRow(report, 'quick-xml-allocation-count-stability.json', 'benchmark');
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 3);
@@ -436,6 +437,15 @@ function assertUnknownBoundedMemoryRow(report, sourceArtifact, id) {
     row.sourceArtifact === sourceArtifact
     && row.id === id
   ), `missing unknown bounded-memory row: ${sourceArtifact}/${id}`);
+}
+
+function assertKnownBoundedMemoryRow(report, sourceArtifact, id) {
+  assert.ok(report.coverage.runtimes.some(runtime =>
+    runtime.fastestLargeFullStringRow?.sourceArtifact === sourceArtifact
+    && runtime.fastestLargeFullStringRow?.id === id
+    && runtime.fastestLargeFullStringRow?.boundedMemory === true
+    && runtime.fastestLargeFullStringRow?.memoryKind === 'process-rss'
+  ), `missing known bounded-memory row: ${sourceArtifact}/${id}`);
 }
 
 function isJsRuntime(runtimeId) {

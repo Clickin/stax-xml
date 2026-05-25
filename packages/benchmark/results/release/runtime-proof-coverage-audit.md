@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T14:58:48.792Z
+Generated: 2026-05-25T15:11:54.565Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -10,9 +10,9 @@ This audit scans current release artifacts to show which proof obligations are c
 - Ignored derived artifacts: 5
 - Measured rows recognized: 749
 - Rows with unknown full-string parity: 0
-- Rows with unknown bounded-memory flag: 31
+- Rows with unknown bounded-memory flag: 27
   - Unknown bounded-memory JS rows: 7
-  - Unknown bounded-memory full-string rows: 31
+  - Unknown bounded-memory full-string rows: 27
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 0
 - Benchmark artifacts: 99
@@ -34,18 +34,14 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `stringFull` | 0.00 | not-recorded | yes | 49.46 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `rawFrameNameId` | 0.00 | not-recorded | yes | 28.68 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `eventObjectFull` | 0.00 | not-recorded | yes | 41.47 |
-| `external-baseline-1024mib-file-sync-batches.json` | Java/Woodstox | `woodstox` | 1.00 | not-recorded | yes | 320.16 |
-| `external-baseline-1024mib-file-sync-batches.json` | Rust/quick-xml | `quick-xml` | 1.00 | not-recorded | yes | 287.39 |
 | `external-baseline.json` | Node/V8 | `stax-stream` | 0.02 | not-recorded | yes | 105.30 |
 | `external-baseline.json` | Node/V8 | `stax-event` | 0.02 | not-recorded | yes | 95.94 |
 | `external-baseline.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
 | `external-baseline.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey browser | `rawFrameNameId` | n/a | not-recorded | yes | 22.80 |
-| `materialization-contract-audit.json` | Java/Woodstox | `woodstox` | n/a | not-recorded | yes | 324.53 |
-| `materialization-contract-audit.json` | Rust/quick-xml | `quick-xml` | n/a | not-recorded | yes | 290.92 |
-| `materialization-contract-audit.json` | Node/V8 | `stax-stream` | n/a | not-recorded | yes | 93.81 |
-| `materialization-contract-audit.json` | Java/Woodstox | `woodstox` | n/a | not-recorded | yes | 324.53 |
-| `materialization-contract-audit.json` | Rust/quick-xml | `quick-xml` | n/a | not-recorded | yes | 290.92 |
+| `materialization-contract-audit.json` | Java/Woodstox | `woodstox` | n/a | not-recorded | yes | 250.09 |
+| `materialization-contract-audit.json` | Rust/quick-xml | `quick-xml` | n/a | not-recorded | yes | 231.15 |
+| `materialization-contract-audit.json` | Node/V8 | `stax-stream` | n/a | not-recorded | yes | 91.23 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.02 | not-recorded | yes | 220.90 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 183.58 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 259.32 |
@@ -73,8 +69,8 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
-| Java/Woodstox | 8 | 9 | 1 | woodstox 320.16 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
-| Rust/quick-xml | 7 | 15 | 1 | quick-xml 287.39 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
+| Java/Woodstox | 8 | 9 | 1 | woodstox 250.09 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 1 | 3 |
+| Rust/quick-xml | 7 | 15 | 1 | quick-xml 231.15 MiB/s from external-baseline-1024mib-file-sync-batches.json | 0 | 0 | 2 |
 
 ## Open Obligations
 
