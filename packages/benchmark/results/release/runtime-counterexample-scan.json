@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T05:16:36.701Z",
+  "generatedAt": "2026-05-25T05:24:52.307Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -151,7 +151,7 @@
     "measuredRowCount": 692,
     "largeJsFullRowCount": 422,
     "counterexampleCount": 0,
-    "partialHeadroomRowCount": 15,
+    "partialHeadroomRowCount": 14,
     "unboundedOrUnknownLargeFullRowCount": 90,
     "fastestLargeFullRow": {
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -186,13 +186,13 @@
       "memoryKind": "process-rss",
       "hasMemoryProof": true
     },
-    "textMaterializationHeadroomRowCount": 2,
+    "textMaterializationHeadroomRowCount": 1,
     "fastestTextMaterializationHeadroomRow": {
-      "sourceArtifact": "materialization-category-drop-sweep.json",
+      "sourceArtifact": "text-cache-materialization-candidate.json",
       "runtimeLabel": "Node/V8",
       "id": "withoutTextStrings",
       "sizeGiB": 1,
-      "mibPerSec": 225.67,
+      "mibPerSec": 220.3,
       "boundedMemory": true,
       "fullStringParity": false,
       "memoryKind": "process-rss",
@@ -393,25 +393,6 @@
       "hasMemoryProof": true
     },
     {
-      "sourceArtifact": "materialization-category-drop-sweep.json",
-      "jsonPath": "variants.1",
-      "id": "rawFrameNameId",
-      "runtimeLabel": "Node/V8",
-      "jsRuntime": true,
-      "fullStringParity": true,
-      "boundedMemory": true,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 167.7,
-      "eventCount": 57096514,
-      "checksum": -540013997,
-      "contractScope": "full-string-materialization",
-      "family": "full-stax-js",
-      "counterexampleStatus": "not-found",
-      "memoryKind": "process-rss",
-      "hasMemoryProof": true
-    },
-    {
       "sourceArtifact": "candidate-headroom-books-corpus.json",
       "jsonPath": "variants.9",
       "id": "rawFrameNameId",
@@ -426,6 +407,25 @@
       "checksum": -540013997,
       "contractScope": "full-string-materialization",
       "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
+      "jsonPath": "runtimes.0.childReports.1.variants.0",
+      "id": "stringFull",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 165.92,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "contractScope": "independent-process-candidate-headroom-stability",
+      "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
       "hasMemoryProof": true
@@ -623,25 +623,6 @@
       "hasMemoryProof": true
     },
     {
-      "sourceArtifact": "materialization-category-drop-sweep.json",
-      "jsonPath": "variants.1",
-      "id": "rawFrameNameId",
-      "runtimeLabel": "Node/V8",
-      "jsRuntime": true,
-      "fullStringParity": true,
-      "boundedMemory": true,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 167.7,
-      "eventCount": 57096514,
-      "checksum": -540013997,
-      "contractScope": "full-string-materialization",
-      "family": "full-stax-js",
-      "counterexampleStatus": "not-found",
-      "memoryKind": "process-rss",
-      "hasMemoryProof": true
-    },
-    {
       "sourceArtifact": "candidate-headroom-books-corpus.json",
       "jsonPath": "variants.9",
       "id": "rawFrameNameId",
@@ -656,6 +637,25 @@
       "checksum": -540013997,
       "contractScope": "full-string-materialization",
       "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true
+    },
+    {
+      "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
+      "jsonPath": "runtimes.0.childReports.1.variants.0",
+      "id": "stringFull",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 165.92,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "contractScope": "independent-process-candidate-headroom-stability",
+      "family": null,
       "counterexampleStatus": "not-found",
       "memoryKind": "process-rss",
       "hasMemoryProof": true
@@ -834,25 +834,6 @@
       "hasMemoryProof": true
     },
     {
-      "sourceArtifact": "materialization-category-drop-sweep.json",
-      "jsonPath": "variants.3",
-      "id": "withoutTextStrings",
-      "runtimeLabel": "Node/V8",
-      "jsRuntime": true,
-      "fullStringParity": false,
-      "boundedMemory": true,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 225.67,
-      "eventCount": 57096514,
-      "checksum": 1372281363,
-      "contractScope": "full-materialization-minus-text-cdata",
-      "family": "near-full-upper-bound",
-      "counterexampleStatus": "not-found",
-      "memoryKind": "process-rss",
-      "hasMemoryProof": true
-    },
-    {
       "sourceArtifact": "text-cache-materialization-candidate.json",
       "jsonPath": "variants.4",
       "id": "withoutTextStrings",
@@ -949,25 +930,6 @@
     }
   ],
   "textMaterializationHeadroomRows": [
-    {
-      "sourceArtifact": "materialization-category-drop-sweep.json",
-      "jsonPath": "variants.3",
-      "id": "withoutTextStrings",
-      "runtimeLabel": "Node/V8",
-      "jsRuntime": true,
-      "fullStringParity": false,
-      "boundedMemory": true,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 225.67,
-      "eventCount": 57096514,
-      "checksum": 1372281363,
-      "contractScope": "full-materialization-minus-text-cdata",
-      "family": "near-full-upper-bound",
-      "counterexampleStatus": "not-found",
-      "memoryKind": "process-rss",
-      "hasMemoryProof": true
-    },
     {
       "sourceArtifact": "text-cache-materialization-candidate.json",
       "jsonPath": "variants.4",
@@ -2709,12 +2671,12 @@
     {
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "15 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+      "summary": "14 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
     },
     {
       "id": "text-materialization-headroom",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "2 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
+      "summary": "1 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
     },
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",

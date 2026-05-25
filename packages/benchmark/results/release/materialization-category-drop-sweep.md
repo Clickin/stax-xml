@@ -1,6 +1,6 @@
 # Large Candidate Headroom Matrix
 
-Generated: 2026-05-25T01:18:33.791Z
+Generated: 2026-05-25T05:24:21.349Z
 
 This experiment is a 1 GiB+ bounded-memory counterexample search over corpus-backed `Uint8Array` batches.
 Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.
@@ -28,7 +28,7 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 - Row bytes: min=4551, max=4551, avg=4551.0
 - Batch size: 1
 - Cases: stringFull, rawFrameNameId, withoutElementNameStrings, withoutTextStrings, withoutAttributeNameStrings, withoutAttributeValueStrings
-- Runs: warmups=0, runs=1
+- Runs: warmups=0, runs=3
 - Bounded RSS reporting gate: 512.0 MiB
 
 ## Woodstox Target
@@ -42,12 +42,25 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 
 | Variant | Family | Contract scope | Count kind | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded memory | Counterexample | Events | Checksum | Full parity |
 | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |
-| stringFull | full-stax-js | full-string-materialization | stream-events | 155.10 MiB/s | 1.00x | 0.47x | below | yes | not-found | 57096514 | -540013997 | yes |
-| rawFrameNameId | full-stax-js | full-string-materialization | stream-events | 167.70 MiB/s | 1.08x | 0.50x | below | yes | not-found | 57096514 | -540013997 | yes |
-| withoutElementNameStrings | near-full-upper-bound | full-materialization-minus-element-names | stream-events | 156.05 MiB/s | 1.01x | 0.47x | not-applicable | yes | not-found | 57096514 | 1734496787 | no |
-| withoutTextStrings | near-full-upper-bound | full-materialization-minus-text-cdata | stream-events | 225.67 MiB/s | 1.46x | 0.68x | not-applicable | yes | not-found | 57096514 | 1372281363 | no |
-| withoutAttributeNameStrings | near-full-upper-bound | full-materialization-minus-attribute-names | stream-events | 138.30 MiB/s | 0.89x | 0.41x | not-applicable | yes | not-found | 57096514 | 1782473171 | no |
-| withoutAttributeValueStrings | near-full-upper-bound | full-materialization-minus-attribute-values | stream-events | 165.73 MiB/s | 1.07x | 0.50x | not-applicable | yes | not-found | 57096514 | 1597287507 | no |
+| stringFull | full-stax-js | full-string-materialization | stream-events | 90.11 MiB/s | 1.00x | 0.27x | below | yes | not-found | 57096514 | -540013997 | yes |
+| rawFrameNameId | full-stax-js | full-string-materialization | stream-events | 94.00 MiB/s | 1.04x | 0.28x | below | yes | not-found | 57096514 | -540013997 | yes |
+| withoutElementNameStrings | near-full-upper-bound | full-materialization-minus-element-names | stream-events | 98.80 MiB/s | 1.10x | 0.30x | not-applicable | yes | not-found | 57096514 | 1734496787 | no |
+| withoutTextStrings | near-full-upper-bound | full-materialization-minus-text-cdata | stream-events | 118.99 MiB/s | 1.32x | 0.36x | not-applicable | yes | not-found | 57096514 | 1372281363 | no |
+| withoutAttributeNameStrings | near-full-upper-bound | full-materialization-minus-attribute-names | stream-events | 89.08 MiB/s | 0.99x | 0.27x | not-applicable | yes | not-found | 57096514 | 1782473171 | no |
+| withoutAttributeValueStrings | near-full-upper-bound | full-materialization-minus-attribute-values | stream-events | 89.66 MiB/s | 1.00x | 0.27x | not-applicable | yes | not-found | 57096514 | 1597287507 | no |
+
+## Timing Stability
+
+Rows with `runs > 1` report same-process timing spread; this is variance evidence for the recorded machine, not a cross-process statistical proof.
+
+| Variant | Runs | Avg ms | Min ms | Max ms | Spread | Samples ms |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| stringFull | 3 | 11363.81 | 9038.92 | 13436.65 | 38.7% | 9038.92, 13436.65, 11615.86 |
+| rawFrameNameId | 3 | 10893.67 | 10667.45 | 11075.61 | 3.7% | 10667.45, 11075.61, 10937.95 |
+| withoutElementNameStrings | 3 | 10364.56 | 10168.01 | 10646.17 | 4.6% | 10168.01, 10279.52, 10646.17 |
+| withoutTextStrings | 3 | 8605.75 | 8395.20 | 8832.48 | 5.1% | 8832.48, 8395.20, 8589.58 |
+| withoutAttributeNameStrings | 3 | 11495.14 | 11433.46 | 11580.80 | 1.3% | 11471.16, 11580.80, 11433.46 |
+| withoutAttributeValueStrings | 3 | 11420.37 | 11051.07 | 11696.40 | 5.7% | 11513.66, 11696.40, 11051.07 |
 
 ## Memory
 
@@ -55,25 +68,25 @@ Memory uses `process.memoryUsage()` before and after each measured run; max valu
 
 | Variant | Avg heap delta | Avg RSS delta | Max heap used | Max RSS |
 | --- | ---: | ---: | ---: | ---: |
-| stringFull | +1.9 MiB | +5.9 MiB | 6.6 MiB | 69.7 MiB |
-| rawFrameNameId | +2.3 MiB | +680.0 KiB | 7.5 MiB | 70.4 MiB |
-| withoutElementNameStrings | +1.8 MiB | +376.0 KiB | 7.0 MiB | 70.4 MiB |
-| withoutTextStrings | +2.1 MiB | +2.1 MiB | 7.3 MiB | 72.7 MiB |
-| withoutAttributeNameStrings | +1.3 MiB | -1.8 MiB | 6.5 MiB | 72.8 MiB |
-| withoutAttributeValueStrings | +710.0 KiB | +5.8 MiB | 5.9 MiB | 77.0 MiB |
+| stringFull | +1.5 MiB | +2.1 MiB | 7.2 MiB | 71.0 MiB |
+| rawFrameNameId | +2.6 MiB | +1.9 MiB | 9.1 MiB | 77.0 MiB |
+| withoutElementNameStrings | +3.1 MiB | +4.0 KiB | 8.4 MiB | 77.6 MiB |
+| withoutTextStrings | +2.0 MiB | +2.8 MiB | 7.4 MiB | 81.1 MiB |
+| withoutAttributeNameStrings | +3.0 MiB | -1.0 MiB | 8.3 MiB | 80.7 MiB |
+| withoutAttributeValueStrings | +2.6 MiB | +8.0 KiB | 8.0 MiB | 78.1 MiB |
 
 ## Materialization Counters
 
 Counters are collected inside the measured large-input loop to avoid a second 1 GiB+ pass.
 
-| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Event objects | Projected records | Projection fields | Attribute pairs |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| stringFull | 62,758,976 | 40,109,120 | 16,987,392 | 2,831,232 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
-| rawFrameNameId | 62,758,976 | 40,109,120 | 16,987,392 | 2,831,232 | 2,831,232 | 19,818,633 | 42,940,343/9 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
-| withoutElementNameStrings | 22,649,856 | 0 | 16,987,392 | 2,831,232 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
-| withoutTextStrings | 45,771,584 | 40,109,120 | 0 | 2,831,232 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
-| withoutAttributeNameStrings | 59,927,744 | 40,109,120 | 16,987,392 | 0 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
-| withoutAttributeValueStrings | 59,927,744 | 40,109,120 | 16,987,392 | 2,831,232 | 0 | 0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
+| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Long ASCII text hit/fallback | Event objects | Projected records | Projection fields | Attribute pairs |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| stringFull | 62,758,976 | 40,109,120 | 16,987,392 | 2,831,232 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
+| rawFrameNameId | 62,758,976 | 40,109,120 | 16,987,392 | 2,831,232 | 2,831,232 | 19,818,633 | 42,940,343/9 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
+| withoutElementNameStrings | 22,649,856 | 0 | 16,987,392 | 2,831,232 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
+| withoutTextStrings | 45,771,584 | 40,109,120 | 0 | 2,831,232 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
+| withoutAttributeNameStrings | 59,927,744 | 40,109,120 | 16,987,392 | 0 | 2,831,232 | 0 | 0/0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
+| withoutAttributeValueStrings | 59,927,744 | 40,109,120 | 16,987,392 | 2,831,232 | 0 | 0 | 0/0 | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 2,831,232 |
 
 ## Omitted Rows
 
@@ -92,8 +105,8 @@ Full-string parity rows: ok, events=57096514, checksum=-540013997, rows=stringFu
   - byteBatches(fixture) yields one grouped batch per parser pull.
   - Direct browser ReadableStream and async byte-batch fetch rows live in browser-candidate-headroom.
 - bounded-memory-contract: Rows consume corpus-backed Uint8Array batches and do not load a full XML string.
-  - stringFull: maxRSS=69.7 MiB
-  - rawFrameNameId: maxRSS=70.4 MiB
+  - stringFull: maxRSS=71.0 MiB
+  - rawFrameNameId: maxRSS=77.0 MiB
 - multi-chunk-batch-cost: This run uses one Uint8Array chunk per parser pull when possible, which avoids the sync cursor multi-chunk concatenation path except for pending tail repair.
   - batchSize=1
   - singleChunk=direct Uint8Array view
@@ -114,8 +127,8 @@ Full-string parity rows: ok, events=57096514, checksum=-540013997, rows=stringFu
   - stringFull: events=57096514, checksum=-540013997
   - rawFrameNameId: events=57096514, checksum=-540013997
 - headroom-search: The fastest row in each family is a headroom signal, not a runtime-limit conclusion.
-  - partial=withoutTextStrings 225.67 MiB/s
-  - full=rawFrameNameId 167.70 MiB/s
+  - partial=withoutTextStrings 118.99 MiB/s
+  - full=rawFrameNameId 94.00 MiB/s
 - corpus-cycle-fixture: The fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows.
   - sourceFile=G:\programming\stax-xml\packages\benchmark\assets\books.xml
   - sourceBytes=4551
