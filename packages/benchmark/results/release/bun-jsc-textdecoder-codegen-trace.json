@@ -1,0 +1,315 @@
+{
+  "generatedAt": "2026-05-25T12:11:39.364Z",
+  "objective": "bun-jsc-textdecoder-codegen-trace",
+  "contract": "bun-jsc-textdecoder-span-bytecode-dfg-trace",
+  "note": "Bun/JSC codegen trace over the TextDecoder span materialization matrix. This ties the benchmark callsites to JavaScriptCore bytecode/DFG evidence, but it is not native Bun Zig generated-code proof and not Safari/browser evidence.",
+  "environment": {
+    "runtime": {
+      "runtimeName": "bun",
+      "javascriptEngine": "JavaScriptCore",
+      "bunVersion": "1.3.13",
+      "webkitCommit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+      "processVersions": {
+        "node": "24.3.0",
+        "bun": "1.3.13",
+        "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+        "openssl": "1.1.0",
+        "llhttp": "9.3.0",
+        "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+        "mimalloc": "57029fb1f193e633462e76af745599e1dbfd4b58",
+        "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+        "uwebsockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+        "webkit": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+        "zig": "365343af4fc5a1a632e6b54aadd0b87be30edd81",
+        "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+        "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+        "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+        "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+        "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+        "usockets": "bf2e2cecf27e800962b1e7f03d66278f9d5d2e79",
+        "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+        "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "v8": "13.6.233.10-node.18",
+        "uv": "1.51.1-dev",
+        "napi": "10",
+        "icu": "73.2",
+        "unicode": "15.0",
+        "modules": "137"
+      },
+      "bunRevision": "1.3.13+bf2e2cecf"
+    },
+    "hostNode": "v24.15.0",
+    "platform": "win32-x64",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "parameters": {
+    "sizeGiB": 0.001,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 64,
+    "batchSize": 16,
+    "jscTraceEnv": {
+      "JSC_dumpBytecodeAtDFGTime": "true",
+      "JSC_dumpDFGDisassembly": "true"
+    },
+    "maxBufferMiB": 192
+  },
+  "fixture": {
+    "source": "generated",
+    "sourceFile": null,
+    "generated": true,
+    "shape": "diverse-cycle",
+    "rowCycleSize": 64,
+    "batchSize": 16,
+    "targetBytes": 1073741,
+    "actualBytes": 1073814,
+    "sizeGiB": 0.0010000672191381454,
+    "minRowBytes": 222,
+    "maxRowBytes": 265,
+    "averageRowBytes": 247.375,
+    "rowPreview": "<person0 id=\"item-0\" data0=\"value-0\" code0=\"group-0\" flag0=\"true\"><name0>Runtime Benchmark 0 ☃-0-🙂</name0><summary0 rank=\"0\">Full string checksum payload 0</summary0><group0 shard=\"0\" bucket=\"0\">Text 0 0</group0></person0>",
+    "rowPreviewTruncated": false
+  },
+  "rawArtifacts": {
+    "committed": false,
+    "benchmarkJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-textdecoder-codegen\\trace-2026-05-25\\benchmark.json",
+    "benchmarkMd": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-textdecoder-codegen\\trace-2026-05-25\\benchmark.md",
+    "traceLog": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-textdecoder-codegen\\trace-2026-05-25\\jsc-textdecoder-codegen.log",
+    "runLog": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\bun-jsc-textdecoder-codegen\\trace-2026-05-25\\run.log"
+  },
+  "elapsedMs": 1138,
+  "variants": [
+    {
+      "id": "subarraySharedDecoder",
+      "family": "full-stax-js",
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "mibPerSec": 6.41,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1316984100,
+      "stringFields": 108525,
+      "rawSpans": 108525,
+      "textDecoderCalls": 108525,
+      "textDecoderInstances": 0,
+      "shortAsciiHits": 0,
+      "copiedSpans": 0,
+      "copiedSpanBytes": 0,
+      "maxRssBytes": 165486592,
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      }
+    },
+    {
+      "id": "viewSharedDecoder",
+      "family": "full-stax-js",
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "mibPerSec": 13.97,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1316984100,
+      "stringFields": 108525,
+      "rawSpans": 108525,
+      "textDecoderCalls": 108525,
+      "textDecoderInstances": 0,
+      "shortAsciiHits": 0,
+      "copiedSpans": 0,
+      "copiedSpanBytes": 0,
+      "maxRssBytes": 182976512,
+      "decodeStrategy": {
+        "spanView": "Uint8Array constructor view",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      }
+    },
+    {
+      "id": "sliceCopySharedDecoder",
+      "family": "full-stax-js",
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "mibPerSec": 1.97,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1316984100,
+      "stringFields": 108525,
+      "rawSpans": 108525,
+      "textDecoderCalls": 108525,
+      "textDecoderInstances": 0,
+      "shortAsciiHits": 0,
+      "copiedSpans": 108525,
+      "copiedSpanBytes": 865446,
+      "maxRssBytes": 196792320,
+      "decodeStrategy": {
+        "spanView": "Uint8Array copy",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": true,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      }
+    },
+    {
+      "id": "subarrayNewDecoder",
+      "family": "full-stax-js",
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "mibPerSec": 6.94,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1316984100,
+      "stringFields": 108525,
+      "rawSpans": 108525,
+      "textDecoderCalls": 108525,
+      "textDecoderInstances": 108525,
+      "shortAsciiHits": 0,
+      "copiedSpans": 0,
+      "copiedSpanBytes": 0,
+      "maxRssBytes": 205664256,
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-span-new",
+        "copiesSpanBytes": false,
+        "manualShortAscii": false,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      }
+    },
+    {
+      "id": "shortAsciiSubarraySharedDecoder",
+      "family": "full-stax-js",
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "mibPerSec": 7.82,
+      "boundedMemory": true,
+      "eventCount": 47753,
+      "checksum": -1316984100,
+      "stringFields": 108525,
+      "rawSpans": 108525,
+      "textDecoderCalls": 8682,
+      "textDecoderInstances": 0,
+      "shortAsciiHits": 99843,
+      "copiedSpans": 0,
+      "copiedSpanBytes": 0,
+      "maxRssBytes": 206168064,
+      "decodeStrategy": {
+        "spanView": "Uint8Array.subarray",
+        "decoderLifetime": "per-run-shared",
+        "copiesSpanBytes": false,
+        "manualShortAscii": true,
+        "usesTextDecoder": true,
+        "nodeBufferSpecific": false,
+        "nativeAddon": false,
+        "lazyGetter": false
+      }
+    }
+  ],
+  "fullStringParity": {
+    "status": "ok",
+    "eventCount": 47753,
+    "checksum": -1316984100,
+    "fullRowCount": 5
+  },
+  "trace": {
+    "byteLength": 946861,
+    "lineCount": 12141,
+    "parsingLineCount": 26,
+    "generatedJitLineCount": 22,
+    "generatedDfgLineCount": 18,
+    "dfgNodeLineCount": 1880,
+    "bytecodeLineCount": 675,
+    "targetMentions": {
+      "TextDecoder": 14,
+      "decode": 25,
+      "decodeShortAsciiSpan": 0,
+      "consumeVariant": 0,
+      "StreamReaderSync": 0,
+      "Uint8Array.subarray": 16,
+      "materializeName": 4,
+      "currentGeneration": 0
+    },
+    "totalTargetMentions": 59,
+    "excerpts": {
+      "parsing": [
+        "Parsing p#EdQppc:[0x00000220C9CC5520->0x00000220C9CC4640->0x00000220C9C35150, NoneFunctionCall, 40 (StrictMode)]",
+        "Parsing re#DttTtN:[0x00000220C9CC5600->0x00000220C9CC48E0->0x00000220C9C35660, NoneFunctionCall, 121 (StrictMode)]",
+        "Parsing ae#Dfj28s:[0x00000220C9CC56E0->0x00000220C9CC4560->0x00000220C9C35930, NoneFunctionCall, 95 (StrictMode)]",
+        "Parsing internName#DKeZqP:[0x00000220C9CC57C0->0x00000220C9CC4800->0x00000220C9C611E0, NoneFunctionCall, 140 (StrictMode)]",
+        "Parsing p#EdQppc:[0x00000221485683A0->0x00000220C9CC4640->0x00000220C9C35150, NoneFunctionCall, 40 (StrictMode)]"
+      ],
+      "generatedDfg": [
+        "Generated DFG JIT code for p#EdQppc:[0x00000220C9CC5520->0x00000220C9CC4640->0x00000220C9C35150, DFGFunctionCall, 40 (StrictMode)], instructions size = 40:",
+        "Generated DFG JIT code for re#DttTtN:[0x00000220C9CC5600->0x00000220C9CC48E0->0x00000220C9C35660, DFGFunctionCall, 121 (StrictMode)], instructions size = 121:",
+        "Generated DFG JIT code for ae#Dfj28s:[0x00000220C9CC56E0->0x00000220C9CC4560->0x00000220C9C35930, DFGFunctionCall, 95 (StrictMode)], instructions size = 95:",
+        "Generated DFG JIT code for internName#DKeZqP:[0x00000220C9CC57C0->0x00000220C9CC4800->0x00000220C9C611E0, DFGFunctionCall, 140 (StrictMode)], instructions size = 140:",
+        "Generated DFG JIT code for addEvent#D2kSE0:[0x00000220C9CC58A0->0x00000220C9C2FBA0->0x00000220C9C61420, DFGFunctionCall, 261 (StrictMode)], instructions size = 261:",
+        "Generated DFG JIT code for foldString#AIdmJs:[0x00000220C9CC6240->0x00000220C9CC6080->0x00000220C9C5C850, DFGFunctionCall, 82 (StrictMode)], instructions size = 82:",
+        "Generated DFG JIT code for decodeSpan#CjBR9Y:[0x00000220C9CC6320->0x00000220C9CC5DE0->0x00000220C9C378B0, DFGFunctionCall, 75 (StrictMode)], instructions size = 75:",
+        "Generated DFG JIT code for decode#CIZDum:[0x00000220C9CC6400->0x00000220C9CC5FA0->0x00000220C9C6A620, DFGFunctionCall, 58 (StrictMode)], instructions size = 58:"
+      ],
+      "targetFunctions": [
+        "TextDecoder span variant matrix",
+        "subarraySharedDecoder                  6.41 MiB/s bounded=yes counterexample=not-found decoderCalls=108525 maxRSS=157.8 MiB events=47753 checksum=-1316984100",
+        "subarrayNewDecoder                     6.94 MiB/s bounded=yes counterexample=not-found decoderCalls=108525 maxRSS=196.1 MiB events=47753 checksum=-1316984100",
+        "        %DL:GlobalObject        = 0x0000022201006710:[0x0000000001006710/16803600, GlobalObject, (0/0, 86/128){Object:64, Function:65, Array:66, RegExp:67, Iterator:68, SharedArrayBuffer:69, SuppressedError:70, DisposableStack:71, AsyncDisposableStack:72, String:73, Promise:74, BigInt:75, Symbol:76, WeakRef:77, FinalizationRegistry:78, Intl:79, ShadowRealm:80, Loader:81, asyncContext:82, WebAssembly:83, createFIFO:84, createEmptyReadableStream:85, createUsedReadableStream:86, createNativeReadableStream:87, requireESM:88, loadEsmIntoCjs:89, internalRequire:90, overridableRequire:91, createUninitializedArrayBuffer:92, resolveSync:93, createInternalModuleById:94, createCommonJSModule:95, evaluateCommonJSModule:96, evictIsolationSourceProviderCache:97, Buffer:98, lazyStreamPrototypeMap:99, TransformStream:100, TransformStreamDefaultController:101, ReadableByteStreamController:102, ReadableStream:103, ReadableStreamBYOBReader:104, ReadableStreamBYOBRequest:105, ReadableStreamDefaultController:106, ReadableStreamDefaultReader:107, WritableStream:108, WritableStreamDefaultController:109, WritableStreamDefaultWriter:110, AbortSignal:111, self:112, onmessage:113, onerror:114, console:115, Map:116, Reflect:117, Error:118, AggregateError:119, Number:120, Set:121, WeakSet:122, WeakMap:123, Uint8ClampedArray:124, Uint16Array:125, Uint32Array:126, Int8Array:127, Int16Array:128, Int32Array:129, Float16Array:130, Float32Array:131, Float64Array:132, BigUint64Array:133, BigInt64Array:134, globalThis:135, setTimeout:136, setImmediate:137, setInterval:138, Math:139, TypeError:140, process:141, Bun:142, URL:143, URLSearchParams:144, Uint8Array:145, TextEncoder:146, JSON:147, TextDecoder:148, performance:149}, NonArray, ChangePrototype, Proto:0x00000220C8064208, Dictionary, Leaf]",
+        "      D@27:<!0:->\tFilterGetByStatus(Check:Untyped:D@25, MustGen, (Simple, <id='uid:(byteLength)', [0x0000022201007900:[0x0000000001007900/16808192, Uint8Array, (0/0, 0/0){}, NonArray, Unknown, Proto:0x00000220C90BC360, Leaf (Watched)]], [<Object: 0x00000220C90BC360 with butterfly 0x00000220C9090248(base=0x00000220C9090200) (Structure 0x0000022201007890:[0x0000000001007890/16808080, Uint8ArrayPrototype, (0/0, 6/8){BYTES_PER_ELEMENT:64, setFromBase64:65, setFromHex:66, toBase64:67, toHex:68, constructor:69}, NonArray, BecomePrototype, Proto:0x00000220C90BC350, Leaf (Watched)]), StructureID: 16808080: Absence of byteLength with prototype Object: 0x00000220C90BC350 with butterfly 0x00000220C90B0B68(base=0x00000220C90B0960) (Structure 0x00000222010077B0:[0x00000000010077B0/16807856, Prototype, (0/0, 38/64){toString:64, buffer:65, byteLength:66, byteOffset:67, copyWithin:68, sort:69, every:70, filter:71, entries:72, includes:73, fill:74, find:75, findLast:76, findIndex:77, findLastIndex:78, forEach:79, indexOf:80, join:81, keys:82, lastIndexOf:83, length:84, map:85, reduce:86, reduceRight:87, reverse:88, set:89, slice:90, some:91, subarray:92, toLocaleString:93, toReversed:94, toSorted:95, with:96, at:97, Symbol.toStringTag:98, values:99, Symbol.iterator:100, constructor:101}, NonArray, BecomePrototype, Proto:0x00000220C8064208, Leaf (Watched)]), StructureID: 16807856>, <Object: 0x00000220C90BC350 with butterfly 0x00000220C90B0B68(base=0x00000220C90B0960) (Structure 0x00000222010077B0:[0x00000000010077B0/16807856, Prototype, (0/0, 38/64){toString:64, buffer:65, byteLength:66, byteOffset:67, copyWithin:68, sort:69, every:70, filter:71, entries:72, includes:73, fill:74, find:75, findLast:76, findIndex:77, findLastIndex:78, forEach:79, indexOf:80, join:81, keys:82, lastIndexOf:83, length:84, map:85, reduce:86, reduceRight:87, reverse:88, set:89, slice:90, some:91, subarray:92, toLocaleString:93, toReversed:94, toSorted:95, with:96, at:97, Symbol.toStringTag:98, values:99, Symbol.iterator:100, constructor:101}, NonArray, BecomePrototype, Proto:0x00000220C8064208, Leaf (Watched)]), StructureID: 16807856: Presence of byteLength at 66 with attributes 22>], viaGlobalProxy = false, offset = 66, intrinsic = <00000220C90E1060, Function>>, seenInJIT = true), W:SideState, bc#10, ExitValid)",
+        "     D@110:<!0:->\tFilterGetByStatus(Check:Untyped:D@107, MustGen, (Simple, <id='uid:(ensureEventCapacity)', [0x000002220103D520:[0x000000000103D520/17028384, Object, (6/6, 31/32){iterator:0, decoder:1, incompleteFinalMarkupMessage:2, emitStartDocumentBatchImmediately:3, documentMode:4, currentBuffer:5, pendingTail:64, started:65, pendingStartDocument:66, sourceDone:67, finished:68, eventTypes:69, nameStarts:70, nameEnds:71, nameIdsForEvents:72, textStarts:73, textEnds:74, attrStarts:75, attrCounts:76, eventCursor:77, attrNameStarts:78, attrNameEnds:79, attrNameIds:80, attrValueStarts:81, attrValueEnds:82, attrCursor:83, elementNameIds:84, elementNameBuffers:85, elementNameStarts:86, elementNameEnds:87, elementDepth:88, rootElementCount:89, hasDoctype:90, declaredEntities:91, nameIds:92, nameStrings:93, frame:94}, NonArray, PropertyAddition, Proto:0x00000220C9089640, Leaf (Watched)]], [<Object: 0x00000220C9089640 with butterfly 0x00000220C90B19A8(base=0x00000220C90B17A0) (Structure 0x000002220103BC10:[0x000000000103BC10/17021968, Object, (2/2, 51/64){constructor:0, nextBatch:1, nextBatchFrame:64, pushByteBatch:65, eventCount:66, batchFrame:67, buffer:68, eventType:69, nameStart:70, nameEnd:71, textStart:72, textEnd:73, attrCount:74, attrNameStart:75, attrNameEnd:76, attrValueStart:77, attrValueEnd:78, decodeSpan:79, copyName:80, copyText:81, copyAttrName:82, copyAttrValue:83, copyAttrValueByName:84, isImplicitAttributeValue:85, copyAttributesObject:86, resetFrames:87, refreshFrame:88, prepareBuffer:89, finish:90, parseBuffer:91, parseTag:92, parseBangTag:93, parseProcessingInstruction:94, parseEndTag:95, parseStartTag:96, parseAttributes:97, addText:98, assertValidName:99, assertValidAttributeValue:100, assertValidCharacterData:101, assertValidXmlCharactersOnly:102, recordEntityDeclarations:103, registerStartElement:104, assertTextAllowedOutsideDocumentElement:105, internName:106, materializeName:107, lookupNameId:108, addTextEvent:109, addEvent:110, addAttribute:111, ensureEventCapacity:112, ensureAttrCapacity:113, ensureElementCapacity:114}, NonArray, BecomePrototype, Proto:0x00000220C8064208, Leaf (Watched)]), StructureID: 17021968: Presence of ensureEventCapacity at 112 with attributes 4>], viaGlobalProxy = false, offset = 112>, seenInJIT = true), W:SideState, bc#106, ExitValid)",
+        "  id2 = decode",
+        "       65:     %DE:GlobalObject              = 0x0000022201006710:[0x0000000001006710/16803600, GlobalObject, (0/0, 86/128){Object:64, Function:65, Array:66, RegExp:67, Iterator:68, SharedArrayBuffer:69, SuppressedError:70, DisposableStack:71, AsyncDisposableStack:72, String:73, Promise:74, BigInt:75, Symbol:76, WeakRef:77, FinalizationRegistry:78, Intl:79, ShadowRealm:80, Loader:81, asyncContext:82, WebAssembly:83, createFIFO:84, createEmptyReadableStream:85, createUsedReadableStream:86, createNativeReadableStream:87, requireESM:88, loadEsmIntoCjs:89, internalRequire:90, overridableRequire:91, createUninitializedArrayBuffer:92, resolveSync:93, createInternalModuleById:94, createCommonJSModule:95, evaluateCommonJSModule:96, evictIsolationSourceProviderCache:97, Buffer:98, lazyStreamPrototypeMap:99, TransformStream:100, TransformStreamDefaultController:101, ReadableByteStreamController:102, ReadableStream:103, ReadableStreamBYOBReader:104, ReadableStreamBYOBRequest:105, ReadableStreamDefaultController:106, ReadableStreamDefaultReader:107, WritableStream:108, WritableStreamDefaultController:109, WritableStreamDefaultWriter:110, AbortSignal:111, self:112, onmessage:113, onerror:114, console:115, Map:116, Reflect:117, Error:118, AggregateError:119, Number:120, Set:121, WeakSet:122, WeakMap:123, Uint8ClampedArray:124, Uint16Array:125, Uint32Array:126, Int8Array:127, Int16Array:128, Int32Array:129, Float16Array:130, Float32Array:131, Float64Array:132, BigUint64Array:133, BigInt64Array:134, globalThis:135, setTimeout:136, setImmediate:137, setInterval:138, Math:139, TypeError:140, process:141, Bun:142, URL:143, URLSearchParams:144, Uint8Array:145, TextEncoder:146, JSON:147, TextDecoder:148, performance:149}, NonArray, ChangePrototype, Proto:0x00000220C8064208, Dictionary, Leaf (Watched)]",
+        "Parsing decode#CIZDum:[0x00000220C9CC6400->0x00000220C9CC5FA0->0x00000220C9C6A620, NoneFunctionCall, 58 (StrictMode)]",
+        "decode#CIZDum:[0x00000220C9CC5FA0->0x00000220C9C6A620, BaselineFunctionCall, 58 (StrictMode)]: 13 instructions (0 16-bit instructions, 0 32-bit instructions, 7 instructions with metadata); 158 bytes (100 metadata bytes); 6 parameter(s); 18 callee register(s); 5 variable(s); scope at loc4",
+        "  id2 = decode",
+        "  id3 = subarray"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "bun-jsc-textdecoder-bytecode-dfg-trace-visible",
+      "classification": "TRACE_FACT",
+      "summary": "Bun/JSC emitted JavaScriptCore bytecode and DFG JIT disassembly while running the TextDecoder span matrix.",
+      "evidence": [
+        "generatedDfgLineCount=18",
+        "bytecodeLineCount=675",
+        "dfgNodeLineCount=1880",
+        "totalTargetMentions=59"
+      ]
+    },
+    {
+      "id": "bun-jsc-textdecoder-full-string-contract",
+      "classification": "TRACE_FACT",
+      "summary": "The traced TextDecoder rows preserved full-string event count and checksum parity.",
+      "evidence": [
+        "subarraySharedDecoder: events=47753, checksum=-1316984100, textDecoderCalls=108525, mibPerSec=6.41",
+        "viewSharedDecoder: events=47753, checksum=-1316984100, textDecoderCalls=108525, mibPerSec=13.97",
+        "sliceCopySharedDecoder: events=47753, checksum=-1316984100, textDecoderCalls=108525, mibPerSec=1.97",
+        "subarrayNewDecoder: events=47753, checksum=-1316984100, textDecoderCalls=108525, mibPerSec=6.94",
+        "shortAsciiSubarraySharedDecoder: events=47753, checksum=-1316984100, textDecoderCalls=8682, mibPerSec=7.82"
+      ]
+    },
+    {
+      "id": "not-native-zig-codegen-or-safari-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This trace observes Bun/JSC JavaScript benchmark callsites, not native Bun Zig TextDecoder generated code or Safari/WebKit browser behavior.",
+      "evidence": [
+        "The Bun TextDecoder dispatch source-pin audit remains the source evidence for Bun Zig default UTF-8 dispatch.",
+        "Safari/WebKit browser rows remain a separate proof obligation."
+      ]
+    }
+  ]
+}

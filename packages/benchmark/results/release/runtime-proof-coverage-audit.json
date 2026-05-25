@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T11:53:51.822Z",
+  "generatedAt": "2026-05-25T12:13:23.485Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -729,6 +729,29 @@
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "bun-jsc-textdecoder-codegen-trace.json",
+      "objective": "bun-jsc-textdecoder-codegen-trace",
+      "contract": "bun-jsc-textdecoder-span-bytecode-dfg-trace",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "bun-jsc"
+      ],
+      "outcome": null,
+      "fixture": {
+        "source": "generated",
+        "shape": "diverse-cycle",
+        "sourceFile": null,
+        "sizeGiB": 0,
+        "sizeMiB": 1.02,
+        "actualBytes": 1073814
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 5
     },
     {
       "sourceArtifact": "bun-textdecoder-dispatch-source-pin-audit.json",
@@ -2781,12 +2804,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 137,
+    "scannedArtifactCount": 138,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 740,
+    "measuredRowCount": 745,
     "rowClassificationCompleteness": {
-      "measuredRows": 740,
+      "measuredRows": 745,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 77
     },
@@ -2798,9 +2821,9 @@
       "largeJsFullStringRows": 0,
       "rowsWithMemoryCounter": 24
     },
-    "benchmarkArtifactCount": 97,
+    "benchmarkArtifactCount": 98,
     "sourceArtifactCount": 16,
-    "traceArtifactCount": 9,
+    "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 10,
@@ -2866,8 +2889,8 @@
       {
         "runtimeId": "bun-jsc",
         "runtimeLabel": "Bun/JSC",
-        "artifactCount": 29,
-        "measuredRowCount": 207,
+        "artifactCount": 30,
+        "measuredRowCount": 212,
         "largeFullStringRowCount": 124,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "access-shape-candidate-cross-process.json",
@@ -2912,7 +2935,8 @@
         "traceArtifacts": [
           "bun-jsc-codegen-trace.json",
           "bun-jsc-cpu-profile.json",
-          "bun-jsc-partial-codegen-trace.json"
+          "bun-jsc-partial-codegen-trace.json",
+          "bun-jsc-textdecoder-codegen-trace.json"
         ],
         "allocationArtifacts": [
           "bun-jsc-heap-allocation-profile.json",
@@ -15751,6 +15775,29 @@
         "sourceArtifact": "bun-jsc-partial-codegen-trace.json",
         "objective": "bun-jsc-codegen-trace",
         "contract": "jsc-bytecode-dfg-disassembly-trace",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "bun-jsc"
+        ],
+        "outcome": null,
+        "fixture": {
+          "source": "generated",
+          "shape": "diverse-cycle",
+          "sourceFile": null,
+          "sizeGiB": 0,
+          "sizeMiB": 1.02,
+          "actualBytes": 1073814
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 5
+      },
+      {
+        "sourceArtifact": "bun-jsc-textdecoder-codegen-trace.json",
+        "objective": "bun-jsc-textdecoder-codegen-trace",
+        "contract": "bun-jsc-textdecoder-span-bytecode-dfg-trace",
         "evidenceKinds": [
           "BENCH_FACT",
           "TRACE_FACT"

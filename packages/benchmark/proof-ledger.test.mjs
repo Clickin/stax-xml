@@ -56,6 +56,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey Allocation Profile/);
   assert.match(markdown, /## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun TextDecoder Dispatch Source Pin Audit/);
+  assert.match(markdown, /## Current Evidence: Bun\/JSC TextDecoder Codegen Trace/);
   assert.match(markdown, /## Current Evidence: Node TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC String Limit Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC Source Pin Audit/);
@@ -101,7 +102,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-limit-proof-obligation-gate\.md/);
   assert.match(markdown, /incomplete-proof-correctly-blocked/);
   assert.match(markdown, /all 10 required claim guards are satisfied/);
-  assert.match(markdown, /all 21 required artifact mentions\s+are present/);
+  assert.match(markdown, /all 22 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
   assert.match(markdown, /all 7\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
@@ -115,8 +116,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-counterexample-scan\.md/);
   assert.match(markdown, /runtime-proof-coverage-audit\.md/);
   assert.match(markdown, /bun-jsc-partial-codegen-trace\.md/);
+  assert.match(markdown, /bun-jsc-textdecoder-codegen-trace\.md/);
   assert.match(markdown, /full-string parity as\s+`not-applicable`, with zero full rows/);
   assert.match(markdown, /generated DFG JIT lines, 386 bytecode lines, 1,214 DFG node lines/);
+  assert.match(markdown, /The traced rows preserved the full-string contract across\s+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,\s+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`/);
+  assert.match(markdown, /18\s+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target\s+mentions/);
+  assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
   assert.match(markdown, /68 aggregated rows and 62 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`candidate-headroom-cross-process-large-asset-corpus\.json` at 146\.11 MiB\/s/);
@@ -124,7 +129,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest bounded\s+row is Node\/V8 `eventObjectFull` from the same large-asset corpus artifact at\s+105\.86 MiB\/s/);
   assert.match(markdown, /16 MiB quick-xml row is 309\.82 MiB\/s, or 0\.93x Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 740\s+sample throughput rows and 89 aggregate rows/);
+  assert.match(markdown, /recognizes 745\s+sample throughput rows and 89 aggregate rows/);
   assert.match(markdown, /460 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 77 rows with unknown bounded-memory\s+flags/);
@@ -150,8 +155,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
-  assert.match(markdown, /recognizes 740\s+measured rows/);
-  assert.match(markdown, /97 benchmark artifacts, 16 source artifacts, 9\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+10 negative-result artifacts/);
+  assert.match(markdown, /recognizes 745\s+measured rows/);
+  assert.match(markdown, /98 benchmark artifacts, 16 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+10 negative-result artifacts/);
   assert.match(markdown, /three\s+release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /coverage audit now treats `runtime\.id: "node"` \/ `runtime\.v8` artifacts such as\s+`stream-reader-4gb-shapes\.json` as Node\/V8 row evidence/);
   assert.match(markdown, /rather than leaving\s+their 4 GiB generated byte-batch rows in the `unknown` bucket/);

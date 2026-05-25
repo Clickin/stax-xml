@@ -119,7 +119,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 21 required artifact mentions
+all 10 required claim guards are satisfied, all 22 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, and all 7
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -184,7 +184,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 137 primary release JSON artifacts, recognizes 740
+The current scan covers 138 primary release JSON artifacts, recognizes 745
 sample throughput rows and 89 aggregate rows, and finds 460 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -244,8 +244,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 137 primary release artifacts and recognizes 740
-measured rows. It records 97 benchmark artifacts, 16 source artifacts, 9
+The current audit scans 138 primary release artifacts and recognizes 745
+measured rows. It records 98 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
 10 negative-result artifacts, 460 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
@@ -2114,6 +2114,33 @@ path as the Bun 1.3.13 default UTF-8 TextDecoder benchmark path. It does not
 measure throughput or memory, inspect generated machine code, cover Safari or
 SpiderMonkey, or prove a JavaScript-runtime ceiling.
 
+## Current Evidence: Bun/JSC TextDecoder Codegen Trace
+
+`packages/benchmark/results/release/bun-jsc-textdecoder-codegen-trace.md` is a
+small `TRACE_FACT` for Bun 1.3.13 / JavaScriptCore WebKit
+`4d5e75ebd84a14edbc7ae264245dcd77fe597c10` while running the neutral
+`Uint8Array` plus `TextDecoder` span matrix. It uses
+`JSC_dumpBytecodeAtDFGTime=true` and `JSC_dumpDFGDisassembly=true` over a
+1.02 MiB generated `diverse-cycle` fixture and commits only the curated
+summary, not the raw JSC dump.
+
+The traced rows preserved the full-string contract across
+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,
+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`: all five rows
+reported 47,753 events and checksum `-1316984100`. The trace recorded 18
+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target
+mentions, including `TextDecoder`, `decode`, `Uint8Array.subarray`, and
+`materializeName`. The materialization counters also preserve the benchmark
+shape: the pure TextDecoder rows made 108,525 `TextDecoder` calls, the
+per-span-new row created 108,525 decoder instances, and the short-ASCII row
+reduced TextDecoder calls to 8,682 with 99,843 short-ASCII hits.
+
+This connects the Bun/JSC TextDecoder benchmark callsites to JSC bytecode/DFG
+evidence and complements the Bun TextDecoder dispatch source pin. It still does
+not prove generated native code inside Bun Zig `TextDecoder`, is not Safari or
+browser WebKit evidence, is not a 1 GiB trace, and is not a runtime-ceiling
+proof.
+
 ## Current Evidence: Node TextDecoder Source Pin Audit
 
 `packages/benchmark/results/release/node-textdecoder-source-pin-audit.md` is a
@@ -2771,9 +2798,11 @@ Acceptance:
    Safari/browser JSC rows, broader browser/runtime rows, and stronger non-V8
    browser allocation stack/type traces only where profiler overhead is
    acceptable for the claim being tested.
-4. Extend the new Bun/JSC bytecode/DFG trace from the selected full-row
-   vocabulary to Bun's default UTF-8 `TextDecoder` Zig branch and the
-   200 MiB/s+ partial byte-batch rows; tie the Firefox browser rows to
+4. Extend the Bun/JSC bytecode/DFG trace from the selected full-row,
+   partial/headroom, and TextDecoder span vocabularies toward native-code
+   attribution where possible. The current TextDecoder trace complements the
+   Bun Zig dispatch source pin but still does not prove generated native code
+   inside Bun Zig `TextDecoder`. Tie the Firefox browser rows to
    SpiderMonkey codegen/allocation evidence, and for Safari/browser claims, pin
    string-boundary and maximum-string source facts for the exact tested browser
    builds instead of reusing the Bun source boundary.

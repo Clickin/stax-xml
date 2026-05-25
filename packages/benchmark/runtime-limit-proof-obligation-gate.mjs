@@ -98,6 +98,7 @@ const requiredArtifactMentions = [
   'bun-textdecoder-dispatch-source-pin-audit.md',
   'firefox-spidermonkey-textdecoder-source-pin-audit.md',
   'bun-jsc-partial-codegen-trace.md',
+  'bun-jsc-textdecoder-codegen-trace.md',
 ];
 
 const openObligationDisclosures = [

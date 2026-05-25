@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-25T11:53:51.856Z
+Generated: 2026-05-25T12:13:29.507Z
 
 ## Scope
 
@@ -56,6 +56,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `bun-textdecoder-dispatch-source-pin-audit.md` | yes |
 | `firefox-spidermonkey-textdecoder-source-pin-audit.md` | yes |
 | `bun-jsc-partial-codegen-trace.md` | yes |
+| `bun-jsc-textdecoder-codegen-trace.md` | yes |
 
 ## Open Obligations
 
