@@ -572,6 +572,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /not browser\s+fetch streaming proof/);
   assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `77\.67 MiB\/s` with `2\.5%` spread\s+and `syncFileIterableBatch16` averaged `68\.92 MiB\/s` with `1\.2%` spread/);
   assert.match(markdown, /Bun\/JSC\s+averaged `51\.46 MiB\/s` and `49\.41 MiB\/s`; Deno\/V8 averaged `67\.09 MiB\/s` and\s+`61\.75 MiB\/s`/);
+  assert.match(markdown, /file-backed-core-decomposition\.md` now runs\s+the same 1\.00 GiB file-backed source shape used by the fastest source sweep\s+candidate \(`chunkKiB=32`, `batchSize=4`\)/);
+  assert.match(markdown, /`stax-scan-all-no-decode` reaches 237\.08 MiB\/s with bounded RSS, but it drops\s+the full-string checksum contract and changes the checksum to `-1830981171`/);
+  assert.match(markdown, /full-string `stax-raw-frame-name-id` at\s+148\.64 MiB\/s with the shared full checksum `-716099804`/);
   assert.match(markdown, /firefox-spidermonkey-profiler-trace\.md/);
   assert.match(markdown, /Gecko Profiler startup\/shutdown evidence/);
   assert.match(markdown, /7 threads, 9,054 samples, and 9,640 frames/);

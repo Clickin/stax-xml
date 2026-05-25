@@ -24,8 +24,8 @@ function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     file: defaultFile,
     tools: defaultTools,
-    chunkKiB: 256,
-    batchSize: 1,
+    chunkKiB: 32,
+    batchSize: 4,
     runs: 1,
     warmups: 0,
     boundedRssMiB: 512,
