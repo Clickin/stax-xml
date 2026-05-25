@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T15:29:28.564Z",
+  "generatedAt": "2026-05-25T15:47:39.809Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2841,7 +2841,7 @@
       "fullStringRows": 20,
       "jsFullStringRows": 4,
       "largeJsFullStringRows": 0,
-      "rowsWithMemoryCounter": 0
+      "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 99,
     "sourceArtifactCount": 16,
@@ -16673,7 +16673,7 @@
       "corpusSeed": null,
       "mibPerSec": 220.9,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 967967,
       "checksum": -746772258,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16690,7 +16690,7 @@
       "corpusSeed": null,
       "mibPerSec": 183.58,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 78898,
       "checksum": 1840671295,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16707,7 +16707,7 @@
       "corpusSeed": null,
       "mibPerSec": 259.32,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 46914,
       "checksum": -1045261330,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16724,7 +16724,7 @@
       "corpusSeed": null,
       "mibPerSec": 303.17,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 33466,
       "checksum": -1470519692,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16741,7 +16741,7 @@
       "corpusSeed": null,
       "mibPerSec": 205.74,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 74364,
       "checksum": -631568628,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16758,7 +16758,7 @@
       "corpusSeed": null,
       "mibPerSec": 243.53,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 967967,
       "checksum": -746772258,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16775,7 +16775,7 @@
       "corpusSeed": null,
       "mibPerSec": 177.44,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 78898,
       "checksum": 1840671295,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16792,7 +16792,7 @@
       "corpusSeed": null,
       "mibPerSec": 263.86,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 46914,
       "checksum": -1045261330,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16809,7 +16809,7 @@
       "corpusSeed": null,
       "mibPerSec": 318.65,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 33466,
       "checksum": -1470519692,
       "contractScope": "measured-consume-global-allocator-count"
@@ -16826,7 +16826,7 @@
       "corpusSeed": null,
       "mibPerSec": 208.16,
       "fullStringParity": true,
-      "memoryKind": "not-recorded",
+      "memoryKind": "allocator-counters",
       "eventCount": 74364,
       "checksum": -631568628,
       "contractScope": "measured-consume-global-allocator-count"

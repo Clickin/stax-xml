@@ -547,6 +547,7 @@ function classifyMemoryKind(node) {
     || typeof node.maxJsHeapUsedMiB === 'number'
     || typeof node.peakJsHeapUsedMiB === 'number'
   ) return 'browser-js-heap';
+  if (hasAllocatorCounterMemory(node)) return 'allocator-counters';
   if (!memory || typeof memory !== 'object') return 'not-recorded';
   if (memory.scope === 'browser-js-heap' && typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
   if (
@@ -561,6 +562,29 @@ function classifyMemoryKind(node) {
     || memory.peakRssMiB !== undefined
   ) return 'process-rss';
   return 'recorded-unknown-kind';
+}
+
+function hasAllocatorCounterMemory(node) {
+  return hasAllocationSummary(node.allocationSummary)
+    || hasAllocationSummary(node.phaseAllocationSummary)
+    || hasAllocationSummary(node.allocation?.summary)
+    || hasAllocationSummary(node.memory?.allocationSummary)
+    || hasAllocationSamples(node.allocationSamples)
+    || hasAllocationSamples(node.phaseAllocationSamples)
+    || hasAllocationSamples(node.allocation?.samples);
+}
+
+function hasAllocationSummary(value) {
+  if (!value || typeof value !== 'object') return false;
+  return typeof value.totalAllocatedBytes === 'number'
+    || typeof value.netAllocatedBytes === 'number'
+    || typeof value.allocationOperations === 'number'
+    || typeof value.allocBytes === 'number'
+    || typeof value.allocCount === 'number';
+}
+
+function hasAllocationSamples(value) {
+  return Array.isArray(value) && value.length > 0;
 }
 
 function classifyBoundedMemory(node, memoryKind) {

@@ -43,10 +43,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     fullStringRows: 20,
     jsFullStringRows: 4,
     largeJsFullStringRows: 0,
-    rowsWithMemoryCounter: 0,
+    rowsWithMemoryCounter: 10,
   });
   assert.equal(report.unknownBoundedMemoryRows.length, 20);
-  assert.ok(report.unknownBoundedMemoryRows.every(row => row.memoryKind === 'not-recorded'));
+  assert.equal(report.unknownBoundedMemoryRows.filter(row => row.memoryKind === 'allocator-counters').length, 10);
+  assert.ok(report.unknownBoundedMemoryRows
+    .filter(row => row.sourceArtifact.startsWith('quick-xml-allocation-count'))
+    .every(row => row.memoryKind === 'allocator-counters'));
   assert.ok(!report.unknownBoundedMemoryRows.some(row =>
     isJsRuntime(row.runtimeId)
     && row.fullStringParity === true
@@ -59,7 +62,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'stax-stream');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'woodstox');
   assertNoUnknownBoundedMemoryRow(report, 'materialization-contract-audit.json', 'stax-stream');
-  assertUnknownBoundedMemoryRow(report, 'quick-xml-allocation-count-stability.json', 'benchmark');
+  assertUnknownBoundedMemoryRow(report, 'quick-xml-allocation-count-stability.json', 'benchmark', 'allocator-counters');
+  assertUnknownBoundedMemoryRow(report, 'quick-xml-allocation-count.json', 'benchmark', 'allocator-counters');
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
@@ -435,10 +439,11 @@ function assertObligation(report, id, status) {
   assert.equal(row.status, status);
 }
 
-function assertUnknownBoundedMemoryRow(report, sourceArtifact, id) {
+function assertUnknownBoundedMemoryRow(report, sourceArtifact, id, memoryKind) {
   assert.ok(report.unknownBoundedMemoryRows.some(row =>
     row.sourceArtifact === sourceArtifact
     && row.id === id
+    && (memoryKind === undefined || row.memoryKind === memoryKind)
   ), `missing unknown bounded-memory row: ${sourceArtifact}/${id}`);
 }
 

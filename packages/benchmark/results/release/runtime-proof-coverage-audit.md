@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-25T15:29:28.564Z
+Generated: 2026-05-25T15:47:39.809Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -14,7 +14,7 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory JS rows: 4
   - Unknown bounded-memory full-string rows: 20
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
-  - Unknown bounded-memory rows with memory counters: 0
+  - Unknown bounded-memory rows with memory counters: 10
 - Benchmark artifacts: 99
 - Source artifacts: 16
 - Trace/profile artifacts: 10
@@ -35,16 +35,16 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `rawFrameNameId` | 0.00 | not-recorded | yes | 28.68 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `eventObjectFull` | 0.00 | not-recorded | yes | 41.47 |
 | `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey browser | `rawFrameNameId` | n/a | not-recorded | yes | 22.80 |
-| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.02 | not-recorded | yes | 220.90 |
-| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 183.58 |
-| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 259.32 |
-| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 303.17 |
-| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 205.74 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.02 | not-recorded | yes | 243.53 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 177.44 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 263.86 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 318.65 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | not-recorded | yes | 208.16 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.02 | allocator-counters | yes | 220.90 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 183.58 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 259.32 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 303.17 |
+| `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 205.74 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.02 | allocator-counters | yes | 243.53 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 177.44 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 263.86 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 318.65 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 208.16 |
 | `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
 | `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 324.67 |
