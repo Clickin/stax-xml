@@ -1,17 +1,17 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-25T01:03:55.798Z
+Generated: 2026-05-25T01:19:01.019Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 115
+- Scanned artifacts: 116
 - Ignored derived artifacts: 5
-- Measured rows recognized: 665
-- 1 GiB+ JS full-string rows recognized: 405
+- Measured rows recognized: 671
+- 1 GiB+ JS full-string rows recognized: 407
 - Counterexamples found: 0
-- Partial/projection threshold rows: 12
+- Partial/projection threshold rows: 13
 - Full-string rows without bounded-memory proof: 90
 - Fastest 1 GiB+ JS full-string row: Node/V8 rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 180.08 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Node/V8 rawFrameNameId from candidate-headroom-cross-process-books-corpus.json at 180.08 MiB/s (yes, process-rss)
@@ -36,9 +36,9 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 170.51 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 169.34 | yes | process-rss | 57096514 | -540013997 |
+| `materialization-category-drop-sweep.json` | Node/V8 | `rawFrameNameId` | 1.00 | 167.70 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 166.27 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 165.92 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 163.24 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -55,9 +55,9 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `stringFull` | 1.00 | 171.35 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `stringFull` | 1.00 | 170.51 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 169.34 | yes | process-rss | 57096514 | -540013997 |
+| `materialization-category-drop-sweep.json` | Node/V8 | `rawFrameNameId` | 1.00 | 167.70 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `rawFrameNameId` | 1.00 | 166.27 | yes | process-rss | 57096514 | -540013997 |
 | `candidate-headroom-cross-process-books-corpus.json` | Node/V8 | `stringFull` | 1.00 | 165.92 | yes | process-rss | 57096514 | -540013997 |
-| `bun-candidate-headroom-books-corpus.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 163.24 | yes | process-rss | 57096514 | -540013997 |
 
 ## Partial Or Projection Threshold Rows
 
@@ -74,6 +74,7 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 | `candidate-headroom-books-corpus.json` | Node/V8 | `attrValueStringOnly` | 1.00 | 259.73 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
 | `bun-candidate-headroom-projection-large.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 245.41 | event-types-and-attribute-counts-only | 60416563 | 830926359 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `nameStringOnly` | 1.00 | 239.05 | event-types-attribute-counts-and-element-names | 57096514 | -929151437 |
+| `materialization-category-drop-sweep.json` | Node/V8 | `withoutTextStrings` | 1.00 | 225.67 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrNameStringOnly` | 1.00 | 209.12 | event-types-attribute-counts-and-attribute-names | 57096514 | 878766131 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `scanAllNoDecode` | 1.00 | 206.76 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrValueStringOnly` | 1.00 | 204.77 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
@@ -81,7 +82,7 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 ## Findings
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
-- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 12 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
+- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 13 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 90 recognized 1 GiB+ full-string JavaScript row(s) lack bounded-memory proof and cannot close the counterexample rule.
 
 ## Limits

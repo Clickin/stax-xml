@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T01:04:08.983Z",
+  "generatedAt": "2026-05-25T01:19:02.470Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1687,6 +1687,27 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "materialization-category-drop-sweep.json",
+      "objective": "candidate-headroom-large",
+      "contract": "byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736
+      },
+      "corpusSeed": "books.xml",
+      "measuredRowCount": 6
+    },
+    {
       "sourceArtifact": "materialization-contract-audit.json",
       "objective": "materialization-contract-audit",
       "contract": "semantic-materialization-not-object-shape",
@@ -2228,17 +2249,17 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 115,
+    "scannedArtifactCount": 116,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 665,
-    "benchmarkArtifactCount": 81,
+    "measuredRowCount": 671,
+    "benchmarkArtifactCount": 82,
     "sourceArtifactCount": 15,
     "traceArtifactCount": 8,
     "allocationArtifactCount": 13,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 5,
-    "largeJsFullRowCount": 410,
+    "largeJsFullRowCount": 412,
     "runtimeCount": 9,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -2249,9 +2270,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 41,
-        "measuredRowCount": 202,
-        "largeFullStringRowCount": 126,
+        "artifactCount": 42,
+        "measuredRowCount": 208,
+        "largeFullStringRowCount": 128,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "id": "rawFrameNameId",
@@ -13519,6 +13540,108 @@
         "contractScope": "full-string-materialization"
       },
       {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "stringFull",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 155.1,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 167.7,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "withoutElementNameStrings",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 156.05,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1734496787,
+        "contractScope": "full-materialization-minus-element-names"
+      },
+      {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "withoutTextStrings",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 225.67,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1372281363,
+        "contractScope": "full-materialization-minus-text-cdata"
+      },
+      {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "withoutAttributeNameStrings",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 138.3,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1782473171,
+        "contractScope": "full-materialization-minus-attribute-names"
+      },
+      {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "withoutAttributeValueStrings",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 165.73,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1597287507,
+        "contractScope": "full-materialization-minus-attribute-values"
+      },
+      {
         "sourceArtifact": "textdecoder-span-variants-corpus.json",
         "id": "subarraySharedDecoder",
         "runtimeId": "node-v8",
@@ -13604,7 +13727,7 @@
         "contractScope": "full-string-materialization"
       }
     ],
-    "largeJsFullRowCount": 410,
+    "largeJsFullRowCount": 412,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
@@ -13760,6 +13883,23 @@
         "contractScope": "independent-process-candidate-headroom-stability"
       },
       {
+        "sourceArtifact": "materialization-category-drop-sweep.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 167.7,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
         "sourceArtifact": "candidate-headroom-books-corpus.json",
         "id": "rawFrameNameId",
         "runtimeId": "node-v8",
@@ -13792,23 +13932,6 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "independent-process-candidate-headroom-stability"
-      },
-      {
-        "sourceArtifact": "bun-candidate-headroom-books-corpus.json",
-        "id": "rawFrameNameId",
-        "runtimeId": "bun-jsc",
-        "runtimeLabel": "Bun/JSC",
-        "sizeGiB": 1,
-        "fixtureSource": "corpus-file",
-        "fixtureShape": "corpus-cycle",
-        "corpusSeed": "books.xml",
-        "mibPerSec": 163.24,
-        "fullStringParity": true,
-        "boundedMemory": true,
-        "memoryKind": "process-rss",
-        "eventCount": 57096514,
-        "checksum": -540013997,
-        "contractScope": "full-string-materialization"
       }
     ],
     "sourcePins": [
