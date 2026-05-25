@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T12:13:29.507Z",
+  "generatedAt": "2026-05-25T17:01:17.512Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -246,6 +246,16 @@
       "id": "bun-jsc-textdecoder-codegen-trace.md",
       "file": "bun-jsc-textdecoder-codegen-trace.md",
       "present": true
+    },
+    {
+      "id": "stream-source-consumption-shapes.md",
+      "file": "stream-source-consumption-shapes.md",
+      "present": true
+    },
+    {
+      "id": "event-reader-byte-batch-cross-process-corpus.md",
+      "file": "event-reader-byte-batch-cross-process-corpus.md",
+      "present": true
     }
   ],
   "openObligations": [
@@ -322,16 +332,34 @@
       "pattern": {},
       "description": "A bounded 200 MiB/s full-string JavaScript row must remain a counterexample to the broad limit claim.",
       "satisfied": true
+    },
+    {
+      "id": "source-shapes-separated",
+      "pattern": {},
+      "description": "Direct ReadableStream source-overhead rows must remain separate from synchronous byte-batch parser rows.",
+      "satisfied": true
+    },
+    {
+      "id": "byte-batches-not-full-arraybuffer",
+      "pattern": {},
+      "description": "Large byte-batch rows must not be treated as one prebuilt full-XML ArrayBuffer parser input.",
+      "satisfied": true
+    },
+    {
+      "id": "byte-batch-backpressure-preserved",
+      "pattern": {},
+      "description": "Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream.",
+      "satisfied": true
     }
   ],
   "summary": {
     "satisfiedClaimGuards": 10,
     "requiredClaimGuards": 10,
-    "presentArtifactMentions": 25,
-    "requiredArtifactMentions": 25,
+    "presentArtifactMentions": 27,
+    "requiredArtifactMentions": 27,
     "disclosedOpenObligations": 5,
     "requiredOpenObligations": 5,
-    "satisfiedProofRules": 7,
-    "requiredProofRules": 7
+    "satisfiedProofRules": 10,
+    "requiredProofRules": 10
   }
 }

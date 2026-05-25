@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-25T12:13:29.507Z
+Generated: 2026-05-25T17:01:17.512Z
 
 ## Scope
 
@@ -57,6 +57,8 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `firefox-spidermonkey-textdecoder-source-pin-audit.md` | yes |
 | `bun-jsc-partial-codegen-trace.md` | yes |
 | `bun-jsc-textdecoder-codegen-trace.md` | yes |
+| `stream-source-consumption-shapes.md` | yes |
+| `event-reader-byte-batch-cross-process-corpus.md` | yes |
 
 ## Open Obligations
 
@@ -83,6 +85,9 @@ These checks keep known semantic distinctions from being collapsed into a strong
 | `negative-results-not-global-proof` | yes | Failed implementation families narrow search space but do not prove the whole runtime ceiling. |
 | `lazy-getters-reopen-burden` | yes | Lazy getters remain closed unless a full-string benchmark proves improvement without cache-shape regression. |
 | `bounded-full-string-counterexample-rule` | yes | A bounded 200 MiB/s full-string JavaScript row must remain a counterexample to the broad limit claim. |
+| `source-shapes-separated` | yes | Direct ReadableStream source-overhead rows must remain separate from synchronous byte-batch parser rows. |
+| `byte-batches-not-full-arraybuffer` | yes | Large byte-batch rows must not be treated as one prebuilt full-XML ArrayBuffer parser input. |
+| `byte-batch-backpressure-preserved` | yes | Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream. |
 
 ## Interpretation
 

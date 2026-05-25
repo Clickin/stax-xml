@@ -99,6 +99,8 @@ const requiredArtifactMentions = [
   'firefox-spidermonkey-textdecoder-source-pin-audit.md',
   'bun-jsc-partial-codegen-trace.md',
   'bun-jsc-textdecoder-codegen-trace.md',
+  'stream-source-consumption-shapes.md',
+  'event-reader-byte-batch-cross-process-corpus.md',
 ];
 
 const openObligationDisclosures = [
@@ -164,6 +166,21 @@ const requiredProofRules = [
     id: 'bounded-full-string-counterexample-rule',
     pattern: /Treat any 200 MiB\/s\+ bounded-memory full-string JavaScript row as a\s+counterexample/i,
     description: 'A bounded 200 MiB/s full-string JavaScript row must remain a counterexample to the broad limit claim.',
+  },
+  {
+    id: 'source-shapes-separated',
+    pattern: /direct ReadableStream overhead evidence stays distinct from\s+synchronous byte-batch rows/i,
+    description: 'Direct ReadableStream source-overhead rows must remain separate from synchronous byte-batch parser rows.',
+  },
+  {
+    id: 'byte-batches-not-full-arraybuffer',
+    pattern: /does\s+not\s+prebuild one repeated 1 GiB ArrayBuffer parser input/i,
+    description: 'Large byte-batch rows must not be treated as one prebuilt full-XML ArrayBuffer parser input.',
+  },
+  {
+    id: 'byte-batch-backpressure-preserved',
+    pattern: /preserve\s+backpressure by pulling at most the next batch on demand/i,
+    description: 'Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream.',
   },
 ];
 
