@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T04:21:08.288Z",
+  "generatedAt": "2026-05-26T05:05:01.819Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -142,6 +142,7 @@
     "text-cache-materialization-candidate-stability.json",
     "text-cache-materialization-candidate.json",
     "text-cdata-cost-decomposition.json",
+    "text-materialization-frontier.json",
     "text-trim-cost-decomposition-2gib.json",
     "text-trim-cost-decomposition-4gib.json",
     "text-trim-cost-decomposition-8gib.json",
@@ -167,7 +168,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 148,
+    "scannedArtifactCount": 149,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 798,

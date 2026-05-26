@@ -182,14 +182,27 @@ function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
   if (/trace|profiler-trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
-  if (hasFindingClassification(root, 'NEGATIVE_RESULT')) kinds.add('NEGATIVE_RESULT');
+  for (const classification of findingClassifications(root)) {
+    if (!findingEvidenceKinds.has(classification)) continue;
+    kinds.add(classification);
+  }
   if (root.objective === 'runtime-matrix' || root.objective === 'external-baseline') kinds.add('BENCH_FACT');
   return Array.from(kinds).sort();
 }
 
-function hasFindingClassification(root, classification) {
+const findingEvidenceKinds = new Set([
+  'BENCH_FACT',
+  'HEADROOM_EVIDENCE_PRESENT',
+  'NEGATIVE_RESULT',
+  'SCOPE_GUARD',
+]);
+
+function findingClassifications(root) {
   const findings = root?.findings;
-  return Array.isArray(findings) && findings.some(finding => finding?.classification === classification);
+  if (!Array.isArray(findings)) return [];
+  return findings
+    .map(finding => finding?.classification)
+    .filter(classification => typeof classification === 'string' && classification.length > 0);
 }
 
 function extractMeasuredRows(sourceArtifact, root) {
@@ -222,7 +235,10 @@ function extractMeasuredRows(sourceArtifact, root) {
 }
 
 function isDerivedProjectionPath(path) {
-  return path.includes('summary') || path.includes('comparisons');
+  return path.includes('summary')
+    || path.includes('comparisons')
+    || path.includes('sameScalePairs')
+    || path.includes('negativeRows');
 }
 
 function visit(value, path, context, onNode) {

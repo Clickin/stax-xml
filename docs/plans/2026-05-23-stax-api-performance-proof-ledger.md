@@ -119,7 +119,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 27 required artifact mentions
+all 10 required claim guards are satisfied, all 28 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, and all 12
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -172,9 +172,12 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 79 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 115 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
-`ArrayBuffer` parser-input rows. That is 0.93x of the 200 MiB/s target and
+`ArrayBuffer` parser-input rows. It separately records 57 corpus-seed replay
+rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
+0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
+parser-input claim. That is 0.93x of the 200 MiB/s target and
 0.97x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
@@ -276,6 +279,18 @@ parity because it removes the trim contract. The earlier
 full-parity `rawFrameNameIdLongTextCache` row at 141.85 MiB/s despite 4,482,765
 cache hits and only 19 misses, so restricting span-string caching to longer
 text/CDATA values remains a negative result. The
+`packages/benchmark/results/release/text-materialization-frontier.md`
+synthesizes the scaled text/CDATA experiments directly: the fastest full row is
+still 185.50 MiB/s, 14.50 MiB/s below the 200 MiB/s counterexample threshold,
+so a 1.08x full-string speedup is still required. Four `withoutTextStrings`
+rows cross 200 MiB/s only after omitting text/CDATA strings; the maximum
+same-scale without-text speedup is 1.41x at 4 GiB after omitting 67,949,424
+text string reads. The same synthesis records maximum no-trim speedup at only
+1.02x, maximum fold-trim speedup at 0.80x, repeated text-value cache at 0.74x of
+its control, long ASCII text fast path at 0.41x of its control, and fold-trim
+checksum at 0.84x of its control. This makes text/CDATA materialization the
+current local headroom axis while preserving that all without-text rows are
+non-counterexamples because they change the full-string contract. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured

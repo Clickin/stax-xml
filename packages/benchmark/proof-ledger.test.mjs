@@ -102,7 +102,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-limit-proof-obligation-gate\.md/);
   assert.match(markdown, /incomplete-proof-correctly-blocked/);
   assert.match(markdown, /all 10 required claim guards are satisfied/);
-  assert.match(markdown, /all 27 required artifact mentions\s+are present/);
+  assert.match(markdown, /all 28 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
   assert.match(markdown, /all 12\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
@@ -134,7 +134,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
   assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
-  assert.match(markdown, /all 79 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /all 115 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /separately records 57 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
   assert.match(markdown, /0\.93x of the 200 MiB\/s target and\s+0\.97x of the 1024 MiB Woodstox reference/);
   assert.match(markdown, /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/);
   assert.match(markdown, /same-fixture 1024 MiB JS row vs Woodstox target now includes the\s+file-backed source, batch-size sweep, short attr-value cache, and trim-boundary\s+candidate rows/);
@@ -175,6 +176,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`rawFrameNameIdNoTrim` at 185\.03 MiB\/s\s+with the same 62,758,976 string-field reads/);
   assert.match(markdown, /`rawFrameNameIdLongTextCache` row at 141\.85 MiB\/s despite 4,482,765\s+cache hits and only 19 misses/);
   assert.match(markdown, /omitted all\s+16,987,392 text\/CDATA string reads and changed the checksum to `1372281363`/);
+  assert.match(markdown, /text-materialization-frontier\.md/);
+  assert.match(markdown, /fastest full row is\s+still 185\.50 MiB\/s, 14\.50 MiB\/s below the 200 MiB\/s counterexample threshold/);
+  assert.match(markdown, /1\.08x full-string speedup is still required/);
+  assert.match(markdown, /maximum\s+same-scale without-text speedup is 1\.41x at 4 GiB after omitting 67,949,424\s+text string reads/);
+  assert.match(markdown, /maximum no-trim speedup at only\s+1\.02x, maximum fold-trim speedup at 0\.80x/);
+  assert.match(markdown, /repeated text-value cache at 0\.74x of\s+its control, long ASCII text fast path at 0\.41x of its control, and fold-trim\s+checksum at 0\.84x of its control/);
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);

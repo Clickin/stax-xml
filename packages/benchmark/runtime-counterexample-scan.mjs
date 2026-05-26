@@ -275,7 +275,10 @@ function isMeasuredNode(node) {
 }
 
 function isDerivedProjectionPath(path) {
-  return path.includes('summary') || path.includes('comparisons');
+  return path.includes('summary')
+    || path.includes('comparisons')
+    || path.includes('sameScalePairs')
+    || path.includes('negativeRows');
 }
 
 function isAggregateMeasuredNode(node) {

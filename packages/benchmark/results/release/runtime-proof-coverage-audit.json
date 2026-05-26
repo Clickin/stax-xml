@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T04:14:27.018Z",
+  "generatedAt": "2026-05-26T05:06:57.878Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -51,7 +51,8 @@
       "objective": "attribute-value-branch-order-candidate",
       "contract": "file-backed-public-consumer-hot-path-branch-order-candidate",
       "evidenceKinds": [
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [],
       "outcome": null,
@@ -64,7 +65,8 @@
       "objective": "attribute-value-index-accessor-candidate",
       "contract": "file-backed-public-consumer-numeric-only-attribute-value-accessor-candidate",
       "evidenceKinds": [
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [],
       "outcome": null,
@@ -77,7 +79,8 @@
       "objective": "attribute-value-public-fast-path-candidate",
       "contract": "file-backed-full-string-public-attribute-value-fast-path-candidate",
       "evidenceKinds": [
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [],
       "outcome": null,
@@ -607,6 +610,7 @@
       "contract": "jsc-bytecode-dfg-disassembly-trace",
       "evidenceKinds": [
         "BENCH_FACT",
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -630,6 +634,7 @@
       "contract": "profiler-trace-fact-only",
       "evidenceKinds": [
         "BENCH_FACT",
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -662,7 +667,8 @@
       "contract": "process-memory-usage-endpoint-profile",
       "evidenceKinds": [
         "ALLOCATION_FACT",
-        "BENCH_FACT"
+        "BENCH_FACT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [
         "bun-jsc"
@@ -685,6 +691,7 @@
       "contract": "jsc-bytecode-dfg-disassembly-trace",
       "evidenceKinds": [
         "BENCH_FACT",
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -707,6 +714,7 @@
       "objective": "bun-jsc-source-pin-audit",
       "contract": "bun-jsc-exact-webkit-string-boundary-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -736,6 +744,7 @@
       "contract": "bun-jsc-textdecoder-span-bytecode-dfg-trace",
       "evidenceKinds": [
         "BENCH_FACT",
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -758,6 +767,7 @@
       "objective": "bun-textdecoder-dispatch-source-pin-audit",
       "contract": "bun-exact-revision-textdecoder-dispatch-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -817,6 +827,7 @@
       "objective": "bun-webkit-textdecoder-source-pin-audit",
       "contract": "bun-patched-webkit-exact-revision-textdecoder-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -1089,6 +1100,7 @@
       "objective": "chrome-blink-textdecoder-source-pin-audit",
       "contract": "chrome-blink-exact-revision-textdecoder-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -1119,7 +1131,8 @@
       "objective": "concat-buffer-reuse-negative-result",
       "contract": "same-full-string-checksum-file-backed-byte-batches",
       "evidenceKinds": [
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [],
       "outcome": null,
@@ -1202,6 +1215,7 @@
       "objective": "deno-textdecoder-source-pin-audit",
       "contract": "deno-exact-revision-textdecoder-string-boundary-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -1283,6 +1297,7 @@
       "objective": "deno-v8-codegen-trace",
       "contract": "trace-fact-only",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -1675,6 +1690,7 @@
       "objective": "file-backed-v8-codegen-trace",
       "contract": "node-v8-trace-opt-deopt-file-backed-reader-shapes",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -1939,7 +1955,8 @@
       "objective": "firefox-spidermonkey-allocation-profile",
       "contract": "non-v8-browser-host-process-memory-allocation-evidence",
       "evidenceKinds": [
-        "ALLOCATION_FACT"
+        "ALLOCATION_FACT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [
         "firefox-spidermonkey-browser"
@@ -1955,7 +1972,8 @@
       "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
       "evidenceKinds": [
         "BENCH_FACT",
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [
         "firefox-spidermonkey-browser"
@@ -1977,6 +1995,7 @@
       "objective": "firefox-spidermonkey-jitspew-source-pin-audit",
       "contract": "spidermonkey-exact-revision-jitspew-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -1993,7 +2012,8 @@
       "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
       "evidenceKinds": [
         "ENVIRONMENT_FACT",
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [
         "firefox-spidermonkey-browser"
@@ -2031,6 +2051,7 @@
       "contract": "gecko-profiler-same-contract-browser-reader-shapes",
       "evidenceKinds": [
         "BENCH_FACT",
+        "SCOPE_GUARD",
         "TRACE_FACT"
       ],
       "runtimes": [
@@ -2068,6 +2089,7 @@
       "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
       "contract": "gecko-exact-revision-textdecoder-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -2212,7 +2234,8 @@
       "objective": "medium-ascii-decode-candidate",
       "contract": "file-backed-full-string-medium-ascii-decode-candidate",
       "evidenceKinds": [
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [],
       "outcome": null,
@@ -2247,6 +2270,7 @@
       "objective": "multi-chunk-batch-shape-audit",
       "contract": "sync-uint8array-byte-batch-buffer-shape",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [],
@@ -2260,6 +2284,7 @@
       "objective": "node-textdecoder-source-pin-audit",
       "contract": "node-exact-revision-textdecoder-string-boundary-source-lines",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -2364,7 +2389,8 @@
       "objective": "quick-xml-encoding-surface-audit",
       "contract": "rust-quick-xml-comparator-encoding-surface",
       "evidenceKinds": [
-        "NEGATIVE_RESULT"
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
       ],
       "runtimes": [
         "quick-xml-rust"
@@ -2397,6 +2423,7 @@
       "contract": "runtime-and-source-raw-batch-kind-shape",
       "evidenceKinds": [
         "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -2433,7 +2460,9 @@
       "sourceArtifact": "runtime-proof-gap-handoff.json",
       "objective": "runtime-proof-gap-handoff",
       "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
-      "evidenceKinds": [],
+      "evidenceKinds": [
+        "SCOPE_GUARD"
+      ],
       "runtimes": [],
       "outcome": null,
       "fixture": null,
@@ -2460,6 +2489,7 @@
       "objective": "stax-event-public-object-shape-audit",
       "contract": "source-public-object-row-vs-file-backed-low-memory-scope",
       "evidenceKinds": [
+        "SCOPE_GUARD",
         "SOURCE_FACT"
       ],
       "runtimes": [
@@ -2683,6 +2713,22 @@
       },
       "corpusSeed": "books.xml",
       "measuredRowCount": 4
+    },
+    {
+      "sourceArtifact": "text-materialization-frontier.json",
+      "objective": "text-materialization-frontier",
+      "contract": "same-corpus-text-materialization-headroom-synthesis",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "HEADROOM_EVIDENCE_PRESENT",
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
+      ],
+      "runtimes": [],
+      "outcome": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
     },
     {
       "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
@@ -3019,7 +3065,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 148,
+    "scannedArtifactCount": 149,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 798,
@@ -3040,12 +3086,12 @@
       "nonJsNoPeakMemoryRows": 6,
       "rowsWithMemoryCounter": 10
     },
-    "benchmarkArtifactCount": 106,
+    "benchmarkArtifactCount": 107,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
-    "negativeArtifactCount": 11,
+    "negativeArtifactCount": 12,
     "largeJsFullRowCount": 492,
     "runtimeCount": 8,
     "corpusSeedCount": 3,
@@ -16252,6 +16298,7 @@
         "contract": "jsc-bytecode-dfg-disassembly-trace",
         "evidenceKinds": [
           "BENCH_FACT",
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16275,6 +16322,7 @@
         "contract": "profiler-trace-fact-only",
         "evidenceKinds": [
           "BENCH_FACT",
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16291,6 +16339,7 @@
         "contract": "jsc-bytecode-dfg-disassembly-trace",
         "evidenceKinds": [
           "BENCH_FACT",
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16314,6 +16363,7 @@
         "contract": "bun-jsc-textdecoder-span-bytecode-dfg-trace",
         "evidenceKinds": [
           "BENCH_FACT",
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16336,6 +16386,7 @@
         "objective": "deno-v8-codegen-trace",
         "contract": "trace-fact-only",
         "evidenceKinds": [
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16358,6 +16409,7 @@
         "objective": "file-backed-v8-codegen-trace",
         "contract": "node-v8-trace-opt-deopt-file-backed-reader-shapes",
         "evidenceKinds": [
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16381,6 +16433,7 @@
         "contract": "gecko-profiler-same-contract-browser-reader-shapes",
         "evidenceKinds": [
           "BENCH_FACT",
+          "SCOPE_GUARD",
           "TRACE_FACT"
         ],
         "runtimes": [
@@ -16490,7 +16543,8 @@
         "contract": "process-memory-usage-endpoint-profile",
         "evidenceKinds": [
           "ALLOCATION_FACT",
-          "BENCH_FACT"
+          "BENCH_FACT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [
           "bun-jsc"
@@ -16534,7 +16588,8 @@
         "objective": "firefox-spidermonkey-allocation-profile",
         "contract": "non-v8-browser-host-process-memory-allocation-evidence",
         "evidenceKinds": [
-          "ALLOCATION_FACT"
+          "ALLOCATION_FACT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [
           "firefox-spidermonkey-browser"
@@ -16777,7 +16832,8 @@
         "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
         "evidenceKinds": [
           "ENVIRONMENT_FACT",
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [
           "firefox-spidermonkey-browser"
@@ -16816,7 +16872,8 @@
         "objective": "attribute-value-branch-order-candidate",
         "contract": "file-backed-public-consumer-hot-path-branch-order-candidate",
         "evidenceKinds": [
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [],
         "outcome": null,
@@ -16829,7 +16886,8 @@
         "objective": "attribute-value-index-accessor-candidate",
         "contract": "file-backed-public-consumer-numeric-only-attribute-value-accessor-candidate",
         "evidenceKinds": [
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [],
         "outcome": null,
@@ -16842,7 +16900,8 @@
         "objective": "attribute-value-public-fast-path-candidate",
         "contract": "file-backed-full-string-public-attribute-value-fast-path-candidate",
         "evidenceKinds": [
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [],
         "outcome": null,
@@ -16855,7 +16914,8 @@
         "objective": "concat-buffer-reuse-negative-result",
         "contract": "same-full-string-checksum-file-backed-byte-batches",
         "evidenceKinds": [
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [],
         "outcome": null,
@@ -16891,7 +16951,8 @@
         "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
         "evidenceKinds": [
           "BENCH_FACT",
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [
           "firefox-spidermonkey-browser"
@@ -16914,7 +16975,8 @@
         "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
         "evidenceKinds": [
           "ENVIRONMENT_FACT",
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [
           "firefox-spidermonkey-browser"
@@ -16955,7 +17017,8 @@
         "objective": "medium-ascii-decode-candidate",
         "contract": "file-backed-full-string-medium-ascii-decode-candidate",
         "evidenceKinds": [
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [],
         "outcome": null,
@@ -16968,7 +17031,8 @@
         "objective": "quick-xml-encoding-surface-audit",
         "contract": "rust-quick-xml-comparator-encoding-surface",
         "evidenceKinds": [
-          "NEGATIVE_RESULT"
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
         ],
         "runtimes": [
           "quick-xml-rust"
@@ -16984,11 +17048,28 @@
         "contract": "runtime-and-source-raw-batch-kind-shape",
         "evidenceKinds": [
           "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
           "SOURCE_FACT"
         ],
         "runtimes": [
           "node-v8"
         ],
+        "outcome": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "text-materialization-frontier.json",
+        "objective": "text-materialization-frontier",
+        "contract": "same-corpus-text-materialization-headroom-synthesis",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "HEADROOM_EVIDENCE_PRESENT",
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
+        ],
+        "runtimes": [],
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
