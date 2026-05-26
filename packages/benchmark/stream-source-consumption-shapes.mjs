@@ -158,8 +158,8 @@ async function runComparison(options) {
     if (shape === 'sync-iterable-byte-batches') {
       for (const batchSize of options.syncBatchSizes) {
         const rowId = syncRowId(batchSize);
-        rows.push(measureSyncShape(rowId, () => consumeSyncStreamReader(
-          createFileByteBatches(options.file, options.chunkKiB * 1024, batchSize),
+        rows.push(measureSyncShape(rowId, sourceCounters => consumeSyncStreamReader(
+          createFileByteBatches(options.file, options.chunkKiB * 1024, batchSize, sourceCounters),
         ), fileStats.size / MIB, { ...options, batchSize }));
       }
       continue;
@@ -167,8 +167,8 @@ async function runComparison(options) {
     if (shape === 'async-iterable-byte-batches') {
       for (const batchSize of options.asyncBatchSizes) {
         const rowId = asyncIterableRowId(batchSize);
-        rows.push(await measureAsyncShape(rowId, () => consumeAsyncStreamReader(
-          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize),
+        rows.push(await measureAsyncShape(rowId, sourceCounters => consumeAsyncStreamReader(
+          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize, sourceCounters),
         ), fileStats.size / MIB, { ...options, batchSize }));
       }
       continue;
@@ -176,8 +176,8 @@ async function runComparison(options) {
     if (shape === 'async-iterable-raw-frame') {
       for (const batchSize of options.asyncBatchSizes) {
         const rowId = asyncRawFrameRowId(batchSize);
-        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
-          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize),
+        rows.push(await measureAsyncShape(rowId, sourceCounters => consumeAsyncRawFrameReader(
+          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize, sourceCounters),
         ), fileStats.size / MIB, { ...options, batchSize }));
       }
       continue;
@@ -185,8 +185,8 @@ async function runComparison(options) {
     if (shape === 'async-iterable-raw-frame-ascii') {
       for (const batchSize of options.asyncBatchSizes) {
         const rowId = asyncRawFrameAsciiRowId(batchSize);
-        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
-          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize),
+        rows.push(await measureAsyncShape(rowId, sourceCounters => consumeAsyncRawFrameReader(
+          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize, sourceCounters),
           undefined,
           { shortAscii: true },
         ), fileStats.size / MIB, { ...options, batchSize }));
@@ -196,8 +196,8 @@ async function runComparison(options) {
     if (shape === 'web-readable-stream-pull') {
       for (const batchSize of options.readableBatchSizes) {
         const rowId = readableRowId(batchSize);
-        rows.push(await measureAsyncShape(rowId, () => consumeAsyncStreamReader(
-          createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
+        rows.push(await measureAsyncShape(rowId, sourceCounters => consumeAsyncStreamReader(
+          createBackpressureReadableStream(options.file, options.chunkKiB * 1024, sourceCounters),
           batchSize,
         ), fileStats.size / MIB, { ...options, batchSize }));
       }
@@ -206,8 +206,8 @@ async function runComparison(options) {
     if (shape === 'web-readable-stream-raw-frame') {
       for (const batchSize of options.readableBatchSizes) {
         const rowId = readableRawFrameRowId(batchSize);
-        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
-          createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
+        rows.push(await measureAsyncShape(rowId, sourceCounters => consumeAsyncRawFrameReader(
+          createBackpressureReadableStream(options.file, options.chunkKiB * 1024, sourceCounters),
           batchSize,
         ), fileStats.size / MIB, { ...options, batchSize }));
       }
@@ -216,8 +216,8 @@ async function runComparison(options) {
     if (shape === 'web-readable-stream-raw-frame-ascii') {
       for (const batchSize of options.readableBatchSizes) {
         const rowId = readableRawFrameAsciiRowId(batchSize);
-        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
-          createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
+        rows.push(await measureAsyncShape(rowId, sourceCounters => consumeAsyncRawFrameReader(
+          createBackpressureReadableStream(options.file, options.chunkKiB * 1024, sourceCounters),
           batchSize,
           { shortAscii: true },
         ), fileStats.size / MIB, { ...options, batchSize }));
@@ -321,7 +321,7 @@ function createSourceFacts() {
       summary: 'The sync comparison row feeds StreamReaderSync with demand-driven Iterable<Uint8Array[]> batches, not a full-file string or full-file ArrayBuffer.',
       patterns: [
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'for (const batch of new StreamReaderSync(byteBatches))' },
-        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'function* createFileByteBatches(filePath, chunkBytes, batchSize)' },
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'function* createFileByteBatches(filePath, chunkBytes, batchSize, sourceCounters = createSourceCounters())' },
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'yield batch' },
       ],
     }),
@@ -662,50 +662,63 @@ function consumeBatch(batch, eventCount, checksum) {
   return { eventCount, checksum };
 }
 
-function* createFileByteBatches(filePath, chunkBytes, batchSize) {
+function* createFileByteBatches(filePath, chunkBytes, batchSize, sourceCounters = createSourceCounters()) {
   const fd = openSync(filePath, 'r');
   try {
     while (true) {
       const batch = [];
       for (let index = 0; index < batchSize; index++) {
         const buffer = new Uint8Array(chunkBytes);
+        sourceCounters.readCalls++;
         const bytesRead = readSync(fd, buffer, 0, chunkBytes, null);
         if (bytesRead === 0) break;
+        sourceCounters.chunkCount++;
+        sourceCounters.byteCount += bytesRead;
         batch.push(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead));
       }
       if (batch.length === 0) return;
+      sourceCounters.batchCount++;
+      sourceCounters.iteratorYields++;
       yield batch;
     }
   } finally {
+    sourceCounters.closeCalls++;
     closeSync(fd);
   }
 }
 
-async function* createAsyncFileByteBatches(filePath, chunkBytes, batchSize) {
+async function* createAsyncFileByteBatches(filePath, chunkBytes, batchSize, sourceCounters = createSourceCounters()) {
   const fd = openSync(filePath, 'r');
   try {
     while (true) {
       const batch = [];
       for (let index = 0; index < batchSize; index++) {
         const buffer = new Uint8Array(chunkBytes);
+        sourceCounters.readCalls++;
         const bytesRead = readSync(fd, buffer, 0, chunkBytes, null);
         if (bytesRead === 0) break;
+        sourceCounters.chunkCount++;
+        sourceCounters.byteCount += bytesRead;
         batch.push(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead));
       }
       if (batch.length === 0) return;
+      sourceCounters.batchCount++;
+      sourceCounters.iteratorYields++;
       yield batch;
     }
   } finally {
+    sourceCounters.closeCalls++;
     closeSync(fd);
   }
 }
 
-function createBackpressureReadableStream(filePath, chunkBytes) {
+function createBackpressureReadableStream(filePath, chunkBytes, sourceCounters = createSourceCounters()) {
   let fd;
   let closed = false;
   const closeFile = () => {
     if (!closed && fd !== undefined) {
       closed = true;
+      sourceCounters.closeCalls++;
       closeSync(fd);
     }
   };
@@ -714,13 +727,18 @@ function createBackpressureReadableStream(filePath, chunkBytes) {
       fd = openSync(filePath, 'r');
     },
     pull(controller) {
+      sourceCounters.pullCalls++;
       const buffer = new Uint8Array(chunkBytes);
+      sourceCounters.readCalls++;
       const bytesRead = readSync(fd, buffer, 0, chunkBytes, null);
       if (bytesRead === 0) {
         closeFile();
         controller.close();
         return;
       }
+      sourceCounters.chunkCount++;
+      sourceCounters.byteCount += bytesRead;
+      sourceCounters.enqueueCalls++;
       controller.enqueue(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead));
     },
     cancel() {
@@ -730,16 +748,18 @@ function createBackpressureReadableStream(filePath, chunkBytes) {
 }
 
 function measureSyncShape(id, run, fileSizeMiB, options) {
-  for (let index = 0; index < options.warmups; index++) run();
+  for (let index = 0; index < options.warmups; index++) run(createSourceCounters());
   const samplesMs = [];
   const memorySamples = [];
+  const sourceCounterSamples = [];
   let eventCount = 0;
   let checksum = 0;
   for (let index = 0; index < options.runs; index++) {
     gcNow();
     const before = takeMemorySnapshot();
+    const sourceCounters = createSourceCounters();
     const startedAt = performance.now();
-    const result = run();
+    const result = run(sourceCounters);
     const elapsedMs = performance.now() - startedAt;
     const after = takeMemorySnapshot();
     assertStableResult(id, index, eventCount, checksum, result);
@@ -747,21 +767,24 @@ function measureSyncShape(id, run, fileSizeMiB, options) {
     checksum = result.checksum;
     samplesMs.push(elapsedMs);
     memorySamples.push({ before, after });
+    sourceCounterSamples.push(freezeSourceCounters(sourceCounters));
   }
-  return createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checksum, options);
+  return createRow(id, fileSizeMiB, samplesMs, memorySamples, sourceCounterSamples, eventCount, checksum, options);
 }
 
 async function measureAsyncShape(id, run, fileSizeMiB, options) {
-  for (let index = 0; index < options.warmups; index++) await run();
+  for (let index = 0; index < options.warmups; index++) await run(createSourceCounters());
   const samplesMs = [];
   const memorySamples = [];
+  const sourceCounterSamples = [];
   let eventCount = 0;
   let checksum = 0;
   for (let index = 0; index < options.runs; index++) {
     gcNow();
     const before = takeMemorySnapshot();
+    const sourceCounters = createSourceCounters();
     const startedAt = performance.now();
-    const result = await run();
+    const result = await run(sourceCounters);
     const elapsedMs = performance.now() - startedAt;
     const after = takeMemorySnapshot();
     assertStableResult(id, index, eventCount, checksum, result);
@@ -769,8 +792,9 @@ async function measureAsyncShape(id, run, fileSizeMiB, options) {
     checksum = result.checksum;
     samplesMs.push(elapsedMs);
     memorySamples.push({ before, after });
+    sourceCounterSamples.push(freezeSourceCounters(sourceCounters));
   }
-  return createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checksum, options);
+  return createRow(id, fileSizeMiB, samplesMs, memorySamples, sourceCounterSamples, eventCount, checksum, options);
 }
 
 function assertStableResult(id, sampleIndex, eventCount, checksum, result) {
@@ -779,7 +803,7 @@ function assertStableResult(id, sampleIndex, eventCount, checksum, result) {
   }
 }
 
-function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checksum, options) {
+function createRow(id, fileSizeMiB, samplesMs, memorySamples, sourceCounterSamples, eventCount, checksum, options) {
   const syncRow = id.startsWith('sync-iterable-byte-batches');
   const asyncRow = id.startsWith('async-iterable-byte-batches');
   const asyncRawRow = id.startsWith('async-iterable-raw-frame');
@@ -829,7 +853,46 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
       maxHeapUsedBytes,
       samples: memorySamples,
     },
+    sourceCounters: summarizeSourceCounters(sourceCounterSamples),
   };
+}
+
+function createSourceCounters() {
+  return {
+    readCalls: 0,
+    chunkCount: 0,
+    byteCount: 0,
+    batchCount: 0,
+    iteratorYields: 0,
+    pullCalls: 0,
+    enqueueCalls: 0,
+    closeCalls: 0,
+  };
+}
+
+function freezeSourceCounters(counters) {
+  return { ...counters };
+}
+
+function summarizeSourceCounters(samples) {
+  const first = samples[0] ?? createSourceCounters();
+  const stable = samples.every(sample => sameSourceCounters(first, sample));
+  return {
+    stable,
+    first,
+    samples,
+  };
+}
+
+function sameSourceCounters(left, right) {
+  return left.readCalls === right.readCalls
+    && left.chunkCount === right.chunkCount
+    && left.byteCount === right.byteCount
+    && left.batchCount === right.batchCount
+    && left.iteratorYields === right.iteratorYields
+    && left.pullCalls === right.pullCalls
+    && left.enqueueCalls === right.enqueueCalls
+    && left.closeCalls === right.closeCalls;
 }
 
 function syncRowId(batchSize) {
@@ -942,8 +1005,8 @@ function createFindings(rows, syncRow, fastestSyncRow, asyncRow, fastestAsyncRow
     {
       id: 'readable-stream-direct-source-shape',
       classification: 'BENCH_FACT',
-      summary: fastestSyncRow && readableRow
-        ? `Direct ReadableStream consumption reached ${formatNumber(readableRow.mibPerSec)} MiB/s (${formatNumber(readableRow.mibPerSec / fastestSyncRow.mibPerSec)}x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.`
+      summary: fastestSyncRow && fastestReadableRow
+        ? `Direct ReadableStream consumption reached ${formatNumber(fastestReadableRow.mibPerSec)} MiB/s (${formatNumber(fastestReadableRow.mibPerSec / fastestSyncRow.mibPerSec)}x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.`
         : 'ReadableStream and sync Iterable rows were not both measured.',
       evidence: rows.map(row => `${row.id}=${formatNumber(row.mibPerSec)} MiB/s rss=${formatBytes(row.memory?.maxRssBytes)}`),
     },
@@ -966,8 +1029,14 @@ function createFindings(rows, syncRow, fastestSyncRow, asyncRow, fastestAsyncRow
     {
       id: 'backpressure-respected',
       classification: 'CONTRACT_FACT',
-      summary: 'The async byte-batch rows advance the source iterator only from StreamReader.nextBatch(), and the ReadableStream rows read from the file only in pull().',
-      evidence: [...asyncRows, ...readableRows].map(row => `${row.id}: demandDrivenSource=${row.demandDrivenSource}, respectsBackpressure=${row.respectsBackpressure}, batchSize=${row.batchSize}`),
+      summary: 'The async byte-batch rows advance the source iterator only from StreamReader.nextBatch(), and the ReadableStream rows read from the file only in pull(). Source counters record stable per-run read, batch/yield, pull, and enqueue counts.',
+      evidence: [...asyncRows, ...readableRows].map(row => `${row.id}: demandDrivenSource=${row.demandDrivenSource}, respectsBackpressure=${row.respectsBackpressure}, batchSize=${row.batchSize}, reads=${row.sourceCounters.first.readCalls}, batches=${row.sourceCounters.first.batchCount}, pulls=${row.sourceCounters.first.pullCalls}, enqueues=${row.sourceCounters.first.enqueueCalls}, stable=${row.sourceCounters.stable}`),
+    },
+    {
+      id: 'source-counter-audit',
+      classification: 'CONTRACT_FACT',
+      summary: 'Measured rows retain source producer counters so source-shape comparisons can be audited without inferring producer behavior from throughput alone.',
+      evidence: rows.map(row => `${row.id}: bytes=${row.sourceCounters.first.byteCount}, chunks=${row.sourceCounters.first.chunkCount}, iteratorYields=${row.sourceCounters.first.iteratorYields}, pullCalls=${row.sourceCounters.first.pullCalls}`),
     },
   ];
 }
@@ -1032,10 +1101,10 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Rows');
   lines.push('');
-  lines.push('| Row | Source shape | Batch size | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Checksum | Demand-driven | Stream backpressure |');
-  lines.push('| --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | --- | --- |');
+  lines.push('| Row | Source shape | Batch size | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Checksum | Source reads | Source batches | Stream pulls | Demand-driven | Stream backpressure |');
+  lines.push('| --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |');
   for (const row of report.rows) {
-    lines.push(`| \`${row.id}\` | ${row.implementation} | ${row.batchSize ?? 'n/a'} | ${formatNumber(row.mibPerSec)} | ${row.sampleCount} | ${formatPercent(row.sampleSpreadRatio)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory?.maxRssBytes)} | ${row.eventCount} | ${row.checksum} | ${row.demandDrivenSource ? 'yes' : 'no'} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} |`);
+    lines.push(`| \`${row.id}\` | ${row.implementation} | ${row.batchSize ?? 'n/a'} | ${formatNumber(row.mibPerSec)} | ${row.sampleCount} | ${formatPercent(row.sampleSpreadRatio)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory?.maxRssBytes)} | ${row.eventCount} | ${row.checksum} | ${row.sourceCounters.first.readCalls} | ${row.sourceCounters.first.batchCount} | ${row.sourceCounters.first.pullCalls} | ${row.demandDrivenSource ? 'yes' : 'no'} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} |`);
   }
   lines.push('');
   lines.push('## Findings');

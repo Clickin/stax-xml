@@ -245,8 +245,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 177 primary release JSON artifacts, recognizes 931
-sample throughput rows and 99 aggregate rows, and finds 588 JavaScript 1 GiB+
+The current scan covers 178 primary release JSON artifacts, recognizes 934
+sample throughput rows and 99 aggregate rows, and finds 591 JavaScript 1 GiB+
 full-string sample rows plus 77 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -258,7 +258,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 258 JavaScript 1 GiB+
+or their source contract carry it. It now finds 261 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -274,17 +274,22 @@ source-mode-classified row is Node/V8 `rawFrameNameId` from
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
 full-string scan with explicit machine-readable source flags:
-`sync-iterable-byte-batches` now covers three grouped sync rows. The fastest is
-`sync-iterable-byte-batches`, which records parser input
+`sync-iterable-byte-batches` now covers four grouped sync rows after the focused
+`stream-source-consumption-backpressure-counters.json` audit. The fastest is
+`sync-iterable-byte-batches-batch-8`, which records parser input
 `synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
-75.36 MiB/s. The fastest backpressure-respecting `web-readable-stream-pull`
+90.56 MiB/s. The same focused audit records source counters on the 1024 MiB
+fixture: the sync and async grouped-batch rows read 16,384 chunks plus one EOF
+read and yield 2,048 `Uint8Array[]` batches, while the direct
+`ReadableStream` row records 16,385 `pull()` calls and 16,384 enqueues. The
+fastest backpressure-respecting `web-readable-stream-pull`
 row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
 `Web ReadableStream<Uint8Array>`, `directReadableStream=true`,
 `respectsBackpressure=true`, and 76.87 MiB/s. The scan separates
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 258
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 261
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -479,10 +484,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 177 primary release artifacts and recognizes 931
-measured rows. It records 131 benchmark artifacts, 17 source artifacts, 10
+The current audit scans 178 primary release artifacts and recognizes 934
+measured rows. It records 132 benchmark artifacts, 17 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-16 negative-result artifacts, 588 JavaScript 1 GiB+ full-string rows, and three
+16 negative-result artifacts, 591 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
