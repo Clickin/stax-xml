@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T03:26:20.143Z",
+  "generatedAt": "2026-05-26T03:40:48.386Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -144,6 +144,7 @@
     "text-cdata-cost-decomposition.json",
     "text-trim-cost-decomposition-2gib.json",
     "text-trim-cost-decomposition-4gib.json",
+    "text-trim-cost-decomposition-8gib.json",
     "text-trim-cost-decomposition.json",
     "textdecoder-span-variants-corpus.json",
     "textdecoder-span-variants.json",
@@ -166,21 +167,21 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 147,
+    "scannedArtifactCount": 148,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 795,
+    "measuredRowCount": 798,
     "aggregateRowCount": 89,
-    "largeJsFullRowCount": 491,
+    "largeJsFullRowCount": 492,
     "largeJsFullAggregateRowCount": 69,
-    "sourceModeRowCount": 218,
-    "largeJsFullSourceModeRowCount": 161,
+    "sourceModeRowCount": 221,
+    "largeJsFullSourceModeRowCount": 162,
     "sourceModeBreakdown": [
       {
         "sourceMode": "generated-sync-iterable-byte-batches",
-        "rowCount": 159,
-        "fullStringRowCount": 113,
-        "boundedFullStringRowCount": 104,
+        "rowCount": 162,
+        "fullStringRowCount": 114,
+        "boundedFullStringRowCount": 105,
         "fastestMiBPerSec": 326.65,
         "fastestRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -200,7 +201,7 @@
           "demandDrivenSource": true,
           "respectsBackpressure": null
         },
-        "demandDrivenRows": 159,
+        "demandDrivenRows": 162,
         "backpressureRows": 0
       },
       {
@@ -315,9 +316,9 @@
     "largeJsFullSourceModeBreakdown": [
       {
         "sourceMode": "generated-sync-iterable-byte-batches",
-        "rowCount": 113,
-        "fullStringRowCount": 113,
-        "boundedFullStringRowCount": 104,
+        "rowCount": 114,
+        "fullStringRowCount": 114,
+        "boundedFullStringRowCount": 105,
         "fastestMiBPerSec": 185.5,
         "fastestRow": {
           "sourceArtifact": "text-trim-cost-decomposition.json",
@@ -337,7 +338,7 @@
           "demandDrivenSource": true,
           "respectsBackpressure": null
         },
-        "demandDrivenRows": 113,
+        "demandDrivenRows": 114,
         "backpressureRows": 0
       },
       {
@@ -450,7 +451,7 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 795,
+      "measuredRows": 798,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -463,7 +464,7 @@
       "rowsWithMemoryCounter": 10
     },
     "counterexampleCount": 0,
-    "partialHeadroomRowCount": 26,
+    "partialHeadroomRowCount": 27,
     "unboundedOrUnknownLargeFullRowCount": 91,
     "largeFullMemoryRejectionBreakdown": {
       "total": 91,
@@ -548,7 +549,7 @@
       "demandDrivenSource": true,
       "respectsBackpressure": null
     },
-    "textMaterializationHeadroomRowCount": 6,
+    "textMaterializationHeadroomRowCount": 7,
     "fastestTextMaterializationHeadroomRow": {
       "sourceArtifact": "text-trim-cost-decomposition-4gib.json",
       "runtimeLabel": "Node/V8",
@@ -620,6 +621,30 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.0",
+      "id": "rawFrameNameId",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 184.03,
+      "eventCount": 456770888,
+      "checksum": 734413569,
+      "contractScope": "full-string-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
       "jsonPath": "runtimes.1.childReports.2.variants.2",
       "id": "rawFrameNameId",
@@ -822,30 +847,6 @@
       "sizeGiB": 1,
       "sizeMiB": 1024,
       "mibPerSec": 173.98,
-      "eventCount": 57096514,
-      "checksum": -540013997,
-      "contractScope": "full-string-materialization",
-      "family": "full-stax-js",
-      "counterexampleStatus": "not-found",
-      "memoryKind": "process-rss",
-      "hasMemoryProof": true,
-      "sourceMode": "generated-sync-iterable-byte-batches",
-      "batchSize": null,
-      "chunkKiB": null,
-      "demandDrivenSource": true,
-      "respectsBackpressure": null
-    },
-    {
-      "sourceArtifact": "access-shape-candidate-cross-process.json",
-      "jsonPath": "runtimes.0.childReports.2.variants.2",
-      "id": "rawFrameNameId",
-      "runtimeLabel": "Node/V8",
-      "jsRuntime": true,
-      "fullStringParity": true,
-      "boundedMemory": true,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 173.31,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-string-materialization",
@@ -910,6 +911,30 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.0",
+      "id": "rawFrameNameId",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 184.03,
+      "eventCount": 456770888,
+      "checksum": 734413569,
+      "contractScope": "full-string-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "access-shape-candidate-cross-process.json",
       "jsonPath": "runtimes.1.childReports.2.variants.2",
       "id": "rawFrameNameId",
@@ -1112,30 +1137,6 @@
       "sizeGiB": 1,
       "sizeMiB": 1024,
       "mibPerSec": 173.98,
-      "eventCount": 57096514,
-      "checksum": -540013997,
-      "contractScope": "full-string-materialization",
-      "family": "full-stax-js",
-      "counterexampleStatus": "not-found",
-      "memoryKind": "process-rss",
-      "hasMemoryProof": true,
-      "sourceMode": "generated-sync-iterable-byte-batches",
-      "batchSize": null,
-      "chunkKiB": null,
-      "demandDrivenSource": true,
-      "respectsBackpressure": null
-    },
-    {
-      "sourceArtifact": "access-shape-candidate-cross-process.json",
-      "jsonPath": "runtimes.0.childReports.2.variants.2",
-      "id": "rawFrameNameId",
-      "runtimeLabel": "Node/V8",
-      "jsRuntime": true,
-      "fullStringParity": true,
-      "boundedMemory": true,
-      "sizeGiB": 1,
-      "sizeMiB": 1024,
-      "mibPerSec": 173.31,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-string-materialization",
@@ -1898,6 +1899,30 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.2",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 237.38,
+      "eventCount": 456770888,
+      "checksum": 999272277,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "file-backed-core-decomposition.json",
       "jsonPath": "rows.0",
       "id": "stax-scan-all-no-decode",
@@ -2176,6 +2201,30 @@
       "mibPerSec": 243.31,
       "eventCount": 114192784,
       "checksum": 223378117,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.2",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 237.38,
+      "eventCount": 456770888,
+      "checksum": 999272277,
       "contractScope": "full-materialization-minus-text-cdata",
       "family": "near-full-upper-bound",
       "counterexampleStatus": "not-found",
@@ -12078,6 +12127,78 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.0",
+      "id": "rawFrameNameId",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": true,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 184.03,
+      "eventCount": 456770888,
+      "checksum": 734413569,
+      "contractScope": "full-string-materialization",
+      "family": "full-stax-js",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.1",
+      "id": "rawFrameNameIdNoTrim",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 186.97,
+      "eventCount": 456770888,
+      "checksum": 734413569,
+      "contractScope": "full-materialization-minus-text-trim",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "jsonPath": "variants.2",
+      "id": "withoutTextStrings",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 8,
+      "sizeMiB": 8192,
+      "mibPerSec": 237.38,
+      "eventCount": 456770888,
+      "checksum": 999272277,
+      "contractScope": "full-materialization-minus-text-cdata",
+      "family": "near-full-upper-bound",
+      "counterexampleStatus": "not-found",
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "generated-sync-iterable-byte-batches",
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "text-trim-cost-decomposition.json",
       "jsonPath": "variants.0",
       "id": "rawFrameNameId",
@@ -12183,12 +12304,12 @@
     {
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "26 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+      "summary": "27 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
     },
     {
       "id": "text-materialization-headroom",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "6 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
+      "summary": "7 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization."
     },
     {
       "id": "unbounded-or-unknown-full-rows-not-counterexamples",
@@ -12198,7 +12319,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "795 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
+      "summary": "798 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",
@@ -12208,7 +12329,7 @@
     {
       "id": "source-consumption-modes-separated",
       "status": "SOURCE_MODE_EVIDENCE_PRESENT",
-      "summary": "Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:113, file-backed-sync-iterable-byte-batches:45, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1."
+      "summary": "Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:114, file-backed-sync-iterable-byte-batches:45, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1."
     }
   ]
 }

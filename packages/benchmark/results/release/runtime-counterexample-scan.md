@@ -1,19 +1,19 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T03:26:20.143Z
+Generated: 2026-05-26T03:40:48.386Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 147
+- Scanned artifacts: 148
 - Ignored derived artifacts: 5
-- Measured rows recognized: 795
+- Measured rows recognized: 798
 - Aggregate rows recognized: 89
-- 1 GiB+ JS full-string rows recognized: 491
+- 1 GiB+ JS full-string rows recognized: 492
 - 1 GiB+ JS full-string aggregate rows recognized: 69
-- Rows with recognized source mode: 218
-- 1 GiB+ JS full-string rows with recognized source mode: 161
+- Rows with recognized source mode: 221
+- 1 GiB+ JS full-string rows with recognized source mode: 162
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
   - Unknown bounded-memory JS rows: 4
@@ -21,8 +21,8 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 10
 - Counterexamples found: 0
-- Partial/projection threshold rows: 26
-- Text/CDATA materialization headroom rows: 6
+- Partial/projection threshold rows: 27
+- Text/CDATA materialization headroom rows: 7
 - Full-string rows failing bounded-memory criterion: 91
   - Explicit boundedMemory=false rows: 91
   - Bounded flag without row-level memory proof: 0
@@ -46,6 +46,7 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
 | `text-trim-cost-decomposition.json` | Node/V8 | `rawFrameNameId` | 1.00 | 185.50 | yes | process-rss | 57096514 | -540013997 |
 | `text-trim-cost-decomposition-2gib.json` | Node/V8 | `rawFrameNameId` | 2.00 | 184.92 | yes | process-rss | 114192784 | 1903859545 |
+| `text-trim-cost-decomposition-8gib.json` | Node/V8 | `rawFrameNameId` | 8.00 | 184.03 | yes | process-rss | 456770888 | 734413569 |
 | `access-shape-candidate-cross-process.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 179.70 | yes | process-rss | 57096514 | -540013997 |
 | `text-trim-cost-decomposition-4gib.json` | Node/V8 | `rawFrameNameId` | 4.00 | 178.86 | yes | process-rss | 228385566 | -1067702969 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 178.52 | yes | process-rss | 57096514 | -540013997 |
@@ -55,7 +56,6 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 | `text-cache-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.02 | yes | process-rss | 57096514 | -540013997 |
 | `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 174.93 | yes | process-rss | 57096514 | -540013997 |
 | `access-shape-candidate-cross-process.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 173.98 | yes | process-rss | 57096514 | -540013997 |
-| `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 173.31 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Rows Regardless Of Memory Proof
 
@@ -65,6 +65,7 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
 | `text-trim-cost-decomposition.json` | Node/V8 | `rawFrameNameId` | 1.00 | 185.50 | yes | process-rss | 57096514 | -540013997 |
 | `text-trim-cost-decomposition-2gib.json` | Node/V8 | `rawFrameNameId` | 2.00 | 184.92 | yes | process-rss | 114192784 | 1903859545 |
+| `text-trim-cost-decomposition-8gib.json` | Node/V8 | `rawFrameNameId` | 8.00 | 184.03 | yes | process-rss | 456770888 | 734413569 |
 | `access-shape-candidate-cross-process.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 179.70 | yes | process-rss | 57096514 | -540013997 |
 | `text-trim-cost-decomposition-4gib.json` | Node/V8 | `rawFrameNameId` | 4.00 | 178.86 | yes | process-rss | 228385566 | -1067702969 |
 | `bun-candidate-headroom-books-corpus-stability.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 178.52 | yes | process-rss | 57096514 | -540013997 |
@@ -74,7 +75,6 @@ Rows in this table are useful for throughput triage, but rows without a row-leve
 | `text-cache-materialization-candidate-stability.json` | Node/V8 | `rawFrameNameId` | 1.00 | 175.02 | yes | process-rss | 57096514 | -540013997 |
 | `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 174.93 | yes | process-rss | 57096514 | -540013997 |
 | `access-shape-candidate-cross-process.json` | Bun/JSC | `rawFrameNameId` | 1.00 | 173.98 | yes | process-rss | 57096514 | -540013997 |
-| `access-shape-candidate-cross-process.json` | Node/V8 | `rawFrameNameId` | 1.00 | 173.31 | yes | process-rss | 57096514 | -540013997 |
 
 ## Fastest 1 GiB+ Full-String JS Cross-Process Aggregate Rows With Memory Proof
 
@@ -101,7 +101,7 @@ This table records input-consumption metadata when release rows or their source 
 
 | Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows |
 | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `generated-sync-iterable-byte-batches` | 113 | 113 | 104 | 185.50 | Node/V8 rawFrameNameId from text-trim-cost-decomposition.json | 113 | 0 |
+| `generated-sync-iterable-byte-batches` | 114 | 114 | 105 | 185.50 | Node/V8 rawFrameNameId from text-trim-cost-decomposition.json | 114 | 0 |
 | `file-backed-sync-iterable-byte-batches` | 45 | 45 | 44 | 152.11 | Node/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep.json | 45 | 0 |
 | `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 |
 | `sync-iterable-byte-batches` | 1 | 1 | 1 | 136.79 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 1 | 0 |
@@ -130,6 +130,7 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 | `text-trim-cost-decomposition-2gib.json` | Node/V8 | `withoutTextStrings` | 2.00 | 243.31 | full-materialization-minus-text-cdata | 114192784 | 223378117 |
 | `file-backed-core-decomposition.json` | Node/V8 | `stax-raw-frame-span-stats` | 1.00 | 240.08 | partial-raw-frame-span-metadata-no-string-materialization | 61236571 | -1264359145 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `nameStringOnly` | 1.00 | 239.05 | event-types-attribute-counts-and-element-names | 57096514 | -929151437 |
+| `text-trim-cost-decomposition-8gib.json` | Node/V8 | `withoutTextStrings` | 8.00 | 237.38 | full-materialization-minus-text-cdata | 456770888 | 999272277 |
 | `file-backed-core-decomposition.json` | Node/V8 | `stax-scan-all-no-decode` | 1.00 | 234.57 | partial-scan-no-string-materialization | 61236571 | -1830981171 |
 | `candidate-headroom-cross-process-books-corpus-partial.json` | Node/V8 | `scanAllNoDecode` | 1.00 | 233.20 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `long-text-cache-materialization-candidate.json` | Node/V8 | `withoutTextStrings` | 1.00 | 229.15 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
@@ -149,6 +150,7 @@ These near-full rows still materialize element names and attributes, but omit te
 | `text-trim-cost-decomposition-4gib.json` | Node/V8 | `withoutTextStrings` | 4.00 | 252.36 | full-materialization-minus-text-cdata | 228385566 | -933264309 |
 | `text-trim-cost-decomposition.json` | Node/V8 | `withoutTextStrings` | 1.00 | 249.13 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `text-trim-cost-decomposition-2gib.json` | Node/V8 | `withoutTextStrings` | 2.00 | 243.31 | full-materialization-minus-text-cdata | 114192784 | 223378117 |
+| `text-trim-cost-decomposition-8gib.json` | Node/V8 | `withoutTextStrings` | 8.00 | 237.38 | full-materialization-minus-text-cdata | 456770888 | 999272277 |
 | `long-text-cache-materialization-candidate.json` | Node/V8 | `withoutTextStrings` | 1.00 | 229.15 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `text-cdata-cost-decomposition.json` | Node/V8 | `withoutTextStrings` | 1.00 | 219.85 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `withoutTextStrings` | 1.00 | 207.70 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
@@ -156,12 +158,12 @@ These near-full rows still materialize element names and attributes, but omit te
 ## Findings
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
-- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 26 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
-- text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 6 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
+- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 27 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
+- text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 7 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 795 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 798 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
-- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:113, file-backed-sync-iterable-byte-batches:45, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
+- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:114, file-backed-sync-iterable-byte-batches:45, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1.
 
 ## Limits
 

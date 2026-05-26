@@ -242,6 +242,15 @@ const variantArtifacts = [
     cases: ['rawFrameNameId'],
     sourceMode: 'sync-iterable-byte-batches',
   },
+  {
+    group: 'text-trim-cost-decomposition-8gib',
+    file: 'text-trim-cost-decomposition-8gib.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['rawFrameNameId'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
 ];
 
 const crossProcessArtifacts = [

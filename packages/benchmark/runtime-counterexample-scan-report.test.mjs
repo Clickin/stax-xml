@@ -33,18 +33,18 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 147);
+  assert.equal(report.summary.scannedArtifactCount, 148);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
-  assert.equal(report.summary.measuredRowCount, 795);
+  assert.equal(report.summary.measuredRowCount, 798);
   assert.equal(report.summary.aggregateRowCount, 89);
-  assert.equal(report.summary.largeJsFullRowCount, 491);
+  assert.equal(report.summary.largeJsFullRowCount, 492);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
-  assert.equal(report.summary.sourceModeRowCount, 218);
-  assert.equal(report.summary.largeJsFullSourceModeRowCount, 161);
-  assert.equal(report.summary.partialHeadroomRowCount, 26);
-  assert.equal(report.summary.textMaterializationHeadroomRowCount, 6);
+  assert.equal(report.summary.sourceModeRowCount, 221);
+  assert.equal(report.summary.largeJsFullSourceModeRowCount, 162);
+  assert.equal(report.summary.partialHeadroomRowCount, 27);
+  assert.equal(report.summary.textMaterializationHeadroomRowCount, 7);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 91);
@@ -116,6 +116,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('text-trim-cost-decomposition.json'));
   assert.ok(report.scannedArtifacts.includes('text-trim-cost-decomposition-2gib.json'));
   assert.ok(report.scannedArtifacts.includes('text-trim-cost-decomposition-4gib.json'));
+  assert.ok(report.scannedArtifacts.includes('text-trim-cost-decomposition-8gib.json'));
   assert.ok(report.scannedArtifacts.includes('stax-event-public-object-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('external-baseline-1024mib-file-sync-batches.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-fold-trim-candidate.json'));
@@ -184,7 +185,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'text-cache-materialization-candidate.json'
     && row.id === 'withoutTextStrings'
   ));
-  assert.equal(report.textMaterializationHeadroomRows.length, 6);
+  assert.equal(report.textMaterializationHeadroomRows.length, 7);
   assert.ok(report.textMaterializationHeadroomRows.some(row =>
     row.sourceArtifact === 'text-trim-cost-decomposition.json'
     && row.id === 'withoutTextStrings'
@@ -232,6 +233,14 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.fullStringParity === false
     && row.contractScope === 'full-materialization-minus-text-cdata'
     && row.checksum === -933264309
+  ));
+  assert.ok(report.textMaterializationHeadroomRows.some(row =>
+    row.sourceArtifact === 'text-trim-cost-decomposition-8gib.json'
+    && row.id === 'withoutTextStrings'
+    && row.mibPerSec === 237.38
+    && row.fullStringParity === false
+    && row.contractScope === 'full-materialization-minus-text-cdata'
+    && row.checksum === 999272277
   ));
   assert.ok(!report.textMaterializationHeadroomRows.some(row =>
     row.sourceArtifact === 'materialization-category-drop-sweep.json'
@@ -317,15 +326,15 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'generated-sync-iterable-byte-batches'
-    && entry.rowCount === 113
-    && entry.boundedFullStringRowCount === 104
+    && entry.rowCount === 114
+    && entry.boundedFullStringRowCount === 105
     && entry.fastestRow.sourceArtifact === 'text-trim-cost-decomposition.json'
     && entry.fastestRow.runtimeLabel === 'Node/V8'
     && entry.fastestRow.id === 'rawFrameNameId'
     && entry.fastestRow.eventCount === 57096514
     && entry.fastestRow.checksum === -540013997
     && entry.fastestMiBPerSec === 185.5
-    && entry.demandDrivenRows === 113
+    && entry.demandDrivenRows === 114
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'file-backed-sync-iterable-byte-batches'
@@ -459,14 +468,14 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
-  assert.match(markdown, /Rows with recognized source mode: 218/);
-  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 161/);
+  assert.match(markdown, /Rows with recognized source mode: 221/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 162/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
   assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);
   assert.match(markdown, /Demand-driven rows/);
   assert.match(markdown, /Stream backpressure rows/);
-  assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 113 \| 113 \| 104 \| 185\.50 \| Node\/V8 rawFrameNameId from text-trim-cost-decomposition\.json \| 113 \| 0 \|/);
+  assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 114 \| 114 \| 105 \| 185\.50 \| Node\/V8 rawFrameNameId from text-trim-cost-decomposition\.json \| 114 \| 0 \|/);
   assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 45 \| 45 \| 44 \| 152\.11 \| Node\/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep\.json \| 45 \| 0 \|/);
   assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| \d+\.\d{2} \| Bun\/JSC 3 from bun-event-reader-string-large\.json \| 0 \| 0 \|/);
   assert.match(markdown, /\| `sync-iterable-byte-batches` \| 1 \| 1 \| 1 \| 136\.79 \| Node\/V8 sync-iterable-byte-batches from stream-source-consumption-shapes\.json \| 1 \| 0 \|/);
