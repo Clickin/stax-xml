@@ -244,7 +244,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 168 primary release JSON artifacts, recognizes 870
+The current scan covers 168 primary release JSON artifacts, recognizes 872
 sample throughput rows and 93 aggregate rows, and finds 543 JavaScript 1 GiB+
 full-string sample rows plus 73 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -308,17 +308,21 @@ work is included, and the only 200 MiB/s+ tokenizer row is a singleton-batch
 granularity probe rather than a grouped parser rewrite result.
 `segment-tokenizer-string-frontier.json` then keeps the grouped segment source
 fixed and adds browser-compatible `TextDecoder` materialization one field
-family at a time. Its token-only row reaches 239.61 MiB/s, but element-name
-strings alone drop to 116.08 MiB/s after 43,225,814 decode calls and
+family at a time. Its token-only row reaches 234.30 MiB/s, but element-name
+strings alone drop to 111.32 MiB/s after 43,225,814 decode calls and
 288,172,088 decoded bytes. A byte-verified name string cache cuts the
-element-name row to 6 decode calls and raises it to 144.98 MiB/s with the same
+element-name row to 6 decode calls and raises it to 153.14 MiB/s with the same
 checksum, but all token strings without public objects still reach only
-69.53 MiB/s after 97,258,079 decode calls and 882,827,595 decoded bytes. The
-name-cached all-token row reaches 80.09 MiB/s after 36,021,520 decode calls,
-61,236,559 cache hits, 10 cached names, and 515,408,238 decoded bytes. This is
+66.58 MiB/s after 97,258,079 decode calls and 882,827,595 decoded bytes. The
+name-cached all-token row reaches 81.14 MiB/s after 36,021,520 decode calls,
+61,236,559 cache hits, 10 cached names, and 515,408,238 decoded bytes. A
+bounded all-string cache with 4,096 retained entries improves the element plus
+attribute string row from 83.34 to 112.27 MiB/s by reducing decode calls to
+3,602,259, but the same bounded cache on all token strings reaches only
+74.85 MiB/s and is slower than name-only caching. This is
 a direct counterexample to treating the token-boundary row or repeated-name
-cache as enough headroom for the string-return target: repeated names recover
-some decode cost, while text and attribute value string materialization still
+cache as enough headroom for the string-return target: repeated names and some
+attribute values recover decode cost, while text string materialization still
 dominates before public event-object allocation is even reintroduced. Bun/JSC
 `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json` remains the
@@ -463,7 +467,7 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 168 primary release artifacts and recognizes 870
+The current audit scans 168 primary release artifacts and recognizes 872
 measured rows. It records 125 benchmark artifacts, 17 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
 13 negative-result artifacts, 543 JavaScript 1 GiB+ full-string rows, and three
@@ -488,10 +492,10 @@ showing 236.55 MiB/s for singleton segment pulls but only 196.26 MiB/s for the
 grouped segment-aware row, so it narrows the no-concat headroom claim before a
 full segmented parser rewrite. `segment-tokenizer-string-frontier.json` adds
 the next partial frontier: grouped segment tokenization plus `TextDecoder`
-materialization. It shows token-only 239.61 MiB/s, element-name strings
-116.08 MiB/s, cached element-name strings 144.98 MiB/s, all token strings
-without public objects 69.53 MiB/s, and name-cached all token strings
-80.09 MiB/s, while
+materialization. It shows token-only 234.30 MiB/s, element-name strings
+111.32 MiB/s, cached element-name strings 153.14 MiB/s, all token strings
+without public objects 66.58 MiB/s, name-cached all token strings
+81.14 MiB/s, and bounded all-string cache all token strings 74.85 MiB/s, while
 remaining explicitly `fullStringParity=false`. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving

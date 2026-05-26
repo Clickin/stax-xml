@@ -150,7 +150,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 870\s+sample throughput rows and 93 aggregate rows/);
+  assert.match(markdown, /recognizes 872\s+sample throughput rows and 93 aggregate rows/);
   assert.match(markdown, /543 JavaScript 1 GiB\+\s+full-string sample rows plus 73 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
@@ -187,11 +187,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /matching 61,236,569 events, 21,612,907\s+start elements, 21,612,907 end elements, 18,010,755 text events,\s+18,010,755 attributes, and checksum `-1381363934`/);
   assert.match(markdown, /1\.16x delimiter-scan no-concat headroom mostly disappears once token-boundary\s+work is included/);
   assert.match(markdown, /`segment-tokenizer-string-frontier\.json` then keeps the grouped segment source\s+fixed and adds browser-compatible `TextDecoder` materialization one field\s+family at a time/);
-  assert.match(markdown, /token-only row reaches 239\.61 MiB\/s, but element-name\s+strings alone drop to 116\.08 MiB\/s after 43,225,814 decode calls and\s+288,172,088 decoded bytes/);
-  assert.match(markdown, /name string cache cuts the\s+element-name row to 6 decode calls and raises it to 144\.98 MiB\/s with the same\s+checksum/);
-  assert.match(markdown, /all token strings without public objects still reach only\s+69\.53 MiB\/s after 97,258,079 decode calls and 882,827,595 decoded bytes/);
-  assert.match(markdown, /name-cached all-token row reaches 80\.09 MiB\/s after 36,021,520 decode calls,\s+61,236,559 cache hits, 10 cached names, and 515,408,238 decoded bytes/);
-  assert.match(markdown, /repeated names recover\s+some decode cost, while text and attribute value string materialization still\s+dominates before public event-object allocation is even reintroduced/);
+  assert.match(markdown, /token-only row reaches 234\.30 MiB\/s, but element-name\s+strings alone drop to 111\.32 MiB\/s after 43,225,814 decode calls and\s+288,172,088 decoded bytes/);
+  assert.match(markdown, /name string cache cuts the\s+element-name row to 6 decode calls and raises it to 153\.14 MiB\/s with the same\s+checksum/);
+  assert.match(markdown, /all token strings without public objects still reach only\s+66\.58 MiB\/s after 97,258,079 decode calls and 882,827,595 decoded bytes/);
+  assert.match(markdown, /name-cached all-token row reaches 81\.14 MiB\/s after 36,021,520 decode calls,\s+61,236,559 cache hits, 10 cached names, and 515,408,238 decoded bytes/);
+  assert.match(markdown, /bounded all-string cache with 4,096 retained entries improves the element plus\s+attribute string row from 83\.34 to 112\.27 MiB\/s by reducing decode calls to\s+3,602,259, but the same bounded cache on all token strings reaches only\s+74\.85 MiB\/s/);
+  assert.match(markdown, /repeated names and some\s+attribute values recover decode cost, while text string materialization still\s+dominates before public event-object allocation is even reintroduced/);
   assert.match(markdown, /Bun\/JSC\s+`scanAllNoDecode` at 326\.65 MiB\/s from\s+`candidate-headroom-cross-process-books-corpus-partial\.json` remains the\s+fastest parser-produced partial row/);
   assert.match(markdown, /The fastest is Node\/V8 `withoutTextStrings` from\s+`text-trim-cost-decomposition-4gib\.json` at 252\.36 MiB\/s/);
   assert.match(markdown, /`rawFrameNameIdNoTrim` at 185\.03 MiB\/s\s+with the same 62,758,976 string-field reads/);
@@ -252,7 +253,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
-  assert.match(markdown, /recognizes 870\s+measured rows/);
+  assert.match(markdown, /recognizes 872\s+measured rows/);
   assert.match(markdown, /125 benchmark artifacts, 17 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+13 negative-result artifacts/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
@@ -264,7 +265,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /showing 236\.55 MiB\/s for singleton segment pulls but only 196\.26 MiB\/s for the\s+grouped segment-aware row/);
   assert.match(markdown, /segment-tokenizer-string-frontier\.json/);
   assert.match(markdown, /grouped segment tokenization plus `TextDecoder`\s+materialization/);
-  assert.match(markdown, /token-only 239\.61 MiB\/s, element-name strings\s+116\.08 MiB\/s, cached element-name strings 144\.98 MiB\/s, all token strings\s+without public objects 69\.53 MiB\/s, and name-cached all token strings\s+80\.09 MiB\/s/);
+  assert.match(markdown, /token-only 234\.30 MiB\/s, element-name strings\s+111\.32 MiB\/s, cached element-name strings 153\.14 MiB\/s, all token strings\s+without public objects 66\.58 MiB\/s, name-cached all token strings\s+81\.14 MiB\/s, and bounded all-string cache all token strings 74\.85 MiB\/s/);
   assert.match(markdown, /three\s+release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /coverage audit now treats `runtime\.id: "node"` \/ `runtime\.v8` artifacts such as\s+`stream-reader-4gb-shapes\.json` as Node\/V8 row evidence/);
   assert.match(markdown, /rather than leaving\s+their 4 GiB generated byte-batch rows in the `unknown` bucket/);

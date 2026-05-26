@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T13:18:02.812Z",
+  "generatedAt": "2026-05-26T14:09:11.338Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2767,7 +2767,7 @@
         "actualBytes": 1073741644
       },
       "corpusSeed": null,
-      "measuredRowCount": 8
+      "measuredRowCount": 10
     },
     {
       "sourceArtifact": "stax-event-public-object-shape-audit.json",
@@ -3485,9 +3485,9 @@
     "scannedArtifactCount": 168,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 870,
+    "measuredRowCount": 872,
     "rowClassificationCompleteness": {
-      "measuredRows": 870,
+      "measuredRows": 872,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -3521,7 +3521,7 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 85,
-        "measuredRowCount": 387,
+        "measuredRowCount": 389,
         "largeFullStringRowCount": 239,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "text-trim-cost-decomposition.json",

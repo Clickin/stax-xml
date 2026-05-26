@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T10:33:07.032Z",
+  "generatedAt": "2026-05-26T14:07:58.843Z",
   "objective": "segment-tokenizer-string-frontier",
   "contract": "file-backed-segment-tokenizer-string-frontier",
   "note": "Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Rows are partial headroom evidence and not full StAX counterexamples because they do not expose public event objects or validate the full XML contract.",
@@ -45,16 +45,16 @@
       "decodeAttributeNames": false,
       "decodeAttributeValues": false,
       "decodeText": false,
-      "mibPerSec": 239.61472294003795,
-      "avgMs": 4273.526333333334,
-      "minMs": 4215.049,
-      "maxMs": 4354.9743,
+      "mibPerSec": 234.29744549356317,
+      "avgMs": 4370.512133333333,
+      "minMs": 4323.3052,
+      "maxMs": 4446.1419,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.03274235118398315,
+      "sampleSpreadRatio": 0.028105790866736226,
       "samplesMs": [
-        4215.049,
-        4354.9743,
-        4250.555700000001
+        4323.3052,
+        4446.1419,
+        4342.0893
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -64,53 +64,54 @@
       "materializedStringCount": 0,
       "cachedStringHitCount": 0,
       "cachedStringMissCount": 0,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 0,
       "decodedByteCount": 0,
       "decodeCalls": 0,
       "checksum": -1381363934,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 112009216,
-        "maxHeapUsedBytes": 10781528,
+        "maxRssBytes": 111611904,
+        "maxHeapUsedBytes": 10784744,
         "samples": [
           {
             "before": {
-              "rssBytes": 55611392,
-              "heapUsedBytes": 4451008,
-              "externalBytes": 1887813,
+              "rssBytes": 55033856,
+              "heapUsedBytes": 4454176,
+              "externalBytes": 1889362,
               "arrayBuffersBytes": 22767
             },
             "after": {
-              "rssBytes": 112009216,
-              "heapUsedBytes": 6809488,
+              "rssBytes": 111611904,
+              "heapUsedBytes": 7911728,
               "externalBytes": 47832008,
               "arrayBuffersBytes": 45930735
             }
           },
           {
             "before": {
-              "rssBytes": 111980544,
-              "heapUsedBytes": 4683000,
+              "rssBytes": 111730688,
+              "heapUsedBytes": 4686136,
               "externalBytes": 47832008,
-              "arrayBuffersBytes": 43440367
+              "arrayBuffersBytes": 43079919
             },
             "after": {
-              "rssBytes": 75603968,
-              "heapUsedBytes": 7672736,
+              "rssBytes": 76161024,
+              "heapUsedBytes": 7574344,
               "externalBytes": 2743240,
               "arrayBuffersBytes": 841967
             }
           },
           {
             "before": {
-              "rssBytes": 74121216,
-              "heapUsedBytes": 4689568,
+              "rssBytes": 74489856,
+              "heapUsedBytes": 4692768,
               "externalBytes": 2743240,
-              "arrayBuffersBytes": 22767
+              "arrayBuffersBytes": 55535
             },
             "after": {
-              "rssBytes": 75907072,
-              "heapUsedBytes": 10781528,
+              "rssBytes": 76144640,
+              "heapUsedBytes": 10784744,
               "externalBytes": 3267528,
               "arrayBuffersBytes": 1366255
             }
@@ -141,16 +142,16 @@
       "decodeAttributeValues": false,
       "decodeText": false,
       "cacheNames": false,
-      "mibPerSec": 116.07743365990744,
-      "avgMs": 8821.695966666666,
-      "minMs": 8728.559099999999,
-      "maxMs": 9005.3082,
+      "mibPerSec": 111.31562528330299,
+      "avgMs": 9199.0664,
+      "minMs": 9082.3909,
+      "maxMs": 9356.045699999999,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.03137141668061502,
+      "sampleSpreadRatio": 0.02974810574255649,
       "samplesMs": [
-        8731.2206,
-        8728.559099999999,
-        9005.3082
+        9082.3909,
+        9158.762599999998,
+        9356.045699999999
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -160,53 +161,54 @@
       "materializedStringCount": 43225814,
       "cachedStringHitCount": 0,
       "cachedStringMissCount": 0,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 0,
       "decodedByteCount": 288172088,
       "decodeCalls": 43225814,
       "checksum": 1787722344,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 93450240,
-        "maxHeapUsedBytes": 17261656,
+        "maxRssBytes": 93544448,
+        "maxHeapUsedBytes": 15892552,
         "samples": [
           {
             "before": {
-              "rssBytes": 75407360,
-              "heapUsedBytes": 4692320,
+              "rssBytes": 75845632,
+              "heapUsedBytes": 4695544,
               "externalBytes": 3267528,
-              "arrayBuffersBytes": 448751
+              "arrayBuffersBytes": 973039
             },
             "after": {
-              "rssBytes": 75608064,
-              "heapUsedBytes": 6704616,
+              "rssBytes": 75886592,
+              "heapUsedBytes": 6693912,
               "externalBytes": 2481167,
               "arrayBuffersBytes": 579894
             }
           },
           {
             "before": {
-              "rssBytes": 75382784,
-              "heapUsedBytes": 4731784,
+              "rssBytes": 75702272,
+              "heapUsedBytes": 4732672,
               "externalBytes": 2481167,
-              "arrayBuffersBytes": 121071
+              "arrayBuffersBytes": 317750
             },
             "after": {
-              "rssBytes": 93343744,
-              "heapUsedBytes": 17261656,
-              "externalBytes": 3267826,
-              "arrayBuffersBytes": 1366553
+              "rssBytes": 93523968,
+              "heapUsedBytes": 8872384,
+              "externalBytes": 2743353,
+              "arrayBuffersBytes": 842080
             }
           },
           {
             "before": {
-              "rssBytes": 93401088,
-              "heapUsedBytes": 4736632,
-              "externalBytes": 3267826,
-              "arrayBuffersBytes": 350560
+              "rssBytes": 93286400,
+              "heapUsedBytes": 4737360,
+              "externalBytes": 2743353,
+              "arrayBuffersBytes": 219375
             },
             "after": {
-              "rssBytes": 93450240,
-              "heapUsedBytes": 15891880,
+              "rssBytes": 93544448,
+              "heapUsedBytes": 15892552,
               "externalBytes": 3267815,
               "arrayBuffersBytes": 1366542
             }
@@ -237,16 +239,16 @@
       "decodeAttributeValues": false,
       "decodeText": false,
       "cacheNames": true,
-      "mibPerSec": 144.97827840945502,
-      "avgMs": 7063.125866666666,
-      "minMs": 6689.850299999998,
-      "maxMs": 7550.552799999998,
+      "mibPerSec": 153.13911052033365,
+      "avgMs": 6686.729633333332,
+      "minMs": 6512.048199999997,
+      "maxMs": 6799.960500000001,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.12185858163195876,
+      "sampleSpreadRatio": 0.04305726652454459,
       "samplesMs": [
-        6948.974500000004,
-        7550.552799999998,
-        6689.850299999998
+        6748.180199999995,
+        6799.960500000001,
+        6512.048199999997
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -256,53 +258,54 @@
       "materializedStringCount": 43225814,
       "cachedStringHitCount": 43225808,
       "cachedStringMissCount": 6,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 6,
       "decodedByteCount": 37,
       "decodeCalls": 6,
       "checksum": 1787722344,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 93663232,
-        "maxHeapUsedBytes": 16823040,
+        "maxRssBytes": 94294016,
+        "maxHeapUsedBytes": 17004072,
         "samples": [
           {
             "before": {
-              "rssBytes": 93134848,
-              "heapUsedBytes": 4729896,
+              "rssBytes": 93343744,
+              "heapUsedBytes": 4730360,
               "externalBytes": 3267815,
-              "arrayBuffersBytes": 350560
+              "arrayBuffersBytes": 842204
             },
             "after": {
-              "rssBytes": 93483008,
-              "heapUsedBytes": 16823040,
-              "externalBytes": 3267844,
-              "arrayBuffersBytes": 1366571
+              "rssBytes": 93962240,
+              "heapUsedBytes": 17004072,
+              "externalBytes": 3529988,
+              "arrayBuffersBytes": 1628715
             }
           },
           {
             "before": {
-              "rssBytes": 93110272,
-              "heapUsedBytes": 4746784,
-              "externalBytes": 3267844,
-              "arrayBuffersBytes": 186607
+              "rssBytes": 93982720,
+              "heapUsedBytes": 4752992,
+              "externalBytes": 3529988,
+              "arrayBuffersBytes": 284911
             },
             "after": {
-              "rssBytes": 93593600,
-              "heapUsedBytes": 13815792,
+              "rssBytes": 94195712,
+              "heapUsedBytes": 14250808,
               "externalBytes": 3267765,
               "arrayBuffersBytes": 1366492
             }
           },
           {
             "before": {
-              "rssBytes": 93351936,
-              "heapUsedBytes": 4756952,
+              "rssBytes": 93962240,
+              "heapUsedBytes": 4763392,
               "externalBytes": 3267765,
-              "arrayBuffersBytes": 809365
+              "arrayBuffersBytes": 874972
             },
             "after": {
-              "rssBytes": 93663232,
-              "heapUsedBytes": 10561952,
+              "rssBytes": 94294016,
+              "heapUsedBytes": 10568448,
               "externalBytes": 2743388,
               "arrayBuffersBytes": 842115
             }
@@ -333,16 +336,16 @@
       "decodeAttributeValues": false,
       "decodeText": false,
       "cacheNames": false,
-      "mibPerSec": 96.31526107841924,
-      "avgMs": 10631.750533333334,
-      "minMs": 10595.333100000003,
-      "maxMs": 10663.567299999995,
+      "mibPerSec": 95.58772123414217,
+      "avgMs": 10712.671199999997,
+      "minMs": 10682.244399999996,
+      "maxMs": 10744.310100000002,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.006417964735539978,
+      "sampleSpreadRatio": 0.005793671703468925,
       "samplesMs": [
-        10663.567299999995,
-        10636.351200000005,
-        10595.333100000003
+        10744.310100000002,
+        10682.244399999996,
+        10711.459099999993
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -352,53 +355,54 @@
       "materializedStringCount": 61236569,
       "cachedStringHitCount": 0,
       "cachedStringMissCount": 0,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 0,
       "decodedByteCount": 367419410,
       "decodeCalls": 61236569,
       "checksum": 976545000,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 93708288,
-        "maxHeapUsedBytes": 9070584,
+        "maxRssBytes": 94019584,
+        "maxHeapUsedBytes": 9428776,
         "samples": [
           {
             "before": {
-              "rssBytes": 93745152,
-              "heapUsedBytes": 4754568,
+              "rssBytes": 94011392,
+              "heapUsedBytes": 4760512,
               "externalBytes": 2743388,
-              "arrayBuffersBytes": 842115
+              "arrayBuffersBytes": 383328
             },
             "after": {
-              "rssBytes": 93560832,
-              "heapUsedBytes": 9070584,
+              "rssBytes": 94019584,
+              "heapUsedBytes": 9428776,
               "externalBytes": 2743353,
               "arrayBuffersBytes": 842080
             }
           },
           {
             "before": {
-              "rssBytes": 93409280,
-              "heapUsedBytes": 4762872,
+              "rssBytes": 93818880,
+              "heapUsedBytes": 4768720,
               "externalBytes": 2743353,
               "arrayBuffersBytes": 416096
             },
             "after": {
-              "rssBytes": 93708288,
-              "heapUsedBytes": 6716272,
+              "rssBytes": 93007872,
+              "heapUsedBytes": 6721400,
               "externalBytes": 2481167,
               "arrayBuffersBytes": 579894
             }
           },
           {
             "before": {
-              "rssBytes": 93368320,
-              "heapUsedBytes": 4764848,
+              "rssBytes": 92811264,
+              "heapUsedBytes": 4770536,
               "externalBytes": 2481167,
-              "arrayBuffersBytes": 448822
+              "arrayBuffersBytes": 252143
             },
             "after": {
-              "rssBytes": 93462528,
-              "heapUsedBytes": 6703144,
+              "rssBytes": 93954048,
+              "heapUsedBytes": 6678992,
               "externalBytes": 2481167,
               "arrayBuffersBytes": 579894
             }
@@ -429,16 +433,16 @@
       "decodeAttributeValues": false,
       "decodeText": false,
       "cacheNames": true,
-      "mibPerSec": 134.19932239098165,
-      "avgMs": 7630.439633333328,
-      "minMs": 7332.472200000004,
-      "maxMs": 7960.238499999992,
+      "mibPerSec": 134.85943928042806,
+      "avgMs": 7593.089766666667,
+      "minMs": 7502.1600000000035,
+      "maxMs": 7725.582999999999,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.08227131465107354,
+      "sampleSpreadRatio": 0.02942451714199567,
       "samplesMs": [
-        7598.608199999988,
-        7960.238499999992,
-        7332.472200000004
+        7502.1600000000035,
+        7725.582999999999,
+        7551.526299999998
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -448,53 +452,54 @@
       "materializedStringCount": 61236569,
       "cachedStringHitCount": 61236559,
       "cachedStringMissCount": 10,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 10,
       "decodedByteCount": 53,
       "decodeCalls": 10,
       "checksum": 976545000,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 94097408,
-        "maxHeapUsedBytes": 10806832,
+        "maxRssBytes": 94412800,
+        "maxHeapUsedBytes": 10557752,
         "samples": [
           {
             "before": {
-              "rssBytes": 93327360,
-              "heapUsedBytes": 4761568,
+              "rssBytes": 93655040,
+              "heapUsedBytes": 4767456,
               "externalBytes": 2481167,
-              "arrayBuffersBytes": 55535
+              "arrayBuffersBytes": 88303
             },
             "after": {
-              "rssBytes": 93904896,
-              "heapUsedBytes": 10806832,
+              "rssBytes": 94277632,
+              "heapUsedBytes": 10557752,
               "externalBytes": 2743359,
               "arrayBuffersBytes": 842086
             }
           },
           {
             "before": {
-              "rssBytes": 93822976,
-              "heapUsedBytes": 4776856,
+              "rssBytes": 94281728,
+              "heapUsedBytes": 4780976,
               "externalBytes": 2743359,
-              "arrayBuffersBytes": 317792
+              "arrayBuffersBytes": 350560
             },
             "after": {
-              "rssBytes": 93863936,
-              "heapUsedBytes": 6359032,
+              "rssBytes": 93503488,
+              "heapUsedBytes": 6363224,
               "externalBytes": 2481167,
               "arrayBuffersBytes": 579894
             }
           },
           {
             "before": {
-              "rssBytes": 93601792,
-              "heapUsedBytes": 4778360,
+              "rssBytes": 93130752,
+              "heapUsedBytes": 5285280,
               "externalBytes": 2481167,
-              "arrayBuffersBytes": 350518
+              "arrayBuffersBytes": 416054
             },
             "after": {
-              "rssBytes": 94097408,
-              "heapUsedBytes": 6339520,
+              "rssBytes": 94412800,
+              "heapUsedBytes": 6350088,
               "externalBytes": 2481167,
               "arrayBuffersBytes": 579894
             }
@@ -525,16 +530,16 @@
       "decodeAttributeValues": true,
       "decodeText": false,
       "cacheNames": false,
-      "mibPerSec": 82.70441715309146,
-      "avgMs": 12381.440600000002,
-      "minMs": 12006.318599999999,
-      "maxMs": 13055.367599999998,
+      "mibPerSec": 83.3423051579305,
+      "avgMs": 12286.675133333332,
+      "minMs": 12270.848200000008,
+      "maxMs": 12297.637700000007,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.08472753970164013,
+      "sampleSpreadRatio": 0.0021803701741344122,
       "samplesMs": [
-        12082.635600000009,
-        12006.318599999999,
-        13055.367599999998
+        12297.637700000007,
+        12291.539499999984,
+        12270.848200000008
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -544,55 +549,153 @@
       "materializedStringCount": 79247324,
       "cachedStringHitCount": 0,
       "cachedStringMissCount": 0,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 0,
       "decodedByteCount": 430775658,
       "decodeCalls": 79247324,
       "checksum": -1128445687,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 129720320,
-        "maxHeapUsedBytes": 31066088,
+        "maxRssBytes": 130002944,
+        "maxHeapUsedBytes": 30813912,
         "samples": [
           {
             "before": {
-              "rssBytes": 93925376,
-              "heapUsedBytes": 4776824,
+              "rssBytes": 94064640,
+              "heapUsedBytes": 4787272,
               "externalBytes": 2481167,
-              "arrayBuffersBytes": 448822
+              "arrayBuffersBytes": 186607
             },
             "after": {
-              "rssBytes": 129220608,
-              "heapUsedBytes": 31066088,
-              "externalBytes": 4054429,
-              "arrayBuffersBytes": 2153156
+              "rssBytes": 129400832,
+              "heapUsedBytes": 30813912,
+              "externalBytes": 3792277,
+              "arrayBuffersBytes": 1891004
             }
           },
           {
             "before": {
-              "rssBytes": 129302528,
-              "heapUsedBytes": 4780088,
-              "externalBytes": 4054429,
+              "rssBytes": 129339392,
+              "heapUsedBytes": 4786320,
+              "externalBytes": 3792277,
+              "arrayBuffersBytes": 448864
+            },
+            "after": {
+              "rssBytes": 130002944,
+              "heapUsedBytes": 28158200,
+              "externalBytes": 3792271,
+              "arrayBuffersBytes": 1890998
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 130093056,
+              "heapUsedBytes": 4787304,
+              "externalBytes": 3792271,
+              "arrayBuffersBytes": 448864
+            },
+            "after": {
+              "rssBytes": 129687552,
+              "heapUsedBytes": 28096656,
+              "externalBytes": 3792271,
+              "arrayBuffersBytes": 1890998
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "elementAndAttributeStringsBoundedCache",
+      "tool": "elementAndAttributeStringsBoundedCache",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values using a byte-verified name string cache and byte-verified bounded cache for all decoded string spans (max 4096)",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": false,
+      "cacheNames": true,
+      "mibPerSec": 112.26707219069498,
+      "avgMs": 9121.10566666666,
+      "minMs": 9033.988799999992,
+      "maxMs": 9248.3603,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.02350279755922959,
+      "samplesMs": [
+        9080.967899999989,
+        9033.988799999992,
+        9248.3603
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 79247324,
+      "cachedStringHitCount": 75645065,
+      "cachedStringMissCount": 4096,
+      "cachedStringBypassCount": 3598163,
+      "cachedNameCount": 4096,
+      "decodedByteCount": 42114941,
+      "decodeCalls": 3602259,
+      "checksum": -1128445687,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 132890624,
+        "maxHeapUsedBytes": 33534856,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 129794048,
+              "heapUsedBytes": 4783968,
+              "externalBytes": 3792271,
+              "arrayBuffersBytes": 153839
+            },
+            "after": {
+              "rssBytes": 132317184,
+              "heapUsedBytes": 33534856,
+              "externalBytes": 4054507,
+              "arrayBuffersBytes": 2153234
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 132419584,
+              "heapUsedBytes": 4805152,
+              "externalBytes": 4054507,
               "arrayBuffersBytes": 481632
             },
             "after": {
-              "rssBytes": 129703936,
-              "heapUsedBytes": 28116504,
-              "externalBytes": 3792271,
-              "arrayBuffersBytes": 1890998
+              "rssBytes": 132505600,
+              "heapUsedBytes": 20149400,
+              "externalBytes": 3267807,
+              "arrayBuffersBytes": 1366534
             }
           },
           {
             "before": {
-              "rssBytes": 129835008,
-              "heapUsedBytes": 4781008,
-              "externalBytes": 3792271,
-              "arrayBuffersBytes": 55535
+              "rssBytes": 132579328,
+              "heapUsedBytes": 4805896,
+              "externalBytes": 3267807,
+              "arrayBuffersBytes": 448864
             },
             "after": {
-              "rssBytes": 129720320,
-              "heapUsedBytes": 28090344,
-              "externalBytes": 3792271,
-              "arrayBuffersBytes": 1890998
+              "rssBytes": 132890624,
+              "heapUsedBytes": 20084888,
+              "externalBytes": 3267807,
+              "arrayBuffersBytes": 1366534
             }
           }
         ]
@@ -621,16 +724,16 @@
       "decodeAttributeValues": true,
       "decodeText": true,
       "cacheNames": false,
-      "mibPerSec": 69.52660964439315,
-      "avgMs": 14728.171466666672,
-      "minMs": 14682.122399999993,
-      "maxMs": 14775.86990000002,
+      "mibPerSec": 66.58259424309648,
+      "avgMs": 15379.392166666667,
+      "minMs": 15062.812200000015,
+      "maxMs": 15991.582200000004,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.006365182549116806,
+      "sampleSpreadRatio": 0.06039055314637258,
       "samplesMs": [
-        14775.86990000002,
-        14682.122399999993,
-        14726.522100000002
+        15062.812200000015,
+        15083.782099999982,
+        15991.582200000004
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -640,53 +743,54 @@
       "materializedStringCount": 97258079,
       "cachedStringHitCount": 0,
       "cachedStringMissCount": 0,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 0,
       "decodedByteCount": 882827595,
       "decodeCalls": 97258079,
       "checksum": 1627122898,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 129249280,
-        "maxHeapUsedBytes": 24363336,
+        "maxRssBytes": 132386816,
+        "maxHeapUsedBytes": 24589648,
         "samples": [
           {
             "before": {
-              "rssBytes": 129810432,
-              "heapUsedBytes": 4777808,
-              "externalBytes": 3792271,
-              "arrayBuffersBytes": 317792
+              "rssBytes": 132927488,
+              "heapUsedBytes": 4802776,
+              "externalBytes": 3267807,
+              "arrayBuffersBytes": 121071
             },
             "after": {
-              "rssBytes": 129249280,
-              "heapUsedBytes": 24363336,
+              "rssBytes": 132358144,
+              "heapUsedBytes": 24589648,
               "externalBytes": 3268197,
               "arrayBuffersBytes": 1366924
             }
           },
           {
             "before": {
-              "rssBytes": 128917504,
-              "heapUsedBytes": 4802008,
+              "rssBytes": 131887104,
+              "heapUsedBytes": 4816272,
               "externalBytes": 3268197,
-              "arrayBuffersBytes": 416168
+              "arrayBuffersBytes": 252143
             },
             "after": {
-              "rssBytes": 129208320,
-              "heapUsedBytes": 19553424,
+              "rssBytes": 132386816,
+              "heapUsedBytes": 19567240,
               "externalBytes": 3005838,
               "arrayBuffersBytes": 1104565
             }
           },
           {
             "before": {
-              "rssBytes": 128917504,
-              "heapUsedBytes": 4803056,
+              "rssBytes": 131698688,
+              "heapUsedBytes": 4817096,
               "externalBytes": 3005838,
-              "arrayBuffersBytes": 383400
+              "arrayBuffersBytes": 252143
             },
             "after": {
-              "rssBytes": 129191936,
-              "heapUsedBytes": 19528888,
+              "rssBytes": 132382720,
+              "heapUsedBytes": 19542968,
               "externalBytes": 3005838,
               "arrayBuffersBytes": 1104565
             }
@@ -717,16 +821,16 @@
       "decodeAttributeValues": true,
       "decodeText": true,
       "cacheNames": true,
-      "mibPerSec": 80.09286135324945,
-      "avgMs": 12785.157266666667,
-      "minMs": 12342.445800000016,
-      "maxMs": 13300.521399999998,
+      "mibPerSec": 81.1405750030947,
+      "avgMs": 12620.071133333326,
+      "minMs": 12461.873599999992,
+      "maxMs": 12896.080599999987,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.07493655181683741,
+      "sampleSpreadRatio": 0.034406065973204086,
       "samplesMs": [
-        12342.445800000016,
-        12712.504599999986,
-        13300.521399999998
+        12896.080599999987,
+        12461.873599999992,
+        12502.2592
       ],
       "eventCount": 61236569,
       "startElementCount": 21612907,
@@ -736,55 +840,153 @@
       "materializedStringCount": 97258079,
       "cachedStringHitCount": 61236559,
       "cachedStringMissCount": 10,
+      "cachedStringBypassCount": 0,
       "cachedNameCount": 10,
       "decodedByteCount": 515408238,
       "decodeCalls": 36021520,
       "checksum": 1627122898,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 129691648,
-        "maxHeapUsedBytes": 35217184,
+        "maxRssBytes": 132558848,
+        "maxHeapUsedBytes": 35227632,
         "samples": [
           {
             "before": {
-              "rssBytes": 129302528,
-              "heapUsedBytes": 4800176,
+              "rssBytes": 132280320,
+              "heapUsedBytes": 4813456,
               "externalBytes": 3005838,
-              "arrayBuffersBytes": 22767
+              "arrayBuffersBytes": 186607
             },
             "after": {
-              "rssBytes": 129482752,
-              "heapUsedBytes": 6841232,
-              "externalBytes": 2481149,
-              "arrayBuffersBytes": 579876
+              "rssBytes": 132558848,
+              "heapUsedBytes": 8849992,
+              "externalBytes": 2481239,
+              "arrayBuffersBytes": 579966
             }
           },
           {
             "before": {
-              "rssBytes": 129097728,
-              "heapUsedBytes": 4823976,
-              "externalBytes": 2481149,
-              "arrayBuffersBytes": 481572
+              "rssBytes": 132308992,
+              "heapUsedBytes": 4833912,
+              "externalBytes": 2481239,
+              "arrayBuffersBytes": 350590
             },
             "after": {
-              "rssBytes": 129581056,
-              "heapUsedBytes": 35217184,
+              "rssBytes": 132534272,
+              "heapUsedBytes": 35227248,
               "externalBytes": 3792919,
               "arrayBuffersBytes": 1891646
             }
           },
           {
             "before": {
-              "rssBytes": 129400832,
-              "heapUsedBytes": 4824568,
+              "rssBytes": 132362240,
+              "heapUsedBytes": 4834568,
+              "externalBytes": 3792919,
+              "arrayBuffersBytes": 252143
+            },
+            "after": {
+              "rssBytes": 132489216,
+              "heapUsedBytes": 35227632,
+              "externalBytes": 3792919,
+              "arrayBuffersBytes": 1891646
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "allTokenStringsBoundedCacheNoObjects",
+      "tool": "allTokenStringsBoundedCacheNoObjects",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values, text using a byte-verified name string cache and byte-verified bounded cache for all decoded string spans (max 4096)",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": true,
+      "cacheNames": true,
+      "mibPerSec": 74.84546990471358,
+      "avgMs": 13681.520466666669,
+      "minMs": 13589.58130000002,
+      "maxMs": 13798.661800000002,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.015281963763412159,
+      "samplesMs": [
+        13589.58130000002,
+        13798.661800000002,
+        13656.318299999984
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 97258079,
+      "cachedStringHitCount": 76229600,
+      "cachedStringMissCount": 4096,
+      "cachedStringBypassCount": 21024383,
+      "cachedNameCount": 4096,
+      "decodedByteCount": 488418218,
+      "decodeCalls": 21028479,
+      "checksum": 1627122898,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 203091968,
+        "maxHeapUsedBytes": 33123976,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 132321280,
+              "heapUsedBytes": 4831216,
               "externalBytes": 3792919,
               "arrayBuffersBytes": 383400
             },
             "after": {
-              "rssBytes": 129691648,
-              "heapUsedBytes": 35188448,
-              "externalBytes": 3792919,
-              "arrayBuffersBytes": 1891646
+              "rssBytes": 132911104,
+              "heapUsedBytes": 33123976,
+              "externalBytes": 3575693,
+              "arrayBuffersBytes": 1674420
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 133025792,
+              "heapUsedBytes": 4840576,
+              "externalBytes": 3575693,
+              "arrayBuffersBytes": 309459
+            },
+            "after": {
+              "rssBytes": 203091968,
+              "heapUsedBytes": 25130256,
+              "externalBytes": 3313307,
+              "arrayBuffersBytes": 1412034
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 202952704,
+              "heapUsedBytes": 4841464,
+              "externalBytes": 3313307,
+              "arrayBuffersBytes": 690851
+            },
+            "after": {
+              "rssBytes": 201072640,
+              "heapUsedBytes": 25215600,
+              "externalBytes": 3313307,
+              "arrayBuffersBytes": 1412034
             }
           }
         ]
@@ -792,16 +994,16 @@
     }
   ],
   "summary": {
-    "rowCount": 8,
+    "rowCount": 10,
     "fastest": {
       "id": "tokenOnly",
-      "mibPerSec": 239.61472294003795,
+      "mibPerSec": 234.29744549356317,
       "boundedMemory": true,
       "memoryKind": "process-rss"
     },
-    "tokenOnlyMiBPerSec": 239.61472294003795,
-    "allStringsMiBPerSec": 69.52660964439315,
-    "allStringsVsTokenOnlyRatio": 0.2901600068280935,
+    "tokenOnlyMiBPerSec": 234.29744549356317,
+    "allStringsMiBPerSec": 66.58259424309648,
+    "allStringsVsTokenOnlyRatio": 0.284179770303666,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -816,16 +1018,18 @@
     {
       "id": "string-materialization-frontier",
       "classification": "BENCH_FACT",
-      "summary": "Adding element, attribute, and text string materialization reached 69.53 MiB/s versus token-only 239.61 MiB/s (0.29x).",
+      "summary": "Adding element, attribute, and text string materialization reached 66.58 MiB/s versus token-only 234.30 MiB/s (0.28x).",
       "evidence": [
-        "tokenOnly: 239.61 MiB/s, strings=0, decodeCalls=0, cacheHits=0, decodedBytes=0",
-        "elementNameStrings: 116.08 MiB/s, strings=43225814, decodeCalls=43225814, cacheHits=0, decodedBytes=288172088",
-        "elementNameCachedStrings: 144.98 MiB/s, strings=43225814, decodeCalls=6, cacheHits=43225808, decodedBytes=37",
-        "elementAndAttributeNameStrings: 96.32 MiB/s, strings=61236569, decodeCalls=61236569, cacheHits=0, decodedBytes=367419410",
-        "elementAndAttributeNameCachedStrings: 134.20 MiB/s, strings=61236569, decodeCalls=10, cacheHits=61236559, decodedBytes=53",
-        "elementAndAttributeStrings: 82.70 MiB/s, strings=79247324, decodeCalls=79247324, cacheHits=0, decodedBytes=430775658",
-        "allTokenStringsNoObjects: 69.53 MiB/s, strings=97258079, decodeCalls=97258079, cacheHits=0, decodedBytes=882827595",
-        "allTokenStringsNameCachedNoObjects: 80.09 MiB/s, strings=97258079, decodeCalls=36021520, cacheHits=61236559, decodedBytes=515408238"
+        "tokenOnly: 234.30 MiB/s, strings=0, decodeCalls=0, cacheHits=0, cacheBypass=0, decodedBytes=0",
+        "elementNameStrings: 111.32 MiB/s, strings=43225814, decodeCalls=43225814, cacheHits=0, cacheBypass=0, decodedBytes=288172088",
+        "elementNameCachedStrings: 153.14 MiB/s, strings=43225814, decodeCalls=6, cacheHits=43225808, cacheBypass=0, decodedBytes=37",
+        "elementAndAttributeNameStrings: 95.59 MiB/s, strings=61236569, decodeCalls=61236569, cacheHits=0, cacheBypass=0, decodedBytes=367419410",
+        "elementAndAttributeNameCachedStrings: 134.86 MiB/s, strings=61236569, decodeCalls=10, cacheHits=61236559, cacheBypass=0, decodedBytes=53",
+        "elementAndAttributeStrings: 83.34 MiB/s, strings=79247324, decodeCalls=79247324, cacheHits=0, cacheBypass=0, decodedBytes=430775658",
+        "elementAndAttributeStringsBoundedCache: 112.27 MiB/s, strings=79247324, decodeCalls=3602259, cacheHits=75645065, cacheBypass=3598163, decodedBytes=42114941",
+        "allTokenStringsNoObjects: 66.58 MiB/s, strings=97258079, decodeCalls=97258079, cacheHits=0, cacheBypass=0, decodedBytes=882827595",
+        "allTokenStringsNameCachedNoObjects: 81.14 MiB/s, strings=97258079, decodeCalls=36021520, cacheHits=61236559, cacheBypass=0, decodedBytes=515408238",
+        "allTokenStringsBoundedCacheNoObjects: 74.85 MiB/s, strings=97258079, decodeCalls=21028479, cacheHits=76229600, cacheBypass=21024383, decodedBytes=488418218"
       ]
     },
     {
@@ -839,8 +1043,10 @@
         "elementAndAttributeNameStrings: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
         "elementAndAttributeNameCachedStrings: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
         "elementAndAttributeStrings: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
+        "elementAndAttributeStringsBoundedCache: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
         "allTokenStringsNoObjects: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
-        "allTokenStringsNameCachedNoObjects: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false"
+        "allTokenStringsNameCachedNoObjects: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
+        "allTokenStringsBoundedCacheNoObjects: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false"
       ]
     }
   ]

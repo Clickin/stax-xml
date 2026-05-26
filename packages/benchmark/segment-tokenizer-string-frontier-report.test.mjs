@@ -41,7 +41,7 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'segment-tokenizer-string-frontier');
   assert.equal(report.contract, 'file-backed-segment-tokenizer-string-frontier');
-  assert.equal(report.summary.rowCount, 8);
+  assert.equal(report.summary.rowCount, 10);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.allStringsVsTokenOnlyRatio, 'number');
   assert.deepEqual(report.rows.map(row => row.id), [
@@ -51,8 +51,10 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
     'elementAndAttributeNameStrings',
     'elementAndAttributeNameCachedStrings',
     'elementAndAttributeStrings',
+    'elementAndAttributeStringsBoundedCache',
     'allTokenStringsNoObjects',
     'allTokenStringsNameCachedNoObjects',
+    'allTokenStringsBoundedCacheNoObjects',
   ]);
 
   const first = report.rows[0];
@@ -72,6 +74,7 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
     assert.equal(row.attributeCount, first.attributeCount);
     assert.equal(row.boundedMemory, true);
     assert.equal(row.sampleCount, 1);
+    assert.equal(typeof row.cachedStringBypassCount, 'number');
   }
 
   const tokenOnly = report.rows.find(row => row.id === 'tokenOnly');
@@ -79,8 +82,11 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   const cachedElementNames = report.rows.find(row => row.id === 'elementNameCachedStrings');
   const elementAndAttributeNames = report.rows.find(row => row.id === 'elementAndAttributeNameStrings');
   const cachedElementAndAttributeNames = report.rows.find(row => row.id === 'elementAndAttributeNameCachedStrings');
+  const elementAndAttributeStrings = report.rows.find(row => row.id === 'elementAndAttributeStrings');
+  const cachedElementAndAttributeStrings = report.rows.find(row => row.id === 'elementAndAttributeStringsBoundedCache');
   const allStrings = report.rows.find(row => row.id === 'allTokenStringsNoObjects');
   const cachedAllStrings = report.rows.find(row => row.id === 'allTokenStringsNameCachedNoObjects');
+  const allCachedStrings = report.rows.find(row => row.id === 'allTokenStringsBoundedCacheNoObjects');
   assert.equal(tokenOnly.usesTextDecoder, false);
   assert.equal(tokenOnly.materializedStringCount, 0);
   assert.equal(elementNames.usesTextDecoder, true);
@@ -96,6 +102,12 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   assert.equal(cachedElementAndAttributeNames.checksum, elementAndAttributeNames.checksum);
   assert.ok(cachedElementAndAttributeNames.decodeCalls < elementAndAttributeNames.decodeCalls);
   assert.ok(cachedElementAndAttributeNames.cachedStringHitCount > cachedElementNames.cachedStringHitCount);
+  assert.equal(elementAndAttributeStrings.materializedStringCount, first.startElementCount + first.endElementCount + first.attributeCount * 2);
+  assert.equal(cachedElementAndAttributeStrings.cacheNames, true);
+  assert.equal(cachedElementAndAttributeStrings.checksum, elementAndAttributeStrings.checksum);
+  assert.equal(cachedElementAndAttributeStrings.materializedStringCount, elementAndAttributeStrings.materializedStringCount);
+  assert.ok(cachedElementAndAttributeStrings.decodeCalls < elementAndAttributeStrings.decodeCalls);
+  assert.ok(cachedElementAndAttributeStrings.cachedStringHitCount > cachedElementAndAttributeNames.cachedStringHitCount);
   assert.equal(allStrings.usesTextDecoder, true);
   assert.equal(allStrings.materializedStringCount, first.startElementCount + first.endElementCount + first.attributeCount * 2 + first.textEventCount);
   assert.equal(allStrings.decodedByteCount > elementNames.decodedByteCount, true);
@@ -105,6 +117,11 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   assert.ok(cachedAllStrings.decodeCalls < allStrings.decodeCalls);
   assert.ok(cachedAllStrings.cachedStringHitCount > 0);
   assert.ok(cachedAllStrings.cachedNameCount > 0);
+  assert.equal(allCachedStrings.cacheNames, true);
+  assert.equal(allCachedStrings.checksum, allStrings.checksum);
+  assert.equal(allCachedStrings.materializedStringCount, allStrings.materializedStringCount);
+  assert.ok(allCachedStrings.decodeCalls < cachedAllStrings.decodeCalls);
+  assert.ok(allCachedStrings.cachedStringHitCount > cachedAllStrings.cachedStringHitCount);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Segment Tokenizer String Frontier/);

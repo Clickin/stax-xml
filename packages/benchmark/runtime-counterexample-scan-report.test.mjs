@@ -42,11 +42,11 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('offset-text-cache-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('attr-value-cache-materialization-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('bun-cache-candidates-books-corpus.json'));
-  assert.equal(report.summary.measuredRowCount, 870);
+  assert.equal(report.summary.measuredRowCount, 872);
   assert.equal(report.summary.aggregateRowCount, 93);
   assert.equal(report.summary.largeJsFullRowCount, 543);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 73);
-  assert.equal(report.summary.sourceModeRowCount, 293);
+  assert.equal(report.summary.sourceModeRowCount, 295);
   assert.equal(report.summary.largeJsFullSourceModeRowCount, 213);
   assert.equal(report.summary.partialHeadroomRowCount, 38);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 13);
@@ -196,7 +196,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     row.sourceArtifact === 'segment-tokenizer-string-frontier.json'
     && row.runtimeLabel === 'Node/V8'
     && row.id === 'tokenOnly'
-    && row.mibPerSec === 239.61
+    && row.mibPerSec === 234.3
     && row.fullStringParity === false
     && row.contractScope === 'xml-token-boundary-string-materialization-frontier'
     && row.demandDrivenSource === true
@@ -626,10 +626,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Scanned artifacts: 168/);
-  assert.match(markdown, /Measured rows recognized: 870/);
+  assert.match(markdown, /Measured rows recognized: 872/);
   assert.match(markdown, /Aggregate rows recognized: 93/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 73/);
-  assert.match(markdown, /Rows with recognized source mode: 293/);
+  assert.match(markdown, /Rows with recognized source mode: 295/);
   assert.match(markdown, /Partial\/projection threshold rows: 38/);
   assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 213/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
