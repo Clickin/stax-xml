@@ -53,6 +53,18 @@ const negativeArtifacts = [
     family: 'unrolled-medium-ascii-text-fast-path',
   },
   {
+    file: 'medium-ascii-text-treebank-corpus.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdMediumAsciiText',
+    family: 'treebank-medium-ascii-text-fast-path',
+  },
+  {
+    file: 'medium-ascii-text-treebank-corpus.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdUnrolledMediumAsciiText',
+    family: 'treebank-unrolled-medium-ascii-text-fast-path',
+  },
+  {
     file: 'unrolled-medium-ascii-text-trim-guard-candidate.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdUnrolledMediumAsciiTextTrimGuard',
