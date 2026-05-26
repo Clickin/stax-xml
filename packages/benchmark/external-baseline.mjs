@@ -36,6 +36,10 @@ const allTools = [
 const optInTools = [
   'stax-raw-frame-name-id-long-ascii-text',
 ];
+const fileBackedStaxSources = new Set([
+  'file-sync-batches',
+  'file-sync-batches-split-singletons',
+]);
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -126,10 +130,10 @@ function parseArgs(argv = process.argv.slice(2)) {
 }
 
 function parseStaxStreamSource(value, flag) {
-  if (value === 'preloaded' || value === 'file-sync-batches') {
+  if (value === 'preloaded' || fileBackedStaxSources.has(value)) {
     return value;
   }
-  throw new Error(`${flag} must be one of preloaded, file-sync-batches.`);
+  throw new Error(`${flag} must be one of preloaded, file-sync-batches, file-sync-batches-split-singletons.`);
 }
 
 function parseTools(value) {
@@ -949,6 +953,39 @@ function* createFileByteBatches(filePath, chunkBytes, batchSize) {
   }
 }
 
+function* splitByteBatchesToSingletons(batches) {
+  for (const batch of batches) {
+    for (let index = 0; index < batch.length; index++) {
+      yield [batch[index]];
+    }
+  }
+}
+
+function createStaxByteInput(options, chunkBytes, preloadedBytes) {
+  if (options.staxStreamSource === 'preloaded') {
+    return preloadedBytes;
+  }
+  const batches = createFileByteBatches(options.file, chunkBytes, options.batchSize);
+  if (options.staxStreamSource === 'file-sync-batches-split-singletons') {
+    return splitByteBatchesToSingletons(batches);
+  }
+  return batches;
+}
+
+function isFileBackedStaxSource(source) {
+  return fileBackedStaxSources.has(source);
+}
+
+function staxSourceImplementation(options, fileBackedLabel, preloadedLabel) {
+  if (options.staxStreamSource === 'preloaded') {
+    return `${preloadedLabel} preloaded Uint8Array`;
+  }
+  const suffix = options.staxStreamSource === 'file-sync-batches-split-singletons'
+    ? 'file-backed Iterable<Uint8Array[]> split into singleton parser batches'
+    : 'file-backed Iterable<Uint8Array[]>';
+  return `${fileBackedLabel} ${suffix}`;
+}
+
 function gcNow() {
   if (globalThis.gc) {
     globalThis.gc();
@@ -1012,7 +1049,7 @@ function sourceMetadataForLocalTool(tool, options) {
   if (!String(tool).startsWith('stax-')) {
     return {};
   }
-  if (options.staxStreamSource !== 'file-sync-batches') {
+  if (!isFileBackedStaxSource(options.staxStreamSource)) {
     return {};
   }
   return {
@@ -1024,6 +1061,8 @@ function sourceMetadataForLocalTool(tool, options) {
       fileRead: 'readSync inside iterator next() only when StreamReaderSync pulls the next batch',
       chunkBytes: options.chunkKiB * 1024,
       batchSize: options.batchSize,
+      sourceMode: options.staxStreamSource,
+      splitGroupedBatchesToSingletons: options.staxStreamSource === 'file-sync-batches-split-singletons',
       preMaterializesFullXml: false,
       directReadableStream: false,
     },
@@ -1460,8 +1499,11 @@ function createMarkdown(report) {
   lines.push('- `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.');
   lines.push('- Comparable rows should preserve event count and checksum. A mismatch means the row is not a valid speed comparison.');
   lines.push('- External parser rows record child-process peak RSS when the platform sampler can observe the process for long enough; missing RSS is not bounded-memory evidence.');
-  if (report.options.staxStreamSource === 'file-sync-batches') {
-    lines.push('- In file-sync-batches mode, `stax-stream` reads the next chunk with `readSync` only when `StreamReaderSync` pulls the next `Uint8Array[]` batch; it does not pre-materialize the full XML file.');
+  if (isFileBackedStaxSource(report.options.staxStreamSource)) {
+    lines.push('- In file-sync-batches mode and related file-backed source modes, `stax-stream` reads with `readSync` only when `StreamReaderSync` pulls the next `Uint8Array[]` batch; it does not pre-materialize the full XML file.');
+    if (report.options.staxStreamSource === 'file-sync-batches-split-singletons') {
+      lines.push('- `file-sync-batches-split-singletons` reads grouped file chunks, then yields singleton `Uint8Array[]` parser batches to reduce current parser multi-item concat while preserving the same demand-driven source contract.');
+    }
   }
 
   return `${lines.join('\n')}\n`;
@@ -1495,96 +1537,56 @@ async function main() {
   const results = [];
   for (const tool of options.tools) {
     if (tool === 'stax-scan-all-no-decode') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml StreamReaderSync scan-only file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml StreamReaderSync scan-only preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxScanAllNoDecode(createFileByteBatches(options.file, chunkBytes, options.batchSize))
-        : () => consumeStaxScanAllNoDecode(bytes);
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml StreamReaderSync scan-only', 'Node + stax-xml StreamReaderSync scan-only');
+      const run = () => consumeStaxScanAllNoDecode(createStaxByteInput(options, chunkBytes, bytes));
       results.push(measureLocal('stax-scan-all-no-decode', implementation, run, fileSizeMiB, options, {
         workload: 'event-types-and-attribute-counts-only',
         contractScope: 'partial-scan-no-string-materialization',
         fullStringParity: false,
       }));
     } else if (tool === 'stax-raw-frame-span-stats') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch span metadata fold file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch span metadata fold preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameSpanStats(createFileByteBatches(options.file, chunkBytes, options.batchSize))
-        : () => consumeStaxRawFrameSpanStats(bytes);
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch span metadata fold', 'Node + stax-xml nextRawBatch span metadata fold');
+      const run = () => consumeStaxRawFrameSpanStats(createStaxByteInput(options, chunkBytes, bytes));
       results.push(measureLocal('stax-raw-frame-span-stats', implementation, run, fileSizeMiB, options, {
         workload: 'event-types-name-ids-and-span-lengths',
         contractScope: 'partial-raw-frame-span-metadata-no-string-materialization',
         fullStringParity: false,
       }));
     } else if (tool === 'stax-raw-frame-semantic-checksum') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch semantic byte-fold file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch semantic byte-fold preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameSemanticChecksum(createFileByteBatches(options.file, chunkBytes, options.batchSize))
-        : () => consumeStaxRawFrameSemanticChecksum(bytes);
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch semantic byte-fold', 'Node + stax-xml nextRawBatch semantic byte-fold');
+      const run = () => consumeStaxRawFrameSemanticChecksum(createStaxByteInput(options, chunkBytes, bytes));
       results.push(measureLocal('stax-raw-frame-semantic-checksum', implementation, run, fileSizeMiB, options, {
         workload: 'same-fields-checksum-no-string-materialization',
         contractScope: 'same-fields-checksum-no-string-materialization',
         fullStringParity: false,
       }));
     } else if (tool === 'stax-stream') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml StreamReaderSync preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxStream(createFileByteBatches(options.file, chunkBytes, options.batchSize))
-        : () => consumeStaxStream(bytes);
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml StreamReaderSync', 'Node + stax-xml StreamReaderSync');
+      const run = () => consumeStaxStream(createStaxByteInput(options, chunkBytes, bytes));
       results.push(measureLocal('stax-stream', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-name-id') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch name-id cache preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize))
-        : () => consumeStaxRawFrameNameId(bytes);
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch name-id cache', 'Node + stax-xml nextRawBatch name-id cache');
+      const run = () => consumeStaxRawFrameNameId(createStaxByteInput(options, chunkBytes, bytes));
       results.push(measureLocal('stax-raw-frame-name-id', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-name-id-long-ascii-text') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch name-id cache plus long ASCII text string path file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch name-id cache plus long ASCII text string path preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { longAsciiText: true })
-        : () => consumeStaxRawFrameNameId(bytes, { longAsciiText: true });
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch name-id cache plus long ASCII text string path', 'Node + stax-xml nextRawBatch name-id cache plus long ASCII text string path');
+      const run = () => consumeStaxRawFrameNameId(createStaxByteInput(options, chunkBytes, bytes), { longAsciiText: true });
       results.push(measureLocal('stax-raw-frame-name-id-long-ascii-text', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-name-id-fold-trim') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch name-id cache fold-trim file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch name-id cache fold-trim preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { foldTrimmedText: true })
-        : () => consumeStaxRawFrameNameId(bytes, { foldTrimmedText: true });
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch name-id cache fold-trim', 'Node + stax-xml nextRawBatch name-id cache fold-trim');
+      const run = () => consumeStaxRawFrameNameId(createStaxByteInput(options, chunkBytes, bytes), { foldTrimmedText: true });
       results.push(measureLocal('stax-raw-frame-name-id-fold-trim', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-name-id-trim-boundary-check') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch name-id cache trim boundary check file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch name-id cache trim boundary check preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { trimBoundaryCheck: true })
-        : () => consumeStaxRawFrameNameId(bytes, { trimBoundaryCheck: true });
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch name-id cache trim boundary check', 'Node + stax-xml nextRawBatch name-id cache trim boundary check');
+      const run = () => consumeStaxRawFrameNameId(createStaxByteInput(options, chunkBytes, bytes), { trimBoundaryCheck: true });
       results.push(measureLocal('stax-raw-frame-name-id-trim-boundary-check', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-string-cache') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { valueCache: true })
-        : () => consumeStaxRawFrameNameId(bytes, { valueCache: true });
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache', 'Node + stax-xml nextRawBatch name-id cache plus bounded value string cache');
+      const run = () => consumeStaxRawFrameNameId(createStaxByteInput(options, chunkBytes, bytes), { valueCache: true });
       results.push(measureLocal('stax-raw-frame-string-cache', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-raw-frame-short-attr-value-cache') {
-      const implementation = options.staxStreamSource === 'file-sync-batches'
-        ? 'Node + stax-xml nextRawBatch name-id cache plus short attr-value cache file-backed Iterable<Uint8Array[]>'
-        : 'Node + stax-xml nextRawBatch name-id cache plus short attr-value cache preloaded Uint8Array';
-      const run = options.staxStreamSource === 'file-sync-batches'
-        ? () => consumeStaxRawFrameNameId(createFileByteBatches(options.file, chunkBytes, options.batchSize), { shortAttrValueCache: true })
-        : () => consumeStaxRawFrameNameId(bytes, { shortAttrValueCache: true });
+      const implementation = staxSourceImplementation(options, 'Node + stax-xml nextRawBatch name-id cache plus short attr-value cache', 'Node + stax-xml nextRawBatch name-id cache plus short attr-value cache');
+      const run = () => consumeStaxRawFrameNameId(createStaxByteInput(options, chunkBytes, bytes), { shortAttrValueCache: true });
       results.push(measureLocal('stax-raw-frame-short-attr-value-cache', implementation, run, fileSizeMiB, options));
     } else if (tool === 'stax-event') {
       results.push(measureLocal('stax-event', 'Node + stax-xml EventReaderSync', () => consumeStaxEvent(xml), fileSizeMiB, options));

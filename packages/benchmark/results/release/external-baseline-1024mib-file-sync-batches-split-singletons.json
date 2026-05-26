@@ -1,0 +1,194 @@
+{
+  "generatedAt": "2026-05-26T09:16:57.265Z",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 0,
+    "tools": [
+      "stax-stream",
+      "stax-raw-frame-name-id"
+    ],
+    "staxStreamSource": "file-sync-batches-split-singletons",
+    "chunkKiB": 32,
+    "batchSize": 8,
+    "boundedRssMiB": 512
+  },
+  "target": {
+    "baselineTool": "woodstox",
+    "goalRatio": 0.9,
+    "targetThroughputMiB": null
+  },
+  "results": [
+    {
+      "tool": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> split into singleton parser batches",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "respectsBackpressure": null,
+      "sourceConsumption": {
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+        "chunkBytes": 32768,
+        "batchSize": 8,
+        "sourceMode": "file-sync-batches-split-singletons",
+        "splitGroupedBatchesToSingletons": true,
+        "preMaterializesFullXml": false,
+        "directReadableStream": false
+      },
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 8759.950700000001,
+      "minMs": 8047.0196000000005,
+      "maxMs": 9231.5089,
+      "mibPerSec": 116.89561544434524,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        8047.0196000000005,
+        9231.5089,
+        9001.323600000003
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 69894144,
+        "maxHeapUsedBytes": 7781840,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 56078336,
+              "heapUsedBytes": 4963944,
+              "externalBytes": 2185635,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 69009408,
+              "heapUsedBytes": 6113952,
+              "externalBytes": 2652542,
+              "arrayBuffersBytes": 570591
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 65945600,
+              "heapUsedBytes": 5412864,
+              "externalBytes": 2652542,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 68272128,
+              "heapUsedBytes": 7599472,
+              "externalBytes": 3603032,
+              "arrayBuffersBytes": 1521081
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 67960832,
+              "heapUsedBytes": 5398696,
+              "externalBytes": 3603032,
+              "arrayBuffersBytes": 439586
+            },
+            "after": {
+              "rssBytes": 69894144,
+              "heapUsedBytes": 7781840,
+              "externalBytes": 3701413,
+              "arrayBuffersBytes": 1619462
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": null,
+      "targetStatus": "unknown"
+    },
+    {
+      "tool": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> split into singleton parser batches",
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "respectsBackpressure": null,
+      "sourceConsumption": {
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "fileRead": "readSync inside iterator next() only when StreamReaderSync pulls the next batch",
+        "chunkBytes": 32768,
+        "batchSize": 8,
+        "sourceMode": "file-sync-batches-split-singletons",
+        "splitGroupedBatchesToSingletons": true,
+        "preMaterializesFullXml": false,
+        "directReadableStream": false
+      },
+      "workload": "full-string-checksum",
+      "status": "ok",
+      "avgMs": 7916.996033333332,
+      "minMs": 7578.990099999995,
+      "maxMs": 8538.153400000003,
+      "mibPerSec": 129.34196556714497,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "samplesMs": [
+        8538.153400000003,
+        7578.990099999995,
+        7633.844599999997
+      ],
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 81620992,
+        "maxHeapUsedBytes": 6581312,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 69586944,
+              "heapUsedBytes": 5400896,
+              "externalBytes": 3701413,
+              "arrayBuffersBytes": 242877
+            },
+            "after": {
+              "rssBytes": 80842752,
+              "heapUsedBytes": 6581312,
+              "externalBytes": 2753985,
+              "arrayBuffersBytes": 672034
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 80904192,
+              "heapUsedBytes": 5452464,
+              "externalBytes": 2753985,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 81211392,
+              "heapUsedBytes": 6303864,
+              "externalBytes": 2688443,
+              "arrayBuffersBytes": 606492
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 81289216,
+              "heapUsedBytes": 5466448,
+              "externalBytes": 2688443,
+              "arrayBuffersBytes": 344348
+            },
+            "after": {
+              "rssBytes": 81620992,
+              "heapUsedBytes": 6075656,
+              "externalBytes": 2622846,
+              "arrayBuffersBytes": 540895
+            }
+          }
+        ]
+      },
+      "woodstoxRatio": null,
+      "targetStatus": "unknown"
+    }
+  ]
+}

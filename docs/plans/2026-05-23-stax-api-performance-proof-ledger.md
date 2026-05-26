@@ -501,6 +501,18 @@ that preserves the demand-driven `Iterable<Uint8Array[]>` source contract and
 the full-string checksum contract, while comparing against the existing
 `batchSize=1` and grouped-batch concat rows.
 
+`packages/benchmark/results/release/external-baseline-1024mib-file-sync-batches-split-singletons.md`
+adds a narrower shim experiment before a true segmented scanner: grouped
+`readSync` file batches are split into singleton `Uint8Array[]` parser batches,
+which reduces the current parser's multi-item batch concat but still uses the
+single-buffer parser model and pending-tail concat when markup spans chunk
+boundaries. On the 1.00 GiB file-backed fixture with `chunkKiB=32` and grouped
+`batchSize=8`, `stax-stream` reached `116.90 MiB/s` and
+`stax-raw-frame-name-id` reached `129.34 MiB/s`; both preserved 61,236,571
+events, checksum `-716099804`, and bounded RSS. This is a negative result for a
+simple split-singleton shim and not a rejection of the segment-aware scanner
+prototype described above.
+
 ## Current Evidence: Safari/WebKit Availability Audit
 
 `packages/benchmark/results/release/safari-webkit-availability-audit.md` is an
