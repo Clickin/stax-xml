@@ -1,12 +1,12 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T00:26:42.380Z
+Generated: 2026-05-26T00:41:51.840Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 143
+- Scanned artifacts: 144
 - Ignored derived artifacts: 5
 - Measured rows recognized: 779
 - Aggregate rows recognized: 89

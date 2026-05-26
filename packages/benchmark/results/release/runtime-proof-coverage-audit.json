@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T00:26:57.512Z",
+  "generatedAt": "2026-05-26T00:41:50.274Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1109,6 +1109,19 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "outcome": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "concat-buffer-reuse-negative-result.json",
+      "objective": "concat-buffer-reuse-negative-result",
+      "contract": "same-full-string-checksum-file-backed-byte-batches",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT"
+      ],
+      "runtimes": [],
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2918,7 +2931,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 143,
+    "scannedArtifactCount": 144,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 779,
@@ -2940,7 +2953,7 @@
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
-    "negativeArtifactCount": 10,
+    "negativeArtifactCount": 11,
     "largeJsFullRowCount": 482,
     "runtimeCount": 8,
     "corpusSeedCount": 3,
@@ -16498,6 +16511,19 @@
         "sourceArtifact": "attribute-value-public-fast-path-candidate.json",
         "objective": "attribute-value-public-fast-path-candidate",
         "contract": "file-backed-full-string-public-attribute-value-fast-path-candidate",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT"
+        ],
+        "runtimes": [],
+        "outcome": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "concat-buffer-reuse-negative-result.json",
+        "objective": "concat-buffer-reuse-negative-result",
+        "contract": "same-full-string-checksum-file-backed-byte-batches",
         "evidenceKinds": [
           "NEGATIVE_RESULT"
         ],

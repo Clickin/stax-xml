@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-05-26T00:39:03.818Z",
+  "objective": "concat-buffer-reuse-negative-result",
+  "contract": "same-full-string-checksum-file-backed-byte-batches",
+  "note": "Records a rejected parser-core candidate that reused a scratch Uint8Array for multi-chunk Iterable<Uint8Array[]> concat output. The candidate preserved checksum parity but did not improve the current 32KiB file-backed batch-size sweep, so the source change was not retained.",
+  "candidate": {
+    "name": "reusable-multi-chunk-concat-buffer",
+    "changedFiles": [
+      "packages/stax-xml/src/IterableReader.ts",
+      "packages/stax-xml/src/iterable/Uint8ArrayCurrentCursor.ts"
+    ],
+    "changeSummary": [
+      "Added a reusable concatBuffer field to the sync parser buffer owners.",
+      "Replaced per-batch new Uint8Array(total) allocation for multi-chunk concat with a reusable subarray view.",
+      "Kept the single-currentBuffer span model and did not change public event or raw-frame contracts."
+    ],
+    "retainedInSource": false
+  },
+  "baseline": {
+    "sourceArtifact": "file-backed-batch-size-sweep.json",
+    "commit": "8e478c7",
+    "chunkKiB": 32,
+    "runs": 3,
+    "fastestCase": "stax-raw-frame-name-id-batch-16",
+    "fastestMiBPerSec": 150.90,
+    "fastestMaxRssMiB": 69.70,
+    "batch4RawFrameNameIdMiBPerSec": 141.27,
+    "batch4RawFrameNameIdMaxRssMiB": 67.03,
+    "eventCount": 61236571,
+    "checksum": -716099804
+  },
+  "candidateMeasurement": {
+    "sourceArtifact": "transient file-backed-batch-size-sweep rerun, not retained",
+    "chunkKiB": 32,
+    "runs": 3,
+    "fastestCase": "stax-raw-frame-name-id-batch-16",
+    "fastestMiBPerSec": 149.69,
+    "fastestMaxRssMiB": 69.14,
+    "batch4RawFrameNameIdMiBPerSec": 140.40,
+    "batch4RawFrameNameIdMaxRssMiB": 66.31,
+    "eventCount": 61236571,
+    "checksum": -716099804
+  },
+  "outcome": {
+    "classification": "NEGATIVE_RESULT",
+    "counterexample200MiB": false,
+    "sourceChangeRetained": false,
+    "reason": "The candidate did not improve the fastest full-string row or the current batchSize=4 raw-frame row under the same 32KiB file-backed Iterable<Uint8Array[]> contract."
+  },
+  "findings": [
+    {
+      "id": "concat-buffer-reuse-not-headroom",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Reusable concat storage did not produce measurable throughput headroom for the current 32KiB file-backed byte-batch sweep.",
+      "evidence": [
+        "baseline fastest stax-raw-frame-name-id-batch-16=150.90 MiB/s, RSS=69.70 MiB",
+        "candidate fastest stax-raw-frame-name-id-batch-16=149.69 MiB/s, RSS=69.14 MiB",
+        "baseline batch4 raw-frame=141.27 MiB/s, RSS=67.03 MiB",
+        "candidate batch4 raw-frame=140.40 MiB/s, RSS=66.31 MiB"
+      ]
+    },
+    {
+      "id": "negative-result-not-runtime-limit-proof",
+      "classification": "SCOPE_GUARD",
+      "summary": "This failed candidate narrows one implementation path only; it is not evidence that JavaScript runtimes cannot exceed 200 MiB/s.",
+      "evidence": [
+        "single-currentBuffer span model remains unchanged",
+        "no segmented-buffer parser prototype was implemented",
+        "Safari/WebKit and runtime codegen obligations remain open"
+      ]
+    }
+  ],
+  "limits": [
+    "The candidate rerun was a local transient patch and was reverted after measurement.",
+    "The report is a negative-result record, not a primary benchmark row for counterexample scanning.",
+    "A different segmented-buffer parser design could still be a valid future experiment."
+  ]
+}

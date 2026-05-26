@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T00:26:42.380Z",
+  "generatedAt": "2026-05-26T00:41:51.840Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -65,6 +65,7 @@
     "candidate-headroom-projection-stability.json",
     "chrome-blink-textdecoder-source-pin-audit.json",
     "chrome-v8-source-pin-audit.json",
+    "concat-buffer-reuse-negative-result.json",
     "converter-compiled-batch-plan.json",
     "deno-event-reader-byte-batch-corpus.json",
     "deno-event-reader-byte-batch.json",
@@ -162,7 +163,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 143,
+    "scannedArtifactCount": 144,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 779,
