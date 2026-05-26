@@ -429,8 +429,20 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && item.dominantPhase.phase === 'attribute-collection'
   ));
   assert.ok(report.allocationEvidence.some(item =>
+    item.sourceArtifact === 'quick-xml-allocation-count-stability.json'
+    && item.evidenceKind === 'global-allocator-counters-stability'
+    && item.memory.primaryKind === 'total-allocator-traffic'
+    && item.shapeSummary.totalOwnedCount === 0
+    && item.dominantPhase.phase === 'attribute-collection'
+  ));
+  assert.ok(report.allocationEvidence.some(item =>
     item.sourceArtifact === 'woodstox-jfr-allocation.json'
     && item.memory.primaryKind === 'jfr-sampled-allocation'
+    && item.memory.stringBoundaryEventCount > 0
+  ));
+  assert.ok(report.allocationEvidence.some(item =>
+    item.sourceArtifact === 'woodstox-measured-jfr-allocation-rerun.json'
+    && item.memory.primaryKind === 'measured-window-jfr-sampled-allocation-rerun'
     && item.memory.stringBoundaryEventCount > 0
   ));
 

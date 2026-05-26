@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T05:54:44.897Z",
+  "generatedAt": "2026-05-26T06:32:32.617Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -42,8 +42,10 @@
       "file-backed-batch-size-sweep.json",
       "file-backed-source-sweep.json",
       "quick-xml-allocation-count.json",
+      "quick-xml-allocation-count-stability.json",
       "woodstox-jfr-allocation.json",
-      "woodstox-measured-jfr-allocation.json"
+      "woodstox-measured-jfr-allocation.json",
+      "woodstox-measured-jfr-allocation-rerun.json"
     ]
   },
   "summary": {
@@ -775,8 +777,10 @@
     },
     "allocationEvidenceKinds": [
       "global-allocator-counters",
+      "global-allocator-counters-stability",
       "jfr-sampled-allocation",
-      "measured-window-jfr-sampled-allocation"
+      "measured-window-jfr-sampled-allocation",
+      "measured-window-jfr-sampled-allocation-rerun"
     ],
     "conclusionAllowed": false
   },
@@ -7669,6 +7673,33 @@
       "limitation": "Global allocator traffic is not peak RSS and is not directly comparable to JavaScript heap or browser host process counters."
     },
     {
+      "id": "quick-xml-global-allocator-stability",
+      "sourceArtifact": "quick-xml-allocation-count-stability.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "evidenceKind": "global-allocator-counters-stability",
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 220.9,
+      "memory": {
+        "primaryKind": "total-allocator-traffic",
+        "totalAllocatedMiB": 81.38,
+        "netAllocatedMiB": 0,
+        "allocationOperations": 512472
+      },
+      "shapeSummary": {
+        "totalDecodeCount": 854085,
+        "totalBorrowedCount": 854085,
+        "totalOwnedCount": 0
+      },
+      "dominantPhase": {
+        "phase": "attribute-collection",
+        "allocationOperations": 512451,
+        "totalAllocatedMiB": 78.19
+      },
+      "limitation": "Global allocator traffic is not peak RSS and is not directly comparable to JavaScript heap or browser host process counters."
+    },
+    {
       "id": "woodstox-jfr-profile",
       "sourceArtifact": "woodstox-jfr-allocation.json",
       "runtimeId": "woodstox-jvm",
@@ -7701,6 +7732,26 @@
         "primaryKind": "measured-window-jfr-sampled-allocation",
         "sampledBytes": 464,
         "sampledMiB": 0.0004425048828125,
+        "stringBoundaryEventCount": 9,
+        "consumeStackEventCount": 10
+      },
+      "shapeSummary": null,
+      "dominantPhase": null,
+      "limitation": "JFR object allocation events are sampled counts/bytes, not a deterministic allocation census or peak RSS."
+    },
+    {
+      "id": "woodstox-measured-jfr-profile-rerun",
+      "sourceArtifact": "woodstox-measured-jfr-allocation-rerun.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "evidenceKind": "measured-window-jfr-sampled-allocation-rerun",
+      "eventCount": 967967,
+      "checksum": -746772258,
+      "mibPerSec": 136.56,
+      "memory": {
+        "primaryKind": "measured-window-jfr-sampled-allocation-rerun",
+        "sampledBytes": 472,
+        "sampledMiB": 0.00045013427734375,
         "stringBoundaryEventCount": 9,
         "consumeStackEventCount": 10
       },

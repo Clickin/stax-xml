@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T05:54:44.897Z
+Generated: 2026-05-26T06:32:32.617Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -209,8 +209,10 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 | Runtime | Evidence | Throughput | Events | Checksum | Memory/shape note | Artifact |
 | --- | --- | ---: | ---: | ---: | --- | --- |
 | Rust/quick-xml | global-allocator-counters | 243.53 | 967967 | -746772258 | allocated 27.13 MiB, net 0.00 MiB; borrowed=284695, owned=0; dominantPhase=attribute-collection 26.06 MiB | `quick-xml-allocation-count.json` |
+| Rust/quick-xml | global-allocator-counters-stability | 220.90 | 967967 | -746772258 | allocated 81.38 MiB, net 0.00 MiB; borrowed=854085, owned=0; dominantPhase=attribute-collection 78.19 MiB | `quick-xml-allocation-count-stability.json` |
 | Java/Woodstox | jfr-sampled-allocation | 320.27 | 967967 | -746772258 | sampled 3.0 KiB; string-boundary samples=42 | `woodstox-jfr-allocation.json` |
 | Java/Woodstox | measured-window-jfr-sampled-allocation | 201.11 | 967967 | -746772258 | sampled 0.5 KiB; string-boundary samples=9 | `woodstox-measured-jfr-allocation.json` |
+| Java/Woodstox | measured-window-jfr-sampled-allocation-rerun | 136.56 | 967967 | -746772258 | sampled 0.5 KiB; string-boundary samples=9 | `woodstox-measured-jfr-allocation-rerun.json` |
 
 ## Findings
 

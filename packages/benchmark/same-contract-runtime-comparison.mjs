@@ -296,6 +296,13 @@ const allocationArtifacts = [
     evidenceKind: 'global-allocator-counters',
   },
   {
+    file: 'quick-xml-allocation-count-stability.json',
+    id: 'quick-xml-global-allocator-stability',
+    runtimeId: 'quick-xml-rust',
+    runtimeLabel: 'Rust/quick-xml',
+    evidenceKind: 'global-allocator-counters-stability',
+  },
+  {
     file: 'woodstox-jfr-allocation.json',
     id: 'woodstox-jfr-profile',
     runtimeId: 'woodstox-jvm',
@@ -308,6 +315,13 @@ const allocationArtifacts = [
     runtimeId: 'woodstox-jvm',
     runtimeLabel: 'Java/Woodstox',
     evidenceKind: 'measured-window-jfr-sampled-allocation',
+  },
+  {
+    file: 'woodstox-measured-jfr-allocation-rerun.json',
+    id: 'woodstox-measured-jfr-profile-rerun',
+    runtimeId: 'woodstox-jvm',
+    runtimeLabel: 'Java/Woodstox',
+    evidenceKind: 'measured-window-jfr-sampled-allocation-rerun',
   },
 ];
 

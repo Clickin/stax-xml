@@ -155,8 +155,9 @@ contract without normalizing object shapes or memory models. It includes the
 16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows, 1
 GiB projection-cycle full-string rows, 1 GiB TextDecoder span rows, access-shape
 cross-process rows, books-corpus stability rows, selected text/fold/cache
-negative stability rows, quick-xml global allocator counters, and Woodstox JFR
-sampled allocation artifacts.
+negative stability rows, quick-xml global allocator counters plus stability
+rerun, and Woodstox JFR sampled allocation artifacts plus the measured-window
+rerun.
 
 The current aggregate has 138 aggregated rows and 121 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
