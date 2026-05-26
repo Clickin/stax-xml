@@ -327,6 +327,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { unrolledMediumAsciiText: true }),
     },
     {
+      id: 'rawFrameNameIdUnrolledMediumAsciiTextTrimGuard',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache, direct unrolled ASCII text materialization for 13-24 byte spans, and byte-boundary trim guard',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { unrolledMediumAsciiText: true, trimGuard: true }),
+    },
+    {
       id: 'rawFrameNameIdMediumAsciiAttrValue',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache and split short ASCII attribute-value materialization for 13-24 byte spans',

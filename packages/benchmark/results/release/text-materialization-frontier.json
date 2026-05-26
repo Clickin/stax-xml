@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T12:31:17.115Z",
+  "generatedAt": "2026-05-26T12:43:44.679Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -15,6 +15,7 @@
       "long-ascii-text-materialization-candidate-stability.json",
       "medium-ascii-text-materialization-candidate.json",
       "unrolled-medium-ascii-text-materialization-candidate.json",
+      "unrolled-medium-ascii-text-trim-guard-candidate.json",
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-guard-candidate.json",
       "text-ascii-pretrim-candidate.json",
@@ -26,7 +27,7 @@
     "scaledArtifactCount": 4,
     "fullRowCount": 4,
     "nearFullWithoutTextRowCount": 4,
-    "negativeCandidateCount": 9,
+    "negativeCandidateCount": 10,
     "fastestFull": {
       "id": "rawFrameNameId",
       "role": "full",
@@ -54,7 +55,9 @@
         "mediumAsciiTextHits": null,
         "mediumAsciiTextFallbacks": null,
         "unrolledMediumAsciiTextHits": null,
-        "unrolledMediumAsciiTextFallbacks": null
+        "unrolledMediumAsciiTextFallbacks": null,
+        "textTrimGuardSkips": null,
+        "textTrimGuardFallbacks": null
       }
     },
     "fastestWithoutText": {
@@ -84,7 +87,9 @@
         "mediumAsciiTextHits": null,
         "mediumAsciiTextFallbacks": null,
         "unrolledMediumAsciiTextHits": null,
-        "unrolledMediumAsciiTextFallbacks": null
+        "unrolledMediumAsciiTextFallbacks": null,
+        "textTrimGuardSkips": null,
+        "textTrimGuardFallbacks": null
       }
     },
     "fastestNoTrim": {
@@ -114,7 +119,9 @@
         "mediumAsciiTextHits": null,
         "mediumAsciiTextFallbacks": null,
         "unrolledMediumAsciiTextHits": null,
-        "unrolledMediumAsciiTextFallbacks": null
+        "unrolledMediumAsciiTextFallbacks": null,
+        "textTrimGuardSkips": null,
+        "textTrimGuardFallbacks": null
       }
     },
     "fastestFoldTrim": {
@@ -144,7 +151,9 @@
         "mediumAsciiTextHits": null,
         "mediumAsciiTextFallbacks": null,
         "unrolledMediumAsciiTextHits": null,
-        "unrolledMediumAsciiTextFallbacks": null
+        "unrolledMediumAsciiTextFallbacks": null,
+        "textTrimGuardSkips": null,
+        "textTrimGuardFallbacks": null
       }
     },
     "fastestFullToTargetRatio": 0.93,
@@ -207,7 +216,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "withoutText": {
@@ -237,7 +248,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "noTrim": {
@@ -267,7 +280,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "foldTrim": {
@@ -297,7 +312,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "withoutTextSpeedup": 1.34,
@@ -336,7 +353,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "withoutText": {
@@ -366,7 +385,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "noTrim": {
@@ -396,7 +417,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "foldTrim": {
@@ -426,7 +449,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "withoutTextSpeedup": 1.32,
@@ -465,7 +490,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "withoutText": {
@@ -495,7 +522,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "noTrim": {
@@ -525,7 +554,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "foldTrim": null,
@@ -565,7 +596,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "withoutText": {
@@ -595,7 +628,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "noTrim": {
@@ -625,7 +660,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "foldTrim": null,
@@ -667,7 +704,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidate": {
@@ -697,7 +736,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidateToControlRatio": 0.74,
@@ -735,7 +776,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidate": {
@@ -765,7 +808,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidateToControlRatio": 0.83,
@@ -803,7 +848,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidate": {
@@ -833,7 +880,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidateToControlRatio": 0.41,
@@ -871,7 +920,9 @@
           "mediumAsciiTextHits": 0,
           "mediumAsciiTextFallbacks": 0,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidate": {
@@ -901,7 +952,9 @@
           "mediumAsciiTextHits": 2831232,
           "mediumAsciiTextFallbacks": 3539040,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidateToControlRatio": 1.04,
@@ -939,7 +992,9 @@
           "mediumAsciiTextHits": 0,
           "mediumAsciiTextFallbacks": 0,
           "unrolledMediumAsciiTextHits": 0,
-          "unrolledMediumAsciiTextFallbacks": 0
+          "unrolledMediumAsciiTextFallbacks": 0,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidate": {
@@ -969,10 +1024,84 @@
           "mediumAsciiTextHits": 0,
           "mediumAsciiTextFallbacks": 0,
           "unrolledMediumAsciiTextHits": 2831232,
-          "unrolledMediumAsciiTextFallbacks": 3539040
+          "unrolledMediumAsciiTextFallbacks": 3539040,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidateToControlRatio": 1.04,
+      "candidatePreservesFullStringParity": true,
+      "candidateCrossesTarget": false,
+      "rejectedForFullTarget": true
+    },
+    {
+      "family": "unrolled-medium-ascii-text-trim-guard",
+      "sourceArtifact": "unrolled-medium-ascii-text-trim-guard-candidate.json",
+      "control": {
+        "id": "rawFrameNameId",
+        "role": "full",
+        "sourceArtifact": "unrolled-medium-ascii-text-trim-guard-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 136.23,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": 0,
+          "unrolledMediumAsciiTextFallbacks": 0,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
+        }
+      },
+      "candidate": {
+        "id": "rawFrameNameIdUnrolledMediumAsciiTextTrimGuard",
+        "role": "negative-candidate",
+        "sourceArtifact": "unrolled-medium-ascii-text-trim-guard-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 164.14,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": 2831232,
+          "unrolledMediumAsciiTextFallbacks": 3539040,
+          "textTrimGuardSkips": 16987392,
+          "textTrimGuardFallbacks": 0
+        }
+      },
+      "candidateToControlRatio": 1.2,
       "candidatePreservesFullStringParity": true,
       "candidateCrossesTarget": false,
       "rejectedForFullTarget": true
@@ -1007,7 +1136,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidate": {
@@ -1037,7 +1168,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": null,
+          "textTrimGuardFallbacks": null
         }
       },
       "candidateToControlRatio": 0.84,
@@ -1075,7 +1208,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidate": {
@@ -1105,7 +1240,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 11950239,
+          "textTrimGuardFallbacks": 374103
         }
       },
       "candidateToControlRatio": 1,
@@ -1143,7 +1280,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidate": {
@@ -1173,7 +1312,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidateToControlRatio": 0.99,
@@ -1211,7 +1352,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidate": {
@@ -1241,7 +1384,9 @@
           "mediumAsciiTextHits": null,
           "mediumAsciiTextFallbacks": null,
           "unrolledMediumAsciiTextHits": null,
-          "unrolledMediumAsciiTextFallbacks": null
+          "unrolledMediumAsciiTextFallbacks": null,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
         }
       },
       "candidateToControlRatio": 0.63,
@@ -1292,6 +1437,7 @@
         "long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s",
         "medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s",
         "unrolled-medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.59 MiB/s",
+        "unrolled-medium-ascii-text-trim-guard: candidate/control=1.20x, candidate=164.14 MiB/s",
         "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s",
         "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s",
         "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s",

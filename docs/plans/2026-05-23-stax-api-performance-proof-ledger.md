@@ -254,7 +254,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 199 JavaScript 1 GiB+
+or their source contract carry it. It now finds 203 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -262,7 +262,7 @@ full-string rows with source mode metadata, including
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 149 JavaScript 1 GiB+ full-string rows, 140 of
+generated-sync bucket now has 153 JavaScript 1 GiB+ full-string rows, 144 of
 them bounded. The file-backed sync byte-batch bucket adds 47 full-string rows,
 46 of them bounded, with fastest row 152.11 MiB/s. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
@@ -278,13 +278,13 @@ records parser input `Web ReadableStream<Uint8Array>`,
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 199
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 203
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
 not counted as JavaScript runtime rows.
 
-The scan also records 35 threshold-crossing partial/projection rows. The
+The scan also records 36 threshold-crossing partial/projection rows. The
 fastest is Node/V8 `grouped-segment-scan` at 682.83 MiB/s from
 `segment-scan-headroom.json`; it scans delimiter bytes over the same 1 GiB
 file-backed synchronous `Iterable<Uint8Array[]>` source, records
@@ -323,7 +323,7 @@ fastest parser-produced partial row; Node/V8 and Chrome/V8 also cross
 200 MiB/s on partial `books.xml` corpus-cycle rows. These rows preserve
 event-count style work or delimiter-byte checksums but drop the full-string
 StAX contract, so they are headroom evidence rather than runtime-limit
-counterexamples. Ten
+counterexamples. Eleven
 near-full text/CDATA materialization headroom rows are now recorded separately.
 The fastest is Node/V8 `withoutTextStrings` from
 `text-trim-cost-decomposition-4gib.json` at 252.36 MiB/s; it omitted all text/CDATA
@@ -348,6 +348,14 @@ construction. It preserves full parity and improves its same-run control from
 164.13 MiB/s to 170.59 MiB/s, but still does not cross the 200 MiB/s
 counterexample threshold after 2,831,232 unrolled medium-ASCII hits and
 3,539,040 fallbacks. The
+`unrolled-medium-ascii-text-trim-guard-candidate.json` artifact combines that
+unrolled medium-ASCII text path with the byte-boundary text trim guard on the
+same `books.xml` corpus-cycle. It preserves full parity and improves its
+same-run control from 136.23 MiB/s to 164.14 MiB/s, but it is slower than the
+same-run unrolled-only row at 166.33 MiB/s and remains below the 200 MiB/s
+counterexample threshold after 2,831,232 unrolled medium-ASCII hits,
+3,539,040 fallbacks, 16,987,392 trim-guard skips, and zero trim-guard
+fallbacks. The
 `medium-ascii-attr-value-materialization-candidate.json` artifact applies the
 same 13-24 byte ASCII split strategy to attribute values on the `books.xml`
 corpus-cycle. It preserves full parity and improves its same-run control only
@@ -376,6 +384,7 @@ text string reads. The same synthesis records maximum no-trim speedup at only
 its control, bounded long-text cache at 0.83x of its control, long ASCII text
 fast path at 0.41x of its control, medium ASCII text fast path at 1.04x of its
 control, unrolled medium ASCII text fast path at 1.04x of its control,
+unrolled medium ASCII text plus trim guard at 1.20x of its same-run control,
 fold-trim checksum at 0.84x of its control, the byte-boundary trim guard at
 1.00x of its control, ASCII byte pre-trim before decode at 0.99x of its control,
 and manual ASCII materialization for all string spans at 0.63x of its control.

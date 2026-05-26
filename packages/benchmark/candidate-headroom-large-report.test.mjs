@@ -85,6 +85,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
     'rawFrameNameIdLongAsciiText',
     'rawFrameNameIdMediumAsciiText',
     'rawFrameNameIdUnrolledMediumAsciiText',
+    'rawFrameNameIdUnrolledMediumAsciiTextTrimGuard',
     'rawFrameNameIdMediumAsciiAttrValue',
     'rawFrameNameIdTextCache',
     'rawFrameNameIdTrimGuard',
@@ -119,6 +120,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   const rawNameIdLongAsciiText = report.variants.find(entry => entry.id === 'rawFrameNameIdLongAsciiText');
   const rawNameIdMediumAsciiText = report.variants.find(entry => entry.id === 'rawFrameNameIdMediumAsciiText');
   const rawNameIdUnrolledMediumAsciiText = report.variants.find(entry => entry.id === 'rawFrameNameIdUnrolledMediumAsciiText');
+  const rawNameIdUnrolledMediumAsciiTextTrimGuard = report.variants.find(entry => entry.id === 'rawFrameNameIdUnrolledMediumAsciiTextTrimGuard');
   const rawNameIdMediumAsciiAttrValue = report.variants.find(entry => entry.id === 'rawFrameNameIdMediumAsciiAttrValue');
   const rawNameIdTextCache = report.variants.find(entry => entry.id === 'rawFrameNameIdTextCache');
   const rawNameIdTrimGuard = report.variants.find(entry => entry.id === 'rawFrameNameIdTrimGuard');
@@ -164,6 +166,14 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.equal(rawNameIdUnrolledMediumAsciiText.materializationCounters.rawSpanMaterializations, rawNameId.materializationCounters.rawSpanMaterializations);
   assert.equal(typeof rawNameIdUnrolledMediumAsciiText.materializationCounters.unrolledMediumAsciiTextHits, 'number');
   assert.equal(typeof rawNameIdUnrolledMediumAsciiText.materializationCounters.unrolledMediumAsciiTextFallbacks, 'number');
+  assert.equal(rawNameIdUnrolledMediumAsciiTextTrimGuard.fullStringParity, true);
+  assert.equal(rawNameIdUnrolledMediumAsciiTextTrimGuard.checksum, report.fullStringParity.checksum);
+  assert.equal(rawNameIdUnrolledMediumAsciiTextTrimGuard.materializationCounters.stringFieldReads, rawNameId.materializationCounters.stringFieldReads);
+  assert.equal(rawNameIdUnrolledMediumAsciiTextTrimGuard.materializationCounters.rawSpanMaterializations, rawNameId.materializationCounters.rawSpanMaterializations);
+  assert.equal(typeof rawNameIdUnrolledMediumAsciiTextTrimGuard.materializationCounters.unrolledMediumAsciiTextHits, 'number');
+  assert.equal(typeof rawNameIdUnrolledMediumAsciiTextTrimGuard.materializationCounters.unrolledMediumAsciiTextFallbacks, 'number');
+  assert.equal(typeof rawNameIdUnrolledMediumAsciiTextTrimGuard.materializationCounters.textTrimGuardSkips, 'number');
+  assert.equal(typeof rawNameIdUnrolledMediumAsciiTextTrimGuard.materializationCounters.textTrimGuardFallbacks, 'number');
   assert.equal(rawNameIdMediumAsciiAttrValue.fullStringParity, true);
   assert.equal(rawNameIdMediumAsciiAttrValue.checksum, report.fullStringParity.checksum);
   assert.equal(rawNameIdMediumAsciiAttrValue.materializationCounters.stringFieldReads, rawNameId.materializationCounters.stringFieldReads);
@@ -362,6 +372,7 @@ test('large candidate headroom matrix includes projection rows on projection fix
     'rawFrameNameIdLongAsciiText',
     'rawFrameNameIdMediumAsciiText',
     'rawFrameNameIdUnrolledMediumAsciiText',
+    'rawFrameNameIdUnrolledMediumAsciiTextTrimGuard',
     'rawFrameNameIdMediumAsciiAttrValue',
     'rawFrameNameIdTextCache',
     'rawFrameNameIdTrimGuard',
