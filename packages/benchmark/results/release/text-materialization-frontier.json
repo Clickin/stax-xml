@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T18:38:59.562Z",
+  "generatedAt": "2026-05-26T18:48:29.975Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -1622,7 +1622,7 @@
         "role": "full",
         "sourceArtifact": "semantic-checksum-upper-bound.json",
         "sizeGiB": 1,
-        "mibPerSec": 88.07,
+        "mibPerSec": 96.88,
         "fullStringParity": true,
         "boundedMemory": true,
         "eventCount": 57096514,
@@ -1654,7 +1654,7 @@
         "role": "negative-candidate",
         "sourceArtifact": "semantic-checksum-upper-bound.json",
         "sizeGiB": 1,
-        "mibPerSec": 92.03,
+        "mibPerSec": 94.11,
         "fullStringParity": false,
         "boundedMemory": true,
         "eventCount": 57096514,
@@ -1681,7 +1681,7 @@
           "textTrimGuardFallbacks": 0
         }
       },
-      "candidateToControlRatio": 1.05,
+      "candidateToControlRatio": 0.97,
       "candidatePreservesFullStringParity": false,
       "candidateCrossesTarget": false,
       "rejectedForFullTarget": true
@@ -1737,7 +1737,7 @@
         "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s",
         "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s",
         "all-ascii-span-materialization: candidate/control=0.63x, candidate=68.63 MiB/s",
-        "direct-semantic-byte-checksum: candidate/control=1.05x, candidate=92.03 MiB/s"
+        "direct-semantic-byte-checksum: candidate/control=0.97x, candidate=94.11 MiB/s"
       ]
     },
     {

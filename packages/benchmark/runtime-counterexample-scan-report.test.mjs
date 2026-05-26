@@ -459,7 +459,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.runtimeLabel === 'Node/V8'
     && row.jsRuntime === true
     && row.sourceMode === 'generated-sync-iterable-byte-batches'
-    && row.mibPerSec === 92.03
+    && row.mibPerSec === 94.11
     && row.fullStringParity === false
     && row.boundedMemory === true
     && row.demandDrivenSource === true

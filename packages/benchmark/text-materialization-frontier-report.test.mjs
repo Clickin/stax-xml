@@ -169,14 +169,15 @@ test('text materialization frontier separates headroom rows from full-string cou
     row.family === 'direct-semantic-byte-checksum'
     && row.sourceArtifact === 'semantic-checksum-upper-bound.json'
     && row.control.id === 'rawFrameNameId'
-    && row.control.mibPerSec === 88.07
+    && row.control.mibPerSec === 96.88
     && row.candidate.id === 'rawFrameSemanticChecksum'
-    && row.candidate.mibPerSec === 92.03
+    && row.candidate.mibPerSec === 94.11
     && row.candidate.checksum === row.control.checksum
     && row.candidate.counters.stringFieldReads === 0
     && row.candidate.counters.textStringReads === 0
     && row.candidatePreservesFullStringParity === false
     && row.candidateCrossesTarget === false
+    && row.candidateToControlRatio === 0.97
     && row.rejectedForFullTarget === true
   ));
   assert.ok(report.findings.some(finding =>

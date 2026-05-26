@@ -1,6 +1,6 @@
 # Large Candidate Headroom Matrix
 
-Generated: 2026-05-26T18:38:36.048Z
+Generated: 2026-05-26T18:48:07.376Z
 
 This experiment is a 1 GiB+ bounded-memory counterexample search over corpus-backed `Uint8Array` batches.
 Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.
@@ -28,7 +28,7 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 - Row bytes: min=4551, max=4551, avg=4551.0
 - Batch size: 1
 - Cases: rawFrameNameId, rawFrameSemanticChecksum, withoutTextStrings
-- Runs: warmups=1, runs=3
+- Runs: warmups=0, runs=3
 - Bounded RSS reporting gate: 512.0 MiB
 
 ## Woodstox Target
@@ -42,9 +42,9 @@ The neutral path uses `Uint8Array` plus `TextDecoder`; it does not use native ad
 
 | Variant | Family | Contract scope | Count kind | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded memory | Counterexample | Events | Checksum | Full parity |
 | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |
-| rawFrameNameId | full-stax-js | full-string-materialization | stream-events | 88.07 MiB/s | 1.00x | 0.29x | below | yes | not-found | 57096514 | -540013997 | yes |
-| rawFrameSemanticChecksum | semantic-upper-bound | same-fields-checksum-no-string-materialization | stream-events | 92.03 MiB/s | 1.00x | 0.30x | not-applicable | yes | not-found | 57096514 | -540013997 | no |
-| withoutTextStrings | near-full-upper-bound | full-materialization-minus-text-cdata | stream-events | 110.12 MiB/s | 1.00x | 0.36x | not-applicable | yes | not-found | 57096514 | 1372281363 | no |
+| rawFrameNameId | full-stax-js | full-string-materialization | stream-events | 96.88 MiB/s | 1.00x | 0.32x | below | yes | not-found | 57096514 | -540013997 | yes |
+| rawFrameSemanticChecksum | semantic-upper-bound | same-fields-checksum-no-string-materialization | stream-events | 94.11 MiB/s | 1.00x | 0.31x | not-applicable | yes | not-found | 57096514 | -540013997 | no |
+| withoutTextStrings | near-full-upper-bound | full-materialization-minus-text-cdata | stream-events | 119.39 MiB/s | 1.00x | 0.39x | not-applicable | yes | not-found | 57096514 | 1372281363 | no |
 
 ## Timing Stability
 
@@ -52,9 +52,9 @@ Rows with `runs > 1` report same-process timing spread; this is variance evidenc
 
 | Variant | Runs | Avg ms | Min ms | Max ms | Spread | Samples ms |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| rawFrameNameId | 3 | 11627.61 | 11518.18 | 11738.96 | 1.9% | 11518.18, 11625.67, 11738.96 |
-| rawFrameSemanticChecksum | 3 | 11126.50 | 11081.26 | 11213.73 | 1.2% | 11213.73, 11081.26, 11084.49 |
-| withoutTextStrings | 3 | 9298.82 | 9109.05 | 9620.93 | 5.5% | 9109.05, 9620.93, 9166.46 |
+| rawFrameNameId | 3 | 10569.73 | 9443.88 | 11277.72 | 17.3% | 9443.88, 11277.72, 10987.60 |
+| rawFrameSemanticChecksum | 3 | 10881.45 | 10561.35 | 11109.29 | 5.0% | 10561.35, 10973.71, 11109.29 |
+| withoutTextStrings | 3 | 8576.74 | 8435.88 | 8729.12 | 3.4% | 8435.88, 8565.20, 8729.12 |
 
 ## Memory
 
@@ -62,9 +62,9 @@ Memory uses `process.memoryUsage()` before and after each measured run; max valu
 
 | Variant | Avg heap delta | Avg RSS delta | Max heap used | Max RSS |
 | --- | ---: | ---: | ---: | ---: |
-| rawFrameNameId | +1.4 MiB | +2.4 MiB | 6.6 MiB | 72.4 MiB |
-| rawFrameSemanticChecksum | +3.0 MiB | +12.0 KiB | 8.8 MiB | 73.1 MiB |
-| withoutTextStrings | +2.1 MiB | +174.7 KiB | 7.6 MiB | 77.1 MiB |
+| rawFrameNameId | +367.4 KiB | +2.5 MiB | 6.7 MiB | 67.2 MiB |
+| rawFrameSemanticChecksum | +599.4 KiB | +1.8 MiB | 8.4 MiB | 72.7 MiB |
+| withoutTextStrings | +430.1 KiB | +1.6 MiB | 10.4 MiB | 77.3 MiB |
 
 ## Materialization Counters
 
@@ -93,7 +93,7 @@ Full-string parity rows: ok, events=57096514, checksum=-540013997, rows=rawFrame
   - byteBatches(fixture) yields one grouped batch per parser pull.
   - Direct browser ReadableStream and async byte-batch fetch rows live in browser-candidate-headroom.
 - bounded-memory-contract: Rows consume corpus-backed Uint8Array batches and do not load a full XML string.
-  - rawFrameNameId: maxRSS=72.4 MiB
+  - rawFrameNameId: maxRSS=67.2 MiB
 - multi-chunk-batch-cost: This run uses one Uint8Array chunk per parser pull when possible, which avoids the sync cursor multi-chunk concatenation path except for pending tail repair.
   - batchSize=1
   - singleChunk=direct Uint8Array view
@@ -103,12 +103,12 @@ Full-string parity rows: ok, events=57096514, checksum=-540013997, rows=rawFrame
 - near-full-category-drop-scope: Near-full rows materialize three of the four StAX string categories and omit exactly one category, so they are closer headroom probes but still not full-string counterexamples.
   - withoutTextStrings: full-materialization-minus-text-cdata, strings=45771584, checksum=1372281363
 - semantic-no-string-upper-bound: Semantic checksum rows fold the same fields and checksum without string materialization on ASCII spans, but they are not StAX full-string materialization rows.
-  - rawFrameSemanticChecksum: 92.03 MiB/s, checksum=-540013997, semanticByteFields=62758976, fallbacks=0
+  - rawFrameSemanticChecksum: 94.11 MiB/s, checksum=-540013997, semanticByteFields=62758976, fallbacks=0
 - full-string-parity: Full rows fold element names, text/CDATA, attribute names, and attribute values into the same checksum.
   - rawFrameNameId: events=57096514, checksum=-540013997
 - headroom-search: The fastest row in each family is a headroom signal, not a runtime-limit conclusion.
-  - partial=withoutTextStrings 110.12 MiB/s
-  - full=rawFrameNameId 88.07 MiB/s
+  - partial=withoutTextStrings 119.39 MiB/s
+  - full=rawFrameNameId 96.88 MiB/s
 - corpus-cycle-fixture: The fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows.
   - sourceFile=G:\programming\stax-xml\packages\benchmark\assets\books.xml
   - sourceBytes=4551
