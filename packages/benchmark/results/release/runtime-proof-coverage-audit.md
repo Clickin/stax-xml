@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T01:21:58.442Z
+Generated: 2026-05-26T01:32:32.278Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -34,7 +34,7 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `stringFull` | 0.00 | not-recorded | yes | 49.46 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `rawFrameNameId` | 0.00 | not-recorded | yes | 28.68 |
 | `browser-v8-codegen-trace.json` | Chrome/V8 browser | `eventObjectFull` | 0.00 | not-recorded | yes | 41.47 |
-| `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey browser | `rawFrameNameId` | n/a | not-recorded | yes | 22.80 |
+| `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey browser | `rawFrameNameId` | n/a | not-recorded | yes | 26.18 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.02 | allocator-counters | yes | 220.90 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 183.58 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 259.32 |

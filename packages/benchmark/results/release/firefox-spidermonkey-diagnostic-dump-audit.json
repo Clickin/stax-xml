@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T10:15:19.761Z",
+  "generatedAt": "2026-05-26T01:32:12.544Z",
   "objective": "firefox-spidermonkey-diagnostic-dump-audit",
   "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
   "note": "Attempts to collect SpiderMonkey JIT diagnostic dump output from the installed Firefox browser while running the same browser reader harness. This is an availability audit; if no dump is emitted, it is not JIT IR evidence and must not be counted as optimized-code proof.",
@@ -31,7 +31,7 @@
     "signal": null,
     "timedOut": false,
     "error": null,
-    "stdoutTail": "Wrote firefox-bidi-candidate-headroom: 107600 bytes\nFastest partial: n/a\nFastest full: rawFrameNameId 22.80 MiB/s\n",
+    "stdoutTail": "Wrote firefox-bidi-candidate-headroom: 107600 bytes\nFastest partial: n/a\nFastest full: rawFrameNameId 26.18 MiB/s\n",
     "stderrTail": "",
     "dumpFiles": []
   },
@@ -51,7 +51,7 @@
   "variants": [
     {
       "id": "rawFrameNameId",
-      "mibPerSec": 22.80341254340278,
+      "mibPerSec": 26.177386848293903,
       "eventCount": 4985,
       "checksum": 1856142966,
       "fullStringParity": true
@@ -71,7 +71,7 @@
       "classification": "BENCH_FACT",
       "summary": "The Firefox browser reader harness completed while SpiderMonkey diagnostic dump environment variables were set.",
       "evidence": [
-        "rawFrameNameId: events=4985, checksum=1856142966, throughput=22.80 MiB/s"
+        "rawFrameNameId: events=4985, checksum=1856142966, throughput=26.18 MiB/s"
       ]
     },
     {
