@@ -20,8 +20,10 @@ const allShapes = [
   'sync-iterable-byte-batches',
   'async-iterable-byte-batches',
   'async-iterable-raw-frame',
+  'async-iterable-raw-frame-ascii',
   'web-readable-stream-pull',
   'web-readable-stream-raw-frame',
+  'web-readable-stream-raw-frame-ascii',
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -180,6 +182,17 @@ async function runComparison(options) {
       }
       continue;
     }
+    if (shape === 'async-iterable-raw-frame-ascii') {
+      for (const batchSize of options.asyncBatchSizes) {
+        const rowId = asyncRawFrameAsciiRowId(batchSize);
+        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
+          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize),
+          undefined,
+          { shortAscii: true },
+        ), fileStats.size / MIB, { ...options, batchSize }));
+      }
+      continue;
+    }
     if (shape === 'web-readable-stream-pull') {
       for (const batchSize of options.readableBatchSizes) {
         const rowId = readableRowId(batchSize);
@@ -196,6 +209,17 @@ async function runComparison(options) {
         rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
           createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
           batchSize,
+        ), fileStats.size / MIB, { ...options, batchSize }));
+      }
+      continue;
+    }
+    if (shape === 'web-readable-stream-raw-frame-ascii') {
+      for (const batchSize of options.readableBatchSizes) {
+        const rowId = readableRawFrameAsciiRowId(batchSize);
+        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
+          createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
+          batchSize,
+          { shortAscii: true },
         ), fileStats.size / MIB, { ...options, batchSize }));
       }
       continue;
@@ -458,7 +482,7 @@ async function consumeAsyncStreamReader(stream, batchSize) {
   return { eventCount, checksum };
 }
 
-async function consumeAsyncRawFrameReader(source, batchSize) {
+async function consumeAsyncRawFrameReader(source, batchSize, options = {}) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const nameCache = [];
   let eventCount = 0;
@@ -468,14 +492,14 @@ async function consumeAsyncRawFrameReader(source, batchSize) {
     : new StreamReader(source);
   let frame;
   while ((frame = await reader.nextRawBatch()) !== null) {
-    const result = consumeRawFrame(frame, checksum, eventCount, decoder, nameCache);
+    const result = consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, options);
     checksum = result.checksum;
     eventCount = result.eventCount;
   }
   return { eventCount, checksum };
 }
 
-function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache) {
+function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, options = {}) {
   if (frame.kind !== 'frame') {
     throw new Error(`Unsupported raw batch kind in source consumption benchmark: ${frame.kind}`);
   }
@@ -501,12 +525,12 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache) {
     checksum = mixChecksum(checksum, type);
 
     if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-      checksum = foldString(checksum, materializeName(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache));
+      checksum = foldString(checksum, materializeName(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache, options.shortAscii));
     }
     if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
       const start = textStarts[index];
       if (start >= 0) {
-        checksum = foldString(checksum, decoder.decode(buffer.subarray(start, textEnds[index])).trim());
+        checksum = foldString(checksum, decodeSpan(buffer, start, textEnds[index], decoder, options.shortAscii).trim());
       }
     }
     if (type === StreamEventType.START_ELEMENT) {
@@ -522,25 +546,91 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache) {
           attrNameIds[attrIndex],
           decoder,
           nameCache,
+          options.shortAscii,
         ));
         checksum = foldString(checksum, isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
           ? 'true'
-          : decoder.decode(buffer.subarray(attrValueStarts[attrIndex], attrValueEnds[attrIndex])));
+          : decodeSpan(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, options.shortAscii));
       }
     }
   }
   return { eventCount, checksum };
 }
 
-function materializeName(buffer, start, end, nameId, decoder, nameCache) {
+function materializeName(buffer, start, end, nameId, decoder, nameCache, shortAscii = false) {
   if (nameId >= 0) {
     const cached = nameCache[nameId];
     if (cached !== undefined) return cached;
-    const value = decoder.decode(buffer.subarray(start, end));
+    const value = decodeSpan(buffer, start, end, decoder, shortAscii);
     nameCache[nameId] = value;
     return value;
   }
+  return decodeSpan(buffer, start, end, decoder, shortAscii);
+}
+
+function decodeSpan(buffer, start, end, decoder, shortAscii = false) {
+  if (shortAscii) {
+    const ascii = decodeShortAsciiSpan(buffer, start, end);
+    if (ascii !== undefined) return ascii;
+  }
   return decoder.decode(buffer.subarray(start, end));
+}
+
+function decodeShortAsciiSpan(buffer, start, end) {
+  switch (end - start) {
+    case 0:
+      return '';
+    case 1: {
+      const b0 = buffer[start];
+      return b0 <= 0x7f ? String.fromCharCode(b0) : undefined;
+    }
+    case 2: {
+      const b0 = buffer[start], b1 = buffer[start + 1];
+      return (b0 | b1) <= 0x7f ? String.fromCharCode(b0, b1) : undefined;
+    }
+    case 3: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2];
+      return (b0 | b1 | b2) <= 0x7f ? String.fromCharCode(b0, b1, b2) : undefined;
+    }
+    case 4: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3];
+      return (b0 | b1 | b2 | b3) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3) : undefined;
+    }
+    case 5: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4];
+      return (b0 | b1 | b2 | b3 | b4) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4) : undefined;
+    }
+    case 6: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5];
+      return (b0 | b1 | b2 | b3 | b4 | b5) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5) : undefined;
+    }
+    case 7: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5], b6 = buffer[start + 6];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6) : undefined;
+    }
+    case 8: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5], b6 = buffer[start + 6], b7 = buffer[start + 7];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7) : undefined;
+    }
+    case 9: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5], b6 = buffer[start + 6], b7 = buffer[start + 7], b8 = buffer[start + 8];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8) : undefined;
+    }
+    case 10: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5], b6 = buffer[start + 6], b7 = buffer[start + 7], b8 = buffer[start + 8], b9 = buffer[start + 9];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9) : undefined;
+    }
+    case 11: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5], b6 = buffer[start + 6], b7 = buffer[start + 7], b8 = buffer[start + 8], b9 = buffer[start + 9], b10 = buffer[start + 10];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10) : undefined;
+    }
+    case 12: {
+      const b0 = buffer[start], b1 = buffer[start + 1], b2 = buffer[start + 2], b3 = buffer[start + 3], b4 = buffer[start + 4], b5 = buffer[start + 5], b6 = buffer[start + 6], b7 = buffer[start + 7], b8 = buffer[start + 8], b9 = buffer[start + 9], b10 = buffer[start + 10], b11 = buffer[start + 11];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11) <= 0x7f ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11) : undefined;
+    }
+    default:
+      return undefined;
+  }
 }
 
 function isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, index) {
@@ -715,7 +805,7 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
       : asyncRow || asyncRawRow
         ? 'async Iterable<Uint8Array[]>'
       : 'Web ReadableStream<Uint8Array>',
-    accessMode: asyncRawRow || readableRawRow ? 'raw-frame' : 'stream-batch',
+    accessMode: id.includes('raw-frame-ascii') ? 'raw-frame-short-ascii' : asyncRawRow || readableRawRow ? 'raw-frame' : 'stream-batch',
     contractScope: 'full-string-checksum',
     fullStringParity: true,
     chunkKiB: options.chunkKiB,
@@ -760,6 +850,12 @@ function asyncRawFrameRowId(batchSize) {
     : `async-iterable-raw-frame-batch-${batchSize}`;
 }
 
+function asyncRawFrameAsciiRowId(batchSize) {
+  return batchSize === 1
+    ? 'async-iterable-raw-frame-ascii'
+    : `async-iterable-raw-frame-ascii-batch-${batchSize}`;
+}
+
 function readableRowId(batchSize) {
   return batchSize === 1
     ? 'web-readable-stream-pull'
@@ -772,6 +868,12 @@ function readableRawFrameRowId(batchSize) {
     : `web-readable-stream-raw-frame-batch-${batchSize}`;
 }
 
+function readableRawFrameAsciiRowId(batchSize) {
+  return batchSize === 1
+    ? 'web-readable-stream-raw-frame-ascii'
+    : `web-readable-stream-raw-frame-ascii-batch-${batchSize}`;
+}
+
 function describeImplementation(id, options) {
   if (id.startsWith('sync-iterable-byte-batches')) {
     return `Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches (batchSize=${options.batchSize})`;
@@ -780,7 +882,7 @@ function describeImplementation(id, options) {
     return `Node + stax-xml StreamReader over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=${options.batchSize})`;
   }
   if (id.startsWith('async-iterable-raw-frame')) {
-    return `Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=${options.batchSize})`;
+    return `Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches${id.includes('ascii') ? ' with short ASCII span materialization' : ''} (batchSize=${options.batchSize})`;
   }
   if (id === 'web-readable-stream-pull') {
     return 'Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=1)';
@@ -789,7 +891,7 @@ function describeImplementation(id, options) {
     return `Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=${options.batchSize})`;
   }
   if (id.startsWith('web-readable-stream-raw-frame')) {
-    return `Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=${options.batchSize})`;
+    return `Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source${id.includes('ascii') ? ' with short ASCII span materialization' : ''} (batchSize=${options.batchSize})`;
   }
   return id;
 }

@@ -75,7 +75,7 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-async-raw-batches'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'benchmark-readable-stream-backpressure'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'file-backed-release-sync-batches'));
-  assert.equal(report.summary.rowCount, 10);
+  assert.equal(report.summary.rowCount, 14);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.asyncIterableRatioToSyncIterable, 'number');
   assert.equal(typeof report.summary.fastestAsyncIterableRatioToFastestSyncIterable, 'number');
@@ -83,8 +83,8 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(typeof report.summary.readableStreamRatioToFastestSyncIterable, 'number');
   assert.equal(typeof report.summary.fastestReadableStreamRatioToFastestSyncIterable, 'number');
   assert.match(report.summary.fastestSyncIterable.id, /sync-iterable-byte-batches/);
-  assert.match(report.summary.fastestAsyncIterable.id, /async-iterable-byte-batches/);
-  assert.match(report.summary.fastestReadableStream.id, /web-readable-stream-pull/);
+  assert.match(report.summary.fastestAsyncIterable.id, /async-iterable/);
+  assert.match(report.summary.fastestReadableStream.id, /web-readable-stream/);
   assert.deepEqual(report.rows.map(row => row.id), [
     'sync-iterable-byte-batches',
     'sync-iterable-byte-batches-batch-4',
@@ -92,10 +92,14 @@ test('stream source consumption shapes report separates sync batches from direct
     'async-iterable-byte-batches-batch-4',
     'async-iterable-raw-frame',
     'async-iterable-raw-frame-batch-4',
+    'async-iterable-raw-frame-ascii',
+    'async-iterable-raw-frame-ascii-batch-4',
     'web-readable-stream-pull',
     'web-readable-stream-pull-batch-4',
     'web-readable-stream-raw-frame',
     'web-readable-stream-raw-frame-batch-4',
+    'web-readable-stream-raw-frame-ascii',
+    'web-readable-stream-raw-frame-ascii-batch-4',
   ]);
   for (const row of report.rows) {
     assert.equal(row.fullStringParity, true);
@@ -114,7 +118,9 @@ test('stream source consumption shapes report separates sync batches from direct
   const asyncRow = report.rows.find(row => row.id === 'async-iterable-byte-batches');
   const asyncBatch4Row = report.rows.find(row => row.id === 'async-iterable-byte-batches-batch-4');
   const asyncRawRow = report.rows.find(row => row.id === 'async-iterable-raw-frame');
+  const asyncRawAsciiRow = report.rows.find(row => row.id === 'async-iterable-raw-frame-ascii');
   const readableRawRow = report.rows.find(row => row.id === 'web-readable-stream-raw-frame');
+  const readableRawAsciiRow = report.rows.find(row => row.id === 'web-readable-stream-raw-frame-ascii');
   assert.equal(syncRow.parserInput, 'synchronous Iterable<Uint8Array[]>');
   assert.equal(syncRow.sourceMode, 'sync-iterable-byte-batches');
   assert.equal(syncRow.directReadableStream, false);
@@ -143,6 +149,12 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(asyncRawRow.directReadableStream, false);
   assert.equal(asyncRawRow.fullArrayBufferParserInput, false);
   assert.equal(asyncRawRow.respectsBackpressure, true);
+  assert.equal(asyncRawAsciiRow.parserInput, 'async Iterable<Uint8Array[]>');
+  assert.equal(asyncRawAsciiRow.sourceMode, 'async-iterable-byte-batches');
+  assert.equal(asyncRawAsciiRow.accessMode, 'raw-frame-short-ascii');
+  assert.equal(asyncRawAsciiRow.directReadableStream, false);
+  assert.equal(asyncRawAsciiRow.fullArrayBufferParserInput, false);
+  assert.equal(asyncRawAsciiRow.respectsBackpressure, true);
   assert.equal(readableRow.parserInput, 'Web ReadableStream<Uint8Array>');
   assert.equal(readableRow.batchSize, 1);
   assert.equal(readableRow.directReadableStream, true);
@@ -160,6 +172,12 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(readableRawRow.directReadableStream, true);
   assert.equal(readableRawRow.fullArrayBufferParserInput, false);
   assert.equal(readableRawRow.respectsBackpressure, true);
+  assert.equal(readableRawAsciiRow.parserInput, 'Web ReadableStream<Uint8Array>');
+  assert.equal(readableRawAsciiRow.sourceMode, 'web-readable-stream-pull');
+  assert.equal(readableRawAsciiRow.accessMode, 'raw-frame-short-ascii');
+  assert.equal(readableRawAsciiRow.directReadableStream, true);
+  assert.equal(readableRawAsciiRow.fullArrayBufferParserInput, false);
+  assert.equal(readableRawAsciiRow.respectsBackpressure, true);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Stream Source Consumption Shapes/);
