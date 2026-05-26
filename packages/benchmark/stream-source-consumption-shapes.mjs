@@ -519,12 +519,10 @@ function createFindings(rows, syncRow, readableRow) {
       evidence: syncRow ? [`${syncRow.id}: ${formatNumber(syncRow.mibPerSec)} MiB/s`] : [],
     },
     {
-      id: 'readable-stream-overhead',
-      classification: syncRow && readableRow && readableRow.mibPerSec < syncRow.mibPerSec
-        ? 'HEADROOM_EVIDENCE'
-        : 'BENCH_FACT',
+      id: 'readable-stream-direct-source-shape',
+      classification: 'BENCH_FACT',
       summary: syncRow && readableRow
-        ? `Direct ReadableStream consumption reached ${formatNumber(readableRow.mibPerSec)} MiB/s (${formatNumber(readableRow.mibPerSec / syncRow.mibPerSec)}x of sync Iterable<Uint8Array[]>).`
+        ? `Direct ReadableStream consumption reached ${formatNumber(readableRow.mibPerSec)} MiB/s (${formatNumber(readableRow.mibPerSec / syncRow.mibPerSec)}x of sync Iterable<Uint8Array[]>); this is a separate source-shape row, not the current release comparison source.`
         : 'ReadableStream and sync Iterable rows were not both measured.',
       evidence: rows.map(row => `${row.id}=${formatNumber(row.mibPerSec)} MiB/s rss=${formatBytes(row.memory?.maxRssBytes)}`),
     },
@@ -602,7 +600,7 @@ function renderMarkdown(report) {
   lines.push('## Limits');
   lines.push('');
   lines.push('- This compares source consumption shapes inside Node/V8; it does not cover browser File/Blob stream implementations.');
-  lines.push('- The ReadableStream row is useful as async overhead evidence, not as a JavaScript runtime ceiling proof.');
+  lines.push('- The ReadableStream row is direct source-shape evidence, not the current release comparison source and not a JavaScript runtime ceiling proof. If it is faster or slower than the sync row in a given run, keep that as a benchmark fact rather than a global async-overhead conclusion.');
   lines.push('- Both rows still execute the same StreamBatch full-string checksum consumer; this does not isolate parser tokenization cost.');
   lines.push('');
   return `${lines.join('\n')}\n`;

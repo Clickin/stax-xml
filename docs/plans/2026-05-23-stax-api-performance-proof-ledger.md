@@ -244,8 +244,8 @@ source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 136.79 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 144.06 MiB/s. The
+full-string scan: `sync-iterable-byte-batches` at 138.89 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 122.02 MiB/s. The
 scan separates parser-demand-driven source rows from Web Stream backpressure
 rows, so direct ReadableStream overhead evidence stays distinct from
 synchronous byte-batch rows. It also classifies source-mode rows by whether
@@ -891,9 +891,10 @@ batches, direct `Uint8Array` input is wrapped as a single-item byte batch, the
 public `StreamReader` path pushes each stream read as a single-item byte batch,
 and the public `EventReader` adapter converts stream reads into
 `AsyncIterable<Uint8Array[]>` batches. The release row now uses the current
-32 KiB x batch-size 4 file-backed basis and reports `136.79 MiB/s` for the
-sync iterable path and `144.06 MiB/s` for the backpressure-respecting
-ReadableStream path. Both rows
+32 KiB x batch-size 4 file-backed basis and reports `138.89 MiB/s` for the
+sync iterable path and `122.02 MiB/s` for the backpressure-respecting
+ReadableStream path. The report treats the ratio as a run-specific benchmark
+fact rather than a global async-overhead conclusion. Both rows
 are parser-demand-driven, while only the Web ReadableStream row carries stream
 backpressure metadata, so this artifact is direct source-shape evidence rather
 than an assumption that the large matrices consume a pure ReadableStream.

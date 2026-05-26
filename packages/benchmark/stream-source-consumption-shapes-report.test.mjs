@@ -11,7 +11,7 @@ const tmpDir = join(__dirname, 'results', 'tmp', 'stream-source-consumption-shap
 const jsonOut = join(tmpDir, 'stream-source-consumption-shapes.json');
 const mdOut = join(tmpDir, 'stream-source-consumption-shapes.md');
 
-test('stream source consumption shapes report separates sync batches from ReadableStream overhead', () => {
+test('stream source consumption shapes report separates sync batches from direct ReadableStream source shape', () => {
   resetTmp();
   const result = spawnSync(process.execPath, [
     '--expose-gc',
@@ -85,8 +85,10 @@ test('stream source consumption shapes report separates sync batches from Readab
   assert.match(markdown, /Demand-driven/);
   assert.match(markdown, /Stream backpressure/);
   assert.match(markdown, /current-release-source-shape/);
+  assert.match(markdown, /readable-stream-direct-source-shape/);
   assert.match(markdown, /backpressure-respected/);
-  assert.match(markdown, /not as a JavaScript runtime ceiling proof/);
+  assert.match(markdown, /not the current release comparison source and not a JavaScript runtime ceiling proof/);
+  assert.match(markdown, /rather than a global async-overhead conclusion/);
 });
 
 function resetTmp() {
