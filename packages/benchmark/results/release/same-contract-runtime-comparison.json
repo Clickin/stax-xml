@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T01:52:35.369Z",
+  "generatedAt": "2026-05-26T02:37:30.687Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -31,6 +31,7 @@
       "text-cache-materialization-candidate-stability.json",
       "long-ascii-text-materialization-candidate-stability.json",
       "fold-trimmed-text-candidate-stability.json",
+      "text-trim-cost-decomposition.json",
       "access-shape-candidate-cross-process.json",
       "candidate-headroom-cross-process-books-corpus.json",
       "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -43,38 +44,38 @@
     ]
   },
   "summary": {
-    "rowCount": 132,
-    "jsLargeFullRowCount": 115,
+    "rowCount": 134,
+    "jsLargeFullRowCount": 117,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
-      "group": "books-corpus-stability",
-      "runtimeId": "bun-jsc",
-      "runtimeLabel": "Bun/JSC",
+      "group": "text-trim-cost-decomposition",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
       "caseId": "rawFrameNameId",
-      "mibPerSec": 178.52,
+      "mibPerSec": 185.5,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
-        "maxMiB": 189.37,
-        "deltaMiB": -1.76,
-        "maxHeapUsedMiB": 46.29,
-        "maxExternalMiB": 49.66,
-        "maxArrayBuffersMiB": 48.88
+        "maxMiB": 60.45,
+        "deltaMiB": 2.62,
+        "maxHeapUsedMiB": 7.44,
+        "maxExternalMiB": 2.69,
+        "maxArrayBuffersMiB": 0.88
       },
       "sourceMode": "sync-iterable-byte-batches",
-      "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
+      "sourceArtifact": "text-trim-cost-decomposition.json",
       "sampleCount": 3,
-      "sampleMinMiBPerSec": 177.26,
-      "sampleMaxMiBPerSec": 180.1,
-      "sampleSpreadRatio": 0.02
+      "sampleMinMiBPerSec": 184.09,
+      "sampleMaxMiBPerSec": 186.66,
+      "sampleSpreadRatio": 0.01
     },
     "fastestJsLargeFullRowTo200MiBPerSec": {
-      "ratio": 0.89,
-      "remainingMiBPerSec": 21.48
+      "ratio": 0.93,
+      "remainingMiBPerSec": 14.5
     },
     "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
-      "ratio": 0.94,
-      "remainingTo90PercentMiBPerSec": -6.87,
+      "ratio": 0.97,
+      "remainingTo90PercentMiBPerSec": -13.85,
       "comparableFixture": false,
       "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
     },
@@ -433,6 +434,31 @@
           "sampleMinMiBPerSec": 109.69,
           "sampleMaxMiBPerSec": 141.96,
           "sampleSpreadRatio": 0.29
+        }
+      },
+      {
+        "group": "text-trim-cost-decomposition",
+        "fastest": {
+          "group": "text-trim-cost-decomposition",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 185.5,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 60.45,
+            "deltaMiB": 2.62,
+            "maxHeapUsedMiB": 7.44,
+            "maxExternalMiB": 2.69,
+            "maxArrayBuffersMiB": 0.88
+          },
+          "sourceMode": "sync-iterable-byte-batches",
+          "sourceArtifact": "text-trim-cost-decomposition.json",
+          "sampleCount": 3,
+          "sampleMinMiBPerSec": 184.09,
+          "sampleMaxMiBPerSec": 186.66,
+          "sampleSpreadRatio": 0.01
         }
       },
       {
@@ -4397,6 +4423,106 @@
       "runtimeLimitCounterexample": false
     },
     {
+      "group": "text-trim-cost-decomposition",
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 185.5,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 60.45,
+        "deltaMiB": 2.62,
+        "maxHeapUsedMiB": 7.44,
+        "maxExternalMiB": 2.69,
+        "maxArrayBuffersMiB": 0.88
+      },
+      "materializationCounters": {
+        "stringFieldReads": 62758976,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 19818633,
+        "attributePairs": 2831232
+      },
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 184.09,
+      "sampleMaxMiBPerSec": 186.66,
+      "sampleSpreadRatio": 0.01,
+      "woodstoxRatio": 0.61,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "text-trim-cost-decomposition",
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameIdFoldTrim",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache and direct trimmed text checksum folding",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 148.57,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 66.88,
+        "deltaMiB": 0.11,
+        "maxHeapUsedMiB": 9.9,
+        "maxExternalMiB": 3.85,
+        "maxArrayBuffersMiB": 2.04
+      },
+      "materializationCounters": {
+        "stringFieldReads": 62758976,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 19818633,
+        "attributePairs": 2831232
+      },
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 148.31,
+      "sampleMaxMiBPerSec": 148.78,
+      "sampleSpreadRatio": 0,
+      "woodstoxRatio": 0.49,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
       "group": "access-shape-cross-process-books-corpus",
       "sourceArtifact": "access-shape-candidate-cross-process.json",
       "runtimeId": "node-v8",
@@ -6684,7 +6810,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=115",
+        "jsLargeFullRows=117",
         "counterexamples=0"
       ]
     },

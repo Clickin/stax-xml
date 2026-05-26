@@ -379,7 +379,7 @@ test('large candidate headroom matrix can filter cases without mixing projection
     '--warmups',
     '0',
     '--cases',
-    'stringFull,rawFrameNameId,projectionLowSelectivity,projectionHighSelectivity',
+    'stringFull,rawFrameNameId,rawFrameNameIdNoTrim,projectionLowSelectivity,projectionHighSelectivity',
     '--json-out',
     filteredJsonOut,
     '--md-out',
@@ -396,19 +396,24 @@ test('large candidate headroom matrix can filter cases without mixing projection
   assert.deepEqual(report.options.cases, [
     'stringFull',
     'rawFrameNameId',
+    'rawFrameNameIdNoTrim',
     'projectionLowSelectivity',
     'projectionHighSelectivity',
   ]);
   assert.deepEqual(report.variants.map(entry => entry.id), report.options.cases);
   assert.equal(report.eventCountParity.status, 'ok');
-  assert.deepEqual(report.eventCountParity.rowIds, ['stringFull', 'rawFrameNameId']);
+  assert.deepEqual(report.eventCountParity.rowIds, ['stringFull', 'rawFrameNameId', 'rawFrameNameIdNoTrim']);
   assert.equal(report.fullStringParity.status, 'ok');
   assert.deepEqual(report.fullStringParity.rowIds, ['stringFull', 'rawFrameNameId']);
+  const noTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdNoTrim');
+  assert.equal(noTrim.fullStringParity, false);
+  assert.equal(noTrim.contractScope, 'full-materialization-minus-text-trim');
+  assert.equal(noTrim.materializationCounters.stringFieldReads, report.variants.find(entry => entry.id === 'rawFrameNameId').materializationCounters.stringFieldReads);
   assert.equal(report.projectionParity.status, 'ok');
   assert.deepEqual(report.projectionParity.rowIds, ['projectionLowSelectivity', 'projectionHighSelectivity']);
 
   const markdown = readFileSync(filteredMdOut, 'utf8');
-  assert.match(markdown, /Cases: stringFull, rawFrameNameId, projectionLowSelectivity, projectionHighSelectivity/);
+  assert.match(markdown, /Cases: stringFull, rawFrameNameId, rawFrameNameIdNoTrim, projectionLowSelectivity, projectionHighSelectivity/);
   assert.match(markdown, /Projection rows report projected record counts/);
 });
 

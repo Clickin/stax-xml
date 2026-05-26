@@ -169,7 +169,7 @@ function parseCaseList(value) {
 function main() {
   const options = parseArgs();
   const fixture = createFixture(options);
-  const variants = filterVariants(createVariants(fixture), options.cases);
+  const variants = filterVariants(createVariants(fixture, options.cases), options.cases);
   const results = variants.map((variant) => measureVariant(variant, fixture, options));
   const report = createReport(fixture, options, results);
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
@@ -177,7 +177,8 @@ function main() {
   printSummary(report);
 }
 
-function createVariants(fixture) {
+function createVariants(fixture, requestedCases = null) {
+  const requested = new Set(requestedCases ?? []);
   const variants = [
     {
       id: 'scanAllNoDecode',
@@ -291,6 +292,16 @@ function createVariants(fixture) {
       fullStringParity: true,
       run: () => consumeRawFrameStyle(fixture, []),
     },
+    ...(requested.has('rawFrameNameIdNoTrim')
+      ? [{
+          id: 'rawFrameNameIdNoTrim',
+          family: 'near-full-upper-bound',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache and text materialization without trim',
+          contractScope: 'full-materialization-minus-text-trim',
+          fullStringParity: false,
+          run: () => consumeRawFrameStyle(fixture, [], undefined, { trimText: false }),
+        }]
+      : []),
     {
       id: 'rawFrameNameIdLongAsciiText',
       family: 'full-stax-js',
@@ -1169,7 +1180,8 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
           const value = options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text');
-          checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
+          const textForChecksum = options.trimText === false ? value : value.trim();
+          checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, textForChecksum);
         }
       }
     if (type === StreamEventType.START_ELEMENT) {

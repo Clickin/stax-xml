@@ -215,6 +215,15 @@ const variantArtifacts = [
     cases: ['rawFrameNameId', 'rawFrameNameIdFoldTrim'],
     sourceMode: 'sync-iterable-byte-batches',
   },
+  {
+    group: 'text-trim-cost-decomposition',
+    file: 'text-trim-cost-decomposition.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['rawFrameNameId', 'rawFrameNameIdFoldTrim'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
 ];
 
 const crossProcessArtifacts = [
