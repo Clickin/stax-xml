@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 194);
-  assert.equal(report.summary.jsLargeFullRowCount, 168);
+  assert.equal(report.summary.rowCount, 201);
+  assert.equal(report.summary.jsLargeFullRowCount, 170);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'node-v8');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -87,11 +87,11 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
   assert.deepEqual(report.summary.sourceShapeSafety, {
-    largeJsFullSourceModeRows: 162,
-    notFullArrayBufferRows: 162,
+    largeJsFullSourceModeRows: 164,
+    notFullArrayBufferRows: 164,
     fullArrayBufferRows: 0,
     unknownArrayBufferRows: 0,
-    corpusSeedReplayRows: 85,
+    corpusSeedReplayRows: 87,
     maxCorpusSeedMiB: 100.26,
     maxCorpusSeedToTargetRatio: 0.09,
   });
@@ -354,6 +354,30 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.fullArrayBufferParserInput === false
   ));
   assert.ok(report.comparisonRows.some(row =>
+    row.group === 'text-checksum-consumer-decomposition'
+    && row.sourceArtifact === 'text-checksum-consumer-decomposition.json'
+    && row.caseId === 'rawFrameNameIdTextNoFold'
+    && row.mibPerSec === 99.39
+    && row.fullStringParity === false
+    && row.boundedMemory === true
+    && row.sourceMode === 'sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'semantic-checksum-upper-bound'
+    && row.sourceArtifact === 'semantic-checksum-upper-bound.json'
+    && row.caseId === 'rawFrameSemanticChecksum'
+    && row.mibPerSec === 94.11
+    && row.eventCount === 57096514
+    && row.checksum === -540013997
+    && row.fullStringParity === false
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+    && row.memory.maxMiB === 72.68
+    && row.sourceMode === 'sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
+  ));
+  assert.ok(report.comparisonRows.some(row =>
     row.group === 'access-shape-cross-process-books-corpus'
     && row.sourceArtifact === 'access-shape-candidate-cross-process.json'
     && row.runtimeId === 'node-v8'
@@ -567,9 +591,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
-  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 162\/162/);
-  assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 85 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
-  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 162 \| 162 \| 0 \| 0 \| 85 \| 100\.26 MiB \|/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 164\/164/);
+  assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 87 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
+  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 164 \| 164 \| 0 \| 0 \| 87 \| 100\.26 MiB \|/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);
@@ -580,6 +604,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /long-ascii-text-negative-stability/);
   assert.match(markdown, /fold-trimmed-text-negative-stability/);
   assert.match(markdown, /text-trim-cost-decomposition/);
+  assert.match(markdown, /text-checksum-consumer-decomposition/);
+  assert.match(markdown, /semantic-checksum-upper-bound/);
   assert.match(markdown, /file-backed-batch-size-sweep/);
   assert.match(markdown, /file-backed-source-sweep/);
   assert.match(markdown, /file-backed-short-attr-value-cache-candidate/);

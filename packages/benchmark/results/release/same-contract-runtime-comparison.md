@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T16:42:18.696Z
+Generated: 2026-05-26T19:11:20.660Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 194
-- 1 GiB+ JavaScript full-string rows: 168
+- Aggregated rows: 201
+- 1 GiB+ JavaScript full-string rows: 170
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -23,8 +23,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB Woodstox baseline: 337.97 MiB/s
 - 1024 MiB quick-xml baseline: 270.26 MiB/s (0.80x Woodstox)
 - Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 162/162
-- 1 GiB+ source-mode rows replaying a corpus seed buffer: 85 (max seed 100.26 MiB, max seed/target 0.09)
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 164/164
+- 1 GiB+ source-mode rows replaying a corpus seed buffer: 87 (max seed 100.26 MiB, max seed/target 0.09)
 
 ## Fastest JS Rows By Group
 
@@ -56,6 +56,8 @@ This report aggregates existing release artifacts. It compares rows only through
 | `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameId` | 184.92 | yes | process RSS max 66.48 MiB | `sync-iterable-byte-batches` | no |
 | `text-trim-cost-decomposition-4gib` | Node/V8 | `rawFrameNameId` | 178.86 | yes | process RSS max 66.07 MiB | `sync-iterable-byte-batches` | no |
 | `text-trim-cost-decomposition-8gib` | Node/V8 | `rawFrameNameId` | 184.03 | yes | process RSS max 76.94 MiB | `sync-iterable-byte-batches` | no |
+| `text-checksum-consumer-decomposition` | Node/V8 | `rawFrameNameId` | 91.20 | yes | process RSS max 73.34 MiB | `sync-iterable-byte-batches` | no |
+| `semantic-checksum-upper-bound` | Node/V8 | `rawFrameNameId` | 96.88 | yes | process RSS max 67.15 MiB | `sync-iterable-byte-batches` | no |
 | `access-shape-cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 177.34 | yes | process RSS max 189.37 MiB | `sync-iterable-byte-batches` | no |
 | `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB | `sync-iterable-byte-batches` | no |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` | no |
@@ -67,7 +69,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 162 | 162 | 0 | 0 | 85 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 164 | 164 | 0 | 0 | 87 | 100.26 MiB |
 
 ## Selected Comparison Rows
 
@@ -217,6 +219,13 @@ This report aggregates existing release artifacts. It compares rows only through
 | `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameIdFoldTrim` | 114192784 | 1903859545 | 148.58 | yes | process RSS max 77.16 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-trim-cost-decomposition-2gib.json` |
 | `text-trim-cost-decomposition-4gib` | Node/V8 | `rawFrameNameId` | 228385566 | -1067702969 | 178.86 | yes | process RSS max 66.07 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-trim-cost-decomposition-4gib.json` |
 | `text-trim-cost-decomposition-8gib` | Node/V8 | `rawFrameNameId` | 456770888 | 734413569 | 184.03 | yes | process RSS max 76.94 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-trim-cost-decomposition-8gib.json` |
+| `text-checksum-consumer-decomposition` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 91.20 | yes | process RSS max 73.34 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-checksum-consumer-decomposition.json` |
+| `text-checksum-consumer-decomposition` | Node/V8 | `rawFrameNameIdTextLengthOnly` | 57096514 | 1149246483 | 99.01 | yes | process RSS max 73.93 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-checksum-consumer-decomposition.json` |
+| `text-checksum-consumer-decomposition` | Node/V8 | `rawFrameNameIdTextNoFold` | 57096514 | 1372281363 | 99.39 | yes | process RSS max 73.57 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-checksum-consumer-decomposition.json` |
+| `text-checksum-consumer-decomposition` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 113.94 | yes | process RSS max 77.15 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-checksum-consumer-decomposition.json` |
+| `semantic-checksum-upper-bound` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 96.88 | yes | process RSS max 67.15 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `semantic-checksum-upper-bound.json` |
+| `semantic-checksum-upper-bound` | Node/V8 | `rawFrameSemanticChecksum` | 57096514 | -540013997 | 94.11 | yes | process RSS max 72.68 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `semantic-checksum-upper-bound.json` |
+| `semantic-checksum-upper-bound` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 119.39 | yes | process RSS max 77.27 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `semantic-checksum-upper-bound.json` |
 | `access-shape-cross-process-books-corpus` | Node/V8 | `cursorAccessor` | 57096514 | -540013997 | 161.48 | yes | process RSS max 70.70 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `access-shape-candidate-cross-process.json` |
 | `access-shape-cross-process-books-corpus` | Node/V8 | `rawFrameDirect` | 57096514 | -540013997 | 136.98 | yes | process RSS max 71.11 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `access-shape-candidate-cross-process.json` |
 | `access-shape-cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 147.13 | yes | process RSS max 71.84 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `access-shape-candidate-cross-process.json` |
@@ -287,11 +296,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=168
+  - jsLargeFullRows=170
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=162
-  - notFullArrayBufferRows=162
+  - largeJsFullSourceModeRows=164
+  - notFullArrayBufferRows=164
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.

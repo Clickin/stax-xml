@@ -161,10 +161,11 @@ sampled allocation artifacts plus the measured-window rerun. It also includes
 the name-collision-safe interning rerun after the reader switched from a
 hash-only name-id lookup to a hash-bucket plus byte-compare lookup. The
 comparison now also pulls in the later medium-ASCII text, unrolled medium-ASCII
-text, trim-guard, offset text-cache, attribute-value cache, and Bun/JSC cache
-candidate artifacts under the same checksum contract.
+text, trim-guard, offset text-cache, attribute-value cache, Bun/JSC cache
+candidate, text-checksum consumer decomposition, and semantic checksum
+upper-bound artifacts under the same checksum contract.
 
-The current aggregate has 190 aggregated rows and 166 JavaScript 1 GiB+
+The current aggregate has 201 aggregated rows and 170 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -178,9 +179,9 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 160 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 164 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
-`ArrayBuffer` parser-input rows. It separately records 85 corpus-seed replay
+`ArrayBuffer` parser-input rows. It separately records 87 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
 0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
 parser-input claim. That is 0.93x of the 200 MiB/s target and

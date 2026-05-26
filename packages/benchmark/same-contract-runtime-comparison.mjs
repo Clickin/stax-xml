@@ -339,6 +339,24 @@ const variantArtifacts = [
     cases: ['rawFrameNameId'],
     sourceMode: 'sync-iterable-byte-batches',
   },
+  {
+    group: 'text-checksum-consumer-decomposition',
+    file: 'text-checksum-consumer-decomposition.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['rawFrameNameId', 'rawFrameNameIdTextLengthOnly', 'rawFrameNameIdTextNoFold', 'withoutTextStrings'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
+    group: 'semantic-checksum-upper-bound',
+    file: 'semantic-checksum-upper-bound.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['rawFrameNameId', 'rawFrameSemanticChecksum', 'withoutTextStrings'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
 ];
 
 const crossProcessArtifacts = [
