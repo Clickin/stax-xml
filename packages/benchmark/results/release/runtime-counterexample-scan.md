@@ -1,17 +1,17 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T20:16:01.554Z
+Generated: 2026-05-26T20:59:06.638Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 179
+- Scanned artifacts: 180
 - Ignored derived artifacts: 5
-- Measured rows recognized: 952
-- Aggregate rows recognized: 105
-- 1 GiB+ JS full-string rows recognized: 609
-- 1 GiB+ JS full-string aggregate rows recognized: 83
+- Measured rows recognized: 988
+- Aggregate rows recognized: 117
+- 1 GiB+ JS full-string rows recognized: 645
+- 1 GiB+ JS full-string aggregate rows recognized: 95
 - Rows with recognized source mode: 373
 - 1 GiB+ JS full-string rows with recognized source mode: 279
 - Rows with unknown full-string parity: 0
@@ -179,7 +179,7 @@ These near-full rows still materialize element names and attributes, but omit te
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 38 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 13 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 952 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 988 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
 - source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:198, file-backed-sync-iterable-byte-batches:50, async-iterable-byte-batches:13, web-readable-stream-pull:13, sync-iterable-byte-batches:4, complete-js-string:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:198/198, file-backed-sync-iterable-byte-batches:50/50, async-iterable-byte-batches:13/13, web-readable-stream-pull:13/13, sync-iterable-byte-batches:4/4, complete-js-string:1/1.
 

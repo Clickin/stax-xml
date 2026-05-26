@@ -127,7 +127,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /The traced rows preserved the full-string contract across\s+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,\s+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`/);
   assert.match(markdown, /18\s+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target\s+mentions/);
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
-  assert.match(markdown, /201 aggregated rows and 170 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /207 aggregated rows and 176 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
@@ -135,8 +135,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
   assert.match(markdown, /text-checksum consumer decomposition, and semantic checksum\s+upper-bound artifacts under the same checksum contract/);
-  assert.match(markdown, /all 164 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
-  assert.match(markdown, /separately records 87 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
+  assert.match(markdown, /all 170 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /separately records 93 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
   assert.match(markdown, /name-collision-safe-interning-perf\.md/);
   assert.match(markdown, /`aSd3njyge` and `aSXRYquSd`/);
   assert.match(markdown, /`rawFrameNameId` at 96\.99 MiB\/s/);
@@ -151,8 +151,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 952\s+sample throughput rows and 105 aggregate rows/);
-  assert.match(markdown, /609 JavaScript 1 GiB\+\s+full-string sample rows plus 83 JavaScript 1 GiB\+ full-string aggregate rows/);
+  assert.match(markdown, /recognizes 988\s+sample throughput rows and 117 aggregate rows/);
+  assert.match(markdown, /645 JavaScript 1 GiB\+\s+full-string sample rows plus 95 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
   assert.match(markdown, /unknown bounded-memory set contains 4 JavaScript rows, 20\s+full-string rows, 0 JavaScript 1 GiB\+\s+full-string rows, and 10 rows that have\s+raw memory counters/);
@@ -260,8 +260,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
-  assert.match(markdown, /recognizes 952\s+measured rows/);
-  assert.match(markdown, /133 benchmark artifacts, 17 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+16 negative-result artifacts/);
+  assert.match(markdown, /recognizes 988\s+measured rows/);
+  assert.match(markdown, /134 benchmark artifacts, 17 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+16 negative-result artifacts/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);
@@ -717,6 +717,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Its `sourceFacts` section now\s+also pins the implementation evidence/);
   assert.match(markdown, /All rows are parser-demand-driven; async and Web\s+ReadableStream rows carry backpressure metadata/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);
+  assert.match(markdown, /event-reader-byte-batch-cross-process-midsize-corpus\.md/);
+  assert.match(markdown, /Node\/V8 averaged\s+`30\.43 MiB\/s` for `readableStreamBatch16`, `28\.90 MiB\/s` for\s+`asyncByteBatch16`, `59\.03 MiB\/s` for `syncIterableBatch16`, and\s+`56\.73 MiB\/s` for `syncFileIterableBatch16`/);
   assert.match(markdown, /file-backed sync\s+`Iterable<Uint8Array\[\]>` rows in three fresh processes per runtime on the same\s+1\.00 GiB `books\.xml` corpus-cycle fixture/);
   assert.match(markdown, /read corpus chunks from the OS file source with `readSync`/);
   assert.match(markdown, /not browser\s+fetch streaming proof/);

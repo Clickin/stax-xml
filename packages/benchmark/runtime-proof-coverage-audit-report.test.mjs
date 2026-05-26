@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 179);
+  assert.equal(report.summary.scannedArtifactCount, 180);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
     && artifact.objective === 'file-backed-materialization-profile'
@@ -103,8 +103,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.runtimes.includes('node-v8')
     && artifact.runtimes.includes('bun-jsc')
   ));
-  assert.equal(report.summary.measuredRowCount, 952);
-  assert.equal(report.summary.largeJsFullRowCount, 609);
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'event-reader-byte-batch-cross-process-midsize-corpus.json'
+    && artifact.measuredRowCount === 36
+    && artifact.runtimes.includes('node-v8')
+    && artifact.runtimes.includes('bun-jsc')
+    && artifact.runtimes.includes('deno-v8')
+  ));
+  assert.equal(report.summary.measuredRowCount, 988);
+  assert.equal(report.summary.largeJsFullRowCount, 645);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -143,7 +150,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 4);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 133);
+  assert.equal(report.summary.benchmarkArtifactCount, 134);
   assert.equal(report.summary.sourceArtifactCount, 17);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
@@ -229,6 +236,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'event-reader-byte-batch-cross-process-corpus.json'
+    && row.runtimes.includes('node-v8')
+    && row.runtimes.includes('bun-jsc')
+    && row.runtimes.includes('deno-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'event-reader-byte-batch-cross-process-midsize-corpus.json'
     && row.runtimes.includes('node-v8')
     && row.runtimes.includes('bun-jsc')
     && row.runtimes.includes('deno-v8')
@@ -369,13 +382,18 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 449
-    && row.largeFullStringRowCount === 290
+    && row.measuredRowCount === 461
+    && row.largeFullStringRowCount === 302
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'bun-jsc'
-    && row.measuredRowCount === 241
-    && row.largeFullStringRowCount === 149
+    && row.measuredRowCount === 253
+    && row.largeFullStringRowCount === 161
+  ));
+  assert.ok(report.coverage.runtimes.some(row =>
+    row.runtimeId === 'deno-v8'
+    && row.measuredRowCount === 62
+    && row.largeFullStringRowCount === 56
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'medium-ascii-text-materialization-candidate.json'
@@ -666,8 +684,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
   assert.match(markdown, /Negative-result artifacts: 16/);
-  assert.match(markdown, /\| Node\/V8 \| 93 \| 449 \| 290 \|/);
-  assert.match(markdown, /\| Bun\/JSC \| 34 \| 241 \| 149 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 94 \| 461 \| 302 \|/);
+  assert.match(markdown, /\| Bun\/JSC \| 35 \| 253 \| 161 \|/);
+  assert.match(markdown, /\| Deno\/V8 \| 10 \| 62 \| 56 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

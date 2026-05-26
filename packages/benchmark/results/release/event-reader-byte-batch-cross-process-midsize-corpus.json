@@ -1,0 +1,1229 @@
+{
+  "generatedAt": "2026-05-26T20:58:24.319Z",
+  "objective": "event-reader-byte-batch-cross-process",
+  "contract": "independent-process-public-event-object-full-string-checksum",
+  "note": "Each sample invokes event-reader-byte-batch.mjs in a fresh process with --runs=1. All selected rows preserve the public event-object full-string checksum contract and demand-driven source consumption.",
+  "options": {
+    "runtimes": [
+      "node",
+      "bun",
+      "deno"
+    ],
+    "processRuns": 3,
+    "childWarmups": 0,
+    "sizeGiB": 1,
+    "fixtureShape": "corpus-cycle",
+    "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+    "corpusChunkKiB": 64,
+    "diverseCycleSize": 4096,
+    "batchSize": 16,
+    "boundedRssMiB": 512,
+    "variants": [
+      "readableStreamBatch16",
+      "asyncByteBatch16",
+      "syncIterableBatch16",
+      "syncFileIterableBatch16"
+    ]
+  },
+  "rawArtifacts": {
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release",
+    "committed": false
+  },
+  "runtimes": [
+    {
+      "runtime": "node",
+      "environment": {
+        "packageVersion": "1.0.0",
+        "runtimeName": "node",
+        "runtimeLabel": "Node/V8",
+        "nodeVersion": "v24.15.0",
+        "bunVersion": null,
+        "denoVersion": null,
+        "v8Version": "13.6.233.17-node.48",
+        "webkitVersion": null,
+        "platform": "win32-x64",
+        "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+      },
+      "sampleCount": 3,
+      "fixture": {
+        "source": "corpus-cycle",
+        "targetBytes": 1073741824,
+        "actualBytes": 1079349964,
+        "sourceBytes": 14017532,
+        "chunkBytes": 65536,
+        "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+        "sizeGiB": 1.005222987383604,
+        "rows": 214
+      },
+      "childReports": [
+        {
+          "runIndex": 1,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\node-run-1.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\node-run-1.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "node",
+            "runtimeLabel": "Node/V8",
+            "nodeVersion": "v24.15.0",
+            "bunVersion": null,
+            "denoVersion": null,
+            "v8Version": "13.6.233.17-node.48",
+            "webkitVersion": null,
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 30.15010011691206,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 395034624,
+              "maxHeapUsedBytes": 28635872
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 28.787154225114392,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 393789440,
+              "maxHeapUsedBytes": 48600424
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 59.3493857174901,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 400175104,
+              "maxHeapUsedBytes": 69759968
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 56.29676545181954,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 398217216,
+              "maxHeapUsedBytes": 6373672
+            }
+          ]
+        },
+        {
+          "runIndex": 2,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\node-run-2.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\node-run-2.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "node",
+            "runtimeLabel": "Node/V8",
+            "nodeVersion": "v24.15.0",
+            "bunVersion": null,
+            "denoVersion": null,
+            "v8Version": "13.6.233.17-node.48",
+            "webkitVersion": null,
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 29.92028724059291,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 397848576,
+              "maxHeapUsedBytes": 95084040
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 28.187078377291872,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 394526720,
+              "maxHeapUsedBytes": 28718368
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 59.632741958035766,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 399634432,
+              "maxHeapUsedBytes": 69456704
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 58.073280484304846,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 399527936,
+              "maxHeapUsedBytes": 6106968
+            }
+          ]
+        },
+        {
+          "runIndex": 3,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\node-run-3.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\node-run-3.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "node",
+            "runtimeLabel": "Node/V8",
+            "nodeVersion": "v24.15.0",
+            "bunVersion": null,
+            "denoVersion": null,
+            "v8Version": "13.6.233.17-node.48",
+            "webkitVersion": null,
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 31.228842670111298,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 405037056,
+              "maxHeapUsedBytes": 190285784
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 29.730134370165427,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 397148160,
+              "maxHeapUsedBytes": 30901856
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 58.122345607922405,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 398802944,
+              "maxHeapUsedBytes": 68861984
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 55.81061249174843,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 398716928,
+              "maxHeapUsedBytes": 5242304
+            }
+          ]
+        }
+      ],
+      "parity": {
+        "fullRowsStable": true,
+        "rowIds": [
+          "readableStreamBatch16",
+          "asyncByteBatch16",
+          "syncIterableBatch16",
+          "syncFileIterableBatch16"
+        ]
+      },
+      "variants": [
+        {
+          "id": "readableStreamBatch16",
+          "family": "readable-stream",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 30.433076675872087,
+          "minMiBPerSec": 29.92028724059291,
+          "maxMiBPerSec": 31.228842670111298,
+          "spreadRatio": 0.042997802800393045,
+          "mibPerSecSamples": [
+            30.15010011691206,
+            29.92028724059291,
+            31.228842670111298
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16479
+          ],
+          "sourceBatches": [
+            16478
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 405037056,
+          "maxHeapUsedBytes": 190285784,
+          "counterexampleFound": false
+        },
+        {
+          "id": "asyncByteBatch16",
+          "family": "async-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 28.901455657523897,
+          "minMiBPerSec": 28.187078377291872,
+          "maxMiBPerSec": 29.730134370165427,
+          "spreadRatio": 0.05339025172844026,
+          "mibPerSecSamples": [
+            28.787154225114392,
+            28.187078377291872,
+            29.730134370165427
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 397148160,
+          "maxHeapUsedBytes": 48600424,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncIterableBatch16",
+          "family": "sync-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 59.03482442781609,
+          "minMiBPerSec": 58.122345607922405,
+          "maxMiBPerSec": 59.632741958035766,
+          "spreadRatio": 0.025584836827289528,
+          "mibPerSecSamples": [
+            59.3493857174901,
+            59.632741958035766,
+            58.122345607922405
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 400175104,
+          "maxHeapUsedBytes": 69759968,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncFileIterableBatch16",
+          "family": "sync-file-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 56.72688614262427,
+          "minMiBPerSec": 55.81061249174843,
+          "maxMiBPerSec": 58.073280484304846,
+          "spreadRatio": 0.03988704733179881,
+          "mibPerSecSamples": [
+            56.29676545181954,
+            58.073280484304846,
+            55.81061249174843
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 399527936,
+          "maxHeapUsedBytes": 6373672,
+          "counterexampleFound": false
+        }
+      ]
+    },
+    {
+      "runtime": "bun",
+      "environment": {
+        "packageVersion": "1.0.0",
+        "runtimeName": "bun",
+        "runtimeLabel": "Bun/JSC",
+        "nodeVersion": "v24.3.0",
+        "bunVersion": "1.3.13",
+        "denoVersion": null,
+        "v8Version": "13.6.233.10-node.18",
+        "webkitVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+        "platform": "win32-x64",
+        "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+      },
+      "sampleCount": 3,
+      "fixture": {
+        "source": "corpus-cycle",
+        "targetBytes": 1073741824,
+        "actualBytes": 1079349964,
+        "sourceBytes": 14017532,
+        "chunkBytes": 65536,
+        "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+        "sizeGiB": 1.005222987383604,
+        "rows": 214
+      },
+      "childReports": [
+        {
+          "runIndex": 1,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\bun-run-1.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\bun-run-1.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "bun",
+            "runtimeLabel": "Bun/JSC",
+            "nodeVersion": "v24.3.0",
+            "bunVersion": "1.3.13",
+            "denoVersion": null,
+            "v8Version": "13.6.233.10-node.18",
+            "webkitVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 29.136091268373914,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 390455296,
+              "maxHeapUsedBytes": 51838566
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 29.095366048909266,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 393736192,
+              "maxHeapUsedBytes": 77554528
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 46.38212568463866,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 400683008,
+              "maxHeapUsedBytes": 93439564
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 43.83271992823518,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 418000896,
+              "maxHeapUsedBytes": 100834932
+            }
+          ]
+        },
+        {
+          "runIndex": 2,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\bun-run-2.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\bun-run-2.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "bun",
+            "runtimeLabel": "Bun/JSC",
+            "nodeVersion": "v24.3.0",
+            "bunVersion": "1.3.13",
+            "denoVersion": null,
+            "v8Version": "13.6.233.10-node.18",
+            "webkitVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 30.22407913506202,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 405913600,
+              "maxHeapUsedBytes": 115826930
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 28.5931755770317,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 401670144,
+              "maxHeapUsedBytes": 52945015
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 45.861862523072624,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 404836352,
+              "maxHeapUsedBytes": 43125667
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 43.70113933581117,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 436342784,
+              "maxHeapUsedBytes": 32683399
+            }
+          ]
+        },
+        {
+          "runIndex": 3,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\bun-run-3.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\bun-run-3.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "bun",
+            "runtimeLabel": "Bun/JSC",
+            "nodeVersion": "v24.3.0",
+            "bunVersion": "1.3.13",
+            "denoVersion": null,
+            "v8Version": "13.6.233.10-node.18",
+            "webkitVersion": "4d5e75ebd84a14edbc7ae264245dcd77fe597c10",
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 30.20751464989235,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 405962752,
+              "maxHeapUsedBytes": 99832271
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 28.94202100907635,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 401076224,
+              "maxHeapUsedBytes": 88558731
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 45.62574985048265,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 413495296,
+              "maxHeapUsedBytes": 81909290
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 45.032597229861516,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 421011456,
+              "maxHeapUsedBytes": 69380283
+            }
+          ]
+        }
+      ],
+      "parity": {
+        "fullRowsStable": true,
+        "rowIds": [
+          "readableStreamBatch16",
+          "asyncByteBatch16",
+          "syncIterableBatch16",
+          "syncFileIterableBatch16"
+        ]
+      },
+      "variants": [
+        {
+          "id": "readableStreamBatch16",
+          "family": "readable-stream",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 29.855895017776092,
+          "minMiBPerSec": 29.136091268373914,
+          "maxMiBPerSec": 30.22407913506202,
+          "spreadRatio": 0.03644130802443947,
+          "mibPerSecSamples": [
+            29.136091268373914,
+            30.22407913506202,
+            30.20751464989235
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16479
+          ],
+          "sourceBatches": [
+            16478
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 405962752,
+          "maxHeapUsedBytes": 115826930,
+          "counterexampleFound": false
+        },
+        {
+          "id": "asyncByteBatch16",
+          "family": "async-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 28.87685421167244,
+          "minMiBPerSec": 28.5931755770317,
+          "maxMiBPerSec": 29.095366048909266,
+          "spreadRatio": 0.017390761064083375,
+          "mibPerSecSamples": [
+            29.095366048909266,
+            28.5931755770317,
+            28.94202100907635
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 401670144,
+          "maxHeapUsedBytes": 88558731,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncIterableBatch16",
+          "family": "sync-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 45.95657935273132,
+          "minMiBPerSec": 45.62574985048265,
+          "maxMiBPerSec": 46.38212568463866,
+          "spreadRatio": 0.016458488530022783,
+          "mibPerSecSamples": [
+            46.38212568463866,
+            45.861862523072624,
+            45.62574985048265
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 413495296,
+          "maxHeapUsedBytes": 93439564,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncFileIterableBatch16",
+          "family": "sync-file-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 44.188818831302626,
+          "minMiBPerSec": 43.70113933581117,
+          "maxMiBPerSec": 45.032597229861516,
+          "spreadRatio": 0.030131103959428817,
+          "mibPerSecSamples": [
+            43.83271992823518,
+            43.70113933581117,
+            45.032597229861516
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 436342784,
+          "maxHeapUsedBytes": 100834932,
+          "counterexampleFound": false
+        }
+      ]
+    },
+    {
+      "runtime": "deno",
+      "environment": {
+        "packageVersion": "1.0.0",
+        "runtimeName": "deno",
+        "runtimeLabel": "Deno/V8",
+        "nodeVersion": "v24.2.0",
+        "bunVersion": null,
+        "denoVersion": "2.7.13",
+        "v8Version": "14.7.173.20-rusty",
+        "webkitVersion": null,
+        "platform": "win32-x64",
+        "cpu": "13th Gen Intel(R) Core(TM) i5-13600K\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+      },
+      "sampleCount": 3,
+      "fixture": {
+        "source": "corpus-cycle",
+        "targetBytes": 1073741824,
+        "actualBytes": 1079349964,
+        "sourceBytes": 14017532,
+        "chunkBytes": 65536,
+        "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+        "sizeGiB": 1.005222987383604,
+        "rows": 214
+      },
+      "childReports": [
+        {
+          "runIndex": 1,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\deno-run-1.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\deno-run-1.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "deno",
+            "runtimeLabel": "Deno/V8",
+            "nodeVersion": "v24.2.0",
+            "bunVersion": null,
+            "denoVersion": "2.7.13",
+            "v8Version": "14.7.173.20-rusty",
+            "webkitVersion": null,
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 29.19483316961143,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 304590848,
+              "maxHeapUsedBytes": 116266968
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 26.34209719010712,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 296439808,
+              "maxHeapUsedBytes": 71426840
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 51.65605634857622,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 220545024,
+              "maxHeapUsedBytes": 79420368
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 49.66820318099796,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 228073472,
+              "maxHeapUsedBytes": 87039184
+            }
+          ]
+        },
+        {
+          "runIndex": 2,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\deno-run-2.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\deno-run-2.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "deno",
+            "runtimeLabel": "Deno/V8",
+            "nodeVersion": "v24.2.0",
+            "bunVersion": null,
+            "denoVersion": "2.7.13",
+            "v8Version": "14.7.173.20-rusty",
+            "webkitVersion": null,
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 30.112118892309827,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 300777472,
+              "maxHeapUsedBytes": 73658568
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 24.799210611214484,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 302116864,
+              "maxHeapUsedBytes": 107015016
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 52.5334399644961,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 240144384,
+              "maxHeapUsedBytes": 83941312
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 51.31609809661715,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 248827904,
+              "maxHeapUsedBytes": 91525264
+            }
+          ]
+        },
+        {
+          "runIndex": 3,
+          "jsonPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\deno-run-3.json",
+          "mdPath": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\cross-process\\event-reader-byte-batch-midsize-corpus-release\\deno-run-3.md",
+          "environment": {
+            "packageVersion": "1.0.0",
+            "runtimeName": "deno",
+            "runtimeLabel": "Deno/V8",
+            "nodeVersion": "v24.2.0",
+            "bunVersion": null,
+            "denoVersion": "2.7.13",
+            "v8Version": "14.7.173.20-rusty",
+            "webkitVersion": null,
+            "platform": "win32-x64",
+            "cpu": "13th Gen Intel(R) Core(TM) i5-13600K\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+          },
+          "variants": [
+            {
+              "id": "readableStreamBatch16",
+              "family": "readable-stream",
+              "mibPerSec": 30.42147942618967,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16479,
+              "sourceBatches": 16478,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 302108672,
+              "maxHeapUsedBytes": 94947088
+            },
+            {
+              "id": "asyncByteBatch16",
+              "family": "async-byte-batch",
+              "mibPerSec": 28.265405905539644,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 306167808,
+              "maxHeapUsedBytes": 106724408
+            },
+            {
+              "id": "syncIterableBatch16",
+              "family": "sync-iterable-byte-batch",
+              "mibPerSec": 51.378655958686146,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 245751808,
+              "maxHeapUsedBytes": 113996376
+            },
+            {
+              "id": "syncFileIterableBatch16",
+              "family": "sync-file-iterable-byte-batch",
+              "mibPerSec": 50.73718556243616,
+              "eventCount": 78059522,
+              "checksum": -624175103,
+              "sourceReads": 16478,
+              "sourceBatches": 1030,
+              "fullStringParity": true,
+              "boundedMemory": true,
+              "maxRssBytes": 250814464,
+              "maxHeapUsedBytes": 87955792
+            }
+          ]
+        }
+      ],
+      "parity": {
+        "fullRowsStable": true,
+        "rowIds": [
+          "readableStreamBatch16",
+          "asyncByteBatch16",
+          "syncIterableBatch16",
+          "syncFileIterableBatch16"
+        ]
+      },
+      "variants": [
+        {
+          "id": "readableStreamBatch16",
+          "family": "readable-stream",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 29.90947716270364,
+          "minMiBPerSec": 29.19483316961143,
+          "maxMiBPerSec": 30.42147942618967,
+          "spreadRatio": 0.04101195918288519,
+          "mibPerSecSamples": [
+            29.19483316961143,
+            30.112118892309827,
+            30.42147942618967
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16479
+          ],
+          "sourceBatches": [
+            16478
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 304590848,
+          "maxHeapUsedBytes": 116266968,
+          "counterexampleFound": false
+        },
+        {
+          "id": "asyncByteBatch16",
+          "family": "async-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 26.468904568953747,
+          "minMiBPerSec": 24.799210611214484,
+          "maxMiBPerSec": 28.265405905539644,
+          "spreadRatio": 0.13095348488243733,
+          "mibPerSecSamples": [
+            26.34209719010712,
+            24.799210611214484,
+            28.265405905539644
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 306167808,
+          "maxHeapUsedBytes": 107015016,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncIterableBatch16",
+          "family": "sync-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 51.856050757252824,
+          "minMiBPerSec": 51.378655958686146,
+          "maxMiBPerSec": 52.5334399644961,
+          "spreadRatio": 0.022269031076348166,
+          "mibPerSecSamples": [
+            51.65605634857622,
+            52.5334399644961,
+            51.378655958686146
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 245751808,
+          "maxHeapUsedBytes": 113996376,
+          "counterexampleFound": false
+        },
+        {
+          "id": "syncFileIterableBatch16",
+          "family": "sync-file-iterable-byte-batch",
+          "eventCountKind": "stream-events",
+          "fullStringParity": true,
+          "sampleCount": 3,
+          "avgMiBPerSec": 50.57382894668376,
+          "minMiBPerSec": 49.66820318099796,
+          "maxMiBPerSec": 51.31609809661715,
+          "spreadRatio": 0.03258394608318932,
+          "mibPerSecSamples": [
+            49.66820318099796,
+            51.31609809661715,
+            50.73718556243616
+          ],
+          "eventCounts": [
+            78059522
+          ],
+          "checksums": [
+            -624175103
+          ],
+          "sourceReads": [
+            16478
+          ],
+          "sourceBatches": [
+            1030
+          ],
+          "stableResult": true,
+          "boundedMemoryAll": true,
+          "maxRssBytes": 250814464,
+          "maxHeapUsedBytes": 91525264,
+          "counterexampleFound": false
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "independent-process-rerun",
+      "classification": "BENCH_FACT",
+      "summary": "Each sample was measured by a separate runtime process.",
+      "evidence": [
+        "node: processRuns=3",
+        "bun: processRuns=3",
+        "deno: processRuns=3"
+      ]
+    },
+    {
+      "id": "sync-iterable-source-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "Prepared and file-backed sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.",
+      "evidence": [
+        "node: syncIterableBatch16 avg=59.03 MiB/s spread=2.6%",
+        "node: syncFileIterableBatch16 avg=56.73 MiB/s spread=4.0%",
+        "bun: syncIterableBatch16 avg=45.96 MiB/s spread=1.6%",
+        "bun: syncFileIterableBatch16 avg=44.19 MiB/s spread=3.0%",
+        "deno: syncIterableBatch16 avg=51.86 MiB/s spread=2.2%",
+        "deno: syncFileIterableBatch16 avg=50.57 MiB/s spread=3.3%"
+      ]
+    },
+    {
+      "id": "file-backed-sync-source",
+      "classification": "BENCH_FACT",
+      "summary": "syncFileIterableBatch rows read corpus chunks from the OS file source on demand in each fresh process.",
+      "evidence": [
+        "node: syncFileIterableBatch16 avg=56.73 MiB/s spread=4.0%",
+        "bun: syncFileIterableBatch16 avg=44.19 MiB/s spread=3.0%",
+        "deno: syncFileIterableBatch16 avg=50.57 MiB/s spread=3.3%"
+      ]
+    },
+    {
+      "id": "full-stax-counterexample-search",
+      "classification": "BENCH_FACT",
+      "summary": "No selected row reported a 200 MiB/s bounded-memory counterexample in these fresh process samples.",
+      "evidence": [
+        "counterexample=not-found"
+      ]
+    }
+  ]
+}
