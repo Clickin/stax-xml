@@ -291,6 +291,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
   const memoryKind = classifyMemoryKind(node);
   const boundedMemory = classifyBoundedMemory(node, memoryKind);
   const sourceMode = classifySourceMode(sourceArtifact, node, context);
+  const fullArrayBufferParserInput = classifyFullArrayBufferParserInput(node, sourceMode, context);
   return {
     sourceArtifact,
     jsonPath: path.join('.'),
@@ -310,6 +311,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
     sourceMode,
+    fullArrayBufferParserInput,
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
     demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
@@ -328,6 +330,7 @@ function createAggregateRow(sourceArtifact, node, path, context) {
   const id = String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row');
   const memoryKind = classifyMemoryKind(node);
   const sourceMode = classifySourceMode(sourceArtifact, node, context);
+  const fullArrayBufferParserInput = classifyFullArrayBufferParserInput(node, sourceMode, context);
   return {
     sourceArtifact,
     jsonPath: path.join('.'),
@@ -351,6 +354,7 @@ function createAggregateRow(sourceArtifact, node, path, context) {
     memoryKind,
     hasMemoryProof: memoryKind !== 'not-recorded',
     sourceMode,
+    fullArrayBufferParserInput,
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
     demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
@@ -371,6 +375,9 @@ function summarizeSourceModes(rows) {
       fastestRow: null,
       demandDrivenRows: 0,
       backpressureRows: 0,
+      notFullArrayBufferRows: 0,
+      fullArrayBufferRows: 0,
+      unknownArrayBufferRows: 0,
     };
     current.rowCount++;
     if (row.fullStringParity === true) {
@@ -384,6 +391,13 @@ function summarizeSourceModes(rows) {
     }
     if (row.respectsBackpressure === true) {
       current.backpressureRows++;
+    }
+    if (row.fullArrayBufferParserInput === false) {
+      current.notFullArrayBufferRows++;
+    } else if (row.fullArrayBufferParserInput === true) {
+      current.fullArrayBufferRows++;
+    } else {
+      current.unknownArrayBufferRows++;
     }
     if (current.fastestMiBPerSec === null || row.mibPerSec > current.fastestMiBPerSec) {
       current.fastestMiBPerSec = row.mibPerSec;
@@ -511,6 +525,26 @@ function classifyDemandDrivenSource(node, sourceMode = null) {
   return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull/.test(mode);
 }
 
+function classifyFullArrayBufferParserInput(node, sourceMode = null, context = null) {
+  if (typeof node.fullArrayBufferParserInput === 'boolean') return node.fullArrayBufferParserInput;
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (/sync-iterable-byte-batches|async-iterable-byte-batches|readable-stream-pull|complete-js-string/.test(mode)) {
+    return false;
+  }
+
+  const sourceContract = context?.sourceContract?.childSourceContract ?? context?.sourceContract;
+  const parserInput = sourceContract?.parserInput ?? '';
+  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption ?? '';
+  const combined = `${parserInput} ${arrayBufferConsumption}`;
+  if (/does not prebuild|does not use a full XML ArrayBuffer|Neither measured row constructs/i.test(combined)) {
+    return false;
+  }
+  if (/full XML ArrayBuffer parser input|complete XML ArrayBuffer/i.test(combined)) {
+    return true;
+  }
+  return null;
+}
+
 function inferRuntimeLabel(sourceArtifact, node, context) {
   if (node.tool === 'woodstox') return 'Java/Woodstox';
   if (node.tool === 'quick-xml') return 'Rust/quick-xml';
@@ -633,6 +667,10 @@ function normalizeFixture(fixture) {
 
 function createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, rowClassificationCompleteness, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown) {
   const sourceModes = largeJsFullSourceModeBreakdown.map(entry => `${entry.sourceMode}:${entry.rowCount}`);
+  const sourceArrayBufferModes = largeJsFullSourceModeBreakdown.map(entry => `${entry.sourceMode}:${entry.notFullArrayBufferRows}/${entry.rowCount}`);
+  const sourceArrayBufferExceptions = largeJsFullSourceModeBreakdown
+    .filter(entry => entry.fullArrayBufferRows > 0 || entry.unknownArrayBufferRows > 0)
+    .map(entry => `${entry.sourceMode}:full=${entry.fullArrayBufferRows},unknown=${entry.unknownArrayBufferRows}`);
   const memoryRejectionSummary = `${largeFullMemoryRejectionBreakdown.total} recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: ${largeFullMemoryRejectionBreakdown.explicitNotBounded} explicit boundedMemory=false, ${largeFullMemoryRejectionBreakdown.boundedFlagWithoutRowMemoryProof} bounded flag without row-level memory proof, ${largeFullMemoryRejectionBreakdown.unknownBoundedFlag} unknown bounded flag.`;
   const incompleteClassificationRows = rowClassificationCompleteness.unknownFullStringParityRows + rowClassificationCompleteness.unknownBoundedMemoryRows;
   return [
@@ -674,7 +712,7 @@ function createFindings(counterexamples, partialHeadroomRows, textMaterializatio
       id: 'source-consumption-modes-separated',
       status: sourceModes.length > 0 ? 'SOURCE_MODE_EVIDENCE_PRESENT' : 'NOT_FOUND',
       summary: sourceModes.length > 0
-        ? `Recognized 1 GiB+ full-string rows expose source-mode metadata for ${sourceModes.join(', ')}.`
+        ? `Recognized 1 GiB+ full-string rows expose source-mode metadata for ${sourceModes.join(', ')}; not-full-ArrayBuffer parser-input rows are ${sourceArrayBufferModes.join(', ')}${sourceArrayBufferExceptions.length > 0 ? `; exceptions ${sourceArrayBufferExceptions.join(', ')}` : ''}.`
         : 'No recognized 1 GiB+ full-string rows expose source-mode metadata.',
     },
   ];
@@ -787,8 +825,8 @@ function renderMarkdown(report) {
     '',
     'This table records input-consumption metadata when release rows or their source contracts expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.',
     '',
-    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows |',
-    '| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: |',
+    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows | Not full ArrayBuffer rows |',
+    '| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |',
   );
   if (report.summary.largeJsFullSourceModeBreakdown.length === 0) {
     lines.push('| none | | | | | | | |');
@@ -868,7 +906,7 @@ function renderSourceModeBreakdownRow(entry) {
   const fastest = row
     ? `${row.runtimeLabel} ${row.id} from ${row.sourceArtifact}`
     : 'none';
-  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.demandDrivenRows} | ${entry.backpressureRows} |`;
+  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.demandDrivenRows} | ${entry.backpressureRows} | ${entry.notFullArrayBufferRows} |`;
 }
 
 function summarizeRow(row) {
@@ -894,6 +932,7 @@ function summarizeRow(row) {
     chunkKiB: row.chunkKiB,
     demandDrivenSource: row.demandDrivenSource,
     respectsBackpressure: row.respectsBackpressure,
+    fullArrayBufferParserInput: row.fullArrayBufferParserInput,
   };
 }
 

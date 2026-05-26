@@ -162,8 +162,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sync-iterable-byte-batches` at 136\.79 MiB\/s/);
   assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 144\.06 MiB\/s/);
   assert.match(markdown, /separates parser-demand-driven source rows from Web Stream backpressure\s+rows/);
+  assert.match(markdown, /all 162 JavaScript\s+1 GiB\+ full-string rows with source-mode metadata are now marked as not full\s+`ArrayBuffer` parser-input rows/);
   assert.match(markdown, /fixes the previous scanner blind\s+spot/);
-  assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but not counted\s+as JavaScript runtime rows/);
+  assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but not\s+counted as JavaScript runtime rows/);
   assert.match(markdown, /remain below the 200 MiB\/s\s+counterexample threshold/);
   assert.match(markdown, /Bun\/JSC `scanAllNoDecode` at 326\.65 MiB\/s from\s+`candidate-headroom-cross-process-books-corpus-partial\.json`/);
   assert.match(markdown, /The fastest is Node\/V8 `withoutTextStrings` from\s+`text-trim-cost-decomposition-4gib\.json` at 252\.36 MiB\/s/);

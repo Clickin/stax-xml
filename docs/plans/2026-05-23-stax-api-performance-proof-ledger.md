@@ -245,9 +245,12 @@ full-string scan: `sync-iterable-byte-batches` at 136.79 MiB/s and the
 backpressure-respecting `web-readable-stream-pull` row at 144.06 MiB/s. The
 scan separates parser-demand-driven source rows from Web Stream backpressure
 rows, so direct ReadableStream overhead evidence stays distinct from
-synchronous byte-batch rows. This also fixes the previous scanner blind spot
-where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not counted
-as JavaScript runtime rows.
+synchronous byte-batch rows. It also classifies source-mode rows by whether
+they are a prebuilt full-XML `ArrayBuffer` parser input: all 162 JavaScript
+1 GiB+ full-string rows with source-mode metadata are now marked as not full
+`ArrayBuffer` parser-input rows. This also fixes the previous scanner blind
+spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
+counted as JavaScript runtime rows.
 
 The scan also records 27 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
