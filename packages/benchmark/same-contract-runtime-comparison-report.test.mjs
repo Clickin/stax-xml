@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 134);
-  assert.equal(report.summary.jsLargeFullRowCount, 117);
+  assert.equal(report.summary.rowCount, 136);
+  assert.equal(report.summary.jsLargeFullRowCount, 119);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'node-v8');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -205,6 +205,21 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.boundedMemory === true
     && row.memory.primaryKind === 'process-rss'
     && row.memory.maxMiB === 60.45
+    && row.sourceMode === 'sync-iterable-byte-batches'
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'text-trim-cost-decomposition-2gib'
+    && row.sourceArtifact === 'text-trim-cost-decomposition-2gib.json'
+    && row.caseId === 'rawFrameNameId'
+    && row.mibPerSec === 184.92
+    && row.sampleMinMiBPerSec === 183.28
+    && row.sampleMaxMiBPerSec === 186.06
+    && row.eventCount === 114192784
+    && row.checksum === 1903859545
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+    && row.memory.maxMiB === 66.48
     && row.sourceMode === 'sync-iterable-byte-batches'
   ));
   assert.ok(report.comparisonRows.some(row =>

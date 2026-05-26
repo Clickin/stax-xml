@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T02:37:30.687Z",
+  "generatedAt": "2026-05-26T03:06:28.420Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -32,6 +32,7 @@
       "long-ascii-text-materialization-candidate-stability.json",
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-cost-decomposition.json",
+      "text-trim-cost-decomposition-2gib.json",
       "access-shape-candidate-cross-process.json",
       "candidate-headroom-cross-process-books-corpus.json",
       "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -44,8 +45,8 @@
     ]
   },
   "summary": {
-    "rowCount": 134,
-    "jsLargeFullRowCount": 117,
+    "rowCount": 136,
+    "jsLargeFullRowCount": 119,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
@@ -459,6 +460,31 @@
           "sampleMinMiBPerSec": 184.09,
           "sampleMaxMiBPerSec": 186.66,
           "sampleSpreadRatio": 0.01
+        }
+      },
+      {
+        "group": "text-trim-cost-decomposition-2gib",
+        "fastest": {
+          "group": "text-trim-cost-decomposition-2gib",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 184.92,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 66.48,
+            "deltaMiB": 4.69,
+            "maxHeapUsedMiB": 8.73,
+            "maxExternalMiB": 2.22,
+            "maxArrayBuffersMiB": 0.41
+          },
+          "sourceMode": "sync-iterable-byte-batches",
+          "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
+          "sampleCount": 3,
+          "sampleMinMiBPerSec": 183.28,
+          "sampleMaxMiBPerSec": 186.06,
+          "sampleSpreadRatio": 0.02
         }
       },
       {
@@ -4523,6 +4549,106 @@
       "runtimeLimitCounterexample": false
     },
     {
+      "group": "text-trim-cost-decomposition-2gib",
+      "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 2,
+        "sizeMiB": 2048,
+        "actualBytes": 2147484921,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 114192784,
+      "checksum": 1903859545,
+      "mibPerSec": 184.92,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 66.48,
+        "deltaMiB": 4.69,
+        "maxHeapUsedMiB": 8.73,
+        "maxExternalMiB": 2.22,
+        "maxArrayBuffersMiB": 0.41
+      },
+      "materializationCounters": {
+        "stringFieldReads": 125517686,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 39637173,
+        "attributePairs": 5662452
+      },
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 183.28,
+      "sampleMaxMiBPerSec": 186.06,
+      "sampleSpreadRatio": 0.02,
+      "woodstoxRatio": 0.61,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "text-trim-cost-decomposition-2gib",
+      "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameIdFoldTrim",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache and direct trimmed text checksum folding",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 2,
+        "sizeMiB": 2048,
+        "actualBytes": 2147484921,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 114192784,
+      "checksum": 1903859545,
+      "mibPerSec": 148.58,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 77.16,
+        "deltaMiB": 3.59,
+        "maxHeapUsedMiB": 10.15,
+        "maxExternalMiB": 2.65,
+        "maxArrayBuffersMiB": 0.84
+      },
+      "materializationCounters": {
+        "stringFieldReads": 125517686,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 39637173,
+        "attributePairs": 5662452
+      },
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 147.61,
+      "sampleMaxMiBPerSec": 149.25,
+      "sampleSpreadRatio": 0.01,
+      "woodstoxRatio": 0.49,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
       "group": "access-shape-cross-process-books-corpus",
       "sourceArtifact": "access-shape-candidate-cross-process.json",
       "runtimeId": "node-v8",
@@ -6810,7 +6936,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=117",
+        "jsLargeFullRows=119",
         "counterexamples=0"
       ]
     },

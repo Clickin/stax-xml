@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T02:37:30.687Z
+Generated: 2026-05-26T03:06:28.420Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 134
-- 1 GiB+ JavaScript full-string rows: 117
+- Aggregated rows: 136
+- 1 GiB+ JavaScript full-string rows: 119
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -40,6 +40,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `long-ascii-text-negative-stability` | Node/V8 | `rawFrameNameId` | 172.85 | yes | process RSS max 78.00 MiB | `sync-iterable-byte-batches` |
 | `fold-trimmed-text-negative-stability` | Node/V8 | `rawFrameNameId` | 122.32 | yes | process RSS max 71.22 MiB | `sync-iterable-byte-batches` |
 | `text-trim-cost-decomposition` | Node/V8 | `rawFrameNameId` | 185.50 | yes | process RSS max 60.45 MiB | `sync-iterable-byte-batches` |
+| `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameId` | 184.92 | yes | process RSS max 66.48 MiB | `sync-iterable-byte-batches` |
 | `access-shape-cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 177.34 | yes | process RSS max 189.37 MiB | `sync-iterable-byte-batches` |
 | `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB | `sync-iterable-byte-batches` |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` |
@@ -135,6 +136,8 @@ This report aggregates existing release artifacts. It compares rows only through
 | `fold-trimmed-text-negative-stability` | Node/V8 | `rawFrameNameIdFoldTrim` | 57096514 | -540013997 | 103.26 | yes | process RSS max 77.77 MiB | `sync-iterable-byte-batches` | `fold-trimmed-text-candidate-stability.json` |
 | `text-trim-cost-decomposition` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 185.50 | yes | process RSS max 60.45 MiB | `sync-iterable-byte-batches` | `text-trim-cost-decomposition.json` |
 | `text-trim-cost-decomposition` | Node/V8 | `rawFrameNameIdFoldTrim` | 57096514 | -540013997 | 148.57 | yes | process RSS max 66.88 MiB | `sync-iterable-byte-batches` | `text-trim-cost-decomposition.json` |
+| `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameId` | 114192784 | 1903859545 | 184.92 | yes | process RSS max 66.48 MiB | `sync-iterable-byte-batches` | `text-trim-cost-decomposition-2gib.json` |
+| `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameIdFoldTrim` | 114192784 | 1903859545 | 148.58 | yes | process RSS max 77.16 MiB | `sync-iterable-byte-batches` | `text-trim-cost-decomposition-2gib.json` |
 | `access-shape-cross-process-books-corpus` | Node/V8 | `cursorAccessor` | 57096514 | -540013997 | 161.48 | yes | process RSS max 70.70 MiB | `sync-iterable-byte-batches` | `access-shape-candidate-cross-process.json` |
 | `access-shape-cross-process-books-corpus` | Node/V8 | `rawFrameDirect` | 57096514 | -540013997 | 136.98 | yes | process RSS max 71.11 MiB | `sync-iterable-byte-batches` | `access-shape-candidate-cross-process.json` |
 | `access-shape-cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 147.13 | yes | process RSS max 71.84 MiB | `sync-iterable-byte-batches` | `access-shape-candidate-cross-process.json` |
@@ -203,7 +206,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=117
+  - jsLargeFullRows=119
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - 16MiB woodstox=303.10 MiB/s
