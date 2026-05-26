@@ -302,6 +302,26 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameStyle(fixture, [], undefined, { trimText: false }),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdTextLengthOnly')
+      ? [{
+          id: 'rawFrameNameIdTextLengthOnly',
+          family: 'near-full-upper-bound',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, full text materialization, and text length checksum only',
+          contractScope: 'full-materialization-minus-text-code-unit-fold',
+          fullStringParity: false,
+          run: () => consumeRawFrameTextUseStyle(fixture, 'length-only'),
+        }]
+      : []),
+    ...(requested.has('rawFrameNameIdTextNoFold')
+      ? [{
+          id: 'rawFrameNameIdTextNoFold',
+          family: 'near-full-upper-bound',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache and full text materialization excluded from checksum',
+          contractScope: 'full-materialization-minus-text-checksum',
+          fullStringParity: false,
+          run: () => consumeRawFrameTextUseStyle(fixture, 'none'),
+        }]
+      : []),
     {
       id: 'rawFrameNameIdLongAsciiText',
       family: 'full-stax-js',
@@ -867,6 +887,25 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const textLengthOnly = variants.find((entry) => entry.id === 'rawFrameNameIdTextLengthOnly');
+  const textNoFold = variants.find((entry) => entry.id === 'rawFrameNameIdTextNoFold');
+  if (rawNameId && (textLengthOnly || textNoFold)) {
+    findings.push({
+      id: 'text-checksum-consumer-decomposition',
+      summary: 'These rows keep text/CDATA string materialization but reduce or remove text checksum folding, separating string creation from benchmark consumer traversal.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        textLengthOnly
+          ? `rawFrameNameIdTextLengthOnly=${formatRate(textLengthOnly.mibPerSec)}, textLengthChecksumReads=${textLengthOnly.materializationCounters.textLengthChecksumReads}, textCodeUnits=${textLengthOnly.materializationCounters.textMaterializedCodeUnits}`
+          : 'rawFrameNameIdTextLengthOnly=missing',
+        textNoFold
+          ? `rawFrameNameIdTextNoFold=${formatRate(textNoFold.mibPerSec)}, textChecksumBypassReads=${textNoFold.materializationCounters.textChecksumBypassReads}, textCodeUnits=${textNoFold.materializationCounters.textMaterializedCodeUnits}`
+          : 'rawFrameNameIdTextNoFold=missing',
+        `sameStringReads=${(textLengthOnly?.materializationCounters.stringFieldReads ?? textNoFold?.materializationCounters.stringFieldReads) === rawNameId.materializationCounters.stringFieldReads}`,
+        `sameRawSpanMaterializations=${(textLengthOnly?.materializationCounters.rawSpanMaterializations ?? textNoFold?.materializationCounters.rawSpanMaterializations) === rawNameId.materializationCounters.rawSpanMaterializations}`,
+      ],
+    });
+  }
   const longAsciiText = variants.find((entry) => entry.id === 'rawFrameNameIdLongAsciiText');
   if (rawNameId && longAsciiText) {
     findings.push({
@@ -1262,6 +1301,25 @@ function consumeRawFrameStyle(fixture, nameCache, valueCache, options = {}) {
   return { eventCount, checksum, materializationCounters };
 }
 
+function consumeRawFrameTextUseStyle(fixture, textChecksumMode) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const parser = new StreamReaderSync(byteBatches(fixture));
+  const materializationCounters = createMaterializationCounters();
+  const nameCache = [];
+  let eventCount = 0;
+  let checksum = 0;
+  let frame;
+
+  while ((frame = parser.nextRawBatch()) !== null) {
+    const result = consumeRawFrameTextUse(frame, checksum, eventCount, decoder, nameCache, materializationCounters, textChecksumMode);
+    checksum = result.checksum;
+    eventCount = result.eventCount;
+  }
+
+  globalThis.__staxCandidateTextUseSink = materializationCounters.textMaterializedCodeUnits;
+  return { eventCount, checksum, materializationCounters };
+}
+
 function consumeRawFrameSemanticChecksumStyle(fixture) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const parser = new StreamReaderSync(byteBatches(fixture));
@@ -1397,6 +1455,87 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             'attrValue',
             options.asciiAllSpans,
           );
+        checksum = foldString(checksum, value);
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function consumeRawFrameTextUse(frame, checksum, eventCount, decoder, nameCache, materializationCounters, textChecksumMode) {
+  if (frame.kind !== 'frame') {
+    throw new Error(`Unsupported raw batch kind in large candidate matrix: ${frame.kind}`);
+  }
+
+  const eventTypes = frame.eventTypes;
+  const nameStarts = frame.nameStarts;
+  const nameEnds = frame.nameEnds;
+  const nameIds = frame.nameIds;
+  const textStarts = frame.textStarts;
+  const textEnds = frame.textEnds;
+  const attrStarts = frame.attrStarts;
+  const attrCounts = frame.attrCounts;
+  const attrNameStarts = frame.attrNameStarts;
+  const attrNameEnds = frame.attrNameEnds;
+  const attrNameIds = frame.attrNameIds;
+  const attrValueStarts = frame.attrValueStarts;
+  const attrValueEnds = frame.attrValueEnds;
+  const buffer = frame.buffer;
+  const count = frame.eventCount;
+
+  for (let index = 0; index < count; index++) {
+    const type = eventTypes[index];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
+
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      countStringField(materializationCounters, 'name');
+      checksum = foldString(
+        checksum,
+        materializeName(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache, materializationCounters, 'name'),
+      );
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      const start = textStarts[index];
+      if (start >= 0) {
+        countStringField(materializationCounters, 'text');
+        const value = materializeValue(buffer, start, textEnds[index], decoder, undefined, materializationCounters, 'text');
+        const trimmedLength = value.trim().length;
+        materializationCounters.textMaterializedCodeUnits += value.length;
+        if (textChecksumMode === 'length-only') {
+          materializationCounters.textLengthChecksumReads++;
+          checksum = mixChecksum(checksum, trimmedLength);
+        } else {
+          materializationCounters.textChecksumBypassReads++;
+        }
+      }
+    }
+    if (type === StreamEventType.START_ELEMENT) {
+      const attrStart = attrStarts[index];
+      const attrCount = attrCounts[index];
+      materializationCounters.attributePairs += attrCount;
+      checksum = mixChecksum(checksum, attrCount);
+      const attrEnd = attrStart + attrCount;
+      for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+        countStringField(materializationCounters, 'attrName');
+        checksum = foldString(
+          checksum,
+          materializeName(
+            buffer,
+            attrNameStarts[attrIndex],
+            attrNameEnds[attrIndex],
+            attrNameIds[attrIndex],
+            decoder,
+            nameCache,
+            materializationCounters,
+            'attrName',
+          ),
+        );
+        countStringField(materializationCounters, 'attrValue');
+        const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
+          ? countImplicitAttributeValue(materializationCounters)
+          : materializeValue(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, undefined, materializationCounters, 'attrValue');
         checksum = foldString(checksum, value);
       }
     }
@@ -2258,6 +2397,9 @@ function createMaterializationCounters() {
     textTrimGuardFallbacks: 0,
     textAsciiPreTrimSkips: 0,
     textAsciiPreTrimFallbacks: 0,
+    textChecksumBypassReads: 0,
+    textLengthChecksumReads: 0,
+    textMaterializedCodeUnits: 0,
     asciiSpanMaterializationHits: 0,
     asciiSpanMaterializationFallbacks: 0,
     implicitAttrValueReads: 0,
