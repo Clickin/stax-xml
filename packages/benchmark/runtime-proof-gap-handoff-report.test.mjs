@@ -74,13 +74,19 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(safari.sourceConsumptionContract.demandDrivenSource, /must not pass one full XML ArrayBuffer/);
   assert.match(safari.sourceConsumptionContract.directReadableStreamScope, /source-overhead evidence only/);
   assert.match(safari.sourceConsumptionContract.backpressureRequirement, /backpressure is respected/);
+  assert.match(safari.sourceBoundaryContract.browserBuildIdentity, /exact Safari version/);
+  assert.match(safari.sourceBoundaryContract.stringBoundary, /exact tested build/);
+  assert.match(safari.sourceBoundaryContract.textDecoderBoundary, /TextDecoder\/UTF-8 decode source lines/);
+  assert.match(safari.sourceBoundaryContract.bunWebKitScopeGuard, /Bun\/JSC and Bun-patched WebKit source pins are not Safari/);
   assert.ok(safari.commands.some(command => /browser-candidate-headroom-cross-process\.mjs/.test(command.command)));
   assert.ok(safari.commands.some(command => /--harness safari-webdriver/.test(command.command)));
   assert.ok(safari.commands.some(command => /same-contract-runtime-comparison\.mjs/.test(command.command)));
   assert.ok(safari.commands.some(command => /runtime-limit-proof-obligation-gate\.mjs/.test(command.command)));
   assert.ok(safari.expectedEvidence.some(item => /fullStringParity/.test(item)));
   assert.ok(safari.expectedEvidence.some(item => /synchronous Iterable<Uint8Array\[\]> source contract/.test(item)));
+  assert.ok(safari.expectedEvidence.some(item => /source-boundary status/.test(item)));
   assert.ok(safari.scopeGuards.some(item => /direct ReadableStream throughput/.test(item)));
+  assert.ok(safari.scopeGuards.some(item => /must not be reused as Safari source-boundary evidence/.test(item)));
   assert.ok(spiderMonkey.commands.some(command => /firefox-spidermonkey-diagnostic-dump-audit\.mjs/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /FIREFOX_PATH=/.test(command.command)));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
@@ -97,6 +103,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Source consumption contract/);
   assert.match(markdown, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /backpressure is respected/);
+  assert.match(markdown, /Source boundary contract/);
+  assert.match(markdown, /Bun\/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins/);
   assert.match(markdown, /same-contract-runtime-comparison/);
   assert.match(markdown, /firefox-spidermonkey-diagnostic-dump-audit/);
   assert.match(markdown, /negative result for the installed browser build only/);

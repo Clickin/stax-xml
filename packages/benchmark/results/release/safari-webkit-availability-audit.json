@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T12:36:25.664Z",
+  "generatedAt": "2026-05-26T01:40:03.360Z",
   "objective": "safari-webkit-availability-audit",
   "contract": "local-safari-webkit-browser-row-availability",
   "note": "ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.",

@@ -1,6 +1,6 @@
 # Safari/WebKit Availability Audit
 
-Generated: 2026-05-24T12:36:25.664Z
+Generated: 2026-05-26T01:40:03.360Z
 
 ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.
 

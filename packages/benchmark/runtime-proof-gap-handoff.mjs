@@ -122,6 +122,12 @@ function createHandoffs(activeObligations) {
         directReadableStreamScope: 'Direct Response.body ReadableStream rows are source-overhead evidence only and must be reported as separate fetchReadableStreamFull or fetchAsyncByteBatchFull rows, not merged into the primary Safari/WebKit full-row target.',
         backpressureRequirement: 'Any direct ReadableStream row must read from the source only from pull() or reader.read() demand and must record that backpressure is respected.',
       },
+      sourceBoundaryContract: {
+        browserBuildIdentity: 'Record the exact Safari version, WebKit build/source revision when available, platform, and safaridriver version used for the row.',
+        stringBoundary: 'Pin Safari/WebKit string creation and ownership source lines for the exact tested build or explicitly mark the source-boundary obligation as still open.',
+        textDecoderBoundary: 'Pin Safari/WebKit TextDecoder/UTF-8 decode source lines for the exact tested build before citing TextDecoder internals for Safari rows.',
+        bunWebKitScopeGuard: 'Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested Safari/WebKit build identity matches and is recorded.',
+      },
       prerequisites: [
         'macOS host with the exact Safari/WebKit build under test.',
         'Safari WebDriver enabled and safaridriver available, normally /usr/bin/safaridriver.',
@@ -156,9 +162,11 @@ function createHandoffs(activeObligations) {
         'Primary full rows record the synchronous Iterable<Uint8Array[]> source contract; direct ReadableStream rows, if run, remain separately named source-overhead rows.',
         'Any direct ReadableStream row records demand-driven pull/read consumption and backpressure-respecting behavior.',
         'Memory evidence is classified explicitly; missing Safari JS heap counters must not be treated as bounded-memory proof.',
+        'Exact Safari/WebKit build identity and source-boundary status are recorded separately from Bun/JSC WebKit evidence.',
       ],
       scopeGuards: [
         'Safari rows are browser JSC evidence; they do not replace Bun/JSC rows.',
+        'Bun/JSC WebKit source pins must not be reused as Safari source-boundary evidence without an exact build match.',
         'A missing or failing safaridriver run is environment evidence only, not a runtime limitation.',
         'Do not compare direct ReadableStream throughput against sync byte-batch rows as if they were the same source-consumption shape.',
       ],
@@ -271,6 +279,13 @@ function renderMarkdown(report) {
       lines.push('');
       lines.push('Source consumption contract:');
       for (const [name, value] of Object.entries(handoff.sourceConsumptionContract)) {
+        lines.push(`- ${name}: ${value}`);
+      }
+    }
+    if (handoff.sourceBoundaryContract) {
+      lines.push('');
+      lines.push('Source boundary contract:');
+      for (const [name, value] of Object.entries(handoff.sourceBoundaryContract)) {
         lines.push(`- ${name}: ${value}`);
       }
     }
