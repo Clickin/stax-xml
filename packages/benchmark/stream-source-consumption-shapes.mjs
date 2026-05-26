@@ -191,7 +191,9 @@ function createSourceContract(options) {
   return {
     fullChecksumConsumer: 'Both rows execute the same StreamBatch full-string checksum consumer and must preserve event count plus checksum parity before throughput is compared.',
     syncIterableInput: 'sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array[]> and yields one grouped batch per parser pull.',
+    primaryLargeComparisonInput: 'The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.',
     readableStreamInput: 'web-readable-stream-pull uses StreamReader over a Web ReadableStream<Uint8Array> pull source.',
+    readableStreamAsyncBoundary: 'The direct ReadableStream row includes the public StreamReader await reader.read() boundary; its throughput is source-shape evidence, not a parser/runtime ceiling for sync byte batches.',
     readableStreamBackpressure: 'The ReadableStream source reads one file chunk only inside pull(), so production is demand-driven by StreamReader.read().',
     arrayBufferConsumption: 'Neither measured row constructs one full XML string or one repeated 1 GiB ArrayBuffer parser input; file chunks are read on demand for the selected source shape.',
     chunkBytes: options.chunkKiB * 1024,
@@ -205,6 +207,8 @@ function createSourceFacts() {
     readSourceFile('packages/stax-xml/src/StreamReaderSync.ts', join(staxSrcDir, 'StreamReaderSync.ts')),
     readSourceFile('packages/stax-xml/src/StreamReader.ts', join(staxSrcDir, 'StreamReader.ts')),
     readSourceFile('packages/stax-xml/src/IterableEventBackend.ts', join(staxSrcDir, 'IterableEventBackend.ts')),
+    readSourceFile('packages/benchmark/file-backed-core-decomposition.mjs', resolve(__dirname, 'file-backed-core-decomposition.mjs')),
+    readSourceFile('packages/benchmark/external-baseline.mjs', resolve(__dirname, 'external-baseline.mjs')),
   ];
   const facts = [
     sourceFact(files, {
@@ -229,7 +233,7 @@ function createSourceFacts() {
     sourceFact(files, {
       id: 'stream-reader-single-chunk-push',
       classification: 'SOURCE_FACT',
-      summary: 'The public StreamReader ReadableStream path pushes each read chunk as one single-item byte batch into the parser core.',
+      summary: 'The public StreamReader ReadableStream path awaits reader.read() and pushes each read chunk as one single-item byte batch into the parser core.',
       patterns: [
         { file: 'packages/stax-xml/src/StreamReader.ts', text: 'readResult = await this.reader.read()' },
         { file: 'packages/stax-xml/src/StreamReader.ts', text: 'this.streamingBatches.pushByteBatch([readResult.value], false)' },
@@ -253,6 +257,17 @@ function createSourceFacts() {
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'pull(controller)' },
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'const bytesRead = readSync(fd, buffer, 0, chunkBytes, null)' },
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'controller.enqueue(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead))' },
+      ],
+    }),
+    sourceFact(files, {
+      id: 'file-backed-release-sync-batches',
+      classification: 'SOURCE_FACT',
+      summary: 'The current file-backed core decomposition invokes external-baseline in file-sync-batches mode, so large release rows use demand-driven synchronous Iterable<Uint8Array[]> input rather than direct ReadableStream consumption.',
+      patterns: [
+        { file: 'packages/benchmark/file-backed-core-decomposition.mjs', text: '--stax-stream-source' },
+        { file: 'packages/benchmark/file-backed-core-decomposition.mjs', text: 'file-sync-batches' },
+        { file: 'packages/benchmark/external-baseline.mjs', text: "parserInput: 'synchronous Iterable<Uint8Array[]>'" },
+        { file: 'packages/benchmark/external-baseline.mjs', text: 'directReadableStream: false' },
       ],
     }),
   ];
@@ -304,11 +319,13 @@ function findPattern(file, pattern) {
   const matches = [];
   for (let index = 0; index < file.lines.length; index++) {
     const trimmed = file.lines[index].trimStart();
-    if (trimmed.startsWith("'") || trimmed.startsWith('"') || trimmed.startsWith('`')) {
-      continue;
-    }
-    if (trimmed.includes(' text: ') || trimmed.startsWith('patterns:')) {
-      continue;
+    if (file.label === 'packages/benchmark/stream-source-consumption-shapes.mjs') {
+      if (trimmed.startsWith("'") || trimmed.startsWith('"') || trimmed.startsWith('`')) {
+        continue;
+      }
+      if (trimmed.includes(' text: ') || trimmed.startsWith('patterns:')) {
+        continue;
+      }
     }
     if (file.lines[index].includes(pattern)) {
       matches.push({ label: file.label, line: index + 1 });
@@ -549,7 +566,9 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push(`- Full checksum consumer: ${report.sourceContract.fullChecksumConsumer}`);
   lines.push(`- Sync Iterable input: ${report.sourceContract.syncIterableInput}`);
+  lines.push(`- Primary large comparison input: ${report.sourceContract.primaryLargeComparisonInput}`);
   lines.push(`- ReadableStream input: ${report.sourceContract.readableStreamInput}`);
+  lines.push(`- ReadableStream async boundary: ${report.sourceContract.readableStreamAsyncBoundary}`);
   lines.push(`- ReadableStream backpressure: ${report.sourceContract.readableStreamBackpressure}`);
   lines.push(`- ArrayBuffer consumption: ${report.sourceContract.arrayBufferConsumption}`);
   lines.push(`- Chunk bytes: ${report.sourceContract.chunkBytes}`);

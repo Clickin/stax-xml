@@ -268,8 +268,8 @@ source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 127.02 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 133.98 MiB/s. The
+full-string scan: `sync-iterable-byte-batches` at 125.58 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 132.99 MiB/s. The
 scan separates parser-demand-driven source rows from Web Stream backpressure
 rows, so direct ReadableStream overhead evidence stays distinct from
 synchronous byte-batch rows. It also classifies source-mode rows by whether
@@ -962,19 +962,25 @@ single concat bottleneck.
 the same source-consumption distinction as a focused Node/V8 full-string
 checksum artifact. Its machine-readable `sourceContract` records that
 `sync-iterable-byte-batches` uses `StreamReaderSync` over a synchronous
-`Iterable<Uint8Array[]>` with one grouped batch per parser pull, while
-`web-readable-stream-pull` uses `StreamReader` over a Web
-`ReadableStream<Uint8Array>` pull source that reads one file chunk only inside
-`pull()`. Its `sourceFacts` section now also pins the implementation evidence:
-the sync row feeds `StreamReaderSync` from demand-driven `Iterable<Uint8Array[]>`
-batches, direct `Uint8Array` input is wrapped as a single-item byte batch, the
-public `StreamReader` path pushes each stream read as a single-item byte batch,
-and the public `EventReader` adapter converts stream reads into
-`AsyncIterable<Uint8Array[]>` batches. The release row now uses the current
+`Iterable<Uint8Array[]>` with one grouped batch per parser pull; the primary
+large comparison rows call `external-baseline` with
+`--stax-stream-source file-sync-batches`, which records synchronous
+`Iterable<Uint8Array[]>` parser input and `directReadableStream=false`. The
+same contract records that `web-readable-stream-pull` uses `StreamReader` over a
+Web `ReadableStream<Uint8Array>` pull source that reads one file chunk only
+inside `pull()`, and that the direct ReadableStream row includes the public
+`StreamReader` `await reader.read()` boundary. Its `sourceFacts` section now
+also pins the implementation evidence: the sync row feeds `StreamReaderSync`
+from demand-driven `Iterable<Uint8Array[]>` batches, direct `Uint8Array` input is
+wrapped as a single-item byte batch, the public `StreamReader` path awaits
+`reader.read()` and pushes each stream read as a single-item byte batch, the
+file-backed release decomposition invokes `external-baseline` in
+`file-sync-batches` mode, and the public `EventReader` adapter converts stream
+reads into `AsyncIterable<Uint8Array[]>` batches. The release row now uses the current
 64 KiB x batch-size 1 file-backed basis with one warmup and three measured
-runs. It reports `127.02 MiB/s` for the sync iterable path with 16.2% sample
-spread and `133.98 MiB/s` for the backpressure-respecting ReadableStream path
-with 0.8% sample spread. The report treats the ratio as a run-specific
+runs. It reports `125.58 MiB/s` for the sync iterable path with 16.2% sample
+spread and `132.99 MiB/s` for the backpressure-respecting ReadableStream path
+with 3.1% sample spread. The report treats the ratio as a run-specific
 benchmark fact rather than a global async-overhead conclusion. Both rows
 are parser-demand-driven, while only the Web ReadableStream row carries stream
 backpressure metadata, so this artifact is direct source-shape evidence rather
