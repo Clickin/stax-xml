@@ -40,6 +40,12 @@ const negativeArtifacts = [
     candidateId: 'rawFrameNameIdTrimGuard',
     family: 'text-trim-boundary-guard',
   },
+  {
+    file: 'text-ascii-pretrim-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdAsciiPreTrim',
+    family: 'ascii-byte-pretrim-before-decode',
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {

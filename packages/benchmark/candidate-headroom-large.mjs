@@ -327,6 +327,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { trimGuard: true }),
     },
     {
+      id: 'rawFrameNameIdAsciiPreTrim',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache and ASCII byte-boundary text pre-trim before decode',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { asciiPreTrimText: true }),
+    },
+    {
       id: 'rawFrameNameIdLongTextCache',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded long text/CDATA span string cache',
@@ -846,6 +854,20 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const asciiPreTrim = variants.find((entry) => entry.id === 'rawFrameNameIdAsciiPreTrim');
+  if (rawNameId && asciiPreTrim) {
+    findings.push({
+      id: 'ascii-pre-trim-text-candidate',
+      summary: 'rawFrameNameIdAsciiPreTrim keeps the full-string checksum while trimming ASCII boundary whitespace before decoding text/CDATA spans.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdAsciiPreTrim=${formatRate(asciiPreTrim.mibPerSec)}`,
+        `sameChecksum=${asciiPreTrim.checksum === rawNameId.checksum}`,
+        `asciiPreTrimSkips=${asciiPreTrim.materializationCounters.textAsciiPreTrimSkips}`,
+        `asciiPreTrimFallbacks=${asciiPreTrim.materializationCounters.textAsciiPreTrimFallbacks}`,
+      ],
+    });
+  }
   const longTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdLongTextCache');
   if (rawNameId && longTextCache) {
     findings.push({
@@ -1199,7 +1221,9 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
           const textLength = textEnds[index] - start;
           const minTextCacheLength = options.textCacheMinLength ?? 0;
           const textCache = textLength >= minTextCacheLength ? (options.textCache ?? valueCache) : undefined;
-          const value = options.longAsciiText
+          const value = options.asciiPreTrimText
+            ? materializeAsciiPreTrimmedTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
+            : options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text');
           const textForChecksum = prepareTextForChecksum(value, buffer, start, textEnds[index], options, materializationCounters);
@@ -1364,6 +1388,16 @@ function materializeTextValue(buffer, start, end, decoder, valueCache, materiali
   const value = decodeLongAsciiTextSpan(buffer, start, end, decoder, materializationCounters);
   valueCache.set(buffer, start, end, value);
   return value;
+}
+
+function materializeAsciiPreTrimmedTextValue(buffer, start, end, decoder, valueCache, materializationCounters) {
+  const [trimmedStart, trimmedEnd] = trimAsciiWhitespace(buffer, start, end);
+  if (textTrimWouldKeepSpan(buffer, trimmedStart, trimmedEnd)) {
+    materializationCounters.textAsciiPreTrimSkips++;
+    return materializeValue(buffer, trimmedStart, trimmedEnd, decoder, valueCache, materializationCounters, 'text');
+  }
+  materializationCounters.textAsciiPreTrimFallbacks++;
+  return materializeValue(buffer, start, end, decoder, valueCache, materializationCounters, 'text');
 }
 
 class SpanStringCache {
@@ -1675,6 +1709,8 @@ function createMaterializationCounters() {
     longAsciiTextFallbacks: 0,
     textTrimGuardSkips: 0,
     textTrimGuardFallbacks: 0,
+    textAsciiPreTrimSkips: 0,
+    textAsciiPreTrimFallbacks: 0,
     implicitAttrValueReads: 0,
     eventObjects: 0,
     projectedRecords: 0,

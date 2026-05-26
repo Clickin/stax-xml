@@ -92,6 +92,7 @@ const requiredArtifactMentions = [
   'text-cdata-cost-decomposition.md',
   'text-materialization-frontier.md',
   'text-trim-guard-candidate.md',
+  'text-ascii-pretrim-candidate.md',
   'textdecoder-span-variants.md',
   'bun-textdecoder-span-variants.md',
   'browser-textdecoder-span-variants.md',
