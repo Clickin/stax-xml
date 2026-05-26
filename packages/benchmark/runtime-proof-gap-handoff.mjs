@@ -345,6 +345,8 @@ function renderMarkdown(report) {
     `- Unhandled obligations: ${report.summary.unhandledObligationCount}`,
     `- External-run required closures: ${report.summary.externalRunRequiredCount}`,
     `- Locally runnable closures: ${report.summary.localRunnableCount}`,
+    `- Audit artifacts: ${report.auditSummary.artifactCount ?? 'n/a'}`,
+    `- Audit measured rows: ${report.auditSummary.measuredRows ?? 'n/a'}`,
     `- Primary source consumption: ${report.summary.sourceConsumptionPrimary}`,
     `- Direct ReadableStream scope: ${report.summary.directReadableStreamScope}`,
     `- Direct ReadableStream backpressure required: ${report.summary.directReadableStreamBackpressureRequired ? 'yes' : 'no'}`,

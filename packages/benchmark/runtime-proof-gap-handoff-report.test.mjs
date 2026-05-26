@@ -129,6 +129,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Unhandled obligations: 0/);
   assert.match(markdown, /External-run required closures: 2/);
   assert.match(markdown, /Locally runnable closures: 0/);
+  assert.match(markdown, new RegExp(`Audit artifacts: ${audit.scannedArtifacts.length}`));
+  assert.match(markdown, new RegExp(`Audit measured rows: ${audit.summary.measuredRowCount}`));
   assert.match(markdown, /Primary source consumption: synchronous Iterable<Uint8Array\[\]> byte batches/);
   assert.match(markdown, /Direct ReadableStream scope: separate source-overhead evidence only/);
   assert.match(markdown, /Direct ReadableStream backpressure required: yes/);
