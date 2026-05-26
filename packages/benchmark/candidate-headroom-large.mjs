@@ -311,6 +311,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { longAsciiText: true }),
     },
     {
+      id: 'rawFrameNameIdMediumAsciiText',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache and split short ASCII text materialization for 13-24 byte spans',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { mediumAsciiText: true }),
+    },
+    {
       id: 'rawFrameNameIdTextCache',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded text/CDATA span string cache',
@@ -833,6 +841,20 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const mediumAsciiText = variants.find((entry) => entry.id === 'rawFrameNameIdMediumAsciiText');
+  if (rawNameId && mediumAsciiText) {
+    findings.push({
+      id: 'medium-ascii-text-materialization-candidate',
+      summary: 'rawFrameNameIdMediumAsciiText keeps the full-string checksum while replacing TextDecoder only for 13-24 byte ASCII text/CDATA spans.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdMediumAsciiText=${formatRate(mediumAsciiText.mibPerSec)}`,
+        `sameChecksum=${mediumAsciiText.checksum === rawNameId.checksum}`,
+        `mediumAsciiTextHits=${mediumAsciiText.materializationCounters.mediumAsciiTextHits}`,
+        `mediumAsciiTextFallbacks=${mediumAsciiText.materializationCounters.mediumAsciiTextFallbacks}`,
+      ],
+    });
+  }
   const textCache = variants.find((entry) => entry.id === 'rawFrameNameIdTextCache');
   if (rawNameId && textCache) {
     findings.push({
@@ -1257,6 +1279,8 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             ? materializeAsciiPreTrimmedTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
+            : options.mediumAsciiText
+            ? materializeMediumAsciiTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text', options.asciiAllSpans);
           const textForChecksum = prepareTextForChecksum(value, buffer, start, textEnds[index], options, materializationCounters);
           checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, textForChecksum);
@@ -1424,6 +1448,21 @@ function materializeTextValue(buffer, start, end, decoder, valueCache, materiali
   return value;
 }
 
+function materializeMediumAsciiTextValue(buffer, start, end, decoder, valueCache, materializationCounters) {
+  if (!valueCache) {
+    return decodeMediumAsciiTextSpan(buffer, start, end, decoder, materializationCounters);
+  }
+  const cached = valueCache.get(buffer, start, end);
+  if (cached !== undefined) {
+    materializationCounters.rawValueCacheHits++;
+    return cached;
+  }
+  materializationCounters.rawValueCacheMisses++;
+  const value = decodeMediumAsciiTextSpan(buffer, start, end, decoder, materializationCounters);
+  valueCache.set(buffer, start, end, value);
+  return value;
+}
+
 function materializeAsciiPreTrimmedTextValue(buffer, start, end, decoder, valueCache, materializationCounters) {
   const [trimmedStart, trimmedEnd] = trimAsciiWhitespace(buffer, start, end);
   if (textTrimWouldKeepSpan(buffer, trimmedStart, trimmedEnd)) {
@@ -1569,6 +1608,25 @@ function decodeLongAsciiTextSpan(buffer, start, end, decoder, materializationCou
   }
   materializationCounters.longAsciiTextHits++;
   return asciiSpanToString(buffer, start, end);
+}
+
+function decodeMediumAsciiTextSpan(buffer, start, end, decoder, materializationCounters) {
+  countRawSpanMaterialization(materializationCounters, 'text');
+  const short = decodeShortAsciiSpan(buffer, start, end);
+  if (short !== undefined) {
+    return short;
+  }
+  const length = end - start;
+  if (length > 12 && length <= 24) {
+    const head = decodeShortAsciiSpan(buffer, start, start + 12);
+    const tail = decodeShortAsciiSpan(buffer, start + 12, end);
+    if (head !== undefined && tail !== undefined) {
+      materializationCounters.mediumAsciiTextHits++;
+      return head + tail;
+    }
+  }
+  materializationCounters.mediumAsciiTextFallbacks++;
+  return decoder.decode(buffer.subarray(start, end));
 }
 
 function isAsciiSpan(buffer, start, end) {
@@ -1751,6 +1809,8 @@ function createMaterializationCounters() {
     semanticByteFoldFallbacks: 0,
     longAsciiTextHits: 0,
     longAsciiTextFallbacks: 0,
+    mediumAsciiTextHits: 0,
+    mediumAsciiTextFallbacks: 0,
     textTrimGuardSkips: 0,
     textTrimGuardFallbacks: 0,
     textAsciiPreTrimSkips: 0,
@@ -2106,8 +2166,8 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('Counters are collected inside the measured large-input loop to avoid a second 1 GiB+ pass.');
   lines.push('');
-  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Long ASCII text hit/fallback | Event objects | Projected records | Projection fields | Attribute pairs |');
-  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Long ASCII text hit/fallback | Medium ASCII text hit/fallback | Event objects | Projected records | Projection fields | Attribute pairs |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
   for (const entry of report.variants) {
     const counters = entry.materializationCounters;
     lines.push(
@@ -2118,6 +2178,7 @@ function renderMarkdown(report) {
       + `${formatCount(counters.rawValueCacheHits)}/${formatCount(counters.rawValueCacheMisses)} | `
       + `${formatCount(counters.semanticByteFoldFields)}/${formatCount(counters.semanticByteFoldFallbacks)} | `
       + `${formatCount(counters.longAsciiTextHits)}/${formatCount(counters.longAsciiTextFallbacks)} | `
+      + `${formatCount(counters.mediumAsciiTextHits)}/${formatCount(counters.mediumAsciiTextFallbacks)} | `
       + `${formatCount(counters.eventObjects)} | ${formatCount(counters.projectedRecords)} | `
       + `${formatCount(counters.projectionFieldReads)} | ${formatCount(counters.attributePairs)} |`,
     );

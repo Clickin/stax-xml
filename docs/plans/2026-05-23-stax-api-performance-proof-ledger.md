@@ -336,6 +336,11 @@ parity because it removes the trim contract. The earlier
 full-parity `rawFrameNameIdLongTextCache` row at 141.85 MiB/s despite 4,482,765
 cache hits and only 19 misses, so restricting span-string caching to longer
 text/CDATA values remains a negative result. The
+`medium-ascii-text-materialization-candidate.json` artifact tests a narrower
+manual string path for 13-24 byte ASCII text/CDATA spans. It preserves full
+parity and improves its same-run control from 164.31 MiB/s to 170.16 MiB/s, but
+still does not cross the 200 MiB/s counterexample threshold after 2,831,232
+medium-ASCII hits and 3,539,040 fallbacks. The
 `packages/benchmark/results/release/text-materialization-frontier.md`
 synthesizes the scaled text/CDATA experiments directly: the fastest full row is
 still 185.50 MiB/s, 14.50 MiB/s below the 200 MiB/s counterexample threshold,
@@ -345,10 +350,11 @@ same-scale without-text speedup is 1.41x at 4 GiB after omitting 67,949,424
 text string reads. The same synthesis records maximum no-trim speedup at only
 1.02x, maximum fold-trim speedup at 0.80x, repeated text-value cache at 0.74x of
 its control, bounded long-text cache at 0.83x of its control, long ASCII text
-fast path at 0.41x of its control, fold-trim checksum at 0.84x of its control,
-the byte-boundary trim guard at 1.00x of its control, ASCII byte pre-trim before
-decode at 0.99x of its control, and manual ASCII materialization for all string
-spans at 0.63x of its control.
+fast path at 0.41x of its control, medium ASCII text fast path at 1.04x of its
+control, fold-trim checksum at 0.84x of its control, the byte-boundary trim
+guard at 1.00x of its control, ASCII byte pre-trim before decode at 0.99x of its
+control, and manual ASCII materialization for all string spans at 0.63x of its
+control.
 `packages/benchmark/results/release/text-trim-guard-candidate.md`
 records the guard as a 1 GiB 3-run full-string parity row: `rawFrameNameId`
 averaged 109.66 MiB/s and `rawFrameNameIdTrimGuard` averaged 109.56 MiB/s,

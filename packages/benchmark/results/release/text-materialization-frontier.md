@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-26T11:16:23.158Z
+Generated: 2026-05-26T11:27:57.175Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -40,6 +40,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | repeated-text-value-cache | 175.02 | 129.31 | 0.74x | yes | no | yes |
 | bounded-long-text-value-cache | 170.13 | 141.85 | 0.83x | yes | no | yes |
 | long-ascii-text-fast-path | 172.85 | 71.21 | 0.41x | yes | no | yes |
+| medium-ascii-text-fast-path | 164.31 | 170.16 | 1.04x | yes | no | yes |
 | fold-trimmed-text-checksum | 122.32 | 103.26 | 0.84x | yes | no | yes |
 | text-trim-boundary-guard | 109.66 | 109.56 | 1.00x | yes | no | yes |
 | ascii-byte-pretrim-before-decode | 107.10 | 106.35 | 0.99x | yes | no | yes |
@@ -60,10 +61,11 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - maximumNoTrimSpeedup=1.02x
   - fastestFoldTrim=148.58 MiB/s
   - maximumFoldTrimSpeedup=0.80x
-- cache-and-ascii-candidates-rejected (NEGATIVE_RESULT): The current repeated text cache, bounded long-text cache, long ASCII text fast path, and fold-trim candidate rows do not improve the full target row.
+- cache-and-ascii-candidates-rejected (NEGATIVE_RESULT): The current repeated text cache, bounded long-text cache, ASCII text fast paths, and fold-trim candidate rows do not reach the full target row.
   - repeated-text-value-cache: candidate/control=0.74x, candidate=129.31 MiB/s
   - bounded-long-text-value-cache: candidate/control=0.83x, candidate=141.85 MiB/s
   - long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s
+  - medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s
   - fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s
   - text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s
   - ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T11:16:23.158Z",
+  "generatedAt": "2026-05-26T11:27:57.175Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -13,6 +13,7 @@
       "text-cache-materialization-candidate-stability.json",
       "long-text-cache-materialization-candidate.json",
       "long-ascii-text-materialization-candidate-stability.json",
+      "medium-ascii-text-materialization-candidate.json",
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-guard-candidate.json",
       "text-ascii-pretrim-candidate.json",
@@ -24,7 +25,7 @@
     "scaledArtifactCount": 4,
     "fullRowCount": 4,
     "nearFullWithoutTextRowCount": 4,
-    "negativeCandidateCount": 7,
+    "negativeCandidateCount": 8,
     "fastestFull": {
       "id": "rawFrameNameId",
       "role": "full",
@@ -432,6 +433,40 @@
       "rejectedForFullTarget": true
     },
     {
+      "family": "medium-ascii-text-fast-path",
+      "sourceArtifact": "medium-ascii-text-materialization-candidate.json",
+      "control": {
+        "id": "rawFrameNameId",
+        "role": "full",
+        "sourceArtifact": "medium-ascii-text-materialization-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 164.31,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976
+      },
+      "candidate": {
+        "id": "rawFrameNameIdMediumAsciiText",
+        "role": "negative-candidate",
+        "sourceArtifact": "medium-ascii-text-materialization-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 170.16,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976
+      },
+      "candidateToControlRatio": 1.04,
+      "candidatePreservesFullStringParity": true,
+      "candidateCrossesTarget": false,
+      "rejectedForFullTarget": true
+    },
+    {
       "family": "fold-trimmed-text-checksum",
       "sourceArtifact": "fold-trimmed-text-candidate-stability.json",
       "control": {
@@ -603,11 +638,12 @@
     {
       "id": "cache-and-ascii-candidates-rejected",
       "classification": "NEGATIVE_RESULT",
-      "summary": "The current repeated text cache, bounded long-text cache, long ASCII text fast path, and fold-trim candidate rows do not improve the full target row.",
+      "summary": "The current repeated text cache, bounded long-text cache, ASCII text fast paths, and fold-trim candidate rows do not reach the full target row.",
       "evidence": [
         "repeated-text-value-cache: candidate/control=0.74x, candidate=129.31 MiB/s",
         "bounded-long-text-value-cache: candidate/control=0.83x, candidate=141.85 MiB/s",
         "long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s",
+        "medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s",
         "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s",
         "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s",
         "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s",

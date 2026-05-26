@@ -35,6 +35,12 @@ const negativeArtifacts = [
     family: 'long-ascii-text-fast-path',
   },
   {
+    file: 'medium-ascii-text-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdMediumAsciiText',
+    family: 'medium-ascii-text-fast-path',
+  },
+  {
     file: 'fold-trimmed-text-candidate-stability.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdFoldTrim',
@@ -266,6 +272,8 @@ function pickCounters(counters = {}) {
     rawValueCacheMisses: counters.rawValueCacheMisses ?? null,
     longAsciiTextHits: counters.longAsciiTextHits ?? null,
     longAsciiTextFallbacks: counters.longAsciiTextFallbacks ?? null,
+    mediumAsciiTextHits: counters.mediumAsciiTextHits ?? null,
+    mediumAsciiTextFallbacks: counters.mediumAsciiTextFallbacks ?? null,
   };
 }
 
@@ -302,7 +310,7 @@ function createFindings(summary, sameScalePairs, negativeRows) {
     {
       id: 'cache-and-ascii-candidates-rejected',
       classification: 'NEGATIVE_RESULT',
-      summary: 'The current repeated text cache, bounded long-text cache, long ASCII text fast path, and fold-trim candidate rows do not improve the full target row.',
+      summary: 'The current repeated text cache, bounded long-text cache, ASCII text fast paths, and fold-trim candidate rows do not reach the full target row.',
       evidence: negativeRows.map(row => `${row.family}: candidate/control=${formatNumber(row.candidateToControlRatio)}x, candidate=${formatNumber(row.candidate.mibPerSec)} MiB/s`),
     },
     {

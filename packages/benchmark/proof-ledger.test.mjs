@@ -197,13 +197,16 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`rawFrameNameIdNoTrim` at 185\.03 MiB\/s\s+with the same 62,758,976 string-field reads/);
   assert.match(markdown, /`rawFrameNameIdLongTextCache` row at 141\.85 MiB\/s despite 4,482,765\s+cache hits and only 19 misses/);
   assert.match(markdown, /bounded long-text cache at 0\.83x of its control/);
+  assert.match(markdown, /`medium-ascii-text-materialization-candidate\.json` artifact tests a narrower\s+manual string path for 13-24 byte ASCII text\/CDATA spans/);
+  assert.match(markdown, /improves its same-run control from 164\.31 MiB\/s to 170\.16 MiB\/s/);
+  assert.match(markdown, /after 2,831,232\s+medium-ASCII hits and 3,539,040 fallbacks/);
   assert.match(markdown, /omitted all\s+16,987,392 text\/CDATA string reads and changed the checksum to `1372281363`/);
   assert.match(markdown, /text-materialization-frontier\.md/);
   assert.match(markdown, /fastest full row is\s+still 185\.50 MiB\/s, 14\.50 MiB\/s below the 200 MiB\/s counterexample threshold/);
   assert.match(markdown, /1\.08x full-string speedup is still required/);
   assert.match(markdown, /maximum\s+same-scale without-text speedup is 1\.41x at 4 GiB after omitting 67,949,424\s+text string reads/);
   assert.match(markdown, /maximum no-trim speedup at only\s+1\.02x, maximum fold-trim speedup at 0\.80x/);
-  assert.match(markdown, /repeated text-value cache at 0\.74x of\s+its control, bounded long-text cache at 0\.83x of its control, long ASCII text\s+fast path at 0\.41x of its control, fold-trim checksum at 0\.84x of its control,\s+the byte-boundary trim guard at 1\.00x of its control, ASCII byte pre-trim before\s+decode at 0\.99x of its control, and manual ASCII materialization for all string\s+spans at 0\.63x of its control/);
+  assert.match(markdown, /repeated text-value cache at 0\.74x of\s+its control, bounded long-text cache at 0\.83x of its control, long ASCII text\s+fast path at 0\.41x of its control, medium ASCII text fast path at 1\.04x of its\s+control, fold-trim checksum at 0\.84x of its control, the byte-boundary trim\s+guard at 1\.00x of its control, ASCII byte pre-trim before decode at 0\.99x of its\s+control, and manual ASCII materialization for all string spans at 0\.63x of its\s+control/);
   assert.match(markdown, /text-trim-guard-candidate\.md/);
   assert.match(markdown, /`rawFrameNameId`\s+averaged 109\.66 MiB\/s and `rawFrameNameIdTrimGuard` averaged 109\.56 MiB\/s/);
   assert.match(markdown, /skipped `value\.trim\(\)` for 11,950,239 text\/CDATA spans and fell back 374,103\s+times/);
