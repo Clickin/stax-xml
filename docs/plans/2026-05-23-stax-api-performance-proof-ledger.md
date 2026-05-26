@@ -563,7 +563,9 @@ Firefox/SpiderMonkey source pin,
 diagnostic no-dump attempt, and local js-shell availability audit narrow the
 codegen route. The regenerated coverage audit now preserves the exact local
 outcomes (`status=no-dump-emitted`, `dumpFiles=0`, `status=not-found`,
-`found=0`), but they are still not emitted JIT IR. This narrows the next
+`found=0`), and the js-shell audit now records configured filesystem
+search-root probes in addition to environment-variable and `PATH` candidates,
+but they are still not emitted JIT IR. This narrows the next
 counterexample search queue; it still does not turn missing evidence into
 evidence that optimization is impossible, and it does not turn newly covered
 codegen or corpus-count evidence into proof that optimization is exhausted.
@@ -587,7 +589,8 @@ records structured `localClosure` status for each active obligation. Safari is
 cannot run Safari/WebKit browser rows through the normal Safari/safaridriver
 path. Firefox/SpiderMonkey codegen is also `external-run-required` with
 `localRunnable=false` because the installed Firefox diagnostic audit emitted no
-JIT diagnostic dump and no local SpiderMonkey JS shell was found. These are
+JIT diagnostic dump and no local SpiderMonkey JS shell was found on the
+configured env, `PATH`, or filesystem search-root probes. These are
 local availability facts, not Safari/WebKit benchmark evidence, not emitted
 SpiderMonkey JIT IR, and not runtime-limit proof.
 
@@ -1290,7 +1293,9 @@ while the Firefox JIT IR / optimized-code dump remains missing.
 separates the next SpiderMonkey codegen path from the installed-browser path.
 It checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`
 environment variables plus common `PATH` candidates such as `js`, `jsshell`,
-`spidermonkey`, and `mozjs`. On this Windows host the audit found no local
+`spidermonkey`, and `mozjs`. The regenerated audit also probes configured
+filesystem roots, including the local Firefox install directory and common
+Windows Mozilla install roots. On this Windows host the audit found no local
 SpiderMonkey JavaScript shell (`status=not-found`, `found=0`). That is a local
 `NEGATIVE_RESULT` for immediate js-shell JIT IR probing, not a global
 SpiderMonkey limitation. It means the remaining Firefox/SpiderMonkey codegen

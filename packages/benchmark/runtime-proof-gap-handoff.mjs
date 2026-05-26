@@ -178,7 +178,7 @@ function createLocalClosure(activeObligations, audit) {
           ? 'Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.'
           : 'Installed Firefox diagnostic dump status is not a confirmed no-dump result.',
         jsShellMissing
-          ? 'No local SpiderMonkey JS shell was found for JIT IR probing.'
+          ? 'No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.'
           : 'SpiderMonkey JS shell availability is not confirmed missing.',
       ],
       scopeGuard: 'These are local diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence.',

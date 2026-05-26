@@ -1,11 +1,12 @@
 {
-  "generatedAt": "2026-05-25T10:14:57.422Z",
+  "generatedAt": "2026-05-26T21:11:40.340Z",
   "objective": "firefox-spidermonkey-js-shell-availability-audit",
   "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
   "note": "Checks whether a local SpiderMonkey JavaScript shell is available for follow-up JIT IR or optimized-code diagnostics. This is environment evidence only; absence of a shell is not proof that SpiderMonkey cannot emit codegen evidence elsewhere.",
   "environment": {
     "platform": "win32-x64",
-    "pathEntries": 81
+    "pathEntries": 82,
+    "searchRootCount": 3
   },
   "parameters": {
     "candidates": [
@@ -22,6 +23,11 @@
       "SPIDERMONKEY_JS_SHELL",
       "JSSHELL",
       "JS_SHELL"
+    ],
+    "searchRoots": [
+      "C:\\Program Files\\Mozilla Firefox",
+      "C:\\Program Files (x86)\\Mozilla Firefox",
+      "C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox"
     ],
     "selfTest": null
   },
@@ -104,16 +110,77 @@
       "status": "missing",
       "resolvedPath": "mozjs.exe",
       "error": "spawnSync mozjs.exe ENOENT"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\js",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\js"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\js.exe",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\js.exe"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\jsshell",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\jsshell"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\jsshell.exe",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\jsshell.exe"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\spidermonkey",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\spidermonkey"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\spidermonkey.exe",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\spidermonkey.exe"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\mozjs",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\mozjs"
+    },
+    {
+      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
+      "candidate": "C:\\Program Files\\Mozilla Firefox\\mozjs.exe",
+      "status": "missing",
+      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\mozjs.exe"
+    },
+    {
+      "source": "filesystem-root",
+      "candidate": "C:\\Program Files (x86)\\Mozilla Firefox",
+      "status": "root-missing",
+      "resolvedPath": "C:\\Program Files (x86)\\Mozilla Firefox"
+    },
+    {
+      "source": "filesystem-root",
+      "candidate": "C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox",
+      "status": "root-missing",
+      "resolvedPath": "C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox"
     }
   ],
   "findings": [
     {
       "id": "spidermonkey-js-shell-not-found",
       "classification": "NEGATIVE_RESULT",
-      "summary": "No local SpiderMonkey JavaScript shell candidate was found on PATH or in the configured environment variables.",
+      "summary": "No local SpiderMonkey JavaScript shell candidate was found on PATH, in configured environment variables, or under configured filesystem search roots.",
       "evidence": [
         "candidates=js, js.exe, jsshell, jsshell.exe, spidermonkey, spidermonkey.exe, mozjs, mozjs.exe",
         "envCandidates=SPIDERMONKEY_JS_SHELL, JSSHELL, JS_SHELL",
+        "searchRoots=C:\\Program Files\\Mozilla Firefox, C:\\Program Files (x86)\\Mozilla Firefox, C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox",
         "This blocks local js-shell JIT IR probing, but it is not evidence that SpiderMonkey has no codegen headroom."
       ]
     },

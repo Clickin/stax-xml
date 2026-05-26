@@ -37,6 +37,7 @@ test('Firefox SpiderMonkey JS shell availability audit records missing shell as 
   assert.equal(report.outcome.status, 'not-found');
   assert.equal(report.outcome.foundCount, 0);
   assert.deepEqual(report.parameters.candidates, ['js', 'jsshell']);
+  assert.ok(Array.isArray(report.parameters.searchRoots));
   assert.ok(report.probes.every(probe => probe.status === 'missing'));
   assert.ok(report.findings.some(finding =>
     finding.id === 'spidermonkey-js-shell-not-found'
@@ -50,8 +51,48 @@ test('Firefox SpiderMonkey JS shell availability audit records missing shell as 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Firefox\/SpiderMonkey JS Shell Availability Audit/);
   assert.match(markdown, /Status: not-found/);
+  assert.match(markdown, /Search roots:/);
   assert.match(markdown, /No local SpiderMonkey JavaScript shell candidate was found/);
   assert.match(markdown, /not emitted JIT IR/);
+});
+
+test('Firefox SpiderMonkey JS shell availability audit records filesystem root probes', () => {
+  resetTmp();
+  const missingRoot = join(tmpDir, 'missing-root');
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-spidermonkey-js-shell-availability-audit.mjs'),
+    '--candidates',
+    'js',
+    '--search-roots',
+    missingRoot,
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.deepEqual(report.parameters.searchRoots, [missingRoot]);
+  assert.ok(report.probes.some(probe =>
+    probe.source === 'filesystem-root'
+    && probe.candidate === missingRoot
+    && probe.status === 'root-missing'
+  ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'spidermonkey-js-shell-not-found'
+    && /filesystem search roots/.test(finding.summary)
+    && finding.evidence.some(entry => entry.includes(`searchRoots=${missingRoot}`))
+  ));
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /filesystem-root/);
+  assert.match(markdown, /root-missing/);
 });
 
 function resetTmp() {

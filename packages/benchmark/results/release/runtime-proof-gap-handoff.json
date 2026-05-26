@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-26T20:59:22.340Z",
+  "generatedAt": "2026-05-26T21:15:07.522Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "auditGeneratedAt": "2026-05-26T20:59:08.304Z",
+    "auditGeneratedAt": "2026-05-26T21:13:52.699Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -42,7 +42,7 @@
       {
         "id": "codegen-traces-open",
         "status": "partial",
-        "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
+        "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
         "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
       }
     ]
@@ -70,7 +70,7 @@
       ],
       "blockers": [
         "Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.",
-        "No local SpiderMonkey JS shell was found for JIT IR probing."
+        "No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes."
       ],
       "scopeGuard": "These are local diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence."
     }
@@ -166,7 +166,7 @@
         ],
         "blockers": [
           "Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.",
-          "No local SpiderMonkey JS shell was found for JIT IR probing."
+          "No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes."
         ],
         "scopeGuard": "These are local diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence."
       },

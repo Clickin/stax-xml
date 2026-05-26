@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, delimiter, resolve } from 'node:path';
+import { dirname, delimiter, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -21,6 +21,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     candidates: [...defaultCandidateNames],
     envCandidates: ['SPIDERMONKEY_JS_SHELL', 'JSSHELL', 'JS_SHELL'],
+    searchRoots: defaultSearchRoots(),
     selfTest: null,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
@@ -39,6 +40,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     switch (name) {
       case '--candidates':
         options.candidates = parseList(readValue(), name);
+        break;
+      case '--search-roots':
+        options.searchRoots = parseList(readValue(), name).map(root => resolve(process.cwd(), root));
         break;
       case '--self-test':
         options.selfTest = readValue();
@@ -78,7 +82,50 @@ function main() {
 function probeShells(options) {
   const envProbes = options.envCandidates.map(name => probePath(process.env[name], `env:${name}`));
   const pathProbes = options.candidates.map(command => probeCommand(command));
-  return [...envProbes, ...pathProbes];
+  const filesystemProbes = options.searchRoots.flatMap(root => probeSearchRoot(root, options.candidates));
+  return [...envProbes, ...pathProbes, ...filesystemProbes];
+}
+
+function defaultSearchRoots() {
+  const roots = [];
+  const addRoot = (value) => {
+    if (!value) return;
+    roots.push(resolve(process.cwd(), value));
+  };
+  const addFirefoxPathParent = (value) => {
+    if (!value) return;
+    addRoot(dirname(resolve(process.cwd(), value)));
+  };
+
+  addFirefoxPathParent(process.env.FIREFOX_PATH);
+  addRoot(process.env.MOZILLA_FIVE_HOME);
+  addRoot(process.env.ProgramW6432 ? join(process.env.ProgramW6432, 'Mozilla Firefox') : null);
+  addRoot(process.env.ProgramFiles ? join(process.env.ProgramFiles, 'Mozilla Firefox') : null);
+  addRoot(process.env['ProgramFiles(x86)'] ? join(process.env['ProgramFiles(x86)'], 'Mozilla Firefox') : null);
+  addRoot(process.env.LOCALAPPDATA ? join(process.env.LOCALAPPDATA, 'Mozilla Firefox') : null);
+
+  return [...new Set(roots)];
+}
+
+function probeSearchRoot(root, candidates) {
+  if (!existsSync(root)) {
+    return [{
+      source: 'filesystem-root',
+      candidate: root,
+      status: 'root-missing',
+      resolvedPath: root,
+    }];
+  }
+  const stat = statSync(root);
+  if (!stat.isDirectory()) {
+    return [{
+      source: 'filesystem-root',
+      candidate: root,
+      status: 'root-not-directory',
+      resolvedPath: root,
+    }];
+  }
+  return candidates.map(candidate => probePath(join(root, candidate), `filesystem:${root}`));
 }
 
 function probePath(filePath, source) {
@@ -157,10 +204,12 @@ function createReport(options, probes) {
     environment: {
       platform: `${process.platform}-${process.arch}`,
       pathEntries: String(process.env.PATH ?? '').split(delimiter).filter(Boolean).length,
+      searchRootCount: options.searchRoots.length,
     },
     parameters: {
       candidates: options.candidates,
       envCandidates: options.envCandidates,
+      searchRoots: options.searchRoots,
       selfTest: options.selfTest,
     },
     outcome: {
@@ -187,13 +236,14 @@ function createFindings(report) {
     ];
   }
   return [
-    {
-      id: 'spidermonkey-js-shell-not-found',
-      classification: 'NEGATIVE_RESULT',
-      summary: 'No local SpiderMonkey JavaScript shell candidate was found on PATH or in the configured environment variables.',
+      {
+        id: 'spidermonkey-js-shell-not-found',
+        classification: 'NEGATIVE_RESULT',
+      summary: 'No local SpiderMonkey JavaScript shell candidate was found on PATH, in configured environment variables, or under configured filesystem search roots.',
       evidence: [
         `candidates=${report.parameters.candidates.join(', ')}`,
         `envCandidates=${report.parameters.envCandidates.join(', ')}`,
+        `searchRoots=${report.parameters.searchRoots.join(', ') || 'none'}`,
         'This blocks local js-shell JIT IR probing, but it is not evidence that SpiderMonkey has no codegen headroom.',
       ],
     },
@@ -225,6 +275,7 @@ function renderMarkdown(report) {
     `- Status: ${report.outcome.status}`,
     `- Found candidates: ${report.outcome.foundCandidates.join(', ') || 'none'}`,
     `- Platform: ${report.environment.platform}`,
+    `- Search roots: ${report.parameters.searchRoots.join(', ') || 'none'}`,
     '',
     '## Probes',
     '',
