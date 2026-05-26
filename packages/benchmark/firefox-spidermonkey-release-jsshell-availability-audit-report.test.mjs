@@ -1,0 +1,69 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, '..', '..');
+const tmpDir = join(__dirname, 'results', 'tmp', 'firefox-spidermonkey-release-jsshell-availability-audit-test');
+const jsonOut = join(tmpDir, 'firefox-spidermonkey-release-jsshell-availability-audit.json');
+const mdOut = join(tmpDir, 'firefox-spidermonkey-release-jsshell-availability-audit.md');
+
+test('Firefox SpiderMonkey release jsshell audit records JIT status without closing emitted IR', () => {
+  resetTmp();
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-spidermonkey-release-jsshell-availability-audit.mjs'),
+    '--self-test',
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.objective, 'firefox-spidermonkey-release-jsshell-availability-audit');
+  assert.equal(report.contract, 'official-firefox-release-jsshell-jit-status-and-diagnostic-surface');
+  assert.equal(report.outcome.status, 'available');
+  assert.equal(report.outcome.packageVerified, true);
+  assert.equal(report.outcome.hasJitExecutionStatus, true);
+  assert.equal(report.outcome.hasIrDumpSurface, false);
+  assert.equal(report.outcome.closesEmittedIrObligation, false);
+  assert.equal(report.shell.jitProbe.ionHits, 4988);
+  assert.equal(report.shell.jitProbe.checksum, 12502500);
+  assert.equal(report.shell.help.hasIonEager, true);
+  assert.equal(report.shell.help.hasJitSpewFlag, false);
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'spidermonkey-release-jsshell-no-ir-dump-surface'
+    && finding.classification === 'NEGATIVE_RESULT'
+  ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'release-jsshell-scope'
+    && finding.classification === 'SCOPE_GUARD'
+  ));
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /Firefox SpiderMonkey Release JS Shell Availability Audit/);
+  assert.match(markdown, /JIT execution status observed: true/);
+  assert.match(markdown, /IR dump surface present: false/);
+  assert.match(markdown, /Closes emitted IR obligation: false/);
+  assert.match(markdown, /Ion hits: 4988/);
+  assert.match(markdown, /does not close the emitted JIT IR obligation/);
+});
+
+function resetTmp() {
+  rmSync(tmpDir, { recursive: true, force: true });
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [jsonOut, mdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+}

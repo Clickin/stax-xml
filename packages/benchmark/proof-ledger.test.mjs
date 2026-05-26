@@ -272,7 +272,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 991\s+measured rows/);
-  assert.match(markdown, /134 benchmark artifacts, 18 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+17 negative-result artifacts, 648 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /134 benchmark artifacts, 18 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 3 environment artifacts, and\s+18 negative-result artifacts, 648 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);
@@ -311,6 +311,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);
   assert.match(markdown, /Firefox\/SpiderMonkey codegen is also `external-run-required` with\s+`localRunnable=false`/);
   assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump, the installed Firefox buildconfig does not expose the\s+JitSpew build flag, and no local SpiderMonkey JS shell was found/);
+  assert.match(markdown, /official release\s+jsshell artifact proves a runnable release shell and Ion status probe, but also\s+records no JitSpew\/IR dump flag surface/);
   assert.match(markdown, /candidate-headroom-cross-process-books-corpus-batch16\.md/);
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
@@ -767,7 +768,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`/);
   assert.match(markdown, /found no local\s+SpiderMonkey JavaScript shell/);
   assert.match(markdown, /`status=not-found`, `found=0`/);
-  assert.match(markdown, /requires either a\s+diagnostic-capable Firefox build or a separate\s+debug\/nightly SpiderMonkey shell/);
+  assert.match(markdown, /firefox-spidermonkey-release-jsshell-availability-audit\.md/);
+  assert.match(markdown, /official Firefox `143\.0\.1` release jsshell package/);
+  assert.match(markdown, /verifies `jsshell-win64\.zip` against\s+`SHA512SUMS`/);
+  assert.match(markdown, /runs `js\.exe --version` as `JavaScript-C143\.0\.1`/);
+  assert.match(markdown, /observes\s+`ionHits=4988`, `ion\.enable=1`, `ion\.warmup\.trigger=0`, and checksum\s+`12502500`/);
+  assert.match(markdown, /records no JitSpew, `IONFLAGS`, MIR\/LIR, or IR dump\s+flag surface/);
+  assert.match(markdown, /does not close the\s+`codegen-traces-open` obligation/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);

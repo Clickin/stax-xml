@@ -447,6 +447,12 @@ function createObligationRows(coverage) {
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
   );
   const hasSpiderMonkeyJsShellAvailabilityAudit = Boolean(spiderMonkeyJsShellAvailabilityAudit);
+  const spiderMonkeyReleaseJsShellAvailabilityAudit = coverage.negativeArtifacts.find(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-release-jsshell-availability-audit.json'
+  ) ?? coverage.environmentArtifacts.find(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-release-jsshell-availability-audit.json'
+  );
+  const hasSpiderMonkeyReleaseJsShellAvailabilityAudit = Boolean(spiderMonkeyReleaseJsShellAvailabilityAudit);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -499,6 +505,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyBuildconfigSourcePin ? `Firefox/SpiderMonkey installed buildconfig source pin present (${spiderMonkeyBuildconfigSourcePin.limitation}).` : 'Firefox/SpiderMonkey installed buildconfig source pin missing.',
         hasSpiderMonkeyDiagnosticNoDump ? `Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=${spiderMonkeyDiagnosticDumpAudit.outcome.status}, dumpFiles=${spiderMonkeyDiagnosticDumpAudit.outcome.dumpFileCount ?? 'unknown'}).` : 'Firefox/SpiderMonkey diagnostic dump availability audit missing or did not complete as a no-dump result.',
         hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}, searchRoots=${spiderMonkeyJsShellAvailabilityAudit.parameters?.searchRoots?.length ?? 0}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
+        hasSpiderMonkeyReleaseJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official release js-shell audit present (status=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official release js-shell audit missing.',
         hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
@@ -846,6 +853,10 @@ function summarizeOutcome(outcome = {}) {
     dumpFileCount: typeof outcome.dumpFileCount === 'number' ? outcome.dumpFileCount : null,
     foundCount: typeof outcome.foundCount === 'number' ? outcome.foundCount : null,
     foundCandidates: Array.isArray(outcome.foundCandidates) ? outcome.foundCandidates : null,
+    packageVerified: typeof outcome.packageVerified === 'boolean' ? outcome.packageVerified : null,
+    hasJitExecutionStatus: typeof outcome.hasJitExecutionStatus === 'boolean' ? outcome.hasJitExecutionStatus : null,
+    hasIrDumpSurface: typeof outcome.hasIrDumpSurface === 'boolean' ? outcome.hasIrDumpSurface : null,
+    closesEmittedIrObligation: typeof outcome.closesEmittedIrObligation === 'boolean' ? outcome.closesEmittedIrObligation : null,
   };
   return Object.values(summary).some(value => value !== null) ? summary : null;
 }

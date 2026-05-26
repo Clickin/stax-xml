@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 181);
+  assert.equal(report.summary.scannedArtifactCount, 182);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
     && artifact.objective === 'file-backed-materialization-profile'
@@ -154,8 +154,18 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.sourceArtifactCount, 18);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
-  assert.equal(report.summary.environmentArtifactCount, 2);
-  assert.equal(report.summary.negativeArtifactCount, 17);
+  assert.equal(report.summary.environmentArtifactCount, 3);
+  assert.equal(report.summary.negativeArtifactCount, 18);
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-release-jsshell-availability-audit.json'
+    && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
+    && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
+    && artifact.outcome.status === 'available'
+    && artifact.outcome.packageVerified === true
+    && artifact.outcome.hasJitExecutionStatus === true
+    && artifact.outcome.hasIrDumpSurface === false
+    && artifact.outcome.closesEmittedIrObligation === false
+  ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'concat-buffer-reuse-negative-result.json'
     && artifact.measuredRowCount === 0
@@ -701,15 +711,16 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=not-found, found=0, searchRoots=\d+\); no emitted JIT IR is recorded by that audit/);
+  assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
-  assert.match(markdown, /Environment artifacts: 2/);
+  assert.match(markdown, /Environment artifacts: 3/);
   assert.match(markdown, /Source artifacts: 18/);
-  assert.match(markdown, /Negative-result artifacts: 17/);
+  assert.match(markdown, /Negative-result artifacts: 18/);
   assert.match(markdown, /\| Node\/V8 \| 94 \| 464 \| 305 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 35 \| 253 \| 161 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 10 \| 62 \| 56 \|/);
-  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 20 \| 82 \| 70 \|/);
+  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 21 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

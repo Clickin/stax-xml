@@ -33,8 +33,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 181);
+  assert.equal(report.summary.scannedArtifactCount, 182);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
+  assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-release-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
   assert.ok(report.scannedArtifacts.includes('unrolled-medium-ascii-text-materialization-candidate.json'));
@@ -797,7 +798,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 181/);
+  assert.match(markdown, /Scanned artifacts: 182/);
   assert.match(markdown, /Measured rows recognized: 991/);
   assert.match(markdown, /Aggregate rows recognized: 117/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 95/);

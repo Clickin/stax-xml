@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-05-26T22:45:41.128Z",
+  "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
+  "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
+  "note": "Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
+  "environment": {
+    "platform": "win32-x64"
+  },
+  "parameters": {
+    "packageUrl": "https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip",
+    "sumsUrl": "https://archive.mozilla.org/pub/firefox/releases/143.0.1/SHA512SUMS",
+    "packagePathInSums": "jsshell/jsshell-win64.zip",
+    "selfTest": false
+  },
+  "packageVerification": {
+    "status": "verified",
+    "packageZip": "G:\\tmp\\stax-spidermonkey-jsshell\\jsshell-win64.zip",
+    "sha512sums": "G:\\tmp\\stax-spidermonkey-jsshell\\SHA512SUMS",
+    "packageSha512": "3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a",
+    "expectedLine": "3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a  jsshell/jsshell-win64.zip",
+    "hashMatches": true
+  },
+  "shell": {
+    "status": "available",
+    "jsShell": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+    "version": {
+      "command": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "error": null,
+      "stdout": "JavaScript-C143.0.1\r\n",
+      "stderr": ""
+    },
+    "help": {
+      "versionLine": [
+        "Version: JavaScript-C143.0.1"
+      ],
+      "hasIonEager": true,
+      "hasIonOffthreadCompile": true,
+      "hasDumpBytecode": true,
+      "hasJitSpewFlag": false,
+      "hasInIonHelp": false
+    },
+    "jitProbe": {
+      "exitCode": 0,
+      "error": null,
+      "ionHits": 4988,
+      "checksum": 12502500,
+      "ionEnable": 1,
+      "ionWarmup": 0,
+      "stdout": "ionHits=4988\r\nchecksum=12502500\r\nionEnable=1\r\nionWarmup=0\r\n",
+      "stderr": ""
+    }
+  },
+  "outcome": {
+    "status": "available",
+    "packageVerified": true,
+    "hasJitExecutionStatus": true,
+    "hasIrDumpSurface": false,
+    "closesEmittedIrObligation": false
+  },
+  "findings": [
+    {
+      "id": "official-release-jsshell-available",
+      "classification": "ENVIRONMENT_FACT",
+      "summary": "The official Firefox release SpiderMonkey JavaScript shell is executable locally.",
+      "evidence": [
+        "version=JavaScript-C143.0.1",
+        "packageVerified=true",
+        "packageUrl=https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip"
+      ]
+    },
+    {
+      "id": "spidermonkey-jit-status-observed",
+      "classification": "TRACE_FACT",
+      "summary": "The release SpiderMonkey shell can observe Ion execution status with inIon() under --ion-eager.",
+      "evidence": [
+        "ionHits=4988",
+        "checksum=12502500",
+        "ionEnable=1",
+        "ionWarmup=0"
+      ]
+    },
+    {
+      "id": "spidermonkey-release-jsshell-no-ir-dump-surface",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The release SpiderMonkey shell help surface exposes Ion controls but no JitSpew/IONFLAGS/IR dump flag surface.",
+      "evidence": [
+        "hasIonEager=true",
+        "hasIonOffthreadCompile=true",
+        "hasDumpBytecode=true",
+        "hasJitSpewFlag=false",
+        "This narrows the local diagnostic path but does not close the emitted JIT IR obligation."
+      ]
+    },
+    {
+      "id": "release-jsshell-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.",
+      "evidence": [
+        "A diagnostic-capable SpiderMonkey shell or Firefox build is still required for emitted MIR/LIR/codegen dump evidence."
+      ]
+    }
+  ]
+}

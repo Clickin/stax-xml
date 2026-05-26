@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-26T22:28:35.003Z
+Generated: 2026-05-26T22:48:52.954Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-26T22:28:22.756Z
+- Audit generated: 2026-05-26T22:48:37.500Z
 - Active obligations: 2
 
 ## Summary
@@ -16,7 +16,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Unhandled obligations: 0
 - External-run required closures: 2
 - Locally runnable closures: 0
-- Audit artifacts: 181
+- Audit artifacts: 182
 - Audit measured rows: 991
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
@@ -28,7 +28,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 
 - safari-jsc-source-and-browser-rows-open (open): Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available.
   - Next: Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner.
-- codegen-traces-open (partial): Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.
+- codegen-traces-open (partial): Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.
   - Next: Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.
 
 ## Handoffs

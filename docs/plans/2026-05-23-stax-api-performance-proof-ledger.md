@@ -245,7 +245,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 181 primary release JSON artifacts, recognizes 991
+The current scan covers 182 primary release JSON artifacts, recognizes 991
 sample throughput rows and 117 aggregate rows, and finds 648 JavaScript 1 GiB+
 full-string sample rows plus 95 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -504,10 +504,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 181 primary release artifacts and recognizes 991
+The current audit scans 182 primary release artifacts and recognizes 991
 measured rows. It records 134 benchmark artifacts, 18 source artifacts, 10
-trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-17 negative-result artifacts, 648 JavaScript 1 GiB+ full-string rows, and four
+trace/profile artifacts, 15 allocation artifacts, 3 environment artifacts, and
+18 negative-result artifacts, 648 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -584,14 +584,20 @@ is not recorded, and the Safari/WebKit source boundary is not pinned; it is not
 a benchmark row and not evidence that Safari/WebKit cannot be a counterexample. The
 Firefox/SpiderMonkey source pin,
 diagnostic no-dump attempt, installed buildconfig source pin, and local
-js-shell availability audit narrow the codegen route. The regenerated coverage
+js-shell availability audit narrow the codegen route. The official Firefox
+143.0.1 release jsshell audit now adds a verified package hash and records
+`JavaScript-C143.0.1`; it observes Ion execution status under `--ion-eager`
+(`ionHits=4988`, `ion.enable=1`, checksum `12502500`) but records
+`has JitSpew/IR dump flag surface: false`, so it is JIT-status evidence only
+and still not emitted JIT IR. The regenerated coverage
 audit now preserves the exact local outcomes (`status=no-dump-emitted`,
 `dumpFiles=0`, `status=not-found`, `found=0`) and records that the installed
 Firefox `about:buildconfig` mentions `--enable-js-shell` and
 `MOZ_PACKAGE_JSSHELL=1` but does not mention `--enable-jitspew`, `JS_JITSPEW`,
-or `JS_STRUCTURED_SPEW`. The js-shell audit now records configured filesystem
+or `JS_STRUCTURED_SPEW`. The js-shell audits now record configured filesystem
 search-root probes in addition to environment-variable and `PATH` candidates,
-but they are still not emitted JIT IR. This narrows the next
+plus the official release jsshell's lack of an IR dump surface, but they are
+still not emitted JIT IR. This narrows the next
 counterexample search queue; it still does not turn missing evidence into
 evidence that optimization is impossible, and it does not turn newly covered
 codegen or corpus-count evidence into proof that optimization is exhausted.
@@ -617,8 +623,10 @@ path. Firefox/SpiderMonkey codegen is also `external-run-required` with
 `localRunnable=false` because the installed Firefox diagnostic audit emitted no
 JIT diagnostic dump, the installed Firefox buildconfig does not expose the
 JitSpew build flag, and no local SpiderMonkey JS shell was found on the
-configured env, `PATH`, or filesystem search-root probes. These are
-local availability facts, not Safari/WebKit benchmark evidence, not emitted
+configured env, `PATH`, or filesystem search-root probes. The official release
+jsshell artifact proves a runnable release shell and Ion status probe, but also
+records no JitSpew/IR dump flag surface. These are local availability and
+JIT-status facts, not Safari/WebKit benchmark evidence, not emitted
 SpiderMonkey JIT IR, and not runtime-limit proof.
 
 ## Current Evidence: Multi-Chunk Byte Batch Probe
@@ -1346,6 +1354,20 @@ SpiderMonkey JavaScript shell (`status=not-found`, `found=0`). That is a local
 SpiderMonkey limitation. It means the remaining Firefox/SpiderMonkey codegen
 obligation now requires either a diagnostic-capable Firefox build or a separate
 debug/nightly SpiderMonkey shell artifact.
+
+`packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.md`
+then checks the official Firefox `143.0.1` release jsshell package from Mozilla's
+release archive. The artifact verifies `jsshell-win64.zip` against
+`SHA512SUMS` with SHA512
+`3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a`,
+runs `js.exe --version` as `JavaScript-C143.0.1`, and records that the shell
+exposes `--ion-eager`, `--ion-offthread-compile`, and `--dump-bytecode`. A
+deterministic `--ion-eager --ion-offthread-compile=off` probe observes
+`ionHits=4988`, `ion.enable=1`, `ion.warmup.trigger=0`, and checksum
+`12502500`, proving that the release shell can observe Ion execution status.
+The same help-surface audit records no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump
+flag surface, so this is not emitted JIT IR and does not close the
+`codegen-traces-open` obligation.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 
