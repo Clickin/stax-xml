@@ -119,7 +119,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 30 required artifact mentions
+all 10 required claim guards are satisfied, all 32 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, and all 12
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -225,8 +225,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 148 primary release JSON artifacts, recognizes 798
-sample throughput rows and 89 aggregate rows, and finds 492 JavaScript 1 GiB+
+The current scan covers 153 primary release JSON artifacts, recognizes 808
+sample throughput rows and 89 aggregate rows, and finds 502 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -238,14 +238,15 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 162 JavaScript 1 GiB+
+or their source contract carry it. It now finds 172 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
 `web-readable-stream-pull`. The generated sync byte-batch bucket now includes
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
-rows plus the new trim-cost decompositions; the generated-sync bucket now has
-114 JavaScript 1 GiB+ full-string rows, 105 of them bounded. The fastest
+rows plus the new trim-cost decompositions and the same-contract batch-shape
+comparison artifacts; the generated-sync bucket now has 124 JavaScript 1 GiB+
+full-string rows, 115 of them bounded. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
@@ -255,7 +256,7 @@ backpressure-respecting `web-readable-stream-pull` row at 122.02 MiB/s. The
 scan separates parser-demand-driven source rows from Web Stream backpressure
 rows, so direct ReadableStream overhead evidence stays distinct from
 synchronous byte-batch rows. It also classifies source-mode rows by whether
-they are a prebuilt full-XML `ArrayBuffer` parser input: all 162 JavaScript
+they are a prebuilt full-XML `ArrayBuffer` parser input: all 172 JavaScript
 1 GiB+ full-string rows with source-mode metadata are now marked as not full
 `ArrayBuffer` parser-input rows. This also fixes the previous scanner blind
 spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
@@ -329,10 +330,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 148 primary release artifacts and recognizes 798
-measured rows. It records 106 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 153 primary release artifacts and recognizes 808
+measured rows. It records 111 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-11 negative-result artifacts, 492 JavaScript 1 GiB+ full-string rows, and three
+12 negative-result artifacts, 502 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -909,6 +910,26 @@ the controlled answer to the source-consumption hypothesis: pure
 `ReadableStream` overhead is measured as its own row, while the full large
 headroom rows use the synchronous byte-batch path and still preserve
 backpressure by pulling at most the next batch on demand.
+
+`packages/benchmark/results/release/sync-byte-batch-shape-batch1.md` and
+`packages/benchmark/results/release/sync-byte-batch-shape-batch16.md` isolate
+the follow-up batch-shape hypothesis under the same 1.00 GiB generated
+`diverse-cycle` fixture, cases, warmup/run count, event count, and checksum.
+Both artifacts use `StreamReaderSync` over the synchronous
+`Iterable<Uint8Array[]>` input, not direct `ReadableStream` consumption and not
+one full 1 GiB `ArrayBuffer` parser input. Batch size 1 keeps the direct
+single-`Uint8Array` view path when no pending tail exists; batch size 16 groups
+multiple row chunks per parser pull and therefore exercises the current concat
+path before scanning. The result is not a simple "concat removal wins" story:
+batchSize=1 recorded `rawFrameNameId` at 102.21 MiB/s, `stringFull` at
+92.23 MiB/s, and public `eventObjectFull` at 74.26 MiB/s, while batchSize=16
+recorded `rawFrameNameId` at 108.21 MiB/s, `stringFull` at 97.81 MiB/s, and
+public `eventObjectFull` at 71.90 MiB/s. All six rows preserved 45,189,256
+events, checksum `1421012805`, and bounded RSS. This keeps the source-shape
+diagnosis narrower: direct stream async overhead is already separated, but
+remaining synchronous input overhead is a balance among parser pull frequency,
+multi-chunk concat copy, and materialization/object allocation, not a proven
+single concat bottleneck.
 
 `packages/benchmark/results/release/stream-source-consumption-shapes.md` pins
 the same source-consumption distinction as a focused Node/V8 full-string

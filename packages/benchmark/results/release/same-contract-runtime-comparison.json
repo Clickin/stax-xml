@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T05:36:43.954Z",
+  "generatedAt": "2026-05-26T05:54:44.897Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
