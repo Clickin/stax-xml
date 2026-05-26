@@ -489,11 +489,16 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
     implementation: describeImplementation(id),
     family: 'source-consumption-shape',
     sourceMode: id,
+    parserInput: id === 'sync-iterable-byte-batches'
+      ? 'synchronous Iterable<Uint8Array[]>'
+      : 'Web ReadableStream<Uint8Array>',
     contractScope: 'full-string-checksum',
     fullStringParity: true,
     chunkKiB: options.chunkKiB,
     batchSize: id === 'sync-iterable-byte-batches' ? options.batchSize : null,
     demandDrivenSource: true,
+    directReadableStream: id === 'web-readable-stream-pull',
+    fullArrayBufferParserInput: false,
     respectsBackpressure: id === 'web-readable-stream-pull' ? true : null,
     mibPerSec: fileSizeMiB / (avgMs / 1000),
     avgMs,

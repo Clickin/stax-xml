@@ -77,6 +77,13 @@ test('stream source consumption shapes report separates sync batches from direct
     assert.equal(row.memory.maxRssBytes > 0, true);
   }
   const readableRow = report.rows.find(row => row.id === 'web-readable-stream-pull');
+  const syncRow = report.rows.find(row => row.id === 'sync-iterable-byte-batches');
+  assert.equal(syncRow.parserInput, 'synchronous Iterable<Uint8Array[]>');
+  assert.equal(syncRow.directReadableStream, false);
+  assert.equal(syncRow.fullArrayBufferParserInput, false);
+  assert.equal(readableRow.parserInput, 'Web ReadableStream<Uint8Array>');
+  assert.equal(readableRow.directReadableStream, true);
+  assert.equal(readableRow.fullArrayBufferParserInput, false);
   assert.equal(readableRow.respectsBackpressure, true);
 
   const markdown = readFileSync(mdOut, 'utf8');

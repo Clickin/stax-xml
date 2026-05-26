@@ -315,6 +315,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     hasMemoryProof: memoryKind !== 'not-recorded',
     sourceMode,
     fullArrayBufferParserInput,
+    directReadableStream: classifyDirectReadableStream(node, sourceMode),
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
     demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
@@ -358,6 +359,7 @@ function createAggregateRow(sourceArtifact, node, path, context) {
     hasMemoryProof: memoryKind !== 'not-recorded',
     sourceMode,
     fullArrayBufferParserInput,
+    directReadableStream: classifyDirectReadableStream(node, sourceMode),
     batchSize: node.batchSize ?? null,
     chunkKiB: node.chunkKiB ?? null,
     demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
@@ -378,6 +380,7 @@ function summarizeSourceModes(rows) {
       fastestRow: null,
       demandDrivenRows: 0,
       backpressureRows: 0,
+      directReadableStreamRows: 0,
       notFullArrayBufferRows: 0,
       fullArrayBufferRows: 0,
       unknownArrayBufferRows: 0,
@@ -394,6 +397,9 @@ function summarizeSourceModes(rows) {
     }
     if (row.respectsBackpressure === true) {
       current.backpressureRows++;
+    }
+    if (row.directReadableStream === true) {
+      current.directReadableStreamRows++;
     }
     if (row.fullArrayBufferParserInput === false) {
       current.notFullArrayBufferRows++;
@@ -526,6 +532,14 @@ function classifyDemandDrivenSource(node, sourceMode = null) {
   const mode = typeof sourceMode === 'string' ? sourceMode : '';
   if (mode === 'complete-js-string') return false;
   return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull/.test(mode);
+}
+
+function classifyDirectReadableStream(node, sourceMode = null) {
+  if (typeof node.directReadableStream === 'boolean') return node.directReadableStream;
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (/readable-stream-pull|fetchReadableStream/i.test(mode) || /readable-stream/i.test(mode)) return true;
+  if (/sync.*iterable-byte-batches|async.*iterable-byte-batches|complete-js-string/.test(mode)) return false;
+  return null;
 }
 
 function classifyFullArrayBufferParserInput(node, sourceMode = null, context = null) {
@@ -828,11 +842,11 @@ function renderMarkdown(report) {
     '',
     'This table records input-consumption metadata when release rows or their source contracts expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.',
     '',
-    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows | Not full ArrayBuffer rows |',
-    '| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |',
+    '| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Direct ReadableStream rows | Stream backpressure rows | Not full ArrayBuffer rows |',
+    '| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |',
   );
   if (report.summary.largeJsFullSourceModeBreakdown.length === 0) {
-    lines.push('| none | | | | | | | |');
+    lines.push('| none | | | | | | | | | |');
   } else {
     for (const entry of report.summary.largeJsFullSourceModeBreakdown) {
       lines.push(renderSourceModeBreakdownRow(entry));
@@ -909,7 +923,7 @@ function renderSourceModeBreakdownRow(entry) {
   const fastest = row
     ? `${row.runtimeLabel} ${row.id} from ${row.sourceArtifact}`
     : 'none';
-  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.demandDrivenRows} | ${entry.backpressureRows} | ${entry.notFullArrayBufferRows} |`;
+  return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.demandDrivenRows} | ${entry.directReadableStreamRows} | ${entry.backpressureRows} | ${entry.notFullArrayBufferRows} |`;
 }
 
 function summarizeRow(row) {
@@ -936,6 +950,7 @@ function summarizeRow(row) {
     demandDrivenSource: row.demandDrivenSource,
     respectsBackpressure: row.respectsBackpressure,
     fullArrayBufferParserInput: row.fullArrayBufferParserInput,
+    directReadableStream: row.directReadableStream,
   };
 }
 

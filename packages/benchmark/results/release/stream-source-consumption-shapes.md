@@ -1,6 +1,6 @@
 # Stream Source Consumption Shapes
 
-Generated: 2026-05-26T08:26:09.216Z
+Generated: 2026-05-26T09:31:12.347Z
 
 Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.
 
@@ -20,12 +20,12 @@ Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web R
 
 - Status: source-facts-confirmed
 - Files:
-  - packages/benchmark/stream-source-consumption-shapes.mjs (723 lines)
+  - packages/benchmark/stream-source-consumption-shapes.mjs (728 lines)
   - packages/stax-xml/src/StreamReaderSync.ts (135 lines)
   - packages/stax-xml/src/StreamReader.ts (152 lines)
   - packages/stax-xml/src/IterableEventBackend.ts (659 lines)
   - packages/benchmark/file-backed-core-decomposition.mjs (366 lines)
-  - packages/benchmark/external-baseline.mjs (1636 lines)
+  - packages/benchmark/external-baseline.mjs (1638 lines)
 - sync-iterable-byte-batches (SOURCE_FACT): The sync comparison row feeds StreamReaderSync with demand-driven Iterable<Uint8Array[]> batches, not a full-file string or full-file ArrayBuffer.
   - packages/benchmark/stream-source-consumption-shapes.mjs:340: for (const batch of new StreamReaderSync(byteBatches))
   - packages/benchmark/stream-source-consumption-shapes.mjs:384: function* createFileByteBatches(filePath, chunkBytes, batchSize)
@@ -50,8 +50,8 @@ Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web R
 - file-backed-release-sync-batches (SOURCE_FACT): The current file-backed core decomposition invokes external-baseline in file-sync-batches mode, so large release rows use demand-driven synchronous Iterable<Uint8Array[]> input rather than direct ReadableStream consumption.
   - packages/benchmark/file-backed-core-decomposition.mjs:144: --stax-stream-source
   - packages/benchmark/file-backed-core-decomposition.mjs:145: file-sync-batches
-  - packages/benchmark/external-baseline.mjs:1023: parserInput: 'synchronous Iterable<Uint8Array[]>'
-  - packages/benchmark/external-baseline.mjs:1028: directReadableStream: false
+  - packages/benchmark/external-baseline.mjs:1060: parserInput: 'synchronous Iterable<Uint8Array[]>'
+  - packages/benchmark/external-baseline.mjs:1067: directReadableStream: false
 
 ## Summary
 
@@ -59,26 +59,26 @@ Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web R
 - Fixture size: 1024.00 MiB
 - Chunk KiB: 64
 - Sync Iterable batch size: 1
-- Fastest row: web-readable-stream-pull 132.99 MiB/s, RSS 78.05 MiB
-- ReadableStream / sync Iterable ratio: 1.06x
+- Fastest row: web-readable-stream-pull 131.19 MiB/s, RSS 78.56 MiB
+- ReadableStream / sync Iterable ratio: 1.12x
 - 200 MiB/s bounded full-string counterexamples: 0
 
 ## Rows
 
 | Row | Source shape | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Checksum | Demand-driven | Stream backpressure |
 | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | --- | --- |
-| `sync-iterable-byte-batches` | Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches | 125.58 | 3 | 16.2% | yes | 66.00 MiB | 61236571 | -716099804 | yes | n/a |
-| `web-readable-stream-pull` | Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source | 132.99 | 3 | 3.1% | yes | 78.05 MiB | 61236571 | -716099804 | yes | yes |
+| `sync-iterable-byte-batches` | Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches | 116.62 | 3 | 19.2% | yes | 66.15 MiB | 61236571 | -716099804 | yes | n/a |
+| `web-readable-stream-pull` | Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source | 131.19 | 3 | 2.3% | yes | 78.56 MiB | 61236571 | -716099804 | yes | yes |
 
 ## Findings
 
 - same-contract-preserved (CONTRACT_FACT): All source-shape rows preserve the same full-string checksum contract.
   - 61236571:-716099804
 - current-release-source-shape (CONTRACT_FACT): The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption.
-  - sync-iterable-byte-batches: 125.58 MiB/s
-- readable-stream-direct-source-shape (BENCH_FACT): Direct ReadableStream consumption reached 132.99 MiB/s (1.06x of sync Iterable<Uint8Array[]>); this is a separate source-shape row, not the current release comparison source.
-  - sync-iterable-byte-batches=125.58 MiB/s rss=66.00 MiB
-  - web-readable-stream-pull=132.99 MiB/s rss=78.05 MiB
+  - sync-iterable-byte-batches: 116.62 MiB/s
+- readable-stream-direct-source-shape (BENCH_FACT): Direct ReadableStream consumption reached 131.19 MiB/s (1.12x of sync Iterable<Uint8Array[]>); this is a separate source-shape row, not the current release comparison source.
+  - sync-iterable-byte-batches=116.62 MiB/s rss=66.15 MiB
+  - web-readable-stream-pull=131.19 MiB/s rss=78.56 MiB
 - backpressure-respected (CONTRACT_FACT): The ReadableStream row reads from the file only in pull(), so production is demand-driven by StreamReader.read().
   - web-readable-stream-pull: demandDrivenSource=true, respectsBackpressure=true
 

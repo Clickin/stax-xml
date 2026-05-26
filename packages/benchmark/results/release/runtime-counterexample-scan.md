@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T09:17:37.426Z
+Generated: 2026-05-26T09:41:16.277Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -99,13 +99,13 @@ Rows in this table are averages or aggregate summaries from cross-process artifa
 
 This table records input-consumption metadata when release rows or their source contracts expose it. It keeps synchronous byte-batch rows separate from direct ReadableStream rows and separates parser-demand-driven sources from Web Stream backpressure.
 
-| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Stream backpressure rows | Not full ArrayBuffer rows |
-| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| `generated-sync-iterable-byte-batches` | 141 | 141 | 132 | 185.50 | Node/V8 rawFrameNameId from text-trim-cost-decomposition.json | 141 | 0 | 141 |
-| `file-backed-sync-iterable-byte-batches` | 47 | 47 | 46 | 152.11 | Node/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep.json | 47 | 0 | 47 |
-| `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 | 1 |
-| `sync-iterable-byte-batches` | 1 | 1 | 1 | 125.58 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 1 | 0 | 1 |
-| `web-readable-stream-pull` | 1 | 1 | 1 | 132.99 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 | 1 | 1 |
+| Source mode | Rows | Full rows | Bounded full rows | Fastest MiB/s | Fastest row | Demand-driven rows | Direct ReadableStream rows | Stream backpressure rows | Not full ArrayBuffer rows |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| `generated-sync-iterable-byte-batches` | 141 | 141 | 132 | 185.50 | Node/V8 rawFrameNameId from text-trim-cost-decomposition.json | 141 | 0 | 0 | 141 |
+| `file-backed-sync-iterable-byte-batches` | 47 | 47 | 46 | 152.11 | Node/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep.json | 47 | 0 | 0 | 47 |
+| `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 | 0 | 1 |
+| `sync-iterable-byte-batches` | 1 | 1 | 1 | 116.62 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 1 | 0 | 0 | 1 |
+| `web-readable-stream-pull` | 1 | 1 | 1 | 131.19 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 1 | 1 | 1 | 1 |
 
 ## Partial Or Projection Threshold Rows
 

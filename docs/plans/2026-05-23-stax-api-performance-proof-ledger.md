@@ -241,9 +241,9 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 155 primary release JSON artifacts, recognizes 813
-sample throughput rows and 89 aggregate rows, and finds 507 JavaScript 1 GiB+
-full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
+The current scan covers 157 primary release JSON artifacts, recognizes 827
+sample throughput rows and 93 aggregate rows, and finds 521 JavaScript 1 GiB+
+full-string sample rows plus 73 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s with process RSS evidence.
@@ -254,7 +254,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 177 JavaScript 1 GiB+
+or their source contract carry it. It now finds 191 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -262,22 +262,27 @@ full-string rows with source mode metadata, including
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 129 JavaScript 1 GiB+ full-string rows, 120 of
-them bounded. The fastest
+generated-sync bucket now has 141 JavaScript 1 GiB+ full-string rows, 132 of
+them bounded. The file-backed sync byte-batch bucket adds 47 full-string rows,
+46 of them bounded, with fastest row 152.11 MiB/s. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 125.58 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 132.99 MiB/s. The
-scan separates parser-demand-driven source rows from Web Stream backpressure
-rows, so direct ReadableStream overhead evidence stays distinct from
-synchronous byte-batch rows. It also classifies source-mode rows by whether
-they are a prebuilt full-XML `ArrayBuffer` parser input: all 177 JavaScript
-1 GiB+ full-string rows with source-mode metadata are now marked as not full
-`ArrayBuffer` parser-input rows. This also fixes the previous scanner blind
-spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
-counted as JavaScript runtime rows.
+full-string scan with explicit machine-readable source flags:
+`sync-iterable-byte-batches` records parser input
+`synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
+116.62 MiB/s; the backpressure-respecting `web-readable-stream-pull` row
+records parser input `Web ReadableStream<Uint8Array>`,
+`directReadableStream=true`, and 131.19 MiB/s. The scan separates
+parser-demand-driven source rows from direct ReadableStream rows and from Web
+Stream backpressure rows, so direct ReadableStream overhead evidence stays
+distinct from synchronous byte-batch rows. It also classifies source-mode rows
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 191
+JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
+not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
+blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
+not counted as JavaScript runtime rows.
 
 The scan also records 27 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
