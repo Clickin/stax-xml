@@ -1,0 +1,329 @@
+{
+  "generatedAt": "2026-05-26T10:05:49.671Z",
+  "objective": "segment-tokenizer-headroom",
+  "contract": "file-backed-xml-token-boundary-headroom",
+  "note": "Benchmark-only probe for the parser-core no-concat hypothesis after XML token-boundary work is added. Rows consume demand-driven synchronous Iterable<Uint8Array[]> file batches and fold start/end/text/attribute-count events without JavaScript string materialization, so these rows are partial headroom evidence and not full StAX counterexamples.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "chunkKiB": 32,
+    "batchSize": 8,
+    "runs": 3,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "singleton-segment-tokenize",
+      "tool": "singleton-segment-tokenize",
+      "implementation": "File-backed sync Iterable<Uint8Array[]> singleton batches tokenized as direct segments",
+      "family": "partial-segment-tokenizer-headroom",
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches-singleton",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "chunkKiB": 32,
+      "batchSize": 1,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "mibPerSec": 236.55039342879138,
+      "avgMs": 4328.8866,
+      "minMs": 3995.8006,
+      "maxMs": 4594.483200000001,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.13829944170863717,
+      "samplesMs": [
+        3995.8006,
+        4396.375999999999,
+        4594.483200000001
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "checksum": -1381363934,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 65736704,
+        "maxHeapUsedBytes": 7072336,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 55197696,
+              "heapUsedBytes": 4442944,
+              "externalBytes": 1884070,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 60710912,
+              "heapUsedBytes": 4802616,
+              "externalBytes": 2022344,
+              "arrayBuffersBytes": 121071
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 60739584,
+              "heapUsedBytes": 4653832,
+              "externalBytes": 2022344,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 61050880,
+              "heapUsedBytes": 5037424,
+              "externalBytes": 2087880,
+              "arrayBuffersBytes": 186607
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 61087744,
+              "heapUsedBytes": 4660680,
+              "externalBytes": 2087880,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 65736704,
+              "heapUsedBytes": 7072336,
+              "externalBytes": 2579400,
+              "arrayBuffersBytes": 678127
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "grouped-concat-tokenize",
+      "tool": "grouped-concat-tokenize",
+      "implementation": "File-backed sync Iterable<Uint8Array[]> grouped batches concatenated before token-boundary folding",
+      "family": "partial-segment-tokenizer-headroom",
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": true,
+      "segmentAwareTokenize": false,
+      "mibPerSec": 194.54914403180848,
+      "avgMs": 5263.450699999999,
+      "minMs": 5199.676099999999,
+      "maxMs": 5310.0761999999995,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.02097485210605293,
+      "samplesMs": [
+        5199.676099999999,
+        5280.5998,
+        5310.0761999999995
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "checksum": -1381363934,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 68886528,
+        "maxHeapUsedBytes": 7218208,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 65826816,
+              "heapUsedBytes": 4663544,
+              "externalBytes": 2579400,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 68362240,
+              "heapUsedBytes": 7218208,
+              "externalBytes": 3791636,
+              "arrayBuffersBytes": 1890363
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 65544192,
+              "heapUsedBytes": 4668864,
+              "externalBytes": 3791636,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 68583424,
+              "heapUsedBytes": 6982112,
+              "externalBytes": 3791636,
+              "arrayBuffersBytes": 1890363
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 68243456,
+              "heapUsedBytes": 4670048,
+              "externalBytes": 3791636,
+              "arrayBuffersBytes": 579823
+            },
+            "after": {
+              "rssBytes": 68886528,
+              "heapUsedBytes": 6779352,
+              "externalBytes": 3267348,
+              "arrayBuffersBytes": 1366075
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "grouped-segment-tokenize",
+      "tool": "grouped-segment-tokenize",
+      "implementation": "File-backed sync Iterable<Uint8Array[]> grouped batches tokenized segment-by-segment without concat",
+      "family": "partial-segment-tokenizer-headroom",
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "mibPerSec": 196.25866430022478,
+      "avgMs": 5217.603166666667,
+      "minMs": 5104.287100000001,
+      "maxMs": 5350.035699999997,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.04709990241687833,
+      "samplesMs": [
+        5350.035699999997,
+        5104.287100000001,
+        5198.486700000001
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "checksum": -1381363934,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 77115392,
+        "maxHeapUsedBytes": 5977976,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 68685824,
+              "heapUsedBytes": 4670296,
+              "externalBytes": 3267348,
+              "arrayBuffersBytes": 448751
+            },
+            "after": {
+              "rssBytes": 76824576,
+              "heapUsedBytes": 5977976,
+              "externalBytes": 2743240,
+              "arrayBuffersBytes": 841967
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 76750848,
+              "heapUsedBytes": 4674000,
+              "externalBytes": 2743240,
+              "arrayBuffersBytes": 350447
+            },
+            "after": {
+              "rssBytes": 77103104,
+              "heapUsedBytes": 5274952,
+              "externalBytes": 2481096,
+              "arrayBuffersBytes": 579823
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 76840960,
+              "heapUsedBytes": 4682536,
+              "externalBytes": 2481096,
+              "arrayBuffersBytes": 186607
+            },
+            "after": {
+              "rssBytes": 77115392,
+              "heapUsedBytes": 5257560,
+              "externalBytes": 2481096,
+              "arrayBuffersBytes": 579823
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 3,
+    "fastest": {
+      "id": "singleton-segment-tokenize",
+      "mibPerSec": 236.55039342879138,
+      "boundedMemory": true,
+      "memoryKind": "process-rss"
+    },
+    "groupedSegmentVsConcatRatio": 1.0087870870721323,
+    "singletonVsGroupedSegmentRatio": 1.2052991100914185,
+    "counterexamples200MiB": 0
+  },
+  "findings": [
+    {
+      "id": "same-token-boundary-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "All rows scan the same file-backed bytes and preserve start/end/text/attribute counters plus checksum parity.",
+      "evidence": [
+        "61236569:21612907:21612907:18010755:18010755:-1381363934"
+      ]
+    },
+    {
+      "id": "segment-tokenizer-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "Grouped segment-aware tokenization reached 196.26 MiB/s versus grouped concat tokenization at 194.55 MiB/s (1.01x).",
+      "evidence": [
+        "singleton-segment-tokenize: 236.55 MiB/s, concatBeforeTokenize=false",
+        "grouped-concat-tokenize: 194.55 MiB/s, concatBeforeTokenize=true",
+        "grouped-segment-tokenize: 196.26 MiB/s, concatBeforeTokenize=false"
+      ]
+    },
+    {
+      "id": "partial-not-stax-counterexample",
+      "classification": "SCOPE_GUARD",
+      "summary": "These rows fold XML token boundaries and attribute counts, but they do not materialize names/text strings, validate all XML productions, expose public event objects, or preserve the full StAX checksum.",
+      "evidence": [
+        "singleton-segment-tokenize: fullStringParity=false, contractScope=xml-token-boundary-no-string-materialization",
+        "grouped-concat-tokenize: fullStringParity=false, contractScope=xml-token-boundary-no-string-materialization",
+        "grouped-segment-tokenize: fullStringParity=false, contractScope=xml-token-boundary-no-string-materialization"
+      ]
+    },
+    {
+      "id": "source-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "Rows use demand-driven synchronous Iterable<Uint8Array[]> parser-input shape, not direct ReadableStream and not one full ArrayBuffer parser input.",
+      "evidence": [
+        "singletonBatchSize=1",
+        "groupedBatchSize=8",
+        "directReadableStream=false",
+        "fullArrayBufferParserInput=false"
+      ]
+    }
+  ]
+}

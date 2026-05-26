@@ -1,6 +1,6 @@
 # Multi-Chunk Batch Shape Audit
 
-Generated: 2026-05-26T09:53:18.346Z
+Generated: 2026-05-26T10:10:14.342Z
 
 Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-size experiments. This is source evidence only; it is not a benchmark row and not a runtime-limit conclusion.
 
@@ -100,6 +100,12 @@ Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-
   - do not use direct ReadableStream rows as the parser-core baseline
 - segment-byte-scan-probe-scope (SCOPE_GUARD): The segment-scan-headroom benchmark is allowed as parser-core headroom evidence only; it does not remove the need for a segment-aware XML parser prototype before claiming full StAX throughput.
   - segment-scan-headroom contract: delimiter-byte-scan-no-xml-parse-no-string-materialization
+  - fullStringParity=false
+  - directReadableStream=false
+  - fullArrayBufferParserInput=false
+- segment-tokenizer-probe-scope (SCOPE_GUARD): The segment-tokenizer-headroom benchmark raises the no-concat probe from delimiter scanning to XML token-boundary folding, but it still omits string materialization, full XML validation, public event objects, and full StAX checksum parity.
+  - segment-tokenizer-headroom contract: xml-token-boundary-no-string-materialization
+  - grouped segment-aware tokenization is parser-core headroom evidence only
   - fullStringParity=false
   - directReadableStream=false
   - fullArrayBufferParserInput=false

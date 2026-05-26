@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T09:53:18.346Z",
+  "generatedAt": "2026-05-26T10:10:14.342Z",
   "objective": "multi-chunk-batch-shape-audit",
   "contract": "sync-uint8array-byte-batch-buffer-shape",
   "note": "Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-size experiments. This is source evidence only; it is not a benchmark row and not a runtime-limit conclusion.",
@@ -177,6 +177,18 @@
       "summary": "The segment-scan-headroom benchmark is allowed as parser-core headroom evidence only; it does not remove the need for a segment-aware XML parser prototype before claiming full StAX throughput.",
       "evidence": [
         "segment-scan-headroom contract: delimiter-byte-scan-no-xml-parse-no-string-materialization",
+        "fullStringParity=false",
+        "directReadableStream=false",
+        "fullArrayBufferParserInput=false"
+      ]
+    },
+    {
+      "id": "segment-tokenizer-probe-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "The segment-tokenizer-headroom benchmark raises the no-concat probe from delimiter scanning to XML token-boundary folding, but it still omits string materialization, full XML validation, public event objects, and full StAX checksum parity.",
+      "evidence": [
+        "segment-tokenizer-headroom contract: xml-token-boundary-no-string-materialization",
+        "grouped segment-aware tokenization is parser-core headroom evidence only",
         "fullStringParity=false",
         "directReadableStream=false",
         "fullArrayBufferParserInput=false"

@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 158);
+  assert.equal(report.summary.scannedArtifactCount, 159);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
     && artifact.objective === 'file-backed-materialization-profile'
@@ -47,7 +47,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 4
     && artifact.runtimes.includes('node-v8')
   ));
-  assert.equal(report.summary.measuredRowCount, 830);
+  assert.equal(report.summary.measuredRowCount, 833);
   assert.equal(report.summary.largeJsFullRowCount, 521);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
@@ -87,7 +87,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 116);
+  assert.equal(report.summary.benchmarkArtifactCount, 117);
   assert.equal(report.summary.sourceArtifactCount, 16);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
@@ -260,6 +260,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.measuredRowCount === 3
   ));
   assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'segment-tokenizer-headroom.json'
+    && row.runtimes.includes('node-v8')
+    && row.evidenceKinds.includes('BENCH_FACT')
+    && row.evidenceKinds.includes('SCOPE_GUARD')
+    && row.measuredRowCount === 3
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'stream-reader-4gb-shapes.json'
     && row.runtimes.includes('node-v8')
     && !row.runtimes.includes('unknown')
@@ -268,7 +275,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 352
+    && row.measuredRowCount === 355
     && row.largeFullStringRowCount === 221
   ));
   assert.ok(report.scannedArtifacts.some(row =>
@@ -541,7 +548,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 76 \| 352 \| 221 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 77 \| 355 \| 221 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 11 \| 12 \| 4 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 10 \| 18 \| 4 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

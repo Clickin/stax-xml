@@ -138,6 +138,18 @@ function createReport() {
         ],
       },
       {
+        id: 'segment-tokenizer-probe-scope',
+        classification: 'SCOPE_GUARD',
+        summary: 'The segment-tokenizer-headroom benchmark raises the no-concat probe from delimiter scanning to XML token-boundary folding, but it still omits string materialization, full XML validation, public event objects, and full StAX checksum parity.',
+        evidence: [
+          'segment-tokenizer-headroom contract: xml-token-boundary-no-string-materialization',
+          'grouped segment-aware tokenization is parser-core headroom evidence only',
+          'fullStringParity=false',
+          'directReadableStream=false',
+          'fullArrayBufferParserInput=false',
+        ],
+      },
+      {
         id: 'no-concat-prototype-scope',
         classification: missingFacts.length === 0 ? 'SCOPE_GUARD' : 'OPEN',
         summary: missingFacts.length === 0

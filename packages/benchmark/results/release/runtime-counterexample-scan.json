@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T09:50:58.094Z",
+  "generatedAt": "2026-05-26T10:07:24.838Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -136,6 +136,7 @@
     "runtime-proof-gap-handoff.json",
     "safari-webkit-availability-audit.json",
     "segment-scan-headroom.json",
+    "segment-tokenizer-headroom.json",
     "stax-event-public-object-shape-audit.json",
     "stream-reader-1gb-allocation-diverse-shapes.json",
     "stream-reader-1gb-allocation-shapes.json",
@@ -177,14 +178,14 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 158,
+    "scannedArtifactCount": 159,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 830,
+    "measuredRowCount": 833,
     "aggregateRowCount": 93,
     "largeJsFullRowCount": 521,
     "largeJsFullAggregateRowCount": 73,
-    "sourceModeRowCount": 253,
+    "sourceModeRowCount": 256,
     "largeJsFullSourceModeRowCount": 191,
     "sourceModeBreakdown": [
       {
@@ -222,7 +223,7 @@
       },
       {
         "sourceMode": "file-backed-sync-iterable-byte-batches",
-        "rowCount": 57,
+        "rowCount": 59,
         "fullStringRowCount": 48,
         "boundedFullStringRowCount": 47,
         "fastestMiBPerSec": 682.83,
@@ -246,10 +247,10 @@
           "fullArrayBufferParserInput": false,
           "directReadableStream": false
         },
-        "demandDrivenRows": 57,
+        "demandDrivenRows": 59,
         "backpressureRows": 0,
         "directReadableStreamRows": 0,
-        "notFullArrayBufferRows": 57,
+        "notFullArrayBufferRows": 59,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
       },
@@ -288,7 +289,7 @@
       },
       {
         "sourceMode": "file-backed-sync-iterable-byte-batches-singleton",
-        "rowCount": 1,
+        "rowCount": 2,
         "fullStringRowCount": 0,
         "boundedFullStringRowCount": 0,
         "fastestMiBPerSec": 575.24,
@@ -312,10 +313,10 @@
           "fullArrayBufferParserInput": false,
           "directReadableStream": false
         },
-        "demandDrivenRows": 1,
+        "demandDrivenRows": 2,
         "backpressureRows": 0,
         "directReadableStreamRows": 0,
-        "notFullArrayBufferRows": 1,
+        "notFullArrayBufferRows": 2,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
       },
@@ -554,7 +555,7 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 830,
+      "measuredRows": 833,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -567,7 +568,7 @@
       "rowsWithMemoryCounter": 10
     },
     "counterexampleCount": 0,
-    "partialHeadroomRowCount": 30,
+    "partialHeadroomRowCount": 31,
     "unboundedOrUnknownLargeFullRowCount": 91,
     "largeFullMemoryRejectionBreakdown": {
       "total": 91,
@@ -2192,6 +2193,32 @@
       "directReadableStream": false,
       "batchSize": null,
       "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "segment-tokenizer-headroom.json",
+      "jsonPath": "rows.0",
+      "id": "singleton-segment-tokenize",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 236.55,
+      "eventCount": 61236569,
+      "checksum": -1381363934,
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "family": "partial-segment-tokenizer-headroom",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches-singleton",
+      "fullArrayBufferParserInput": false,
+      "directReadableStream": false,
+      "batchSize": 1,
+      "chunkKiB": 32,
       "demandDrivenSource": true,
       "respectsBackpressure": null
     },
@@ -13340,6 +13367,84 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "segment-tokenizer-headroom.json",
+      "jsonPath": "rows.0",
+      "id": "singleton-segment-tokenize",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 236.55,
+      "eventCount": 61236569,
+      "checksum": -1381363934,
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "family": "partial-segment-tokenizer-headroom",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches-singleton",
+      "fullArrayBufferParserInput": false,
+      "directReadableStream": false,
+      "batchSize": 1,
+      "chunkKiB": 32,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "segment-tokenizer-headroom.json",
+      "jsonPath": "rows.1",
+      "id": "grouped-concat-tokenize",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 194.55,
+      "eventCount": 61236569,
+      "checksum": -1381363934,
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "family": "partial-segment-tokenizer-headroom",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "directReadableStream": false,
+      "batchSize": 8,
+      "chunkKiB": 32,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "segment-tokenizer-headroom.json",
+      "jsonPath": "rows.2",
+      "id": "grouped-segment-tokenize",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 196.26,
+      "eventCount": 61236569,
+      "checksum": -1381363934,
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "family": "partial-segment-tokenizer-headroom",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "directReadableStream": false,
+      "batchSize": 8,
+      "chunkKiB": 32,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "stream-reader-4gb-shapes.json",
       "jsonPath": "results.0",
       "id": "0",
@@ -14389,7 +14494,7 @@
     {
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "30 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+      "summary": "31 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
     },
     {
       "id": "text-materialization-headroom",
@@ -14404,7 +14509,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "830 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
+      "summary": "833 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",
