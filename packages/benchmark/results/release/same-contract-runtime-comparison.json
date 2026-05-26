@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T03:06:28.420Z",
+  "generatedAt": "2026-05-26T03:26:21.737Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -33,6 +33,7 @@
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-cost-decomposition.json",
       "text-trim-cost-decomposition-2gib.json",
+      "text-trim-cost-decomposition-4gib.json",
       "access-shape-candidate-cross-process.json",
       "candidate-headroom-cross-process-books-corpus.json",
       "candidate-headroom-cross-process-books-corpus-batch16.json",
@@ -45,8 +46,8 @@
     ]
   },
   "summary": {
-    "rowCount": 136,
-    "jsLargeFullRowCount": 119,
+    "rowCount": 137,
+    "jsLargeFullRowCount": 120,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
@@ -485,6 +486,31 @@
           "sampleMinMiBPerSec": 183.28,
           "sampleMaxMiBPerSec": 186.06,
           "sampleSpreadRatio": 0.02
+        }
+      },
+      {
+        "group": "text-trim-cost-decomposition-4gib",
+        "fastest": {
+          "group": "text-trim-cost-decomposition-4gib",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 178.86,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 66.07,
+            "deltaMiB": 4.57,
+            "maxHeapUsedMiB": 9.22,
+            "maxExternalMiB": 2.24,
+            "maxArrayBuffersMiB": 0.42
+          },
+          "sourceMode": "sync-iterable-byte-batches",
+          "sourceArtifact": "text-trim-cost-decomposition-4gib.json",
+          "sampleCount": 3,
+          "sampleMinMiBPerSec": 169.74,
+          "sampleMaxMiBPerSec": 185.11,
+          "sampleSpreadRatio": 0.09
         }
       },
       {
@@ -4649,6 +4675,56 @@
       "runtimeLimitCounterexample": false
     },
     {
+      "group": "text-trim-cost-decomposition-4gib",
+      "sourceArtifact": "text-trim-cost-decomposition-4gib.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "nextRawBatch typed arrays with numeric name-id cache",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 4,
+        "sizeMiB": 4096,
+        "actualBytes": 4294969842,
+        "batchSize": 1,
+        "rowCycleSize": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 228385566,
+      "checksum": -1067702969,
+      "mibPerSec": 178.86,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 66.07,
+        "deltaMiB": 4.57,
+        "maxHeapUsedMiB": 9.22,
+        "maxExternalMiB": 2.24,
+        "maxArrayBuffersMiB": 0.42
+      },
+      "materializationCounters": {
+        "stringFieldReads": 251035372,
+        "eventObjects": 0,
+        "rawSpanMaterializations": 79274337,
+        "attributePairs": 11324904
+      },
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 169.74,
+      "sampleMaxMiBPerSec": 185.11,
+      "sampleSpreadRatio": 0.09,
+      "woodstoxRatio": 0.59,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
       "group": "access-shape-cross-process-books-corpus",
       "sourceArtifact": "access-shape-candidate-cross-process.json",
       "runtimeId": "node-v8",
@@ -6936,7 +7012,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=119",
+        "jsLargeFullRows=120",
         "counterexamples=0"
       ]
     },

@@ -158,7 +158,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 136 aggregated rows and 119 JavaScript 1 GiB+
+The current aggregate has 137 aggregated rows and 120 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -216,8 +216,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 146 primary release JSON artifacts, recognizes 792
-sample throughput rows and 89 aggregate rows, and finds 490 JavaScript 1 GiB+
+The current scan covers 147 primary release JSON artifacts, recognizes 795
+sample throughput rows and 89 aggregate rows, and finds 491 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -229,14 +229,14 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 160 JavaScript 1 GiB+
+or their source contract carry it. It now finds 161 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
 `web-readable-stream-pull`. The generated sync byte-batch bucket now includes
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions; the generated-sync bucket now has
-112 JavaScript 1 GiB+ full-string rows, 103 of them bounded. The fastest
+113 JavaScript 1 GiB+ full-string rows, 104 of them bounded. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
@@ -249,15 +249,15 @@ synchronous byte-batch rows. This also fixes the previous scanner blind spot
 where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not counted
 as JavaScript runtime rows.
 
-The scan also records 25 threshold-crossing partial/projection rows. The
+The scan also records 26 threshold-crossing partial/projection rows. The
 fastest is Bun/JSC `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json`; Node/V8 and
 Chrome/V8 also cross 200 MiB/s on partial `books.xml` corpus-cycle rows. These
 rows preserve event-count style work but drop the full-string StAX contract, so
-they are headroom evidence rather than runtime-limit counterexamples. Five
+they are headroom evidence rather than runtime-limit counterexamples. Six
 near-full text/CDATA materialization headroom rows are now recorded separately.
 The fastest is Node/V8 `withoutTextStrings` from
-`text-trim-cost-decomposition.json` at 249.13 MiB/s; it omitted all text/CDATA
+`text-trim-cost-decomposition-4gib.json` at 252.36 MiB/s; it omitted all text/CDATA
 string fields and changed the checksum to `1372281363`, so it is not full-string
 StAX parity. The same artifact records `rawFrameNameIdNoTrim` at 185.03 MiB/s
 with the same 62,758,976 string-field reads as `rawFrameNameId`; it happens to
@@ -288,10 +288,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 146 primary release artifacts and recognizes 792
-measured rows. It records 104 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 147 primary release artifacts and recognizes 795
+measured rows. It records 105 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-11 negative-result artifacts, 490 JavaScript 1 GiB+ full-string rows, and three
+11 negative-result artifacts, 491 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1624,6 +1624,19 @@ trimmed-text contract and still stays below 200 MiB/s. The full-parity
 checksum `223378117`. This 2 GiB rerun preserves bounded memory and confirms
 that the >200 MiB/s signal still appears only after dropping text/CDATA string
 materialization, not under the full StAX string contract.
+
+`packages/benchmark/results/release/text-trim-cost-decomposition-4gib.md`
+extends the same corpus-cycle decomposition to 4.00 GiB with the same sync
+`Iterable<Uint8Array[]>` source contract, `runs=3`, and `warmups=0`. The
+full-parity `rawFrameNameId` row averaged `178.86 MiB/s` with `8.7%` spread,
+max RSS `66.1 MiB`, 228,385,566 events, 251,035,372 string-field reads, and
+checksum `-1067702969`. The no-trim row averaged `182.11 MiB/s` with `7.4%`
+spread and the same string-field count and checksum on this corpus, but remains
+non-full-parity and below 200 MiB/s. The non-full `withoutTextStrings` row
+averaged `252.36 MiB/s` with `3.7%` spread, max RSS `84.8 MiB`, and checksum
+`-933264309`. This keeps the 4 GiB full-string row bounded and below the
+counterexample threshold while showing the same text/CDATA materialization
+headroom axis at a larger input scale.
 
 `packages/benchmark/results/release/access-shape-candidate-stability.md`
 rechecks the remaining full-parity access-shape variants on the same `books.xml`
