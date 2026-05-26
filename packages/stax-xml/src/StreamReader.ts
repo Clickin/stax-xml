@@ -3,10 +3,11 @@ import {
   createStreamBatchView,
   type StreamBatch,
   type StreamReaderSyncByteBatch,
+  type StreamReaderSyncRawBatch,
 } from './stream-reader-core.js';
 import type { DocumentMode } from './types.js';
 
-export type { StreamBatch, StreamEventView } from './stream-reader-core.js';
+export type { StreamBatch, StreamEventView, StreamReaderSyncRawBatch } from './stream-reader-core.js';
 
 export type StreamReaderSource =
   | ReadableStream<Uint8Array>
@@ -78,16 +79,42 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   }
 
   async nextBatch(): Promise<StreamBatch | null> {
+    return await this.runExclusiveRead(async () => {
+      this.generation++;
+      if (this.finished) {
+        return null;
+      }
+
+      return await this.readNextBatch();
+    });
+  }
+
+  /**
+   * Return an experimental low-level batch view without creating per-event
+   * wrapper objects.
+   *
+   * This API is intended for benchmark and scanner-style traversal paths. The
+   * existing {@link nextBatch} API remains the stable ergonomic surface.
+   *
+   * @experimental
+   */
+  async nextRawBatch(): Promise<StreamReaderSyncRawBatch | null> {
+    return await this.runExclusiveRead(async () => {
+      this.generation++;
+      if (this.finished) {
+        return null;
+      }
+
+      return await this.readNextRawBatch();
+    });
+  }
+
+  private async runExclusiveRead<T>(read: () => Promise<T>): Promise<T> {
     if (this.nextBatchInFlight) {
       throw new Error('Concurrent nextBatch() calls are not allowed on StreamReader.');
     }
 
-    this.generation++;
-    if (this.finished) {
-      return null;
-    }
-
-    const operation = this.readNextBatch();
+    const operation = read();
     this.nextBatchInFlight = operation;
     try {
       return await operation;
@@ -157,6 +184,26 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
   }
 
+  private async readNextRawBatch(): Promise<StreamReaderSyncRawBatch | null> {
+    while (true) {
+      const byteBatch = await this.readNextByteBatch();
+
+      if (byteBatch.length > 0 && this.streamingBatches.pushByteBatch(byteBatch, false)) {
+        return createRawBatch(this.streamingBatches.batchFrame());
+      }
+
+      if (this.sourceDone) {
+        if (this.streamingBatches.pushByteBatch([], true)) {
+          this.releaseLock();
+          return createRawBatch(this.streamingBatches.batchFrame());
+        }
+        this.finished = true;
+        this.releaseLock();
+        return null;
+      }
+    }
+  }
+
   private async readNextByteBatch(): Promise<StreamReaderSyncByteBatch> {
     if (this.sourceDone) {
       return [];
@@ -216,6 +263,28 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
 
 function isAsyncIterableByteBatches(value: unknown): value is AsyncIterable<StreamReaderSyncByteBatch> {
   return typeof (value as { [Symbol.asyncIterator]?: unknown })?.[Symbol.asyncIterator] === 'function';
+}
+
+function createRawBatch(frame: ReturnType<ReturnType<typeof createJavaScriptIterableReader>['batchFrame']>): StreamReaderSyncRawBatch {
+  return {
+    kind: 'frame',
+    eventCount: frame.eventCount,
+    attrCount: frame.attrCount,
+    buffer: frame.buffer,
+    eventTypes: frame.eventTypes,
+    nameStarts: frame.nameStarts,
+    nameEnds: frame.nameEnds,
+    nameIds: frame.nameIds,
+    textStarts: frame.textStarts,
+    textEnds: frame.textEnds,
+    attrStarts: frame.attrStarts,
+    attrCounts: frame.attrCounts,
+    attrNameStarts: frame.attrNameStarts,
+    attrNameEnds: frame.attrNameEnds,
+    attrNameIds: frame.attrNameIds,
+    attrValueStarts: frame.attrValueStarts,
+    attrValueEnds: frame.attrValueEnds,
+  } satisfies StreamReaderSyncRawBatch;
 }
 
 function normalizeBatchSize(value: number | undefined): number {

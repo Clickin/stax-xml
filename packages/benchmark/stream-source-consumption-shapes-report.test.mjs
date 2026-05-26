@@ -47,7 +47,8 @@ test('stream source consumption shapes report separates sync batches from direct
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'stream-source-consumption-shapes');
   assert.equal(report.contract, 'same-full-string-checksum-source-consumption-shapes');
-  assert.match(report.sourceContract.fullChecksumConsumer, /same StreamBatch full-string checksum consumer/);
+  assert.match(report.sourceContract.fullChecksumConsumer, /full-string checksum parity/);
+  assert.match(report.sourceContract.fullChecksumConsumer, /different access surfaces/);
   assert.match(report.sourceContract.syncIterableInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(report.sourceContract.syncIterableInput, /one grouped batch per parser pull/);
   assert.match(report.sourceContract.asyncIterableInput, /StreamReader over an AsyncIterable<Uint8Array\[\]>/);
@@ -71,9 +72,10 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'sync-iterable-byte-batches'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-single-chunk-push'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-async-byte-batches'));
+  assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-async-raw-batches'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'benchmark-readable-stream-backpressure'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'file-backed-release-sync-batches'));
-  assert.equal(report.summary.rowCount, 6);
+  assert.equal(report.summary.rowCount, 10);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.asyncIterableRatioToSyncIterable, 'number');
   assert.equal(typeof report.summary.fastestAsyncIterableRatioToFastestSyncIterable, 'number');
@@ -88,8 +90,12 @@ test('stream source consumption shapes report separates sync batches from direct
     'sync-iterable-byte-batches-batch-4',
     'async-iterable-byte-batches',
     'async-iterable-byte-batches-batch-4',
+    'async-iterable-raw-frame',
+    'async-iterable-raw-frame-batch-4',
     'web-readable-stream-pull',
     'web-readable-stream-pull-batch-4',
+    'web-readable-stream-raw-frame',
+    'web-readable-stream-raw-frame-batch-4',
   ]);
   for (const row of report.rows) {
     assert.equal(row.fullStringParity, true);
@@ -107,6 +113,8 @@ test('stream source consumption shapes report separates sync batches from direct
   const syncBatch4Row = report.rows.find(row => row.id === 'sync-iterable-byte-batches-batch-4');
   const asyncRow = report.rows.find(row => row.id === 'async-iterable-byte-batches');
   const asyncBatch4Row = report.rows.find(row => row.id === 'async-iterable-byte-batches-batch-4');
+  const asyncRawRow = report.rows.find(row => row.id === 'async-iterable-raw-frame');
+  const readableRawRow = report.rows.find(row => row.id === 'web-readable-stream-raw-frame');
   assert.equal(syncRow.parserInput, 'synchronous Iterable<Uint8Array[]>');
   assert.equal(syncRow.sourceMode, 'sync-iterable-byte-batches');
   assert.equal(syncRow.directReadableStream, false);
@@ -129,6 +137,12 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(asyncBatch4Row.batchSize, 4);
   assert.equal(asyncBatch4Row.fullArrayBufferParserInput, false);
   assert.equal(asyncBatch4Row.respectsBackpressure, true);
+  assert.equal(asyncRawRow.parserInput, 'async Iterable<Uint8Array[]>');
+  assert.equal(asyncRawRow.sourceMode, 'async-iterable-byte-batches');
+  assert.equal(asyncRawRow.accessMode, 'raw-frame');
+  assert.equal(asyncRawRow.directReadableStream, false);
+  assert.equal(asyncRawRow.fullArrayBufferParserInput, false);
+  assert.equal(asyncRawRow.respectsBackpressure, true);
   assert.equal(readableRow.parserInput, 'Web ReadableStream<Uint8Array>');
   assert.equal(readableRow.batchSize, 1);
   assert.equal(readableRow.directReadableStream, true);
@@ -140,6 +154,12 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(readableBatch4Row.directReadableStream, true);
   assert.equal(readableBatch4Row.fullArrayBufferParserInput, false);
   assert.equal(readableBatch4Row.respectsBackpressure, true);
+  assert.equal(readableRawRow.parserInput, 'Web ReadableStream<Uint8Array>');
+  assert.equal(readableRawRow.sourceMode, 'web-readable-stream-pull');
+  assert.equal(readableRawRow.accessMode, 'raw-frame');
+  assert.equal(readableRawRow.directReadableStream, true);
+  assert.equal(readableRawRow.fullArrayBufferParserInput, false);
+  assert.equal(readableRawRow.respectsBackpressure, true);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Stream Source Consumption Shapes/);
@@ -156,6 +176,7 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /sync-iterable-byte-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /stream-reader-single-chunk-push \(SOURCE_FACT\)/);
   assert.match(markdown, /stream-reader-async-byte-batches \(SOURCE_FACT\)/);
+  assert.match(markdown, /stream-reader-async-raw-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /benchmark-readable-stream-backpressure \(SOURCE_FACT\)/);
   assert.match(markdown, /file-backed-release-sync-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads only inside pull\(\)/);
@@ -166,7 +187,9 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /current-release-source-shape/);
   assert.match(markdown, /sync-batch-size-headroom/);
   assert.match(markdown, /async-byte-batch-source-shape/);
+  assert.match(markdown, /async-raw-frame-source-shape/);
   assert.match(markdown, /readable-stream-direct-source-shape/);
+  assert.match(markdown, /readable-stream-raw-frame-source-shape/);
   assert.match(markdown, /readable-stream-batch-size-headroom/);
   assert.match(markdown, /backpressure-respected/);
   assert.match(markdown, /not the current release comparison source and not a JavaScript runtime ceiling proof/);

@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T17:30:43.130Z
+Generated: 2026-05-26T17:57:57.731Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -8,12 +8,12 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 
 - Scanned artifacts: 175
 - Ignored derived artifacts: 5
-- Measured rows recognized: 911
+- Measured rows recognized: 919
 - Aggregate rows recognized: 99
-- 1 GiB+ JS full-string rows recognized: 570
+- 1 GiB+ JS full-string rows recognized: 578
 - 1 GiB+ JS full-string aggregate rows recognized: 77
-- Rows with recognized source mode: 332
-- 1 GiB+ JS full-string rows with recognized source mode: 240
+- Rows with recognized source mode: 340
+- 1 GiB+ JS full-string rows with recognized source mode: 248
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
   - Unknown bounded-memory JS rows: 4
@@ -103,9 +103,9 @@ This table records input-consumption metadata when release rows or their source 
 | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
 | `generated-sync-iterable-byte-batches` | 179 | 179 | 170 | 185.50 | Node/V8 rawFrameNameId from text-trim-cost-decomposition.json | 179 | 0 | 0 | 179 |
 | `file-backed-sync-iterable-byte-batches` | 49 | 49 | 48 | 152.11 | Node/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep.json | 49 | 0 | 0 | 49 |
-| `async-iterable-byte-batches` | 4 | 4 | 4 | 73.95 | Node/V8 async-iterable-byte-batches-batch-16 from stream-source-consumption-shapes.json | 4 | 0 | 4 | 4 |
-| `web-readable-stream-pull` | 4 | 4 | 4 | 74.21 | Node/V8 web-readable-stream-pull from stream-source-consumption-shapes.json | 4 | 4 | 4 | 4 |
-| `sync-iterable-byte-batches` | 3 | 3 | 3 | 76.69 | Node/V8 sync-iterable-byte-batches-batch-8 from stream-source-consumption-shapes.json | 3 | 0 | 0 | 3 |
+| `async-iterable-byte-batches` | 8 | 8 | 8 | 74.61 | Node/V8 async-iterable-byte-batches-batch-8 from stream-source-consumption-shapes.json | 8 | 0 | 8 | 8 |
+| `web-readable-stream-pull` | 8 | 8 | 8 | 75.09 | Node/V8 web-readable-stream-pull-batch-16 from stream-source-consumption-shapes.json | 8 | 8 | 8 | 8 |
+| `sync-iterable-byte-batches` | 3 | 3 | 3 | 74.47 | Node/V8 sync-iterable-byte-batches-batch-8 from stream-source-consumption-shapes.json | 3 | 0 | 0 | 3 |
 | `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 | 0 | 1 |
 
 ## Partial Or Projection Threshold Rows
@@ -179,9 +179,9 @@ These near-full rows still materialize element names and attributes, but omit te
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 38 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 13 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 911 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 919 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
-- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:179, file-backed-sync-iterable-byte-batches:49, async-iterable-byte-batches:4, web-readable-stream-pull:4, sync-iterable-byte-batches:3, complete-js-string:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:179/179, file-backed-sync-iterable-byte-batches:49/49, async-iterable-byte-batches:4/4, web-readable-stream-pull:4/4, sync-iterable-byte-batches:3/3, complete-js-string:1/1.
+- source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:179, file-backed-sync-iterable-byte-batches:49, async-iterable-byte-batches:8, web-readable-stream-pull:8, sync-iterable-byte-batches:3, complete-js-string:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:179/179, file-backed-sync-iterable-byte-batches:49/49, async-iterable-byte-batches:8/8, web-readable-stream-pull:8/8, sync-iterable-byte-batches:3/3, complete-js-string:1/1.
 
 ## Limits
 

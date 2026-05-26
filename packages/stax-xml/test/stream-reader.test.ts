@@ -130,6 +130,39 @@ describe('StreamReader', () => {
     expect(returned).toBe(true);
   });
 
+  it('returns raw batches from async byte-batch sources', async () => {
+    const reader = new StreamReader(asyncByteBatches([
+      ['<ro', 'ot>'],
+      ['<item/>'],
+      ['</root>'],
+    ]));
+
+    const names: string[] = [];
+    let raw;
+    while ((raw = await reader.nextRawBatch()) !== null) {
+      collectRawStartNames(raw, names);
+    }
+
+    expect(names).toEqual(['root', 'item']);
+  });
+
+  it('returns raw batches from ReadableStream sources', async () => {
+    const reader = new StreamReader(chunkedReadableStream([
+      '<ro',
+      'ot>',
+      '<item/>',
+      '</root>',
+    ]), { batchSize: 2 });
+
+    const names: string[] = [];
+    let raw;
+    while ((raw = await reader.nextRawBatch()) !== null) {
+      collectRawStartNames(raw, names);
+    }
+
+    expect(names).toEqual(['root', 'item']);
+  });
+
   it('rejects invalid byte batch sizes', () => {
     expect(() => new StreamReader(chunkedReadableStream(['<root/>']), { batchSize: 0 }))
       .toThrow('batchSize must be a positive integer.');
@@ -142,6 +175,19 @@ function collectStartNames(batch: { eventCount: number; typeAt(index: number): S
   for (let index = 0; index < batch.eventCount; index++) {
     if (batch.typeAt(index) === StreamEventType.START_ELEMENT) {
       names.push(batch.nameAt(index)!);
+    }
+  }
+}
+
+function collectRawStartNames(raw: Awaited<ReturnType<StreamReader['nextRawBatch']>>, names: string[]): void {
+  if (!raw || raw.kind !== 'frame') {
+    return;
+  }
+
+  const decoder = new TextDecoder();
+  for (let index = 0; index < raw.eventCount; index++) {
+    if (raw.eventTypes[index] === StreamEventType.START_ELEMENT) {
+      names.push(decoder.decode(raw.buffer.subarray(raw.nameStarts[index], raw.nameEnds[index])));
     }
   }
 }

@@ -19,7 +19,9 @@ const GIB = 1024 * MIB;
 const allShapes = [
   'sync-iterable-byte-batches',
   'async-iterable-byte-batches',
+  'async-iterable-raw-frame',
   'web-readable-stream-pull',
+  'web-readable-stream-raw-frame',
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -169,10 +171,29 @@ async function runComparison(options) {
       }
       continue;
     }
+    if (shape === 'async-iterable-raw-frame') {
+      for (const batchSize of options.asyncBatchSizes) {
+        const rowId = asyncRawFrameRowId(batchSize);
+        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
+          createAsyncFileByteBatches(options.file, options.chunkKiB * 1024, batchSize),
+        ), fileStats.size / MIB, { ...options, batchSize }));
+      }
+      continue;
+    }
     if (shape === 'web-readable-stream-pull') {
       for (const batchSize of options.readableBatchSizes) {
         const rowId = readableRowId(batchSize);
         rows.push(await measureAsyncShape(rowId, () => consumeAsyncStreamReader(
+          createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
+          batchSize,
+        ), fileStats.size / MIB, { ...options, batchSize }));
+      }
+      continue;
+    }
+    if (shape === 'web-readable-stream-raw-frame') {
+      for (const batchSize of options.readableBatchSizes) {
+        const rowId = readableRawFrameRowId(batchSize);
+        rows.push(await measureAsyncShape(rowId, () => consumeAsyncRawFrameReader(
           createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
           batchSize,
         ), fileStats.size / MIB, { ...options, batchSize }));
@@ -197,7 +218,7 @@ async function runComparison(options) {
     generatedAt: new Date().toISOString(),
     objective: 'stream-source-consumption-shapes',
     contract: 'same-full-string-checksum-source-consumption-shapes',
-    note: 'Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream source reads only from pull(), and StreamReader groups at most the configured batch size per nextBatch() operation, so it stays bounded by consumer demand and does not pre-materialize the file.',
+    note: 'Compares demand-driven sync Iterable<Uint8Array[]>, async Iterable<Uint8Array[]>, and direct Web ReadableStream<Uint8Array> consumption under the same full-string checksum contract. The ReadableStream source reads only from pull(), and StreamReader groups at most the configured batch size per nextBatch() operation, so it stays bounded by consumer demand and does not pre-materialize the file.',
     sourceContract: createSourceContract(options),
     sourceFacts: createSourceFacts(),
     environment: {
@@ -244,7 +265,7 @@ async function runComparison(options) {
 
 function createSourceContract(options) {
   return {
-    fullChecksumConsumer: 'Both rows execute the same StreamBatch full-string checksum consumer and must preserve event count plus checksum parity before throughput is compared.',
+    fullChecksumConsumer: 'All rows preserve event count plus full-string checksum parity before throughput is compared. StreamBatch and raw-frame rows use different access surfaces but the same checksum contract.',
     syncIterableInput: 'sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array[]> and yields one grouped batch per parser pull.',
     asyncIterableInput: 'async-iterable-byte-batches uses StreamReader over an AsyncIterable<Uint8Array[]> and awaits one pre-grouped byte batch per parser pull.',
     primaryLargeComparisonInput: 'The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.',
@@ -307,6 +328,16 @@ function createSourceFacts() {
         { file: 'packages/stax-xml/src/StreamReader.ts', text: 'AsyncIterable<StreamReaderSyncByteBatch>' },
         { file: 'packages/stax-xml/src/StreamReader.ts', text: 'this.byteBatchIterator = source[Symbol.asyncIterator]()' },
         { file: 'packages/stax-xml/src/StreamReader.ts', text: 'return await this.readNextAsyncIterableByteBatch()' },
+      ],
+    }),
+    sourceFact(files, {
+      id: 'stream-reader-async-raw-batches',
+      classification: 'SOURCE_FACT',
+      summary: 'The public StreamReader can return raw frame batches from async sources without creating StreamBatch event wrapper objects.',
+      patterns: [
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'async nextRawBatch(): Promise<StreamReaderSyncRawBatch | null>' },
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'return await this.readNextRawBatch()' },
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'return createRawBatch(this.streamingBatches.batchFrame())' },
       ],
     }),
     sourceFact(files, {
@@ -425,6 +456,95 @@ async function consumeAsyncStreamReader(stream, batchSize) {
     checksum = result.checksum;
   }
   return { eventCount, checksum };
+}
+
+async function consumeAsyncRawFrameReader(source, batchSize) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const nameCache = [];
+  let eventCount = 0;
+  let checksum = 0;
+  const reader = typeof batchSize === 'number'
+    ? new StreamReader(source, { batchSize })
+    : new StreamReader(source);
+  let frame;
+  while ((frame = await reader.nextRawBatch()) !== null) {
+    const result = consumeRawFrame(frame, checksum, eventCount, decoder, nameCache);
+    checksum = result.checksum;
+    eventCount = result.eventCount;
+  }
+  return { eventCount, checksum };
+}
+
+function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache) {
+  if (frame.kind !== 'frame') {
+    throw new Error(`Unsupported raw batch kind in source consumption benchmark: ${frame.kind}`);
+  }
+
+  const eventTypes = frame.eventTypes;
+  const nameStarts = frame.nameStarts;
+  const nameEnds = frame.nameEnds;
+  const nameIds = frame.nameIds;
+  const textStarts = frame.textStarts;
+  const textEnds = frame.textEnds;
+  const attrStarts = frame.attrStarts;
+  const attrCounts = frame.attrCounts;
+  const attrNameStarts = frame.attrNameStarts;
+  const attrNameEnds = frame.attrNameEnds;
+  const attrNameIds = frame.attrNameIds;
+  const attrValueStarts = frame.attrValueStarts;
+  const attrValueEnds = frame.attrValueEnds;
+  const buffer = frame.buffer;
+
+  for (let index = 0; index < frame.eventCount; index++) {
+    const type = eventTypes[index];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
+
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      checksum = foldString(checksum, materializeName(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache));
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      const start = textStarts[index];
+      if (start >= 0) {
+        checksum = foldString(checksum, decoder.decode(buffer.subarray(start, textEnds[index])).trim());
+      }
+    }
+    if (type === StreamEventType.START_ELEMENT) {
+      const attrStart = attrStarts[index];
+      const attrCount = attrCounts[index];
+      checksum = mixChecksum(checksum, attrCount);
+      const attrEnd = attrStart + attrCount;
+      for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+        checksum = foldString(checksum, materializeName(
+          buffer,
+          attrNameStarts[attrIndex],
+          attrNameEnds[attrIndex],
+          attrNameIds[attrIndex],
+          decoder,
+          nameCache,
+        ));
+        checksum = foldString(checksum, isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
+          ? 'true'
+          : decoder.decode(buffer.subarray(attrValueStarts[attrIndex], attrValueEnds[attrIndex])));
+      }
+    }
+  }
+  return { eventCount, checksum };
+}
+
+function materializeName(buffer, start, end, nameId, decoder, nameCache) {
+  if (nameId >= 0) {
+    const cached = nameCache[nameId];
+    if (cached !== undefined) return cached;
+    const value = decoder.decode(buffer.subarray(start, end));
+    nameCache[nameId] = value;
+    return value;
+  }
+  return decoder.decode(buffer.subarray(start, end));
+}
+
+function isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, index) {
+  return attrNameStarts[index] === attrValueStarts[index] && attrNameEnds[index] === attrValueEnds[index];
 }
 
 function consumeBatch(batch, eventCount, checksum) {
@@ -572,7 +692,9 @@ function assertStableResult(id, sampleIndex, eventCount, checksum, result) {
 function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checksum, options) {
   const syncRow = id.startsWith('sync-iterable-byte-batches');
   const asyncRow = id.startsWith('async-iterable-byte-batches');
+  const asyncRawRow = id.startsWith('async-iterable-raw-frame');
   const readableRow = id.startsWith('web-readable-stream-pull');
+  const readableRawRow = id.startsWith('web-readable-stream-raw-frame');
   const avgMs = samplesMs.reduce((sum, value) => sum + value, 0) / samplesMs.length;
   const maxRssBytes = Math.max(...memorySamples.map(sample => sample.after.rssBytes));
   const maxHeapUsedBytes = Math.max(...memorySamples.map(sample => sample.after.heapUsedBytes));
@@ -581,20 +703,27 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
     tool: id,
     implementation: describeImplementation(id, options),
     family: 'source-consumption-shape',
-    sourceMode: syncRow ? 'sync-iterable-byte-batches' : asyncRow ? 'async-iterable-byte-batches' : readableRow ? 'web-readable-stream-pull' : id,
+    sourceMode: syncRow
+      ? 'sync-iterable-byte-batches'
+      : asyncRow || asyncRawRow
+        ? 'async-iterable-byte-batches'
+        : readableRow || readableRawRow
+          ? 'web-readable-stream-pull'
+          : id,
     parserInput: syncRow
       ? 'synchronous Iterable<Uint8Array[]>'
-      : asyncRow
+      : asyncRow || asyncRawRow
         ? 'async Iterable<Uint8Array[]>'
       : 'Web ReadableStream<Uint8Array>',
+    accessMode: asyncRawRow || readableRawRow ? 'raw-frame' : 'stream-batch',
     contractScope: 'full-string-checksum',
     fullStringParity: true,
     chunkKiB: options.chunkKiB,
-    batchSize: syncRow || asyncRow || readableRow ? options.batchSize : null,
+    batchSize: syncRow || asyncRow || asyncRawRow || readableRow || readableRawRow ? options.batchSize : null,
     demandDrivenSource: true,
-    directReadableStream: readableRow,
+    directReadableStream: readableRow || readableRawRow,
     fullArrayBufferParserInput: false,
-    respectsBackpressure: asyncRow || readableRow ? true : null,
+    respectsBackpressure: asyncRow || asyncRawRow || readableRow || readableRawRow ? true : null,
     mibPerSec: fileSizeMiB / (avgMs / 1000),
     avgMs,
     minMs: Math.min(...samplesMs),
@@ -625,10 +754,22 @@ function asyncIterableRowId(batchSize) {
     : `async-iterable-byte-batches-batch-${batchSize}`;
 }
 
+function asyncRawFrameRowId(batchSize) {
+  return batchSize === 1
+    ? 'async-iterable-raw-frame'
+    : `async-iterable-raw-frame-batch-${batchSize}`;
+}
+
 function readableRowId(batchSize) {
   return batchSize === 1
     ? 'web-readable-stream-pull'
     : `web-readable-stream-pull-batch-${batchSize}`;
+}
+
+function readableRawFrameRowId(batchSize) {
+  return batchSize === 1
+    ? 'web-readable-stream-raw-frame'
+    : `web-readable-stream-raw-frame-batch-${batchSize}`;
 }
 
 function describeImplementation(id, options) {
@@ -638,11 +779,17 @@ function describeImplementation(id, options) {
   if (id.startsWith('async-iterable-byte-batches')) {
     return `Node + stax-xml StreamReader over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=${options.batchSize})`;
   }
+  if (id.startsWith('async-iterable-raw-frame')) {
+    return `Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=${options.batchSize})`;
+  }
   if (id === 'web-readable-stream-pull') {
     return 'Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=1)';
   }
   if (id.startsWith('web-readable-stream-pull')) {
     return `Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=${options.batchSize})`;
+  }
+  if (id.startsWith('web-readable-stream-raw-frame')) {
+    return `Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=${options.batchSize})`;
   }
   return id;
 }
@@ -650,7 +797,9 @@ function describeImplementation(id, options) {
 function createFindings(rows, syncRow, fastestSyncRow, asyncRow, fastestAsyncRow, readableRow, fastestReadableRow) {
   const syncRows = rows.filter(row => row.sourceMode === 'sync-iterable-byte-batches');
   const asyncRows = rows.filter(row => row.sourceMode === 'async-iterable-byte-batches');
+  const asyncRawRows = rows.filter(row => row.id.startsWith('async-iterable-raw-frame'));
   const readableRows = rows.filter(row => row.sourceMode === 'web-readable-stream-pull');
+  const readableRawRows = rows.filter(row => row.id.startsWith('web-readable-stream-raw-frame'));
   return [
     {
       id: 'same-contract-preserved',
@@ -681,6 +830,14 @@ function createFindings(rows, syncRow, fastestSyncRow, asyncRow, fastestAsyncRow
       evidence: asyncRows.map(row => `${row.id}: batchSize=${row.batchSize}, rss=${formatBytes(row.memory?.maxRssBytes)}, checksum=${row.checksum}`),
     },
     {
+      id: 'async-raw-frame-source-shape',
+      classification: 'BENCH_FACT',
+      summary: asyncRawRows.length > 0
+        ? `The fastest AsyncIterable nextRawBatch row was ${maxBy(asyncRawRows, row => row.mibPerSec).id} at ${formatNumber(maxBy(asyncRawRows, row => row.mibPerSec).mibPerSec)} MiB/s; this tests the async source with wrapper-free raw frame traversal.`
+        : 'No AsyncIterable nextRawBatch rows were measured.',
+      evidence: asyncRawRows.map(row => `${row.id}: batchSize=${row.batchSize}, rss=${formatBytes(row.memory?.maxRssBytes)}, checksum=${row.checksum}`),
+    },
+    {
       id: 'readable-stream-direct-source-shape',
       classification: 'BENCH_FACT',
       summary: fastestSyncRow && readableRow
@@ -695,6 +852,14 @@ function createFindings(rows, syncRow, fastestSyncRow, asyncRow, fastestAsyncRow
         ? `The fastest bounded ReadableStream batch row was ${fastestReadableRow.id} at ${formatNumber(fastestReadableRow.mibPerSec)} MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.`
         : 'No ReadableStream batch rows were measured.',
       evidence: readableRows.map(row => `${row.id}: batchSize=${row.batchSize}, rss=${formatBytes(row.memory?.maxRssBytes)}, checksum=${row.checksum}`),
+    },
+    {
+      id: 'readable-stream-raw-frame-source-shape',
+      classification: 'BENCH_FACT',
+      summary: readableRawRows.length > 0
+        ? `The fastest ReadableStream nextRawBatch row was ${maxBy(readableRawRows, row => row.mibPerSec).id} at ${formatNumber(maxBy(readableRawRows, row => row.mibPerSec).mibPerSec)} MiB/s; this tests whether direct ReadableStream rows gain from wrapper-free raw frame traversal.`
+        : 'No ReadableStream nextRawBatch rows were measured.',
+      evidence: readableRawRows.map(row => `${row.id}: batchSize=${row.batchSize}, rss=${formatBytes(row.memory?.maxRssBytes)}, checksum=${row.checksum}`),
     },
     {
       id: 'backpressure-respected',
@@ -784,7 +949,7 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('- This compares source consumption shapes inside Node/V8; it does not cover browser File/Blob stream implementations.');
   lines.push('- The ReadableStream row is direct source-shape evidence, not the current release comparison source and not a JavaScript runtime ceiling proof. If it is faster or slower than the sync row in a given run, keep that as a benchmark fact rather than a global async-overhead conclusion.');
-  lines.push('- Both rows still execute the same StreamBatch full-string checksum consumer; this does not isolate parser tokenization cost.');
+  lines.push('- Rows preserve the same full-string checksum contract, but StreamBatch and raw-frame rows use different access surfaces; this does not isolate parser tokenization cost.');
   lines.push('');
   return `${lines.join('\n')}\n`;
 }
