@@ -24,6 +24,8 @@ test('stream source consumption shapes report separates sync batches from direct
     '1',
     '--sync-batch-sizes',
     '1,4',
+    '--async-batch-sizes',
+    '1,4',
     '--readable-batch-sizes',
     '1,4',
     '--runs',
@@ -48,6 +50,8 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(report.sourceContract.fullChecksumConsumer, /same StreamBatch full-string checksum consumer/);
   assert.match(report.sourceContract.syncIterableInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(report.sourceContract.syncIterableInput, /one grouped batch per parser pull/);
+  assert.match(report.sourceContract.asyncIterableInput, /StreamReader over an AsyncIterable<Uint8Array\[\]>/);
+  assert.match(report.sourceContract.asyncIterableInput, /one pre-grouped byte batch per parser pull/);
   assert.match(report.sourceContract.primaryLargeComparisonInput, /--stax-stream-source file-sync-batches/);
   assert.match(report.sourceContract.primaryLargeComparisonInput, /directReadableStream=false/);
   assert.match(report.sourceContract.readableStreamInput, /ReadableStream<Uint8Array>/);
@@ -61,22 +65,29 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(report.sourceContract.chunkBytes, 64 * 1024);
   assert.equal(report.sourceContract.syncBatchSize, 1);
   assert.deepEqual(report.sourceContract.syncBatchSizes, [1, 4]);
+  assert.deepEqual(report.sourceContract.asyncBatchSizes, [1, 4]);
   assert.deepEqual(report.sourceContract.readableBatchSizes, [1, 4]);
   assert.equal(report.sourceFacts.status, 'source-facts-confirmed');
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'sync-iterable-byte-batches'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-single-chunk-push'));
+  assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-async-byte-batches'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'benchmark-readable-stream-backpressure'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'file-backed-release-sync-batches'));
-  assert.equal(report.summary.rowCount, 4);
+  assert.equal(report.summary.rowCount, 6);
   assert.equal(report.summary.counterexamples200MiB, 0);
+  assert.equal(typeof report.summary.asyncIterableRatioToSyncIterable, 'number');
+  assert.equal(typeof report.summary.fastestAsyncIterableRatioToFastestSyncIterable, 'number');
   assert.equal(typeof report.summary.readableStreamRatioToSyncIterable, 'number');
   assert.equal(typeof report.summary.readableStreamRatioToFastestSyncIterable, 'number');
   assert.equal(typeof report.summary.fastestReadableStreamRatioToFastestSyncIterable, 'number');
   assert.match(report.summary.fastestSyncIterable.id, /sync-iterable-byte-batches/);
+  assert.match(report.summary.fastestAsyncIterable.id, /async-iterable-byte-batches/);
   assert.match(report.summary.fastestReadableStream.id, /web-readable-stream-pull/);
   assert.deepEqual(report.rows.map(row => row.id), [
     'sync-iterable-byte-batches',
     'sync-iterable-byte-batches-batch-4',
+    'async-iterable-byte-batches',
+    'async-iterable-byte-batches-batch-4',
     'web-readable-stream-pull',
     'web-readable-stream-pull-batch-4',
   ]);
@@ -94,6 +105,8 @@ test('stream source consumption shapes report separates sync batches from direct
   const readableBatch4Row = report.rows.find(row => row.id === 'web-readable-stream-pull-batch-4');
   const syncRow = report.rows.find(row => row.id === 'sync-iterable-byte-batches');
   const syncBatch4Row = report.rows.find(row => row.id === 'sync-iterable-byte-batches-batch-4');
+  const asyncRow = report.rows.find(row => row.id === 'async-iterable-byte-batches');
+  const asyncBatch4Row = report.rows.find(row => row.id === 'async-iterable-byte-batches-batch-4');
   assert.equal(syncRow.parserInput, 'synchronous Iterable<Uint8Array[]>');
   assert.equal(syncRow.sourceMode, 'sync-iterable-byte-batches');
   assert.equal(syncRow.directReadableStream, false);
@@ -104,6 +117,18 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.equal(syncBatch4Row.directReadableStream, false);
   assert.equal(syncBatch4Row.batchSize, 4);
   assert.equal(syncBatch4Row.fullArrayBufferParserInput, false);
+  assert.equal(asyncRow.parserInput, 'async Iterable<Uint8Array[]>');
+  assert.equal(asyncRow.sourceMode, 'async-iterable-byte-batches');
+  assert.equal(asyncRow.directReadableStream, false);
+  assert.equal(asyncRow.batchSize, 1);
+  assert.equal(asyncRow.fullArrayBufferParserInput, false);
+  assert.equal(asyncRow.respectsBackpressure, true);
+  assert.equal(asyncBatch4Row.parserInput, 'async Iterable<Uint8Array[]>');
+  assert.equal(asyncBatch4Row.sourceMode, 'async-iterable-byte-batches');
+  assert.equal(asyncBatch4Row.directReadableStream, false);
+  assert.equal(asyncBatch4Row.batchSize, 4);
+  assert.equal(asyncBatch4Row.fullArrayBufferParserInput, false);
+  assert.equal(asyncBatch4Row.respectsBackpressure, true);
   assert.equal(readableRow.parserInput, 'Web ReadableStream<Uint8Array>');
   assert.equal(readableRow.batchSize, 1);
   assert.equal(readableRow.directReadableStream, true);
@@ -122,12 +147,15 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /## Source Facts/);
   assert.match(markdown, /source-facts-confirmed/);
   assert.match(markdown, /Sync Iterable input: sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Async Iterable input: async-iterable-byte-batches uses StreamReader over an AsyncIterable<Uint8Array\[\]>/);
   assert.match(markdown, /Sync batch sizes: 1, 4/);
+  assert.match(markdown, /Async batch sizes: 1, 4/);
   assert.match(markdown, /ReadableStream batch sizes: 1, 4/);
   assert.match(markdown, /Primary large comparison input: The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches/);
   assert.match(markdown, /ReadableStream async boundary: The direct ReadableStream rows include the public StreamReader await reader\.read\(\) boundary/);
   assert.match(markdown, /sync-iterable-byte-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /stream-reader-single-chunk-push \(SOURCE_FACT\)/);
+  assert.match(markdown, /stream-reader-async-byte-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /benchmark-readable-stream-backpressure \(SOURCE_FACT\)/);
   assert.match(markdown, /file-backed-release-sync-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads only inside pull\(\)/);
@@ -137,6 +165,7 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /Spread/);
   assert.match(markdown, /current-release-source-shape/);
   assert.match(markdown, /sync-batch-size-headroom/);
+  assert.match(markdown, /async-byte-batch-source-shape/);
   assert.match(markdown, /readable-stream-direct-source-shape/);
   assert.match(markdown, /readable-stream-batch-size-headroom/);
   assert.match(markdown, /backpressure-respected/);

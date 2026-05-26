@@ -3,7 +3,7 @@ export type { EventReaderLike, EventReaderOptions } from "./EventReader.js";
 export { EventReaderSync } from "./EventReaderSync.js";
 export type { EventReaderSyncOptions } from "./EventReaderSync.js";
 export { StreamReader } from "./StreamReader.js";
-export type { StreamReaderOptions } from "./StreamReader.js";
+export type { StreamReaderOptions, StreamReaderSource } from "./StreamReader.js";
 export { StreamEventType, StreamReaderSync } from "./StreamReaderSync.js";
 export type { StreamBatch, StreamEventView, StreamReaderSyncByteBatch, StreamReaderSyncOptions, StreamReaderSyncRawBatch } from "./StreamReaderSync.js";
 export * from "./XmlObject.js";

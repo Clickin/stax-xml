@@ -2,10 +2,15 @@ import { createJavaScriptIterableReader } from './IterableReader.js';
 import {
   createStreamBatchView,
   type StreamBatch,
+  type StreamReaderSyncByteBatch,
 } from './stream-reader-core.js';
 import type { DocumentMode } from './types.js';
 
 export type { StreamBatch, StreamEventView } from './stream-reader-core.js';
+
+export type StreamReaderSource =
+  | ReadableStream<Uint8Array>
+  | AsyncIterable<StreamReaderSyncByteBatch>;
 
 /**
  * Asynchronous stream reader options.
@@ -40,12 +45,14 @@ export interface StreamReaderOptions {
 }
 
 /**
- * Batch-first asynchronous StAX core over `ReadableStream<Uint8Array>`.
+ * Batch-first asynchronous StAX core over `ReadableStream<Uint8Array>` or
+ * pre-grouped async byte batches.
  *
  * @public
  */
 export class StreamReader implements AsyncIterable<StreamBatch> {
-  private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
+  private readonly reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  private readonly byteBatchIterator: AsyncIterator<StreamReaderSyncByteBatch> | undefined;
   private readonly streamingBatches: ReturnType<typeof createJavaScriptIterableReader>;
   private generation = 0;
   private sourceDone = false;
@@ -54,12 +61,15 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   private nextBatchInFlight: Promise<StreamBatch | null> | undefined;
   private readonly batchSize: number;
 
-  constructor(stream: ReadableStream<Uint8Array>, options: StreamReaderOptions = {}) {
-    if (!(stream instanceof ReadableStream)) {
-      throw new Error('stream must be a web standard ReadableStream.');
+  constructor(source: StreamReaderSource, options: StreamReaderOptions = {}) {
+    if (source instanceof ReadableStream) {
+      this.reader = source.getReader();
+    } else if (isAsyncIterableByteBatches(source)) {
+      this.byteBatchIterator = source[Symbol.asyncIterator]();
+    } else {
+      throw new Error('source must be a web standard ReadableStream or AsyncIterable<Uint8Array[]>.');
     }
 
-    this.reader = stream.getReader();
     this.batchSize = normalizeBatchSize(options.batchSize);
     this.streamingBatches = createJavaScriptIterableReader([], {
       encoding: options.encoding,
@@ -93,7 +103,11 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
     this.finished = true;
     try {
-      await this.reader.cancel('StreamReader.return()');
+      if (this.reader) {
+        await this.reader.cancel('StreamReader.return()');
+      } else if (typeof this.byteBatchIterator?.return === 'function') {
+        await this.byteBatchIterator.return();
+      }
     } finally {
       this.releaseLock();
     }
@@ -125,24 +139,7 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
 
   private async readNextBatch(): Promise<StreamBatch | null> {
     while (true) {
-      const byteBatch: Uint8Array[] = [];
-      while (!this.sourceDone && byteBatch.length < this.batchSize) {
-        let readResult: ReadableStreamReadResult<Uint8Array>;
-        try {
-          readResult = await this.reader.read();
-        } catch (error) {
-          this.finished = true;
-          this.releaseLock();
-          throw error;
-        }
-
-        if (readResult.done) {
-          this.sourceDone = true;
-          break;
-        }
-
-        byteBatch.push(readResult.value);
-      }
+      const byteBatch = await this.readNextByteBatch();
 
       if (byteBatch.length > 0 && this.streamingBatches.pushByteBatch(byteBatch, false)) {
         return createStreamBatchView(this.streamingBatches, this.generation, this);
@@ -160,13 +157,65 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
   }
 
+  private async readNextByteBatch(): Promise<StreamReaderSyncByteBatch> {
+    if (this.sourceDone) {
+      return [];
+    }
+    if (this.reader) {
+      return await this.readNextReadableStreamByteBatch();
+    }
+    return await this.readNextAsyncIterableByteBatch();
+  }
+
+  private async readNextReadableStreamByteBatch(): Promise<StreamReaderSyncByteBatch> {
+    const byteBatch: Uint8Array[] = [];
+    while (!this.sourceDone && byteBatch.length < this.batchSize) {
+      let readResult: ReadableStreamReadResult<Uint8Array>;
+      try {
+        readResult = await this.reader!.read();
+      } catch (error) {
+        this.finished = true;
+        this.releaseLock();
+        throw error;
+      }
+
+      if (readResult.done) {
+        this.sourceDone = true;
+        break;
+      }
+
+      byteBatch.push(readResult.value);
+    }
+    return byteBatch;
+  }
+
+  private async readNextAsyncIterableByteBatch(): Promise<StreamReaderSyncByteBatch> {
+    let readResult: IteratorResult<StreamReaderSyncByteBatch>;
+    try {
+      readResult = await this.byteBatchIterator!.next();
+    } catch (error) {
+      this.finished = true;
+      throw error;
+    }
+
+    if (readResult.done) {
+      this.sourceDone = true;
+      return [];
+    }
+    return readResult.value;
+  }
+
   private releaseLock(): void {
     if (this.lockReleased) {
       return;
     }
     this.lockReleased = true;
-    this.reader.releaseLock();
+    this.reader?.releaseLock();
   }
+}
+
+function isAsyncIterableByteBatches(value: unknown): value is AsyncIterable<StreamReaderSyncByteBatch> {
+  return typeof (value as { [Symbol.asyncIterator]?: unknown })?.[Symbol.asyncIterator] === 'function';
 }
 
 function normalizeBatchSize(value: number | undefined): number {
