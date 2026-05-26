@@ -29,6 +29,7 @@ const variants = [
   'public-no-optional-text',
   'public-switch-dispatch',
   'public-event-object',
+  'public-event-object-stable-shape',
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -289,6 +290,8 @@ function runVariant(variant, options) {
       return consumePublicSwitchDispatch(batches);
     case 'public-event-object':
       return consumePublicEventObject(batches);
+    case 'public-event-object-stable-shape':
+      return consumePublicEventObjectStableShape(batches);
     default:
       throw new Error(`Unknown variant: ${variant}`);
   }
@@ -430,6 +433,50 @@ function consumePublicEventObject(bytes) {
   return { eventCount, checksum, materializationCounters };
 }
 
+function consumePublicEventObjectStableShape(bytes) {
+  const materializationCounters = {
+    eventObjects: 0,
+    nameStrings: 0,
+    textStrings: 0,
+    attributeNameStrings: 0,
+    attributeValueStrings: 0,
+    attributePairs: 0,
+  };
+  const objectSink = new Array(1024);
+  let objectSinkIndex = 0;
+  let eventCount = 0;
+  let checksum = 0;
+  for (const batch of new StreamReaderSync(bytes)) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const event = materializeStablePublicEventObject(batch, index, materializationCounters);
+      objectSink[objectSinkIndex & (objectSink.length - 1)] = event;
+      objectSinkIndex++;
+
+      eventCount++;
+      checksum = mixChecksum(checksum, publicEventTypeCode(event.type));
+      if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
+        checksum = foldString(checksum, event.name);
+      }
+      if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+        checksum = foldString(checksum, event.value === undefined ? undefined : event.value.trim());
+      }
+      if (event.type === XmlEventType.START_ELEMENT) {
+        const entries = Object.entries(event.attributes);
+        materializationCounters.attributePairs += entries.length;
+        checksum = mixChecksum(checksum, entries.length);
+        for (const [name, value] of entries) {
+          checksum = foldString(checksum, name);
+          checksum = foldString(checksum, value);
+        }
+      }
+    }
+  }
+
+  globalThis.__staxFileBackedStablePublicEventObjectSink = objectSink[(objectSinkIndex - 1) & (objectSink.length - 1)];
+  return { eventCount, checksum, materializationCounters };
+}
+
 function materializePublicEventObject(batch, index, materializationCounters) {
   const type = batch.typeAt(index);
   materializationCounters.eventObjects++;
@@ -473,6 +520,68 @@ function materializePublicEventObject(batch, index, materializationCounters) {
         type: XmlEventType.CDATA,
         value: batch.textAt(index),
       };
+    default:
+      throw new Error(`Unsupported stream event type: ${type}`);
+  }
+}
+
+function materializeStablePublicEventObject(batch, index, materializationCounters) {
+  const type = batch.typeAt(index);
+  materializationCounters.eventObjects++;
+  let name = undefined;
+  let value = undefined;
+  let attributes = undefined;
+  switch (type) {
+    case START_DOCUMENT:
+    case END_DOCUMENT:
+      break;
+    case START_ELEMENT: {
+      materializationCounters.nameStrings++;
+      name = batch.nameAt(index);
+      attributes = {};
+      const attrCount = batch.attributeCountAt(index);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        materializationCounters.attributeNameStrings++;
+        const attrName = batch.attributeNameAt(index, attrIndex);
+        materializationCounters.attributeValueStrings++;
+        attributes[attrName] = batch.attributeValueAt(index, attrIndex);
+      }
+      break;
+    }
+    case END_ELEMENT:
+      materializationCounters.nameStrings++;
+      name = batch.nameAt(index);
+      break;
+    case CHARACTERS:
+    case CDATA:
+      materializationCounters.textStrings++;
+      value = batch.textAt(index);
+      break;
+    default:
+      throw new Error(`Unsupported stream event type: ${type}`);
+  }
+  return {
+    type: publicEventXmlType(type),
+    name,
+    value,
+    attributes,
+  };
+}
+
+function publicEventXmlType(type) {
+  switch (type) {
+    case START_DOCUMENT:
+      return XmlEventType.START_DOCUMENT;
+    case END_DOCUMENT:
+      return XmlEventType.END_DOCUMENT;
+    case START_ELEMENT:
+      return XmlEventType.START_ELEMENT;
+    case END_ELEMENT:
+      return XmlEventType.END_ELEMENT;
+    case CHARACTERS:
+      return XmlEventType.CHARACTERS;
+    case CDATA:
+      return XmlEventType.CDATA;
     default:
       throw new Error(`Unsupported stream event type: ${type}`);
   }
@@ -609,6 +718,8 @@ function describeVariant(variant) {
       return 'public StreamBatch accessor loop using switch dispatch and explicit text undefined check';
     case 'public-event-object':
       return 'public event objects materialized from file-backed StreamBatch rows';
+    case 'public-event-object-stable-shape':
+      return 'public event objects with stable own-property shape `{ type, name, value, attributes }`';
     default:
       return variant;
   }
