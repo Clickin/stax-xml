@@ -72,8 +72,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 5
     && artifact.runtimes.includes('bun-jsc')
   ));
-  assert.equal(report.summary.measuredRowCount, 874);
-  assert.equal(report.summary.largeJsFullRowCount, 545);
+  assert.equal(report.summary.measuredRowCount, 877);
+  assert.equal(report.summary.largeJsFullRowCount, 548);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -275,7 +275,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'stream-source-consumption-shapes.json'
     && row.runtimes.includes('node-v8')
-    && row.measuredRowCount === 4
+    && row.measuredRowCount === 7
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'segment-scan-headroom.json'
@@ -307,8 +307,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 391
-    && row.largeFullStringRowCount === 241
+    && row.measuredRowCount === 394
+    && row.largeFullStringRowCount === 244
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'bun-jsc'
@@ -603,7 +603,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 85 \| 391 \| 241 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 85 \| 394 \| 244 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 32 \| 223 \| 134 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 11 \| 12 \| 4 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 10 \| 18 \| 4 \|/);

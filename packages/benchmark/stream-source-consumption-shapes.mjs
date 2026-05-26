@@ -28,6 +28,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     chunkKiB: 64,
     batchSize: 1,
     syncBatchSizes: null,
+    readableBatchSizes: null,
     runs: 1,
     warmups: 0,
     boundedRssMiB: 512,
@@ -63,6 +64,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--sync-batch-sizes':
         options.syncBatchSizes = parsePositiveIntegerList(readValue(), name);
         break;
+      case '--readable-batch-sizes':
+        options.readableBatchSizes = parsePositiveIntegerList(readValue(), name);
+        break;
       case '--runs':
         options.runs = parsePositiveInteger(readValue(), name);
         break;
@@ -90,6 +94,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     throw new Error('--shapes must contain at least one shape.');
   }
   options.syncBatchSizes = options.syncBatchSizes ?? [options.batchSize];
+  options.readableBatchSizes = options.readableBatchSizes ?? [options.batchSize];
   return options;
 }
 
@@ -150,9 +155,13 @@ async function runComparison(options) {
       continue;
     }
     if (shape === 'web-readable-stream-pull') {
-      rows.push(await measureAsyncShape(shape, () => consumeAsyncStreamReader(
-        createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
-      ), fileStats.size / MIB, options));
+      for (const batchSize of options.readableBatchSizes) {
+        const rowId = readableRowId(batchSize);
+        rows.push(await measureAsyncShape(rowId, () => consumeAsyncStreamReader(
+          createBackpressureReadableStream(options.file, options.chunkKiB * 1024),
+          batchSize,
+        ), fileStats.size / MIB, { ...options, batchSize }));
+      }
       continue;
     }
     throw new Error(`Unhandled shape: ${shape}`);
@@ -163,12 +172,14 @@ async function runComparison(options) {
   const syncRow = rows.find(row => row.id === 'sync-iterable-byte-batches');
   const syncRows = rows.filter(row => row.sourceMode === 'sync-iterable-byte-batches');
   const fastestSyncRow = maxBy(syncRows, row => row.mibPerSec);
+  const readableRows = rows.filter(row => row.sourceMode === 'web-readable-stream-pull');
   const readableRow = rows.find(row => row.id === 'web-readable-stream-pull');
+  const fastestReadableRow = maxBy(readableRows, row => row.mibPerSec);
   return {
     generatedAt: new Date().toISOString(),
     objective: 'stream-source-consumption-shapes',
     contract: 'same-full-string-checksum-source-consumption-shapes',
-    note: 'Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.',
+    note: 'Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream source reads only from pull(), and StreamReader groups at most the configured batch size per nextBatch() operation, so it stays bounded by consumer demand and does not pre-materialize the file.',
     sourceContract: createSourceContract(options),
     sourceFacts: createSourceFacts(),
     environment: {
@@ -188,6 +199,7 @@ async function runComparison(options) {
       chunkKiB: options.chunkKiB,
       batchSize: options.batchSize,
       syncBatchSizes: options.syncBatchSizes,
+      readableBatchSizes: options.readableBatchSizes,
       runs: options.runs,
       warmups: options.warmups,
       boundedRssMiB: options.boundedRssMiB,
@@ -198,11 +210,13 @@ async function runComparison(options) {
       fastest: summarizeRow(fastest),
       slowest: summarizeRow(slowest),
       fastestSyncIterable: summarizeRow(fastestSyncRow),
+      fastestReadableStream: summarizeRow(fastestReadableRow),
       readableStreamRatioToSyncIterable: syncRow && readableRow ? readableRow.mibPerSec / syncRow.mibPerSec : null,
       readableStreamRatioToFastestSyncIterable: fastestSyncRow && readableRow ? readableRow.mibPerSec / fastestSyncRow.mibPerSec : null,
+      fastestReadableStreamRatioToFastestSyncIterable: fastestSyncRow && fastestReadableRow ? fastestReadableRow.mibPerSec / fastestSyncRow.mibPerSec : null,
       counterexamples200MiB: rows.filter(row => row.fullStringParity && row.boundedMemory && row.mibPerSec >= 200).length,
     },
-    findings: createFindings(rows, syncRow, fastestSyncRow, readableRow),
+    findings: createFindings(rows, syncRow, fastestSyncRow, readableRow, fastestReadableRow),
   };
 }
 
@@ -212,12 +226,13 @@ function createSourceContract(options) {
     syncIterableInput: 'sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array[]> and yields one grouped batch per parser pull.',
     primaryLargeComparisonInput: 'The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.',
     readableStreamInput: 'web-readable-stream-pull uses StreamReader over a Web ReadableStream<Uint8Array> pull source.',
-    readableStreamAsyncBoundary: 'The direct ReadableStream row includes the public StreamReader await reader.read() boundary; its throughput is source-shape evidence, not a parser/runtime ceiling for sync byte batches.',
-    readableStreamBackpressure: 'The ReadableStream source reads one file chunk only inside pull(), so production is demand-driven by StreamReader.read().',
+    readableStreamAsyncBoundary: 'The direct ReadableStream rows include the public StreamReader await reader.read() boundary; batchSize controls how many chunks are grouped per bounded nextBatch() operation. Throughput is source-shape evidence, not a parser/runtime ceiling for sync byte batches.',
+    readableStreamBackpressure: 'The ReadableStream source reads only inside pull(); StreamReader consumes at most the configured readable batch size per nextBatch() operation, so production remains bounded by consumer demand.',
     arrayBufferConsumption: 'Neither measured row constructs one full XML string or one repeated 1 GiB ArrayBuffer parser input; file chunks are read on demand for the selected source shape.',
     chunkBytes: options.chunkKiB * 1024,
     syncBatchSize: options.batchSize,
     syncBatchSizes: options.syncBatchSizes,
+    readableBatchSizes: options.readableBatchSizes,
   };
 }
 
@@ -253,10 +268,11 @@ function createSourceFacts() {
     sourceFact(files, {
       id: 'stream-reader-single-chunk-push',
       classification: 'SOURCE_FACT',
-      summary: 'The public StreamReader ReadableStream path awaits reader.read() and pushes each read chunk as one single-item byte batch into the parser core.',
+      summary: 'The public StreamReader ReadableStream path awaits reader.read() and pushes bounded byte batches into the parser core.',
       patterns: [
         { file: 'packages/stax-xml/src/StreamReader.ts', text: 'readResult = await this.reader.read()' },
-        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'this.streamingBatches.pushByteBatch([readResult.value], false)' },
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'byteBatch.length < this.batchSize' },
+        { file: 'packages/stax-xml/src/StreamReader.ts', text: 'this.streamingBatches.pushByteBatch(byteBatch, false)' },
       ],
     }),
     sourceFact(files, {
@@ -272,11 +288,12 @@ function createSourceFacts() {
     sourceFact(files, {
       id: 'benchmark-readable-stream-backpressure',
       classification: 'SOURCE_FACT',
-      summary: 'The direct ReadableStream benchmark source reads exactly one file chunk inside pull(), so it respects Web Stream backpressure.',
+      summary: 'The direct ReadableStream benchmark source reads exactly one file chunk inside pull(), and StreamReader caps grouped consumption by configured batch size.',
       patterns: [
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'pull(controller)' },
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'const bytesRead = readSync(fd, buffer, 0, chunkBytes, null)' },
         { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'controller.enqueue(bytesRead === chunkBytes ? buffer : buffer.subarray(0, bytesRead))' },
+        { file: 'packages/benchmark/stream-source-consumption-shapes.mjs', text: 'new StreamReader(stream, { batchSize })' },
       ],
     }),
     sourceFact(files, {
@@ -365,10 +382,10 @@ function consumeSyncStreamReader(byteBatches) {
   return { eventCount, checksum };
 }
 
-async function consumeAsyncStreamReader(stream) {
+async function consumeAsyncStreamReader(stream, batchSize) {
   let eventCount = 0;
   let checksum = 0;
-  for await (const batch of new StreamReader(stream)) {
+  for await (const batch of new StreamReader(stream, { batchSize })) {
     const result = consumeBatch(batch, eventCount, checksum);
     eventCount = result.eventCount;
     checksum = result.checksum;
@@ -501,6 +518,7 @@ function assertStableResult(id, sampleIndex, eventCount, checksum, result) {
 
 function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checksum, options) {
   const syncRow = id.startsWith('sync-iterable-byte-batches');
+  const readableRow = id.startsWith('web-readable-stream-pull');
   const avgMs = samplesMs.reduce((sum, value) => sum + value, 0) / samplesMs.length;
   const maxRssBytes = Math.max(...memorySamples.map(sample => sample.after.rssBytes));
   const maxHeapUsedBytes = Math.max(...memorySamples.map(sample => sample.after.heapUsedBytes));
@@ -509,18 +527,18 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
     tool: id,
     implementation: describeImplementation(id, options),
     family: 'source-consumption-shape',
-    sourceMode: syncRow ? 'sync-iterable-byte-batches' : id,
+    sourceMode: syncRow ? 'sync-iterable-byte-batches' : readableRow ? 'web-readable-stream-pull' : id,
     parserInput: syncRow
       ? 'synchronous Iterable<Uint8Array[]>'
       : 'Web ReadableStream<Uint8Array>',
     contractScope: 'full-string-checksum',
     fullStringParity: true,
     chunkKiB: options.chunkKiB,
-    batchSize: syncRow ? options.batchSize : null,
+    batchSize: syncRow || readableRow ? options.batchSize : null,
     demandDrivenSource: true,
-    directReadableStream: id === 'web-readable-stream-pull',
+    directReadableStream: readableRow,
     fullArrayBufferParserInput: false,
-    respectsBackpressure: id === 'web-readable-stream-pull' ? true : null,
+    respectsBackpressure: readableRow ? true : null,
     mibPerSec: fileSizeMiB / (avgMs / 1000),
     avgMs,
     minMs: Math.min(...samplesMs),
@@ -545,18 +563,28 @@ function syncRowId(batchSize) {
     : `sync-iterable-byte-batches-batch-${batchSize}`;
 }
 
+function readableRowId(batchSize) {
+  return batchSize === 1
+    ? 'web-readable-stream-pull'
+    : `web-readable-stream-pull-batch-${batchSize}`;
+}
+
 function describeImplementation(id, options) {
   if (id.startsWith('sync-iterable-byte-batches')) {
     return `Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches (batchSize=${options.batchSize})`;
   }
   if (id === 'web-readable-stream-pull') {
-    return 'Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source';
+    return 'Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=1)';
+  }
+  if (id.startsWith('web-readable-stream-pull')) {
+    return `Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=${options.batchSize})`;
   }
   return id;
 }
 
-function createFindings(rows, syncRow, fastestSyncRow, readableRow) {
+function createFindings(rows, syncRow, fastestSyncRow, readableRow, fastestReadableRow) {
   const syncRows = rows.filter(row => row.sourceMode === 'sync-iterable-byte-batches');
+  const readableRows = rows.filter(row => row.sourceMode === 'web-readable-stream-pull');
   return [
     {
       id: 'same-contract-preserved',
@@ -587,10 +615,18 @@ function createFindings(rows, syncRow, fastestSyncRow, readableRow) {
       evidence: rows.map(row => `${row.id}=${formatNumber(row.mibPerSec)} MiB/s rss=${formatBytes(row.memory?.maxRssBytes)}`),
     },
     {
+      id: 'readable-stream-batch-size-headroom',
+      classification: 'BENCH_FACT',
+      summary: fastestReadableRow
+        ? `The fastest bounded ReadableStream batch row was ${fastestReadableRow.id} at ${formatNumber(fastestReadableRow.mibPerSec)} MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.`
+        : 'No ReadableStream batch rows were measured.',
+      evidence: readableRows.map(row => `${row.id}: batchSize=${row.batchSize}, rss=${formatBytes(row.memory?.maxRssBytes)}, checksum=${row.checksum}`),
+    },
+    {
       id: 'backpressure-respected',
       classification: 'CONTRACT_FACT',
-      summary: 'The ReadableStream row reads from the file only in pull(), so production is demand-driven by StreamReader.read().',
-      evidence: readableRow ? [`${readableRow.id}: demandDrivenSource=${readableRow.demandDrivenSource}, respectsBackpressure=${readableRow.respectsBackpressure}`] : [],
+      summary: 'The ReadableStream rows read from the file only in pull(), and StreamReader grouping is bounded by the configured batch size.',
+      evidence: readableRows.map(row => `${row.id}: demandDrivenSource=${row.demandDrivenSource}, respectsBackpressure=${row.respectsBackpressure}, batchSize=${row.batchSize}`),
     },
   ];
 }
@@ -614,6 +650,7 @@ function renderMarkdown(report) {
   lines.push(`- ArrayBuffer consumption: ${report.sourceContract.arrayBufferConsumption}`);
   lines.push(`- Chunk bytes: ${report.sourceContract.chunkBytes}`);
   lines.push(`- Sync batch sizes: ${report.sourceContract.syncBatchSizes.join(', ')}`);
+  lines.push(`- ReadableStream batch sizes: ${report.sourceContract.readableBatchSizes.join(', ')}`);
   lines.push('');
   lines.push('## Source Facts');
   lines.push('');
@@ -640,8 +677,10 @@ function renderMarkdown(report) {
   lines.push(`- Sync Iterable batch sizes: ${report.options.syncBatchSizes.join(', ')}`);
   lines.push(`- Fastest row: ${formatSummaryRow(report.summary.fastest)}`);
   lines.push(`- Fastest sync Iterable row: ${formatSummaryRow(report.summary.fastestSyncIterable)}`);
+  lines.push(`- Fastest ReadableStream row: ${formatSummaryRow(report.summary.fastestReadableStream)}`);
   lines.push(`- ReadableStream / batch-1 sync Iterable ratio: ${formatNullableNumber(report.summary.readableStreamRatioToSyncIterable)}x`);
   lines.push(`- ReadableStream / fastest sync Iterable ratio: ${formatNullableNumber(report.summary.readableStreamRatioToFastestSyncIterable)}x`);
+  lines.push(`- Fastest ReadableStream / fastest sync Iterable ratio: ${formatNullableNumber(report.summary.fastestReadableStreamRatioToFastestSyncIterable)}x`);
   lines.push(`- 200 MiB/s bounded full-string counterexamples: ${report.summary.counterexamples200MiB}`);
   lines.push('');
   lines.push('## Rows');

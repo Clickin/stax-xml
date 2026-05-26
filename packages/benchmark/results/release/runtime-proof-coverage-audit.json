@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T14:36:05.683Z",
+  "generatedAt": "2026-05-26T15:08:39.118Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2931,7 +2931,7 @@
         "actualBytes": 1073741644
       },
       "corpusSeed": null,
-      "measuredRowCount": 4
+      "measuredRowCount": 7
     },
     {
       "sourceArtifact": "sync-byte-batch-shape-batch1.json",
@@ -3485,9 +3485,9 @@
     "scannedArtifactCount": 168,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 874,
+    "measuredRowCount": 877,
     "rowClassificationCompleteness": {
-      "measuredRows": 874,
+      "measuredRows": 877,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -3509,7 +3509,7 @@
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
     "negativeArtifactCount": 13,
-    "largeJsFullRowCount": 545,
+    "largeJsFullRowCount": 548,
     "runtimeCount": 8,
     "corpusSeedCount": 3,
     "openObligationCount": 2,
@@ -3521,8 +3521,8 @@
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
         "artifactCount": 85,
-        "measuredRowCount": 391,
-        "largeFullStringRowCount": 241,
+        "measuredRowCount": 394,
+        "largeFullStringRowCount": 244,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "text-trim-cost-decomposition.json",
           "id": "rawFrameNameId",
@@ -17089,7 +17089,7 @@
         "contractScope": "full-materialization-minus-text-cdata"
       }
     ],
-    "largeJsFullRowCount": 545,
+    "largeJsFullRowCount": 548,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "text-trim-cost-decomposition.json",

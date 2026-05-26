@@ -26,6 +26,17 @@ export interface StreamReaderOptions {
    * @defaultValue 'fragment'
    */
   documentMode?: DocumentMode;
+
+  /**
+   * Maximum number of stream chunks grouped into one parser byte batch.
+   *
+   * The default preserves the historical one-read-per-parser-push behavior.
+   * Larger values reduce async read/push overhead while keeping production
+   * bounded by consumer demand.
+   *
+   * @defaultValue 1
+   */
+  batchSize?: number;
 }
 
 /**
@@ -41,6 +52,7 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   private finished = false;
   private lockReleased = false;
   private nextBatchInFlight: Promise<StreamBatch | null> | undefined;
+  private readonly batchSize: number;
 
   constructor(stream: ReadableStream<Uint8Array>, options: StreamReaderOptions = {}) {
     if (!(stream instanceof ReadableStream)) {
@@ -48,6 +60,7 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     }
 
     this.reader = stream.getReader();
+    this.batchSize = normalizeBatchSize(options.batchSize);
     this.streamingBatches = createJavaScriptIterableReader([], {
       encoding: options.encoding,
       documentMode: options.documentMode,
@@ -111,18 +124,31 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
   }
 
   private async readNextBatch(): Promise<StreamBatch | null> {
-    while (!this.sourceDone) {
-      let readResult: ReadableStreamReadResult<Uint8Array>;
-      try {
-        readResult = await this.reader.read();
-      } catch (error) {
-        this.finished = true;
-        this.releaseLock();
-        throw error;
+    while (true) {
+      const byteBatch: Uint8Array[] = [];
+      while (!this.sourceDone && byteBatch.length < this.batchSize) {
+        let readResult: ReadableStreamReadResult<Uint8Array>;
+        try {
+          readResult = await this.reader.read();
+        } catch (error) {
+          this.finished = true;
+          this.releaseLock();
+          throw error;
+        }
+
+        if (readResult.done) {
+          this.sourceDone = true;
+          break;
+        }
+
+        byteBatch.push(readResult.value);
       }
 
-      if (readResult.done) {
-        this.sourceDone = true;
+      if (byteBatch.length > 0 && this.streamingBatches.pushByteBatch(byteBatch, false)) {
+        return createStreamBatchView(this.streamingBatches, this.generation, this);
+      }
+
+      if (this.sourceDone) {
         if (this.streamingBatches.pushByteBatch([], true)) {
           this.releaseLock();
           return createStreamBatchView(this.streamingBatches, this.generation, this);
@@ -131,14 +157,7 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
         this.releaseLock();
         return null;
       }
-
-      if (this.streamingBatches.pushByteBatch([readResult.value], false)) {
-        return createStreamBatchView(this.streamingBatches, this.generation, this);
-      }
     }
-
-    this.finished = true;
-    return null;
   }
 
   private releaseLock(): void {
@@ -148,4 +167,12 @@ export class StreamReader implements AsyncIterable<StreamBatch> {
     this.lockReleased = true;
     this.reader.releaseLock();
   }
+}
+
+function normalizeBatchSize(value: number | undefined): number {
+  const batchSize = value ?? 1;
+  if (!Number.isInteger(batchSize) || batchSize <= 0) {
+    throw new RangeError('batchSize must be a positive integer.');
+  }
+  return batchSize;
 }
