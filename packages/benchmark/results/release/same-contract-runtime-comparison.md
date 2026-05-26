@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T00:03:26.290Z
+Generated: 2026-05-26T00:26:40.752Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -43,7 +43,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB | `sync-iterable-byte-batches` |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` |
 | `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB | `sync-iterable-byte-batches` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-4` | 146.08 | yes | process RSS max 73.26 MiB | `file-backed-sync-iterable-byte-batches` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-16` | 150.90 | yes | process RSS max 69.70 MiB | `file-backed-sync-iterable-byte-batches` |
 | `file-backed-source-sweep` | Node/V8 | `stax-raw-frame-name-id-chunk-32kib` | 151.70 | yes | process RSS max 59.23 MiB | `file-backed-sync-iterable-byte-batches` |
 
 ## Selected Comparison Rows
@@ -156,16 +156,16 @@ This report aggregates existing release artifacts. It compares rows only through
 | `cross-process-large-asset-corpus` | Bun/JSC | `stringFull` | 83635224 | -2136498212 | 99.71 | no | process RSS max 1956.69 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
 | `cross-process-large-asset-corpus` | Bun/JSC | `eventObjectFull` | 83635224 | -2136498212 | 62.79 | no | process RSS max 1849.16 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
 | `cross-process-large-asset-corpus` | Bun/JSC | `rawFrameNameId` | 83635224 | -2136498212 | 82.95 | no | process RSS max 1849.75 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-1` | 61236571 | -716099804 | 130.99 | yes | process RSS max 71.31 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-1` | 61236571 | -716099804 | 145.57 | yes | process RSS max 71.85 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-2` | 61236571 | -716099804 | 115.66 | yes | process RSS max 72.05 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-2` | 61236571 | -716099804 | 145.30 | yes | process RSS max 72.24 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-4` | 61236571 | -716099804 | 137.08 | yes | process RSS max 70.92 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-4` | 61236571 | -716099804 | 146.08 | yes | process RSS max 73.26 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-8` | 61236571 | -716099804 | 135.97 | yes | process RSS max 128.02 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-8` | 61236571 | -716099804 | 141.93 | yes | process RSS max 72.77 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-16` | 61236571 | -716099804 | 128.60 | yes | process RSS max 135.66 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-16` | 61236571 | -716099804 | 141.38 | yes | process RSS max 94.96 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-1` | 61236571 | -716099804 | 131.66 | yes | process RSS max 60.77 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-1` | 61236571 | -716099804 | 142.19 | yes | process RSS max 66.44 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-2` | 61236571 | -716099804 | 133.61 | yes | process RSS max 60.72 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-2` | 61236571 | -716099804 | 142.79 | yes | process RSS max 66.99 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-4` | 61236571 | -716099804 | 133.46 | yes | process RSS max 61.36 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-4` | 61236571 | -716099804 | 141.27 | yes | process RSS max 67.03 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-8` | 61236571 | -716099804 | 124.50 | yes | process RSS max 61.86 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-8` | 61236571 | -716099804 | 150.60 | yes | process RSS max 68.58 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-16` | 61236571 | -716099804 | 128.93 | yes | process RSS max 96.54 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-16` | 61236571 | -716099804 | 150.90 | yes | process RSS max 69.70 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
 | `file-backed-source-sweep` | Node/V8 | `stax-stream-chunk-16kib` | 61236571 | -716099804 | 135.59 | yes | process RSS max 59.01 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-source-sweep.json` |
 | `file-backed-source-sweep` | Node/V8 | `stax-raw-frame-name-id-chunk-16kib` | 61236571 | -716099804 | 149.22 | yes | process RSS max 59.05 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-source-sweep.json` |
 | `file-backed-source-sweep` | Node/V8 | `stax-stream-chunk-32kib` | 61236571 | -716099804 | 139.10 | yes | process RSS max 59.11 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-source-sweep.json` |

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T17:46:19.902Z",
+  "generatedAt": "2026-05-26T00:26:03.836Z",
   "objective": "file-backed-batch-size-sweep",
   "contract": "same-full-string-checksum-file-backed-byte-batch-size",
   "note": "Sweeps the number of Uint8Array chunks yielded per demand-driven Iterable<Uint8Array[]> batch at a fixed file chunk size. This tests whether array batching itself exposes headroom without switching to direct ReadableStream consumption or pre-materializing the XML file.",
@@ -16,7 +16,7 @@
     "sizeGiB": 0.9999998323619366
   },
   "options": {
-    "chunkKiB": 64,
+    "chunkKiB": 32,
     "batchSizes": [
       1,
       2,
@@ -28,7 +28,7 @@
       "stax-stream",
       "stax-raw-frame-name-id"
     ],
-    "runs": 1,
+    "runs": 3,
     "warmups": 0,
     "boundedRssMiB": 512
   },
@@ -40,35 +40,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 1,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 130.99053838023715,
-      "avgMs": 7817.3571999999995,
-      "minMs": 7817.3571999999995,
-      "maxMs": 7817.3571999999995,
+      "mibPerSec": 131.65976282166346,
+      "avgMs": 7777.6217,
+      "minMs": 7412.3315,
+      "maxMs": 8366.727499999999,
       "samplesMs": [
-        7817.3571999999995
+        7553.8061,
+        8366.727499999999,
+        7412.3315
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 74772480,
-        "maxHeapUsedBytes": 6552664,
+        "maxRssBytes": 63717376,
+        "maxHeapUsedBytes": 6584064,
         "samples": [
           {
             "before": {
-              "rssBytes": 67993600,
-              "heapUsedBytes": 4946288,
-              "externalBytes": 2176397,
+              "rssBytes": 56025088,
+              "heapUsedBytes": 4961512,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 74772480,
-              "heapUsedBytes": 6552664,
-              "externalBytes": 2916790,
-              "arrayBuffersBytes": 834839
+              "rssBytes": 63451136,
+              "heapUsedBytes": 6584064,
+              "externalBytes": 2816488,
+              "arrayBuffersBytes": 734537
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 61513728,
+              "heapUsedBytes": 5379656,
+              "externalBytes": 2816488,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 63430656,
+              "heapUsedBytes": 6506504,
+              "externalBytes": 2750913,
+              "arrayBuffersBytes": 668962
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63172608,
+              "heapUsedBytes": 5360168,
+              "externalBytes": 2750913,
+              "arrayBuffersBytes": 177519
+            },
+            "after": {
+              "rssBytes": 63717376,
+              "heapUsedBytes": 6324336,
+              "externalBytes": 2685376,
+              "arrayBuffersBytes": 603425
             }
           }
         ]
@@ -81,35 +111,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 1,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 145.56985416394792,
-      "avgMs": 7034.4223,
-      "minMs": 7034.4223,
-      "maxMs": 7034.4223,
+      "mibPerSec": 142.19143697453845,
+      "avgMs": 7201.557633333334,
+      "minMs": 6848.535799999998,
+      "maxMs": 7871.988600000001,
       "samplesMs": [
-        7034.4223
+        7871.988600000001,
+        6848.535799999998,
+        6884.148500000003
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 75337728,
-        "maxHeapUsedBytes": 7786296,
+        "maxRssBytes": 69664768,
+        "maxHeapUsedBytes": 9536728,
         "samples": [
           {
             "before": {
-              "rssBytes": 74571776,
-              "heapUsedBytes": 5384856,
-              "externalBytes": 2916790,
+              "rssBytes": 63746048,
+              "heapUsedBytes": 5361408,
+              "externalBytes": 2685376,
+              "arrayBuffersBytes": 115055
+            },
+            "after": {
+              "rssBytes": 69447680,
+              "heapUsedBytes": 9173904,
+              "externalBytes": 4458362,
+              "arrayBuffersBytes": 2376411
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 69181440,
+              "heapUsedBytes": 5415776,
+              "externalBytes": 4458362,
+              "arrayBuffersBytes": 47471
+            },
+            "after": {
+              "rssBytes": 69615616,
+              "heapUsedBytes": 9536728,
+              "externalBytes": 4753405,
+              "arrayBuffersBytes": 2671454
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 69718016,
+              "heapUsedBytes": 5421136,
+              "externalBytes": 4753405,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 75337728,
-              "heapUsedBytes": 7786296,
-              "externalBytes": 3718761,
-              "arrayBuffersBytes": 1636810
+              "rssBytes": 69664768,
+              "heapUsedBytes": 9453352,
+              "externalBytes": 4687869,
+              "arrayBuffersBytes": 2605918
             }
           }
         ]
@@ -122,35 +182,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 2,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 115.65684967682805,
-      "avgMs": 8853.7759,
-      "minMs": 8853.7759,
-      "maxMs": 8853.7759,
+      "mibPerSec": 133.6145446613614,
+      "avgMs": 7663.835033333334,
+      "minMs": 7185.9197,
+      "maxMs": 8419.0173,
       "samplesMs": [
-        8853.7759
+        7386.5681,
+        8419.0173,
+        7185.9197
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 75546624,
-        "maxHeapUsedBytes": 6513904,
+        "maxRssBytes": 63668224,
+        "maxHeapUsedBytes": 7601872,
         "samples": [
           {
             "before": {
-              "rssBytes": 67850240,
-              "heapUsedBytes": 4946288,
-              "externalBytes": 2176397,
+              "rssBytes": 56250368,
+              "heapUsedBytes": 4961512,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 75546624,
-              "heapUsedBytes": 6513904,
-              "externalBytes": 3076496,
-              "arrayBuffersBytes": 994545
+              "rssBytes": 63369216,
+              "heapUsedBytes": 7601872,
+              "externalBytes": 3670603,
+              "arrayBuffersBytes": 1588652
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63172608,
+              "heapUsedBytes": 5393024,
+              "externalBytes": 3670603,
+              "arrayBuffersBytes": 178543
+            },
+            "after": {
+              "rssBytes": 63668224,
+              "heapUsedBytes": 6460296,
+              "externalBytes": 2884022,
+              "arrayBuffersBytes": 802071
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63643648,
+              "heapUsedBytes": 5374560,
+              "externalBytes": 2884022,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 63582208,
+              "heapUsedBytes": 6213544,
+              "externalBytes": 2752949,
+              "arrayBuffersBytes": 670998
             }
           }
         ]
@@ -163,35 +253,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 2,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 145.29512159041641,
-      "avgMs": 7047.723400000001,
-      "minMs": 7047.723400000001,
-      "maxMs": 7047.723400000001,
+      "mibPerSec": 142.7898880058965,
+      "avgMs": 7171.374966666667,
+      "minMs": 6786.841600000003,
+      "maxMs": 7934.6332,
       "samplesMs": [
-        7047.723400000001
+        7934.6332,
+        6786.841600000003,
+        6792.650099999999
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 75751424,
-        "maxHeapUsedBytes": 6486000,
+        "maxRssBytes": 70246400,
+        "maxHeapUsedBytes": 8716448,
         "samples": [
           {
             "before": {
-              "rssBytes": 75456512,
-              "heapUsedBytes": 5381840,
-              "externalBytes": 3076496,
-              "arrayBuffersBytes": 334191
+              "rssBytes": 63655936,
+              "heapUsedBytes": 5368480,
+              "externalBytes": 2752949,
+              "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 75751424,
-              "heapUsedBytes": 6486000,
-              "externalBytes": 3026320,
-              "arrayBuffersBytes": 944369
+              "rssBytes": 69550080,
+              "heapUsedBytes": 8716448,
+              "externalBytes": 4341487,
+              "arrayBuffersBytes": 2259536
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 69664768,
+              "heapUsedBytes": 5422992,
+              "externalBytes": 4341487,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 70082560,
+              "heapUsedBytes": 6610888,
+              "externalBytes": 2964920,
+              "arrayBuffersBytes": 882969
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 70189056,
+              "heapUsedBytes": 5423392,
+              "externalBytes": 2964920,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 70246400,
+              "heapUsedBytes": 6587888,
+              "externalBytes": 2964920,
+              "arrayBuffersBytes": 882969
             }
           }
         ]
@@ -204,35 +324,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 4,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 137.07990101472382,
-      "avgMs": 7470.0946,
-      "minMs": 7470.0946,
-      "maxMs": 7470.0946,
+      "mibPerSec": 133.45986267446455,
+      "avgMs": 7672.717533333333,
+      "minMs": 7153.305400000001,
+      "maxMs": 8497.3452,
       "samplesMs": [
-        7470.0946
+        7367.502,
+        8497.3452,
+        7153.305400000001
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 74362880,
-        "maxHeapUsedBytes": 6152192,
+        "maxRssBytes": 64335872,
+        "maxHeapUsedBytes": 7755016,
         "samples": [
           {
             "before": {
-              "rssBytes": 68091904,
-              "heapUsedBytes": 4946288,
-              "externalBytes": 2176397,
+              "rssBytes": 56070144,
+              "heapUsedBytes": 4961584,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 74362880,
-              "heapUsedBytes": 6152192,
-              "externalBytes": 3658075,
-              "arrayBuffersBytes": 1576124
+              "rssBytes": 63557632,
+              "heapUsedBytes": 7755016,
+              "externalBytes": 3830302,
+              "arrayBuffersBytes": 1748351
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63291392,
+              "heapUsedBytes": 5393488,
+              "externalBytes": 3830302,
+              "arrayBuffersBytes": 301423
+            },
+            "after": {
+              "rssBytes": 64315392,
+              "heapUsedBytes": 7408448,
+              "externalBytes": 3830302,
+              "arrayBuffersBytes": 1748351
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63963136,
+              "heapUsedBytes": 5368712,
+              "externalBytes": 3830302,
+              "arrayBuffersBytes": 473455
+            },
+            "after": {
+              "rssBytes": 64335872,
+              "heapUsedBytes": 7323112,
+              "externalBytes": 3830302,
+              "arrayBuffersBytes": 1748351
             }
           }
         ]
@@ -245,35 +395,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 4,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 146.08149287815837,
-      "avgMs": 7009.784800000001,
-      "minMs": 7009.784800000001,
-      "maxMs": 7009.784800000001,
+      "mibPerSec": 141.27152668434343,
+      "avgMs": 7248.451633333335,
+      "minMs": 6877.610100000005,
+      "maxMs": 7952.904999999999,
       "samplesMs": [
-        7009.784800000001
+        7952.904999999999,
+        6914.839800000002,
+        6877.610100000005
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 76816384,
-        "maxHeapUsedBytes": 6556952,
+        "maxRssBytes": 70283264,
+        "maxHeapUsedBytes": 9644416,
         "samples": [
           {
             "before": {
-              "rssBytes": 73347072,
-              "heapUsedBytes": 5385288,
-              "externalBytes": 3658075,
-              "arrayBuffersBytes": 645487
+              "rssBytes": 64221184,
+              "heapUsedBytes": 5371000,
+              "externalBytes": 3830302,
+              "arrayBuffersBytes": 568687
             },
             "after": {
-              "rssBytes": 76816384,
-              "heapUsedBytes": 6556952,
-              "externalBytes": 3607901,
-              "arrayBuffersBytes": 1525950
+              "rssBytes": 69918720,
+              "heapUsedBytes": 7996960,
+              "externalBytes": 4042325,
+              "arrayBuffersBytes": 1960374
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 69521408,
+              "heapUsedBytes": 5417040,
+              "externalBytes": 4042325,
+              "arrayBuffersBytes": 518511
+            },
+            "after": {
+              "rssBytes": 70242304,
+              "heapUsedBytes": 9644416,
+              "externalBytes": 5222046,
+              "arrayBuffersBytes": 3140095
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 70352896,
+              "heapUsedBytes": 5431912,
+              "externalBytes": 5222046,
+              "arrayBuffersBytes": 473455
+            },
+            "after": {
+              "rssBytes": 70283264,
+              "heapUsedBytes": 9219696,
+              "externalBytes": 4959896,
+              "arrayBuffersBytes": 2877945
             }
           }
         ]
@@ -286,35 +466,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 8,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 135.9747425198473,
-      "avgMs": 7530.8090999999995,
-      "minMs": 7530.8090999999995,
-      "maxMs": 7530.8090999999995,
+      "mibPerSec": 124.49753402910346,
+      "avgMs": 8225.061133333335,
+      "minMs": 7500.7848,
+      "maxMs": 9147.171600000001,
       "samplesMs": [
-        7530.8090999999995
+        7500.7848,
+        9147.171600000001,
+        8027.226999999999
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 134242304,
-        "maxHeapUsedBytes": 6249504,
+        "maxRssBytes": 64868352,
+        "maxHeapUsedBytes": 7747472,
         "samples": [
           {
             "before": {
-              "rssBytes": 67805184,
-              "heapUsedBytes": 4946288,
-              "externalBytes": 2176397,
+              "rssBytes": 56348672,
+              "heapUsedBytes": 4961512,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 134242304,
-              "heapUsedBytes": 6249504,
-              "externalBytes": 60658864,
-              "arrayBuffersBytes": 58576913
+              "rssBytes": 64225280,
+              "heapUsedBytes": 6318928,
+              "externalBytes": 3625307,
+              "arrayBuffersBytes": 1543356
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 64000000,
+              "heapUsedBytes": 5393528,
+              "externalBytes": 3625307,
+              "arrayBuffersBytes": 661871
+            },
+            "after": {
+              "rssBytes": 64868352,
+              "heapUsedBytes": 7221256,
+              "externalBytes": 3887453,
+              "arrayBuffersBytes": 1805502
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 64020480,
+              "heapUsedBytes": 5365816,
+              "externalBytes": 3887453,
+              "arrayBuffersBytes": 1019247
+            },
+            "after": {
+              "rssBytes": 64811008,
+              "heapUsedBytes": 7747472,
+              "externalBytes": 4411796,
+              "arrayBuffersBytes": 2329845
             }
           }
         ]
@@ -327,35 +537,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 8,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 141.93385974429376,
-      "avgMs": 7214.626800000001,
-      "minMs": 7214.626800000001,
-      "maxMs": 7214.626800000001,
+      "mibPerSec": 150.59881988430425,
+      "avgMs": 6799.520933333334,
+      "minMs": 6686.188000000002,
+      "maxMs": 6863.7755,
       "samplesMs": [
-        7214.626800000001
+        6863.7755,
+        6686.188000000002,
+        6848.599300000002
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 76308480,
-        "maxHeapUsedBytes": 6802272,
+        "maxRssBytes": 71913472,
+        "maxHeapUsedBytes": 7392776,
         "samples": [
           {
             "before": {
-              "rssBytes": 129622016,
-              "heapUsedBytes": 5381768,
-              "externalBytes": 60658864,
-              "arrayBuffersBytes": 52321420
+              "rssBytes": 64663552,
+              "heapUsedBytes": 5374176,
+              "externalBytes": 4411796,
+              "arrayBuffersBytes": 661871
             },
             "after": {
-              "rssBytes": 76308480,
-              "heapUsedBytes": 6802272,
-              "externalBytes": 4509020,
-              "arrayBuffersBytes": 2427069
+              "rssBytes": 71090176,
+              "heapUsedBytes": 7392776,
+              "externalBytes": 4099476,
+              "arrayBuffersBytes": 2017525
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 70750208,
+              "heapUsedBytes": 5430616,
+              "externalBytes": 4099476,
+              "arrayBuffersBytes": 661871
+            },
+            "after": {
+              "rssBytes": 71573504,
+              "heapUsedBytes": 6605768,
+              "externalBytes": 3575133,
+              "arrayBuffersBytes": 1493182
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 71688192,
+              "heapUsedBytes": 5445088,
+              "externalBytes": 3575133,
+              "arrayBuffersBytes": 661871
+            },
+            "after": {
+              "rssBytes": 71913472,
+              "heapUsedBytes": 6555480,
+              "externalBytes": 3575133,
+              "arrayBuffersBytes": 1493182
             }
           }
         ]
@@ -368,35 +608,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 16,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 128.60404460021957,
-      "avgMs": 7962.4232,
-      "minMs": 7962.4232,
-      "maxMs": 7962.4232,
+      "mibPerSec": 128.93216886758796,
+      "avgMs": 7942.159333333333,
+      "minMs": 7058.3284,
+      "maxMs": 8396.8922,
       "samplesMs": [
-        7962.4232
+        7058.3284,
+        8371.257399999999,
+        8396.8922
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 142254080,
-        "maxHeapUsedBytes": 5739936,
+        "maxRssBytes": 101224448,
+        "maxHeapUsedBytes": 9837656,
         "samples": [
           {
             "before": {
-              "rssBytes": 67932160,
-              "heapUsedBytes": 4946328,
-              "externalBytes": 2176397,
+              "rssBytes": 56053760,
+              "heapUsedBytes": 4961552,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 142254080,
-              "heapUsedBytes": 5739936,
-              "externalBytes": 70847275,
-              "arrayBuffersBytes": 68767878
+              "rssBytes": 101224448,
+              "heapUsedBytes": 7038704,
+              "externalBytes": 38605589,
+              "arrayBuffersBytes": 36523638
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 96964608,
+              "heapUsedBytes": 5390632,
+              "externalBytes": 38605589,
+              "arrayBuffersBytes": 32529160
+            },
+            "after": {
+              "rssBytes": 65187840,
+              "heapUsedBytes": 7270128,
+              "externalBytes": 4526428,
+              "arrayBuffersBytes": 2444477
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 65122304,
+              "heapUsedBytes": 5363376,
+              "externalBytes": 4526428,
+              "arrayBuffersBytes": 1920367
+            },
+            "after": {
+              "rssBytes": 72187904,
+              "heapUsedBytes": 9837656,
+              "externalBytes": 6623607,
+              "arrayBuffersBytes": 4541656
             }
           }
         ]
@@ -409,35 +679,65 @@
       "family": "file-backed-batch-size-sweep",
       "contractScope": "full-string-checksum",
       "fullStringParity": true,
-      "chunkKiB": 64,
+      "chunkKiB": 32,
       "batchSize": 16,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 141.38035299568355,
-      "avgMs": 7242.8722,
-      "minMs": 7242.8722,
-      "maxMs": 7242.8722,
+      "mibPerSec": 150.90165053108592,
+      "avgMs": 6785.875599999999,
+      "minMs": 6764.460999999999,
+      "maxMs": 6818.325700000001,
       "samplesMs": [
-        7242.8722
+        6774.840099999998,
+        6764.460999999999,
+        6818.325700000001
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 99573760,
-        "maxHeapUsedBytes": 5735104,
+        "maxRssBytes": 73084928,
+        "maxHeapUsedBytes": 9821840,
         "samples": [
           {
             "before": {
-              "rssBytes": 141680640,
-              "heapUsedBytes": 4446224,
-              "externalBytes": 70847275,
-              "arrayBuffersBytes": 66670885
+              "rssBytes": 71733248,
+              "heapUsedBytes": 5363584,
+              "externalBytes": 6623607,
+              "arrayBuffersBytes": 1887599
             },
             "after": {
-              "rssBytes": 99573760,
-              "heapUsedBytes": 5735104,
-              "externalBytes": 21513245,
-              "arrayBuffersBytes": 19433848
+              "rssBytes": 72302592,
+              "heapUsedBytes": 6289768,
+              "externalBytes": 4476252,
+              "arrayBuffersBytes": 2394301
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 71761920,
+              "heapUsedBytes": 5414960,
+              "externalBytes": 4476252,
+              "arrayBuffersBytes": 1870191
+            },
+            "after": {
+              "rssBytes": 72118272,
+              "heapUsedBytes": 6024856,
+              "externalBytes": 4476252,
+              "arrayBuffersBytes": 2394301
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 71610368,
+              "heapUsedBytes": 5427880,
+              "externalBytes": 4476252,
+              "arrayBuffersBytes": 1870191
+            },
+            "after": {
+              "rssBytes": 73084928,
+              "heapUsedBytes": 9821840,
+              "externalBytes": 6573431,
+              "arrayBuffersBytes": 4491480
             }
           }
         ]
@@ -447,28 +747,28 @@
   "summary": {
     "rowCount": 10,
     "fastest": {
-      "id": "stax-raw-frame-name-id-batch-4",
+      "id": "stax-raw-frame-name-id-batch-16",
       "tool": "stax-raw-frame-name-id",
-      "chunkKiB": 64,
-      "batchSize": 4,
-      "throughputMiBPerSec": 146.08,
+      "chunkKiB": 32,
+      "batchSize": 16,
+      "throughputMiBPerSec": 150.9,
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
-      "maxRssMiB": 73.26
+      "maxRssMiB": 69.7
     },
     "slowest": {
-      "id": "stax-stream-batch-2",
+      "id": "stax-stream-batch-8",
       "tool": "stax-stream",
-      "chunkKiB": 64,
-      "batchSize": 2,
-      "throughputMiBPerSec": 115.66,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "throughputMiBPerSec": 124.5,
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
-      "maxRssMiB": 72.05
+      "maxRssMiB": 61.86
     },
-    "fastestSlowestRatio": 1.2630595877921957,
+    "fastestSlowestRatio": 1.212085457819671,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -483,18 +783,18 @@
     {
       "id": "batch-size-headroom",
       "classification": "BENCH_FACT",
-      "summary": "The fastest batch size in this sweep was 4 at 146.08 MiB/s; the slowest was 2 at 115.66 MiB/s.",
+      "summary": "The fastest batch size in this sweep was 16 at 150.90 MiB/s; the slowest was 8 at 124.50 MiB/s.",
       "evidence": [
-        "stax-stream-batch-1=130.99 MiB/s rss=71.31 MiB",
-        "stax-raw-frame-name-id-batch-1=145.57 MiB/s rss=71.85 MiB",
-        "stax-stream-batch-2=115.66 MiB/s rss=72.05 MiB",
-        "stax-raw-frame-name-id-batch-2=145.30 MiB/s rss=72.24 MiB",
-        "stax-stream-batch-4=137.08 MiB/s rss=70.92 MiB",
-        "stax-raw-frame-name-id-batch-4=146.08 MiB/s rss=73.26 MiB",
-        "stax-stream-batch-8=135.97 MiB/s rss=128.02 MiB",
-        "stax-raw-frame-name-id-batch-8=141.93 MiB/s rss=72.77 MiB",
-        "stax-stream-batch-16=128.60 MiB/s rss=135.66 MiB",
-        "stax-raw-frame-name-id-batch-16=141.38 MiB/s rss=94.96 MiB"
+        "stax-stream-batch-1=131.66 MiB/s rss=60.77 MiB",
+        "stax-raw-frame-name-id-batch-1=142.19 MiB/s rss=66.44 MiB",
+        "stax-stream-batch-2=133.61 MiB/s rss=60.72 MiB",
+        "stax-raw-frame-name-id-batch-2=142.79 MiB/s rss=66.99 MiB",
+        "stax-stream-batch-4=133.46 MiB/s rss=61.36 MiB",
+        "stax-raw-frame-name-id-batch-4=141.27 MiB/s rss=67.03 MiB",
+        "stax-stream-batch-8=124.50 MiB/s rss=61.86 MiB",
+        "stax-raw-frame-name-id-batch-8=150.60 MiB/s rss=68.58 MiB",
+        "stax-stream-batch-16=128.93 MiB/s rss=96.54 MiB",
+        "stax-raw-frame-name-id-batch-16=150.90 MiB/s rss=69.70 MiB"
       ]
     },
     {
@@ -502,16 +802,16 @@
       "classification": "COUNTEREXAMPLE_NOT_FOUND",
       "summary": "The file-backed batch-size sweep applies the same 200 MiB/s bounded full-string counterexample rule to its rows.",
       "evidence": [
-        "stax-stream-batch-1: bounded=true, mibPerSec=130.99",
-        "stax-raw-frame-name-id-batch-1: bounded=true, mibPerSec=145.57",
-        "stax-stream-batch-2: bounded=true, mibPerSec=115.66",
-        "stax-raw-frame-name-id-batch-2: bounded=true, mibPerSec=145.30",
-        "stax-stream-batch-4: bounded=true, mibPerSec=137.08",
-        "stax-raw-frame-name-id-batch-4: bounded=true, mibPerSec=146.08",
-        "stax-stream-batch-8: bounded=true, mibPerSec=135.97",
-        "stax-raw-frame-name-id-batch-8: bounded=true, mibPerSec=141.93",
-        "stax-stream-batch-16: bounded=true, mibPerSec=128.60",
-        "stax-raw-frame-name-id-batch-16: bounded=true, mibPerSec=141.38"
+        "stax-stream-batch-1: bounded=true, mibPerSec=131.66",
+        "stax-raw-frame-name-id-batch-1: bounded=true, mibPerSec=142.19",
+        "stax-stream-batch-2: bounded=true, mibPerSec=133.61",
+        "stax-raw-frame-name-id-batch-2: bounded=true, mibPerSec=142.79",
+        "stax-stream-batch-4: bounded=true, mibPerSec=133.46",
+        "stax-raw-frame-name-id-batch-4: bounded=true, mibPerSec=141.27",
+        "stax-stream-batch-8: bounded=true, mibPerSec=124.50",
+        "stax-raw-frame-name-id-batch-8: bounded=true, mibPerSec=150.60",
+        "stax-stream-batch-16: bounded=true, mibPerSec=128.93",
+        "stax-raw-frame-name-id-batch-16: bounded=true, mibPerSec=150.90"
       ]
     }
   ]

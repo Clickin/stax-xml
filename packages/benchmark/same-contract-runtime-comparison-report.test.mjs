@@ -222,7 +222,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.sourceArtifact === 'file-backed-batch-size-sweep.json'
     && row.runtimeId === 'node-v8'
     && row.caseId === 'stax-raw-frame-name-id-batch-4'
-    && row.mibPerSec === 146.08
+    && row.mibPerSec === 141.27
     && row.eventCount === 61236571
     && row.checksum === -716099804
     && row.fullStringParity === true
