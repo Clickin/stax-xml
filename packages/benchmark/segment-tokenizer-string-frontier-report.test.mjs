@@ -41,9 +41,13 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'segment-tokenizer-string-frontier');
   assert.equal(report.contract, 'file-backed-segment-tokenizer-string-frontier');
-  assert.equal(report.summary.rowCount, 10);
+  assert.equal(report.summary.rowCount, 11);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.allStringsVsTokenOnlyRatio, 'number');
+  assert.equal(report.summary.fullChecksumCandidateMatchesReference, true);
+  assert.equal(typeof report.summary.fullChecksumCandidateMiBPerSec, 'number');
+  assert.equal(report.reference.eventCount, 967967);
+  assert.equal(report.reference.checksum, -746772258);
   assert.deepEqual(report.rows.map(row => row.id), [
     'tokenOnly',
     'elementNameStrings',
@@ -55,19 +59,33 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
     'allTokenStringsNoObjects',
     'allTokenStringsNameCachedNoObjects',
     'allTokenStringsBoundedCacheNoObjects',
+    'allTokenStringsDocumentEventsNoObjects',
   ]);
 
   const first = report.rows[0];
   for (const row of report.rows) {
-    assert.equal(row.fullStringParity, false);
-    assert.equal(row.contractScope, 'xml-token-boundary-string-materialization-frontier');
+    if (row.id === 'allTokenStringsDocumentEventsNoObjects') {
+      assert.equal(row.fullStringParity, true);
+      assert.equal(row.contractScope, 'full-string-checksum-no-public-objects');
+      assert.equal(row.eventCount, first.eventCount + 2);
+      assert.equal(row.referenceEventCount, report.reference.eventCount);
+      assert.equal(row.referenceChecksum, report.reference.checksum);
+      assert.equal(row.checksum, report.reference.checksum);
+      assert.equal(row.emitDocumentEvents, true);
+      assert.equal(row.trimText, true);
+      assert.equal(row.fullReaderChecksum, true);
+      assert.equal(row.finalMixEventCount, false);
+    } else {
+      assert.equal(row.fullStringParity, false);
+      assert.equal(row.contractScope, 'xml-token-boundary-string-materialization-frontier');
+      assert.equal(row.eventCount, first.eventCount);
+    }
     assert.equal(row.sourceMode, 'file-backed-sync-iterable-byte-batches');
     assert.equal(row.parserInput, 'synchronous Iterable<Uint8Array[]>');
     assert.equal(row.demandDrivenSource, true);
     assert.equal(row.directReadableStream, false);
     assert.equal(row.fullArrayBufferParserInput, false);
     assert.equal(row.usesNodeBuffer, false);
-    assert.equal(row.eventCount, first.eventCount);
     assert.equal(row.startElementCount, first.startElementCount);
     assert.equal(row.endElementCount, first.endElementCount);
     assert.equal(row.textEventCount, first.textEventCount);
@@ -87,6 +105,7 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   const allStrings = report.rows.find(row => row.id === 'allTokenStringsNoObjects');
   const cachedAllStrings = report.rows.find(row => row.id === 'allTokenStringsNameCachedNoObjects');
   const allCachedStrings = report.rows.find(row => row.id === 'allTokenStringsBoundedCacheNoObjects');
+  const fullChecksumCandidate = report.rows.find(row => row.id === 'allTokenStringsDocumentEventsNoObjects');
   assert.equal(tokenOnly.usesTextDecoder, false);
   assert.equal(tokenOnly.materializedStringCount, 0);
   assert.equal(elementNames.usesTextDecoder, true);
@@ -122,6 +141,8 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   assert.equal(allCachedStrings.materializedStringCount, allStrings.materializedStringCount);
   assert.ok(allCachedStrings.decodeCalls < cachedAllStrings.decodeCalls);
   assert.ok(allCachedStrings.cachedStringHitCount > cachedAllStrings.cachedStringHitCount);
+  assert.equal(fullChecksumCandidate.materializedStringCount, allStrings.materializedStringCount);
+  assert.equal(fullChecksumCandidate.decodeCalls, allStrings.decodeCalls);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Segment Tokenizer String Frontier/);
@@ -129,6 +150,8 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   assert.match(markdown, /same-token-boundary-contract/);
   assert.match(markdown, /string-materialization-frontier/);
   assert.match(markdown, /partial-not-stax-counterexample/);
+  assert.match(markdown, /full-checksum-segmented-candidate/);
+  assert.match(markdown, /Full-checksum candidate matches StreamReaderSync reference: yes/);
   assert.match(markdown, /not Node Buffer, native addons, or lazy getters/);
 });
 

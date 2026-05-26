@@ -245,8 +245,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 176 primary release JSON artifacts, recognizes 930
-sample throughput rows and 99 aggregate rows, and finds 587 JavaScript 1 GiB+
+The current scan covers 177 primary release JSON artifacts, recognizes 931
+sample throughput rows and 99 aggregate rows, and finds 588 JavaScript 1 GiB+
 full-string sample rows plus 77 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -258,7 +258,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 257 JavaScript 1 GiB+
+or their source contract carry it. It now finds 258 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -267,8 +267,8 @@ the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
 generated-sync bucket now has 180 JavaScript 1 GiB+ full-string rows, 171 of
-them bounded. The file-backed sync byte-batch bucket adds 49 full-string rows,
-48 of them bounded, with fastest row 152.11 MiB/s. The fastest
+them bounded. The file-backed sync byte-batch bucket adds 50 full-string rows,
+49 of them bounded, with fastest row 152.11 MiB/s. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
@@ -284,7 +284,7 @@ row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 257
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 258
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -326,7 +326,15 @@ attribute string row from 83.34 to 112.27 MiB/s by reducing decode calls to
 a direct counterexample to treating the token-boundary row or repeated-name
 cache as enough headroom for the string-return target: repeated names and some
 attribute values recover decode cost, while text string materialization still
-dominates before public event-object allocation is even reintroduced. Bun/JSC
+dominates before public event-object allocation is even reintroduced.
+`segment-tokenizer-full-checksum-candidate.json` then adds document events,
+uses the full-reader string-fold checksum, trims text before folding, and
+verifies the segmented row against a `StreamReaderSync` reference on the same
+1024 MiB fixture. It preserves 61,236,571 events and checksum `-716099804`,
+uses no Node `Buffer`, consumes demand-driven `Iterable<Uint8Array[]>` batches
+without direct `ReadableStream`, and remains a negative full-checksum segmented
+candidate at 42.58 MiB/s with 96.15 MiB max RSS after 97,258,079 decode calls.
+Bun/JSC
 `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json` remains the
 fastest parser-produced partial row; Node/V8 and Chrome/V8 also cross
@@ -471,10 +479,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 176 primary release artifacts and recognizes 930
-measured rows. It records 130 benchmark artifacts, 17 source artifacts, 10
+The current audit scans 177 primary release artifacts and recognizes 931
+measured rows. It records 131 benchmark artifacts, 17 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-16 negative-result artifacts, 587 JavaScript 1 GiB+ full-string rows, and three
+16 negative-result artifacts, 588 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -501,6 +509,11 @@ materialization. It shows token-only 234.30 MiB/s, element-name strings
 without public objects 66.58 MiB/s, name-cached all token strings
 81.14 MiB/s, and bounded all-string cache all token strings 74.85 MiB/s, while
 remaining explicitly `fullStringParity=false`. The
+`segment-tokenizer-full-checksum-candidate.json` artifact adds the focused
+full-checksum follow-up row: it matches the `StreamReaderSync` reference
+event count and checksum on the same 1024 MiB fixture, but reaches only
+42.58 MiB/s with 96.15 MiB max RSS and remains a benchmark-only segmented
+candidate without public event objects or full XML validation. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving
 their 4 GiB generated byte-batch rows in the `unknown` bucket. The scan and

@@ -1,0 +1,190 @@
+{
+  "generatedAt": "2026-05-26T19:34:55.994Z",
+  "objective": "segment-tokenizer-string-frontier",
+  "contract": "file-backed-segment-tokenizer-string-frontier",
+  "note": "Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Rows are partial headroom evidence and not full StAX counterexamples because they do not expose public event objects or validate the full XML contract.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "chunkKiB": 32,
+    "batchSize": 8,
+    "runs": 3,
+    "warmups": 0,
+    "boundedRssMiB": 512,
+    "cases": [
+      "allTokenStringsDocumentEventsNoObjects"
+    ]
+  },
+  "rows": [
+    {
+      "id": "allTokenStringsDocumentEventsNoObjects",
+      "tool": "allTokenStringsDocumentEventsNoObjects",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values, text",
+      "family": "segment-tokenizer-full-checksum-candidate",
+      "contractScope": "full-string-checksum-no-public-objects",
+      "fullStringParity": true,
+      "referenceEventCount": 61236571,
+      "referenceChecksum": -716099804,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": true,
+      "emitDocumentEvents": true,
+      "trimText": true,
+      "fullReaderChecksum": true,
+      "finalMixEventCount": false,
+      "cacheNames": false,
+      "mibPerSec": 42.582155876333424,
+      "avgMs": 24047.627633333334,
+      "minMs": 23672.0345,
+      "maxMs": 24251.1237,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.024080928432096183,
+      "samplesMs": [
+        24251.1237,
+        24219.7247,
+        23672.0345
+      ],
+      "eventCount": 61236571,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 97258079,
+      "cachedStringHitCount": 0,
+      "cachedStringMissCount": 0,
+      "cachedStringBypassCount": 0,
+      "cachedNameCount": 0,
+      "decodedByteCount": 882827595,
+      "decodeCalls": 97258079,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 100818944,
+        "maxHeapUsedBytes": 19684472,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 70356992,
+              "heapUsedBytes": 5074664,
+              "externalBytes": 3905997,
+              "arrayBuffersBytes": 1120623
+            },
+            "after": {
+              "rssBytes": 84496384,
+              "heapUsedBytes": 8954848,
+              "externalBytes": 3267811,
+              "arrayBuffersBytes": 1366538
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 84377600,
+              "heapUsedBytes": 5155624,
+              "externalBytes": 3267811,
+              "arrayBuffersBytes": 1235466
+            },
+            "after": {
+              "rssBytes": 100818944,
+              "heapUsedBytes": 19684472,
+              "externalBytes": 3005894,
+              "arrayBuffersBytes": 1104621
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 100909056,
+              "heapUsedBytes": 5156944,
+              "externalBytes": 3005894,
+              "arrayBuffersBytes": 1104621
+            },
+            "after": {
+              "rssBytes": 100798464,
+              "heapUsedBytes": 17790896,
+              "externalBytes": 2743714,
+              "arrayBuffersBytes": 842441
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "reference": {
+    "eventCount": 61236571,
+    "checksum": -716099804,
+    "sourceMode": "StreamReaderSync-reference"
+  },
+  "summary": {
+    "rowCount": 1,
+    "fastest": {
+      "id": "allTokenStringsDocumentEventsNoObjects",
+      "mibPerSec": 42.582155876333424,
+      "boundedMemory": true,
+      "memoryKind": "process-rss"
+    },
+    "tokenOnlyMiBPerSec": null,
+    "allStringsMiBPerSec": null,
+    "allStringsVsTokenOnlyRatio": null,
+    "fullChecksumCandidateMiBPerSec": 42.582155876333424,
+    "fullChecksumCandidateMatchesReference": true,
+    "counterexamples200MiB": 0
+  },
+  "findings": [
+    {
+      "id": "same-token-boundary-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "All rows consume the same grouped file-backed sync Iterable<Uint8Array[]> source and preserve token boundary counters.",
+      "evidence": [
+        "61236571:21612907:21612907:18010755:18010755"
+      ]
+    },
+    {
+      "id": "string-materialization-frontier",
+      "classification": "BENCH_FACT",
+      "summary": "Token-only and all-string rows were not both measured.",
+      "evidence": [
+        "allTokenStringsDocumentEventsNoObjects: 42.58 MiB/s, strings=97258079, decodeCalls=97258079, cacheHits=0, cacheBypass=0, decodedBytes=882827595"
+      ]
+    },
+    {
+      "id": "partial-not-stax-counterexample",
+      "classification": "SCOPE_GUARD",
+      "summary": "These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons, but they still do not expose public event objects or claim full StAX checksum parity.",
+      "evidence": [
+        "allTokenStringsDocumentEventsNoObjects: fullStringParity=true, usesTextDecoder=true, usesNodeBuffer=false"
+      ]
+    },
+    {
+      "id": "full-checksum-segmented-candidate",
+      "classification": "BENCH_FACT",
+      "summary": "The document-event segmented row matched the StreamReaderSync reference at 42.58 MiB/s.",
+      "evidence": [
+        "candidate=61236571:-716099804",
+        "reference=61236571:-716099804",
+        "fullStringParity=true",
+        "counterexampleEligible=true"
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { closeSync, existsSync, mkdirSync, openSync, readSync, statSync, writeFi
 import { cpus } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { StreamEventType, StreamReaderSync } from '../stax-xml/dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultFile = join(__dirname, 'test-data', 'node-string-return-1024mib.xml');
@@ -94,6 +95,19 @@ const cases = [
     cacheAllStrings: true,
     maxCachedStrings: 4096,
   },
+  {
+    id: 'allTokenStringsDocumentEventsNoObjects',
+    decodeElementNames: true,
+    decodeAttributeNames: true,
+    decodeAttributeValues: true,
+    decodeText: true,
+    cacheNames: false,
+    emitDocumentEvents: true,
+    trimText: true,
+    fullReaderChecksum: true,
+    finalMixEventCount: false,
+    compareFullReaderReference: true,
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -104,6 +118,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     runs: 3,
     warmups: 0,
     boundedRssMiB: 512,
+    cases: null,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -139,6 +154,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--bounded-rss-mib':
         options.boundedRssMiB = parsePositiveNumber(readValue(), name);
         break;
+      case '--cases':
+        options.cases = parseCases(readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -154,6 +172,16 @@ function parseArgs(argv = process.argv.slice(2)) {
     throw new Error(`Benchmark fixture does not exist: ${options.file}`);
   }
   return options;
+}
+
+function parseCases(value) {
+  const selected = value.split(',').map(item => item.trim()).filter(Boolean);
+  if (selected.length === 0) throw new Error('--cases must include at least one case id.');
+  const known = new Set(cases.map(testCase => testCase.id));
+  for (const id of selected) {
+    if (!known.has(id)) throw new Error(`Unknown --cases entry: ${id}`);
+  }
+  return selected;
 }
 
 function parsePositiveInteger(value, flag) {
@@ -185,11 +213,16 @@ function main() {
 
 function runProbe(options) {
   const fileStats = statSync(options.file);
-  const rows = cases.map(testCase => measureCase(testCase, options, fileStats.size / MIB));
+  const reference = consumeFullReaderReference(options);
+  const selectedCases = options.cases === null
+    ? cases
+    : cases.filter(testCase => options.cases.includes(testCase.id));
+  const rows = selectedCases.map(testCase => measureCase(testCase, options, fileStats.size / MIB, reference));
   assertStableCounters(rows);
   const fastest = maxBy(rows, row => row.mibPerSec);
   const tokenOnly = rows.find(row => row.id === 'tokenOnly');
   const allStrings = rows.find(row => row.id === 'allTokenStringsNoObjects');
+  const fullChecksumCandidate = rows.find(row => row.id === 'allTokenStringsDocumentEventsNoObjects');
   return {
     generatedAt: new Date().toISOString(),
     objective: 'segment-tokenizer-string-frontier',
@@ -213,21 +246,25 @@ function runProbe(options) {
       runs: options.runs,
       warmups: options.warmups,
       boundedRssMiB: options.boundedRssMiB,
+      cases: selectedCases.map(testCase => testCase.id),
     },
     rows,
+    reference,
     summary: {
       rowCount: rows.length,
       fastest: summarizeRow(fastest),
       tokenOnlyMiBPerSec: tokenOnly?.mibPerSec ?? null,
       allStringsMiBPerSec: allStrings?.mibPerSec ?? null,
       allStringsVsTokenOnlyRatio: tokenOnly && allStrings ? allStrings.mibPerSec / tokenOnly.mibPerSec : null,
+      fullChecksumCandidateMiBPerSec: fullChecksumCandidate?.mibPerSec ?? null,
+      fullChecksumCandidateMatchesReference: fullChecksumCandidate?.fullStringParity === true,
       counterexamples200MiB: rows.filter(row => row.fullStringParity && row.boundedMemory && row.mibPerSec >= 200).length,
     },
-    findings: createFindings(rows, tokenOnly, allStrings),
+    findings: createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, reference),
   };
 }
 
-function measureCase(testCase, options, fileSizeMiB) {
+function measureCase(testCase, options, fileSizeMiB, reference) {
   const chunkBytes = options.chunkKiB * 1024;
   for (let index = 0; index < options.warmups; index++) {
     consumeCase(testCase, options.file, chunkBytes, options.batchSize);
@@ -257,9 +294,17 @@ function measureCase(testCase, options, fileSizeMiB) {
     id: testCase.id,
     tool: testCase.id,
     implementation: describeCase(testCase),
-    family: 'partial-segment-tokenizer-string-frontier',
-    contractScope: 'xml-token-boundary-string-materialization-frontier',
-    fullStringParity: false,
+    family: testCase.compareFullReaderReference === true
+      ? 'segment-tokenizer-full-checksum-candidate'
+      : 'partial-segment-tokenizer-string-frontier',
+    contractScope: testCase.compareFullReaderReference === true
+      ? 'full-string-checksum-no-public-objects'
+      : 'xml-token-boundary-string-materialization-frontier',
+    fullStringParity: testCase.compareFullReaderReference === true
+      && first.eventCount === reference.eventCount
+      && first.checksum === reference.checksum,
+    referenceEventCount: testCase.compareFullReaderReference === true ? reference.eventCount : null,
+    referenceChecksum: testCase.compareFullReaderReference === true ? reference.checksum : null,
     sourceMode: 'file-backed-sync-iterable-byte-batches',
     parserInput: 'synchronous Iterable<Uint8Array[]>',
     demandDrivenSource: true,
@@ -275,6 +320,10 @@ function measureCase(testCase, options, fileSizeMiB) {
     decodeAttributeNames: testCase.decodeAttributeNames,
     decodeAttributeValues: testCase.decodeAttributeValues,
     decodeText: testCase.decodeText,
+    emitDocumentEvents: testCase.emitDocumentEvents === true,
+    trimText: testCase.trimText === true,
+    fullReaderChecksum: testCase.fullReaderChecksum === true,
+    finalMixEventCount: testCase.finalMixEventCount !== false,
     cacheNames: testCase.cacheNames,
     mibPerSec: fileSizeMiB / (avgMs / 1000),
     avgMs,
@@ -302,6 +351,39 @@ function measureCase(testCase, options, fileSizeMiB) {
       maxHeapUsedBytes: Math.max(...memorySamples.map(sample => sample.after.heapUsedBytes)),
       samples: memorySamples,
     },
+  };
+}
+
+function consumeFullReaderReference(options) {
+  let eventCount = 0;
+  let checksum = 0;
+  const chunkBytes = options.chunkKiB * 1024;
+  for (const batch of new StreamReaderSync(createFileByteBatches(options.file, chunkBytes, options.batchSize))) {
+    const count = batch.eventCount;
+    for (let index = 0; index < count; index++) {
+      const type = batch.typeAt(index);
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = foldReaderString(checksum, batch.nameAt(index));
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        checksum = foldReaderString(checksum, batch.textAt(index)?.trim());
+      }
+      if (type === StreamEventType.START_ELEMENT) {
+        const attrCount = batch.attributeCountAt(index);
+        checksum = mixChecksum(checksum, attrCount);
+        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+          checksum = foldReaderString(checksum, batch.attributeNameAt(index, attrIndex));
+          checksum = foldReaderString(checksum, batch.attributeValueAt(index, attrIndex));
+        }
+      }
+    }
+  }
+  return {
+    eventCount,
+    checksum,
+    sourceMode: 'StreamReaderSync-reference',
   };
 }
 
@@ -356,6 +438,10 @@ class FrontierTokenizer {
     this.decodedByteCount = 0;
     this.decodeCalls = 0;
     this.checksum = 0;
+    if (this.testCase.emitDocumentEvents) {
+      this.eventCount++;
+      this.checksum = mixChecksum(this.checksum, 0);
+    }
   }
 
   scan(buffer) {
@@ -388,6 +474,10 @@ class FrontierTokenizer {
   finish() {
     if (this.inTag) throw new Error('Unexpected end of file while scanning an XML tag.');
     this.flushText();
+    if (this.testCase.emitDocumentEvents) {
+      this.eventCount++;
+      this.checksum = mixChecksum(this.checksum, 1);
+    }
     return {
       eventCount: this.eventCount,
       startElementCount: this.startElementCount,
@@ -401,7 +491,7 @@ class FrontierTokenizer {
       cachedNameCount: this.nameCache.size,
       decodedByteCount: this.decodedByteCount,
       decodeCalls: this.decodeCalls,
-      checksum: mixChecksum(this.checksum, this.eventCount),
+      checksum: this.testCase.finalMixEventCount === false ? this.checksum : mixChecksum(this.checksum, this.eventCount),
     };
   }
 
@@ -430,10 +520,12 @@ class FrontierTokenizer {
     this.eventCount++;
     this.textEventCount++;
     this.checksum = mixChecksum(this.checksum, 4);
-    this.checksum = mixChecksum(this.checksum, this.textLength);
+    if (!this.testCase.fullReaderChecksum) {
+      this.checksum = mixChecksum(this.checksum, this.textLength);
+    }
     if (this.testCase.decodeText) {
       const textBytes = materializeParts(this.textParts);
-      this.foldDecodedString(textBytes);
+      this.foldDecodedString(textBytes, { trim: this.testCase.trimText === true });
     }
     this.textLength = 0;
     this.textHasNonWhitespace = false;
@@ -456,18 +548,23 @@ class FrontierTokenizer {
     this.tagParts = null;
   }
 
-  foldDecodedString(bytes) {
+  foldDecodedString(bytes, options = {}) {
     if (bytes.length === 0) return;
     if (this.testCase.cacheAllStrings) {
       const cached = this.lookupString(bytes);
-      this.checksum = mixString(this.checksum, cached);
+      this.checksum = this.testCase.fullReaderChecksum
+        ? foldReaderString(this.checksum, options.trim ? cached.trim() : cached)
+        : mixString(this.checksum, options.trim ? cached.trim() : cached);
       return;
     }
-    const value = this.decoder.decode(bytes);
+    const decoded = this.decoder.decode(bytes);
+    const value = options.trim ? decoded.trim() : decoded;
     this.materializedStringCount++;
     this.decodedByteCount += bytes.length;
     this.decodeCalls++;
-    this.checksum = mixString(this.checksum, value);
+    this.checksum = this.testCase.fullReaderChecksum
+      ? foldReaderString(this.checksum, value)
+      : mixString(this.checksum, value);
   }
 
   foldDecodedName(bytes) {
@@ -553,6 +650,11 @@ function processTag(bytes, state) {
 function emitElement(state, type, bytes, nameStart, nameEnd, attrCount) {
   state.eventCount++;
   state.checksum = mixChecksum(state.checksum, type);
+  if (state.testCase.fullReaderChecksum) {
+    if (state.testCase.decodeElementNames) state.foldDecodedName(bytes.subarray(nameStart, nameEnd));
+    if (type === 2) state.checksum = mixChecksum(state.checksum, attrCount);
+    return;
+  }
   state.checksum = mixChecksum(state.checksum, hashBytes(bytes, nameStart, nameEnd));
   state.checksum = mixChecksum(state.checksum, attrCount);
   if (state.testCase.decodeElementNames) state.foldDecodedName(bytes.subarray(nameStart, nameEnd));
@@ -647,6 +749,15 @@ function mixString(seed, value) {
   return checksum;
 }
 
+function foldReaderString(seed, value) {
+  if (!value) return seed;
+  let checksum = seed;
+  for (let index = 0; index < value.length; index++) {
+    checksum = ((checksum << 5) - checksum + value.charCodeAt(index)) | 0;
+  }
+  return checksum;
+}
+
 function sameCounters(left, right) {
   return left.eventCount === right.eventCount
     && left.startElementCount === right.startElementCount
@@ -665,9 +776,10 @@ function sameCounters(left, right) {
 
 function assertStableCounters(rows) {
   const first = rows[0];
+  const baseEventCount = Math.min(...rows.map(row => row.eventCount - (row.emitDocumentEvents ? 2 : 0)));
   for (const row of rows) {
     if (
-      row.eventCount !== first.eventCount
+      row.eventCount !== baseEventCount + (row.emitDocumentEvents ? 2 : 0)
       || row.startElementCount !== first.startElementCount
       || row.endElementCount !== first.endElementCount
       || row.textEventCount !== first.textEventCount
@@ -678,7 +790,7 @@ function assertStableCounters(rows) {
   }
 }
 
-function createFindings(rows, tokenOnly, allStrings) {
+function createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, reference) {
   return [
     {
       id: 'same-token-boundary-contract',
@@ -699,6 +811,21 @@ function createFindings(rows, tokenOnly, allStrings) {
       classification: 'SCOPE_GUARD',
       summary: 'These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons, but they still do not expose public event objects or claim full StAX checksum parity.',
       evidence: rows.map(row => `${row.id}: fullStringParity=${row.fullStringParity}, usesTextDecoder=${row.usesTextDecoder}, usesNodeBuffer=${row.usesNodeBuffer}`),
+    },
+    {
+      id: 'full-checksum-segmented-candidate',
+      classification: fullChecksumCandidate?.fullStringParity ? 'BENCH_FACT' : 'NEGATIVE_RESULT',
+      summary: fullChecksumCandidate
+        ? `The document-event segmented row ${fullChecksumCandidate.fullStringParity ? 'matched' : 'did not match'} the StreamReaderSync reference at ${formatNumber(fullChecksumCandidate.mibPerSec)} MiB/s.`
+        : 'No document-event segmented full-checksum row was measured.',
+      evidence: fullChecksumCandidate
+        ? [
+          `candidate=${fullChecksumCandidate.eventCount}:${fullChecksumCandidate.checksum}`,
+          `reference=${reference.eventCount}:${reference.checksum}`,
+          `fullStringParity=${fullChecksumCandidate.fullStringParity}`,
+          `counterexampleEligible=${fullChecksumCandidate.fullStringParity && fullChecksumCandidate.boundedMemory}`,
+        ]
+        : [],
     },
   ];
 }
@@ -735,7 +862,10 @@ function renderMarkdown(report) {
     `- Grouped batch size: ${report.options.batchSize}`,
     `- Fastest row: ${report.summary.fastest.id} ${formatNumber(report.summary.fastest.mibPerSec)} MiB/s`,
     `- All strings / token-only ratio: ${formatNullableNumber(report.summary.allStringsVsTokenOnlyRatio)}x`,
+    `- Full-checksum segmented candidate: ${formatNullableNumber(report.summary.fullChecksumCandidateMiBPerSec)} MiB/s`,
+    `- Full-checksum candidate matches StreamReaderSync reference: ${report.summary.fullChecksumCandidateMatchesReference ? 'yes' : 'no'}`,
     `- 200 MiB/s bounded full-string counterexamples: ${report.summary.counterexamples200MiB}`,
+    `- StreamReaderSync reference: ${report.reference.eventCount} events, checksum ${report.reference.checksum}`,
     '',
     '## Rows',
     '',
