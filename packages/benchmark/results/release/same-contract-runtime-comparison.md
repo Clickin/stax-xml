@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-25T23:16:46.628Z
+Generated: 2026-05-26T00:03:26.290Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 124
-- 1 GiB+ JavaScript full-string rows: 109
+- Aggregated rows: 128
+- 1 GiB+ JavaScript full-string rows: 111
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 178.52 MiB/s (process RSS max 189.37 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.89x, 21.48 MiB/s remaining
@@ -30,6 +30,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `external-baseline-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 76.13 | yes | process RSS max 77.80 MiB | `file-backed-sync-iterable-byte-batches` |
 | `file-backed-short-attr-value-cache-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 147.05 | yes | process RSS max 61.14 MiB | `file-backed-sync-iterable-byte-batches` |
 | `file-backed-trim-boundary-check-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 143.35 | yes | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` |
+| `file-backed-long-ascii-text-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 141.29 | yes | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` |
 | `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 57.99 | yes | process RSS max 192.98 MiB | n/a |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB | n/a |
 | `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 84.68 | yes | process RSS max 199.15 MiB | n/a |
@@ -70,6 +71,10 @@ This report aggregates existing release artifacts. It compares rows only through
 | `file-backed-trim-boundary-check-candidate` | stax-raw-frame-name-id-trim-boundary-check | `stax-raw-frame-name-id-trim-boundary-check` | 61236571 | -716099804 | 130.27 | yes | process RSS max 67.22 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-trim-boundary-check-candidate.json` |
 | `file-backed-trim-boundary-check-candidate` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 351.56 | yes | process RSS max 312.71 MiB | n/a | `file-backed-trim-boundary-check-candidate.json` |
 | `file-backed-trim-boundary-check-candidate` | Rust/quick-xml | `quick-xml` | 61236571 | -716099804 | 273.74 | yes | process RSS max 4.78 MiB | n/a | `file-backed-trim-boundary-check-candidate.json` |
+| `file-backed-long-ascii-text-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 61236571 | -716099804 | 141.29 | yes | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-long-ascii-text-candidate.json` |
+| `file-backed-long-ascii-text-candidate` | stax-raw-frame-name-id-long-ascii-text | `stax-raw-frame-name-id-long-ascii-text` | 61236571 | -716099804 | 77.52 | yes | process RSS max 99.57 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-long-ascii-text-candidate.json` |
+| `file-backed-long-ascii-text-candidate` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 308.06 | yes | process RSS max 310.86 MiB | n/a | `file-backed-long-ascii-text-candidate.json` |
+| `file-backed-long-ascii-text-candidate` | Rust/quick-xml | `quick-xml` | 61236571 | -716099804 | 272.33 | yes | process RSS max 4.78 MiB | n/a | `file-backed-long-ascii-text-candidate.json` |
 | `generated-1gib-candidate` | Node/V8 | `stringFull` | 45189256 | 1421012805 | 49.01 | yes | process RSS max 85.56 MiB | n/a | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Node/V8 | `eventObjectFull` | 45189256 | 1421012805 | 39.45 | yes | process RSS max 137.52 MiB | n/a | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Node/V8 | `rawFrameNameId` | 45189256 | 1421012805 | 55.85 | yes | process RSS max 144.54 MiB | n/a | `candidate-headroom-large.json` |
@@ -191,7 +196,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=109
+  - jsLargeFullRows=111
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - 16MiB woodstox=303.10 MiB/s

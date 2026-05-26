@@ -285,3 +285,66 @@ test('external baseline reports short attr-value cache as a same-checksum candid
   assert.match(markdown, /stax-raw-frame-short-attr-value-cache/);
   assert.match(markdown, /file-sync-batches mode/);
 });
+
+test('external baseline reports long ASCII text path as an opt-in same-checksum candidate', () => {
+  const asciiJsonOut = join(tmpDir, 'external-baseline-long-ascii-text-test.json');
+  const asciiMdOut = join(tmpDir, 'external-baseline-long-ascii-text-test.md');
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [asciiJsonOut, asciiMdOut]) {
+    if (existsSync(filePath)) {
+      rmSync(filePath);
+    }
+  }
+
+  const result = spawnSync(process.execPath, [
+    '--expose-gc',
+    join(__dirname, 'external-baseline.mjs'),
+    '--file',
+    join(__dirname, 'test-data', 'runtime-comparison-16mib.xml'),
+    '--tools',
+    'stax-raw-frame-name-id,stax-raw-frame-name-id-long-ascii-text',
+    '--runs',
+    '1',
+    '--warmups',
+    '0',
+    '--skip-build',
+    '--stax-stream-source',
+    'file-sync-batches',
+    '--chunk-kib',
+    '32',
+    '--batch-size',
+    '4',
+    '--json-out',
+    asciiJsonOut,
+    '--md-out',
+    asciiMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(asciiJsonOut, 'utf8'));
+  assert.deepEqual(report.results.map(row => row.tool), [
+    'stax-raw-frame-name-id',
+    'stax-raw-frame-name-id-long-ascii-text',
+  ]);
+  for (const row of report.results) {
+    assert.equal(row.workload, 'full-string-checksum');
+    assert.equal(row.eventCount, 967967);
+    assert.equal(row.checksum, -746772258);
+    assert.equal(row.boundedMemory, true);
+    assert.equal(row.sourceMode, 'file-backed-sync-iterable-byte-batches');
+    assert.equal(row.sourceConsumption.parserInput, 'synchronous Iterable<Uint8Array[]>');
+    assert.equal(row.sourceConsumption.preMaterializesFullXml, false);
+    assert.equal(row.sourceConsumption.directReadableStream, false);
+    assert.equal(row.sourceConsumption.chunkBytes, 32 * 1024);
+    assert.equal(row.sourceConsumption.batchSize, 4);
+  }
+
+  const markdown = readFileSync(asciiMdOut, 'utf8');
+  assert.match(markdown, /stax-raw-frame-name-id-long-ascii-text/);
+  assert.match(markdown, /file-sync-batches mode/);
+});

@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 124);
-  assert.equal(report.summary.jsLargeFullRowCount, 109);
+  assert.equal(report.summary.rowCount, 128);
+  assert.equal(report.summary.jsLargeFullRowCount, 111);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'bun-candidate-headroom-books-corpus-stability.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'bun-jsc');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -116,6 +116,19 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.boundedMemory === true
     && row.memory.primaryKind === 'process-rss'
     && row.memory.maxMiB === 67.22
+    && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'file-backed-long-ascii-text-candidate'
+    && row.sourceArtifact === 'file-backed-long-ascii-text-candidate.json'
+    && row.caseId === 'stax-raw-frame-name-id-long-ascii-text'
+    && row.mibPerSec === 77.52
+    && row.eventCount === 61236571
+    && row.checksum === -716099804
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+    && row.memory.maxMiB === 99.57
     && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
   ));
   assert.ok(report.comparisonRows.some(row =>

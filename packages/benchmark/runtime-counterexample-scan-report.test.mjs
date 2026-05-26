@@ -33,14 +33,15 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 142);
+  assert.equal(report.summary.scannedArtifactCount, 143);
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
-  assert.equal(report.summary.measuredRowCount, 775);
+  assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
+  assert.equal(report.summary.measuredRowCount, 779);
   assert.equal(report.summary.aggregateRowCount, 89);
-  assert.equal(report.summary.largeJsFullRowCount, 480);
+  assert.equal(report.summary.largeJsFullRowCount, 482);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
-  assert.equal(report.summary.sourceModeRowCount, 200);
-  assert.equal(report.summary.largeJsFullSourceModeRowCount, 150);
+  assert.equal(report.summary.sourceModeRowCount, 202);
+  assert.equal(report.summary.largeJsFullSourceModeRowCount, 152);
   assert.equal(report.summary.partialHeadroomRowCount, 22);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 3);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
@@ -293,12 +294,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'file-backed-sync-iterable-byte-batches'
-    && entry.rowCount === 39
-    && entry.boundedFullStringRowCount === 38
+    && entry.rowCount === 41
+    && entry.boundedFullStringRowCount === 40
     && entry.fastestRow.sourceArtifact === 'file-backed-source-sweep.json'
     && entry.fastestRow.id === 'stax-raw-frame-name-id-chunk-32kib'
     && entry.fastestMiBPerSec === 151.7
-    && entry.demandDrivenRows === 39
+    && entry.demandDrivenRows === 41
     && entry.backpressureRows === 0
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
@@ -418,14 +419,15 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
-  assert.match(markdown, /Rows with recognized source mode: 200/);
-  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 150/);
+  assert.match(markdown, /Rows with recognized source mode: 202/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 152/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
   assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);
   assert.match(markdown, /Demand-driven rows/);
   assert.match(markdown, /Stream backpressure rows/);
   assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 108 \| 108 \| 99 \| 179\.70 \| Bun\/JSC rawFrameNameId from access-shape-candidate-cross-process\.json \| 108 \| 0 \|/);
+  assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 41 \| 41 \| 40 \| 151\.70 \| Node\/V8 stax-raw-frame-name-id stax-raw-frame-name-id-chunk-32kib from file-backed-source-sweep\.json \| 41 \| 0 \|/);
   assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| \d+\.\d{2} \| Bun\/JSC 3 from bun-event-reader-string-large\.json \| 0 \| 0 \|/);
   assert.match(markdown, /\| `sync-iterable-byte-batches` \| 1 \| 1 \| 1 \| 139\.27 \| Node\/V8 sync-iterable-byte-batches from stream-source-consumption-shapes\.json \| 1 \| 0 \|/);
   assert.match(markdown, /\| `web-readable-stream-pull` \| 1 \| 1 \| 1 \| 143\.29 \| Node\/V8 web-readable-stream-pull from stream-source-consumption-shapes\.json \| 1 \| 1 \|/);
