@@ -70,6 +70,24 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.ok(readable);
   assert.ok(asyncBatch);
   assert.ok(syncBatch);
+  assert.equal(readable.sourceConsumption.sourceMode, 'web-readable-stream-pull');
+  assert.equal(readable.sourceConsumption.parserInput, 'ReadableStream<Uint8Array>');
+  assert.equal(readable.sourceConsumption.directReadableStream, true);
+  assert.equal(readable.sourceConsumption.asyncBoundary, true);
+  assert.equal(readable.sourceConsumption.respectsBackpressure, true);
+  assert.equal(readable.sourceConsumption.fullArrayBufferParserInput, false);
+  assert.equal(asyncBatch.sourceConsumption.sourceMode, 'async-iterable-byte-batches');
+  assert.equal(asyncBatch.sourceConsumption.parserInput, 'AsyncIterable<Uint8Array[]>');
+  assert.equal(asyncBatch.sourceConsumption.directReadableStream, false);
+  assert.equal(asyncBatch.sourceConsumption.asyncBoundary, true);
+  assert.equal(asyncBatch.sourceConsumption.respectsBackpressure, true);
+  assert.equal(asyncBatch.sourceConsumption.fullArrayBufferParserInput, false);
+  assert.equal(syncBatch.sourceConsumption.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(syncBatch.sourceConsumption.parserInput, 'Iterable<Uint8Array[]>');
+  assert.equal(syncBatch.sourceConsumption.directReadableStream, false);
+  assert.equal(syncBatch.sourceConsumption.asyncBoundary, false);
+  assert.equal(syncBatch.sourceConsumption.respectsBackpressure, true);
+  assert.equal(syncBatch.sourceConsumption.fullArrayBufferParserInput, false);
   assert.equal(readable.fullStringParity, true);
   assert.equal(asyncBatch.fullStringParity, true);
   assert.equal(syncBatch.fullStringParity, true);
@@ -102,6 +120,9 @@ test('EventReader byte-batch report compares ReadableStream, async byte-batch, a
   assert.match(markdown, /Runtime: Node\/V8 test/);
   assert.match(markdown, /asyncByteBatch4/);
   assert.match(markdown, /syncIterableBatch4/);
+  assert.match(markdown, /web-readable-stream-pull/);
+  assert.match(markdown, /AsyncIterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Iterable<Uint8Array\[\]>/);
 });
 
 test('EventReader byte-batch report supports a corpus-cycle fixture seed', () => {
@@ -166,6 +187,12 @@ test('EventReader byte-batch report supports a corpus-cycle fixture seed', () =>
   assert.ok(asyncBatch);
   assert.ok(syncBatch);
   assert.ok(syncFileBatch);
+  assert.equal(syncFileBatch.sourceConsumption.sourceMode, 'file-backed-sync-iterable-byte-batches');
+  assert.equal(syncFileBatch.sourceConsumption.parserInput, 'Iterable<Uint8Array[]>');
+  assert.equal(syncFileBatch.sourceConsumption.directReadableStream, false);
+  assert.equal(syncFileBatch.sourceConsumption.asyncBoundary, false);
+  assert.equal(syncFileBatch.sourceConsumption.respectsBackpressure, true);
+  assert.equal(syncFileBatch.sourceConsumption.fullArrayBufferParserInput, false);
   assert.equal(asyncBatch.eventCount, readable.eventCount);
   assert.equal(asyncBatch.checksum, readable.checksum);
   assert.equal(syncBatch.eventCount, readable.eventCount);

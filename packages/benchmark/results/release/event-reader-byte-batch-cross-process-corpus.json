@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T19:25:41.916Z",
+  "generatedAt": "2026-05-26T23:38:31.272Z",
   "objective": "event-reader-byte-batch-cross-process",
   "contract": "independent-process-public-event-object-full-string-checksum",
   "note": "Each sample invokes event-reader-byte-batch.mjs in a fresh process with --runs=1. All selected rows preserve the public event-object full-string checksum contract and demand-driven source consumption.",
@@ -76,54 +76,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 52.805543278824224,
+              "mibPerSec": 52.64856619523342,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206675968,
-              "maxHeapUsedBytes": 39252160
+              "maxRssBytes": 207441920,
+              "maxHeapUsedBytes": 26564448
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 49.93616342519064,
+              "mibPerSec": 48.09445911671889,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206204928,
-              "maxHeapUsedBytes": 39748104
+              "maxRssBytes": 206962688,
+              "maxHeapUsedBytes": 39866448
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 78.43147532196778,
+              "mibPerSec": 76.41413788602827,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 214216704,
-              "maxHeapUsedBytes": 9791336
+              "maxRssBytes": 216289280,
+              "maxHeapUsedBytes": 10491440
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 68.74542537691619,
+              "mibPerSec": 67.20644962662578,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 227188736,
-              "maxHeapUsedBytes": 59990384
+              "maxRssBytes": 228302848,
+              "maxHeapUsedBytes": 60326232
             }
           ]
         },
@@ -147,54 +183,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 53.84357857647687,
+              "mibPerSec": 52.71128521926547,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 205455360,
-              "maxHeapUsedBytes": 9912952
+              "maxRssBytes": 207286272,
+              "maxHeapUsedBytes": 67404984
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 48.65135286025513,
+              "mibPerSec": 46.95349653485095,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 207007744,
-              "maxHeapUsedBytes": 39709080
+              "maxRssBytes": 207122432,
+              "maxHeapUsedBytes": 37068040
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 78.13030066965413,
+              "mibPerSec": 76.68230080992237,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 214814720,
-              "maxHeapUsedBytes": 9997720
+              "maxRssBytes": 206110720,
+              "maxHeapUsedBytes": 10028864
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 69.42002627551777,
+              "mibPerSec": 67.14957685714533,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 227762176,
-              "maxHeapUsedBytes": 59883440
+              "maxRssBytes": 228671488,
+              "maxHeapUsedBytes": 60410664
             }
           ]
         },
@@ -218,54 +290,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 54.04935806187558,
+              "mibPerSec": 52.9313453107757,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206249984,
-              "maxHeapUsedBytes": 72794272
+              "maxRssBytes": 206479360,
+              "maxHeapUsedBytes": 43780264
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 47.26666337614694,
+              "mibPerSec": 48.416353692098404,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 206536704,
-              "maxHeapUsedBytes": 38102392
+              "maxRssBytes": 206974976,
+              "maxHeapUsedBytes": 39802424
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 76.46246421139708,
+              "mibPerSec": 73.74899834869018,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 214368256,
-              "maxHeapUsedBytes": 10227312
+              "maxRssBytes": 209723392,
+              "maxHeapUsedBytes": 9984584
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 68.60499393019028,
+              "mibPerSec": 67.53365378490179,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 228335616,
-              "maxHeapUsedBytes": 59937488
+              "maxRssBytes": 228835328,
+              "maxHeapUsedBytes": 59859848
             }
           ]
         }
@@ -283,17 +391,26 @@
         {
           "id": "readableStreamBatch16",
           "family": "readable-stream",
+          "sourceConsumption": {
+            "sourceMode": "web-readable-stream-pull",
+            "parserInput": "ReadableStream<Uint8Array>",
+            "directReadableStream": true,
+            "asyncBoundary": true,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 53.56615997239223,
-          "minMiBPerSec": 52.805543278824224,
-          "maxMiBPerSec": 54.04935806187558,
-          "spreadRatio": 0.023220159587553274,
+          "avgMiBPerSec": 52.76373224175819,
+          "minMiBPerSec": 52.64856619523342,
+          "maxMiBPerSec": 52.9313453107757,
+          "spreadRatio": 0.0053593463450729755,
           "mibPerSecSamples": [
-            52.805543278824224,
-            53.84357857647687,
-            54.04935806187558
+            52.64856619523342,
+            52.71128521926547,
+            52.9313453107757
           ],
           "eventCounts": [
             57096514
@@ -309,24 +426,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 206675968,
-          "maxHeapUsedBytes": 72794272,
+          "maxRssBytes": 207441920,
+          "maxHeapUsedBytes": 67404984,
           "counterexampleFound": false
         },
         {
           "id": "asyncByteBatch16",
           "family": "async-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "async-iterable-byte-batches",
+            "parserInput": "AsyncIterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": true,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 48.61805988719757,
-          "minMiBPerSec": 47.26666337614694,
-          "maxMiBPerSec": 49.93616342519064,
-          "spreadRatio": 0.05490758074751263,
+          "avgMiBPerSec": 47.82143644788942,
+          "minMiBPerSec": 46.95349653485095,
+          "maxMiBPerSec": 48.416353692098404,
+          "spreadRatio": 0.030589987794313073,
           "mibPerSecSamples": [
-            49.93616342519064,
-            48.65135286025513,
-            47.26666337614694
+            48.09445911671889,
+            46.95349653485095,
+            48.416353692098404
           ],
           "eventCounts": [
             57096514
@@ -342,24 +468,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 207007744,
-          "maxHeapUsedBytes": 39748104,
+          "maxRssBytes": 207122432,
+          "maxHeapUsedBytes": 39866448,
           "counterexampleFound": false
         },
         {
           "id": "syncIterableBatch16",
           "family": "sync-iterable-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "sync-iterable-byte-batches",
+            "parserInput": "Iterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": false,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 77.67474673433966,
-          "minMiBPerSec": 76.46246421139708,
-          "maxMiBPerSec": 78.43147532196778,
-          "spreadRatio": 0.025349437151112247,
+          "avgMiBPerSec": 75.61514568154693,
+          "minMiBPerSec": 73.74899834869018,
+          "maxMiBPerSec": 76.68230080992237,
+          "spreadRatio": 0.038792525423223895,
           "mibPerSecSamples": [
-            78.43147532196778,
-            78.13030066965413,
-            76.46246421139708
+            76.41413788602827,
+            76.68230080992237,
+            73.74899834869018
           ],
           "eventCounts": [
             57096514
@@ -375,24 +510,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 214814720,
-          "maxHeapUsedBytes": 10227312,
+          "maxRssBytes": 216289280,
+          "maxHeapUsedBytes": 10491440,
           "counterexampleFound": false
         },
         {
           "id": "syncFileIterableBatch16",
           "family": "sync-file-iterable-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "file-backed-sync-iterable-byte-batches",
+            "parserInput": "Iterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": false,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 68.92348186087474,
-          "minMiBPerSec": 68.60499393019028,
-          "maxMiBPerSec": 69.42002627551777,
-          "spreadRatio": 0.011825176606322294,
+          "avgMiBPerSec": 67.29656008955764,
+          "minMiBPerSec": 67.14957685714533,
+          "maxMiBPerSec": 67.53365378490179,
+          "spreadRatio": 0.005707229719399138,
           "mibPerSecSamples": [
-            68.74542537691619,
-            69.42002627551777,
-            68.60499393019028
+            67.20644962662578,
+            67.14957685714533,
+            67.53365378490179
           ],
           "eventCounts": [
             57096514
@@ -408,8 +552,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 228335616,
-          "maxHeapUsedBytes": 59990384,
+          "maxRssBytes": 228835328,
+          "maxHeapUsedBytes": 60410664,
           "counterexampleFound": false
         }
       ]
@@ -460,54 +604,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 39.83350949498013,
+              "mibPerSec": 39.3410968538376,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 213000192,
-              "maxHeapUsedBytes": 44792465
+              "maxRssBytes": 215674880,
+              "maxHeapUsedBytes": 5380755
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 37.26447517598272,
+              "mibPerSec": 36.7084897508529,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 219062272,
-              "maxHeapUsedBytes": 53106784
+              "maxRssBytes": 214061056,
+              "maxHeapUsedBytes": 42341681
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 52.97364675304443,
+              "mibPerSec": 52.144095861466695,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 217870336,
-              "maxHeapUsedBytes": 54712937
+              "maxRssBytes": 215252992,
+              "maxHeapUsedBytes": 46063219
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 49.59655213355335,
+              "mibPerSec": 48.419445906935145,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 218804224,
-              "maxHeapUsedBytes": 53028089
+              "maxRssBytes": 220200960,
+              "maxHeapUsedBytes": 44434899
             }
           ]
         },
@@ -531,54 +711,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 38.79313494525934,
+              "mibPerSec": 38.06907983478947,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 213471232,
-              "maxHeapUsedBytes": 51143466
+              "maxRssBytes": 214769664,
+              "maxHeapUsedBytes": 59330792
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 37.181182017928144,
+              "mibPerSec": 35.592600933542364,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 211406848,
-              "maxHeapUsedBytes": 9266548
+              "maxRssBytes": 222154752,
+              "maxHeapUsedBytes": 4644713
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 48.52485927720501,
+              "mibPerSec": 50.862290161565475,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 211685376,
-              "maxHeapUsedBytes": 11319185
+              "maxRssBytes": 216965120,
+              "maxHeapUsedBytes": 7031092
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 48.8496472187085,
+              "mibPerSec": 47.80590100060652,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 209465344,
-              "maxHeapUsedBytes": 56308942
+              "maxRssBytes": 212410368,
+              "maxHeapUsedBytes": 55797023
             }
           ]
         },
@@ -602,54 +818,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 38.13371303309578,
+              "mibPerSec": 38.79841458209334,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 210370560,
-              "maxHeapUsedBytes": 9136030
+              "maxRssBytes": 212975616,
+              "maxHeapUsedBytes": 53527372
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 36.91890791078977,
+              "mibPerSec": 34.6354045568024,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 218816512,
-              "maxHeapUsedBytes": 18974174
+              "maxRssBytes": 212766720,
+              "maxHeapUsedBytes": 23407397
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 52.891244909095114,
+              "mibPerSec": 50.374972375606454,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 216727552,
-              "maxHeapUsedBytes": 19989794
+              "maxRssBytes": 211509248,
+              "maxHeapUsedBytes": 24399677
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 49.77397340763705,
+              "mibPerSec": 47.72324957628765,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 212115456,
-              "maxHeapUsedBytes": 14043288
+              "maxRssBytes": 211542016,
+              "maxHeapUsedBytes": 21671507
             }
           ]
         }
@@ -667,17 +919,26 @@
         {
           "id": "readableStreamBatch16",
           "family": "readable-stream",
+          "sourceConsumption": {
+            "sourceMode": "web-readable-stream-pull",
+            "parserInput": "ReadableStream<Uint8Array>",
+            "directReadableStream": true,
+            "asyncBoundary": true,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 38.92011915777841,
-          "minMiBPerSec": 38.13371303309578,
-          "maxMiBPerSec": 39.83350949498013,
-          "spreadRatio": 0.04367397887435894,
+          "avgMiBPerSec": 38.73619709024014,
+          "minMiBPerSec": 38.06907983478947,
+          "maxMiBPerSec": 39.3410968538376,
+          "spreadRatio": 0.03283794266341706,
           "mibPerSecSamples": [
-            39.83350949498013,
-            38.79313494525934,
-            38.13371303309578
+            39.3410968538376,
+            38.06907983478947,
+            38.79841458209334
           ],
           "eventCounts": [
             57096514
@@ -693,24 +954,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 213471232,
-          "maxHeapUsedBytes": 51143466,
+          "maxRssBytes": 215674880,
+          "maxHeapUsedBytes": 59330792,
           "counterexampleFound": false
         },
         {
           "id": "asyncByteBatch16",
           "family": "async-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "async-iterable-byte-batches",
+            "parserInput": "AsyncIterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": true,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 37.12152170156688,
-          "minMiBPerSec": 36.91890791078977,
-          "maxMiBPerSec": 37.26447517598272,
-          "spreadRatio": 0.009309081345616319,
+          "avgMiBPerSec": 35.645498413732554,
+          "minMiBPerSec": 34.6354045568024,
+          "maxMiBPerSec": 36.7084897508529,
+          "spreadRatio": 0.058158401097060705,
           "mibPerSecSamples": [
-            37.26447517598272,
-            37.181182017928144,
-            36.91890791078977
+            36.7084897508529,
+            35.592600933542364,
+            34.6354045568024
           ],
           "eventCounts": [
             57096514
@@ -726,24 +996,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 219062272,
-          "maxHeapUsedBytes": 53106784,
+          "maxRssBytes": 222154752,
+          "maxHeapUsedBytes": 42341681,
           "counterexampleFound": false
         },
         {
           "id": "syncIterableBatch16",
           "family": "sync-iterable-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "sync-iterable-byte-batches",
+            "parserInput": "Iterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": false,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 51.463250313114855,
-          "minMiBPerSec": 48.52485927720501,
-          "maxMiBPerSec": 52.97364675304443,
-          "spreadRatio": 0.08644590943579969,
+          "avgMiBPerSec": 51.12711946621288,
+          "minMiBPerSec": 50.374972375606454,
+          "maxMiBPerSec": 52.144095861466695,
+          "spreadRatio": 0.03460244786584072,
           "mibPerSecSamples": [
-            52.97364675304443,
-            48.52485927720501,
-            52.891244909095114
+            52.144095861466695,
+            50.862290161565475,
+            50.374972375606454
           ],
           "eventCounts": [
             57096514
@@ -759,24 +1038,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 217870336,
-          "maxHeapUsedBytes": 54712937,
+          "maxRssBytes": 216965120,
+          "maxHeapUsedBytes": 46063219,
           "counterexampleFound": false
         },
         {
           "id": "syncFileIterableBatch16",
           "family": "sync-file-iterable-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "file-backed-sync-iterable-byte-batches",
+            "parserInput": "Iterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": false,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 49.406724253299636,
-          "minMiBPerSec": 48.8496472187085,
-          "maxMiBPerSec": 49.77397340763705,
-          "spreadRatio": 0.01870850988196859,
+          "avgMiBPerSec": 47.98286549460977,
+          "minMiBPerSec": 47.72324957628765,
+          "maxMiBPerSec": 48.419445906935145,
+          "spreadRatio": 0.014509269579277293,
           "mibPerSecSamples": [
-            49.59655213355335,
-            48.8496472187085,
-            49.77397340763705
+            48.419445906935145,
+            47.80590100060652,
+            47.72324957628765
           ],
           "eventCounts": [
             57096514
@@ -792,8 +1080,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 218804224,
-          "maxHeapUsedBytes": 56308942,
+          "maxRssBytes": 220200960,
+          "maxHeapUsedBytes": 55797023,
           "counterexampleFound": false
         }
       ]
@@ -844,54 +1132,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 47.221920598640686,
+              "mibPerSec": 46.46768003506019,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136220672,
-              "maxHeapUsedBytes": 25791112
+              "maxRssBytes": 135659520,
+              "maxHeapUsedBytes": 14198296
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 43.20470872580814,
+              "mibPerSec": 42.12486997322479,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136695808,
-              "maxHeapUsedBytes": 44648880
+              "maxRssBytes": 136343552,
+              "maxHeapUsedBytes": 33568728
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 65.91309857199977,
+              "mibPerSec": 64.8844073224725,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 137748480,
-              "maxHeapUsedBytes": 21290168
+              "maxRssBytes": 141697024,
+              "maxHeapUsedBytes": 43821096
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 59.959728432797945,
+              "mibPerSec": 57.887883813838,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 148930560,
-              "maxHeapUsedBytes": 14026480
+              "maxRssBytes": 148451328,
+              "maxHeapUsedBytes": 23144448
             }
           ]
         },
@@ -915,54 +1239,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 48.031221386537965,
+              "mibPerSec": 46.58895530641322,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 135733248,
-              "maxHeapUsedBytes": 16681064
+              "maxRssBytes": 135774208,
+              "maxHeapUsedBytes": 21908544
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 44.0202459179902,
+              "mibPerSec": 41.31613652933586,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136589312,
-              "maxHeapUsedBytes": 16998064
+              "maxRssBytes": 136237056,
+              "maxHeapUsedBytes": 38700008
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 66.83928106347388,
+              "mibPerSec": 64.89928501840632,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 141451264,
-              "maxHeapUsedBytes": 27468464
+              "maxRssBytes": 136925184,
+              "maxHeapUsedBytes": 15303896
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 62.037441523939414,
+              "mibPerSec": 61.043361336637695,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 148221952,
-              "maxHeapUsedBytes": 14031776
+              "maxRssBytes": 147894272,
+              "maxHeapUsedBytes": 43713128
             }
           ]
         },
@@ -986,54 +1346,90 @@
             {
               "id": "readableStreamBatch16",
               "family": "readable-stream",
-              "mibPerSec": 47.76806745629631,
+              "mibPerSec": 44.702787799275434,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235937,
               "sourceBatches": 235936,
+              "sourceConsumption": {
+                "sourceMode": "web-readable-stream-pull",
+                "parserInput": "ReadableStream<Uint8Array>",
+                "directReadableStream": true,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 135925760,
-              "maxHeapUsedBytes": 22165544
+              "maxRssBytes": 136146944,
+              "maxHeapUsedBytes": 29291512
             },
             {
               "id": "asyncByteBatch16",
               "family": "async-byte-batch",
-              "mibPerSec": 44.12033794275907,
+              "mibPerSec": 41.092896038297184,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "async-iterable-byte-batches",
+                "parserInput": "AsyncIterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": true,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 136437760,
-              "maxHeapUsedBytes": 43118648
+              "maxRssBytes": 137314304,
+              "maxHeapUsedBytes": 14778512
             },
             {
               "id": "syncIterableBatch16",
               "family": "sync-iterable-byte-batch",
-              "mibPerSec": 68.5166310121054,
+              "mibPerSec": 64.36718722438061,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 141172736,
-              "maxHeapUsedBytes": 19962984
+              "maxRssBytes": 142143488,
+              "maxHeapUsedBytes": 25506384
             },
             {
               "id": "syncFileIterableBatch16",
               "family": "sync-file-iterable-byte-batch",
-              "mibPerSec": 63.26291194227551,
+              "mibPerSec": 59.83418234825529,
               "eventCount": 57096514,
               "checksum": 45154785,
               "sourceReads": 235936,
               "sourceBatches": 14746,
+              "sourceConsumption": {
+                "sourceMode": "file-backed-sync-iterable-byte-batches",
+                "parserInput": "Iterable<Uint8Array[]>",
+                "directReadableStream": false,
+                "asyncBoundary": false,
+                "respectsBackpressure": true,
+                "fullArrayBufferParserInput": false,
+                "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+              },
               "fullStringParity": true,
               "boundedMemory": true,
-              "maxRssBytes": 148742144,
-              "maxHeapUsedBytes": 13989960
+              "maxRssBytes": 149528576,
+              "maxHeapUsedBytes": 14136384
             }
           ]
         }
@@ -1051,17 +1447,26 @@
         {
           "id": "readableStreamBatch16",
           "family": "readable-stream",
+          "sourceConsumption": {
+            "sourceMode": "web-readable-stream-pull",
+            "parserInput": "ReadableStream<Uint8Array>",
+            "directReadableStream": true,
+            "asyncBoundary": true,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 47.67373648049165,
-          "minMiBPerSec": 47.221920598640686,
-          "maxMiBPerSec": 48.031221386537965,
-          "spreadRatio": 0.01697582039176746,
+          "avgMiBPerSec": 45.91980771358295,
+          "minMiBPerSec": 44.702787799275434,
+          "maxMiBPerSec": 46.58895530641322,
+          "spreadRatio": 0.04107524837434939,
           "mibPerSecSamples": [
-            47.221920598640686,
-            48.031221386537965,
-            47.76806745629631
+            46.46768003506019,
+            46.58895530641322,
+            44.702787799275434
           ],
           "eventCounts": [
             57096514
@@ -1077,24 +1482,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 136220672,
-          "maxHeapUsedBytes": 25791112,
+          "maxRssBytes": 136146944,
+          "maxHeapUsedBytes": 29291512,
           "counterexampleFound": false
         },
         {
           "id": "asyncByteBatch16",
           "family": "async-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "async-iterable-byte-batches",
+            "parserInput": "AsyncIterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": true,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 43.78176419551914,
-          "minMiBPerSec": 43.20470872580814,
-          "maxMiBPerSec": 44.12033794275907,
-          "spreadRatio": 0.02091348381627443,
+          "avgMiBPerSec": 41.51130084695261,
+          "minMiBPerSec": 41.092896038297184,
+          "maxMiBPerSec": 42.12486997322479,
+          "spreadRatio": 0.024860072170042935,
           "mibPerSecSamples": [
-            43.20470872580814,
-            44.0202459179902,
-            44.12033794275907
+            42.12486997322479,
+            41.31613652933586,
+            41.092896038297184
           ],
           "eventCounts": [
             57096514
@@ -1110,24 +1524,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 136695808,
-          "maxHeapUsedBytes": 44648880,
+          "maxRssBytes": 137314304,
+          "maxHeapUsedBytes": 38700008,
           "counterexampleFound": false
         },
         {
           "id": "syncIterableBatch16",
           "family": "sync-iterable-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "sync-iterable-byte-batches",
+            "parserInput": "Iterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": false,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 67.08967021585967,
-          "minMiBPerSec": 65.91309857199977,
-          "maxMiBPerSec": 68.5166310121054,
-          "spreadRatio": 0.03880675567086297,
+          "avgMiBPerSec": 64.71695985508647,
+          "minMiBPerSec": 64.36718722438061,
+          "maxMiBPerSec": 64.89928501840632,
+          "spreadRatio": 0.008221921969406012,
           "mibPerSecSamples": [
-            65.91309857199977,
-            66.83928106347388,
-            68.5166310121054
+            64.8844073224725,
+            64.89928501840632,
+            64.36718722438061
           ],
           "eventCounts": [
             57096514
@@ -1143,24 +1566,33 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 141451264,
-          "maxHeapUsedBytes": 27468464,
+          "maxRssBytes": 142143488,
+          "maxHeapUsedBytes": 43821096,
           "counterexampleFound": false
         },
         {
           "id": "syncFileIterableBatch16",
           "family": "sync-file-iterable-byte-batch",
+          "sourceConsumption": {
+            "sourceMode": "file-backed-sync-iterable-byte-batches",
+            "parserInput": "Iterable<Uint8Array[]>",
+            "directReadableStream": false,
+            "asyncBoundary": false,
+            "respectsBackpressure": true,
+            "fullArrayBufferParserInput": false,
+            "demandDriven": "Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls."
+          },
           "eventCountKind": "stream-events",
           "fullStringParity": true,
           "sampleCount": 3,
-          "avgMiBPerSec": 61.75336063300429,
-          "minMiBPerSec": 59.959728432797945,
-          "maxMiBPerSec": 63.26291194227551,
-          "spreadRatio": 0.0534899392618993,
+          "avgMiBPerSec": 59.588475832910326,
+          "minMiBPerSec": 57.887883813838,
+          "maxMiBPerSec": 61.043361336637695,
+          "spreadRatio": 0.05295449294000809,
           "mibPerSecSamples": [
-            59.959728432797945,
-            62.037441523939414,
-            63.26291194227551
+            57.887883813838,
+            61.043361336637695,
+            59.83418234825529
           ],
           "eventCounts": [
             57096514
@@ -1176,8 +1608,8 @@
           ],
           "stableResult": true,
           "boundedMemoryAll": true,
-          "maxRssBytes": 148930560,
-          "maxHeapUsedBytes": 14031776,
+          "maxRssBytes": 149528576,
+          "maxHeapUsedBytes": 43713128,
           "counterexampleFound": false
         }
       ]
@@ -1199,12 +1631,31 @@
       "classification": "BENCH_FACT",
       "summary": "Prepared and file-backed sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.",
       "evidence": [
-        "node: syncIterableBatch16 avg=77.67 MiB/s spread=2.5%",
-        "node: syncFileIterableBatch16 avg=68.92 MiB/s spread=1.2%",
-        "bun: syncIterableBatch16 avg=51.46 MiB/s spread=8.6%",
-        "bun: syncFileIterableBatch16 avg=49.41 MiB/s spread=1.9%",
-        "deno: syncIterableBatch16 avg=67.09 MiB/s spread=3.9%",
-        "deno: syncFileIterableBatch16 avg=61.75 MiB/s spread=5.3%"
+        "node: syncIterableBatch16 avg=75.62 MiB/s spread=3.9%",
+        "node: syncFileIterableBatch16 avg=67.30 MiB/s spread=0.6%",
+        "bun: syncIterableBatch16 avg=51.13 MiB/s spread=3.5%",
+        "bun: syncFileIterableBatch16 avg=47.98 MiB/s spread=1.5%",
+        "deno: syncIterableBatch16 avg=64.72 MiB/s spread=0.8%",
+        "deno: syncFileIterableBatch16 avg=59.59 MiB/s spread=5.3%"
+      ]
+    },
+    {
+      "id": "source-consumption-shape-comparison",
+      "classification": "BENCH_FACT",
+      "summary": "The same full-string checksum contract is compared across direct ReadableStream, async Iterable<Uint8Array[]>, prepared sync Iterable<Uint8Array[]>, and file-backed sync Iterable<Uint8Array[]> source shapes.",
+      "evidence": [
+        "node: readableStreamBatch16 parserInput=ReadableStream<Uint8Array> directReadableStream=true asyncBoundary=true respectsBackpressure=true fullArrayBufferParserInput=false avg=52.76 MiB/s",
+        "node: asyncByteBatch16 parserInput=AsyncIterable<Uint8Array[]> directReadableStream=false asyncBoundary=true respectsBackpressure=true fullArrayBufferParserInput=false avg=47.82 MiB/s ratioToReadable=0.91x",
+        "node: syncIterableBatch16 parserInput=Iterable<Uint8Array[]> directReadableStream=false asyncBoundary=false respectsBackpressure=true fullArrayBufferParserInput=false avg=75.62 MiB/s ratioToReadable=1.43x",
+        "node: syncFileIterableBatch16 parserInput=Iterable<Uint8Array[]> sourceMode=file-backed-sync-iterable-byte-batches directReadableStream=false asyncBoundary=false respectsBackpressure=true fullArrayBufferParserInput=false avg=67.30 MiB/s ratioToReadable=1.28x",
+        "bun: readableStreamBatch16 parserInput=ReadableStream<Uint8Array> directReadableStream=true asyncBoundary=true respectsBackpressure=true fullArrayBufferParserInput=false avg=38.74 MiB/s",
+        "bun: asyncByteBatch16 parserInput=AsyncIterable<Uint8Array[]> directReadableStream=false asyncBoundary=true respectsBackpressure=true fullArrayBufferParserInput=false avg=35.65 MiB/s ratioToReadable=0.92x",
+        "bun: syncIterableBatch16 parserInput=Iterable<Uint8Array[]> directReadableStream=false asyncBoundary=false respectsBackpressure=true fullArrayBufferParserInput=false avg=51.13 MiB/s ratioToReadable=1.32x",
+        "bun: syncFileIterableBatch16 parserInput=Iterable<Uint8Array[]> sourceMode=file-backed-sync-iterable-byte-batches directReadableStream=false asyncBoundary=false respectsBackpressure=true fullArrayBufferParserInput=false avg=47.98 MiB/s ratioToReadable=1.24x",
+        "deno: readableStreamBatch16 parserInput=ReadableStream<Uint8Array> directReadableStream=true asyncBoundary=true respectsBackpressure=true fullArrayBufferParserInput=false avg=45.92 MiB/s",
+        "deno: asyncByteBatch16 parserInput=AsyncIterable<Uint8Array[]> directReadableStream=false asyncBoundary=true respectsBackpressure=true fullArrayBufferParserInput=false avg=41.51 MiB/s ratioToReadable=0.90x",
+        "deno: syncIterableBatch16 parserInput=Iterable<Uint8Array[]> directReadableStream=false asyncBoundary=false respectsBackpressure=true fullArrayBufferParserInput=false avg=64.72 MiB/s ratioToReadable=1.41x",
+        "deno: syncFileIterableBatch16 parserInput=Iterable<Uint8Array[]> sourceMode=file-backed-sync-iterable-byte-batches directReadableStream=false asyncBoundary=false respectsBackpressure=true fullArrayBufferParserInput=false avg=59.59 MiB/s ratioToReadable=1.30x"
       ]
     },
     {
@@ -1212,9 +1663,9 @@
       "classification": "BENCH_FACT",
       "summary": "syncFileIterableBatch rows read corpus chunks from the OS file source on demand in each fresh process.",
       "evidence": [
-        "node: syncFileIterableBatch16 avg=68.92 MiB/s spread=1.2%",
-        "bun: syncFileIterableBatch16 avg=49.41 MiB/s spread=1.9%",
-        "deno: syncFileIterableBatch16 avg=61.75 MiB/s spread=5.3%"
+        "node: syncFileIterableBatch16 avg=67.30 MiB/s spread=0.6%",
+        "bun: syncFileIterableBatch16 avg=47.98 MiB/s spread=1.5%",
+        "deno: syncFileIterableBatch16 avg=59.59 MiB/s spread=5.3%"
       ]
     },
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T23:13:08.859Z",
+  "generatedAt": "2026-05-26T23:39:06.643Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",

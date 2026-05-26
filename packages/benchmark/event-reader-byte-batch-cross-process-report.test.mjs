@@ -66,6 +66,25 @@ test('EventReader byte-batch cross-process report repeats full checksum rows', (
   for (const runtime of [nodeRuntime, denoRuntime]) {
     assert.equal(runtime.parity.fullRowsStable, true);
     assert.deepEqual(runtime.parity.rowIds, ['readableStreamBatch4', 'syncIterableBatch4', 'syncFileIterableBatch4']);
+    const readable = runtime.variants.find(row => row.id === 'readableStreamBatch4');
+    const syncIterable = runtime.variants.find(row => row.id === 'syncIterableBatch4');
+    const syncFile = runtime.variants.find(row => row.id === 'syncFileIterableBatch4');
+    assert.equal(readable.sourceConsumption.parserInput, 'ReadableStream<Uint8Array>');
+    assert.equal(readable.sourceConsumption.directReadableStream, true);
+    assert.equal(readable.sourceConsumption.asyncBoundary, true);
+    assert.equal(readable.sourceConsumption.respectsBackpressure, true);
+    assert.equal(readable.sourceConsumption.fullArrayBufferParserInput, false);
+    assert.equal(syncIterable.sourceConsumption.parserInput, 'Iterable<Uint8Array[]>');
+    assert.equal(syncIterable.sourceConsumption.directReadableStream, false);
+    assert.equal(syncIterable.sourceConsumption.asyncBoundary, false);
+    assert.equal(syncIterable.sourceConsumption.respectsBackpressure, true);
+    assert.equal(syncIterable.sourceConsumption.fullArrayBufferParserInput, false);
+    assert.equal(syncFile.sourceConsumption.sourceMode, 'file-backed-sync-iterable-byte-batches');
+    assert.equal(syncFile.sourceConsumption.parserInput, 'Iterable<Uint8Array[]>');
+    assert.equal(syncFile.sourceConsumption.directReadableStream, false);
+    assert.equal(syncFile.sourceConsumption.asyncBoundary, false);
+    assert.equal(syncFile.sourceConsumption.respectsBackpressure, true);
+    assert.equal(syncFile.sourceConsumption.fullArrayBufferParserInput, false);
     for (const row of runtime.variants) {
       assert.equal(row.fullStringParity, true);
       assert.equal(row.sampleCount, 2);
@@ -81,6 +100,11 @@ test('EventReader byte-batch cross-process report repeats full checksum rows', (
   assert.match(markdown, /Deno:/);
   assert.match(markdown, /Full rows stable across processes: yes/);
   assert.match(markdown, /sync-iterable-source-headroom/);
+  assert.match(markdown, /source-consumption-shape-comparison/);
+  assert.match(markdown, /ReadableStream<Uint8Array>/);
+  assert.match(markdown, /Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /directReadableStream=false/);
+  assert.match(markdown, /fullArrayBufferParserInput=false/);
   assert.match(markdown, /file-backed-sync-source/);
   assert.match(markdown, /syncFileIterableBatch4/);
 });

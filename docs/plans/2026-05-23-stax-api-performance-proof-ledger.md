@@ -1229,13 +1229,23 @@ prepared sync `Iterable<Uint8Array[]>`, and file-backed sync
 The file-backed rows read corpus chunks from the OS file source with `readSync`
 when the synchronous parser pulls the next batch. This closes the prepared
 fixture replay gap for Node/Bun/Deno file input, but it is still not browser
-fetch streaming proof. The fresh-process averages remain below the 200 MiB/s
-target: Node/V8 `syncIterableBatch16` averaged `77.67 MiB/s` with `2.5%` spread
-and `syncFileIterableBatch16` averaged `68.92 MiB/s` with `1.2%` spread; Bun/JSC
-averaged `51.46 MiB/s` and `49.41 MiB/s`; Deno/V8 averaged `67.09 MiB/s` and
-`61.75 MiB/s`. This strengthens the stability evidence for the
-source-boundary comparison, but it also reinforces that the current sync
-iterable path is headroom evidence, not a 200 MiB/s full-StAX counterexample.
+fetch streaming proof. The regenerated report now carries row-level source
+metadata: `readableStreamBatch16` is `ReadableStream<Uint8Array>` with
+`directReadableStream=true`, `asyncBoundary=true`, `respectsBackpressure=true`,
+and `fullArrayBufferParserInput=false`; `asyncByteBatch16` is
+`AsyncIterable<Uint8Array[]>` with `directReadableStream=false` but
+`asyncBoundary=true`; both sync rows are `Iterable<Uint8Array[]>` with
+`asyncBoundary=false`. The fresh-process averages remain below the 200 MiB/s
+target: Node/V8 reported `52.76 MiB/s` for direct `ReadableStream`,
+`47.82 MiB/s` for async byte batches, `75.62 MiB/s` for prepared sync batches,
+and `67.30 MiB/s` for file-backed sync batches. Bun/JSC reported `38.74`,
+`35.65`, `51.13`, and `47.98 MiB/s`; Deno/V8 reported `45.92`, `41.51`,
+`64.72`, and `59.59 MiB/s`. Prepared sync batches were `1.43x`, `1.32x`, and
+`1.41x` the direct ReadableStream rows respectively, while file-backed sync
+batches were `1.28x`, `1.24x`, and `1.30x`. This strengthens the stability
+evidence for the source-boundary comparison, but it also reinforces that the
+current sync iterable path is headroom evidence, not a 200 MiB/s full-StAX
+counterexample.
 
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-midsize-corpus.md`
 repeats the same public `EventReader` source-shape matrix on the local

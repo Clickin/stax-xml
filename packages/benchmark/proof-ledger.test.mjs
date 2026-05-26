@@ -735,8 +735,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /file-backed sync\s+`Iterable<Uint8Array\[\]>` rows in three fresh processes per runtime on the same\s+1\.00 GiB `books\.xml` corpus-cycle fixture/);
   assert.match(markdown, /read corpus chunks from the OS file source with `readSync`/);
   assert.match(markdown, /not browser\s+fetch streaming proof/);
-  assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `77\.67 MiB\/s` with `2\.5%` spread\s+and `syncFileIterableBatch16` averaged `68\.92 MiB\/s` with `1\.2%` spread/);
-  assert.match(markdown, /Bun\/JSC\s+averaged `51\.46 MiB\/s` and `49\.41 MiB\/s`; Deno\/V8 averaged `67\.09 MiB\/s` and\s+`61\.75 MiB\/s`/);
+  assert.match(markdown, /regenerated report now carries row-level source\s+metadata/);
+  assert.match(markdown, /`readableStreamBatch16` is `ReadableStream<Uint8Array>` with\s+`directReadableStream=true`, `asyncBoundary=true`, `respectsBackpressure=true`,\s+and `fullArrayBufferParserInput=false`/);
+  assert.match(markdown, /`asyncByteBatch16` is\s+`AsyncIterable<Uint8Array\[\]>` with `directReadableStream=false` but\s+`asyncBoundary=true`/);
+  assert.match(markdown, /both sync rows are `Iterable<Uint8Array\[\]>` with\s+`asyncBoundary=false`/);
+  assert.match(markdown, /Node\/V8 reported `52\.76 MiB\/s` for direct `ReadableStream`,\s+`47\.82 MiB\/s` for async byte batches, `75\.62 MiB\/s` for prepared sync batches,\s+and `67\.30 MiB\/s` for file-backed sync batches/);
+  assert.match(markdown, /Bun\/JSC reported `38\.74`,\s+`35\.65`, `51\.13`, and `47\.98 MiB\/s`; Deno\/V8 reported `45\.92`, `41\.51`,\s+`64\.72`, and `59\.59 MiB\/s`/);
+  assert.match(markdown, /Prepared sync batches were `1\.43x`, `1\.32x`, and\s+`1\.41x` the direct ReadableStream rows respectively, while file-backed sync\s+batches were `1\.28x`, `1\.24x`, and `1\.30x`/);
   assert.match(markdown, /file-backed-core-decomposition\.md` now runs\s+the same 1\.00 GiB file-backed source shape used by the fastest source sweep\s+candidate \(`chunkKiB=32`, `batchSize=4`\)/);
   assert.match(markdown, /`stax-scan-all-no-decode` reaches 216\.08 MiB\/s and\s+`stax-raw-frame-span-stats` reaches 210\.19 MiB\/s with bounded RSS, but both drop\s+the full-string checksum contract/);
   assert.match(markdown, /public `stax-stream` at\s+125\.99 MiB\/s, and full-string `stax-raw-frame-name-id` at 129\.66 MiB\/s with the\s+shared event count `61,236,571` and full checksum `-716099804`/);

@@ -128,6 +128,7 @@ async function main() {
       family: 'readable-stream',
       batchSize,
       implementation: `EventReader over ReadableStream with internal byte batch size ${batchSize}`,
+      sourceConsumption: sourceConsumptionForFamily('readable-stream'),
       run: () => consumeReadableStream(fixture, batchSize),
     })),
     ...options.batchSizes.filter(batchSize => batchSize > 1).map(batchSize => ({
@@ -135,6 +136,7 @@ async function main() {
       family: 'async-byte-batch',
       batchSize,
       implementation: `createEventReaderFromAsyncByteBatches with ${batchSize} chunks yielded per await`,
+      sourceConsumption: sourceConsumptionForFamily('async-byte-batch'),
       run: () => consumeAsyncByteBatches(fixture, batchSize),
     })),
     ...options.batchSizes.map(batchSize => ({
@@ -142,6 +144,7 @@ async function main() {
       family: 'sync-iterable-byte-batch',
       batchSize,
       implementation: `StreamReaderSync over Iterable<Uint8Array[]> with ${batchSize} chunks yielded per batch, materialized as public event objects`,
+      sourceConsumption: sourceConsumptionForFamily('sync-iterable-byte-batch'),
       run: () => consumeSyncByteBatches(fixture, batchSize),
     })),
     ...(fixture.corpusFile ? options.batchSizes.map(batchSize => ({
@@ -149,6 +152,7 @@ async function main() {
       family: 'sync-file-iterable-byte-batch',
       batchSize,
       implementation: `StreamReaderSync over file-backed Iterable<Uint8Array[]> with ${batchSize} chunks read per batch, materialized as public event objects`,
+      sourceConsumption: sourceConsumptionForFamily('sync-file-iterable-byte-batch'),
       run: () => consumeSyncFileByteBatches(fixture, batchSize),
     })) : []),
   ];
@@ -240,6 +244,7 @@ async function measureVariant(variant, fixture, options) {
     family: variant.family,
     implementation: variant.implementation,
     batchSize: variant.batchSize,
+    sourceConsumption: variant.sourceConsumption,
     fullStringParity: true,
     eventCountKind: 'stream-events',
     avgMs,
@@ -257,6 +262,53 @@ async function measureVariant(variant, fixture, options) {
       maxHeapUsedBytes,
     },
   };
+}
+
+function sourceConsumptionForFamily(family) {
+  switch (family) {
+    case 'readable-stream':
+      return {
+        sourceMode: 'web-readable-stream-pull',
+        parserInput: 'ReadableStream<Uint8Array>',
+        directReadableStream: true,
+        asyncBoundary: true,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+        demandDriven: 'ReadableStream underlying source enqueues one Uint8Array only from pull().',
+      };
+    case 'async-byte-batch':
+      return {
+        sourceMode: 'async-iterable-byte-batches',
+        parserInput: 'AsyncIterable<Uint8Array[]>',
+        directReadableStream: false,
+        asyncBoundary: true,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+        demandDriven: 'Async generator yields one grouped Uint8Array[] batch only when next() is awaited.',
+      };
+    case 'sync-iterable-byte-batch':
+      return {
+        sourceMode: 'sync-iterable-byte-batches',
+        parserInput: 'Iterable<Uint8Array[]>',
+        directReadableStream: false,
+        asyncBoundary: false,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+        demandDriven: 'Synchronous generator yields one grouped Uint8Array[] batch per parser pull.',
+      };
+    case 'sync-file-iterable-byte-batch':
+      return {
+        sourceMode: 'file-backed-sync-iterable-byte-batches',
+        parserInput: 'Iterable<Uint8Array[]>',
+        directReadableStream: false,
+        asyncBoundary: false,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+        demandDriven: 'Synchronous generator performs readSync for the next grouped Uint8Array[] batch only when the parser pulls.',
+      };
+    default:
+      throw new Error(`Unknown source family: ${family}`);
+  }
 }
 
 async function consumeReadableStream(fixture, batchSize) {
@@ -718,11 +770,16 @@ function renderMarkdown(report) {
     '',
     '## Results',
     '',
-    '| Variant | Family | Batch size | Throughput | Events | Checksum | Source reads | Source batches | Bounded | Max RSS |',
-    '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |',
+    '| Variant | Family | Source mode | Parser input | Direct stream | Async boundary | Backpressure | Batch size | Throughput | Events | Checksum | Source reads | Source batches | Bounded | Max RSS |',
+    '| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |',
   ].filter(line => line !== null);
   for (const row of report.variants) {
-    lines.push(`| ${row.id} | ${row.family} | ${row.batchSize} | ${row.mibPerSec.toFixed(2)} MiB/s | ${row.eventCount} | ${row.checksum} | ${row.sourceReads} | ${row.sourceBatches} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMiB(row.memory.maxRssBytes)} |`);
+    lines.push(
+      `| ${row.id} | ${row.family} | ${row.sourceConsumption.sourceMode} | ${row.sourceConsumption.parserInput} | `
+      + `${row.sourceConsumption.directReadableStream ? 'yes' : 'no'} | ${row.sourceConsumption.asyncBoundary ? 'yes' : 'no'} | `
+      + `${row.sourceConsumption.respectsBackpressure ? 'yes' : 'no'} | ${row.batchSize} | ${row.mibPerSec.toFixed(2)} MiB/s | `
+      + `${row.eventCount} | ${row.checksum} | ${row.sourceReads} | ${row.sourceBatches} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMiB(row.memory.maxRssBytes)} |`,
+    );
   }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {

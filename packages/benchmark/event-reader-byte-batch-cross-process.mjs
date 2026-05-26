@@ -289,6 +289,7 @@ function createChildSummary(sample) {
       checksum: entry.checksum,
       sourceReads: entry.sourceReads,
       sourceBatches: entry.sourceBatches,
+      sourceConsumption: entry.sourceConsumption ?? sourceConsumptionForFamily(entry.family),
       fullStringParity: entry.fullStringParity,
       boundedMemory: entry.boundedMemory,
       maxRssBytes: entry.memory.maxRssBytes,
@@ -326,6 +327,7 @@ function summarizeVariant(variantId, samples) {
   return {
     id: variantId,
     family: rows[0].family,
+    sourceConsumption: rows[0].sourceConsumption ?? sourceConsumptionForFamily(rows[0].family),
     eventCountKind: rows[0].eventCountKind,
     fullStringParity: rows[0].fullStringParity,
     sampleCount: rows.length,
@@ -352,6 +354,49 @@ function findVariant(sample, variantId) {
   return row;
 }
 
+function sourceConsumptionForFamily(family) {
+  switch (family) {
+    case 'readable-stream':
+      return {
+        sourceMode: 'web-readable-stream-pull',
+        parserInput: 'ReadableStream<Uint8Array>',
+        directReadableStream: true,
+        asyncBoundary: true,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+      };
+    case 'async-byte-batch':
+      return {
+        sourceMode: 'async-iterable-byte-batches',
+        parserInput: 'AsyncIterable<Uint8Array[]>',
+        directReadableStream: false,
+        asyncBoundary: true,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+      };
+    case 'sync-iterable-byte-batch':
+      return {
+        sourceMode: 'sync-iterable-byte-batches',
+        parserInput: 'Iterable<Uint8Array[]>',
+        directReadableStream: false,
+        asyncBoundary: false,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+      };
+    case 'sync-file-iterable-byte-batch':
+      return {
+        sourceMode: 'file-backed-sync-iterable-byte-batches',
+        parserInput: 'Iterable<Uint8Array[]>',
+        directReadableStream: false,
+        asyncBoundary: false,
+        respectsBackpressure: true,
+        fullArrayBufferParserInput: false,
+      };
+    default:
+      throw new Error(`Unknown source family: ${family}`);
+  }
+}
+
 function createFindings(runtimeReports) {
   const syncRows = runtimeReports.flatMap(report =>
     report.variants
@@ -363,6 +408,7 @@ function createFindings(runtimeReports) {
       .filter(row => row.counterexampleFound)
       .map(row => `${report.runtime}: ${row.id} avg=${formatRate(row.avgMiBPerSec)}`),
   );
+  const sourceComparisons = runtimeReports.flatMap(report => createSourceComparisonEvidence(report));
   return [
     {
       id: 'independent-process-rerun',
@@ -375,6 +421,12 @@ function createFindings(runtimeReports) {
       classification: 'BENCH_FACT',
       summary: 'Prepared and file-backed sync iterable byte batches isolate async source overhead while keeping the same public event-object checksum contract.',
       evidence: syncRows,
+    },
+    {
+      id: 'source-consumption-shape-comparison',
+      classification: 'BENCH_FACT',
+      summary: 'The same full-string checksum contract is compared across direct ReadableStream, async Iterable<Uint8Array[]>, prepared sync Iterable<Uint8Array[]>, and file-backed sync Iterable<Uint8Array[]> source shapes.',
+      evidence: sourceComparisons,
     },
     {
       id: 'file-backed-sync-source',
@@ -391,6 +443,33 @@ function createFindings(runtimeReports) {
       evidence: foundCounterexamples.length > 0 ? foundCounterexamples : ['counterexample=not-found'],
     },
   ];
+}
+
+function createSourceComparisonEvidence(runtimeReport) {
+  const readable = runtimeReport.variants.find(row => row.sourceConsumption.directReadableStream);
+  const asyncBatch = runtimeReport.variants.find(row =>
+    row.sourceConsumption.parserInput === 'AsyncIterable<Uint8Array[]>');
+  const syncBatch = runtimeReport.variants.find(row =>
+    row.sourceConsumption.sourceMode === 'sync-iterable-byte-batches');
+  const syncFileBatch = runtimeReport.variants.find(row =>
+    row.sourceConsumption.sourceMode === 'file-backed-sync-iterable-byte-batches');
+  const evidence = [];
+  if (readable) {
+    evidence.push(`${runtimeReport.runtime}: ${readable.id} parserInput=${readable.sourceConsumption.parserInput} directReadableStream=${readable.sourceConsumption.directReadableStream} asyncBoundary=${readable.sourceConsumption.asyncBoundary} respectsBackpressure=${readable.sourceConsumption.respectsBackpressure} fullArrayBufferParserInput=${readable.sourceConsumption.fullArrayBufferParserInput} avg=${formatRate(readable.avgMiBPerSec)}`);
+  }
+  if (asyncBatch) {
+    const ratio = readable ? asyncBatch.avgMiBPerSec / readable.avgMiBPerSec : null;
+    evidence.push(`${runtimeReport.runtime}: ${asyncBatch.id} parserInput=${asyncBatch.sourceConsumption.parserInput} directReadableStream=${asyncBatch.sourceConsumption.directReadableStream} asyncBoundary=${asyncBatch.sourceConsumption.asyncBoundary} respectsBackpressure=${asyncBatch.sourceConsumption.respectsBackpressure} fullArrayBufferParserInput=${asyncBatch.sourceConsumption.fullArrayBufferParserInput} avg=${formatRate(asyncBatch.avgMiBPerSec)}${ratio === null ? '' : ` ratioToReadable=${ratio.toFixed(2)}x`}`);
+  }
+  if (syncBatch) {
+    const ratio = readable ? syncBatch.avgMiBPerSec / readable.avgMiBPerSec : null;
+    evidence.push(`${runtimeReport.runtime}: ${syncBatch.id} parserInput=${syncBatch.sourceConsumption.parserInput} directReadableStream=${syncBatch.sourceConsumption.directReadableStream} asyncBoundary=${syncBatch.sourceConsumption.asyncBoundary} respectsBackpressure=${syncBatch.sourceConsumption.respectsBackpressure} fullArrayBufferParserInput=${syncBatch.sourceConsumption.fullArrayBufferParserInput} avg=${formatRate(syncBatch.avgMiBPerSec)}${ratio === null ? '' : ` ratioToReadable=${ratio.toFixed(2)}x`}`);
+  }
+  if (syncFileBatch) {
+    const ratio = readable ? syncFileBatch.avgMiBPerSec / readable.avgMiBPerSec : null;
+    evidence.push(`${runtimeReport.runtime}: ${syncFileBatch.id} parserInput=${syncFileBatch.sourceConsumption.parserInput} sourceMode=${syncFileBatch.sourceConsumption.sourceMode} directReadableStream=${syncFileBatch.sourceConsumption.directReadableStream} asyncBoundary=${syncFileBatch.sourceConsumption.asyncBoundary} respectsBackpressure=${syncFileBatch.sourceConsumption.respectsBackpressure} fullArrayBufferParserInput=${syncFileBatch.sourceConsumption.fullArrayBufferParserInput} avg=${formatRate(syncFileBatch.avgMiBPerSec)}${ratio === null ? '' : ` ratioToReadable=${ratio.toFixed(2)}x`}`);
+  }
+  return evidence;
 }
 
 function renderMarkdown(report) {
@@ -435,11 +514,13 @@ function renderMarkdown(report) {
     lines.push(`- CPU: ${runtime.environment.cpuName}`);
     lines.push(`- Fixture bytes: ${runtime.fixture.actualBytes}`);
     lines.push('');
-    lines.push('| Variant | Family | Avg throughput | Min | Max | Spread | Samples | Stable result | Bounded all | Counterexample | Max RSS |');
-    lines.push('| --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | ---: |');
+    lines.push('| Variant | Family | Source mode | Parser input | Direct stream | Async boundary | Backpressure | Avg throughput | Min | Max | Spread | Samples | Stable result | Bounded all | Counterexample | Max RSS |');
+    lines.push('| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | ---: |');
     for (const row of runtime.variants) {
       lines.push(
-        `| ${row.id} | ${row.family} | ${formatRate(row.avgMiBPerSec)} | ${formatRate(row.minMiBPerSec)} | `
+        `| ${row.id} | ${row.family} | ${row.sourceConsumption.sourceMode} | ${row.sourceConsumption.parserInput} | `
+        + `${row.sourceConsumption.directReadableStream ? 'yes' : 'no'} | ${row.sourceConsumption.asyncBoundary ? 'yes' : 'no'} | `
+        + `${row.sourceConsumption.respectsBackpressure ? 'yes' : 'no'} | ${formatRate(row.avgMiBPerSec)} | ${formatRate(row.minMiBPerSec)} | `
         + `${formatRate(row.maxMiBPerSec)} | ${formatPercent(row.spreadRatio)} | ${formatSamples(row.mibPerSecSamples)} | `
         + `${row.stableResult ? 'yes' : 'no'} | ${row.boundedMemoryAll ? 'yes' : 'no'} | `
         + `${row.counterexampleFound ? 'found' : 'not-found'} | ${formatBytes(row.maxRssBytes)} |`,
