@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-26T11:27:57.175Z
+Generated: 2026-05-26T12:31:17.115Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -41,6 +41,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | bounded-long-text-value-cache | 170.13 | 141.85 | 0.83x | yes | no | yes |
 | long-ascii-text-fast-path | 172.85 | 71.21 | 0.41x | yes | no | yes |
 | medium-ascii-text-fast-path | 164.31 | 170.16 | 1.04x | yes | no | yes |
+| unrolled-medium-ascii-text-fast-path | 164.13 | 170.59 | 1.04x | yes | no | yes |
 | fold-trimmed-text-checksum | 122.32 | 103.26 | 0.84x | yes | no | yes |
 | text-trim-boundary-guard | 109.66 | 109.56 | 1.00x | yes | no | yes |
 | ascii-byte-pretrim-before-decode | 107.10 | 106.35 | 0.99x | yes | no | yes |
@@ -66,6 +67,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - bounded-long-text-value-cache: candidate/control=0.83x, candidate=141.85 MiB/s
   - long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s
   - medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s
+  - unrolled-medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.59 MiB/s
   - fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s
   - text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s
   - ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s

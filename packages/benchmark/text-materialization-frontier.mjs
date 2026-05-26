@@ -41,6 +41,12 @@ const negativeArtifacts = [
     family: 'medium-ascii-text-fast-path',
   },
   {
+    file: 'unrolled-medium-ascii-text-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdUnrolledMediumAsciiText',
+    family: 'unrolled-medium-ascii-text-fast-path',
+  },
+  {
     file: 'fold-trimmed-text-candidate-stability.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdFoldTrim',
@@ -274,6 +280,8 @@ function pickCounters(counters = {}) {
     longAsciiTextFallbacks: counters.longAsciiTextFallbacks ?? null,
     mediumAsciiTextHits: counters.mediumAsciiTextHits ?? null,
     mediumAsciiTextFallbacks: counters.mediumAsciiTextFallbacks ?? null,
+    unrolledMediumAsciiTextHits: counters.unrolledMediumAsciiTextHits ?? null,
+    unrolledMediumAsciiTextFallbacks: counters.unrolledMediumAsciiTextFallbacks ?? null,
   };
 }
 
@@ -410,6 +418,7 @@ function summarizeRow(row) {
     checksum: row.checksum,
     textStringReads: row.counters?.textStringReads ?? null,
     stringFieldReads: row.counters?.stringFieldReads ?? null,
+    counters: row.counters ?? null,
   };
 }
 

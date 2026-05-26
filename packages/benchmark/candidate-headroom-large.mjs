@@ -319,6 +319,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { mediumAsciiText: true }),
     },
     {
+      id: 'rawFrameNameIdUnrolledMediumAsciiText',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache and direct unrolled ASCII text materialization for 13-24 byte spans',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { unrolledMediumAsciiText: true }),
+    },
+    {
       id: 'rawFrameNameIdMediumAsciiAttrValue',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache and split short ASCII attribute-value materialization for 13-24 byte spans',
@@ -1301,6 +1309,8 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             ? materializeAsciiPreTrimmedTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
+            : options.unrolledMediumAsciiText
+            ? materializeUnrolledMediumAsciiTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : options.mediumAsciiText
             ? materializeMediumAsciiTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text', options.asciiAllSpans);
@@ -1494,6 +1504,21 @@ function materializeMediumAsciiTextValue(buffer, start, end, decoder, valueCache
   return value;
 }
 
+function materializeUnrolledMediumAsciiTextValue(buffer, start, end, decoder, valueCache, materializationCounters) {
+  if (!valueCache) {
+    return decodeUnrolledMediumAsciiTextSpan(buffer, start, end, decoder, materializationCounters);
+  }
+  const cached = valueCache.get(buffer, start, end);
+  if (cached !== undefined) {
+    materializationCounters.rawValueCacheHits++;
+    return cached;
+  }
+  materializationCounters.rawValueCacheMisses++;
+  const value = decodeUnrolledMediumAsciiTextSpan(buffer, start, end, decoder, materializationCounters);
+  valueCache.set(buffer, start, end, value);
+  return value;
+}
+
 function materializeMediumAsciiAttrValue(buffer, start, end, decoder, valueCache, materializationCounters) {
   if (!valueCache) {
     return decodeMediumAsciiAttrValueSpan(buffer, start, end, decoder, materializationCounters);
@@ -1661,6 +1686,20 @@ function decodeMediumAsciiTextSpan(buffer, start, end, decoder, materializationC
   return decodeMediumAsciiSpan(buffer, start, end, decoder, materializationCounters, 'mediumAsciiText');
 }
 
+function decodeUnrolledMediumAsciiTextSpan(buffer, start, end, decoder, materializationCounters) {
+  countRawSpanMaterialization(materializationCounters, 'text');
+  const ascii = decodeUnrolledAsciiSpanUpTo24(buffer, start, end);
+  if (ascii !== undefined) {
+    const length = end - start;
+    if (length > 12) {
+      materializationCounters.unrolledMediumAsciiTextHits++;
+    }
+    return ascii;
+  }
+  materializationCounters.unrolledMediumAsciiTextFallbacks++;
+  return decoder.decode(buffer.subarray(start, end));
+}
+
 function decodeMediumAsciiAttrValueSpan(buffer, start, end, decoder, materializationCounters) {
   countRawSpanMaterialization(materializationCounters, 'attrValue');
   return decodeMediumAsciiSpan(buffer, start, end, decoder, materializationCounters, 'mediumAsciiAttrValue');
@@ -1682,6 +1721,299 @@ function decodeMediumAsciiSpan(buffer, start, end, decoder, materializationCount
   }
   materializationCounters[`${counterPrefix}Fallbacks`]++;
   return decoder.decode(buffer.subarray(start, end));
+}
+
+function decodeUnrolledAsciiSpanUpTo24(buffer, start, end) {
+  const short = decodeShortAsciiSpan(buffer, start, end);
+  if (short !== undefined) {
+    return short;
+  }
+  switch (end - start) {
+    case 13: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12)
+        : undefined;
+    }
+    case 14: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13)
+        : undefined;
+    }
+    case 15: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14)
+        : undefined;
+    }
+    case 16: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15)
+        : undefined;
+    }
+    case 17: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16)
+        : undefined;
+    }
+    case 18: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17)
+        : undefined;
+    }
+    case 19: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      const b18 = buffer[start + 18];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17 | b18) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18)
+        : undefined;
+    }
+    case 20: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      const b18 = buffer[start + 18];
+      const b19 = buffer[start + 19];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17 | b18 | b19) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19)
+        : undefined;
+    }
+    case 21: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      const b18 = buffer[start + 18];
+      const b19 = buffer[start + 19];
+      const b20 = buffer[start + 20];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17 | b18 | b19 | b20) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19, b20)
+        : undefined;
+    }
+    case 22: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      const b18 = buffer[start + 18];
+      const b19 = buffer[start + 19];
+      const b20 = buffer[start + 20];
+      const b21 = buffer[start + 21];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17 | b18 | b19 | b20 | b21) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19, b20, b21)
+        : undefined;
+    }
+    case 23: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      const b18 = buffer[start + 18];
+      const b19 = buffer[start + 19];
+      const b20 = buffer[start + 20];
+      const b21 = buffer[start + 21];
+      const b22 = buffer[start + 22];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17 | b18 | b19 | b20 | b21 | b22) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19, b20, b21, b22)
+        : undefined;
+    }
+    case 24: {
+      const b0 = buffer[start];
+      const b1 = buffer[start + 1];
+      const b2 = buffer[start + 2];
+      const b3 = buffer[start + 3];
+      const b4 = buffer[start + 4];
+      const b5 = buffer[start + 5];
+      const b6 = buffer[start + 6];
+      const b7 = buffer[start + 7];
+      const b8 = buffer[start + 8];
+      const b9 = buffer[start + 9];
+      const b10 = buffer[start + 10];
+      const b11 = buffer[start + 11];
+      const b12 = buffer[start + 12];
+      const b13 = buffer[start + 13];
+      const b14 = buffer[start + 14];
+      const b15 = buffer[start + 15];
+      const b16 = buffer[start + 16];
+      const b17 = buffer[start + 17];
+      const b18 = buffer[start + 18];
+      const b19 = buffer[start + 19];
+      const b20 = buffer[start + 20];
+      const b21 = buffer[start + 21];
+      const b22 = buffer[start + 22];
+      const b23 = buffer[start + 23];
+      return (b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15 | b16 | b17 | b18 | b19 | b20 | b21 | b22 | b23) <= 0x7f
+        ? String.fromCharCode(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, b18, b19, b20, b21, b22, b23)
+        : undefined;
+    }
+    default:
+      return undefined;
+  }
 }
 
 function isAsciiSpan(buffer, start, end) {
@@ -1866,6 +2198,8 @@ function createMaterializationCounters() {
     longAsciiTextFallbacks: 0,
     mediumAsciiTextHits: 0,
     mediumAsciiTextFallbacks: 0,
+    unrolledMediumAsciiTextHits: 0,
+    unrolledMediumAsciiTextFallbacks: 0,
     mediumAsciiAttrValueHits: 0,
     mediumAsciiAttrValueFallbacks: 0,
     textTrimGuardSkips: 0,
@@ -2223,8 +2557,8 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('Counters are collected inside the measured large-input loop to avoid a second 1 GiB+ pass.');
   lines.push('');
-  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Long ASCII text hit/fallback | Medium ASCII text hit/fallback | Medium ASCII attr value hit/fallback | Event objects | Projected records | Projection fields | Attribute pairs |');
-  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push('| Variant | String fields | Name | Text | Attr name | Attr value | Raw spans | Name cache hit/miss | Value cache hit/miss | Semantic byte fields/fallbacks | Long ASCII text hit/fallback | Medium ASCII text hit/fallback | Unrolled medium ASCII text hit/fallback | Medium ASCII attr value hit/fallback | Event objects | Projected records | Projection fields | Attribute pairs |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
   for (const entry of report.variants) {
     const counters = entry.materializationCounters;
     lines.push(
@@ -2236,6 +2570,7 @@ function renderMarkdown(report) {
       + `${formatCount(counters.semanticByteFoldFields)}/${formatCount(counters.semanticByteFoldFallbacks)} | `
       + `${formatCount(counters.longAsciiTextHits)}/${formatCount(counters.longAsciiTextFallbacks)} | `
       + `${formatCount(counters.mediumAsciiTextHits)}/${formatCount(counters.mediumAsciiTextFallbacks)} | `
+      + `${formatCount(counters.unrolledMediumAsciiTextHits)}/${formatCount(counters.unrolledMediumAsciiTextFallbacks)} | `
       + `${formatCount(counters.mediumAsciiAttrValueHits)}/${formatCount(counters.mediumAsciiAttrValueFallbacks)} | `
       + `${formatCount(counters.eventObjects)} | ${formatCount(counters.projectedRecords)} | `
       + `${formatCount(counters.projectionFieldReads)} | ${formatCount(counters.attributePairs)} |`,

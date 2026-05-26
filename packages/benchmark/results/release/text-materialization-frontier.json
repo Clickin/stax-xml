@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T11:27:57.175Z",
+  "generatedAt": "2026-05-26T12:31:17.115Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -14,6 +14,7 @@
       "long-text-cache-materialization-candidate.json",
       "long-ascii-text-materialization-candidate-stability.json",
       "medium-ascii-text-materialization-candidate.json",
+      "unrolled-medium-ascii-text-materialization-candidate.json",
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-guard-candidate.json",
       "text-ascii-pretrim-candidate.json",
@@ -25,7 +26,7 @@
     "scaledArtifactCount": 4,
     "fullRowCount": 4,
     "nearFullWithoutTextRowCount": 4,
-    "negativeCandidateCount": 8,
+    "negativeCandidateCount": 9,
     "fastestFull": {
       "id": "rawFrameNameId",
       "role": "full",
@@ -37,7 +38,24 @@
       "eventCount": 57096514,
       "checksum": -540013997,
       "textStringReads": 16987392,
-      "stringFieldReads": 62758976
+      "stringFieldReads": 62758976,
+      "counters": {
+        "stringFieldReads": 62758976,
+        "nameStringReads": 40109120,
+        "textStringReads": 16987392,
+        "attrNameStringReads": 2831232,
+        "attrValueStringReads": 2831232,
+        "rawSpanMaterializations": 19818633,
+        "rawTextSpanMaterializations": 16987392,
+        "rawValueCacheHits": 0,
+        "rawValueCacheMisses": 0,
+        "longAsciiTextHits": 0,
+        "longAsciiTextFallbacks": 0,
+        "mediumAsciiTextHits": null,
+        "mediumAsciiTextFallbacks": null,
+        "unrolledMediumAsciiTextHits": null,
+        "unrolledMediumAsciiTextFallbacks": null
+      }
     },
     "fastestWithoutText": {
       "id": "withoutTextStrings",
@@ -50,7 +68,24 @@
       "eventCount": 228385566,
       "checksum": -933264309,
       "textStringReads": 0,
-      "stringFieldReads": 183085948
+      "stringFieldReads": 183085948,
+      "counters": {
+        "stringFieldReads": 183085948,
+        "nameStringReads": 160436140,
+        "textStringReads": 0,
+        "attrNameStringReads": 11324904,
+        "attrValueStringReads": 11324904,
+        "rawSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawValueCacheHits": 0,
+        "rawValueCacheMisses": 0,
+        "longAsciiTextHits": 0,
+        "longAsciiTextFallbacks": 0,
+        "mediumAsciiTextHits": null,
+        "mediumAsciiTextFallbacks": null,
+        "unrolledMediumAsciiTextHits": null,
+        "unrolledMediumAsciiTextFallbacks": null
+      }
     },
     "fastestNoTrim": {
       "id": "rawFrameNameIdNoTrim",
@@ -63,7 +98,24 @@
       "eventCount": 456770888,
       "checksum": 734413569,
       "textStringReads": 135898776,
-      "stringFieldReads": 502070478
+      "stringFieldReads": 502070478,
+      "counters": {
+        "stringFieldReads": 502070478,
+        "nameStringReads": 320872110,
+        "textStringReads": 135898776,
+        "attrNameStringReads": 22649796,
+        "attrValueStringReads": 22649796,
+        "rawSpanMaterializations": 158548581,
+        "rawTextSpanMaterializations": 135898776,
+        "rawValueCacheHits": 0,
+        "rawValueCacheMisses": 0,
+        "longAsciiTextHits": 0,
+        "longAsciiTextFallbacks": 0,
+        "mediumAsciiTextHits": null,
+        "mediumAsciiTextFallbacks": null,
+        "unrolledMediumAsciiTextHits": null,
+        "unrolledMediumAsciiTextFallbacks": null
+      }
     },
     "fastestFoldTrim": {
       "id": "rawFrameNameIdFoldTrim",
@@ -76,7 +128,24 @@
       "eventCount": 114192784,
       "checksum": 1903859545,
       "textStringReads": 33974712,
-      "stringFieldReads": 125517686
+      "stringFieldReads": 125517686,
+      "counters": {
+        "stringFieldReads": 125517686,
+        "nameStringReads": 80218070,
+        "textStringReads": 33974712,
+        "attrNameStringReads": 5662452,
+        "attrValueStringReads": 5662452,
+        "rawSpanMaterializations": 39637173,
+        "rawTextSpanMaterializations": 33974712,
+        "rawValueCacheHits": 0,
+        "rawValueCacheMisses": 0,
+        "longAsciiTextHits": 0,
+        "longAsciiTextFallbacks": 0,
+        "mediumAsciiTextHits": null,
+        "mediumAsciiTextFallbacks": null,
+        "unrolledMediumAsciiTextHits": null,
+        "unrolledMediumAsciiTextFallbacks": null
+      }
     },
     "fastestFullToTargetRatio": 0.93,
     "fastestFullRemainingMiBPerSec": 14.5,
@@ -122,7 +191,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "withoutText": {
         "id": "withoutTextStrings",
@@ -135,7 +221,24 @@
         "eventCount": 57096514,
         "checksum": 1372281363,
         "textStringReads": 0,
-        "stringFieldReads": 45771584
+        "stringFieldReads": 45771584,
+        "counters": {
+          "stringFieldReads": 45771584,
+          "nameStringReads": 40109120,
+          "textStringReads": 0,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 0,
+          "rawTextSpanMaterializations": 0,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "noTrim": {
         "id": "rawFrameNameIdNoTrim",
@@ -148,7 +251,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "foldTrim": {
         "id": "rawFrameNameIdFoldTrim",
@@ -161,7 +281,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "withoutTextSpeedup": 1.34,
       "noTrimSpeedup": 1,
@@ -183,7 +320,24 @@
         "eventCount": 114192784,
         "checksum": 1903859545,
         "textStringReads": 33974712,
-        "stringFieldReads": 125517686
+        "stringFieldReads": 125517686,
+        "counters": {
+          "stringFieldReads": 125517686,
+          "nameStringReads": 80218070,
+          "textStringReads": 33974712,
+          "attrNameStringReads": 5662452,
+          "attrValueStringReads": 5662452,
+          "rawSpanMaterializations": 39637173,
+          "rawTextSpanMaterializations": 33974712,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "withoutText": {
         "id": "withoutTextStrings",
@@ -196,7 +350,24 @@
         "eventCount": 114192784,
         "checksum": 223378117,
         "textStringReads": 0,
-        "stringFieldReads": 91542974
+        "stringFieldReads": 91542974,
+        "counters": {
+          "stringFieldReads": 91542974,
+          "nameStringReads": 80218070,
+          "textStringReads": 0,
+          "attrNameStringReads": 5662452,
+          "attrValueStringReads": 5662452,
+          "rawSpanMaterializations": 0,
+          "rawTextSpanMaterializations": 0,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "noTrim": {
         "id": "rawFrameNameIdNoTrim",
@@ -209,7 +380,24 @@
         "eventCount": 114192784,
         "checksum": 1903859545,
         "textStringReads": 33974712,
-        "stringFieldReads": 125517686
+        "stringFieldReads": 125517686,
+        "counters": {
+          "stringFieldReads": 125517686,
+          "nameStringReads": 80218070,
+          "textStringReads": 33974712,
+          "attrNameStringReads": 5662452,
+          "attrValueStringReads": 5662452,
+          "rawSpanMaterializations": 39637173,
+          "rawTextSpanMaterializations": 33974712,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "foldTrim": {
         "id": "rawFrameNameIdFoldTrim",
@@ -222,7 +410,24 @@
         "eventCount": 114192784,
         "checksum": 1903859545,
         "textStringReads": 33974712,
-        "stringFieldReads": 125517686
+        "stringFieldReads": 125517686,
+        "counters": {
+          "stringFieldReads": 125517686,
+          "nameStringReads": 80218070,
+          "textStringReads": 33974712,
+          "attrNameStringReads": 5662452,
+          "attrValueStringReads": 5662452,
+          "rawSpanMaterializations": 39637173,
+          "rawTextSpanMaterializations": 33974712,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "withoutTextSpeedup": 1.32,
       "noTrimSpeedup": 1.01,
@@ -244,7 +449,24 @@
         "eventCount": 228385566,
         "checksum": -1067702969,
         "textStringReads": 67949424,
-        "stringFieldReads": 251035372
+        "stringFieldReads": 251035372,
+        "counters": {
+          "stringFieldReads": 251035372,
+          "nameStringReads": 160436140,
+          "textStringReads": 67949424,
+          "attrNameStringReads": 11324904,
+          "attrValueStringReads": 11324904,
+          "rawSpanMaterializations": 79274337,
+          "rawTextSpanMaterializations": 67949424,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "withoutText": {
         "id": "withoutTextStrings",
@@ -257,7 +479,24 @@
         "eventCount": 228385566,
         "checksum": -933264309,
         "textStringReads": 0,
-        "stringFieldReads": 183085948
+        "stringFieldReads": 183085948,
+        "counters": {
+          "stringFieldReads": 183085948,
+          "nameStringReads": 160436140,
+          "textStringReads": 0,
+          "attrNameStringReads": 11324904,
+          "attrValueStringReads": 11324904,
+          "rawSpanMaterializations": 0,
+          "rawTextSpanMaterializations": 0,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "noTrim": {
         "id": "rawFrameNameIdNoTrim",
@@ -270,7 +509,24 @@
         "eventCount": 228385566,
         "checksum": -1067702969,
         "textStringReads": 67949424,
-        "stringFieldReads": 251035372
+        "stringFieldReads": 251035372,
+        "counters": {
+          "stringFieldReads": 251035372,
+          "nameStringReads": 160436140,
+          "textStringReads": 67949424,
+          "attrNameStringReads": 11324904,
+          "attrValueStringReads": 11324904,
+          "rawSpanMaterializations": 79274337,
+          "rawTextSpanMaterializations": 67949424,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "foldTrim": null,
       "withoutTextSpeedup": 1.41,
@@ -293,7 +549,24 @@
         "eventCount": 456770888,
         "checksum": 734413569,
         "textStringReads": 135898776,
-        "stringFieldReads": 502070478
+        "stringFieldReads": 502070478,
+        "counters": {
+          "stringFieldReads": 502070478,
+          "nameStringReads": 320872110,
+          "textStringReads": 135898776,
+          "attrNameStringReads": 22649796,
+          "attrValueStringReads": 22649796,
+          "rawSpanMaterializations": 158548581,
+          "rawTextSpanMaterializations": 135898776,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "withoutText": {
         "id": "withoutTextStrings",
@@ -306,7 +579,24 @@
         "eventCount": 456770888,
         "checksum": 999272277,
         "textStringReads": 0,
-        "stringFieldReads": 366171702
+        "stringFieldReads": 366171702,
+        "counters": {
+          "stringFieldReads": 366171702,
+          "nameStringReads": 320872110,
+          "textStringReads": 0,
+          "attrNameStringReads": 22649796,
+          "attrValueStringReads": 22649796,
+          "rawSpanMaterializations": 0,
+          "rawTextSpanMaterializations": 0,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "noTrim": {
         "id": "rawFrameNameIdNoTrim",
@@ -319,7 +609,24 @@
         "eventCount": 456770888,
         "checksum": 734413569,
         "textStringReads": 135898776,
-        "stringFieldReads": 502070478
+        "stringFieldReads": 502070478,
+        "counters": {
+          "stringFieldReads": 502070478,
+          "nameStringReads": 320872110,
+          "textStringReads": 135898776,
+          "attrNameStringReads": 22649796,
+          "attrValueStringReads": 22649796,
+          "rawSpanMaterializations": 158548581,
+          "rawTextSpanMaterializations": 135898776,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "foldTrim": null,
       "withoutTextSpeedup": 1.29,
@@ -344,7 +651,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdTextCache",
@@ -357,7 +681,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 2831296,
+          "rawTextSpanMaterializations": 55,
+          "rawValueCacheHits": 16987337,
+          "rawValueCacheMisses": 55,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 0.74,
       "candidatePreservesFullStringParity": true,
@@ -378,7 +719,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdLongTextCache",
@@ -391,7 +749,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 15335868,
+          "rawTextSpanMaterializations": 12504627,
+          "rawValueCacheHits": 4482765,
+          "rawValueCacheMisses": 19,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 0.83,
       "candidatePreservesFullStringParity": true,
@@ -412,7 +787,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdLongAsciiText",
@@ -425,7 +817,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 6370272,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 0.41,
       "candidatePreservesFullStringParity": true,
@@ -446,7 +855,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdMediumAsciiText",
@@ -459,7 +885,92 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 2831232,
+          "mediumAsciiTextFallbacks": 3539040,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
+      },
+      "candidateToControlRatio": 1.04,
+      "candidatePreservesFullStringParity": true,
+      "candidateCrossesTarget": false,
+      "rejectedForFullTarget": true
+    },
+    {
+      "family": "unrolled-medium-ascii-text-fast-path",
+      "sourceArtifact": "unrolled-medium-ascii-text-materialization-candidate.json",
+      "control": {
+        "id": "rawFrameNameId",
+        "role": "full",
+        "sourceArtifact": "unrolled-medium-ascii-text-materialization-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 164.13,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": 0,
+          "unrolledMediumAsciiTextFallbacks": 0
+        }
+      },
+      "candidate": {
+        "id": "rawFrameNameIdUnrolledMediumAsciiText",
+        "role": "negative-candidate",
+        "sourceArtifact": "unrolled-medium-ascii-text-materialization-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 170.59,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": 2831232,
+          "unrolledMediumAsciiTextFallbacks": 3539040
+        }
       },
       "candidateToControlRatio": 1.04,
       "candidatePreservesFullStringParity": true,
@@ -480,7 +991,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdFoldTrim",
@@ -493,7 +1021,24 @@
         "eventCount": 57096514,
         "checksum": -540013997,
         "textStringReads": 16987392,
-        "stringFieldReads": 62758976
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 0.84,
       "candidatePreservesFullStringParity": true,
@@ -514,7 +1059,24 @@
         "eventCount": 45189256,
         "checksum": 1421012805,
         "textStringReads": 12324342,
-        "stringFieldReads": 102702850
+        "stringFieldReads": 102702850,
+        "counters": {
+          "stringFieldReads": 102702850,
+          "nameStringReads": 32864912,
+          "textStringReads": 12324342,
+          "attrNameStringReads": 28756798,
+          "attrValueStringReads": 28756798,
+          "rawSpanMaterializations": 41087307,
+          "rawTextSpanMaterializations": 12324342,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdTrimGuard",
@@ -527,7 +1089,24 @@
         "eventCount": 45189256,
         "checksum": 1421012805,
         "textStringReads": 12324342,
-        "stringFieldReads": 102702850
+        "stringFieldReads": 102702850,
+        "counters": {
+          "stringFieldReads": 102702850,
+          "nameStringReads": 32864912,
+          "textStringReads": 12324342,
+          "attrNameStringReads": 28756798,
+          "attrValueStringReads": 28756798,
+          "rawSpanMaterializations": 41087307,
+          "rawTextSpanMaterializations": 12324342,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 1,
       "candidatePreservesFullStringParity": true,
@@ -548,7 +1127,24 @@
         "eventCount": 45189256,
         "checksum": 1421012805,
         "textStringReads": 12324342,
-        "stringFieldReads": 102702850
+        "stringFieldReads": 102702850,
+        "counters": {
+          "stringFieldReads": 102702850,
+          "nameStringReads": 32864912,
+          "textStringReads": 12324342,
+          "attrNameStringReads": 28756798,
+          "attrValueStringReads": 28756798,
+          "rawSpanMaterializations": 41087307,
+          "rawTextSpanMaterializations": 12324342,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdAsciiPreTrim",
@@ -561,7 +1157,24 @@
         "eventCount": 45189256,
         "checksum": 1421012805,
         "textStringReads": 12324342,
-        "stringFieldReads": 102702850
+        "stringFieldReads": 102702850,
+        "counters": {
+          "stringFieldReads": 102702850,
+          "nameStringReads": 32864912,
+          "textStringReads": 12324342,
+          "attrNameStringReads": 28756798,
+          "attrValueStringReads": 28756798,
+          "rawSpanMaterializations": 41087307,
+          "rawTextSpanMaterializations": 12324342,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 0.99,
       "candidatePreservesFullStringParity": true,
@@ -582,7 +1195,24 @@
         "eventCount": 45189256,
         "checksum": 1421012805,
         "textStringReads": 12324342,
-        "stringFieldReads": 102702850
+        "stringFieldReads": 102702850,
+        "counters": {
+          "stringFieldReads": 102702850,
+          "nameStringReads": 32864912,
+          "textStringReads": 12324342,
+          "attrNameStringReads": 28756798,
+          "attrValueStringReads": 28756798,
+          "rawSpanMaterializations": 41087307,
+          "rawTextSpanMaterializations": 12324342,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidate": {
         "id": "rawFrameNameIdAllAsciiSpans",
@@ -595,7 +1225,24 @@
         "eventCount": 45189256,
         "checksum": 1421012805,
         "textStringReads": 12324342,
-        "stringFieldReads": 102702850
+        "stringFieldReads": 102702850,
+        "counters": {
+          "stringFieldReads": 102702850,
+          "nameStringReads": 32864912,
+          "textStringReads": 12324342,
+          "attrNameStringReads": 28756798,
+          "attrValueStringReads": 28756798,
+          "rawSpanMaterializations": 41087307,
+          "rawTextSpanMaterializations": 12324342,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": null,
+          "mediumAsciiTextFallbacks": null,
+          "unrolledMediumAsciiTextHits": null,
+          "unrolledMediumAsciiTextFallbacks": null
+        }
       },
       "candidateToControlRatio": 0.63,
       "candidatePreservesFullStringParity": true,
@@ -644,6 +1291,7 @@
         "bounded-long-text-value-cache: candidate/control=0.83x, candidate=141.85 MiB/s",
         "long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s",
         "medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s",
+        "unrolled-medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.59 MiB/s",
         "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s",
         "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s",
         "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s",
