@@ -159,9 +159,12 @@ books-corpus stability rows, selected text/fold/cache negative stability rows,
 quick-xml global allocator counters plus stability rerun, and Woodstox JFR
 sampled allocation artifacts plus the measured-window rerun. It also includes
 the name-collision-safe interning rerun after the reader switched from a
-hash-only name-id lookup to a hash-bucket plus byte-compare lookup.
+hash-only name-id lookup to a hash-bucket plus byte-compare lookup. The
+comparison now also pulls in the later medium-ASCII text, unrolled medium-ASCII
+text, trim-guard, offset text-cache, attribute-value cache, and Bun/JSC cache
+candidate artifacts under the same checksum contract.
 
-The current aggregate has 159 aggregated rows and 142 JavaScript 1 GiB+
+The current aggregate has 190 aggregated rows and 166 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -175,13 +178,13 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 136 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 160 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
-`ArrayBuffer` parser-input rows. It separately records 63 corpus-seed replay
+`ArrayBuffer` parser-input rows. It separately records 85 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
 0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
 parser-input claim. That is 0.93x of the 200 MiB/s target and
-0.97x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
+0.55x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
 pass. The same-fixture 1024 MiB JS row vs Woodstox target now includes the
@@ -241,8 +244,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 160 primary release JSON artifacts, recognizes 841
-sample throughput rows and 93 aggregate rows, and finds 521 JavaScript 1 GiB+
+The current scan covers 168 primary release JSON artifacts, recognizes 870
+sample throughput rows and 93 aggregate rows, and finds 543 JavaScript 1 GiB+
 full-string sample rows plus 73 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -460,10 +463,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 160 primary release artifacts and recognizes 841
-measured rows. It records 118 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 168 primary release artifacts and recognizes 870
+measured rows. It records 125 benchmark artifacts, 17 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-12 negative-result artifacts, 521 JavaScript 1 GiB+ full-string rows, and three
+13 negative-result artifacts, 543 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable

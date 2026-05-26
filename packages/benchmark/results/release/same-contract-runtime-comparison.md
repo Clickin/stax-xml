@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T08:38:40.245Z
+Generated: 2026-05-26T13:28:03.182Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 159
-- 1 GiB+ JavaScript full-string rows: 142
+- Aggregated rows: 190
+- 1 GiB+ JavaScript full-string rows: 166
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -23,8 +23,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB Woodstox baseline: 337.97 MiB/s
 - 1024 MiB quick-xml baseline: 270.26 MiB/s (0.80x Woodstox)
 - Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 136/136
-- 1 GiB+ source-mode rows replaying a corpus seed buffer: 63 (max seed 100.26 MiB, max seed/target 0.09)
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 160/160
+- 1 GiB+ source-mode rows replaying a corpus seed buffer: 85 (max seed 100.26 MiB, max seed/target 0.09)
 
 ## Fastest JS Rows By Group
 
@@ -40,6 +40,14 @@ This report aggregates existing release artifacts. It compares rows only through
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB | n/a | unknown |
 | `books-corpus-stability` | Bun/JSC | `rawFrameNameId` | 178.52 | yes | process RSS max 189.37 MiB | `sync-iterable-byte-batches` | no |
 | `text-cache-negative-stability` | Node/V8 | `rawFrameNameId` | 175.02 | yes | process RSS max 71.23 MiB | `sync-iterable-byte-batches` | no |
+| `offset-text-cache-negative` | Node/V8 | `rawFrameNameId` | 160.72 | yes | process RSS max 60.44 MiB | `sync-iterable-byte-batches` | no |
+| `medium-ascii-text-negative` | Node/V8 | `rawFrameNameIdMediumAsciiText` | 170.16 | yes | process RSS max 66.70 MiB | `sync-iterable-byte-batches` | no |
+| `unrolled-medium-ascii-text-negative` | Node/V8 | `rawFrameNameIdUnrolledMediumAsciiText` | 170.59 | yes | process RSS max 67.30 MiB | `sync-iterable-byte-batches` | no |
+| `text-trim-guard-negative` | Node/V8 | `rawFrameNameId` | 109.66 | yes | process RSS max 77.91 MiB | `sync-iterable-byte-batches` | no |
+| `unrolled-medium-ascii-text-trim-guard-negative` | Node/V8 | `rawFrameNameIdUnrolledMediumAsciiText` | 166.33 | yes | process RSS max 67.28 MiB | `sync-iterable-byte-batches` | no |
+| `medium-ascii-attr-value-negative` | Node/V8 | `rawFrameNameIdMediumAsciiAttrValue` | 167.49 | yes | process RSS max 66.52 MiB | `sync-iterable-byte-batches` | no |
+| `attr-value-cache-negative` | Node/V8 | `rawFrameNameId` | 161.24 | yes | process RSS max 60.58 MiB | `sync-iterable-byte-batches` | no |
+| `bun-cache-candidates-books-corpus` | Bun/JSC | `rawFrameNameId` | 169.07 | yes | process RSS max 177.93 MiB | `sync-iterable-byte-batches` | no |
 | `long-ascii-text-negative-stability` | Node/V8 | `rawFrameNameId` | 172.85 | yes | process RSS max 78.00 MiB | `sync-iterable-byte-batches` | no |
 | `fold-trimmed-text-negative-stability` | Node/V8 | `rawFrameNameId` | 122.32 | yes | process RSS max 71.22 MiB | `sync-iterable-byte-batches` | no |
 | `name-collision-safe-interning` | Node/V8 | `rawFrameNameId` | 96.99 | yes | process RSS max 218.93 MiB | `sync-iterable-byte-batches` | no |
@@ -58,7 +66,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 136 | 136 | 0 | 0 | 63 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 160 | 160 | 0 | 0 | 85 | 100.26 MiB |
 
 ## Selected Comparison Rows
 
@@ -159,6 +167,37 @@ This report aggregates existing release artifacts. It compares rows only through
 | `books-corpus-stability` | Bun/JSC | `rawFrameStringCache` | 57096514 | -540013997 | 143.20 | yes | process RSS max 184.98 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `bun-candidate-headroom-books-corpus-stability.json` |
 | `text-cache-negative-stability` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 175.02 | yes | process RSS max 71.23 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-cache-materialization-candidate-stability.json` |
 | `text-cache-negative-stability` | Node/V8 | `rawFrameNameIdTextCache` | 57096514 | -540013997 | 129.31 | yes | process RSS max 77.43 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-cache-materialization-candidate-stability.json` |
+| `offset-text-cache-negative` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 160.72 | yes | process RSS max 60.44 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `offset-text-cache-materialization-candidate.json` |
+| `offset-text-cache-negative` | Node/V8 | `rawFrameNameIdTextCache` | 57096514 | -540013997 | 110.79 | yes | process RSS max 66.84 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `offset-text-cache-materialization-candidate.json` |
+| `offset-text-cache-negative` | Node/V8 | `rawFrameNameIdOffsetTextCache` | 57096514 | -540013997 | 105.41 | yes | process RSS max 198.44 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `offset-text-cache-materialization-candidate.json` |
+| `offset-text-cache-negative` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 216.04 | yes | process RSS max 254.16 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `offset-text-cache-materialization-candidate.json` |
+| `medium-ascii-text-negative` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 164.31 | yes | process RSS max 60.86 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-text-materialization-candidate.json` |
+| `medium-ascii-text-negative` | Node/V8 | `rawFrameNameIdMediumAsciiText` | 57096514 | -540013997 | 170.16 | yes | process RSS max 66.70 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-text-materialization-candidate.json` |
+| `medium-ascii-text-negative` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 222.28 | yes | process RSS max 70.29 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-text-materialization-candidate.json` |
+| `unrolled-medium-ascii-text-negative` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 164.13 | yes | process RSS max 60.94 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-materialization-candidate.json` |
+| `unrolled-medium-ascii-text-negative` | Node/V8 | `rawFrameNameIdUnrolledMediumAsciiText` | 57096514 | -540013997 | 170.59 | yes | process RSS max 67.30 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-materialization-candidate.json` |
+| `unrolled-medium-ascii-text-negative` | Node/V8 | `rawFrameNameIdMediumAsciiText` | 57096514 | -540013997 | 155.35 | yes | process RSS max 67.17 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-materialization-candidate.json` |
+| `unrolled-medium-ascii-text-negative` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 214.41 | yes | process RSS max 71.18 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-materialization-candidate.json` |
+| `text-trim-guard-negative` | Node/V8 | `rawFrameNameId` | 45189256 | 1421012805 | 109.66 | yes | process RSS max 77.91 MiB | `sync-iterable-byte-batches` | no | no | `text-trim-guard-candidate.json` |
+| `text-trim-guard-negative` | Node/V8 | `rawFrameNameIdTrimGuard` | 45189256 | 1421012805 | 109.56 | yes | process RSS max 78.71 MiB | `sync-iterable-byte-batches` | no | no | `text-trim-guard-candidate.json` |
+| `unrolled-medium-ascii-text-trim-guard-negative` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 136.23 | yes | process RSS max 61.23 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-trim-guard-candidate.json` |
+| `unrolled-medium-ascii-text-trim-guard-negative` | Node/V8 | `rawFrameNameIdUnrolledMediumAsciiText` | 57096514 | -540013997 | 166.33 | yes | process RSS max 67.28 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-trim-guard-candidate.json` |
+| `unrolled-medium-ascii-text-trim-guard-negative` | Node/V8 | `rawFrameNameIdTrimGuard` | 57096514 | -540013997 | 163.62 | yes | process RSS max 66.95 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-trim-guard-candidate.json` |
+| `unrolled-medium-ascii-text-trim-guard-negative` | Node/V8 | `rawFrameNameIdUnrolledMediumAsciiTextTrimGuard` | 57096514 | -540013997 | 164.14 | yes | process RSS max 68.82 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-trim-guard-candidate.json` |
+| `unrolled-medium-ascii-text-trim-guard-negative` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 215.70 | yes | process RSS max 71.43 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `unrolled-medium-ascii-text-trim-guard-candidate.json` |
+| `medium-ascii-attr-value-negative` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 165.38 | yes | process RSS max 61.18 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-attr-value-materialization-candidate.json` |
+| `medium-ascii-attr-value-negative` | Node/V8 | `rawFrameNameIdMediumAsciiAttrValue` | 57096514 | -540013997 | 167.49 | yes | process RSS max 66.52 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-attr-value-materialization-candidate.json` |
+| `medium-ascii-attr-value-negative` | Node/V8 | `rawFrameNameIdMediumAsciiText` | 57096514 | -540013997 | 155.23 | yes | process RSS max 66.48 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-attr-value-materialization-candidate.json` |
+| `medium-ascii-attr-value-negative` | Node/V8 | `withoutTextStrings` | 57096514 | 1372281363 | 213.11 | yes | process RSS max 70.62 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `medium-ascii-attr-value-materialization-candidate.json` |
+| `attr-value-cache-negative` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 161.24 | yes | process RSS max 60.58 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `attr-value-cache-materialization-candidate.json` |
+| `attr-value-cache-negative` | Node/V8 | `rawFrameNameIdAttrValueCache` | 57096514 | -540013997 | 158.96 | yes | process RSS max 66.18 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `attr-value-cache-materialization-candidate.json` |
+| `attr-value-cache-negative` | Node/V8 | `rawFrameStringCache` | 57096514 | -540013997 | 120.41 | yes | process RSS max 66.98 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `attr-value-cache-materialization-candidate.json` |
+| `attr-value-cache-negative` | Node/V8 | `withoutAttributeValueStrings` | 57096514 | 1597287507 | 151.93 | yes | process RSS max 67.40 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `attr-value-cache-materialization-candidate.json` |
+| `bun-cache-candidates-books-corpus` | Bun/JSC | `rawFrameNameId` | 57096514 | -540013997 | 169.07 | yes | process RSS max 177.93 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `bun-cache-candidates-books-corpus.json` |
+| `bun-cache-candidates-books-corpus` | Bun/JSC | `rawFrameNameIdAttrValueCache` | 57096514 | -540013997 | 158.09 | yes | process RSS max 176.35 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `bun-cache-candidates-books-corpus.json` |
+| `bun-cache-candidates-books-corpus` | Bun/JSC | `rawFrameNameIdOffsetTextCache` | 57096514 | -540013997 | 99.92 | yes | process RSS max 179.61 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `bun-cache-candidates-books-corpus.json` |
+| `bun-cache-candidates-books-corpus` | Bun/JSC | `rawFrameNameIdUnrolledMediumAsciiText` | 57096514 | -540013997 | 150.27 | yes | process RSS max 178.85 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `bun-cache-candidates-books-corpus.json` |
+| `bun-cache-candidates-books-corpus` | Bun/JSC | `withoutTextStrings` | 57096514 | 1372281363 | 213.15 | yes | process RSS max 170.96 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `bun-cache-candidates-books-corpus.json` |
 | `long-ascii-text-negative-stability` | Node/V8 | `stringFull` | 57096514 | -540013997 | 148.17 | yes | process RSS max 71.39 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `long-ascii-text-materialization-candidate-stability.json` |
 | `long-ascii-text-negative-stability` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 172.85 | yes | process RSS max 78.00 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `long-ascii-text-materialization-candidate-stability.json` |
 | `long-ascii-text-negative-stability` | Node/V8 | `rawFrameNameIdLongAsciiText` | 57096514 | -540013997 | 71.21 | yes | process RSS max 102.10 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `long-ascii-text-materialization-candidate-stability.json` |
@@ -230,10 +269,10 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 
 | Runtime | Evidence | Throughput | Events | Checksum | Memory/shape note | Artifact |
 | --- | --- | ---: | ---: | ---: | --- | --- |
-| Rust/quick-xml | global-allocator-counters | 243.53 | 967967 | -746772258 | allocated 27.13 MiB, net 0.00 MiB; borrowed=284695, owned=0; dominantPhase=attribute-collection 26.06 MiB | `quick-xml-allocation-count.json` |
+| Rust/quick-xml | global-allocator-counters | 257.43 | 967967 | -746772258 | allocated 81.38 MiB, net 0.00 MiB; borrowed=854085, owned=0; dominantPhase=attribute-collection 78.19 MiB | `quick-xml-allocation-count.json` |
 | Rust/quick-xml | global-allocator-counters-stability | 220.90 | 967967 | -746772258 | allocated 81.38 MiB, net 0.00 MiB; borrowed=854085, owned=0; dominantPhase=attribute-collection 78.19 MiB | `quick-xml-allocation-count-stability.json` |
-| Java/Woodstox | jfr-sampled-allocation | 320.27 | 967967 | -746772258 | sampled 3.0 KiB; string-boundary samples=42 | `woodstox-jfr-allocation.json` |
-| Java/Woodstox | measured-window-jfr-sampled-allocation | 201.11 | 967967 | -746772258 | sampled 0.5 KiB; string-boundary samples=9 | `woodstox-measured-jfr-allocation.json` |
+| Java/Woodstox | jfr-sampled-allocation | 311.86 | 967967 | -746772258 | sampled 3.5 KiB; string-boundary samples=44 | `woodstox-jfr-allocation.json` |
+| Java/Woodstox | measured-window-jfr-sampled-allocation | 182.56 | 967967 | -746772258 | sampled 0.7 KiB; string-boundary samples=7 | `woodstox-measured-jfr-allocation.json` |
 | Java/Woodstox | measured-window-jfr-sampled-allocation-rerun | 136.56 | 967967 | -746772258 | sampled 0.5 KiB; string-boundary samples=9 | `woodstox-measured-jfr-allocation-rerun.json` |
 
 ## Findings
@@ -243,11 +282,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=142
+  - jsLargeFullRows=166
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=136
-  - notFullArrayBufferRows=136
+  - largeJsFullSourceModeRows=160
+  - notFullArrayBufferRows=160
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
