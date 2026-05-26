@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-26T21:15:07.522Z",
+  "generatedAt": "2026-05-26T21:19:55.360Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "auditGeneratedAt": "2026-05-26T21:13:52.699Z",
+    "auditGeneratedAt": "2026-05-26T21:19:55.014Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -56,7 +56,9 @@
         "safari-webkit-availability-audit.json"
       ],
       "blockers": [
-        "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path."
+        "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.",
+        "No Safari/WebKit benchmark row is recorded by the availability audit.",
+        "No exact Safari/WebKit source-boundary pin is recorded by the availability audit."
       ],
       "scopeGuard": "This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation."
     },
@@ -90,7 +92,9 @@
           "safari-webkit-availability-audit.json"
         ],
         "blockers": [
-          "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path."
+          "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.",
+          "No Safari/WebKit benchmark row is recorded by the availability audit.",
+          "No exact Safari/WebKit source-boundary pin is recorded by the availability audit."
         ],
         "scopeGuard": "This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation."
       },

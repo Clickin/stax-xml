@@ -86,6 +86,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(safari.localClosure.localRunnable, false);
   assert.deepEqual(safari.localClosure.evidenceArtifacts, ['safari-webkit-availability-audit.json']);
   assert.ok(safari.localClosure.blockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)));
+  assert.ok(safari.localClosure.blockers.some(item => /No Safari\/WebKit benchmark row is recorded/.test(item)));
+  assert.ok(safari.localClosure.blockers.some(item => /No exact Safari\/WebKit source-boundary pin is recorded/.test(item)));
   assert.match(safari.localClosure.scopeGuard, /not a Safari\/WebKit benchmark row/);
   assert.equal(spiderMonkey.localClosure.localStatus, 'external-run-required');
   assert.equal(spiderMonkey.localClosure.localRunnable, false);
@@ -140,6 +142,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Local closure status: external-run-required/);
   assert.match(markdown, /Locally runnable now: no/);
   assert.match(markdown, /Current host cannot run Safari\/WebKit browser rows/);
+  assert.match(markdown, /No Safari\/WebKit benchmark row is recorded/);
+  assert.match(markdown, /No exact Safari\/WebKit source-boundary pin is recorded/);
   assert.match(markdown, /Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump/);
   assert.match(markdown, /No local SpiderMonkey JS shell was found/);
   assert.match(markdown, /safaridriver/);

@@ -1,6 +1,6 @@
 # Safari/WebKit Availability Audit
 
-Generated: 2026-05-26T01:40:03.360Z
+Generated: 2026-05-26T21:19:00.453Z
 
 ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.
 
@@ -13,6 +13,9 @@ ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It 
 - safaridriver found: no
 - Current harness supports Safari/WebKit: yes
 - Can run Safari browser rows now: no
+- Safari benchmark rows recorded: no
+- Exact Safari build identity recorded: no
+- Safari source boundary pinned: no
 - Open obligation remains: yes
 
 ## Command Probes
@@ -33,9 +36,23 @@ ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It 
 | Windows legacy Safari app | no | C:\Program Files\Safari\Safari.exe |
 | Windows legacy Safari x86 app | no | C:\Program Files (x86)\Safari\Safari.exe |
 
+## Environment Probes
+
+| Variable | Exists | Value |
+| --- | --- | --- |
+| SAFARI_PATH | no |  |
+| WEBKIT_PATH | no |  |
+| WEBKIT_BROWSER_PATH | no |  |
+| PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH | no |  |
+
 ## Harness Scope
 
 Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper, including cross-process stability rows, when safaridriver is available.
+
+| Entry point | Exists | Path |
+| --- | --- | --- |
+| safari smoke harness | yes | G:\programming\stax-xml\packages\benchmark\safari-webdriver-candidate-headroom.mjs |
+| cross-process browser harness | yes | G:\programming\stax-xml\packages\benchmark\browser-candidate-headroom-cross-process.mjs |
 
 ## Findings
 

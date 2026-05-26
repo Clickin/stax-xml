@@ -82,6 +82,10 @@ function createReport() {
     firefoxBidiTextDecoder: true,
     safariWebDriver: true,
     webkitRemoteInspector: false,
+    entryPoints: [
+      harnessEntryPoint('safari smoke harness', 'safari-webdriver-candidate-headroom.mjs'),
+      harnessEntryPoint('cross-process browser harness', 'browser-candidate-headroom-cross-process.mjs'),
+    ],
     note: 'Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper, including cross-process stability rows, when safaridriver is available.',
   };
   const canRunSafariBrowserRows = isMac && Boolean(availableExecutable) && hasSafaridriver && harnessSupport.safariWebDriver;
@@ -112,9 +116,21 @@ function createReport() {
       safaridriverFound: hasSafaridriver,
       currentHarnessSupportsSafari: harnessSupport.safariWebDriver || harnessSupport.webkitRemoteInspector,
       canRunSafariBrowserRows,
+      safariBenchmarkRowsRecorded: false,
+      exactSafariBuildIdentityRecorded: false,
+      safariSourceBoundaryPinned: false,
       openObligationRemains: true,
     },
     findings: createFindings(isMac, availableExecutable, hasSafaridriver, harnessSupport, canRunSafariBrowserRows),
+  };
+}
+
+function harnessEntryPoint(label, relativePath) {
+  const path = resolve(__dirname, relativePath);
+  return {
+    label,
+    path,
+    exists: existsSync(path),
   };
 }
 
@@ -213,6 +229,9 @@ function renderMarkdown(report) {
     `- safaridriver found: ${formatBoolean(report.summary.safaridriverFound)}`,
     `- Current harness supports Safari/WebKit: ${formatBoolean(report.summary.currentHarnessSupportsSafari)}`,
     `- Can run Safari browser rows now: ${formatBoolean(report.summary.canRunSafariBrowserRows)}`,
+    `- Safari benchmark rows recorded: ${formatBoolean(report.summary.safariBenchmarkRowsRecorded)}`,
+    `- Exact Safari build identity recorded: ${formatBoolean(report.summary.exactSafariBuildIdentityRecorded)}`,
+    `- Safari source boundary pinned: ${formatBoolean(report.summary.safariSourceBoundaryPinned)}`,
     `- Open obligation remains: ${formatBoolean(report.summary.openObligationRemains)}`,
     '',
     '## Command Probes',
@@ -227,8 +246,16 @@ function renderMarkdown(report) {
   for (const probe of report.probes.paths) {
     lines.push(`| ${probe.label} | ${formatBoolean(probe.exists)} | ${probe.path} |`);
   }
+  lines.push('', '## Environment Probes', '', '| Variable | Exists | Value |', '| --- | --- | --- |');
+  for (const probe of report.probes.environmentVariables) {
+    lines.push(`| ${probe.name} | ${formatBoolean(probe.exists)} | ${probe.value ?? ''} |`);
+  }
   lines.push('', '## Harness Scope', '');
   lines.push(report.probes.harnessSupport.note);
+  lines.push('', '| Entry point | Exists | Path |', '| --- | --- | --- |');
+  for (const entryPoint of report.probes.harnessSupport.entryPoints) {
+    lines.push(`| ${entryPoint.label} | ${formatBoolean(entryPoint.exists)} | ${entryPoint.path} |`);
+  }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {
     lines.push(`- ${finding.id} (${finding.classification}): ${finding.summary}`);

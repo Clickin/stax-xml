@@ -557,8 +557,10 @@ The audit reports 2 open or partial obligations after scanning the current
 release artifacts: Safari/browser JSC rows and Firefox/SpiderMonkey emitted JIT
 IR or optimized-code dumps. The Safari/WebKit availability artifact records the
 local host availability gap while preserving that the repository has a
-safaridriver harness when safaridriver is available; it is not a benchmark row
-and not evidence that Safari/WebKit cannot be a counterexample. The
+safaridriver harness when safaridriver is available. It now also records that
+Safari benchmark rows are not recorded, the exact Safari/WebKit build identity
+is not recorded, and the Safari/WebKit source boundary is not pinned; it is not
+a benchmark row and not evidence that Safari/WebKit cannot be a counterexample. The
 Firefox/SpiderMonkey source pin,
 diagnostic no-dump attempt, and local js-shell availability audit narrow the
 codegen route. The regenerated coverage audit now preserves the exact local
@@ -668,10 +670,16 @@ prototype described above.
 `packages/benchmark/results/release/safari-webkit-availability-audit.md` is an
 `ENVIRONMENT_FACT_LIMIT` artifact for the current host and repository harness.
 It records `win32-x64`, no local Safari executable, no `safaridriver`, and
-`Current harness supports Safari/WebKit: yes`. The existing browser harness
-family now supports Chrome/Edge through CDP, Firefox through built-in WebDriver
-BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper when
-`safaridriver` is available, including the cross-process stability runner.
+`Current harness supports Safari/WebKit: yes`. It also records the current
+source-boundary state explicitly: `Safari benchmark rows recorded: no`,
+`Exact Safari build identity recorded: no`, and `Safari source boundary pinned:
+no`. The existing browser harness family now supports Chrome/Edge through CDP,
+Firefox through built-in WebDriver BiDi, and Safari/WebKit through the
+safaridriver WebDriver wrapper when `safaridriver` is available, including the
+cross-process stability runner. The audit preserves the relevant environment
+probes and points to both Safari harness entry points:
+`safari-webdriver-candidate-headroom.mjs` and
+`browser-candidate-headroom-cross-process.mjs`.
 
 This explains why the current local counterexample search still has zero
 Safari/WebKit browser benchmark rows. It does not close the

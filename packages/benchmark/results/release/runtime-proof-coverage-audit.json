@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T21:15:09.786Z",
+  "generatedAt": "2026-05-26T21:19:55.014Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -19,6 +19,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -35,6 +36,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -50,6 +52,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -72,6 +75,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -94,6 +98,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -115,6 +120,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -129,6 +135,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -143,6 +150,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -158,6 +166,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -180,6 +189,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -202,6 +212,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -224,6 +235,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -246,6 +258,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -268,6 +281,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -290,6 +304,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -312,6 +327,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -334,6 +350,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -349,6 +366,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -371,6 +389,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -394,6 +413,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -417,6 +437,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -439,6 +460,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -461,6 +483,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -483,6 +506,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -505,6 +529,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -527,6 +552,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -549,6 +575,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -571,6 +598,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -593,6 +621,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -615,6 +644,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -637,6 +667,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-cycle",
@@ -659,6 +690,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated-diverse-cycle",
@@ -681,6 +713,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -698,6 +731,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -722,6 +756,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -738,6 +773,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -755,6 +791,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -779,6 +816,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -802,6 +840,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -815,6 +854,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -832,6 +872,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -855,6 +896,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -870,6 +912,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -892,6 +935,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -915,6 +959,7 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -930,6 +975,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -952,6 +998,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -974,6 +1021,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -997,6 +1045,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1013,6 +1062,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1029,6 +1079,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1045,6 +1096,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1061,6 +1113,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1078,6 +1131,7 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1093,6 +1147,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1115,6 +1170,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1137,6 +1193,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -1159,6 +1216,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1181,6 +1239,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1204,6 +1263,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1219,6 +1279,7 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1233,6 +1294,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1252,6 +1314,7 @@
       },
       "evidenceKinds": [],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1274,6 +1337,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-cycle",
@@ -1296,6 +1360,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated-diverse-cycle",
@@ -1319,6 +1384,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1334,6 +1400,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -1356,6 +1423,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1378,6 +1446,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1401,6 +1470,7 @@
       "runtimes": [
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "self-generated",
@@ -1423,6 +1493,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-cycle",
@@ -1447,6 +1518,7 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1464,6 +1536,7 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1479,6 +1552,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated-diverse-cycle",
@@ -1501,6 +1575,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -1516,6 +1591,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1540,6 +1616,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1564,6 +1641,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1588,6 +1666,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1610,6 +1689,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1632,6 +1712,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1654,6 +1735,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1678,6 +1760,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1700,6 +1783,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file-backed",
@@ -1720,6 +1804,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1742,6 +1827,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file-backed",
@@ -1766,6 +1852,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1788,6 +1875,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1810,6 +1898,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1834,6 +1923,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -1857,6 +1947,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file-backed",
@@ -1879,6 +1970,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -1901,6 +1993,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -1923,6 +2016,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -1945,6 +2039,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1967,6 +2062,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -1989,6 +2085,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -2011,6 +2108,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2033,6 +2131,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -2055,6 +2154,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2077,6 +2177,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -2099,6 +2200,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": {
         "status": "timeout",
         "completed": null,
@@ -2122,6 +2224,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2139,6 +2242,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": {
         "status": "no-dump-emitted",
         "completed": true,
@@ -2162,6 +2266,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2179,6 +2284,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": {
         "status": "not-found",
         "completed": null,
@@ -2201,6 +2307,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2218,6 +2325,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -2240,6 +2348,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2256,6 +2365,7 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2271,6 +2381,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2293,6 +2404,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2315,6 +2427,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2337,6 +2450,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2359,6 +2473,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2385,6 +2500,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2399,6 +2515,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2413,6 +2530,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2427,6 +2545,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2442,6 +2561,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2463,6 +2583,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2478,6 +2599,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2500,6 +2622,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2522,6 +2645,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -2543,6 +2667,7 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2558,6 +2683,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -2581,6 +2707,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2596,6 +2723,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -2618,6 +2746,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2646,6 +2775,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2662,6 +2792,7 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -2685,6 +2816,7 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -2708,6 +2840,7 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2725,6 +2858,7 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2742,6 +2876,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2759,6 +2894,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2781,6 +2917,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -2801,6 +2938,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2816,6 +2954,12 @@
       "runtimes": [
         "safari-jsc-browser"
       ],
+      "availability": {
+        "canRunSafariBrowserRows": false,
+        "safariBenchmarkRowsRecorded": false,
+        "exactSafariBuildIdentityRecorded": false,
+        "safariSourceBoundaryPinned": false
+      },
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2832,6 +2976,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -2855,6 +3000,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -2878,6 +3024,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -2901,6 +3048,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -2923,6 +3071,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -2946,6 +3095,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -2961,6 +3111,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -2983,6 +3134,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3003,6 +3155,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3023,6 +3176,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3045,6 +3199,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3065,6 +3220,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3087,6 +3243,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3109,6 +3266,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": null,
@@ -3131,6 +3289,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3153,6 +3312,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3175,6 +3335,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3197,6 +3358,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3219,6 +3381,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3241,6 +3404,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3263,6 +3427,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3286,6 +3451,7 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -3301,6 +3467,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3323,6 +3490,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3345,6 +3513,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3367,6 +3536,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3389,6 +3559,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3411,6 +3582,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3433,6 +3605,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3456,6 +3629,7 @@
         "node-v8",
         "bun-jsc"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -3471,6 +3645,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3493,6 +3668,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "corpus-file",
@@ -3515,6 +3691,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3537,6 +3714,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "generated",
@@ -3559,6 +3737,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -3581,6 +3760,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "self-generated",
@@ -3601,6 +3781,7 @@
       "runtimes": [
         "node-v8"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": null,
       "corpusSeed": null,
@@ -3617,6 +3798,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -3640,6 +3822,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -3663,6 +3846,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -3686,6 +3870,7 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "availability": null,
       "outcome": null,
       "fixture": {
         "source": "file",
@@ -18420,6 +18605,7 @@
         "runtimes": [
           "chrome-v8-browser"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18444,6 +18630,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18468,6 +18655,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -18485,6 +18673,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18509,6 +18698,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18532,6 +18722,7 @@
         "runtimes": [
           "deno-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "self-generated",
@@ -18555,6 +18746,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file-backed",
@@ -18579,6 +18771,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18601,6 +18794,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "self-generated",
@@ -18624,6 +18818,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18649,6 +18844,7 @@
         "runtimes": [
           "chrome-v8-browser"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18672,6 +18868,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -18689,6 +18886,7 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18711,6 +18909,7 @@
         "runtimes": [
           "deno-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18734,6 +18933,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -18750,6 +18950,7 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18773,6 +18974,7 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18795,6 +18997,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": null,
@@ -18817,6 +19020,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": null,
@@ -18839,6 +19043,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18861,6 +19066,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "generated",
@@ -18883,6 +19089,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18906,6 +19113,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18929,6 +19137,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18952,6 +19161,7 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "file",
@@ -18978,6 +19188,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "availability": null,
         "outcome": {
           "status": "not-found",
           "completed": null,
@@ -19000,6 +19211,12 @@
         "runtimes": [
           "safari-jsc-browser"
         ],
+        "availability": {
+          "canRunSafariBrowserRows": false,
+          "safariBenchmarkRowsRecorded": false,
+          "exactSafariBuildIdentityRecorded": false,
+          "safariSourceBoundaryPinned": false
+        },
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19016,6 +19233,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19030,6 +19248,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19044,6 +19263,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19058,6 +19278,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19073,6 +19294,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "availability": null,
         "outcome": {
           "status": "timeout",
           "completed": null,
@@ -19097,6 +19319,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "availability": null,
         "outcome": {
           "status": "no-dump-emitted",
           "completed": true,
@@ -19121,6 +19344,7 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "availability": null,
         "outcome": {
           "status": "not-found",
           "completed": null,
@@ -19147,6 +19371,7 @@
           "woodstox-jvm",
           "quick-xml-rust"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19161,6 +19386,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19175,6 +19401,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19189,6 +19416,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19203,6 +19431,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19219,6 +19448,7 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19236,6 +19466,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
@@ -19253,6 +19484,7 @@
         "runtimes": [
           "node-v8"
         ],
+        "availability": null,
         "outcome": null,
         "fixture": {
           "source": "corpus-file",
@@ -19276,6 +19508,7 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "availability": null,
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,

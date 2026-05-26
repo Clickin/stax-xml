@@ -649,6 +649,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'safari-webkit-availability-audit.json'
     && row.runtimes.includes('safari-jsc-browser')
   ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'safari-webkit-availability-audit.json'
+    && row.availability?.canRunSafariBrowserRows === false
+    && row.availability?.safariBenchmarkRowsRecorded === false
+    && row.availability?.exactSafariBuildIdentityRecorded === false
+    && row.availability?.safariSourceBoundaryPinned === false
+  ));
 
   assertObligation(report, 'firefox-browser-rows-open', 'covered');
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');

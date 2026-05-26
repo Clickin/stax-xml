@@ -168,12 +168,24 @@ function createArtifactRecord(sourceArtifact, root, options) {
     runtimes,
     environment: summarizeEnvironment(root.environment),
     parameters: summarizeParameters(root.parameters),
+    availability: summarizeAvailability(root.summary),
     outcome: summarizeOutcome(root.outcome),
     fixture,
     corpusSeed,
     measuredRows,
     sourcePins: classifySourcePins(sourceArtifact, root),
   };
+}
+
+function summarizeAvailability(summary = {}) {
+  if (!summary || typeof summary !== 'object') return null;
+  const availability = {
+    canRunSafariBrowserRows: typeof summary.canRunSafariBrowserRows === 'boolean' ? summary.canRunSafariBrowserRows : null,
+    safariBenchmarkRowsRecorded: typeof summary.safariBenchmarkRowsRecorded === 'boolean' ? summary.safariBenchmarkRowsRecorded : null,
+    exactSafariBuildIdentityRecorded: typeof summary.exactSafariBuildIdentityRecorded === 'boolean' ? summary.exactSafariBuildIdentityRecorded : null,
+    safariSourceBoundaryPinned: typeof summary.safariSourceBoundaryPinned === 'boolean' ? summary.safariSourceBoundaryPinned : null,
+  };
+  return Object.values(availability).some(value => value !== null) ? availability : null;
 }
 
 function summarizeParameters(parameters = {}) {
@@ -832,6 +844,7 @@ function summarizeArtifact(artifact) {
     contract: artifact.contract,
     evidenceKinds: artifact.evidenceKinds,
     runtimes: artifact.runtimes,
+    availability: artifact.availability,
     outcome: artifact.outcome,
     fixture: artifact.fixture,
     corpusSeed: artifact.corpusSeed,

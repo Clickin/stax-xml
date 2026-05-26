@@ -152,6 +152,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
   assert.match(markdown, /recognizes 988\s+sample throughput rows and 117 aggregate rows/);
+  assert.match(markdown, /Safari benchmark rows are not recorded, the exact Safari\/WebKit build identity\s+is not recorded, and the Safari\/WebKit source boundary is not pinned/);
+  assert.match(markdown, /`Safari benchmark rows recorded: no`/);
+  assert.match(markdown, /`Exact Safari build identity recorded: no`/);
+  assert.match(markdown, /`Safari source boundary pinned:\s+no`/);
+  assert.match(markdown, /`safari-webdriver-candidate-headroom\.mjs` and\s+`browser-candidate-headroom-cross-process\.mjs`/);
   assert.match(markdown, /645 JavaScript 1 GiB\+\s+full-string sample rows plus 95 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);

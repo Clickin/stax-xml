@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T01:40:03.360Z",
+  "generatedAt": "2026-05-26T21:19:00.453Z",
   "objective": "safari-webkit-availability-audit",
   "contract": "local-safari-webkit-browser-row-availability",
   "note": "ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.",
@@ -84,6 +84,18 @@
       "firefoxBidiTextDecoder": true,
       "safariWebDriver": true,
       "webkitRemoteInspector": false,
+      "entryPoints": [
+        {
+          "label": "safari smoke harness",
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\safari-webdriver-candidate-headroom.mjs",
+          "exists": true
+        },
+        {
+          "label": "cross-process browser harness",
+          "path": "G:\\programming\\stax-xml\\packages\\benchmark\\browser-candidate-headroom-cross-process.mjs",
+          "exists": true
+        }
+      ],
       "note": "Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper, including cross-process stability rows, when safaridriver is available."
     }
   },
@@ -94,6 +106,9 @@
     "safaridriverFound": false,
     "currentHarnessSupportsSafari": true,
     "canRunSafariBrowserRows": false,
+    "safariBenchmarkRowsRecorded": false,
+    "exactSafariBuildIdentityRecorded": false,
+    "safariSourceBoundaryPinned": false,
     "openObligationRemains": true
   },
   "findings": [

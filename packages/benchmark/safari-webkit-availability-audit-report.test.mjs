@@ -40,9 +40,17 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.equal(report.environment.javascriptEngine, 'JavaScriptCore');
   assert.equal(report.summary.currentHarnessSupportsSafari, true);
   assert.equal(report.summary.canRunSafariBrowserRows, false);
+  assert.equal(report.summary.safariBenchmarkRowsRecorded, false);
+  assert.equal(report.summary.exactSafariBuildIdentityRecorded, false);
+  assert.equal(report.summary.safariSourceBoundaryPinned, false);
   assert.equal(report.summary.openObligationRemains, true);
   assert.ok(report.probes.commands.some(probe => probe.name === 'safaridriver'));
   assert.ok(report.probes.paths.some(probe => probe.label === 'macOS Safari app'));
+  assert.ok(report.probes.environmentVariables.some(probe => probe.name === 'SAFARI_PATH'));
+  assert.ok(report.probes.harnessSupport.entryPoints.some(entry =>
+    entry.label === 'safari smoke harness'
+    && entry.exists === true
+  ));
   assert.ok(report.findings.some(finding =>
     finding.id === 'safari-row-obligation-remains'
     && finding.classification === 'OPEN'
@@ -54,5 +62,11 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.match(markdown, /not a benchmark row/);
   assert.match(markdown, /does not prove Safari\/WebKit cannot exceed/);
   assert.match(markdown, /Current harness supports Safari\/WebKit: yes/);
+  assert.match(markdown, /Safari benchmark rows recorded: no/);
+  assert.match(markdown, /Exact Safari build identity recorded: no/);
+  assert.match(markdown, /Safari source boundary pinned: no/);
+  assert.match(markdown, /## Environment Probes/);
+  assert.match(markdown, /SAFARI_PATH/);
+  assert.match(markdown, /safari smoke harness/);
   assert.match(markdown, /Open obligation remains: yes/);
 });
