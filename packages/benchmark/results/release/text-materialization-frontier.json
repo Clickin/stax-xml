@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T16:17:52.687Z",
+  "generatedAt": "2026-05-26T18:38:59.562Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -22,7 +22,8 @@
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-guard-candidate.json",
       "text-ascii-pretrim-candidate.json",
-      "all-ascii-span-materialization-candidate.json"
+      "all-ascii-span-materialization-candidate.json",
+      "semantic-checksum-upper-bound.json"
     ]
   },
   "summary": {
@@ -30,7 +31,7 @@
     "scaledArtifactCount": 4,
     "fullRowCount": 4,
     "nearFullWithoutTextRowCount": 4,
-    "negativeCandidateCount": 13,
+    "negativeCandidateCount": 14,
     "fastestFull": {
       "id": "rawFrameNameId",
       "role": "full",
@@ -1612,6 +1613,78 @@
       "candidatePreservesFullStringParity": true,
       "candidateCrossesTarget": false,
       "rejectedForFullTarget": true
+    },
+    {
+      "family": "direct-semantic-byte-checksum",
+      "sourceArtifact": "semantic-checksum-upper-bound.json",
+      "control": {
+        "id": "rawFrameNameId",
+        "role": "full",
+        "sourceArtifact": "semantic-checksum-upper-bound.json",
+        "sizeGiB": 1,
+        "mibPerSec": 88.07,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976,
+        "counters": {
+          "stringFieldReads": 62758976,
+          "nameStringReads": 40109120,
+          "textStringReads": 16987392,
+          "attrNameStringReads": 2831232,
+          "attrValueStringReads": 2831232,
+          "rawSpanMaterializations": 19818633,
+          "rawTextSpanMaterializations": 16987392,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": 0,
+          "unrolledMediumAsciiTextFallbacks": 0,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
+        }
+      },
+      "candidate": {
+        "id": "rawFrameSemanticChecksum",
+        "role": "negative-candidate",
+        "sourceArtifact": "semantic-checksum-upper-bound.json",
+        "sizeGiB": 1,
+        "mibPerSec": 92.03,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "textStringReads": 0,
+        "stringFieldReads": 0,
+        "counters": {
+          "stringFieldReads": 0,
+          "nameStringReads": 0,
+          "textStringReads": 0,
+          "attrNameStringReads": 0,
+          "attrValueStringReads": 0,
+          "rawSpanMaterializations": 0,
+          "rawTextSpanMaterializations": 0,
+          "rawValueCacheHits": 0,
+          "rawValueCacheMisses": 0,
+          "longAsciiTextHits": 0,
+          "longAsciiTextFallbacks": 0,
+          "mediumAsciiTextHits": 0,
+          "mediumAsciiTextFallbacks": 0,
+          "unrolledMediumAsciiTextHits": 0,
+          "unrolledMediumAsciiTextFallbacks": 0,
+          "textTrimGuardSkips": 0,
+          "textTrimGuardFallbacks": 0
+        }
+      },
+      "candidateToControlRatio": 1.05,
+      "candidatePreservesFullStringParity": false,
+      "candidateCrossesTarget": false,
+      "rejectedForFullTarget": true
     }
   ],
   "findings": [
@@ -1663,7 +1736,8 @@
         "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s",
         "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s",
         "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s",
-        "all-ascii-span-materialization: candidate/control=0.63x, candidate=68.63 MiB/s"
+        "all-ascii-span-materialization: candidate/control=0.63x, candidate=68.63 MiB/s",
+        "direct-semantic-byte-checksum: candidate/control=1.05x, candidate=92.03 MiB/s"
       ]
     },
     {

@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-26T16:17:52.687Z
+Generated: 2026-05-26T18:38:59.562Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -50,6 +50,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | text-trim-boundary-guard | 109.66 | 109.56 | 1.00x | yes | no | yes |
 | ascii-byte-pretrim-before-decode | 107.10 | 106.35 | 0.99x | yes | no | yes |
 | all-ascii-span-materialization | 109.64 | 68.63 | 0.63x | yes | no | yes |
+| direct-semantic-byte-checksum | 88.07 | 92.03 | 1.05x | no | no | yes |
 
 ## Findings
 
@@ -80,6 +81,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s
   - ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s
   - all-ascii-span-materialization: candidate/control=0.63x, candidate=68.63 MiB/s
+  - direct-semantic-byte-checksum: candidate/control=1.05x, candidate=92.03 MiB/s
 - not-a-counterexample (SCOPE_GUARD): Rows that omit text/CDATA strings identify headroom but are not full-string StAX counterexamples.
   - fullRowsCrossTarget=0
   - withoutTextRowsCrossTarget=4

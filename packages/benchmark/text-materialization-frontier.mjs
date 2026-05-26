@@ -94,6 +94,12 @@ const negativeArtifacts = [
     candidateId: 'rawFrameNameIdAllAsciiSpans',
     family: 'all-ascii-span-materialization',
   },
+  {
+    file: 'semantic-checksum-upper-bound.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameSemanticChecksum',
+    family: 'direct-semantic-byte-checksum',
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
