@@ -1000,12 +1000,13 @@ iterable path is headroom evidence, not a 200 MiB/s full-StAX counterexample.
 `packages/benchmark/results/release/file-backed-core-decomposition.md` now runs
 the same 1.00 GiB file-backed source shape used by the fastest source sweep
 candidate (`chunkKiB=32`, `batchSize=4`) through parser-core consumption rows.
-`stax-scan-all-no-decode` reaches 237.08 MiB/s with bounded RSS, but it drops
-the full-string checksum contract and changes the checksum to `-1830981171`.
-The same artifact records `stax-raw-frame-semantic-checksum` at 142.07 MiB/s,
-`stax-stream` at 144.41 MiB/s, and full-string `stax-raw-frame-name-id` at
-148.64 MiB/s with the shared full checksum `-716099804`. This proves that the
-optimized file-backed parser scan has 200 MiB/s+ partial headroom, while the
+`stax-scan-all-no-decode` reaches 216.08 MiB/s and
+`stax-raw-frame-span-stats` reaches 210.19 MiB/s with bounded RSS, but both drop
+the full-string checksum contract. The same artifact records
+`stax-raw-frame-semantic-checksum` at 132.13 MiB/s, public `stax-stream` at
+125.99 MiB/s, and full-string `stax-raw-frame-name-id` at 129.66 MiB/s with the
+shared event count `61,236,571` and full checksum `-716099804`. This proves that
+the optimized file-backed parser scan has 200 MiB/s+ partial headroom, while the
 full-string rows in the same source shape remain below the counterexample
 threshold and below the same-fixture Woodstox target.
 

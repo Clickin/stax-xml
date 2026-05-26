@@ -177,14 +177,14 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.partialHeadroomRows.some(row =>
     row.sourceArtifact === 'file-backed-core-decomposition.json'
     && row.id === 'stax-scan-all-no-decode'
-    && row.mibPerSec === 234.57
+    && row.mibPerSec === 216.08
     && row.fullStringParity === false
     && row.contractScope === 'partial-scan-no-string-materialization'
   ));
   assert.ok(report.partialHeadroomRows.some(row =>
     row.sourceArtifact === 'file-backed-core-decomposition.json'
     && row.id === 'stax-raw-frame-span-stats'
-    && row.mibPerSec === 240.08
+    && row.mibPerSec === 210.19
     && row.fullStringParity === false
     && row.contractScope === 'partial-raw-frame-span-metadata-no-string-materialization'
   ));

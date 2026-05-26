@@ -647,8 +647,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Node\/V8 `syncIterableBatch16` averaged `77\.67 MiB\/s` with `2\.5%` spread\s+and `syncFileIterableBatch16` averaged `68\.92 MiB\/s` with `1\.2%` spread/);
   assert.match(markdown, /Bun\/JSC\s+averaged `51\.46 MiB\/s` and `49\.41 MiB\/s`; Deno\/V8 averaged `67\.09 MiB\/s` and\s+`61\.75 MiB\/s`/);
   assert.match(markdown, /file-backed-core-decomposition\.md` now runs\s+the same 1\.00 GiB file-backed source shape used by the fastest source sweep\s+candidate \(`chunkKiB=32`, `batchSize=4`\)/);
-  assert.match(markdown, /`stax-scan-all-no-decode` reaches 237\.08 MiB\/s with bounded RSS, but it drops\s+the full-string checksum contract and changes the checksum to `-1830981171`/);
-  assert.match(markdown, /full-string `stax-raw-frame-name-id` at\s+148\.64 MiB\/s with the shared full checksum `-716099804`/);
+  assert.match(markdown, /`stax-scan-all-no-decode` reaches 216\.08 MiB\/s and\s+`stax-raw-frame-span-stats` reaches 210\.19 MiB\/s with bounded RSS, but both drop\s+the full-string checksum contract/);
+  assert.match(markdown, /public `stax-stream` at\s+125\.99 MiB\/s, and full-string `stax-raw-frame-name-id` at 129\.66 MiB\/s with the\s+shared event count `61,236,571` and full checksum `-716099804`/);
   assert.match(markdown, /file-backed-fold-trim-candidate\.md` records\s+`stax-raw-frame-name-id` at 138\.13 MiB\/s and\s+`stax-raw-frame-name-id-fold-trim` at 113\.11 MiB\/s with the same full checksum/);
   assert.match(markdown, /file-backed-string-cache-candidate\.md` records\s+`stax-raw-frame-name-id` at 137\.51 MiB\/s and `stax-raw-frame-string-cache` at\s+49\.64 MiB\/s with max RSS 616\.98 MiB/);
   assert.match(markdown, /file-backed-short-attr-value-cache-candidate\.md` narrows the cache idea to\s+attribute values with byte length at most four/);
