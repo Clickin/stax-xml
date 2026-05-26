@@ -1,18 +1,18 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T00:26:40.752Z
+Generated: 2026-05-26T01:52:35.369Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 128
-- 1 GiB+ JavaScript full-string rows: 111
+- Aggregated rows: 132
+- 1 GiB+ JavaScript full-string rows: 115
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Bun/JSC rawFrameNameId at 178.52 MiB/s (process RSS max 189.37 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.89x, 21.48 MiB/s remaining
 - Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.94x Woodstox, -6.87 MiB/s below 0.9x reference target
-- Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0.43x Woodstox, 164.70 MiB/s below 0.9x target
+- Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0.43x Woodstox, 164.29 MiB/s below 0.9x target
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - 16 MiB Woodstox baseline: 303.10 MiB/s
@@ -43,7 +43,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB | `sync-iterable-byte-batches` |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` |
 | `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB | `sync-iterable-byte-batches` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-16` | 150.90 | yes | process RSS max 69.70 MiB | `file-backed-sync-iterable-byte-batches` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-8` | 152.11 | yes | process RSS max 61.77 MiB | `file-backed-sync-iterable-byte-batches` |
 | `file-backed-source-sweep` | Node/V8 | `stax-raw-frame-name-id-chunk-32kib` | 151.70 | yes | process RSS max 59.23 MiB | `file-backed-sync-iterable-byte-batches` |
 
 ## Selected Comparison Rows
@@ -156,16 +156,20 @@ This report aggregates existing release artifacts. It compares rows only through
 | `cross-process-large-asset-corpus` | Bun/JSC | `stringFull` | 83635224 | -2136498212 | 99.71 | no | process RSS max 1956.69 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
 | `cross-process-large-asset-corpus` | Bun/JSC | `eventObjectFull` | 83635224 | -2136498212 | 62.79 | no | process RSS max 1849.16 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
 | `cross-process-large-asset-corpus` | Bun/JSC | `rawFrameNameId` | 83635224 | -2136498212 | 82.95 | no | process RSS max 1849.75 MiB | `sync-iterable-byte-batches` | `candidate-headroom-cross-process-large-asset-corpus.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-1` | 61236571 | -716099804 | 131.66 | yes | process RSS max 60.77 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-1` | 61236571 | -716099804 | 142.19 | yes | process RSS max 66.44 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-2` | 61236571 | -716099804 | 133.61 | yes | process RSS max 60.72 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-2` | 61236571 | -716099804 | 142.79 | yes | process RSS max 66.99 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-4` | 61236571 | -716099804 | 133.46 | yes | process RSS max 61.36 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-4` | 61236571 | -716099804 | 141.27 | yes | process RSS max 67.03 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-8` | 61236571 | -716099804 | 124.50 | yes | process RSS max 61.86 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-8` | 61236571 | -716099804 | 150.60 | yes | process RSS max 68.58 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-16` | 61236571 | -716099804 | 128.93 | yes | process RSS max 96.54 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
-| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-16` | 61236571 | -716099804 | 150.90 | yes | process RSS max 69.70 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-1` | 61236571 | -716099804 | 140.55 | yes | process RSS max 60.19 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-1` | 61236571 | -716099804 | 130.09 | yes | process RSS max 60.42 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-2` | 61236571 | -716099804 | 139.20 | yes | process RSS max 60.55 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-2` | 61236571 | -716099804 | 130.30 | yes | process RSS max 60.83 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-4` | 61236571 | -716099804 | 140.89 | yes | process RSS max 60.95 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-4` | 61236571 | -716099804 | 130.57 | yes | process RSS max 61.64 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-8` | 61236571 | -716099804 | 138.89 | yes | process RSS max 60.25 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-8` | 61236571 | -716099804 | 152.11 | yes | process RSS max 61.77 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-16` | 61236571 | -716099804 | 144.45 | yes | process RSS max 95.80 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-16` | 61236571 | -716099804 | 148.07 | yes | process RSS max 63.54 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-32` | 61236571 | -716099804 | 136.20 | yes | process RSS max 98.45 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-32` | 61236571 | -716099804 | 148.69 | yes | process RSS max 69.52 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-stream-batch-64` | 61236571 | -716099804 | 136.92 | yes | process RSS max 121.50 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
+| `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-64` | 61236571 | -716099804 | 148.68 | yes | process RSS max 87.03 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-batch-size-sweep.json` |
 | `file-backed-source-sweep` | Node/V8 | `stax-stream-chunk-16kib` | 61236571 | -716099804 | 135.59 | yes | process RSS max 59.01 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-source-sweep.json` |
 | `file-backed-source-sweep` | Node/V8 | `stax-raw-frame-name-id-chunk-16kib` | 61236571 | -716099804 | 149.22 | yes | process RSS max 59.05 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-source-sweep.json` |
 | `file-backed-source-sweep` | Node/V8 | `stax-stream-chunk-32kib` | 61236571 | -716099804 | 139.10 | yes | process RSS max 59.11 MiB | `file-backed-sync-iterable-byte-batches` | `file-backed-source-sweep.json` |
@@ -196,7 +200,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=111
+  - jsLargeFullRows=115
   - counterexamples=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - 16MiB woodstox=303.10 MiB/s
@@ -208,7 +212,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - 1024MiB rawFrameNameId/Woodstox=0.40
   - 1024MiB woodstox=190.72 MiB/s
   - 1024MiB quick-xml=150.24 MiB/s
-  - same-fixture-fastest-js=stax-raw-frame-name-id-chunk-32kib
+  - same-fixture-fastest-js=stax-raw-frame-name-id-batch-8
   - same-fixture-fastest-js/Woodstox=0.43
   - same-fixture-0.9x-target-met=false
 

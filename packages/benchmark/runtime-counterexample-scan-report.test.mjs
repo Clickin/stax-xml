@@ -37,12 +37,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
-  assert.equal(report.summary.measuredRowCount, 780);
+  assert.equal(report.summary.measuredRowCount, 784);
   assert.equal(report.summary.aggregateRowCount, 89);
-  assert.equal(report.summary.largeJsFullRowCount, 482);
+  assert.equal(report.summary.largeJsFullRowCount, 486);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
-  assert.equal(report.summary.sourceModeRowCount, 203);
-  assert.equal(report.summary.largeJsFullSourceModeRowCount, 152);
+  assert.equal(report.summary.sourceModeRowCount, 207);
+  assert.equal(report.summary.largeJsFullSourceModeRowCount, 156);
   assert.equal(report.summary.partialHeadroomRowCount, 23);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 3);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
@@ -302,12 +302,12 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'file-backed-sync-iterable-byte-batches'
-    && entry.rowCount === 41
-    && entry.boundedFullStringRowCount === 40
-    && entry.fastestRow.sourceArtifact === 'file-backed-source-sweep.json'
-    && entry.fastestRow.id === 'stax-raw-frame-name-id-chunk-32kib'
-    && entry.fastestMiBPerSec === 151.7
-    && entry.demandDrivenRows === 41
+    && entry.rowCount === 45
+    && entry.boundedFullStringRowCount === 44
+    && entry.fastestRow.sourceArtifact === 'file-backed-batch-size-sweep.json'
+    && entry.fastestRow.id === 'stax-raw-frame-name-id-batch-8'
+    && entry.fastestMiBPerSec === 152.11
+    && entry.demandDrivenRows === 45
     && entry.backpressureRows === 0
   ));
   assert.ok(report.summary.largeJsFullSourceModeBreakdown.some(entry =>
@@ -427,15 +427,15 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
-  assert.match(markdown, /Rows with recognized source mode: 203/);
-  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 152/);
+  assert.match(markdown, /Rows with recognized source mode: 207/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 156/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);
   assert.match(markdown, /Source Mode Breakdown For 1 GiB\+ Full-String JS Rows/);
   assert.match(markdown, /Demand-driven rows/);
   assert.match(markdown, /Stream backpressure rows/);
   assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 108 \| 108 \| 99 \| 179\.70 \| Bun\/JSC rawFrameNameId from access-shape-candidate-cross-process\.json \| 108 \| 0 \|/);
-  assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 41 \| 41 \| 40 \| 151\.70 \| Node\/V8 stax-raw-frame-name-id stax-raw-frame-name-id-chunk-32kib from file-backed-source-sweep\.json \| 41 \| 0 \|/);
+  assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 45 \| 45 \| 44 \| 152\.11 \| Node\/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep\.json \| 45 \| 0 \|/);
   assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| \d+\.\d{2} \| Bun\/JSC 3 from bun-event-reader-string-large\.json \| 0 \| 0 \|/);
   assert.match(markdown, /\| `sync-iterable-byte-batches` \| 1 \| 1 \| 1 \| 136\.79 \| Node\/V8 sync-iterable-byte-batches from stream-source-consumption-shapes\.json \| 1 \| 0 \|/);
   assert.match(markdown, /\| `web-readable-stream-pull` \| 1 \| 1 \| 1 \| 144\.06 \| Node\/V8 web-readable-stream-pull from stream-source-consumption-shapes\.json \| 1 \| 1 \|/);

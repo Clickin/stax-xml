@@ -158,7 +158,7 @@ cross-process rows, books-corpus stability rows, selected text/fold/cache
 negative stability rows, quick-xml global allocator counters, and Woodstox JFR
 sampled allocation artifacts.
 
-The current aggregate has 124 aggregated rows and 109 JavaScript 1 GiB+
+The current aggregate has 132 aggregated rows and 115 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Bun/JSC `rawFrameNameId` from
@@ -178,10 +178,10 @@ that ratio is a target-distance reference rather than an identical-input target
 pass. The same-fixture 1024 MiB JS row vs Woodstox target now includes the
 file-backed source, batch-size sweep, short attr-value cache, and trim-boundary
 candidate rows:
-`stax-raw-frame-name-id-chunk-32kib` is fastest at 151.70 MiB/s. Against the
+`stax-raw-frame-name-id-batch-8` is fastest at 152.11 MiB/s. Against the
 fastest same-fixture Woodstox row now present in release artifacts
 (`file-backed-trim-boundary-check-candidate.json`, 351.56 MiB/s), that is
-0.43x Woodstox and 164.70 MiB/s below the 0.9x target. This remains below the
+0.43x Woodstox and 164.29 MiB/s below the 0.9x target. This remains below the
 0.9x target. For the
 public event-object shape, the fastest bounded row is
 Node/V8 `eventObjectFull` from
@@ -216,8 +216,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 141 primary release JSON artifacts, recognizes 775
-sample throughput rows and 89 aggregate rows, and finds 480 JavaScript 1 GiB+
+The current scan covers 141 primary release JSON artifacts, recognizes 784
+sample throughput rows and 89 aggregate rows, and finds 486 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is a Bun/JSC `rawFrameNameId` fresh-process
@@ -230,7 +230,7 @@ individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 152 JavaScript 1 GiB+
+or their source contract carry it. It now finds 156 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -284,10 +284,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 144 primary release artifacts and recognizes 780
+The current audit scans 144 primary release artifacts and recognizes 784
 measured rows. It records 102 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-11 negative-result artifacts, 482 JavaScript 1 GiB+ full-string rows, and three
+11 negative-result artifacts, 486 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -383,6 +383,21 @@ and bounded RSS, and none approached the 200 MiB/s counterexample threshold.
 This does not prove batching cannot be improved by changing the parser core to
 scan chunk arrays without concatenation, but it closes the current
 configuration as a counterexample candidate.
+
+`packages/benchmark/results/release/file-backed-batch-size-sweep.md` then
+extends the same file-backed `Iterable<Uint8Array[]>` hypothesis under the
+1024 MiB fixture, 32 KiB chunks, full-string checksum parity, and demand-driven
+sync parser contract from batch sizes 1, 2, 4, 8, and 16 to include 32 and 64.
+The rerun records 14 rows and still finds zero bounded-memory 200 MiB/s
+full-string JavaScript counterexamples. The fastest row is now
+`stax-raw-frame-name-id-batch-8` at `152.11 MiB/s` with `61.77 MiB` max RSS.
+Larger groups did not expose hidden headroom: `stax-raw-frame-name-id-batch-32`
+reported `148.69 MiB/s` with `69.52 MiB` RSS, and
+`stax-raw-frame-name-id-batch-64` reported `148.68 MiB/s` with `87.03 MiB`
+RSS. The public `stax-stream` rows also stayed below the target while larger
+batches increased memory (`98.45 MiB` at batch 32 and `121.50 MiB` at batch
+64). This keeps the source-shape evidence on the sync byte-batch path rather
+than reclassifying it as direct `ReadableStream` consumption.
 
 `packages/benchmark/results/release/multi-chunk-batch-shape-audit.md` pins the
 source side of the same result. It checks both `IterableReader.ts` and

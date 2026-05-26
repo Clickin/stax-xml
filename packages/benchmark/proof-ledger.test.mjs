@@ -127,7 +127,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /The traced rows preserved the full-string contract across\s+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,\s+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`/);
   assert.match(markdown, /18\s+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target\s+mentions/);
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
-  assert.match(markdown, /124 aggregated rows and 109 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /132 aggregated rows and 115 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Bun\/JSC `rawFrameNameId` from\s+`bun-candidate-headroom-books-corpus-stability\.json` at 178\.52 MiB\/s/);
   assert.match(markdown, /177\.26 to 180\.10 MiB\/s/);
@@ -137,14 +137,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /0\.89x of the 200 MiB\/s target and\s+0\.94x of the 1024 MiB Woodstox reference/);
   assert.match(markdown, /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/);
   assert.match(markdown, /same-fixture 1024 MiB JS row vs Woodstox target now includes the\s+file-backed source, batch-size sweep, short attr-value cache, and trim-boundary\s+candidate rows/);
-  assert.match(markdown, /`file-backed-trim-boundary-check-candidate\.json`, 351\.56 MiB\/s\), that is\s+0\.43x Woodstox and 164\.70 MiB\/s below the 0\.9x target/);
+  assert.match(markdown, /`file-backed-trim-boundary-check-candidate\.json`, 351\.56 MiB\/s\), that is\s+0\.43x Woodstox and 164\.29 MiB\/s below the 0\.9x target/);
   assert.match(markdown, /This remains below the\s+0\.9x target/);
   assert.match(markdown, /For the\s+public event-object shape, the fastest bounded row is\s+Node\/V8 `eventObjectFull` from\s+`candidate-headroom-books-corpus-stability\.json` at 141\.62 MiB\/s/);
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 775\s+sample throughput rows and 89 aggregate rows/);
-  assert.match(markdown, /480 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
+  assert.match(markdown, /recognizes 784\s+sample throughput rows and 89 aggregate rows/);
+  assert.match(markdown, /486 JavaScript 1 GiB\+\s+full-string sample rows plus 69 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
   assert.match(markdown, /unknown bounded-memory set contains 4 JavaScript rows, 20\s+full-string rows, 0 JavaScript 1 GiB\+\s+full-string rows, and 10 rows that have\s+raw memory counters/);
@@ -155,7 +155,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with\s+memory proof is the same Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average\s+over 3 samples with 3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
-  assert.match(markdown, /152 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
+  assert.match(markdown, /156 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
   assert.match(markdown, /generated-sync bucket now has 108 JavaScript 1 GiB\+ full-string rows,\s+99 of them bounded/);
   assert.match(markdown, /[Tt]he fastest source-mode-classified row is\s+Bun\/JSC\s+`rawFrameNameId` from `access-shape-candidate-cross-process\.json` at\s+179\.70 MiB\/s/);
   assert.match(markdown, /`complete-js-string`/);
@@ -172,7 +172,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);
-  assert.match(markdown, /recognizes 780\s+measured rows/);
+  assert.match(markdown, /recognizes 784\s+measured rows/);
   assert.match(markdown, /102 benchmark artifacts, 16 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+11 negative-result artifacts/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
@@ -202,6 +202,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` averaged `92\.49 MiB\/s`/);
+  assert.match(markdown, /file-backed-batch-size-sweep\.md/);
+  assert.match(markdown, /from batch sizes 1, 2, 4, 8, and 16 to include 32 and 64/);
+  assert.match(markdown, /`stax-raw-frame-name-id-batch-8` at `152\.11 MiB\/s` with `61\.77 MiB` max RSS/);
+  assert.match(markdown, /`stax-raw-frame-name-id-batch-64` reported `148\.68 MiB\/s` with `87\.03 MiB`\s+RSS/);
+  assert.match(markdown, /This keeps the source-shape evidence on the sync byte-batch path/);
   assert.match(markdown, /multi-chunk-batch-shape-audit\.md/);
   assert.match(markdown, /single-buffer span\s+model/);
   assert.match(markdown, /segmented-buffer abstraction/);
