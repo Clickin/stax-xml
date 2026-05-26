@@ -78,6 +78,7 @@ function createReport(audit, options) {
       reason: 'No concrete external-run handoff is defined yet for this obligation.',
       nextExperiment: obligation.nextExperiment ?? null,
     }));
+  const summary = createSummary(activeObligations, localClosure, handoffs, unhandledObligations);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -90,6 +91,7 @@ function createReport(audit, options) {
       auditObjective: audit.objective,
       auditContract: audit.contract,
     },
+    summary,
     auditSummary: {
       artifactCount: audit.scannedArtifacts?.length ?? null,
       measuredRows: audit.summary?.measuredRowCount ?? audit.summary?.measuredRows ?? audit.rowCount ?? null,
@@ -105,6 +107,35 @@ function createReport(audit, options) {
     handoffs,
     unhandledObligations,
     findings: createFindings(activeObligations, handoffs, unhandledObligations),
+  };
+}
+
+function createSummary(activeObligations, localClosure, handoffs, unhandledObligations) {
+  const externalRunRequiredCount = localClosure
+    .filter(item => item.localStatus === 'external-run-required' || item.localRunnable === false)
+    .length;
+  const localRunnableCount = localClosure
+    .filter(item => item.localRunnable === true)
+    .length;
+  const localStatusCounts = countBy(localClosure, item => item.localStatus ?? 'unknown');
+  const handoffClassificationCounts = countBy(handoffs, handoff => handoff.classification ?? 'UNKNOWN');
+
+  return {
+    activeObligationCount: activeObligations.length,
+    handoffCount: handoffs.length,
+    unhandledObligationCount: unhandledObligations.length,
+    localClosureCount: localClosure.length,
+    externalRunRequiredCount,
+    localRunnableCount,
+    localStatusCounts,
+    handoffClassificationCounts,
+    sourceConsumptionPrimary: 'synchronous Iterable<Uint8Array[]> byte batches',
+    directReadableStreamScope: 'separate source-overhead evidence only',
+    directReadableStreamBackpressureRequired: true,
+    conclusionAllowed: false,
+    conclusionBlocker: activeObligations.length === 0
+      ? 'No active obligations remain, but this handoff report is not a runtime-limit conclusion artifact.'
+      : 'Open or partial obligations still require external runtime evidence before any runtime-limit conclusion.',
   };
 }
 
@@ -308,6 +339,18 @@ function renderMarkdown(report) {
     `- Audit generated: ${report.inputs.auditGeneratedAt}`,
     `- Active obligations: ${report.auditSummary.activeObligations.length}`,
     '',
+    '## Summary',
+    '',
+    `- Handoffs: ${report.summary.handoffCount}`,
+    `- Unhandled obligations: ${report.summary.unhandledObligationCount}`,
+    `- External-run required closures: ${report.summary.externalRunRequiredCount}`,
+    `- Locally runnable closures: ${report.summary.localRunnableCount}`,
+    `- Primary source consumption: ${report.summary.sourceConsumptionPrimary}`,
+    `- Direct ReadableStream scope: ${report.summary.directReadableStreamScope}`,
+    `- Direct ReadableStream backpressure required: ${report.summary.directReadableStreamBackpressureRequired ? 'yes' : 'no'}`,
+    `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
+    `- Conclusion blocker: ${report.summary.conclusionBlocker}`,
+    '',
     '## Active Obligations',
     '',
   ];
@@ -400,6 +443,15 @@ function formatNullableBoolean(value) {
   if (value === true) return 'yes';
   if (value === false) return 'no';
   return 'unknown';
+}
+
+function countBy(values, keyOf) {
+  const counts = {};
+  for (const value of values) {
+    const key = keyOf(value);
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return counts;
 }
 
 function printSummary(report) {

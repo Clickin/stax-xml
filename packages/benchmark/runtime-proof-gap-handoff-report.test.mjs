@@ -52,6 +52,19 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   const activeObligations = audit.obligations.filter(obligation => obligation.status !== 'covered');
   assert.equal(report.objective, 'runtime-proof-gap-handoff');
   assert.equal(report.contract, 'external-proof-gap-runbook-linked-to-coverage-audit');
+  assert.equal(report.summary.activeObligationCount, activeObligations.length);
+  assert.equal(report.summary.handoffCount, 2);
+  assert.equal(report.summary.unhandledObligationCount, 0);
+  assert.equal(report.summary.localClosureCount, 2);
+  assert.equal(report.summary.externalRunRequiredCount, 2);
+  assert.equal(report.summary.localRunnableCount, 0);
+  assert.deepEqual(report.summary.localStatusCounts, { 'external-run-required': 2 });
+  assert.deepEqual(report.summary.handoffClassificationCounts, { EXTERNAL_RUN_REQUIRED: 2 });
+  assert.equal(report.summary.sourceConsumptionPrimary, 'synchronous Iterable<Uint8Array[]> byte batches');
+  assert.equal(report.summary.directReadableStreamScope, 'separate source-overhead evidence only');
+  assert.equal(report.summary.directReadableStreamBackpressureRequired, true);
+  assert.equal(report.summary.conclusionAllowed, false);
+  assert.match(report.summary.conclusionBlocker, /external runtime evidence/);
   assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
   assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
   assert.deepEqual(
@@ -111,6 +124,15 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Runtime Proof Gap Handoff/);
+  assert.match(markdown, /## Summary/);
+  assert.match(markdown, /Handoffs: 2/);
+  assert.match(markdown, /Unhandled obligations: 0/);
+  assert.match(markdown, /External-run required closures: 2/);
+  assert.match(markdown, /Locally runnable closures: 0/);
+  assert.match(markdown, /Primary source consumption: synchronous Iterable<Uint8Array\[\]> byte batches/);
+  assert.match(markdown, /Direct ReadableStream scope: separate source-overhead evidence only/);
+  assert.match(markdown, /Direct ReadableStream backpressure required: yes/);
+  assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);
   assert.match(markdown, /Local closure status: external-run-required/);
