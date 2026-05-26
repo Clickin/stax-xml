@@ -89,7 +89,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'segment-tokenizer-full-checksum-candidate.json'
-    && artifact.measuredRowCount === 1
+    && artifact.measuredRowCount === 3
     && artifact.runtimes.includes('node-v8')
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
@@ -110,8 +110,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.runtimes.includes('bun-jsc')
     && artifact.runtimes.includes('deno-v8')
   ));
-  assert.equal(report.summary.measuredRowCount, 988);
-  assert.equal(report.summary.largeJsFullRowCount, 645);
+  assert.equal(report.summary.measuredRowCount, 990);
+  assert.equal(report.summary.largeJsFullRowCount, 647);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -382,8 +382,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 461
-    && row.largeFullStringRowCount === 302
+    && row.measuredRowCount === 463
+    && row.largeFullStringRowCount === 304
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'bun-jsc'
@@ -691,7 +691,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
   assert.match(markdown, /Negative-result artifacts: 16/);
-  assert.match(markdown, /\| Node\/V8 \| 94 \| 461 \| 302 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 94 \| 463 \| 304 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 35 \| 253 \| 161 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 10 \| 62 \| 56 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);

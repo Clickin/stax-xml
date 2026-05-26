@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-26T19:34:55.994Z",
+  "generatedAt": "2026-05-26T21:38:54.661Z",
   "objective": "segment-tokenizer-string-frontier",
   "contract": "file-backed-segment-tokenizer-string-frontier",
-  "note": "Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Rows are partial headroom evidence and not full StAX counterexamples because they do not expose public event objects or validate the full XML contract.",
+  "note": "Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Most rows are partial headroom evidence; full-checksum rows validate the StreamReaderSync checksum but still do not expose public event objects.",
   "environment": {
     "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
     "platform": "win32-x64",
@@ -22,7 +22,9 @@
     "warmups": 0,
     "boundedRssMiB": 512,
     "cases": [
-      "allTokenStringsDocumentEventsNoObjects"
+      "allTokenStringsDocumentEventsNoObjects",
+      "allTokenStringsNameCachedDocumentEventsNoObjects",
+      "allTokenStringsBoundedCacheDocumentEventsNoObjects"
     ]
   },
   "rows": [
@@ -55,16 +57,16 @@
       "fullReaderChecksum": true,
       "finalMixEventCount": false,
       "cacheNames": false,
-      "mibPerSec": 42.582155876333424,
-      "avgMs": 24047.627633333334,
-      "minMs": 23672.0345,
-      "maxMs": 24251.1237,
+      "mibPerSec": 41.20320493946934,
+      "avgMs": 24852.431499999995,
+      "minMs": 24604.300999999992,
+      "maxMs": 25117.488699999998,
       "sampleCount": 3,
-      "sampleSpreadRatio": 0.024080928432096183,
+      "sampleSpreadRatio": 0.02064939601583877,
       "samplesMs": [
-        24251.1237,
-        24219.7247,
-        23672.0345
+        25117.488699999998,
+        24835.504800000002,
+        24604.300999999992
       ],
       "eventCount": 61236571,
       "startElementCount": 21612907,
@@ -81,49 +83,255 @@
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 100818944,
-        "maxHeapUsedBytes": 19684472,
+        "maxRssBytes": 134049792,
+        "maxHeapUsedBytes": 17747016,
         "samples": [
           {
             "before": {
-              "rssBytes": 70356992,
-              "heapUsedBytes": 5074664,
-              "externalBytes": 3905997,
-              "arrayBuffersBytes": 1120623
+              "rssBytes": 69107712,
+              "heapUsedBytes": 5071664,
+              "externalBytes": 4430340,
+              "arrayBuffersBytes": 252271
             },
             "after": {
-              "rssBytes": 84496384,
-              "heapUsedBytes": 8954848,
-              "externalBytes": 3267811,
-              "arrayBuffersBytes": 1366538
+              "rssBytes": 134049792,
+              "heapUsedBytes": 9249680,
+              "externalBytes": 52288691,
+              "arrayBuffersBytes": 50387418
             }
           },
           {
             "before": {
-              "rssBytes": 84377600,
-              "heapUsedBytes": 5155624,
-              "externalBytes": 3267811,
-              "arrayBuffersBytes": 1235466
+              "rssBytes": 134090752,
+              "heapUsedBytes": 5153816,
+              "externalBytes": 52288691,
+              "arrayBuffersBytes": 50354650
             },
             "after": {
-              "rssBytes": 100818944,
-              "heapUsedBytes": 19684472,
-              "externalBytes": 3005894,
-              "arrayBuffersBytes": 1104621
+              "rssBytes": 101711872,
+              "heapUsedBytes": 11217512,
+              "externalBytes": 2481409,
+              "arrayBuffersBytes": 580136
             }
           },
           {
             "before": {
-              "rssBytes": 100909056,
-              "heapUsedBytes": 5156944,
-              "externalBytes": 3005894,
-              "arrayBuffersBytes": 1104621
+              "rssBytes": 101670912,
+              "heapUsedBytes": 5155008,
+              "externalBytes": 2481409,
+              "arrayBuffersBytes": 317992
             },
             "after": {
-              "rssBytes": 100798464,
-              "heapUsedBytes": 17790896,
+              "rssBytes": 101863424,
+              "heapUsedBytes": 17747016,
               "externalBytes": 2743714,
               "arrayBuffersBytes": 842441
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "allTokenStringsNameCachedDocumentEventsNoObjects",
+      "tool": "allTokenStringsNameCachedDocumentEventsNoObjects",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values, text using a byte-verified name string cache",
+      "family": "segment-tokenizer-full-checksum-candidate",
+      "contractScope": "full-string-checksum-no-public-objects",
+      "fullStringParity": true,
+      "referenceEventCount": 61236571,
+      "referenceChecksum": -716099804,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": true,
+      "emitDocumentEvents": true,
+      "trimText": true,
+      "fullReaderChecksum": true,
+      "finalMixEventCount": false,
+      "cacheNames": true,
+      "mibPerSec": 52.729403186473206,
+      "avgMs": 19419.90173333333,
+      "minMs": 18939.737799999988,
+      "maxMs": 19723.0726,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.040336702561962756,
+      "samplesMs": [
+        19723.0726,
+        19596.894799999995,
+        18939.737799999988
+      ],
+      "eventCount": 61236571,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 97258079,
+      "cachedStringHitCount": 61236559,
+      "cachedStringMissCount": 10,
+      "cachedStringBypassCount": 0,
+      "cachedNameCount": 10,
+      "decodedByteCount": 515408238,
+      "decodeCalls": 36021520,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 102526976,
+        "maxHeapUsedBytes": 17171640,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 101863424,
+              "heapUsedBytes": 5157640,
+              "externalBytes": 2743714,
+              "arrayBuffersBytes": 383528
+            },
+            "after": {
+              "rssBytes": 102309888,
+              "heapUsedBytes": 17171640,
+              "externalBytes": 2743732,
+              "arrayBuffersBytes": 842459
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 101851136,
+              "heapUsedBytes": 5190560,
+              "externalBytes": 2743732,
+              "arrayBuffersBytes": 55663
+            },
+            "after": {
+              "rssBytes": 102449152,
+              "heapUsedBytes": 11971008,
+              "externalBytes": 2743553,
+              "arrayBuffersBytes": 842280
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 102305792,
+              "heapUsedBytes": 5191664,
+              "externalBytes": 2743553,
+              "arrayBuffersBytes": 219503
+            },
+            "after": {
+              "rssBytes": 102526976,
+              "heapUsedBytes": 11949208,
+              "externalBytes": 2743553,
+              "arrayBuffersBytes": 842280
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "allTokenStringsBoundedCacheDocumentEventsNoObjects",
+      "tool": "allTokenStringsBoundedCacheDocumentEventsNoObjects",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values, text using a byte-verified name string cache and byte-verified bounded cache for all decoded string spans (max 4096)",
+      "family": "segment-tokenizer-full-checksum-candidate",
+      "contractScope": "full-string-checksum-no-public-objects",
+      "fullStringParity": true,
+      "referenceEventCount": 61236571,
+      "referenceChecksum": -716099804,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": true,
+      "emitDocumentEvents": true,
+      "trimText": true,
+      "fullReaderChecksum": true,
+      "finalMixEventCount": false,
+      "cacheNames": true,
+      "mibPerSec": 46.27162431018201,
+      "avgMs": 22130.189800000022,
+      "minMs": 21974.340600000025,
+      "maxMs": 22289.44590000002,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.014238707523421028,
+      "samplesMs": [
+        22289.44590000002,
+        22126.78290000002,
+        21974.340600000025
+      ],
+      "eventCount": 61236571,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 97258079,
+      "cachedStringHitCount": 76229600,
+      "cachedStringMissCount": 4096,
+      "cachedStringBypassCount": 21024383,
+      "cachedNameCount": 4096,
+      "decodedByteCount": 488418218,
+      "decodeCalls": 21028479,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 140124160,
+        "maxHeapUsedBytes": 32484752,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 102641664,
+              "heapUsedBytes": 5195344,
+              "externalBytes": 2743553,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 139243520,
+              "heapUsedBytes": 8377448,
+              "externalBytes": 2526345,
+              "arrayBuffersBytes": 625072
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139333632,
+              "heapUsedBytes": 5221080,
+              "externalBytes": 2526345,
+              "arrayBuffersBytes": 625072
+            },
+            "after": {
+              "rssBytes": 139706368,
+              "heapUsedBytes": 32484752,
+              "externalBytes": 3575810,
+              "arrayBuffersBytes": 1674537
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 139587584,
+              "heapUsedBytes": 5222000,
+              "externalBytes": 3575810,
+              "arrayBuffersBytes": 559710
+            },
+            "after": {
+              "rssBytes": 140124160,
+              "heapUsedBytes": 32463312,
+              "externalBytes": 3575810,
+              "arrayBuffersBytes": 1674537
             }
           }
         ]
@@ -136,18 +344,24 @@
     "sourceMode": "StreamReaderSync-reference"
   },
   "summary": {
-    "rowCount": 1,
+    "rowCount": 3,
     "fastest": {
-      "id": "allTokenStringsDocumentEventsNoObjects",
-      "mibPerSec": 42.582155876333424,
+      "id": "allTokenStringsNameCachedDocumentEventsNoObjects",
+      "mibPerSec": 52.729403186473206,
       "boundedMemory": true,
       "memoryKind": "process-rss"
     },
     "tokenOnlyMiBPerSec": null,
     "allStringsMiBPerSec": null,
     "allStringsVsTokenOnlyRatio": null,
-    "fullChecksumCandidateMiBPerSec": 42.582155876333424,
+    "fullChecksumCandidateMiBPerSec": 41.20320493946934,
     "fullChecksumCandidateMatchesReference": true,
+    "fastestFullChecksumCandidate": {
+      "id": "allTokenStringsNameCachedDocumentEventsNoObjects",
+      "mibPerSec": 52.729403186473206,
+      "boundedMemory": true,
+      "memoryKind": "process-rss"
+    },
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -164,26 +378,40 @@
       "classification": "BENCH_FACT",
       "summary": "Token-only and all-string rows were not both measured.",
       "evidence": [
-        "allTokenStringsDocumentEventsNoObjects: 42.58 MiB/s, strings=97258079, decodeCalls=97258079, cacheHits=0, cacheBypass=0, decodedBytes=882827595"
+        "allTokenStringsDocumentEventsNoObjects: 41.20 MiB/s, strings=97258079, decodeCalls=97258079, cacheHits=0, cacheBypass=0, decodedBytes=882827595",
+        "allTokenStringsNameCachedDocumentEventsNoObjects: 52.73 MiB/s, strings=97258079, decodeCalls=36021520, cacheHits=61236559, cacheBypass=0, decodedBytes=515408238",
+        "allTokenStringsBoundedCacheDocumentEventsNoObjects: 46.27 MiB/s, strings=97258079, decodeCalls=21028479, cacheHits=76229600, cacheBypass=21024383, decodedBytes=488418218"
       ]
     },
     {
       "id": "partial-not-stax-counterexample",
       "classification": "SCOPE_GUARD",
-      "summary": "These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons, but they still do not expose public event objects or claim full StAX checksum parity.",
+      "summary": "These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons. Full-checksum rows still do not expose public event objects, and partial rows do not claim full StAX checksum parity.",
       "evidence": [
-        "allTokenStringsDocumentEventsNoObjects: fullStringParity=true, usesTextDecoder=true, usesNodeBuffer=false"
+        "allTokenStringsDocumentEventsNoObjects: fullStringParity=true, usesTextDecoder=true, usesNodeBuffer=false",
+        "allTokenStringsNameCachedDocumentEventsNoObjects: fullStringParity=true, usesTextDecoder=true, usesNodeBuffer=false",
+        "allTokenStringsBoundedCacheDocumentEventsNoObjects: fullStringParity=true, usesTextDecoder=true, usesNodeBuffer=false"
       ]
     },
     {
       "id": "full-checksum-segmented-candidate",
       "classification": "BENCH_FACT",
-      "summary": "The document-event segmented row matched the StreamReaderSync reference at 42.58 MiB/s.",
+      "summary": "The document-event segmented row matched the StreamReaderSync reference at 41.20 MiB/s.",
       "evidence": [
         "candidate=61236571:-716099804",
         "reference=61236571:-716099804",
         "fullStringParity=true",
         "counterexampleEligible=true"
+      ]
+    },
+    {
+      "id": "full-checksum-cache-candidates",
+      "classification": "BENCH_FACT",
+      "summary": "The fastest measured full-checksum segmented row was allTokenStringsNameCachedDocumentEventsNoObjects at 52.73 MiB/s.",
+      "evidence": [
+        "allTokenStringsDocumentEventsNoObjects: 41.20 MiB/s, fullStringParity=true, strings=97258079, decodeCalls=97258079, cacheHits=0, cacheBypass=0, checksum=-716099804",
+        "allTokenStringsNameCachedDocumentEventsNoObjects: 52.73 MiB/s, fullStringParity=true, strings=97258079, decodeCalls=36021520, cacheHits=61236559, cacheBypass=0, checksum=-716099804",
+        "allTokenStringsBoundedCacheDocumentEventsNoObjects: 46.27 MiB/s, fullStringParity=true, strings=97258079, decodeCalls=21028479, cacheHits=76229600, cacheBypass=21024383, checksum=-716099804"
       ]
     }
   ]

@@ -108,6 +108,34 @@ const cases = [
     finalMixEventCount: false,
     compareFullReaderReference: true,
   },
+  {
+    id: 'allTokenStringsNameCachedDocumentEventsNoObjects',
+    decodeElementNames: true,
+    decodeAttributeNames: true,
+    decodeAttributeValues: true,
+    decodeText: true,
+    cacheNames: true,
+    emitDocumentEvents: true,
+    trimText: true,
+    fullReaderChecksum: true,
+    finalMixEventCount: false,
+    compareFullReaderReference: true,
+  },
+  {
+    id: 'allTokenStringsBoundedCacheDocumentEventsNoObjects',
+    decodeElementNames: true,
+    decodeAttributeNames: true,
+    decodeAttributeValues: true,
+    decodeText: true,
+    cacheNames: true,
+    cacheAllStrings: true,
+    maxCachedStrings: 4096,
+    emitDocumentEvents: true,
+    trimText: true,
+    fullReaderChecksum: true,
+    finalMixEventCount: false,
+    compareFullReaderReference: true,
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -223,11 +251,15 @@ function runProbe(options) {
   const tokenOnly = rows.find(row => row.id === 'tokenOnly');
   const allStrings = rows.find(row => row.id === 'allTokenStringsNoObjects');
   const fullChecksumCandidate = rows.find(row => row.id === 'allTokenStringsDocumentEventsNoObjects');
+  const fullChecksumRows = rows.filter(row => row.contractScope === 'full-string-checksum-no-public-objects');
+  const fastestFullChecksumCandidate = fullChecksumRows.length > 0
+    ? maxBy(fullChecksumRows, row => row.mibPerSec)
+    : null;
   return {
     generatedAt: new Date().toISOString(),
     objective: 'segment-tokenizer-string-frontier',
     contract: 'file-backed-segment-tokenizer-string-frontier',
-    note: 'Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Rows are partial headroom evidence and not full StAX counterexamples because they do not expose public event objects or validate the full XML contract.',
+    note: 'Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Most rows are partial headroom evidence; full-checksum rows validate the StreamReaderSync checksum but still do not expose public event objects.',
     environment: {
       cpuName: cpus()[0]?.model ?? 'unknown',
       platform: `${process.platform}-${process.arch}`,
@@ -258,9 +290,10 @@ function runProbe(options) {
       allStringsVsTokenOnlyRatio: tokenOnly && allStrings ? allStrings.mibPerSec / tokenOnly.mibPerSec : null,
       fullChecksumCandidateMiBPerSec: fullChecksumCandidate?.mibPerSec ?? null,
       fullChecksumCandidateMatchesReference: fullChecksumCandidate?.fullStringParity === true,
+      fastestFullChecksumCandidate: fastestFullChecksumCandidate ? summarizeRow(fastestFullChecksumCandidate) : null,
       counterexamples200MiB: rows.filter(row => row.fullStringParity && row.boundedMemory && row.mibPerSec >= 200).length,
     },
-    findings: createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, reference),
+    findings: createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, fullChecksumRows, fastestFullChecksumCandidate, reference),
   };
 }
 
@@ -573,7 +606,9 @@ class FrontierTokenizer {
       return;
     }
     const cached = this.lookupString(bytes);
-    this.checksum = mixString(this.checksum, cached);
+    this.checksum = this.testCase.fullReaderChecksum
+      ? foldReaderString(this.checksum, cached)
+      : mixString(this.checksum, cached);
   }
 
   lookupString(bytes) {
@@ -790,7 +825,7 @@ function assertStableCounters(rows) {
   }
 }
 
-function createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, reference) {
+function createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, fullChecksumRows, fastestFullChecksumCandidate, reference) {
   return [
     {
       id: 'same-token-boundary-contract',
@@ -809,7 +844,7 @@ function createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, refe
     {
       id: 'partial-not-stax-counterexample',
       classification: 'SCOPE_GUARD',
-      summary: 'These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons, but they still do not expose public event objects or claim full StAX checksum parity.',
+      summary: 'These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons. Full-checksum rows still do not expose public event objects, and partial rows do not claim full StAX checksum parity.',
       evidence: rows.map(row => `${row.id}: fullStringParity=${row.fullStringParity}, usesTextDecoder=${row.usesTextDecoder}, usesNodeBuffer=${row.usesNodeBuffer}`),
     },
     {
@@ -826,6 +861,14 @@ function createFindings(rows, tokenOnly, allStrings, fullChecksumCandidate, refe
           `counterexampleEligible=${fullChecksumCandidate.fullStringParity && fullChecksumCandidate.boundedMemory}`,
         ]
         : [],
+    },
+    {
+      id: 'full-checksum-cache-candidates',
+      classification: fullChecksumRows.length > 1 ? 'BENCH_FACT' : 'SCOPE_GUARD',
+      summary: fastestFullChecksumCandidate
+        ? `The fastest measured full-checksum segmented row was ${fastestFullChecksumCandidate.id} at ${formatNumber(fastestFullChecksumCandidate.mibPerSec)} MiB/s.`
+        : 'No full-checksum segmented cache row was measured.',
+      evidence: fullChecksumRows.map(row => `${row.id}: ${formatNumber(row.mibPerSec)} MiB/s, fullStringParity=${row.fullStringParity}, strings=${row.materializedStringCount}, decodeCalls=${row.decodeCalls}, cacheHits=${row.cachedStringHitCount}, cacheBypass=${row.cachedStringBypassCount}, checksum=${row.checksum}`),
     },
   ];
 }
@@ -864,6 +907,7 @@ function renderMarkdown(report) {
     `- All strings / token-only ratio: ${formatNullableNumber(report.summary.allStringsVsTokenOnlyRatio)}x`,
     `- Full-checksum segmented candidate: ${formatNullableNumber(report.summary.fullChecksumCandidateMiBPerSec)} MiB/s`,
     `- Full-checksum candidate matches StreamReaderSync reference: ${report.summary.fullChecksumCandidateMatchesReference ? 'yes' : 'no'}`,
+    `- Fastest full-checksum segmented candidate: ${report.summary.fastestFullChecksumCandidate ? `${report.summary.fastestFullChecksumCandidate.id} ${formatNumber(report.summary.fastestFullChecksumCandidate.mibPerSec)} MiB/s` : 'n/a'}`,
     `- 200 MiB/s bounded full-string counterexamples: ${report.summary.counterexamples200MiB}`,
     `- StreamReaderSync reference: ${report.reference.eventCount} events, checksum ${report.reference.checksum}`,
     '',
@@ -885,7 +929,8 @@ function renderMarkdown(report) {
     '## Limits',
     '',
     '- This is a string-materialization frontier over a simplified token-boundary scanner, not the public StAX reader.',
-    '- Rows are not full-string parity rows and cannot be counted as runtime-limit counterexamples.',
+    '- Full-checksum rows are no-public-object checksum candidates; they still do not expose public StAX event objects.',
+    '- Partial frontier rows are not full-string parity rows and cannot be counted as runtime-limit counterexamples.',
     '- The benchmark intentionally uses TextDecoder, not Node Buffer, native addons, or lazy getters.',
     '',
   );

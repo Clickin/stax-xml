@@ -11,7 +11,7 @@ const tmpDir = join(__dirname, 'results', 'tmp', 'segment-tokenizer-string-front
 const jsonOut = join(tmpDir, 'segment-tokenizer-string-frontier.json');
 const mdOut = join(tmpDir, 'segment-tokenizer-string-frontier.md');
 
-test('segment tokenizer string frontier records TextDecoder materialization cost without full parity claims', () => {
+test('segment tokenizer string frontier records TextDecoder materialization cost and full-checksum cache candidates', () => {
   resetTmp();
   const result = spawnSync(process.execPath, [
     '--expose-gc',
@@ -41,11 +41,13 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'segment-tokenizer-string-frontier');
   assert.equal(report.contract, 'file-backed-segment-tokenizer-string-frontier');
-  assert.equal(report.summary.rowCount, 11);
+  assert.equal(report.summary.rowCount, 13);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.equal(typeof report.summary.allStringsVsTokenOnlyRatio, 'number');
   assert.equal(report.summary.fullChecksumCandidateMatchesReference, true);
   assert.equal(typeof report.summary.fullChecksumCandidateMiBPerSec, 'number');
+  assert.equal(report.summary.fastestFullChecksumCandidate.id, 'allTokenStringsNameCachedDocumentEventsNoObjects');
+  assert.equal(report.summary.fastestFullChecksumCandidate.boundedMemory, true);
   assert.equal(report.reference.eventCount, 967967);
   assert.equal(report.reference.checksum, -746772258);
   assert.deepEqual(report.rows.map(row => row.id), [
@@ -60,13 +62,14 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
     'allTokenStringsNameCachedNoObjects',
     'allTokenStringsBoundedCacheNoObjects',
     'allTokenStringsDocumentEventsNoObjects',
+    'allTokenStringsNameCachedDocumentEventsNoObjects',
+    'allTokenStringsBoundedCacheDocumentEventsNoObjects',
   ]);
 
   const first = report.rows[0];
   for (const row of report.rows) {
-    if (row.id === 'allTokenStringsDocumentEventsNoObjects') {
+    if (row.contractScope === 'full-string-checksum-no-public-objects') {
       assert.equal(row.fullStringParity, true);
-      assert.equal(row.contractScope, 'full-string-checksum-no-public-objects');
       assert.equal(row.eventCount, first.eventCount + 2);
       assert.equal(row.referenceEventCount, report.reference.eventCount);
       assert.equal(row.referenceChecksum, report.reference.checksum);
@@ -106,6 +109,8 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   const cachedAllStrings = report.rows.find(row => row.id === 'allTokenStringsNameCachedNoObjects');
   const allCachedStrings = report.rows.find(row => row.id === 'allTokenStringsBoundedCacheNoObjects');
   const fullChecksumCandidate = report.rows.find(row => row.id === 'allTokenStringsDocumentEventsNoObjects');
+  const fullChecksumNameCached = report.rows.find(row => row.id === 'allTokenStringsNameCachedDocumentEventsNoObjects');
+  const fullChecksumBoundedCache = report.rows.find(row => row.id === 'allTokenStringsBoundedCacheDocumentEventsNoObjects');
   assert.equal(tokenOnly.usesTextDecoder, false);
   assert.equal(tokenOnly.materializedStringCount, 0);
   assert.equal(elementNames.usesTextDecoder, true);
@@ -143,6 +148,19 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   assert.ok(allCachedStrings.cachedStringHitCount > cachedAllStrings.cachedStringHitCount);
   assert.equal(fullChecksumCandidate.materializedStringCount, allStrings.materializedStringCount);
   assert.equal(fullChecksumCandidate.decodeCalls, allStrings.decodeCalls);
+  assert.equal(fullChecksumNameCached.fullStringParity, true);
+  assert.equal(fullChecksumNameCached.checksum, report.reference.checksum);
+  assert.equal(fullChecksumNameCached.cacheNames, true);
+  assert.equal(fullChecksumNameCached.materializedStringCount, allStrings.materializedStringCount);
+  assert.ok(fullChecksumNameCached.decodeCalls < fullChecksumCandidate.decodeCalls);
+  assert.ok(fullChecksumNameCached.cachedStringHitCount > 0);
+  assert.equal(fullChecksumBoundedCache.fullStringParity, true);
+  assert.equal(fullChecksumBoundedCache.checksum, report.reference.checksum);
+  assert.equal(fullChecksumBoundedCache.cacheNames, true);
+  assert.equal(fullChecksumBoundedCache.materializedStringCount, allStrings.materializedStringCount);
+  assert.ok(fullChecksumBoundedCache.decodeCalls < fullChecksumNameCached.decodeCalls);
+  assert.ok(fullChecksumBoundedCache.cachedStringHitCount > fullChecksumNameCached.cachedStringHitCount);
+  assert.ok(fullChecksumBoundedCache.cachedStringBypassCount > 0);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Segment Tokenizer String Frontier/);
@@ -151,7 +169,9 @@ test('segment tokenizer string frontier records TextDecoder materialization cost
   assert.match(markdown, /string-materialization-frontier/);
   assert.match(markdown, /partial-not-stax-counterexample/);
   assert.match(markdown, /full-checksum-segmented-candidate/);
+  assert.match(markdown, /full-checksum-cache-candidates/);
   assert.match(markdown, /Full-checksum candidate matches StreamReaderSync reference: yes/);
+  assert.match(markdown, /Fastest full-checksum segmented candidate: allTokenStringsNameCachedDocumentEventsNoObjects/);
   assert.match(markdown, /not Node Buffer, native addons, or lazy getters/);
 });
 

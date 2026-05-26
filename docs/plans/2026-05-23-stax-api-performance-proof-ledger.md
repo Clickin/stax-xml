@@ -245,8 +245,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 180 primary release JSON artifacts, recognizes 988
-sample throughput rows and 117 aggregate rows, and finds 645 JavaScript 1 GiB+
+The current scan covers 180 primary release JSON artifacts, recognizes 990
+sample throughput rows and 117 aggregate rows, and finds 647 JavaScript 1 GiB+
 full-string sample rows plus 95 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -258,7 +258,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 279 JavaScript 1 GiB+
+or their source contract carry it. It now finds 281 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -267,8 +267,8 @@ the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the `midsize.xml` fresh-process corpus rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
 generated-sync bucket now has 198 JavaScript 1 GiB+ full-string rows, 189 of
-them bounded. The file-backed sync byte-batch bucket adds 50 full-string rows,
-49 of them bounded, with fastest row 152.11 MiB/s. The fastest
+them bounded. The file-backed sync byte-batch bucket adds 52 full-string rows,
+51 of them bounded, with fastest row 152.11 MiB/s. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
@@ -289,7 +289,7 @@ row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 279
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 281
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -335,10 +335,15 @@ dominates before public event-object allocation is even reintroduced.
 `segment-tokenizer-full-checksum-candidate.json` then adds document events,
 uses the full-reader string-fold checksum, trims text before folding, and
 verifies the segmented row against a `StreamReaderSync` reference on the same
-1024 MiB fixture. It preserves 61,236,571 events and checksum `-716099804`,
-uses no Node `Buffer`, consumes demand-driven `Iterable<Uint8Array[]>` batches
-without direct `ReadableStream`, and remains a negative full-checksum segmented
-candidate at 42.58 MiB/s with 96.15 MiB max RSS after 97,258,079 decode calls.
+1024 MiB fixture. It now tests three full-checksum segmented candidates: no
+cache, name cache, and bounded all-string cache. All preserve 61,236,571
+events and checksum `-716099804`, use no Node `Buffer`, consume demand-driven
+`Iterable<Uint8Array[]>` batches without direct `ReadableStream`, and remain
+negative full-checksum segmented candidates. The fastest is
+`allTokenStringsNameCachedDocumentEventsNoObjects` at 52.73 MiB/s with
+97.78 MiB max RSS after 36,021,520 decode calls and 61,236,559 cache hits. The
+bounded all-string cache reduces decode calls further to 21,028,479 but drops
+to 46.27 MiB/s because 21,024,383 spans bypass the bounded cache.
 Bun/JSC
 `scanAllNoDecode` at 326.65 MiB/s from
 `candidate-headroom-cross-process-books-corpus-partial.json` remains the
@@ -484,10 +489,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 180 primary release artifacts and recognizes 988
+The current audit scans 180 primary release artifacts and recognizes 990
 measured rows. It records 134 benchmark artifacts, 17 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-16 negative-result artifacts, 645 JavaScript 1 GiB+ full-string rows, and four
+16 negative-result artifacts, 647 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -515,10 +520,11 @@ without public objects 66.58 MiB/s, name-cached all token strings
 81.14 MiB/s, and bounded all-string cache all token strings 74.85 MiB/s, while
 remaining explicitly `fullStringParity=false`. The
 `segment-tokenizer-full-checksum-candidate.json` artifact adds the focused
-full-checksum follow-up row: it matches the `StreamReaderSync` reference
-event count and checksum on the same 1024 MiB fixture, but reaches only
-42.58 MiB/s with 96.15 MiB max RSS and remains a benchmark-only segmented
-candidate without public event objects or full XML validation. The
+full-checksum follow-up rows: no-cache, name-cache, and bounded all-string-cache
+variants all match the `StreamReaderSync` reference event count and checksum on
+the same 1024 MiB fixture, but the fastest reaches only 52.73 MiB/s with
+97.78 MiB max RSS and remains a benchmark-only segmented candidate without
+public event objects. The
 coverage audit now treats `runtime.id: "node"` / `runtime.v8` artifacts such as
 `stream-reader-4gb-shapes.json` as Node/V8 row evidence rather than leaving
 their 4 GiB generated byte-batch rows in the `unknown` bucket. The scan and
