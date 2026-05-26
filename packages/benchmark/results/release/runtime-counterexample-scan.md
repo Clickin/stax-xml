@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T10:23:36.687Z
+Generated: 2026-05-26T10:33:36.296Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -8,11 +8,11 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 
 - Scanned artifacts: 160
 - Ignored derived artifacts: 5
-- Measured rows recognized: 838
+- Measured rows recognized: 841
 - Aggregate rows recognized: 93
 - 1 GiB+ JS full-string rows recognized: 521
 - 1 GiB+ JS full-string aggregate rows recognized: 73
-- Rows with recognized source mode: 261
+- Rows with recognized source mode: 264
 - 1 GiB+ JS full-string rows with recognized source mode: 191
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
@@ -131,6 +131,7 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 | `text-trim-cost-decomposition.json` | Node/V8 | `withoutTextStrings` | 1.00 | 249.13 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
 | `bun-candidate-headroom-projection-large.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 245.41 | event-types-and-attribute-counts-only | 60416563 | 830926359 |
 | `text-trim-cost-decomposition-2gib.json` | Node/V8 | `withoutTextStrings` | 2.00 | 243.31 | full-materialization-minus-text-cdata | 114192784 | 223378117 |
+| `segment-tokenizer-string-frontier.json` | Node/V8 | `tokenOnly` | 1.00 | 239.61 | xml-token-boundary-string-materialization-frontier | 61236569 | -1381363934 |
 | `candidate-headroom-books-corpus.json` | Node/V8 | `nameStringOnly` | 1.00 | 239.05 | event-types-attribute-counts-and-element-names | 57096514 | -929151437 |
 | `text-trim-cost-decomposition-8gib.json` | Node/V8 | `withoutTextStrings` | 8.00 | 237.38 | full-materialization-minus-text-cdata | 456770888 | 999272277 |
 | `segment-tokenizer-headroom.json` | Node/V8 | `singleton-segment-tokenize` | 1.00 | 236.55 | xml-token-boundary-no-string-materialization | 61236569 | -1381363934 |
@@ -142,7 +143,6 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 | `file-backed-core-decomposition.json` | Node/V8 | `stax-raw-frame-span-stats` | 1.00 | 210.19 | partial-raw-frame-span-metadata-no-string-materialization | 61236571 | -1264359145 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrNameStringOnly` | 1.00 | 209.12 | event-types-attribute-counts-and-attribute-names | 57096514 | 878766131 |
 | `long-ascii-text-materialization-candidate-stability.json` | Node/V8 | `withoutTextStrings` | 1.00 | 207.70 | full-materialization-minus-text-cdata | 57096514 | 1372281363 |
-| `segment-tokenizer-string-frontier.json` | Node/V8 | `tokenOnly` | 1.00 | 207.36 | xml-token-boundary-string-materialization-frontier | 61236569 | -1381363934 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `scanAllNoDecode` | 1.00 | 206.76 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `browser-candidate-headroom-books-corpus.json` | Chrome/V8 | `attrValueStringOnly` | 1.00 | 204.77 | event-types-attribute-counts-and-attribute-values | 57096514 | -923412077 |
 
@@ -166,7 +166,7 @@ These near-full rows still materialize element names and attributes, but omit te
 - partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 32 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 7 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 838 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 841 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
 - source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:141, file-backed-sync-iterable-byte-batches:47, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:141/141, file-backed-sync-iterable-byte-batches:47/47, complete-js-string:1/1, sync-iterable-byte-batches:1/1, web-readable-stream-pull:1/1.
 

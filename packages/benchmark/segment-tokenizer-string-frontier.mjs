@@ -24,6 +24,15 @@ const cases = [
     decodeAttributeNames: false,
     decodeAttributeValues: false,
     decodeText: false,
+    cacheNames: false,
+  },
+  {
+    id: 'elementNameCachedStrings',
+    decodeElementNames: true,
+    decodeAttributeNames: false,
+    decodeAttributeValues: false,
+    decodeText: false,
+    cacheNames: true,
   },
   {
     id: 'elementAndAttributeNameStrings',
@@ -31,6 +40,15 @@ const cases = [
     decodeAttributeNames: true,
     decodeAttributeValues: false,
     decodeText: false,
+    cacheNames: false,
+  },
+  {
+    id: 'elementAndAttributeNameCachedStrings',
+    decodeElementNames: true,
+    decodeAttributeNames: true,
+    decodeAttributeValues: false,
+    decodeText: false,
+    cacheNames: true,
   },
   {
     id: 'elementAndAttributeStrings',
@@ -38,6 +56,7 @@ const cases = [
     decodeAttributeNames: true,
     decodeAttributeValues: true,
     decodeText: false,
+    cacheNames: false,
   },
   {
     id: 'allTokenStringsNoObjects',
@@ -45,6 +64,15 @@ const cases = [
     decodeAttributeNames: true,
     decodeAttributeValues: true,
     decodeText: true,
+    cacheNames: false,
+  },
+  {
+    id: 'allTokenStringsNameCachedNoObjects',
+    decodeElementNames: true,
+    decodeAttributeNames: true,
+    decodeAttributeValues: true,
+    decodeText: true,
+    cacheNames: true,
   },
 ];
 
@@ -227,6 +255,7 @@ function measureCase(testCase, options, fileSizeMiB) {
     decodeAttributeNames: testCase.decodeAttributeNames,
     decodeAttributeValues: testCase.decodeAttributeValues,
     decodeText: testCase.decodeText,
+    cacheNames: testCase.cacheNames,
     mibPerSec: fileSizeMiB / (avgMs / 1000),
     avgMs,
     minMs: Math.min(...samplesMs),
@@ -240,6 +269,9 @@ function measureCase(testCase, options, fileSizeMiB) {
     textEventCount: first.textEventCount,
     attributeCount: first.attributeCount,
     materializedStringCount: first.materializedStringCount,
+    cachedStringHitCount: first.cachedStringHitCount,
+    cachedStringMissCount: first.cachedStringMissCount,
+    cachedNameCount: first.cachedNameCount,
     decodedByteCount: first.decodedByteCount,
     decodeCalls: first.decodeCalls,
     checksum: first.checksum,
@@ -285,6 +317,7 @@ class FrontierTokenizer {
   constructor(testCase) {
     this.testCase = testCase;
     this.decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+    this.nameCache = new Map();
     this.inTag = false;
     this.tagParts = null;
     this.textParts = null;
@@ -296,6 +329,8 @@ class FrontierTokenizer {
     this.textEventCount = 0;
     this.attributeCount = 0;
     this.materializedStringCount = 0;
+    this.cachedStringHitCount = 0;
+    this.cachedStringMissCount = 0;
     this.decodedByteCount = 0;
     this.decodeCalls = 0;
     this.checksum = 0;
@@ -338,6 +373,9 @@ class FrontierTokenizer {
       textEventCount: this.textEventCount,
       attributeCount: this.attributeCount,
       materializedStringCount: this.materializedStringCount,
+      cachedStringHitCount: this.cachedStringHitCount,
+      cachedStringMissCount: this.cachedStringMissCount,
+      cachedNameCount: this.nameCache.size,
       decodedByteCount: this.decodedByteCount,
       decodeCalls: this.decodeCalls,
       checksum: mixChecksum(this.checksum, this.eventCount),
@@ -403,6 +441,40 @@ class FrontierTokenizer {
     this.decodeCalls++;
     this.checksum = mixString(this.checksum, value);
   }
+
+  foldDecodedName(bytes) {
+    if (!this.testCase.cacheNames) {
+      this.foldDecodedString(bytes);
+      return;
+    }
+    const cached = this.lookupName(bytes);
+    this.checksum = mixString(this.checksum, cached);
+  }
+
+  lookupName(bytes) {
+    const key = hashBytes(bytes, 0, bytes.length);
+    const entries = this.nameCache.get(key);
+    if (entries) {
+      for (const entry of entries) {
+        if (bytesEqual(entry.bytes, bytes)) {
+          this.cachedStringHitCount++;
+          this.materializedStringCount++;
+          return entry.value;
+        }
+      }
+    }
+    const value = this.decoder.decode(bytes);
+    const retained = new Uint8Array(bytes.length);
+    retained.set(bytes);
+    const nextEntries = entries ?? [];
+    nextEntries.push({ bytes: retained, value });
+    if (!entries) this.nameCache.set(key, nextEntries);
+    this.cachedStringMissCount++;
+    this.materializedStringCount++;
+    this.decodedByteCount += bytes.length;
+    this.decodeCalls++;
+    return value;
+  }
 }
 
 function processTag(bytes, state) {
@@ -430,7 +502,7 @@ function processTag(bytes, state) {
   state.startElementCount++;
   state.attributeCount += attrSpans.length;
   for (const attr of attrSpans) {
-    if (state.testCase.decodeAttributeNames) state.foldDecodedString(bytes.subarray(attr.nameStart, attr.nameEnd));
+    if (state.testCase.decodeAttributeNames) state.foldDecodedName(bytes.subarray(attr.nameStart, attr.nameEnd));
     if (state.testCase.decodeAttributeValues) state.foldDecodedString(bytes.subarray(attr.valueStart, attr.valueEnd));
   }
   if (selfClosing) {
@@ -444,7 +516,7 @@ function emitElement(state, type, bytes, nameStart, nameEnd, attrCount) {
   state.checksum = mixChecksum(state.checksum, type);
   state.checksum = mixChecksum(state.checksum, hashBytes(bytes, nameStart, nameEnd));
   state.checksum = mixChecksum(state.checksum, attrCount);
-  if (state.testCase.decodeElementNames) state.foldDecodedString(bytes.subarray(nameStart, nameEnd));
+  if (state.testCase.decodeElementNames) state.foldDecodedName(bytes.subarray(nameStart, nameEnd));
 }
 
 function scanAttributes(bytes, start, end) {
@@ -543,6 +615,9 @@ function sameCounters(left, right) {
     && left.textEventCount === right.textEventCount
     && left.attributeCount === right.attributeCount
     && left.materializedStringCount === right.materializedStringCount
+    && left.cachedStringHitCount === right.cachedStringHitCount
+    && left.cachedStringMissCount === right.cachedStringMissCount
+    && left.cachedNameCount === right.cachedNameCount
     && left.decodedByteCount === right.decodedByteCount
     && left.decodeCalls === right.decodeCalls
     && left.checksum === right.checksum;
@@ -577,7 +652,7 @@ function createFindings(rows, tokenOnly, allStrings) {
       summary: tokenOnly && allStrings
         ? `Adding element, attribute, and text string materialization reached ${formatNumber(allStrings.mibPerSec)} MiB/s versus token-only ${formatNumber(tokenOnly.mibPerSec)} MiB/s (${formatNumber(allStrings.mibPerSec / tokenOnly.mibPerSec)}x).`
         : 'Token-only and all-string rows were not both measured.',
-      evidence: rows.map(row => `${row.id}: ${formatNumber(row.mibPerSec)} MiB/s, strings=${row.materializedStringCount}, decodedBytes=${row.decodedByteCount}`),
+      evidence: rows.map(row => `${row.id}: ${formatNumber(row.mibPerSec)} MiB/s, strings=${row.materializedStringCount}, decodeCalls=${row.decodeCalls}, cacheHits=${row.cachedStringHitCount}, decodedBytes=${row.decodedByteCount}`),
     },
     {
       id: 'partial-not-stax-counterexample',
@@ -595,9 +670,10 @@ function describeCase(testCase) {
     testCase.decodeAttributeValues ? 'attribute values' : null,
     testCase.decodeText ? 'text' : null,
   ].filter(Boolean);
+  const cacheSuffix = testCase.cacheNames ? ' using a byte-verified name string cache' : '';
   return decoded.length === 0
     ? 'Segment-aware token-boundary folding without string materialization'
-    : `Segment-aware token-boundary folding with TextDecoder materialization for ${decoded.join(', ')}`;
+    : `Segment-aware token-boundary folding with TextDecoder materialization for ${decoded.join(', ')}${cacheSuffix}`;
 }
 
 function renderMarkdown(report) {
@@ -620,11 +696,11 @@ function renderMarkdown(report) {
     '',
     '## Rows',
     '',
-    '| Row | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Strings | Decode calls | Decoded bytes | Checksum |',
-    '| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+    '| Row | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Strings | Decode calls | Cache hits | Cache misses | Cached names | Decoded bytes | Checksum |',
+    '| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ];
   for (const row of report.rows) {
-    lines.push(`| \`${row.id}\` | ${formatNumber(row.mibPerSec)} | ${row.sampleCount} | ${formatPercent(row.sampleSpreadRatio)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory.maxRssBytes)} | ${row.eventCount} | ${row.materializedStringCount} | ${row.decodeCalls} | ${row.decodedByteCount} | ${row.checksum} |`);
+    lines.push(`| \`${row.id}\` | ${formatNumber(row.mibPerSec)} | ${row.sampleCount} | ${formatPercent(row.sampleSpreadRatio)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory.maxRssBytes)} | ${row.eventCount} | ${row.materializedStringCount} | ${row.decodeCalls} | ${row.cachedStringHitCount} | ${row.cachedStringMissCount} | ${row.cachedNameCount} | ${row.decodedByteCount} | ${row.checksum} |`);
   }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {
@@ -676,6 +752,14 @@ function maxBy(values, selector) {
 
 function unique(values) {
   return [...new Set(values)];
+}
+
+function bytesEqual(left, right) {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index++) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
 }
 
 function formatNumber(value) {
