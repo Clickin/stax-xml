@@ -254,7 +254,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 206 JavaScript 1 GiB+
+or their source contract carry it. It now finds 209 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -262,7 +262,7 @@ full-string rows with source mode metadata, including
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 156 JavaScript 1 GiB+ full-string rows, 147 of
+generated-sync bucket now has 159 JavaScript 1 GiB+ full-string rows, 150 of
 them bounded. The file-backed sync byte-batch bucket adds 47 full-string rows,
 46 of them bounded, with fastest row 152.11 MiB/s. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
@@ -278,7 +278,7 @@ records parser input `Web ReadableStream<Uint8Array>`,
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 206
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 209
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -370,6 +370,14 @@ from 165.38 MiB/s to 167.49 MiB/s, still below 200 MiB/s. The counters record
 attribute-value hits or fallbacks, showing this corpus' attribute values are
 already covered by the existing short-span path rather than hiding a medium-span
 TextDecoder headroom pocket.
+`attr-value-cache-materialization-candidate.json` then narrows value caching to
+only attribute values on the same corpus. It preserves full parity and records
+2,831,220 cache hits, 12 misses, and only 12 raw attribute-value span
+materializations, but still slows from its same-run control at 161.24 MiB/s to
+158.96 MiB/s with max RSS rising from 60.6 MiB to 66.2 MiB. Omitting attribute
+value strings entirely is also not a hidden full-StAX counterexample: the
+same artifact's `withoutAttributeValueStrings` row reports 151.93 MiB/s and
+checksum `1597287507`.
 `raw-span-shape-audit.json` records the corresponding source/span distribution
 without adding a throughput row: over the same 1 GiB `books.xml` corpus-cycle it
 counts 57,096,514 events and 62,758,976 materialized string spans. The audit

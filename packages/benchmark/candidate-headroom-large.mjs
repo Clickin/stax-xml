@@ -343,6 +343,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { mediumAsciiAttrValue: true }),
     },
     {
+      id: 'rawFrameNameIdAttrValueCache',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded attribute-value span string cache',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { attrValueCache: new SpanStringCache() }),
+    },
+    {
       id: 'rawFrameNameIdTextCache',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded text/CDATA span string cache',
@@ -1367,6 +1375,17 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             decoder,
             valueCache,
             materializationCounters,
+          )
+          : options.attrValueCache
+          ? materializeValue(
+            buffer,
+            attrValueStarts[attrIndex],
+            attrValueEnds[attrIndex],
+            decoder,
+            options.attrValueCache,
+            materializationCounters,
+            'attrValue',
+            options.asciiAllSpans,
           )
           : materializeValue(
             buffer,
