@@ -341,6 +341,14 @@ manual string path for 13-24 byte ASCII text/CDATA spans. It preserves full
 parity and improves its same-run control from 164.31 MiB/s to 170.16 MiB/s, but
 still does not cross the 200 MiB/s counterexample threshold after 2,831,232
 medium-ASCII hits and 3,539,040 fallbacks. The
+`medium-ascii-attr-value-materialization-candidate.json` artifact applies the
+same 13-24 byte ASCII split strategy to attribute values on the `books.xml`
+corpus-cycle. It preserves full parity and improves its same-run control only
+from 165.38 MiB/s to 167.49 MiB/s, still below 200 MiB/s. The counters record
+2,831,232 raw attribute-value span materializations but zero medium-ASCII
+attribute-value hits or fallbacks, showing this corpus' attribute values are
+already covered by the existing short-span path rather than hiding a medium-span
+TextDecoder headroom pocket.
 `packages/benchmark/results/release/text-materialization-frontier.md`
 synthesizes the scaled text/CDATA experiments directly: the fastest full row is
 still 185.50 MiB/s, 14.50 MiB/s below the 200 MiB/s counterexample threshold,
