@@ -140,6 +140,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /same-fixture 1024 MiB JS row vs Woodstox target now includes the\s+file-backed source, batch-size sweep, short attr-value cache, and trim-boundary\s+candidate rows/);
   assert.match(markdown, /`file-backed-trim-boundary-check-candidate\.json`, 351\.56 MiB\/s\), that is\s+0\.43x Woodstox and 164\.29 MiB\/s below the 0\.9x target/);
   assert.match(markdown, /This remains below the\s+0\.9x target/);
+  assert.match(markdown, /same-fixture process RSS snapshot is now explicit but still\s+not an allocation-model equivalence claim/);
+  assert.match(markdown, /fastest JS row records 61\.77\s+MiB max RSS, the selected Woodstox row records 312\.71 MiB max RSS, and the\s+selected quick-xml row records 4\.78 MiB max RSS/);
   assert.match(markdown, /For the\s+public event-object shape, the fastest bounded row is\s+Node\/V8 `eventObjectFull` from\s+`candidate-headroom-books-corpus-stability\.json` at 141\.62 MiB\/s/);
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);

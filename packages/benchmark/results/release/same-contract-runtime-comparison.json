@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T04:09:46.609Z",
+  "generatedAt": "2026-05-26T04:30:54.594Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -94,6 +94,39 @@
       "fastestJsWoodstoxRatio": 0.43,
       "remainingTo90PercentMiBPerSec": 164.29,
       "targetMet": false
+    },
+    "sameFixture1024MiBProcessRssSnapshot": {
+      "caveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",
+      "fastestJs": {
+        "group": "file-backed-batch-size-sweep",
+        "sourceArtifact": "file-backed-batch-size-sweep.json",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "caseId": "stax-raw-frame-name-id-batch-8",
+        "mibPerSec": 152.11,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 61.77
+      },
+      "woodstox": {
+        "group": "file-backed-trim-boundary-check-candidate",
+        "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+        "runtimeId": "woodstox-jvm",
+        "runtimeLabel": "Java/Woodstox",
+        "caseId": "woodstox",
+        "mibPerSec": 351.56,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 312.71
+      },
+      "quickXml": {
+        "group": "file-backed-short-attr-value-cache-candidate",
+        "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+        "runtimeId": "quick-xml-rust",
+        "runtimeLabel": "Rust/quick-xml",
+        "caseId": "quick-xml",
+        "mibPerSec": 274.63,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 4.78
+      }
     },
     "fastestJsLargePublicEventRow": {
       "group": "books-corpus-stability",
@@ -1648,6 +1681,7 @@
       "mibPerSec": 49.01,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 85.56,
@@ -1668,8 +1702,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.15,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -1699,6 +1732,7 @@
       "mibPerSec": 39.45,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 137.52,
@@ -1719,8 +1753,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.12,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -1750,6 +1783,7 @@
       "mibPerSec": 55.85,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 144.54,
@@ -1770,8 +1804,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -1801,6 +1834,7 @@
       "mibPerSec": 52.93,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 188.56,
@@ -1821,8 +1855,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.16,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -1852,6 +1885,7 @@
       "mibPerSec": 37.27,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 177,
@@ -1872,8 +1906,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.11,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -1903,6 +1936,7 @@
       "mibPerSec": 57.99,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 192.98,
@@ -1923,8 +1957,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -1954,6 +1987,7 @@
       "mibPerSec": 34.46,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 14.66,
@@ -1978,8 +2012,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.1,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -2009,6 +2042,7 @@
       "mibPerSec": 33.1,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 38.78,
@@ -2033,8 +2067,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.1,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -2064,6 +2097,7 @@
       "mibPerSec": 43.45,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 17.86,
@@ -2088,8 +2122,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.13,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -2119,6 +2152,7 @@
       "mibPerSec": 33.02,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2143,8 +2177,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.1,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -2174,6 +2207,7 @@
       "mibPerSec": 23.31,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2198,8 +2232,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.07,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-candidate",
@@ -2229,6 +2262,7 @@
       "mibPerSec": 35.02,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2253,8 +2287,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.11,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2284,6 +2317,7 @@
       "mibPerSec": 62.17,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 353.58,
@@ -2304,8 +2338,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2335,6 +2368,7 @@
       "mibPerSec": 61.8,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 419.02,
@@ -2355,8 +2389,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2386,6 +2419,7 @@
       "mibPerSec": 77,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 419.31,
@@ -2406,8 +2440,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.23,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2437,6 +2470,7 @@
       "mibPerSec": 56.23,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1470.83,
@@ -2457,8 +2491,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2488,6 +2521,7 @@
       "mibPerSec": 62.08,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1476.53,
@@ -2508,8 +2542,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2539,6 +2572,7 @@
       "mibPerSec": 76.08,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1751.13,
@@ -2559,8 +2593,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.23,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2590,6 +2623,7 @@
       "mibPerSec": 30.38,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 349.79,
@@ -2614,8 +2648,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.09,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2645,6 +2678,7 @@
       "mibPerSec": 28.92,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 358.37,
@@ -2669,8 +2703,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.09,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2700,6 +2733,7 @@
       "mibPerSec": 29.05,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 345.78,
@@ -2724,8 +2758,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.09,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2755,6 +2788,7 @@
       "mibPerSec": 44.92,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2779,8 +2813,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.13,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2810,6 +2843,7 @@
       "mibPerSec": 36.27,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2834,8 +2868,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.11,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2865,6 +2898,7 @@
       "mibPerSec": 48.15,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -2889,8 +2923,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.14,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -2920,6 +2953,7 @@
       "mibPerSec": 67.04,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 78.53,
@@ -2940,8 +2974,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.2,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -2971,6 +3004,7 @@
       "mibPerSec": 57.67,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 135.87,
@@ -2991,8 +3025,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3022,6 +3055,7 @@
       "mibPerSec": 82.91,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 145.97,
@@ -3042,8 +3076,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.25,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3073,6 +3106,7 @@
       "mibPerSec": 77.04,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 214.97,
@@ -3093,8 +3127,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.23,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3124,6 +3157,7 @@
       "mibPerSec": 63.29,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 182.34,
@@ -3144,8 +3178,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3175,6 +3208,7 @@
       "mibPerSec": 84.68,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 199.15,
@@ -3195,8 +3229,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.25,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3226,6 +3259,7 @@
       "mibPerSec": 56.44,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 13.82,
@@ -3250,8 +3284,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3281,6 +3314,7 @@
       "mibPerSec": 48.12,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 15.88,
@@ -3305,8 +3339,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.14,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3336,6 +3369,7 @@
       "mibPerSec": 60.32,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 30.03,
@@ -3360,8 +3394,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.18,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3391,6 +3424,7 @@
       "mibPerSec": 61.77,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -3415,8 +3449,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3446,6 +3479,7 @@
       "mibPerSec": 52.54,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -3470,8 +3504,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.16,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "projection-1gib-full",
@@ -3501,6 +3534,7 @@
       "mibPerSec": 64.24,
       "boundedMemory": false,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
         "note": "this browser did not expose performance.memory heap counters to page JavaScript",
@@ -3525,8 +3559,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3556,6 +3589,7 @@
       "mibPerSec": 37.33,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 72.16,
@@ -3577,8 +3611,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3608,6 +3641,7 @@
       "mibPerSec": 51.6,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 83.91,
@@ -3629,8 +3663,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3660,6 +3693,7 @@
       "mibPerSec": 40.31,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 186.27,
@@ -3681,8 +3715,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3712,6 +3745,7 @@
       "mibPerSec": 47.67,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 215.22,
@@ -3733,8 +3767,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3764,6 +3797,7 @@
       "mibPerSec": 16.63,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 9.77,
@@ -3789,8 +3823,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3820,6 +3853,7 @@
       "mibPerSec": 39.42,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
         "maxMiB": 10.04,
@@ -3845,8 +3879,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": null
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -3876,6 +3909,7 @@
       "mibPerSec": 154.29,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 66.8,
@@ -3896,8 +3930,7 @@
       "sampleSpreadRatio": 0.23,
       "woodstoxRatio": 0.46,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -3927,6 +3960,7 @@
       "mibPerSec": 141.62,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 203.27,
@@ -3947,8 +3981,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.42,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -3978,6 +4011,7 @@
       "mibPerSec": 176.47,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 223.06,
@@ -3998,8 +4032,7 @@
       "sampleSpreadRatio": 0.03,
       "woodstoxRatio": 0.53,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -4029,6 +4062,7 @@
       "mibPerSec": 129.28,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 226.89,
@@ -4049,8 +4083,7 @@
       "sampleSpreadRatio": 0.02,
       "woodstoxRatio": 0.39,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -4080,6 +4113,7 @@
       "mibPerSec": 171.35,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 204.55,
@@ -4100,8 +4134,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.51,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -4131,6 +4164,7 @@
       "mibPerSec": 136.44,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 199.21,
@@ -4151,8 +4185,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.41,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -4182,6 +4215,7 @@
       "mibPerSec": 178.52,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 189.37,
@@ -4202,8 +4236,7 @@
       "sampleSpreadRatio": 0.02,
       "woodstoxRatio": 0.54,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "books-corpus-stability",
@@ -4233,6 +4266,7 @@
       "mibPerSec": 143.2,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 184.98,
@@ -4253,8 +4287,7 @@
       "sampleSpreadRatio": 0.03,
       "woodstoxRatio": 0.43,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-cache-negative-stability",
@@ -4284,6 +4317,7 @@
       "mibPerSec": 175.02,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.23,
@@ -4304,8 +4338,7 @@
       "sampleSpreadRatio": 0.05,
       "woodstoxRatio": 0.52,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-cache-negative-stability",
@@ -4335,6 +4368,7 @@
       "mibPerSec": 129.31,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 77.43,
@@ -4355,8 +4389,7 @@
       "sampleSpreadRatio": 0.03,
       "woodstoxRatio": 0.39,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "long-ascii-text-negative-stability",
@@ -4386,6 +4419,7 @@
       "mibPerSec": 148.17,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.39,
@@ -4406,8 +4440,7 @@
       "sampleSpreadRatio": 0.34,
       "woodstoxRatio": 0.44,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "long-ascii-text-negative-stability",
@@ -4437,6 +4470,7 @@
       "mibPerSec": 172.85,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 78,
@@ -4457,8 +4491,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.52,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "long-ascii-text-negative-stability",
@@ -4488,6 +4521,7 @@
       "mibPerSec": 71.21,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 102.1,
@@ -4508,8 +4542,7 @@
       "sampleSpreadRatio": 0.08,
       "woodstoxRatio": 0.21,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "fold-trimmed-text-negative-stability",
@@ -4539,6 +4572,7 @@
       "mibPerSec": 122.32,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.22,
@@ -4559,8 +4593,7 @@
       "sampleSpreadRatio": 0.29,
       "woodstoxRatio": 0.37,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "fold-trimmed-text-negative-stability",
@@ -4590,6 +4623,7 @@
       "mibPerSec": 103.26,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 77.77,
@@ -4610,8 +4644,7 @@
       "sampleSpreadRatio": 0.09,
       "woodstoxRatio": 0.31,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-trim-cost-decomposition",
@@ -4641,6 +4674,7 @@
       "mibPerSec": 185.5,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.45,
@@ -4661,8 +4695,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.61,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-trim-cost-decomposition",
@@ -4692,6 +4725,7 @@
       "mibPerSec": 148.57,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 66.88,
@@ -4712,8 +4746,7 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.49,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-trim-cost-decomposition-2gib",
@@ -4743,6 +4776,7 @@
       "mibPerSec": 184.92,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 66.48,
@@ -4763,8 +4797,7 @@
       "sampleSpreadRatio": 0.02,
       "woodstoxRatio": 0.61,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-trim-cost-decomposition-2gib",
@@ -4794,6 +4827,7 @@
       "mibPerSec": 148.58,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 77.16,
@@ -4814,8 +4848,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.49,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-trim-cost-decomposition-4gib",
@@ -4845,6 +4878,7 @@
       "mibPerSec": 178.86,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 66.07,
@@ -4865,8 +4899,7 @@
       "sampleSpreadRatio": 0.09,
       "woodstoxRatio": 0.59,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "text-trim-cost-decomposition-8gib",
@@ -4896,6 +4929,7 @@
       "mibPerSec": 184.03,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 76.94,
@@ -4916,8 +4950,7 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.61,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false,
-      "fullArrayBufferParserInput": false
+      "runtimeLimitCounterexample": false
     },
     {
       "group": "access-shape-cross-process-books-corpus",
@@ -7288,6 +7321,9 @@
         "1024MiB quick-xml=150.24 MiB/s",
         "same-fixture-fastest-js=stax-raw-frame-name-id-batch-8",
         "same-fixture-fastest-js/Woodstox=0.43",
+        "same-fixture-fastest-js-rss=61.77 MiB",
+        "same-fixture-woodstox-rss=312.71 MiB",
+        "same-fixture-quick-xml-rss=4.78 MiB",
         "same-fixture-0.9x-target-met=false"
       ]
     }

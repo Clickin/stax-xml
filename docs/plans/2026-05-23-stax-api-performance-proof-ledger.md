@@ -185,7 +185,10 @@ candidate rows:
 fastest same-fixture Woodstox row now present in release artifacts
 (`file-backed-trim-boundary-check-candidate.json`, 351.56 MiB/s), that is
 0.43x Woodstox and 164.29 MiB/s below the 0.9x target. This remains below the
-0.9x target. For the
+0.9x target. The same-fixture process RSS snapshot is now explicit but still
+not an allocation-model equivalence claim: the fastest JS row records 61.77
+MiB max RSS, the selected Woodstox row records 312.71 MiB max RSS, and the
+selected quick-xml row records 4.78 MiB max RSS. For the
 public event-object shape, the fastest bounded row is
 Node/V8 `eventObjectFull` from
 `candidate-headroom-books-corpus-stability.json` at 141.62 MiB/s with process

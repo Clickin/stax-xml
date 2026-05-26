@@ -802,6 +802,10 @@ function summarize(rows, allocationEvidence) {
     sameFixture1024MiBRows.filter(row => row.runtimeId === 'woodstox-jvm'),
     row => row.mibPerSec,
   );
+  const sameFixtureQuickXml = maxBy(
+    sameFixture1024MiBRows.filter(row => row.runtimeId === 'quick-xml-rust'),
+    row => row.mibPerSec,
+  );
   const fastestSameFixtureLargeJsRow = maxBy(
     sameFixture1024MiBRows.filter(row => row.jsRuntime && row.fullStringParity),
     row => row.mibPerSec,
@@ -853,6 +857,12 @@ function summarize(rows, allocationEvidence) {
       targetMet: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureTargetWoodstox90MiBPerSec === 'number'
         ? fastestSameFixtureLargeJsMibPerSec >= sameFixtureTargetWoodstox90MiBPerSec
         : null,
+    },
+    sameFixture1024MiBProcessRssSnapshot: {
+      caveat: 'Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.',
+      fastestJs: summarizeProcessRssRow(fastestSameFixtureLargeJsRow),
+      woodstox: summarizeProcessRssRow(sameFixtureWoodstox),
+      quickXml: summarizeProcessRssRow(sameFixtureQuickXml),
     },
     fastestJsLargePublicEventRow: summarizeRow(fastestJsLargePublicEventRow),
     fastestBoundedJsLargePublicEventRow: summarizeRow(fastestBoundedJsLargePublicEventRow),
@@ -932,6 +942,9 @@ function createFindings(summary) {
         `1024MiB quick-xml=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s`,
         `same-fixture-fastest-js=${summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId}`,
         `same-fixture-fastest-js/Woodstox=${formatNumber(summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}`,
+        `same-fixture-fastest-js-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB`,
+        `same-fixture-woodstox-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB`,
+        `same-fixture-quick-xml-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
         `same-fixture-0.9x-target-met=${summary.sameFixture1024MiBWoodstoxTarget.targetMet}`,
       ],
     },
@@ -955,6 +968,7 @@ function renderMarkdown(report) {
     `- Fastest JS full-string row vs 200 MiB/s: ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
     `- Fastest JS full-string row vs 1024 MiB Woodstox reference: ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio)}x Woodstox, ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x reference target`,
     `- Same-fixture 1024 MiB JS row vs Woodstox target: ${report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId ?? 'n/a'} at ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}x Woodstox, ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
+    `- Same-fixture 1024 MiB process RSS snapshot: JS ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB, Woodstox ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB, quick-xml ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
     `- Fastest 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestJsLargePublicEventRow)}`,
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
@@ -1178,6 +1192,20 @@ function summarizeRow(row) {
     sampleMinMiBPerSec: row.sampleMinMiBPerSec ?? null,
     sampleMaxMiBPerSec: row.sampleMaxMiBPerSec ?? null,
     sampleSpreadRatio: row.sampleSpreadRatio ?? null,
+  };
+}
+
+function summarizeProcessRssRow(row) {
+  if (!row) return null;
+  return {
+    group: row.group,
+    sourceArtifact: row.sourceArtifact,
+    runtimeId: row.runtimeId,
+    runtimeLabel: row.runtimeLabel,
+    caseId: row.caseId,
+    mibPerSec: row.mibPerSec,
+    memoryKind: row.memory?.primaryKind ?? null,
+    maxRssMiB: row.memory?.primaryKind === 'process-rss' ? row.memory.maxMiB : null,
   };
 }
 

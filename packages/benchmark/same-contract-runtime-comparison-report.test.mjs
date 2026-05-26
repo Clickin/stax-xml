@@ -76,6 +76,13 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio, 0.43);
   assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec, 164.29);
   assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.targetMet, false);
+  assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.fastestJs.maxRssMiB, 61.77);
+  assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.fastestJs.sourceArtifact, 'file-backed-batch-size-sweep.json');
+  assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.woodstox.maxRssMiB, 312.71);
+  assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.woodstox.sourceArtifact, 'file-backed-trim-boundary-check-candidate.json');
+  assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml.maxRssMiB, 4.78);
+  assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml.sourceArtifact, 'file-backed-short-attr-value-cache-candidate.json');
+  assert.match(report.summary.sameFixture1024MiBProcessRssSnapshot.caveat, /not allocation-model equivalence/);
   assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.comparableFixture, false);
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
@@ -426,6 +433,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Fastest JS full-string row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);
   assert.match(markdown, /Fastest JS full-string row vs 1024 MiB Woodstox reference: 0\.97x Woodstox, -13\.85 MiB\/s below 0\.9x reference target/);
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
+  assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 79\/79/);
   assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 79 \| 79 \| 0 \| 0 \|/);
