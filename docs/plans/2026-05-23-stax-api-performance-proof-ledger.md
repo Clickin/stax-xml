@@ -272,9 +272,9 @@ comparison rows from
 full-string scan with explicit machine-readable source flags:
 `sync-iterable-byte-batches` records parser input
 `synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
-116.62 MiB/s; the backpressure-respecting `web-readable-stream-pull` row
+123.07 MiB/s; the backpressure-respecting `web-readable-stream-pull` row
 records parser input `Web ReadableStream<Uint8Array>`,
-`directReadableStream=true`, and 131.19 MiB/s. The scan separates
+`directReadableStream=true`, and 111.56 MiB/s. The scan separates
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
@@ -1057,7 +1057,11 @@ reads into `AsyncIterable<Uint8Array[]>` batches. The release row now uses the c
 64 KiB x batch-size 1 file-backed basis with one warmup and three measured
 runs. It reports `125.58 MiB/s` for the sync iterable path with 16.2% sample
 spread and `132.99 MiB/s` for the backpressure-respecting ReadableStream path
-with 3.1% sample spread. The report treats the ratio as a run-specific
+with 3.1% sample spread in the prior artifact; the refreshed release artifact
+now reports `123.07 MiB/s` for the sync iterable path with 17.4% sample spread
+and `111.56 MiB/s` for the backpressure-respecting ReadableStream path with
+13.0% sample spread. The direction flipped across reruns, so the report treats
+the ratio as a run-specific
 benchmark fact rather than a global async-overhead conclusion. Both rows
 are parser-demand-driven, while only the Web ReadableStream row carries stream
 backpressure metadata, so this artifact is direct source-shape evidence rather
