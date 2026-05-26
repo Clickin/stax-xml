@@ -23,6 +23,12 @@ const negativeArtifacts = [
     family: 'repeated-text-value-cache',
   },
   {
+    file: 'long-text-cache-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdLongTextCache',
+    family: 'bounded-long-text-value-cache',
+  },
+  {
     file: 'long-ascii-text-materialization-candidate-stability.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdLongAsciiText',
@@ -296,7 +302,7 @@ function createFindings(summary, sameScalePairs, negativeRows) {
     {
       id: 'cache-and-ascii-candidates-rejected',
       classification: 'NEGATIVE_RESULT',
-      summary: 'The current repeated text cache, long ASCII text fast path, and fold-trim candidate rows do not improve the full target row.',
+      summary: 'The current repeated text cache, bounded long-text cache, long ASCII text fast path, and fold-trim candidate rows do not improve the full target row.',
       evidence: negativeRows.map(row => `${row.family}: candidate/control=${formatNumber(row.candidateToControlRatio)}x, candidate=${formatNumber(row.candidate.mibPerSec)} MiB/s`),
     },
     {

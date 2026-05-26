@@ -344,10 +344,11 @@ rows cross 200 MiB/s only after omitting text/CDATA strings; the maximum
 same-scale without-text speedup is 1.41x at 4 GiB after omitting 67,949,424
 text string reads. The same synthesis records maximum no-trim speedup at only
 1.02x, maximum fold-trim speedup at 0.80x, repeated text-value cache at 0.74x of
-its control, long ASCII text fast path at 0.41x of its control, fold-trim
-checksum at 0.84x of its control, the byte-boundary trim guard at 1.00x of
-its control, ASCII byte pre-trim before decode at 0.99x of its control, and
-manual ASCII materialization for all string spans at 0.63x of its control.
+its control, bounded long-text cache at 0.83x of its control, long ASCII text
+fast path at 0.41x of its control, fold-trim checksum at 0.84x of its control,
+the byte-boundary trim guard at 1.00x of its control, ASCII byte pre-trim before
+decode at 0.99x of its control, and manual ASCII materialization for all string
+spans at 0.63x of its control.
 `packages/benchmark/results/release/text-trim-guard-candidate.md`
 records the guard as a 1 GiB 3-run full-string parity row: `rawFrameNameId`
 averaged 109.66 MiB/s and `rawFrameNameIdTrimGuard` averaged 109.56 MiB/s,
