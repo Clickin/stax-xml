@@ -241,8 +241,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 154 primary release JSON artifacts, recognizes 810
-sample throughput rows and 89 aggregate rows, and finds 504 JavaScript 1 GiB+
+The current scan covers 155 primary release JSON artifacts, recognizes 813
+sample throughput rows and 89 aggregate rows, and finds 507 JavaScript 1 GiB+
 full-string sample rows plus 69 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -254,7 +254,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 174 JavaScript 1 GiB+
+or their source contract carry it. It now finds 177 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -262,18 +262,18 @@ full-string rows with source mode metadata, including
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 126 JavaScript 1 GiB+ full-string rows, 117 of
+generated-sync bucket now has 129 JavaScript 1 GiB+ full-string rows, 120 of
 them bounded. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 138.89 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 122.02 MiB/s. The
+full-string scan: `sync-iterable-byte-batches` at 127.02 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 133.98 MiB/s. The
 scan separates parser-demand-driven source rows from Web Stream backpressure
 rows, so direct ReadableStream overhead evidence stays distinct from
 synchronous byte-batch rows. It also classifies source-mode rows by whether
-they are a prebuilt full-XML `ArrayBuffer` parser input: all 174 JavaScript
+they are a prebuilt full-XML `ArrayBuffer` parser input: all 177 JavaScript
 1 GiB+ full-string rows with source-mode metadata are now marked as not full
 `ArrayBuffer` parser-input rows. This also fixes the previous scanner blind
 spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but not
@@ -357,10 +357,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 154 primary release artifacts and recognizes 810
-measured rows. It records 112 benchmark artifacts, 16 source artifacts, 10
+The current audit scans 155 primary release artifacts and recognizes 813
+measured rows. It records 113 benchmark artifacts, 16 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-12 negative-result artifacts, 504 JavaScript 1 GiB+ full-string rows, and three
+12 negative-result artifacts, 507 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -971,10 +971,11 @@ batches, direct `Uint8Array` input is wrapped as a single-item byte batch, the
 public `StreamReader` path pushes each stream read as a single-item byte batch,
 and the public `EventReader` adapter converts stream reads into
 `AsyncIterable<Uint8Array[]>` batches. The release row now uses the current
-32 KiB x batch-size 4 file-backed basis and reports `138.89 MiB/s` for the
-sync iterable path and `122.02 MiB/s` for the backpressure-respecting
-ReadableStream path. The report treats the ratio as a run-specific benchmark
-fact rather than a global async-overhead conclusion. Both rows
+64 KiB x batch-size 1 file-backed basis with one warmup and three measured
+runs. It reports `127.02 MiB/s` for the sync iterable path with 16.2% sample
+spread and `133.98 MiB/s` for the backpressure-respecting ReadableStream path
+with 0.8% sample spread. The report treats the ratio as a run-specific
+benchmark fact rather than a global async-overhead conclusion. Both rows
 are parser-demand-driven, while only the Web ReadableStream row carries stream
 backpressure metadata, so this artifact is direct source-shape evidence rather
 than an assumption that the large matrices consume a pure ReadableStream.

@@ -67,6 +67,8 @@ test('stream source consumption shapes report separates sync batches from direct
     assert.equal(row.checksum, -746772258);
     assert.equal(row.boundedMemory, true);
     assert.equal(row.demandDrivenSource, true);
+    assert.equal(row.sampleCount, 1);
+    assert.equal(row.sampleSpreadRatio, 0);
     assert.equal(row.memory.maxRssBytes > 0, true);
   }
   const readableRow = report.rows.find(row => row.id === 'web-readable-stream-pull');
@@ -84,6 +86,8 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads one file chunk only inside pull\(\)/);
   assert.match(markdown, /Demand-driven/);
   assert.match(markdown, /Stream backpressure/);
+  assert.match(markdown, /Samples/);
+  assert.match(markdown, /Spread/);
   assert.match(markdown, /current-release-source-shape/);
   assert.match(markdown, /readable-stream-direct-source-shape/);
   assert.match(markdown, /backpressure-respected/);

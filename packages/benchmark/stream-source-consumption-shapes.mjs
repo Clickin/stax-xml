@@ -482,6 +482,8 @@ function createRow(id, fileSizeMiB, samplesMs, memorySamples, eventCount, checks
     avgMs,
     minMs: Math.min(...samplesMs),
     maxMs: Math.max(...samplesMs),
+    sampleCount: samplesMs.length,
+    sampleSpreadRatio: samplesMs.length > 1 ? (Math.max(...samplesMs) - Math.min(...samplesMs)) / avgMs : 0,
     samplesMs,
     eventCount,
     checksum,
@@ -582,10 +584,10 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Rows');
   lines.push('');
-  lines.push('| Row | Source shape | MiB/s | Bounded | Max RSS | Events | Checksum | Demand-driven | Stream backpressure |');
-  lines.push('| --- | --- | ---: | --- | ---: | ---: | ---: | --- | --- |');
+  lines.push('| Row | Source shape | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Checksum | Demand-driven | Stream backpressure |');
+  lines.push('| --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | --- | --- |');
   for (const row of report.rows) {
-    lines.push(`| \`${row.id}\` | ${row.implementation} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory?.maxRssBytes)} | ${row.eventCount} | ${row.checksum} | ${row.demandDrivenSource ? 'yes' : 'no'} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} |`);
+    lines.push(`| \`${row.id}\` | ${row.implementation} | ${formatNumber(row.mibPerSec)} | ${row.sampleCount} | ${formatPercent(row.sampleSpreadRatio)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatBytes(row.memory?.maxRssBytes)} | ${row.eventCount} | ${row.checksum} | ${row.demandDrivenSource ? 'yes' : 'no'} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} |`);
   }
   lines.push('');
   lines.push('## Findings');
@@ -681,6 +683,10 @@ function formatNullableNumber(value) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function formatPercent(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : 'n/a';
 }
 
 function formatBytes(value) {
