@@ -775,9 +775,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runs `js\.exe --version` as `JavaScript-C143\.0\.1`/);
   assert.match(markdown, /observes\s+`ionHits=4988`, `ion\.enable=1`, `ion\.warmup\.trigger=0`, and checksum\s+`12502500`/);
   assert.match(markdown, /records `disnative`, `disblic`, and `inJit`\s+builtins, but `hasDisassembler\(\): false`/);
-  assert.match(markdown, /creates\s+a 93-byte file with SHA256\s+`77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0`/);
-  assert.match(markdown, /fails with `Error: Did not write all function bytes to the file\.`/);
-  assert.match(markdown, /records no JitSpew, `IONFLAGS`, MIR\/LIR, or IR dump\s+flag surface/);
+  assert.match(markdown, /creates\s+a 93-byte file and then/);
+  assert.match(markdown, /fails with `Error: Did not write all function bytes to\s+the file\.`/);
+  assert.match(markdown, /can read the `books\.xml` probe as binary `Uint8Array`\s+\(`4551` bytes, checksum `356012`\)/);
+  assert.match(markdown, /lacks `TextDecoder`, `TextEncoder`,\s+`ReadableStream`, and `fetch`, so it cannot run the current full-string\s+stax-xml benchmark unchanged/);
+  assert.match(markdown, /records no JitSpew, `IONFLAGS`, MIR\/LIR,\s+or IR dump flag surface/);
   assert.match(markdown, /does not close the\s+`codegen-traces-open` obligation/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);

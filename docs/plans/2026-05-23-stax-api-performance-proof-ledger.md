@@ -1370,11 +1370,12 @@ deterministic `--ion-eager --ion-offthread-compile=off` probe observes
 `12502500`, proving that the release shell can observe Ion execution status.
 The same diagnostic-surface audit records `disnative`, `disblic`, and `inJit`
 builtins, but `hasDisassembler(): false`; a `disnative(f, path)` probe creates
-a 93-byte file with SHA256
-`77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0` and then
-fails with `Error: Did not write all function bytes to the file.` It also
-records no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump flag surface, so this is
-not emitted JIT IR and does not close the
+a 93-byte file and then fails with `Error: Did not write all function bytes to
+the file.` The shell can read the `books.xml` probe as binary `Uint8Array`
+(`4551` bytes, checksum `356012`), but lacks `TextDecoder`, `TextEncoder`,
+`ReadableStream`, and `fetch`, so it cannot run the current full-string
+stax-xml benchmark unchanged. It also records no JitSpew, `IONFLAGS`, MIR/LIR,
+or IR dump flag surface, so this is not emitted JIT IR and does not close the
 `codegen-traces-open` obligation.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun

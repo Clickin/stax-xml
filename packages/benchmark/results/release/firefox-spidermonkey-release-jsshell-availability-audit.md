@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Release JS Shell Availability Audit
 
-Generated: 2026-05-26T23:01:39.317Z
+Generated: 2026-05-26T23:12:50.892Z
 
 Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -12,6 +12,8 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - IR dump surface present: false
 - Native disassembly surface present: false
 - Native dump complete: false
+- Binary XML input readable: true
+- Can run current stax full-string benchmark unchanged: false
 - Closes emitted IR obligation: false
 - Package URL: https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip
 - Sums URL: https://archive.mozilla.org/pub/firefox/releases/143.0.1/SHA512SUMS
@@ -36,6 +38,11 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - has disblic builtin: true
 - has inJit builtin: true
 - hasDisassembler(): false
+- TextDecoder: undefined
+- TextEncoder: undefined
+- ReadableStream: undefined
+- fetch: undefined
+- binary read helper: function
 
 ## JIT Status Probe
 
@@ -49,9 +56,17 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 
 - File created: true
 - File bytes: 93
-- File SHA256: 77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0
+- File SHA256: 1879641b071ffac11b21e6c52d0fc50fb2a3ceee07f1526e7253ce0ae8500a66
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
+
+## Binary Input Probe
+
+- Status: ok
+- File: G:\programming\stax-xml\packages\benchmark\assets\books.xml
+- Byte length: 4551
+- Checksum: 356012
+- First bytes: 60,63,120,109,108,32,118,101
 
 ## Findings
 
@@ -75,6 +90,15 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
   - nativeDumpBytes=93
   - nativeDumpError=Error: Did not write all function bytes to the file.
   - This narrows the local diagnostic path but does not close the emitted JIT IR obligation.
+- spidermonkey-release-jsshell-stax-api-gap (NEGATIVE_RESULT): The release SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.
+  - TextDecoder=undefined
+  - TextEncoder=undefined
+  - ReadableStream=undefined
+  - fetch=undefined
+  - Uint8Array=function
+  - binaryInput=ok
+  - binaryBytes=4551
+  - canRunCurrentStaxFullStringBenchmark=false
 - release-jsshell-scope (SCOPE_GUARD): This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.
   - A diagnostic-capable SpiderMonkey shell or Firefox build is still required for emitted MIR/LIR/codegen dump evidence.
 

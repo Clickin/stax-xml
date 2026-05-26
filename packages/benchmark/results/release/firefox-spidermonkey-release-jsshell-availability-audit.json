@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T23:01:39.317Z",
+  "generatedAt": "2026-05-26T23:12:50.892Z",
   "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
   "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
   "note": "Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
@@ -71,10 +71,43 @@
       "error": null,
       "fileCreated": true,
       "fileBytes": 93,
-      "fileSha256": "77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0",
+      "fileSha256": "1879641b071ffac11b21e6c52d0fc50fb2a3ceee07f1526e7253ce0ae8500a66",
       "hasDisassembler": "false",
       "disnativeWriteError": "Error: Did not write all function bytes to the file.",
       "stdout": "hasDisassembler=false\r\ndisnativeWriteError=Error: Did not write all function bytes to the file.\r\n",
+      "stderr": ""
+    },
+    "apiProbe": {
+      "exitCode": 0,
+      "error": null,
+      "TextDecoder": "undefined",
+      "TextEncoder": "undefined",
+      "ReadableStream": "undefined",
+      "TransformStream": "undefined",
+      "fetch": "undefined",
+      "performance": "object",
+      "console": "object",
+      "setTimeout": "function",
+      "Promise": "function",
+      "URL": "undefined",
+      "ArrayBuffer": "function",
+      "Uint8Array": "function",
+      "DataView": "function",
+      "read": "function",
+      "snarf": "function",
+      "os": "object",
+      "stdout": "TextDecoder=undefined\r\nTextEncoder=undefined\r\nReadableStream=undefined\r\nTransformStream=undefined\r\nfetch=undefined\r\nperformance=object\r\nconsole=object\r\nsetTimeout=function\r\nPromise=function\r\nURL=undefined\r\nArrayBuffer=function\r\nUint8Array=function\r\nDataView=function\r\nread=function\r\nsnarf=function\r\nos=object\r\n",
+      "stderr": ""
+    },
+    "binaryInputProbe": {
+      "status": "ok",
+      "filePath": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+      "exitCode": 0,
+      "byteLength": 4551,
+      "checksum": 356012,
+      "firstBytes": "60,63,120,109,108,32,118,101",
+      "error": null,
+      "stdout": "byteLength=4551\r\nchecksum=356012\r\nfirstBytes=60,63,120,109,108,32,118,101\r\n",
       "stderr": ""
     }
   },
@@ -85,6 +118,8 @@
     "hasIrDumpSurface": false,
     "hasNativeDisassemblySurface": false,
     "nativeDumpComplete": false,
+    "canReadBinaryInput": true,
+    "canRunCurrentStaxFullStringBenchmark": false,
     "closesEmittedIrObligation": false
   },
   "findings": [
@@ -124,6 +159,21 @@
         "nativeDumpBytes=93",
         "nativeDumpError=Error: Did not write all function bytes to the file.",
         "This narrows the local diagnostic path but does not close the emitted JIT IR obligation."
+      ]
+    },
+    {
+      "id": "spidermonkey-release-jsshell-stax-api-gap",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The release SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.",
+      "evidence": [
+        "TextDecoder=undefined",
+        "TextEncoder=undefined",
+        "ReadableStream=undefined",
+        "fetch=undefined",
+        "Uint8Array=function",
+        "binaryInput=ok",
+        "binaryBytes=4551",
+        "canRunCurrentStaxFullStringBenchmark=false"
       ]
     },
     {

@@ -1,13 +1,14 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'firefox-spidermonkey-release-jsshell-availability-audit.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'firefox-spidermonkey-release-jsshell-availability-audit.md');
+const defaultBinaryProbeFile = resolve(__dirname, 'assets', 'books.xml');
 const defaultPackageUrl = 'https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip';
 const defaultSumsUrl = 'https://archive.mozilla.org/pub/firefox/releases/143.0.1/SHA512SUMS';
 const defaultPackagePathInSums = 'jsshell/jsshell-win64.zip';
@@ -35,6 +36,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     packageUrl: defaultPackageUrl,
     sumsUrl: defaultSumsUrl,
     packagePathInSums: defaultPackagePathInSums,
+    binaryProbeFile: defaultBinaryProbeFile,
     selfTest: false,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
@@ -69,6 +71,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--package-path-in-sums':
         options.packagePathInSums = readValue();
         break;
+      case '--binary-probe-file':
+        options.binaryProbeFile = resolve(process.cwd(), readValue());
+        break;
       case '--self-test':
         options.selfTest = true;
         break;
@@ -95,7 +100,7 @@ function main() {
 
 function runAudit(options) {
   const packageVerification = verifyPackage(options);
-  const shell = probeShell(options.jsShell);
+  const shell = probeShell(options);
   return createReport(options, packageVerification, shell);
 }
 
@@ -134,7 +139,8 @@ function verifyPackage(options) {
   };
 }
 
-function probeShell(jsShell) {
+function probeShell(options) {
+  const jsShell = options.jsShell;
   if (!jsShell) {
     return {
       status: 'not-configured',
@@ -163,6 +169,8 @@ function probeShell(jsShell) {
     jitProbeSource,
   ]);
   const nativeDumpProbe = runNativeDumpProbe(jsShell);
+  const apiProbe = runApiProbe(jsShell);
+  const binaryInputProbe = runBinaryInputProbe(jsShell, options.binaryProbeFile);
   return {
     status: version.exitCode === 0 && help.exitCode === 0 && jitProbe.exitCode === 0 && builtinProbe.exitCode === 0 ? 'available' : 'probe-failed',
     jsShell,
@@ -171,6 +179,8 @@ function probeShell(jsShell) {
     builtinProbe: summarizeBuiltinProbe(builtinProbe),
     jitProbe: summarizeJitProbe(jitProbe),
     nativeDumpProbe,
+    apiProbe,
+    binaryInputProbe,
   };
 }
 
@@ -270,6 +280,80 @@ function runNativeDumpProbe(jsShell) {
   }
 }
 
+function runApiProbe(jsShell) {
+  const script = [
+    "const names = ['TextDecoder','TextEncoder','ReadableStream','TransformStream','fetch','performance','console','setTimeout','Promise','URL','ArrayBuffer','Uint8Array','DataView','read','snarf','os'];",
+    'for (const name of names) print(name + "=" + typeof this[name]);',
+  ].join(' ');
+  const result = run(jsShell, ['-e', script]);
+  const combined = `${result.stdout}\n${result.stderr}`;
+  const typeOf = name => firstMatch(combined, new RegExp(`${name}=(\\w+)`))?.[1] ?? null;
+  return {
+    exitCode: result.exitCode,
+    error: result.error,
+    TextDecoder: typeOf('TextDecoder'),
+    TextEncoder: typeOf('TextEncoder'),
+    ReadableStream: typeOf('ReadableStream'),
+    TransformStream: typeOf('TransformStream'),
+    fetch: typeOf('fetch'),
+    performance: typeOf('performance'),
+    console: typeOf('console'),
+    setTimeout: typeOf('setTimeout'),
+    Promise: typeOf('Promise'),
+    URL: typeOf('URL'),
+    ArrayBuffer: typeOf('ArrayBuffer'),
+    Uint8Array: typeOf('Uint8Array'),
+    DataView: typeOf('DataView'),
+    read: typeOf('read'),
+    snarf: typeOf('snarf'),
+    os: typeOf('os'),
+    stdout: keepShort(result.stdout, 2000),
+    stderr: keepShort(result.stderr, 2000),
+  };
+}
+
+function runBinaryInputProbe(jsShell, filePath) {
+  if (!filePath || !existsSync(filePath)) {
+    return {
+      status: 'missing-input',
+      filePath,
+      exitCode: null,
+      byteLength: null,
+      checksum: null,
+      firstBytes: null,
+      error: null,
+    };
+  }
+  const relativePath = relative(process.cwd(), filePath);
+  const pathForShell = relativePath && !relativePath.startsWith('..') && !isAbsolute(relativePath)
+    ? relativePath
+    : filePath;
+  const shellPath = pathForShell.replace(/\\/g, '/');
+  const script = [
+    `const bytes = read(${JSON.stringify(shellPath)}, 'binary');`,
+    'let checksum = 0;',
+    'for (let i = 0; i < bytes.length; i++) checksum = (checksum + bytes[i]) | 0;',
+    "print('byteLength=' + bytes.length);",
+    "print('checksum=' + checksum);",
+    "print('firstBytes=' + Array.prototype.join.call(bytes.slice(0, 8), ','));",
+  ].join(' ');
+  const result = run(jsShell, ['-e', script]);
+  const combined = `${result.stdout}\n${result.stderr}`;
+  const byteLength = Number(firstMatch(combined, /byteLength=(\d+)/)?.[1] ?? NaN);
+  const checksum = Number(firstMatch(combined, /checksum=(-?\d+)/)?.[1] ?? NaN);
+  return {
+    status: result.exitCode === 0 && Number.isFinite(byteLength) ? 'ok' : 'failed',
+    filePath,
+    exitCode: result.exitCode,
+    byteLength: Number.isFinite(byteLength) ? byteLength : null,
+    checksum: Number.isFinite(checksum) ? checksum : null,
+    firstBytes: firstMatch(combined, /firstBytes=([0-9,]*)/)?.[1] ?? null,
+    error: result.error,
+    stdout: keepShort(result.stdout, 2000),
+    stderr: keepShort(result.stderr, 2000),
+  };
+}
+
 function firstMatch(text, pattern) {
   return text.match(pattern) ?? null;
 }
@@ -331,6 +415,39 @@ function createSelfTestReport(options) {
         stdout: 'hasDisassembler=false\ndisnativeWriteError=Error: Did not write all function bytes to the file.\n',
         stderr: '',
       },
+      apiProbe: {
+        exitCode: 0,
+        error: null,
+        TextDecoder: 'undefined',
+        TextEncoder: 'undefined',
+        ReadableStream: 'undefined',
+        TransformStream: 'undefined',
+        fetch: 'undefined',
+        performance: 'object',
+        console: 'object',
+        setTimeout: 'function',
+        Promise: 'function',
+        URL: 'undefined',
+        ArrayBuffer: 'function',
+        Uint8Array: 'function',
+        DataView: 'function',
+        read: 'function',
+        snarf: 'function',
+        os: 'object',
+        stdout: 'TextDecoder=undefined\nUint8Array=function\nread=function\n',
+        stderr: '',
+      },
+      binaryInputProbe: {
+        status: 'ok',
+        filePath: 'self-test/books.xml',
+        exitCode: 0,
+        byteLength: 4551,
+        checksum: 356687,
+        firstBytes: '60,63,120,109,108,32,118,101',
+        error: null,
+        stdout: 'byteLength=4551\nchecksum=356687\nfirstBytes=60,63,120,109,108,32,118,101\n',
+        stderr: '',
+      },
     },
   );
 }
@@ -361,6 +478,13 @@ function createReport(options, packageVerification, shell) {
       hasIrDumpSurface,
       hasNativeDisassemblySurface: shell.builtinProbe?.hasDisassemblerValue === 'true',
       nativeDumpComplete: shell.nativeDumpProbe?.fileCreated === true && shell.nativeDumpProbe?.disnativeWriteError === null,
+      canReadBinaryInput: shell.binaryInputProbe?.status === 'ok',
+      canRunCurrentStaxFullStringBenchmark: shell.apiProbe?.TextDecoder === 'function'
+        && shell.apiProbe?.TextEncoder === 'function'
+        && shell.apiProbe?.ReadableStream === 'function'
+        && shell.apiProbe?.fetch === 'function'
+        && shell.apiProbe?.Uint8Array === 'function'
+        && shell.binaryInputProbe?.status === 'ok',
       closesEmittedIrObligation: false,
     },
   };
@@ -413,6 +537,21 @@ function createFindings(report) {
       ],
     },
     {
+      id: 'spidermonkey-release-jsshell-stax-api-gap',
+      classification: 'NEGATIVE_RESULT',
+      summary: 'The release SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.',
+      evidence: [
+        `TextDecoder=${report.shell.apiProbe?.TextDecoder ?? 'unknown'}`,
+        `TextEncoder=${report.shell.apiProbe?.TextEncoder ?? 'unknown'}`,
+        `ReadableStream=${report.shell.apiProbe?.ReadableStream ?? 'unknown'}`,
+        `fetch=${report.shell.apiProbe?.fetch ?? 'unknown'}`,
+        `Uint8Array=${report.shell.apiProbe?.Uint8Array ?? 'unknown'}`,
+        `binaryInput=${report.shell.binaryInputProbe?.status ?? 'unknown'}`,
+        `binaryBytes=${report.shell.binaryInputProbe?.byteLength ?? 'unknown'}`,
+        `canRunCurrentStaxFullStringBenchmark=${report.outcome.canRunCurrentStaxFullStringBenchmark}`,
+      ],
+    },
+    {
       id: 'release-jsshell-scope',
       classification: 'SCOPE_GUARD',
       summary: 'This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.',
@@ -439,6 +578,8 @@ function renderMarkdown(report) {
     `- IR dump surface present: ${report.outcome.hasIrDumpSurface}`,
     `- Native disassembly surface present: ${report.outcome.hasNativeDisassemblySurface}`,
     `- Native dump complete: ${report.outcome.nativeDumpComplete}`,
+    `- Binary XML input readable: ${report.outcome.canReadBinaryInput}`,
+    `- Can run current stax full-string benchmark unchanged: ${report.outcome.canRunCurrentStaxFullStringBenchmark}`,
     `- Closes emitted IR obligation: ${report.outcome.closesEmittedIrObligation}`,
     `- Package URL: ${report.parameters.packageUrl}`,
     `- Sums URL: ${report.parameters.sumsUrl}`,
@@ -463,6 +604,11 @@ function renderMarkdown(report) {
     `- has disblic builtin: ${report.shell.builtinProbe?.hasDisblicBuiltin}`,
     `- has inJit builtin: ${report.shell.builtinProbe?.hasInJitBuiltin}`,
     `- hasDisassembler(): ${report.shell.builtinProbe?.hasDisassemblerValue ?? 'not-recorded'}`,
+    `- TextDecoder: ${report.shell.apiProbe?.TextDecoder ?? 'not-recorded'}`,
+    `- TextEncoder: ${report.shell.apiProbe?.TextEncoder ?? 'not-recorded'}`,
+    `- ReadableStream: ${report.shell.apiProbe?.ReadableStream ?? 'not-recorded'}`,
+    `- fetch: ${report.shell.apiProbe?.fetch ?? 'not-recorded'}`,
+    `- binary read helper: ${report.shell.apiProbe?.read ?? 'not-recorded'}`,
     '',
     '## JIT Status Probe',
     '',
@@ -479,6 +625,14 @@ function renderMarkdown(report) {
     `- File SHA256: ${report.shell.nativeDumpProbe?.fileSha256 ?? 'not-recorded'}`,
     `- hasDisassembler: ${report.shell.nativeDumpProbe?.hasDisassembler ?? 'not-recorded'}`,
     `- disnative write error: ${report.shell.nativeDumpProbe?.disnativeWriteError ?? 'none'}`,
+    '',
+    '## Binary Input Probe',
+    '',
+    `- Status: ${report.shell.binaryInputProbe?.status ?? 'not-run'}`,
+    `- File: ${report.shell.binaryInputProbe?.filePath ?? 'not-recorded'}`,
+    `- Byte length: ${report.shell.binaryInputProbe?.byteLength ?? 'not-recorded'}`,
+    `- Checksum: ${report.shell.binaryInputProbe?.checksum ?? 'not-recorded'}`,
+    `- First bytes: ${report.shell.binaryInputProbe?.firstBytes ?? 'not-recorded'}`,
     '',
     '## Findings',
     '',
