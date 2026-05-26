@@ -38,6 +38,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'node-v8');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
   assert.equal(report.summary.fastestJsLargeFullRow.mibPerSec, 185.5);
+  assert.equal(report.summary.fastestJsLargeFullRow.fullArrayBufferParserInput, false);
   assert.equal(report.summary.fastestJsLargeFullRow.sampleCount, 3);
   assert.equal(report.summary.fastestJsLargeFullRow.sampleMinMiBPerSec, 184.09);
   assert.equal(report.summary.fastestJsLargeFullRow.sampleMaxMiBPerSec, 186.66);
@@ -78,6 +79,15 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.comparableFixture, false);
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
+  assert.deepEqual(report.summary.sourceShapeSafety, {
+    largeJsFullSourceModeRows: 79,
+    notFullArrayBufferRows: 79,
+    fullArrayBufferRows: 0,
+    unknownArrayBufferRows: 0,
+  });
+  assert.ok(report.comparisonRows
+    .filter(row => row.jsRuntime && row.fullStringParity && (row.fixture?.sizeGiB ?? 0) >= 0.999 && row.sourceMode)
+    .every(row => row.fullArrayBufferParserInput === false));
 
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'external-baseline.json'
@@ -91,6 +101,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.boundedMemory === true
     && row.memory.primaryKind === 'process-rss'
     && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'file-backed-short-attr-value-cache-candidate'
@@ -206,6 +217,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.memory.primaryKind === 'process-rss'
     && row.memory.maxMiB === 60.45
     && row.sourceMode === 'sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'text-trim-cost-decomposition-2gib'
@@ -251,6 +263,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.memory.primaryKind === 'process-rss'
     && row.memory.maxMiB === 76.94
     && row.sourceMode === 'sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'access-shape-cross-process-books-corpus'
@@ -288,6 +301,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.memory.primaryKind === 'process-rss'
     && row.memory.maxMiB === 61.77
     && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'file-backed-batch-size-sweep'
@@ -413,6 +427,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Fastest JS full-string row vs 1024 MiB Woodstox reference: 0\.97x Woodstox, -13\.85 MiB\/s below 0\.9x reference target/);
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 79\/79/);
+  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 79 \| 79 \| 0 \| 0 \|/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);

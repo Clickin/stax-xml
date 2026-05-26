@@ -404,33 +404,37 @@ function extractExternalRows(report, spec = externalBaselineArtifacts[0]) {
   const reference = byTool.get('woodstox') ?? results.find(row => row.status === 'ok');
   return results
     .filter(row => row.status === 'ok')
-    .map(row => ({
-      group: spec.group,
-      sourceArtifact: spec.file,
-      runtimeId: externalRuntimeId(row.tool),
-      runtimeLabel: externalRuntimeLabel(row.tool),
-      languageFamily: externalLanguageFamily(row.tool),
-      jsRuntime: row.tool.startsWith('stax-'),
-      caseId: row.tool,
-      implementation: row.implementation,
-      contractScope: row.workload,
-      fixture: {
-        source: spec.fixtureSource,
-        shape: spec.fixtureShape,
-        sizeMiB: round(report.fixture?.sizeMiB),
-        sizeGiB: round((report.fixture?.sizeMiB ?? 0) / 1024),
-      },
-      fullStringParity: sameEventChecksum(row, reference),
-      eventCount: row.eventCount,
-      checksum: row.checksum,
-      mibPerSec: round(row.mibPerSec),
-      boundedMemory: typeof row.boundedMemory === 'boolean' ? row.boundedMemory : null,
-      sourceMode: classifyExternalSourceMode(row, report),
-      memory: extractExternalMemory(row, report),
-      woodstoxRatio: round(row.woodstoxRatio),
-      targetStatus: row.targetStatus ?? null,
-      runtimeLimitCounterexample: false,
-    }));
+    .map(row => {
+      const sourceMode = classifyExternalSourceMode(row, report);
+      return {
+        group: spec.group,
+        sourceArtifact: spec.file,
+        runtimeId: externalRuntimeId(row.tool),
+        runtimeLabel: externalRuntimeLabel(row.tool),
+        languageFamily: externalLanguageFamily(row.tool),
+        jsRuntime: row.tool.startsWith('stax-'),
+        caseId: row.tool,
+        implementation: row.implementation,
+        contractScope: row.workload,
+        fixture: {
+          source: spec.fixtureSource,
+          shape: spec.fixtureShape,
+          sizeMiB: round(report.fixture?.sizeMiB),
+          sizeGiB: round((report.fixture?.sizeMiB ?? 0) / 1024),
+        },
+        fullStringParity: sameEventChecksum(row, reference),
+        eventCount: row.eventCount,
+        checksum: row.checksum,
+        mibPerSec: round(row.mibPerSec),
+        boundedMemory: typeof row.boundedMemory === 'boolean' ? row.boundedMemory : null,
+        sourceMode,
+        fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
+        memory: extractExternalMemory(row, report),
+        woodstoxRatio: round(row.woodstoxRatio),
+        targetStatus: row.targetStatus ?? null,
+        runtimeLimitCounterexample: false,
+      };
+    });
 }
 
 function extractVariantRows(report, spec) {
@@ -448,6 +452,7 @@ function extractVariantRows(report, spec) {
       && isLarge
       && row.mibPerSec >= 200,
     );
+    const sourceMode = spec.sourceMode ?? classifyArtifactSourceMode(row, report);
     return {
       group: spec.group,
       sourceArtifact: spec.file,
@@ -466,7 +471,8 @@ function extractVariantRows(report, spec) {
       checksum: row.checksum,
       mibPerSec: round(row.mibPerSec),
       boundedMemory: row.boundedMemory === true,
-      sourceMode: spec.sourceMode ?? classifyArtifactSourceMode(row, report),
+      sourceMode,
+      fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
       memory,
       materializationCounters: pickMaterializationCounters(row.materializationCounters),
       sampleCount: samples.sampleCount,
@@ -521,6 +527,7 @@ function extractCrossProcessRows(report, spec) {
         const mibPerSec = round(row.avgMiBPerSec);
         const boundedMemory = row.boundedMemoryAll === true;
         const fullStringParity = row.fullStringParity === true && row.stableResult === true;
+        const sourceMode = classifyArtifactSourceMode(row, report);
         return {
           group: spec.group,
           sourceArtifact: spec.file,
@@ -539,7 +546,8 @@ function extractCrossProcessRows(report, spec) {
           checksum: firstSingleton(row.checksums),
           mibPerSec,
           boundedMemory,
-          sourceMode: classifyArtifactSourceMode(row, report),
+          sourceMode,
+          fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
           memory: extractCrossProcessMemory(row),
           materializationCounters: null,
           sampleCount: row.sampleCount ?? runtimeReport.sampleCount ?? null,
@@ -576,6 +584,7 @@ function extractFileBackedSweepRows(report, spec) {
     const mibPerSec = round(row.mibPerSec);
     const boundedMemory = row.boundedMemory === true;
     const fullStringParity = row.fullStringParity === true;
+    const sourceMode = 'file-backed-sync-iterable-byte-batches';
     return {
       group: spec.group,
       sourceArtifact: spec.file,
@@ -594,7 +603,8 @@ function extractFileBackedSweepRows(report, spec) {
       checksum: row.checksum,
       mibPerSec,
       boundedMemory,
-      sourceMode: 'file-backed-sync-iterable-byte-batches',
+      sourceMode,
+      fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
       memory: extractMemory(row, report),
       materializationCounters: null,
       sampleCount: Array.isArray(row.samplesMs) ? row.samplesMs.length : null,
@@ -632,6 +642,26 @@ function classifyArtifactSourceMode(row, report) {
   if (report.objective === 'candidate-headroom-cross-process'
     && report.options?.fixtureShape === 'corpus-cycle') {
     return 'sync-iterable-byte-batches';
+  }
+  return null;
+}
+
+function classifyFullArrayBufferParserInput(row, sourceMode = null, report = null) {
+  if (typeof row.fullArrayBufferParserInput === 'boolean') return row.fullArrayBufferParserInput;
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (/sync-iterable-byte-batches|async-iterable-byte-batches|readable-stream-pull|complete-js-string/.test(mode)) {
+    return false;
+  }
+
+  const sourceContract = report?.sourceContract?.childSourceContract ?? report?.sourceContract;
+  const parserInput = sourceContract?.parserInput ?? '';
+  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption ?? '';
+  const combined = `${parserInput} ${arrayBufferConsumption}`;
+  if (/does not prebuild|does not use a full XML ArrayBuffer|Neither measured row constructs/i.test(combined)) {
+    return false;
+  }
+  if (/full XML ArrayBuffer parser input|complete XML ArrayBuffer/i.test(combined)) {
+    return true;
   }
   return null;
 }
@@ -722,6 +752,16 @@ function findDominantPhase(rows) {
   return rows
     .filter(row => typeof row?.totalAllocatedBytes === 'number')
     .sort((left, right) => right.totalAllocatedBytes - left.totalAllocatedBytes)[0] ?? null;
+}
+
+function summarizeSourceShapeSafety(rows) {
+  const sourceModeRows = rows.filter(row => row.sourceMode);
+  return {
+    largeJsFullSourceModeRows: sourceModeRows.length,
+    notFullArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === false).length,
+    fullArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === true).length,
+    unknownArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === null).length,
+  };
 }
 
 function summarize(rows, allocationEvidence) {
@@ -837,6 +877,7 @@ function summarize(rows, allocationEvidence) {
     },
     memoryMetricKinds: Array.from(new Set(rows.map(row => row.memory?.primaryKind).filter(Boolean))).sort(),
     sourceModes: Array.from(new Set(rows.map(row => row.sourceMode).filter(Boolean))).sort(),
+    sourceShapeSafety: summarizeSourceShapeSafety(jsLargeFullRows),
     allocationEvidenceKinds: allocationEvidence.map(item => item.evidenceKind),
     conclusionAllowed: false,
   };
@@ -859,6 +900,20 @@ function createFindings(summary) {
       evidence: [
         `jsLargeFullRows=${summary.jsLargeFullRowCount}`,
         `counterexamples=${summary.jsRuntimeCounterexamples200MiB}`,
+      ],
+    },
+    {
+      id: 'source-shape-not-full-arraybuffer',
+      status: summary.sourceShapeSafety.fullArrayBufferRows === 0
+        && summary.sourceShapeSafety.unknownArrayBufferRows === 0
+        ? 'CLASSIFIED'
+        : 'PARTIAL',
+      summary: 'Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.',
+      evidence: [
+        `largeJsFullSourceModeRows=${summary.sourceShapeSafety.largeJsFullSourceModeRows}`,
+        `notFullArrayBufferRows=${summary.sourceShapeSafety.notFullArrayBufferRows}`,
+        `fullArrayBufferRows=${summary.sourceShapeSafety.fullArrayBufferRows}`,
+        `unknownArrayBufferRows=${summary.sourceShapeSafety.unknownArrayBufferRows}`,
       ],
     },
     {
@@ -909,28 +964,35 @@ function renderMarkdown(report) {
     `- 1024 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec)} MiB/s`,
     `- 1024 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio)}x Woodstox)`,
     `- Recognized JS source modes: ${report.summary.sourceModes.length > 0 ? report.summary.sourceModes.join(', ') : 'none recorded'}`,
+    `- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: ${report.summary.sourceShapeSafety.notFullArrayBufferRows}/${report.summary.sourceShapeSafety.largeJsFullSourceModeRows}`,
     '',
     '## Fastest JS Rows By Group',
     '',
-    '| Group | Runtime | Case | MiB/s | Bounded | Memory | Source mode |',
-    '| --- | --- | --- | ---: | --- | --- | --- |',
+    '| Group | Runtime | Case | MiB/s | Bounded | Memory | Source mode | Full ArrayBuffer input |',
+    '| --- | --- | --- | ---: | --- | --- | --- | --- |',
   ];
 
   for (const item of report.summary.fastestRowsByGroup) {
     const row = item.fastest;
-    lines.push(`| \`${item.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} |`);
+    lines.push(`| \`${item.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} |`);
   }
 
   lines.push(
     '',
+    '## Source Shape Safety',
+    '',
+    '| Scope | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} |`,
+    '',
     '## Selected Comparison Rows',
     '',
-    '| Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Source mode | Artifact |',
-    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- |',
+    '| Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Source mode | Full ArrayBuffer input | Artifact |',
+    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- |',
   );
 
   for (const row of report.comparisonRows) {
-    lines.push(`| \`${row.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${row.eventCount ?? ''} | ${row.checksum ?? ''} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory === null ? 'n/a' : row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | \`${row.sourceArtifact}\` |`);
+    lines.push(`| \`${row.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${row.eventCount ?? ''} | ${row.checksum ?? ''} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory === null ? 'n/a' : row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} | \`${row.sourceArtifact}\` |`);
   }
 
   lines.push(
@@ -1110,6 +1172,7 @@ function summarizeRow(row) {
     boundedMemory: row.boundedMemory,
     memory: row.memory,
     sourceMode: row.sourceMode,
+    fullArrayBufferParserInput: row.fullArrayBufferParserInput,
     sourceArtifact: row.sourceArtifact,
     sampleCount: row.sampleCount ?? null,
     sampleMinMiBPerSec: row.sampleMinMiBPerSec ?? null,
@@ -1198,6 +1261,12 @@ function formatMemory(memory) {
 
 function formatSourceMode(sourceMode) {
   return sourceMode ? `\`${sourceMode}\`` : 'n/a';
+}
+
+function formatFullArrayBufferInput(value) {
+  if (value === true) return 'yes';
+  if (value === false) return 'no';
+  return 'unknown';
 }
 
 function formatAllocationMemory(item) {

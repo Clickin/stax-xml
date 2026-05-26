@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T03:40:46.260Z",
+  "generatedAt": "2026-05-26T04:09:46.609Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -66,6 +66,7 @@
         "maxArrayBuffersMiB": 0.88
       },
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "sourceArtifact": "text-trim-cost-decomposition.json",
       "sampleCount": 3,
       "sampleMinMiBPerSec": 184.09,
@@ -110,6 +111,7 @@
         "maxArrayBuffersMiB": 4.88
       },
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
       "sampleCount": 3,
       "sampleMinMiBPerSec": 141.06,
@@ -132,6 +134,7 @@
         "maxArrayBuffersMiB": 4.88
       },
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "sourceArtifact": "candidate-headroom-books-corpus-stability.json",
       "sampleCount": 3,
       "sampleMinMiBPerSec": 141.06,
@@ -157,6 +160,7 @@
             "maxArrayBuffersMiB": 0.5
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
@@ -182,6 +186,7 @@
             "maxArrayBuffersMiB": 1.74
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
@@ -207,6 +212,7 @@
             "maxArrayBuffersMiB": 1.62
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
@@ -232,6 +238,7 @@
             "maxArrayBuffersMiB": 0.99
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "file-backed-long-ascii-text-candidate.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
@@ -257,6 +264,7 @@
             "maxArrayBuffersMiB": 8.18
           },
           "sourceMode": null,
+          "fullArrayBufferParserInput": null,
           "sourceArtifact": "bun-candidate-headroom-large.json",
           "sampleCount": 1,
           "sampleMinMiBPerSec": 57.99,
@@ -282,6 +290,7 @@
             "maxArrayBuffersMiB": 349.5
           },
           "sourceMode": null,
+          "fullArrayBufferParserInput": null,
           "sourceArtifact": "candidate-headroom-corpus.json",
           "sampleCount": 1,
           "sampleMinMiBPerSec": 77,
@@ -307,6 +316,7 @@
             "maxArrayBuffersMiB": 30.54
           },
           "sourceMode": null,
+          "fullArrayBufferParserInput": null,
           "sourceArtifact": "bun-candidate-headroom-projection-large.json",
           "sampleCount": 1,
           "sampleMinMiBPerSec": 84.68,
@@ -332,6 +342,7 @@
             "maxArrayBuffersMiB": null
           },
           "sourceMode": null,
+          "fullArrayBufferParserInput": null,
           "sourceArtifact": "textdecoder-span-variants.json",
           "sampleCount": 1,
           "sampleMinMiBPerSec": 51.6,
@@ -357,6 +368,7 @@
             "maxArrayBuffersMiB": 48.88
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "bun-candidate-headroom-books-corpus-stability.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 177.26,
@@ -382,6 +394,7 @@
             "maxArrayBuffersMiB": 0.81
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "text-cache-materialization-candidate-stability.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 171.23,
@@ -407,6 +420,7 @@
             "maxArrayBuffersMiB": 0.68
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 172.33,
@@ -432,6 +446,7 @@
             "maxArrayBuffersMiB": 0.33
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "fold-trimmed-text-candidate-stability.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 109.69,
@@ -457,6 +472,7 @@
             "maxArrayBuffersMiB": 0.88
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "text-trim-cost-decomposition.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 184.09,
@@ -482,6 +498,7 @@
             "maxArrayBuffersMiB": 0.41
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 183.28,
@@ -507,6 +524,7 @@
             "maxArrayBuffersMiB": 0.42
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "text-trim-cost-decomposition-4gib.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 169.74,
@@ -532,6 +550,7 @@
             "maxArrayBuffersMiB": 1.65
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 182.97,
@@ -555,6 +574,7 @@
             "note": "max across independent child processes"
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "access-shape-candidate-cross-process.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 173.98,
@@ -578,6 +598,7 @@
             "note": "max across independent child processes"
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 119.61,
@@ -601,6 +622,7 @@
             "note": "max across independent child processes"
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 122.87,
@@ -624,6 +646,7 @@
             "note": "max across independent child processes"
           },
           "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
           "sampleCount": 3,
           "sampleMinMiBPerSec": 135.93,
@@ -649,6 +672,7 @@
             "maxArrayBuffersMiB": 1.67
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "file-backed-batch-size-sweep.json",
           "sampleCount": 1,
           "sampleMinMiBPerSec": null,
@@ -674,6 +698,7 @@
             "maxArrayBuffersMiB": 1.49
           },
           "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
           "sourceArtifact": "file-backed-source-sweep.json",
           "sampleCount": 1,
           "sampleMinMiBPerSec": null,
@@ -706,6 +731,12 @@
       "file-backed-sync-iterable-byte-batches",
       "sync-iterable-byte-batches"
     ],
+    "sourceShapeSafety": {
+      "largeJsFullSourceModeRows": 79,
+      "notFullArrayBufferRows": 79,
+      "fullArrayBufferRows": 0,
+      "unknownArrayBufferRows": 0
+    },
     "allocationEvidenceKinds": [
       "global-allocator-counters",
       "jfr-sampled-allocation",
@@ -736,6 +767,7 @@
       "mibPerSec": 167.91,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 134.16,
@@ -770,6 +802,7 @@
       "mibPerSec": 105.48,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 134.33,
@@ -804,6 +837,7 @@
       "mibPerSec": 99.27,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 134.93,
@@ -838,6 +872,7 @@
       "mibPerSec": 119.05,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 134.97,
@@ -872,6 +907,7 @@
       "mibPerSec": 109.8,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 135.13,
@@ -906,6 +942,7 @@
       "mibPerSec": 29.4,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 358.83,
@@ -940,6 +977,7 @@
       "mibPerSec": 84.84,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 312.5,
@@ -974,6 +1012,7 @@
       "mibPerSec": 303.1,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 121.57,
@@ -1008,6 +1047,7 @@
       "mibPerSec": 243.43,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 4.79,
@@ -1042,6 +1082,7 @@
       "mibPerSec": 72.72,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.78,
@@ -1076,6 +1117,7 @@
       "mibPerSec": 76.13,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 77.8,
@@ -1110,6 +1152,7 @@
       "mibPerSec": 190.72,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 308.7,
@@ -1144,6 +1187,7 @@
       "mibPerSec": 150.24,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 4.78,
@@ -1178,6 +1222,7 @@
       "mibPerSec": 147.05,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 61.14,
@@ -1212,6 +1257,7 @@
       "mibPerSec": 140.15,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 67.01,
@@ -1246,6 +1292,7 @@
       "mibPerSec": 338.14,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 318.52,
@@ -1280,6 +1327,7 @@
       "mibPerSec": 274.63,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 4.78,
@@ -1314,6 +1362,7 @@
       "mibPerSec": 143.35,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 61.4,
@@ -1348,6 +1397,7 @@
       "mibPerSec": 130.27,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 67.22,
@@ -1382,6 +1432,7 @@
       "mibPerSec": 351.56,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 312.71,
@@ -1416,6 +1467,7 @@
       "mibPerSec": 273.74,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 4.78,
@@ -1450,6 +1502,7 @@
       "mibPerSec": 141.29,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 61.34,
@@ -1484,6 +1537,7 @@
       "mibPerSec": 77.52,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 99.57,
@@ -1518,6 +1572,7 @@
       "mibPerSec": 308.06,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 310.86,
@@ -1552,6 +1607,7 @@
       "mibPerSec": 272.33,
       "boundedMemory": true,
       "sourceMode": null,
+      "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 4.78,
@@ -1612,7 +1668,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.15,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1662,7 +1719,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.12,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1712,7 +1770,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1762,7 +1821,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.16,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1812,7 +1872,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.11,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1862,7 +1923,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1916,7 +1978,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.1,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -1970,7 +2033,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.1,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -2024,7 +2088,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.13,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -2078,7 +2143,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.1,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -2132,7 +2198,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.07,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-candidate",
@@ -2186,7 +2253,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.11,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2236,7 +2304,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2286,7 +2355,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2336,7 +2406,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.23,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2386,7 +2457,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2436,7 +2508,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2486,7 +2559,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.23,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2540,7 +2614,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.09,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2594,7 +2669,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.09,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2648,7 +2724,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.09,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2702,7 +2779,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.13,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2756,7 +2834,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.11,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "corpus-1gib-candidate",
@@ -2810,7 +2889,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.14,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -2860,7 +2940,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.2,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -2910,7 +2991,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -2960,7 +3042,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.25,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3010,7 +3093,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.23,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3060,7 +3144,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3110,7 +3195,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.25,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3164,7 +3250,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.17,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3218,7 +3305,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.14,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3272,7 +3360,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.18,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3326,7 +3415,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3380,7 +3470,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.16,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "projection-1gib-full",
@@ -3434,7 +3525,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.19,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3485,7 +3577,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3536,7 +3629,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3587,7 +3681,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3638,7 +3733,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3693,7 +3789,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "generated-1gib-textdecoder",
@@ -3748,7 +3845,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": null,
       "targetStatus": null,
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": null
     },
     {
       "group": "books-corpus-stability",
@@ -3798,7 +3896,8 @@
       "sampleSpreadRatio": 0.23,
       "woodstoxRatio": 0.46,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -3848,7 +3947,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.42,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -3898,7 +3998,8 @@
       "sampleSpreadRatio": 0.03,
       "woodstoxRatio": 0.53,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -3948,7 +4049,8 @@
       "sampleSpreadRatio": 0.02,
       "woodstoxRatio": 0.39,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -3998,7 +4100,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.51,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -4048,7 +4151,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.41,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -4098,7 +4202,8 @@
       "sampleSpreadRatio": 0.02,
       "woodstoxRatio": 0.54,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "books-corpus-stability",
@@ -4148,7 +4253,8 @@
       "sampleSpreadRatio": 0.03,
       "woodstoxRatio": 0.43,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-cache-negative-stability",
@@ -4198,7 +4304,8 @@
       "sampleSpreadRatio": 0.05,
       "woodstoxRatio": 0.52,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-cache-negative-stability",
@@ -4248,7 +4355,8 @@
       "sampleSpreadRatio": 0.03,
       "woodstoxRatio": 0.39,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "long-ascii-text-negative-stability",
@@ -4298,7 +4406,8 @@
       "sampleSpreadRatio": 0.34,
       "woodstoxRatio": 0.44,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "long-ascii-text-negative-stability",
@@ -4348,7 +4457,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.52,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "long-ascii-text-negative-stability",
@@ -4398,7 +4508,8 @@
       "sampleSpreadRatio": 0.08,
       "woodstoxRatio": 0.21,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "fold-trimmed-text-negative-stability",
@@ -4448,7 +4559,8 @@
       "sampleSpreadRatio": 0.29,
       "woodstoxRatio": 0.37,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "fold-trimmed-text-negative-stability",
@@ -4498,7 +4610,8 @@
       "sampleSpreadRatio": 0.09,
       "woodstoxRatio": 0.31,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-trim-cost-decomposition",
@@ -4548,7 +4661,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.61,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-trim-cost-decomposition",
@@ -4598,7 +4712,8 @@
       "sampleSpreadRatio": 0,
       "woodstoxRatio": 0.49,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-trim-cost-decomposition-2gib",
@@ -4648,7 +4763,8 @@
       "sampleSpreadRatio": 0.02,
       "woodstoxRatio": 0.61,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-trim-cost-decomposition-2gib",
@@ -4698,7 +4814,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.49,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-trim-cost-decomposition-4gib",
@@ -4748,7 +4865,8 @@
       "sampleSpreadRatio": 0.09,
       "woodstoxRatio": 0.59,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "text-trim-cost-decomposition-8gib",
@@ -4798,7 +4916,8 @@
       "sampleSpreadRatio": 0.01,
       "woodstoxRatio": 0.61,
       "targetStatus": "below",
-      "runtimeLimitCounterexample": false
+      "runtimeLimitCounterexample": false,
+      "fullArrayBufferParserInput": false
     },
     {
       "group": "access-shape-cross-process-books-corpus",
@@ -4828,6 +4947,7 @@
       "mibPerSec": 161.48,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 70.7,
@@ -4871,6 +4991,7 @@
       "mibPerSec": 136.98,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.11,
@@ -4914,6 +5035,7 @@
       "mibPerSec": 147.13,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 71.84,
@@ -4957,6 +5079,7 @@
       "mibPerSec": 167.04,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 195.59,
@@ -5000,6 +5123,7 @@
       "mibPerSec": 139.83,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 195.54,
@@ -5043,6 +5167,7 @@
       "mibPerSec": 177.34,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 189.37,
@@ -5086,6 +5211,7 @@
       "mibPerSec": 113.79,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 70.73,
@@ -5129,6 +5255,7 @@
       "mibPerSec": 72.76,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 136.9,
@@ -5172,6 +5299,7 @@
       "mibPerSec": 94.98,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 147.6,
@@ -5215,6 +5343,7 @@
       "mibPerSec": 120.18,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 190.2,
@@ -5258,6 +5387,7 @@
       "mibPerSec": 76.84,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 190.21,
@@ -5301,6 +5431,7 @@
       "mibPerSec": 97.84,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 176.32,
@@ -5344,6 +5475,7 @@
       "mibPerSec": 119.66,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 67.73,
@@ -5387,6 +5519,7 @@
       "mibPerSec": 78.9,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 132.04,
@@ -5430,6 +5563,7 @@
       "mibPerSec": 99.83,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 137.17,
@@ -5473,6 +5607,7 @@
       "mibPerSec": 123.45,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 199.61,
@@ -5516,6 +5651,7 @@
       "mibPerSec": 76.71,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 198.94,
@@ -5559,6 +5695,7 @@
       "mibPerSec": 92.49,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 179.29,
@@ -5602,6 +5739,7 @@
       "mibPerSec": 130.1,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 399.21,
@@ -5645,6 +5783,7 @@
       "mibPerSec": 105.86,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 495.34,
@@ -5688,6 +5827,7 @@
       "mibPerSec": 146.11,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 495.31,
@@ -5731,6 +5871,7 @@
       "mibPerSec": 99.71,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1956.69,
@@ -5774,6 +5915,7 @@
       "mibPerSec": 62.79,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1849.16,
@@ -5817,6 +5959,7 @@
       "mibPerSec": 82.95,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 1849.75,
@@ -5860,6 +6003,7 @@
       "mibPerSec": 140.55,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.19,
@@ -5905,6 +6049,7 @@
       "mibPerSec": 130.09,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.42,
@@ -5950,6 +6095,7 @@
       "mibPerSec": 139.2,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.55,
@@ -5995,6 +6141,7 @@
       "mibPerSec": 130.3,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.83,
@@ -6040,6 +6187,7 @@
       "mibPerSec": 140.89,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.95,
@@ -6085,6 +6233,7 @@
       "mibPerSec": 130.57,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 61.64,
@@ -6130,6 +6279,7 @@
       "mibPerSec": 138.89,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.25,
@@ -6175,6 +6325,7 @@
       "mibPerSec": 152.11,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 61.77,
@@ -6220,6 +6371,7 @@
       "mibPerSec": 144.45,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 95.8,
@@ -6265,6 +6417,7 @@
       "mibPerSec": 148.07,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 63.54,
@@ -6310,6 +6463,7 @@
       "mibPerSec": 136.2,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 98.45,
@@ -6355,6 +6509,7 @@
       "mibPerSec": 148.69,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 69.52,
@@ -6400,6 +6555,7 @@
       "mibPerSec": 136.92,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 121.5,
@@ -6445,6 +6601,7 @@
       "mibPerSec": 148.68,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 87.03,
@@ -6490,6 +6647,7 @@
       "mibPerSec": 135.59,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 59.01,
@@ -6535,6 +6693,7 @@
       "mibPerSec": 149.22,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 59.05,
@@ -6580,6 +6739,7 @@
       "mibPerSec": 139.1,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 59.11,
@@ -6625,6 +6785,7 @@
       "mibPerSec": 151.7,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 59.23,
@@ -6670,6 +6831,7 @@
       "mibPerSec": 139.41,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 59.74,
@@ -6715,6 +6877,7 @@
       "mibPerSec": 149.77,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 60.63,
@@ -6760,6 +6923,7 @@
       "mibPerSec": 142.74,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 80.66,
@@ -6805,6 +6969,7 @@
       "mibPerSec": 142.12,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 62.48,
@@ -6850,6 +7015,7 @@
       "mibPerSec": 138.8,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 123.99,
@@ -6895,6 +7061,7 @@
       "mibPerSec": 148.83,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 121.28,
@@ -6940,6 +7107,7 @@
       "mibPerSec": 138.27,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 112.02,
@@ -6985,6 +7153,7 @@
       "mibPerSec": 146.17,
       "boundedMemory": true,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
         "maxMiB": 110.47,
@@ -7090,6 +7259,17 @@
       "evidence": [
         "jsLargeFullRows=121",
         "counterexamples=0"
+      ]
+    },
+    {
+      "id": "source-shape-not-full-arraybuffer",
+      "status": "CLASSIFIED",
+      "summary": "Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.",
+      "evidence": [
+        "largeJsFullSourceModeRows=79",
+        "notFullArrayBufferRows=79",
+        "fullArrayBufferRows=0",
+        "unknownArrayBufferRows=0"
       ]
     },
     {

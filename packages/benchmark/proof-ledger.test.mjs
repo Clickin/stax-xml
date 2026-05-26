@@ -134,6 +134,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
   assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
+  assert.match(markdown, /all 79 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
   assert.match(markdown, /0\.93x of the 200 MiB\/s target and\s+0\.97x of the 1024 MiB Woodstox reference/);
   assert.match(markdown, /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/);
   assert.match(markdown, /same-fixture 1024 MiB JS row vs Woodstox target now includes the\s+file-backed source, batch-size sweep, short attr-value cache, and trim-boundary\s+candidate rows/);

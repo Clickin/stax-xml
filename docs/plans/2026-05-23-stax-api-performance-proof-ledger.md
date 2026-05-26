@@ -171,7 +171,10 @@ options identify the same `corpus-cycle` child runner: the fastest aggregate
 row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
-metadata remain `n/a` rather than inferred. That is 0.93x of the 200 MiB/s target and
+metadata remain `n/a` rather than inferred. The same-contract report now also
+classifies the source-shape guard locally: all 79 JavaScript 1 GiB+ full-string
+rows with source-mode metadata in this aggregate are marked as not full
+`ArrayBuffer` parser-input rows. That is 0.93x of the 200 MiB/s target and
 0.97x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target
