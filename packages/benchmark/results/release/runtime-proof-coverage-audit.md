@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T03:40:48.046Z
+Generated: 2026-05-26T04:14:27.018Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -14,6 +14,10 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory JS rows: 4
   - Unknown bounded-memory full-string rows: 20
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
+  - Unknown bounded-memory counterexample-relevant rows: 0
+  - Unknown bounded-memory small/diagnostic JS rows: 4
+  - Unknown bounded-memory non-JS allocator-counter rows: 10
+  - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
 - Benchmark artifacts: 106
 - Source artifacts: 16
@@ -27,7 +31,7 @@ This audit scans current release artifacts to show which proof obligations are c
 
 ## Unknown Bounded-Memory Rows
 
-These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted.
+These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted. The counterexample-relevant subset is 1 GiB+ JavaScript full-string rows, and is summarized separately above.
 
 | Artifact | Runtime | Row | Size GiB | Memory | Full string | MiB/s |
 | --- | --- | --- | ---: | --- | --- | ---: |

@@ -316,16 +316,30 @@ function summarizeRowClassificationCompleteness(rows) {
 
 function summarizeUnknownBoundedMemoryRows(rows, options) {
   const unknownRows = rows.filter(row => row.boundedMemory === null);
+  const counterexampleRelevantRows = unknownRows.filter(row =>
+    isJsRuntime(row.runtimeId)
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minLargeGiB
+  );
   return {
     total: unknownRows.length,
     jsRows: unknownRows.filter(row => isJsRuntime(row.runtimeId)).length,
     fullStringRows: unknownRows.filter(row => row.fullStringParity === true).length,
     jsFullStringRows: unknownRows.filter(row => isJsRuntime(row.runtimeId) && row.fullStringParity === true).length,
-    largeJsFullStringRows: unknownRows.filter(row =>
+    largeJsFullStringRows: counterexampleRelevantRows.length,
+    counterexampleRelevantRows: counterexampleRelevantRows.length,
+    smallOrDiagnosticJsRows: unknownRows.filter(row =>
       isJsRuntime(row.runtimeId)
-      && row.fullStringParity === true
-      && row.sizeGiB !== null
-      && row.sizeGiB >= options.minLargeGiB
+      && (row.sizeGiB === null || row.sizeGiB < options.minLargeGiB)
+    ).length,
+    nonJsAllocatorCounterRows: unknownRows.filter(row =>
+      !isJsRuntime(row.runtimeId)
+      && row.memoryKind === 'allocator-counters'
+    ).length,
+    nonJsNoPeakMemoryRows: unknownRows.filter(row =>
+      !isJsRuntime(row.runtimeId)
+      && row.memoryKind === 'not-recorded'
     ).length,
     rowsWithMemoryCounter: unknownRows.filter(row => row.memoryKind !== 'not-recorded').length,
   };
@@ -844,6 +858,10 @@ function renderMarkdown(report) {
     `  - Unknown bounded-memory JS rows: ${report.summary.unknownBoundedMemoryBreakdown.jsRows}`,
     `  - Unknown bounded-memory full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.fullStringRows}`,
     `  - Unknown bounded-memory 1 GiB+ JS full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.largeJsFullStringRows}`,
+    `  - Unknown bounded-memory counterexample-relevant rows: ${report.summary.unknownBoundedMemoryBreakdown.counterexampleRelevantRows}`,
+    `  - Unknown bounded-memory small/diagnostic JS rows: ${report.summary.unknownBoundedMemoryBreakdown.smallOrDiagnosticJsRows}`,
+    `  - Unknown bounded-memory non-JS allocator-counter rows: ${report.summary.unknownBoundedMemoryBreakdown.nonJsAllocatorCounterRows}`,
+    `  - Unknown bounded-memory non-JS rows without peak-memory counters: ${report.summary.unknownBoundedMemoryBreakdown.nonJsNoPeakMemoryRows}`,
     `  - Unknown bounded-memory rows with memory counters: ${report.summary.unknownBoundedMemoryBreakdown.rowsWithMemoryCounter}`,
     `- Benchmark artifacts: ${report.summary.benchmarkArtifactCount}`,
     `- Source artifacts: ${report.summary.sourceArtifactCount}`,
@@ -868,7 +886,7 @@ function renderMarkdown(report) {
   lines.push(
     '## Unknown Bounded-Memory Rows',
     '',
-    'These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted.',
+    'These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted. The counterexample-relevant subset is 1 GiB+ JavaScript full-string rows, and is summarized separately above.',
     '',
     '| Artifact | Runtime | Row | Size GiB | Memory | Full string | MiB/s |',
     '| --- | --- | --- | ---: | --- | --- | ---: |',

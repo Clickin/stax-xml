@@ -280,6 +280,9 @@ rows with unknown full-string parity and 20 rows with unknown bounded-memory
 flags. The unknown bounded-memory set contains 4 JavaScript rows, 20
 full-string rows, 0 JavaScript 1 GiB+ full-string rows, and 10 rows that have
 raw memory counters but no recorded or inferred bounded-memory verdict. The
+coverage audit now explicitly classifies this as 0 counterexample-relevant
+unknown rows: 4 small/diagnostic JavaScript rows, 10 non-JS allocator-counter
+rows, and 6 non-JS trace or shape rows without peak-memory counters. The
 scan reports 91 full-string rows failing the
 bounded-memory counterexample criterion: 91 carry explicit
 `boundedMemory=false`, 0 are only bounded flags without row-level memory proof,

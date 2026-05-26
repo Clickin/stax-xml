@@ -149,6 +149,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
   assert.match(markdown, /unknown bounded-memory set contains 4 JavaScript rows, 20\s+full-string rows, 0 JavaScript 1 GiB\+\s+full-string rows, and 10 rows that have\s+raw memory counters/);
+  assert.match(markdown, /classifies this as 0 counterexample-relevant\s+unknown rows: 4 small\/diagnostic JavaScript rows, 10 non-JS allocator-counter\s+rows, and 6 non-JS trace or shape rows without peak-memory counters/);
   assert.match(markdown, /reports 91 full-string rows failing the\s+bounded-memory counterexample criterion/);
   assert.match(markdown, /91 carry explicit\s+`boundedMemory=false`/);
   assert.match(markdown, /0 have an unknown bounded-memory flag/);

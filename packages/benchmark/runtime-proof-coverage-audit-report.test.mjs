@@ -57,6 +57,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     fullStringRows: 20,
     jsFullStringRows: 4,
     largeJsFullStringRows: 0,
+    counterexampleRelevantRows: 0,
+    smallOrDiagnosticJsRows: 4,
+    nonJsAllocatorCounterRows: 10,
+    nonJsNoPeakMemoryRows: 6,
     rowsWithMemoryCounter: 10,
   });
   assert.equal(report.unknownBoundedMemoryRows.length, 20);
@@ -460,6 +464,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /# Runtime Proof Coverage Audit/);
   assert.match(markdown, /## Unknown Bounded-Memory Rows/);
   assert.match(markdown, /remaining unknowns are auditable/);
+  assert.match(markdown, /Unknown bounded-memory counterexample-relevant rows: 0/);
+  assert.match(markdown, /Unknown bounded-memory small\/diagnostic JS rows: 4/);
+  assert.match(markdown, /Unknown bounded-memory non-JS allocator-counter rows: 10/);
+  assert.match(markdown, /Unknown bounded-memory non-JS rows without peak-memory counters: 6/);
   assert.match(markdown, /not an impossibility proof/);
   assert.match(markdown, /82 Firefox\/SpiderMonkey browser benchmark rows found/);
   assert.match(markdown, /Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present/);
