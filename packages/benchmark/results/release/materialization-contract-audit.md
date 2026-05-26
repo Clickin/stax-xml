@@ -1,6 +1,6 @@
 # Materialization Contract Audit
 
-Generated: 2026-05-25T16:09:30.967Z
+Generated: 2026-05-26T08:40:11.792Z
 
 This audit separates same semantic fields from same runtime object shape.
 The external baseline rows are comparable through event count, checksum, and field materialization parity; they are not the same object shape.
@@ -11,7 +11,7 @@ It does not prove a JavaScript runtime ceiling.
 Parity status: same-semantic-fields
 Not same object shape: yes
 External baseline artifact: G:\programming\stax-xml\packages\benchmark\results\release\external-baseline-1024mib-file-sync-batches.json
-External baseline generated: 2026-05-25T16:03:08.044Z
+External baseline generated: 2026-05-26T08:38:17.728Z
 External baseline fixture: G:\programming\stax-xml\packages\benchmark\test-data\node-string-return-1024mib.xml
 External baseline fixture size: 1024.00 MiB
 

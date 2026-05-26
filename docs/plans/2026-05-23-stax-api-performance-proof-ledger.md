@@ -772,7 +772,8 @@ cache hits and 10 misses.
 
 This narrows a concrete headroom source: repeated name materialization is
 measurably reduced by the numeric name-id cache, but the best row still reaches
-only 0.40x of the current Woodstox baseline and remains below the 0.9x target.
+only about 0.44x of the same 16 MiB Woodstox baseline and remains below the
+0.9x target.
 This is not a proof that no further JavaScript headroom exists.
 
 ## Current Evidence: Candidate Headroom Matrix

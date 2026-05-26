@@ -1,6 +1,6 @@
 # External Parser Baseline Matrix
 
-Generated: 2026-05-25T16:03:08.044Z
+Generated: 2026-05-26T08:38:17.728Z
 
 This benchmark compares full string-return checksum consumers against external parser baselines.
 Rows are comparable only because they share the same generated XML fixture and checksum contract.
@@ -16,21 +16,22 @@ Rows are comparable only because they share the same generated XML fixture and c
 ## Woodstox Target
 
 Target: reach at least 0.9x Woodstox throughput on the same full-string checksum workload.
-Current target throughput: 171.7 MiB/s.
+Current target throughput: 304.2 MiB/s.
 
 | Tool | Implementation | Throughput | Peak RSS | Woodstox ratio | 0.9x target | Average | Events | Checksum | Status |
 | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | --- |
-| stax-stream | Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> | 72.7 MiB/s | 71.8 MiB | 0.38x | below | 14081.42 ms | 61236571 | -716099804 | ok |
-| stax-raw-frame-name-id | Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> | 76.1 MiB/s | 77.8 MiB | 0.40x | below | 13450.84 ms | 61236571 | -716099804 | ok |
-| woodstox | Java + Woodstox 7.2.0 | 190.7 MiB/s | 308.7 MiB | 1.00x | met | 5368.99 ms | 61236571 | -716099804 | ok |
-| quick-xml | Rust + quick-xml 0.40.1 | 150.2 MiB/s | 4.8 MiB | 0.79x | below | 6815.67 ms | 61236571 | -716099804 | ok |
+| stax-stream | Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]> | 124.6 MiB/s | 61.3 MiB | 0.37x | below | 8217.11 ms | 61236571 | -716099804 | ok |
+| stax-raw-frame-name-id | Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]> | 132.5 MiB/s | 67.6 MiB | 0.39x | below | 7725.99 ms | 61236571 | -716099804 | ok |
+| woodstox | Java + Woodstox 7.2.0 | 338.0 MiB/s | 312.1 MiB | 1.00x | met | 3029.85 ms | 61236571 | -716099804 | ok |
+| quick-xml | Rust + quick-xml 0.40.1 | 270.3 MiB/s | 4.8 MiB | 0.80x | below | 3788.87 ms | 61236571 | -716099804 | ok |
 
 ## Contract
 
 - Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.
 - `stax-scan-all-no-decode` is a partial row: event types plus start-element attribute counts only.
+- `stax-raw-frame-span-stats` is a partial row: raw frame event types, name ids, and span lengths only.
 - `stax-raw-frame-semantic-checksum` is a same-fields checksum row that avoids JavaScript string materialization on ASCII spans; it is not a full-string materialization row.
-- `stax-stream`, `stax-raw-frame-name-id`, `stax-raw-frame-name-id-fold-trim`, and `stax-raw-frame-string-cache` use `stax-xml` `StreamReaderSync` byte batches; source mode: `file-sync-batches`, chunkKiB=16, batchSize=1.
+- `stax-stream`, `stax-raw-frame-name-id`, `stax-raw-frame-name-id-long-ascii-text`, `stax-raw-frame-name-id-fold-trim`, `stax-raw-frame-name-id-trim-boundary-check`, `stax-raw-frame-string-cache`, and `stax-raw-frame-short-attr-value-cache` use `stax-xml` `StreamReaderSync` byte batches; source mode: `file-sync-batches`, chunkKiB=32, batchSize=4.
 - `stax-event` uses `stax-xml` `EventReaderSync` public event objects.
 - `woodstox` uses Java `XMLStreamReader` from Woodstox with namespace awareness off, coalescing on, DTD and external entities disabled, and whitespace-only text skipped.
 - `quick-xml` uses Rust `quick-xml` reader events and folds UTF-8 string views into the same UTF-16-code-unit checksum.
