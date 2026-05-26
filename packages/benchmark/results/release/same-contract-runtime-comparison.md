@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T13:28:03.182Z
+Generated: 2026-05-26T16:42:18.696Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 190
-- 1 GiB+ JavaScript full-string rows: 166
+- Aggregated rows: 194
+- 1 GiB+ JavaScript full-string rows: 168
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -23,7 +23,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB Woodstox baseline: 337.97 MiB/s
 - 1024 MiB quick-xml baseline: 270.26 MiB/s (0.80x Woodstox)
 - Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 160/160
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 162/162
 - 1 GiB+ source-mode rows replaying a corpus seed buffer: 85 (max seed 100.26 MiB, max seed/target 0.09)
 
 ## Fastest JS Rows By Group
@@ -31,6 +31,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | Group | Runtime | Case | MiB/s | Bounded | Memory | Source mode | Full ArrayBuffer input |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
 | `external-baseline-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 132.54 | yes | process RSS max 67.59 MiB | `file-backed-sync-iterable-byte-batches` | no |
+| `external-baseline-treebank-wrapper-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 68.22 | yes | process RSS max 74.76 MiB | `file-backed-sync-iterable-byte-batches` | no |
 | `file-backed-short-attr-value-cache-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 147.05 | yes | process RSS max 61.14 MiB | `file-backed-sync-iterable-byte-batches` | no |
 | `file-backed-trim-boundary-check-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 143.35 | yes | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` | no |
 | `file-backed-long-ascii-text-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 141.29 | yes | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | no |
@@ -66,7 +67,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 160 | 160 | 0 | 0 | 85 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 162 | 162 | 0 | 0 | 85 | 100.26 MiB |
 
 ## Selected Comparison Rows
 
@@ -85,6 +86,10 @@ This report aggregates existing release artifacts. It compares rows only through
 | `external-baseline-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 61236571 | -716099804 | 132.54 | yes | process RSS max 67.59 MiB | `file-backed-sync-iterable-byte-batches` | no | no | `external-baseline-1024mib-file-sync-batches.json` |
 | `external-baseline-1024mib-file-sync-batches` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 337.97 | yes | process RSS max 312.07 MiB | n/a | unknown | no | `external-baseline-1024mib-file-sync-batches.json` |
 | `external-baseline-1024mib-file-sync-batches` | Rust/quick-xml | `quick-xml` | 61236571 | -716099804 | 270.26 | yes | process RSS max 4.78 MiB | n/a | unknown | no | `external-baseline-1024mib-file-sync-batches.json` |
+| `external-baseline-treebank-wrapper-1024mib-file-sync-batches` | Node/V8 stax-stream | `stax-stream` | 75206128 | -1234990902 | 65.18 | yes | process RSS max 73.85 MiB | `file-backed-sync-iterable-byte-batches` | no | no | `external-baseline-treebank-wrapper-1024mib-file-sync-batches.json` |
+| `external-baseline-treebank-wrapper-1024mib-file-sync-batches` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 75206128 | -1234990902 | 68.22 | yes | process RSS max 74.76 MiB | `file-backed-sync-iterable-byte-batches` | no | no | `external-baseline-treebank-wrapper-1024mib-file-sync-batches.json` |
+| `external-baseline-treebank-wrapper-1024mib-file-sync-batches` | Java/Woodstox | `woodstox` | 75206128 | -1234990902 | 166.05 | yes | process RSS max 309.14 MiB | n/a | unknown | no | `external-baseline-treebank-wrapper-1024mib-file-sync-batches.json` |
+| `external-baseline-treebank-wrapper-1024mib-file-sync-batches` | Rust/quick-xml | `quick-xml` | 75206128 | -1234990902 | 175.82 | yes | process RSS max 4.76 MiB | n/a | unknown | no | `external-baseline-treebank-wrapper-1024mib-file-sync-batches.json` |
 | `file-backed-short-attr-value-cache-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 61236571 | -716099804 | 147.05 | yes | process RSS max 61.14 MiB | `file-backed-sync-iterable-byte-batches` | no | no | `file-backed-short-attr-value-cache-candidate.json` |
 | `file-backed-short-attr-value-cache-candidate` | stax-raw-frame-short-attr-value-cache | `stax-raw-frame-short-attr-value-cache` | 61236571 | -716099804 | 140.15 | yes | process RSS max 67.01 MiB | `file-backed-sync-iterable-byte-batches` | no | no | `file-backed-short-attr-value-cache-candidate.json` |
 | `file-backed-short-attr-value-cache-candidate` | Java/Woodstox | `woodstox` | 61236571 | -716099804 | 338.14 | yes | process RSS max 318.52 MiB | n/a | unknown | no | `file-backed-short-attr-value-cache-candidate.json` |
@@ -282,11 +287,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=166
+  - jsLargeFullRows=168
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=160
-  - notFullArrayBufferRows=160
+  - largeJsFullSourceModeRows=162
+  - notFullArrayBufferRows=162
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.

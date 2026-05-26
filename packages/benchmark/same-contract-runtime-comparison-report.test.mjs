@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 190);
-  assert.equal(report.summary.jsLargeFullRowCount, 166);
+  assert.equal(report.summary.rowCount, 194);
+  assert.equal(report.summary.jsLargeFullRowCount, 168);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'node-v8');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -87,8 +87,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
   assert.deepEqual(report.summary.sourceShapeSafety, {
-    largeJsFullSourceModeRows: 160,
-    notFullArrayBufferRows: 160,
+    largeJsFullSourceModeRows: 162,
+    notFullArrayBufferRows: 162,
     fullArrayBufferRows: 0,
     unknownArrayBufferRows: 0,
     corpusSeedReplayRows: 85,
@@ -453,6 +453,43 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.memory.primaryKind === 'process-rss'
   ));
   assert.ok(report.comparisonRows.some(row =>
+    row.group === 'external-baseline-treebank-wrapper-1024mib-file-sync-batches'
+    && row.sourceArtifact === 'external-baseline-treebank-wrapper-1024mib-file-sync-batches.json'
+    && row.runtimeId === 'node-v8-stax-raw-frame-name-id'
+    && row.caseId === 'stax-raw-frame-name-id'
+    && row.mibPerSec === 68.22
+    && row.eventCount === 75206128
+    && row.checksum === -1234990902
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+    && row.memory.maxMiB === 74.76
+    && row.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    && row.fullArrayBufferParserInput === false
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'external-baseline-treebank-wrapper-1024mib-file-sync-batches'
+    && row.sourceArtifact === 'external-baseline-treebank-wrapper-1024mib-file-sync-batches.json'
+    && row.runtimeId === 'woodstox-jvm'
+    && row.caseId === 'woodstox'
+    && row.mibPerSec === 166.05
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+    && row.memory.maxMiB === 309.14
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'external-baseline-treebank-wrapper-1024mib-file-sync-batches'
+    && row.sourceArtifact === 'external-baseline-treebank-wrapper-1024mib-file-sync-batches.json'
+    && row.runtimeId === 'quick-xml-rust'
+    && row.caseId === 'quick-xml'
+    && row.mibPerSec === 175.82
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.memory.primaryKind === 'process-rss'
+    && row.memory.maxMiB === 4.76
+  ));
+  assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'browser-candidate-headroom-large.json'
     && row.caseId === 'eventObjectFull'
     && row.memory.primaryKind === 'browser-js-heap'
@@ -530,9 +567,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
-  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 160\/160/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 162\/162/);
   assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 85 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
-  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 160 \| 160 \| 0 \| 0 \| 85 \| 100\.26 MiB \|/);
+  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 162 \| 162 \| 0 \| 0 \| 85 \| 100\.26 MiB \|/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);
@@ -549,6 +586,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /file-backed-trim-boundary-check-candidate/);
   assert.match(markdown, /`sync-iterable-byte-batches`/);
   assert.match(markdown, /cross-process-books-corpus/);
+  assert.match(markdown, /external-baseline-treebank-wrapper-1024mib-file-sync-batches/);
   assert.match(markdown, /1024 MiB file-backed stax-stream baseline/);
   assert.match(markdown, /1024 MiB file-backed rawFrameNameId baseline/);
   assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T13:28:03.182Z",
+  "generatedAt": "2026-05-26T16:42:18.696Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -8,6 +8,7 @@
     "sourceArtifacts": [
       "external-baseline.json",
       "external-baseline-1024mib-file-sync-batches.json",
+      "external-baseline-treebank-wrapper-1024mib-file-sync-batches.json",
       "file-backed-short-attr-value-cache-candidate.json",
       "file-backed-trim-boundary-check-candidate.json",
       "file-backed-long-ascii-text-candidate.json",
@@ -58,8 +59,8 @@
     ]
   },
   "summary": {
-    "rowCount": 190,
-    "jsLargeFullRowCount": 166,
+    "rowCount": 194,
+    "jsLargeFullRowCount": 168,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
@@ -206,6 +207,32 @@
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "fullArrayBufferParserInput": false,
           "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        }
+      },
+      {
+        "group": "external-baseline-treebank-wrapper-1024mib-file-sync-batches",
+        "fastest": {
+          "group": "external-baseline-treebank-wrapper-1024mib-file-sync-batches",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 68.22,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 74.76,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 8.88,
+            "maxExternalMiB": 4.89,
+            "maxArrayBuffersMiB": 2.9
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "external-baseline-treebank-wrapper-1024mib-file-sync-batches.json",
           "sampleCount": null,
           "sampleMinMiBPerSec": null,
           "sampleMaxMiBPerSec": null,
@@ -1010,8 +1037,8 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 160,
-      "notFullArrayBufferRows": 160,
+      "largeJsFullSourceModeRows": 162,
+      "notFullArrayBufferRows": 162,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
       "corpusSeedReplayRows": 85,
@@ -1481,6 +1508,146 @@
       },
       "woodstoxRatio": 0.8,
       "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-treebank-wrapper-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-treebank-wrapper-1024mib-file-sync-batches.json",
+      "runtimeId": "node-v8-stax-stream",
+      "runtimeLabel": "Node/V8 stax-stream",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-stream",
+      "implementation": "Node + stax-xml StreamReaderSync file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "corpus-wrapper-file",
+        "shape": "treebank-wrapper-1024mib",
+        "sizeMiB": 1025,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206128,
+      "checksum": -1234990902,
+      "mibPerSec": 65.18,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 73.85,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 7.6,
+        "maxExternalMiB": 4.17,
+        "maxArrayBuffersMiB": 2.18
+      },
+      "woodstoxRatio": 0.39,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-treebank-wrapper-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-treebank-wrapper-1024mib-file-sync-batches.json",
+      "runtimeId": "node-v8-stax-raw-frame-name-id",
+      "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "caseId": "stax-raw-frame-name-id",
+      "implementation": "Node + stax-xml nextRawBatch name-id cache file-backed Iterable<Uint8Array[]>",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "corpus-wrapper-file",
+        "shape": "treebank-wrapper-1024mib",
+        "sizeMiB": 1025,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206128,
+      "checksum": -1234990902,
+      "mibPerSec": 68.22,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 74.76,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": 8.88,
+        "maxExternalMiB": 4.89,
+        "maxArrayBuffersMiB": 2.9
+      },
+      "woodstoxRatio": 0.41,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-treebank-wrapper-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-treebank-wrapper-1024mib-file-sync-batches.json",
+      "runtimeId": "woodstox-jvm",
+      "runtimeLabel": "Java/Woodstox",
+      "languageFamily": "java",
+      "jsRuntime": false,
+      "caseId": "woodstox",
+      "implementation": "Java + Woodstox 7.2.0",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "corpus-wrapper-file",
+        "shape": "treebank-wrapper-1024mib",
+        "sizeMiB": 1025,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206128,
+      "checksum": -1234990902,
+      "mibPerSec": 166.05,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "fullArrayBufferParserInput": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 309.14,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "woodstoxRatio": 1,
+      "targetStatus": "met",
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "external-baseline-treebank-wrapper-1024mib-file-sync-batches",
+      "sourceArtifact": "external-baseline-treebank-wrapper-1024mib-file-sync-batches.json",
+      "runtimeId": "quick-xml-rust",
+      "runtimeLabel": "Rust/quick-xml",
+      "languageFamily": "rust",
+      "jsRuntime": false,
+      "caseId": "quick-xml",
+      "implementation": "Rust + quick-xml 0.40.1",
+      "contractScope": "full-string-checksum",
+      "fixture": {
+        "source": "corpus-wrapper-file",
+        "shape": "treebank-wrapper-1024mib",
+        "sizeMiB": 1025,
+        "sizeGiB": 1
+      },
+      "fullStringParity": true,
+      "eventCount": 75206128,
+      "checksum": -1234990902,
+      "mibPerSec": 175.82,
+      "boundedMemory": true,
+      "sourceMode": null,
+      "fullArrayBufferParserInput": null,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 4.76,
+        "deltaMiB": null,
+        "maxHeapUsedMiB": null,
+        "maxExternalMiB": null,
+        "maxArrayBuffersMiB": null
+      },
+      "woodstoxRatio": 1.06,
+      "targetStatus": "met",
       "runtimeLimitCounterexample": false
     },
     {
@@ -10956,7 +11123,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=166",
+        "jsLargeFullRows=168",
         "counterexamples=0"
       ]
     },
@@ -10965,8 +11132,8 @@
       "status": "CLASSIFIED",
       "summary": "Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.",
       "evidence": [
-        "largeJsFullSourceModeRows=160",
-        "notFullArrayBufferRows=160",
+        "largeJsFullSourceModeRows=162",
+        "notFullArrayBufferRows=162",
         "fullArrayBufferRows=0",
         "unknownArrayBufferRows=0"
       ]

@@ -1,14 +1,14 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T16:18:19.390Z
+Generated: 2026-05-26T16:33:41.559Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 173
+- Scanned primary artifacts: 174
 - Ignored derived artifacts: 5
-- Measured rows recognized: 899
+- Measured rows recognized: 903
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
   - Unknown bounded-memory JS rows: 4
@@ -19,13 +19,13 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 127
+- Benchmark artifacts: 128
 - Source artifacts: 17
 - Trace/profile artifacts: 10
 - Allocation artifacts: 15
 - Environment artifacts: 2
 - Negative-result artifacts: 16
-- 1 GiB+ JS full-string rows: 563
+- 1 GiB+ JS full-string rows: 565
 - Corpus seeds: 3
 - Open or partial obligations: 2
 
@@ -60,14 +60,14 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 87 | 407 | 253 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
+| Node/V8 | 88 | 409 | 255 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 33 | 232 | 140 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
-| Java/Woodstox | 11 | 12 | 4 | woodstox 351.56 MiB/s from file-backed-trim-boundary-check-candidate.json | 0 | 1 | 3 |
-| Rust/quick-xml | 10 | 18 | 4 | quick-xml 274.63 MiB/s from file-backed-short-attr-value-cache-candidate.json | 0 | 0 | 2 |
+| Java/Woodstox | 12 | 13 | 5 | woodstox 351.56 MiB/s from file-backed-trim-boundary-check-candidate.json | 0 | 1 | 3 |
+| Rust/quick-xml | 11 | 19 | 5 | quick-xml 274.63 MiB/s from file-backed-short-attr-value-cache-candidate.json | 0 | 0 | 2 |
 
 ## Open Obligations
 

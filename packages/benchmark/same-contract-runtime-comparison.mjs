@@ -27,6 +27,13 @@ const externalBaselineArtifacts = [
     optional: true,
   },
   {
+    group: 'external-baseline-treebank-wrapper-1024mib-file-sync-batches',
+    file: 'external-baseline-treebank-wrapper-1024mib-file-sync-batches.json',
+    fixtureSource: 'corpus-wrapper-file',
+    fixtureShape: 'treebank-wrapper-1024mib',
+    optional: true,
+  },
+  {
     group: 'file-backed-short-attr-value-cache-candidate',
     file: 'file-backed-short-attr-value-cache-candidate.json',
     fixtureSource: 'generated-file',
