@@ -87,14 +87,20 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
   assert.deepEqual(report.summary.sourceShapeSafety, {
-    largeJsFullSourceModeRows: 79,
-    notFullArrayBufferRows: 79,
+    largeJsFullSourceModeRows: 115,
+    notFullArrayBufferRows: 115,
     fullArrayBufferRows: 0,
     unknownArrayBufferRows: 0,
+    corpusSeedReplayRows: 57,
+    maxCorpusSeedMiB: 100.26,
+    maxCorpusSeedToTargetRatio: 0.09,
   });
   assert.ok(report.comparisonRows
     .filter(row => row.jsRuntime && row.fullStringParity && (row.fixture?.sizeGiB ?? 0) >= 0.999 && row.sourceMode)
     .every(row => row.fullArrayBufferParserInput === false));
+  assert.ok(report.comparisonRows
+    .filter(row => row.corpusSeedReplay)
+    .every(row => row.fullArrayBufferParserInput === false && row.corpusSeedBytes > 0));
 
   assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'external-baseline.json'
@@ -396,6 +402,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.memory.primaryKind === 'browser-js-heap-unavailable'
     && row.memory.hostProcessTreeProbe?.maxWorkingSetMiB > 1000
     && row.boundedMemory === false
+    && row.corpusSeedReplay === true
+    && row.corpusSeedBytes === 89565617
   ));
   assert.ok(report.comparisonRows.some(row =>
     row.group === 'projection-1gib-full'
@@ -435,8 +443,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
-  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 79\/79/);
-  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 79 \| 79 \| 0 \| 0 \|/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 115\/115/);
+  assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 57 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
+  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 115 \| 115 \| 0 \| 0 \| 57 \| 100\.26 MiB \|/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);

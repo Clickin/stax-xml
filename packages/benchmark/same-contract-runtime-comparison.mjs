@@ -373,7 +373,7 @@ function createReport(options) {
     ...variantArtifacts.flatMap(spec => extractVariantRows(readReleaseJson(spec.file), spec)),
     ...crossProcessArtifacts.flatMap(spec => extractCrossProcessRows(readReleaseJson(spec.file), spec)),
     ...fileBackedSweepArtifacts.flatMap(spec => extractFileBackedSweepRows(readReleaseJson(spec.file), spec)),
-  ];
+  ].map(attachSourceShapeDetails);
   const allocationEvidence = allocationArtifacts.map(spec => extractAllocationEvidence(readReleaseJson(spec.file), spec));
   const summary = summarize(comparisonRows, allocationEvidence);
   return {
@@ -639,11 +639,23 @@ function classifyArtifactSourceMode(row, report) {
   if (typeof parserInput === 'string' && /synchronous Iterable<Uint8Array\[]>/.test(parserInput)) {
     return 'sync-iterable-byte-batches';
   }
+  if (isPreparedByteBatchCandidateReport(report) && !String(row.id ?? '').startsWith('fetch')) {
+    return 'sync-iterable-byte-batches';
+  }
   if (report.objective === 'candidate-headroom-cross-process'
     && report.options?.fixtureShape === 'corpus-cycle') {
     return 'sync-iterable-byte-batches';
   }
   return null;
+}
+
+function isPreparedByteBatchCandidateReport(report) {
+  return [
+    'candidate-headroom-large',
+    'browser-candidate-headroom',
+    'firefox-bidi-candidate-headroom',
+    'browser-candidate-headroom-cross-process',
+  ].includes(report.objective);
 }
 
 function classifyFullArrayBufferParserInput(row, sourceMode = null, report = null) {
@@ -664,6 +676,30 @@ function classifyFullArrayBufferParserInput(row, sourceMode = null, report = nul
     return true;
   }
   return null;
+}
+
+function attachSourceShapeDetails(row) {
+  const corpusSeedBytes = estimateCorpusSeedBytes(row.fixture);
+  if (typeof corpusSeedBytes !== 'number') {
+    return row;
+  }
+  const actualBytes = row.fixture?.actualBytes;
+  const corpusSeedToTargetRatio = typeof corpusSeedBytes === 'number'
+    && typeof actualBytes === 'number'
+    && actualBytes > 0
+    ? corpusSeedBytes / actualBytes
+    : null;
+  return {
+    ...row,
+    corpusSeedReplay: row.fullArrayBufferParserInput === false && (row.fixture?.sizeGiB ?? 0) >= 0.999,
+    corpusSeedBytes,
+    corpusSeedToTargetRatio,
+  };
+}
+
+function estimateCorpusSeedBytes(fixture = {}) {
+  if (fixture.source !== 'corpus-file' || fixture.rowCycleSize !== 1) return null;
+  return typeof fixture.maxRowBytes === 'number' ? fixture.maxRowBytes : null;
 }
 
 function extractExternalMemory(row, report) {
@@ -756,11 +792,17 @@ function findDominantPhase(rows) {
 
 function summarizeSourceShapeSafety(rows) {
   const sourceModeRows = rows.filter(row => row.sourceMode);
+  const corpusSeedReplayRows = sourceModeRows.filter(row => row.corpusSeedReplay === true);
+  const maxCorpusSeedBytes = maxNullable(corpusSeedReplayRows.map(row => row.corpusSeedBytes));
+  const maxCorpusSeedToTargetRatio = maxNullable(corpusSeedReplayRows.map(row => row.corpusSeedToTargetRatio));
   return {
     largeJsFullSourceModeRows: sourceModeRows.length,
     notFullArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === false).length,
     fullArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === true).length,
     unknownArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === null).length,
+    corpusSeedReplayRows: corpusSeedReplayRows.length,
+    maxCorpusSeedMiB: round(bytesToMiB(maxCorpusSeedBytes)),
+    maxCorpusSeedToTargetRatio: round(maxCorpusSeedToTargetRatio),
   };
 }
 
@@ -979,6 +1021,7 @@ function renderMarkdown(report) {
     `- 1024 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.quickXmlWoodstoxRatio)}x Woodstox)`,
     `- Recognized JS source modes: ${report.summary.sourceModes.length > 0 ? report.summary.sourceModes.join(', ') : 'none recorded'}`,
     `- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: ${report.summary.sourceShapeSafety.notFullArrayBufferRows}/${report.summary.sourceShapeSafety.largeJsFullSourceModeRows}`,
+    `- 1 GiB+ source-mode rows replaying a corpus seed buffer: ${report.summary.sourceShapeSafety.corpusSeedReplayRows} (max seed ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedMiB)} MiB, max seed/target ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedToTargetRatio)})`,
     '',
     '## Fastest JS Rows By Group',
     '',
@@ -995,18 +1038,18 @@ function renderMarkdown(report) {
     '',
     '## Source Shape Safety',
     '',
-    '| Scope | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown |',
-    '| --- | ---: | ---: | ---: | ---: |',
-    `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} |`,
+    '| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+    `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} | ${report.summary.sourceShapeSafety.corpusSeedReplayRows} | ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedMiB)} MiB |`,
     '',
     '## Selected Comparison Rows',
     '',
-    '| Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Source mode | Full ArrayBuffer input | Artifact |',
-    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- |',
+    '| Group | Runtime | Case | Events | Checksum | MiB/s | Bounded | Memory | Source mode | Full ArrayBuffer input | Corpus seed replay | Artifact |',
+    '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- |',
   );
 
   for (const row of report.comparisonRows) {
-    lines.push(`| \`${row.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${row.eventCount ?? ''} | ${row.checksum ?? ''} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory === null ? 'n/a' : row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} | \`${row.sourceArtifact}\` |`);
+    lines.push(`| \`${row.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${row.eventCount ?? ''} | ${row.checksum ?? ''} | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory === null ? 'n/a' : row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} | ${formatCorpusSeedReplay(row)} | \`${row.sourceArtifact}\` |`);
   }
 
   lines.push(
@@ -1042,6 +1085,7 @@ function renderMarkdown(report) {
     '- Node and Bun rows use process memory counters such as RSS; Chrome browser rows use variant-level `performance.memory` JS heap plus separate Windows process-tree host counters.',
     '- Firefox browser rows currently lack page-exposed JS heap counters; their fresh-browser per-variant Windows host process-tree probes are row-level host evidence, not portable browser RSS or bounded JS heap proof.',
     '- Source-mode values are preserved only when the input artifact records them or an explicit benchmark option identifies the file-backed byte-batch path; older artifacts without source metadata remain `n/a`.',
+    '- `Corpus seed replay` means the benchmark prepared a smaller corpus byte seed and replayed it through `Iterable<Uint8Array[]>`; it is distinct from passing one complete 1 GiB XML ArrayBuffer to the parser.',
     '- Woodstox JFR rows are sampled allocation evidence, and quick-xml rows are global allocator traffic evidence. Neither is peak RSS.',
     '- The fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures; the ratio is a target-distance reference, not an identical-input speed comparison.',
     '- This report aggregates existing artifacts only. It is not a Safari browser row, not a codegen trace, and not proof that JavaScript runtimes have no remaining headroom.',
@@ -1060,6 +1104,9 @@ function extractFixture(fixture = {}) {
     actualBytes: fixture.actualBytes ?? null,
     batchSize: fixture.batchSize ?? null,
     rowCycleSize: fixture.rowCycleSize ?? null,
+    minRowBytes: fixture.minRowBytes ?? null,
+    maxRowBytes: fixture.maxRowBytes ?? null,
+    averageRowBytes: round(fixture.averageRowBytes),
   };
 }
 
@@ -1233,6 +1280,11 @@ function maxBy(items, valueFn) {
   return best;
 }
 
+function maxNullable(values) {
+  const finiteValues = values.filter(value => typeof value === 'number' && Number.isFinite(value));
+  return finiteValues.length > 0 ? Math.max(...finiteValues) : null;
+}
+
 function inferEngine(environment = {}) {
   if (environment.v8) return 'V8';
   if (environment.webkitCommit) return 'JavaScriptCore';
@@ -1295,6 +1347,11 @@ function formatFullArrayBufferInput(value) {
   if (value === true) return 'yes';
   if (value === false) return 'no';
   return 'unknown';
+}
+
+function formatCorpusSeedReplay(row) {
+  if (!row?.corpusSeedReplay) return 'no';
+  return `yes (${formatNumber(bytesToMiB(row.corpusSeedBytes))} MiB)`;
 }
 
 function formatAllocationMemory(item) {
