@@ -1784,6 +1784,20 @@ fastest individual Bun/JSC `rawFrameNameId` sample at `179.70 MiB/s`; that
 single sample is still below threshold and should not be read as the aggregate
 cross-process average.
 
+`packages/benchmark/results/release/access-shape-candidate-cross-process-batch8.md`
+then repeats the strongest access-shape rows with `batchSize=8` in fresh
+Node/V8 and Bun/JSC processes over the same 1.00 GiB `books.xml` corpus-cycle
+contract. Node/V8 `rawFrameNameId` averaged `172.66 MiB/s` with `3.0%` spread
+and max RSS `60.1 MiB`; Bun/JSC `rawFrameNameId` averaged `167.07 MiB/s` with
+`1.0%` spread and max RSS `220.0 MiB`. The `cursorAccessor` rows stayed lower
+at `156.70 MiB/s` for Node/V8 and `157.32 MiB/s` for Bun/JSC. All four
+aggregate rows preserved 57,096,514 events and checksum `-540013997`, remained
+bounded, and did not produce a 200 MiB/s counterexample. This is a negative
+result for carrying the file-backed batch-size headroom assumption directly
+into the generated corpus-cycle fresh-process harness; the current child
+harness still concatenates grouped `Uint8Array[]` batches before parser
+scanning.
+
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus.md`
 then repeats the same selected rows in fresh runtime processes with
 `processRuns=3`, child `runs=1`, and `warmups=0`. The regenerated report
