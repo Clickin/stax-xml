@@ -181,9 +181,13 @@ struct PhaseAllocationStats {
     realloc_bytes_out: u64,
 }
 
-#[cfg(feature = "count-allocations")]
 #[derive(Clone, Copy, Default)]
 struct ShapeStats {
+    attribute_collection_count: u64,
+    attribute_vec_non_empty_count: u64,
+    attribute_item_count: u64,
+    attribute_vec_capacity_sum: u64,
+    attribute_vec_max_capacity: u64,
     text_decode_count: u64,
     text_borrowed_count: u64,
     text_owned_count: u64,
@@ -368,7 +372,6 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
     let mut buffer = Vec::with_capacity(64 * 1024);
     let mut event_count = 1i64;
     let mut checksum = mix_checksum(0, 0);
-    #[cfg(feature = "count-allocations")]
     let mut shape_stats = ShapeStats::default();
 
     loop {
@@ -382,12 +385,12 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
 
         match event {
             Event::Start(event) => {
-                let folded = fold_start(checksum, &event)?;
+                let folded = fold_start(checksum, &event, &mut shape_stats)?;
                 checksum = folded;
                 event_count += 1;
             }
             Event::Empty(event) => {
-                let folded = fold_start(checksum, &event)?;
+                let folded = fold_start(checksum, &event, &mut shape_stats)?;
                 event_count += 1;
                 checksum = mix_checksum(folded, 3);
                 #[cfg(feature = "count-allocations")]
@@ -445,6 +448,7 @@ fn consume(path: &PathBuf) -> Result<ConsumeResult, Box<dyn std::error::Error>> 
 fn fold_start(
     mut checksum: i32,
     event: &BytesStart<'_>,
+    shape_stats: &mut ShapeStats,
 ) -> Result<i32, Box<dyn std::error::Error>> {
     checksum = mix_checksum(checksum, 2);
     #[cfg(feature = "count-allocations")]
@@ -461,6 +465,7 @@ fn fold_start(
         for attr in attrs {
             collected.push(attr?);
         }
+        record_attribute_collection(shape_stats, collected.len(), collected.capacity());
         checksum = mix_checksum(checksum, collected.len() as i32);
         for attr in collected {
             #[cfg(feature = "count-allocations")]
@@ -778,10 +783,25 @@ fn record_text_decode(stats: &mut ShapeStats, text: &Cow<'_, str>, is_cdata: boo
     }
 }
 
+fn record_attribute_collection(stats: &mut ShapeStats, len: usize, capacity: usize) {
+    stats.attribute_collection_count += 1;
+    stats.attribute_item_count += len as u64;
+    stats.attribute_vec_capacity_sum += capacity as u64;
+    stats.attribute_vec_max_capacity = stats.attribute_vec_max_capacity.max(capacity as u64);
+    if len > 0 {
+        stats.attribute_vec_non_empty_count += 1;
+    }
+}
+
 #[cfg(feature = "count-allocations")]
 fn sum_shape_samples(samples: &[ShapeStats]) -> ShapeStats {
     let mut total = ShapeStats::default();
     for sample in samples {
+        total.attribute_collection_count += sample.attribute_collection_count;
+        total.attribute_vec_non_empty_count += sample.attribute_vec_non_empty_count;
+        total.attribute_item_count += sample.attribute_item_count;
+        total.attribute_vec_capacity_sum += sample.attribute_vec_capacity_sum;
+        total.attribute_vec_max_capacity = total.attribute_vec_max_capacity.max(sample.attribute_vec_max_capacity);
         total.text_decode_count += sample.text_decode_count;
         total.text_borrowed_count += sample.text_borrowed_count;
         total.text_owned_count += sample.text_owned_count;
@@ -801,7 +821,12 @@ fn print_shape_sample(sample: &ShapeStats) {
     let total_owned_count = sample.text_owned_count + sample.cdata_owned_count;
     let total_non_empty_count = sample.text_non_empty_count + sample.cdata_non_empty_count;
     print!(
-        "{{\"textDecodeCount\":{},\"textBorrowedCount\":{},\"textOwnedCount\":{},\"textNonEmptyCount\":{},\"cdataDecodeCount\":{},\"cdataBorrowedCount\":{},\"cdataOwnedCount\":{},\"cdataNonEmptyCount\":{},\"totalDecodeCount\":{},\"totalBorrowedCount\":{},\"totalOwnedCount\":{},\"totalNonEmptyCount\":{}}}",
+        "{{\"attributeCollectionCount\":{},\"attributeVecNonEmptyCount\":{},\"attributeItemCount\":{},\"attributeVecCapacitySum\":{},\"attributeVecMaxCapacity\":{},\"textDecodeCount\":{},\"textBorrowedCount\":{},\"textOwnedCount\":{},\"textNonEmptyCount\":{},\"cdataDecodeCount\":{},\"cdataBorrowedCount\":{},\"cdataOwnedCount\":{},\"cdataNonEmptyCount\":{},\"totalDecodeCount\":{},\"totalBorrowedCount\":{},\"totalOwnedCount\":{},\"totalNonEmptyCount\":{}}}",
+        sample.attribute_collection_count,
+        sample.attribute_vec_non_empty_count,
+        sample.attribute_item_count,
+        sample.attribute_vec_capacity_sum,
+        sample.attribute_vec_max_capacity,
         sample.text_decode_count,
         sample.text_borrowed_count,
         sample.text_owned_count,

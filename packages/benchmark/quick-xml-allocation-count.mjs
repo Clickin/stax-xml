@@ -149,6 +149,11 @@ function createSelfTestReport(options) {
     },
     shapeSamples: [
       {
+        attributeCollectionCount: 10,
+        attributeVecNonEmptyCount: 9,
+        attributeItemCount: 18,
+        attributeVecCapacitySum: 36,
+        attributeVecMaxCapacity: 4,
         textDecodeCount: 42,
         textBorrowedCount: 42,
         textOwnedCount: 0,
@@ -164,6 +169,11 @@ function createSelfTestReport(options) {
       },
     ],
     shapeSummary: {
+      attributeCollectionCount: 10,
+      attributeVecNonEmptyCount: 9,
+      attributeItemCount: 18,
+      attributeVecCapacitySum: 36,
+      attributeVecMaxCapacity: 4,
       textDecodeCount: 42,
       textBorrowedCount: 42,
       textOwnedCount: 0,
@@ -247,6 +257,11 @@ function createSelfTestVariant(id, eventCount, checksum, decodeCount, borrowedCo
     shapeSamples: [
       {
         textDecodeCount: decodeCount,
+        attributeCollectionCount: 3,
+        attributeVecNonEmptyCount: 2,
+        attributeItemCount: 4,
+        attributeVecCapacitySum: 8,
+        attributeVecMaxCapacity: 4,
         textBorrowedCount: borrowedCount,
         textOwnedCount: ownedCount,
         textNonEmptyCount: decodeCount,
@@ -262,6 +277,11 @@ function createSelfTestVariant(id, eventCount, checksum, decodeCount, borrowedCo
     ],
     shapeSummary: {
       textDecodeCount: decodeCount,
+      attributeCollectionCount: 3,
+      attributeVecNonEmptyCount: 2,
+      attributeItemCount: 4,
+      attributeVecCapacitySum: 8,
+      attributeVecMaxCapacity: 4,
       textBorrowedCount: borrowedCount,
       textOwnedCount: ownedCount,
       textNonEmptyCount: decodeCount,
@@ -442,7 +462,7 @@ function analyzeAllocations(benchmark, fixture) {
     averagePerRun: average,
     shapeSamples: benchmark.shapeSamples,
     shapeSummary: benchmark.shapeSummary,
-    shapeAveragePerRun: divideAllocationStats(benchmark.shapeSummary, samples.length),
+    shapeAveragePerRun: divideShapeStats(benchmark.shapeSummary, samples.length),
     phaseSamples: benchmark.phaseAllocationSamples,
     phaseSummary: benchmark.phaseAllocationSummary,
     phaseAveragePerRun: dividePhaseAllocationRows(benchmark.phaseAllocationSummary, samples.length),
@@ -463,6 +483,14 @@ function divideAllocationStats(stats, divisor) {
   const copy = {};
   for (const [key, value] of Object.entries(stats)) {
     copy[key] = typeof value === 'number' ? value / divisor : value;
+  }
+  return copy;
+}
+
+function divideShapeStats(stats, divisor) {
+  const copy = divideAllocationStats(stats, divisor);
+  if (typeof stats.attributeVecMaxCapacity === 'number') {
+    copy.attributeVecMaxCapacity = stats.attributeVecMaxCapacity;
   }
   return copy;
 }
@@ -521,6 +549,17 @@ function createFindings(benchmark, allocation, variants) {
         `avgDecodeCount=${allocation.shapeAveragePerRun.totalDecodeCount.toFixed(1)}`,
         `avgBorrowedCount=${allocation.shapeAveragePerRun.totalBorrowedCount.toFixed(1)}`,
         `avgOwnedCount=${allocation.shapeAveragePerRun.totalOwnedCount.toFixed(1)}`,
+      ],
+    },
+    {
+      id: 'attribute-vec-shape-counters',
+      classification: 'TRACE_FACT',
+      summary: 'The measured run counted comparator-local attribute Vec collection shape directly at the BytesStart boundary.',
+      evidence: [
+        `avgAttributeCollections=${allocation.shapeAveragePerRun.attributeCollectionCount.toFixed(1)}`,
+        `avgNonEmptyAttributeVecs=${allocation.shapeAveragePerRun.attributeVecNonEmptyCount.toFixed(1)}`,
+        `avgAttributeItems=${allocation.shapeAveragePerRun.attributeItemCount.toFixed(1)}`,
+        `maxAttributeVecCapacity=${allocation.shapeSummary.attributeVecMaxCapacity}`,
       ],
     },
     {
@@ -744,6 +783,18 @@ function renderMarkdown(report) {
     shapeRow('totalBorrowedCount', report),
     shapeRow('totalOwnedCount', report),
     shapeRow('totalNonEmptyCount', report),
+    '',
+    '## Attribute Vec Shape Counts',
+    '',
+    'These rows count the comparator-local `Vec` used to collect quick-xml attributes for each `BytesStart`. They are type/shape counters at the Rust comparator boundary, not native allocator stack unwinding.',
+    '',
+    '| Metric | Total | Average per run |',
+    '| --- | ---: | ---: |',
+    shapeRow('attributeCollectionCount', report),
+    shapeRow('attributeVecNonEmptyCount', report),
+    shapeRow('attributeItemCount', report),
+    shapeRow('attributeVecCapacitySum', report),
+    shapeRow('attributeVecMaxCapacity', report),
     '',
     '## Phase Allocation Attribution',
     '',

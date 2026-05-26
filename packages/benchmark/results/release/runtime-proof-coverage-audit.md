@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T10:46:18.325Z
+Generated: 2026-05-26T10:54:13.571Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -44,11 +44,11 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 259.32 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 303.17 |
 | `quick-xml-allocation-count-stability.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 205.74 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.02 | allocator-counters | yes | 243.53 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 177.44 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 263.86 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 318.65 |
-| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 208.16 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.02 | allocator-counters | yes | 257.43 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 183.37 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 227.89 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 316.77 |
+| `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 205.15 |
 | `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
 | `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 324.67 |

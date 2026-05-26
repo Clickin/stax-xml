@@ -958,6 +958,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /170,824\s+allocation operations/);
   assert.match(markdown, /phase attribution/);
   assert.match(markdown, /`attribute-collection` as the dominant measured allocator phase/);
+  assert.match(markdown, /341,635 attribute collection attempts per\s+run, 170,817 non-empty attribute vectors, 284,695 collected attribute items,\s+683,268 total `Vec` capacity slots, and max capacity 4/);
   assert.match(markdown, /not native stack unwinding/);
   assert.match(markdown, /284,695 borrowed and 0 owned/);
   assert.match(markdown, /repeats the same measured-window allocator counter with `runs=3`/);
@@ -979,6 +980,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /after warmups and after the pre-run\s+`System\.gc\(\)`/);
   assert.match(markdown, /It is allocation-path evidence, not a\s+speed baseline/);
   assert.match(markdown, /not a deterministic allocation census/);
+  assert.match(markdown, /comparator-local attribute `Vec` shape directly/);
   assert.match(markdown, /Bun\/JSC Heap Allocation Profile/);
   assert.match(markdown, /retained heap snapshot pass/);
   assert.match(markdown, /`rawFrameNameId` reported\s+`75\.37 MiB\/s`, `191\.73 MiB` max RSS, 2,198,945 retained heap bytes/);
