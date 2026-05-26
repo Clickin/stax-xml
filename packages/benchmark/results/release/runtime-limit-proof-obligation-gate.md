@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-26T05:59:46.484Z
+Generated: 2026-05-26T06:16:39.412Z
 
 ## Scope
 
@@ -51,6 +51,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `text-materialization-frontier.md` | yes |
 | `text-trim-guard-candidate.md` | yes |
 | `text-ascii-pretrim-candidate.md` | yes |
+| `all-ascii-span-materialization-candidate.md` | yes |
 | `sync-byte-batch-shape-batch1.md` | yes |
 | `sync-byte-batch-shape-batch16.md` | yes |
 | `textdecoder-span-variants.md` | yes |

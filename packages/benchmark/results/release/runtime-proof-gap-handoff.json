@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-26T06:00:01.235Z",
+  "generatedAt": "2026-05-26T06:16:59.638Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "auditGeneratedAt": "2026-05-26T05:55:17.805Z",
+    "auditGeneratedAt": "2026-05-26T06:13:58.546Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -29,8 +29,8 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 153,
-    "measuredRows": 808,
+    "artifactCount": 154,
+    "measuredRows": 810,
     "counterexamples": null,
     "activeObligations": [
       {

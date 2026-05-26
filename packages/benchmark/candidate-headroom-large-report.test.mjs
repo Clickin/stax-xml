@@ -86,6 +86,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
     'rawFrameNameIdTextCache',
     'rawFrameNameIdTrimGuard',
     'rawFrameNameIdAsciiPreTrim',
+    'rawFrameNameIdAllAsciiSpans',
     'rawFrameNameIdLongTextCache',
     'rawFrameNameIdFoldTrim',
     'rawFrameSemanticChecksum',
@@ -116,6 +117,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   const rawNameIdTextCache = report.variants.find(entry => entry.id === 'rawFrameNameIdTextCache');
   const rawNameIdTrimGuard = report.variants.find(entry => entry.id === 'rawFrameNameIdTrimGuard');
   const rawNameIdAsciiPreTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdAsciiPreTrim');
+  const rawNameIdAllAsciiSpans = report.variants.find(entry => entry.id === 'rawFrameNameIdAllAsciiSpans');
   const rawNameIdLongTextCache = report.variants.find(entry => entry.id === 'rawFrameNameIdLongTextCache');
   const rawNameIdFoldTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdFoldTrim');
   const rawSemanticChecksum = report.variants.find(entry => entry.id === 'rawFrameSemanticChecksum');
@@ -159,6 +161,11 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.equal(rawNameIdAsciiPreTrim.materializationCounters.stringFieldReads, rawNameId.materializationCounters.stringFieldReads);
   assert.ok(rawNameIdAsciiPreTrim.materializationCounters.textAsciiPreTrimSkips > 0);
   assert.ok(rawNameIdAsciiPreTrim.materializationCounters.textAsciiPreTrimFallbacks > 0);
+  assert.equal(rawNameIdAllAsciiSpans.fullStringParity, true);
+  assert.equal(rawNameIdAllAsciiSpans.checksum, report.fullStringParity.checksum);
+  assert.equal(rawNameIdAllAsciiSpans.materializationCounters.stringFieldReads, rawNameId.materializationCounters.stringFieldReads);
+  assert.ok(rawNameIdAllAsciiSpans.materializationCounters.asciiSpanMaterializationHits > 0);
+  assert.ok(rawNameIdAllAsciiSpans.materializationCounters.asciiSpanMaterializationFallbacks > 0);
   assert.equal(rawNameIdLongTextCache.fullStringParity, true);
   assert.equal(rawNameIdLongTextCache.checksum, report.fullStringParity.checksum);
   assert.equal(rawNameIdLongTextCache.materializationCounters.stringFieldReads, rawNameId.materializationCounters.stringFieldReads);
@@ -183,6 +190,7 @@ test('large candidate headroom matrix preserves bounded byte-batch contract', ()
   assert.ok(report.findings.some(entry => entry.id === 'text-only-cache-candidate'));
   assert.ok(report.findings.some(entry => entry.id === 'text-trim-guard-candidate'));
   assert.ok(report.findings.some(entry => entry.id === 'ascii-pre-trim-text-candidate'));
+  assert.ok(report.findings.some(entry => entry.id === 'all-ascii-span-materialization-candidate'));
   assert.ok(report.findings.some(entry => entry.id === 'fold-trim-text-checksum-candidate'));
   assert.ok(!report.omittedRows.some(entry => entry.id === 'eventObjectFull'));
   assert.ok(report.omittedRows.some(entry => entry.id === 'projectionLowSelectivity'));
@@ -331,6 +339,7 @@ test('large candidate headroom matrix includes projection rows on projection fix
     'rawFrameNameIdTextCache',
     'rawFrameNameIdTrimGuard',
     'rawFrameNameIdAsciiPreTrim',
+    'rawFrameNameIdAllAsciiSpans',
     'rawFrameNameIdLongTextCache',
     'rawFrameNameIdFoldTrim',
     'rawFrameSemanticChecksum',

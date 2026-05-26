@@ -93,6 +93,7 @@ const requiredArtifactMentions = [
   'text-materialization-frontier.md',
   'text-trim-guard-candidate.md',
   'text-ascii-pretrim-candidate.md',
+  'all-ascii-span-materialization-candidate.md',
   'sync-byte-batch-shape-batch1.md',
   'sync-byte-batch-shape-batch16.md',
   'textdecoder-span-variants.md',

@@ -335,6 +335,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { asciiPreTrimText: true }),
     },
     {
+      id: 'rawFrameNameIdAllAsciiSpans',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache and manual ASCII materialization for all string spans',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { asciiAllSpans: true }),
+    },
+    {
       id: 'rawFrameNameIdLongTextCache',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded long text/CDATA span string cache',
@@ -868,6 +876,20 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const allAsciiSpans = variants.find((entry) => entry.id === 'rawFrameNameIdAllAsciiSpans');
+  if (rawNameId && allAsciiSpans) {
+    findings.push({
+      id: 'all-ascii-span-materialization-candidate',
+      summary: 'rawFrameNameIdAllAsciiSpans keeps the full-string checksum while replacing TextDecoder on any ASCII string span longer than the short-span fast path.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdAllAsciiSpans=${formatRate(allAsciiSpans.mibPerSec)}`,
+        `sameChecksum=${allAsciiSpans.checksum === rawNameId.checksum}`,
+        `asciiSpanHits=${allAsciiSpans.materializationCounters.asciiSpanMaterializationHits}`,
+        `asciiSpanFallbacks=${allAsciiSpans.materializationCounters.asciiSpanMaterializationFallbacks}`,
+      ],
+    });
+  }
   const longTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdLongTextCache');
   if (rawNameId && longTextCache) {
     findings.push({
@@ -1211,7 +1233,17 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
       countStringField(materializationCounters, 'name');
       checksum = foldString(
         checksum,
-        materializeName(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache, materializationCounters, 'name'),
+        materializeName(
+          buffer,
+          nameStarts[index],
+          nameEnds[index],
+          nameIds[index],
+          decoder,
+          nameCache,
+          materializationCounters,
+          'name',
+          options.asciiAllSpans,
+        ),
       );
     }
     if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
@@ -1225,7 +1257,7 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             ? materializeAsciiPreTrimmedTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
-            : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text');
+            : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text', options.asciiAllSpans);
           const textForChecksum = prepareTextForChecksum(value, buffer, start, textEnds[index], options, materializationCounters);
           checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, textForChecksum);
         }
@@ -1249,6 +1281,7 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             nameCache,
             materializationCounters,
             'attrName',
+            options.asciiAllSpans,
           ),
         );
         countStringField(materializationCounters, 'attrValue');
@@ -1262,6 +1295,7 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             valueCache,
             materializationCounters,
             'attrValue',
+            options.asciiAllSpans,
           );
         checksum = foldString(checksum, value);
       }
@@ -1342,7 +1376,7 @@ function consumeRawFrameSemanticChecksum(frame, checksum, eventCount, decoder, m
   return { eventCount, checksum };
 }
 
-function materializeName(buffer, start, end, nameId, decoder, nameCache, materializationCounters, kind) {
+function materializeName(buffer, start, end, nameId, decoder, nameCache, materializationCounters, kind, asciiAllSpans = false) {
   if (nameId < 0 || start < 0) {
     return undefined;
   }
@@ -1353,16 +1387,16 @@ function materializeName(buffer, start, end, nameId, decoder, nameCache, materia
       return cached;
     }
     materializationCounters.rawNameCacheMisses++;
-    const value = decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+    const value = decodeSpan(buffer, start, end, decoder, materializationCounters, kind, asciiAllSpans);
     nameCache[nameId] = value;
     return value;
   }
-  return decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+  return decodeSpan(buffer, start, end, decoder, materializationCounters, kind, asciiAllSpans);
 }
 
-function materializeValue(buffer, start, end, decoder, valueCache, materializationCounters, kind) {
+function materializeValue(buffer, start, end, decoder, valueCache, materializationCounters, kind, asciiAllSpans = false) {
   if (!valueCache) {
-    return decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+    return decodeSpan(buffer, start, end, decoder, materializationCounters, kind, asciiAllSpans);
   }
   const cached = valueCache.get(buffer, start, end);
   if (cached !== undefined) {
@@ -1370,7 +1404,7 @@ function materializeValue(buffer, start, end, decoder, valueCache, materializati
     return cached;
   }
   materializationCounters.rawValueCacheMisses++;
-  const value = decodeSpan(buffer, start, end, decoder, materializationCounters, kind);
+  const value = decodeSpan(buffer, start, end, decoder, materializationCounters, kind, asciiAllSpans);
   valueCache.set(buffer, start, end, value);
   return value;
 }
@@ -1507,10 +1541,20 @@ function isAsciiXmlWhitespace(value) {
   return value === 0x20 || value === 0x09 || value === 0x0a || value === 0x0d;
 }
 
-function decodeSpan(buffer, start, end, decoder, materializationCounters, kind) {
+function decodeSpan(buffer, start, end, decoder, materializationCounters, kind, asciiAllSpans = false) {
   countRawSpanMaterialization(materializationCounters, kind);
   const ascii = decodeShortAsciiSpan(buffer, start, end);
-  return ascii ?? decoder.decode(buffer.subarray(start, end));
+  if (ascii !== undefined) {
+    return ascii;
+  }
+  if (asciiAllSpans && isAsciiSpan(buffer, start, end)) {
+    materializationCounters.asciiSpanMaterializationHits++;
+    return asciiSpanToString(buffer, start, end);
+  }
+  if (asciiAllSpans) {
+    materializationCounters.asciiSpanMaterializationFallbacks++;
+  }
+  return decoder.decode(buffer.subarray(start, end));
 }
 
 function decodeLongAsciiTextSpan(buffer, start, end, decoder, materializationCounters) {
@@ -1711,6 +1755,8 @@ function createMaterializationCounters() {
     textTrimGuardFallbacks: 0,
     textAsciiPreTrimSkips: 0,
     textAsciiPreTrimFallbacks: 0,
+    asciiSpanMaterializationHits: 0,
+    asciiSpanMaterializationFallbacks: 0,
     implicitAttrValueReads: 0,
     eventObjects: 0,
     projectedRecords: 0,

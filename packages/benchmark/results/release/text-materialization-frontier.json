@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T05:36:13.215Z",
+  "generatedAt": "2026-05-26T06:13:25.900Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -14,7 +14,8 @@
       "long-ascii-text-materialization-candidate-stability.json",
       "fold-trimmed-text-candidate-stability.json",
       "text-trim-guard-candidate.json",
-      "text-ascii-pretrim-candidate.json"
+      "text-ascii-pretrim-candidate.json",
+      "all-ascii-span-materialization-candidate.json"
     ]
   },
   "summary": {
@@ -22,7 +23,7 @@
     "scaledArtifactCount": 4,
     "fullRowCount": 4,
     "nearFullWithoutTextRowCount": 4,
-    "negativeCandidateCount": 5,
+    "negativeCandidateCount": 6,
     "fastestFull": {
       "id": "rawFrameNameId",
       "role": "full",
@@ -496,6 +497,40 @@
       "candidatePreservesFullStringParity": true,
       "candidateCrossesTarget": false,
       "rejectedForFullTarget": true
+    },
+    {
+      "family": "all-ascii-span-materialization",
+      "sourceArtifact": "all-ascii-span-materialization-candidate.json",
+      "control": {
+        "id": "rawFrameNameId",
+        "role": "full",
+        "sourceArtifact": "all-ascii-span-materialization-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 109.64,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 45189256,
+        "checksum": 1421012805,
+        "textStringReads": 12324342,
+        "stringFieldReads": 102702850
+      },
+      "candidate": {
+        "id": "rawFrameNameIdAllAsciiSpans",
+        "role": "negative-candidate",
+        "sourceArtifact": "all-ascii-span-materialization-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 68.63,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 45189256,
+        "checksum": 1421012805,
+        "textStringReads": 12324342,
+        "stringFieldReads": 102702850
+      },
+      "candidateToControlRatio": 0.63,
+      "candidatePreservesFullStringParity": true,
+      "candidateCrossesTarget": false,
+      "rejectedForFullTarget": true
     }
   ],
   "findings": [
@@ -539,7 +574,8 @@
         "long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s",
         "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s",
         "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s",
-        "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s"
+        "ascii-byte-pretrim-before-decode: candidate/control=0.99x, candidate=106.35 MiB/s",
+        "all-ascii-span-materialization: candidate/control=0.63x, candidate=68.63 MiB/s"
       ]
     },
     {

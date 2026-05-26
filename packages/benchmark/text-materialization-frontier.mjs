@@ -46,6 +46,12 @@ const negativeArtifacts = [
     candidateId: 'rawFrameNameIdAsciiPreTrim',
     family: 'ascii-byte-pretrim-before-decode',
   },
+  {
+    file: 'all-ascii-span-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdAllAsciiSpans',
+    family: 'all-ascii-span-materialization',
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
